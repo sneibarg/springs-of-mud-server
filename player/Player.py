@@ -47,16 +47,11 @@ class Player:
             self.writer().write(who_line.encode('utf-8'))
         self.writer().write(b'\r\n')
         self.writer().write(players_found.encode('utf-8'))
-        from utilities.player_util import bust_a_prompt
-        bust_a_prompt(self)
 
     def to_player(self, message):
         message += "\r\n"
         self.writer().write(message.encode('utf-8'))
-        from utilities.player_util import bust_a_prompt
-        bust_a_prompt(self)
 
     def to_room(self, player_service, message, pattern):
         player_service.to_room(self, message, pattern)
-        from utilities.player_util import bust_a_prompt
-        bust_a_prompt(self)
+

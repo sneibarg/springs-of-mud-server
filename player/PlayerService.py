@@ -1,19 +1,16 @@
 import requests
 
-from player.Character import Character
-
-from utilities.player_util import visible_players
+from server.LoggerFactory import LoggerFactory
+from event import EventHandler
 
 
 class PlayerService:
     def __init__(self, injector, player_config, character_config):
         self.__name__ = "PlayerService"
-        from server import LoggerFactory
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.injector = injector
         self.player_config = player_config['endpoints']
         self.character_config = character_config['endpoints']
-        from event import EventHandler
         self.event_handler = self.injector.get(EventHandler)
         self.player_list = self.get_accounts()
         self.character_list = self.get_characters()
@@ -31,8 +28,18 @@ class PlayerService:
         return loiterers
 
     def to_room(self, character, message, pattern):
-        from utilities.player_util import to_room
-        to_room(self, character, message, pattern)
+        loiterers = self.get_in_room(character)
+        cloaked_name = "Someone"
+        cloaked = character.cloaked
+        character_name = character.name
+        if pattern is not None:
+            pattern = pattern.replace('%p', cloaked_name if cloaked else character_name)
+            pattern = pattern.replace('%m', message)
+            message = pattern + "\r\n"
+        else:
+            message = message + "\r\n"
+        for in_room in loiterers:
+            in_room.get_writer().write(message.encode('utf-8'))
 
     def get_connected_player(self, name):
         return self.event_handler.character_registry[name]
@@ -81,18 +88,20 @@ class PlayerService:
         return requests.delete(self.character_config['character_endpoint'], json={"characterId": character_id}).json()
 
     def visible(self, player):
-        return visible_players(self, player)
+        visible = []
+        current_character = player.current_character
+        role = current_character.role
+        for name in self.get_connected_players():
+            if name == current_character.name:
+                continue
+            connected = self.get_connected_player(name)
+            if connected.cloaked and role == "player":
+                continue
+            else:
+                visible.append(connected)
+        return visible
 
     def create_account(self, account_name, password):
-        """Create a new player account.
-
-        Parameters:
-        - account_name: the name of the new account
-        - password: the password for the new account
-
-        Returns:
-        The ID of the newly created account.
-        """
         data = {"accountName": account_name, "password": password}
         r = requests.post(self.player_config['account_endpoint'], data=data)
         if r.status_code == 201:
@@ -101,15 +110,6 @@ class PlayerService:
             raise Exception(f"Error creating account: {r.text}")
 
     def create_character(self, character_name, account_id):
-        """Create a new character for an existing player account.
-
-        Parameters:
-        - character_name: the name of the new character
-        - account_id: the ID of the account to create the character for
-
-        Returns:
-        The ID of the newly created character.
-        """
         data = {"characterName": character_name, "accountId": account_id}
         r = requests.post(self.character_config['character_endpoint'], data=data)
         if r.status_code == 201:
@@ -118,16 +118,6 @@ class PlayerService:
             raise Exception(f"Error creating character: {r.text}")
 
     def update_account(self, account_id, account_name=None, password=None):
-        """Update an existing player account.
-
-        Parameters:
-        - account_id: the ID of the account to update
-        - account_name: (optional) the new name for the account
-        - password: (optional) the new password for the account
-
-        Returns:
-        True if the account was updated successfully, False otherwise.
-        """
         data = {}
         if account_name:
             data["accountName"] = account_name
@@ -137,15 +127,6 @@ class PlayerService:
         return r.status_code == 204
 
     def update_character(self, character_id, character_name=None):
-        """Update an existing character.
-
-        Parameters:
-        - character_id: the ID of the character to update
-        - character_name: (optional) the new name for the character
-
-        Returns:
-        True if the character was updated successfully, False otherwise.
-        """
         data = {}
         if character_name:
             data["characterName"] = character_name

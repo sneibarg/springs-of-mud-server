@@ -1,15 +1,15 @@
 import re
 import requests
 
-from command import CommandHandler
 from server.LoggerFactory import LoggerFactory
-from utilities import *
+from command import CommandHandler
 from asyncio import StreamWriter
 from area.AreaService import AreaService
 from mobile import MobileService, RomMobile
 from player import PlayerService, Player, Character
 from event import EventHandler
-
+from object.Item import Item
+from utilities import find_json_object_by_name
 
 lambda_mappings = {
     'p': 'Player',
@@ -32,12 +32,36 @@ lambda_mappings = {
 
 
 def get_class_obj(class_name):
+    """
+    Get class object by name for lambda command execution.
+    All imports are explicitly referenced to ensure they're recognized as used.
+    """
     if class_name == "lambda":
         return None
     elif class_name == "RomRoom":
         return class_name
-    else:
-        return globals()[class_name]
+
+    class_map = {
+        'Player': Player,
+        'Character': Character,
+        'CommandService': None,
+        'PlayerService': PlayerService,
+        'AreaService': AreaService,
+        'MobileService': MobileService,
+        'ObjectService': None,
+        'SkillService': None,
+        'EventHandler': EventHandler,
+        'CommandHandler': CommandHandler,
+        'StreamWriter': StreamWriter,
+        'Mobile': RomMobile,
+        'Item': Item,
+        'str': str,
+    }
+
+    if class_name in class_map:
+        return class_map[class_name]
+
+    return globals().get(class_name)
 
 
 def parse_args(args):
