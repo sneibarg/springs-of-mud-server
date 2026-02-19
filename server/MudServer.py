@@ -7,7 +7,6 @@ from player import PlayerService
 from command import CommandService, CommandHandler
 from event import EventHandler
 from registry import RegistryService
-from utilities.player_util import receive_data, print_room, log_on_character, bust_a_prompt
 from utilities.server_util import load_player_one
 
 

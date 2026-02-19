@@ -1,10 +1,8 @@
-import asyncio
 from asyncio import StreamReader, StreamWriter
 from server.connection import TelnetConnection, ConnectionManager
 from server.session import SessionHandler, SessionPhase, AuthenticationService
 from server.messaging import MessageBus, MessageFormatter
-from server.protocol import Message, MessageType
-from utilities.server_util import generate_diamond
+from server.protocol import MessageType
 from server.LoggerFactory import LoggerFactory
 
 
