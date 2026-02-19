@@ -1,0 +1,49 @@
+{
+  "type": "record",
+  "name": "PlayerCombat",
+  "namespace": "com.springmud.combat",
+  "fields": [
+    {
+      "name": "player_id",
+      "type": "string",
+      "doc": "Unique identifier for the player."
+    },
+    {
+      "name": "timestamp",
+      "type": "long",
+      "logicalType": "timestamp-millis",
+      "doc": "Timestamp of the combat event in milliseconds since the Unix epoch."
+    },
+    {
+      "name": "combat_type",
+      "type": {
+        "type": "enum",
+        "name": "CombatType",
+        "symbols": ["ATTACK", "DEFENSE", "HEAL"]
+      },
+      "doc": "The type of combat action performed by the player."
+    },
+    {
+      "name": "target_id",
+      "type": "string",
+      "doc": "Unique identifier for the target of the combat action (e.g., another player, NPC, or object)."
+    },
+    {
+      "name": "damage_amount",
+      "type": ["null", "int"],
+      "default": null,
+      "doc": "The amount of damage dealt or health restored, depending on the combat type. Null if not applicable."
+    },
+    {
+      "name": "critical_hit",
+      "type": "boolean",
+      "default": false,
+      "doc": "Indicates whether the combat action was a critical hit or not."
+    },
+    {
+      "name": "weapon",
+      "type": "string",
+      "doc": "The weapon used by the player during the combat action."
+    }
+  ]
+}

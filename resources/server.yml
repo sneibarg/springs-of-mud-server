@@ -1,0 +1,45 @@
+mudserver:
+  host: malboji
+  port: 6969
+  debug: false
+  playerone:
+    accountId: 62d2ff6699c3578abe7941c9
+    accountName: sneibarg
+    enabled: false
+  services:
+    commands:
+      endpoints:
+        commands_endpoint: "http://localhost:9080/api/v1/commands"
+    characters:
+      endpoints:
+        characters_endpoint: "http://localhost:9080/api/v1/characters"
+    players:
+      endpoints:
+        players_endpoint: "http://localhost:9080/api/v1/players"
+    classes:
+      endpoints:
+        classes_endpoint: "http://localhost:9080/api/v1/classes"
+    races:
+      endpoints:
+        races_endpoint: "http://localhost:9080/api/v1/races"
+    areas:
+      endpoints:
+        areas_endpoint: "http://localhost:9080/api/v1/areas"
+    rooms:
+      endpoints:
+        rooms_endpoint: "http://localhost:9080/api/v1/rooms"
+    mobiles:
+      endpoints:
+        mobiles_endpoint: "http://localhost:9080/api/v1/mobiles"
+    items:
+      endpoints:
+        items_endpoint: "http://localhost:9080/api/v1/items"
+    shops:
+      endpoints:
+        shops_endpoint: "http://localhost:9080/api/v1/shops"
+    specials:
+      endpoints:
+        specials_endpoint: "http://localhost:9080/api/v1/specials"
+    skills:
+      endpoints:
+        skills_endpoint: "http://localhost:9080/api/v1/skills"

@@ -1,0 +1,219 @@
+[{
+  "_id": {
+    "$oid": "673bf1dbb49d7223c66faa4e"
+  },
+  "name": "disconnect",
+  "shortcuts": "discon, quit",
+  "role": "player",
+  "lambda": [
+    "lambda c: c.writer.write(b\"See you next time.\\r\\n\")",
+    "lambda c: c.writer.close()",
+    "lambda c, eh: eh.unregister_character(c.name)",
+    "lambda c, ps, cs: ps.to_room(c, c.name+\" has disconneced.\", cs.get_message(\"disconnect\"))"
+  ],
+  "message": "%p has disconnected.",
+  "function": [],
+  "enabled": true,
+  "skillId": ""
+},
+{
+  "_id": {
+    "$oid": "673bf1dbb49d7223c66faa4f"
+  },
+  "name": "say",
+  "shortcuts": "s, sa, '",
+  "role": "player",
+  "lambda": [
+    "lambda c, msg: c.to_player(\"You say, '\"+msg+\"'\")",
+    "lambda c, cs, p, ps, msg: p.to_room(ps, msg, cs.get_message(\"say\"))"
+  ],
+  "message": "%p says '%m'",
+  "function": [],
+  "enabled": true,
+  "skillId": ""
+},
+{
+  "_id": {
+    "$oid": "673bf1dbb49d7223c66faa50"
+  },
+  "name": "tell",
+  "shortcuts": "tel",
+  "role": "player",
+  "lambda": [
+    "lambda c, msg, m: c.writer.write(b\"You tell {m.get_name()}, '{msg}'\\r\\n\")",
+    "lambda c, msg, m, eh: eh.to_mobile(c, c.cmd, m, msg)"
+  ],
+  "message": "%p tells you '%m'",
+  "function": [],
+  "enabled": true,
+  "skillId": "",
+  "usage": "lambda c, msg: c.writer.write(b\"Invalid target.\") if m.invalid_target(msg)"
+},
+{
+  "_id": {
+    "$oid": "673bf1dbb49d7223c66faa51"
+  },
+  "name": "who",
+  "shortcuts": "wh",
+  "role": "player",
+  "lambda": [
+    "lambda p, ps: p.print_visible(ps.visible(p))"
+  ],
+  "message": "",
+  "function": [],
+  "enabled": true,
+  "skillId": ""
+},
+{
+  "_id": {
+    "$oid": "673bf1dbb49d7223c66faa52"
+  },
+  "name": "inventory",
+  "shortcuts": "inv, inven, invent",
+  "role": "player",
+  "lambda": [
+    "lambda c: c.writer.write(b\"You are carrying: \\r\\n\") or [i.print_name(c.writer) for i in c.get_items()]"
+  ],
+  "message": "",
+  "function": [],
+  "enabled": true,
+  "skillId": ""
+},
+{
+  "_id": {
+    "$oid": "673bf1dbb49d7223c66faa53"
+  },
+  "name": "inventory",
+  "shortcuts": "inv, inven, invent",
+  "role": "player",
+  "lambda": [
+    "lambda c: c.writer.write(b\"You are carrying: \\r\\n\") or [i.print_name(c.writer) for i in c.get_items()]"
+  ],
+  "message": "",
+  "function": [],
+  "enabled": true,
+  "skillId": ""
+},
+{
+  "_id": {
+    "$oid": "673bf1dbb49d7223c66faa54"
+  },
+  "name": "examine",
+  "shortcuts": "exam, exami, examin",
+  "role": "player",
+  "lambda": [
+    "lambda c, msg, usage: c.get_fuzzy_item(msg, usage).print_description(c.writer) if c.get_fuzzy_item(msg, usage) is not None else None"
+  ],
+  "message": "",
+  "function": [],
+  "enabled": true,
+  "skillId": "",
+  "usage": "lambda m: m.writer.write(b\"You must specify a valid item in your inventory.\\r\\n\")"
+},
+{
+  "_id": {
+    "$oid": "673bf1dbb49d7223c66faa55"
+  },
+  "name": "west",
+  "shortcuts": "w, we, wes",
+  "role": "player",
+  "lambda": [
+    "lambda c, zs: zs.move_mobile(c, \"west\")"
+  ],
+  "message": "",
+  "function": [],
+  "enabled": true,
+  "skillId": ""
+},
+{
+  "_id": {
+    "$oid": "673bf1dbb49d7223c66faa56"
+  },
+  "name": "east",
+  "shortcuts": "e, ea, eas",
+  "role": "player",
+  "lambda": [
+    "lambda c, zs: zs.move_mobile(c, \"east\")"
+  ],
+  "message": "",
+  "function": [
+    ""
+  ],
+  "enabled": true,
+  "skillId": ""
+},
+{
+  "_id": {
+    "$oid": "673bf1dbb49d7223c66faa57"
+  },
+  "name": "north",
+  "shortcuts": "n, nor, nort",
+  "role": "player",
+  "lambda": [
+    "lambda c, zs:zs.move_mobile(c, \"north\")"
+  ],
+  "message": "%c has left the room, heading north.",
+  "function": [],
+  "enabled": true,
+  "skillId": ""
+},
+{
+  "_id": {
+    "$oid": "673bf1dbb49d7223c66faa58"
+  },
+  "name": "south",
+  "shortcuts": "s, so, sou, sout",
+  "role": "player",
+  "lambda": [
+    "lambda c, zs: zs.move_mobile(c, \"south\")"
+  ],
+  "message": "",
+  "function": [],
+  "enabled": true,
+  "skillId": ""
+},
+{
+  "_id": {
+    "$oid": "673bf1dbb49d7223c66faa59"
+  },
+  "name": "look",
+  "shortcuts": "lo, loo",
+  "role": "player",
+  "lambda": [
+    "lambda c, zs, r: zs.print_description(c.writer, r)"
+  ],
+  "message": "",
+  "function": [],
+  "enabled": true,
+  "skillId": ""
+},
+{
+  "_id": {
+    "$oid": "673bf1dbb49d7223c66faa5a"
+  },
+  "name": "up",
+  "shortcuts": "u",
+  "role": "player",
+  "lambda": [
+    "lambda c, zs: zs.move_mobile(c, \"up\")"
+  ],
+  "message": "",
+  "function": [],
+  "enabled": true,
+  "skillId": ""
+},
+{
+  "_id": {
+    "$oid": "673bf1dbb49d7223c66faa5b"
+  },
+  "name": "down",
+  "shortcuts": "d",
+  "role": "player",
+  "lambda": [
+    "lambda c, zs: zs.move_mobile(c, \"down\")"
+  ],
+  "message": "",
+  "function": [],
+  "enabled": true,
+  "skillId": ""
+}]
