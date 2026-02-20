@@ -40,12 +40,10 @@ class TelnetProtocol:
                 i += 1
                 if i < length:
                     cmd = data[i]
-                    # Commands with options
                     if cmd in (TelnetProtocol.DO, TelnetProtocol.DONT,
                               TelnetProtocol.WILL, TelnetProtocol.WONT):
-                        i += 1  # Skip the option byte
+                        i += 1
                     elif cmd == TelnetProtocol.SB:
-                        # Skip until SE (Subnegotiation End)
                         i += 1
                         while i < length - 1 and not (data[i] == TelnetProtocol.IAC
                                                       and data[i+1] == TelnetProtocol.SE):

@@ -1,6 +1,6 @@
 from typing import Optional, Tuple
 from server.connection import Connection
-from server.protocol import Message, MessageType
+from server.protocol import MessageType
 from .SessionState import SessionState, SessionPhase
 
 
@@ -105,7 +105,7 @@ class AuthenticationService:
     def _get_account(self, account_name: str) -> Optional[dict]:
         """Get account by name"""
         try:
-            from utilities.server_util import camel_to_snake_case
+            from server.server_util import camel_to_snake_case
             account = self.player_service.get_account_by_name(account_name)
             if account:
                 return camel_to_snake_case(account)
@@ -174,7 +174,7 @@ class AuthenticationService:
     def _get_account_by_id(self, account_id: str) -> Optional[dict]:
         """Get account by ID"""
         try:
-            from utilities.server_util import camel_to_snake_case
+            from server.server_util import camel_to_snake_case
             account = self.player_service.get_account_by_id(account_id)
             if account:
                 return camel_to_snake_case(account)

@@ -3,7 +3,7 @@ import requests
 from area.RomArea import RomArea
 from area.RomRoom import RomRoom
 from registry import RegistryService
-from utilities.server_util import camel_to_snake_case, is_valid_direction
+from server.server_util import camel_to_snake_case, is_valid_direction
 
 
 class AreaService:

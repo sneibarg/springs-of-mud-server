@@ -6,8 +6,8 @@ from uuid import uuid1
 from injector import Injector
 from object.Item import Item
 from server import LoggerFactory
-from utilities.mobile_util import move_mobile
-from utilities.player_util import print_room
+from mobile.mobile_util import move_mobile
+from player.player_util import print_room
 
 
 @dataclass

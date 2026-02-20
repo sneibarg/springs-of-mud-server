@@ -27,7 +27,7 @@ class Item:
     @classmethod
     def from_json(cls, data):
         import json
-        from utilities.server_util import camel_to_snake_case
+        from server.server_util import camel_to_snake_case
         data = camel_to_snake_case(json.loads(data))
         return cls(**data)
 

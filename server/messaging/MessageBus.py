@@ -48,17 +48,12 @@ class MessageBus:
         """
         exclude = exclude_player_ids or []
         count = 0
-
-        # Get all playing sessions
         sessions = self.session_handler.get_playing_sessions()
 
         for session in sessions:
-            # Check if player is in the room (would need Character integration)
             if session.player_id in exclude:
                 continue
 
-            # For now, we'll need to check character location
-            # This requires integration with Character/Area services
             if await self.send_to_player(session.player_id, message):
                 count += 1
 

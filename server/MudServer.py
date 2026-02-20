@@ -7,7 +7,7 @@ from player import PlayerService
 from command import CommandService, CommandHandler
 from event import EventHandler
 from registry import RegistryService
-from utilities.server_util import load_player_one
+from server.server_util import load_player_one
 
 
 class MudServer:

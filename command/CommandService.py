@@ -9,7 +9,7 @@ from mobile import MobileService, RomMobile
 from player import PlayerService, Player, Character
 from event import EventHandler
 from object.Item import Item
-from utilities import find_json_object_by_name
+from server.server_util import find_json_object_by_name
 
 lambda_mappings = {
     'p': 'Player',

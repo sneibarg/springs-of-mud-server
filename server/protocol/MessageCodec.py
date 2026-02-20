@@ -43,10 +43,8 @@ class MessageCodec:
         elif msg_type == MessageType.SYSTEM:
             text = data.get('text', '')
         else:
-            # Default: just use the text field
             text = data.get('text', str(data))
 
-        # Ensure text ends with CRLF for telnet
         if not text.endswith('\r\n'):
             text += '\r\n'
 
@@ -59,23 +57,18 @@ class MessageCodec:
         Checks for JSON first, then treats as command.
         """
         text = data.decode('utf-8').strip()
-
-        # Empty input
         if not text:
             return Message(type=MessageType.INPUT, data={'text': ''})
 
-        # Check if it's JSON
         if MessageCodec.is_json(data):
             try:
                 return MessageCodec.decode_json(data)
             except Exception:
-                pass  # Fall through to text parsing
+                pass
 
-        # Check for special logon command format
         if text.startswith('logon '):
             parts = text.split(maxsplit=1)
             if len(parts) == 2:
-                # Try to parse as JSON payload
                 try:
                     payload = json.loads(parts[1])
                     return Message(
@@ -83,14 +76,9 @@ class MessageCodec:
                         data=payload
                     )
                 except json.JSONDecodeError:
-                    # Fall through to regular command
                     pass
 
-        # Parse as regular command
-        return Message(
-            type=MessageType.COMMAND,
-            data={'text': text}
-        )
+        return Message(type=MessageType.COMMAND, data={'text': text})
 
     @staticmethod
     def is_json(data: bytes) -> bool:

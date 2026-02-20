@@ -38,23 +38,14 @@ class ConnectionHandler:
             peer_info = connection.get_peer_info()
             self.logger.info(f"New connection from {peer_info}: session {session.session_id}")
 
-            # Send welcome message
             await self._send_welcome(connection)
-
-            # Wait for authentication (either legacy or payload-based)
-            auth_service = AuthenticationService(
-                self.injector.get(self.mud_server.player_service_class),
-                self.injector
-            )
+            auth_service = AuthenticationService(self.injector.get(self.mud_server.player_service_class), self.injector)
 
             authenticated = False
             character_data = None
 
-            # Wait for first message to determine auth method
             first_msg = await connection.receive_message()
-
             if first_msg and first_msg.type == MessageType.CHAR_LOGON:
-                # Payload-based authentication from UI client
                 self.logger.info(f"Payload-based auth attempt on session {session.session_id}")
                 success, player_id, character_data = await auth_service.authenticate_with_payload(
                     connection, session, first_msg.data
@@ -76,8 +67,6 @@ class ConnectionHandler:
                 ansi_enabled = await self._prompt_ansi(connection)
                 connection.set_ansi_enabled(ansi_enabled)
                 session.ansi_enabled = ansi_enabled
-
-                # Authenticate with username/password
                 while session.can_authenticate() and not authenticated:
                     success, player_id = await auth_service.authenticate(connection, session)
                     if success:
@@ -94,10 +83,8 @@ class ConnectionHandler:
                 if not authenticated:
                     return
 
-                # Select character
                 attempts = 0
                 max_attempts = 3
-
                 while attempts < max_attempts and not character_data:
                     character_data = await auth_service.select_character(connection, session)
                     attempts += 1
@@ -111,10 +98,8 @@ class ConnectionHandler:
 
                 if not character_data:
                     return
-
-            # Create character object
             from player.Character import Character
-            from utilities.server_util import camel_to_snake_case
+            from server.server_util import camel_to_snake_case
             import threading
 
             character_definition = camel_to_snake_case(character_data)
@@ -122,26 +107,16 @@ class ConnectionHandler:
             character_definition['writer'] = writer
             character_definition['reader'] = reader
             character_definition['lock'] = threading.Lock()
-
             character = Character.from_json(character_definition)
-
-            # Get or create player object
             from player import PlayerService
             player_service = self.injector.get(PlayerService)
             player = self._get_or_create_player(session, character)
-
-            # Register character with event handler
             from event import EventHandler
             event_handler = self.injector.get(EventHandler)
             event_handler.register_character(character)
-
-            # Enter playing phase
             session.phase = SessionPhase.PLAYING
 
-            # Show room
             await self._show_room(connection, character)
-
-            # Send prompt
             await self.message_bus.send_prompt(
                 session.player_id,
                 character.health,
@@ -149,13 +124,11 @@ class ConnectionHandler:
                 character.movement
             )
 
-            # Enter game loop
             await self._game_loop(connection, session, player, character)
 
         except Exception as e:
             self.logger.error(f"Error handling connection: {e}", exc_info=True)
         finally:
-            # Cleanup
             if connection:
                 await connection.close()
             if session:
@@ -167,8 +140,7 @@ class ConnectionHandler:
 
     async def _send_welcome(self, connection: TelnetConnection) -> None:
         """Send welcome message"""
-        # art = generate_diamond()
-        welcome = f"Welcome to the server!\n\n\n\n"  #{art}\n\n\n\n"
+        welcome = f"Welcome to the server!\n\n\n\n"
         await connection.send_text(welcome, MessageType.WELCOME)
 
     async def _prompt_ansi(self, connection: TelnetConnection) -> bool:
@@ -187,8 +159,6 @@ class ConnectionHandler:
         area_service = self.injector.get(AreaService)
 
         room = area_service.get_registry().room_registry[character.room_id]
-
-        # Format room description
         exits = []
         if room.exit_north: exits.append("north")
         if room.exit_south: exits.append("south")
@@ -204,7 +174,7 @@ class ConnectionHandler:
         """Get or create Player object for session"""
         from player import PlayerService
         from player.Player import Player
-        from utilities.server_util import camel_to_snake_case
+        from server.server_util import camel_to_snake_case
 
         player_service = self.injector.get(PlayerService)
         account = player_service.get_account_by_id(session.player_id)
@@ -231,8 +201,6 @@ class ConnectionHandler:
                     break
 
                 session.update_activity()
-
-                # Handle empty input
                 if message.type == MessageType.INPUT and not message.get('text'):
                     await self.message_bus.send_prompt(
                         session.player_id,
@@ -242,18 +210,10 @@ class ConnectionHandler:
                     )
                     continue
 
-                # Handle command
                 if message.type == MessageType.COMMAND:
                     command_text = message.get('text', '')
                     command_handler.handle_command(player, command_text)
-
-                    # Send prompt after command
-                    await self.message_bus.send_prompt(
-                        session.player_id,
-                        character.health,
-                        character.mana,
-                        character.movement
-                    )
+                    await self.message_bus.send_prompt(session.player_id, character.health, character.mana, character.movement)
 
             except Exception as e:
                 self.logger.error(f"Error in game loop: {e}", exc_info=True)
