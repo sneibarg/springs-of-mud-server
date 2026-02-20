@@ -1,4 +1,5 @@
 import threading
+
 from asyncio import StreamWriter, StreamReader
 from dataclasses import dataclass, field
 from typing import Optional, Dict, List
@@ -48,7 +49,6 @@ class Character:
     loot: Dict[str, object] = field(default_factory=dict)
     # statuses: List[str] = field(default_factory=list)
     # skills: List[str] = field(default_factory=list)
-    # cmd: Optional[str] = None
     writer: Optional[StreamWriter] = None
     reader: Optional[StreamReader] = None
     lock: threading.Lock = field(default_factory=threading.Lock)
@@ -79,6 +79,7 @@ class Character:
             if lootable.name.startswith(fuzzy_item) or fuzzy_item == lootable.name:
                 return lootable
         usage(self)
+        return None
 
     @classmethod
     def from_json(cls, data):

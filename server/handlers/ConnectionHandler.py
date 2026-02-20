@@ -4,6 +4,8 @@ from server.session import SessionHandler, SessionPhase, AuthenticationService
 from server.messaging import MessageBus, MessageFormatter
 from server.protocol import MessageType
 from server.LoggerFactory import LoggerFactory
+from area.AreaService import AreaService
+from command import CommandHandler
 
 
 class ConnectionHandler:
@@ -21,29 +23,21 @@ class ConnectionHandler:
         self.logger = LoggerFactory.get_logger(__name__)
 
     async def handle_new_connection(self, reader: StreamReader, writer: StreamWriter) -> None:
-        """
-        Handle a new client connection.
-        This is the main entry point for new connections.
-        """
         connection = None
         session = None
 
         try:
-            # Create connection and session
             connection = TelnetConnection(reader, writer)
             session = self.session_handler.create_session(connection.session_id)
 
             self.connection_manager.add_connection(connection)
-
             peer_info = connection.get_peer_info()
             self.logger.info(f"New connection from {peer_info}: session {session.session_id}")
 
             await self._send_welcome(connection)
             auth_service = AuthenticationService(self.injector.get(self.mud_server.player_service_class), self.injector)
-
             authenticated = False
             character_data = None
-
             first_msg = await connection.receive_message()
             if first_msg and first_msg.type == MessageType.CHAR_LOGON:
                 self.logger.info(f"Payload-based auth attempt on session {session.session_id}")
@@ -62,8 +56,6 @@ class ConnectionHandler:
             else:
                 # Legacy authentication flow
                 self.logger.info(f"Legacy auth flow on session {session.session_id}")
-
-                # Prompt for ANSI support
                 ansi_enabled = await self._prompt_ansi(connection)
                 connection.set_ansi_enabled(ansi_enabled)
                 session.ansi_enabled = ansi_enabled
@@ -74,10 +66,8 @@ class ConnectionHandler:
                         self.connection_manager.bind_player(player_id, session.session_id)
                         self.logger.info(f"Player {player_id} authenticated on session {session.session_id}")
                     elif session.auth_attempts >= 3:
-                        await connection.send_text(
-                            "You have exceeded the number of attempts. Connection will be terminated.\r\n",
-                            MessageType.ERROR
-                        )
+                        text = f"You have exceeded the number of attempts. Connection will be terminated.\r\n"
+                        await connection.send_text(text, MessageType.ERROR)
                         return
 
                 if not authenticated:
@@ -90,10 +80,8 @@ class ConnectionHandler:
                     attempts += 1
 
                     if not character_data and attempts >= max_attempts:
-                        await connection.send_text(
-                            "Logging you off until you can stop making typos.\r\n",
-                            MessageType.ERROR
-                        )
+                        text = "Logging you off until you can stop making typos.\r\n"
+                        await connection.send_text(text, MessageType.ERROR)
                         return
 
                 if not character_data:
@@ -117,15 +105,8 @@ class ConnectionHandler:
             session.phase = SessionPhase.PLAYING
 
             await self._show_room(connection, character)
-            await self.message_bus.send_prompt(
-                session.player_id,
-                character.health,
-                character.mana,
-                character.movement
-            )
-
+            await self.message_bus.send_prompt(session.player_id, character.health, character.mana, character.movement)
             await self._game_loop(connection, session, player, character)
-
         except Exception as e:
             self.logger.error(f"Error handling connection: {e}", exc_info=True)
         finally:
@@ -139,12 +120,10 @@ class ConnectionHandler:
             self.logger.info(f"Connection closed: {peer_info if connection else 'unknown'}")
 
     async def _send_welcome(self, connection: TelnetConnection) -> None:
-        """Send welcome message"""
         welcome = f"Welcome to the server!\n\n\n\n"
         await connection.send_text(welcome, MessageType.WELCOME)
 
     async def _prompt_ansi(self, connection: TelnetConnection) -> bool:
-        """Prompt for ANSI support"""
         await connection.send_text("Do you want ANSI colors? (Y/N) ", MessageType.ANSI_PROMPT)
         msg = await connection.receive_message()
 
@@ -154,12 +133,10 @@ class ConnectionHandler:
         return False
 
     async def _show_room(self, connection: TelnetConnection, character) -> None:
-        """Show current room to character"""
-        from area.AreaService import AreaService
         area_service = self.injector.get(AreaService)
-
         room = area_service.get_registry().room_registry[character.room_id]
         exits = []
+
         if room.exit_north: exits.append("north")
         if room.exit_south: exits.append("south")
         if room.exit_east: exits.append("east")
@@ -171,7 +148,6 @@ class ConnectionHandler:
         await connection.send_message(message)
 
     def _get_or_create_player(self, session, character):
-        """Get or create Player object for session"""
         from player import PlayerService
         from player.Player import Player
         from server.server_util import camel_to_snake_case
@@ -189,25 +165,17 @@ class ConnectionHandler:
         return None
 
     async def _game_loop(self, connection: TelnetConnection, session, player, character) -> None:
-        """Main game loop for handling player commands"""
-        from command import CommandHandler
         command_handler = self.injector.get(CommandHandler)
 
         while not connection.is_closed() and session.is_playing():
             try:
                 message = await connection.receive_message()
-
                 if not message:
                     break
 
                 session.update_activity()
                 if message.type == MessageType.INPUT and not message.get('text'):
-                    await self.message_bus.send_prompt(
-                        session.player_id,
-                        character.health,
-                        character.mana,
-                        character.movement
-                    )
+                    await self.message_bus.send_prompt(session.player_id, character.health, character.mana, character.movement)
                     continue
 
                 if message.type == MessageType.COMMAND:

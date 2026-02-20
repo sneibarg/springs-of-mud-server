@@ -1,14 +1,15 @@
 import re
+
 from typing import Union, Any
+from command.CommandService import CommandService
+from server.LoggerFactory import LoggerFactory
 
 
 class CommandHandler:
     def __init__(self, injector):
         self.__name__ = "CommandHandler"
-        from server import LoggerFactory
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.injector = injector
-        from command import CommandService
         self.command_list = self.injector.get(CommandService).command_list
         self.logger.info("Initialized CommandHandler instance.")
 
@@ -22,12 +23,8 @@ class CommandHandler:
         if cmd is not None and "usage" in cmd:
             usage = cmd['usage']
 
-        cmd_text = "CMD: "+cmd['name'] + ", PARAMETERS: "+parameters
-        usg_text = "USAGE: "+str(usage)
-        print(cmd_text)
-        print(usg_text)
-        self.logger.info(cmd_text)
-        self.logger.info(usg_text)
+        self.logger.info("CMD: "+cmd['name'] + ", PARAMETERS: "+parameters)
+        self.logger.info("USAGE: "+str(usage))
         if usage is not None:
             usage_function = eval(usage)
             if not callable(usage_function):
@@ -35,7 +32,6 @@ class CommandHandler:
             else:
                 player.set_usage(usage_function)
 
-        from command import CommandService
         return self.injector.get(CommandService).call_lambda(player, cmd['name'], self.command_list, parameters)
 
     def extract_parameters(self, command: str) -> Union[tuple[Any, str], tuple[None, None]]:
