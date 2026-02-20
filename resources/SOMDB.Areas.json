@@ -1,0 +1,509 @@
+[{
+  "_id": {
+    "$oid": "673bf207365ea123f1f24771"
+  },
+  "author": "Copper",
+  "name": "In the Air",
+  "suggestedLevelRange": "5 10",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf208b9e69a28d3d3e8b9"
+  },
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf2088e60a3ee18e0d207"
+  },
+  "author": "Sandman",
+  "name": "Dwarven Day Care",
+  "suggestedLevelRange": "1  5",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf208767e419b20dc66c5"
+  },
+  "author": "Furey",
+  "name": "Machine Dreams",
+  "suggestedLevelRange": "1  5",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf208d30d298837d3a7f6"
+  },
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf208a04079b47ffb1cb8"
+  },
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf208330951c09d377ce6"
+  },
+  "author": "Mahatma",
+  "name": "Arachnos",
+  "suggestedLevelRange": "5 20",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf208e856a966a458b92b"
+  },
+  "author": "ROM",
+  "name": "Immortal Zone",
+  "suggestedLevelRange": "51 60",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf208bcb77678471fc625"
+  },
+  "author": "Dylan",
+  "name": "Dylan's Area",
+  "suggestedLevelRange": "15 25",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf208c6406e082da84ef8"
+  },
+  "author": "Drkside",
+  "name": "Drow City",
+  "suggestedLevelRange": "15 25",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf2087025b3122a0ffe2a"
+  },
+  "author": "Alfa",
+  "name": "Graveyard",
+  "suggestedLevelRange": "5 10",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf2082051d585d6db1846"
+  },
+  "author": "Anon",
+  "name": "Sands of Sorrow",
+  "suggestedLevelRange": "10 20",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf2081fb091fd66f36f6d"
+  },
+  "author": "Diku",
+  "name": "Haon Dor",
+  "suggestedLevelRange": "5 10",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf2086115a2ab8bc0531d"
+  },
+  "author": "Alfa",
+  "name": "Holy Grove",
+  "suggestedLevelRange": "5 20",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf20864201b73b6c8e0f3"
+  },
+  "author": "Generic",
+  "name": "Old Marsh",
+  "suggestedLevelRange": "15 25",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf2086d75a58fa2c18a59"
+  },
+  "author": "Copper",
+  "name": "Chapel Catacombs",
+  "suggestedLevelRange": "15 25",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf2084f96ccb1a2664eba"
+  },
+  "author": "Wench",
+  "name": "Dragon Tower",
+  "suggestedLevelRange": "5 30",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf20811e9e80a96fce62c"
+  },
+  "author": "Doctor",
+  "name": "Galaxy",
+  "suggestedLevelRange": "20 30",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf208687bc07e964b9f71"
+  },
+  "author": "Anon",
+  "name": "Dwarven Kingdom",
+  "suggestedLevelRange": "10 25",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf208eb5914dddc3661bc"
+  },
+  "author": "Raff",
+  "name": "Dwarven Catacombs",
+  "suggestedLevelRange": "10 20",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf208791e72fc536f5e55"
+  },
+  "author": "Vougon",
+  "name": "Gnome Village",
+  "suggestedLevelRange": "5 15",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf2083683e89e82f4f159"
+  },
+  "author": "Raff",
+  "name": "Elemental Canyon",
+  "suggestedLevelRange": "5 30",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf208bdc2dce93ec9b309"
+  },
+  "author": "Andersen",
+  "name": "Astral/Githyanki",
+  "suggestedLevelRange": "10 35",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf20865417793997469dd"
+  },
+  "author": "Raff",
+  "name": "Dangerous Neighborhood",
+  "suggestedLevelRange": "5 15",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf2093e31a458bc91b4ca"
+  },
+  "author": "Glop",
+  "name": "Mega-City One ",
+  "suggestedLevelRange": "5 35",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf2081757439189c2d638"
+  },
+  "author": "Chris",
+  "name": "The Keep of Mahn-Tor",
+  "suggestedLevelRange": "5 35",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf20a6a5b0f32a2928801"
+  },
+  "author": "Copper",
+  "name": "Miden'nir",
+  "suggestedLevelRange": "5 15",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf20814a6f499fe55813e"
+  },
+  "author": "Skylar",
+  "name": "High Tower of Sorcery",
+  "suggestedLevelRange": "10 30",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf20d6be559b0d971353e"
+  },
+  "author": "PinkF",
+  "name": "Mob Factory",
+  "suggestedLevelRange": "5 15",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf20a4fe76758d3088d4f"
+  },
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf20cdbfc80ec09e6d3e2"
+  },
+  "author": "Kahn",
+  "name": "Old Thalos",
+  "suggestedLevelRange": "1 30",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf20e802af07973e148da"
+  },
+  "author": "Alfa",
+  "name": "Moria",
+  "suggestedLevelRange": "5 15",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf20fa603d9e53bb63e8d"
+  },
+  "author": "Fstall",
+  "name": "Nirvana",
+  "suggestedLevelRange": "30 35",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf20feaa5f785909b6495"
+  },
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf21134a2fef5fe526359"
+  },
+  "author": "Quifael",
+  "name": "Quifael's Area",
+  "suggestedLevelRange": "31 35",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf211496f3a48c1d8fe68"
+  },
+  "author": "Merc",
+  "name": "Prototype for New Area",
+  "suggestedLevelRange": "5 35",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf2118fd09f37751a7c5c"
+  },
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf211db8aa9f4512041b9"
+  },
+  "author": "Copper",
+  "name": "Plains of the North",
+  "suggestedLevelRange": "1 20",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf2117ef41897698e3e91"
+  },
+  "author": "Diku",
+  "name": "Redferne's Residence",
+  "suggestedLevelRange": "20 30",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf21189e37bdf47cf11f1"
+  },
+  "author": "Hatchet",
+  "name": "Mud School",
+  "suggestedLevelRange": "1  5",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf2149bc34458b58e40e3"
+  },
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf2138bdeac876e0da595"
+  },
+  "author": "Generic",
+  "name": "Smurf Village",
+  "suggestedLevelRange": "1 10",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf211211296e38edb50b6"
+  },
+  "author": "Generic",
+  "name": "Olympus",
+  "suggestedLevelRange": "5 50",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf211ea5ee3ec54861180"
+  },
+  "author": "Andersen",
+  "name": "The Great Pyramid",
+  "suggestedLevelRange": "5-50",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf211a69c57ab662ba639"
+  },
+  "author": "Diku",
+  "name": "Sewer",
+  "suggestedLevelRange": "5 30",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf21425a0659658dd8936"
+  },
+  "author": "Merc",
+  "name": "Troll Den",
+  "suggestedLevelRange": "10 15",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf2145932e7dd0c27a770"
+  },
+  "author": "Drkside",
+  "name": "Thalos",
+  "suggestedLevelRange": "10 25",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf2117ef8977369025f02"
+  },
+  "author": "Poohb",
+  "name": "The Shire",
+  "suggestedLevelRange": "5 35",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf214e738a9e5d85c03ad"
+  },
+  "author": "Tyrst",
+  "name": "Wyvern's Tower",
+  "suggestedLevelRange": "5 30",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf214aa061661d6769b5b"
+  },
+  "author": "Strahd",
+  "name": "Descent to Hell",
+  "suggestedLevelRange": "32 51",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf21492e2a0173f153294"
+  },
+  "author": "Hatchet",
+  "name": "Valley of the Elves",
+  "suggestedLevelRange": "5 20",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf210770094889c86e9f1"
+  },
+  "author": "Hatchet",
+  "name": "New Ofcol",
+  "suggestedLevelRange": "5 35",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+},
+{
+  "_id": {
+    "$oid": "673bf20f3a17db15c645936d"
+  },
+  "author": "Conner",
+  "name": "New Thalos",
+  "suggestedLevelRange": "10 35",
+  "rooms": [],
+  "_class": "com.springmud.mongodb.area.repository.RomArea"
+}]

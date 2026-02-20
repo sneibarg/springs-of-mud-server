@@ -1,0 +1,5153 @@
+[{
+  "_id": {
+    "$oid": "673bf2086a00452f3fcaf568"
+  },
+  "areaId": "673bf208a04079b47ffb1cb8",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2083279a7ea47a2c134"
+  },
+  "areaId": "673bf208e856a966a458b92b",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2080aff8d37c9782717"
+  },
+  "areaId": "673bf208a04079b47ffb1cb8",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2083cfbc4e5158087a3"
+  },
+  "areaId": "673bf208e856a966a458b92b",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208df262081c9f898b7"
+  },
+  "areaId": "673bf208a04079b47ffb1cb8",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2080c3d18990ef235a3"
+  },
+  "areaId": "673bf208e856a966a458b92b",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208108ab099d4ade231"
+  },
+  "areaId": "673bf2088e60a3ee18e0d207",
+  "mobVnum": "6600",
+  "specialFunction": "spec_thief",
+  "comment": "the dwarven youth",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208443cd15430f56ddf"
+  },
+  "areaId": "673bf2088e60a3ee18e0d207",
+  "mobVnum": "6604",
+  "specialFunction": "spec_thief",
+  "comment": "the ugly bear",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2089919440271353b8b"
+  },
+  "areaId": "673bf207365ea123f1f24771",
+  "mobVnum": "1000",
+  "specialFunction": "spec_cast_mage",
+  "comment": "A fairy dragon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208efa81295bdf3c48b"
+  },
+  "areaId": "673bf2088e60a3ee18e0d207",
+  "mobVnum": "6606",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the nanny",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208da5da8b659ee9b4d"
+  },
+  "areaId": "673bf207365ea123f1f24771",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20861cdea20ed9867aa"
+  },
+  "areaId": "673bf2088e60a3ee18e0d207",
+  "mobVnum": "6608",
+  "specialFunction": "spec_thief",
+  "comment": "the spoiled brat",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2089716ac95ab233a79"
+  },
+  "areaId": "673bf207365ea123f1f24771",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20886e7e13dff2d46fb"
+  },
+  "areaId": "673bf2088e60a3ee18e0d207",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2086a188e1b9c5d7564"
+  },
+  "areaId": "673bf207365ea123f1f24771",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2082cf4f222741483bc"
+  },
+  "areaId": "673bf2088e60a3ee18e0d207",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2080ef63fb3dd30e8c3"
+  },
+  "areaId": "673bf208767e419b20dc66c5",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2081bcd4a1341ae3b05"
+  },
+  "areaId": "673bf2088e60a3ee18e0d207",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208d75284b98bde8f20"
+  },
+  "areaId": "673bf208767e419b20dc66c5",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208245e09384ae9d01a"
+  },
+  "areaId": "673bf208767e419b20dc66c5",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2085a038692039126a2"
+  },
+  "areaId": "673bf20864201b73b6c8e0f3",
+  "mobVnum": "8309",
+  "specialFunction": "spec_poison",
+  "comment": "the monstrous snake",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208a5736860d96dc183"
+  },
+  "areaId": "673bf20864201b73b6c8e0f3",
+  "mobVnum": "8310",
+  "specialFunction": "spec_poison",
+  "comment": "a large snake",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20836ddbc20d07f92d3"
+  },
+  "areaId": "673bf20864201b73b6c8e0f3",
+  "mobVnum": "8312",
+  "specialFunction": "spec_thief",
+  "comment": "the Marsh Hag",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208d498671dacabfa27"
+  },
+  "areaId": "673bf20864201b73b6c8e0f3",
+  "mobVnum": "8313",
+  "specialFunction": "spec_cast_undead",
+  "comment": "a Death Slaad",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2080e1ee17077c8856e"
+  },
+  "areaId": "673bf2087025b3122a0ffe2a",
+  "mobVnum": "3601",
+  "specialFunction": "spec_cast_undead",
+  "comment": "the rotting zombie",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208f8bf2b084b1fad83"
+  },
+  "areaId": "673bf20864201b73b6c8e0f3",
+  "mobVnum": "8319",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the orc shaman",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20887f6ca4c3d10ca5b"
+  },
+  "areaId": "673bf2087025b3122a0ffe2a",
+  "mobVnum": "3602",
+  "specialFunction": "spec_cast_undead",
+  "comment": "the ghastly ghoul",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208a96451ce5705718a"
+  },
+  "areaId": "673bf20864201b73b6c8e0f3",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208f43d61145ec242db"
+  },
+  "areaId": "673bf2086115a2ab8bc0531d",
+  "mobVnum": "8900",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "The Hierophant",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208fda674c2899cbac2"
+  },
+  "areaId": "673bf2087025b3122a0ffe2a",
+  "mobVnum": "3603",
+  "specialFunction": "spec_cast_undead",
+  "comment": "a dusty skeleton",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20876ac9d9f811ae92f"
+  },
+  "areaId": "673bf20864201b73b6c8e0f3",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208fc88bef3d44d1f08"
+  },
+  "areaId": "673bf2086115a2ab8bc0531d",
+  "mobVnum": "8901",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "The Hierophant",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208413386bd217b05bb"
+  },
+  "areaId": "673bf2087025b3122a0ffe2a",
+  "mobVnum": "3604",
+  "specialFunction": "spec_cast_undead",
+  "comment": "a dusty skeleton",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208a8a3d6c9560b387a"
+  },
+  "areaId": "673bf20864201b73b6c8e0f3",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2080c9eb71cb4d7b855"
+  },
+  "areaId": "673bf2086115a2ab8bc0531d",
+  "mobVnum": "8902",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "an elder druid",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20807698c28d6a48c7f"
+  },
+  "areaId": "673bf2087025b3122a0ffe2a",
+  "mobVnum": "3605",
+  "specialFunction": "spec_cast_undead",
+  "comment": "the rotting zombie",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208b73f27e45862af5c"
+  },
+  "areaId": "673bf2086115a2ab8bc0531d",
+  "mobVnum": "8903",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "an elder druidess",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2089e9d7e57a41fa48a"
+  },
+  "areaId": "673bf2087025b3122a0ffe2a",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208a977ebc5e90d75ab"
+  },
+  "areaId": "673bf2086115a2ab8bc0531d",
+  "mobVnum": "8908",
+  "specialFunction": "spec_poison",
+  "comment": "a harmless snake",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20856e8c622b8ce37ed"
+  },
+  "areaId": "673bf2087025b3122a0ffe2a",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20818d4590bf802828f"
+  },
+  "areaId": "673bf2086115a2ab8bc0531d",
+  "mobVnum": "8909",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "a druid",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2080f32aa061d62ae37"
+  },
+  "areaId": "673bf2087025b3122a0ffe2a",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20894f23b13ffa66e06"
+  },
+  "areaId": "673bf2086115a2ab8bc0531d",
+  "mobVnum": "8910",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "a druidess",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20852c19ae6396b387f"
+  },
+  "areaId": "673bf2086115a2ab8bc0531d",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2080731beb7e78e55be"
+  },
+  "areaId": "673bf2086115a2ab8bc0531d",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208bf1baf7987354690"
+  },
+  "areaId": "673bf2086115a2ab8bc0531d",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208ea179a368c05e047"
+  },
+  "areaId": "673bf208c6406e082da84ef8",
+  "mobVnum": "5103",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the drow mage noble",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20810ca7696f626846e"
+  },
+  "areaId": "673bf208c6406e082da84ef8",
+  "mobVnum": "5104",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the drow priestess",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2081a07c08d9ddf2439"
+  },
+  "areaId": "673bf208330951c09d377ce6",
+  "mobVnum": "6302",
+  "specialFunction": "spec_breath_gas",
+  "comment": "Yevaud",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2088d44982e03b342b7"
+  },
+  "areaId": "673bf208c6406e082da84ef8",
+  "mobVnum": "5108",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the matron mother",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20849092eb4e32447b1"
+  },
+  "areaId": "673bf208330951c09d377ce6",
+  "mobVnum": "6314",
+  "specialFunction": "spec_breath_gas",
+  "comment": "Arachnos",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20847dd40d3813f234e"
+  },
+  "areaId": "673bf208330951c09d377ce6",
+  "mobVnum": "6316",
+  "specialFunction": "spec_breath_gas",
+  "comment": "the young dragon wormkin",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208633ed0ffb6a9f673"
+  },
+  "areaId": "673bf208c6406e082da84ef8",
+  "mobVnum": "5109",
+  "specialFunction": "spec_breath_any",
+  "comment": "the yochlol",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208b39ef306ef9c7244"
+  },
+  "areaId": "673bf208330951c09d377ce6",
+  "mobVnum": "6317",
+  "specialFunction": "spec_breath_gas",
+  "comment": "the medium dragon wormkin",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2088df7624b3250af9b"
+  },
+  "areaId": "673bf208c6406e082da84ef8",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208b484f00d02b0bb52"
+  },
+  "areaId": "673bf208330951c09d377ce6",
+  "mobVnum": "6318",
+  "specialFunction": "spec_poison",
+  "comment": "the huge, poisonous spider",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20842821bf9dbca5d7e"
+  },
+  "areaId": "673bf208c6406e082da84ef8",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208ce651749119d20c9"
+  },
+  "areaId": "673bf208330951c09d377ce6",
+  "mobVnum": "6319",
+  "specialFunction": "spec_poison",
+  "comment": "the Queen Spider",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20846f9221aeb690139"
+  },
+  "areaId": "673bf208c6406e082da84ef8",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2087ab192c2c9f4a4fc"
+  },
+  "areaId": "673bf208330951c09d377ce6",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2087385c92e8ce9a855"
+  },
+  "areaId": "673bf208330951c09d377ce6",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208755476e65bd223ce"
+  },
+  "areaId": "673bf208330951c09d377ce6",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20984daf9be27ae677b"
+  },
+  "areaId": "673bf2093e31a458bc91b4ca",
+  "mobVnum": "8003",
+  "specialFunction": "spec_cast_judge",
+  "comment": "a Citi-Def Militiaman",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209c74b5eefce5acde7"
+  },
+  "areaId": "673bf2093e31a458bc91b4ca",
+  "mobVnum": "8004",
+  "specialFunction": "spec_thief",
+  "comment": "a dunk",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209d00e0632406adc4a"
+  },
+  "areaId": "673bf2093e31a458bc91b4ca",
+  "mobVnum": "8006",
+  "specialFunction": "spec_cast_judge",
+  "comment": "a rookie judge",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209d5009d5cbfd42ae4"
+  },
+  "areaId": "673bf2093e31a458bc91b4ca",
+  "mobVnum": "8010",
+  "specialFunction": "spec_cast_judge",
+  "comment": "Judge Eckersely",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209904739f6d58943b7"
+  },
+  "areaId": "673bf2093e31a458bc91b4ca",
+  "mobVnum": "8011",
+  "specialFunction": "spec_cast_judge",
+  "comment": "Judge Beddows",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2093ff120857520d757"
+  },
+  "areaId": "673bf2093e31a458bc91b4ca",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208a4feb5ae61435a7d"
+  },
+  "areaId": "673bf208687bc07e964b9f71",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209af156a8b53a3ee5c"
+  },
+  "areaId": "673bf2093e31a458bc91b4ca",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208284a2d0f2e85e0a5"
+  },
+  "areaId": "673bf208687bc07e964b9f71",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209fac5627a6ac2ea28"
+  },
+  "areaId": "673bf2093e31a458bc91b4ca",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208080ab1262d3a452a"
+  },
+  "areaId": "673bf208687bc07e964b9f71",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20810bd13e8159965c1"
+  },
+  "areaId": "673bf2082051d585d6db1846",
+  "mobVnum": "5005",
+  "specialFunction": "spec_breath_any",
+  "comment": "the brass dragon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208e4d32b4280ce1a1e"
+  },
+  "areaId": "673bf2082051d585d6db1846",
+  "mobVnum": "5010",
+  "specialFunction": "spec_breath_fire",
+  "comment": "The dracolich",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2089e76c5d97a2c00a3"
+  },
+  "areaId": "673bf208bcb77678471fc625",
+  "mobVnum": "9107",
+  "specialFunction": "spec_cast_undead",
+  "comment": "the ugly, wicked witch",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208c1b456c4da072d75"
+  },
+  "areaId": "673bf2082051d585d6db1846",
+  "mobVnum": "5014",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "The myconoid shaman",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208b818c2641cb3b2bf"
+  },
+  "areaId": "673bf208bcb77678471fc625",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208e86f5993dc8ac117"
+  },
+  "areaId": "673bf2082051d585d6db1846",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20889ef9442287f0c68"
+  },
+  "areaId": "673bf208bcb77678471fc625",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2080a8fb2213c0bfe95"
+  },
+  "areaId": "673bf2082051d585d6db1846",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2089f26f14eec95b771"
+  },
+  "areaId": "673bf208bcb77678471fc625",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208376ed4586ac5379d"
+  },
+  "areaId": "673bf2082051d585d6db1846",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2084b9acd450e52851e"
+  },
+  "areaId": "673bf2081fb091fd66f36f6d",
+  "mobVnum": "6112",
+  "specialFunction": "spec_breath_gas",
+  "comment": "the huge, green dragon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208c6106e61c124ef46"
+  },
+  "areaId": "673bf2081fb091fd66f36f6d",
+  "mobVnum": "6116",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the elder druid",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2087eb6f0cf3ebe5523"
+  },
+  "areaId": "673bf2081fb091fd66f36f6d",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20891a73c336c79acda"
+  },
+  "areaId": "673bf2081fb091fd66f36f6d",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2080f339a6ec283488c"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "mobVnum": "2200",
+  "specialFunction": "spec_breath_any",
+  "comment": "the dragon hatchling",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2080bbe0c4d8599eadb"
+  },
+  "areaId": "673bf208eb5914dddc3661bc",
+  "mobVnum": "2007",
+  "specialFunction": "spec_cast_undead",
+  "comment": "a skeleton",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208d68dcff670577b45"
+  },
+  "areaId": "673bf2081fb091fd66f36f6d",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a0d02d482dc507708"
+  },
+  "areaId": "673bf20a6a5b0f32a2928801",
+  "mobVnum": "3500",
+  "specialFunction": "spec_poison",
+  "comment": "the wyvern",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208751d4c90dabdddfe"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "mobVnum": "2203",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a powerful mage",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2081768f5d502ca53bd"
+  },
+  "areaId": "673bf208eb5914dddc3661bc",
+  "mobVnum": "2009",
+  "specialFunction": "spec_cast_undead",
+  "comment": "a mysterious wraith",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208a198f7058771bc06"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "mobVnum": "2204",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the holy Draconian",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a384e995c91296451"
+  },
+  "areaId": "673bf20a6a5b0f32a2928801",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208acf0faaebbcccf33"
+  },
+  "areaId": "673bf208eb5914dddc3661bc",
+  "mobVnum": "2011",
+  "specialFunction": "spec_cast_mage",
+  "comment": "zombie",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208f2fe02b1e2d9c501"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "mobVnum": "2205",
+  "specialFunction": "spec_breath_any",
+  "comment": "the Draconian King",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a2af5653df86b134f"
+  },
+  "areaId": "673bf20a6a5b0f32a2928801",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2089b97e3c572d38364"
+  },
+  "areaId": "673bf208eb5914dddc3661bc",
+  "mobVnum": "2013",
+  "specialFunction": "spec_cast_undead",
+  "comment": "The vampire",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a556f62fe177e536a"
+  },
+  "areaId": "673bf20a6a5b0f32a2928801",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2089f36c79d8228585e"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "mobVnum": "2220",
+  "specialFunction": "spec_breath_any",
+  "comment": "Tiamat",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208f9517241b80e8f26"
+  },
+  "areaId": "673bf208eb5914dddc3661bc",
+  "mobVnum": "2014",
+  "specialFunction": "spec_cast_undead",
+  "comment": "the evil necromancer",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2081acbfeaad520a907"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "mobVnum": "2221",
+  "specialFunction": "spec_breath_fire",
+  "comment": "the Great Red Dragon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208045b87f7a6f031bd"
+  },
+  "areaId": "673bf2086d75a58fa2c18a59",
+  "mobVnum": "3400",
+  "specialFunction": "spec_cast_undead",
+  "comment": "the bony skeleton",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208f267ed0602e14fb6"
+  },
+  "areaId": "673bf208eb5914dddc3661bc",
+  "mobVnum": "2016",
+  "specialFunction": "spec_breath_any",
+  "comment": "the prism dragon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208096a14fc6eaac5fb"
+  },
+  "areaId": "673bf2086d75a58fa2c18a59",
+  "mobVnum": "3401",
+  "specialFunction": "spec_cast_undead",
+  "comment": "the undead zombie",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208c18b86a645bd5acf"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "mobVnum": "2222",
+  "specialFunction": "spec_breath_acid",
+  "comment": "the Great Black Dragon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208e2a6eea71dd10ea7"
+  },
+  "areaId": "673bf208eb5914dddc3661bc",
+  "mobVnum": "2017",
+  "specialFunction": "spec_poison",
+  "comment": "The DarkenBeast",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208e869b677bf80a4a0"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "mobVnum": "2223",
+  "specialFunction": "spec_breath_frost",
+  "comment": "the Great White Dragon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208940eb8dd3be4eda2"
+  },
+  "areaId": "673bf2086d75a58fa2c18a59",
+  "mobVnum": "3402",
+  "specialFunction": "spec_cast_undead",
+  "comment": "The ghoul",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20890482d4cd95e4653"
+  },
+  "areaId": "673bf208eb5914dddc3661bc",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2085e3c6a9904a437f1"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "mobVnum": "2225",
+  "specialFunction": "spec_breath_gas",
+  "comment": "the Ancient Green Dragon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208a4fd1f9856a683b2"
+  },
+  "areaId": "673bf2086d75a58fa2c18a59",
+  "mobVnum": "3403",
+  "specialFunction": "spec_cast_undead",
+  "comment": "The wraith",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2085df5c42eb59c4707"
+  },
+  "areaId": "673bf208eb5914dddc3661bc",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208d0627269ea0a6470"
+  },
+  "areaId": "673bf2086d75a58fa2c18a59",
+  "mobVnum": "3404",
+  "specialFunction": "spec_cast_undead",
+  "comment": "The guardian vampire",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2083fb30ba526a8d654"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "mobVnum": "2226",
+  "specialFunction": "spec_poison",
+  "comment": "a large hydra",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208180067efde2dd08d"
+  },
+  "areaId": "673bf208eb5914dddc3661bc",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208ef1db9fd2ca14e95"
+  },
+  "areaId": "673bf2086d75a58fa2c18a59",
+  "mobVnum": "3405",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the priest",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208cbd49f612cd2b642"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "mobVnum": "2227",
+  "specialFunction": "spec_thief",
+  "comment": "A human slave",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20888a11da68c939c6b"
+  },
+  "areaId": "673bf2086d75a58fa2c18a59",
+  "mobVnum": "3407",
+  "specialFunction": "spec_cast_undead",
+  "comment": "The nightgaunt",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208348157d6dd5dd978"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "mobVnum": "2240",
+  "specialFunction": "spec_cast_undead",
+  "comment": "a Draconian zombie",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208c38fa64eb7d87522"
+  },
+  "areaId": "673bf2086d75a58fa2c18a59",
+  "mobVnum": "3408",
+  "specialFunction": "spec_cast_undead",
+  "comment": "The hunting horror",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2087f5184b21f0b24c7"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "mobVnum": "2241",
+  "specialFunction": "spec_breath_gas",
+  "comment": "the phase dragon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2082508a0ec09ac0c55"
+  },
+  "areaId": "673bf2086d75a58fa2c18a59",
+  "mobVnum": "3410",
+  "specialFunction": "spec_cast_undead",
+  "comment": "Snapper Joe",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2089fdbed8765e33ded"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "mobVnum": "2242",
+  "specialFunction": "spec_thief",
+  "comment": "the draconian fool",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20844a1162e143784ac"
+  },
+  "areaId": "673bf2086d75a58fa2c18a59",
+  "mobVnum": "3411",
+  "specialFunction": "spec_cast_undead",
+  "comment": "The X-ist flesh eater",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20890684f2ee123d3dc"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "mobVnum": "2243",
+  "specialFunction": "spec_breath_any",
+  "comment": "the Draconian Queen",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20d1dc025d2bd650e31"
+  },
+  "areaId": "673bf20d6be559b0d971353e",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2080fe0c24b5a887fbf"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208a92b13d1b932a9de"
+  },
+  "areaId": "673bf2086d75a58fa2c18a59",
+  "mobVnum": "3412",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the spirit of King Crotus",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20d3792020c4fd014c7"
+  },
+  "areaId": "673bf20d6be559b0d971353e",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208cf76ca26ae834a82"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208863578be6c82f057"
+  },
+  "areaId": "673bf2086d75a58fa2c18a59",
+  "mobVnum": "3414",
+  "specialFunction": "spec_cast_mage",
+  "comment": "The mad etcher",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20d586efb253d3f9b25"
+  },
+  "areaId": "673bf20d6be559b0d971353e",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2083aae1d3e7f26610f"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2089c5aa52e9698eba2"
+  },
+  "areaId": "673bf2086d75a58fa2c18a59",
+  "mobVnum": "3415",
+  "specialFunction": "spec_cast_undead",
+  "comment": "The spectral etcher's wife",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20854f3ed761cee695f"
+  },
+  "areaId": "673bf2086d75a58fa2c18a59",
+  "mobVnum": "3416",
+  "specialFunction": "spec_cast_undead",
+  "comment": "The half-decomposed body",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2095592cf44f38dc46e"
+  },
+  "areaId": "673bf20865417793997469dd",
+  "mobVnum": "2101",
+  "specialFunction": "spec_troll_member",
+  "comment": "a troll gang member",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208137b3aa9ee7c4c94"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9301",
+  "specialFunction": "spec_thief",
+  "comment": "a poor mudder",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2080a561f35f2e189f3"
+  },
+  "areaId": "673bf2086d75a58fa2c18a59",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209bad4ced417d3af1f"
+  },
+  "areaId": "673bf20865417793997469dd",
+  "mobVnum": "2102",
+  "specialFunction": "spec_ogre_member",
+  "comment": "an ogre gang member",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2084ba4f26b101d8660"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9313",
+  "specialFunction": "spec_breath_fire",
+  "comment": "the Head of Draco",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208ff4053aa193f650c"
+  },
+  "areaId": "673bf2086d75a58fa2c18a59",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2098d95b002d4a5f5e4"
+  },
+  "areaId": "673bf20865417793997469dd",
+  "mobVnum": "2103",
+  "specialFunction": "spec_troll_member",
+  "comment": "the Troll gang leader",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208836931dccdabdd11"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9314",
+  "specialFunction": "spec_breath_fire",
+  "comment": "a baby draco",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208831c4a8f48caad3c"
+  },
+  "areaId": "673bf2086d75a58fa2c18a59",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209a552efbcd30625bf"
+  },
+  "areaId": "673bf20865417793997469dd",
+  "mobVnum": "2104",
+  "specialFunction": "spec_troll_member",
+  "comment": "a bruiser",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208c4834639daa93df3"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9315",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Aries",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209f11c1d0451278359"
+  },
+  "areaId": "673bf20865417793997469dd",
+  "mobVnum": "2106",
+  "specialFunction": "spec_patrolman",
+  "comment": "a patrolman",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208b5d249a46a7dcc5d"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9316",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Taurus",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209051d878ce7f649c7"
+  },
+  "areaId": "673bf20865417793997469dd",
+  "mobVnum": "2107",
+  "specialFunction": "spec_ogre_member",
+  "comment": "a vandal",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208bde96d748356f02e"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9317",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Gemini",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2091e64babee9d4569d"
+  },
+  "areaId": "673bf20865417793997469dd",
+  "mobVnum": "2109",
+  "specialFunction": "spec_troll_member",
+  "comment": "a punk",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20875398c0c848b39a2"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9318",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Gemini",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209f9be5495ffe514fc"
+  },
+  "areaId": "673bf20865417793997469dd",
+  "mobVnum": "2110",
+  "specialFunction": "spec_ogre_member",
+  "comment": "the Ogre gang leader",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208e8a3b28686817a84"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9319",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Cancer",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2091bab5416a1012bbf"
+  },
+  "areaId": "673bf20865417793997469dd",
+  "mobVnum": "2111",
+  "specialFunction": "spec_ogre_member",
+  "comment": "a thug",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208c19d732515754b7a"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9320",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Leo",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209fb44538317ee1787"
+  },
+  "areaId": "673bf20865417793997469dd",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208dd6ac45b060809b9"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9321",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Virgo",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209ae071ffc696d1e07"
+  },
+  "areaId": "673bf20865417793997469dd",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208eede1a360ae2f530"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9322",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Libra",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209a8f5198b22ad706e"
+  },
+  "areaId": "673bf20865417793997469dd",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208e4667ac303ef8dbc"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9323",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Scorpio",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20842aa51d44015f4b5"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9324",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Sagittarius",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20fb5002fbda28e662e"
+  },
+  "areaId": "673bf20feaa5f785909b6495",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208244f1c5eaccc5938"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9325",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Capricorn",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20f4623fe12c79f3d0a"
+  },
+  "areaId": "673bf20feaa5f785909b6495",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208b4678c8487e902db"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9326",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Aquarius",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2096a25c6c37c2a2491"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9202",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the cyclops",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20fcf40365406bef007"
+  },
+  "areaId": "673bf20feaa5f785909b6495",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2087f4ce9d6ef540f16"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9327",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Pisces the mermaid",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209b86b5f29da171f4f"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9204",
+  "specialFunction": "spec_breath_any",
+  "comment": "the elemental guardian",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20832b897155befd566"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9328",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Pisces the fish",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2099cb683f112752ef3"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9207",
+  "specialFunction": "spec_breath_any",
+  "comment": "a large elemental",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208e6563ad47266bffe"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9329",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Ursa Major the bear",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2093a04eab7a486e4cd"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9208",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the Earth Ruler",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208a740ed28b032f3ec"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9330",
+  "specialFunction": "spec_cast_mage",
+  "comment": "Cassiopeia the Queen",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209236a11a63b2348ad"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9209",
+  "specialFunction": "spec_breath_fire",
+  "comment": "the Fire Ruler",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20833ba9c62e485c298"
+  },
+  "areaId": "673bf208791e72fc536f5e55",
+  "mobVnum": "1503",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a gnome scientist",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208d655af3a8aee9df4"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9331",
+  "specialFunction": "spec_cast_mage",
+  "comment": "Cepheus the King",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209330ea9d2f07ad78d"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9210",
+  "specialFunction": "spec_breath_gas",
+  "comment": "The Air Ruler",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208d6910869ed9aebe2"
+  },
+  "areaId": "673bf208791e72fc536f5e55",
+  "mobVnum": "1505",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the chief gnome",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208933738591fab292e"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "mobVnum": "9332",
+  "specialFunction": "spec_breath_acid",
+  "comment": "Polaris, the polar star",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209723870d1503d5102"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9211",
+  "specialFunction": "spec_breath_lightning",
+  "comment": "The Lightning Ruler",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208b05524d6c86d68fb"
+  },
+  "areaId": "673bf208791e72fc536f5e55",
+  "mobVnum": "1509",
+  "specialFunction": "spec_poison",
+  "comment": "a rat",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208751dae95c922d074"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209a08f18d571412008"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9212",
+  "specialFunction": "spec_breath_acid",
+  "comment": "The Water Ruler",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208b17c5f462ecb42ca"
+  },
+  "areaId": "673bf208791e72fc536f5e55",
+  "mobVnum": "1510",
+  "specialFunction": "spec_poison",
+  "comment": "a large rat",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208a736fce2416dac25"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20974104cccfe858224"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9219",
+  "specialFunction": "spec_breath_acid",
+  "comment": "a small blob of acid",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208fdd4617cc18e9678"
+  },
+  "areaId": "673bf208791e72fc536f5e55",
+  "mobVnum": "1511",
+  "specialFunction": "spec_poison",
+  "comment": "a giant rat",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208f400e52e0d21de68"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2096bf52a2f67dd2ba7"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9223",
+  "specialFunction": "spec_breath_lightning",
+  "comment": "a particle",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208873ebd53250e0e19"
+  },
+  "areaId": "673bf208791e72fc536f5e55",
+  "mobVnum": "1513",
+  "specialFunction": "spec_breath_acid",
+  "comment": "a black bat",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209cc91d18db620e24a"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9224",
+  "specialFunction": "spec_thief",
+  "comment": "a dust cloud",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20848816c51d0c49090"
+  },
+  "areaId": "673bf208791e72fc536f5e55",
+  "mobVnum": "1514",
+  "specialFunction": "spec_cast_undead",
+  "comment": "the zombie gnome",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209c77dc701a6fc3f9d"
+  },
+  "areaId": "673bf208bdc2dce93ec9b309",
+  "mobVnum": "7702",
+  "specialFunction": "spec_cast_mage",
+  "comment": "An evil night hag",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209c702d7780d901e9b"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9225",
+  "specialFunction": "spec_thief",
+  "comment": "an eddie",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208547973064de5d5f6"
+  },
+  "areaId": "673bf208791e72fc536f5e55",
+  "mobVnum": "1515",
+  "specialFunction": "spec_breath_fire",
+  "comment": "the fire bat",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20934fe41d9d8729867"
+  },
+  "areaId": "673bf208bdc2dce93ec9b309",
+  "mobVnum": "7705",
+  "specialFunction": "spec_thief",
+  "comment": "A githyanki hunter",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf208b10fd51a92c8e8b4"
+  },
+  "areaId": "673bf208791e72fc536f5e55",
+  "mobVnum": "1519",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the king of the hobgoblins",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209e3a0f524ababc922"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9226",
+  "specialFunction": "spec_breath_fire",
+  "comment": "the Blue Flame",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2090d107e4e299126b7"
+  },
+  "areaId": "673bf208bdc2dce93ec9b309",
+  "mobVnum": "7710",
+  "specialFunction": "spec_cast_mage",
+  "comment": "An evil gish",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20973f654e96e4117be"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9227",
+  "specialFunction": "spec_breath_lightning",
+  "comment": "the Magneto",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20895043baae2095d21"
+  },
+  "areaId": "673bf208791e72fc536f5e55",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209d48fccded6b20896"
+  },
+  "areaId": "673bf208bdc2dce93ec9b309",
+  "mobVnum": "7711",
+  "specialFunction": "spec_cast_mage",
+  "comment": "An evil gish",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209e6725314a1041531"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9228",
+  "specialFunction": "spec_breath_frost",
+  "comment": "the Ice Bandit",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20841285dbaa9f68180"
+  },
+  "areaId": "673bf208791e72fc536f5e55",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209cbb0832de023c297"
+  },
+  "areaId": "673bf208bdc2dce93ec9b309",
+  "mobVnum": "7712",
+  "specialFunction": "spec_cast_mage",
+  "comment": "A warlock of the Gith",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2084de1eb697460ae5d"
+  },
+  "areaId": "673bf208791e72fc536f5e55",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209cb70d702a7986371"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9230",
+  "specialFunction": "spec_breath_gas",
+  "comment": "the Hurricane",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20957c390d200fabc8b"
+  },
+  "areaId": "673bf208bdc2dce93ec9b309",
+  "mobVnum": "7713",
+  "specialFunction": "spec_cast_undead",
+  "comment": "The lich-queen",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209071fa148f3d43a28"
+  },
+  "areaId": "673bf208bdc2dce93ec9b309",
+  "mobVnum": "7714",
+  "specialFunction": "spec_cast_undead",
+  "comment": "Lord Gith",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209fb530c27e78342b0"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9231",
+  "specialFunction": "spec_cast_mage",
+  "comment": "an elemental magician",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209b4c0825acd1edb80"
+  },
+  "areaId": "673bf208bdc2dce93ec9b309",
+  "mobVnum": "7715",
+  "specialFunction": "spec_cast_undead",
+  "comment": "An insubstantial ghost",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2092184bdd07b4b9846"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9232",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "a rainbow warrior",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2095e9a92d2f1086489"
+  },
+  "areaId": "673bf208bdc2dce93ec9b309",
+  "mobVnum": "7717",
+  "specialFunction": "spec_cast_mage",
+  "comment": "A tortured mindflayer prisoner",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20986b9cfe319a69d1f"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9233",
+  "specialFunction": "spec_cast_mage",
+  "comment": "an illusionist",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209fc95a99581a54e17"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9234",
+  "specialFunction": "spec_thief",
+  "comment": "an alchemist",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2090899c365fa1110a4"
+  },
+  "areaId": "673bf208bdc2dce93ec9b309",
+  "mobVnum": "7718",
+  "specialFunction": "spec_cast_mage",
+  "comment": "The enslaved red dragon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209a800ff671c0ff812"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9235",
+  "specialFunction": "spec_breath_any",
+  "comment": "a baby rainbow dragon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20902e567259195e43f"
+  },
+  "areaId": "673bf208bdc2dce93ec9b309",
+  "mobVnum": "7719",
+  "specialFunction": "spec_breath_fire",
+  "comment": "A massive blast of fire",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20986a7c3ef92744776"
+  },
+  "areaId": "673bf208bdc2dce93ec9b309",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2093f6332c3e4ece1ab"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9237",
+  "specialFunction": "spec_breath_any",
+  "comment": "a HUGE elemental",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20979118f3299e9e711"
+  },
+  "areaId": "673bf208bdc2dce93ec9b309",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf211a6c966b410b99cd4"
+  },
+  "areaId": "673bf211496f3a48c1d8fe68",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209dbab3483b47c5487"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "mobVnum": "9238",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the elixir vendor",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20944f7112b572c9e30"
+  },
+  "areaId": "673bf208bdc2dce93ec9b309",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf211efc93fe78c6a174c"
+  },
+  "areaId": "673bf211496f3a48c1d8fe68",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2092cf3c15edfefdc04"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21144cecaa4724b2afc"
+  },
+  "areaId": "673bf211496f3a48c1d8fe68",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2099df9760cbd91911d"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209940a95f6486e9765"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf211e5b07d4aca6a1a8d"
+  },
+  "areaId": "673bf211496f3a48c1d8fe68",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2115e4a48043793cd45"
+  },
+  "areaId": "673bf211496f3a48c1d8fe68",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf211cca36c5262d7e426"
+  },
+  "areaId": "673bf21134a2fef5fe526359",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf211491db6a75af50f67"
+  },
+  "areaId": "673bf21134a2fef5fe526359",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2116ca796407c82ea1a"
+  },
+  "areaId": "673bf21134a2fef5fe526359",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20f467f4f1c5e3c625d"
+  },
+  "areaId": "673bf20fa603d9e53bb63e8d",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20f56f383ec2571a687"
+  },
+  "areaId": "673bf20fa603d9e53bb63e8d",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20f1b8f3420f765aed0"
+  },
+  "areaId": "673bf20fa603d9e53bb63e8d",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf212b12bbb8a4198c5a6"
+  },
+  "areaId": "673bf2117ef41897698e3e91",
+  "mobVnum": "7900",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the Grand Knight of paladins",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21298f0aa2a745e42f3"
+  },
+  "areaId": "673bf2117ef41897698e3e91",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf212c1da882fcc91d226"
+  },
+  "areaId": "673bf2117ef41897698e3e91",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf212c8e077d407e9cb92"
+  },
+  "areaId": "673bf2117ef41897698e3e91",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf212a40a1c25e011da93"
+  },
+  "areaId": "673bf211db8aa9f4512041b9",
+  "mobVnum": "350",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the pet dragon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2129743a87a80e02471"
+  },
+  "areaId": "673bf211db8aa9f4512041b9",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2128ac12999a28fb38f"
+  },
+  "areaId": "673bf211db8aa9f4512041b9",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2121f92fec1e5b113ef"
+  },
+  "areaId": "673bf211db8aa9f4512041b9",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2093767c78060f73534"
+  },
+  "areaId": "673bf2081757439189c2d638",
+  "mobVnum": "2300",
+  "specialFunction": "spec_cast_undead",
+  "comment": "the Dark Ethereal Knight",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209637b39cde1bb6b69"
+  },
+  "areaId": "673bf2081757439189c2d638",
+  "mobVnum": "2302",
+  "specialFunction": "spec_breath_acid",
+  "comment": "the Cave Dweller",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20979626154ebb765b2"
+  },
+  "areaId": "673bf2081757439189c2d638",
+  "mobVnum": "2306",
+  "specialFunction": "spec_poison",
+  "comment": "the Swamp Wraith",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e84dad5aa40408e83"
+  },
+  "areaId": "673bf20cdbfc80ec09e6d3e2",
+  "mobVnum": "5300",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the baby beholder",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20998d9b28300eddb17"
+  },
+  "areaId": "673bf2081757439189c2d638",
+  "mobVnum": "2310",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "The Ogre Shaman",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e3a5f3b6efdf3b67f"
+  },
+  "areaId": "673bf20cdbfc80ec09e6d3e2",
+  "mobVnum": "5303",
+  "specialFunction": "spec_guard",
+  "comment": "an imperial cityguard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2097d765709b5706715"
+  },
+  "areaId": "673bf2081757439189c2d638",
+  "mobVnum": "2313",
+  "specialFunction": "spec_breath_frost",
+  "comment": "the White Yeti",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e79ece58b166b770c"
+  },
+  "areaId": "673bf20cdbfc80ec09e6d3e2",
+  "mobVnum": "5305",
+  "specialFunction": "spec_guard",
+  "comment": "Gordon the Brave",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209cf0f0f008c60f7ac"
+  },
+  "areaId": "673bf2081757439189c2d638",
+  "mobVnum": "2314",
+  "specialFunction": "spec_breath_acid",
+  "comment": "the Ice Worm",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20ee4b37cdd88879d9a"
+  },
+  "areaId": "673bf20cdbfc80ec09e6d3e2",
+  "mobVnum": "5306",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the fanatic priest",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209aaffd0f80df17d26"
+  },
+  "areaId": "673bf2081757439189c2d638",
+  "mobVnum": "2324",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the Minotaur Ring-Keeper",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20edfaf4afb0f99336f"
+  },
+  "areaId": "673bf20cdbfc80ec09e6d3e2",
+  "mobVnum": "5307",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the priest of Thalos",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20938faf0cf18a6de22"
+  },
+  "areaId": "673bf2081757439189c2d638",
+  "mobVnum": "2326",
+  "specialFunction": "spec_cast_undead",
+  "comment": "Darkoth",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20ea3967e1077af8879"
+  },
+  "areaId": "673bf20cdbfc80ec09e6d3e2",
+  "mobVnum": "5317",
+  "specialFunction": "spec_cast_mage",
+  "comment": "an old wizard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20935a6aa701b887ad4"
+  },
+  "areaId": "673bf2081757439189c2d638",
+  "mobVnum": "2328",
+  "specialFunction": "spec_cast_mage",
+  "comment": "Amyrok",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e06e05e4fb9b6c17b"
+  },
+  "areaId": "673bf20cdbfc80ec09e6d3e2",
+  "mobVnum": "5320",
+  "specialFunction": "spec_guard",
+  "comment": "An imperial cityguard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20983092d62c7996e1d"
+  },
+  "areaId": "673bf2081757439189c2d638",
+  "mobVnum": "2329",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Sumaron",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e39342abd6f5c6301"
+  },
+  "areaId": "673bf20cdbfc80ec09e6d3e2",
+  "mobVnum": "5321",
+  "specialFunction": "spec_guard",
+  "comment": "an imperial cityguard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209fc44706feeb94e1c"
+  },
+  "areaId": "673bf2081757439189c2d638",
+  "mobVnum": "2330",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Nasturn",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20efa221a3e75ee99c1"
+  },
+  "areaId": "673bf20cdbfc80ec09e6d3e2",
+  "mobVnum": "5327",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "a druid",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209c8c48c2ecf597a2c"
+  },
+  "areaId": "673bf2081757439189c2d638",
+  "mobVnum": "2333",
+  "specialFunction": "spec_cast_mage",
+  "comment": "Mahn-Tor",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20926c46c09f2cd0d87"
+  },
+  "areaId": "673bf2081757439189c2d638",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20ef4e180bb33655f54"
+  },
+  "areaId": "673bf20cdbfc80ec09e6d3e2",
+  "mobVnum": "5328",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "a druidess",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209ea64075fe0588db0"
+  },
+  "areaId": "673bf2081757439189c2d638",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e848e4ab8e5aa0318"
+  },
+  "areaId": "673bf20cdbfc80ec09e6d3e2",
+  "mobVnum": "5331",
+  "specialFunction": "spec_guard",
+  "comment": "the cityguard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf209fae2c74f85d08a10"
+  },
+  "areaId": "673bf2081757439189c2d638",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e7422cb5690e931cc"
+  },
+  "areaId": "673bf20cdbfc80ec09e6d3e2",
+  "mobVnum": "5332",
+  "specialFunction": "spec_janitor",
+  "comment": "the janitor",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20ef280076ba5cf0cce"
+  },
+  "areaId": "673bf20cdbfc80ec09e6d3e2",
+  "mobVnum": "5333",
+  "specialFunction": "spec_fido",
+  "comment": "the beastly fido",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e84f36b48e20bca5a"
+  },
+  "areaId": "673bf20cdbfc80ec09e6d3e2",
+  "mobVnum": "5334",
+  "specialFunction": "spec_guard",
+  "comment": "the cityguard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e97c9a6751cdafded"
+  },
+  "areaId": "673bf20cdbfc80ec09e6d3e2",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20ebb25afb18061eb35"
+  },
+  "areaId": "673bf20cdbfc80ec09e6d3e2",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e2ee94a5d6f918098"
+  },
+  "areaId": "673bf20cdbfc80ec09e6d3e2",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf215b3fa7513e545f924"
+  },
+  "areaId": "673bf21425a0659658dd8936",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf215baba1f7bbc312c8d"
+  },
+  "areaId": "673bf21425a0659658dd8936",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2156b358e0033560bc1"
+  },
+  "areaId": "673bf21425a0659658dd8936",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214ca2640d35afccfe9"
+  },
+  "areaId": "673bf2138bdeac876e0da595",
+  "mobVnum": "101",
+  "specialFunction": "spec_thief",
+  "comment": "a smurf",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214fd60e45b195466cd"
+  },
+  "areaId": "673bf2138bdeac876e0da595",
+  "mobVnum": "102",
+  "specialFunction": "spec_thief",
+  "comment": "a smurf",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21489f8baff3cb5381d"
+  },
+  "areaId": "673bf2138bdeac876e0da595",
+  "mobVnum": "103",
+  "specialFunction": "spec_thief",
+  "comment": "Brainy Smurf",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2127c739f2f22d7f5f2"
+  },
+  "areaId": "673bf21189e37bdf47cf11f1",
+  "mobVnum": "3707",
+  "specialFunction": "spec_cast_adept",
+  "comment": "the adept of Satin",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21402d958b129b40970"
+  },
+  "areaId": "673bf2138bdeac876e0da595",
+  "mobVnum": "104",
+  "specialFunction": "spec_thief",
+  "comment": "Handy Smurf",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2121db08351e1d5e1e1"
+  },
+  "areaId": "673bf21189e37bdf47cf11f1",
+  "mobVnum": "3708",
+  "specialFunction": "spec_cast_adept",
+  "comment": "the adept of Alander",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2148ae88942251f7bd8"
+  },
+  "areaId": "673bf2138bdeac876e0da595",
+  "mobVnum": "105",
+  "specialFunction": "spec_thief",
+  "comment": "Sleepy Smurf",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21297fa13269ba3f91c"
+  },
+  "areaId": "673bf21189e37bdf47cf11f1",
+  "mobVnum": "3714",
+  "specialFunction": "spec_fido",
+  "comment": "the beast",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214b29ce57755a18bc0"
+  },
+  "areaId": "673bf2138bdeac876e0da595",
+  "mobVnum": "106",
+  "specialFunction": "spec_thief",
+  "comment": "Hefty Smurf",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf212ec2925eaf791452c"
+  },
+  "areaId": "673bf21189e37bdf47cf11f1",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214cd3645cc4a9b9014"
+  },
+  "areaId": "673bf2138bdeac876e0da595",
+  "mobVnum": "107",
+  "specialFunction": "spec_thief",
+  "comment": "Grumpy Smurf",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21247b6ac3d9ec4229e"
+  },
+  "areaId": "673bf21189e37bdf47cf11f1",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2145008e1bf15ad50b6"
+  },
+  "areaId": "673bf2138bdeac876e0da595",
+  "mobVnum": "108",
+  "specialFunction": "spec_thief",
+  "comment": "Jokey Smurf",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21282669645794ee8ab"
+  },
+  "areaId": "673bf21189e37bdf47cf11f1",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214ba2a4729e0621efa"
+  },
+  "areaId": "673bf2138bdeac876e0da595",
+  "mobVnum": "109",
+  "specialFunction": "spec_thief",
+  "comment": "Smurfette",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214cf8a145a3cf79ec1"
+  },
+  "areaId": "673bf2138bdeac876e0da595",
+  "mobVnum": "110",
+  "specialFunction": "spec_cast_mage",
+  "comment": "Papa Smurf",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20f104a700f8ca99137"
+  },
+  "areaId": "673bf20e802af07973e148da",
+  "mobVnum": "4000",
+  "specialFunction": "spec_poison",
+  "comment": "the huge python",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214558c2bc48273977e"
+  },
+  "areaId": "673bf2138bdeac876e0da595",
+  "mobVnum": "111",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Gargamel",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20f9df930c904d6fcee"
+  },
+  "areaId": "673bf20e802af07973e148da",
+  "mobVnum": "4001",
+  "specialFunction": "spec_poison",
+  "comment": "the garter snake",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214d50c57ac12edf42a"
+  },
+  "areaId": "673bf2138bdeac876e0da595",
+  "mobVnum": "112",
+  "specialFunction": "spec_poison",
+  "comment": "Azreal",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20f5e75dc04e83a33f9"
+  },
+  "areaId": "673bf20e802af07973e148da",
+  "mobVnum": "4053",
+  "specialFunction": "spec_poison",
+  "comment": "the snake",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2140bd6ebbbe144036a"
+  },
+  "areaId": "673bf2138bdeac876e0da595",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20f199167c48051499e"
+  },
+  "areaId": "673bf20e802af07973e148da",
+  "mobVnum": "4100",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the Mage",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21410e81d477792a1b9"
+  },
+  "areaId": "673bf2138bdeac876e0da595",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214635a7bc62bc951f2"
+  },
+  "areaId": "673bf2138bdeac876e0da595",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20f91be63093ec0ea43"
+  },
+  "areaId": "673bf20e802af07973e148da",
+  "mobVnum": "4102",
+  "specialFunction": "spec_poison",
+  "comment": "the guardian snake",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20f3727275e1cb3475a"
+  },
+  "areaId": "673bf20e802af07973e148da",
+  "mobVnum": "4150",
+  "specialFunction": "spec_breath_lightning",
+  "comment": "the blue bat",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20fb4f0fd7eb38b9498"
+  },
+  "areaId": "673bf20e802af07973e148da",
+  "mobVnum": "4151",
+  "specialFunction": "spec_breath_fire",
+  "comment": "the red bat",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20f00ac162e3207f7be"
+  },
+  "areaId": "673bf20e802af07973e148da",
+  "mobVnum": "4152",
+  "specialFunction": "spec_breath_gas",
+  "comment": "the green bat",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20f492099b572be0183"
+  },
+  "areaId": "673bf20e802af07973e148da",
+  "mobVnum": "4153",
+  "specialFunction": "spec_breath_frost",
+  "comment": "the white bat",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20f9940e400ea9134c2"
+  },
+  "areaId": "673bf20e802af07973e148da",
+  "mobVnum": "4154",
+  "specialFunction": "spec_breath_acid",
+  "comment": "the black bat",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20f7cf1d47a7ad63766"
+  },
+  "areaId": "673bf20e802af07973e148da",
+  "mobVnum": "4155",
+  "specialFunction": "spec_thief",
+  "comment": "the thief",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20fb6299011c90a68ac"
+  },
+  "areaId": "673bf20e802af07973e148da",
+  "mobVnum": "4157",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the Mage",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20fb517ae42bede763e"
+  },
+  "areaId": "673bf20e802af07973e148da",
+  "mobVnum": "4158",
+  "specialFunction": "spec_poison",
+  "comment": "the snake",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20fd19005cdfb5352ce"
+  },
+  "areaId": "673bf20e802af07973e148da",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20fcd3ba080a40cb0a3"
+  },
+  "areaId": "673bf20e802af07973e148da",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20f922596e2fed85f79"
+  },
+  "areaId": "673bf20e802af07973e148da",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214ce561a8a3485dc23"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "mobVnum": "901",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Zeus",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214a760cce8d14eeee2"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "mobVnum": "902",
+  "specialFunction": "spec_breath_fire",
+  "comment": "Prometheus",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21496bc1c4ceb2aa093"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "mobVnum": "903",
+  "specialFunction": "spec_thief",
+  "comment": "Hermes",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21423e802d9059a4c1a"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "mobVnum": "904",
+  "specialFunction": "spec_cast_mage",
+  "comment": "Poseidon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2148cbda0533864045d"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "mobVnum": "905",
+  "specialFunction": "spec_cast_adept",
+  "comment": "Apollo",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2149d00f598dddbb98d"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "mobVnum": "907",
+  "specialFunction": "spec_cast_adept",
+  "comment": "Athena",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2147589c5ffc3dc0998"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "mobVnum": "908",
+  "specialFunction": "spec_breath_lightning",
+  "comment": "Hephaestus",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2142d497ad8a63d4a1e"
+  },
+  "areaId": "673bf211ea5ee3ec54861180",
+  "mobVnum": "8700",
+  "specialFunction": "spec_poison",
+  "comment": "A horrible asp",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214a72ada6016bfbe38"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "mobVnum": "909",
+  "specialFunction": "spec_guard",
+  "comment": "A Golden Maiden",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214003caceb25fbf059"
+  },
+  "areaId": "673bf211ea5ee3ec54861180",
+  "mobVnum": "8701",
+  "specialFunction": "spec_poison",
+  "comment": "A hooded cobra snake",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214939bb392503dd2b6"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "mobVnum": "914",
+  "specialFunction": "spec_breath_any",
+  "comment": "Odin",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214af48c44e4a355c76"
+  },
+  "areaId": "673bf211ea5ee3ec54861180",
+  "mobVnum": "8704",
+  "specialFunction": "spec_thief",
+  "comment": "A tomb thief",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21448fd61c64ffc5614"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "mobVnum": "919",
+  "specialFunction": "spec_breath_any",
+  "comment": "Ra the Sun God",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21489e1723c18ddf0a8"
+  },
+  "areaId": "673bf211ea5ee3ec54861180",
+  "mobVnum": "8705",
+  "specialFunction": "spec_thief",
+  "comment": "Ali Baba",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214409726ef64b6edcc"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "mobVnum": "920",
+  "specialFunction": "spec_breath_fire",
+  "comment": "a chimera",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214a66cd80a98e9a3ec"
+  },
+  "areaId": "673bf211ea5ee3ec54861180",
+  "mobVnum": "8709",
+  "specialFunction": "spec_breath_fire",
+  "comment": "The efreeti",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2148e34b34eac0df358"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "mobVnum": "921",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Hera",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2140ad8cb335bfbbdcf"
+  },
+  "areaId": "673bf211ea5ee3ec54861180",
+  "mobVnum": "8711",
+  "specialFunction": "spec_cast_mage",
+  "comment": "The djinn",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21492d543fc9f3efeb4"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "mobVnum": "922",
+  "specialFunction": "spec_poison",
+  "comment": "a roc",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2140c718048bbc5279e"
+  },
+  "areaId": "673bf211ea5ee3ec54861180",
+  "mobVnum": "8713",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "A gynosphinx",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214c77f36ba04ab31e4"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "mobVnum": "923",
+  "specialFunction": "spec_thief",
+  "comment": "A citizen",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214ae2803d9d5346d62"
+  },
+  "areaId": "673bf211ea5ee3ec54861180",
+  "mobVnum": "8714",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "A criosphinx",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21437ad9a15649b4e07"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "mobVnum": "926",
+  "specialFunction": "spec_cast_mage",
+  "comment": "The Jailer",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214afa63e5d2a45ed9e"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214256a2d36f5b0c7e5"
+  },
+  "areaId": "673bf211ea5ee3ec54861180",
+  "mobVnum": "8715",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "An androsphinx",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214eaf53cd0e1ba0551"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2147f5f5385bf4bc81e"
+  },
+  "areaId": "673bf211ea5ee3ec54861180",
+  "mobVnum": "8716",
+  "specialFunction": "spec_breath_any",
+  "comment": "The great sphinx",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214c16b44f967a77757"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2146b073a5432b4377f"
+  },
+  "areaId": "673bf211ea5ee3ec54861180",
+  "mobVnum": "8717",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Ramses the Damned",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21404a3b2adf3deb5e6"
+  },
+  "areaId": "673bf211ea5ee3ec54861180",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21485e4251151db7be5"
+  },
+  "areaId": "673bf211ea5ee3ec54861180",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf214b62a95fb6145ba04"
+  },
+  "areaId": "673bf211ea5ee3ec54861180",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a5f7e5ec27a472be5"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1300",
+  "specialFunction": "spec_cast_undead",
+  "comment": "a shadow guardian",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20aa7e18d5ae0859291"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1301",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "a lost adventurer",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20ae050a99e9f00715a"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1304",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a mage",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a047418a6a460566f"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1306",
+  "specialFunction": "spec_cast_mage",
+  "comment": "Tatorious",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a4ecc3bc406991ee1"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1307",
+  "specialFunction": "spec_cast_mage",
+  "comment": "Ezmerelda",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20aeb85e398f36739b5"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1308",
+  "specialFunction": "spec_cast_mage",
+  "comment": "The cook's assistant",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a5b502ffcb7e7e239"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1309",
+  "specialFunction": "spec_cast_mage",
+  "comment": "The prisoner",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a517c461053c0bdc8"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1310",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the Jailor",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a040696e00ad0b29a"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1311",
+  "specialFunction": "spec_thief",
+  "comment": "a broom",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a74163c04e3f7aa9d"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1312",
+  "specialFunction": "spec_cast_undead",
+  "comment": "a pair of disembodied hands",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a8c5d4692c76ef2dd"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1313",
+  "specialFunction": "spec_cast_undead",
+  "comment": "a pair of disembodied eyes",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a0ca50b1de1e5990a"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1314",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the mage",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20aaf4279ae39b19269"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1315",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a young apprentice magic user",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20acf8adefba47d1073"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1316",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a young apprentice",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20aa8ce8db6e6aa768b"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1317",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a young apprentice",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a6f0dfdcd3b05b00f"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1318",
+  "specialFunction": "spec_cast_mage",
+  "comment": "A young apprentice",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a8c1fc10b877bb2f7"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1320",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a student",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a0f43bc3a61f017d4"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1321",
+  "specialFunction": "spec_cast_mage",
+  "comment": "an instructor of magic",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a055fb41ea17b5a8e"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1322",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a student of spells",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a931b3a81e4b3ad31"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1323",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a spell teacher",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20ac0006e35089f4a6d"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1324",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a student of spells",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a6694e1ad5cf51856"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1325",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a wizard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20abe35001590015efe"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1326",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a young mage",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a862e2ae012cf6121"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1327",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the battle mistress",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20abb23b4f418df9956"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1328",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a spell teacher",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20ab8c8f7dcb4d98cf8"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1329",
+  "specialFunction": "spec_cast_mage",
+  "comment": "an aged wizard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a26ad0ce0dd87c45e"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1330",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a scribe",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20ad5219fdac7336005"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1331",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a scribe",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a85422d022a809681"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1332",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the master scribe",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20aa3ed7e016617196e"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1333",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the scribe's assistant",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a11775fc49819ae4b"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1334",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the Enchanter",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20aff25f748ff1781fd"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1336",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the Mad Alchemist",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a822367422fbe7e88"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1337",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the master summoner",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a1b90954de5cde69c"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1338",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the master charmer",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a0ba8906be0c0d142"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1340",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the master spell binder",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a17964b951a774ff0"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1341",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the golem maker",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a42d4f49ab568f6cd"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1348",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the master of illusions",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a4d49de46b4b0fbe2"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1349",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the Necromancer",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a433e732e137ad6aa"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1350",
+  "specialFunction": "spec_cast_undead",
+  "comment": "an animated skeleton",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a42cea9245f96b842"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1351",
+  "specialFunction": "spec_cast_undead",
+  "comment": "an undead giant",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20aa1586f0664f792c7"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1352",
+  "specialFunction": "spec_cast_mage",
+  "comment": "an ugly witch",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a83607ff64a4a5a81"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1353",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the Librarian",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a58cd35375547dfe6"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1354",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the master's apprentice",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20afececf7c2656ba42"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1355",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a grey cat",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a5c71364383354339"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1356",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the master of Neutrality",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20ac49bc43ead74a369"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1357",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a black robed apprentice",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a93520e97e9d3a6a4"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1358",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a black cat",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a51251e2d89b51e87"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1359",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the master of the black robes",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a3dfb2aad453cb377"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1360",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a white robed apprentice",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a520cf6eef56b9c47"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1361",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a white cat",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20afb3530b12c8dd757"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1362",
+  "specialFunction": "spec_cast_mage",
+  "comment": "The master of goodness",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf217f19afb1edeb7435a"
+  },
+  "areaId": "673bf2117ef8977369025f02",
+  "mobVnum": "1100",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the Elven Wizard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a433f06cc92313eb9"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1363",
+  "specialFunction": "spec_cast_mage",
+  "comment": "A calico cat",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf217ef09399870f67709"
+  },
+  "areaId": "673bf214e738a9e5d85c03ad",
+  "mobVnum": "1605",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the gargoyle shaman",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21793a35a1bab7e420a"
+  },
+  "areaId": "673bf2117ef8977369025f02",
+  "mobVnum": "1101",
+  "specialFunction": "spec_thief",
+  "comment": "the Keeper of the Ring",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a5cd8cf99acba82ca"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1364",
+  "specialFunction": "spec_cast_mage",
+  "comment": "The Grand Mistress",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2177129cb457a40688e"
+  },
+  "areaId": "673bf214e738a9e5d85c03ad",
+  "mobVnum": "1609",
+  "specialFunction": "spec_cast_undead",
+  "comment": "an evil wight",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2177db6f23da408fb07"
+  },
+  "areaId": "673bf2117ef8977369025f02",
+  "mobVnum": "1110",
+  "specialFunction": "spec_guard",
+  "comment": "a shiriff",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a8ccd9dcb44523016"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "mobVnum": "1365",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a wizard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2172b9ba7d5bb1b6630"
+  },
+  "areaId": "673bf214e738a9e5d85c03ad",
+  "mobVnum": "1614",
+  "specialFunction": "spec_breath_acid",
+  "comment": "the black pudding",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20ab02126dbcea16ff1"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21730654baef9626682"
+  },
+  "areaId": "673bf2117ef8977369025f02",
+  "mobVnum": "1111",
+  "specialFunction": "spec_guard",
+  "comment": "a shiriff",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21794b5b99225bb3e22"
+  },
+  "areaId": "673bf214e738a9e5d85c03ad",
+  "mobVnum": "1616",
+  "specialFunction": "spec_breath_any",
+  "comment": "the ancient wyvern",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20a16f3ad36e92c3887"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2175ba3e6a25e508672"
+  },
+  "areaId": "673bf2117ef8977369025f02",
+  "mobVnum": "1112",
+  "specialFunction": "spec_guard",
+  "comment": "the Thain",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2173fdfc253631debf9"
+  },
+  "areaId": "673bf214e738a9e5d85c03ad",
+  "mobVnum": "1617",
+  "specialFunction": "spec_cast_undead",
+  "comment": "the spectre",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20ae47b3ca2890f9a0b"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21774e6026bb54bd7aa"
+  },
+  "areaId": "673bf214e738a9e5d85c03ad",
+  "mobVnum": "1716",
+  "specialFunction": "spec_cast_undead",
+  "comment": "the centaur chief",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2173bb5630f6b5a66c4"
+  },
+  "areaId": "673bf2117ef8977369025f02",
+  "mobVnum": "1116",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the elven warrior",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21763362d801137117e"
+  },
+  "areaId": "673bf2117ef8977369025f02",
+  "mobVnum": "1117",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the dwarven prince",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21760cb6eb7ae81dc6f"
+  },
+  "areaId": "673bf214e738a9e5d85c03ad",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21719a628169f6245f7"
+  },
+  "areaId": "673bf2117ef8977369025f02",
+  "mobVnum": "1121",
+  "specialFunction": "spec_guard",
+  "comment": "the battle master",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2177a718669e04c0191"
+  },
+  "areaId": "673bf214e738a9e5d85c03ad",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf217a29c0619aeee8b56"
+  },
+  "areaId": "673bf214e738a9e5d85c03ad",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21778aff9a6955f9e9a"
+  },
+  "areaId": "673bf2117ef8977369025f02",
+  "mobVnum": "1122",
+  "specialFunction": "spec_thief",
+  "comment": "a halfling youth",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf217266a8717273603a7"
+  },
+  "areaId": "673bf2117ef8977369025f02",
+  "mobVnum": "1132",
+  "specialFunction": "spec_guard",
+  "comment": "a shiriff",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf217b1c7ac51efc38a0d"
+  },
+  "areaId": "673bf2117ef8977369025f02",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21705cc4028c7931a26"
+  },
+  "areaId": "673bf2117ef8977369025f02",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf217ec7fa958aa253e50"
+  },
+  "areaId": "673bf2117ef8977369025f02",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2179cfbc9dcae62e3fa"
+  },
+  "areaId": "673bf2145932e7dd0c27a770",
+  "mobVnum": "5200",
+  "specialFunction": "spec_cast_mage",
+  "comment": "The mighty beholder",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf217393f9b22ef46bac3"
+  },
+  "areaId": "673bf2145932e7dd0c27a770",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf217fb5729481ec267ec"
+  },
+  "areaId": "673bf2145932e7dd0c27a770",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2175e60286bf86d7954"
+  },
+  "areaId": "673bf2145932e7dd0c27a770",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e2fc644279494b8ce"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3000",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the wizard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20ef7023680cf964e4b"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3005",
+  "specialFunction": "spec_thief",
+  "comment": "the thief",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e600d95537f3aa58f"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3011",
+  "specialFunction": "spec_executioner",
+  "comment": "Hassan",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e65d453315217e25e"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3012",
+  "specialFunction": "spec_cast_adept",
+  "comment": "the healer",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e88aab7b3c1950fb8"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3020",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the guildmaster",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e74a904ba9a01c2f6"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3021",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the guildmaster",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20ed9a5eb502839b7db"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3024",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the sorcerer",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e4879d8d3477300c9"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3042",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the waiter",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20ee08f2777a6664161"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3043",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the waiter",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20ebf1570ee96c78cac"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3060",
+  "specialFunction": "spec_guard",
+  "comment": "the cityguard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e4156a565cbbdb11a"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3061",
+  "specialFunction": "spec_janitor",
+  "comment": "the janitor",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20eec99ab0f5c38bc22"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3062",
+  "specialFunction": "spec_fido",
+  "comment": "the beastly fido",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e05fab6b44a77df1d"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3067",
+  "specialFunction": "spec_guard",
+  "comment": "the cityguard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e72a1858110219ead"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3068",
+  "specialFunction": "spec_guard",
+  "comment": "the cityguard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e978dc48afc8afb97"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3069",
+  "specialFunction": "spec_guard",
+  "comment": "the cityguard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e95846e684a579a20"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3100",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the maid",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20efc95db97dbb23d91"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3120",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the sexton",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20ede127b71980ddb53"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3143",
+  "specialFunction": "spec_mayor",
+  "comment": "the mayor",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e7462d26bdced28f0"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "mobVnum": "3163",
+  "specialFunction": "spec_nasty",
+  "comment": "the thief",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e61527e8482db364b"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20eca15f7947642cb6e"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf20e357e3c5c6568c549"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf215154de07eeff045b6"
+  },
+  "areaId": "673bf211a69c57ab662ba639",
+  "mobVnum": "7006",
+  "specialFunction": "spec_poison",
+  "comment": "the slithering snake",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21576806fa9e6db641e"
+  },
+  "areaId": "673bf211a69c57ab662ba639",
+  "mobVnum": "7040",
+  "specialFunction": "spec_breath_fire",
+  "comment": "the red dragon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2152ae6ff0e4c5c6031"
+  },
+  "areaId": "673bf211a69c57ab662ba639",
+  "mobVnum": "7041",
+  "specialFunction": "spec_cast_undead",
+  "comment": "the sea hag",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf215f1f466823a3a10b1"
+  },
+  "areaId": "673bf211a69c57ab662ba639",
+  "mobVnum": "7042",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the guardian naga",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf215712de54fbced01be"
+  },
+  "areaId": "673bf211a69c57ab662ba639",
+  "mobVnum": "7043",
+  "specialFunction": "spec_breath_any",
+  "comment": "the scaled basilisk",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf215a413cd51d218d15d"
+  },
+  "areaId": "673bf211a69c57ab662ba639",
+  "mobVnum": "7200",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the master mindflayer",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf215dc9229a254071192"
+  },
+  "areaId": "673bf211a69c57ab662ba639",
+  "mobVnum": "7201",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the senior mindflayer",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2159af584ea79147832"
+  },
+  "areaId": "673bf211a69c57ab662ba639",
+  "mobVnum": "7202",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the junior mindflayer",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf215efe7407d1153a737"
+  },
+  "areaId": "673bf211a69c57ab662ba639",
+  "mobVnum": "7203",
+  "specialFunction": "spec_poison",
+  "comment": "the ugly wererat",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21555bc81bfead683b4"
+  },
+  "areaId": "673bf211a69c57ab662ba639",
+  "mobVnum": "7204",
+  "specialFunction": "spec_poison",
+  "comment": "the gigantic rat",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2157457a430fa121449"
+  },
+  "areaId": "673bf211a69c57ab662ba639",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2156bdff5d22a97c71d"
+  },
+  "areaId": "673bf211a69c57ab662ba639",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21567a5662672694429"
+  },
+  "areaId": "673bf211a69c57ab662ba639",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a5a282607b1b0c7ad"
+  },
+  "areaId": "673bf21492e2a0173f153294",
+  "mobVnum": "7807",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "a valley elf elder",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a63463ccf3347854f"
+  },
+  "areaId": "673bf21492e2a0173f153294",
+  "mobVnum": "7808",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a valley elf elder",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a72735d45c5e7712e"
+  },
+  "areaId": "673bf21492e2a0173f153294",
+  "mobVnum": "7809",
+  "specialFunction": "spec_breath_fire",
+  "comment": "the pyrohydra",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21afd34fe00027beb37"
+  },
+  "areaId": "673bf21492e2a0173f153294",
+  "mobVnum": "7811",
+  "specialFunction": "spec_cast_mage",
+  "comment": "Talemon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a0daca70aaaa00d02"
+  },
+  "areaId": "673bf21492e2a0173f153294",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a3723f4e2a6344cb8"
+  },
+  "areaId": "673bf21492e2a0173f153294",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a50f2cac4eb7982f7"
+  },
+  "areaId": "673bf21492e2a0173f153294",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a75d4e8915cbd1f63"
+  },
+  "areaId": "673bf210770094889c86e9f1",
+  "mobVnum": "600",
+  "specialFunction": "spec_guard",
+  "comment": "the Ofcol cityguard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a7352496e8c98c1b6"
+  },
+  "areaId": "673bf210770094889c86e9f1",
+  "mobVnum": "601",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Marshall Diana",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a737b98db10a482df"
+  },
+  "areaId": "673bf210770094889c86e9f1",
+  "mobVnum": "602",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Captain Derrick",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a3ebab3c8bbe88217"
+  },
+  "areaId": "673bf210770094889c86e9f1",
+  "mobVnum": "603",
+  "specialFunction": "spec_cast_mage",
+  "comment": "Captain Jacklyn",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a1e5eee2d00b54efd"
+  },
+  "areaId": "673bf210770094889c86e9f1",
+  "mobVnum": "621",
+  "specialFunction": "spec_janitor",
+  "comment": "the maid",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a7e6660087b1c606e"
+  },
+  "areaId": "673bf210770094889c86e9f1",
+  "mobVnum": "623",
+  "specialFunction": "spec_guard",
+  "comment": "the Ofcol cityguard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a4765ecff81bee988"
+  },
+  "areaId": "673bf210770094889c86e9f1",
+  "mobVnum": "628",
+  "specialFunction": "spec_cast_adept",
+  "comment": "the Priestess of Ofcol",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a44989d7b8eb3402f"
+  },
+  "areaId": "673bf210770094889c86e9f1",
+  "mobVnum": "629",
+  "specialFunction": "spec_guard",
+  "comment": "Chaplain Jerrold",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21ad5dc0d7daed7598a"
+  },
+  "areaId": "673bf210770094889c86e9f1",
+  "mobVnum": "630",
+  "specialFunction": "spec_breath_any",
+  "comment": "a Dragonlord",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21af69db464b5414641"
+  },
+  "areaId": "673bf210770094889c86e9f1",
+  "mobVnum": "631",
+  "specialFunction": "spec_breath_any",
+  "comment": "The Ancient Gold Dragon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21aa51925fd8c8840fc"
+  },
+  "areaId": "673bf210770094889c86e9f1",
+  "mobVnum": "632",
+  "specialFunction": "spec_cast_mage",
+  "comment": "an attendant of the dragon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a84dee3065694d7af"
+  },
+  "areaId": "673bf210770094889c86e9f1",
+  "mobVnum": "633",
+  "specialFunction": "spec_breath_any",
+  "comment": "a Dragonknight",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a25f3848ff99a7f1b"
+  },
+  "areaId": "673bf210770094889c86e9f1",
+  "mobVnum": "634",
+  "specialFunction": "spec_guard",
+  "comment": "the Ofcol cityguard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a96e0bc49ac509d29"
+  },
+  "areaId": "673bf210770094889c86e9f1",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a54646983a183f8c2"
+  },
+  "areaId": "673bf210770094889c86e9f1",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a1b038aa949ca4e03"
+  },
+  "areaId": "673bf210770094889c86e9f1",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21991932a781ffbfcca"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10401",
+  "specialFunction": "spec_cast_judge",
+  "comment": "the Guardian of Hell",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf219d219939fcad80302"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10402",
+  "specialFunction": "spec_thief",
+  "comment": "the pile of gold coins",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf219a2216747ade98637"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10403",
+  "specialFunction": "spec_breath_fire",
+  "comment": "the male Dee",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf219bb1bd34979b97e81"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10405",
+  "specialFunction": "spec_thief",
+  "comment": "the gold bar",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf219387014f2ca1f9d5e"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10406",
+  "specialFunction": "spec_poison",
+  "comment": "pie",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf219f1953f1e5ac6b895"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10407",
+  "specialFunction": "spec_cast_judge",
+  "comment": "pie",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf219d7f0933aa8fcaa21"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10408",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "pie",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf219d2707437adbf67bd"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10409",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "a damned soul",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2199a6998db64b7dfab"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10410",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a tortured soul",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf219e982096c681bdba5"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10411",
+  "specialFunction": "spec_cast_undead",
+  "comment": "the half-eaten person",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21958045aa393b216ce"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10412",
+  "specialFunction": "spec_breath_acid",
+  "comment": "the living wall",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf219fa22e539dc29ed0f"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10417",
+  "specialFunction": "spec_breath_gas",
+  "comment": "the blood from the fountain",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21954de1ce2a6f83984"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10418",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the lost soul",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2197d5e07cf62b6f465"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10419",
+  "specialFunction": "spec_breath_fire",
+  "comment": "the crispy critter",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf219c0f9ca657a2aa9b3"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10421",
+  "specialFunction": "spec_fido",
+  "comment": "the manes",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf219ccf59f00cfa735ef"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10422",
+  "specialFunction": "spec_breath_lightning",
+  "comment": "the prisoner Raiden",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf2194fd863bdb7d685bd"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10425",
+  "specialFunction": "spec_poison",
+  "comment": "demonguard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf219f455f95472081ae6"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10426",
+  "specialFunction": "spec_breath_fire",
+  "comment": "the burning fool",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf219f55e05b74bcb853f"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10430",
+  "specialFunction": "spec_breath_fire",
+  "comment": "the fire devil",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf219f3081042573d0e19"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10432",
+  "specialFunction": "spec_breath_fire",
+  "comment": "the hell hound",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a685c47b426abac93"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10433",
+  "specialFunction": "spec_breath_frost",
+  "comment": "the frozen body",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a752dda220536dd23"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10434",
+  "specialFunction": "spec_breath_frost",
+  "comment": "the ice devil",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21aef0cb03c47617533"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10437",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the killer penguin",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a61122fd12d480b9b"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10438",
+  "specialFunction": "spec_breath_frost",
+  "comment": "the I-scream worker",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a32af5654125accd6"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10439",
+  "specialFunction": "spec_breath_frost",
+  "comment": "the Ice Screamer",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a11cadbd2e6a3aece"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10442",
+  "specialFunction": "spec_thief",
+  "comment": "office worker from Hell",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21aa7e1e5f87c794901"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10445",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "High Priest of Hell",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a9595249c3face049"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10448",
+  "specialFunction": "spec_cast_judge",
+  "comment": "Judge Whopper",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21ae0fb113db448b6e5"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10456",
+  "specialFunction": "spec_breath_acid",
+  "comment": "stomach dragon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a28541b4f5ec68d5f"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10468",
+  "specialFunction": "spec_breath_fire",
+  "comment": "Greater Fire Demon",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a106d38f872d22129"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10469",
+  "specialFunction": "spec_breath_frost",
+  "comment": "side of frozen beef",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a8e14ab35e9541c08"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "mobVnum": "10470",
+  "specialFunction": "spec_fido",
+  "comment": "guard dog",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a4114f97f554a8695"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a1636a0c1eee8fe01"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21a3271d6ef1fde91c6"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e3fa6e2c5c6b5cf11"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9521",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the statue of Nati",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21eb08486b385c8c49b"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9522",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the statue of Alander",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e52f56349a49cd88d"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9523",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the statue of Zump",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21efb842103445c4b29"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9524",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the statue of Nightshade",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e510b20feb289dec0"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9525",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the statue of Satin",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e23ed26a538c681a5"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9526",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the statue of Shandra",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e8c7b33c7d1de902a"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9527",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the statue of Furey",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e7e455961df910d3e"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9528",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the statue of Landru",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21ea7e2549acfecc1a6"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9529",
+  "specialFunction": "spec_cast_mage",
+  "comment": "Aziz",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21eb25515f68766398e"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9530",
+  "specialFunction": "spec_thief",
+  "comment": "Mustafah",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e44cf508815dc6704"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9531",
+  "specialFunction": "spec_cast_mage",
+  "comment": "Fatima",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21ebe125af8a75888e1"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9535",
+  "specialFunction": "spec_thief",
+  "comment": "the skinny kid",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e2889809e88231c0a"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9538",
+  "specialFunction": "spec_thief",
+  "comment": "Gord",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e7d706e59a9cf2c37"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9540",
+  "specialFunction": "spec_cast_mage",
+  "comment": "Raistlin",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21eef51ea4f26b48f86"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9541",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Curley GreenLeaf",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e27edb2548a513224"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9542",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the wandering prophet",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21ed3ad33effc17f589"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9544",
+  "specialFunction": "spec_fido",
+  "comment": "the vulture",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e353f98c746177ada"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9548",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the lamia",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e7ca20559a88a2e64"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9555",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Allah",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e98ed59262c9746a5"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9561",
+  "specialFunction": "spec_guard",
+  "comment": "the sultan's guard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e494cdb50f76325d8"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9562",
+  "specialFunction": "spec_guard",
+  "comment": "the sultans guard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e2f3f3f7e6d98014b"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9570",
+  "specialFunction": "spec_breath_frost",
+  "comment": "the cryohydra",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e0f2b255d1c55e926"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9574",
+  "specialFunction": "spec_breath_lightning",
+  "comment": "the behir",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e3555aa191ecdc968"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9575",
+  "specialFunction": "spec_breath_fire",
+  "comment": "the chimera",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21ef695509c36dbe9f5"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9577",
+  "specialFunction": "spec_poison",
+  "comment": "the giant hornet",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e0a4d96c94c582a0b"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9582",
+  "specialFunction": "spec_guard",
+  "comment": "The Royal Guard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e8b703a938322ea70"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "mobVnum": "9592",
+  "specialFunction": "spec_guard",
+  "comment": "the bodyguard",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e799fbca2071704c5"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e80a614174ba0fec2"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+},
+{
+  "_id": {
+    "$oid": "673bf21e2cad3c67ad5a9c9c"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "_class": "com.springmud.mongodb.special.repository.Special"
+}]

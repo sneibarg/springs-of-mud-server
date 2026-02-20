@@ -1,0 +1,68 @@
+[{
+  "_id": {
+    "$oid": "674a8db2eee5966aa66cb09a"
+  },
+  "name": "Human",
+  "size": "medium",
+  "str": 13,
+  "maxStr": 18,
+  "int": 13,
+  "maxInt": 18,
+  "wis": 13,
+  "maxWis": 18,
+  "dex": 13,
+  "maxDex": 18,
+  "con": 13,
+  "maxCon": 18
+},
+{
+  "_id": {
+    "$oid": "674a8db2eee5966aa66cb09b"
+  },
+  "name": "Dwarf",
+  "size": "medium",
+  "str": 14,
+  "maxStr": 20,
+  "int": 12,
+  "maxInt": 16,
+  "wis": 14,
+  "maxWis": 19,
+  "dex": 10,
+  "maxDex": 14,
+  "con": 15,
+  "maxCon": 21
+},
+{
+  "_id": {
+    "$oid": "674a8db2eee5966aa66cb09c"
+  },
+  "name": "Elf",
+  "size": "small",
+  "str": 12,
+  "maxStr": 16,
+  "int": 14,
+  "maxInt": 20,
+  "wis": 13,
+  "maxWis": 18,
+  "dex": 21,
+  "maxDex": 14,
+  "con": 15,
+  "maxCon": 21
+},
+{
+  "_id": {
+    "$oid": "674a8db2eee5966aa66cb09d"
+  },
+  "name": "Giant",
+  "size": "Large",
+  "str": 16,
+  "maxStr": 22,
+  "int": 11,
+  "maxInt": 15,
+  "wis": 13,
+  "maxWis": 18,
+  "dex": 11,
+  "maxDex": 15,
+  "con": 14,
+  "maxCon": 20
+}]

@@ -1,0 +1,355 @@
+[{
+  "_id": {
+    "$oid": "673bf2089a8d001b0b33ee5b"
+  },
+  "areaId": "673bf208a04079b47ffb1cb8",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf208feb790dc18579295"
+  },
+  "areaId": "673bf208e856a966a458b92b",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf2082fc1076f4caa54c1"
+  },
+  "areaId": "673bf2088e60a3ee18e0d207",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf20818bf6145e8a68871"
+  },
+  "areaId": "673bf207365ea123f1f24771",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf2085102e7d050362055"
+  },
+  "areaId": "673bf208767e419b20dc66c5",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf2081f85f4ec57b0e34e"
+  },
+  "areaId": "673bf20864201b73b6c8e0f3",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf208fbea6a4299bc2fea"
+  },
+  "areaId": "673bf2087025b3122a0ffe2a",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf208edd1becb0cd1065a"
+  },
+  "areaId": "673bf2086115a2ab8bc0531d",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf2088ddcc6ea70b17665"
+  },
+  "areaId": "673bf208c6406e082da84ef8",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf20848853645e205b0cb"
+  },
+  "areaId": "673bf208330951c09d377ce6",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf20987498e25fdb0514c"
+  },
+  "areaId": "673bf2093e31a458bc91b4ca",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf20856a1e896573b48fe"
+  },
+  "areaId": "673bf208687bc07e964b9f71",
+  "vnum": "6503",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf2085218ec78729062ab"
+  },
+  "areaId": "673bf2082051d585d6db1846",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf208b3c0588071db9859"
+  },
+  "areaId": "673bf208bcb77678471fc625",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf208f7bec941fe445476"
+  },
+  "areaId": "673bf2081fb091fd66f36f6d",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf2081bf9e9bcf9e0337a"
+  },
+  "areaId": "673bf2084f96ccb1a2664eba",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf2089c42698c10c1bf83"
+  },
+  "areaId": "673bf208eb5914dddc3661bc",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf20ac7bf4dc914779478"
+  },
+  "areaId": "673bf20a6a5b0f32a2928801",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf208845669d4bb9b3d16"
+  },
+  "areaId": "673bf2086d75a58fa2c18a59",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf20dbb511f322949d376"
+  },
+  "areaId": "673bf20d6be559b0d971353e",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf2086e377c6101102fcf"
+  },
+  "areaId": "673bf20811e9e80a96fce62c",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf20894bc230734ff7d74"
+  },
+  "areaId": "673bf20865417793997469dd",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf20f7d5809bec820304e"
+  },
+  "areaId": "673bf20feaa5f785909b6495",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf208aa0d5d1af8504702"
+  },
+  "areaId": "673bf2083683e89e82f4f159",
+  "vnum": "9238",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf208bca7a7ca42b1e706"
+  },
+  "areaId": "673bf208791e72fc536f5e55",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf20805385e22696ecbfe"
+  },
+  "areaId": "673bf208bdc2dce93ec9b309",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf2111cfc838d32dcbd43"
+  },
+  "areaId": "673bf211496f3a48c1d8fe68",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf2115914293c98cf452b"
+  },
+  "areaId": "673bf21134a2fef5fe526359",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf20fb252ed62f93d873b"
+  },
+  "areaId": "673bf20fa603d9e53bb63e8d",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf2114931e00610a1e28d"
+  },
+  "areaId": "673bf2117ef41897698e3e91",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf2112f6d0346f7fc348f"
+  },
+  "areaId": "673bf211db8aa9f4512041b9",
+  "vnum": "306",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf2084d5e7bf92ee282e3"
+  },
+  "areaId": "673bf2081757439189c2d638",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf20d218612c2f400a7d4"
+  },
+  "areaId": "673bf20cdbfc80ec09e6d3e2",
+  "vnum": "5310",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf214084afe1064de2bc4"
+  },
+  "areaId": "673bf21425a0659658dd8936",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf2131e1b6ef4b457d32e"
+  },
+  "areaId": "673bf2138bdeac876e0da595",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf21109a1d3fd775ee397"
+  },
+  "areaId": "673bf21189e37bdf47cf11f1",
+  "vnum": "3717",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf20e981637ec7f721a9c"
+  },
+  "areaId": "673bf20e802af07973e148da",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf21109ec09045e935193"
+  },
+  "areaId": "673bf211211296e38edb50b6",
+  "vnum": "915",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf2113f904662465f7ae7"
+  },
+  "areaId": "673bf211ea5ee3ec54861180",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf208591b9e57bd479693"
+  },
+  "areaId": "673bf20814a6f499fe55813e",
+  "vnum": "1305",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf212d9a4f486f1c4da9b"
+  },
+  "areaId": "673bf2117ef8977369025f02",
+  "vnum": "1113",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf21443630bcb78b14789"
+  },
+  "areaId": "673bf214e738a9e5d85c03ad",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf2144b5566813ceb310f"
+  },
+  "areaId": "673bf2145932e7dd0c27a770",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf20b04abb6748c44173f"
+  },
+  "areaId": "673bf20a4fe76758d3088d4f",
+  "vnum": "3000",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf2125a501f2c98d052b5"
+  },
+  "areaId": "673bf211a69c57ab662ba639",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf214b218028ad108377c"
+  },
+  "areaId": "673bf21492e2a0173f153294",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf210138fe645a60ba869"
+  },
+  "areaId": "673bf210770094889c86e9f1",
+  "vnum": "604",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf214fa727c0bfebe5cbc"
+  },
+  "areaId": "673bf214aa061661d6769b5b",
+  "vnum": "10451",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+},
+{
+  "_id": {
+    "$oid": "673bf20fc50718de2c31ac8f"
+  },
+  "areaId": "673bf20f3a17db15c645936d",
+  "vnum": "9505",
+  "_class": "com.springmud.mongodb.shop.repository.Shop"
+}]
