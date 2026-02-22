@@ -175,7 +175,6 @@ class CommandService:
             return
 
         try:
-            print(f"PLAYER={player}\r\nJSON={command_json}\r\nPARAM={parameters}")
             handle_lambdas(self, player, command_json, parameters)
         except ValueError as ve:
             self.logger.error("ValueError: " + str(ve))

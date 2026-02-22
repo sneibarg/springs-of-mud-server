@@ -1,13 +1,12 @@
 import threading
+
 from asyncio import StreamWriter, StreamReader
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 from uuid import uuid1
 from injector import Injector
 from object.Item import Item
-from server import LoggerFactory
-from mobile.mobile_util import move_mobile
-from player.player_util import print_room
+from server.LoggerFactory import LoggerFactory
 
 
 @dataclass
@@ -74,6 +73,7 @@ class RomMobile:
             if lootable.startswith(fuzzy_item) or fuzzy_item == lootable:
                 return self.loot[lootable]
         usage(self)
+        return None
 
     def get_items(self):
         from object import ItemService
@@ -85,9 +85,9 @@ class RomMobile:
         self.logger.debug("get_items: " + str(items))
         return items
 
-    def move_mobile(self, area_service, direction):
-        result = move_mobile(area_service, self, direction)
-        self.logger.info("move_mobile: " + str(result))
-        if result is not None:
-            self.room_id = result.id
-            print_room(area_service, self.writer, self)
+    # def move_mobile(self, character, direction):
+    #     result = move_mobile(room_service, self, direction)
+    #     self.logger.info("move_mobile: " + str(result))
+    #     if result is not None:
+    #         self.room_id = result.id
+    #         room_service.print_room(area_service, self.writer, self)

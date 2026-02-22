@@ -1,0 +1,782 @@
+[{
+  "_id": "rom24.quickmud.ruleset.2026-02-02",
+  "kind": "ruleset",
+  "status": "active",
+  "version": {
+    "family": "rom24",
+    "lineage": [
+      "rom24b2",
+      "quickmud"
+    ],
+    "semver": "1.0.0",
+    "createdAt": "2026-02-02T00:00:00Z",
+    "notes": "Baseline ruleset snapshot for Springs of MUD"
+  },
+  "constants": {
+    "max": {
+      "skills": 150,
+      "groups": 30,
+      "inGroup": 15,
+      "socials": 256,
+      "classes": 4,
+      "pcRaces": 5,
+      "clans": 3,
+      "levels": 60,
+      "wearSlots": 19
+    },
+    "pulses": {
+      "perSecond": 4,
+      "violence": 12,
+      "mobile": 16,
+      "music": 24,
+      "tick": 240,
+      "area": 480
+    }
+  },
+  "enums": {
+    "sex": [
+      "NEUTRAL",
+      "MALE",
+      "FEMALE"
+    ],
+    "position": [
+      "DEAD",
+      "MORTAL",
+      "INCAP",
+      "STUNNED",
+      "SLEEPING",
+      "RESTING",
+      "SITTING",
+      "FIGHTING",
+      "STANDING"
+    ],
+    "direction": [
+      "NORTH",
+      "EAST",
+      "SOUTH",
+      "WEST",
+      "UP",
+      "DOWN"
+    ],
+    "size": [
+      "TINY",
+      "SMALL",
+      "MEDIUM",
+      "LARGE",
+      "HUGE",
+      "GIANT"
+    ],
+    "acType": [
+      "PIERCE",
+      "BASH",
+      "SLASH",
+      "EXOTIC"
+    ],
+    "sector": [
+      "INSIDE",
+      "CITY",
+      "FIELD",
+      "FOREST",
+      "HILLS",
+      "MOUNTAIN",
+      "WATER_SWIM",
+      "WATER_NOSWIM",
+      "UNUSED",
+      "AIR",
+      "DESERT"
+    ],
+    "target": [
+      "IGNORE",
+      "CHAR_OFFENSIVE",
+      "CHAR_DEFENSIVE",
+      "CHAR_SELF",
+      "OBJ_INV",
+      "OBJ_CHAR_DEF",
+      "OBJ_CHAR_OFF"
+    ],
+    "damageType": [
+      "NONE",
+      "BASH",
+      "PIERCE",
+      "SLASH",
+      "FIRE",
+      "COLD",
+      "LIGHTNING",
+      "ACID",
+      "POISON",
+      "NEGATIVE",
+      "HOLY",
+      "ENERGY",
+      "MENTAL",
+      "DISEASE",
+      "DROWNING",
+      "LIGHT",
+      "OTHER",
+      "HARM",
+      "CHARM",
+      "SOUND"
+    ],
+    "applyType": [
+      "NONE",
+      "STR",
+      "DEX",
+      "INT",
+      "WIS",
+      "CON",
+      "SEX",
+      "CLASS",
+      "LEVEL",
+      "AGE",
+      "HEIGHT",
+      "WEIGHT",
+      "MANA",
+      "HIT",
+      "MOVE",
+      "GOLD",
+      "EXP",
+      "AC",
+      "HITROLL",
+      "DAMROLL",
+      "SAVES",
+      "SAVING_ROD",
+      "SAVING_PETRI",
+      "SAVING_BREATH",
+      "SAVING_SPELL",
+      "SPELL_AFFECT"
+    ],
+    "itemType": [
+      "LIGHT",
+      "SCROLL",
+      "WAND",
+      "STAFF",
+      "WEAPON",
+      "TREASURE",
+      "ARMOR",
+      "POTION",
+      "CLOTHING",
+      "FURNITURE",
+      "TRASH",
+      "CONTAINER",
+      "DRINK_CON",
+      "KEY",
+      "FOOD",
+      "MONEY",
+      "BOAT",
+      "CORPSE_NPC",
+      "CORPSE_PC",
+      "FOUNTAIN",
+      "PILL",
+      "PROTECT",
+      "MAP",
+      "PORTAL",
+      "WARP_STONE",
+      "ROOM_KEY",
+      "GEM",
+      "JEWELRY",
+      "JUKEBOX"
+    ],
+    "weaponClass": [
+      "EXOTIC",
+      "SWORD",
+      "DAGGER",
+      "SPEAR",
+      "MACE",
+      "AXE",
+      "FLAIL",
+      "WHIP",
+      "POLEARM"
+    ],
+    "wearSlot": [
+      "NONE",
+      "LIGHT",
+      "FINGER_L",
+      "FINGER_R",
+      "NECK_1",
+      "NECK_2",
+      "BODY",
+      "HEAD",
+      "LEGS",
+      "FEET",
+      "HANDS",
+      "ARMS",
+      "SHIELD",
+      "ABOUT",
+      "WAIST",
+      "WRIST_L",
+      "WRIST_R",
+      "WIELD",
+      "HOLD",
+      "FLOAT"
+    ],
+    "condition": [
+      "DRUNK",
+      "FULL",
+      "THIRST",
+      "HUNGER"
+    ]
+  },
+  "flagDomains": {
+    "mobAct": [
+      "SENTINEL",
+      "SCAVENGER",
+      "AGGRESSIVE",
+      "STAY_AREA",
+      "WIMPY",
+      "PET",
+      "TRAIN",
+      "PRACTICE",
+      "UNDEAD",
+      "CLERIC",
+      "MAGE",
+      "THIEF",
+      "WARRIOR",
+      "NOALIGN",
+      "NOPURGE",
+      "OUTDOORS",
+      "INDOORS",
+      "IS_HEALER",
+      "GAIN",
+      "UPDATE_ALWAYS",
+      "IS_CHANGER"
+    ],
+    "offense": [
+      "AREA_ATTACK",
+      "BACKSTAB",
+      "BASH",
+      "BERSERK",
+      "DISARM",
+      "DODGE",
+      "FADE",
+      "FAST",
+      "KICK",
+      "KICK_DIRT",
+      "PARRY",
+      "RESCUE",
+      "TAIL",
+      "TRIP",
+      "CRUSH",
+      "ASSIST_ALL",
+      "ASSIST_ALIGN",
+      "ASSIST_RACE",
+      "ASSIST_PLAYERS",
+      "ASSIST_GUARD",
+      "ASSIST_VNUM"
+    ],
+    "affect": [
+      "BLIND",
+      "INVISIBLE",
+      "DETECT_EVIL",
+      "DETECT_INVIS",
+      "DETECT_MAGIC",
+      "DETECT_HIDDEN",
+      "DETECT_GOOD",
+      "SANCTUARY",
+      "FAERIE_FIRE",
+      "INFRARED",
+      "CURSE",
+      "POISON",
+      "PROTECT_EVIL",
+      "PROTECT_GOOD",
+      "SNEAK",
+      "HIDE",
+      "SLEEP",
+      "CHARM",
+      "FLYING",
+      "PASS_DOOR",
+      "HASTE",
+      "CALM",
+      "PLAGUE",
+      "WEAKEN",
+      "DARK_VISION",
+      "BERSERK",
+      "SWIM",
+      "REGENERATION",
+      "SLOW"
+    ],
+    "immunity": [
+      "SUMMON",
+      "CHARM",
+      "MAGIC",
+      "WEAPON",
+      "BASH",
+      "PIERCE",
+      "SLASH",
+      "FIRE",
+      "COLD",
+      "LIGHTNING",
+      "ACID",
+      "POISON",
+      "NEGATIVE",
+      "HOLY",
+      "ENERGY",
+      "MENTAL",
+      "DISEASE",
+      "DROWNING",
+      "LIGHT",
+      "SOUND",
+      "WOOD",
+      "SILVER",
+      "IRON"
+    ],
+    "resistance": [
+      "SUMMON",
+      "CHARM",
+      "MAGIC",
+      "WEAPON",
+      "BASH",
+      "PIERCE",
+      "SLASH",
+      "FIRE",
+      "COLD",
+      "LIGHTNING",
+      "ACID",
+      "POISON",
+      "NEGATIVE",
+      "HOLY",
+      "ENERGY",
+      "MENTAL",
+      "DISEASE",
+      "DROWNING",
+      "LIGHT",
+      "SOUND",
+      "WOOD",
+      "SILVER",
+      "IRON"
+    ],
+    "vulnerability": [
+      "SUMMON",
+      "CHARM",
+      "MAGIC",
+      "WEAPON",
+      "BASH",
+      "PIERCE",
+      "SLASH",
+      "FIRE",
+      "COLD",
+      "LIGHTNING",
+      "ACID",
+      "POISON",
+      "NEGATIVE",
+      "HOLY",
+      "ENERGY",
+      "MENTAL",
+      "DISEASE",
+      "DROWNING",
+      "LIGHT",
+      "SOUND",
+      "WOOD",
+      "SILVER",
+      "IRON"
+    ],
+    "form": [
+      "EDIBLE",
+      "POISON",
+      "MAGICAL",
+      "INSTANT_DECAY",
+      "OTHER",
+      "ANIMAL",
+      "SENTIENT",
+      "UNDEAD",
+      "CONSTRUCT",
+      "MIST",
+      "INTANGIBLE",
+      "BIPED",
+      "CENTAUR",
+      "INSECT",
+      "SPIDER",
+      "CRUSTACEAN",
+      "WORM",
+      "BLOB",
+      "MAMMAL",
+      "BIRD",
+      "REPTILE",
+      "SNAKE",
+      "DRAGON",
+      "AMPHIBIAN",
+      "FISH",
+      "COLD_BLOOD"
+    ],
+    "parts": [
+      "HEAD",
+      "ARMS",
+      "LEGS",
+      "HEART",
+      "BRAINS",
+      "GUTS",
+      "HANDS",
+      "FEET",
+      "FINGERS",
+      "EAR",
+      "EYE",
+      "LONG_TONGUE",
+      "EYESTALKS",
+      "TENTACLES",
+      "FINS",
+      "WINGS",
+      "TAIL",
+      "CLAWS",
+      "FANGS",
+      "HORNS",
+      "SCALES",
+      "TUSKS"
+    ],
+    "room": [
+      "DARK",
+      "NO_MOB",
+      "INDOORS",
+      "PRIVATE",
+      "SAFE",
+      "SOLITARY",
+      "PET_SHOP",
+      "NO_RECALL",
+      "IMP_ONLY",
+      "GODS_ONLY",
+      "HEROES_ONLY",
+      "NEWBIES_ONLY",
+      "LAW",
+      "NOWHERE"
+    ],
+    "exit": [
+      "IS_DOOR",
+      "CLOSED",
+      "LOCKED",
+      "PICKPROOF",
+      "NO_PASS",
+      "EASY",
+      "HARD",
+      "INFURIATING",
+      "NO_CLOSE",
+      "NO_LOCK"
+    ],
+    "itemExtra": [
+      "GLOW",
+      "HUM",
+      "DARK",
+      "LOCK",
+      "EVIL",
+      "INVIS",
+      "MAGIC",
+      "NODROP",
+      "BLESS",
+      "ANTI_GOOD",
+      "ANTI_EVIL",
+      "ANTI_NEUTRAL",
+      "NOREMOVE",
+      "INVENTORY",
+      "NOPURGE",
+      "ROT_DEATH",
+      "VIS_DEATH",
+      "NONMETAL",
+      "NOLOCATE",
+      "MELT_DROP",
+      "HAD_TIMER",
+      "SELL_EXTRACT",
+      "BURN_PROOF",
+      "NOUNCURSE"
+    ],
+    "wear": [
+      "TAKE",
+      "WEAR_FINGER",
+      "WEAR_NECK",
+      "WEAR_BODY",
+      "WEAR_HEAD",
+      "WEAR_LEGS",
+      "WEAR_FEET",
+      "WEAR_HANDS",
+      "WEAR_ARMS",
+      "WEAR_SHIELD",
+      "WEAR_ABOUT",
+      "WEAR_WAIST",
+      "WEAR_WRIST",
+      "WIELD",
+      "HOLD",
+      "NO_SAC",
+      "WEAR_FLOAT"
+    ],
+    "weapon": [
+      "FLAMING",
+      "FROST",
+      "VAMPIRIC",
+      "SHARP",
+      "VORPAL",
+      "TWO_HANDS",
+      "SHOCKING",
+      "POISON"
+    ],
+    "container": [
+      "CLOSEABLE",
+      "PICKPROOF",
+      "CLOSED",
+      "LOCKED",
+      "PUT_ON"
+    ],
+    "player": [
+      "AUTOASSIST",
+      "AUTOEXIT",
+      "AUTOLOOT",
+      "AUTOSAC",
+      "AUTOGOLD",
+      "AUTOSPLIT",
+      "HOLYLIGHT",
+      "CANLOOT",
+      "NOSUMMON",
+      "NOFOLLOW",
+      "PERMIT",
+      "LOG",
+      "DENY",
+      "FREEZE",
+      "THIEF",
+      "KILLER"
+    ],
+    "comm": [
+      "QUIET",
+      "DEAF",
+      "NOWIZ",
+      "NOAUCTION",
+      "NOGOSSIP",
+      "NOQUESTION",
+      "NOMUSIC",
+      "NOCLAN",
+      "NOQUOTE",
+      "SHOUTSOFF",
+      "COMPACT",
+      "BRIEF",
+      "PROMPT",
+      "COMBINE",
+      "TELNET_GA",
+      "SHOW_AFFECTS",
+      "NOGRATS",
+      "NOEMOTE",
+      "NOSHOUT",
+      "NOTELL",
+      "NOCHANNELS",
+      "SNOOP_PROOF",
+      "AFK"
+    ],
+    "wiznet": [
+      "ON",
+      "TICKS",
+      "LOGINS",
+      "SITES",
+      "LINKS",
+      "DEATHS",
+      "RESETS",
+      "MOBDEATHS",
+      "FLAGS",
+      "PENALTIES",
+      "SACCING",
+      "LEVELS",
+      "SECURE",
+      "SWITCHES",
+      "SNOOPS",
+      "RESTORE",
+      "LOAD",
+      "NEWBIE",
+      "PREFIX",
+      "SPAM"
+    ]
+  },
+  "catalogs": {
+    "classes": {
+      "byId": {
+        "mage": {
+          "id": "mage",
+          "whoName": "Mag",
+          "primeAttr": "INT",
+          "defaultWeapon": "dagger",
+          "guildRooms": [
+            "3000",
+            "3001"
+          ],
+          "skillAdept": 75,
+          "thac0": {
+            "level0": 20,
+            "level32": 5
+          },
+          "hpGain": {
+            "min": 6,
+            "max": 10
+          },
+          "gainsMana": true,
+          "baseGroup": "mage_base",
+          "defaultGroup": "mage_default"
+        }
+      },
+      "byName": {
+        "mage": "mage"
+      }
+    },
+    "races": {
+      "byId": {
+        "human": {
+          "id": "human",
+          "pcSelectable": true,
+          "mobAct": [],
+          "affect": [],
+          "offense": [],
+          "immunity": [],
+          "resistance": [],
+          "vulnerability": [],
+          "form": [],
+          "parts": []
+        }
+      },
+      "byName": {
+        "human": "human"
+      }
+    },
+    "pcRaces": {
+      "byId": {
+        "human": {
+          "id": "human",
+          "whoName": "Human",
+          "points": 0,
+          "classExpMult": {
+            "mage": 100,
+            "cleric": 100,
+            "thief": 100,
+            "warrior": 100
+          },
+          "bonusSkills": [],
+          "stats": {
+            "STR": 13,
+            "INT": 13,
+            "WIS": 13,
+            "DEX": 13,
+            "CON": 13
+          },
+          "maxStats": {
+            "STR": 18,
+            "INT": 18,
+            "WIS": 18,
+            "DEX": 18,
+            "CON": 18
+          },
+          "size": "MEDIUM"
+        }
+      },
+      "byName": {
+        "human": "human"
+      }
+    },
+    "skills": {
+      "byId": {
+        "reserved": {
+          "id": "reserved",
+          "kind": "skill",
+          "levelByClass": {
+            "mage": 60,
+            "cleric": 60,
+            "thief": 60,
+            "warrior": 60
+          },
+          "ratingByClass": {
+            "mage": 0,
+            "cleric": 0,
+            "thief": 0,
+            "warrior": 0
+          },
+          "handlerId": "spell.none",
+          "target": "IGNORE",
+          "minPosition": "STANDING",
+          "slot": 0,
+          "minMana": 0,
+          "beats": 0,
+          "nounDamage": "",
+          "msgOff": "",
+          "msgObj": ""
+        }
+      },
+      "byName": {
+        "reserved": "reserved"
+      }
+    },
+    "groups": {
+      "byId": {
+        "rom_basics": {
+          "id": "rom_basics",
+          "ratingByClass": {
+            "mage": 0,
+            "cleric": 0,
+            "thief": 0,
+            "warrior": 0
+          },
+          "skillIds": [
+            "reserved"
+          ]
+        }
+      },
+      "byName": {
+        "rom basics": "rom_basics"
+      }
+    },
+    "weapons": {
+      "byId": {
+        "dagger": {
+          "id": "dagger",
+          "weaponClass": "DAGGER",
+          "gsn": "dagger"
+        }
+      },
+      "byName": {
+        "dagger": "dagger"
+      }
+    },
+    "attacks": {
+      "byId": {
+        "hit": {
+          "id": "hit",
+          "noun": "hit",
+          "damageType": "BASH"
+        }
+      },
+      "byName": {
+        "hit": "hit"
+      }
+    },
+    "liquids": {
+      "byId": {
+        "water": {
+          "id": "water",
+          "color": "clear",
+          "affect": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "byName": {
+        "water": "water"
+      }
+    }
+  },
+  "wellKnownVnums": {
+    "mob": {
+      "FIDO": 3090,
+      "CITYGUARD": 3060,
+      "VAMPIRE": 3404,
+      "PATROLMAN": 2106
+    },
+    "obj": {
+      "SILVER_ONE": 1,
+      "GOLD_ONE": 2,
+      "CORPSE_NPC": 10,
+      "CORPSE_PC": 11
+    },
+    "room": {
+      "LIMBO": 2,
+      "TEMPLE": 3001,
+      "SCHOOL": 3700
+    }
+  },
+  "integrity": {
+    "contentHash": "sha256:REPLACE_WITH_HASH_OF_CANONICAL_JSON",
+    "build": {
+      "source": "ruleset-compiler",
+      "toolVersion": "1.0.0"
+    }
+  }
+}]

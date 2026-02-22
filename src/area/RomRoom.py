@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 import threading
 
 
@@ -67,3 +68,8 @@ class RomRoom:
         with self.lock:
             self.combat_events.remove(combat_event)
 
+    def print_description(self, writer, room):
+        if writer is None or room is None:
+            room.logger.info("print_description: writer=" + str(writer) + ", room=" + self.name)
+            return
+        writer.write(str(room.description + "\r\n").encode('utf-8'))

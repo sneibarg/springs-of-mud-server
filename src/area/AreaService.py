@@ -3,13 +3,13 @@ import requests
 from area.RomArea import RomArea
 from area.RomRoom import RomRoom
 from registry import RegistryService
+from server.LoggerFactory import LoggerFactory
 from server.server_util import camel_to_snake_case, is_valid_direction
 
 
 class AreaService:
     def __init__(self, injector, area_config, room_config):
         self.__name__ = "AreaService"
-        from server.LoggerFactory import LoggerFactory
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry = injector.get(RegistryService)
         self.injector = injector
@@ -49,39 +49,13 @@ class AreaService:
             self.logger.debug("Registering room: "+str(room))
             self.registry.register_room(room)
 
-    def get_room(self, room_id) -> RomRoom:
-        if room_id is None:
-            self.logger.info("get_room: room_id is None")
-            return None
-        if room_id not in self.registry.room_registry:
-            self.logger.info("get_room: room_id="+str(room_id)+" not in registry.")
-            return None
-        return self.registry.room_registry[room_id]
-
-    def print_description(self, writer, room):
-        if writer is None or room is None:
-            self.logger.info("print_description: writer="+str(writer)+", room="+str(room))
-            return
-        writer.write(str(room.description+"\r\n").encode('utf-8'))
-
-    def print_exits(self, writer, room):
-        writer.write(str("Exits: ").encode('utf-8'))
-        for room_exit in room.get_exits():
-            if room_exit is not None and isinstance(room_exit, str):
-                room = self.get_room(room_exit)
-                if room is not None:
-                    writer.write(str(room.name+" ").encode('utf-8'))
-                else:
-                    self.logger.debug("print_exits: get_room returned None.")
-        writer.write("\r\n".encode('utf-8'))
-
     def move_mobile(self, character, direction):
         room = self.registry.room_registry[character.room_id]
         destination = is_valid_direction(direction, room)
         if destination is not None:
             destination_room = self.registry.room_registry[destination]
             character.room_id = destination
-            self.print_description(character.writer, destination_room)
+            room.print_description(character.writer, destination_room)
         else:
             character.writer.write("You can't go that direction!\r\n".encode('utf-8'))
 

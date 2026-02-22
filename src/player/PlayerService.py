@@ -71,7 +71,6 @@ class PlayerService:
     def get_player_characters(self, account_id):
         url = self.character_config['characters_endpoint'] + "/account/" + account_id
         self.logger.debug("GET: " + url)
-        print(f"GET_PLAYER_CHARACTERS: {url}")
         return requests.get(url).json()
 
     def get_character(self, character_id):
