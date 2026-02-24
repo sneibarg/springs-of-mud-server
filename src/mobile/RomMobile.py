@@ -32,10 +32,8 @@ class RomMobile:
     reader: Optional[StreamReader] = None
     loot: Optional[Dict[str, Item]] = None
     lock: threading.Lock = field(default_factory=threading.Lock)
-
-    def __init__(self):
-        self.role = None
-        self.room_id = None
+    role: Optional[str] = None
+    room_id: Optional[str] = None
 
     def __post_init__(self):
         self.instance_id = uuid1()

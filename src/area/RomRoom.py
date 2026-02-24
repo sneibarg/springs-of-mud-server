@@ -1,31 +1,31 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from asyncio import StreamWriter
 
 import threading
 
 
 @dataclass
 class RomRoom:
-    id: str
-    area_id: str
-    vnum: str
-    name: str
-    description: str
-    exit_north: str
-    exit_west: str
-    exit_east: str
-    exit_south: str
-    exit_up: str
-    exit_down: str
-    pvp: bool
-    spawn: bool
-    spawn_timer: int
-    spawn_time: int
-    tele_delay: int
-    room_flags: int
-    sector_type: int
-    mobiles: list
-    alternate_routes: list
-    extra_description: list
+    id: str = ""
+    area_id: str = ""
+    vnum: str = ""
+    name: str = ""
+    description: str = ""
+    exit_north: str = ""
+    exit_west: str = ""
+    exit_east: str = ""
+    exit_south: str = ""
+    exit_up: str = ""
+    exit_down: str = ""
+    pvp: bool = False
+    spawn: bool = False
+    spawn_timer: int = 0
+    spawn_time: int = 0
+    tele_delay: int = 0
+    room_flags: int = 0
+    sector_type: int = 0
+    mobiles: list = field(default_factory=list)
+    extra_description: list = field(default_factory=list)
 
     def __post_init__(self):
         self.clan = None
@@ -37,7 +37,10 @@ class RomRoom:
 
     @classmethod
     def from_json(cls, data):
-        return cls(**data)
+        # Get only the fields that are defined in the dataclass
+        valid_fields = {f.name for f in cls.__dataclass_fields__.values()}
+        filtered_data = {k: v for k, v in data.items() if k in valid_fields}
+        return cls(**filtered_data)
 
     def get_exits(self):
         return [room_exit for room_exit in

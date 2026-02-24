@@ -6,13 +6,20 @@ class RomArea:
     author: str
     name: str
     id: str
-    suggested_level_range: tuple
-    rooms: list
-    mobiles: list
-    objects: list
-    shops: list
-    resets: list
-    specials: list
+    description: str = ""
+    reset_msg: str = ""
+    vnum: str = ""
+    security: str = "0"
+    min_vnum: str = "0"
+    max_vnum: str = "0"
+    suggested_level_range: tuple = None
+    area_flags: list = None
+    rooms: list = None
+    mobiles: list = None
+    objects: list = None
+    shops: list = None
+    resets: list = None
+    specials: list = None
 
     def __post_init__(self):
         self.__name__ = "RomArea"
@@ -21,4 +28,6 @@ class RomArea:
 
     @classmethod
     def from_json(cls, data):
+        if 'area_id' in data:
+            data['id'] = data.pop('area_id')
         return cls(**data)

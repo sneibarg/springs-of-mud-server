@@ -30,7 +30,7 @@ class RegistryService:
 
     def unregister_mobile(self, mobile):
         with self.lock:
-            del self.area_registry[mobile.id]
+            del self.mobile_registry[mobile.id]
 
     def register_mobile(self, mobile):
         with self.lock:

@@ -1,6 +1,6 @@
 import asyncio
 from injector import Injector, singleton
-from area.AreaService import AreaService
+from area import AreaService
 from mobile import MobileService
 from object import ItemService
 from player import PlayerService

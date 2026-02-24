@@ -2,9 +2,10 @@ import re
 import requests
 
 from server.LoggerFactory import LoggerFactory
+from registry import RegistryService
 from command import CommandHandler
 from asyncio import StreamWriter
-from area.AreaService import AreaService
+from area import AreaService
 from mobile import MobileService, RomMobile
 from player import PlayerService, Player, Character
 from event import EventHandler
@@ -68,15 +69,18 @@ def parse_args(args):
     input_args = re.search(r'lambda\s+([^:]+)', args).group(1)
     if ", " in input_args:
         input_args = input_args.split(", ")
+    else:
+        input_args = [input_args]
     return input_args
 
 
 def get_args(lambda_string, player, injector, parameters):
-    from registry import RegistryService
     registry = injector.get(RegistryService)
     input_args = parse_args(lambda_string)
+    print(str(input_args))
     args = []
     for arg in input_args:
+        print(f"ARG={arg}")
         if arg == 'msg':
             if type(parameters) is not str:
                 raise ValueError(f'Input is not a string.')
@@ -178,5 +182,7 @@ class CommandService:
             handle_lambdas(self, player, command_json, parameters)
         except ValueError as ve:
             self.logger.error("ValueError: " + str(ve))
+            raise
         except TypeError as te:
             self.logger.error("TypeError: " + str(te))
+            raise

@@ -18,6 +18,7 @@ color_codes = {
     "reset": "\033[0m"
 }
 
+
 def find_json_object_by_name(name: str, commands: dict) -> Union[bool, Any]:
     if not commands:
         return False
@@ -60,16 +61,17 @@ def load_player_one(mud_server):
 
 
 def is_valid_direction(direction, room):
-    if direction == "east":
+    if "east" in direction:
         return room.exit_east
-    if direction == "west":
+    if "west" in direction:
         return room.exit_west
-    if direction == "north":
+    if "north" in direction:
         return room.exit_north
-    if direction == "south":
+    if "south" in direction:
         return room.exit_south
-    if direction == "up":
+    if "up" in direction:
         return room.exit_up
-    if direction == "down":
+    if "down" in direction:
         return room.exit_down
+    return None
 

@@ -28,7 +28,9 @@ class Item:
     def from_json(cls, data):
         import json
         from server.server_util import camel_to_snake_case
-        data = camel_to_snake_case(json.loads(data))
+        if isinstance(data, str):
+            data = json.loads(data)
+        data = camel_to_snake_case(data)
         return cls(**data)
 
     def get_name(self):
