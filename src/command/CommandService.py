@@ -77,7 +77,6 @@ def parse_args(args):
 def get_args(lambda_string, player, injector, parameters):
     registry = injector.get(RegistryService)
     input_args = parse_args(lambda_string)
-    print(str(input_args))
     args = []
     for arg in input_args:
         print(f"ARG={arg}")

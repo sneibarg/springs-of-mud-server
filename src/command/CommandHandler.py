@@ -14,11 +14,12 @@ class CommandHandler:
         self.logger.info("Initialized CommandHandler instance.")
 
     def handle_command(self, player, command):
+        print(f"HANDLE_COMMAND: {command}")
         usage = None
         cmd, parameters = self.extract_parameters(command)
         if cmd is None:
             player.writer().write(b'Huh?\r\n')
-            return
+            return None
 
         if cmd is not None and "usage" in cmd:
             usage = cmd['usage']
@@ -37,6 +38,7 @@ class CommandHandler:
     def extract_parameters(self, command: str) -> Union[tuple[Any, str], tuple[None, None]]:
         for cmd in self.command_list:
             json = self.command_list[cmd]
-            if command in json['shortcuts'] or command.startswith(json['name']):
+            shortcuts = json['shortcuts'].split(", ")
+            if command in shortcuts or command.startswith(json['name']):
                 return json, ' '.join(re.split(' ', command)[1:]).strip()
         return None, None

@@ -1,6 +1,6 @@
 from typing import List, Optional
 from server.protocol import Message, MessageType
-from server.connection import ConnectionManager
+from server.connection import ConnectionManager, TelnetConnection
 
 
 class MessageBus:
@@ -91,10 +91,7 @@ class MessageBus:
         return count
 
     async def send_prompt(self, player_id: str, health: int, mana: int, movement: int) -> bool:
-        """Send a game prompt to a player"""
-        from server.connection import TelnetConnection
         connection = self.connection_manager.get_connection_by_player(player_id)
-
         if connection and isinstance(connection, TelnetConnection):
             try:
                 await connection.send_prompt(health, mana, movement)

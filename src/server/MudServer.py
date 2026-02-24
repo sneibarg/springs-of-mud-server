@@ -1,4 +1,5 @@
 import asyncio
+
 from injector import Injector, singleton
 from area import AreaService
 from mobile import MobileService
@@ -7,6 +8,7 @@ from player import PlayerService
 from command import CommandService, CommandHandler
 from event import EventHandler
 from registry import RegistryService
+from server.handlers import ConnectionHandler
 from server.server_util import load_player_one
 
 
@@ -24,9 +26,6 @@ class MudServer:
         self.logger = logger_factory.get_logger(self.__name__)
         self.player_service_class = PlayerService
         self.configure_server()
-
-        # Initialize new architecture
-        from server.handlers import ConnectionHandler
         self.connection_handler = ConnectionHandler(self)
 
     async def start(self):
@@ -35,12 +34,7 @@ class MudServer:
         await server.serve_forever()
 
     async def handle_client(self, reader, writer):
-        """
-        Main connection handler - now uses new architecture.
-        Falls back to legacy for compatibility during transition.
-        """
         try:
-            # Use new architecture
             await self.connection_handler.handle_new_connection(reader, writer)
         except Exception as e:
             self.logger.error(f"Error in handle_client: {e}", exc_info=True)
