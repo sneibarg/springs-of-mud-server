@@ -24,19 +24,20 @@ class UpdateService:
         self.stop_flag = False
 
     async def start(self):
+        pass
+
+    def update_handler(self):
+        pass
+
+    async def _update_areas(self):
         while not self.stop_flag:
             update_tasks = self._prepare_area_tasks()
             futures = []
             for task in update_tasks:
-                future = asyncio.get_event_loop().run_in_executor(
-                    self.executor,
-                    self._update_area,
-                    task
-                )
+                future = asyncio.get_event_loop().run_in_executor(self.executor, self._update_area, task)
                 futures.append(future)
 
             await asyncio.gather(*futures)
-            await asyncio.sleep(1.0)
 
     def _update_area(self, task: AreaUpdateTask):
         for mobile_id in task.mobiles:
