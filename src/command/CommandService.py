@@ -1,8 +1,7 @@
 import re
-from typing import Union, Any
-
 import requests
 
+from typing import Union, Any
 from asyncio import StreamWriter
 from server.LoggerFactory import LoggerFactory
 from registry import RegistryService
