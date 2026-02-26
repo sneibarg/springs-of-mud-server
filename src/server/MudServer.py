@@ -9,7 +9,7 @@ from player import PlayerService, Player
 from command import CommandService, CommandHandler
 from event import EventHandler
 from registry import RegistryService
-from server import camel_to_snake_case
+from server.ServerUtil import ServerUtil
 from server.handlers import ConnectionHandler
 
 
@@ -27,7 +27,7 @@ class MudServer:
         self.services = config['mudserver']['services']
         self.logger = logger_factory.get_logger(self.__name__)
         self.player_service_class = PlayerService
-        self.configure_server()
+        self._configure_server()
         self.connection_handler = self.injector.get(ConnectionHandler)
         self.game_service = self.injector.get(GameService)
 
@@ -75,5 +75,6 @@ class MudServer:
         from player import PlayerService
         player_service = self.injector.get(PlayerService)
         account_id = config['mudserver']['playerone']['accountId']
-        account_json = camel_to_snake_case(player_service.get_account_by_id(account_id))
+        account_json = ServerUtil.camel_to_snake_case(player_service.get_account_by_id(account_id))
         return Player.from_json(account_json)
+

@@ -1,7 +1,7 @@
 from typing import Optional, Tuple
 from server.connection import Connection
 from server.protocol import MessageType
-from server import camel_to_snake_case
+from server.ServerUtil import ServerUtil
 from .SessionState import SessionState, SessionPhase
 
 
@@ -15,7 +15,7 @@ class AuthenticationService:
 
             account = self.player_service.get_account_by_name(account_name)
             if account:
-                return camel_to_snake_case(account)
+                return ServerUtil.camel_to_snake_case(account)
         except Exception:
             pass
         return None
@@ -65,7 +65,7 @@ class AuthenticationService:
         try:
             account = self.player_service.get_account_by_id(account_id)
             if account:
-                return camel_to_snake_case(account)
+                return ServerUtil.camel_to_snake_case(account)
         except Exception:
             pass
         return None

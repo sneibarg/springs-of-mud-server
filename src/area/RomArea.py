@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from server.LoggerFactory import LoggerFactory
 
 
 @dataclass
@@ -24,7 +25,6 @@ class RomArea:
 
     def __post_init__(self):
         self.__name__ = "RomArea"
-        from server import LoggerFactory
         self.logger = LoggerFactory.get_logger(self.__name__)
 
     @classmethod

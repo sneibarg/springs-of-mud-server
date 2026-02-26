@@ -7,8 +7,8 @@ from server.session import SessionHandler, SessionPhase, AuthenticationService
 from server.messaging import MessageBus, MessageFormatter
 from server.protocol import MessageType
 from server.LoggerFactory import LoggerFactory
+from server.ServerUtil import ServerUtil
 from player import Character, Player, PlayerService
-from server import camel_to_snake_case
 
 import threading
 
@@ -49,7 +49,7 @@ class ConnectionHandler:
                     await connection.send_text("Authentication failed.\r\n", MessageType.ERROR)
                     return
 
-            character_definition = camel_to_snake_case(character_data)
+            character_definition = ServerUtil.camel_to_snake_case(character_data)
             character_definition['injector'] = self.injector
             character_definition['writer'] = writer
             character_definition['reader'] = reader
@@ -114,7 +114,7 @@ class ConnectionHandler:
         account = self.player_service.get_account_by_id(session.player_id)
 
         if account:
-            account_data = camel_to_snake_case(account)
+            account_data = ServerUtil.camel_to_snake_case(account)
             account_data['connection'] = (character.reader, character.writer)
             account_data['current_character'] = character
             account_data['ansi_enabled'] = session.ansi_enabled

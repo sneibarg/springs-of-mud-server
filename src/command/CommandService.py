@@ -1,9 +1,10 @@
 import re
+from typing import Union, Any
+
 import requests
 
 from asyncio import StreamWriter
 from server.LoggerFactory import LoggerFactory
-from server.server_util import find_json_object_by_name
 from registry import RegistryService
 from command import CommandHandler
 from area import AreaService
@@ -183,7 +184,7 @@ class CommandService:
         return self.command_list[cmd]['message']
 
     def call_lambda(self, player, command_name, command_list, parameters):
-        command_json = find_json_object_by_name(command_name, command_list)
+        command_json = CommandService.find_json_object_by_name(command_name, command_list)
         if command_json is None:
             raise ValueError('Null JSON returned from find_json_object_by_name')
 
@@ -199,3 +200,14 @@ class CommandService:
         except TypeError as te:
             self.logger.error("TypeError: " + str(te))
             raise
+
+    @staticmethod
+    def find_json_object_by_name(name: str, commands: dict) -> Union[bool, Any]:
+        if not commands:
+            return False
+        for command_name, command in commands.items():
+            if name in command.get('shortcuts', []):
+                return command
+            if command.get('name') == name:
+                return command
+        return False
