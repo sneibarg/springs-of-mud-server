@@ -8,7 +8,7 @@ from server.messaging import MessageBus, MessageFormatter
 from server.protocol import MessageType
 from server.LoggerFactory import LoggerFactory
 from player import Character, Player, PlayerService
-from server.server_util import camel_to_snake_case
+from server import camel_to_snake_case
 
 import threading
 

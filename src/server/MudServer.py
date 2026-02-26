@@ -5,12 +5,12 @@ from area import AreaService
 from game.GameService import GameService
 from mobile import MobileService
 from object import ItemService
-from player import PlayerService
+from player import PlayerService, Player
 from command import CommandService, CommandHandler
 from event import EventHandler
 from registry import RegistryService
+from server import camel_to_snake_case
 from server.handlers import ConnectionHandler
-from server.server_util import load_player_one
 
 
 class MudServer:
@@ -48,17 +48,17 @@ class MudServer:
             except Exception:
                 pass
 
-    def configure_server(self):
-        self.start_services()
-        self.configure_player_data()
-        self.player_one = load_player_one(self)
+    def _configure_server(self):
+        self._start_services()
+        self._configure_player_data()
+        self.player_one = self._load_player_one()
 
-    def configure_player_data(self):
+    def _configure_player_data(self):
         player_service = self.injector.get(PlayerService)
         self.account_list = player_service.get_accounts()
         self.character_list = player_service.get_characters()
 
-    def start_services(self):
+    def _start_services(self):
         self.injector.binder.bind(EventHandler, scope=singleton)
         self.injector.binder.bind(CommandService, to=CommandService(self.injector, self.services['commands']), scope=singleton)
         self.injector.binder.bind(CommandHandler, to=CommandHandler(self.injector), scope=singleton)
@@ -69,3 +69,11 @@ class MudServer:
         self.injector.binder.bind(MobileService, to=MobileService(self.injector, self.services['mobiles']), scope=singleton)
         self.injector.binder.bind(ConnectionHandler, to=ConnectionHandler(self), scope=singleton)
         self.injector.binder.bind(GameService, to=GameService(self.injector, self.services['game_data']), scope=singleton)
+
+    def _load_player_one(self):
+        config = self.config
+        from player import PlayerService
+        player_service = self.injector.get(PlayerService)
+        account_id = config['mudserver']['playerone']['accountId']
+        account_json = camel_to_snake_case(player_service.get_account_by_id(account_id))
+        return Player.from_json(account_json)

@@ -3,8 +3,8 @@ import requests
 from area.RomArea import RomArea
 from area.RomRoom import RomRoom
 from registry import RegistryService
+from server import camel_to_snake_case
 from server.LoggerFactory import LoggerFactory
-from server.server_util import camel_to_snake_case, is_valid_direction
 
 
 class AreaService:
@@ -54,13 +54,29 @@ class AreaService:
 
     def move_mobile(self, character, direction):
         room = self.registry.room_registry[character.room_id]
-        destination = is_valid_direction(direction, room)
+        destination = AreaService.is_valid_direction(direction, room)
         if destination is not None:
             destination_room = self.registry.room_registry[destination]
             character.room_id = destination
             room.print_description(character.writer, destination_room)
         else:
             character.writer.write("You can't go that direction!\r\n".encode('utf-8'))
+
+    @staticmethod
+    def is_valid_direction(direction, room):
+        if "east" in direction:
+            return room.exit_east
+        if "west" in direction:
+            return room.exit_west
+        if "north" in direction:
+            return room.exit_north
+        if "south" in direction:
+            return room.exit_south
+        if "up" in direction:
+            return room.exit_up
+        if "down" in direction:
+            return room.exit_down
+        return None
 
 
 
