@@ -14,7 +14,6 @@ class CommandHandler:
         self.logger.info("Initialized CommandHandler instance.")
 
     def handle_command(self, player, command):
-        print(f"HANDLE_COMMAND: {command}")
         usage = None
         cmd, parameters = self.extract_parameters(command)
         if cmd is None:
@@ -24,8 +23,6 @@ class CommandHandler:
         if cmd is not None and "usage" in cmd:
             usage = cmd['usage']
 
-        self.logger.info("CMD: "+cmd['name'] + ", PARAMETERS: "+parameters)
-        self.logger.info("USAGE: "+str(usage))
         if usage is not None:
             usage_function = eval(usage)
             if not callable(usage_function):
@@ -33,6 +30,7 @@ class CommandHandler:
             else:
                 player.set_usage(usage_function)
 
+        self.logger.debug(f"CMD: {cmd['name']}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
         return self.injector.get(CommandService).call_lambda(player, cmd['name'], self.command_list, parameters)
 
     def extract_parameters(self, command: str) -> Union[tuple[Any, str], tuple[None, None]]:

@@ -43,3 +43,6 @@ mudserver:
     skills:
       endpoints:
         skills_endpoint: "http://localhost:9080/api/v1/skills"
+    game_data:
+      endpoints:
+        game_data_endpoint: "http://localhost:9080/api/v1/game"

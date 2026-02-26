@@ -18,13 +18,13 @@ class TestCommandHandler(unittest.TestCase):
         self.mock_command_service.command_list = {
             'look': {
                 'name': 'look',
-                'shortcuts': ['l'],
+                'shortcuts': 'l',
                 'usage': None,
                 'lambda': []
             },
             'say': {
                 'name': 'say',
-                'shortcuts': ['s'],
+                'shortcuts': 's',
                 'usage': 'lambda p: p.to_player("Say what?")',
                 'lambda': []
             }
@@ -118,21 +118,25 @@ class TestCommandService(unittest.TestCase):
             CommandService(self.mock_injector, self.config)
 
     @patch('command.CommandService.requests.get')
-    def test_get_command(self, mock_get):
+    def test_get_command_by_name(self, mock_get):
         """Test getting single command"""
-        # Initial setup
-        mock_response = Mock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = []
-        mock_get.return_value = mock_response
-        service = CommandService(self.mock_injector, self.config)
+        # First call for initialization
+        init_response = Mock()
+        init_response.status_code = 200
+        init_response.json.return_value = []
 
-        # Get specific command
-        mock_get.return_value.json.return_value = {
+        # Second call for fetching specific command
+        fetch_response = Mock()
+        fetch_response.status_code = 200
+        fetch_response.json.return_value = {
             'id': 'cmd_001',
             'name': 'look'
         }
-        result = service.get_command('cmd_001')
+
+        mock_get.side_effect = [init_response, fetch_response]
+        service = CommandService(self.mock_injector, self.config)
+
+        result = service.get_command_by_name('look')
         self.assertEqual(result['name'], 'look')
 
     @patch('command.CommandService.requests.get')

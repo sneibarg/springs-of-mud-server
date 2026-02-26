@@ -2,6 +2,7 @@ from typing import Optional, Tuple
 from server.connection import Connection
 from server.protocol import MessageType
 from .SessionState import SessionState, SessionPhase
+from server.server_util import camel_to_snake_case
 
 
 class AuthenticationService:
@@ -11,7 +12,7 @@ class AuthenticationService:
 
     def _get_account(self, account_name: str) -> Optional[dict]:
         try:
-            from server.server_util import camel_to_snake_case
+
             account = self.player_service.get_account_by_name(account_name)
             if account:
                 return camel_to_snake_case(account)

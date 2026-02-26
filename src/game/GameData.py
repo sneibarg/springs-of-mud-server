@@ -18,9 +18,9 @@ class GameData:
     integrity: Integrity
 
     @staticmethod
-    def from_mongo(doc: Dict[str, Any]) -> "GameData":
+    def from_json(doc: Dict[str, Any]) -> "GameData":
         return GameData(
-            id=doc["_id"],
+            id=doc["id"],
             kind=doc["kind"],
             status=doc.get("status", "active"),
             version=Version.from_dict(doc["version"]),

@@ -12,6 +12,7 @@ class RomArea:
     security: str = "0"
     min_vnum: str = "0"
     max_vnum: str = "0"
+    last_reset: str = ""
     suggested_level_range: tuple = None
     area_flags: list = None
     rooms: list = None

@@ -2,6 +2,7 @@ import asyncio
 
 from injector import Injector, singleton
 from area import AreaService
+from game.GameService import GameService
 from mobile import MobileService
 from object import ItemService
 from player import PlayerService
@@ -14,6 +15,7 @@ from server.server_util import load_player_one
 
 class MudServer:
     def __init__(self, config: dict, logger_factory):
+        self.connection_handler = None
         self.__name__ = "MudServer"
         self.config = config
         self.injector = Injector()
@@ -26,9 +28,11 @@ class MudServer:
         self.logger = logger_factory.get_logger(self.__name__)
         self.player_service_class = PlayerService
         self.configure_server()
-        self.connection_handler = ConnectionHandler(self)
+        self.connection_handler = self.injector.get(ConnectionHandler)
+        self.game_service = self.injector.get(GameService)
 
     async def start(self):
+        asyncio.create_task(self.game_service.start())
         server = await asyncio.start_server(self.handle_client, self.host, self.port)
         self.logger.info(f"MudServer started on {self.host}:{self.port}")
         await server.serve_forever()
@@ -63,4 +67,5 @@ class MudServer:
         self.injector.binder.bind(AreaService, to=AreaService(self.injector, self.services['areas'], self.services['rooms']), scope=singleton)
         self.injector.binder.bind(ItemService, to=ItemService(self.injector, self.services['items']), scope=singleton)
         self.injector.binder.bind(MobileService, to=MobileService(self.injector, self.services['mobiles']), scope=singleton)
-
+        self.injector.binder.bind(ConnectionHandler, to=ConnectionHandler(self), scope=singleton)
+        self.injector.binder.bind(GameService, to=GameService(self.injector, self.services['game_data']), scope=singleton)

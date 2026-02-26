@@ -49,6 +49,9 @@ class AreaService:
             self.logger.debug("Registering room: "+str(room))
             self.registry.register_room(room)
 
+    def passes_update_check(self, area_id, last_reset):
+        return self.registry.area_registry[area_id].last_reset != last_reset
+
     def move_mobile(self, character, direction):
         room = self.registry.room_registry[character.room_id]
         destination = is_valid_direction(direction, room)

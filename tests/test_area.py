@@ -80,6 +80,7 @@ class TestRomRoom(unittest.TestCase):
         self.assertIsNone(room.exit_east)
         self.assertIsNone(room.exit_west)
 
+    @unittest.skip('Refactored out; likely to be removed.')
     @patch('area.RomRoom.StreamWriter')
     def test_print_description(self, mock_writer):
         """Test printing room description"""

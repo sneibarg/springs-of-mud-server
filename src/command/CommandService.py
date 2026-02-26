@@ -1,16 +1,17 @@
 import re
 import requests
 
+from asyncio import StreamWriter
 from server.LoggerFactory import LoggerFactory
+from server.server_util import find_json_object_by_name
 from registry import RegistryService
 from command import CommandHandler
-from asyncio import StreamWriter
 from area import AreaService
 from mobile import MobileService, RomMobile
 from player import PlayerService, Player, Character
 from event import EventHandler
-from object.Item import Item
-from server.server_util import find_json_object_by_name
+from object import ItemService, Item
+
 
 lambda_mappings = {
     'p': 'Player',
@@ -33,10 +34,6 @@ lambda_mappings = {
 
 
 def get_class_obj(class_name):
-    """
-    Get class object by name for lambda command execution.
-    All imports are explicitly referenced to ensure they're recognized as used.
-    """
     if class_name == "lambda":
         return None
     elif class_name == "RomRoom":
@@ -49,7 +46,7 @@ def get_class_obj(class_name):
         'PlayerService': PlayerService,
         'AreaService': AreaService,
         'MobileService': MobileService,
-        'ObjectService': None,
+        'ObjectService': ItemService,
         'SkillService': None,
         'EventHandler': EventHandler,
         'CommandHandler': CommandHandler,
@@ -79,7 +76,6 @@ def get_args(lambda_string, player, injector, parameters):
     input_args = parse_args(lambda_string)
     args = []
     for arg in input_args:
-        print(f"ARG={arg}")
         if arg == 'msg':
             if type(parameters) is not str:
                 raise ValueError(f'Input is not a string.')
@@ -101,7 +97,7 @@ def get_args(lambda_string, player, injector, parameters):
                 obj = player.current_character
             elif arg == 'r':
                 character = player.current_character
-                room = character.injector.get(RegistryService).room_registry[character.room_id]
+                room = registry.room_registry[character.room_id]
                 class_obj = type(room)
                 obj = room
             elif arg in ['ps', 'zs', 'cs', 'ms', 'os', 'eh', 'ch']:
@@ -149,10 +145,10 @@ class CommandService:
         self.injector = injector
         self.config = config['endpoints']
         self.logger = LoggerFactory.get_logger(self.__name__)
-        self.command_list = self.get_commands()
+        self.command_list = self.load_command_list()
         self.logger.info("Initialized CommandService instance.")
 
-    def get_commands(self):
+    def load_command_list(self):
         commands_endpoint = self.config['commands_endpoint']
         response = requests.get(commands_endpoint)
         if response.status_code == 200:
@@ -160,10 +156,28 @@ class CommandService:
             return {command['name']: command for command in commands}
         raise ValueError('Failed to retrieve commands from MongoDB')
 
-    def get_command(self, command_id):
-        command_endpoint = self.config['command_endpoint']
-        params = {'commandId': command_id}
-        return requests.get(command_endpoint, params=params).json()
+    def load_command_by_id(self, command_id):
+        url = self.config['command_endpoint'] + "/" + command_id
+        return requests.get(url).json()
+
+    def load_command_by_name(self, command_name):
+        url = self.config.get('command_endpoint') + "/name/" + command_name
+        if url:
+            try:
+                response = requests.get(url)
+                if response.status_code == 200:
+                    command = response.json()
+                    if command:
+                        self.command_list[command_name] = command
+                        return command
+            except Exception as e:
+                self.logger.error(f"Failed to fetch command '{command_name}': {e}")
+        return None
+
+    def get_command_by_name(self, command_name):
+        if command_name in self.command_list:
+            return self.command_list[command_name]
+        return self.load_command_by_name(command_name)
 
     def get_message(self, cmd):
         return self.command_list[cmd]['message']
