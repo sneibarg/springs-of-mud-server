@@ -22,12 +22,14 @@ class ConnectionHandler:
         self.message_bus = MessageBus(self.connection_manager, self.session_handler)
         self.player_service = self.injector.get(PlayerService)
         self.command_handler = self.injector.get(CommandHandler)
+        self.event_handler = self.injector.get(EventHandler)
         self.logger = LoggerFactory.get_logger(__name__)
 
     async def handle_new_connection(self, reader: StreamReader, writer: StreamWriter) -> None:
         connection = None
         session = None
         peer_info = None
+        character_data = None
         try:
             connection = TelnetConnection(reader, writer)
             session = self.session_handler.create_session(connection.session_id)
@@ -49,23 +51,14 @@ class ConnectionHandler:
                     await connection.send_text("Authentication failed.\r\n", MessageType.ERROR)
                     return
 
-            character_definition = ServerUtil.camel_to_snake_case(character_data)
-            character_definition['injector'] = self.injector
-            character_definition['writer'] = writer
-            character_definition['reader'] = reader
-            character_definition['lock'] = threading.Lock()
-            character = Character.from_json(character_definition)
-
+            character = self._get_character(character_data, writer, reader)
             player = self._get_or_create_player(session, character)
-
-            event_handler = self.injector.get(EventHandler)
-            event_handler.register_character(character)
+            self.event_handler.register_character(character)
             session.phase = SessionPhase.PLAYING
 
             await self._show_room(connection, character)
             await self.message_bus.send_prompt(session.player_id, character.health, character.mana, character.movement)
             await self._game_loop(connection, session, player, character)
-
         except Exception as e:
             self.logger.error(f"Error handling connection: {e}", exc_info=True)
         finally:
@@ -110,16 +103,13 @@ class ConnectionHandler:
         await connection.send_message(message)
 
     def _get_or_create_player(self, session, character):
-        self.player_service = self.injector.get(PlayerService)
         account = self.player_service.get_account_by_id(session.player_id)
-
         if account:
             account_data = ServerUtil.camel_to_snake_case(account)
             account_data['connection'] = (character.reader, character.writer)
             account_data['current_character'] = character
             account_data['ansi_enabled'] = session.ansi_enabled
             return Player.from_json(account_data)
-
         return None
 
     async def _game_loop(self, connection: TelnetConnection, session, player, character) -> None:
@@ -142,3 +132,11 @@ class ConnectionHandler:
             except Exception as e:
                 self.logger.error(f"Error in game loop: {e}", exc_info=True)
                 break
+
+    def _get_character(self, character_data, writer, reader) -> Character:
+        character_definition = ServerUtil.camel_to_snake_case(character_data)
+        character_definition['injector'] = self.injector
+        character_definition['writer'] = writer
+        character_definition['reader'] = reader
+        character_definition['lock'] = threading.Lock()
+        return Character.from_json(character_definition)

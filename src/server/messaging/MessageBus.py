@@ -1,6 +1,6 @@
 from typing import List, Optional
-from server.protocol import Message, MessageType
 from server.connection import ConnectionManager, TelnetConnection
+from server.protocol import Message
 
 
 class MessageBus:
@@ -80,9 +80,7 @@ class MessageBus:
         """
         exclude = exclude_player_ids or []
         count = 0
-
         sessions = self.session_handler.get_active_sessions()
-
         for session in sessions:
             if session.player_id and session.player_id not in exclude:
                 if await self.send_to_player(session.player_id, message):

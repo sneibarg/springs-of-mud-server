@@ -33,20 +33,17 @@ class TelnetProtocol:
         i = 0
         result = bytearray()
         length = len(data)
-
         while i < length:
             byte = data[i]
             if byte == TelnetProtocol.IAC:
                 i += 1
                 if i < length:
                     cmd = data[i]
-                    if cmd in (TelnetProtocol.DO, TelnetProtocol.DONT,
-                              TelnetProtocol.WILL, TelnetProtocol.WONT):
+                    if cmd in (TelnetProtocol.DO, TelnetProtocol.DONT, TelnetProtocol.WILL, TelnetProtocol.WONT):
                         i += 1
                     elif cmd == TelnetProtocol.SB:
                         i += 1
-                        while i < length - 1 and not (data[i] == TelnetProtocol.IAC
-                                                      and data[i+1] == TelnetProtocol.SE):
+                        while i < length - 1 and not (data[i] == TelnetProtocol.IAC and data[i+1] == TelnetProtocol.SE):
                             i += 1
                         if i < length - 1:
                             i += 1  # Skip SE
@@ -78,6 +75,7 @@ class TelnetProtocol:
 
         return f"\033[{color_code}m{text}\033[0m"
 
+    @staticmethod
     def create_prompt(self, health: int, mana: int, movement: int) -> Message:
         """Create a formatted prompt message"""
         prompt_text = f"<{health}hp {mana}m {movement}mv>\r\n"
