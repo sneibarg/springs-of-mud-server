@@ -15,8 +15,8 @@ from server.handlers import ConnectionHandler
 
 class MudServer:
     def __init__(self, config: dict, logger_factory):
-        self.connection_handler = None
         self.__name__ = "MudServer"
+        self.connection_handler = None
         self.config = config
         self.injector = Injector()
         self.player_one = None
@@ -40,23 +40,31 @@ class MudServer:
     async def handle_client(self, reader, writer):
         try:
             await self.connection_handler.handle_new_connection(reader, writer)
+        except asyncio.CancelledError:
+            self.logger.info("Client connection cancelled")
+            raise
+        except (ConnectionResetError, BrokenPipeError) as e:
+            self.logger.warning(f"Client connection lost: {e}")
+        except OSError as e:
+            self.logger.error(f"Network error handling client: {e}", exc_info=True)
         except Exception as e:
-            self.logger.error(f"Error in handle_client: {e}", exc_info=True)
+            self.logger.error(f"Unexpected error handling client: {e}", exc_info=True)
+        finally:
             try:
                 writer.close()
                 await writer.wait_closed()
-            except Exception:
-                pass
+            except Exception as e:
+                self.logger.debug(f"Error closing connection: {e}")
 
     def _configure_server(self):
         self._start_services()
+        self.player_service = self.injector.get(PlayerService)
         self._configure_player_data()
         self.player_one = self._load_player_one()
 
     def _configure_player_data(self):
-        player_service = self.injector.get(PlayerService)
-        self.account_list = player_service.get_accounts()
-        self.character_list = player_service.get_characters()
+        self.account_list = self.player_service.get_accounts()
+        self.character_list = self.player_service.get_characters()
 
     def _start_services(self):
         self.injector.binder.bind(EventHandler, scope=singleton)
@@ -71,10 +79,7 @@ class MudServer:
         self.injector.binder.bind(GameService, to=GameService(self.injector, self.services['game_data']), scope=singleton)
 
     def _load_player_one(self):
-        config = self.config
-        from player import PlayerService
-        player_service = self.injector.get(PlayerService)
-        account_id = config['mudserver']['playerone']['accountId']
-        account_json = ServerUtil.camel_to_snake_case(player_service.get_account_by_id(account_id))
+        account_id = self.config['mudserver']['playerone']['accountId']
+        account_json = ServerUtil.camel_to_snake_case(self.player_service.get_account_by_id(account_id))
         return Player.from_json(account_json)
 

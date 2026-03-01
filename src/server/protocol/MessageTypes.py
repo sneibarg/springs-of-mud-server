@@ -15,12 +15,6 @@ class MessageType(Enum):
     AUTH_PAYLOAD = auto()  # Client sends full auth payload
     AUTH_VALIDATE = auto()  # Server validates payload
 
-    # Character management
-    CHAR_LIST = auto()
-    CHAR_SELECT = auto()
-    CHAR_SELECTED = auto()
-    CHAR_LOGON = auto()  # Client requests character logon with payload
-
     # Room/Area information
     ROOM_DESCRIPTION = auto()
     ROOM_EXITS = auto()

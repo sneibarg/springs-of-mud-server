@@ -186,22 +186,6 @@ class TestMessageCodec(unittest.TestCase):
         self.assertEqual(msg.type, MessageType.SYSTEM)
         self.assertEqual(msg.data['text'], 'Hello')
 
-    def test_decode_text_logon_payload(self):
-        """Test decoding logon command with JSON payload"""
-        payload = {
-            'accountId': 'acc123',
-            'characterId': 'char456',
-            'characterName': 'TestChar'
-        }
-        data = f'logon {json.dumps(payload)}\r\n'.encode('utf-8')
-
-        msg = MessageCodec.decode_text(data)
-
-        self.assertEqual(msg.type, MessageType.CHAR_LOGON)
-        self.assertEqual(msg.data['accountId'], 'acc123')
-        self.assertEqual(msg.data['characterId'], 'char456')
-        self.assertEqual(msg.data['characterName'], 'TestChar')
-
     def test_is_json_true(self):
         """Test is_json detection for valid JSON"""
         json_data = b'{"key": "value"}'
@@ -240,7 +224,6 @@ class TestMessageTypes(unittest.TestCase):
         expected_types = [
             'SYSTEM', 'ERROR', 'AUTH_REQUEST', 'AUTH_RESPONSE',
             'AUTH_SUCCESS', 'AUTH_FAILURE', 'AUTH_PAYLOAD', 'AUTH_VALIDATE',
-            'CHAR_LIST', 'CHAR_SELECT', 'CHAR_SELECTED', 'CHAR_LOGON',
             'ROOM_DESCRIPTION', 'PROMPT', 'COMMAND', 'SAY', 'TELL',
             'WELCOME', 'DISCONNECT'
         ]

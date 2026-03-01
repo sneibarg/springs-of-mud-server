@@ -107,6 +107,8 @@ class TestTelnetConnection(unittest.TestCase):
 
     def setUp(self):
         self.mock_reader = AsyncMock()
+        # at_eof() is a synchronous method, not async
+        self.mock_reader.at_eof = Mock(return_value=False)
         self.mock_writer = MagicMock()
         # write is synchronous, drain is async
         self.mock_writer.write = Mock()
@@ -146,16 +148,6 @@ class TestTelnetConnection(unittest.TestCase):
         await self.connection.send_message(message)
         self.mock_writer.write.assert_not_called()
 
-    @unittest.skip('This test is currently broken.')
-    async def test_receive_message(self):
-        """Test receiving message"""
-        self.mock_reader.at_eof.return_value = False
-        self.mock_reader.readline.return_value = b'test message\r\n'
-
-        message = await self.connection.receive_message()
-        self.assertIsNotNone(message)
-        self.assertEqual(message.session_id, self.connection.session_id)
-
     async def test_receive_message_at_eof(self):
         """Test receiving message at EOF"""
         self.mock_reader.at_eof.return_value = True
@@ -171,16 +163,24 @@ class TestTelnetConnection(unittest.TestCase):
         self.assertTrue(self.connection._closed)
         self.mock_writer.close.assert_called_once()
 
+    async def test_receive_message(self):
+        """Test receiving message"""
+        self.mock_reader.readline.return_value = b'test message\r\n'
+
+        message = await self.connection.receive_message()
+        self.assertIsNotNone(message)
+        self.assertEqual(message.session_id, self.connection.session_id)
+
     def test_run_async_tests(self):
         """Run all async tests"""
         asyncio.run(self.test_send_message())
-        self.setUp()  # Reset mocks
+        self.setUp()
         asyncio.run(self.test_send_message_when_closed())
-        self.setUp()  # Reset mocks
+        self.setUp()
         asyncio.run(self.test_receive_message())
-        self.setUp()  # Reset mocks
+        self.setUp()
         asyncio.run(self.test_receive_message_at_eof())
-        self.setUp()  # Reset mocks
+        self.setUp()
         asyncio.run(self.test_close())
 
 
@@ -284,12 +284,12 @@ class TestMessageBus(unittest.TestCase):
         self.session_handler = SessionHandler()
         self.message_bus = MessageBus(self.connection_manager, self.session_handler)
 
-    @unittest.skip('This test is currently broken.')
     async def test_send_to_player_success(self):
-        """Test sending message to player"""
+        """Test sending message to player successfully"""
         mock_connection = AsyncMock()
-        mock_connection.is_closed.return_value = False
+        mock_connection.is_closed = Mock(return_value=False)
         mock_connection.session_id = 'session_001'
+        mock_connection.send_message = AsyncMock()
 
         self.connection_manager.add_connection(mock_connection)
         self.connection_manager.bind_player('player_001', 'session_001')
@@ -310,7 +310,7 @@ class TestMessageBus(unittest.TestCase):
     async def test_send_to_session_success(self):
         """Test sending message to session"""
         mock_connection = AsyncMock()
-        mock_connection.is_closed.return_value = False
+        mock_connection.is_closed = Mock(return_value=False)
         mock_connection.session_id = 'session_001'
 
         self.connection_manager.add_connection(mock_connection)
@@ -333,11 +333,11 @@ class TestMessageBus(unittest.TestCase):
 
         # Create connections
         conn1 = AsyncMock()
-        conn1.is_closed.return_value = False
+        conn1.is_closed = Mock(return_value=False)
         conn1.session_id = 'session_001'
 
         conn2 = AsyncMock()
-        conn2.is_closed.return_value = False
+        conn2.is_closed = Mock(return_value=False)
         conn2.session_id = 'session_002'
 
         self.connection_manager.add_connection(conn1)

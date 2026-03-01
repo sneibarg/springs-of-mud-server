@@ -120,8 +120,7 @@ class TestSessionPhase(unittest.TestCase):
     def test_session_phases_exist(self):
         """Test that expected session phases exist"""
         expected_phases = [
-            'CONNECTED', 'AUTHENTICATING', 'SELECTING_CHARACTER',
-            'PLAYING', 'DISCONNECTING', 'DISCONNECTED'
+            'CONNECTED', 'AUTHENTICATING', 'PLAYING', 'DISCONNECTING', 'DISCONNECTED'
         ]
 
         for phase_name in expected_phases:

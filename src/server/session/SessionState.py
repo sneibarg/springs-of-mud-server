@@ -7,7 +7,6 @@ from datetime import datetime
 class SessionPhase(Enum):
     CONNECTED = auto()
     AUTHENTICATING = auto()
-    SELECTING_CHARACTER = auto()
     PLAYING = auto()
     DISCONNECTING = auto()
     DISCONNECTED = auto()
