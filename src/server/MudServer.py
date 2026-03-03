@@ -2,7 +2,7 @@ import asyncio
 import threading
 
 from injector import Injector, singleton
-from area import AreaService
+from area import AreaService, RoomService
 from game import GameService
 from mobile import MobileService
 from object import ItemService
@@ -89,6 +89,7 @@ class MudServer:
         self.injector.binder.bind(CommandHandler, to=CommandHandler(self.injector), scope=singleton)
         self.injector.binder.bind(RegistryService, scope=singleton)
         self.injector.binder.bind(PlayerService, to=PlayerService(self.injector,self._construct_service_endpoint('players_endpoint'), self._construct_service_endpoint('characters_endpoint')), scope=singleton)
+        self.injector.binder.bind(RoomService, to=RoomService(self.injector, self._construct_service_endpoint('rooms_endpoint')), scope=singleton)
         self.injector.binder.bind(AreaService, to=AreaService(self.injector, self._construct_service_endpoint('areas_endpoint'), self._construct_service_endpoint('rooms_endpoint')), scope=singleton)
         self.injector.binder.bind(ItemService, to=ItemService(self.injector, self._construct_service_endpoint('items_endpoint')), scope=singleton)
         self.injector.binder.bind(MobileService, to=MobileService(self.injector, self._construct_service_endpoint('mobiles_endpoint')), scope=singleton)

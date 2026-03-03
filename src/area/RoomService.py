@@ -6,9 +6,9 @@ from server.protocol import Message, MessageType
 
 
 class RoomService:
-    def __init__(self, injector, room_config):
+    def __init__(self, injector, rooms_endpoint):
         self.injector = injector
-        self.room_config = room_config
+        self.rooms_endpoint = rooms_endpoint
         self.logger = LoggerFactory.get_logger(self.__class__.__name__)
         self.registry = self.injector.get(RegistryService)
         self.logger.info("Initialized RoomService instance.")

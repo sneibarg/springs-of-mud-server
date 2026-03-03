@@ -16,6 +16,7 @@ import threading
 class ConnectionHandler:
     def __init__(self, mud_server):
         self.mud_server = mud_server
+        self.logger = LoggerFactory.get_logger(__name__)
         self.injector = mud_server.injector
         self.connection_manager = ConnectionManager()
         self.session_handler = SessionHandler()
@@ -24,7 +25,6 @@ class ConnectionHandler:
         self.auth_service = self.injector.get(AuthenticationService)
         self.command_handler = self.injector.get(CommandHandler)
         self.event_handler = self.injector.get(EventHandler)
-        self.logger = LoggerFactory.get_logger(__name__)
 
     async def handle_new_connection(self, reader: StreamReader, writer: StreamWriter) -> None:
         connection = None
