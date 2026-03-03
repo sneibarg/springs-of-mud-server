@@ -3,7 +3,7 @@ import threading
 
 from injector import Injector, singleton
 from area import AreaService
-from game.GameService import GameService
+from game import GameService
 from mobile import MobileService
 from object import ItemService
 from player import PlayerService, Player
@@ -94,7 +94,7 @@ class MudServer:
         self.injector.binder.bind(MobileService, to=MobileService(self.injector, self._construct_service_endpoint('mobiles_endpoint')), scope=singleton)
         self.injector.binder.bind(AuthenticationService, to=AuthenticationService(self.injector), scope=singleton)
         self.injector.binder.bind(ConnectionHandler, to=ConnectionHandler(self), scope=singleton)
-        self.injector.binder.bind(GameService, to=GameService(self.injector, self._construct_service_endpoint('game_data_endpoint')), scope=singleton)
+        self.injector.binder.bind(GameService, to=GameService(self._construct_service_endpoint('game_data_endpoint')), scope=singleton)
 
     def _load_player_one(self):
         try:

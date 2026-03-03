@@ -1,18 +1,18 @@
 import requests
 
-from game.GameData import GameData
+from game import GameData
 from server.LoggerFactory import LoggerFactory
 from server.TimeVal import gettimeofday, TimeVal, stall_until_last_time
 
 
 class GameService:
-    def __init__(self, injector, game_data_endpoint):
+    def __init__(self, game_data_endpoint):
         self.__name__ = "GameService"
-        self.injector = injector
+        self.logger = LoggerFactory.get_logger(self.__name__)
         self.game_data_endpoint = game_data_endpoint
         self.game_data = self._load_game_data()
         self.last_time: TimeVal = gettimeofday()
-        self.logger = LoggerFactory.get_logger(self.__name__)
+
 
     async def start(self):
         await self.game_loop()
