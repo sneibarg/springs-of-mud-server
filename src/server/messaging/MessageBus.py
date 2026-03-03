@@ -44,6 +44,8 @@ class MessageBus:
     async def send_to_room(self, room_id: str, message: Message, exclude_player_ids: Optional[List[str]] = None) -> int:
         """
         Send a message to all players in a room.
+        NOTE: Consider using RoomService.send_to_room() for game logic.
+        This method provides basic room broadcasting functionality.
         Returns count of players who received the message.
         """
         exclude = exclude_player_ids or []
@@ -54,6 +56,7 @@ class MessageBus:
             if session.player_id in exclude:
                 continue
 
+            # TODO: Add room_id filtering when character location tracking is available
             if await self.send_to_player(session.player_id, message):
                 count += 1
 

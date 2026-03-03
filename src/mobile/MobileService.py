@@ -8,11 +8,11 @@ from area import AreaService
 
 
 class MobileService:
-    def __init__(self, injector, config):
+    def __init__(self, injector, mobiles_endpoint):
         self.__name__ = "MobileService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry = injector.get(RegistryService)
-        self.config = config['endpoints']
+        self.mobiles_endpoint = mobiles_endpoint
         self.area_service = injector.get(AreaService)
         self.event_handler = injector.get(EventHandler)
         self.task = None
@@ -33,7 +33,7 @@ class MobileService:
 
     def get_mobiles(self):
         try:
-            for mobile in requests.get(self.config['mobiles_endpoint']).json():
+            for mobile in requests.get(self.mobiles_endpoint).json():
                 self.all_mobiles[mobile['id']] = mobile
         except Exception as e:
             self.logger.error("Failed to get items: "+str(e))

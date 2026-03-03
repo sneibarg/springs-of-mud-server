@@ -3,6 +3,7 @@ import requests
 
 from typing import Union, Any
 from asyncio import StreamWriter
+from game import CommunicationService
 from server.LoggerFactory import LoggerFactory
 from registry import RegistryService
 from command import CommandHandler
@@ -18,6 +19,7 @@ lambda_mappings = {
     'c': 'Character',
     'r': 'RomRoom',
     'cs': 'CommandService',
+    'cms': 'CommunicationService',
     'ps': 'PlayerService',
     'zs': 'AreaService',  # the 'zs' is ZoneService
     'ms': 'MobileService',
@@ -42,7 +44,8 @@ def get_class_obj(class_name):
     class_map = {
         'Player': Player,
         'Character': Character,
-        'CommandService': None,
+        'CommandService': CommandService,
+        'CommunicationService': CommunicationService,
         'PlayerService': PlayerService,
         'AreaService': AreaService,
         'MobileService': MobileService,
@@ -100,7 +103,7 @@ def get_args(lambda_string, player, injector, parameters):
                 room = registry.room_registry[character.room_id]
                 class_obj = type(room)
                 obj = room
-            elif arg in ['ps', 'zs', 'cs', 'ms', 'os', 'eh', 'ch']:
+            elif arg in ['ps', 'zs', 'ms', 'os', 'eh', 'ch', 'cs']:
                 obj = injector.get(class_obj)
             elif arg == 'usage':
                 obj = player.usage
@@ -140,28 +143,27 @@ def handle_lambdas(command_service, player, command, parameters):
 
 
 class CommandService:
-    def __init__(self, injector, config):
+    def __init__(self, injector, commands_endpoint):
         self.__name__ = "CommandService"
         self.injector = injector
-        self.config = config['endpoints']
+        self.commands_endpoint = commands_endpoint
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.command_list = self.load_command_list()
         self.logger.info("Initialized CommandService instance.")
 
     def load_command_list(self):
-        commands_endpoint = self.config['commands_endpoint']
-        response = requests.get(commands_endpoint)
+        response = requests.get(self.commands_endpoint)
         if response.status_code == 200:
             commands = response.json()
             return {command['name']: command for command in commands}
         raise ValueError('Failed to retrieve commands from MongoDB')
 
     def load_command_by_id(self, command_id):
-        url = self.config['command_endpoint'] + "/" + command_id
+        url = self.commands_endpoint + "/" + command_id
         return requests.get(url).json()
 
     def load_command_by_name(self, command_name):
-        url = self.config.get('command_endpoint') + "/name/" + command_name
+        url = self.commands_endpoint + "/name/" + command_name
         if url:
             try:
                 response = requests.get(url)

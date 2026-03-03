@@ -84,12 +84,7 @@ class TestCommandService(unittest.TestCase):
 
     def setUp(self):
         self.mock_injector = Mock()
-        self.config = {
-            'endpoints': {
-                'commands_endpoint': 'http://test.com/api/commands',
-                'command_endpoint': 'http://test.com/api/command'
-            }
-        }
+        self.commands_endpoint = 'http://test.com/api/commands'
 
     @patch('command.CommandService.requests.get')
     def test_initialization_success(self, mock_get):
@@ -102,7 +97,7 @@ class TestCommandService(unittest.TestCase):
         ]
         mock_get.return_value = mock_response
 
-        service = CommandService(self.mock_injector, self.config)
+        service = CommandService(self.mock_injector, self.commands_endpoint)
         self.assertEqual(len(service.command_list), 2)
         self.assertIn('look', service.command_list)
         self.assertIn('say', service.command_list)
@@ -115,7 +110,7 @@ class TestCommandService(unittest.TestCase):
         mock_get.return_value = mock_response
 
         with self.assertRaises(ValueError):
-            CommandService(self.mock_injector, self.config)
+            CommandService(self.mock_injector, self.commands_endpoint)
 
     @patch('command.CommandService.requests.get')
     def test_get_command_by_name(self, mock_get):
@@ -134,7 +129,7 @@ class TestCommandService(unittest.TestCase):
         }
 
         mock_get.side_effect = [init_response, fetch_response]
-        service = CommandService(self.mock_injector, self.config)
+        service = CommandService(self.mock_injector, self.commands_endpoint)
 
         result = service.get_command_by_name('look')
         self.assertEqual(result['name'], 'look')
@@ -149,7 +144,7 @@ class TestCommandService(unittest.TestCase):
         ]
         mock_get.return_value = mock_response
 
-        service = CommandService(self.mock_injector, self.config)
+        service = CommandService(self.mock_injector, self.commands_endpoint)
         message = service.get_message('look')
         self.assertEqual(message, 'You look around.')
 
@@ -161,7 +156,7 @@ class TestCommandService(unittest.TestCase):
         mock_response.json.return_value = []
         mock_get.return_value = mock_response
 
-        service = CommandService(self.mock_injector, self.config)
+        service = CommandService(self.mock_injector, self.commands_endpoint)
         mock_player = Mock()
         mock_writer = Mock()
         mock_player.writer.return_value = mock_writer
@@ -281,11 +276,7 @@ class TestCommandUtilityFunctions(unittest.TestCase):
         mock_response.json.return_value = []
         mock_get.return_value = mock_response
 
-        command_service = CommandService(Mock(), {
-            'endpoints': {
-                'commands_endpoint': 'http://test.com/api/commands'
-            }
-        })
+        command_service = CommandService(Mock(), 'http://test.com/api/commands')
 
         mock_player = Mock(spec=Player)
         mock_writer = Mock()
@@ -307,11 +298,7 @@ class TestCommandUtilityFunctions(unittest.TestCase):
         mock_response.json.return_value = []
         mock_get.return_value = mock_response
 
-        command_service = CommandService(Mock(), {
-            'endpoints': {
-                'commands_endpoint': 'http://test.com/api/commands'
-            }
-        })
+        command_service = CommandService(Mock(), 'http://test.com/api/commands')
 
         command = {
             'name': 'test',
@@ -329,11 +316,7 @@ class TestCommandUtilityFunctions(unittest.TestCase):
         mock_response.json.return_value = []
         mock_get.return_value = mock_response
 
-        command_service = CommandService(Mock(), {
-            'endpoints': {
-                'commands_endpoint': 'http://test.com/api/commands'
-            }
-        })
+        command_service = CommandService(Mock(), 'http://test.com/api/commands')
 
         command = {
             'name': 'test',

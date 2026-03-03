@@ -72,7 +72,7 @@ class MessageCodec:
                 try:
                     payload = json.loads(parts[1])
                     return Message(
-                        type=MessageType.CHAR_LOGON,
+                        type=MessageType.AUTH_PAYLOAD,
                         data=payload
                     )
                 except json.JSONDecodeError:

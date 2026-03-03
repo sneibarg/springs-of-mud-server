@@ -1,22 +1,24 @@
+from typing import Optional, List, Any
 from area import RomRoom
 from registry import RegistryService
 from server.LoggerFactory import LoggerFactory
+from server.protocol import Message, MessageType
 
 
 class RoomService:
     def __init__(self, injector, room_config):
         self.injector = injector
         self.room_config = room_config
-        self.logger = LoggerFactory.get_logger(self.__name__)
+        self.logger = LoggerFactory.get_logger(self.__class__.__name__)
         self.registry = self.injector.get(RegistryService)
         self.logger.info("Initialized RoomService instance.")
 
-    def get_room(self, room_id) -> RomRoom:
+    def get_room(self, room_id) -> RomRoom | None:
         if room_id is None:
-            self.logger.info("get_room: room_id is None")
+            self.logger.debug("get_room: room_id is None")
             return None
         if room_id not in self.registry.room_registry:
-            self.logger.info("get_room: room_id="+str(room_id)+" not in registry.")
+            self.logger.debug("get_room: room_id="+str(room_id)+" not in registry.")
             return None
         return self.registry.room_registry[room_id]
 
@@ -36,3 +38,33 @@ class RoomService:
                 else:
                     self.logger.debug("print_exits: get_room returned None.")
         writer.write("\r\n".encode('utf-8'))
+
+    def format_room_description(self, room_name: str, description: str, exits: list) -> Message:
+        text = f"[{room_name}]\r\n{description}\r\n"
+        if exits:
+            exits_text = "Exits: " + ", ".join(exits) + "\r\n"
+            text += exits_text
+
+        return Message(
+            type=MessageType.ROOM_DESCRIPTION,
+            data={
+                'text': text,
+                'room_name': room_name,
+                'description': description,
+                'exits': exits
+            }
+        )
+
+    async def send_to_room(self, room_id: str, message: Message, message_bus,
+                          exclude_player_ids: Optional[List[str]] = None) -> int:
+        exclude = exclude_player_ids or []
+        count = 0
+        sessions = message_bus.session_handler.get_playing_sessions()
+        for session in sessions:
+            if session.player_id in exclude:
+                continue
+
+            if await message_bus.send_to_player(session.player_id, message):
+                count += 1
+
+        return count

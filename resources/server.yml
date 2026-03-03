@@ -1,48 +1,24 @@
 mudserver:
+  playerone:
+    accountId: 62d2ff6699c3578abe7941c9
   host: malboji
   port: 6969
   debug: false
-  playerone:
-    accountId: 62d2ff6699c3578abe7941c9
-    accountName: sneibarg
-    enabled: false
+  modulith_host: dragon
+  modulith_port: 9080
+  api_version: /api/v1
   services:
-    commands:
-      endpoints:
-        commands_endpoint: "http://localhost:9080/api/v1/commands"
-    characters:
-      endpoints:
-        characters_endpoint: "http://localhost:9080/api/v1/characters"
-    players:
-      endpoints:
-        players_endpoint: "http://localhost:9080/api/v1/players"
-    classes:
-      endpoints:
-        classes_endpoint: "http://localhost:9080/api/v1/classes"
-    races:
-      endpoints:
-        races_endpoint: "http://localhost:9080/api/v1/races"
-    areas:
-      endpoints:
-        areas_endpoint: "http://localhost:9080/api/v1/areas"
-    rooms:
-      endpoints:
-        rooms_endpoint: "http://localhost:9080/api/v1/rooms"
-    mobiles:
-      endpoints:
-        mobiles_endpoint: "http://localhost:9080/api/v1/mobiles"
-    items:
-      endpoints:
-        items_endpoint: "http://localhost:9080/api/v1/items"
-    shops:
-      endpoints:
-        shops_endpoint: "http://localhost:9080/api/v1/shops"
-    specials:
-      endpoints:
-        specials_endpoint: "http://localhost:9080/api/v1/specials"
-    skills:
-      endpoints:
-        skills_endpoint: "http://localhost:9080/api/v1/skills"
-    game_data:
-      endpoints:
-        game_data_endpoint: "http://localhost:9080/api/v1/game"
+    endpoints:
+      commands_endpoint: "/commands"
+      characters_endpoint: "/characters"
+      players_endpoint: "/players"
+      classes_endpoint: "/classes"
+      races_endpoint: "/races"
+      areas_endpoint: "/areas"
+      rooms_endpoint: "/rooms"
+      mobiles_endpoint: "/mobiles"
+      items_endpoint: "/items"
+      shops_endpoint: "/shops"
+      specials_endpoint: "/specials"
+      skills_endpoint: "/skills"
+      game_data_endpoint: "/game"

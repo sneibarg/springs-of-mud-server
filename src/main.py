@@ -6,7 +6,6 @@ import yaml
 from server.MudServer import MudServer
 from server.LoggerFactory import LoggerFactory
 
-
 installation_directory = os.getcwd()
 server_config_yaml = os.path.join(installation_directory, 'resources', 'server.yml')
 logger_factory = LoggerFactory(os.path.join(installation_directory, 'log'))

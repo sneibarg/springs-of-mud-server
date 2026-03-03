@@ -1,10 +1,10 @@
 from asyncio import StreamReader, StreamWriter
-from area import AreaService
+from area import AreaService, RoomService
 from command import CommandHandler
 from event import EventHandler
 from server.connection import TelnetConnection, ConnectionManager
 from server.session import SessionHandler, SessionPhase, AuthenticationService
-from server.messaging import MessageBus, MessageFormatter
+from server.messaging import MessageBus
 from server.protocol import MessageType
 from server.LoggerFactory import LoggerFactory
 from server.ServerUtil import ServerUtil
@@ -21,6 +21,7 @@ class ConnectionHandler:
         self.session_handler = SessionHandler()
         self.message_bus = MessageBus(self.connection_manager, self.session_handler)
         self.player_service = self.injector.get(PlayerService)
+        self.auth_service = self.injector.get(AuthenticationService)
         self.command_handler = self.injector.get(CommandHandler)
         self.event_handler = self.injector.get(EventHandler)
         self.logger = LoggerFactory.get_logger(__name__)
@@ -29,7 +30,6 @@ class ConnectionHandler:
         connection = None
         session = None
         peer_info = None
-        character_data = None
         try:
             connection = TelnetConnection(reader, writer)
             session = self.session_handler.create_session(connection.session_id)
@@ -39,17 +39,21 @@ class ConnectionHandler:
 
             await self._send_welcome(connection)
 
-            auth_service = AuthenticationService(self.injector.get(self.mud_server.player_service_class), self.injector)
             first_msg = await connection.receive_message()
-            if first_msg and first_msg.type == MessageType.CHAR_LOGON:
+            self.logger.debug(f"Received message: {first_msg.type if first_msg else 'None'}, data: {first_msg.data if first_msg else 'None'}")
+            if first_msg and first_msg.type == MessageType.AUTH_PAYLOAD:
                 self.logger.info(f"Payload-based auth attempt on session {session.session_id}")
-                success, player_id, character_data = await auth_service.authenticate_with_payload(connection, session, first_msg.data)
+                success, player_id, character_data = await self.auth_service.authenticate_with_payload(connection, session, first_msg.data)
                 if success:
                     self.connection_manager.bind_player(player_id, session.session_id)
                     self.logger.info(f"Player {player_id} authenticated via payload on session {session.session_id}")
                 else:
                     await connection.send_text("Authentication failed.\r\n", MessageType.ERROR)
                     return
+            else:
+                self.logger.warning(f"Invalid authentication message. Expected AUTH_PAYLOAD, got: {first_msg.type if first_msg else 'None'}")
+                await connection.send_text("Invalid authentication message.\r\n", MessageType.ERROR)
+                return
 
             character = self._get_character(character_data, writer, reader)
             player = self._get_or_create_player(session, character)
@@ -73,24 +77,13 @@ class ConnectionHandler:
 
     @staticmethod
     async def _send_welcome(connection: TelnetConnection) -> None:
-        welcome = f"Welcome to the server!\n\n\n\n"  #{art}\n\n\n\n"
+        welcome = f"Welcome to the server!\n\n\n\n"
         await connection.send_text(welcome, MessageType.WELCOME)
-
-    @staticmethod
-    async def _prompt_ansi(connection: TelnetConnection) -> bool:
-        await connection.send_text("Do you want ANSI colors? (Y/N) ", MessageType.ANSI_PROMPT)
-        msg = await connection.receive_message()
-
-        if msg:
-            response = msg.get('text', '').strip().lower()
-            return response == 'y'
-        return False
 
     async def _show_room(self, connection: TelnetConnection, character) -> None:
         area_service = self.injector.get(AreaService)
+        room_service = self.injector.get(RoomService)
         room = area_service.get_registry().room_registry[character.room_id]
-
-        # Format room description
         exits = []
         if room.exit_north: exits.append("north")
         if room.exit_south: exits.append("south")
@@ -99,7 +92,7 @@ class ConnectionHandler:
         if room.exit_up: exits.append("up")
         if room.exit_down: exits.append("down")
 
-        message = MessageFormatter.format_room_description(room.name, room.description, exits)
+        message = room_service.format_room_description(room.name, room.description, exits)
         await connection.send_message(message)
 
     def _get_or_create_player(self, session, character):
@@ -134,7 +127,7 @@ class ConnectionHandler:
                 break
 
     def _get_character(self, character_data, writer, reader) -> Character:
-        character_definition = ServerUtil.camel_to_snake_case(character_data)
+        character_definition = ServerUtil.camel_to_snake_case(character_data) if character_data else {}
         character_definition['injector'] = self.injector
         character_definition['writer'] = writer
         character_definition['reader'] = reader

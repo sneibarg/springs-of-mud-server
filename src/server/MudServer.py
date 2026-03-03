@@ -1,4 +1,5 @@
 import asyncio
+import threading
 
 from injector import Injector, singleton
 from area import AreaService
@@ -11,6 +12,7 @@ from event import EventHandler
 from registry import RegistryService
 from server.ServerUtil import ServerUtil
 from server.handlers import ConnectionHandler
+from server.session import AuthenticationService
 
 
 class MudServer:
@@ -24,7 +26,9 @@ class MudServer:
         self.character_list = None
         self.host = config['mudserver']['host']
         self.port = config['mudserver']['port']
-        self.services = config['mudserver']['services']
+        self.modulith_host = config['mudserver']['modulith_host']
+        self.modulith_port = config['mudserver']['modulith_port']
+        self.service_endpoints = config['mudserver']['services']['endpoints']
         self.logger = logger_factory.get_logger(self.__name__)
         self.player_service_class = PlayerService
         self._configure_server()
@@ -32,10 +36,23 @@ class MudServer:
         self.game_service = self.injector.get(GameService)
 
     async def start(self):
-        asyncio.create_task(self.game_service.start())
+        game_thread = threading.Thread(target=self._run_game_loop, daemon=True, name="GameLoop")
+        game_thread.start()
+        self.logger.info("GameService started in background thread")
+
         server = await asyncio.start_server(self.handle_client, self.host, self.port)
         self.logger.info(f"MudServer started on {self.host}:{self.port}")
         await server.serve_forever()
+
+    def _run_game_loop(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            loop.run_until_complete(self.game_service.start())
+        except Exception as e:
+            self.logger.error(f"Game loop error: {e}", exc_info=True)
+        finally:
+            loop.close()
 
     async def handle_client(self, reader, writer):
         try:
@@ -68,18 +85,29 @@ class MudServer:
 
     def _start_services(self):
         self.injector.binder.bind(EventHandler, scope=singleton)
-        self.injector.binder.bind(CommandService, to=CommandService(self.injector, self.services['commands']), scope=singleton)
+        self.injector.binder.bind(CommandService, to=CommandService(self.injector, self._construct_service_endpoint('commands_endpoint')), scope=singleton)
         self.injector.binder.bind(CommandHandler, to=CommandHandler(self.injector), scope=singleton)
         self.injector.binder.bind(RegistryService, scope=singleton)
-        self.injector.binder.bind(PlayerService, to=PlayerService(self.injector, self.services['players'], self.services['characters']), scope=singleton)
-        self.injector.binder.bind(AreaService, to=AreaService(self.injector, self.services['areas'], self.services['rooms']), scope=singleton)
-        self.injector.binder.bind(ItemService, to=ItemService(self.injector, self.services['items']), scope=singleton)
-        self.injector.binder.bind(MobileService, to=MobileService(self.injector, self.services['mobiles']), scope=singleton)
+        self.injector.binder.bind(PlayerService, to=PlayerService(self.injector,self._construct_service_endpoint('players_endpoint'), self._construct_service_endpoint('characters_endpoint')), scope=singleton)
+        self.injector.binder.bind(AreaService, to=AreaService(self.injector, self._construct_service_endpoint('areas_endpoint'), self._construct_service_endpoint('rooms_endpoint')), scope=singleton)
+        self.injector.binder.bind(ItemService, to=ItemService(self.injector, self._construct_service_endpoint('items_endpoint')), scope=singleton)
+        self.injector.binder.bind(MobileService, to=MobileService(self.injector, self._construct_service_endpoint('mobiles_endpoint')), scope=singleton)
+        self.injector.binder.bind(AuthenticationService, to=AuthenticationService(self.injector), scope=singleton)
         self.injector.binder.bind(ConnectionHandler, to=ConnectionHandler(self), scope=singleton)
-        self.injector.binder.bind(GameService, to=GameService(self.injector, self.services['game_data']), scope=singleton)
+        self.injector.binder.bind(GameService, to=GameService(self.injector, self._construct_service_endpoint('game_data_endpoint')), scope=singleton)
 
     def _load_player_one(self):
-        account_id = self.config['mudserver']['playerone']['accountId']
-        account_json = ServerUtil.camel_to_snake_case(self.player_service.get_account_by_id(account_id))
-        return Player.from_json(account_json)
+        try:
+            account_id = self.config['mudserver']['playerone']['accountId']
+            account_json = ServerUtil.camel_to_snake_case(self.player_service.get_account_by_id(account_id))
+            return Player.from_json(account_json)
+        except KeyError as e:
+            self.logger.error(f"Missing configuration key: {e}")
+            self.logger.error(f"Available keys in config['mudserver']: {list(self.config.get('mudserver', {}).keys())}")
+            raise RuntimeError(f"Configuration error: 'playerone' section not found in server.yml") from e
+
+    def _construct_service_endpoint(self, endpoint):
+        api_version = self.config['mudserver']['api_version']
+        endpoint = self.config['mudserver']['services']['endpoints'][endpoint]
+        return f"http://{self.modulith_host}:{self.modulith_port}{api_version}{endpoint}"
 

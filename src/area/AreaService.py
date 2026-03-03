@@ -8,15 +8,13 @@ from server.LoggerFactory import LoggerFactory
 
 
 class AreaService:
-    def __init__(self, injector, area_config, room_config):
+    def __init__(self, injector, areas_endpoint, rooms_endpoint):
         self.__name__ = "AreaService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry = injector.get(RegistryService)
         self.injector = injector
-        self.area_config = area_config['endpoints']
-        self.room_config = room_config['endpoints']
-        self.areas_endpoint = self.area_config['areas_endpoint']
-        self.rooms_endpoint = self.room_config['rooms_endpoint']
+        self.areas_endpoint = areas_endpoint
+        self.rooms_endpoint = rooms_endpoint
         self.load_areas()
         self.load_rooms()
         self.logger.info("Initialized AreaService instance with "+str(len(self.registry.area_registry)) +

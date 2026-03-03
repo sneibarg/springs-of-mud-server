@@ -1,4 +1,6 @@
 from typing import Optional, Tuple
+
+from player import PlayerService
 from server.connection import Connection
 from server.protocol import MessageType
 from server.ServerUtil import ServerUtil
@@ -6,8 +8,8 @@ from .SessionState import SessionState, SessionPhase
 
 
 class AuthenticationService:
-    def __init__(self, player_service, injector):
-        self.player_service = player_service
+    def __init__(self, injector):
+        self.player_service = injector.get(PlayerService)
         self.injector = injector
 
     def _get_account(self, account_name: str) -> Optional[dict]:

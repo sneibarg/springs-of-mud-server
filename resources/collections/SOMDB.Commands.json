@@ -81,21 +81,6 @@
 },
 {
   "_id": {
-    "$oid": "673bf1dbb49d7223c66faa53"
-  },
-  "name": "inventory",
-  "shortcuts": "inv, inven, invent",
-  "role": "player",
-  "lambda": [
-    "lambda c: c.writer.write(b\"You are carrying: \\r\\n\") or [i.print_name(c.writer) for i in c.get_items()]"
-  ],
-  "message": "",
-  "function": [],
-  "enabled": true,
-  "skillId": ""
-},
-{
-  "_id": {
     "$oid": "673bf1dbb49d7223c66faa54"
   },
   "name": "examine",

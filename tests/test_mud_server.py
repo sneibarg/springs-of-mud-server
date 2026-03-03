@@ -15,15 +15,20 @@ class TestMudServer(unittest.TestCase):
             'mudserver': {
                 'host': 'localhost',
                 'port': 4000,
+                'modulith_host': 'localhost',
+                'modulith_port': 9080,
+                'api_version': '/api/v1',
                 'services': {
-                    'commands': {'endpoint': 'http://test/commands'},
-                    'players': {'endpoint': 'http://test/players'},
-                    'characters': {'endpoint': 'http://test/characters'},
-                    'areas': {'endpoint': 'http://test/areas'},
-                    'rooms': {'endpoint': 'http://test/rooms'},
-                    'items': {'endpoint': 'http://test/items'},
-                    'mobiles': {'endpoint': 'http://test/mobiles'},
-                    'game_data': {'game_data_endpoint': 'http://test/gamedata'}
+                    'endpoints': {
+                        'commands_endpoint': '/commands',
+                        'players_endpoint': '/players',
+                        'characters_endpoint': '/characters',
+                        'areas_endpoint': '/areas',
+                        'rooms_endpoint': '/rooms',
+                        'items_endpoint': '/items',
+                        'mobiles_endpoint': '/mobiles',
+                        'game_data_endpoint': '/game'
+                    }
                 },
                 'playerone': {
                     'accountId': 'test_account_123'

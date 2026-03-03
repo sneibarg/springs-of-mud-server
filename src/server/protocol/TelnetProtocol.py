@@ -74,12 +74,3 @@ class TelnetProtocol:
             return text
 
         return f"\033[{color_code}m{text}\033[0m"
-
-    @staticmethod
-    def create_prompt(self, health: int, mana: int, movement: int) -> Message:
-        """Create a formatted prompt message"""
-        prompt_text = f"<{health}hp {mana}m {movement}mv>\r\n"
-        return Message(
-            type=MessageType.PROMPT,
-            data={'text': prompt_text, 'health': health, 'mana': mana, 'movement': movement}
-        )

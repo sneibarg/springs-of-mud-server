@@ -4,11 +4,11 @@ from server.LoggerFactory import LoggerFactory
 
 
 class ItemService:
-    def __init__(self, injector, config):
+    def __init__(self, injector, items_endpoint):
         self.__name__ = "ItemService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.injector = injector
-        self.config = config['endpoints']
+        self.items_endpoint = items_endpoint
         self.all_items = {}
         self.total_items = 0
         self.load_items()
@@ -18,7 +18,7 @@ class ItemService:
         return self.all_items[item_id]
 
     def get_item_by_id(self, item_id):
-        url = self.config['items_endpoint'] + "/" + item_id
+        url = self.items_endpoint + "/" + item_id
         try:
             return requests.get(url).json()
         except Exception as e:
@@ -27,7 +27,7 @@ class ItemService:
 
     def load_items(self):
         try:
-            for item in requests.get(self.config['items_endpoint']).json():
+            for item in requests.get(self.items_endpoint).json():
                 self.all_items[item['id']] = item
                 self.total_items = self.total_items + 1
         except Exception as e:
