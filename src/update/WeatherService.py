@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from injector import inject
 
 from area import RoomService
-from event import EventHandler
+from player import PlayerService
 from numbers import RandomNumberGenerator
 from server.messaging import MessageBus
 from server.protocol import Message, MessageType
@@ -38,9 +38,9 @@ class TimeInfo:
 
 class WeatherService:
     @inject
-    def __init__(self, message_bus: MessageBus, event_handler: EventHandler, room_service: RoomService):
+    def __init__(self, message_bus: MessageBus, player_service: PlayerService, room_service: RoomService):
         self.message_bus = message_bus
-        self.event_handler = event_handler
+        self.player_service = player_service
         self.room_service = room_service
         self.weather_info = WeatherInfo(mmhg=1000, change=0, sky=SKY_CLOUDLESS, sunlight=SUN_LIGHT)
         self.time_info = TimeInfo(hour=0, day=1, month=1, year=1)
@@ -61,7 +61,7 @@ class WeatherService:
 
     def _is_player_outdoors(self, player_id: str) -> bool:
         """Check if a player is currently outdoors."""
-        character = self.event_handler.character_registry.get(player_id)
+        character = self.player_service.character_registry.get(player_id)
         if character:
             room = self.room_service.get_room(character.room_id)
             return self.room_service.is_outside(room)
