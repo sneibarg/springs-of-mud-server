@@ -167,17 +167,18 @@ class TestWeatherService(unittest.TestCase):
         self.assertGreaterEqual(self.weather_service.weather_info.mmhg, 960)
         self.assertLessEqual(self.weather_service.weather_info.mmhg, 1040)
 
-    def test_weather_change_summer_months(self):
-        """Test weather change during summer months (not 9-16)"""
+    @patch("update.WeatherService.rng")
+    def test_weather_change_summer_months(self, mock_rng):
         self.weather_service.time_info.month = 5
         self.weather_service.weather_info.mmhg = 1000
-        initial_mmhg = self.weather_service.weather_info.mmhg
+        initial = self.weather_service.weather_info.mmhg
+
+        # Force: diff=2, dice(1,4)=4, dice(2,6)=12 then 2  => change += 2*4 + 12 - 2 = 18
+        mock_rng.dice.side_effect = [4, 12, 2]
 
         self.weather_service._update_barometric_pressure()
 
-        # Should have changed
-        self.assertNotEqual(self.weather_service.weather_info.mmhg, initial_mmhg)
-        # Should be within valid range
+        self.assertNotEqual(self.weather_service.weather_info.mmhg, initial)
         self.assertGreaterEqual(self.weather_service.weather_info.mmhg, 960)
         self.assertLessEqual(self.weather_service.weather_info.mmhg, 1040)
 
