@@ -16,7 +16,7 @@ from server.session import AuthenticationService, SessionHandler
 from server.connection import ConnectionManager
 from server.messaging import MessageBus
 from server.ServiceConfig import ServiceConfig
-from update.WeatherService import WeatherService
+from update import WeatherService
 
 
 class MudServer:
