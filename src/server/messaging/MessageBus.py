@@ -1,5 +1,7 @@
 from typing import List, Optional, Callable
 from injector import inject
+
+from server.LoggerFactory import LoggerFactory
 from server.connection import ConnectionManager, TelnetConnection
 from server.protocol import Message
 from server.session import SessionHandler
@@ -13,6 +15,8 @@ class MessageBus:
 
     @inject
     def __init__(self, connection_manager: ConnectionManager, session_handler: SessionHandler):
+        self.__name__ = "MessageBus"
+        self.logger = LoggerFactory.get_logger(self.__name__)
         self.connection_manager = connection_manager
         self.session_handler = session_handler
 
@@ -25,9 +29,13 @@ class MessageBus:
         if connection and not connection.is_closed():
             try:
                 await connection.send_message(message)
+                self.logger.debug(f"Successfully sent message to player {player_id}")
                 return True
-            except Exception:
+            except Exception as e:
+                self.logger.error(f"Failed to send message to player {player_id}: {e}", exc_info=True)
                 return False
+        else:
+            self.logger.warning(f"No active connection found for player {player_id}")
         return False
 
     async def send_to_session(self, session_id: str, message: Message) -> bool:
@@ -59,7 +67,6 @@ class MessageBus:
             if session.player_id in exclude:
                 continue
 
-            # TODO: Add room_id filtering when character location tracking is available
             if await self.send_to_player(session.player_id, message):
                 count += 1
 
@@ -117,9 +124,10 @@ class MessageBus:
         """
         count = 0
         sessions = self.session_handler.get_playing_sessions()
-
         for session in sessions:
-            if session.player_id and is_outdoor_check(session.player_id):
+            self.logger.debug(f"Checking player {session.character_id} for outdoor status")
+            if session.player_id and is_outdoor_check(session.character_id):
+                self.logger.debug(f"Sending message to player {session.player_id} (character {session.character_id}): {message}")
                 if await self.send_to_player(session.player_id, message):
                     count += 1
 

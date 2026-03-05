@@ -89,13 +89,10 @@ class MudServer:
         service_config: ServiceConfig = self._load_service_config()
         self.injector.binder.bind(ServiceConfig, to=service_config, scope=singleton)
         self.injector.binder.bind(RegistryService, scope=singleton)
-        self.injector.binder.bind(GameService, scope=singleton)
-        self.injector.binder.bind(GameData, to=self.injector.get(GameService).game_data, scope=singleton)
         self.injector.binder.bind(EventHandler, scope=singleton)
         self.injector.binder.bind(PlayerService, scope=singleton)
         self.injector.binder.bind(CommandService, scope=singleton)
         self.injector.binder.bind(CommandHandler, scope=singleton)
-        self.injector.binder.bind(RoomService, scope=singleton)
         self.injector.binder.bind(AreaService, scope=singleton)
         self.injector.binder.bind(ItemService, scope=singleton)
         self.injector.binder.bind(MobileService, scope=singleton)
@@ -104,6 +101,9 @@ class MudServer:
         self.injector.binder.bind(SessionHandler, scope=singleton)
         self.injector.binder.bind(MessageBus, scope=singleton)
         self.injector.binder.bind(ConnectionHandler, scope=singleton)
+        self.injector.binder.bind(GameService, scope=singleton)
+        self.injector.binder.bind(GameData, to=self.injector.get(GameService).game_data, scope=singleton)
+        self.injector.binder.bind(RoomService, scope=singleton)
         self.injector.binder.bind(WeatherService, scope=singleton)
 
         self.injector.get(PlayerService)
@@ -111,6 +111,10 @@ class MudServer:
         self.injector.get(AreaService)
         self.injector.get(ItemService)
         self.injector.get(MobileService)
+
+        game_service = self.injector.get(GameService)
+        weather_service = self.injector.get(WeatherService)
+        game_service.set_weather_service(weather_service)
 
     def _load_player_one(self):
         try:

@@ -1,11 +1,15 @@
 import requests
+
+from typing import TYPE_CHECKING
 from injector import inject
 
-from area import RomRoom
 from game import GameData
 from server.LoggerFactory import LoggerFactory
 from server.TimeVal import gettimeofday, TimeVal, stall_until_last_time
 from server.ServiceConfig import ServiceConfig
+
+if TYPE_CHECKING:
+    from update.WeatherService import WeatherService
 
 
 class GameService:
@@ -13,9 +17,14 @@ class GameService:
     def __init__(self, config: ServiceConfig):
         self.__name__ = "GameService"
         self.logger = LoggerFactory.get_logger(self.__name__)
+        self.weather_service = None
         self.game_data_endpoint = config.game_data_endpoint
         self.game_data = self._load_game_data()
         self.last_time: TimeVal = gettimeofday()
+
+    def set_weather_service(self, weather_service: WeatherService):
+        """Set weather service after initialization to break circular dependency"""
+        self.weather_service = weather_service
 
     async def start(self):
         await self.game_loop()
@@ -28,6 +37,7 @@ class GameService:
         self.last_time = gettimeofday()
         current_time = self.last_time.tv_sec
         self.logger.debug(f"Current time: {current_time}; Pulses per second: {self.game_data.constants.pulses['perSecond']}")
+        await self.weather_service.update()
         stall_until_last_time(self.last_time, self.game_data.constants.pulses['perSecond'])
 
     def _load_game_data(self):

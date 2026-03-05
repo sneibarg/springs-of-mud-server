@@ -2,8 +2,10 @@ from dataclasses import dataclass
 from injector import inject
 
 from area import RoomService
+from game import GameData
 from player import PlayerService
 from numbers import RandomNumberGenerator
+from server.LoggerFactory import LoggerFactory
 from server.messaging import MessageBus
 from server.protocol import Message, MessageType
 
@@ -38,32 +40,55 @@ class TimeInfo:
 
 class WeatherService:
     @inject
-    def __init__(self, message_bus: MessageBus, player_service: PlayerService, room_service: RoomService):
+    def __init__(self, message_bus: MessageBus, player_service: PlayerService, room_service: RoomService, game_data: GameData):
+        self.__name__ = "WeatherService"
+        self.logger = LoggerFactory.get_logger(self.__name__)
         self.message_bus = message_bus
         self.player_service = player_service
         self.room_service = room_service
+        self.game_data = game_data
         self.weather_info = WeatherInfo(mmhg=1000, change=0, sky=SKY_CLOUDLESS, sunlight=SUN_LIGHT)
         self.time_info = TimeInfo(hour=0, day=1, month=1, year=1)
+        self.pulse_count = 0
+        self.pulse_tick = game_data.constants.pulses.get('tick', 60 * game_data.constants.pulses.get('perSecond', 4))
+        self.logger.info(f"WeatherService initialized. Pulse tick: {self.pulse_tick}")
+
+    # every 60 seconds is one game hour.
+    async def update(self):
+        """Update weather and time."""
+        self.pulse_count += 1
+        self.logger.debug(f"WeatherService pulse count: {self.pulse_count}")
+        if self.pulse_count >= self.pulse_tick:
+            self.pulse_count = 0
+            self.logger.info("TimeInfo: " + str(self.time_info) + " WeatherInfo: " + str(self.weather_info))
+            await self.time_update()
+            await self.sky_update()
 
     async def time_update(self):
         """Send time updates to all outdoor players."""
         time_msg = self._time_change()
         if time_msg:
+            self.logger.info(f"Time update: {time_msg}")
             message = Message(type=MessageType.SYSTEM, data={'text': time_msg})
             await self.message_bus.send_to_outdoor_players(message, self._is_player_outdoors)
 
     async def sky_update(self):
         """Send weather updates to all outdoor players"""
+        self._update_barometric_pressure()
+
         sky_msg = self._sky_change()
         if sky_msg:
+            self.logger.info(f"Sky update: {sky_msg}")
             message = Message(type=MessageType.SYSTEM, data={'text': sky_msg})
             await self.message_bus.send_to_outdoor_players(message, self._is_player_outdoors)
 
-    def _is_player_outdoors(self, player_id: str) -> bool:
+    def _is_player_outdoors(self, character_id: str) -> bool:
         """Check if a player is currently outdoors."""
-        character = self.player_service.character_registry.get(player_id)
+        character = self.player_service.registry_service.character_registry.get(character_id)
+        self.logger.info(f"Checking if player {character_id} is outdoors: {character}")
         if character:
             room = self.room_service.get_room(character.room_id)
+            self.logger.info(f"Room: {room}")
             return self.room_service.is_outside(room)
         return False
 
@@ -96,8 +121,7 @@ class WeatherService:
 
         return time_message
 
-    def _weather_change(self) -> str:
-        weather_update: str = ""
+    def _update_barometric_pressure(self):
         if 9 <= self.time_info.month <= 16:
             diff = -2 if self.weather_info.mmhg > 985 else 2
         else:
@@ -110,8 +134,6 @@ class WeatherService:
         self.weather_info.mmhg += self.weather_info.change
         self.weather_info.mmhg = max(self.weather_info.mmhg, 960)
         self.weather_info.mmhg = min(self.weather_info.mmhg, 1040)
-
-        return weather_update
 
     def _sky_change(self) -> str:
         def chance():
