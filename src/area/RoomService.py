@@ -1,17 +1,25 @@
 from typing import Optional, List, Any
-from area import RomRoom
+from injector import inject
+
+from game import GameData
+from .RomRoom import RomRoom
 from registry import RegistryService
 from server.LoggerFactory import LoggerFactory
 from server.protocol import Message, MessageType
+from server.ServiceConfig import ServiceConfig
 
 
 class RoomService:
-    def __init__(self, injector, rooms_endpoint):
-        self.injector = injector
-        self.rooms_endpoint = rooms_endpoint
+    @inject
+    def __init__(self, config: ServiceConfig, registry: RegistryService, game_data: GameData):
+        self.rooms_endpoint = config.rooms_endpoint
         self.logger = LoggerFactory.get_logger(self.__class__.__name__)
-        self.registry = self.injector.get(RegistryService)
+        self.registry = registry
+        self.game_data = game_data
         self.logger.info("Initialized RoomService instance.")
+
+    def is_outside(self, room: RomRoom) -> bool:
+        return (room.room_flags & self.game_data.flags["room"]["INDOORS"]) == 0
 
     def get_room(self, room_id) -> RomRoom | None:
         if room_id is None:

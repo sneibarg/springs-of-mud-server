@@ -1,6 +1,5 @@
 from typing import Dict, Optional
 from .SessionState import SessionState, SessionPhase
-from server.protocol import Message
 
 
 class SessionHandler:

@@ -1,6 +1,11 @@
 from dataclasses import dataclass
+from injector import inject
+
+from area import RoomService
+from event import EventHandler
 from numbers import RandomNumberGenerator
-from server.session import SessionHandler
+from server.messaging import MessageBus
+from server.protocol import Message, MessageType
 
 rng = RandomNumberGenerator()
 
@@ -15,16 +20,16 @@ SKY_RAINING: int = 2
 SKY_LIGHTNING: int = 3
 
 
-@dataclass
-class WeatherInfo(slots=True):
+@dataclass(slots=True)
+class WeatherInfo:
     mmhg: int
     change: int
     sky: int
     sunlight: int
 
 
-@dataclass
-class TimeInfo(slots=True):
+@dataclass(slots=True)
+class TimeInfo:
     hour: int
     day: int
     month: int
@@ -32,16 +37,37 @@ class TimeInfo(slots=True):
 
 
 class WeatherService:
-    def __init__(self, session_handler: SessionHandler):
-        self.session_handler = session_handler
+    @inject
+    def __init__(self, message_bus: MessageBus, event_handler: EventHandler, room_service: RoomService):
+        self.message_bus = message_bus
+        self.event_handler = event_handler
+        self.room_service = room_service
         self.weather_info = WeatherInfo(mmhg=1000, change=0, sky=SKY_CLOUDLESS, sunlight=SUN_LIGHT)
         self.time_info = TimeInfo(hour=0, day=1, month=1, year=1)
 
-    @staticmethod
-    def weather_update():
-        pass
+    async def time_update(self):
+        """Send time updates to all outdoor players."""
+        time_msg = self._time_change()
+        if time_msg:
+            message = Message(type=MessageType.SYSTEM, data={'text': time_msg})
+            await self.message_bus.send_to_outdoor_players(message, self._is_player_outdoors)
 
-    def time_change(self):
+    async def sky_update(self):
+        """Send weather updates to all outdoor players"""
+        sky_msg = self._sky_change()
+        if sky_msg:
+            message = Message(type=MessageType.SYSTEM, data={'text': sky_msg})
+            await self.message_bus.send_to_outdoor_players(message, self._is_player_outdoors)
+
+    def _is_player_outdoors(self, player_id: str) -> bool:
+        """Check if a player is currently outdoors."""
+        character = self.event_handler.character_registry.get(player_id)
+        if character:
+            room = self.room_service.get_room(character.room_id)
+            return self.room_service.is_outside(room)
+        return False
+
+    def _time_change(self):
         time_message: str = ""
         self.time_info.hour += 1
         if self.time_info.hour == 5:
@@ -70,7 +96,7 @@ class WeatherService:
 
         return time_message
 
-    def weather_change(self) -> str:
+    def _weather_change(self) -> str:
         weather_update: str = ""
         if 9 <= self.time_info.month <= 16:
             diff = -2 if self.weather_info.mmhg > 985 else 2
@@ -87,7 +113,7 @@ class WeatherService:
 
         return weather_update
 
-    def sky_change(self) -> str:
+    def _sky_change(self) -> str:
         def chance():
             return rng.number_bits(2) == 0
 

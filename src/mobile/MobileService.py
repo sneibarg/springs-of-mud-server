@@ -1,20 +1,23 @@
 import asyncio
 import requests
+from injector import inject
 
 from server.LoggerFactory import LoggerFactory
+from server.ServiceConfig import ServiceConfig
 from registry import RegistryService
 from event import EventHandler
 from area import AreaService
 
 
 class MobileService:
-    def __init__(self, injector, mobiles_endpoint):
+    @inject
+    def __init__(self, config: ServiceConfig, registry: RegistryService, area_service: AreaService, event_handler: EventHandler):
         self.__name__ = "MobileService"
         self.logger = LoggerFactory.get_logger(self.__name__)
-        self.registry = injector.get(RegistryService)
-        self.mobiles_endpoint = mobiles_endpoint
-        self.area_service = injector.get(AreaService)
-        self.event_handler = injector.get(EventHandler)
+        self.registry = registry
+        self.mobiles_endpoint = config.mobiles_endpoint
+        self.area_service = area_service
+        self.event_handler = event_handler
         self.task = None
         self.stop_flag = False
         self.all_mobiles = {}

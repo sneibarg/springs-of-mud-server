@@ -1,20 +1,22 @@
 import requests
+from injector import inject
 
 from area.RomArea import RomArea
 from area.RomRoom import RomRoom
 from registry import RegistryService
 from server.ServerUtil import ServerUtil
 from server.LoggerFactory import LoggerFactory
+from server.ServiceConfig import ServiceConfig
 
 
 class AreaService:
-    def __init__(self, injector, areas_endpoint, rooms_endpoint):
+    @inject
+    def __init__(self, config: ServiceConfig, registry: RegistryService):
         self.__name__ = "AreaService"
         self.logger = LoggerFactory.get_logger(self.__name__)
-        self.registry = injector.get(RegistryService)
-        self.injector = injector
-        self.areas_endpoint = areas_endpoint
-        self.rooms_endpoint = rooms_endpoint
+        self.registry = registry
+        self.areas_endpoint = config.areas_endpoint
+        self.rooms_endpoint = config.rooms_endpoint
         self.load_areas()
         self.load_rooms()
         self.logger.info("Initialized AreaService instance with "+str(len(self.registry.area_registry)) +

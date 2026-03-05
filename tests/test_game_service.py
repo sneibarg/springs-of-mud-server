@@ -2,9 +2,10 @@ import unittest
 from unittest.mock import Mock, AsyncMock, patch, MagicMock
 import asyncio
 from game import GameService
-from game import GameData, Version, Constants, Catalogs, Catalog, Integrity, BuildInfo
+from game import GameData, Version, Constants, Integrity, BuildInfo
 from server.TimeVal import TimeVal
-from datetime import datetime
+from server.ServiceConfig import ServiceConfig
+from datetime import datetime, timezone
 
 
 class TestGameService(unittest.TestCase):
@@ -13,6 +14,16 @@ class TestGameService(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures"""
         self.game_data_endpoint = "http://test.endpoint/game-data"
+        self.mock_service_config = ServiceConfig(
+            game_data_endpoint=self.game_data_endpoint,
+            commands_endpoint="http://test/commands",
+            players_endpoint="http://test/players",
+            characters_endpoint="http://test/characters",
+            rooms_endpoint="http://test/rooms",
+            areas_endpoint="http://test/areas",
+            items_endpoint="http://test/items",
+            mobiles_endpoint="http://test/mobiles"
+        )
         self.mock_game_data = self._create_mock_game_data()
 
     def _create_mock_game_data(self):
@@ -25,7 +36,7 @@ class TestGameService(unittest.TestCase):
                 family="test",
                 lineage=["v1"],
                 semver="1.0.0",
-                created_at=datetime.now(),
+                created_at=datetime.now(timezone.utc),
                 notes="Test version"
             ),
             constants=Constants(
@@ -33,21 +44,11 @@ class TestGameService(unittest.TestCase):
                 pulses={"perSecond": 4}
             ),
             enums={"directions": ["north", "south", "east", "west"]},
-            flag_domains={"room": ["dark", "nomob"]},
-            catalogs=Catalogs(
-                classes=Catalog(by_id={}, by_name={}),
-                races=Catalog(by_id={}, by_name={}),
-                pc_races=Catalog(by_id={}, by_name={}),
-                skills=Catalog(by_id={}, by_name={}),
-                groups=Catalog(by_id={}, by_name={}),
-                weapons=Catalog(by_id={}, by_name={}),
-                attacks=Catalog(by_id={}, by_name={}),
-                liquids=Catalog(by_id={}, by_name={})
-            ),
+            flags={"room": {"DARK": 1, "NOMOB": 2}},
             well_known_vnums={"temple": {"room": 3001}},
             integrity=Integrity(
                 content_hash="abc123",
-                build=BuildInfo(source="test", tool_version="1.0.0")
+                build=BuildInfo(source="test", tool_version="1.0.0", extra={})
             )
         )
 
@@ -58,7 +59,7 @@ class TestGameService(unittest.TestCase):
         mock_response.json.return_value = [self._create_game_data_dict()]
         mock_get.return_value = mock_response
 
-        service = GameService(self.game_data_endpoint)
+        service = GameService(self.mock_service_config)
 
         self.assertEqual(service.__name__, "GameService")
         self.assertEqual(service.game_data_endpoint, self.game_data_endpoint)
@@ -74,7 +75,7 @@ class TestGameService(unittest.TestCase):
         mock_response.json.return_value = [self._create_game_data_dict()]
         mock_get.return_value = mock_response
 
-        service = GameService(self.game_data_endpoint)
+        service = GameService(self.mock_service_config)
 
         self.assertIsInstance(service.game_data, GameData)
         self.assertEqual(service.game_data.id, "test-game")
@@ -88,7 +89,7 @@ class TestGameService(unittest.TestCase):
         mock_logger.return_value = Mock()
 
         with self.assertRaises(RuntimeError) as context:
-            GameService(self.game_data_endpoint)
+            GameService(self.mock_service_config)
 
         self.assertIn("Failed to load game data", str(context.exception))
 
@@ -102,7 +103,7 @@ class TestGameService(unittest.TestCase):
         mock_logger.return_value = Mock()
 
         with self.assertRaises(RuntimeError):
-            GameService(self.game_data_endpoint)
+            GameService(self.mock_service_config)
 
     @patch('game.GameService.requests.get')
     @patch('game.GameService.stall_until_last_time')
@@ -116,7 +117,7 @@ class TestGameService(unittest.TestCase):
         mock_time = TimeVal(tv_sec=1000, tv_usec=500000)
         mock_gettimeofday.return_value = mock_time
 
-        service = GameService(self.game_data_endpoint)
+        service = GameService(self.mock_service_config)
 
         await service._game_loop_iteration()
 
@@ -140,7 +141,7 @@ class TestGameService(unittest.TestCase):
 
         mock_gettimeofday.side_effect = mock_gettimeofday_side_effect
 
-        service = GameService(self.game_data_endpoint)
+        service = GameService(self.mock_service_config)
 
         # Run a few iterations
         for _ in range(3):
@@ -156,7 +157,7 @@ class TestGameService(unittest.TestCase):
         mock_response.json.return_value = [self._create_game_data_dict()]
         mock_get.return_value = mock_response
 
-        service = GameService(self.game_data_endpoint)
+        service = GameService(self.mock_service_config)
 
         # Mock game_loop to prevent infinite loop
         service.game_loop = AsyncMock()
@@ -173,7 +174,17 @@ class TestGameService(unittest.TestCase):
         mock_get.return_value = mock_response
 
         endpoint = "http://custom.endpoint/data"
-        service = GameService(endpoint)
+        custom_config = ServiceConfig(
+            game_data_endpoint=endpoint,
+            commands_endpoint="http://test/commands",
+            players_endpoint="http://test/players",
+            characters_endpoint="http://test/characters",
+            rooms_endpoint="http://test/rooms",
+            areas_endpoint="http://test/areas",
+            items_endpoint="http://test/items",
+            mobiles_endpoint="http://test/mobiles"
+        )
+        service = GameService(custom_config)
 
         self.assertEqual(service.game_data_endpoint, endpoint)
 
@@ -184,7 +195,7 @@ class TestGameService(unittest.TestCase):
         mock_response.json.return_value = [self._create_game_data_dict()]
         mock_get.return_value = mock_response
 
-        service = GameService(self.game_data_endpoint)
+        service = GameService(self.mock_service_config)
 
         self.assertIsNotNone(service.logger)
         self.assertEqual(service.__name__, "GameService")
@@ -200,7 +211,7 @@ class TestGameService(unittest.TestCase):
         initial_time = TimeVal(tv_sec=1000, tv_usec=0)
         mock_gettimeofday.return_value = initial_time
 
-        service = GameService(self.game_data_endpoint)
+        service = GameService(self.mock_service_config)
 
         self.assertEqual(service.last_time, initial_time)
 
@@ -217,7 +228,7 @@ class TestGameService(unittest.TestCase):
 
         mock_gettimeofday.side_effect = [time1, time2]
 
-        service = GameService(self.game_data_endpoint)
+        service = GameService(self.mock_service_config)
         initial_time = service.last_time
 
         with patch('game.GameService.stall_until_last_time'):
@@ -236,7 +247,7 @@ class TestGameService(unittest.TestCase):
         mock_response.json.return_value = [game_data_dict]
         mock_get.return_value = mock_response
 
-        service = GameService(self.game_data_endpoint)
+        service = GameService(self.mock_service_config)
 
         self.assertEqual(service.game_data.constants.pulses['perSecond'], 8)
 
@@ -258,17 +269,23 @@ class TestGameService(unittest.TestCase):
                 "pulses": {"perSecond": 4}
             },
             "enums": {"directions": ["north", "south", "east", "west"]},
-            "flagDomains": {"room": ["dark", "nomob"]},
-            "catalogs": {
-                "classes": {"byId": {}, "byName": {}},
-                "races": {"byId": {}, "byName": {}},
-                "pcRaces": {"byId": {}, "byName": {}},
-                "skills": {"byId": {}, "byName": {}},
-                "groups": {"byId": {}, "byName": {}},
-                "weapons": {"byId": {}, "byName": {}},
-                "attacks": {"byId": {}, "byName": {}},
-                "liquids": {"byId": {}, "byName": {}}
-            },
+            "flags": {"room": {"DARK": 1, "NOMOB": 2}},
+            "classes": {},
+            "races": {},
+            "pcRaces": {},
+            "skills": {},
+            "groups": {},
+            "weapons": {},
+            "attacks": {},
+            "liquids": {},
+            "classesNameIndex": {},
+            "racesNameIndex": {},
+            "pcRacesNameIndex": {},
+            "skillsNameIndex": {},
+            "groupsNameIndex": {},
+            "weaponsNameIndex": {},
+            "attacksNameIndex": {},
+            "liquidsNameIndex": {},
             "wellKnownVnums": {"temple": {"room": 3001}},
             "integrity": {
                 "contentHash": "abc123",

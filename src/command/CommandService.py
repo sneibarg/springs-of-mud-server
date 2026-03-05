@@ -1,10 +1,12 @@
 import re
 import requests
+from injector import inject, Injector
 
 from typing import Union, Any
 from asyncio import StreamWriter
 from game import CommunicationService
 from server.LoggerFactory import LoggerFactory
+from server.ServiceConfig import ServiceConfig
 from registry import RegistryService
 from command import CommandHandler
 from area import AreaService
@@ -18,6 +20,7 @@ lambda_mappings = {
     'p': 'Player',
     'c': 'Character',
     'r': 'RomRoom',
+    'rs': 'RegistryService',
     'cs': 'CommandService',
     'cms': 'CommunicationService',
     'ps': 'PlayerService',
@@ -47,6 +50,7 @@ def get_class_obj(class_name):
         'CommandService': CommandService,
         'CommunicationService': CommunicationService,
         'PlayerService': PlayerService,
+        'RegistryService': RegistryService,
         'AreaService': AreaService,
         'MobileService': MobileService,
         'ObjectService': ItemService,
@@ -103,7 +107,7 @@ def get_args(lambda_string, player, injector, parameters):
                 room = registry.room_registry[character.room_id]
                 class_obj = type(room)
                 obj = room
-            elif arg in ['ps', 'zs', 'ms', 'os', 'eh', 'ch', 'cs']:
+            elif arg in ['ps', 'zs', 'ms', 'os', 'eh', 'ch', 'cs', 'rs']:
                 obj = injector.get(class_obj)
             elif arg == 'usage':
                 obj = player.usage
@@ -143,10 +147,11 @@ def handle_lambdas(command_service, player, command, parameters):
 
 
 class CommandService:
-    def __init__(self, injector, commands_endpoint):
+    @inject
+    def __init__(self, config: ServiceConfig, injector: Injector):
         self.__name__ = "CommandService"
         self.injector = injector
-        self.commands_endpoint = commands_endpoint
+        self.commands_endpoint = config.commands_endpoint
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.command_list = self.load_command_list()
         self.logger.info("Initialized CommandService instance.")

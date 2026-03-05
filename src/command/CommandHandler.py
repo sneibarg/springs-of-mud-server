@@ -1,4 +1,5 @@
 import re
+from injector import inject
 
 from typing import Union, Any
 from command.CommandService import CommandService
@@ -6,11 +7,12 @@ from server.LoggerFactory import LoggerFactory
 
 
 class CommandHandler:
-    def __init__(self, injector):
+    @inject
+    def __init__(self, command_service: CommandService):
         self.__name__ = "CommandHandler"
         self.logger = LoggerFactory.get_logger(self.__name__)
-        self.injector = injector
-        self.command_list = self.injector.get(CommandService).command_list
+        self.command_service = command_service
+        self.command_list = command_service.command_list
         self.logger.info("Initialized CommandHandler instance.")
 
     def handle_command(self, player, command):
@@ -31,7 +33,7 @@ class CommandHandler:
                 player.set_usage(usage_function)
 
         self.logger.debug(f"CMD: {cmd['name']}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
-        return self.injector.get(CommandService).call_lambda(player, cmd['name'], self.command_list, parameters)
+        return self.command_service.call_lambda(player, cmd['name'], self.command_list, parameters)
 
     def extract_parameters(self, command: str) -> Union[tuple[Any, str], tuple[None, None]]:
         for cmd in self.command_list:

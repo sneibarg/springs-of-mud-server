@@ -127,8 +127,18 @@ class TestItemService(unittest.TestCase):
     """Test ItemService"""
 
     def setUp(self):
-        self.mock_injector = Mock()
+        from server.ServiceConfig import ServiceConfig
         self.items_endpoint = 'http://test.com/api/items'
+        self.mock_service_config = ServiceConfig(
+            game_data_endpoint="http://test/game",
+            commands_endpoint="http://test/commands",
+            players_endpoint="http://test/players",
+            characters_endpoint="http://test/characters",
+            rooms_endpoint="http://test/rooms",
+            areas_endpoint="http://test/areas",
+            items_endpoint=self.items_endpoint,
+            mobiles_endpoint="http://test/mobiles"
+        )
 
     @patch('object.ItemService.requests.get')
     def test_initialization(self, mock_get):
@@ -140,7 +150,7 @@ class TestItemService(unittest.TestCase):
         ]
         mock_get.return_value = mock_response
 
-        service = ItemService(self.mock_injector, self.items_endpoint)
+        service = ItemService(self.mock_service_config)
 
         self.assertEqual(service.total_items, 2)
         self.assertEqual(len(service.all_items), 2)
@@ -154,7 +164,7 @@ class TestItemService(unittest.TestCase):
         mock_response.json.return_value = []
         mock_get.return_value = mock_response
 
-        service = ItemService(self.mock_injector, self.items_endpoint)
+        service = ItemService(self.mock_service_config)
 
         self.assertEqual(service.total_items, 0)
         self.assertEqual(len(service.all_items), 0)
@@ -164,7 +174,7 @@ class TestItemService(unittest.TestCase):
         """Test ItemService handles initialization failure gracefully"""
         mock_get.side_effect = Exception('API Error')
 
-        service = ItemService(self.mock_injector, self.items_endpoint)
+        service = ItemService(self.mock_service_config)
 
         # Should still initialize but with 0 items
         self.assertEqual(service.total_items, 0)
@@ -179,7 +189,7 @@ class TestItemService(unittest.TestCase):
         ]
         mock_get.return_value = mock_response
 
-        service = ItemService(self.mock_injector, self.items_endpoint)
+        service = ItemService(self.mock_service_config)
         item = service.return_item_by_id('item_001')
 
         self.assertEqual(item['id'], 'item_001')
@@ -192,7 +202,7 @@ class TestItemService(unittest.TestCase):
         mock_response.json.return_value = []
         mock_get.return_value = mock_response
 
-        service = ItemService(self.mock_injector, self.items_endpoint)
+        service = ItemService(self.mock_service_config)
 
         with self.assertRaises(KeyError):
             service.return_item_by_id('nonexistent')
@@ -204,7 +214,7 @@ class TestItemService(unittest.TestCase):
         mock_response = Mock()
         mock_response.json.return_value = []
         mock_get.return_value = mock_response
-        service = ItemService(self.mock_injector, self.items_endpoint)
+        service = ItemService(self.mock_service_config)
 
         # Get specific item
         mock_get.return_value.json.return_value = {
@@ -223,7 +233,7 @@ class TestItemService(unittest.TestCase):
         mock_response = Mock()
         mock_response.json.return_value = []
         mock_get.return_value = mock_response
-        service = ItemService(self.mock_injector, self.items_endpoint)
+        service = ItemService(self.mock_service_config)
 
         # Fail on specific item
         mock_get.side_effect = Exception('API Error')
@@ -242,7 +252,7 @@ class TestItemService(unittest.TestCase):
         ]
         mock_get.return_value = mock_response
 
-        service = ItemService(self.mock_injector, self.items_endpoint)
+        service = ItemService(self.mock_service_config)
 
         self.assertEqual(service.total_items, 3)
         self.assertEqual(len(service.all_items), 3)
@@ -257,7 +267,7 @@ class TestItemService(unittest.TestCase):
         ]
         mock_get.return_value = mock_response
 
-        service = ItemService(self.mock_injector, self.items_endpoint)
+        service = ItemService(self.mock_service_config)
 
         self.assertEqual(service.all_items['item_001']['name'], 'sword')
         self.assertEqual(service.all_items['item_001']['value'], '100')

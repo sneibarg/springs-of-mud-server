@@ -3,12 +3,16 @@ from unittest.mock import Mock, patch
 import threading
 from player import Player, PlayerService
 from player.Character import Character
+from registry import RegistryService
+from server.ServiceConfig import ServiceConfig
 
 
 class TestPlayer(unittest.TestCase):
     """Test Player class"""
 
     def setUp(self):
+        self.service_config: ServiceConfig = Mock()
+        self.registry_service: RegistryService = Mock()
         self.player_data = {
             'first_name': 'John',
             'last_name': 'Doe',
@@ -379,13 +383,22 @@ class TestPlayerService(unittest.TestCase):
     """Test PlayerService"""
 
     def setUp(self):
-        self.mock_injector = Mock()
-        self.mock_event_handler = Mock()
-        self.mock_event_handler.character_registry = {}
-        self.mock_injector.get.return_value = self.mock_event_handler
+        from server.ServiceConfig import ServiceConfig
+        from registry import RegistryService
 
+        self.registry_service = RegistryService()
         self.players_endpoint = 'http://test.com/api/players'
         self.characters_endpoint = 'http://test.com/api/characters'
+        self.service_config = ServiceConfig(
+            game_data_endpoint="http://test/game",
+            commands_endpoint="http://test/commands",
+            players_endpoint=self.players_endpoint,
+            characters_endpoint=self.characters_endpoint,
+            rooms_endpoint="http://test/rooms",
+            areas_endpoint="http://test/areas",
+            items_endpoint="http://test/items",
+            mobiles_endpoint="http://test/mobiles"
+        )
 
     @patch('player.PlayerService.requests.get')
     def test_initialization(self, mock_get):
@@ -396,15 +409,15 @@ class TestPlayerService(unittest.TestCase):
         mock_get.return_value = mock_response
 
         service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
+            self.service_config,
+            self.registry_service
         )
 
         self.assertIsNotNone(service.logger)
         self.assertIsNotNone(service.player_list)
         self.assertIsNotNone(service.character_list)
 
+    @unittest.skip("Method get_connected_players no longer exists in PlayerService")
     @patch('player.PlayerService.requests.get')
     def test_get_connected_players(self, mock_get):
         """Test getting connected players"""
@@ -414,9 +427,8 @@ class TestPlayerService(unittest.TestCase):
         mock_get.return_value = mock_response
 
         service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
+            self.service_config,
+            self.registry_service
         )
 
         result = service.get_connected_players()
@@ -430,9 +442,8 @@ class TestPlayerService(unittest.TestCase):
         mock_response.json.return_value = []
         mock_get.return_value = mock_response
         service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
+            self.service_config,
+            self.registry_service
         )
 
         mock_get.return_value.json.return_value = {
@@ -450,9 +461,8 @@ class TestPlayerService(unittest.TestCase):
 
         mock_get.return_value.json.return_value = []
         service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
+            self.service_config,
+            self.registry_service,
         )
 
         mock_response = Mock()
@@ -469,25 +479,24 @@ class TestPlayerService(unittest.TestCase):
 
         mock_get.return_value.json.return_value = []
         service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
+            self.service_config,
+            self.registry_service,
         )
 
         # Setup character registry
         char1 = Mock()
-        char1.get_name.return_value = 'char1'
+        char1.name = 'char1'
         char1.get_room_id.return_value = 'room_001'
 
         char2 = Mock()
-        char2.get_name.return_value = 'char2'
+        char2.name = 'char2'
         char2.get_room_id.return_value = 'room_001'
 
         char3 = Mock()
-        char3.get_name.return_value = 'char3'
+        char3.name = 'char3'
         char3.get_room_id.return_value = 'room_002'
 
-        service.event_handler.character_registry = {
+        service.registry_service.character_registry = {
             'char1': char1,
             'char2': char2,
             'char3': char3
@@ -495,7 +504,7 @@ class TestPlayerService(unittest.TestCase):
 
         result = service.get_in_room(char1)
         self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].get_name(), 'char2')
+        self.assertEqual(result[0].name, 'char2')
 
     @patch('player.PlayerService.requests.get')
     def test_to_room_with_pattern(self, mock_get):
@@ -503,9 +512,8 @@ class TestPlayerService(unittest.TestCase):
 
         mock_get.return_value.json.return_value = []
         service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
+            self.service_config,
+            self.registry_service,
         )
 
         character = Mock()
@@ -515,12 +523,13 @@ class TestPlayerService(unittest.TestCase):
         character.get_room_id.return_value = 'room_001'
 
         other = Mock()
+        other.name = 'OtherChar'
         other.get_name.return_value = 'OtherChar'
         other.get_room_id.return_value = 'room_001'
         mock_writer = Mock()
         other.get_writer.return_value = mock_writer
 
-        service.event_handler.character_registry = {
+        service.registry_service.character_registry = {
             'TestChar': character,
             'OtherChar': other
         }
@@ -536,9 +545,8 @@ class TestPlayerService(unittest.TestCase):
 
         mock_get.return_value.json.return_value = []
         service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
+            self.service_config,
+            self.registry_service,
         )
 
         character = Mock()
@@ -548,12 +556,13 @@ class TestPlayerService(unittest.TestCase):
         character.get_room_id.return_value = 'room_001'
 
         other = Mock()
+        other.name = 'OtherChar'
         other.get_name.return_value = 'OtherChar'
         other.get_room_id.return_value = 'room_001'
         mock_writer = Mock()
         other.get_writer.return_value = mock_writer
 
-        service.event_handler.character_registry = {
+        service.registry_service.character_registry = {
             'TestChar': character,
             'OtherChar': other
         }
@@ -568,22 +577,23 @@ class TestPlayerService(unittest.TestCase):
         """Test sending message to room without pattern"""
         mock_get.return_value.json.return_value = []
         service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
+            self.service_config,
+            self.registry_service,
         )
 
         character = Mock()
+        character.name = 'TestChar'
         character.get_name.return_value = 'TestChar'
         character.get_room_id.return_value = 'room_001'
 
         other = Mock()
+        other.name = 'OtherChar'
         other.get_name.return_value = 'OtherChar'
         other.get_room_id.return_value = 'room_001'
         mock_writer = Mock()
         other.get_writer.return_value = mock_writer
 
-        service.event_handler.character_registry = {
+        service.registry_service.character_registry = {
             'TestChar': character,
             'OtherChar': other
         }
@@ -593,58 +603,22 @@ class TestPlayerService(unittest.TestCase):
         call_args = mock_writer.write.call_args[0][0]
         self.assertEqual(call_args, b'hello world\r\n')
 
+    @unittest.skip("Method get_connected_player no longer exists in PlayerService")
     @patch('player.PlayerService.requests.get')
     def test_get_connected_player(self, mock_get):
         """Test getting a specific connected player"""
 
         mock_get.return_value.json.return_value = []
         service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
+            self.service_config,
+            self.registry_service,
         )
 
         mock_char = Mock()
-        service.event_handler.character_registry = {'TestChar': mock_char}
+        service.registry_service.character_registry = {'TestChar': mock_char}
 
         result = service.get_connected_player('TestChar')
         self.assertEqual(result, mock_char)
-
-    @patch('player.PlayerService.requests.get')
-    def test_disconnect_character(self, mock_get):
-        """Test disconnecting a character"""
-
-        mock_get.return_value.json.return_value = []
-        service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
-        )
-
-        mock_char = Mock()
-        mock_char.get_name.return_value = 'TestChar'
-        service.event_handler.character_registry = {'TestChar': mock_char}
-
-        service.disconnect_character(mock_char)
-        service.event_handler.unregister_character.assert_called_once_with(mock_char)
-
-    @patch('player.PlayerService.requests.get')
-    def test_disconnect_character_not_connected(self, mock_get):
-        """Test disconnecting a character that's not connected"""
-
-        mock_get.return_value.json.return_value = []
-        service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
-        )
-
-        mock_char = Mock()
-        mock_char.get_name.return_value = 'NonExistent'
-        service.event_handler.character_registry = {}
-
-        service.disconnect_character(mock_char)
-        service.event_handler.unregister_character.assert_not_called()
 
     @patch('player.PlayerService.requests.get')
     def test_get_account_by_name(self, mock_get):
@@ -652,9 +626,8 @@ class TestPlayerService(unittest.TestCase):
 
         mock_get.return_value.json.return_value = []
         service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
+            self.service_config,
+            self.registry_service,
         )
 
         mock_get.return_value.json.return_value = {
@@ -672,9 +645,8 @@ class TestPlayerService(unittest.TestCase):
 
         mock_get.return_value.json.return_value = []
         service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
+            self.service_config,
+            self.registry_service,
         )
 
         mock_get.return_value.json.return_value = [
@@ -692,9 +664,8 @@ class TestPlayerService(unittest.TestCase):
 
         mock_get.return_value.json.return_value = []
         service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
+            self.service_config,
+            self.registry_service,
         )
 
         mock_get.return_value.json.return_value = {
@@ -716,9 +687,8 @@ class TestPlayerService(unittest.TestCase):
 
         mock_get.return_value.json.return_value = []
         service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
+            self.service_config,
+            self.registry_service,
         )
 
         sheet = '{"name": "TestChar", "class": "Warrior"}'
@@ -739,9 +709,8 @@ class TestPlayerService(unittest.TestCase):
 
         mock_get.return_value.json.return_value = []
         service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
+            self.service_config,
+            self.registry_service,
         )
 
         mock_response = Mock()
@@ -764,9 +733,8 @@ class TestPlayerService(unittest.TestCase):
 
         mock_get.return_value.json.return_value = []
         service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
+            self.service_config,
+            self.registry_service,
         )
 
         mock_response = Mock()
@@ -786,9 +754,8 @@ class TestPlayerService(unittest.TestCase):
 
         mock_get.return_value.json.return_value = []
         service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
+            self.service_config,
+            self.registry_service,
         )
 
         mock_delete.return_value.json.return_value = {'success': True}
@@ -806,9 +773,8 @@ class TestPlayerService(unittest.TestCase):
 
         mock_get.return_value.json.return_value = []
         service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
+            self.service_config,
+            self.registry_service,
         )
 
         # Setup player
@@ -827,7 +793,7 @@ class TestPlayerService(unittest.TestCase):
         cloaked_char.name = 'CloakedChar'
         cloaked_char.cloaked = True
 
-        service.event_handler.character_registry = {
+        service.registry_service.character_registry = {
             'Player1': current_char,
             'VisibleChar': visible_char,
             'CloakedChar': cloaked_char
@@ -843,9 +809,8 @@ class TestPlayerService(unittest.TestCase):
 
         mock_get.return_value.json.return_value = []
         service = PlayerService(
-            self.mock_injector,
-            self.players_endpoint,
-            self.characters_endpoint
+            self.service_config,
+            self.registry_service,
         )
 
         # Setup admin player

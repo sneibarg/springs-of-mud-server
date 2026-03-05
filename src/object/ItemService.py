@@ -1,14 +1,16 @@
 import requests
+from injector import inject
 
 from server.LoggerFactory import LoggerFactory
+from server.ServiceConfig import ServiceConfig
 
 
 class ItemService:
-    def __init__(self, injector, items_endpoint):
+    @inject
+    def __init__(self, config: ServiceConfig):
         self.__name__ = "ItemService"
         self.logger = LoggerFactory.get_logger(self.__name__)
-        self.injector = injector
-        self.items_endpoint = items_endpoint
+        self.items_endpoint = config.items_endpoint
         self.all_items = {}
         self.total_items = 0
         self.load_items()

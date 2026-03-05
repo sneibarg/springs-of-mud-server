@@ -1,4 +1,5 @@
 from typing import Optional, Tuple
+from injector import inject
 
 from player import PlayerService
 from server.connection import Connection
@@ -8,9 +9,9 @@ from .SessionState import SessionState, SessionPhase
 
 
 class AuthenticationService:
-    def __init__(self, injector):
-        self.player_service = injector.get(PlayerService)
-        self.injector = injector
+    @inject
+    def __init__(self, player_service: PlayerService):
+        self.player_service = player_service
 
     def _get_account(self, account_name: str) -> Optional[dict]:
         try:

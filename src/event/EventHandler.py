@@ -1,11 +1,9 @@
+from injector import inject
 from server.LoggerFactory import LoggerFactory
 
 
-def do_to_mobile():
-    pass
-
-
 class EventHandler:
+    @inject
     def __init__(self):
         self.__name__ = "EventHandler"
         self.logger = LoggerFactory.get_logger(self.__name__)

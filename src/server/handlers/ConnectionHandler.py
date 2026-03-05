@@ -1,4 +1,5 @@
 from asyncio import StreamReader, StreamWriter
+from injector import inject, Injector
 from area import AreaService, RoomService
 from command import CommandHandler
 from event import EventHandler
@@ -14,17 +15,25 @@ import threading
 
 
 class ConnectionHandler:
-    def __init__(self, mud_server):
-        self.mud_server = mud_server
+    @inject
+    def __init__(self,
+                 injector: Injector,
+                 connection_manager: ConnectionManager,
+                 session_handler: SessionHandler,
+                 message_bus: MessageBus,
+                 player_service: PlayerService,
+                 auth_service: AuthenticationService,
+                 command_handler: CommandHandler,
+                 event_handler: EventHandler):
+        self.injector = injector
         self.logger = LoggerFactory.get_logger(__name__)
-        self.injector = mud_server.injector
-        self.connection_manager = ConnectionManager()
-        self.session_handler = SessionHandler()
-        self.message_bus = MessageBus(self.connection_manager, self.session_handler)
-        self.player_service = self.injector.get(PlayerService)
-        self.auth_service = self.injector.get(AuthenticationService)
-        self.command_handler = self.injector.get(CommandHandler)
-        self.event_handler = self.injector.get(EventHandler)
+        self.connection_manager = connection_manager
+        self.session_handler = session_handler
+        self.message_bus = message_bus
+        self.player_service = player_service
+        self.auth_service = auth_service
+        self.command_handler = command_handler
+        self.event_handler = event_handler
 
     async def handle_new_connection(self, reader: StreamReader, writer: StreamWriter) -> None:
         connection = None
@@ -57,7 +66,7 @@ class ConnectionHandler:
 
             character = self._get_character(character_data, writer, reader)
             player = self._get_or_create_player(session, character)
-            self.event_handler.register_character(character)
+            self.player_service.registry_service.character_registry[character.id] = character
             session.phase = SessionPhase.PLAYING
 
             await self._show_room(connection, character)

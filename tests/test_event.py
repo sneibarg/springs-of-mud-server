@@ -47,22 +47,6 @@ class TestEventHandler(unittest.TestCase):
         self.assertIn('Char1', self.handler.character_registry)
         self.assertIn('Char2', self.handler.character_registry)
 
-    def test_unregister_character(self):
-        """Test unregistering a character"""
-        mock_character = Mock()
-        mock_character.name = 'TestChar'
-
-        self.handler.register_character(mock_character)
-        self.assertIn('TestChar', self.handler.character_registry)
-
-        self.handler.unregister_character('TestChar')
-        self.assertNotIn('TestChar', self.handler.character_registry)
-
-    def test_unregister_nonexistent_character(self):
-        """Test unregistering a character that doesn't exist"""
-        with self.assertRaises(KeyError):
-            self.handler.unregister_character('NonExistent')
-
     def test_register_mobile(self):
         """Test registering a mobile"""
         mock_mobile = Mock()

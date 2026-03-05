@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import Mock, AsyncMock, patch, MagicMock, call
+from unittest.mock import Mock, AsyncMock, patch, MagicMock, call, ANY
 import asyncio
 
 from player import PlayerService
@@ -42,6 +42,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
     @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
     @patch('server.MudServer.MobileService')
@@ -52,7 +53,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.Injector')
     def test_initialization(self, mock_injector_class, mock_util, mock_registry, mock_cmd_handler,
                             mock_cmd_service, mock_mobile_service, mock_item_service,
-                            mock_area_service, mock_player_service_class,
+                            mock_area_service, mock_room_service, mock_player_service_class,
                             mock_connection_handler_class, mock_game_service_class):
         """Test MudServer initialization"""
         mock_util.camel_to_snake_case.return_value = {'id': 'test'}
@@ -79,11 +80,12 @@ class TestMudServer(unittest.TestCase):
             self.assertEqual(server.port, 4000)
             self.assertIsNotNone(server.injector)
             self.assertIsNotNone(server.connection_handler)
-            self.assertIsNotNone(server.game_service)
+            self.assertIsNotNone(server.player_service)
 
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
     @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
     @patch('server.MudServer.MobileService')
@@ -94,7 +96,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.Injector')
     def test_configure_player_data(self, mock_injector_class, mock_util, mock_registry,
                                    mock_cmd_handler, mock_cmd_service, mock_mobile_service,
-                                   mock_item_service, mock_area_service, mock_player_service_class,
+                                   mock_item_service, mock_area_service, mock_room_service, mock_player_service_class,
                                    mock_connection_handler_class, mock_game_service_class):
         """Test _configure_player_data method"""
         mock_util.camel_to_snake_case.return_value = {'id': 'test'}
@@ -123,6 +125,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
     @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
     @patch('server.MudServer.MobileService')
@@ -133,7 +136,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.Injector')
     def test_load_player_one(self, mock_injector_class, mock_util, mock_registry, mock_cmd_handler,
                              mock_cmd_service, mock_mobile_service, mock_item_service,
-                             mock_area_service, mock_player_service_class,
+                             mock_area_service, mock_room_service, mock_player_service_class,
                              mock_connection_handler_class, mock_game_service_class):
         """Test _load_player_one method"""
         expected_account = {'id': 'test_account_123', 'name': 'TestPlayer'}
@@ -164,9 +167,11 @@ class TestMudServer(unittest.TestCase):
             mock_player_service.get_account_by_id.assert_called_once_with('test_account_123')
             mock_player.from_json.assert_called_once_with(expected_account)
 
+    @patch('server.MudServer.threading.Thread')
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
     @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
     @patch('server.MudServer.MobileService')
@@ -178,8 +183,8 @@ class TestMudServer(unittest.TestCase):
     @patch('asyncio.start_server')
     async def test_start(self, mock_start_server, mock_injector_class, mock_util, mock_registry,
                          mock_cmd_handler, mock_cmd_service, mock_mobile_service,
-                         mock_item_service, mock_area_service, mock_player_service_class,
-                         mock_connection_handler_class, mock_game_service_class):
+                         mock_item_service, mock_area_service, mock_room_service, mock_player_service_class,
+                         mock_connection_handler_class, mock_game_service_class, mock_thread_class):
         """Test start method"""
         mock_util.camel_to_snake_case.return_value = {'id': 'test'}
         mock_player_service = Mock()
@@ -198,6 +203,9 @@ class TestMudServer(unittest.TestCase):
             mock_game_service_class: mock_game_service
         }.get(cls, Mock())
         mock_injector_class.return_value = mock_injector
+
+        mock_thread = Mock()
+        mock_thread_class.return_value = mock_thread
 
         mock_server = AsyncMock()
         mock_server.serve_forever = AsyncMock()
@@ -218,14 +226,139 @@ class TestMudServer(unittest.TestCase):
             except asyncio.CancelledError:
                 pass
 
+            # Verify thread was created and started
+            mock_thread_class.assert_called_once_with(
+                target=server._run_game_loop, daemon=True, name="GameLoop"
+            )
+            mock_thread.start.assert_called_once()
+
             mock_start_server.assert_called_once_with(
                 server.handle_client, 'localhost', 4000
             )
             self.mock_logger.info.assert_called()
 
+    @patch('server.MudServer.asyncio.new_event_loop')
+    @patch('server.MudServer.asyncio.set_event_loop')
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
     @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.RoomService')
+    @patch('server.MudServer.AreaService')
+    @patch('server.MudServer.ItemService')
+    @patch('server.MudServer.MobileService')
+    @patch('server.MudServer.CommandService')
+    @patch('server.MudServer.CommandHandler')
+    @patch('server.MudServer.RegistryService')
+    @patch('server.MudServer.ServerUtil')
+    @patch('server.MudServer.Injector')
+    def test_run_game_loop(self, mock_injector_class, mock_util, mock_registry,
+                           mock_cmd_handler, mock_cmd_service, mock_mobile_service,
+                           mock_item_service, mock_area_service, mock_room_service, mock_player_service_class,
+                           mock_connection_handler_class, mock_game_service_class,
+                           mock_set_event_loop, mock_new_event_loop):
+        """Test _run_game_loop method"""
+        mock_util.camel_to_snake_case.return_value = {'id': 'test'}
+        mock_player_service = Mock()
+        mock_player_service.get_accounts.return_value = []
+        mock_player_service.get_characters.return_value = []
+        mock_player_service.get_account_by_id.return_value = {'id': 'test'}
+
+        mock_game_service = Mock()
+        mock_game_service.start = AsyncMock()
+
+        mock_injector = Mock()
+        mock_injector.binder.bind = Mock()
+        mock_injector.get.side_effect = lambda cls: {
+            mock_player_service_class: mock_player_service,
+            mock_connection_handler_class: Mock(),
+            mock_game_service_class: mock_game_service
+        }.get(cls, Mock())
+        mock_injector_class.return_value = mock_injector
+
+        mock_loop = Mock()
+        mock_loop.run_until_complete = Mock()
+        mock_loop.close = Mock()
+        mock_new_event_loop.return_value = mock_loop
+
+        with patch('server.MudServer.Player') as mock_player:
+            mock_player.from_json.return_value = Mock()
+
+            server = MudServer(self.mock_config, self.mock_logger_factory)
+
+            # Run the game loop
+            server._run_game_loop()
+
+            # Verify event loop was created and set
+            mock_new_event_loop.assert_called_once()
+            mock_set_event_loop.assert_called_once_with(mock_loop)
+
+            # Verify game service start was called
+            mock_loop.run_until_complete.assert_called_once_with(ANY)
+
+            # Verify loop was closed
+            mock_loop.close.assert_called_once()
+
+    @patch('server.MudServer.asyncio.new_event_loop')
+    @patch('server.MudServer.asyncio.set_event_loop')
+    @patch('server.MudServer.GameService')
+    @patch('server.MudServer.ConnectionHandler')
+    @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.RoomService')
+    @patch('server.MudServer.AreaService')
+    @patch('server.MudServer.ItemService')
+    @patch('server.MudServer.MobileService')
+    @patch('server.MudServer.CommandService')
+    @patch('server.MudServer.CommandHandler')
+    @patch('server.MudServer.RegistryService')
+    @patch('server.MudServer.ServerUtil')
+    @patch('server.MudServer.Injector')
+    def test_run_game_loop_error_handling(self, mock_injector_class, mock_util, mock_registry,
+                                          mock_cmd_handler, mock_cmd_service, mock_mobile_service,
+                                          mock_item_service, mock_area_service, mock_room_service, mock_player_service_class,
+                                          mock_connection_handler_class, mock_game_service_class,
+                                          mock_set_event_loop, mock_new_event_loop):
+        """Test _run_game_loop error handling"""
+        mock_util.camel_to_snake_case.return_value = {'id': 'test'}
+        mock_player_service = Mock()
+        mock_player_service.get_accounts.return_value = []
+        mock_player_service.get_characters.return_value = []
+        mock_player_service.get_account_by_id.return_value = {'id': 'test'}
+
+        mock_game_service = Mock()
+        mock_game_service.start = AsyncMock()
+
+        mock_injector = Mock()
+        mock_injector.binder.bind = Mock()
+        mock_injector.get.side_effect = lambda cls: {
+            mock_player_service_class: mock_player_service,
+            mock_connection_handler_class: Mock(),
+            mock_game_service_class: mock_game_service
+        }.get(cls, Mock())
+        mock_injector_class.return_value = mock_injector
+
+        mock_loop = Mock()
+        mock_loop.run_until_complete = Mock(side_effect=Exception("Test error"))
+        mock_loop.close = Mock()
+        mock_new_event_loop.return_value = mock_loop
+
+        with patch('server.MudServer.Player') as mock_player:
+            mock_player.from_json.return_value = Mock()
+
+            server = MudServer(self.mock_config, self.mock_logger_factory)
+
+            # Run the game loop with error
+            server._run_game_loop()
+
+            # Verify error was logged
+            self.mock_logger.error.assert_called()
+
+            # Verify loop was still closed even after error
+            mock_loop.close.assert_called_once()
+
+    @patch('server.MudServer.GameService')
+    @patch('server.MudServer.ConnectionHandler')
+    @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
     @patch('server.MudServer.MobileService')
@@ -236,7 +369,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.Injector')
     async def test_handle_client_success(self, mock_injector_class, mock_util, mock_registry,
                                          mock_cmd_handler, mock_cmd_service, mock_mobile_service,
-                                         mock_item_service, mock_area_service, mock_player_service_class,
+                                         mock_item_service, mock_area_service, mock_room_service, mock_player_service_class,
                                          mock_connection_handler_class, mock_game_service_class):
         """Test handle_client with successful connection"""
         mock_util.camel_to_snake_case.return_value = {'id': 'test'}
@@ -276,6 +409,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
     @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
     @patch('server.MudServer.MobileService')
@@ -286,7 +420,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.Injector')
     async def test_handle_client_cancelled_error(self, mock_injector_class, mock_util, mock_registry,
                                                  mock_cmd_handler, mock_cmd_service, mock_mobile_service,
-                                                 mock_item_service, mock_area_service, mock_player_service_class,
+                                                 mock_item_service, mock_area_service, mock_room_service, mock_player_service_class,
                                                  mock_connection_handler_class, mock_game_service_class):
         """Test handle_client with CancelledError"""
         mock_util.camel_to_snake_case.return_value = {'id': 'test'}
@@ -327,6 +461,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
     @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
     @patch('server.MudServer.MobileService')
@@ -337,7 +472,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.Injector')
     async def test_handle_client_connection_reset(self, mock_injector_class, mock_util, mock_registry,
                                                   mock_cmd_handler, mock_cmd_service, mock_mobile_service,
-                                                  mock_item_service, mock_area_service, mock_player_service_class,
+                                                  mock_item_service, mock_area_service, mock_room_service, mock_player_service_class,
                                                   mock_connection_handler_class, mock_game_service_class):
         """Test handle_client with ConnectionResetError"""
         mock_util.camel_to_snake_case.return_value = {'id': 'test'}
@@ -379,6 +514,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
     @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
     @patch('server.MudServer.MobileService')
@@ -389,7 +525,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.Injector')
     async def test_handle_client_broken_pipe(self, mock_injector_class, mock_util, mock_registry,
                                              mock_cmd_handler, mock_cmd_service, mock_mobile_service,
-                                             mock_item_service, mock_area_service, mock_player_service_class,
+                                             mock_item_service, mock_area_service, mock_room_service, mock_player_service_class,
                                              mock_connection_handler_class, mock_game_service_class):
         """Test handle_client with BrokenPipeError"""
         mock_util.camel_to_snake_case.return_value = {'id': 'test'}
@@ -430,6 +566,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
     @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
     @patch('server.MudServer.MobileService')
@@ -440,7 +577,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.Injector')
     async def test_handle_client_os_error(self, mock_injector_class, mock_util, mock_registry,
                                           mock_cmd_handler, mock_cmd_service, mock_mobile_service,
-                                          mock_item_service, mock_area_service, mock_player_service_class,
+                                          mock_item_service, mock_area_service, mock_room_service, mock_player_service_class,
                                           mock_connection_handler_class, mock_game_service_class):
         """Test handle_client with OSError"""
         mock_util.camel_to_snake_case.return_value = {'id': 'test'}
@@ -481,6 +618,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
     @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
     @patch('server.MudServer.MobileService')
@@ -491,7 +629,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.Injector')
     async def test_handle_client_unexpected_error(self, mock_injector_class, mock_util, mock_registry,
                                                   mock_cmd_handler, mock_cmd_service, mock_mobile_service,
-                                                  mock_item_service, mock_area_service, mock_player_service_class,
+                                                  mock_item_service, mock_area_service, mock_room_service, mock_player_service_class,
                                                   mock_connection_handler_class, mock_game_service_class):
         """Test handle_client with unexpected exception"""
         mock_util.camel_to_snake_case.return_value = {'id': 'test'}
@@ -535,6 +673,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
     @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
     @patch('server.MudServer.MobileService')
@@ -545,7 +684,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.Injector')
     async def test_handle_client_close_error(self, mock_injector_class, mock_util, mock_registry,
                                              mock_cmd_handler, mock_cmd_service, mock_mobile_service,
-                                             mock_item_service, mock_area_service, mock_player_service_class,
+                                             mock_item_service, mock_area_service, mock_room_service, mock_player_service_class,
                                              mock_connection_handler_class, mock_game_service_class):
         """Test handle_client when closing writer fails"""
         mock_util.camel_to_snake_case.return_value = {'id': 'test'}

@@ -13,8 +13,8 @@ class TestCommandHandler(unittest.TestCase):
     """Test CommandHandler"""
 
     def setUp(self):
-        self.mock_injector = Mock()
-        self.mock_command_service = Mock()
+        from command.CommandService import CommandService
+        self.mock_command_service = Mock(spec=CommandService)
         self.mock_command_service.command_list = {
             'look': {
                 'name': 'look',
@@ -29,8 +29,7 @@ class TestCommandHandler(unittest.TestCase):
                 'lambda': []
             }
         }
-        self.mock_injector.get.return_value = self.mock_command_service
-        self.handler = CommandHandler(self.mock_injector)
+        self.handler = CommandHandler(self.mock_command_service)
 
     def test_initialization(self):
         """Test CommandHandler initialization"""
@@ -83,8 +82,19 @@ class TestCommandService(unittest.TestCase):
     """Test CommandService"""
 
     def setUp(self):
+        from server.ServiceConfig import ServiceConfig
         self.mock_injector = Mock()
         self.commands_endpoint = 'http://test.com/api/commands'
+        self.mock_service_config = ServiceConfig(
+            game_data_endpoint="http://test/game",
+            commands_endpoint=self.commands_endpoint,
+            players_endpoint="http://test/players",
+            characters_endpoint="http://test/characters",
+            rooms_endpoint="http://test/rooms",
+            areas_endpoint="http://test/areas",
+            items_endpoint="http://test/items",
+            mobiles_endpoint="http://test/mobiles"
+        )
 
     @patch('command.CommandService.requests.get')
     def test_initialization_success(self, mock_get):
@@ -97,7 +107,7 @@ class TestCommandService(unittest.TestCase):
         ]
         mock_get.return_value = mock_response
 
-        service = CommandService(self.mock_injector, self.commands_endpoint)
+        service = CommandService(self.mock_service_config, self.mock_injector)
         self.assertEqual(len(service.command_list), 2)
         self.assertIn('look', service.command_list)
         self.assertIn('say', service.command_list)
@@ -129,7 +139,7 @@ class TestCommandService(unittest.TestCase):
         }
 
         mock_get.side_effect = [init_response, fetch_response]
-        service = CommandService(self.mock_injector, self.commands_endpoint)
+        service = CommandService(self.mock_service_config, self.mock_injector)
 
         result = service.get_command_by_name('look')
         self.assertEqual(result['name'], 'look')
@@ -144,7 +154,7 @@ class TestCommandService(unittest.TestCase):
         ]
         mock_get.return_value = mock_response
 
-        service = CommandService(self.mock_injector, self.commands_endpoint)
+        service = CommandService(self.mock_service_config, self.mock_injector)
         message = service.get_message('look')
         self.assertEqual(message, 'You look around.')
 
@@ -156,7 +166,7 @@ class TestCommandService(unittest.TestCase):
         mock_response.json.return_value = []
         mock_get.return_value = mock_response
 
-        service = CommandService(self.mock_injector, self.commands_endpoint)
+        service = CommandService(self.mock_service_config, self.mock_injector)
         mock_player = Mock()
         mock_writer = Mock()
         mock_player.writer.return_value = mock_writer
@@ -276,7 +286,18 @@ class TestCommandUtilityFunctions(unittest.TestCase):
         mock_response.json.return_value = []
         mock_get.return_value = mock_response
 
-        command_service = CommandService(Mock(), 'http://test.com/api/commands')
+        from server.ServiceConfig import ServiceConfig
+        mock_config = ServiceConfig(
+            game_data_endpoint="http://test/game",
+            commands_endpoint='http://test.com/api/commands',
+            players_endpoint="http://test/players",
+            characters_endpoint="http://test/characters",
+            rooms_endpoint="http://test/rooms",
+            areas_endpoint="http://test/areas",
+            items_endpoint="http://test/items",
+            mobiles_endpoint="http://test/mobiles"
+        )
+        command_service = CommandService(mock_config, Mock())
 
         mock_player = Mock(spec=Player)
         mock_writer = Mock()
@@ -298,7 +319,18 @@ class TestCommandUtilityFunctions(unittest.TestCase):
         mock_response.json.return_value = []
         mock_get.return_value = mock_response
 
-        command_service = CommandService(Mock(), 'http://test.com/api/commands')
+        from server.ServiceConfig import ServiceConfig
+        mock_config = ServiceConfig(
+            game_data_endpoint="http://test/game",
+            commands_endpoint='http://test.com/api/commands',
+            players_endpoint="http://test/players",
+            characters_endpoint="http://test/characters",
+            rooms_endpoint="http://test/rooms",
+            areas_endpoint="http://test/areas",
+            items_endpoint="http://test/items",
+            mobiles_endpoint="http://test/mobiles"
+        )
+        command_service = CommandService(mock_config, Mock())
 
         command = {
             'name': 'test',
@@ -316,7 +348,18 @@ class TestCommandUtilityFunctions(unittest.TestCase):
         mock_response.json.return_value = []
         mock_get.return_value = mock_response
 
-        command_service = CommandService(Mock(), 'http://test.com/api/commands')
+        from server.ServiceConfig import ServiceConfig
+        mock_config = ServiceConfig(
+            game_data_endpoint="http://test/game",
+            commands_endpoint='http://test.com/api/commands',
+            players_endpoint="http://test/players",
+            characters_endpoint="http://test/characters",
+            rooms_endpoint="http://test/rooms",
+            areas_endpoint="http://test/areas",
+            items_endpoint="http://test/items",
+            mobiles_endpoint="http://test/mobiles"
+        )
+        command_service = CommandService(mock_config, Mock())
 
         command = {
             'name': 'test',

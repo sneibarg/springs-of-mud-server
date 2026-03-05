@@ -94,12 +94,20 @@ class TestAreaService(unittest.TestCase):
     """Test AreaService"""
 
     def setUp(self):
-        self.mock_injector = Mock()
+        from server.ServiceConfig import ServiceConfig
         self.mock_registry = RegistryService()
-        self.mock_injector.get.return_value = self.mock_registry
-
         self.areas_endpoint = 'http://test.com/api/areas'
         self.rooms_endpoint = 'http://test.com/api/rooms'
+        self.mock_service_config = ServiceConfig(
+            game_data_endpoint="http://test/game",
+            commands_endpoint="http://test/commands",
+            players_endpoint="http://test/players",
+            characters_endpoint="http://test/characters",
+            rooms_endpoint=self.rooms_endpoint,
+            areas_endpoint=self.areas_endpoint,
+            items_endpoint="http://test/items",
+            mobiles_endpoint="http://test/mobiles"
+        )
 
     @patch('area.AreaService.requests.get')
     def test_load_areas(self, mock_get):
@@ -132,7 +140,7 @@ class TestAreaService(unittest.TestCase):
 
         mock_get.side_effect = mock_get_side_effect
 
-        service = AreaService(self.mock_injector, self.areas_endpoint, self.rooms_endpoint)
+        service = AreaService(self.mock_service_config, self.mock_registry)
         self.assertEqual(len(service.registry.area_registry), 1)
 
     @patch('area.AreaService.requests.get')
@@ -168,7 +176,7 @@ class TestAreaService(unittest.TestCase):
 
         mock_get.side_effect = mock_get_side_effect
 
-        service = AreaService(self.mock_injector, self.areas_endpoint, self.rooms_endpoint)
+        service = AreaService(self.mock_service_config, self.mock_registry)
         self.assertEqual(len(service.registry.room_registry), 1)
 
     @patch('area.AreaService.requests.get')
@@ -181,7 +189,7 @@ class TestAreaService(unittest.TestCase):
             return mock_response
 
         mock_get.side_effect = mock_get_initial
-        service = AreaService(self.mock_injector, self.areas_endpoint, self.rooms_endpoint)
+        service = AreaService(self.mock_service_config, self.mock_registry)
 
         # Load specific area
         def mock_get_specific(url):
@@ -222,7 +230,7 @@ class TestAreaService(unittest.TestCase):
             return mock_response
 
         mock_get.side_effect = mock_get_side_effect
-        service = AreaService(self.mock_injector, self.areas_endpoint, self.rooms_endpoint)
+        service = AreaService(self.mock_service_config, self.mock_registry)
 
         # Create test rooms
         room1 = RomRoom.from_json({
@@ -292,7 +300,7 @@ class TestAreaService(unittest.TestCase):
             return mock_response
 
         mock_get.side_effect = mock_get_side_effect
-        service = AreaService(self.mock_injector, self.areas_endpoint, self.rooms_endpoint)
+        service = AreaService(self.mock_service_config, self.mock_registry)
 
         room = RomRoom.from_json({
             'id': 'room_001',

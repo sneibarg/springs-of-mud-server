@@ -1,6 +1,8 @@
-from typing import List, Optional
+from typing import List, Optional, Callable
+from injector import inject
 from server.connection import ConnectionManager, TelnetConnection
 from server.protocol import Message
+from server.session import SessionHandler
 
 
 class MessageBus:
@@ -9,7 +11,8 @@ class MessageBus:
     Handles sending messages to players, rooms, areas, and broadcasts.
     """
 
-    def __init__(self, connection_manager: ConnectionManager, session_handler):
+    @inject
+    def __init__(self, connection_manager: ConnectionManager, session_handler: SessionHandler):
         self.connection_manager = connection_manager
         self.session_handler = session_handler
 
@@ -100,3 +103,24 @@ class MessageBus:
             except Exception:
                 return False
         return False
+
+    async def send_to_outdoor_players(self, message: Message, is_outdoor_check: Callable[[str], bool]) -> int:
+        """
+        Send a message to all players who are currently outdoors.
+
+        Args:
+            message: The message to send
+            is_outdoor_check: Function that takes a player_id and returns True if they are outdoors
+
+        Returns:
+            Count of players who received the message
+        """
+        count = 0
+        sessions = self.session_handler.get_playing_sessions()
+
+        for session in sessions:
+            if session.player_id and is_outdoor_check(session.player_id):
+                if await self.send_to_player(session.player_id, message):
+                    count += 1
+
+        return count

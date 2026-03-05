@@ -3,7 +3,7 @@ import threading
 
 from injector import Injector, singleton
 from area import AreaService, RoomService
-from game import GameService
+from game import GameService, GameData
 from mobile import MobileService
 from object import ItemService
 from player import PlayerService, Player
@@ -12,13 +12,17 @@ from event import EventHandler
 from registry import RegistryService
 from server.ServerUtil import ServerUtil
 from server.handlers import ConnectionHandler
-from server.session import AuthenticationService
+from server.session import AuthenticationService, SessionHandler
+from server.connection import ConnectionManager
+from server.messaging import MessageBus
+from server.ServiceConfig import ServiceConfig
+from update.WeatherService import WeatherService
 
 
 class MudServer:
     def __init__(self, config: dict, logger_factory):
         self.__name__ = "MudServer"
-        self.connection_handler = None
+        self.logger = logger_factory.get_logger(self.__name__)
         self.config = config
         self.injector = Injector()
         self.player_one = None
@@ -29,11 +33,9 @@ class MudServer:
         self.modulith_host = config['mudserver']['modulith_host']
         self.modulith_port = config['mudserver']['modulith_port']
         self.service_endpoints = config['mudserver']['services']['endpoints']
-        self.logger = logger_factory.get_logger(self.__name__)
         self.player_service_class = PlayerService
         self._configure_server()
         self.connection_handler = self.injector.get(ConnectionHandler)
-        self.game_service = self.injector.get(GameService)
 
     async def start(self):
         game_thread = threading.Thread(target=self._run_game_loop, daemon=True, name="GameLoop")
@@ -48,7 +50,7 @@ class MudServer:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         try:
-            loop.run_until_complete(self.game_service.start())
+            loop.run_until_complete(self.injector.get(GameService).start())
         except Exception as e:
             self.logger.error(f"Game loop error: {e}", exc_info=True)
         finally:
@@ -84,18 +86,31 @@ class MudServer:
         self.character_list = self.player_service.get_characters()
 
     def _start_services(self):
-        self.injector.binder.bind(EventHandler, scope=singleton)
-        self.injector.binder.bind(CommandService, to=CommandService(self.injector, self._construct_service_endpoint('commands_endpoint')), scope=singleton)
-        self.injector.binder.bind(CommandHandler, to=CommandHandler(self.injector), scope=singleton)
+        service_config: ServiceConfig = self._load_service_config()
+        self.injector.binder.bind(ServiceConfig, to=service_config, scope=singleton)
         self.injector.binder.bind(RegistryService, scope=singleton)
-        self.injector.binder.bind(PlayerService, to=PlayerService(self.injector,self._construct_service_endpoint('players_endpoint'), self._construct_service_endpoint('characters_endpoint')), scope=singleton)
-        self.injector.binder.bind(RoomService, to=RoomService(self.injector, self._construct_service_endpoint('rooms_endpoint')), scope=singleton)
-        self.injector.binder.bind(AreaService, to=AreaService(self.injector, self._construct_service_endpoint('areas_endpoint'), self._construct_service_endpoint('rooms_endpoint')), scope=singleton)
-        self.injector.binder.bind(ItemService, to=ItemService(self.injector, self._construct_service_endpoint('items_endpoint')), scope=singleton)
-        self.injector.binder.bind(MobileService, to=MobileService(self.injector, self._construct_service_endpoint('mobiles_endpoint')), scope=singleton)
-        self.injector.binder.bind(AuthenticationService, to=AuthenticationService(self.injector), scope=singleton)
-        self.injector.binder.bind(ConnectionHandler, to=ConnectionHandler(self), scope=singleton)
-        self.injector.binder.bind(GameService, to=GameService(self._construct_service_endpoint('game_data_endpoint')), scope=singleton)
+        self.injector.binder.bind(GameService, scope=singleton)
+        self.injector.binder.bind(GameData, to=self.injector.get(GameService).game_data, scope=singleton)
+        self.injector.binder.bind(EventHandler, scope=singleton)
+        self.injector.binder.bind(PlayerService, scope=singleton)
+        self.injector.binder.bind(CommandService, scope=singleton)
+        self.injector.binder.bind(CommandHandler, scope=singleton)
+        self.injector.binder.bind(RoomService, scope=singleton)
+        self.injector.binder.bind(AreaService, scope=singleton)
+        self.injector.binder.bind(ItemService, scope=singleton)
+        self.injector.binder.bind(MobileService, scope=singleton)
+        self.injector.binder.bind(AuthenticationService, scope=singleton)
+        self.injector.binder.bind(ConnectionManager, scope=singleton)
+        self.injector.binder.bind(SessionHandler, scope=singleton)
+        self.injector.binder.bind(MessageBus, scope=singleton)
+        self.injector.binder.bind(ConnectionHandler, scope=singleton)
+        self.injector.binder.bind(WeatherService, scope=singleton)
+
+        self.injector.get(PlayerService)
+        self.injector.get(RoomService)
+        self.injector.get(AreaService)
+        self.injector.get(ItemService)
+        self.injector.get(MobileService)
 
     def _load_player_one(self):
         try:
@@ -112,3 +127,14 @@ class MudServer:
         endpoint = self.config['mudserver']['services']['endpoints'][endpoint]
         return f"http://{self.modulith_host}:{self.modulith_port}{api_version}{endpoint}"
 
+    def _load_service_config(self):
+        return ServiceConfig(
+            game_data_endpoint=self._construct_service_endpoint('game_data_endpoint'),
+            commands_endpoint=self._construct_service_endpoint('commands_endpoint'),
+            players_endpoint=self._construct_service_endpoint('players_endpoint'),
+            characters_endpoint=self._construct_service_endpoint('characters_endpoint'),
+            rooms_endpoint=self._construct_service_endpoint('rooms_endpoint'),
+            areas_endpoint=self._construct_service_endpoint('areas_endpoint'),
+            items_endpoint=self._construct_service_endpoint('items_endpoint'),
+            mobiles_endpoint=self._construct_service_endpoint('mobiles_endpoint')
+        )
