@@ -8,10 +8,19 @@ from mobile import MobileService
 
 
 @dataclass
+class ObjectUpdateTask:
+    object_data: List[str]
+    affect_data: List[str]
+
+
+@dataclass
 class AreaUpdateTask:
     area_id: str
     rooms: List[str]
     mobiles: List[str]
+    shops: List[str]
+    resets: List[str]
+    specials: List[str]
 
 
 class UpdateService:
