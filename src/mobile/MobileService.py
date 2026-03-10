@@ -184,7 +184,6 @@ class MobileService:
         }
 
     def _apply_extended_mobile_fields(self, mobile: Mobile, mobile_data: dict, flags: dict[str, int]):
-        # Parse dice notation and set individual fields
         hit_dice = self._parse_dice(mobile_data.get("hit") or mobile_data.get("hit_dice"))
         mobile.hit_dice_number = hit_dice["number"]
         mobile.hit_dice_type = hit_dice["type"]
@@ -200,27 +199,23 @@ class MobileService:
         mobile.damage_dice_type = damage_dice["type"]
         mobile.damage_dice_bonus = damage_dice["bonus"]
 
-        # Parse AC values
         ac_data = self._parse_ac(mobile_data)
         mobile.ac_pierce = ac_data["pierce"]
         mobile.ac_bash = ac_data["bash"]
         mobile.ac_slash = ac_data["slash"]
         mobile.ac_exotic = ac_data["exotic"]
 
-        # Set other extended fields that might not be in the dataclass
         mobile.hitroll = self._safe_int(mobile_data.get("hitroll", 0), default=0)
-        mobile.hit = hit_dice  # Keep for backwards compatibility
-        mobile.mana = mana_dice  # Keep for backwards compatibility
-        mobile.damage = damage_dice  # Keep for backwards compatibility
-        mobile.ac = ac_data  # Keep for backwards compatibility
+        mobile.hit = hit_dice
+        mobile.mana = mana_dice
+        mobile.damage = damage_dice
+        mobile.ac = ac_data
         mobile.wealth = self._safe_int(mobile_data.get("wealth", mobile_data.get("gold", 0)), default=0)
 
-        # Resolve attack type if provided
         dam_type_value = self._resolve_attack(mobile_data.get("dam_type") or mobile_data.get("damage_type"))
         if dam_type_value:
             mobile.dam_type = str(dam_type_value)
 
-        # Resolve size if provided
         size_value = self._resolve_size(mobile_data.get("size"))
         if size_value:
             mobile.size = str(size_value)

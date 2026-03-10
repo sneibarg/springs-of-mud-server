@@ -10,8 +10,7 @@ class EventHandler:
         self.command_list = list()
         self.character_registry = dict()
         self.mobile_registry = dict()
-        self.character_events = dict()
-        self.mobile_events = dict()
+        self.combat_events = dict()
         self.logger.info("Initialized EventHandler instance.")
 
     def register_character(self, character):
@@ -29,16 +28,3 @@ class EventHandler:
     def unregister_mobile(self, mobile):
         self.logger.debug("Unregistering mobile "+mobile.id)
         del self.mobile_registry[mobile.id]
-
-    # def to_mobile(self, player, cmd, mobile, parameters):
-    #     command = [json_obj for json_obj in self.command_list if json_obj['name'] == cmd]
-    #     if command is None:
-    #         return
-    #
-    #     if mobile.casefold() in self.character_registry:
-    #         mobile = self.character_registry[mobile.title]
-    #
-    #     if mobile.casefold() in self.mobile_registry:
-    #         mobile = self.mobile_registry[mobile.title]
-
-
