@@ -10,16 +10,23 @@ class Item:
     id: str
     area_id: str
     vnum: str
-    description: str
     name: str
     short_description: str
     long_description: str
+    material: str
     item_type: str
-    weight: str
     extra_flags: str
     wear_flags: str
-    value: str
-    level: str
+    value0: str
+    value1: str
+    value2: str
+    value3: str
+    value4: str
+    weight: str
+    condition: str
+    level: int
+    weight: int
+    cost: int
     affect_data: list
     extra_descr: list
 

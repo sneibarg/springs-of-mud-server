@@ -1,10 +1,8 @@
 import threading
 
-from asyncio import StreamWriter, StreamReader
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict
+from typing import Dict
 from uuid import uuid1
-from injector import Injector
 from object.Item import Item
 from server.LoggerFactory import LoggerFactory
 
@@ -17,23 +15,42 @@ class RomMobile:
     short_description: str
     long_description: str
     description: str
+    race: str
     act_flags: str
     affect_flags: str
     alignment: str
-    race: str
-    sex: str
+    group: str
+    dam_type: str
+    off_flags: str
+    imm_flags: str
+    res_flags: str
+    vuln_flags: str
     start_pos: str
     default_pos: str
+    sex: str
+    form: str
+    parts: str
+    size: str
+    material: str
+    flags: str
     id: str
     level: int
-    inventory: List[str]
-    injector: Optional[Injector] = None
-    writer: Optional[StreamWriter] = None
-    reader: Optional[StreamReader] = None
-    loot: Optional[Dict[str, Item]] = None
+    hit_roll: int
+    hit_dice_number: int
+    hit_dice_type: int
+    hit_dice_bonus: int
+    mana_dice_number: int
+    mana_dice_type: int
+    mana_dice_bonus: int
+    damage_dice_number: int
+    damage_dice_type: int
+    damage_dice_bonus: int
+    ac_pierce: int
+    ac_bash: int
+    ac_slash: int
+    ac_exotic: int
+    gold: int
     lock: threading.Lock = field(default_factory=threading.Lock)
-    role: Optional[str] = None
-    room_id: Optional[str] = None
 
     def __post_init__(self):
         self.instance_id = uuid1()
@@ -47,10 +64,6 @@ class RomMobile:
 
     @classmethod
     def from_json(cls, data):
-        data.setdefault('injector', None)
-        data.setdefault('writer', None)
-        data.setdefault('reader', None)
-        data.setdefault('loot', None)
         data.setdefault('lock', None)
         return cls(**data)
 

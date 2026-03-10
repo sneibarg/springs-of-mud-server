@@ -62,6 +62,7 @@ class MobileService:
         kill_table: dict[int, int] = {}
         npc_flag = self._resolve_npc_flag()
         payload = self._get_mobiles()
+        print(f"Loading mobile with payload={payload}")
         for raw_mobile in payload:
             mobile_data = ServerUtil.camel_to_snake_case(raw_mobile)
             mobile_id = self._resolve_mobile_id(mobile_data, raw_mobile)
@@ -334,7 +335,6 @@ class MobileService:
     def _parse_ac(mobile_data: dict) -> dict:
         """
         db2.c multiplies each AC component by 10 when loading from file.
-        If Mongo already stores final values, keep them as-is.
         """
         if "ac" in mobile_data and isinstance(mobile_data["ac"], dict):
             return {
