@@ -219,16 +219,15 @@ class TestMobileService(unittest.TestCase):
         self.mock_game_data.get_race.return_value = self._get_default_race()
         self.mock_game_data.get_attack.return_value = None
 
-        service = MobileService(
-            self.mock_config,
-            self.mock_game_data,
-            self.mock_registry,
-            self.mock_area_service,
-            self.mock_event_handler
-        )
-
         with self.assertRaises(ValueError) as context:
-            service.load_mobiles()
+            MobileService(
+                self.mock_config,
+                self.mock_game_data,
+                self.mock_registry,
+                self.mock_area_service,
+                self.mock_event_handler
+            ).start()
+
         self.assertIn('duplicated', str(context.exception))
 
     @patch('mobile.MobileService.requests.get')
@@ -340,7 +339,6 @@ class TestMobileService(unittest.TestCase):
     def test_load_mobiles_position_normalization(self, mock_get):
         """Test position normalization"""
         test_mobile = self._get_mobile_from_json('1000')
-        # Override positions to test normalization
         test_mobile['startPos'] = 'sleeping'
         test_mobile['defaultPos'] = 'standing'
 
@@ -362,10 +360,12 @@ class TestMobileService(unittest.TestCase):
 
         result = service.load_mobiles()
         mobile_id = self._get_mobile_id(test_mobile)
+        print(f"mobile ID: {mobile_id} - {result[mobile_id]}")
+        print(f"mobile start_pos: {result[mobile_id].start_pos} - {test_mobile['startPos']}")
         mobile = result[mobile_id]
 
-        self.assertEqual(mobile.start_pos, '4')  # sleeping
-        self.assertEqual(mobile.default_pos, '8')  # standing
+        self.assertEqual(mobile.start_pos, '4')  # SLEEPING
+        self.assertEqual(mobile.default_pos, '8')  # STANDING
 
     @patch('mobile.MobileService.requests.get')
     def test_load_mobiles_kill_table(self, mock_get):

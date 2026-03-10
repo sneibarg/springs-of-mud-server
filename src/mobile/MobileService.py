@@ -1,4 +1,3 @@
-import asyncio
 import requests
 
 from injector import inject
@@ -29,21 +28,14 @@ class MobileService:
         self.stop_flag = False
         self.all_mobiles = {}
         self.kill_table: dict[int, int] = {}
+        self.enum_lookup = self._build_enum_lookup(self.game_data.enums)
+
+    def start(self):
         self.load_mobiles()
         self.logger.info("Initialized MobileService instance with a total of "+str(len(self.all_mobiles))+" mobiles in memory.")
 
-    async def start(self):
-        initial_spawn = False
-        while not self.stop_flag:
-            if not initial_spawn:
-                for room_id in self.area_service.rooms:
-                    room = self.area_service.rooms[room_id]
-
     def return_mobile_by_id(self, mobile_id):
         return self.all_mobiles[mobile_id]
-
-    def start_task(self):
-        self.task = asyncio.create_task(self.start())
 
     def load_mobiles(self) -> dict[str, Mobile]:
         """
@@ -293,7 +285,7 @@ class MobileService:
             return default
 
     def _normalize_position(self, value, fallback_key="standing") -> int:
-        enum_list = self.game_data.enums.get("position", [])
+        enum_lookup = self.enum_lookup.get("position", {})
         if isinstance(value, int):
             result = value
         else:
@@ -301,18 +293,11 @@ class MobileService:
             if text.isdigit():
                 result = int(text)
             elif text:
-                try:
-                    result = next(i for i, v in enumerate(enum_list) if str(v).lower() == text.lower())
-                except StopIteration:
-                    result = 0
+                result = enum_lookup.get(text.lower(), 0)
             else:
                 result = 0
 
-        try:
-            fallback = next(i for i, v in enumerate(enum_list) if str(v).lower() == fallback_key.lower())
-        except StopIteration:
-            fallback = 8
-
+        fallback = enum_lookup.get(fallback_key.lower(), 8)
         return result if result > 0 else fallback
 
     def _normalize_enum_value(self, enum_name: str, value, fallback=0) -> int:
@@ -338,7 +323,7 @@ class MobileService:
         if value is None:
             return None
 
-        enum_list = self.game_data.enums.get("size", [])
+        enum_lookup = self.enum_lookup.get("size", {})
         if isinstance(value, int):
             return value
 
@@ -346,12 +331,7 @@ class MobileService:
         if text.isdigit():
             return int(text)
 
-        text_lower = text.lower()
-        for i, v in enumerate(enum_list):
-            if str(v).lower() == text_lower:
-                return i
-
-        return None
+        return enum_lookup.get(text.lower())
 
     def _get_mobiles(self):
         try:
@@ -361,6 +341,26 @@ class MobileService:
             self.all_mobiles = {}
             self.kill_table = {}
             return self.all_mobiles
+
+    @staticmethod
+    def _build_enum_lookup(enum_source: dict) -> dict[str, dict[str, int]]:
+        """
+        Build normalized lookup tables for all enums.
+
+        Supports both:
+          list enums  -> ["dead","mortal","standing"]
+          dict enums  -> {"standing":8,"sleeping":4}
+        """
+        lookup = {}
+        for enum_name, values in enum_source.items():
+            if isinstance(values, dict):
+                lookup[enum_name] = {str(k).lower(): int(v) for k, v in values.items()}
+            else:
+                lookup[enum_name] = {
+                    str(v).lower(): i for i, v in enumerate(values)
+                }
+
+        return lookup
 
     @staticmethod
     def _parse_dice(value):

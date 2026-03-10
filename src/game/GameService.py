@@ -29,6 +29,7 @@ class GameService:
 
     def set_mobile_service(self, mobile_service: MobileService):
         self.mobile_service = mobile_service
+        self.mobile_service.start()
 
     async def start(self):
         await self.game_loop()
