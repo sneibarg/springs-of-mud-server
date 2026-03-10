@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from injector import inject
 
 from game import GameData
+from mobile import MobileService
 from server.LoggerFactory import LoggerFactory
 from server.TimeVal import gettimeofday, TimeVal, stall_until_last_time
 from server.ServiceConfig import ServiceConfig
@@ -18,13 +19,16 @@ class GameService:
         self.__name__ = "GameService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.weather_service = None
+        self.mobile_service = None
         self.game_data_endpoint = config.game_data_endpoint
         self.game_data = self._load_game_data()
         self.last_time: TimeVal = gettimeofday()
 
     def set_weather_service(self, weather_service: WeatherService):
-        """Set weather service after initialization to break circular dependency"""
         self.weather_service = weather_service
+
+    def set_mobile_service(self, mobile_service: MobileService):
+        self.mobile_service = mobile_service
 
     async def start(self):
         await self.game_loop()

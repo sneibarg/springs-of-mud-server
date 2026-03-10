@@ -56,7 +56,6 @@ class Mobile:
             self.lock = threading.Lock()
         self.__name__ = "Mobile-" + str(self.instance_id)
         self.logger = LoggerFactory.get_logger(self.__name__)
-        self.logger.info("Instantiated " + self.__name__)
 
     @classmethod
     def from_json(cls, data):

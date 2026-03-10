@@ -29,6 +29,7 @@ class MobileService:
         self.stop_flag = False
         self.all_mobiles = {}
         self.kill_table: dict[int, int] = {}
+        self.load_mobiles()
         self.logger.info("Initialized MobileService instance with a total of "+str(len(self.all_mobiles))+" mobiles in memory.")
 
     async def start(self):
@@ -62,7 +63,6 @@ class MobileService:
         kill_table: dict[int, int] = {}
         npc_flag = self._resolve_npc_flag()
         payload = self._get_mobiles()
-        print(f"Loading mobile with payload={payload}")
         for raw_mobile in payload:
             mobile_data = ServerUtil.camel_to_snake_case(raw_mobile)
             mobile_id = self._resolve_mobile_id(mobile_data, raw_mobile)
@@ -293,7 +293,7 @@ class MobileService:
             return default
 
     def _normalize_position(self, value, fallback_key="standing") -> int:
-        enum_map = self.game_data.enums.get("position", {})
+        enum_list = self.game_data.enums.get("position", [])
         if isinstance(value, int):
             result = value
         else:
@@ -301,11 +301,18 @@ class MobileService:
             if text.isdigit():
                 result = int(text)
             elif text:
-                result = enum_map.get(text.lower(), enum_map.get(text.upper(), 0))
+                try:
+                    result = next(i for i, v in enumerate(enum_list) if str(v).lower() == text.lower())
+                except StopIteration:
+                    result = 0
             else:
                 result = 0
 
-        fallback = enum_map.get(fallback_key, 8)
+        try:
+            fallback = next(i for i, v in enumerate(enum_list) if str(v).lower() == fallback_key.lower())
+        except StopIteration:
+            fallback = 8
+
         return result if result > 0 else fallback
 
     def _normalize_enum_value(self, enum_name: str, value, fallback=0) -> int:
@@ -330,13 +337,21 @@ class MobileService:
     def _resolve_size(self, value):
         if value is None:
             return None
-        enum_map = self.game_data.enums.get("size", {})
+
+        enum_list = self.game_data.enums.get("size", [])
         if isinstance(value, int):
             return value
+
         text = str(value).strip()
         if text.isdigit():
             return int(text)
-        return enum_map.get(text.lower(), text)
+
+        text_lower = text.lower()
+        for i, v in enumerate(enum_list):
+            if str(v).lower() == text_lower:
+                return i
+
+        return None
 
     def _get_mobiles(self):
         try:

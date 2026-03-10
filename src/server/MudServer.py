@@ -110,11 +110,10 @@ class MudServer:
         self.injector.get(RoomService)
         self.injector.get(AreaService)
         self.injector.get(ItemService)
-        self.injector.get(MobileService)
 
         game_service = self.injector.get(GameService)
-        weather_service = self.injector.get(WeatherService)
-        game_service.set_weather_service(weather_service)
+        game_service.set_weather_service(self.injector.get(WeatherService))
+        game_service.set_mobile_service(self.injector.get(MobileService))
 
     def _load_player_one(self):
         try:
