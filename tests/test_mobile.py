@@ -379,7 +379,6 @@ class TestMobileService(unittest.TestCase):
         mob2['level'] = 5
         mob2['_id'] = {'$oid': 'unique_id_002'}
 
-
         mock_response = Mock()
         mock_response.json.return_value = [mob1, mob2]
         mock_get.return_value = mock_response
