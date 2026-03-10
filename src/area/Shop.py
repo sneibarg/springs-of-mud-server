@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from server.LoggerFactory import LoggerFactory
 
 
 @dataclass
@@ -18,5 +19,10 @@ class Shop:
     open_hour: int
     close_hour: int
 
-    def __init__(self):
-        pass
+    def __post_init__(self):
+        self.__name__ = "Shop"
+        self.logger = LoggerFactory.get_logger(self.__name__)
+
+    @classmethod
+    def from_json(cls, data):
+        return cls(**data)

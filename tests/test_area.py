@@ -1,14 +1,14 @@
 import unittest
 
 from unittest.mock import Mock, MagicMock, patch
-from area.RomArea import RomArea
-from area.RomRoom import RomRoom
+from area.Area import Area
+from area.Room import Room
 from area.AreaService import AreaService
 from registry.RegistryService import RegistryService
 
 
-class TestRomArea(unittest.TestCase):
-    """Test RomArea dataclass"""
+class TestArea(unittest.TestCase):
+    """Test Area dataclass"""
 
     def setUp(self):
         self.area_data = {
@@ -26,21 +26,21 @@ class TestRomArea(unittest.TestCase):
 
     def test_from_json(self):
         """Test creating RomArea from JSON"""
-        area = RomArea.from_json(self.area_data)
+        area = Area.from_json(self.area_data)
         self.assertEqual(area.id, 'area_001')
         self.assertEqual(area.name, 'Test Area')
         self.assertEqual(area.vnum, '1000')
 
     def test_area_attributes(self):
         """Test all area attributes are set correctly"""
-        area = RomArea.from_json(self.area_data)
+        area = Area.from_json(self.area_data)
         self.assertEqual(area.description, 'A test area')
         self.assertEqual(area.min_vnum, '1000')
         self.assertEqual(area.max_vnum, '1099')
 
 
-class TestRomRoom(unittest.TestCase):
-    """Test RomRoom dataclass"""
+class TestRoom(unittest.TestCase):
+    """Test Room dataclass"""
 
     def setUp(self):
         self.room_data = {
@@ -67,24 +67,24 @@ class TestRomRoom(unittest.TestCase):
         }
 
     def test_from_json(self):
-        """Test creating RomRoom from JSON"""
-        room = RomRoom.from_json(self.room_data)
+        """Test creating Room from JSON"""
+        room = Room.from_json(self.room_data)
         self.assertEqual(room.id, 'room_001')
         self.assertEqual(room.name, 'Test Room')
         self.assertEqual(room.vnum, '1001')
 
     def test_room_directions(self):
         """Test room directional exits"""
-        room = RomRoom.from_json(self.room_data)
+        room = Room.from_json(self.room_data)
         self.assertEqual(room.exit_north, 'room_002')
         self.assertIsNone(room.exit_east)
         self.assertIsNone(room.exit_west)
 
     @unittest.skip('Refactored out; likely to be removed.')
-    @patch('area.RomRoom.StreamWriter')
+    @patch('area.Room.StreamWriter')
     def test_print_description(self, mock_writer):
         """Test printing room description"""
-        room = RomRoom.from_json(self.room_data)
+        room = Room.from_json(self.room_data)
         writer = Mock()
         room.print_description(writer, room)
         writer.write.assert_called()
@@ -233,7 +233,7 @@ class TestAreaService(unittest.TestCase):
         service = AreaService(self.mock_service_config, self.mock_registry)
 
         # Create test rooms
-        room1 = RomRoom.from_json({
+        room1 = Room.from_json({
             'id': 'room_001',
             'area_id': 'area_001',
             'vnum': '1001',
@@ -256,7 +256,7 @@ class TestAreaService(unittest.TestCase):
             'mobiles': []
         })
 
-        room2 = RomRoom.from_json({
+        room2 = Room.from_json({
             'id': 'room_002',
             'area_id': 'area_001',
             'vnum': '1002',
@@ -302,7 +302,7 @@ class TestAreaService(unittest.TestCase):
         mock_get.side_effect = mock_get_side_effect
         service = AreaService(self.mock_service_config, self.mock_registry)
 
-        room = RomRoom.from_json({
+        room = Room.from_json({
             'id': 'room_001',
             'area_id': 'area_001',
             'vnum': '1001',

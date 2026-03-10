@@ -194,9 +194,9 @@ class TestCommandUtilityFunctions(unittest.TestCase):
         self.assertIsNone(result)
 
     def test_get_class_obj_rom_room(self):
-        """Test getting RomRoom returns string"""
-        result = get_class_obj('RomRoom')
-        self.assertEqual(result, 'RomRoom')
+        """Test getting Room returns string"""
+        result = get_class_obj('Room')
+        self.assertEqual(result, 'Room')
 
     def test_get_class_obj_str(self):
         """Test getting str class"""

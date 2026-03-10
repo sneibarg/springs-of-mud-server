@@ -1,4 +1,4 @@
 from .MobileService import MobileService
-from .RomMobile import RomMobile
+from .Mobile import Mobile
 
-__all__ = ['MobileService', 'RomMobile']
+__all__ = ['MobileService', 'Mobile']

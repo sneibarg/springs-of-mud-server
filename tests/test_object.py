@@ -13,16 +13,22 @@ class TestItem(unittest.TestCase):
             'id': 'item_001',
             'area_id': 'area_001',
             'vnum': '100',
-            'description': 'A sharp sword',
             'name': 'sword',
             'short_description': 'a sword',
             'long_description': 'A beautifully crafted sword lies here.',
+            'material': 'steel',
             'item_type': 'weapon',
-            'weight': '5',
             'extra_flags': 'magic',
             'wear_flags': 'wield',
-            'value': '100',
-            'level': '5',
+            'value0': '100',
+            'value1': '0',
+            'value2': '0',
+            'value3': '0',
+            'value4': '0',
+            'weight': 5,
+            'condition': '100',
+            'level': 5,
+            'cost': 100,
             'affect_data': [],
             'extra_descr': []
         }
@@ -41,16 +47,22 @@ class TestItem(unittest.TestCase):
             'id': 'item_001',
             'areaId': 'area_001',
             'vnum': '100',
-            'description': 'A sword',
             'name': 'sword',
             'shortDescription': 'a sword',
             'longDescription': 'A sword lies here',
+            'material': 'steel',
             'itemType': 'weapon',
-            'weight': '5',
             'extraFlags': 'magic',
             'wearFlags': 'wield',
-            'value': '100',
-            'level': '5',
+            'value0': '100',
+            'value1': '0',
+            'value2': '0',
+            'value3': '0',
+            'value4': '0',
+            'weight': 5,
+            'condition': '100',
+            'level': 5,
+            'cost': 100,
             'affectData': [],
             'extraDescr': []
         }
@@ -106,12 +118,14 @@ class TestItem(unittest.TestCase):
         self.assertEqual(item.id, 'item_001')
         self.assertEqual(item.area_id, 'area_001')
         self.assertEqual(item.vnum, '100')
-        self.assertEqual(item.description, 'A sharp sword')
-        self.assertEqual(item.weight, '5')
+        self.assertEqual(item.material, 'steel')
+        self.assertEqual(item.weight, 5)
         self.assertEqual(item.extra_flags, 'magic')
         self.assertEqual(item.wear_flags, 'wield')
-        self.assertEqual(item.value, '100')
-        self.assertEqual(item.level, '5')
+        self.assertEqual(item.value0, '100')
+        self.assertEqual(item.level, 5)
+        self.assertEqual(item.cost, 100)
+        self.assertEqual(item.condition, '100')
         self.assertEqual(item.affect_data, [])
         self.assertEqual(item.extra_descr, [])
 

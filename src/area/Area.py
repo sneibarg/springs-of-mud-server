@@ -3,7 +3,7 @@ from server.LoggerFactory import LoggerFactory
 
 
 @dataclass
-class RomArea:
+class Area:
     author: str
     name: str
     id: str
@@ -24,7 +24,7 @@ class RomArea:
     specials: list = None
 
     def __post_init__(self):
-        self.__name__ = "RomArea"
+        self.__name__ = "Area"
         self.logger = LoggerFactory.get_logger(self.__name__)
 
     @classmethod

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from server.LoggerFactory import LoggerFactory
 
 
 @dataclass
@@ -12,5 +13,10 @@ class Reset:
     arg4: str
     comment: str
 
-    def __init__(self):
-        pass
+    def __post_init__(self):
+        self.__name__ = "Reset"
+        self.logger = LoggerFactory.get_logger(self.__name__)
+
+    @classmethod
+    def from_json(cls, data):
+        return cls(**data)

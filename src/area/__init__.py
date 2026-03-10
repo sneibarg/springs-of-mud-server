@@ -1,6 +1,9 @@
 from .AreaService import AreaService
-from .RomArea import RomArea
-from .RomRoom import RomRoom
+from .Area import Area
+from .Room import Room
 from .RoomService import RoomService
+from .Special import Special
+from .Shop import Shop
+from .Reset import Reset
 
-__all__ = ['AreaService', 'RomArea', 'RomRoom', 'RoomService']
+__all__ = ['AreaService', 'Area', 'Room', 'RoomService', 'Special', 'Shop', 'Reset']

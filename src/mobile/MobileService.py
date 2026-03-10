@@ -3,7 +3,7 @@ import requests
 
 from injector import inject
 from game import GameData
-from mobile import RomMobile
+from mobile.Mobile import Mobile
 from server.LoggerFactory import LoggerFactory
 from server.ServerUtil import ServerUtil
 from server.ServiceConfig import ServiceConfig
@@ -44,7 +44,7 @@ class MobileService:
     def start_task(self):
         self.task = asyncio.create_task(self.start())
 
-    def load_mobiles(self) -> dict[str, RomMobile]:
+    def load_mobiles(self) -> dict[str, Mobile]:
         """
         REST-backed equivalent of ROM db2.c load_mobiles.
 
@@ -58,7 +58,7 @@ class MobileService:
         - normalize start/default position
         - track kill_table by level bucket
         """
-        loaded: dict[str, RomMobile] = {}
+        loaded: dict[str, Mobile] = {}
         kill_table: dict[int, int] = {}
         npc_flag = self._resolve_npc_flag()
         payload = self._get_mobiles()
@@ -80,7 +80,7 @@ class MobileService:
         self.kill_table = kill_table
         return self.all_mobiles
 
-    def _build_mobile(self, mobile_id: str, mobile_data: dict, npc_flag: int) -> tuple[RomMobile, int]:
+    def _build_mobile(self, mobile_id: str, mobile_data: dict, npc_flag: int) -> tuple[Mobile, int]:
         player_name = str(mobile_data.get("name", "") or "")
         race_name = self._resolve_race_name(mobile_data.get("race"), player_name)
         race = self.game_data.get_race(race_name) or {}
@@ -89,7 +89,7 @@ class MobileService:
         level = self._safe_int(mobile_data.get("level", 0), default=0)
         normalized = self._build_normalized_mobile_data(mobile_id, mobile_data, player_name, race_name, flags, level)
 
-        mobile = RomMobile.from_json(normalized)
+        mobile = Mobile.from_json(normalized)
         self._apply_extended_mobile_fields(mobile, mobile_data, flags)
         return mobile, level
 
@@ -153,42 +153,85 @@ class MobileService:
             "short_description": str(mobile_data.get("short_description", "") or ""),
             "long_description": self._capitalize_first(mobile_data.get("long_description", "")),
             "description": self._capitalize_first(mobile_data.get("description", "")),
+            "race": race_name,
             "act_flags": str(flags["act_flags"]),
             "affect_flags": str(flags["affect_flags"]),
             "alignment": str(mobile_data.get("alignment", "0") or "0"),
-            "race": race_name,
-            "sex": str(sex_value),
+            "group": str(self._safe_int(mobile_data.get("group", 0), default=0)),
+            "dam_type": str(mobile_data.get("dam_type", "") or ""),
+            "off_flags": str(flags["off_flags"]),
+            "imm_flags": str(flags["imm_flags"]),
+            "res_flags": str(flags["res_flags"]),
+            "vuln_flags": str(flags["vuln_flags"]),
             "start_pos": str(start_pos),
             "default_pos": str(default_pos),
+            "sex": str(sex_value),
+            "form": str(flags["form"]),
+            "parts": str(flags["parts"]),
+            "size": str(mobile_data.get("size", "") or ""),
+            "material": str(mobile_data.get("material", "") or ""),
+            "flags": str(mobile_data.get("flags", "") or ""),
             "id": mobile_id,
             "level": level,
-            "inventory": list(mobile_data.get("inventory", []) or []),
-            "injector": mobile_data.get("injector"),
-            "writer": mobile_data.get("writer"),
-            "reader": mobile_data.get("reader"),
-            "loot": mobile_data.get("loot"),
+            "hit_roll": self._safe_int(mobile_data.get("hit_roll", 0), default=0),
+            "hit_dice_number": 0,
+            "hit_dice_type": 0,
+            "hit_dice_bonus": 0,
+            "mana_dice_number": 0,
+            "mana_dice_type": 0,
+            "mana_dice_bonus": 0,
+            "damage_dice_number": 0,
+            "damage_dice_type": 0,
+            "damage_dice_bonus": 0,
+            "ac_pierce": 0,
+            "ac_bash": 0,
+            "ac_slash": 0,
+            "ac_exotic": 0,
+            "gold": self._safe_int(mobile_data.get("gold", 0), default=0),
             "lock": mobile_data.get("lock"),
-            "role": mobile_data.get("role"),
-            "room_id": mobile_data.get("room_id"),
         }
 
-    def _apply_extended_mobile_fields(self, mobile: RomMobile, mobile_data: dict, flags: dict[str, int]):
-        mobile.group = self._safe_int(mobile_data.get("group", 0), default=0)
+    def _apply_extended_mobile_fields(self, mobile: Mobile, mobile_data: dict, flags: dict[str, int]):
+        # Parse dice notation and set individual fields
+        hit_dice = self._parse_dice(mobile_data.get("hit") or mobile_data.get("hit_dice"))
+        mobile.hit_dice_number = hit_dice["number"]
+        mobile.hit_dice_type = hit_dice["type"]
+        mobile.hit_dice_bonus = hit_dice["bonus"]
+
+        mana_dice = self._parse_dice(mobile_data.get("mana") or mobile_data.get("mana_dice"))
+        mobile.mana_dice_number = mana_dice["number"]
+        mobile.mana_dice_type = mana_dice["type"]
+        mobile.mana_dice_bonus = mana_dice["bonus"]
+
+        damage_dice = self._parse_dice(mobile_data.get("damage") or mobile_data.get("damage_dice"))
+        mobile.damage_dice_number = damage_dice["number"]
+        mobile.damage_dice_type = damage_dice["type"]
+        mobile.damage_dice_bonus = damage_dice["bonus"]
+
+        # Parse AC values
+        ac_data = self._parse_ac(mobile_data)
+        mobile.ac_pierce = ac_data["pierce"]
+        mobile.ac_bash = ac_data["bash"]
+        mobile.ac_slash = ac_data["slash"]
+        mobile.ac_exotic = ac_data["exotic"]
+
+        # Set other extended fields that might not be in the dataclass
         mobile.hitroll = self._safe_int(mobile_data.get("hitroll", 0), default=0)
-        mobile.hit = self._parse_dice(mobile_data.get("hit") or mobile_data.get("hit_dice"))
-        mobile.mana = self._parse_dice(mobile_data.get("mana") or mobile_data.get("mana_dice"))
-        mobile.damage = self._parse_dice(mobile_data.get("damage") or mobile_data.get("damage_dice"))
-        mobile.dam_type = self._resolve_attack(mobile_data.get("dam_type") or mobile_data.get("damage_type"))
-        mobile.ac = self._parse_ac(mobile_data)
-        mobile.off_flags = str(flags["off_flags"])
-        mobile.imm_flags = str(flags["imm_flags"])
-        mobile.res_flags = str(flags["res_flags"])
-        mobile.vuln_flags = str(flags["vuln_flags"])
+        mobile.hit = hit_dice  # Keep for backwards compatibility
+        mobile.mana = mana_dice  # Keep for backwards compatibility
+        mobile.damage = damage_dice  # Keep for backwards compatibility
+        mobile.ac = ac_data  # Keep for backwards compatibility
         mobile.wealth = self._safe_int(mobile_data.get("wealth", mobile_data.get("gold", 0)), default=0)
-        mobile.form = str(flags["form"])
-        mobile.parts = str(flags["parts"])
-        mobile.size = self._resolve_size(mobile_data.get("size"))
-        mobile.material = str(mobile_data.get("material", "") or "")
+
+        # Resolve attack type if provided
+        dam_type_value = self._resolve_attack(mobile_data.get("dam_type") or mobile_data.get("damage_type"))
+        if dam_type_value:
+            mobile.dam_type = str(dam_type_value)
+
+        # Resolve size if provided
+        size_value = self._resolve_size(mobile_data.get("size"))
+        if size_value:
+            mobile.size = str(size_value)
 
     @staticmethod
     def _increment_kill_table(kill_table: dict[int, int], level: int):

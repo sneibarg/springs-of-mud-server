@@ -4,7 +4,7 @@ import threading
 
 
 @dataclass
-class RomRoom:
+class Room:
     id: str = ""
     area_id: str = ""
     vnum: str = ""
@@ -36,7 +36,6 @@ class RomRoom:
 
     @classmethod
     def from_json(cls, data):
-        # Get only the fields that are defined in the dataclass
         valid_fields = {f.name for f in cls.__dataclass_fields__.values()}
         filtered_data = {k: v for k, v in data.items() if k in valid_fields}
         return cls(**filtered_data)

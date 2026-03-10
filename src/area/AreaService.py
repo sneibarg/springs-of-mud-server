@@ -1,8 +1,8 @@
 import requests
 from injector import inject
 
-from area.RomArea import RomArea
-from area.RomRoom import RomRoom
+from area.Area import Area
+from area.Room import Room
 from registry import RegistryService
 from server.ServerUtil import ServerUtil
 from server.LoggerFactory import LoggerFactory
@@ -28,24 +28,24 @@ class AreaService:
     def load_areas(self):
         response = requests.get(self.areas_endpoint).json()
         for area_json in response:
-            area = RomArea.from_json(ServerUtil.camel_to_snake_case(area_json))
+            area = Area.from_json(ServerUtil.camel_to_snake_case(area_json))
             self.logger.debug("Registering area: "+str(area))
             self.registry.register_area(area)
 
     def load_area(self, area_id):
         url = self.areas_endpoint + "/" + area_id
         area_json = requests.get(url).json()
-        self.registry.register_area(RomArea.from_json(ServerUtil.camel_to_snake_case(area_json)))
+        self.registry.register_area(Area.from_json(ServerUtil.camel_to_snake_case(area_json)))
 
     def load_room(self, room_id):
         url = self.rooms_endpoint + "/" + room_id
         room_json = requests.get(url).json()
-        self.registry.register_room(RomRoom.from_json(ServerUtil.camel_to_snake_case(room_json)))
+        self.registry.register_room(Room.from_json(ServerUtil.camel_to_snake_case(room_json)))
 
     def load_rooms(self):
         response = requests.get(self.rooms_endpoint).json()
         for room_json in response:
-            room = RomRoom.from_json(ServerUtil.camel_to_snake_case(room_json))
+            room = Room.from_json(ServerUtil.camel_to_snake_case(room_json))
             self.logger.debug("Registering room: "+str(room))
             self.registry.register_room(room)
 

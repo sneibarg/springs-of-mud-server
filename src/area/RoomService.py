@@ -2,7 +2,7 @@ from typing import Optional, List, Any
 from injector import inject
 
 from game import GameData
-from .RomRoom import RomRoom
+from .Room import Room
 from registry import RegistryService
 from server.LoggerFactory import LoggerFactory
 from server.protocol import Message, MessageType
@@ -18,12 +18,12 @@ class RoomService:
         self.game_data = game_data
         self.logger.info("Initialized RoomService instance.")
 
-    def is_outside(self, room: RomRoom) -> bool:
+    def is_outside(self, room: Room) -> bool:
         """Check if a room is outdoors based on its flags."""
         self.logger.info(f"is_outside: {room.room_flags}={self.game_data.flags['room']['INDOORS']}")
         return (room.room_flags & self.game_data.flags['room']["INDOORS"]) == 0
 
-    def get_room(self, room_id) -> RomRoom | None:
+    def get_room(self, room_id) -> Room | None:
         if room_id is None:
             self.logger.debug("get_room: room_id is None")
             return None
@@ -33,7 +33,7 @@ class RoomService:
         return self.registry.room_registry[room_id]
 
     def print_room(self, writer, character):
-        room: RomRoom = self.registry.room_registry[character.room_id]
+        room: Room = self.registry.room_registry[character.room_id]
         writer.write(f'[{room.name}]'.encode('utf-8'))
         room.print_description(writer, room)
         self.print_exits(writer, room)
@@ -49,6 +49,7 @@ class RoomService:
                     self.logger.debug("print_exits: get_room returned None.")
         writer.write("\r\n".encode('utf-8'))
 
+    @staticmethod
     def format_room_description(self, room_name: str, description: str, exits: list) -> Message:
         text = f"[{room_name}]\r\n{description}\r\n"
         if exits:
@@ -65,8 +66,8 @@ class RoomService:
             }
         )
 
-    async def send_to_room(self, room_id: str, message: Message, message_bus,
-                          exclude_player_ids: Optional[List[str]] = None) -> int:
+    @staticmethod
+    async def send_to_room(self, room_id: str, message: Message, message_bus, exclude_player_ids: Optional[List[str]] = None) -> int:
         exclude = exclude_player_ids or []
         count = 0
         sessions = message_bus.session_handler.get_playing_sessions()

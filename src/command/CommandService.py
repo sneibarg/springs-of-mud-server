@@ -10,7 +10,7 @@ from server.ServiceConfig import ServiceConfig
 from registry import RegistryService
 from command import CommandHandler
 from area import AreaService
-from mobile import MobileService, RomMobile
+from mobile import MobileService, Mobile
 from player import PlayerService, Player, Character
 from event import EventHandler
 from object import ItemService, Item
@@ -19,7 +19,7 @@ from object import ItemService, Item
 lambda_mappings = {
     'p': 'Player',
     'c': 'Character',
-    'r': 'RomRoom',
+    'r': 'Room',
     'rs': 'RegistryService',
     'cs': 'CommandService',
     'cms': 'CommunicationService',
@@ -41,7 +41,7 @@ lambda_mappings = {
 def get_class_obj(class_name):
     if class_name == "lambda":
         return None
-    elif class_name == "RomRoom":
+    elif class_name == "Room":
         return class_name
 
     class_map = {
@@ -58,7 +58,7 @@ def get_class_obj(class_name):
         'EventHandler': EventHandler,
         'CommandHandler': CommandHandler,
         'StreamWriter': StreamWriter,
-        'Mobile': RomMobile,
+        'Mobile': Mobile,
         'Item': Item,
         'str': str,
     }
