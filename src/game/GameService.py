@@ -27,7 +27,7 @@ class GameService:
     def set_weather_service(self, weather_service: WeatherService):
         self.weather_service = weather_service
 
-    def set_mobile_service(self, mobile_service: MobileService):
+    def start_mobile_service(self, mobile_service: MobileService):
         self.mobile_service = mobile_service
         self.mobile_service.start()
 
