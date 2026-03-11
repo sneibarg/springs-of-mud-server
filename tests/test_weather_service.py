@@ -17,9 +17,8 @@ class TestWeatherService(unittest.TestCase):
         self.mock_message_bus = Mock()
         self.mock_message_bus.send_to_outdoor_players = AsyncMock()
 
-        self.mock_player_service = Mock()
-        self.mock_player_service.registry_service = Mock()
-        self.mock_player_service.registry_service.character_registry = {}
+        self.mock_registry_service = Mock()
+        self.mock_registry_service.character_registry = {}
 
         self.mock_room_service = Mock()
 
@@ -32,7 +31,7 @@ class TestWeatherService(unittest.TestCase):
 
         self.weather_service = WeatherService(
             self.mock_message_bus,
-            self.mock_player_service,
+            self.mock_registry_service,
             self.mock_room_service,
             self.mock_game_data
         )
@@ -266,7 +265,7 @@ class TestWeatherService(unittest.TestCase):
 
         mock_room = Mock()
 
-        self.mock_player_service.registry_service.character_registry = {
+        self.mock_registry_service.character_registry = {
             "player_123": mock_character
         }
         self.mock_room_service.get_room.return_value = mock_room
@@ -285,7 +284,7 @@ class TestWeatherService(unittest.TestCase):
 
         mock_room = Mock()
 
-        self.mock_player_service.registry_service.character_registry = {
+        self.mock_registry_service.registry_service.character_registry = {
             "player_123": mock_character
         }
         self.mock_room_service.get_room.return_value = mock_room

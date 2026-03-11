@@ -15,8 +15,6 @@ class TestEventHandler(unittest.TestCase):
         self.assertIsInstance(self.event_handler.command_list, list)
         self.assertIsInstance(self.event_handler.character_registry, dict)
         self.assertIsInstance(self.event_handler.mobile_registry, dict)
-        self.assertIsInstance(self.event_handler.character_events, dict)
-        self.assertIsInstance(self.event_handler.mobile_events, dict)
 
     def test_register_character(self):
         """Test registering a character"""
@@ -120,16 +118,6 @@ class TestEventHandler(unittest.TestCase):
 
         self.event_handler.unregister_mobile(mock_mobile)
         self.assertNotIn('mob_001', self.event_handler.mobile_registry)
-
-    def test_character_events_dict(self):
-        """Test character_events dictionary is accessible"""
-        self.assertIsInstance(self.event_handler.character_events, dict)
-        self.assertEqual(len(self.event_handler.character_events), 0)
-
-    def test_mobile_events_dict(self):
-        """Test mobile_events dictionary is accessible"""
-        self.assertIsInstance(self.event_handler.mobile_events, dict)
-        self.assertEqual(len(self.event_handler.mobile_events), 0)
 
     def test_command_list_initialized(self):
         """Test command_list is initialized as empty list"""

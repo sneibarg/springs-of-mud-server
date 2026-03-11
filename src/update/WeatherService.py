@@ -3,7 +3,7 @@ from injector import inject
 
 from area import RoomService
 from game import GameData
-from player import PlayerService
+from registry import RegistryService
 from numbers import RandomNumberGenerator
 from server.LoggerFactory import LoggerFactory
 from server.messaging import MessageBus
@@ -40,11 +40,11 @@ class TimeInfo:
 
 class WeatherService:
     @inject
-    def __init__(self, message_bus: MessageBus, player_service: PlayerService, room_service: RoomService, game_data: GameData):
+    def __init__(self, message_bus: MessageBus, registry_service: RegistryService, room_service: RoomService, game_data: GameData):
         self.__name__ = "WeatherService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.message_bus = message_bus
-        self.player_service = player_service
+        self.registry_service = registry_service
         self.room_service = room_service
         self.game_data = game_data
         self.weather_info = WeatherInfo(mmhg=1000, change=0, sky=SKY_CLOUDLESS, sunlight=SUN_LIGHT)
@@ -84,8 +84,9 @@ class WeatherService:
 
     def _is_player_outdoors(self, character_id: str) -> bool:
         """Check if a player is currently outdoors."""
-        character = self.player_service.registry_service.character_registry.get(character_id)
+        character = self.registry_service.character_registry.get(character_id)
         self.logger.info(f"Checking if player {character_id} is outdoors: {character}")
+        print(f"Checking if player {character_id} is outdoors: {character}")
         if character:
             room = self.room_service.get_room(character.room_id)
             self.logger.info(f"Room: {room}")
