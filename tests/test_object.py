@@ -1,14 +1,44 @@
 import unittest
+from datetime import datetime, timezone
 from unittest.mock import Mock, patch
 import json
+
+from game import GameData, Version, Constants, Integrity, BuildInfo
 from object.Item import Item
 from object.ItemService import ItemService
 
+
+def create_mock_game_data() -> GameData:
+    """Create a mock GameData object for testing"""
+    return GameData(
+        id="test-game",
+        kind="mud",
+        status="active",
+        version=Version(
+            family="test",
+            lineage=["v1"],
+            semver="1.0.0",
+            created_at=datetime.now(timezone.utc),
+            notes="Test version",
+        ),
+        constants=Constants(
+            max={"players": 100, "level": 50},
+            pulses={"perSecond": 4},
+        ),
+        enums={"directions": ["north", "south", "east", "west"]},
+        flags={"room": {"DARK": 1, "NO_MOB": 2}},
+        well_known_vnums={"temple": {"room": 3001}},
+        integrity=Integrity(
+            content_hash="abc123",
+            build=BuildInfo(source="test", tool_version="1.0.0", extra={}),
+        ),
+    )
 
 class TestItem(unittest.TestCase):
     """Test Item class"""
 
     def setUp(self):
+        self.game_data = create_mock_game_data()
         self.item_data = {
             'id': 'item_001',
             'area_id': 'area_001',
@@ -142,6 +172,7 @@ class TestItemService(unittest.TestCase):
 
     def setUp(self):
         from server.ServiceConfig import ServiceConfig
+        self.game_data = create_mock_game_data()
         self.items_endpoint = 'http://test.com/api/items'
         self.mock_service_config = ServiceConfig(
             game_data_endpoint="http://test/game",
@@ -164,7 +195,7 @@ class TestItemService(unittest.TestCase):
         ]
         mock_get.return_value = mock_response
 
-        service = ItemService(self.mock_service_config)
+        service = ItemService(self.mock_service_config, self.game_data)
 
         self.assertEqual(service.total_items, 2)
         self.assertEqual(len(service.all_items), 2)
@@ -178,7 +209,7 @@ class TestItemService(unittest.TestCase):
         mock_response.json.return_value = []
         mock_get.return_value = mock_response
 
-        service = ItemService(self.mock_service_config)
+        service = ItemService(self.mock_service_config, self.game_data)
 
         self.assertEqual(service.total_items, 0)
         self.assertEqual(len(service.all_items), 0)
@@ -188,7 +219,7 @@ class TestItemService(unittest.TestCase):
         """Test ItemService handles initialization failure gracefully"""
         mock_get.side_effect = Exception('API Error')
 
-        service = ItemService(self.mock_service_config)
+        service = ItemService(self.mock_service_config, self.game_data)
 
         # Should still initialize but with 0 items
         self.assertEqual(service.total_items, 0)
@@ -203,7 +234,7 @@ class TestItemService(unittest.TestCase):
         ]
         mock_get.return_value = mock_response
 
-        service = ItemService(self.mock_service_config)
+        service = ItemService(self.mock_service_config, self.game_data)
         item = service.return_item_by_id('item_001')
 
         self.assertEqual(item['id'], 'item_001')
@@ -216,7 +247,7 @@ class TestItemService(unittest.TestCase):
         mock_response.json.return_value = []
         mock_get.return_value = mock_response
 
-        service = ItemService(self.mock_service_config)
+        service = ItemService(self.mock_service_config, self.game_data)
 
         with self.assertRaises(KeyError):
             service.return_item_by_id('nonexistent')
@@ -228,7 +259,7 @@ class TestItemService(unittest.TestCase):
         mock_response = Mock()
         mock_response.json.return_value = []
         mock_get.return_value = mock_response
-        service = ItemService(self.mock_service_config)
+        service = ItemService(self.mock_service_config, self.game_data)
 
         # Get specific item
         mock_get.return_value.json.return_value = {
@@ -247,7 +278,7 @@ class TestItemService(unittest.TestCase):
         mock_response = Mock()
         mock_response.json.return_value = []
         mock_get.return_value = mock_response
-        service = ItemService(self.mock_service_config)
+        service = ItemService(self.mock_service_config, self.game_data)
 
         # Fail on specific item
         mock_get.side_effect = Exception('API Error')
@@ -266,7 +297,7 @@ class TestItemService(unittest.TestCase):
         ]
         mock_get.return_value = mock_response
 
-        service = ItemService(self.mock_service_config)
+        service = ItemService(self.mock_service_config, self.game_data)
 
         self.assertEqual(service.total_items, 3)
         self.assertEqual(len(service.all_items), 3)
@@ -281,7 +312,7 @@ class TestItemService(unittest.TestCase):
         ]
         mock_get.return_value = mock_response
 
-        service = ItemService(self.mock_service_config)
+        service = ItemService(self.mock_service_config, self.game_data)
 
         self.assertEqual(service.all_items['item_001']['name'], 'sword')
         self.assertEqual(service.all_items['item_001']['value'], '100')

@@ -12,9 +12,6 @@ from area import AreaService
 
 
 class MobileService:
-    POS_SLEEPING = 4
-    POS_STANDING = 8
-
     @inject
     def __init__(self, config: ServiceConfig, game_data: GameData, registry: RegistryService, area_service: AreaService, event_handler: EventHandler):
         self.__name__ = "MobileService"
@@ -28,7 +25,7 @@ class MobileService:
         self.stop_flag = False
         self.all_mobiles = {}
         self.kill_table: dict[int, int] = {}
-        self.enum_lookup = self._build_enum_lookup(self.game_data.enums)
+        self.enum_lookup = ServerUtil.build_enum_lookup(self.game_data.enums)
 
     def start(self):
         self.load_mobiles()
@@ -336,26 +333,6 @@ class MobileService:
             self.all_mobiles = {}
             self.kill_table = {}
             return self.all_mobiles
-
-    @staticmethod
-    def _build_enum_lookup(enum_source: dict) -> dict[str, dict[str, int]]:
-        """
-        Build normalized lookup tables for all enums.
-
-        Supports both:
-          list enums  -> ["dead","mortal","standing"]
-          dict enums  -> {"standing":8,"sleeping":4}
-        """
-        lookup = {}
-        for enum_name, values in enum_source.items():
-            if isinstance(values, dict):
-                lookup[enum_name] = {str(k).lower(): int(v) for k, v in values.items()}
-            else:
-                lookup[enum_name] = {
-                    str(v).lower(): i for i, v in enumerate(values)
-                }
-
-        return lookup
 
     @staticmethod
     def _parse_dice(value):
