@@ -6,6 +6,7 @@ from injector import inject
 from game import GameData
 from mobile import MobileService
 from server.LoggerFactory import LoggerFactory
+from server.ServerUtil import ServerUtil
 from server.TimeVal import gettimeofday, TimeVal, stall_until_last_time
 from server.ServiceConfig import ServiceConfig
 
@@ -22,6 +23,7 @@ class GameService:
         self.mobile_service = None
         self.game_data_endpoint = config.game_data_endpoint
         self.game_data = self._load_game_data()
+        self._load_enums()
         self.last_time: TimeVal = gettimeofday()
 
     def set_weather_service(self, weather_service: WeatherService):
@@ -53,3 +55,33 @@ class GameService:
         except Exception as e:
             self.logger.error(f"Failed to load game data: {e}")
             raise RuntimeError(f"Failed to load game data: {e}")
+
+    def _load_enums(self):
+        self.enums = {}
+        for enum_name in self.game_data.enums:
+            if enum_name == "positions":
+                self.enums[enum_name] = ServerUtil.build_enum("POS", enum_name, self.game_data.enums[enum_name])
+            elif enum_name == "itemType":
+                self.enums[enum_name] = ServerUtil.build_enum("ITEM", enum_name, self.game_data.enums[enum_name])
+            elif enum_name == "acType":
+                self.enums[enum_name] = ServerUtil.build_enum("AC", enum_name, self.game_data.enums[enum_name])
+            elif enum_name == "weaponClass":
+                self.enums[enum_name] = ServerUtil.build_enum("WEAPON", enum_name, self.game_data.enums[enum_name])
+            elif enum_name == "condition":
+                self.enums[enum_name] = ServerUtil.build_enum("COND", enum_name, self.game_data.enums[enum_name])
+            elif enum_name == "wearSlot":
+                self.enums[enum_name] = ServerUtil.build_enum("WEAR", enum_name, self.game_data.enums[enum_name])
+            elif enum_name == "damageType":
+                self.enums[enum_name] = ServerUtil.build_enum("DAM", enum_name, self.game_data.enums[enum_name])
+            elif enum_name == "applyType":
+                self.enums[enum_name] = ServerUtil.build_enum("APPLY", enum_name, self.game_data.enums[enum_name])
+            elif enum_name == "target":
+                self.enums[enum_name] = ServerUtil.build_enum("TAR", enum_name, self.game_data.enums[enum_name])
+            elif enum_name == "sector":
+                self.enums[enum_name] = ServerUtil.build_enum("SECT", enum_name, self.game_data.enums[enum_name])
+            elif enum_name == "size":
+                self.enums[enum_name] = ServerUtil.build_enum("SIZE", enum_name, self.game_data.enums[enum_name])
+            elif enum_name == "direction":
+                self.enums[enum_name] = ServerUtil.build_enum("DIR", enum_name, self.game_data.enums[enum_name])
+            elif enum_name == "sex":
+                self.enums[enum_name] = ServerUtil.build_enum("SEX", enum_name, self.game_data.enums[enum_name])
