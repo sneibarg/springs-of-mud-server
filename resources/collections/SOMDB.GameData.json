@@ -376,7 +376,7 @@
   "weaponsNameIndex": { "dagger": "dagger" },
 
   "attacks": {
-    "hit": { "id": "hit", "noun": "hit", "damageType": "BASH" }
+    "hit": { "name": "hit", "noun": "hit", "damageType": "BASH" }
   },
   "attacksNameIndex": { "hit": "hit" },
 

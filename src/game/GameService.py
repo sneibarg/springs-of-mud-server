@@ -59,29 +59,30 @@ class GameService:
     def _load_enums(self):
         self.enums = {}
         for enum_name in self.game_data.enums:
+            member_list = self.game_data.enums[enum_name]
             if enum_name == "positions":
-                self.enums[enum_name] = ServerUtil.build_enum("POS", enum_name, self.game_data.enums[enum_name])
+                self.enums[enum_name] = ServerUtil.build_string_enum("POS", enum_name, member_list)
             elif enum_name == "itemType":
-                self.enums[enum_name] = ServerUtil.build_enum("ITEM", enum_name, self.game_data.enums[enum_name])
+                self.enums[enum_name] = ServerUtil.build_string_enum("ITEM", enum_name, member_list)
             elif enum_name == "acType":
-                self.enums[enum_name] = ServerUtil.build_enum("AC", enum_name, self.game_data.enums[enum_name])
+                self.enums[enum_name] = ServerUtil.build_string_enum("AC", enum_name, member_list)
             elif enum_name == "weaponClass":
-                self.enums[enum_name] = ServerUtil.build_enum("WEAPON", enum_name, self.game_data.enums[enum_name])
+                self.enums[enum_name] = ServerUtil.build_string_enum("WEAPON", enum_name, member_list)
             elif enum_name == "condition":
-                self.enums[enum_name] = ServerUtil.build_enum("COND", enum_name, self.game_data.enums[enum_name])
+                self.enums[enum_name] = ServerUtil.build_string_enum("COND", enum_name, member_list)
             elif enum_name == "wearSlot":
-                self.enums[enum_name] = ServerUtil.build_enum("WEAR", enum_name, self.game_data.enums[enum_name])
+                self.enums[enum_name] = ServerUtil.build_string_enum("WEAR", enum_name, member_list)
             elif enum_name == "damageType":
-                self.enums[enum_name] = ServerUtil.build_enum("DAM", enum_name, self.game_data.enums[enum_name])
+                self.enums[enum_name] = ServerUtil.build_string_enum("DAM", enum_name, member_list)
             elif enum_name == "applyType":
-                self.enums[enum_name] = ServerUtil.build_enum("APPLY", enum_name, self.game_data.enums[enum_name])
+                self.enums[enum_name] = ServerUtil.build_string_enum("APPLY", enum_name, member_list)
             elif enum_name == "target":
-                self.enums[enum_name] = ServerUtil.build_enum("TAR", enum_name, self.game_data.enums[enum_name])
+                self.enums[enum_name] = ServerUtil.build_string_enum("TAR", enum_name, member_list)
             elif enum_name == "sector":
-                self.enums[enum_name] = ServerUtil.build_enum("SECT", enum_name, self.game_data.enums[enum_name])
+                self.enums[enum_name] = ServerUtil.build_string_enum("SECT", enum_name, member_list)
             elif enum_name == "size":
-                self.enums[enum_name] = ServerUtil.build_enum("SIZE", enum_name, self.game_data.enums[enum_name])
+                self.enums[enum_name] = ServerUtil.build_string_enum("SIZE", enum_name, member_list)
             elif enum_name == "direction":
-                self.enums[enum_name] = ServerUtil.build_enum("DIR", enum_name, self.game_data.enums[enum_name])
+                self.enums[enum_name] = ServerUtil.build_string_enum("DIR", enum_name, member_list)
             elif enum_name == "sex":
-                self.enums[enum_name] = ServerUtil.build_enum("SEX", enum_name, self.game_data.enums[enum_name])
+                self.enums[enum_name] = ServerUtil.build_string_enum("SEX", enum_name, member_list)

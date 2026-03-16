@@ -1,6 +1,6 @@
 import re
-from enum import StrEnum
 
+from enum import StrEnum, IntEnum
 from typing import Dict, Any
 
 
@@ -42,7 +42,7 @@ class ServerUtil:
         return lookup
 
     @staticmethod
-    def build_enum(field_prefix: str, enum_name: str, enum_fields: list[str]) -> type[StrEnum]:
+    def build_string_enum(field_prefix: str, enum_name: str, enum_fields: list[str]) -> type[StrEnum]:
         """
         Create enum:
             ITEM_LIGHT = "light"
@@ -51,3 +51,14 @@ class ServerUtil:
         """
         members = {f"{field_prefix}_{name}": name.lower() for name in enum_fields}
         return StrEnum(enum_name, members)
+
+    @staticmethod
+    def build_int_enum(field_prefix: str, enum_name: str, enum_fields: list[int]) -> type[IntEnum]:
+        """
+        Create enum:
+            ITEM_LIGHT = 1
+            ITEM_SCROLL = 2
+            ...
+        """
+        members = {f"{field_prefix}_{name}": name for name in enum_fields}
+        return IntEnum(enum_name, members)

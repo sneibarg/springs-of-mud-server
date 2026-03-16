@@ -1,8 +1,9 @@
+import json
+
 from dataclasses import dataclass
+from typing import Optional
 from server.ServerUtil import ServerUtil
 from server.LoggerFactory import LoggerFactory
-
-import json
 
 
 @dataclass
@@ -29,6 +30,8 @@ class Item:
     cost: int
     affect_data: list
     extra_descr: list
+    damage_type: Optional[str] = None
+    weapon_type: Optional[str] = None
 
     def __post_init__(self):
         self.__name__ = "Item"
