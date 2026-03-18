@@ -14,7 +14,6 @@ class ItemService:
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.items_endpoint = config.items_endpoint
         self.game_service = game_service
-        self.item_types = self.game_service.enums["itemType"]
         self.all_items = {}
         self.load_items()
         self.logger.info("Initialized ObjectService instance with a total of "+str(len(self.all_items))+" in memory.")
@@ -47,17 +46,17 @@ class ItemService:
         return Item.from_json(item_data)
 
     def _update_item_type(self, item_data):
+        item_types = self.game_service.enums['itemType']
         item_type = item_data.get("itemType")
-        if item_type == self.item_types.ITEM_WEAPON:
-            self._weapon_type(item_data)
+        if item_type == item_types.ITEM_WEAPON:
             self._attack_type(item_data)
-        elif item_type == self.item_types.ITEM_CONTAINER:
+        elif item_type == item_types.ITEM_CONTAINER:
             self._update_container(item_data)
-        elif item_type == self.item_types.ITEM_FOUNTAIN:
+        elif item_type == item_types.ITEM_FOUNTAIN:
             self._update_fountain()
-        elif item_type == self.item_types.ITEM_STAFF:
+        elif item_type == item_types.ITEM_STAFF:
             self._update_staff()
-        elif item_type == self.item_types.ITEM_SCROLL:
+        elif item_type == item_types.ITEM_SCROLL:
             self._update_scroll()
 
     def _update_container(self, item_data):
@@ -74,34 +73,40 @@ class ItemService:
 
     # even if it's slower, it still loads all in the same second
     def _attack_type(self, item_data):
-        damage_type_enum = self.game_service.enums['damageType']
+        damages_types = self.game_service.enums['damageType']
         damage_type = item_data['value3']
         if damage_type in ['blast', 'pound', 'crush', 'suction', 'beating', 'charge', 'slap', 'punch', 'peckb', 'smash', 'thwack']:
-            item_data['damage_type'] = damage_type_enum.DAM_BASH
+            item_data['damage_type'] = damages_types.DAM_BASH
         elif damage_type in ['slash', 'whip', 'claw', 'grep', 'cleave', 'chop', 'slice']:
-            item_data['damage_type'] = damage_type_enum.DAM_SLASH
+            item_data['damage_type'] = damages_types.DAM_SLASH
         elif damage_type in ['pierce', 'stab', 'bite', 'scratch', 'sting', 'chomp', 'thrust']:
-            item_data['damage_type'] = damage_type_enum.DAM_PIERCE
+            item_data['damage_type'] = damages_types.DAM_PIERCE
         elif damage_type in ['digestion', 'acbite', 'slime']:
-            item_data['damage_type'] = damage_type_enum.DAM_ACID
+            item_data['damage_type'] = damages_types.DAM_ACID
         elif damage_type in ['flame', 'flbite']:
-            item_data['damage_type'] = damage_type_enum.DAM_FIRE
+            item_data['damage_type'] = damages_types.DAM_FIRE
         elif damage_type in ['frbite', 'chill']:
-            item_data['damage_type'] = damage_type_enum.DAM_COLD
+            item_data['damage_type'] = damages_types.DAM_COLD
         elif damage_type in ['shbite', 'shock']:
-            item_data['damage_type'] = damage_type_enum.DAM_LIGHTNING
+            item_data['damage_type'] = damages_types.DAM_LIGHTNING
         elif damage_type in ['wrath', 'magic']:
-            item_data['damage_type'] = damage_type_enum.DAM_ENERGY
+            item_data['damage_type'] = damages_types.DAM_ENERGY
         elif damage_type in ['divine']:
-            item_data['damage_type'] = damage_type_enum.DAM_HOLY
+            item_data['damage_type'] = damages_types.DAM_HOLY
         elif damage_type in ['drain']:
-            item_data['damage_type'] = damage_type_enum.DAM_NEGATIVE
+            item_data['damage_type'] = damages_types.DAM_NEGATIVE
         else:
             self.logger.warn(f"Unknown damage type: {damage_type} for item {item_data}")
-            item_data['damage_type'] = damage_type_enum.DAM_NONE
+            item_data['damage_type'] = damages_types.DAM_NONE
 
-    def _liq_lookup(self):
-        pass
+    def _liq_lookup(self, item_data):
+        liq_table = self.game_service.game_data.liquids
+        liquid_name = item_data['value2'].replace("'", "")
+        liquid = liq_table[liquid_name]
+        liquid_affect_data = liquid['affect']
+        liquid_color = liquid['color']
+        item_data['liquid_affect_data'] = liquid_affect_data
+        item_data['liquid_color'] = liquid_color
 
     def _skill_lookup(self):
         pass
