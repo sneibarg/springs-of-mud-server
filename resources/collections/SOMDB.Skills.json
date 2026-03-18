@@ -1,0 +1,3780 @@
+[{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8d3"
+  },
+  "name": "reserved",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 99,
+    "cleric": 99,
+    "thief": 99,
+    "warrior": 99
+  },
+  "ratingByClass": {
+    "mage": 99,
+    "cleric": 99,
+    "thief": 99,
+    "warrior": 99
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8d4"
+  },
+  "name": "acid blast",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 28,
+    "cleric": 53,
+    "thief": 35,
+    "warrior": 32
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.acid_blast",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 70,
+  "minMana": 20,
+  "beats": 12,
+  "nounDamage": "acid blast",
+  "msgOff": "!Acid Blast!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8d5"
+  },
+  "name": "armor",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 7,
+    "cleric": 2,
+    "thief": 10,
+    "warrior": 5
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.armor",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "STANDING",
+  "slot": 1,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "You feel less armored.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8d6"
+  },
+  "name": "bless",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 7,
+    "thief": 53,
+    "warrior": 8
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.bless",
+  "target": "OBJ_CHAR_DEF",
+  "minPosition": "STANDING",
+  "slot": 3,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "You feel less righteous.",
+  "msgObj": "$p's holy aura fades."
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8d7"
+  },
+  "name": "blindness",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 12,
+    "cleric": 8,
+    "thief": 17,
+    "warrior": 15
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.blindness",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 4,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "You can see again.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8d8"
+  },
+  "name": "burning hands",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 7,
+    "cleric": 53,
+    "thief": 10,
+    "warrior": 9
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.burning_hands",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 5,
+  "minMana": 15,
+  "beats": 12,
+  "nounDamage": "burning hands",
+  "msgOff": "!Burning Hands!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8d9"
+  },
+  "name": "call lightning",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 26,
+    "cleric": 18,
+    "thief": 31,
+    "warrior": 22
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.call_lightning",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 6,
+  "minMana": 15,
+  "beats": 12,
+  "nounDamage": "lightning bolt",
+  "msgOff": "!Call Lightning!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8da"
+  },
+  "name": "calm",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 48,
+    "cleric": 16,
+    "thief": 50,
+    "warrior": 20
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.calm",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 509,
+  "minMana": 30,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "You have lost your peace of mind.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8db"
+  },
+  "name": "cancellation",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 18,
+    "cleric": 26,
+    "thief": 34,
+    "warrior": 34
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.cancellation",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 507,
+  "minMana": 20,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Cancellation!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8dc"
+  },
+  "name": "cause critical",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 13,
+    "thief": 53,
+    "warrior": 19
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.cause_critical",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 63,
+  "minMana": 20,
+  "beats": 12,
+  "nounDamage": "spell",
+  "msgOff": "!Cause Critical!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8dd"
+  },
+  "name": "cause light",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 1,
+    "thief": 53,
+    "warrior": 3
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.cause_light",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 62,
+  "minMana": 15,
+  "beats": 12,
+  "nounDamage": "spell",
+  "msgOff": "!Cause Light!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8de"
+  },
+  "name": "cause serious",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 7,
+    "thief": 53,
+    "warrior": 10
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.cause_serious",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 64,
+  "minMana": 17,
+  "beats": 12,
+  "nounDamage": "spell",
+  "msgOff": "!Cause Serious!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8df"
+  },
+  "name": "chain lightning",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 33,
+    "cleric": 53,
+    "thief": 39,
+    "warrior": 36
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.chain_lightning",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 500,
+  "minMana": 25,
+  "beats": 12,
+  "nounDamage": "lightning",
+  "msgOff": "!Chain Lightning!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8e0"
+  },
+  "name": "change sex",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 53,
+    "thief": 53,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.change_sex",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 82,
+  "minMana": 15,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "Your body feels familiar again.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8e1"
+  },
+  "name": "charm person",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 20,
+    "cleric": 53,
+    "thief": 25,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.charm_person",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "STANDING",
+  "slot": 7,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "You feel more self-confident.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8e2"
+  },
+  "name": "chill touch",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 4,
+    "cleric": 53,
+    "thief": 6,
+    "warrior": 6
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.chill_touch",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 8,
+  "minMana": 15,
+  "beats": 12,
+  "nounDamage": "chilling touch",
+  "msgOff": "You feel less cold.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8e3"
+  },
+  "name": "colour spray",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 16,
+    "cleric": 53,
+    "thief": 22,
+    "warrior": 20
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.colour_spray",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 10,
+  "minMana": 15,
+  "beats": 12,
+  "nounDamage": "colour spray",
+  "msgOff": "!Colour Spray!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8e4"
+  },
+  "name": "continual light",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 6,
+    "cleric": 4,
+    "thief": 6,
+    "warrior": 9
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.continual_light",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 57,
+  "minMana": 7,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Continual Light!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8e5"
+  },
+  "name": "control weather",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 15,
+    "cleric": 19,
+    "thief": 28,
+    "warrior": 22
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.control_weather",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 11,
+  "minMana": 25,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Control Weather!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8e6"
+  },
+  "name": "create food",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 10,
+    "cleric": 5,
+    "thief": 11,
+    "warrior": 12
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.create_food",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 12,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Create Food!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8e7"
+  },
+  "name": "create rose",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 16,
+    "cleric": 11,
+    "thief": 10,
+    "warrior": 24
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.create_rose",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 511,
+  "minMana": 30,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Create Rose!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8e8"
+  },
+  "name": "create spring",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 14,
+    "cleric": 17,
+    "thief": 23,
+    "warrior": 20
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.create_spring",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 80,
+  "minMana": 20,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Create Spring!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8e9"
+  },
+  "name": "create water",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 8,
+    "cleric": 3,
+    "thief": 12,
+    "warrior": 11
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.create_water",
+  "target": "OBJ_INV",
+  "minPosition": "STANDING",
+  "slot": 13,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Create Water!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8ea"
+  },
+  "name": "cure blindness",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 6,
+    "thief": 53,
+    "warrior": 8
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.cure_blindness",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 14,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Cure Blindness!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8eb"
+  },
+  "name": "cure critical",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 13,
+    "thief": 53,
+    "warrior": 19
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.cure_critical",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 15,
+  "minMana": 20,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Cure Critical!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8ec"
+  },
+  "name": "cure disease",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 13,
+    "thief": 53,
+    "warrior": 14
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.cure_disease",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "STANDING",
+  "slot": 501,
+  "minMana": 20,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Cure Disease!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8ed"
+  },
+  "name": "cure light",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 1,
+    "thief": 53,
+    "warrior": 3
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.cure_light",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 16,
+  "minMana": 10,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Cure Light!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8ee"
+  },
+  "name": "cure poison",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 14,
+    "thief": 53,
+    "warrior": 16
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.cure_poison",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "STANDING",
+  "slot": 43,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Cure Poison!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8ef"
+  },
+  "name": "cure serious",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 7,
+    "thief": 53,
+    "warrior": 10
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.cure_serious",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 61,
+  "minMana": 15,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Cure Serious!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8f0"
+  },
+  "name": "curse",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 18,
+    "cleric": 18,
+    "thief": 26,
+    "warrior": 22
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.curse",
+  "target": "OBJ_CHAR_OFF",
+  "minPosition": "FIGHTING",
+  "slot": 17,
+  "minMana": 20,
+  "beats": 12,
+  "nounDamage": "curse",
+  "msgOff": "The curse wears off.",
+  "msgObj": "$p is no longer impure."
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8f1"
+  },
+  "name": "demonfire",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 34,
+    "thief": 53,
+    "warrior": 45
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.demonfire",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 505,
+  "minMana": 20,
+  "beats": 12,
+  "nounDamage": "torments",
+  "msgOff": "!Demonfire!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8f2"
+  },
+  "name": "detect evil",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 11,
+    "cleric": 4,
+    "thief": 12,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.detect_evil",
+  "target": "CHAR_SELF",
+  "minPosition": "STANDING",
+  "slot": 18,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "The red in your vision disappears.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8f3"
+  },
+  "name": "detect good",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 11,
+    "cleric": 4,
+    "thief": 12,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.detect_good",
+  "target": "CHAR_SELF",
+  "minPosition": "STANDING",
+  "slot": 513,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "The gold in your vision disappears.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8f4"
+  },
+  "name": "detect hidden",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 15,
+    "cleric": 11,
+    "thief": 12,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.detect_hidden",
+  "target": "CHAR_SELF",
+  "minPosition": "STANDING",
+  "slot": 44,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "You feel less aware of your surroundings.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8f5"
+  },
+  "name": "detect invis",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 3,
+    "cleric": 8,
+    "thief": 6,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.detect_invis",
+  "target": "CHAR_SELF",
+  "minPosition": "STANDING",
+  "slot": 19,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "You no longer see invisible objects.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8f6"
+  },
+  "name": "detect magic",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 2,
+    "cleric": 6,
+    "thief": 5,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.detect_magic",
+  "target": "CHAR_SELF",
+  "minPosition": "STANDING",
+  "slot": 20,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "The detect magic wears off.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8f7"
+  },
+  "name": "detect poison",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 15,
+    "cleric": 7,
+    "thief": 9,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.detect_poison",
+  "target": "OBJ_INV",
+  "minPosition": "STANDING",
+  "slot": 21,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Detect Poison!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8f8"
+  },
+  "name": "dispel evil",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 15,
+    "thief": 53,
+    "warrior": 21
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.dispel_evil",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 22,
+  "minMana": 15,
+  "beats": 12,
+  "nounDamage": "dispel evil",
+  "msgOff": "!Dispel Evil!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8f9"
+  },
+  "name": "dispel good",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 15,
+    "thief": 53,
+    "warrior": 21
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.dispel_good",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 512,
+  "minMana": 15,
+  "beats": 12,
+  "nounDamage": "dispel good",
+  "msgOff": "!Dispel Good!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8fa"
+  },
+  "name": "dispel magic",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 16,
+    "cleric": 24,
+    "thief": 30,
+    "warrior": 30
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.dispel_magic",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 59,
+  "minMana": 15,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Dispel Magic!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8fb"
+  },
+  "name": "earthquake",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 10,
+    "thief": 53,
+    "warrior": 14
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.earthquake",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 23,
+  "minMana": 15,
+  "beats": 12,
+  "nounDamage": "earthquake",
+  "msgOff": "!Earthquake!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8fc"
+  },
+  "name": "enchant armor",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 16,
+    "cleric": 53,
+    "thief": 53,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 2,
+    "cleric": 2,
+    "thief": 4,
+    "warrior": 4
+  },
+  "handlerId": "spell.enchant_armor",
+  "target": "OBJ_INV",
+  "minPosition": "STANDING",
+  "slot": 510,
+  "minMana": 100,
+  "beats": 24,
+  "nounDamage": "",
+  "msgOff": "!Enchant Armor!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8fd"
+  },
+  "name": "enchant weapon",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 17,
+    "cleric": 53,
+    "thief": 53,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 2,
+    "cleric": 2,
+    "thief": 4,
+    "warrior": 4
+  },
+  "handlerId": "spell.enchant_weapon",
+  "target": "OBJ_INV",
+  "minPosition": "STANDING",
+  "slot": 24,
+  "minMana": 100,
+  "beats": 24,
+  "nounDamage": "",
+  "msgOff": "!Enchant Weapon!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8fe"
+  },
+  "name": "energy drain",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 19,
+    "cleric": 22,
+    "thief": 26,
+    "warrior": 23
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.energy_drain",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 25,
+  "minMana": 35,
+  "beats": 12,
+  "nounDamage": "energy drain",
+  "msgOff": "!Energy Drain!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb8ff"
+  },
+  "name": "faerie fire",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 6,
+    "cleric": 3,
+    "thief": 5,
+    "warrior": 8
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.faerie_fire",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 72,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "faerie fire",
+  "msgOff": "The pink aura around you fades away.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb900"
+  },
+  "name": "faerie fog",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 14,
+    "cleric": 21,
+    "thief": 16,
+    "warrior": 24
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.faerie_fog",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 73,
+  "minMana": 12,
+  "beats": 12,
+  "nounDamage": "faerie fog",
+  "msgOff": "!Faerie Fog!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb901"
+  },
+  "name": "farsight",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 14,
+    "cleric": 16,
+    "thief": 16,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.farsight",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 521,
+  "minMana": 36,
+  "beats": 20,
+  "nounDamage": "farsight",
+  "msgOff": "!Farsight!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb902"
+  },
+  "name": "fireball",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 22,
+    "cleric": 53,
+    "thief": 30,
+    "warrior": 26
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.fireball",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 26,
+  "minMana": 15,
+  "beats": 12,
+  "nounDamage": "fireball",
+  "msgOff": "!Fireball!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb903"
+  },
+  "name": "fireproof",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 13,
+    "cleric": 12,
+    "thief": 19,
+    "warrior": 18
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.fireproof",
+  "target": "OBJ_INV",
+  "minPosition": "STANDING",
+  "slot": 523,
+  "minMana": 10,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "",
+  "msgObj": "$p's protective aura fades."
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb904"
+  },
+  "name": "flamestrike",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 20,
+    "thief": 53,
+    "warrior": 27
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.flamestrike",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 65,
+  "minMana": 20,
+  "beats": 12,
+  "nounDamage": "flamestrike",
+  "msgOff": "!Flamestrike!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb905"
+  },
+  "name": "fly",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 10,
+    "cleric": 18,
+    "thief": 20,
+    "warrior": 22
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.fly",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "STANDING",
+  "slot": 56,
+  "minMana": 10,
+  "beats": 18,
+  "nounDamage": "",
+  "msgOff": "You slowly float to the ground.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb906"
+  },
+  "name": "floating disc",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 4,
+    "cleric": 10,
+    "thief": 7,
+    "warrior": 16
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.floating_disc",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 522,
+  "minMana": 40,
+  "beats": 24,
+  "nounDamage": "",
+  "msgOff": "!Floating disc!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb907"
+  },
+  "name": "frenzy",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 24,
+    "thief": 53,
+    "warrior": 26
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.frenzy",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "STANDING",
+  "slot": 504,
+  "minMana": 30,
+  "beats": 24,
+  "nounDamage": "",
+  "msgOff": "Your rage ebbs.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb908"
+  },
+  "name": "gate",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 27,
+    "cleric": 17,
+    "thief": 32,
+    "warrior": 28
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.gate",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 83,
+  "minMana": 80,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Gate!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb909"
+  },
+  "name": "giant strength",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 11,
+    "cleric": 53,
+    "thief": 22,
+    "warrior": 20
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.giant_strength",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "STANDING",
+  "slot": 39,
+  "minMana": 20,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "You feel weaker.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb90a"
+  },
+  "name": "harm",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 23,
+    "thief": 53,
+    "warrior": 28
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.harm",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 27,
+  "minMana": 35,
+  "beats": 12,
+  "nounDamage": "harm spell",
+  "msgOff": "!Harm!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb90b"
+  },
+  "name": "haste",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 21,
+    "cleric": 53,
+    "thief": 26,
+    "warrior": 29
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.haste",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 502,
+  "minMana": 30,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "You feel yourself slow down.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb90c"
+  },
+  "name": "heal",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 21,
+    "thief": 33,
+    "warrior": 30
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.heal",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 28,
+  "minMana": 50,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Heal!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb90d"
+  },
+  "name": "heat metal",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 16,
+    "thief": 53,
+    "warrior": 23
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.heat_metal",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 516,
+  "minMana": 25,
+  "beats": 18,
+  "nounDamage": "spell",
+  "msgOff": "!Heat Metal!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb90e"
+  },
+  "name": "holy word",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 36,
+    "thief": 53,
+    "warrior": 42
+  },
+  "ratingByClass": {
+    "mage": 2,
+    "cleric": 2,
+    "thief": 4,
+    "warrior": 4
+  },
+  "handlerId": "spell.holy_word",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 506,
+  "minMana": 200,
+  "beats": 24,
+  "nounDamage": "divine wrath",
+  "msgOff": "!Holy Word!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb90f"
+  },
+  "name": "identify",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 15,
+    "cleric": 16,
+    "thief": 18,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.identify",
+  "target": "OBJ_INV",
+  "minPosition": "STANDING",
+  "slot": 53,
+  "minMana": 12,
+  "beats": 24,
+  "nounDamage": "",
+  "msgOff": "!Identify!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb910"
+  },
+  "name": "infravision",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 9,
+    "cleric": 13,
+    "thief": 10,
+    "warrior": 16
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.infravision",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "STANDING",
+  "slot": 77,
+  "minMana": 5,
+  "beats": 18,
+  "nounDamage": "",
+  "msgOff": "You no longer see in the dark.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb911"
+  },
+  "name": "invisibility",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 5,
+    "cleric": 53,
+    "thief": 9,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.invis",
+  "target": "OBJ_CHAR_DEF",
+  "minPosition": "STANDING",
+  "slot": 29,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "You are no longer invisible.",
+  "msgObj": "$p fades into view."
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb912"
+  },
+  "name": "know alignment",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 12,
+    "cleric": 9,
+    "thief": 20,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.know_alignment",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 58,
+  "minMana": 9,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Know Alignment!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb913"
+  },
+  "name": "lightning bolt",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 13,
+    "cleric": 23,
+    "thief": 18,
+    "warrior": 16
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.lightning_bolt",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 30,
+  "minMana": 15,
+  "beats": 12,
+  "nounDamage": "lightning bolt",
+  "msgOff": "!Lightning Bolt!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb914"
+  },
+  "name": "locate object",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 9,
+    "cleric": 15,
+    "thief": 11,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.locate_object",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 31,
+  "minMana": 20,
+  "beats": 18,
+  "nounDamage": "",
+  "msgOff": "!Locate Object!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb915"
+  },
+  "name": "magic missile",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 1,
+    "cleric": 53,
+    "thief": 2,
+    "warrior": 2
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.magic_missile",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 32,
+  "minMana": 15,
+  "beats": 12,
+  "nounDamage": "magic missile",
+  "msgOff": "!Magic Missile!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb916"
+  },
+  "name": "mass healing",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 38,
+    "thief": 53,
+    "warrior": 46
+  },
+  "ratingByClass": {
+    "mage": 2,
+    "cleric": 2,
+    "thief": 4,
+    "warrior": 4
+  },
+  "handlerId": "spell.mass_healing",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 508,
+  "minMana": 100,
+  "beats": 36,
+  "nounDamage": "",
+  "msgOff": "!Mass Healing!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb917"
+  },
+  "name": "mass invis",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 22,
+    "cleric": 25,
+    "thief": 31,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.mass_invis",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 69,
+  "minMana": 20,
+  "beats": 24,
+  "nounDamage": "",
+  "msgOff": "You are no longer invisible.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb918"
+  },
+  "name": "nexus",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 40,
+    "cleric": 35,
+    "thief": 50,
+    "warrior": 45
+  },
+  "ratingByClass": {
+    "mage": 2,
+    "cleric": 2,
+    "thief": 4,
+    "warrior": 4
+  },
+  "handlerId": "spell.nexus",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 520,
+  "minMana": 150,
+  "beats": 36,
+  "nounDamage": "",
+  "msgOff": "!Nexus!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb919"
+  },
+  "name": "pass door",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 24,
+    "cleric": 32,
+    "thief": 25,
+    "warrior": 37
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.pass_door",
+  "target": "CHAR_SELF",
+  "minPosition": "STANDING",
+  "slot": 74,
+  "minMana": 20,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "You feel solid again.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb91a"
+  },
+  "name": "plague",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 23,
+    "cleric": 17,
+    "thief": 36,
+    "warrior": 26
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.plague",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 503,
+  "minMana": 20,
+  "beats": 12,
+  "nounDamage": "sickness",
+  "msgOff": "Your sores vanish.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb91b"
+  },
+  "name": "poison",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 17,
+    "cleric": 12,
+    "thief": 15,
+    "warrior": 21
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.poison",
+  "target": "OBJ_CHAR_OFF",
+  "minPosition": "FIGHTING",
+  "slot": 33,
+  "minMana": 10,
+  "beats": 12,
+  "nounDamage": "poison",
+  "msgOff": "You feel less sick.",
+  "msgObj": "The poison on $p dries up."
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb91c"
+  },
+  "name": "portal",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 35,
+    "cleric": 30,
+    "thief": 45,
+    "warrior": 40
+  },
+  "ratingByClass": {
+    "mage": 2,
+    "cleric": 2,
+    "thief": 4,
+    "warrior": 4
+  },
+  "handlerId": "spell.portal",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 519,
+  "minMana": 100,
+  "beats": 24,
+  "nounDamage": "",
+  "msgOff": "!Portal!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb91d"
+  },
+  "name": "protection evil",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 12,
+    "cleric": 9,
+    "thief": 17,
+    "warrior": 11
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.protection_evil",
+  "target": "CHAR_SELF",
+  "minPosition": "STANDING",
+  "slot": 34,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "You feel less protected.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb91e"
+  },
+  "name": "protection good",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 12,
+    "cleric": 9,
+    "thief": 17,
+    "warrior": 11
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.protection_good",
+  "target": "CHAR_SELF",
+  "minPosition": "STANDING",
+  "slot": 514,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "You feel less protected.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb91f"
+  },
+  "name": "ray of truth",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 35,
+    "thief": 53,
+    "warrior": 47
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.ray_of_truth",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 518,
+  "minMana": 20,
+  "beats": 12,
+  "nounDamage": "ray of truth",
+  "msgOff": "!Ray of Truth!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb920"
+  },
+  "name": "recharge",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 9,
+    "cleric": 53,
+    "thief": 53,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.recharge",
+  "target": "OBJ_INV",
+  "minPosition": "STANDING",
+  "slot": 517,
+  "minMana": 60,
+  "beats": 24,
+  "nounDamage": "",
+  "msgOff": "!Recharge!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb921"
+  },
+  "name": "refresh",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 8,
+    "cleric": 5,
+    "thief": 12,
+    "warrior": 9
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.refresh",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "STANDING",
+  "slot": 81,
+  "minMana": 12,
+  "beats": 18,
+  "nounDamage": "refresh",
+  "msgOff": "!Refresh!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb922"
+  },
+  "name": "remove curse",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 18,
+    "thief": 53,
+    "warrior": 22
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.remove_curse",
+  "target": "OBJ_CHAR_DEF",
+  "minPosition": "STANDING",
+  "slot": 35,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Remove Curse!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb923"
+  },
+  "name": "sanctuary",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 36,
+    "cleric": 20,
+    "thief": 42,
+    "warrior": 30
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.sanctuary",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "STANDING",
+  "slot": 36,
+  "minMana": 75,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "The white aura around your body fades.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb924"
+  },
+  "name": "shield",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 20,
+    "cleric": 35,
+    "thief": 35,
+    "warrior": 40
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.shield",
+  "target": "CHAR_DEFENSIVE",
+  "minPosition": "STANDING",
+  "slot": 67,
+  "minMana": 12,
+  "beats": 18,
+  "nounDamage": "",
+  "msgOff": "Your force shield shimmers then fades away.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb925"
+  },
+  "name": "shocking grasp",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 10,
+    "cleric": 53,
+    "thief": 14,
+    "warrior": 13
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.shocking_grasp",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 53,
+  "minMana": 15,
+  "beats": 12,
+  "nounDamage": "shocking grasp",
+  "msgOff": "!Shocking Grasp!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb926"
+  },
+  "name": "sleep",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 10,
+    "cleric": 53,
+    "thief": 11,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.sleep",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "STANDING",
+  "slot": 38,
+  "minMana": 15,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "You feel less tired.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb927"
+  },
+  "name": "slow",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 23,
+    "cleric": 30,
+    "thief": 29,
+    "warrior": 32
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.slow",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 515,
+  "minMana": 30,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "You feel yourself speed up.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb928"
+  },
+  "name": "stone skin",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 25,
+    "cleric": 40,
+    "thief": 40,
+    "warrior": 45
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.stone_skin",
+  "target": "CHAR_SELF",
+  "minPosition": "STANDING",
+  "slot": 66,
+  "minMana": 12,
+  "beats": 18,
+  "nounDamage": "",
+  "msgOff": "Your skin feels soft again.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb929"
+  },
+  "name": "summon",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 24,
+    "cleric": 12,
+    "thief": 29,
+    "warrior": 22
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.summon",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 40,
+  "minMana": 50,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Summon!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb92a"
+  },
+  "name": "teleport",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 13,
+    "cleric": 22,
+    "thief": 25,
+    "warrior": 36
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.teleport",
+  "target": "CHAR_SELF",
+  "minPosition": "FIGHTING",
+  "slot": 2,
+  "minMana": 35,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Teleport!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb92b"
+  },
+  "name": "ventriloquate",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 1,
+    "cleric": 53,
+    "thief": 2,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.ventriloquate",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 41,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Ventriloquate!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb92c"
+  },
+  "name": "weaken",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 11,
+    "cleric": 14,
+    "thief": 16,
+    "warrior": 17
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.weaken",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 68,
+  "minMana": 20,
+  "beats": 12,
+  "nounDamage": "spell",
+  "msgOff": "You feel stronger.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb92d"
+  },
+  "name": "word of recall",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 32,
+    "cleric": 28,
+    "thief": 40,
+    "warrior": 30
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.word_of_recall",
+  "target": "CHAR_SELF",
+  "minPosition": "RESTING",
+  "slot": 42,
+  "minMana": 5,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Word of Recall!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb92e"
+  },
+  "name": "acid breath",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 31,
+    "cleric": 32,
+    "thief": 33,
+    "warrior": 34
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.acid_breath",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 200,
+  "minMana": 100,
+  "beats": 24,
+  "nounDamage": "blast of acid",
+  "msgOff": "!Acid Breath!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb92f"
+  },
+  "name": "fire breath",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 40,
+    "cleric": 45,
+    "thief": 50,
+    "warrior": 51
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.fire_breath",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 201,
+  "minMana": 200,
+  "beats": 24,
+  "nounDamage": "blast of flame",
+  "msgOff": "The smoke leaves your eyes.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb930"
+  },
+  "name": "frost breath",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 34,
+    "cleric": 36,
+    "thief": 38,
+    "warrior": 40
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.frost_breath",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 202,
+  "minMana": 125,
+  "beats": 24,
+  "nounDamage": "blast of frost",
+  "msgOff": "!Frost Breath!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb931"
+  },
+  "name": "gas breath",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 39,
+    "cleric": 43,
+    "thief": 47,
+    "warrior": 50
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.gas_breath",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 203,
+  "minMana": 175,
+  "beats": 24,
+  "nounDamage": "blast of gas",
+  "msgOff": "!Gas Breath!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb932"
+  },
+  "name": "lightning breath",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 37,
+    "cleric": 40,
+    "thief": 43,
+    "warrior": 46
+  },
+  "ratingByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.lightning_breath",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 204,
+  "minMana": 150,
+  "beats": 24,
+  "nounDamage": "blast of lightning",
+  "msgOff": "!Lightning Breath!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb933"
+  },
+  "name": "general purpose",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 53,
+    "thief": 53,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 0,
+    "cleric": 0,
+    "thief": 0,
+    "warrior": 0
+  },
+  "handlerId": "spell.general_purpose",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 401,
+  "minMana": 0,
+  "beats": 12,
+  "nounDamage": "general purpose ammo",
+  "msgOff": "!General Purpose Ammo!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb934"
+  },
+  "name": "high explosive",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 53,
+    "thief": 53,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 0,
+    "cleric": 0,
+    "thief": 0,
+    "warrior": 0
+  },
+  "handlerId": "spell.high_explosive",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 402,
+  "minMana": 0,
+  "beats": 12,
+  "nounDamage": "high explosive ammo",
+  "msgOff": "!High Explosive Ammo!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb935"
+  },
+  "name": "axe",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 1,
+    "warrior": 1
+  },
+  "ratingByClass": {
+    "mage": 6,
+    "cleric": 6,
+    "thief": 5,
+    "warrior": 4
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "!Axe!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb936"
+  },
+  "name": "dagger",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 1,
+    "warrior": 1
+  },
+  "ratingByClass": {
+    "mage": 2,
+    "cleric": 3,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "!Dagger!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb937"
+  },
+  "name": "flail",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 1,
+    "warrior": 1
+  },
+  "ratingByClass": {
+    "mage": 6,
+    "cleric": 3,
+    "thief": 6,
+    "warrior": 4
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "!Flail!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb938"
+  },
+  "name": "mace",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 1,
+    "warrior": 1
+  },
+  "ratingByClass": {
+    "mage": 5,
+    "cleric": 2,
+    "thief": 3,
+    "warrior": 3
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "!Mace!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb939"
+  },
+  "name": "polearm",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 1,
+    "warrior": 1
+  },
+  "ratingByClass": {
+    "mage": 6,
+    "cleric": 6,
+    "thief": 6,
+    "warrior": 4
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "!Polearm!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb93a"
+  },
+  "name": "shield block",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 1,
+    "warrior": 1
+  },
+  "ratingByClass": {
+    "mage": 6,
+    "cleric": 4,
+    "thief": 6,
+    "warrior": 2
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "!Shield!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb93b"
+  },
+  "name": "spear",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 1,
+    "warrior": 1
+  },
+  "ratingByClass": {
+    "mage": 4,
+    "cleric": 4,
+    "thief": 4,
+    "warrior": 3
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "!Spear!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb93c"
+  },
+  "name": "sword",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 1,
+    "warrior": 1
+  },
+  "ratingByClass": {
+    "mage": 5,
+    "cleric": 6,
+    "thief": 3,
+    "warrior": 2
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "!Sword!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb93d"
+  },
+  "name": "whip",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 1,
+    "warrior": 1
+  },
+  "ratingByClass": {
+    "mage": 6,
+    "cleric": 5,
+    "thief": 5,
+    "warrior": 4
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "!Whip!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb93e"
+  },
+  "name": "backstab",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 53,
+    "thief": 1,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 0,
+    "cleric": 0,
+    "thief": 5,
+    "warrior": 0
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 24,
+  "nounDamage": "backstab",
+  "msgOff": "!Backstab!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb93f"
+  },
+  "name": "bash",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 53,
+    "thief": 53,
+    "warrior": 1
+  },
+  "ratingByClass": {
+    "mage": 0,
+    "cleric": 0,
+    "thief": 0,
+    "warrior": 4
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 24,
+  "nounDamage": "bash",
+  "msgOff": "!Bash!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb940"
+  },
+  "name": "berserk",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 53,
+    "thief": 53,
+    "warrior": 18
+  },
+  "ratingByClass": {
+    "mage": 0,
+    "cleric": 0,
+    "thief": 0,
+    "warrior": 5
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 24,
+  "nounDamage": "",
+  "msgOff": "You feel your pulse slow down.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb941"
+  },
+  "name": "dirt kicking",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 53,
+    "thief": 3,
+    "warrior": 3
+  },
+  "ratingByClass": {
+    "mage": 0,
+    "cleric": 0,
+    "thief": 4,
+    "warrior": 4
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 24,
+  "nounDamage": "kicked dirt",
+  "msgOff": "You rub the dirt out of your eyes.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb942"
+  },
+  "name": "disarm",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 53,
+    "thief": 12,
+    "warrior": 11
+  },
+  "ratingByClass": {
+    "mage": 0,
+    "cleric": 0,
+    "thief": 6,
+    "warrior": 4
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 24,
+  "nounDamage": "",
+  "msgOff": "!Disarm!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb943"
+  },
+  "name": "dodge",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 20,
+    "cleric": 22,
+    "thief": 1,
+    "warrior": 13
+  },
+  "ratingByClass": {
+    "mage": 8,
+    "cleric": 8,
+    "thief": 4,
+    "warrior": 6
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "!Dodge!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb944"
+  },
+  "name": "enhanced damage",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 45,
+    "cleric": 30,
+    "thief": 25,
+    "warrior": 1
+  },
+  "ratingByClass": {
+    "mage": 10,
+    "cleric": 9,
+    "thief": 5,
+    "warrior": 3
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "!Enhanced Damage!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb945"
+  },
+  "name": "envenom",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 53,
+    "thief": 10,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 0,
+    "cleric": 0,
+    "thief": 4,
+    "warrior": 0
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "RESTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 36,
+  "nounDamage": "",
+  "msgOff": "!Envenom!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb946"
+  },
+  "name": "hand to hand",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 25,
+    "cleric": 10,
+    "thief": 15,
+    "warrior": 6
+  },
+  "ratingByClass": {
+    "mage": 8,
+    "cleric": 5,
+    "thief": 6,
+    "warrior": 4
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "!Hand to Hand!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb947"
+  },
+  "name": "kick",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 12,
+    "thief": 14,
+    "warrior": 8
+  },
+  "ratingByClass": {
+    "mage": 0,
+    "cleric": 4,
+    "thief": 6,
+    "warrior": 3
+  },
+  "handlerId": "spell.none",
+  "target": "CHAR_OFFENSIVE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 12,
+  "nounDamage": "kick",
+  "msgOff": "!Kick!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb948"
+  },
+  "name": "parry",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 22,
+    "cleric": 20,
+    "thief": 13,
+    "warrior": 1
+  },
+  "ratingByClass": {
+    "mage": 8,
+    "cleric": 8,
+    "thief": 6,
+    "warrior": 4
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "!Parry!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb949"
+  },
+  "name": "rescue",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 53,
+    "thief": 53,
+    "warrior": 1
+  },
+  "ratingByClass": {
+    "mage": 0,
+    "cleric": 0,
+    "thief": 0,
+    "warrior": 4
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Rescue!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb94a"
+  },
+  "name": "trip",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 53,
+    "thief": 1,
+    "warrior": 15
+  },
+  "ratingByClass": {
+    "mage": 0,
+    "cleric": 0,
+    "thief": 4,
+    "warrior": 8
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 24,
+  "nounDamage": "trip",
+  "msgOff": "!Trip!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb94b"
+  },
+  "name": "second attack",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 30,
+    "cleric": 24,
+    "thief": 12,
+    "warrior": 5
+  },
+  "ratingByClass": {
+    "mage": 10,
+    "cleric": 8,
+    "thief": 5,
+    "warrior": 3
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "!Second Attack!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb94c"
+  },
+  "name": "third attack",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 53,
+    "thief": 24,
+    "warrior": 12
+  },
+  "ratingByClass": {
+    "mage": 0,
+    "cleric": 0,
+    "thief": 10,
+    "warrior": 4
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "FIGHTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "!Third Attack!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb94d"
+  },
+  "name": "fast healing",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 15,
+    "cleric": 9,
+    "thief": 16,
+    "warrior": 6
+  },
+  "ratingByClass": {
+    "mage": 8,
+    "cleric": 5,
+    "thief": 6,
+    "warrior": 4
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "SLEEPING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "!Fast Healing!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb94e"
+  },
+  "name": "haggle",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 7,
+    "cleric": 18,
+    "thief": 1,
+    "warrior": 14
+  },
+  "ratingByClass": {
+    "mage": 5,
+    "cleric": 8,
+    "thief": 3,
+    "warrior": 6
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "RESTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "!Haggle!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb94f"
+  },
+  "name": "hide",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 53,
+    "thief": 1,
+    "warrior": 12
+  },
+  "ratingByClass": {
+    "mage": 0,
+    "cleric": 0,
+    "thief": 4,
+    "warrior": 6
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "RESTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Hide!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb950"
+  },
+  "name": "lore",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 10,
+    "cleric": 10,
+    "thief": 6,
+    "warrior": 20
+  },
+  "ratingByClass": {
+    "mage": 6,
+    "cleric": 6,
+    "thief": 4,
+    "warrior": 8
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "RESTING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 36,
+  "nounDamage": "",
+  "msgOff": "!Lore!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb951"
+  },
+  "name": "meditation",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 6,
+    "cleric": 6,
+    "thief": 15,
+    "warrior": 15
+  },
+  "ratingByClass": {
+    "mage": 5,
+    "cleric": 5,
+    "thief": 8,
+    "warrior": 8
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "SLEEPING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "Meditation",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb952"
+  },
+  "name": "peek",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 8,
+    "cleric": 21,
+    "thief": 1,
+    "warrior": 14
+  },
+  "ratingByClass": {
+    "mage": 5,
+    "cleric": 7,
+    "thief": 3,
+    "warrior": 6
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 0,
+  "nounDamage": "",
+  "msgOff": "!Peek!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb953"
+  },
+  "name": "pick lock",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 25,
+    "cleric": 25,
+    "thief": 7,
+    "warrior": 25
+  },
+  "ratingByClass": {
+    "mage": 8,
+    "cleric": 8,
+    "thief": 4,
+    "warrior": 8
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Pick!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb954"
+  },
+  "name": "sneak",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 53,
+    "thief": 4,
+    "warrior": 10
+  },
+  "ratingByClass": {
+    "mage": 0,
+    "cleric": 0,
+    "thief": 4,
+    "warrior": 6
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "You no longer feel stealthy.",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb955"
+  },
+  "name": "steal",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 53,
+    "cleric": 53,
+    "thief": 5,
+    "warrior": 53
+  },
+  "ratingByClass": {
+    "mage": 0,
+    "cleric": 0,
+    "thief": 4,
+    "warrior": 0
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 24,
+  "nounDamage": "",
+  "msgOff": "!Steal!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb956"
+  },
+  "name": "scrolls",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 1,
+    "warrior": 1
+  },
+  "ratingByClass": {
+    "mage": 2,
+    "cleric": 3,
+    "thief": 5,
+    "warrior": 8
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 24,
+  "nounDamage": "",
+  "msgOff": "!Scrolls!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb957"
+  },
+  "name": "staves",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 1,
+    "warrior": 1
+  },
+  "ratingByClass": {
+    "mage": 2,
+    "cleric": 3,
+    "thief": 5,
+    "warrior": 8
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Staves!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb958"
+  },
+  "name": "wands",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 1,
+    "warrior": 1
+  },
+  "ratingByClass": {
+    "mage": 2,
+    "cleric": 3,
+    "thief": 5,
+    "warrior": 8
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Wands!",
+  "msgObj": ""
+},
+{
+  "_id": {
+    "$oid": "69bac4dcaf6857ce485bb959"
+  },
+  "name": "recall",
+  "kind": "skill",
+  "levelByClass": {
+    "mage": 1,
+    "cleric": 1,
+    "thief": 1,
+    "warrior": 1
+  },
+  "ratingByClass": {
+    "mage": 2,
+    "cleric": 2,
+    "thief": 2,
+    "warrior": 2
+  },
+  "handlerId": "spell.none",
+  "target": "IGNORE",
+  "minPosition": "STANDING",
+  "slot": 0,
+  "minMana": 0,
+  "beats": 12,
+  "nounDamage": "",
+  "msgOff": "!Recall!",
+  "msgObj": ""
+}]

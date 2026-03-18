@@ -94,8 +94,8 @@ class MudServer:
         self.injector.get(PlayerService)
         self.injector.get(RoomService)
         self.injector.get(AreaService)
-        self.injector.get(ItemService)
         self.injector.get(SkillService)
+        self.injector.get(ItemService)
 
         game_service.set_weather_service(self.injector.get(WeatherService))
         game_service.start_mobile_service(self.injector.get(MobileService))

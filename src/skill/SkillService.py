@@ -20,7 +20,7 @@ class SkillService:
 
     def get_skill_by_name(self, skill_name) -> Skill | None:
         for skill in self.all_skills.values():
-            if skill['name'] == skill_name:
+            if skill.name == skill_name:
                 return skill
         return None
 
@@ -30,6 +30,6 @@ class SkillService:
             response = requests.get(url)
             skills = response.json()
             for skill in skills:
-                self.all_skills[skill['id']] = skill
+                self.all_skills[skill['id']] = Skill.from_json(skill)
         except Exception as e:
             self.logger.error("Failed to load skills: " + str(e))

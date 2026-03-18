@@ -5,18 +5,20 @@ from game import GameService
 from object.Item import Item
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
+from skill.SkillService import SkillService
 
 
 class ItemService:
     @inject
-    def __init__(self, config: ServiceConfig, game_service: GameService):
+    def __init__(self, config: ServiceConfig, game_service: GameService, skill_service: SkillService):
         self.__name__ = "ItemService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.items_endpoint = config.items_endpoint
         self.game_service = game_service
+        self.skill_service = skill_service
         self.all_items = {}
         self.load_items()
-        self.logger.info("Initialized ObjectService instance with a total of "+str(len(self.all_items))+" in memory.")
+        self.logger.info("Initialized ItemService instance with a total of "+str(len(self.all_items))+" in memory.")
 
     def return_item_by_id(self, item_id):
         return self.all_items[item_id]
@@ -32,7 +34,9 @@ class ItemService:
     def load_items(self):
         try:
             all_items = requests.get(self.items_endpoint).json()
+            i = 0
             for item_data in all_items:
+                i = i + 1
                 item_id = item_data['id']
                 item = self._normalize_item_data(item_data)
                 self.all_items[item_id] = item
@@ -53,23 +57,32 @@ class ItemService:
         elif item_type == item_types.ITEM_CONTAINER:
             self._update_container(item_data)
         elif item_type == item_types.ITEM_FOUNTAIN:
-            self._update_fountain()
+            self._update_fountain(item_data)
         elif item_type == item_types.ITEM_STAFF:
-            self._update_staff()
+            self._update_staff(item_data)
         elif item_type == item_types.ITEM_SCROLL:
-            self._update_scroll()
-
-    def _update_container(self, item_data):
-        pass
+            self._update_scroll(item_data)
 
     def _update_fountain(self, item_data):
         self._liq_lookup(item_data)
 
-    def _update_staff(self):
-        pass
+    def _update_staff(self, item_data):
+        try:
+            skill_name = item_data['value3']
+            skill = self.skill_service.get_skill_by_name(skill_name)
+            item_data['value3'] = str(skill)
+        except Exception as e:
+            print(f"Failed to update staff skill: {e}")
 
-    def _update_scroll(self):
-        pass
+    def _update_scroll(self, item_data):
+        for skill_key in ['value1', 'value2', 'value3', 'value4']:
+            try:
+                skill_name = item_data[skill_key]
+                if skill_name != "":
+                    skill = self.skill_service.get_skill_by_name(skill_name)
+                    item_data[skill_key] = str(skill)
+            except Exception as e:
+                print(f"Failed to update scroll skill: {e}")
 
     # even if it's slower, it still loads all in the same second
     def _attack_type(self, item_data):
@@ -107,9 +120,6 @@ class ItemService:
         liquid_color = liquid['color']
         item_data['liquid_affect_data'] = liquid_affect_data
         item_data['liquid_color'] = liquid_color
-
-    def _skill_lookup(self):
-        pass
 
     @staticmethod
     def _update_condition(item_data):

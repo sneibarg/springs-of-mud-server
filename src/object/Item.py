@@ -32,6 +32,7 @@ class Item:
     extra_descr: list
     damage_type: Optional[str] = None
     weapon_type: Optional[str] = None
+    liquid_color: Optional[str] = None
     liquid_affect_data: Optional[list] = None
 
     def __post_init__(self):

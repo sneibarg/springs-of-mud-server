@@ -1,4 +1,7 @@
+import json
+
 from dataclasses import dataclass
+from server.ServerUtil import ServerUtil
 
 
 @dataclass
@@ -13,7 +16,14 @@ class Skill:
     msg_off: str
     msg_obj: str
     level_by_class: dict[str, int]
-    level_by_rating: dict[str, int]
+    rating_by_class: dict[str, int]
     slot: int
     min_mana: int
     beats: int
+
+    @classmethod
+    def from_json(cls, data) -> Skill:
+        if isinstance(data, str):
+            data = json.loads(data)
+        data = ServerUtil.camel_to_snake_case(data)
+        return cls(**data)
