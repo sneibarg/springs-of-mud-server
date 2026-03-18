@@ -23,6 +23,7 @@ class GameService:
         self.mobile_service = None
         self.game_data_endpoint = config.game_data_endpoint
         self.game_data = self._load_game_data()
+        self.enums = dict()
         self._load_enums()
         self.last_time: TimeVal = gettimeofday()
 
@@ -57,7 +58,6 @@ class GameService:
             raise RuntimeError(f"Failed to load game data: {e}")
 
     def _load_enums(self):
-        self.enums = {}
         for enum_name in self.game_data.enums:
             member_list = self.game_data.enums[enum_name]
             if enum_name == "positions":

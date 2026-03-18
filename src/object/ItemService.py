@@ -62,8 +62,8 @@ class ItemService:
     def _update_container(self, item_data):
         pass
 
-    def _update_fountain(self):
-        pass
+    def _update_fountain(self, item_data):
+        self._liq_lookup(item_data)
 
     def _update_staff(self):
         pass

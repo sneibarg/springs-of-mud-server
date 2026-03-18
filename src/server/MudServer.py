@@ -16,6 +16,7 @@ from server.session import AuthenticationService, SessionHandler
 from server.connection import ConnectionManager
 from server.messaging import MessageBus
 from server.ServiceConfig import ServiceConfig
+from skill import SkillService
 from update import WeatherService
 
 
@@ -24,7 +25,7 @@ class MudServer:
         self.__name__ = "MudServer"
         self.logger = logger_factory.get_logger(self.__name__)
         self.config = config
-        self.injector = Injector()
+        self.injector: Injector = Injector()
         self.player_one = None
         self.account_list = None
         self.character_list = None
@@ -34,6 +35,7 @@ class MudServer:
         self.modulith_port = config['mudserver']['modulith_port']
         self.service_endpoints = config['mudserver']['services']['endpoints']
         self.player_service_class = PlayerService
+        self.service_config: ServiceConfig = self._load_service_config()
         self._configure_server()
         self.connection_handler = self.injector.get(ConnectionHandler)
 
@@ -86,8 +88,21 @@ class MudServer:
         self.character_list = self.player_service.get_characters()
 
     def _start_services(self):
-        service_config: ServiceConfig = self._load_service_config()
-        self.injector.binder.bind(ServiceConfig, to=service_config, scope=singleton)
+        self._bind_services()
+
+        game_service = self.injector.get(GameService)
+        self.injector.get(PlayerService)
+        self.injector.get(RoomService)
+        self.injector.get(AreaService)
+        self.injector.get(ItemService)
+        self.injector.get(SkillService)
+
+        game_service.set_weather_service(self.injector.get(WeatherService))
+        game_service.start_mobile_service(self.injector.get(MobileService))
+
+    def _bind_services(self):
+        self.injector.binder.bind(ServiceConfig, to=self.service_config, scope=singleton)
+        self.injector.binder.bind(SkillService, scope=singleton)
         self.injector.binder.bind(RegistryService, scope=singleton)
         self.injector.binder.bind(EventHandler, scope=singleton)
         self.injector.binder.bind(PlayerService, scope=singleton)
@@ -105,15 +120,6 @@ class MudServer:
         self.injector.binder.bind(GameData, to=self.injector.get(GameService).game_data, scope=singleton)
         self.injector.binder.bind(RoomService, scope=singleton)
         self.injector.binder.bind(WeatherService, scope=singleton)
-
-        game_service = self.injector.get(GameService)
-        self.injector.get(PlayerService)
-        self.injector.get(RoomService)
-        self.injector.get(AreaService)
-        self.injector.get(ItemService)
-
-        game_service.set_weather_service(self.injector.get(WeatherService))
-        game_service.start_mobile_service(self.injector.get(MobileService))
 
     def _load_player_one(self):
         try:
@@ -139,5 +145,6 @@ class MudServer:
             rooms_endpoint=self._construct_service_endpoint('rooms_endpoint'),
             areas_endpoint=self._construct_service_endpoint('areas_endpoint'),
             items_endpoint=self._construct_service_endpoint('items_endpoint'),
-            mobiles_endpoint=self._construct_service_endpoint('mobiles_endpoint')
+            mobiles_endpoint=self._construct_service_endpoint('mobiles_endpoint'),
+            skills_endpoint=self._construct_service_endpoint('skills_endpoint')
         )
