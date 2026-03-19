@@ -20,4 +20,4 @@ class AffectData:
     duration: int
     location: int
     modifier: int
-    bitvector: int
+    bitvector: int  # The bitvector flags determine which effect bits are set (like AFF_DETECT_INVIS, AFF_SANCTUARY, etc.)
