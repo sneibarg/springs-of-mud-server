@@ -3,12 +3,12 @@ from enum import Enum
 
 
 class AffectWhere(Enum):
-    TO_AFFECTS = 0
-    TO_OBJECT = 1
-    TO_IMMUNE = 2
-    TO_RESIST = 3
-    TO_VULN = 4
-    TO_WEAPON = 5
+    TO_AFFECTS = 0  # applies effect/spell to the character
+    TO_OBJECT = 1  # modifies the object's base stats
+    TO_IMMUNE = 2  # applies immunity to the character
+    TO_RESIST = 3  # applies resistance to the character
+    TO_VULN = 4  # applies vulnerability to the character
+    TO_WEAPON = 5  # modifies the weapon's base stats
 
 
 @dataclass

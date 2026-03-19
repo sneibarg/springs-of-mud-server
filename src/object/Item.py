@@ -1,7 +1,7 @@
 import json
 
 from dataclasses import dataclass
-from typing import Optional, Tuple, List
+from typing import Optional, List
 from object import ExtraDescriptionData
 from object.AffectData import AffectData
 from server.ServerUtil import ServerUtil
@@ -49,13 +49,6 @@ class Item:
             data = json.loads(data)
         data = ServerUtil.camel_to_snake_case(data)
         return cls(**data)
-
-    # keyword - description
-    def get_extra_description(self) -> Tuple[str, str]:
-        return self.extra_descr[0], self.extra_descr[1]
-
-    def get_name(self):
-        return self.name
 
     def print_name(self, writer):
         msg = "\t" + self.name + "\r\n"
