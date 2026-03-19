@@ -1,7 +1,9 @@
 import json
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Tuple, List
+from object import ExtraDescriptionData
+from object.AffectData import AffectData
 from server.ServerUtil import ServerUtil
 from server.LoggerFactory import LoggerFactory
 
@@ -34,6 +36,8 @@ class Item:
     weapon_type: Optional[str] = None
     liquid_color: Optional[str] = None
     liquid_affect_data: Optional[list] = None
+    effects: Optional[List[AffectData]] = None
+    extra_description: Optional[ExtraDescriptionData] = None
 
     def __post_init__(self):
         self.__name__ = "Item"
@@ -45,6 +49,10 @@ class Item:
             data = json.loads(data)
         data = ServerUtil.camel_to_snake_case(data)
         return cls(**data)
+
+    # keyword - description
+    def get_extra_description(self) -> Tuple[str, str]:
+        return self.extra_descr[0], self.extra_descr[1]
 
     def get_name(self):
         return self.name

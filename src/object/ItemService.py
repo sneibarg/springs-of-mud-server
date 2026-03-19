@@ -2,6 +2,8 @@ import requests
 
 from injector import inject
 from game import GameService
+from object.AffectData import AffectData, AffectWhere
+from object.ExtraDescriptionData import ExtraDescriptionData
 from object.Item import Item
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
@@ -18,44 +20,45 @@ class ItemService:
         self.skill_service = skill_service
         self.all_items = {}
         self.load_items()
-        self.logger.info("Initialized ItemService instance with a total of "+str(len(self.all_items))+" in memory.")
+        self.logger.info("Initialized ItemService instance with a total of " + str(len(self.all_items)) + " in memory.")
 
     def return_item_by_id(self, item_id):
         return self.all_items[item_id]
 
     def get_item_by_id(self, item_id):
-        url = self.items_endpoint + "/" + item_id
         try:
-            return requests.get(url).json()
+            return requests.get(self.items_endpoint + "/" + item_id).json()
         except Exception as e:
-            self.logger.error("Failed to get item data: "+str(e))
+            self.logger.error("Failed to get item data: " + str(e))
         return None
 
     def load_items(self):
         try:
             all_items = requests.get(self.items_endpoint).json()
-            i = 0
             for item_data in all_items:
-                i = i + 1
                 item_id = item_data['id']
-                item = self._normalize_item_data(item_data)
-                self.all_items[item_id] = item
+                self.all_items[item_id] = self._normalize_item_data(item_data)
         except Exception as e:
-            self.logger.error("Failed to get items: "+str(e))
+            self.logger.error("Failed to get items: " + str(e))
         return None
 
     def _normalize_item_data(self, item_data) -> Item:
         self._update_item_type(item_data)
         self._update_condition(item_data)
-        return Item.from_json(item_data)
+
+        item = Item.from_json(item_data)
+        if len(item.affect_data) > 0:
+            item.effects = []
+            self._update_affect_data(item)
+
+        self._update_extra_descr(item)
+        return item
 
     def _update_item_type(self, item_data):
         item_types = self.game_service.enums['itemType']
         item_type = item_data.get("itemType")
         if item_type == item_types.ITEM_WEAPON:
             self._attack_type(item_data)
-        elif item_type == item_types.ITEM_CONTAINER:
-            self._update_container(item_data)
         elif item_type == item_types.ITEM_FOUNTAIN:
             self._update_fountain(item_data)
         elif item_type == item_types.ITEM_STAFF:
@@ -88,7 +91,8 @@ class ItemService:
     def _attack_type(self, item_data):
         damages_types = self.game_service.enums['damageType']
         damage_type = item_data['value3']
-        if damage_type in ['blast', 'pound', 'crush', 'suction', 'beating', 'charge', 'slap', 'punch', 'peckb', 'smash', 'thwack']:
+        if damage_type in ['blast', 'pound', 'crush', 'suction', 'beating', 'charge', 'slap', 'punch', 'peckb', 'smash',
+                           'thwack']:
             item_data['damage_type'] = damages_types.DAM_BASH
         elif damage_type in ['slash', 'whip', 'claw', 'grep', 'cleave', 'chop', 'slice']:
             item_data['damage_type'] = damages_types.DAM_SLASH
@@ -141,8 +145,33 @@ class ItemService:
         else:
             item_data["condition"] = "100"
 
-    def _update_affect_data(self):
-        pass
+    @staticmethod
+    def _update_affect_data(item: Item):
+        for affect in item.affect_data:
+            affect_elements = affect.split(",")
+            affect_data = AffectData(valid=True, where=-1, type=-1, level=item.level, duration=-1, location=-1, modifier=-1, bitvector=-1)
 
-    def _update_extra_descr(self):
-        pass
+            if affect_elements[0] == "A":
+                affect_data.where = AffectWhere.TO_OBJECT.value
+                affect_data.location = affect_elements[1]
+                affect_data.modifier = affect_elements[2]
+            elif affect_elements[0] == "F":
+                affect_data.location = affect_elements[2]
+                affect_data.modifier = affect_elements[3]
+                affect_data.bitvector = affect_elements[4]
+
+                if affect_elements[1] == "A":
+                    affect_data.where = AffectWhere.TO_AFFECTS.value
+                elif affect_elements[1] == "I":
+                    affect_data.where = AffectWhere.TO_IMMUNE.value
+                elif affect_elements[1] == "R":
+                    affect_data.where = AffectWhere.TO_RESIST.value
+                elif affect_elements[1] == "V":
+                    affect_data.where = AffectWhere.TO_VULN.value
+
+            item.effects.append(affect_data)
+
+    @staticmethod
+    def _update_extra_descr(item: Item):
+        if len(item.extra_descr) > 0:
+            item.extra_description = ExtraDescriptionData(valid=True, keyword=item.extra_descr[0], description=item.extra_descr[1])
