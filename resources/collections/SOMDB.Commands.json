@@ -2,8 +2,8 @@
   "_id": {
     "$oid": "673bf1dbb49d7223c66faa4e"
   },
-  "name": "disconnect",
-  "shortcuts": "discon, quit",
+  "name": "quit",
+  "shortcuts": "qui",
   "role": "player",
   "lambda": [
     "lambda c: c.writer.write(b\"See you next time.\\r\\n\")",
@@ -14,7 +14,10 @@
   "message": "%p has disconnected.",
   "function": [],
   "enabled": true,
-  "skillId": ""
+  "skillId": "",
+  "position": "POS_DEAD",
+  "level": 0,
+  "log": "LOG_NORMAL"
 },
 {
   "_id": {
@@ -30,7 +33,10 @@
   "message": "%p says '%m'",
   "function": [],
   "enabled": true,
-  "skillId": ""
+  "skillId": "",
+  "position": "POS_RESTING",
+  "level": 0,
+  "log": "LOG_NORMAL"
 },
 {
   "_id": {
@@ -47,6 +53,9 @@
   "function": [],
   "enabled": true,
   "skillId": "",
+  "position": "POS_RESTING",
+  "level": 0,
+  "log": "LOG_NORMAL",
   "usage": "lambda c, msg: c.writer.write(b\"Invalid target.\") if m.invalid_target(msg)"
 },
 {
@@ -62,7 +71,10 @@
   "message": "",
   "function": [],
   "enabled": true,
-  "skillId": ""
+  "skillId": "",
+  "position": "POS_DEAD",
+  "level": 0,
+  "log": "LOG_NORMAL"
 },
 {
   "_id": {
@@ -77,7 +89,10 @@
   "message": "",
   "function": [],
   "enabled": true,
-  "skillId": ""
+  "skillId": "",
+  "position": "POS_DEAD",
+  "level": 0,
+  "log": "LOG_NORMAL"
 },
 {
   "_id": {
@@ -93,6 +108,9 @@
   "function": [],
   "enabled": true,
   "skillId": "",
+  "position": "POS_RESTING",
+  "level": 0,
+  "log": "LOG_NORMAL",
   "usage": "lambda m: m.writer.write(b\"You must specify a valid item in your inventory.\\r\\n\")"
 },
 {
@@ -108,7 +126,10 @@
   "message": "",
   "function": [],
   "enabled": true,
-  "skillId": ""
+  "skillId": "",
+  "position": "POS_STANDING",
+  "level": 0,
+  "log": "LOG_NEVER"
 },
 {
   "_id": {
@@ -125,7 +146,10 @@
     ""
   ],
   "enabled": true,
-  "skillId": ""
+  "skillId": "",
+  "position": "POS_STANDING",
+  "level": 0,
+  "log": "LOG_NEVER"
 },
 {
   "_id": {
@@ -140,7 +164,10 @@
   "message": "%c has left the room, heading north.",
   "function": [],
   "enabled": true,
-  "skillId": ""
+  "skillId": "",
+  "position": "POS_STANDING",
+  "level": 0,
+  "log": "LOG_NEVER"
 },
 {
   "_id": {
@@ -155,7 +182,10 @@
   "message": "",
   "function": [],
   "enabled": true,
-  "skillId": ""
+  "skillId": "",
+  "position": "POS_STANDING",
+  "level": 0,
+  "log": "LOG_NEVER"
 },
 {
   "_id": {
@@ -170,7 +200,10 @@
   "message": "",
   "function": [],
   "enabled": true,
-  "skillId": ""
+  "skillId": "",
+  "position": "POS_RESTING",
+  "level": 0,
+  "log": "LOG_NORMAL"
 },
 {
   "_id": {
@@ -185,7 +218,10 @@
   "message": "",
   "function": [],
   "enabled": true,
-  "skillId": ""
+  "skillId": "",
+  "position": "POS_STANDING",
+  "level": 0,
+  "log": "LOG_NEVER"
 },
 {
   "_id": {
@@ -200,10 +236,15 @@
   "message": "",
   "function": [],
   "enabled": true,
-  "skillId": ""
-}
-  ,
+  "skillId": "",
+  "position": "POS_STANDING",
+  "level": 0,
+  "log": "LOG_NEVER"
+},
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb988"
+  },
   "name": "at",
   "shortcuts": "",
   "role": "immortal",
@@ -212,11 +253,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L6",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb989"
+  },
   "name": "cast",
   "shortcuts": "",
   "role": "player",
@@ -225,11 +269,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "FIGHTING",
+  "position": "POS_FIGHTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb98a"
+  },
   "name": "auction",
   "shortcuts": "",
   "role": "player",
@@ -238,11 +285,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb98b"
+  },
   "name": "buy",
   "shortcuts": "",
   "role": "player",
@@ -251,11 +301,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb98c"
+  },
   "name": "channels",
   "shortcuts": "",
   "role": "player",
@@ -264,11 +317,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb98d"
+  },
   "name": "exits",
   "shortcuts": "",
   "role": "player",
@@ -277,11 +333,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb98e"
+  },
   "name": "get",
   "shortcuts": "",
   "role": "player",
@@ -290,11 +349,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb98f"
+  },
   "name": "goto",
   "shortcuts": "",
   "role": "immortal",
@@ -303,11 +365,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L8",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb990"
+  },
   "name": "group",
   "shortcuts": "",
   "role": "player",
@@ -316,11 +381,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb991"
+  },
   "name": "guild",
   "shortcuts": "",
   "role": "immortal",
@@ -329,11 +397,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L4",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb992"
+  },
   "name": "hit",
   "shortcuts": "",
   "role": "player",
@@ -342,11 +413,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "FIGHTING",
+  "position": "POS_FIGHTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb993"
+  },
   "name": "kill",
   "shortcuts": "",
   "role": "player",
@@ -355,11 +429,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "FIGHTING",
+  "position": "POS_FIGHTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb994"
+  },
   "name": "clan",
   "shortcuts": "",
   "role": "player",
@@ -368,11 +445,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb995"
+  },
   "name": "music",
   "shortcuts": "",
   "role": "player",
@@ -381,11 +461,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb996"
+  },
   "name": "order",
   "shortcuts": "",
   "role": "player",
@@ -394,11 +477,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb997"
+  },
   "name": "practice",
   "shortcuts": "",
   "role": "player",
@@ -407,11 +493,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb998"
+  },
   "name": "rest",
   "shortcuts": "",
   "role": "player",
@@ -420,11 +509,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb999"
+  },
   "name": "sit",
   "shortcuts": "",
   "role": "player",
@@ -433,11 +525,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb99a"
+  },
   "name": "sockets",
   "shortcuts": "",
   "role": "immortal",
@@ -446,11 +541,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L4",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb99b"
+  },
   "name": "stand",
   "shortcuts": "",
   "role": "player",
@@ -459,11 +557,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb99c"
+  },
   "name": "unlock",
   "shortcuts": "",
   "role": "player",
@@ -472,11 +573,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb99d"
+  },
   "name": "wield",
   "shortcuts": "",
   "role": "player",
@@ -485,11 +589,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb99e"
+  },
   "name": "wizhelp",
   "shortcuts": "",
   "role": "immortal",
@@ -498,11 +605,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "IM",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb99f"
+  },
   "name": "affects",
   "shortcuts": "",
   "role": "player",
@@ -511,11 +621,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9a0"
+  },
   "name": "areas",
   "shortcuts": "",
   "role": "player",
@@ -524,11 +637,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9a1"
+  },
   "name": "bug",
   "shortcuts": "",
   "role": "player",
@@ -537,11 +653,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9a2"
+  },
   "name": "changes",
   "shortcuts": "",
   "role": "player",
@@ -550,11 +669,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9a3"
+  },
   "name": "commands",
   "shortcuts": "",
   "role": "player",
@@ -563,11 +685,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9a4"
+  },
   "name": "compare",
   "shortcuts": "",
   "role": "player",
@@ -576,11 +701,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9a5"
+  },
   "name": "consider",
   "shortcuts": "",
   "role": "player",
@@ -589,11 +717,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9a6"
+  },
   "name": "count",
   "shortcuts": "",
   "role": "player",
@@ -602,11 +733,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9a7"
+  },
   "name": "credits",
   "shortcuts": "",
   "role": "player",
@@ -615,11 +749,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9a8"
+  },
   "name": "equipment",
   "shortcuts": "",
   "role": "player",
@@ -628,11 +765,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9a9"
+  },
   "name": "help",
   "shortcuts": "",
   "role": "player",
@@ -641,11 +781,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9aa"
+  },
   "name": "idea",
   "shortcuts": "",
   "role": "player",
@@ -654,11 +797,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9ab"
+  },
   "name": "info",
   "shortcuts": "",
   "role": "player",
@@ -667,11 +813,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9ac"
+  },
   "name": "motd",
   "shortcuts": "",
   "role": "player",
@@ -680,11 +829,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9ad"
+  },
   "name": "news",
   "shortcuts": "",
   "role": "player",
@@ -693,11 +845,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9ae"
+  },
   "name": "read",
   "shortcuts": "",
   "role": "player",
@@ -706,11 +861,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9af"
+  },
   "name": "report",
   "shortcuts": "",
   "role": "player",
@@ -719,11 +877,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9b0"
+  },
   "name": "rules",
   "shortcuts": "",
   "role": "player",
@@ -732,11 +893,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9b1"
+  },
   "name": "score",
   "shortcuts": "",
   "role": "player",
@@ -745,11 +909,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9b2"
+  },
   "name": "skills",
   "shortcuts": "",
   "role": "player",
@@ -758,11 +925,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9b3"
+  },
   "name": "socials",
   "shortcuts": "",
   "role": "player",
@@ -771,11 +941,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9b4"
+  },
   "name": "show",
   "shortcuts": "",
   "role": "player",
@@ -784,11 +957,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9b5"
+  },
   "name": "spells",
   "shortcuts": "",
   "role": "player",
@@ -797,11 +973,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9b6"
+  },
   "name": "story",
   "shortcuts": "",
   "role": "player",
@@ -810,11 +989,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9b7"
+  },
   "name": "time",
   "shortcuts": "",
   "role": "player",
@@ -823,11 +1005,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9b8"
+  },
   "name": "typo",
   "shortcuts": "",
   "role": "player",
@@ -836,11 +1021,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9b9"
+  },
   "name": "weather",
   "shortcuts": "",
   "role": "player",
@@ -849,11 +1037,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9ba"
+  },
   "name": "whois",
   "shortcuts": "",
   "role": "player",
@@ -862,11 +1053,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9bb"
+  },
   "name": "wizlist",
   "shortcuts": "",
   "role": "player",
@@ -875,11 +1069,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9bc"
+  },
   "name": "worth",
   "shortcuts": "",
   "role": "player",
@@ -888,11 +1085,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9bd"
+  },
   "name": "alia",
   "shortcuts": "",
   "role": "player",
@@ -901,11 +1101,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9be"
+  },
   "name": "alias",
   "shortcuts": "",
   "role": "player",
@@ -914,11 +1117,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9bf"
+  },
   "name": "autolist",
   "shortcuts": "",
   "role": "player",
@@ -927,11 +1133,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9c0"
+  },
   "name": "autoassist",
   "shortcuts": "",
   "role": "player",
@@ -940,11 +1149,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9c1"
+  },
   "name": "autoexit",
   "shortcuts": "",
   "role": "player",
@@ -953,11 +1165,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9c2"
+  },
   "name": "autogold",
   "shortcuts": "",
   "role": "player",
@@ -966,11 +1181,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9c3"
+  },
   "name": "autoloot",
   "shortcuts": "",
   "role": "player",
@@ -979,11 +1197,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9c4"
+  },
   "name": "autosac",
   "shortcuts": "",
   "role": "player",
@@ -992,11 +1213,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9c5"
+  },
   "name": "autosplit",
   "shortcuts": "",
   "role": "player",
@@ -1005,11 +1229,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9c6"
+  },
   "name": "brief",
   "shortcuts": "",
   "role": "player",
@@ -1018,11 +1245,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9c7"
+  },
   "name": "combine",
   "shortcuts": "",
   "role": "player",
@@ -1031,11 +1261,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9c8"
+  },
   "name": "compact",
   "shortcuts": "",
   "role": "player",
@@ -1044,11 +1277,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9c9"
+  },
   "name": "description",
   "shortcuts": "",
   "role": "player",
@@ -1057,11 +1293,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9ca"
+  },
   "name": "delet",
   "shortcuts": "",
   "role": "player",
@@ -1070,11 +1309,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9cb"
+  },
   "name": "delete",
   "shortcuts": "",
   "role": "player",
@@ -1088,6 +1330,9 @@
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9cc"
+  },
   "name": "nofollow",
   "shortcuts": "",
   "role": "player",
@@ -1096,11 +1341,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9cd"
+  },
   "name": "noloot",
   "shortcuts": "",
   "role": "player",
@@ -1109,11 +1357,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9ce"
+  },
   "name": "nosummon",
   "shortcuts": "",
   "role": "player",
@@ -1122,11 +1373,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9cf"
+  },
   "name": "outfit",
   "shortcuts": "",
   "role": "player",
@@ -1135,11 +1389,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9d0"
+  },
   "name": "password",
   "shortcuts": "",
   "role": "player",
@@ -1148,11 +1405,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NEVER"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9d1"
+  },
   "name": "prompt",
   "shortcuts": "",
   "role": "player",
@@ -1161,11 +1421,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9d2"
+  },
   "name": "scroll",
   "shortcuts": "",
   "role": "player",
@@ -1174,11 +1437,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9d3"
+  },
   "name": "title",
   "shortcuts": "",
   "role": "player",
@@ -1187,11 +1453,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9d4"
+  },
   "name": "unalias",
   "shortcuts": "",
   "role": "player",
@@ -1200,11 +1469,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9d5"
+  },
   "name": "wimpy",
   "shortcuts": "",
   "role": "player",
@@ -1213,11 +1485,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9d6"
+  },
   "name": "afk",
   "shortcuts": "",
   "role": "player",
@@ -1226,11 +1501,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9d7"
+  },
   "name": "answer",
   "shortcuts": "",
   "role": "player",
@@ -1239,11 +1517,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9d8"
+  },
   "name": "deaf",
   "shortcuts": "",
   "role": "player",
@@ -1252,11 +1533,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9d9"
+  },
   "name": "emote",
   "shortcuts": "",
   "role": "player",
@@ -1265,11 +1549,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9da"
+  },
   "name": "pmote",
   "shortcuts": "",
   "role": "player",
@@ -1278,11 +1565,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9db"
+  },
   "name": ".",
   "shortcuts": "",
   "role": "player",
@@ -1291,11 +1581,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9dc"
+  },
   "name": "gossip",
   "shortcuts": "",
   "role": "player",
@@ -1304,11 +1597,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9dd"
+  },
   "name": ",",
   "shortcuts": "",
   "role": "player",
@@ -1317,11 +1613,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9de"
+  },
   "name": "grats",
   "shortcuts": "",
   "role": "player",
@@ -1330,11 +1629,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9df"
+  },
   "name": "gtell",
   "shortcuts": "",
   "role": "player",
@@ -1343,11 +1645,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9e0"
+  },
   "name": ";",
   "shortcuts": "",
   "role": "player",
@@ -1356,11 +1661,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9e1"
+  },
   "name": "note",
   "shortcuts": "",
   "role": "player",
@@ -1369,11 +1677,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9e2"
+  },
   "name": "pose",
   "shortcuts": "",
   "role": "player",
@@ -1382,11 +1693,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9e3"
+  },
   "name": "question",
   "shortcuts": "",
   "role": "player",
@@ -1395,11 +1709,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9e4"
+  },
   "name": "quote",
   "shortcuts": "",
   "role": "player",
@@ -1408,11 +1725,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9e5"
+  },
   "name": "quiet",
   "shortcuts": "",
   "role": "player",
@@ -1421,11 +1741,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9e6"
+  },
   "name": "reply",
   "shortcuts": "",
   "role": "player",
@@ -1434,11 +1757,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9e7"
+  },
   "name": "replay",
   "shortcuts": "",
   "role": "player",
@@ -1447,11 +1773,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9e8"
+  },
   "name": "shout",
   "shortcuts": "",
   "role": "player",
@@ -1460,11 +1789,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 3,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9e9"
+  },
   "name": "unread",
   "shortcuts": "",
   "role": "player",
@@ -1473,11 +1805,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9ea"
+  },
   "name": "yell",
   "shortcuts": "",
   "role": "player",
@@ -1486,11 +1821,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9eb"
+  },
   "name": "brandish",
   "shortcuts": "",
   "role": "player",
@@ -1499,11 +1837,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9ec"
+  },
   "name": "close",
   "shortcuts": "",
   "role": "player",
@@ -1512,11 +1853,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9ed"
+  },
   "name": "drink",
   "shortcuts": "",
   "role": "player",
@@ -1525,11 +1869,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9ee"
+  },
   "name": "drop",
   "shortcuts": "",
   "role": "player",
@@ -1538,11 +1885,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9ef"
+  },
   "name": "eat",
   "shortcuts": "",
   "role": "player",
@@ -1551,11 +1901,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9f0"
+  },
   "name": "envenom",
   "shortcuts": "",
   "role": "player",
@@ -1564,11 +1917,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9f1"
+  },
   "name": "fill",
   "shortcuts": "",
   "role": "player",
@@ -1577,11 +1933,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9f2"
+  },
   "name": "give",
   "shortcuts": "",
   "role": "player",
@@ -1590,11 +1949,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9f3"
+  },
   "name": "heal",
   "shortcuts": "",
   "role": "player",
@@ -1603,11 +1965,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9f4"
+  },
   "name": "hold",
   "shortcuts": "",
   "role": "player",
@@ -1616,11 +1981,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9f5"
+  },
   "name": "list",
   "shortcuts": "",
   "role": "player",
@@ -1629,11 +1997,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9f6"
+  },
   "name": "lock",
   "shortcuts": "",
   "role": "player",
@@ -1642,11 +2013,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9f7"
+  },
   "name": "open",
   "shortcuts": "",
   "role": "player",
@@ -1655,11 +2029,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9f8"
+  },
   "name": "pick",
   "shortcuts": "",
   "role": "player",
@@ -1668,11 +2045,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9f9"
+  },
   "name": "pour",
   "shortcuts": "",
   "role": "player",
@@ -1681,11 +2061,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9fa"
+  },
   "name": "put",
   "shortcuts": "",
   "role": "player",
@@ -1694,11 +2077,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9fb"
+  },
   "name": "quaff",
   "shortcuts": "",
   "role": "player",
@@ -1707,11 +2093,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9fc"
+  },
   "name": "recite",
   "shortcuts": "",
   "role": "player",
@@ -1720,11 +2109,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9fd"
+  },
   "name": "remove",
   "shortcuts": "",
   "role": "player",
@@ -1733,11 +2125,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9fe"
+  },
   "name": "sell",
   "shortcuts": "",
   "role": "player",
@@ -1746,11 +2141,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bb9ff"
+  },
   "name": "take",
   "shortcuts": "",
   "role": "player",
@@ -1759,11 +2157,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba00"
+  },
   "name": "sacrifice",
   "shortcuts": "",
   "role": "player",
@@ -1772,11 +2173,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba01"
+  },
   "name": "junk",
   "shortcuts": "",
   "role": "player",
@@ -1785,11 +2189,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba02"
+  },
   "name": "tap",
   "shortcuts": "",
   "role": "player",
@@ -1798,11 +2205,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba03"
+  },
   "name": "value",
   "shortcuts": "",
   "role": "player",
@@ -1811,11 +2221,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba04"
+  },
   "name": "wear",
   "shortcuts": "",
   "role": "player",
@@ -1824,11 +2237,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba05"
+  },
   "name": "zap",
   "shortcuts": "",
   "role": "player",
@@ -1837,11 +2253,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba06"
+  },
   "name": "backstab",
   "shortcuts": "",
   "role": "player",
@@ -1850,11 +2269,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "FIGHTING",
+  "position": "POS_FIGHTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba07"
+  },
   "name": "bash",
   "shortcuts": "",
   "role": "player",
@@ -1863,11 +2285,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "FIGHTING",
+  "position": "POS_FIGHTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba08"
+  },
   "name": "bs",
   "shortcuts": "",
   "role": "player",
@@ -1876,11 +2301,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "FIGHTING",
+  "position": "POS_FIGHTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba09"
+  },
   "name": "berserk",
   "shortcuts": "",
   "role": "player",
@@ -1889,11 +2317,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "FIGHTING",
+  "position": "POS_FIGHTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba0a"
+  },
   "name": "dirt",
   "shortcuts": "",
   "role": "player",
@@ -1902,11 +2333,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "FIGHTING",
+  "position": "POS_FIGHTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba0b"
+  },
   "name": "disarm",
   "shortcuts": "",
   "role": "player",
@@ -1915,11 +2349,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "FIGHTING",
+  "position": "POS_FIGHTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba0c"
+  },
   "name": "flee",
   "shortcuts": "",
   "role": "player",
@@ -1928,11 +2365,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "FIGHTING",
+  "position": "POS_FIGHTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba0d"
+  },
   "name": "kick",
   "shortcuts": "",
   "role": "player",
@@ -1941,11 +2381,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "FIGHTING",
+  "position": "POS_FIGHTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba0e"
+  },
   "name": "murde",
   "shortcuts": "",
   "role": "player",
@@ -1954,11 +2397,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "FIGHTING",
+  "position": "POS_FIGHTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba0f"
+  },
   "name": "murder",
   "shortcuts": "",
   "role": "player",
@@ -1967,11 +2413,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "FIGHTING",
+  "position": "POS_FIGHTING",
   "level": 5,
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba10"
+  },
   "name": "rescue",
   "shortcuts": "",
   "role": "player",
@@ -1980,11 +2429,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "FIGHTING",
+  "position": "POS_FIGHTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba11"
+  },
   "name": "trip",
   "shortcuts": "",
   "role": "player",
@@ -1993,11 +2445,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "FIGHTING",
+  "position": "POS_FIGHTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba12"
+  },
   "name": "enter",
   "shortcuts": "",
   "role": "player",
@@ -2011,6 +2466,9 @@
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba13"
+  },
   "name": "follow",
   "shortcuts": "",
   "role": "player",
@@ -2019,11 +2477,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba14"
+  },
   "name": "gain",
   "shortcuts": "",
   "role": "player",
@@ -2037,6 +2498,9 @@
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba15"
+  },
   "name": "go",
   "shortcuts": "",
   "role": "player",
@@ -2050,6 +2514,9 @@
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba16"
+  },
   "name": "groups",
   "shortcuts": "",
   "role": "player",
@@ -2058,11 +2525,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba17"
+  },
   "name": "hide",
   "shortcuts": "",
   "role": "player",
@@ -2071,11 +2541,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba18"
+  },
   "name": "play",
   "shortcuts": "",
   "role": "player",
@@ -2084,11 +2557,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba19"
+  },
   "name": "qui",
   "shortcuts": "",
   "role": "player",
@@ -2097,11 +2573,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba1a"
+  },
   "name": "quit",
   "shortcuts": "",
   "role": "player",
@@ -2110,11 +2589,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba1b"
+  },
   "name": "recall",
   "shortcuts": "",
   "role": "player",
@@ -2123,11 +2605,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "FIGHTING",
+  "position": "POS_FIGHTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba1c"
+  },
   "name": "/",
   "shortcuts": "",
   "role": "player",
@@ -2136,11 +2621,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "FIGHTING",
+  "position": "POS_FIGHTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba1d"
+  },
   "name": "rent",
   "shortcuts": "",
   "role": "player",
@@ -2149,11 +2637,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba1e"
+  },
   "name": "save",
   "shortcuts": "",
   "role": "player",
@@ -2162,11 +2653,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba1f"
+  },
   "name": "sleep",
   "shortcuts": "",
   "role": "player",
@@ -2175,11 +2669,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba20"
+  },
   "name": "sneak",
   "shortcuts": "",
   "role": "player",
@@ -2193,6 +2690,9 @@
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba21"
+  },
   "name": "split",
   "shortcuts": "",
   "role": "player",
@@ -2201,11 +2701,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba22"
+  },
   "name": "steal",
   "shortcuts": "",
   "role": "player",
@@ -2219,6 +2722,9 @@
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba23"
+  },
   "name": "train",
   "shortcuts": "",
   "role": "player",
@@ -2227,11 +2733,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba24"
+  },
   "name": "visible",
   "shortcuts": "",
   "role": "player",
@@ -2240,11 +2749,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba25"
+  },
   "name": "wake",
   "shortcuts": "",
   "role": "player",
@@ -2253,11 +2765,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "SLEEPING",
+  "position": "POS_SLEEPING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba26"
+  },
   "name": "where",
   "shortcuts": "",
   "role": "player",
@@ -2266,11 +2781,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "RESTING",
+  "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba27"
+  },
   "name": "advance",
   "shortcuts": "",
   "role": "immortal",
@@ -2279,11 +2797,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "ML",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba28"
+  },
   "name": "dump",
   "shortcuts": "",
   "role": "immortal",
@@ -2292,11 +2813,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "ML",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba29"
+  },
   "name": "trust",
   "shortcuts": "",
   "role": "immortal",
@@ -2305,11 +2829,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "ML",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba2a"
+  },
   "name": "violate",
   "shortcuts": "",
   "role": "immortal",
@@ -2318,11 +2845,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "ML",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba2b"
+  },
   "name": "allow",
   "shortcuts": "",
   "role": "immortal",
@@ -2331,11 +2861,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L2",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba2c"
+  },
   "name": "ban",
   "shortcuts": "",
   "role": "immortal",
@@ -2344,11 +2877,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L2",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba2d"
+  },
   "name": "deny",
   "shortcuts": "",
   "role": "immortal",
@@ -2357,11 +2893,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L1",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba2e"
+  },
   "name": "disconnect",
   "shortcuts": "",
   "role": "immortal",
@@ -2370,11 +2909,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L3",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba2f"
+  },
   "name": "flag",
   "shortcuts": "",
   "role": "immortal",
@@ -2383,11 +2925,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L4",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba30"
+  },
   "name": "freeze",
   "shortcuts": "",
   "role": "immortal",
@@ -2396,11 +2941,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L4",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba31"
+  },
   "name": "permban",
   "shortcuts": "",
   "role": "immortal",
@@ -2409,11 +2957,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L1",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba32"
+  },
   "name": "protect",
   "shortcuts": "",
   "role": "immortal",
@@ -2422,11 +2973,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L1",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba33"
+  },
   "name": "reboo",
   "shortcuts": "",
   "role": "immortal",
@@ -2435,11 +2989,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L1",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba34"
+  },
   "name": "reboot",
   "shortcuts": "",
   "role": "immortal",
@@ -2448,11 +3005,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L1",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba35"
+  },
   "name": "set",
   "shortcuts": "",
   "role": "immortal",
@@ -2461,11 +3021,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L2",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba36"
+  },
   "name": "shutdow",
   "shortcuts": "",
   "role": "immortal",
@@ -2474,11 +3037,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L1",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba37"
+  },
   "name": "shutdown",
   "shortcuts": "",
   "role": "immortal",
@@ -2487,11 +3053,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L1",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba38"
+  },
   "name": "wizlock",
   "shortcuts": "",
   "role": "immortal",
@@ -2500,11 +3069,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L2",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba39"
+  },
   "name": "force",
   "shortcuts": "",
   "role": "immortal",
@@ -2513,11 +3085,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L7",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba3a"
+  },
   "name": "load",
   "shortcuts": "",
   "role": "immortal",
@@ -2526,11 +3101,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L4",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba3b"
+  },
   "name": "newlock",
   "shortcuts": "",
   "role": "immortal",
@@ -2539,11 +3117,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L4",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba3c"
+  },
   "name": "nochannels",
   "shortcuts": "",
   "role": "immortal",
@@ -2552,11 +3133,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L5",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba3d"
+  },
   "name": "noemote",
   "shortcuts": "",
   "role": "immortal",
@@ -2565,11 +3149,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L5",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba3e"
+  },
   "name": "noshout",
   "shortcuts": "",
   "role": "immortal",
@@ -2578,11 +3165,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L5",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba3f"
+  },
   "name": "notell",
   "shortcuts": "",
   "role": "immortal",
@@ -2591,11 +3181,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L5",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba40"
+  },
   "name": "pecho",
   "shortcuts": "",
   "role": "immortal",
@@ -2604,11 +3197,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L4",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba41"
+  },
   "name": "pardon",
   "shortcuts": "",
   "role": "immortal",
@@ -2617,11 +3213,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L3",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba42"
+  },
   "name": "purge",
   "shortcuts": "",
   "role": "immortal",
@@ -2630,11 +3229,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L4",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba43"
+  },
   "name": "restore",
   "shortcuts": "",
   "role": "immortal",
@@ -2643,11 +3245,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L4",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba44"
+  },
   "name": "sla",
   "shortcuts": "",
   "role": "immortal",
@@ -2656,11 +3261,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L3",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba45"
+  },
   "name": "slay",
   "shortcuts": "",
   "role": "immortal",
@@ -2669,11 +3277,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L3",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba46"
+  },
   "name": "teleport",
   "shortcuts": "",
   "role": "immortal",
@@ -2682,11 +3293,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L5",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba47"
+  },
   "name": "transfer",
   "shortcuts": "",
   "role": "immortal",
@@ -2695,11 +3309,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L5",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba48"
+  },
   "name": "poofin",
   "shortcuts": "",
   "role": "immortal",
@@ -2708,11 +3325,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L8",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba49"
+  },
   "name": "poofout",
   "shortcuts": "",
   "role": "immortal",
@@ -2721,11 +3341,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L8",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba4a"
+  },
   "name": "gecho",
   "shortcuts": "",
   "role": "immortal",
@@ -2734,11 +3357,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L4",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba4b"
+  },
   "name": "holylight",
   "shortcuts": "",
   "role": "immortal",
@@ -2747,11 +3373,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "IM",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba4c"
+  },
   "name": "incognito",
   "shortcuts": "",
   "role": "immortal",
@@ -2760,11 +3389,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "IM",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba4d"
+  },
   "name": "invis",
   "shortcuts": "",
   "role": "immortal",
@@ -2773,11 +3405,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "IM",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba4e"
+  },
   "name": "log",
   "shortcuts": "",
   "role": "immortal",
@@ -2786,11 +3421,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L1",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba4f"
+  },
   "name": "memory",
   "shortcuts": "",
   "role": "immortal",
@@ -2799,11 +3437,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "IM",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba50"
+  },
   "name": "mwhere",
   "shortcuts": "",
   "role": "immortal",
@@ -2812,11 +3453,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "IM",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba51"
+  },
   "name": "owhere",
   "shortcuts": "",
   "role": "immortal",
@@ -2825,11 +3469,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "IM",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba52"
+  },
   "name": "peace",
   "shortcuts": "",
   "role": "immortal",
@@ -2838,11 +3485,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L5",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba53"
+  },
   "name": "penalty",
   "shortcuts": "",
   "role": "immortal",
@@ -2851,11 +3501,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L7",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba54"
+  },
   "name": "echo",
   "shortcuts": "",
   "role": "immortal",
@@ -2864,11 +3517,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L6",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba55"
+  },
   "name": "return",
   "shortcuts": "",
   "role": "immortal",
@@ -2877,11 +3533,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L6",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba56"
+  },
   "name": "snoop",
   "shortcuts": "",
   "role": "immortal",
@@ -2890,11 +3549,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L5",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba57"
+  },
   "name": "stat",
   "shortcuts": "",
   "role": "immortal",
@@ -2903,11 +3565,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "IM",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba58"
+  },
   "name": "string",
   "shortcuts": "",
   "role": "immortal",
@@ -2916,11 +3581,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L5",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba59"
+  },
   "name": "switch",
   "shortcuts": "",
   "role": "immortal",
@@ -2929,11 +3597,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L6",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba5a"
+  },
   "name": "wizinvis",
   "shortcuts": "",
   "role": "immortal",
@@ -2942,11 +3613,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "IM",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba5b"
+  },
   "name": "vnum",
   "shortcuts": "",
   "role": "immortal",
@@ -2955,11 +3629,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L4",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba5c"
+  },
   "name": "zecho",
   "shortcuts": "",
   "role": "immortal",
@@ -2968,11 +3645,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L4",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba5d"
+  },
   "name": "clone",
   "shortcuts": "",
   "role": "immortal",
@@ -2981,11 +3661,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "L5",
   "log": "LOG_ALWAYS"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba5e"
+  },
   "name": "wiznet",
   "shortcuts": "",
   "role": "immortal",
@@ -2994,11 +3677,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "IM",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba5f"
+  },
   "name": "immtalk",
   "shortcuts": "",
   "role": "immortal",
@@ -3007,11 +3693,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "IM",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba60"
+  },
   "name": "imotd",
   "shortcuts": "",
   "role": "immortal",
@@ -3020,11 +3709,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "IM",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba61"
+  },
   "name": ":",
   "shortcuts": "",
   "role": "immortal",
@@ -3033,11 +3725,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "IM",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba62"
+  },
   "name": "smote",
   "shortcuts": "",
   "role": "immortal",
@@ -3046,11 +3741,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "IM",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba63"
+  },
   "name": "prefi",
   "shortcuts": "",
   "role": "immortal",
@@ -3059,11 +3757,14 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "IM",
   "log": "LOG_NORMAL"
 },
 {
+  "_id": {
+    "$oid": "69bc3df3af6857ce485bba64"
+  },
   "name": "prefix",
   "shortcuts": "",
   "role": "immortal",
@@ -3072,8 +3773,7 @@
   "function": [],
   "enabled": true,
   "skillId": "",
-  "position": "DEAD",
+  "position": "POS_DEAD",
   "level": "IM",
   "log": "LOG_NORMAL"
-}
-]
+}]
