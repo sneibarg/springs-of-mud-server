@@ -36,5 +36,8 @@ class SessionState:
     def is_playing(self) -> bool:
         return self.status == SessionStatus.PLAYING
 
+    def is_idle(self) -> bool:
+        return self.status == SessionStatus.IDLING
+
     def can_authenticate(self) -> bool:
         return self.auth_attempts < 3 and self.status in (SessionStatus.CONNECTED, SessionStatus.AUTHENTICATING)

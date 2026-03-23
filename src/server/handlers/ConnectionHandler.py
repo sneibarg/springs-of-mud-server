@@ -1,12 +1,11 @@
 from asyncio import StreamReader, StreamWriter
 from typing import Tuple
-
 from injector import inject, Injector
 from area import AreaService, RoomService
 from command import CommandHandler
 from event import EventHandler
 from server.connection import TelnetConnection, ConnectionManager
-from server.session import SessionHandler, SessionStatus, AuthenticationService, SessionState
+from server.session import SessionHandler, SessionStatus, AuthenticationService
 from server.messaging import MessageBus
 from server.protocol import MessageType
 from server.LoggerFactory import LoggerFactory
@@ -106,6 +105,9 @@ class ConnectionHandler:
     async def _game_loop(self, connection: TelnetConnection, session, player, character) -> None:
         while not connection.is_closed() and session.is_playing():
             try:
+                if not session.is_idle() and self.session_handler.is_session_idle(session):
+                    session.status = SessionStatus.IDLING
+
                 message = await connection.receive_message()
                 if not message:
                     break

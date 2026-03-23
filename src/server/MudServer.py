@@ -113,11 +113,11 @@ class MudServer:
         self.injector.binder.bind(MobileService, scope=singleton)
         self.injector.binder.bind(AuthenticationService, scope=singleton)
         self.injector.binder.bind(ConnectionManager, scope=singleton)
-        self.injector.binder.bind(SessionHandler, scope=singleton)
         self.injector.binder.bind(MessageBus, scope=singleton)
         self.injector.binder.bind(ConnectionHandler, scope=singleton)
         self.injector.binder.bind(GameService, scope=singleton)
         self.injector.binder.bind(GameData, to=self.injector.get(GameService).game_data, scope=singleton)
+        self.injector.binder.bind(SessionHandler, to=SessionHandler(self.injector.get(GameData).constants.max['idleTime']), scope=singleton)
         self.injector.binder.bind(RoomService, scope=singleton)
         self.injector.binder.bind(WeatherService, scope=singleton)
 

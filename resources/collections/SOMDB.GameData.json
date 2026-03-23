@@ -21,7 +21,8 @@
       "pcRaces": 5,
       "clans": 3,
       "levels": 60,
-      "wearSlots": 19
+      "wearSlots": 19,
+      "idleTime": 300
     },
     "pulses": {
       "perSecond": 4,
