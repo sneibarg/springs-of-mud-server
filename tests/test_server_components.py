@@ -5,11 +5,11 @@ from server.connection.Connection import Connection
 from server.connection.TelnetConnection import TelnetConnection
 from server.connection.ConnectionManager import ConnectionManager
 from server.messaging.MessageBus import MessageBus
-from server.messaging.MessageFormatter import MessageFormatter
+from server.messaging.AnsiFormatter import AnsiFormatter
 from server.protocol.Message import Message
 from server.protocol.MessageTypes import MessageType
 from server.session.SessionState import SessionState
-from server.session.SessionState import SessionPhase
+from server.session.SessionState import SessionStatus
 from server.session.SessionHandler import SessionHandler
 
 
@@ -325,11 +325,11 @@ class TestMessageBus(unittest.TestCase):
         # Create sessions
         session1 = self.session_handler.create_session('session_001')
         session1.player_id = 'player_001'
-        session1.phase = SessionPhase.PLAYING
+        session1.status = SessionStatus.PLAYING
 
         session2 = self.session_handler.create_session('session_002')
         session2.player_id = 'player_002'
-        session2.phase = SessionPhase.PLAYING
+        session2.status = SessionStatus.PLAYING
 
         # Create connections
         conn1 = AsyncMock()
@@ -369,7 +369,7 @@ class TestSessionState(unittest.TestCase):
         """Test SessionState initialization"""
         session = SessionState(session_id='session_001')
         self.assertEqual(session.session_id, 'session_001')
-        self.assertEqual(session.phase, SessionPhase.CONNECTED)
+        self.assertEqual(session.status, SessionStatus.CONNECTED)
         self.assertIsNone(session.player_id)
         self.assertIsNone(session.character_id)
         self.assertEqual(session.auth_attempts, 0)
@@ -387,7 +387,7 @@ class TestSessionState(unittest.TestCase):
         session = SessionState(session_id='session_001')
         self.assertFalse(session.is_playing())
 
-        session.phase = SessionPhase.PLAYING
+        session.status = SessionStatus.PLAYING
         self.assertTrue(session.is_playing())
 
     def test_update_activity(self):
@@ -444,37 +444,14 @@ class TestSessionHandler(unittest.TestCase):
     def test_get_playing_sessions(self):
         """Test getting playing sessions"""
         session1 = self.handler.create_session('session_001')
-        session1.phase = SessionPhase.PLAYING
+        session1.status = SessionStatus.PLAYING
 
         session2 = self.handler.create_session('session_002')
-        session2.phase = SessionPhase.CONNECTED
+        session2.status = SessionStatus.CONNECTED
 
         playing = self.handler.get_playing_sessions()
         self.assertEqual(len(playing), 1)
         self.assertEqual(playing[0].session_id, 'session_001')
-
-
-class TestMessageFormatter(unittest.TestCase):
-    """Test MessageFormatter"""
-
-    @unittest.skip("format_room_description moved to RoomService")
-    def test_format_room_description(self):
-        """Test formatting room description"""
-        # Moved to RoomService in area package
-        pass
-
-    def test_format_error(self):
-        """Test formatting error message"""
-        message = MessageFormatter.format_error('Error occurred')
-        self.assertEqual(message.type, MessageType.ERROR)
-        self.assertEqual(message.data['text'], 'ERROR: Error occurred\r\n')
-
-    @unittest.skip("There is no MessageFormatter.format_info")
-    def test_format_info(self):
-        """Test formatting info message"""
-        message = MessageFormatter.format_info('Info message')
-        self.assertEqual(message.type, MessageType.INFO)
-        self.assertEqual(message.data['text'], 'Info message')
 
 
 if __name__ == '__main__':

@@ -4,7 +4,6 @@ from injector import inject, Injector
 
 from typing import Union, Any
 from asyncio import StreamWriter
-from game import CommunicationService
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 from registry import RegistryService
@@ -22,7 +21,6 @@ lambda_mappings = {
     'r': 'Room',
     'rs': 'RegistryService',
     'cs': 'CommandService',
-    'cms': 'CommunicationService',
     'ps': 'PlayerService',
     'zs': 'AreaService',  # the 'zs' is ZoneService
     'ms': 'MobileService',
@@ -48,7 +46,6 @@ def get_class_obj(class_name):
         'Player': Player,
         'Character': Character,
         'CommandService': CommandService,
-        'CommunicationService': CommunicationService,
         'PlayerService': PlayerService,
         'RegistryService': RegistryService,
         'AreaService': AreaService,

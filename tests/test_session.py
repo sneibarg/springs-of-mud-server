@@ -3,7 +3,7 @@ Unit tests for session management (SessionState, SessionHandler).
 """
 import unittest
 from datetime import datetime, timedelta
-from server.session import SessionState, SessionPhase, SessionHandler
+from server.session import SessionState, SessionStatus, SessionHandler
 
 
 class TestSessionState(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestSessionState(unittest.TestCase):
         session = SessionState(session_id='test-123')
 
         self.assertEqual(session.session_id, 'test-123')
-        self.assertEqual(session.phase, SessionPhase.CONNECTED)
+        self.assertEqual(session.status, SessionStatus.CONNECTED)
         self.assertIsNone(session.player_id)
         self.assertIsNone(session.character_id)
         self.assertFalse(session.ansi_enabled)
@@ -26,13 +26,13 @@ class TestSessionState(unittest.TestCase):
         """Test session state with initial values"""
         session = SessionState(
             session_id='test-456',
-            phase=SessionPhase.PLAYING,
+            phase=SessionStatus.PLAYING,
             player_id='player-789',
             character_id='char-101',
             ansi_enabled=True
         )
 
-        self.assertEqual(session.phase, SessionPhase.PLAYING)
+        self.assertEqual(session.status, SessionStatus.PLAYING)
         self.assertEqual(session.player_id, 'player-789')
         self.assertEqual(session.character_id, 'char-101')
         self.assertTrue(session.ansi_enabled)
@@ -63,10 +63,10 @@ class TestSessionState(unittest.TestCase):
         session = SessionState(session_id='test-123')
         self.assertFalse(session.is_playing())
 
-        session.phase = SessionPhase.PLAYING
+        session.status = SessionStatus.PLAYING
         self.assertTrue(session.is_playing())
 
-        session.phase = SessionPhase.AUTHENTICATING
+        session.status = SessionStatus.AUTHENTICATING
         self.assertFalse(session.is_playing())
 
     def test_can_authenticate_new_session(self):
@@ -92,15 +92,15 @@ class TestSessionState(unittest.TestCase):
         session = SessionState(session_id='test-123')
 
         # Should work in CONNECTED phase
-        session.phase = SessionPhase.CONNECTED
+        session.status = SessionStatus.CONNECTED
         self.assertTrue(session.can_authenticate())
 
         # Should work in AUTHENTICATING phase
-        session.phase = SessionPhase.AUTHENTICATING
+        session.status = SessionStatus.AUTHENTICATING
         self.assertTrue(session.can_authenticate())
 
         # Should not work in PLAYING phase
-        session.phase = SessionPhase.PLAYING
+        session.status = SessionStatus.PLAYING
         self.assertFalse(session.can_authenticate())
 
     def test_metadata(self):
@@ -114,8 +114,8 @@ class TestSessionState(unittest.TestCase):
         self.assertEqual(session.metadata['count'], 42)
 
 
-class TestSessionPhase(unittest.TestCase):
-    """Test suite for SessionPhase enum"""
+class TestSessionStatus(unittest.TestCase):
+    """Test suite for SessionStatus enum"""
 
     def test_session_phases_exist(self):
         """Test that expected session phases exist"""
@@ -125,13 +125,13 @@ class TestSessionPhase(unittest.TestCase):
 
         for phase_name in expected_phases:
             self.assertTrue(
-                hasattr(SessionPhase, phase_name),
-                f"SessionPhase.{phase_name} should exist"
+                hasattr(SessionStatus, phase_name),
+                f"SessionStatus.{phase_name} should exist"
             )
 
     def test_session_phase_values_unique(self):
         """Test that all session phase values are unique"""
-        values = [sp.value for sp in SessionPhase]
+        values = [sp.value for sp in SessionStatus]
         self.assertEqual(len(values), len(set(values)))
 
 
@@ -147,7 +147,7 @@ class TestSessionHandler(unittest.TestCase):
         session = self.handler.create_session('session-123')
 
         self.assertEqual(session.session_id, 'session-123')
-        self.assertEqual(session.phase, SessionPhase.CONNECTED)
+        self.assertEqual(session.status, SessionStatus.CONNECTED)
 
     def test_get_session(self):
         """Test retrieving a session"""
@@ -193,11 +193,11 @@ class TestSessionHandler(unittest.TestCase):
     def test_remove_session_sets_disconnected(self):
         """Test that removing session sets phase to DISCONNECTED"""
         session = self.handler.create_session('session-123')
-        session.phase = SessionPhase.PLAYING
+        session.status = SessionStatus.PLAYING
 
         self.handler.remove_session('session-123')
 
-        self.assertEqual(session.phase, SessionPhase.DISCONNECTED)
+        self.assertEqual(session.status, SessionStatus.DISCONNECTED)
 
     def test_get_active_sessions(self):
         """Test getting all active sessions"""
@@ -206,7 +206,7 @@ class TestSessionHandler(unittest.TestCase):
         session3 = self.handler.create_session('session-3')
 
         # Disconnect one
-        session3.phase = SessionPhase.DISCONNECTED
+        session3.status = SessionStatus.DISCONNECTED
 
         active = self.handler.get_active_sessions()
 
@@ -221,9 +221,9 @@ class TestSessionHandler(unittest.TestCase):
         session2 = self.handler.create_session('session-2')
         session3 = self.handler.create_session('session-3')
 
-        session1.phase = SessionPhase.PLAYING
-        session2.phase = SessionPhase.AUTHENTICATING
-        session3.phase = SessionPhase.PLAYING
+        session1.status = SessionStatus.PLAYING
+        session2.status = SessionStatus.AUTHENTICATING
+        session3.status = SessionStatus.PLAYING
 
         playing = self.handler.get_playing_sessions()
 
@@ -267,11 +267,11 @@ class TestSessionHandler(unittest.TestCase):
         """Test handling multiple players"""
         session1 = self.handler.create_session('session-1')
         session1.player_id = 'player-A'
-        session1.phase = SessionPhase.PLAYING
+        session1.status = SessionStatus.PLAYING
 
         session2 = self.handler.create_session('session-2')
         session2.player_id = 'player-B'
-        session2.phase = SessionPhase.PLAYING
+        session2.status = SessionStatus.PLAYING
 
         # Both should be in playing sessions
         playing = self.handler.get_playing_sessions()

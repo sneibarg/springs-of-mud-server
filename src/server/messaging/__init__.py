@@ -1,4 +1,4 @@
 from .MessageBus import MessageBus
-from .MessageFormatter import MessageFormatter
+from .AnsiFormatter import AnsiFormatter
 
-__all__ = ['MessageBus', 'MessageFormatter']
+__all__ = ['MessageBus', 'AnsiFormatter']

@@ -2,11 +2,13 @@ from typing import Optional
 from asyncio import StreamReader, StreamWriter
 from .Connection import Connection
 from server.protocol import Message, MessageType, TelnetProtocol
+from server.LoggerFactory import LoggerFactory
 
 
 class TelnetConnection(Connection):
     def __init__(self, reader: StreamReader, writer: StreamWriter, ansi_enabled: bool = False):
         super().__init__(reader, writer)
+        self.logger = LoggerFactory.get_logger(__name__)
         self.protocol = TelnetProtocol(ansi_enabled=ansi_enabled)
         self.ansi_enabled = ansi_enabled
 
@@ -20,6 +22,7 @@ class TelnetConnection(Connection):
             await self.writer.drain()
         except Exception as e:
             self._closed = True
+            self.logger.error(f"Error sending message: {e}")
             raise
 
     async def receive_message(self) -> Optional[Message]:
@@ -41,6 +44,7 @@ class TelnetConnection(Connection):
             return message
         except Exception as e:
             self._closed = True
+            self.logger.error(f"Error reading message: {e}")
             return None
 
     async def close(self) -> None:
@@ -52,16 +56,12 @@ class TelnetConnection(Connection):
             if not self.writer.is_closing():
                 self.writer.close()
                 await self.writer.wait_closed()
-        except Exception:
-            pass
+        except Exception as e:
+            self.logger.error(f"Error closing connection: {e}")
 
     def set_ansi_enabled(self, enabled: bool) -> None:
         self.ansi_enabled = enabled
         self.protocol.ansi_enabled = enabled
-
-    async def send_prompt(self, health: int, mana: int, movement: int) -> None:
-        prompt = self.protocol.create_prompt(health, mana, movement)
-        await self.send_message(prompt)
 
     async def send_text(self, text: str, message_type: MessageType = MessageType.SYSTEM) -> None:
         message = Message(type=message_type, data={'text': text})

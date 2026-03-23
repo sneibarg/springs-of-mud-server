@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional
 from datetime import datetime
-from .MessageTypes import MessageType
+from server.protocol.MessageTypes import MessageType
 
 
 @dataclass
@@ -21,7 +21,6 @@ class Message:
             self.timestamp = datetime.now().timestamp()
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert message to dictionary for serialization"""
         return {
             'type': self.type.name,
             'data': self.data,
@@ -32,7 +31,6 @@ class Message:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Message':
-        """Create message from dictionary"""
         return cls(
             type=MessageType[data['type']],
             data=data.get('data', {}),
@@ -42,9 +40,7 @@ class Message:
         )
 
     def get(self, key: str, default: Any = None) -> Any:
-        """Convenience method to get data field"""
         return self.data.get(key, default)
 
     def set(self, key: str, value: Any) -> None:
-        """Convenience method to set data field"""
         self.data[key] = value

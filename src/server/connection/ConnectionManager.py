@@ -1,5 +1,5 @@
 from typing import Dict, Optional, List
-from .Connection import Connection
+from server.connection.Connection import Connection
 from server.protocol import Message
 
 

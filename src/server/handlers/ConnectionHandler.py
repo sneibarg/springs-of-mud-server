@@ -1,10 +1,12 @@
 from asyncio import StreamReader, StreamWriter
+from typing import Tuple
+
 from injector import inject, Injector
 from area import AreaService, RoomService
 from command import CommandHandler
 from event import EventHandler
 from server.connection import TelnetConnection, ConnectionManager
-from server.session import SessionHandler, SessionPhase, AuthenticationService
+from server.session import SessionHandler, SessionStatus, AuthenticationService, SessionState
 from server.messaging import MessageBus
 from server.protocol import MessageType
 from server.LoggerFactory import LoggerFactory
@@ -36,9 +38,7 @@ class ConnectionHandler:
         self.event_handler = event_handler
 
     async def handle_new_connection(self, reader: StreamReader, writer: StreamWriter) -> None:
-        connection = None
-        session = None
-        peer_info = None
+        connection, session, peer_info = None, None, None
         try:
             connection = TelnetConnection(reader, writer)
             session = self.session_handler.create_session(connection.session_id)
@@ -50,7 +50,7 @@ class ConnectionHandler:
 
             first_msg = await connection.receive_message()
             self.logger.debug(f"Received message: {first_msg.type if first_msg else 'None'}, data: {first_msg.data if first_msg else 'None'}")
-            if first_msg and first_msg.type == MessageType.AUTH_PAYLOAD:
+            if first_msg and first_msg.type == MessageType.AUTH:
                 self.logger.info(f"Payload-based auth attempt on session {session.session_id}")
                 success, player_id, character_data = await self.auth_service.authenticate_with_payload(connection, session, first_msg.data)
                 if success:
@@ -64,10 +64,9 @@ class ConnectionHandler:
                 await connection.send_text("Invalid authentication message.\r\n", MessageType.ERROR)
                 return
 
-            character = self._get_character(character_data, writer, reader)
-            player = self._get_or_create_player(session, character)
+            character, player = self._nanny(character_data, writer, reader, session, connection)
             self.player_service.registry_service.character_registry[character.id] = character
-            session.phase = SessionPhase.PLAYING
+            session.status = SessionStatus.PLAYING
 
             await self._show_room(connection, character)
             await self.message_bus.send_prompt(session.player_id, character.health, character.mana, character.movement)
@@ -87,7 +86,7 @@ class ConnectionHandler:
     @staticmethod
     async def _send_welcome(connection: TelnetConnection) -> None:
         welcome = f"Welcome to the server!\n\n\n\n"
-        await connection.send_text(welcome, MessageType.WELCOME)
+        await connection.send_text(welcome, MessageType.GAME)
 
     async def _show_room(self, connection: TelnetConnection, character) -> None:
         area_service = self.injector.get(AreaService)
@@ -104,16 +103,6 @@ class ConnectionHandler:
         message = room_service.format_room_description(room.name, room.description, exits)
         await connection.send_message(message)
 
-    def _get_or_create_player(self, session, character):
-        account = self.player_service.get_account_by_id(session.player_id)
-        if account:
-            account_data = ServerUtil.camel_to_snake_case(account)
-            account_data['connection'] = (character.reader, character.writer)
-            account_data['current_character'] = character
-            account_data['ansi_enabled'] = session.ansi_enabled
-            return Player.from_json(account_data)
-        return None
-
     async def _game_loop(self, connection: TelnetConnection, session, player, character) -> None:
         while not connection.is_closed() and session.is_playing():
             try:
@@ -122,11 +111,11 @@ class ConnectionHandler:
                     break
 
                 session.update_activity()
-                if message.type == MessageType.INPUT and not message.get('text'):
+                if message.type == MessageType.GAME and not message.get('text'):
                     await self.message_bus.send_prompt(session.player_id, character.health, character.mana, character.movement)
                     continue
 
-                if message.type == MessageType.COMMAND:
+                if message.type == MessageType.GAME:
                     command_text = message.get('text', '')
                     self.command_handler.handle_command(player, command_text)
 
@@ -142,3 +131,24 @@ class ConnectionHandler:
         character_definition['reader'] = reader
         character_definition['lock'] = threading.Lock()
         return Character.from_json(character_definition)
+
+    def _get_or_create_player(self, session, character):
+        account = self.player_service.get_account_by_id(session.player_id)
+        if account:
+            account_data = ServerUtil.camel_to_snake_case(account)
+            account_data['connection'] = (character.reader, character.writer)
+            account_data['current_character'] = character
+            account_data['ansi_enabled'] = session.ansi_enabled
+            return Player.from_json(account_data)
+        return None
+
+    async def _nanny(self, character_data, writer, reader, session, connection) -> Tuple[Player, Character]:
+        character = self._get_character(character_data, writer, reader)
+        session.character = character
+        player = self._get_or_create_player(session, character)
+
+        if player.banned:
+            await connection.send_text("You have been banned from the server.\r\n", MessageType.ERROR)
+            connection.disconnect()
+
+        return player, character

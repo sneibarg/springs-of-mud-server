@@ -19,11 +19,7 @@ class MessageBus:
         self.connection_manager = connection_manager
         self.session_handler = session_handler
 
-    async def send_to_player(self, player_id: str, message: Message) -> bool:
-        """
-        Send a message to a specific player.
-        Returns True if sent successfully.
-        """
+    async def send_to_character(self, player_id: str, message: Message) -> bool:
         connection = self.connection_manager.get_connection_by_player(player_id)
         if connection and not connection.is_closed():
             try:
@@ -38,12 +34,6 @@ class MessageBus:
         return False
 
     async def send_to_room(self, room_id: str, message: Message, exclude_player_ids: Optional[List[str]] = None) -> int:
-        """
-        Send a message to all players in a room.
-        NOTE: Consider using RoomService.send_to_room() for game logic.
-        This method provides basic room broadcasting functionality.
-        Returns count of players who received the message.
-        """
         exclude = exclude_player_ids or []
         count = 0
         sessions = self.session_handler.get_playing_sessions()
@@ -52,36 +42,30 @@ class MessageBus:
             if session.player_id in exclude:
                 continue
 
-            if await self.send_to_player(session.player_id, message):
+            if session.character.room_id == room_id:
+                await self.send_to_character(session.player_id, message)
                 count += 1
 
         return count
 
     async def send_to_area(self, area_id: str, message: Message) -> int:
-        """
-        Send a message to all players in an area.
-        Returns count of players who received the message.
-        """
         count = 0
         sessions = self.session_handler.get_playing_sessions()
 
         for session in sessions:
-            if await self.send_to_player(session.player_id, message):
+            if session.character.area_id == area_id:
+                await self.send_to_character(session.player_id, message)
                 count += 1
 
         return count
 
     async def broadcast(self, message: Message, exclude_player_ids: Optional[List[str]] = None) -> int:
-        """
-        Broadcast a message to all connected players.
-        Returns count of players who received the message.
-        """
         exclude = exclude_player_ids or []
         count = 0
         sessions = self.session_handler.get_active_sessions()
         for session in sessions:
             if session.player_id and session.player_id not in exclude:
-                if await self.send_to_player(session.player_id, message):
+                if await self.send_to_character(session.player_id, message):
                     count += 1
 
         return count
@@ -90,30 +74,21 @@ class MessageBus:
         connection = self.connection_manager.get_connection_by_player(player_id)
         if connection and isinstance(connection, TelnetConnection):
             try:
-                await connection.send_prompt(health, mana, movement)
+                await connection.send_text(f"[{health}hp {mana}mn, {movement}mv]")
                 return True
-            except Exception:
+            except Exception as e:
+                self.logger.error(f"Failed to send prompt to player {player_id}: {e}", exc_info=True)
                 return False
         return False
 
     async def send_to_outdoor_players(self, message: Message, is_outdoor_check: Callable[[str], bool]) -> int:
-        """
-        Send a message to all players who are currently outdoors.
-
-        Args:
-            message: The message to send
-            is_outdoor_check: Function that takes a player_id and returns True if they are outdoors
-
-        Returns:
-            Count of players who received the message
-        """
         count = 0
         sessions = self.session_handler.get_playing_sessions()
         for session in sessions:
-            self.logger.debug(f"Checking player {session.character_id} for outdoor status")
-            if session.player_id and is_outdoor_check(session.character_id):
-                self.logger.debug(f"Sending message to player {session.player_id} (character {session.character_id}): {message}")
-                if await self.send_to_player(session.player_id, message):
+            self.logger.debug(f"Checking player {session.character.name} for outdoor status")
+            if session.player_id and is_outdoor_check(session.character.id):
+                self.logger.debug(f"Sending message to player {session.player_id} (character {session.character.name}): {message}")
+                if await self.send_to_character(session.player_id, message):
                     count += 1
 
         return count

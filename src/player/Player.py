@@ -7,6 +7,7 @@ from player import Character
 
 @dataclass
 class Player:
+    banned: bool
     first_name: str
     last_name: str
     account_name: str
