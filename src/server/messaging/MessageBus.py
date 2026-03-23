@@ -1,6 +1,5 @@
 from typing import List, Optional, Callable
 from injector import inject
-
 from server.LoggerFactory import LoggerFactory
 from server.connection import ConnectionManager, TelnetConnection
 from server.protocol import Message
@@ -36,20 +35,6 @@ class MessageBus:
                 return False
         else:
             self.logger.warning(f"No active connection found for player {player_id}")
-        return False
-
-    async def send_to_session(self, session_id: str, message: Message) -> bool:
-        """
-        Send a message to a specific session.
-        Returns True if sent successfully.
-        """
-        connection = self.connection_manager.get_connection(session_id)
-        if connection and not connection.is_closed():
-            try:
-                await connection.send_message(message)
-                return True
-            except Exception:
-                return False
         return False
 
     async def send_to_room(self, room_id: str, message: Message, exclude_player_ids: Optional[List[str]] = None) -> int:

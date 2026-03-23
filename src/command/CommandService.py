@@ -154,7 +154,7 @@ class CommandService:
         self.commands_endpoint = config.commands_endpoint
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.command_list = self.load_command_list()
-        self.logger.info("Initialized CommandService instance.")
+        self.logger.info(f"Initialized CommandService instance with a total of {len(self.command_list)} commands.")
 
     def load_command_list(self):
         response = requests.get(self.commands_endpoint)
