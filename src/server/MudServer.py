@@ -12,10 +12,11 @@ from event import EventHandler
 from registry import RegistryService
 from server.ServerUtil import ServerUtil
 from server.handlers import ConnectionHandler
-from server.session import AuthenticationService, SessionHandler
+from server.session import AuthenticationService
 from server.connection import ConnectionManager
 from server.messaging import MessageBus
 from server.ServiceConfig import ServiceConfig
+from server.session.SessionHandler import SessionHandler
 from skill import SkillService
 from update import WeatherService
 
@@ -91,14 +92,17 @@ class MudServer:
         self._bind_services()
 
         game_service = self.injector.get(GameService)
-        self.injector.get(PlayerService)
-        self.injector.get(RoomService)
-        self.injector.get(AreaService)
-        self.injector.get(SkillService)
-        self.injector.get(ItemService)
+        player_service = self.injector.get(PlayerService)
+        room_service = self.injector.get(RoomService)
+        area_service = self.injector.get(AreaService)
+        skill_service = self.injector.get(SkillService)
+        item_service = self.injector.get(ItemService)
 
         game_service.set_weather_service(self.injector.get(WeatherService))
         game_service.start_mobile_service(self.injector.get(MobileService))
+
+        self.logger.info("The following services have been started: ")
+        self.logger.info(f"{game_service.__name__}; {player_service.__name__}; {room_service.__name__}; {area_service.__name__}; {skill_service.__name__}; {item_service.__name__}")
 
     def _bind_services(self):
         self.injector.binder.bind(ServiceConfig, to=self.service_config, scope=singleton)

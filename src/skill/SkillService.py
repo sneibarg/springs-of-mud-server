@@ -9,8 +9,9 @@ from skill import Skill
 class SkillService:
     @inject
     def __init__(self, config: ServiceConfig):
+        self.__name__ = "SkillService"
         self.skills_endpoint = config.skills_endpoint
-        self.logger = LoggerFactory.get_logger(self.__class__.__name__)
+        self.logger = LoggerFactory.get_logger(self.__name__)
         self.all_skills = dict()
         self._load_skills()
         self.logger.info("Initialized SkillService instance with a total of "+str(len(self.all_skills))+" in memory.")

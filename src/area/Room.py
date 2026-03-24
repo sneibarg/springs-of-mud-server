@@ -42,7 +42,7 @@ class Room:
 
     def get_exits(self):
         return [room_exit for room_exit in
-                [self.exit_north, self.exit_south, self.exit_east, self.exit_west, self.exit_up, self.exit_down, self.alternate_routes] if
+                [self.exit_north, self.exit_south, self.exit_east, self.exit_west, self.exit_up, self.exit_down] if
                 room_exit is not None]
 
     def get_populace(self):

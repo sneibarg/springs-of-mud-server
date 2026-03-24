@@ -1,4 +1,6 @@
+from typing import List
 from injector import inject
+from event.CombatEvent import CombatEvent
 from server.LoggerFactory import LoggerFactory
 
 
@@ -7,24 +9,16 @@ class EventHandler:
     def __init__(self):
         self.__name__ = "EventHandler"
         self.logger = LoggerFactory.get_logger(self.__name__)
-        self.command_list = list()
-        self.character_registry = dict()
-        self.mobile_registry = dict()
-        self.combat_events = dict()
+        self.combat_events: dict[str, CombatEvent] = dict()
         self.logger.info("Initialized EventHandler instance.")
 
-    def register_character(self, character):
-        self.logger.info("Registering character "+character.name)
-        self.character_registry[character.name] = character
+    def get_combat_event_by_id(self, event_id: str) -> CombatEvent:
+        return self.combat_events[event_id]
 
-    def unregister_character(self, character):
-        self.logger.info("Unregistering character "+character)
-        del self.character_registry[character]
+    def get_combat_event_by_room(self, room_id: str) -> List[CombatEvent]:
+        events = []
+        for event in self.combat_events.values():
+            if event.room_id == room_id:
+                events.append(event)
+        return events
 
-    def register_mobile(self, mobile):
-        self.logger.debug("Registering mobile "+mobile.id)
-        self.mobile_registry[mobile.id] = mobile
-
-    def unregister_mobile(self, mobile):
-        self.logger.debug("Unregistering mobile "+mobile.id)
-        del self.mobile_registry[mobile.id]

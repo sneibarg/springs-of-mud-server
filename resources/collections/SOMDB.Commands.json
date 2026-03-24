@@ -8,7 +8,7 @@
   "lambda": [
     "lambda c: c.writer.write(b\"See you next time.\\r\\n\")",
     "lambda c: c.writer.close()",
-    "lambda c, eh: eh.unregister_character(c.name)",
+    "lambda c, rg: rg.unregister_character(c.id)",
     "lambda c, ps, cs: ps.to_room(c, c.name+\" has disconneced.\", cs.get_message(\"disconnect\"))"
   ],
   "message": "%p has disconnected.",
@@ -195,7 +195,7 @@
   "shortcuts": "lo, loo",
   "role": "player",
   "lambda": [
-    "lambda c, zs, r: zs.print_description(c.writer, r)"
+    "lambda p, rs, r: rs.print_room(p.id, r)"
   ],
   "message": "",
   "function": [],
@@ -1843,22 +1843,6 @@
 },
 {
   "_id": {
-    "$oid": "69bc3df3af6857ce485bb9ec"
-  },
-  "name": "close",
-  "shortcuts": "",
-  "role": "player",
-  "lambda": [],
-  "message": "",
-  "function": [],
-  "enabled": true,
-  "skillId": "",
-  "position": "POS_RESTING",
-  "level": 0,
-  "log": "LOG_NORMAL"
-},
-{
-  "_id": {
     "$oid": "69bc3df3af6857ce485bb9ed"
   },
   "name": "drink",
@@ -2566,22 +2550,6 @@
     "$oid": "69bc3df3af6857ce485bba19"
   },
   "name": "qui",
-  "shortcuts": "",
-  "role": "player",
-  "lambda": [],
-  "message": "",
-  "function": [],
-  "enabled": true,
-  "skillId": "",
-  "position": "POS_DEAD",
-  "level": 0,
-  "log": "LOG_NORMAL"
-},
-{
-  "_id": {
-    "$oid": "69bc3df3af6857ce485bba1a"
-  },
-  "name": "quit",
   "shortcuts": "",
   "role": "player",
   "lambda": [],

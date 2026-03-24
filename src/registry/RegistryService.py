@@ -39,9 +39,9 @@ class RegistryService:
     def get_mobile_from_registry(self, mobile_id):
         return self.mobile_registry[mobile_id]
 
-    def unregister_character(self, character):
+    def unregister_character(self, character_id):
         with self.lock:
-            del self.character_registry[character.id]
+            del self.character_registry[character_id]
 
     def register_character(self, character):
         with self.lock:

@@ -1,5 +1,6 @@
 import re
 import requests
+import inspect
 
 from injector import inject, Injector
 from typing import Union, Any
@@ -8,7 +9,7 @@ from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 from registry import RegistryService
 from command import CommandHandler
-from area import AreaService
+from area import AreaService, RoomService
 from mobile import MobileService, Mobile
 from player import PlayerService, Player, Character
 from event import EventHandler
@@ -19,7 +20,8 @@ lambda_mappings = {
     'p': 'Player',
     'c': 'Character',
     'r': 'Room',
-    'rs': 'RegistryService',
+    'rg': 'RegistryService',
+    'rs': 'RoomService',
     'cs': 'CommandService',
     'ps': 'PlayerService',
     'zs': 'AreaService',  # the 'zs' is ZoneService
@@ -48,6 +50,7 @@ def get_class_obj(class_name):
         'CommandService': CommandService,
         'PlayerService': PlayerService,
         'RegistryService': RegistryService,
+        'RoomService': RoomService,
         'AreaService': AreaService,
         'MobileService': MobileService,
         'ObjectService': ItemService,
@@ -104,7 +107,7 @@ def get_args(lambda_string, player, injector, parameters):
                 room = registry.room_registry[character.room_id]
                 class_obj = type(room)
                 obj = room
-            elif arg in ['ps', 'zs', 'ms', 'os', 'eh', 'ch', 'cs', 'rs']:
+            elif arg in ['ps', 'zs', 'ms', 'os', 'eh', 'ch', 'cs', 'rs', 'rg']:
                 obj = injector.get(class_obj)
             elif arg == 'usage':
                 obj = player.usage
@@ -120,7 +123,7 @@ def get_args(lambda_string, player, injector, parameters):
     return args
 
 
-def handle_lambdas(command_service, player, command, parameters):
+async def handle_lambdas(command_service, player, command, parameters):
     if parameters is None:
         parameters = []
 
@@ -137,7 +140,9 @@ def handle_lambdas(command_service, player, command, parameters):
                 raise TypeError('lambda_function is not a callable function.')
 
             args = get_args(lambda_string, player, command_service.injector, parameters)
-            lambda_function(*args)
+            result = lambda_function(*args)
+            if inspect.isawaitable(result):
+                await result
         else:
             raise ValueError('Failed to retrieve specified lambda function from REST service')
 
@@ -185,7 +190,7 @@ class CommandService:
     def get_message(self, cmd):
         return self.command_list[cmd]['message']
 
-    def call_lambda(self, player, command_name, command_list, parameters):
+    async def call_lambda(self, player, command_name, command_list, parameters):
         command_json = CommandService.find_json_object_by_name(command_name, command_list)
         if command_json is None:
             raise ValueError('Null JSON returned from find_json_object_by_name')
@@ -195,7 +200,7 @@ class CommandService:
             return
 
         try:
-            handle_lambdas(self, player, command_json, parameters)
+            await handle_lambdas(self, player, command_json, parameters)
         except ValueError as ve:
             self.logger.error("ValueError: " + str(ve))
             raise

@@ -2,8 +2,9 @@
 Unit tests for session management (SessionState, SessionHandler).
 """
 import unittest
-from datetime import datetime, timedelta
-from server.session import SessionState, SessionStatus, SessionHandler
+from datetime import datetime
+from server.session import SessionState, SessionStatus
+from server.session.SessionHandler import SessionHandler
 
 
 class TestSessionState(unittest.TestCase):

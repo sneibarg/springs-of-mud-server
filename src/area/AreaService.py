@@ -1,6 +1,7 @@
 import requests
 from injector import inject
 
+from area.AreaUtil import AreaUtil
 from area.Area import Area
 from area.Room import Room
 from registry import RegistryService
@@ -51,29 +52,10 @@ class AreaService:
 
     def move_mobile(self, character, direction):
         room = self.registry.room_registry[character.room_id]
-        destination = AreaService.is_valid_direction(direction, room)
+        destination = AreaUtil.is_valid_direction(direction, room)
         if destination is not None:
             destination_room = self.registry.room_registry[destination]
             character.room_id = destination
             room.print_description(character.writer, destination_room)
         else:
             character.writer.write("You can't go that direction!\r\n".encode('utf-8'))
-
-    @staticmethod
-    def is_valid_direction(direction, room):
-        if "east" in direction:
-            return room.exit_east
-        if "west" in direction:
-            return room.exit_west
-        if "north" in direction:
-            return room.exit_north
-        if "south" in direction:
-            return room.exit_south
-        if "up" in direction:
-            return room.exit_up
-        if "down" in direction:
-            return room.exit_down
-        return None
-
-
-

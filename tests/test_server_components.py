@@ -1,11 +1,10 @@
 import unittest
-from unittest.mock import Mock, AsyncMock, patch, MagicMock
+from unittest.mock import Mock, AsyncMock, MagicMock
 import asyncio
 from server.connection.Connection import Connection
 from server.connection.TelnetConnection import TelnetConnection
 from server.connection.ConnectionManager import ConnectionManager
 from server.messaging.MessageBus import MessageBus
-from server.messaging.AnsiFormatter import AnsiFormatter
 from server.protocol.Message import Message
 from server.protocol.MessageTypes import MessageType
 from server.session.SessionState import SessionState

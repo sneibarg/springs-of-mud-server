@@ -15,7 +15,7 @@ class CommandHandler:
         self.command_list = command_service.command_list
         self.logger.info("Initialized CommandHandler instance.")
 
-    def handle_command(self, player, command):
+    async def handle_command(self, player, command):
         usage = None
         cmd, parameters = self.extract_parameters(command)
         if cmd is None:
@@ -33,7 +33,7 @@ class CommandHandler:
                 player.set_usage(usage_function)
 
         self.logger.debug(f"CMD: {cmd['name']}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
-        return self.command_service.call_lambda(player, cmd['name'], self.command_list, parameters)
+        return await self.command_service.call_lambda(player, cmd['name'], self.command_list, parameters)
 
     def extract_parameters(self, command: str) -> Union[tuple[Any, str], tuple[None, None]]:
         for cmd in self.command_list:
