@@ -47,15 +47,6 @@ class ConnectionManager:
                 return player_id
         return None
 
-    async def broadcast(self, message: Message, exclude_sessions: Optional[List[str]] = None) -> None:
-        exclude = exclude_sessions or []
-        for session_id, connection in self._connections.items():
-            if session_id not in exclude and not connection.is_closed():
-                try:
-                    await connection.send_message(message)
-                except Exception:
-                    pass
-
     async def close_all(self) -> None:
         for connection in list(self._connections.values()):
             try:

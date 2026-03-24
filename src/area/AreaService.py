@@ -22,9 +22,6 @@ class AreaService:
         self.logger.info("Initialized AreaService instance with "+str(len(self.registry.area_registry)) +
                          " areas and "+str(len(self.registry.room_registry))+" rooms in memory.")
 
-    def get_registry(self):
-        return self.registry
-
     def load_areas(self):
         response = requests.get(self.areas_endpoint).json()
         for area_json in response:

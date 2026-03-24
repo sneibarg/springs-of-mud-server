@@ -50,21 +50,13 @@ class RoomService:
         writer.write("\r\n".encode('utf-8'))
 
     @staticmethod
-    def format_room_description(self, room_name: str, description: str, exits: list) -> Message:
+    def format_room_description(room_name: str, description: str, exits: list) -> Message:
         text = f"[{room_name}]\r\n{description}\r\n"
         if exits:
             exits_text = "Exits: " + ", ".join(exits) + "\r\n"
             text += exits_text
 
-        return Message(
-            type=MessageType.ROOM_DESCRIPTION,
-            data={
-                'text': text,
-                'room_name': room_name,
-                'description': description,
-                'exits': exits
-            }
-        )
+        return Message(type=MessageType.GAME, data={'text': text})
 
     @staticmethod
     async def send_to_room(self, room_id: str, message: Message, message_bus, exclude_player_ids: Optional[List[str]] = None) -> int:

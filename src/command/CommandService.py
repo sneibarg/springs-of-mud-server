@@ -1,7 +1,7 @@
 import re
 import requests
-from injector import inject, Injector
 
+from injector import inject, Injector
 from typing import Union, Any
 from asyncio import StreamWriter
 from server.LoggerFactory import LoggerFactory
@@ -13,7 +13,7 @@ from mobile import MobileService, Mobile
 from player import PlayerService, Player, Character
 from event import EventHandler
 from object import ItemService, Item
-
+from skill import SkillService
 
 lambda_mappings = {
     'p': 'Player',
@@ -51,7 +51,7 @@ def get_class_obj(class_name):
         'AreaService': AreaService,
         'MobileService': MobileService,
         'ObjectService': ItemService,
-        'SkillService': None,
+        'SkillService': SkillService,
         'EventHandler': EventHandler,
         'CommandHandler': CommandHandler,
         'StreamWriter': StreamWriter,

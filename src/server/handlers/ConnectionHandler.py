@@ -1,3 +1,5 @@
+import asyncio
+
 from asyncio import StreamReader, StreamWriter
 from typing import Tuple
 from injector import inject, Injector
@@ -5,9 +7,9 @@ from area import AreaService, RoomService
 from command import CommandHandler
 from event import EventHandler
 from server.connection import TelnetConnection, ConnectionManager
-from server.session import SessionHandler, SessionStatus, AuthenticationService
+from server.session import SessionHandler, SessionStatus, AuthenticationService, SessionState
 from server.messaging import MessageBus
-from server.protocol import MessageType
+from server.protocol import MessageType, Message
 from server.LoggerFactory import LoggerFactory
 from server.ServerUtil import ServerUtil
 from player import Character, Player, PlayerService
@@ -63,7 +65,7 @@ class ConnectionHandler:
                 await connection.send_text("Invalid authentication message.\r\n", MessageType.ERROR)
                 return
 
-            character, player = self._nanny(character_data, writer, reader, session, connection)
+            player, character = await self._nanny(character_data, writer, reader, session, connection)
             self.player_service.registry_service.character_registry[character.id] = character
             session.status = SessionStatus.PLAYING
 
@@ -90,7 +92,7 @@ class ConnectionHandler:
     async def _show_room(self, connection: TelnetConnection, character) -> None:
         area_service = self.injector.get(AreaService)
         room_service = self.injector.get(RoomService)
-        room = area_service.get_registry().room_registry[character.room_id]
+        room = area_service.registry.room_registry[character.room_id]
         exits = []
         if room.exit_north: exits.append("north")
         if room.exit_south: exits.append("south")
@@ -107,9 +109,8 @@ class ConnectionHandler:
             try:
                 if not session.is_idle() and self.session_handler.is_session_idle(session):
                     session.status = SessionStatus.IDLING
-
-                message = await connection.receive_message()
-                if not message:
+                message = await self._wait_for_message(connection, session)
+                if message is None:
                     break
 
                 session.update_activity()
@@ -122,9 +123,19 @@ class ConnectionHandler:
                     self.command_handler.handle_command(player, command_text)
 
                     await self.message_bus.send_prompt(session.player_id, character.health, character.mana, character.movement)
+
             except Exception as e:
                 self.logger.error(f"Error in game loop: {e}", exc_info=True)
                 break
+
+    async def _wait_for_message(self, connection: TelnetConnection, session: SessionState) -> Message | None:
+        try:
+            return await asyncio.wait_for(connection.receive_message(), timeout=self.session_handler.max_idle_time)
+        except asyncio.TimeoutError:
+            if not session.is_idle():
+                session.status = SessionStatus.IDLING
+                await connection.send_text("You have disappeared into the void.\n\r", MessageType.GAME)
+                return None
 
     def _get_character(self, character_data, writer, reader) -> Character:
         character_definition = ServerUtil.camel_to_snake_case(character_data) if character_data else {}
@@ -151,6 +162,6 @@ class ConnectionHandler:
 
         if player.banned:
             await connection.send_text("You have been banned from the server.\r\n", MessageType.ERROR)
-            connection.disconnect()
+            await connection.close()
 
         return player, character
