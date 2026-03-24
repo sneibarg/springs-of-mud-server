@@ -1,4 +1,4 @@
-from typing import List, Optional, Callable
+from typing import List, Optional
 from injector import inject
 from server.LoggerFactory import LoggerFactory
 from server.connection import ConnectionManager, TelnetConnection
@@ -59,17 +59,6 @@ class MessageBus:
 
         return count
 
-    async def broadcast(self, message: Message, exclude_player_ids: Optional[List[str]] = None) -> int:
-        exclude = exclude_player_ids or []
-        count = 0
-        sessions = self.session_handler.get_active_sessions()
-        for session in sessions:
-            if session.player_id and session.player_id not in exclude:
-                if await self.send_to_character(session.player_id, message):
-                    count += 1
-
-        return count
-
     async def send_prompt(self, player_id: str, health: int, mana: int, movement: int) -> bool:
         connection = self.connection_manager.get_connection_by_player(player_id)
         if connection and isinstance(connection, TelnetConnection):
@@ -81,13 +70,12 @@ class MessageBus:
                 return False
         return False
 
-    async def send_to_outdoor_players(self, message: Message, is_outdoor_check: Callable[[str], bool]) -> int:
+    async def broadcast(self, message: Message, exclude_player_ids: Optional[List[str]] = None) -> int:
+        exclude = exclude_player_ids or []
         count = 0
-        sessions = self.session_handler.get_playing_sessions()
+        sessions = self.session_handler.get_active_sessions()
         for session in sessions:
-            self.logger.info(f"Checking player {session.character.name} for outdoor status")
-            if session.player_id and is_outdoor_check(session.character.id):
-                self.logger.info(f"Sending message to player {session.player_id} (character {session.character.name}): {message}")
+            if session.player_id and session.player_id not in exclude:
                 if await self.send_to_character(session.player_id, message):
                     count += 1
 

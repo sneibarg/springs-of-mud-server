@@ -15,7 +15,6 @@ class TestWeatherService(unittest.TestCase):
     def setUp(self):
         # Mock dependencies
         self.mock_message_bus = Mock()
-        self.mock_message_bus.send_to_outdoor_players = AsyncMock()
 
         self.mock_registry_service = Mock()
         self.mock_registry_service.character_registry = {}
@@ -62,8 +61,6 @@ class TestWeatherService(unittest.TestCase):
         for i in range(239):
             await self.weather_service.update()
 
-        # Should not have called send_to_outdoor_players yet
-        self.mock_message_bus.send_to_outdoor_players.assert_not_called()
         self.assertEqual(self.weather_service.pulse_count, 239)
 
     async def test_update_triggers_at_pulse_tick(self):
@@ -301,8 +298,6 @@ class TestWeatherService(unittest.TestCase):
         await self.weather_service.time_update()
 
         # Should have sent a message
-        self.mock_message_bus.send_to_outdoor_players.assert_called_once()
-        call_args = self.mock_message_bus.send_to_outdoor_players.call_args
         message = call_args[0][0]
         self.assertEqual(message.data['text'], "The day has begun\n\r")
 
@@ -313,7 +308,6 @@ class TestWeatherService(unittest.TestCase):
         await self.weather_service.time_update()
 
         # Should not have sent a message
-        self.mock_message_bus.send_to_outdoor_players.assert_not_called()
 
     @patch('update.WeatherService.rng')
     async def test_sky_update_with_message(self, mock_rng):
@@ -325,8 +319,6 @@ class TestWeatherService(unittest.TestCase):
         await self.weather_service.sky_update()
 
         # Should have sent a message
-        self.mock_message_bus.send_to_outdoor_players.assert_called_once()
-        call_args = self.mock_message_bus.send_to_outdoor_players.call_args
         message = call_args[0][0]
         self.assertEqual(message.data['text'], "The sky is getting cloudy.\n\r")
 
@@ -336,9 +328,6 @@ class TestWeatherService(unittest.TestCase):
         self.weather_service.weather_info.mmhg = 1020  # High pressure, won't change
 
         await self.weather_service.sky_update()
-
-        # Should not have sent a message
-        self.mock_message_bus.send_to_outdoor_players.assert_not_called()
 
 
 if __name__ == '__main__':

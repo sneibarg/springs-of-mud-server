@@ -1,16 +1,17 @@
-{
+[{
   "_id": "rom24.quickmud.ruleset.2026-02-02",
   "kind": "ruleset",
   "status": "active",
-
   "version": {
     "family": "rom24",
-    "lineage": ["rom24b2", "quickmud"],
+    "lineage": [
+      "rom24b2",
+      "quickmud"
+    ],
     "semver": "1.0.0",
     "createdAt": "2026-02-02T00:00:00Z",
     "notes": "Baseline ruleset snapshot for Springs of MUD"
   },
-
   "constants": {
     "max": {
       "skills": 150,
@@ -33,23 +34,188 @@
       "area": 480
     }
   },
-
   "enums": {
-    "sex": ["NEUTRAL", "MALE", "FEMALE"],
-    "position": ["DEAD", "MORTAL", "INCAP", "STUNNED", "SLEEPING", "RESTING", "SITTING", "FIGHTING", "STANDING"],
-    "direction": ["NORTH", "EAST", "SOUTH", "WEST", "UP", "DOWN"],
-    "size": ["TINY", "SMALL", "MEDIUM", "LARGE", "HUGE", "GIANT"],
-    "acType": ["PIERCE", "BASH", "SLASH", "EXOTIC"],
-    "sector": ["INSIDE", "CITY", "FIELD", "FOREST", "HILLS", "MOUNTAIN", "WATER_SWIM", "WATER_NOSWIM", "UNUSED", "AIR", "DESERT"],
-    "target": ["IGNORE", "CHAR_OFFENSIVE", "CHAR_DEFENSIVE", "CHAR_SELF", "OBJ_INV", "OBJ_CHAR_DEF", "OBJ_CHAR_OFF"],
-    "damageType": ["NONE", "BASH", "PIERCE", "SLASH", "FIRE", "COLD", "LIGHTNING", "ACID", "POISON", "NEGATIVE", "HOLY", "ENERGY", "MENTAL", "DISEASE", "DROWNING", "LIGHT", "OTHER", "HARM", "CHARM", "SOUND"],
-    "applyType": ["NONE", "STR", "DEX", "INT", "WIS", "CON", "SEX", "CLASS", "LEVEL", "AGE", "HEIGHT", "WEIGHT", "MANA", "HIT", "MOVE", "GOLD", "EXP", "AC", "HITROLL", "DAMROLL", "SAVES", "SAVING_ROD", "SAVING_PETRI", "SAVING_BREATH", "SAVING_SPELL", "SPELL_AFFECT"],
-    "itemType": ["LIGHT", "SCROLL", "WAND", "STAFF", "WEAPON", "TREASURE", "ARMOR", "POTION", "CLOTHING", "FURNITURE", "TRASH", "CONTAINER", "DRINK_CON", "KEY", "FOOD", "MONEY", "BOAT", "CORPSE_NPC", "CORPSE_PC", "FOUNTAIN", "PILL", "PROTECT", "MAP", "PORTAL", "WARP_STONE", "ROOM_KEY", "GEM", "JEWELRY", "JUKEBOX"],
-    "weaponClass": ["EXOTIC", "SWORD", "DAGGER", "SPEAR", "MACE", "AXE", "FLAIL", "WHIP", "POLEARM"],
-    "wearSlot": ["NONE", "LIGHT", "FINGER_L", "FINGER_R", "NECK_1", "NECK_2", "BODY", "HEAD", "LEGS", "FEET", "HANDS", "ARMS", "SHIELD", "ABOUT", "WAIST", "WRIST_L", "WRIST_R", "WIELD", "HOLD", "FLOAT"],
-    "condition": ["DRUNK", "FULL", "THIRST", "HUNGER"]
+    "sex": [
+      "NEUTRAL",
+      "MALE",
+      "FEMALE"
+    ],
+    "position": [
+      "DEAD",
+      "MORTAL",
+      "INCAP",
+      "STUNNED",
+      "SLEEPING",
+      "RESTING",
+      "SITTING",
+      "FIGHTING",
+      "STANDING"
+    ],
+    "direction": [
+      "NORTH",
+      "EAST",
+      "SOUTH",
+      "WEST",
+      "UP",
+      "DOWN"
+    ],
+    "size": [
+      "TINY",
+      "SMALL",
+      "MEDIUM",
+      "LARGE",
+      "HUGE",
+      "GIANT"
+    ],
+    "acType": [
+      "PIERCE",
+      "BASH",
+      "SLASH",
+      "EXOTIC"
+    ],
+    "sector": [
+      "INSIDE",
+      "CITY",
+      "FIELD",
+      "FOREST",
+      "HILLS",
+      "MOUNTAIN",
+      "WATER_SWIM",
+      "WATER_NOSWIM",
+      "UNUSED",
+      "AIR",
+      "DESERT"
+    ],
+    "target": [
+      "IGNORE",
+      "CHAR_OFFENSIVE",
+      "CHAR_DEFENSIVE",
+      "CHAR_SELF",
+      "OBJ_INV",
+      "OBJ_CHAR_DEF",
+      "OBJ_CHAR_OFF"
+    ],
+    "damageType": [
+      "NONE",
+      "BASH",
+      "PIERCE",
+      "SLASH",
+      "FIRE",
+      "COLD",
+      "LIGHTNING",
+      "ACID",
+      "POISON",
+      "NEGATIVE",
+      "HOLY",
+      "ENERGY",
+      "MENTAL",
+      "DISEASE",
+      "DROWNING",
+      "LIGHT",
+      "OTHER",
+      "HARM",
+      "CHARM",
+      "SOUND"
+    ],
+    "applyType": [
+      "NONE",
+      "STR",
+      "DEX",
+      "INT",
+      "WIS",
+      "CON",
+      "SEX",
+      "CLASS",
+      "LEVEL",
+      "AGE",
+      "HEIGHT",
+      "WEIGHT",
+      "MANA",
+      "HIT",
+      "MOVE",
+      "GOLD",
+      "EXP",
+      "AC",
+      "HITROLL",
+      "DAMROLL",
+      "SAVES",
+      "SAVING_ROD",
+      "SAVING_PETRI",
+      "SAVING_BREATH",
+      "SAVING_SPELL",
+      "SPELL_AFFECT"
+    ],
+    "itemType": [
+      "LIGHT",
+      "SCROLL",
+      "WAND",
+      "STAFF",
+      "WEAPON",
+      "TREASURE",
+      "ARMOR",
+      "POTION",
+      "CLOTHING",
+      "FURNITURE",
+      "TRASH",
+      "CONTAINER",
+      "DRINK_CON",
+      "KEY",
+      "FOOD",
+      "MONEY",
+      "BOAT",
+      "CORPSE_NPC",
+      "CORPSE_PC",
+      "FOUNTAIN",
+      "PILL",
+      "PROTECT",
+      "MAP",
+      "PORTAL",
+      "WARP_STONE",
+      "ROOM_KEY",
+      "GEM",
+      "JEWELRY",
+      "JUKEBOX"
+    ],
+    "weaponClass": [
+      "EXOTIC",
+      "SWORD",
+      "DAGGER",
+      "SPEAR",
+      "MACE",
+      "AXE",
+      "FLAIL",
+      "WHIP",
+      "POLEARM"
+    ],
+    "wearSlot": [
+      "NONE",
+      "LIGHT",
+      "FINGER_L",
+      "FINGER_R",
+      "NECK_1",
+      "NECK_2",
+      "BODY",
+      "HEAD",
+      "LEGS",
+      "FEET",
+      "HANDS",
+      "ARMS",
+      "SHIELD",
+      "ABOUT",
+      "WAIST",
+      "WRIST_L",
+      "WRIST_R",
+      "WIELD",
+      "HOLD",
+      "FLOAT"
+    ],
+    "condition": [
+      "DRUNK",
+      "FULL",
+      "THIRST",
+      "HUNGER"
+    ]
   },
-
   "flags": {
     "mobAct": {
       "SENTINEL": 1,
@@ -74,7 +240,6 @@
       "UPDATE_ALWAYS": 524288,
       "IS_CHANGER": 1048576
     },
-
     "offense": {
       "AREA_ATTACK": 1,
       "BACKSTAB": 2,
@@ -98,7 +263,6 @@
       "ASSIST_GUARD": 524288,
       "ASSIST_VNUM": 1048576
     },
-
     "affect": {
       "BLIND": 1,
       "INVISIBLE": 2,
@@ -130,7 +294,6 @@
       "REGENERATION": 134217728,
       "SLOW": 268435456
     },
-
     "room": {
       "DARK": 1,
       "NO_MOB": 2,
@@ -147,7 +310,6 @@
       "LAW": 4096,
       "NOWHERE": 8192
     },
-
     "exit": {
       "IS_DOOR": 1,
       "CLOSED": 2,
@@ -160,7 +322,6 @@
       "NO_CLOSE": 256,
       "NO_LOCK": 512
     },
-
     "itemExtra": {
       "GLOW": 1,
       "HUM": 2,
@@ -187,7 +348,6 @@
       "BURN_PROOF": 4194304,
       "NOUNCURSE": 8388608
     },
-
     "wear": {
       "TAKE": 1,
       "WEAR_FINGER": 2,
@@ -207,7 +367,6 @@
       "NO_SAC": 32768,
       "WEAR_FLOAT": 65536
     },
-
     "weapon": {
       "FLAMING": 1,
       "FROST": 2,
@@ -218,7 +377,6 @@
       "SHOCKING": 64,
       "POISON": 128
     },
-
     "container": {
       "CLOSEABLE": 1,
       "PICKPROOF": 2,
@@ -226,7 +384,6 @@
       "LOCKED": 8,
       "PUT_ON": 16
     },
-
     "player": {
       "AUTOASSIST": 1,
       "AUTOEXIT": 2,
@@ -245,7 +402,6 @@
       "THIEF": 16384,
       "KILLER": 32768
     },
-
     "comm": {
       "QUIET": 1,
       "DEAF": 2,
@@ -271,7 +427,6 @@
       "SNOOP_PROOF": 2097152,
       "AFK": 4194304
     },
-
     "wiznet": {
       "ON": 1,
       "TICKS": 2,
@@ -295,24 +450,33 @@
       "SPAM": 524288
     }
   },
-
   "classes": {
     "mage": {
       "id": "mage",
       "whoName": "Mag",
       "primeAttr": "INT",
       "defaultWeapon": "dagger",
-      "guildRooms": ["3000", "3001"],
+      "guildRooms": [
+        "3000",
+        "3001"
+      ],
       "skillAdept": 75,
-      "thac0": { "level0": 20, "level32": 5 },
-      "hpGain": { "min": 6, "max": 10 },
+      "thac0": {
+        "level0": 20,
+        "level32": 5
+      },
+      "hpGain": {
+        "min": 6,
+        "max": 10
+      },
       "gainsMana": true,
       "baseGroup": "mage_base",
       "defaultGroup": "mage_default"
     }
   },
-  "classesNameIndex": { "mage": "mage" },
-
+  "classesNameIndex": {
+    "mage": "mage"
+  },
   "races": {
     "human": {
       "id": "human",
@@ -327,355 +491,148 @@
       "parts": []
     }
   },
-  "racesNameIndex": { "human": "human" },
-
+  "racesNameIndex": {
+    "human": "human"
+  },
   "pcRaces": {
     "human": {
       "id": "human",
       "whoName": "Human",
       "points": 0,
-      "classExpMult": { "mage": 100, "cleric": 100, "thief": 100, "warrior": 100 },
+      "classExpMult": {
+        "mage": 100,
+        "cleric": 100,
+        "thief": 100,
+        "warrior": 100
+      },
       "bonusSkills": [],
-      "stats": { "STR": 13, "INT": 13, "WIS": 13, "DEX": 13, "CON": 13 },
-      "maxStats": { "STR": 18, "INT": 18, "WIS": 18, "DEX": 18, "CON": 18 },
+      "stats": {
+        "STR": 13,
+        "INT": 13,
+        "WIS": 13,
+        "DEX": 13,
+        "CON": 13
+      },
+      "maxStats": {
+        "STR": 18,
+        "INT": 18,
+        "WIS": 18,
+        "DEX": 18,
+        "CON": 18
+      },
       "size": "MEDIUM"
     }
   },
-  "pcRacesNameIndex": { "human": "human" },
-
+  "pcRacesNameIndex": {
+    "human": "human"
+  },
+  "skills": {
+    "reserved": {
+      "id": "reserved",
+      "kind": "skill",
+      "levelByClass": {
+        "mage": 60,
+        "cleric": 60,
+        "thief": 60,
+        "warrior": 60
+      },
+      "ratingByClass": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "handlerId": "spell.none",
+      "target": "IGNORE",
+      "minPosition": "STANDING",
+      "slot": 0,
+      "minMana": 0,
+      "beats": 0,
+      "nounDamage": "",
+      "msgOff": "",
+      "msgObj": ""
+    }
+  },
+  "skillsNameIndex": {
+    "reserved": "reserved"
+  },
   "groups": {
     "rom_basics": {
       "id": "rom_basics",
-      "ratingByClass": { "mage": 0, "cleric": 0, "thief": 0, "warrior": 0 },
-      "skillIds": ["scrolls", "staves", "wands", "recall"]
-    },
-    "mage_basics": {
-      "id": "mage_basics",
-      "ratingByClass": { "mage": 0, "cleric": -1, "thief": -1, "warrior": -1 },
-      "skillIds": ["dagger"]
-    },
-    "cleric_basics": {
-      "id": "cleric_basics",
-      "ratingByClass": { "mage": -1, "cleric": 0, "thief": -1, "warrior": -1 },
-      "skillIds": ["mace"]
-    },
-    "thief_basics": {
-      "id": "thief_basics",
-      "ratingByClass": { "mage": -1, "cleric": -1, "thief": 0, "warrior": -1 },
-      "skillIds": ["dagger", "steal"]
-    },
-    "warrior_basics": {
-      "id": "warrior_basics",
-      "ratingByClass": { "mage": -1, "cleric": -1, "thief": -1, "warrior": 0 },
-      "skillIds": ["sword", "second attack"]
-    },
-    "mage_default": {
-      "id": "mage_default",
-      "ratingByClass": { "mage": 40, "cleric": -1, "thief": -1, "warrior": -1 },
+      "ratingByClass": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
       "skillIds": [
-        "lore",
-        "beguiling",
-        "combat",
-        "detection",
-        "enhancement",
-        "illusion",
-        "maladictions",
-        "protective",
-        "transportation",
-        "weather"
-      ]
-    },
-    "cleric_default": {
-      "id": "cleric_default",
-      "ratingByClass": { "mage": -1, "cleric": 40, "thief": -1, "warrior": -1 },
-      "skillIds": [
-        "flail",
-        "attack",
-        "creation",
-        "curative",
-        "benedictions",
-        "detection",
-        "healing",
-        "maladictions",
-        "protective",
-        "shield block",
-        "transportation",
-        "weather"
-      ]
-    },
-    "thief_default": {
-      "id": "thief_default",
-      "ratingByClass": { "mage": -1, "cleric": -1, "thief": 40, "warrior": -1 },
-      "skillIds": [
-        "mace",
-        "sword",
-        "backstab",
-        "disarm",
-        "dodge",
-        "second attack",
-        "trip",
-        "hide",
-        "peek",
-        "pick lock",
-        "sneak"
-      ]
-    },
-    "warrior_default": {
-      "id": "warrior_default",
-      "ratingByClass": { "mage": -1, "cleric": -1, "thief": -1, "warrior": 40 },
-      "skillIds": [
-        "weaponsmaster",
-        "shield block",
-        "bash",
-        "disarm",
-        "enhanced damage",
-        "parry",
-        "rescue",
-        "third attack"
-      ]
-    },
-    "weaponsmaster": {
-      "id": "weaponsmaster",
-      "ratingByClass": { "mage": 40, "cleric": 40, "thief": 40, "warrior": 20 },
-      "skillIds": ["axe", "dagger", "flail", "mace", "polearm", "spear", "sword", "whip"]
-    },
-    "attack": {
-      "id": "attack",
-      "ratingByClass": { "mage": -1, "cleric": 5, "thief": -1, "warrior": 8 },
-      "skillIds": [
-        "demonfire",
-        "dispel evil",
-        "dispel good",
-        "earthquake",
-        "flamestrike",
-        "heat metal",
-        "ray of truth"
-      ]
-    },
-    "beguiling": {
-      "id": "beguiling",
-      "ratingByClass": { "mage": 4, "cleric": -1, "thief": 6, "warrior": -1 },
-      "skillIds": ["calm", "charm person", "sleep"]
-    },
-    "benedictions": {
-      "id": "benedictions",
-      "ratingByClass": { "mage": -1, "cleric": 4, "thief": -1, "warrior": 8 },
-      "skillIds": ["bless", "calm", "frenzy", "holy word", "remove curse"]
-    },
-    "combat": {
-      "id": "combat",
-      "ratingByClass": { "mage": 6, "cleric": -1, "thief": 10, "warrior": 9 },
-      "skillIds": [
-        "acid blast",
-        "burning hands",
-        "chain lightning",
-        "chill touch",
-        "colour spray",
-        "fireball",
-        "lightning bolt",
-        "magic missile",
-        "shocking grasp"
-      ]
-    },
-    "creation": {
-      "id": "creation",
-      "ratingByClass": { "mage": 4, "cleric": 4, "thief": 8, "warrior": 8 },
-      "skillIds": [
-        "continual light",
-        "create food",
-        "create spring",
-        "create water",
-        "create rose",
-        "floating disc"
-      ]
-    },
-    "curative": {
-      "id": "curative",
-      "ratingByClass": { "mage": -1, "cleric": 4, "thief": -1, "warrior": 8 },
-      "skillIds": ["cure blindness", "cure disease", "cure poison"]
-    },
-    "detection": {
-      "id": "detection",
-      "ratingByClass": { "mage": 4, "cleric": 3, "thief": 6, "warrior": -1 },
-      "skillIds": [
-        "detect evil",
-        "detect good",
-        "detect hidden",
-        "detect invis",
-        "detect magic",
-        "detect poison",
-        "farsight",
-        "identify",
-        "know alignment",
-        "locate object"
-      ]
-    },
-    "draconian": {
-      "id": "draconian",
-      "ratingByClass": { "mage": 8, "cleric": -1, "thief": -1, "warrior": -1 },
-      "skillIds": [
-        "acid breath",
-        "fire breath",
-        "frost breath",
-        "gas breath",
-        "lightning breath"
-      ]
-    },
-    "enchantment": {
-      "id": "enchantment",
-      "ratingByClass": { "mage": 6, "cleric": -1, "thief": -1, "warrior": -1 },
-      "skillIds": ["enchant armor", "enchant weapon", "fireproof", "recharge"]
-    },
-    "enhancement": {
-      "id": "enhancement",
-      "ratingByClass": { "mage": 5, "cleric": -1, "thief": 9, "warrior": 9 },
-      "skillIds": ["giant strength", "haste", "infravision", "refresh"]
-    },
-    "harmful": {
-      "id": "harmful",
-      "ratingByClass": { "mage": -1, "cleric": 3, "thief": -1, "warrior": 6 },
-      "skillIds": ["cause critical", "cause light", "cause serious", "harm"]
-    },
-    "healing": {
-      "id": "healing",
-      "ratingByClass": { "mage": -1, "cleric": 3, "thief": -1, "warrior": 6 },
-      "skillIds": [
-        "cure critical",
-        "cure light",
-        "cure serious",
-        "heal",
-        "mass healing",
-        "refresh"
-      ]
-    },
-    "illusion": {
-      "id": "illusion",
-      "ratingByClass": { "mage": 4, "cleric": -1, "thief": 7, "warrior": -1 },
-      "skillIds": ["invis", "mass invis", "ventriloquate"]
-    },
-    "maladictions": {
-      "id": "maladictions",
-      "ratingByClass": { "mage": 5, "cleric": 5, "thief": 9, "warrior": 9 },
-      "skillIds": [
-        "blindness",
-        "change sex",
-        "curse",
-        "energy drain",
-        "plague",
-        "poison",
-        "slow",
-        "weaken"
-      ]
-    },
-    "protective": {
-      "id": "protective",
-      "ratingByClass": { "mage": 4, "cleric": 4, "thief": 7, "warrior": 8 },
-      "skillIds": [
-        "armor",
-        "cancellation",
-        "dispel magic",
-        "fireproof",
-        "protection evil",
-        "protection good",
-        "sanctuary",
-        "shield",
-        "stone skin"
-      ]
-    },
-    "transportation": {
-      "id": "transportation",
-      "ratingByClass": { "mage": 4, "cleric": 4, "thief": 8, "warrior": 9 },
-      "skillIds": [
-        "fly",
-        "gate",
-        "nexus",
-        "pass door",
-        "portal",
-        "summon",
-        "teleport",
-        "word of recall"
-      ]
-    },
-    "weather": {
-      "id": "weather",
-      "ratingByClass": { "mage": 4, "cleric": 4, "thief": 8, "warrior": 8 },
-      "skillIds": [
-        "call lightning",
-        "control weather",
-        "faerie fire",
-        "faerie fog",
-        "lightning bolt"
+        "reserved"
       ]
     }
   },
-
-  "groupsNameIndex": { "rom basics": "rom_basics" },
-
+  "groupsNameIndex": {
+    "rom basics": "rom_basics"
+  },
   "weapons": {
-    "dagger": { "id": "dagger", "weaponClass": "DAGGER", "gsn": "dagger" }
+    "dagger": {
+      "id": "dagger",
+      "weaponClass": "DAGGER",
+      "gsn": "dagger"
+    }
   },
-  "weaponsNameIndex": { "dagger": "dagger" },
-
+  "weaponsNameIndex": {
+    "dagger": "dagger"
+  },
   "attacks": {
-    "hit": { "name": "hit", "noun": "hit", "damageType": "BASH" }
+    "hit": {
+      "id": "hit",
+      "noun": "hit",
+      "damageType": "BASH"
+    }
   },
-  "attacksNameIndex": { "hit": "hit" },
-
+  "attacksNameIndex": {
+    "hit": "hit"
+  },
   "liquids": {
-    "water": { "id": "water", "color": "clear", "affect": [0, 1, 10, 0, 16] },
-    "beer": { "id": "beer", "color": "amber", "affect": [12, 1, 8, 1, 12] },
-    "red wine": { "id": "red wine", "color": "burgundy", "affect": [30, 1, 8, 1, 5] },
-    "ale": { "id": "ale", "color": "brown", "affect": [15, 1, 8, 1, 12] },
-    "dark ale": { "id": "dark ale", "color": "dark", "affect": [16, 1, 8, 1, 12] },
-
-    "whisky": { "id": "whisky", "color": "golden", "affect": [120, 1, 5, 0, 2] },
-    "lemonade": { "id": "lemonade", "color": "pink", "affect": [0, 1, 9, 2, 12] },
-    "firebreather": { "id": "firebreather", "color": "boiling", "affect": [190, 0, 4, 0, 2] },
-    "local specialty": { "id": "local specialty", "color": "clear", "affect": [151, 1, 3, 0, 2] },
-    "slime mold juice": { "id": "slime mold juice", "color": "green", "affect": [0, 2, -8, 1, 2] },
-
-    "milk": { "id": "milk", "color": "white", "affect": [0, 2, 9, 3, 12] },
-    "tea": { "id": "tea", "color": "tan", "affect": [0, 1, 8, 0, 6] },
-    "coffee": { "id": "coffee", "color": "black", "affect": [0, 1, 8, 0, 6] },
-    "blood": { "id": "blood", "color": "red", "affect": [0, 2, -1, 2, 6] },
-    "salt water": { "id": "salt water", "color": "clear", "affect": [0, 1, -2, 0, 1] },
-
-    "coke": { "id": "coke", "color": "brown", "affect": [0, 2, 9, 2, 12] },
-    "root beer": { "id": "root beer", "color": "brown", "affect": [0, 2, 9, 2, 12] },
-    "elvish wine": { "id": "elvish wine", "color": "green", "affect": [35, 2, 8, 1, 5] },
-    "white wine": { "id": "white wine", "color": "golden", "affect": [28, 1, 8, 1, 5] },
-    "champagne": { "id": "champagne", "color": "golden", "affect": [32, 1, 8, 1, 5] },
-
-    "mead": { "id": "mead", "color": "honey-colored", "affect": [34, 2, 8, 2, 12] },
-    "rose wine": { "id": "rose wine", "color": "pink", "affect": [26, 1, 8, 1, 5] },
-    "benedictine wine": { "id": "benedictine wine", "color": "burgundy", "affect": [40, 1, 8, 1, 5] },
-    "vodka": { "id": "vodka", "color": "clear", "affect": [130, 1, 5, 0, 2] },
-    "cranberry juice": { "id": "cranberry juice", "color": "red", "affect": [0, 1, 9, 2, 12] },
-
-    "orange juice": { "id": "orange juice", "color": "orange", "affect": [0, 2, 9, 3, 12] },
-    "absinthe": { "id": "absinthe", "color": "green", "affect": [200, 1, 4, 0, 2] },
-    "brandy": { "id": "brandy", "color": "golden", "affect": [80, 1, 5, 0, 4] },
-    "aquavit": { "id": "aquavit", "color": "clear", "affect": [140, 1, 5, 0, 2] },
-    "schnapps": { "id": "schnapps", "color": "clear", "affect": [90, 1, 5, 0, 2] },
-
-    "icewine": { "id": "icewine", "color": "purple", "affect": [50, 2, 6, 1, 5] },
-    "amontillado": { "id": "amontillado", "color": "burgundy", "affect": [35, 2, 8, 1, 5] },
-    "sherry": { "id": "sherry", "color": "red", "affect": [38, 2, 7, 1, 5] },
-    "framboise": { "id": "framboise", "color": "red", "affect": [50, 1, 7, 1, 5] },
-    "rum": { "id": "rum", "color": "amber", "affect": [151, 1, 4, 0, 2] },
-
-    "cordial": { "id": "cordial", "color": "clear", "affect": [100, 1, 5, 0, 2] }
+    "water": {
+      "id": "water",
+      "color": "clear",
+      "affect": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
   },
-  "liquidsNameIndex": { "water": "water" },
-
+  "liquidsNameIndex": {
+    "water": "water"
+  },
   "wellKnownVnums": {
-    "mob": { "FIDO": 3090, "CITYGUARD": 3060, "VAMPIRE": 3404, "PATROLMAN": 2106 },
-    "obj": { "SILVER_ONE": 1, "GOLD_ONE": 2, "CORPSE_NPC": 10, "CORPSE_PC": 11 },
-    "room": { "LIMBO": 2, "TEMPLE": 3001, "SCHOOL": 3700 }
+    "mob": {
+      "FIDO": 3090,
+      "CITYGUARD": 3060,
+      "VAMPIRE": 3404,
+      "PATROLMAN": 2106
+    },
+    "obj": {
+      "SILVER_ONE": 1,
+      "GOLD_ONE": 2,
+      "CORPSE_NPC": 10,
+      "CORPSE_PC": 11
+    },
+    "room": {
+      "LIMBO": 2,
+      "TEMPLE": 3001,
+      "SCHOOL": 3700
+    }
   },
-
   "integrity": {
     "contentHash": "sha256:REPLACE_WITH_HASH_OF_CANONICAL_JSON",
-    "build": { "source": "ruleset-compiler", "toolVersion": "1.0.0" }
+    "build": {
+      "source": "ruleset-compiler",
+      "toolVersion": "1.0.0"
+    }
   }
-}
+}]

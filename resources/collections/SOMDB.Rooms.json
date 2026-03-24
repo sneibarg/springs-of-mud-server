@@ -42668,10 +42668,9 @@
 },
 {
   "_id": {
-    "$oid": ""
+    "$oid": "69bb43ab8e961713ec06612c"
   },
-  "areaId": "69bb4,
-  3ab9df220a84a80848a",
+  "areaId": "69bb43ab9df220a84a80848a",
   "vnum": "5381",
   "name": "Market Square",
   "description": "You are standing on the market square, the Square of Midgaard.  It seems\nthat a large, peculiar looking statue is being built here in the middle of\nthe square.  Roads lead to the north and east, north to the temple square,\neast is the main street.",
