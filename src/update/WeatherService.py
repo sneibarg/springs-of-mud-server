@@ -69,7 +69,7 @@ class WeatherService:
         time_msg = self._time_change()
         if time_msg:
             self.logger.info(f"Time update: {time_msg}")
-            message = Message(type=MessageType.SYSTEM, data={'text': time_msg})
+            message = Message(type=MessageType.GAME, data={'text': time_msg})
             await self.message_bus.send_to_outdoor_players(message, self._is_player_outdoors)
 
     async def sky_update(self):
@@ -79,14 +79,13 @@ class WeatherService:
         sky_msg = self._sky_change()
         if sky_msg:
             self.logger.info(f"Sky update: {sky_msg}")
-            message = Message(type=MessageType.SYSTEM, data={'text': sky_msg})
+            message = Message(type=MessageType.GAME, data={'text': sky_msg})
             await self.message_bus.send_to_outdoor_players(message, self._is_player_outdoors)
 
     def _is_player_outdoors(self, character_id: str) -> bool:
         """Check if a player is currently outdoors."""
         character = self.registry_service.character_registry.get(character_id)
         self.logger.info(f"Checking if player {character_id} is outdoors: {character}")
-        print(f"Checking if player {character_id} is outdoors: {character}")
         if character:
             room = self.room_service.get_room(character.room_id)
             self.logger.info(f"Room: {room}")

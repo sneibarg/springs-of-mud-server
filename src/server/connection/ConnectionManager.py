@@ -1,14 +1,15 @@
 from typing import Dict, Optional, List
+
+from server.connection import TelnetConnection
 from server.connection.Connection import Connection
-from server.protocol import Message
 
 
 class ConnectionManager:
     def __init__(self):
-        self._connections: Dict[str, Connection] = {}
+        self._connections: Dict[str, TelnetConnection] = {}
         self._player_sessions: Dict[str, str] = {}  # player_id -> session_id
 
-    def add_connection(self, connection: Connection) -> None:
+    def add_connection(self, connection: TelnetConnection) -> None:
         self._connections[connection.session_id] = connection
 
     def remove_connection(self, session_id: str) -> None:
@@ -19,10 +20,10 @@ class ConnectionManager:
         if player_id:
             del self._player_sessions[player_id]
 
-    def get_connection(self, session_id: str) -> Optional[Connection]:
+    def get_connection(self, session_id: str) -> Optional[TelnetConnection]:
         return self._connections.get(session_id)
 
-    def get_connection_by_player(self, player_id: str) -> Optional[Connection]:
+    def get_connection_by_player(self, player_id: str) -> Optional[TelnetConnection]:
         session_id = self._player_sessions.get(player_id)
         if session_id:
             return self._connections.get(session_id)

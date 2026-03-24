@@ -19,8 +19,7 @@ class RoomService:
         self.logger.info("Initialized RoomService instance.")
 
     def is_outside(self, room: Room) -> bool:
-        """Check if a room is outdoors based on its flags."""
-        self.logger.info(f"is_outside: {room.room_flags}={self.game_data.flags['room']['INDOORS']}")
+        self.logger.debug(f"is_outside: {room.room_flags}={self.game_data.flags['room']['INDOORS']}")
         return (room.room_flags & self.game_data.flags['room']["INDOORS"]) == 0
 
     def get_room(self, room_id) -> Room | None:

@@ -74,7 +74,7 @@ class MessageBus:
         connection = self.connection_manager.get_connection_by_player(player_id)
         if connection and isinstance(connection, TelnetConnection):
             try:
-                await connection.send_text(f"[{health}hp {mana}mn, {movement}mv]")
+                await connection.send_text(f"<{health}hp, {mana}mn, {movement}mv>")
                 return True
             except Exception as e:
                 self.logger.error(f"Failed to send prompt to player {player_id}: {e}", exc_info=True)
@@ -85,9 +85,9 @@ class MessageBus:
         count = 0
         sessions = self.session_handler.get_playing_sessions()
         for session in sessions:
-            self.logger.debug(f"Checking player {session.character.name} for outdoor status")
+            self.logger.info(f"Checking player {session.character.name} for outdoor status")
             if session.player_id and is_outdoor_check(session.character.id):
-                self.logger.debug(f"Sending message to player {session.player_id} (character {session.character.name}): {message}")
+                self.logger.info(f"Sending message to player {session.player_id} (character {session.character.name}): {message}")
                 if await self.send_to_character(session.player_id, message):
                     count += 1
 

@@ -105,25 +105,20 @@ class ConnectionHandler:
         await connection.send_message(message)
 
     async def _game_loop(self, connection: TelnetConnection, session, player, character) -> None:
-        while not connection.is_closed() and session.is_playing():
+        while not connection.is_closed() and session.is_playing() or session.is_idle():
             try:
                 if not session.is_idle() and self.session_handler.is_session_idle(session):
                     session.status = SessionStatus.IDLING
-                message = await self._wait_for_message(connection, session)
-                if message is None:
-                    break
 
+                message = await self._wait_for_message(connection, session)
                 session.update_activity()
                 if message.type == MessageType.GAME and not message.get('text'):
                     await self.message_bus.send_prompt(session.player_id, character.health, character.mana, character.movement)
                     continue
 
                 if message.type == MessageType.GAME:
-                    command_text = message.get('text', '')
-                    self.command_handler.handle_command(player, command_text)
-
+                    self.command_handler.handle_command(player, message.get('text', ''))
                     await self.message_bus.send_prompt(session.player_id, character.health, character.mana, character.movement)
-
             except Exception as e:
                 self.logger.error(f"Error in game loop: {e}", exc_info=True)
                 break

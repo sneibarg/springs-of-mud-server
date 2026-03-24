@@ -33,7 +33,7 @@ class SessionHandler:
         return [s for s in self._sessions.values() if s.status != SessionStatus.DISCONNECTED]
 
     def get_playing_sessions(self) -> list[SessionState]:
-        return [s for s in self._sessions.values() if s.is_playing()]
+        return [s for s in self._sessions.values() if s.is_playing() or s.is_idle()]
 
     def session_count(self) -> int:
         return len(self._sessions)

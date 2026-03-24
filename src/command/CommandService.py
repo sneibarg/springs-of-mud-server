@@ -137,7 +137,6 @@ def handle_lambdas(command_service, player, command, parameters):
                 raise TypeError('lambda_function is not a callable function.')
 
             args = get_args(lambda_string, player, command_service.injector, parameters)
-            command_service.logger.info("".join(str(args)) + " " + lambda_string)
             lambda_function(*args)
         else:
             raise ValueError('Failed to retrieve specified lambda function from REST service')

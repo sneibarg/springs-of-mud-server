@@ -63,6 +63,6 @@ class TelnetConnection(Connection):
         self.ansi_enabled = enabled
         self.protocol.ansi_enabled = enabled
 
-    async def send_text(self, text: str, message_type: MessageType = MessageType.SYSTEM) -> None:
+    async def send_text(self, text: str, message_type: MessageType = MessageType.GAME) -> None:
         message = Message(type=message_type, data={'text': text})
         await self.send_message(message)
