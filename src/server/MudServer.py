@@ -2,23 +2,26 @@ import asyncio
 import threading
 
 from injector import Injector, singleton
-from area import AreaService, RoomService
-from game import GameService, GameData
-from mobile import MobileService
-from object import ItemService
-from player import PlayerService, Player
-from command import CommandService, CommandHandler
-from event import EventHandler
-from registry import RegistryService
+from area.AreaService import AreaService
+from area.RoomService import RoomService
+from game.GameService import GameService
+from game.GameData import GameData
+from mobile.MobileService import MobileService
+from object.ItemService import ItemService
+from player.PlayerService import PlayerService
+from player.Player import Player
+from command.CommandService import CommandService
+from event.EventHandler import EventHandler
+from registry.RegistryService import RegistryService
 from server.ServerUtil import ServerUtil
-from server.handlers import ConnectionHandler
-from server.session import AuthenticationService
-from server.connection import ConnectionManager
-from server.messaging import MessageBus
+from server.handlers.ConnectionHandler import ConnectionHandler
+from server.session.AuthenticationService import AuthenticationService
+from server.connection.ConnectionManager import ConnectionManager
+from server.messaging.MessageBus import MessageBus
 from server.ServiceConfig import ServiceConfig
 from server.session.SessionHandler import SessionHandler
-from skill import SkillService
-from update import WeatherService
+from skill.SkillService import SkillService
+from update.WeatherService import WeatherService
 
 
 class MudServer:
@@ -44,7 +47,6 @@ class MudServer:
         game_thread = threading.Thread(target=self._run_game_loop, daemon=True, name="GameLoop")
         game_thread.start()
         self.logger.info("GameService started in background thread")
-
         server = await asyncio.start_server(self.handle_client, self.host, self.port)
         self.logger.info(f"MudServer started on {self.host}:{self.port}")
         await server.serve_forever()
@@ -111,14 +113,13 @@ class MudServer:
         self.injector.binder.bind(EventHandler, scope=singleton)
         self.injector.binder.bind(PlayerService, scope=singleton)
         self.injector.binder.bind(CommandService, scope=singleton)
-        self.injector.binder.bind(CommandHandler, scope=singleton)
+        self.injector.binder.bind(ConnectionHandler, scope=singleton)
         self.injector.binder.bind(AreaService, scope=singleton)
         self.injector.binder.bind(ItemService, scope=singleton)
         self.injector.binder.bind(MobileService, scope=singleton)
         self.injector.binder.bind(AuthenticationService, scope=singleton)
         self.injector.binder.bind(ConnectionManager, scope=singleton)
         self.injector.binder.bind(MessageBus, scope=singleton)
-        self.injector.binder.bind(ConnectionHandler, scope=singleton)
         self.injector.binder.bind(GameService, scope=singleton)
         self.injector.binder.bind(GameData, to=self.injector.get(GameService).game_data, scope=singleton)
         self.injector.binder.bind(SessionHandler, to=SessionHandler(self.injector.get(GameData).constants.max['idleTime']), scope=singleton)

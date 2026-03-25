@@ -31,6 +31,11 @@ class MessageCodec:
         if msg_type == MessageType.GAME:
             text = data.get('text', '')
 
+        if isinstance(text, bytes):
+            text = text.decode('utf-8')
+
+        text = str(text)
+
         if not text.endswith('\r\n'):
             text += '\r\n'
 

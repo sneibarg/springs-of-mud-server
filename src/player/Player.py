@@ -2,7 +2,7 @@
 import threading
 from dataclasses import dataclass, field
 from typing import Optional
-from player import Character
+from player.Character import Character
 
 
 @dataclass

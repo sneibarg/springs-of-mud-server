@@ -2,42 +2,46 @@ import asyncio
 import threading
 
 from asyncio import StreamReader, StreamWriter
-from typing import Tuple, Any
-from injector import inject, Injector
-from area import RoomService
-from command import CommandHandler
-from server.connection import TelnetConnection, ConnectionManager
+from typing import Tuple
+from injector import inject
+from area.RoomService import RoomService
+from area.Area import Area
+from area.Room import Room
+from command.CommandService import CommandService
+from server.connection.TelnetConnection import TelnetConnection
+from server.connection.ConnectionManager import ConnectionManager
 from server.session.SessionHandler import SessionHandler
-from server.session import SessionStatus, AuthenticationService, SessionState
-from server.messaging import MessageBus
-from server.protocol import MessageType, Message
+from server.session.SessionState import SessionStatus, SessionState
+from server.session.AuthenticationService import AuthenticationService
+from server.messaging.MessageBus import MessageBus
+from server.protocol.Message import MessageType, Message
 from server.LoggerFactory import LoggerFactory
 from server.ServerUtil import ServerUtil
-from player import Character, Player, PlayerService
+from player.Character import Character
+from player.Player import Player
+from player.PlayerService import PlayerService
 
 
 class ConnectionHandler:
     @inject
     def __init__(self,
-                 injector: Injector,
                  connection_manager: ConnectionManager,
                  session_handler: SessionHandler,
                  message_bus: MessageBus,
                  player_service: PlayerService,
+                 room_service: RoomService,
                  auth_service: AuthenticationService,
-                 command_handler: CommandHandler,
-                 room_service: RoomService):
+                 command_service: CommandService):
         self.logger = LoggerFactory.get_logger(__name__)
-        self.injector = injector
         self.session_handler = session_handler
         self.connection_manager = connection_manager
         self.session_handler = session_handler
         self.message_bus = message_bus
         self.player_service = player_service
+        self.room_service = room_service
         self.registry_service = player_service.registry_service
         self.auth_service = auth_service
-        self.command_handler = command_handler
-        self.room_service = room_service
+        self.command_service = command_service
 
     async def _receive_initial_message(self, connection: TelnetConnection, session: SessionState) -> Tuple[bool, None | str, None | dict]:
         first_msg = await connection.receive_message()
@@ -73,10 +77,11 @@ class ConnectionHandler:
             if not success:
                 return
 
-            player, character = await self._nanny(character_data, writer, reader, session, connection)
+            player, character = await self._nanny(character_data, session, connection)
+            area, room = self._get_area_and_room(character)
 
             await self.room_service.print_room(player.id, self.registry_service.room_registry[character.room_id])
-            await self.message_bus.send_prompt(session.player_id, character.health, character.mana, character.movement)
+            await self.message_bus.send_prompt(session.player_id, character, area, room)
             await self._game_loop(connection, session, player, character)
         except Exception as e:
             self.logger.error(f"Error handling connection: {e}", exc_info=True)
@@ -106,12 +111,14 @@ class ConnectionHandler:
                     break
                 session.update_activity()
                 if message.type == MessageType.GAME and not message.get('text'):
-                    await self.message_bus.send_prompt(session.player_id, character.health, character.mana, character.movement)
+                    area, room = self._get_area_and_room(character)
+                    await self.message_bus.send_prompt(session.player_id, character, area, room)
                     continue
 
                 if message.type == MessageType.GAME:
-                    await self.command_handler.handle_command(player, message.get('text', ''))
-                    await self.message_bus.send_prompt(session.player_id, character.health, character.mana, character.movement)
+                    area, room = self._get_area_and_room(character)
+                    await self.command_service.handle_command(player, message.get('text', ''))
+                    await self.message_bus.send_prompt(session.player_id, character, area, room)
             except Exception as e:
                 self.logger.error(f"Error in game loop: {e}", exc_info=True)
                 break
@@ -126,11 +133,9 @@ class ConnectionHandler:
                 await connection.send_text("You have disappeared into the void.\n\r", MessageType.GAME)
                 return None
 
-    def _get_character(self, character_data, writer, reader) -> Character:
+    @staticmethod
+    def _get_character(character_data) -> Character:
         character_definition = ServerUtil.camel_to_snake_case(character_data) if character_data else {}
-        character_definition['injector'] = self.injector
-        character_definition['writer'] = writer
-        character_definition['reader'] = reader
         character_definition['lock'] = threading.Lock()
         return Character.from_json(character_definition)
 
@@ -138,14 +143,18 @@ class ConnectionHandler:
         account = self.player_service.get_account_by_id(session.player_id)
         if account:
             account_data = ServerUtil.camel_to_snake_case(account)
-            account_data['connection'] = (character.reader, character.writer)
             account_data['current_character'] = character
             account_data['ansi_enabled'] = session.ansi_enabled
             return Player.from_json(account_data)
         return None
 
-    async def _nanny(self, character_data, writer, reader, session, connection) -> Tuple[Player, Character]:
-        character = self._get_character(character_data, writer, reader)
+    def _get_area_and_room(self, character) -> Tuple[Area, Room]:
+        area = self.registry_service.area_registry[character.area_id]
+        room = self.registry_service.room_registry[character.room_id]
+        return area, room
+
+    async def _nanny(self, character_data, session, connection) -> Tuple[Player, Character]:
+        character = self._get_character(character_data)
         session.character = character
         player = self._get_or_create_player(session, character)
 

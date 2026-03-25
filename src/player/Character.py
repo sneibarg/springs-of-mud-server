@@ -1,9 +1,8 @@
 import threading
 
-from asyncio import StreamWriter, StreamReader
 from dataclasses import dataclass, field
-from typing import Optional, Dict, List
-from injector import Injector
+from typing import Dict, List
+from game.PromptFormat import PromptFormat
 from object.Item import Item
 from server.LoggerFactory import LoggerFactory
 
@@ -44,14 +43,11 @@ class Character:
     bashing: int
     slashing: int
     magic: int
-    injector: Injector
     inventory: List[str]
+    prompt_format: PromptFormat
     loot: Dict[str, object] = field(default_factory=dict)
-    # statuses: List[str] = field(default_factory=list)
-    # skills: List[str] = field(default_factory=list)
-    writer: Optional[StreamWriter] = None
-    reader: Optional[StreamReader] = None
     lock: threading.Lock = field(default_factory=threading.Lock)
+    carriage_return: bool = True
 
     def __post_init__(self):
         self.logger = LoggerFactory.get_logger(__name__)
@@ -83,5 +79,7 @@ class Character:
 
     @classmethod
     def from_json(cls, data):
+        prompt_format = PromptFormat.from_template(data['prompt_format'])
+        data['prompt_format'] = prompt_format
         return cls(**data)
 

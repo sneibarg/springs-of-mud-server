@@ -2,7 +2,7 @@ from enum import Enum, auto
 from dataclasses import dataclass, field
 from typing import Optional
 from datetime import datetime
-from player import Character
+from player.Character import Character
 
 
 class SessionStatus(Enum):
