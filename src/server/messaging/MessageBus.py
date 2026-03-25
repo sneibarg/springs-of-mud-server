@@ -73,8 +73,7 @@ class MessageBus:
         connection = self.connection_manager.get_connection_by_player(player_id)
         if connection and isinstance(connection, TelnetConnection):
             try:
-                prompt = character.prompt_format
-                await connection.send_message(prompt.render_prompt(SessionStatus.PLAYING, character, room, area))
+                await connection.send_message(character.prompt_format.render_prompt(SessionStatus.PLAYING, character, room, area))
                 return True
             except Exception as e:
                 self.logger.error(f"Failed to send prompt to player {player_id}: {e}", exc_info=True)
