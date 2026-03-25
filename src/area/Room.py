@@ -1,6 +1,7 @@
-from dataclasses import dataclass, field
-
 import threading
+
+from dataclasses import dataclass, field
+from area.AreaUtil import AreaUtil
 
 
 @dataclass
@@ -44,6 +45,9 @@ class Room:
         return [room_exit for room_exit in
                 [self.exit_north, self.exit_south, self.exit_east, self.exit_west, self.exit_up, self.exit_down] if
                 room_exit is not None]
+
+    def get_formatted_exits(self):
+        return AreaUtil.cardinal_direction(self)
 
     def get_populace(self):
         with self.lock:
