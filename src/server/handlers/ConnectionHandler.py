@@ -110,13 +110,12 @@ class ConnectionHandler:
                 if message is None:
                     break
                 session.update_activity()
+                area, room = self._get_area_and_room(character)
                 if message.type == MessageType.GAME and not message.get('text'):
-                    area, room = self._get_area_and_room(character)
                     await self.message_bus.send_prompt(session.player_id, character, area, room)
                     continue
 
                 if message.type == MessageType.GAME:
-                    area, room = self._get_area_and_room(character)
                     await self.command_service.handle_command(player, message.get('text', ''))
                     await self.message_bus.send_prompt(session.player_id, character, area, room)
             except Exception as e:
