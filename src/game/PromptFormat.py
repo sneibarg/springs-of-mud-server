@@ -1,5 +1,8 @@
 from dataclasses import dataclass
 
+from player import Character
+from server.protocol import Message, MessageType
+
 
 @dataclass
 class PromptFormat:
@@ -14,5 +17,7 @@ class PromptFormat:
     gold: bool
     silver: bool
 
-    def format_prompt(self):
-        pass
+    @staticmethod
+    def default_prompt(character: Character) -> Message:
+        text = f"<{character.health}hp {character.mana}m {character.movement}mv>\r\n"
+        return Message(type=MessageType.GAME, data={'text': text})
