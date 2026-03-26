@@ -1,7 +1,8 @@
 from typing import Optional
 from asyncio import StreamReader, StreamWriter
 from server.connection.Connection import Connection
-from server.protocol import Message, MessageType, TelnetProtocol
+from server.protocol.Message import Message, MessageType
+from server.protocol.TelnetProtocol import TelnetProtocol
 from server.LoggerFactory import LoggerFactory
 
 

@@ -1,10 +1,10 @@
 from injector import inject
-from game import GameData
+from game.GameData import GameData
 from area.Room import Room
 from area.AreaUtil import AreaUtil
-from registry import RegistryService
+from registry.RegistryService import RegistryService
 from server.LoggerFactory import LoggerFactory
-from server.protocol import Message, MessageType
+from server.protocol.Message import Message, MessageType
 from server.ServiceConfig import ServiceConfig
 from server.messaging.MessageBus import MessageBus
 

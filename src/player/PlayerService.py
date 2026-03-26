@@ -2,7 +2,7 @@ import requests
 
 from injector import inject
 
-from registry import RegistryService
+from registry.RegistryService import RegistryService
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 

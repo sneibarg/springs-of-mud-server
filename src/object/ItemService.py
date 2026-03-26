@@ -1,7 +1,7 @@
 import requests
 
 from injector import inject
-from game import GameService
+from game.GameService import GameService
 from object.AffectData import AffectData, AffectWhere
 from object.ExtraDescriptionData import ExtraDescriptionData
 from object.Item import Item

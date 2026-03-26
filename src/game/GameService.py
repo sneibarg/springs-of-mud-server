@@ -3,8 +3,8 @@ import requests
 from typing import TYPE_CHECKING
 from injector import inject
 
-from game import GameData
-from mobile import MobileService
+from game.GameData import GameData
+from mobile.MobileService import MobileService
 from server.LoggerFactory import LoggerFactory
 from server.ServerUtil import ServerUtil
 from server.TimeVal import gettimeofday, TimeVal, stall_until_last_time

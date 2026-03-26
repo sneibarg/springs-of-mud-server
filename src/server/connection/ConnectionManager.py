@@ -1,6 +1,6 @@
 from typing import Dict, Optional, List
 
-from server.connection import TelnetConnection
+from server.connection.TelnetConnection import TelnetConnection
 from server.connection.Connection import Connection
 
 

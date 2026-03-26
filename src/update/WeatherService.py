@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from injector import inject
 
-from area import RoomService
-from game import GameData
-from registry import RegistryService
-from numbers import RandomNumberGenerator
+from area.RoomService import RoomService
+from game.GameData import GameData
+from registry.RegistryService import RegistryService
+from numbers.RandomNumberGenerator import RandomNumberGenerator
 from server.LoggerFactory import LoggerFactory
-from server.messaging import MessageBus
-from server.protocol import Message, MessageType
+from server.messaging.MessageBus import MessageBus
+from server.protocol.Message import Message, MessageType
 
 rng = RandomNumberGenerator()
 

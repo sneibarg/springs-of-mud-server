@@ -3,8 +3,8 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from typing import List
-from area import AreaService
-from mobile import MobileService
+from area.AreaService import AreaService
+from mobile.MobileService import MobileService
 
 
 @dataclass

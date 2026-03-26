@@ -1,14 +1,14 @@
 import requests
 
 from injector import inject
-from game import GameData
+from game.GameData import GameData
 from mobile.Mobile import Mobile
 from server.LoggerFactory import LoggerFactory
 from server.ServerUtil import ServerUtil
 from server.ServiceConfig import ServiceConfig
-from registry import RegistryService
-from event import EventHandler
-from area import AreaService
+from registry.RegistryService import RegistryService
+from event.EventHandler import EventHandler
+from area.AreaService import AreaService
 
 
 class MobileService:

@@ -2,7 +2,7 @@ import json
 
 from dataclasses import dataclass
 from typing import Optional, List
-from object import ExtraDescriptionData
+from object.ExtraDescriptionData import ExtraDescriptionData
 from object.AffectData import AffectData
 from server.ServerUtil import ServerUtil
 from server.LoggerFactory import LoggerFactory

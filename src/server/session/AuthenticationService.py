@@ -1,8 +1,8 @@
 from typing import Optional, Tuple
 from injector import inject
-from player import PlayerService
-from server.connection import Connection
-from server.protocol import MessageType, Message
+from player.PlayerService import PlayerService
+from server.connection.Connection import Connection
+from server.protocol.Message import Message, MessageType
 from server.ServerUtil import ServerUtil
 from server.session.SessionState import SessionState, SessionStatus
 from server.LoggerFactory import LoggerFactory

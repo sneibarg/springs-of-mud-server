@@ -17,7 +17,7 @@ from player.Character import Character
 from event.EventHandler import EventHandler
 from object.ItemService import ItemService
 from object.Item import Item
-from server.connection import ConnectionManager
+from server.connection.ConnectionManager import ConnectionManager
 from server.messaging.MessageBus import MessageBus
 from server.protocol.Message import MessageType, Message
 from skill.SkillService import SkillService

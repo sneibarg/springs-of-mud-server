@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 from asyncio import StreamReader, StreamWriter
-from server.protocol import Message
+from server.protocol.Message import Message
 
 import uuid
 

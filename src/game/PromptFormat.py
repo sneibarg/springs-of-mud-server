@@ -1,13 +1,16 @@
+from __future__ import annotations
+
 import inspect
 
 from dataclasses import dataclass, asdict
-from typing import Callable, Union, TYPE_CHECKING
-from area import Room, Area
-from player import Character
-from server.protocol import Message, MessageType
+from typing import Callable, TYPE_CHECKING
+from server.protocol.Message import Message, MessageType
 
 if TYPE_CHECKING:
-    from server.session import SessionStatus
+    from area.Room import Room
+    from area.Area import Area
+    from player.Character import Character
+    from server.session.SessionState import SessionStatus
 
 
 def build_prompt_map():
@@ -31,14 +34,7 @@ def build_prompt_map():
     }
 
 
-PromptFn = Union[
-    Callable[[], str],
-    Callable[[Character], str],
-    Callable[[Room], str],
-    Callable[[Area], str],
-    Callable[[Character, Room], str],
-    Callable[[Character, Area], str],
-]
+PromptFn = Callable[..., str]
 
 
 @dataclass
@@ -199,7 +195,7 @@ class PromptFormat:
 
     @staticmethod
     def _tag_afk(status: SessionStatus) -> str:
-        from server.session import SessionStatus
+        from server.session.SessionState import SessionStatus
         if status == SessionStatus.IDLING:
             return "<AFK>"
         return ""

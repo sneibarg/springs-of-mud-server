@@ -4,7 +4,7 @@ from injector import inject
 from area.AreaUtil import AreaUtil
 from area.Area import Area
 from area.Room import Room
-from registry import RegistryService
+from registry.RegistryService import RegistryService
 from server.ServerUtil import ServerUtil
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig

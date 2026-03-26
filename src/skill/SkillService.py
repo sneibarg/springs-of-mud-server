@@ -3,7 +3,7 @@ import requests
 from injector import inject
 from server.ServiceConfig import ServiceConfig
 from server.LoggerFactory import LoggerFactory
-from skill import Skill
+from skill.Skill import Skill
 
 
 class SkillService:
