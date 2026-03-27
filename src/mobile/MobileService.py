@@ -1,7 +1,6 @@
 import requests
 
 from injector import inject
-from game.GameData import GameData
 from mobile.Mobile import Mobile
 from server.LoggerFactory import LoggerFactory
 from server.ServerUtil import ServerUtil
@@ -9,15 +8,22 @@ from server.ServiceConfig import ServiceConfig
 from registry.RegistryService import RegistryService
 from event.EventHandler import EventHandler
 from area.AreaService import AreaService
+from game.GameService import GameService
 
 
 class MobileService:
     @inject
-    def __init__(self, config: ServiceConfig, game_data: GameData, registry: RegistryService, area_service: AreaService, event_handler: EventHandler):
+    def __init__(self, config: ServiceConfig,
+                 game_service: GameService,
+                 registry: RegistryService,
+                 area_service: AreaService,
+                 event_handler: EventHandler):
         self.__name__ = "MobileService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry = registry
-        self.game_data = game_data
+        self.game_service = game_service
+        self.game_data = game_service.game_data
+        self.enums = self.game_data.enums
         self.mobiles_endpoint = config.mobiles_endpoint
         self.area_service = area_service
         self.event_handler = event_handler
@@ -25,7 +31,6 @@ class MobileService:
         self.stop_flag = False
         self.all_mobiles = {}
         self.kill_table: dict[int, int] = {}
-        self.enum_lookup = ServerUtil.build_enum_lookup(self.game_data.enums)
 
     def start(self):
         self.load_mobiles()
@@ -72,7 +77,7 @@ class MobileService:
     def _build_mobile(self, mobile_id: str, mobile_data: dict, npc_flag: int) -> tuple[Mobile, int]:
         player_name = str(mobile_data.get("name", "") or "")
         race_name = self._resolve_race_name(mobile_data.get("race"), player_name)
-        race = self.game_data.get_race(race_name) or {}
+        race = self.game_data.races[race_name] or {}
 
         flags = self._resolve_mobile_flags(mobile_data, race, npc_flag)
         level = self._safe_int(mobile_data.get("level", 0), default=0)
@@ -131,9 +136,9 @@ class MobileService:
         return None
 
     def _build_normalized_mobile_data(self, mobile_id: str, mobile_data: dict, player_name: str, race_name: str, flags: dict[str, int], level: int) -> dict:
-        start_pos = self._normalize_position(mobile_data.get("start_pos"), fallback_key="standing")
-        default_pos = self._normalize_position(mobile_data.get("default_pos"), fallback_key="standing")
-        sex_value = self._normalize_enum_value("sex", mobile_data.get("sex"), fallback=0)
+        start_pos = mobile_data.get("start_pos")
+        default_pos = mobile_data.get("default_pos")
+        sex_value = mobile_data.get("sex")
 
         return {
             "area_id": str(mobile_data.get("area_id", "") or ""),
@@ -209,14 +214,6 @@ class MobileService:
         mobile.ac = ac_data
         mobile.wealth = self._safe_int(mobile_data.get("wealth", mobile_data.get("gold", 0)), default=0)
 
-        dam_type_value = self._resolve_attack(mobile_data.get("dam_type") or mobile_data.get("damage_type"))
-        if dam_type_value:
-            mobile.dam_type = str(dam_type_value)
-
-        size_value = self._resolve_size(mobile_data.get("size"))
-        if size_value:
-            mobile.size = str(size_value)
-
     @staticmethod
     def _increment_kill_table(kill_table: dict[int, int], level: int):
         level_bucket = max(0, min(level, 100))
@@ -243,8 +240,8 @@ class MobileService:
         candidates.append("human")
 
         for candidate in candidates:
-            race = self.game_data.get_race(candidate)
-            if race is not None:
+            if candidate in self.game_data.races:
+                race = self.game_data.races[candidate]
                 race_id = race.get("id")
                 if race_id:
                     return str(race_id)
@@ -277,7 +274,7 @@ class MobileService:
             return default
 
     def _normalize_position(self, value, fallback_key="standing") -> int:
-        enum_lookup = self.enum_lookup.get("position", {})
+        pos_enum = self.enums["positions"]
         if isinstance(value, int):
             result = value
         else:
@@ -285,23 +282,12 @@ class MobileService:
             if text.isdigit():
                 result = int(text)
             elif text:
-                result = enum_lookup.get(text.lower(), 0)
+                result = pos_enum.get(text.lower(), 0)
             else:
                 result = 0
 
         fallback = enum_lookup.get(fallback_key.lower(), 8)
         return result if result > 0 else fallback
-
-    def _normalize_enum_value(self, enum_name: str, value, fallback=0) -> int:
-        enum_map = self.game_data.enums.get(enum_name, {})
-        if isinstance(value, int):
-            return value
-        text = str(value or "").strip()
-        if text.isdigit():
-            return int(text)
-        if text:
-            return enum_map.get(text.lower(), enum_map.get(text.upper(), fallback))
-        return fallback
 
     def _resolve_attack(self, value):
         if value is None:
@@ -315,7 +301,7 @@ class MobileService:
         if value is None:
             return None
 
-        enum_lookup = self.enum_lookup.get("size", {})
+        enum_lookup = self._enum_value_lookup("size")
         if isinstance(value, int):
             return value
 

@@ -1,7 +1,7 @@
 import re
 
-from enum import StrEnum, IntEnum
-from typing import Dict, Any
+from enum import IntEnum
+from typing import Dict, Any, Iterable
 
 
 class ServerUtil:
@@ -22,43 +22,27 @@ class ServerUtil:
         return snake_case_dict
 
     @staticmethod
-    def build_enum_lookup(enum_source: dict) -> dict[str, dict[str, int]]:
-        """
-        Build normalized lookup tables for all enums.
+    def build_int_enum(enum_name: str, enum_fields: dict[str, int] | list[str] | tuple[str, ...]) -> type[IntEnum]:
+        if isinstance(enum_fields, dict):
+            items: Iterable[tuple[str, int]] = (
+                (str(member_name), int(member_value))
+                for member_name, member_value in enum_fields.items()
+            )
+        elif isinstance(enum_fields, (list, tuple)):
+            items = (
+                (str(member_name), index)
+                for index, member_name in enumerate(enum_fields)
+            )
+        else:
+            raise TypeError(
+                f"enum_fields for '{enum_name}' must be dict/list/tuple, got {type(enum_fields).__name__}"
+            )
 
-        Supports both:
-          list enums  -> ["dead","mortal","standing"]
-          dict enums  -> {"standing":8,"sleeping":4}
-        """
-        lookup = {}
-        for enum_name, values in enum_source.items():
-            if isinstance(values, dict):
-                lookup[enum_name] = {str(k).lower(): int(v) for k, v in values.items()}
-            else:
-                lookup[enum_name] = {
-                    str(v).lower(): i for i, v in enumerate(values)
-                }
+        members = {}
+        for member_name, member_value in items:
+            normalized_name = member_name.strip().upper()
+            if not normalized_name:
+                raise ValueError(f"Enum '{enum_name}' contains an empty member name")
+            members[normalized_name] = member_value
 
-        return lookup
-
-    @staticmethod
-    def build_string_enum(field_prefix: str, enum_name: str, enum_fields: list[str]) -> type[StrEnum]:
-        """
-        Create enum:
-            ITEM_LIGHT = "light"
-            ITEM_SCROLL = "scroll"
-            ...
-        """
-        members = {f"{field_prefix}_{name}": name.lower() for name in enum_fields}
-        return StrEnum(enum_name, members)
-
-    @staticmethod
-    def build_int_enum(field_prefix: str, enum_name: str, enum_fields: list[int]) -> type[IntEnum]:
-        """
-        Create enum:
-            ITEM_LIGHT = 1
-            ITEM_SCROLL = 2
-            ...
-        """
-        members = {f"{field_prefix}_{name}": name for name in enum_fields}
         return IntEnum(enum_name, members)

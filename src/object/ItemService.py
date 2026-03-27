@@ -57,6 +57,13 @@ class ItemService:
     def _update_item_type(self, item_data):
         item_types = self.game_service.enums['itemType']
         item_type = item_data.get("itemType")
+        if not isinstance(item_type, int):
+            raw_value = str(item_type or "").strip()
+            enum_lookup = self.game_service.game_data.enums.get("itemType", {})
+            if raw_value.isdigit():
+                item_type = int(raw_value)
+            else:
+                item_type = enum_lookup.get(raw_value.upper(), item_type)
         if item_type == item_types.ITEM_WEAPON:
             self._attack_type(item_data)
         elif item_type == item_types.ITEM_FOUNTAIN:

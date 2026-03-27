@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from typing import Dict, List
 from game.PromptFormat import PromptFormat
 from object.Item import Item
+from player.CharacterClass import CharacterClass
 from server.LoggerFactory import LoggerFactory
 
 
@@ -19,7 +20,6 @@ class Character:
     name: str
     area_id: str
     room_id: str
-    character_class: str
     guild: str
     role: str
     sex: str
@@ -44,6 +44,7 @@ class Character:
     slashing: int
     magic: int
     inventory: List[str]
+    character_class: CharacterClass
     prompt_format: PromptFormat
     loot: Dict[str, object] = field(default_factory=dict)
     lock: threading.Lock = field(default_factory=threading.Lock)
@@ -79,7 +80,14 @@ class Character:
 
     @classmethod
     def from_json(cls, data):
-        prompt_format = PromptFormat.from_template(data['prompt_format'])
-        data['prompt_format'] = prompt_format
-        return cls(**data)
+        payload = dict(data)
+        prompt_format = payload.get('prompt_format')
+        character_class = payload.get('character_class')
+
+        if not isinstance(prompt_format, PromptFormat):
+            prompt_format = PromptFormat.from_template(prompt_format)
+
+        payload['prompt_format'] = prompt_format
+        payload['character_class'] = CharacterClass.from_json(character_class)
+        return cls(**payload)
 

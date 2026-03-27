@@ -1,5 +1,10 @@
 from dataclasses import dataclass
+from enum import IntEnum
 from server.LoggerFactory import LoggerFactory
+
+
+class ShopEnum(IntEnum):
+    MAX_TRADE = 5
 
 
 @dataclass

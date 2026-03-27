@@ -13,18 +13,15 @@ class GameData:
       - top-level catalogs are flat maps: classes["mage"], races["human"], ...
       - optional *NameIndex maps for display-name -> id resolution
       - flags are bit-value maps: flags["room"]["INDOORS"] == 4, etc.
-      - enums remain: enums["sector"] == ["INSIDE", "CITY", ...]
+      - enums are int maps: enums["sector"]["CITY"] == 1
     """
     id: str
     kind: str
     status: str
     version: Version
     constants: Constants
-    enums: Dict[str, list[str]]
-
-    # bitflag maps (domain -> {FLAG_NAME -> int_bit})
+    enums: Dict[str, Dict[str, int]]
     flags: Dict[str, Dict[str, int]]
-
     classes: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     races: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     pc_races: Dict[str, Dict[str, Any]] = field(default_factory=dict)
@@ -33,16 +30,6 @@ class GameData:
     weapons: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     attacks: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     liquids: Dict[str, Dict[str, Any]] = field(default_factory=dict)
-
-    classes_name_index: Dict[str, str] = field(default_factory=dict)
-    races_name_index: Dict[str, str] = field(default_factory=dict)
-    pc_races_name_index: Dict[str, str] = field(default_factory=dict)
-    skills_name_index: Dict[str, str] = field(default_factory=dict)
-    groups_name_index: Dict[str, str] = field(default_factory=dict)
-    weapons_name_index: Dict[str, str] = field(default_factory=dict)
-    attacks_name_index: Dict[str, str] = field(default_factory=dict)
-    liquids_name_index: Dict[str, str] = field(default_factory=dict)
-
     well_known_vnums: Dict[str, Dict[str, int]] = field(default_factory=dict)
     integrity: Integrity = field(default_factory=lambda: Integrity("", BuildInfo("", "")))
 
@@ -69,41 +56,9 @@ class GameData:
             attacks=dict(doc.get("attacks", {})),
             liquids=dict(doc.get("liquids", {})),
 
-            classes_name_index=dict(doc.get("classesNameIndex", {})),
-            races_name_index=dict(doc.get("racesNameIndex", {})),
-            pc_races_name_index=dict(doc.get("pcRacesNameIndex", {})),
-            groups_name_index=dict(doc.get("groupsNameIndex", {})),
-            weapons_name_index=dict(doc.get("weaponsNameIndex", {})),
-            attacks_name_index=dict(doc.get("attacksNameIndex", {})),
-            liquids_name_index=dict(doc.get("liquidsNameIndex", {})),
-
             well_known_vnums=dict(doc.get("wellKnownVnums", {})),
             integrity=Integrity.from_dict(doc.get("integrity", {})),
         )
-
-    def get_class(self, key: str) -> Optional[Dict[str, Any]]:
-        return _resolve_catalog(self.classes, self.classes_name_index, key)
-
-    def get_race(self, key: str) -> Optional[Dict[str, Any]]:
-        return _resolve_catalog(self.races, self.races_name_index, key)
-
-    def get_pc_race(self, key: str) -> Optional[Dict[str, Any]]:
-        return _resolve_catalog(self.pc_races, self.pc_races_name_index, key)
-
-    def get_skill(self, key: str) -> Optional[Dict[str, Any]]:
-        return _resolve_catalog(self.skills, self.skills_name_index, key)
-
-    def get_group(self, key: str) -> Optional[Dict[str, Any]]:
-        return _resolve_catalog(self.groups, self.groups_name_index, key)
-
-    def get_weapon(self, key: str) -> Optional[Dict[str, Any]]:
-        return _resolve_catalog(self.weapons, self.weapons_name_index, key)
-
-    def get_attack(self, key: str) -> Optional[Dict[str, Any]]:
-        return _resolve_catalog(self.attacks, self.attacks_name_index, key)
-
-    def get_liquid(self, key: str) -> Optional[Dict[str, Any]]:
-        return _resolve_catalog(self.liquids, self.liquids_name_index, key)
 
     def flag_value(self, domain: str, name: str) -> int:
         """
@@ -111,15 +66,6 @@ class GameData:
         Raises KeyError if missing (fail-fast).
         """
         return self.flags[domain][name]
-
-
-def _resolve_catalog(items: Dict[str, Dict[str, Any]],
-                     name_index: Dict[str, str],
-                     key: str) -> Optional[Dict[str, Any]]:
-    if key in items:
-        return items[key]
-    resolved = name_index.get(key)
-    return items.get(resolved) if resolved else None
 
 
 @dataclass(frozen=True)

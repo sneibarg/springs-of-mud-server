@@ -8,7 +8,6 @@
   "name": "Fizban",
   "title": "the Fabulous",
   "race": "Human",
-  "characterClass": "Wizard",
   "guild": "",
   "role": "admin",
   "cloaked": false,
@@ -48,6 +47,20 @@
     "room_vnum": false,
     "area_name": false,
     "carriage_return": false
+  },
+  "characterClass": {
+    "name" : "Mage",
+    "attr_prime": 0,
+    "weapon": 0,
+    "guild": 0,
+    "skill_adept": 0,
+    "thac0_00": 0,
+    "thac0_32": 0,
+    "hp_min": 0,
+    "hp_max": 0,
+    "mana_gain": true,
+    "base_group": "mage basics",
+    "default_group": "mage basics"
   }
 },
 {
@@ -58,7 +71,6 @@
   "name": "Opie",
   "title": "the Ginger",
   "race": "Human",
-  "characterClass": "Warrior",
   "roomId": "673bf211dd2b4ba89bbbeabd",
   "areaId": "673bf21189e37bdf47cf11f1",
   "guild": "",
@@ -101,6 +113,20 @@
     "room_vnum": false,
     "area_name": false,
     "carriage_return": false
+  },
+    "characterClass": {
+    "name" : "Warrior",
+    "attr_prime": 0,
+    "weapon": 0,
+    "guild": 0,
+    "skill_adept": 0,
+    "thac0_00": 0,
+    "thac0_32": 0,
+    "hp_min": 0,
+    "hp_max": 0,
+    "mana_gain": false,
+    "base_group": "warrior basics",
+    "default_group": "warrior basics"
   },
   "_class": "org.springy.som.modulith.domain.character.internal.CharacterDocument"
 }]
