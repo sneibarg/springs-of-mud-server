@@ -1,25 +1,16 @@
 from dataclasses import dataclass
 from injector import inject
 
-from area.RoomService import RoomService
 from game.GameData import GameData
+from player.CharacterMacros import CharacterMacros
 from registry.RegistryService import RegistryService
 from numbers.RandomNumberGenerator import RandomNumberGenerator
 from server.LoggerFactory import LoggerFactory
+from server.ServerUtil import ServerUtil
 from server.messaging.MessageBus import MessageBus
 from server.protocol.Message import Message, MessageType
 
 rng = RandomNumberGenerator()
-
-SUN_DARK: int = 0
-SUN_RISE: int = 1
-SUN_LIGHT: int = 2
-SUN_SET: int = 3
-
-SKY_CLOUDLESS: int = 0
-SKY_CLOUDY: int = 1
-SKY_RAINING: int = 2
-SKY_LIGHTNING: int = 3
 
 
 @dataclass(slots=True)
@@ -40,14 +31,15 @@ class TimeInfo:
 
 class WeatherService:
     @inject
-    def __init__(self, message_bus: MessageBus, registry_service: RegistryService, room_service: RoomService, game_data: GameData):
+    def __init__(self, message_bus: MessageBus, registry_service: RegistryService, game_data: GameData):
         self.__name__ = "WeatherService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.message_bus = message_bus
         self.registry_service = registry_service
-        self.room_service = room_service
+        self.character_macros = CharacterMacros(game_data=game_data, registry_service=registry_service)
         self.game_data = game_data
-        self.weather_info = WeatherInfo(mmhg=1000, change=0, sky=SKY_CLOUDLESS, sunlight=SUN_LIGHT)
+        self.time_and_weather_enum = ServerUtil.build_int_enum('time_and_weather', game_data.enums.get('timeAndWeather'))
+        self.weather_info = WeatherInfo(mmhg=1000, change=0, sky=self.time_and_weather_enum.SKY_CLOUDLESS, sunlight=self.time_and_weather_enum.SUN_LIGHT)
         self.time_info = TimeInfo(hour=0, day=1, month=1, year=1)
         self.pulse_count = 0
         self.pulse_tick = game_data.constants.pulses.get('tick', 60 * game_data.constants.pulses.get('perSecond', 4))
@@ -91,25 +83,23 @@ class WeatherService:
         character = self.registry_service.character_registry.get(character_id)
         self.logger.debug(f"Checking if player {character_id} is outdoors: {character}")
         if character:
-            room = self.room_service.get_room(character.room_id)
-            self.logger.debug(f"Room: {room}")
-            return self.room_service.is_outside(room)
+            return self.character_macros.is_outside(char=character)
         return False
 
     def _time_change(self):
         time_message: str = ""
         self.time_info.hour += 1
         if self.time_info.hour == 5:
-            self.weather_info.sunlight = SUN_LIGHT
+            self.weather_info.sunlight = self.time_and_weather_enum.SUN_LIGHT
             time_message = "The day has begun\n\r"
         elif self.time_info.hour == 6:
-            self.weather_info.sunlight = SUN_RISE
+            self.weather_info.sunlight = self.time_and_weather_enum.SUN_RISE
             time_message = "The sun rises in the east.\n\r"
         elif self.time_info.hour == 19:
-            self.weather_info.sunlight = SUN_SET
+            self.weather_info.sunlight = self.time_and_weather_enum.SUN_SET
             time_message = "The sun slowly disappears in the west.\n\r"
         elif self.time_info.hour == 20:
-            self.weather_info.sunlight = SUN_DARK
+            self.weather_info.sunlight = self.time_and_weather_enum.SUN_DARK
             time_message = "The night has begun\n\r"
         elif self.time_info.hour == 24:
             self.time_info.day += 1
@@ -144,29 +134,29 @@ class WeatherService:
             return rng.number_bits(2) == 0
 
         sky_update: str = ""
-        if self.weather_info.sky == SKY_CLOUDLESS:
+        if self.weather_info.sky == self.time_and_weather_enum.SKY_CLOUDLESS:
             if self.weather_info.mmhg < 990 or (self.weather_info.mmhg < 1010 and chance()):
                 sky_update += "The sky is getting cloudy.\n\r"
-                self.weather_info.sky = SKY_CLOUDY
-        elif self.weather_info.sky == SKY_CLOUDY:
+                self.weather_info.sky = self.time_and_weather_enum.SKY_CLOUDY
+        elif self.weather_info.sky == self.time_and_weather_enum.SKY_CLOUDY:
             if self.weather_info.mmhg < 970 or (self.weather_info.mmhg < 990 and chance()):
                 sky_update += "It starts to rain.\n\r"
-                self.weather_info.sky = SKY_RAINING
+                self.weather_info.sky = self.time_and_weather_enum.SKY_RAINING
             elif self.weather_info.sky > 1030 and chance():
                 sky_update += "The clouds disappear.\n\r"
-                self.weather_info.sky = SKY_CLOUDLESS
-        elif self.weather_info.sky == SKY_RAINING:
+                self.weather_info.sky = self.time_and_weather_enum.SKY_CLOUDLESS
+        elif self.weather_info.sky == self.time_and_weather_enum.SKY_RAINING:
             if self.weather_info.sky < 970 and chance():
                 sky_update += "Lightning flashes in the sky.\n\r"
-                self.weather_info.sky = SKY_LIGHTNING
+                self.weather_info.sky = self.time_and_weather_enum.SKY_LIGHTNING
             elif self.weather_info.sky > 1030 or (self.weather_info.mmhg > 1010 and chance()):
                 sky_update += "The rain stopped.\n\r"
-                self.weather_info.sky = SKY_CLOUDY
-        elif self.weather_info.sky == SKY_LIGHTNING:
+                self.weather_info.sky = self.time_and_weather_enum.SKY_CLOUDY
+        elif self.weather_info.sky == self.time_and_weather_enum.SKY_LIGHTNING:
             if self.weather_info.mmhg > 1010 or (self.weather_info.mmhg > 990 and chance()):
                 sky_update += "The lightning has stopped.\n\r"
-                self.weather_info.sky = SKY_RAINING
+                self.weather_info.sky = self.time_and_weather_enum.SKY_RAINING
         else:
             sky_update = f"Weather_update: bad sky {self.weather_info.sky}."
-            self.weather_info.sky = SKY_CLOUDLESS
+            self.weather_info.sky = self.time_and_weather_enum.SKY_CLOUDLESS
         return sky_update

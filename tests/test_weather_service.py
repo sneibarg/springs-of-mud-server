@@ -1,11 +1,10 @@
 import sys
 import os
+import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-import unittest
-
-from unittest.mock import Mock, AsyncMock, patch
+from unittest.mock import Mock, patch
 from update import WeatherService, WeatherInfo, TimeInfo, SUN_DARK, SUN_LIGHT, SUN_RISE, SUN_SET, SKY_CLOUDLESS, SKY_CLOUDY, SKY_RAINING, SKY_LIGHTNING
 
 
@@ -19,8 +18,6 @@ class TestWeatherService(unittest.TestCase):
         self.mock_registry_service = Mock()
         self.mock_registry_service.character_registry = {}
 
-        self.mock_room_service = Mock()
-
         self.mock_game_data = Mock()
         self.mock_game_data.constants = Mock()
         self.mock_game_data.constants.pulses = {
@@ -31,7 +28,6 @@ class TestWeatherService(unittest.TestCase):
         self.weather_service = WeatherService(
             self.mock_message_bus,
             self.mock_registry_service,
-            self.mock_room_service,
             self.mock_game_data
         )
 
@@ -260,32 +256,21 @@ class TestWeatherService(unittest.TestCase):
         mock_character = Mock()
         mock_character.room_id = "room_123"
 
-        mock_room = Mock()
-
         self.mock_registry_service.character_registry = {
             "player_123": mock_character
         }
-        self.mock_room_service.get_room.return_value = mock_room
-        self.mock_room_service.is_outside.return_value = True
 
         result = self.weather_service._is_player_outdoors("player_123")
-
         self.assertTrue(result)
-        self.mock_room_service.get_room.assert_called_once_with("room_123")
-        self.mock_room_service.is_outside.assert_called_once_with(mock_room)
 
     def test_is_player_outdoors_with_indoor_room(self):
         """Test is_player_outdoors when player is indoors"""
         mock_character = Mock()
         mock_character.room_id = "room_123"
 
-        mock_room = Mock()
-
         self.mock_registry_service.registry_service.character_registry = {
             "player_123": mock_character
         }
-        self.mock_room_service.get_room.return_value = mock_room
-        self.mock_room_service.is_outside.return_value = False
 
         result = self.weather_service._is_player_outdoors("player_123")
 

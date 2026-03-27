@@ -2,11 +2,16 @@ from typing import Any
 from area import Room
 from game import GameData
 from player import Character
+from registry import RegistryService
+from server.LoggerFactory import LoggerFactory
 
 
 class CharacterMacros:
-    def __init__(self, game_data: GameData):
+    def __init__(self, game_data: GameData, registry_service: RegistryService):
+        self.__name__ = "CharacterMacros"
         self.game_data = game_data
+        self.registry_service = registry_service
+        self.logger = LoggerFactory.get_logger(__name__)
 
     def is_npc(self, char: Any) -> bool:
         pass
@@ -44,8 +49,10 @@ class CharacterMacros:
     def get_damroll(self, char: Any) -> int:
         pass
 
-    def is_outside(self, char: Any, room: Room) -> bool:
-        pass
+    def is_outside(self, char: Any) -> bool:
+        room: Room = self.registry_service.room_registry[char.room_id]
+        self.logger.debug(f"is_outside: {room.room_flags}={self.game_data.flags['room']['INDOORS']}")
+        return (room.room_flags & self.game_data.flags['room']["INDOORS"]) == 0
 
     def wait_state(self, char: Character, npulse: int) -> int:
         pass
