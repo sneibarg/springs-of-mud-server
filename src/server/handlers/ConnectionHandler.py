@@ -2,7 +2,7 @@ import asyncio
 import threading
 
 from asyncio import StreamReader, StreamWriter
-from typing import Tuple
+from typing import Tuple, TYPE_CHECKING
 from injector import inject
 from area.RoomService import RoomService
 from area.Area import Area
@@ -16,11 +16,12 @@ from server.session.AuthenticationService import AuthenticationService
 from server.messaging.MessageBus import MessageBus
 from server.protocol.Message import MessageType, Message
 from server.LoggerFactory import LoggerFactory
-from server.ServerUtil import ServerUtil
-from player.Character import Character
-from player.Player import Player
 from player.PlayerService import PlayerService
 
+
+if TYPE_CHECKING:
+    from player.Character import Character
+    from player.Player import Player
 
 class ConnectionHandler:
     @inject
@@ -134,6 +135,8 @@ class ConnectionHandler:
 
     @staticmethod
     def _get_character(character_data) -> Character:
+        from server.ServerUtil import ServerUtil
+        from player.Character import Character
         character_definition = ServerUtil.camel_to_snake_case(character_data) if character_data else {}
         character_definition['lock'] = threading.Lock()
         return Character.from_json(character_definition)
@@ -141,6 +144,8 @@ class ConnectionHandler:
     def _get_or_create_player(self, session, character):
         account = self.player_service.get_account_by_id(session.player_id)
         if account:
+            from server.ServerUtil import ServerUtil
+            from player.Player import Player
             account_data = ServerUtil.camel_to_snake_case(account)
             account_data['current_character'] = character
             account_data['ansi_enabled'] = session.ansi_enabled

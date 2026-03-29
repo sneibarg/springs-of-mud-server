@@ -5,7 +5,6 @@ from area.AreaUtil import AreaUtil
 from area.Area import Area
 from area.Room import Room
 from registry.RegistryService import RegistryService
-from server.ServerUtil import ServerUtil
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 
@@ -24,6 +23,7 @@ class AreaService:
                          " areas and "+str(len(self.registry.room_registry))+" rooms in memory.")
 
     def load_areas(self):
+        from server.ServerUtil import ServerUtil
         response = requests.get(self.areas_endpoint).json()
         for area_json in response:
             area = Area.from_json(ServerUtil.camel_to_snake_case(area_json))
@@ -31,16 +31,19 @@ class AreaService:
             self.registry.register_area(area)
 
     def load_area(self, area_id):
+        from server.ServerUtil import ServerUtil
         url = self.areas_endpoint + "/" + area_id
         area_json = requests.get(url).json()
         self.registry.register_area(Area.from_json(ServerUtil.camel_to_snake_case(area_json)))
 
     def load_room(self, room_id):
+        from server.ServerUtil import ServerUtil
         url = self.rooms_endpoint + "/" + room_id
         room_json = requests.get(url).json()
         self.registry.register_room(Room.from_json(ServerUtil.camel_to_snake_case(room_json)))
 
     def load_rooms(self):
+        from server.ServerUtil import ServerUtil
         response = requests.get(self.rooms_endpoint).json()
         for room_json in response:
             room = Room.from_json(ServerUtil.camel_to_snake_case(room_json))

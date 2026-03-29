@@ -1,27 +1,10 @@
 import asyncio
 import threading
 
-from injector import Injector, singleton
-from area.AreaService import AreaService
-from area.RoomService import RoomService
-from game.GameService import GameService
-from game.GameData import GameData
-from mobile.MobileService import MobileService
-from object.ItemService import ItemService
-from player.PlayerService import PlayerService
-from player.Player import Player
-from command.CommandService import CommandService
-from event.EventHandler import EventHandler
-from registry.RegistryService import RegistryService
+from player import Player
 from server.ServerUtil import ServerUtil
-from server.handlers.ConnectionHandler import ConnectionHandler
-from server.session.AuthenticationService import AuthenticationService
-from server.connection.ConnectionManager import ConnectionManager
-from server.messaging.MessageBus import MessageBus
 from server.ServiceConfig import ServiceConfig
-from server.session.SessionHandler import SessionHandler
-from skill.SkillService import SkillService
-from update.WeatherService import WeatherService
+from server.handlers import ConnectionHandler
 
 
 class MudServer:
@@ -29,16 +12,13 @@ class MudServer:
         self.__name__ = "MudServer"
         self.logger = logger_factory.get_logger(self.__name__)
         self.config = config
-        self.injector: Injector = Injector()
+        self.injector = None
         self.player_one = None
-        self.account_list = None
-        self.character_list = None
         self.host = config['mudserver']['host']
         self.port = config['mudserver']['port']
         self.modulith_host = config['mudserver']['modulith_host']
         self.modulith_port = config['mudserver']['modulith_port']
         self.service_endpoints = config['mudserver']['services']['endpoints']
-        self.player_service_class = PlayerService
         self.service_config: ServiceConfig = self._load_service_config()
         self._configure_server()
         self.connection_handler = self.injector.get(ConnectionHandler)
@@ -52,6 +32,7 @@ class MudServer:
         await server.serve_forever()
 
     def _run_game_loop(self):
+        from game.GameService import GameService
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         try:
@@ -82,51 +63,15 @@ class MudServer:
 
     def _configure_server(self):
         self._start_services()
-        self.player_service = self.injector.get(PlayerService)
-        self._configure_player_data()
         self.player_one = self._load_player_one()
 
-    def _configure_player_data(self):
-        self.account_list = self.player_service.get_accounts()
-        self.character_list = self.player_service.get_characters()
-
     def _start_services(self):
-        self._bind_services()
+        from player.PlayerService import PlayerService
 
-        game_service = self.injector.get(GameService)
-        player_service = self.injector.get(PlayerService)
-        room_service = self.injector.get(RoomService)
-        area_service = self.injector.get(AreaService)
-        skill_service = self.injector.get(SkillService)
-        item_service = self.injector.get(ItemService)
-        weather_service = self.injector.get(WeatherService)
-        mobile_service = self.injector.get(MobileService)
+        self.injector = ServerUtil.bind_services(self.service_config)
+        self.player_service = self.injector.get(PlayerService)
 
-        game_service.set_weather_service(weather_service)
-        game_service.start_mobile_service(mobile_service)
-
-        self.logger.info("The following services have been started: ")
-        self.logger.info(f"{game_service.__name__}; {player_service.__name__}; {room_service.__name__}; {area_service.__name__}; {skill_service.__name__}; {item_service.__name__}; {weather_service.__name__}; {mobile_service.__name__}")
-
-    def _bind_services(self):
-        self.injector.binder.bind(ServiceConfig, to=self.service_config, scope=singleton)
-        self.injector.binder.bind(GameService, scope=singleton)
-        self.injector.binder.bind(SkillService, scope=singleton)
-        self.injector.binder.bind(RegistryService, scope=singleton)
-        self.injector.binder.bind(EventHandler, scope=singleton)
-        self.injector.binder.bind(PlayerService, scope=singleton)
-        self.injector.binder.bind(CommandService, scope=singleton)
-        self.injector.binder.bind(ConnectionHandler, scope=singleton)
-        self.injector.binder.bind(AreaService, scope=singleton)
-        self.injector.binder.bind(ItemService, scope=singleton)
-        self.injector.binder.bind(AuthenticationService, scope=singleton)
-        self.injector.binder.bind(ConnectionManager, scope=singleton)
-        self.injector.binder.bind(MessageBus, scope=singleton)
-        self.injector.binder.bind(MobileService, scope=singleton)
-        self.injector.binder.bind(GameData, to=self.injector.get(GameService).game_data, scope=singleton)
-        self.injector.binder.bind(SessionHandler, to=SessionHandler(self.injector.get(GameData).constants.max['idleTime']), scope=singleton)
-        self.injector.binder.bind(RoomService, scope=singleton)
-        self.injector.binder.bind(WeatherService, scope=singleton)
+        ServerUtil.load_services(self.injector)
 
     def _load_player_one(self):
         try:

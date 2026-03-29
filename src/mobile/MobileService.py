@@ -3,26 +3,24 @@ import requests
 from injector import inject
 from mobile.Mobile import Mobile
 from server.LoggerFactory import LoggerFactory
-from server.ServerUtil import ServerUtil
 from server.ServiceConfig import ServiceConfig
 from registry.RegistryService import RegistryService
 from event.EventHandler import EventHandler
 from area.AreaService import AreaService
-from game.GameService import GameService
+from game.GameData import GameData
 
 
 class MobileService:
     @inject
     def __init__(self, config: ServiceConfig,
-                 game_service: GameService,
                  registry: RegistryService,
                  area_service: AreaService,
-                 event_handler: EventHandler):
+                 event_handler: EventHandler,
+                 game_data: GameData):
         self.__name__ = "MobileService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry = registry
-        self.game_service = game_service
-        self.game_data = game_service.game_data
+        self.game_data = game_data
         self.enums = self.game_data.enums
         self.mobiles_endpoint = config.mobiles_endpoint
         self.area_service = area_service
@@ -57,6 +55,7 @@ class MobileService:
         kill_table: dict[int, int] = {}
         npc_flag = self._resolve_npc_flag()
         payload = self._get_mobiles()
+        from server.ServerUtil import ServerUtil
         for raw_mobile in payload:
             mobile_data = ServerUtil.camel_to_snake_case(raw_mobile)
             mobile_id = self._resolve_mobile_id(mobile_data, raw_mobile)
@@ -286,22 +285,22 @@ class MobileService:
             else:
                 result = 0
 
-        fallback = enum_lookup.get(fallback_key.lower(), 8)
+        fallback = self.enums.get(fallback_key.lower(), 8)
         return result if result > 0 else fallback
 
     def _resolve_attack(self, value):
         if value is None:
             return None
-        attack = self.game_data.get_attack(str(value).strip().lower())
+        attack = self.game_data.attacks.get(value)
         if attack is not None:
-            return attack.get("id", value)
+            return attack.get("message", value)
         return value
 
     def _resolve_size(self, value):
         if value is None:
             return None
 
-        enum_lookup = self._enum_value_lookup("size")
+        enum_lookup = self.enums.get("size")
         if isinstance(value, int):
             return value
 

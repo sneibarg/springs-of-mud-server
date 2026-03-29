@@ -3,7 +3,6 @@ from injector import inject
 from player.PlayerService import PlayerService
 from server.connection.Connection import Connection
 from server.protocol.Message import Message, MessageType
-from server.ServerUtil import ServerUtil
 from server.session.SessionState import SessionState, SessionStatus
 from server.LoggerFactory import LoggerFactory
 
@@ -69,6 +68,7 @@ class AuthenticationService:
         try:
             account = self.player_service.get_account_by_id(account_id)
             if account:
+                from server.ServerUtil import ServerUtil
                 return ServerUtil.camel_to_snake_case(account)
         except Exception as e:
             self.logger.error(f"Failed to get account by ID {account_id}: {e}")

@@ -6,7 +6,6 @@ from player.CharacterMacros import CharacterMacros
 from registry.RegistryService import RegistryService
 from numbers.RandomNumberGenerator import RandomNumberGenerator
 from server.LoggerFactory import LoggerFactory
-from server.ServerUtil import ServerUtil
 from server.messaging.MessageBus import MessageBus
 from server.protocol.Message import Message, MessageType
 
@@ -38,12 +37,16 @@ class WeatherService:
         self.registry_service = registry_service
         self.character_macros = CharacterMacros(game_data=game_data, registry_service=registry_service)
         self.game_data = game_data
-        self.time_and_weather_enum = ServerUtil.build_int_enum('time_and_weather', game_data.enums.get('timeAndWeather'))
+        self.time_and_weather_enum = self._load_enums()
         self.weather_info = WeatherInfo(mmhg=1000, change=0, sky=self.time_and_weather_enum.SKY_CLOUDLESS, sunlight=self.time_and_weather_enum.SUN_LIGHT)
         self.time_info = TimeInfo(hour=0, day=1, month=1, year=1)
         self.pulse_count = 0
         self.pulse_tick = game_data.constants.pulses.get('tick', 60 * game_data.constants.pulses.get('perSecond', 4))
         self.logger.info(f"WeatherService initialized. Pulse tick: {self.pulse_tick}")
+
+    def _load_enums(self):
+        from server.ServerUtil import ServerUtil
+        return ServerUtil.build_int_enum('time_and_weather', self.game_data.enums.get('timeAndWeather'))
 
     # every 60 seconds is one game hour.
     async def update(self):

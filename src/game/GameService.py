@@ -5,7 +5,6 @@ from injector import inject
 
 from game.GameData import GameData
 from server.LoggerFactory import LoggerFactory
-from server.ServerUtil import ServerUtil
 from server.TimeVal import gettimeofday, TimeVal, stall_until_last_time
 from server.ServiceConfig import ServiceConfig
 
@@ -61,6 +60,7 @@ class GameService:
             raise RuntimeError(f"Failed to load game data: {e}")
 
     def _load_enums(self):
+        from server.ServerUtil import ServerUtil
         for enum_name in self.game_data.enums:
             member_map = self.game_data.enums.get(enum_name)
             self.enums[enum_name] = ServerUtil.build_int_enum(enum_name, member_map)

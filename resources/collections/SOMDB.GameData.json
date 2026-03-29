@@ -84,7 +84,7 @@
         "ACT_UPDATE_ALWAYS": 268435456,
         "ACT_IS_CHANGER": 536870912
       },
-      "stringMemory":{
+      "stringMemory": {
         "MAX_KEY_HASH": 1024,
         "MAX_STRING_LENGTH": 4608,
         "MAX_INPUT_LENGTH": 256,
@@ -1481,10 +1481,165 @@
       }
     },
     "attacks": {
-      "hit": {
-        "id": "hit",
-        "noun": "hit",
-        "damageType": "BASH"
+      "none": {
+        "message": "hit",
+        "damage_type": -1
+      },
+      "slice": {
+        "message": "slice",
+        "damage_type": "DAM_SLASH"
+      },
+      "stab": {
+        "message": "stab",
+        "damage_type": "DAM_PIERCE"
+      },
+      "slash": {
+        "message": "slash",
+        "damage_type": "DAM_SLASH"
+      },
+      "whip": {
+        "message": "whip",
+        "damage_type": "DAM_SLASH"
+      },
+      "claw": {
+        "message": "claw",
+        "damage_type": "DAM_SLASH"
+      },
+      "blast": {
+        "message": "blast",
+        "damage_type": "DAM_BASH"
+      },
+      "pound": {
+        "message": "pound",
+        "damage_type": "DAM_BASH"
+      },
+      "crush": {
+        "message": "crush",
+        "damage_type": "DAM_BASH"
+      },
+      "grep": {
+        "message": "grep",
+        "damage_type": "DAM_SLASH"
+      },
+      "bite": {
+        "message": "bite",
+        "damage_type": "DAM_PIERCE"
+      },
+      "pierce": {
+        "message": "pierce",
+        "damage_type": "DAM_PIERCE"
+      },
+      "suction": {
+        "message": "suction",
+        "damage_type": "DAM_BASH"
+      },
+      "beating": {
+        "message": "beating",
+        "damage_type": "DAM_BASH"
+      },
+      "digestion": {
+        "message": "digestion",
+        "damage_type": "DAM_ACID"
+      },
+      "charge": {
+        "message": "charge",
+        "damage_type": "DAM_BASH"
+      },
+      "slap": {
+        "message": "slap",
+        "damage_type": "DAM_BASH"
+      },
+      "punch": {
+        "message": "punch",
+        "damage_type": "DAM_BASH"
+      },
+      "wrath": {
+        "message": "wrath",
+        "damage_type": "DAM_ENERGY"
+      },
+      "magic": {
+        "message": "magic",
+        "damage_type": "DAM_ENERGY"
+      },
+      "divine": {
+        "message": "divine power",
+        "damage_type": "DAM_HOLY"
+      },
+      "cleave": {
+        "message": "cleave",
+        "damage_type": "DAM_SLASH"
+      },
+      "scratch": {
+        "message": "scratch",
+        "damage_type": "DAM_PIERCE"
+      },
+      "peck": {
+        "message": "peck",
+        "damage_type": "DAM_PIERCE"
+      },
+      "peckb": {
+        "message": "peck",
+        "damage_type": "DAM_BASH"
+      },
+      "chop": {
+        "message": "chop",
+        "damage_type": "DAM_SLASH"
+      },
+      "sting": {
+        "message": "sting",
+        "damage_type": "DAM_PIERCE"
+      },
+      "smash": {
+        "message": "smash",
+        "damage_type": "DAM_BASH"
+      },
+      "shbite": {
+        "message": "shocking bite",
+        "damage_type": "DAM_LIGHTNING"
+      },
+      "flbite": {
+        "message": "flaming bite",
+        "damage_type": "DAM_FIRE"
+      },
+      "frbite": {
+        "message": "freezing bite",
+        "damage_type": "DAM_COLD"
+      },
+      "acbite": {
+        "message": "acidic bite",
+        "damage_type": "DAM_ACID"
+      },
+      "chomp": {
+        "message": "chomp",
+        "damage_type": "DAM_PIERCE"
+      },
+      "drain": {
+        "message": "life drain",
+        "damage_type": "DAM_NEGATIVE"
+      },
+      "thrust": {
+        "message": "thrust",
+        "damage_type": "DAM_PIERCE"
+      },
+      "slime": {
+        "message": "slime",
+        "damage_type": "DAM_ACID"
+      },
+      "shock": {
+        "message": "shock",
+        "damage_type": "DAM_LIGHTNING"
+      },
+      "thwack": {
+        "message": "thwack",
+        "damage_type": "DAM_BASH"
+      },
+      "flame": {
+        "message": "flame",
+        "damage_type": "DAM_FIRE"
+      },
+      "chill": {
+        "message": "chill",
+        "damage_type": "DAM_COLD"
       }
     },
     "liquids": {
@@ -1493,10 +1648,395 @@
         "color": "clear",
         "affect": [
           0,
+          1,
+          10,
           0,
+          16
+        ]
+      },
+      "beer": {
+        "id": "beer",
+        "color": "amber",
+        "affect": [
+          12,
+          1,
+          8,
+          1,
+          12
+        ]
+      },
+      "red wine": {
+        "id": "red wine",
+        "color": "burgundy",
+        "affect": [
+          30,
+          1,
+          8,
+          1,
+          5
+        ]
+      },
+      "ale": {
+        "id": "ale",
+        "color": "brown",
+        "affect": [
+          15,
+          1,
+          8,
+          1,
+          12
+        ]
+      },
+      "dark ale": {
+        "id": "dark ale",
+        "color": "dark",
+        "affect": [
+          16,
+          1,
+          8,
+          1,
+          12
+        ]
+      },
+      "whisky": {
+        "id": "whisky",
+        "color": "golden",
+        "affect": [
+          120,
+          1,
+          5,
           0,
+          2
+        ]
+      },
+      "lemonade": {
+        "id": "lemonade",
+        "color": "pink",
+        "affect": [
           0,
-          0
+          1,
+          9,
+          2,
+          12
+        ]
+      },
+      "firebreather": {
+        "id": "firebreather",
+        "color": "boiling",
+        "affect": [
+          190,
+          0,
+          4,
+          0,
+          2
+        ]
+      },
+      "local specialty": {
+        "id": "local specialty",
+        "color": "clear",
+        "affect": [
+          151,
+          1,
+          3,
+          0,
+          2
+        ]
+      },
+      "slime mold juice": {
+        "id": "slime mold juice",
+        "color": "green",
+        "affect": [
+          0,
+          2,
+          -8,
+          1,
+          2
+        ]
+      },
+      "milk": {
+        "id": "milk",
+        "color": "white",
+        "affect": [
+          0,
+          2,
+          9,
+          3,
+          12
+        ]
+      },
+      "tea": {
+        "id": "tea",
+        "color": "tan",
+        "affect": [
+          0,
+          1,
+          8,
+          0,
+          6
+        ]
+      },
+      "coffee": {
+        "id": "coffee",
+        "color": "black",
+        "affect": [
+          0,
+          1,
+          8,
+          0,
+          6
+        ]
+      },
+      "blood": {
+        "id": "blood",
+        "color": "red",
+        "affect": [
+          0,
+          2,
+          -1,
+          2,
+          6
+        ]
+      },
+      "salt water": {
+        "id": "salt water",
+        "color": "clear",
+        "affect": [
+          0,
+          1,
+          -2,
+          0,
+          1
+        ]
+      },
+      "coke": {
+        "id": "coke",
+        "color": "brown",
+        "affect": [
+          0,
+          2,
+          9,
+          2,
+          12
+        ]
+      },
+      "root beer": {
+        "id": "root beer",
+        "color": "brown",
+        "affect": [
+          0,
+          2,
+          9,
+          2,
+          12
+        ]
+      },
+      "elvish wine": {
+        "id": "elvish wine",
+        "color": "green",
+        "affect": [
+          35,
+          2,
+          8,
+          1,
+          5
+        ]
+      },
+      "white wine": {
+        "id": "white wine",
+        "color": "golden",
+        "affect": [
+          28,
+          1,
+          8,
+          1,
+          5
+        ]
+      },
+      "champagne": {
+        "id": "champagne",
+        "color": "golden",
+        "affect": [
+          32,
+          1,
+          8,
+          1,
+          5
+        ]
+      },
+      "mead": {
+        "id": "mead",
+        "color": "honey-colored",
+        "affect": [
+          34,
+          2,
+          8,
+          2,
+          12
+        ]
+      },
+      "rose wine": {
+        "id": "rose wine",
+        "color": "pink",
+        "affect": [
+          26,
+          1,
+          8,
+          1,
+          5
+        ]
+      },
+      "benedictine wine": {
+        "id": "benedictine wine",
+        "color": "burgundy",
+        "affect": [
+          40,
+          1,
+          8,
+          1,
+          5
+        ]
+      },
+      "vodka": {
+        "id": "vodka",
+        "color": "clear",
+        "affect": [
+          130,
+          1,
+          5,
+          0,
+          2
+        ]
+      },
+      "cranberry juice": {
+        "id": "cranberry juice",
+        "color": "red",
+        "affect": [
+          0,
+          1,
+          9,
+          2,
+          12
+        ]
+      },
+      "orange juice": {
+        "id": "orange juice",
+        "color": "orange",
+        "affect": [
+          0,
+          2,
+          9,
+          3,
+          12
+        ]
+      },
+      "absinthe": {
+        "id": "absinthe",
+        "color": "green",
+        "affect": [
+          200,
+          1,
+          4,
+          0,
+          2
+        ]
+      },
+      "brandy": {
+        "id": "brandy",
+        "color": "golden",
+        "affect": [
+          80,
+          1,
+          5,
+          0,
+          4
+        ]
+      },
+      "aquavit": {
+        "id": "aquavit",
+        "color": "clear",
+        "affect": [
+          140,
+          1,
+          5,
+          0,
+          2
+        ]
+      },
+      "schnapps": {
+        "id": "schnapps",
+        "color": "clear",
+        "affect": [
+          90,
+          1,
+          5,
+          0,
+          2
+        ]
+      },
+      "icewine": {
+        "id": "icewine",
+        "color": "purple",
+        "affect": [
+          50,
+          2,
+          6,
+          1,
+          5
+        ]
+      },
+      "amontillado": {
+        "id": "amontillado",
+        "color": "burgundy",
+        "affect": [
+          35,
+          2,
+          8,
+          1,
+          5
+        ]
+      },
+      "sherry": {
+        "id": "sherry",
+        "color": "red",
+        "affect": [
+          38,
+          2,
+          7,
+          1,
+          5
+        ]
+      },
+      "framboise": {
+        "id": "framboise",
+        "color": "red",
+        "affect": [
+          50,
+          1,
+          7,
+          1,
+          5
+        ]
+      },
+      "rum": {
+        "id": "rum",
+        "color": "amber",
+        "affect": [
+          151,
+          1,
+          4,
+          0,
+          2
+        ]
+      },
+      "cordial": {
+        "id": "cordial",
+        "color": "clear",
+        "affect": [
+          100,
+          1,
+          5,
+          0,
+          2
         ]
       }
     },

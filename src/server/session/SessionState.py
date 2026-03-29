@@ -1,8 +1,11 @@
 from enum import Enum, auto
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from datetime import datetime
-from player.Character import Character
+
+
+if TYPE_CHECKING:
+    from player.Character import Character
 
 
 class SessionStatus(Enum):

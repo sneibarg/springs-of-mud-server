@@ -2,10 +2,74 @@ import re
 
 from enum import IntEnum
 from typing import Dict, Any, Iterable
+from injector import singleton, Injector
+from game.GameData import GameData
+from game.GameService import GameService
+from mobile import MobileService
+from server.LoggerFactory import LoggerFactory
+from skill.SkillService import SkillService
+from registry.RegistryService import RegistryService
+from event.EventHandler import EventHandler
+from player.PlayerService import PlayerService
+from command.CommandService import CommandService
+from server.handlers.ConnectionHandler import ConnectionHandler
+from area.AreaService import AreaService
+from area.RoomService import RoomService
+from object.ItemService import ItemService
+from server.connection.ConnectionManager import ConnectionManager
+from server.messaging.MessageBus import MessageBus
+from server.session.AuthenticationService import AuthenticationService
+from server.session.SessionHandler import SessionHandler
+from server.ServiceConfig import ServiceConfig
+from update import WeatherService
+
+
+logger = LoggerFactory.get_logger("ServerUtil")
 
 
 class ServerUtil:
-    pass
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def bind_services(service_config) -> Injector:
+        injector = Injector()
+        injector.binder.bind(ServiceConfig, to=service_config, scope=singleton)
+        injector.binder.bind(GameService, scope=singleton)
+        injector.binder.bind(GameData, to=injector.get(GameService).game_data, scope=singleton)
+        injector.binder.bind(SkillService, scope=singleton)
+        injector.binder.bind(RegistryService, scope=singleton)
+        injector.binder.bind(EventHandler, scope=singleton)
+        injector.binder.bind(PlayerService, scope=singleton)
+        injector.binder.bind(CommandService, scope=singleton)
+        injector.binder.bind(ConnectionHandler, scope=singleton)
+        injector.binder.bind(AreaService, scope=singleton)
+        injector.binder.bind(ItemService, to=ItemService(service_config, injector.get(SkillService), injector.get(GameService).game_data), scope=singleton)
+        injector.binder.bind(AuthenticationService, scope=singleton)
+        injector.binder.bind(ConnectionManager, scope=singleton)
+        injector.binder.bind(MessageBus, scope=singleton)
+        injector.binder.bind(MobileService, scope=singleton)
+        injector.binder.bind(SessionHandler, to=SessionHandler(injector.get(GameData).constants.max['idleTime']), scope=singleton)
+        injector.binder.bind(RoomService, scope=singleton)
+        injector.binder.bind(WeatherService, scope=singleton)
+        return injector
+
+    @staticmethod
+    def load_services(injector) -> None:
+        game_service = injector.get(GameService)
+        player_service = injector.get(PlayerService)
+        room_service = injector.get(RoomService)
+        area_service = injector.get(AreaService)
+        skill_service = injector.get(SkillService)
+        item_service = injector.get(ItemService)
+        weather_service = injector.get(WeatherService)
+        mobile_service = injector.get(MobileService)
+
+        game_service.set_weather_service(weather_service)
+        game_service.start_mobile_service(mobile_service)
+
+        logger.info("The following services have been started: ")
+        logger.info(f"{game_service.__name__}; {player_service.__name__}; {room_service.__name__}; {area_service.__name__}; {skill_service.__name__}; {item_service.__name__}; {weather_service.__name__}; {mobile_service.__name__}")
 
     @staticmethod
     def camel_to_snake_case(dictionary: Dict[str, Any]) -> Dict[str, Any]:

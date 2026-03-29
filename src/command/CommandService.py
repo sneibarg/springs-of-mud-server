@@ -12,11 +12,8 @@ from area.RoomService import RoomService
 from mobile.MobileService import MobileService
 from mobile.Mobile import Mobile
 from player.PlayerService import PlayerService
-from player.Player import Player
-from player.Character import Character
 from event.EventHandler import EventHandler
 from object.ItemService import ItemService
-from object.Item import Item
 from server.connection.ConnectionManager import ConnectionManager
 from server.messaging.MessageBus import MessageBus
 from server.protocol.Message import MessageType, Message
@@ -48,13 +45,7 @@ def get_class_obj(class_name):
     if class_name == "lambda":
         return None
 
-    if class_name == 'ConnectionHandler':
-        from server.handlers.ConnectionHandler import ConnectionHandler
-        return ConnectionHandler
-
     class_map = {
-        'Player': Player,
-        'Character': Character,
         'CommandService': CommandService,
         'PlayerService': PlayerService,
         'RegistryService': RegistryService,
@@ -66,7 +57,6 @@ def get_class_obj(class_name):
         'EventHandler': EventHandler,
         'MessageBus': MessageBus,
         'Mobile': Mobile,
-        'Item': Item,
         'str': str,
     }
 
@@ -115,6 +105,8 @@ def get_args(lambda_string, player, injector, parameters):
                 room = registry.room_registry[character.room_id]
                 class_obj = type(room)
                 obj = room
+            elif arg == 'i':  # Item unimplemented
+                pass
             elif arg in ['ps', 'zs', 'ms', 'os', 'eh', 'ch', 'cs', 'rs', 'rg', 'mb', 'cnh']:
                 obj = injector.get(class_obj)
             elif arg == 'usage':

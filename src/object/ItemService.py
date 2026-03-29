@@ -1,10 +1,9 @@
 import requests
 
 from injector import inject
-from game.GameService import GameService
+from game import GameData
 from object.AffectData import AffectData, AffectWhere
 from object.ExtraDescriptionData import ExtraDescriptionData
-from object.Item import Item
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 from skill.SkillService import SkillService
@@ -12,11 +11,12 @@ from skill.SkillService import SkillService
 
 class ItemService:
     @inject
-    def __init__(self, config: ServiceConfig, game_service: GameService, skill_service: SkillService):
+    def __init__(self, config: ServiceConfig, skill_service: SkillService, game_data: GameData):
         self.__name__ = "ItemService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.items_endpoint = config.items_endpoint
-        self.game_service = game_service
+        self.game_data = game_data
+        self.enums = self.game_data.enums
         self.skill_service = skill_service
         self.all_items = {}
         self.load_items()
@@ -42,7 +42,7 @@ class ItemService:
             self.logger.error("Failed to get items: " + str(e))
         return None
 
-    def _normalize_item_data(self, item_data) -> Item:
+    def _normalize_item_data(self, item_data):
         self._update_item_type(item_data)
         self._update_condition(item_data)
 
@@ -55,11 +55,11 @@ class ItemService:
         return item
 
     def _update_item_type(self, item_data):
-        item_types = self.game_service.enums['itemType']
+        item_types = self.enums['itemType']
         item_type = item_data.get("itemType")
         if not isinstance(item_type, int):
             raw_value = str(item_type or "").strip()
-            enum_lookup = self.game_service.game_data.enums.get("itemType", {})
+            enum_lookup = self.enums.get("itemType", {})
             if raw_value.isdigit():
                 item_type = int(raw_value)
             else:
@@ -96,7 +96,7 @@ class ItemService:
 
     # even if it's slower, it still loads all in the same second
     def _attack_type(self, item_data):
-        damages_types = self.game_service.enums['damageType']
+        damages_types = self.enums['damageType']
         damage_type = item_data['value3']
         if damage_type in ['blast', 'pound', 'crush', 'suction', 'beating', 'charge', 'slap', 'punch', 'peckb', 'smash',
                            'thwack']:
@@ -124,7 +124,7 @@ class ItemService:
             item_data['damage_type'] = damages_types.DAM_NONE
 
     def _liq_lookup(self, item_data):
-        liq_table = self.game_service.game_data.liquids
+        liq_table = self.game_data.get('liquids')
         liquid_name = item_data['value2'].replace("'", "")
         liquid = liq_table[liquid_name]
         liquid_affect_data = liquid['affect']
@@ -153,7 +153,7 @@ class ItemService:
             item_data["condition"] = "100"
 
     @staticmethod
-    def _update_affect_data(item: Item):
+    def _update_affect_data(item):
         for affect in item.affect_data:
             affect_elements = affect.split(",")
             affect_data = AffectData(valid=True, where=-1, type=-1, level=item.level, duration=-1, location=-1, modifier=-1, bitvector=-1)
@@ -179,6 +179,6 @@ class ItemService:
             item.effects.append(affect_data)
 
     @staticmethod
-    def _update_extra_descr(item: Item):
+    def _update_extra_descr(item):
         if len(item.extra_descr) > 0:
             item.extra_description = ExtraDescriptionData(valid=True, keyword=item.extra_descr[0], description=item.extra_descr[1])

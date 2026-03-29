@@ -1,7 +1,7 @@
 import json
 
 from dataclasses import dataclass
-from server.ServerUtil import ServerUtil
+
 
 
 @dataclass
@@ -25,5 +25,6 @@ class Skill:
     def from_json(cls, data) -> Skill:
         if isinstance(data, str):
             data = json.loads(data)
+        from server.ServerUtil import ServerUtil
         data = ServerUtil.camel_to_snake_case(data)
         return cls(**data)
