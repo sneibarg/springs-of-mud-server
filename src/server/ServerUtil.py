@@ -6,6 +6,8 @@ from injector import singleton, Injector
 from game.GameData import GameData
 from game.GameService import GameService
 from mobile import MobileService
+from player.CharacterConstants import CharacterConstants
+from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
 from skill.SkillService import SkillService
 from registry.RegistryService import RegistryService
@@ -35,16 +37,22 @@ class ServerUtil:
     def bind_services(service_config) -> Injector:
         injector = Injector()
         injector.binder.bind(ServiceConfig, to=service_config, scope=singleton)
+        injector.binder.bind(RegistryService, scope=singleton)
         injector.binder.bind(GameService, scope=singleton)
         injector.binder.bind(GameData, to=injector.get(GameService).game_data, scope=singleton)
+        injector.binder.bind(CharacterConstants, to=CharacterConstants(injector.get(GameData)), scope=singleton)
+        injector.binder.bind(CharacterMacros, to=CharacterMacros(injector.get(GameData),
+                                                                 injector.get(RegistryService),
+                                                                 injector.get(CharacterConstants)), scope=singleton)
         injector.binder.bind(SkillService, scope=singleton)
-        injector.binder.bind(RegistryService, scope=singleton)
         injector.binder.bind(EventHandler, scope=singleton)
         injector.binder.bind(PlayerService, scope=singleton)
         injector.binder.bind(CommandService, scope=singleton)
         injector.binder.bind(ConnectionHandler, scope=singleton)
         injector.binder.bind(AreaService, scope=singleton)
-        injector.binder.bind(ItemService, to=ItemService(service_config, injector.get(SkillService), injector.get(GameService).game_data), scope=singleton)
+        injector.binder.bind(ItemService, to=ItemService(service_config,
+                                                         injector.get(SkillService),
+                                                         injector.get(GameService).game_data), scope=singleton)
         injector.binder.bind(AuthenticationService, scope=singleton)
         injector.binder.bind(ConnectionManager, scope=singleton)
         injector.binder.bind(MessageBus, scope=singleton)

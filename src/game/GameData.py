@@ -22,6 +22,7 @@ class GameData:
     constants: Constants
     enums: Dict[str, Dict[str, int]]
     flags: Dict[str, Dict[str, int]]
+    attribute_bonuses: Dict[str, Dict[str, Dict]] = field(default_factory=dict)
     classes: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     races: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     pc_races: Dict[str, Dict[str, Any]] = field(default_factory=dict)

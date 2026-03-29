@@ -38,11 +38,14 @@ class Character:
     position: int
     max_weight: int
     max_items: int
-    reputation: int
+    alignment: int
     piercing: int
     bashing: int
     slashing: int
     magic: int
+    played: int
+    logon: int
+    attributes: List[int]
     inventory: List[str]
     character_class: CharacterClass
     prompt_format: PromptFormat

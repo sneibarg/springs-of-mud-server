@@ -30,18 +30,18 @@ class TimeInfo:
 
 class WeatherService:
     @inject
-    def __init__(self, message_bus: MessageBus, registry_service: RegistryService, game_data: GameData):
+    def __init__(self, message_bus: MessageBus, registry_service: RegistryService, game_data: GameData, character_macros: CharacterMacros):
         self.__name__ = "WeatherService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.message_bus = message_bus
         self.registry_service = registry_service
-        self.character_macros = CharacterMacros(game_data=game_data, registry_service=registry_service)
+        self.character_macros = character_macros
         self.game_data = game_data
         self.time_and_weather_enum = self._load_enums()
         self.weather_info = WeatherInfo(mmhg=1000, change=0, sky=self.time_and_weather_enum.SKY_CLOUDLESS, sunlight=self.time_and_weather_enum.SUN_LIGHT)
         self.time_info = TimeInfo(hour=0, day=1, month=1, year=1)
         self.pulse_count = 0
-        self.pulse_tick = game_data.constants.pulses.get('tick', 60 * game_data.constants.pulses.get('perSecond', 4))
+        self.pulse_tick = self.game_data.constants.pulses.get('tick', 60 * game_data.constants.pulses.get('perSecond', 4))
         self.logger.info(f"WeatherService initialized. Pulse tick: {self.pulse_tick}")
 
     def _load_enums(self):

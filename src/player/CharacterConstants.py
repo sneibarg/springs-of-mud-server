@@ -6,10 +6,6 @@ from game.GameData import GameData
 @dataclass
 class CharacterConstants:
     immortal_levels: dict[str, int]
-    str_bonuses: dict[str, int]
-    int_bonuses: dict[str, int]
-    wis_bonuses: dict[str, int]
-    con_bonuses: dict[str, int]
 
     @inject
     def __init__(self, game_data: GameData):
@@ -19,25 +15,11 @@ class CharacterConstants:
     def get_max_level(self):
         return int(self.game_data.constants.max['level'])
 
-    def _populate_str_bonuses(self):
-        self.str_bonuses = dict()
-        self.str_bonuses['tohit'] = 0
-        self.str_bonuses['todam'] = 0
-        self.str_bonuses['carry'] = 0
-        self.str_bonuses['wield'] = 0
+    def get_attribute_bonus(self, attr_name: str, attr_level: str):
+        return self.game_data.attribute_bonuses.get(attr_name).get(attr_level)
 
-    def _populate_int_bonuses(self):
-        self.int_bonuses = dict()
-        self.int_bonuses['learn'] = 0
-
-    def _populate_wis_bonuses(self):
-        self.wis_bonuses = dict()
-        self.wis_bonuses['practice'] = 0
-
-    def _populate_con_bonuses(self):
-        self.con_bonuses = dict()
-        self.con_bonuses['hitp'] = 0
-        self.con_bonuses['shock'] = 0
+    def is_immortal_sufficient(self, level: int, immortal_name: str) -> bool:
+        return level >= self.immortal_levels.get(immortal_name)
 
     def _populate_immortal_levels(self):
         self.immortal_levels = dict()
