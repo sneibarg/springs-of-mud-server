@@ -1,7 +1,10 @@
+from enum import IntEnum
+
 import requests
 
 from injector import inject
 from game import GameData
+from object.ObjectMacros import ObjectMacros
 from object.AffectData import AffectData, AffectWhere
 from object.ExtraDescriptionData import ExtraDescriptionData
 from server.LoggerFactory import LoggerFactory
@@ -11,11 +14,12 @@ from skill.SkillService import SkillService
 
 class ItemService:
     @inject
-    def __init__(self, config: ServiceConfig, skill_service: SkillService, game_data: GameData):
+    def __init__(self, config: ServiceConfig, skill_service: SkillService, game_data: GameData, object_macros: ObjectMacros):
         self.__name__ = "ItemService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.items_endpoint = config.items_endpoint
         self.game_data = game_data
+        self.object_macros = object_macros
         self.enums = self.game_data.enums
         self.skill_service = skill_service
         self.all_items = {}
@@ -42,10 +46,123 @@ class ItemService:
             self.logger.error("Failed to get items: " + str(e))
         return None
 
+    @staticmethod
+    def _update_affect_data(item):
+        for affect in item.affect_data:
+            affect_elements = affect.split(",")
+            affect_data = AffectData(valid=True, where=-1, type=-1, level=item.level, duration=-1, location=-1, modifier=-1, bitvector=-1)
+            if affect_elements[0] == "A":
+                affect_data.where = AffectWhere.TO_OBJECT.value
+                affect_data.location = affect_elements[1]
+                affect_data.modifier = affect_elements[2]
+            elif affect_elements[0] == "F":
+                affect_data.location = affect_elements[2]
+                affect_data.modifier = affect_elements[3]
+
+                bitvector_raw = affect_elements[4]
+                if bitvector_raw.isdigit() or (bitvector_raw.startswith('-') and bitvector_raw[1:].isdigit()):
+                    affect_data.bitvector = bitvector_raw
+                else:
+                    numeric_value = 0
+                    for char in bitvector_raw.upper():
+                        if char.isalpha() and 'A' <= char <= 'Z':
+                            bit_position = ord(char) - ord('A')
+                            numeric_value |= (1 << bit_position)
+                    affect_data.bitvector = numeric_value
+
+                if affect_elements[1] == "A":
+                    affect_data.where = AffectWhere.TO_AFFECTS.value
+                elif affect_elements[1] == "I":
+                    affect_data.where = AffectWhere.TO_IMMUNE.value
+                elif affect_elements[1] == "R":
+                    affect_data.where = AffectWhere.TO_RESIST.value
+                elif affect_elements[1] == "V":
+                    affect_data.where = AffectWhere.TO_VULN.value
+
+            item.effects.append(affect_data)
+
+    @staticmethod
+    def _convert_letter_flags_to_numeric(item_data):
+        """
+        Each letter represents a bit: A = 1<<0 = 1, B = 1<<1 = 2, etc.
+        Multiple letters are OR'd together: "AN" = (1<<0) | (1<<13) = 1 | 8192 = 8193
+        """
+        for flag_field in ['extra_flags', 'wear_flags']:
+            flag_value = item_data.get(flag_field, "0")
+            if isinstance(flag_value, int) or (isinstance(flag_value, str) and flag_value.lstrip('-').isdigit()):
+                continue
+
+            numeric_value = 0
+            for char in str(flag_value).upper():
+                if char.isalpha() and 'A' <= char <= 'Z':
+                    bit_position = ord(char) - ord('A')
+                    numeric_value |= (1 << bit_position)
+
+            item_data[flag_field] = str(numeric_value)
+
+    @staticmethod
+    def _convert_numeric_to_string(value):
+        if isinstance(value, int):
+            return str(value)
+        if isinstance(value, str):
+            if value.lstrip('-').isdigit():
+                return value
+        return str(value) if value else '0'
+
+    @staticmethod
+    def _read_flag(flag_value):
+        if isinstance(flag_value, int):
+            return str(flag_value)
+
+        flag_str = str(flag_value).strip()
+        if not flag_str or flag_str.lstrip('-').isdigit():
+            return flag_str if flag_str else '0'
+
+        numeric_value = 0
+        for char in flag_str.upper():
+            if char.isalpha() and 'A' <= char <= 'Z':
+                bit_position = ord(char) - ord('A')
+                numeric_value |= (1 << bit_position)
+
+        return str(numeric_value)
+
+    # Matches load_objects() logic from ROM db2.c:341-389
+    def _normalize_value_fields(self, item_data, ItemTypes: type[IntEnum]):
+        item_type = item_data.get("itemType", "").strip().lower()
+        if item_type == ItemTypes.ITEM_WEAPON.name:
+            item_data['value1'] = self._convert_numeric_to_string(item_data.get('value1', '0'))
+            item_data['value2'] = self._convert_numeric_to_string(item_data.get('value2', '0'))
+            item_data['value4'] = self._read_flag(item_data.get('value4', '0'))
+        elif item_type == ItemTypes.ITEM_WEAPON.name:
+            item_data['value0'] = self._convert_numeric_to_string(item_data.get('value0', '0'))
+            item_data['value1'] = self._read_flag(item_data.get('value1', '0'))
+            item_data['value2'] = self._convert_numeric_to_string(item_data.get('value2', '0'))
+            item_data['value3'] = self._convert_numeric_to_string(item_data.get('value3', '0'))
+            item_data['value4'] = self._convert_numeric_to_string(item_data.get('value4', '0'))
+        elif item_type in [ItemTypes.ITEM_DRINK_CON.name, ItemTypes.ITEM_FOUNTAIN.name]:
+            item_data['value0'] = self._convert_numeric_to_string(item_data.get('value0', '0'))
+            item_data['value1'] = self._convert_numeric_to_string(item_data.get('value1', '0'))
+            item_data['value3'] = self._convert_numeric_to_string(item_data.get('value3', '0'))
+            item_data['value4'] = self._convert_numeric_to_string(item_data.get('value4', '0'))
+        elif item_type in [ItemTypes.ITEM_WAND.name, ItemTypes.ITEM_STAFF.name]:
+            item_data['value0'] = self._convert_numeric_to_string(item_data.get('value0', '0'))
+            item_data['value1'] = self._convert_numeric_to_string(item_data.get('value1', '0'))
+            item_data['value2'] = self._convert_numeric_to_string(item_data.get('value2', '0'))
+            item_data['value4'] = self._convert_numeric_to_string(item_data.get('value4', '0'))
+        elif item_type in [ItemTypes.ITEM_POTION.name, ItemTypes.ITEM_PILL.name, ItemTypes.ITEM_SCROLL.name]:
+            item_data['value0'] = self._convert_numeric_to_string(item_data.get('value0', '0'))
+        else:
+            for i in range(5):
+                value_key = f'value{i}'
+                item_data[value_key] = self._read_flag(item_data.get(value_key, '0'))
+
     def _normalize_item_data(self, item_data):
-        self._update_item_type(item_data)
+        self._convert_letter_flags_to_numeric(item_data)
+        self._normalize_value_fields(item_data, self.object_macros.ItemTypes)
+        self._update_item_type(item_data, self.object_macros.ItemTypes)
         self._update_condition(item_data)
 
+        from object.Item import Item
         item = Item.from_json(item_data)
         if len(item.affect_data) > 0:
             item.effects = []
@@ -54,23 +171,22 @@ class ItemService:
         self._update_extra_descr(item)
         return item
 
-    def _update_item_type(self, item_data):
-        item_types = self.enums['itemType']
+    def _update_item_type(self, item_data, ItemTypes: type[IntEnum]):
         item_type = item_data.get("itemType")
         if not isinstance(item_type, int):
             raw_value = str(item_type or "").strip()
-            enum_lookup = self.enums.get("itemType", {})
+            enum_lookup = self.enums.get("itemTypes", {})
             if raw_value.isdigit():
                 item_type = int(raw_value)
             else:
                 item_type = enum_lookup.get(raw_value.upper(), item_type)
-        if item_type == item_types.ITEM_WEAPON:
+        if item_type == ItemTypes.ITEM_WEAPON.name:
             self._attack_type(item_data)
-        elif item_type == item_types.ITEM_FOUNTAIN:
+        elif item_type == ItemTypes.ITEM_FOUNTAIN.name:
             self._update_fountain(item_data)
-        elif item_type == item_types.ITEM_STAFF:
+        elif item_type == ItemTypes.ITEM_STAFF.name:
             self._update_staff(item_data)
-        elif item_type == item_types.ITEM_SCROLL:
+        elif item_type == ItemTypes.ITEM_SCROLL.name:
             self._update_scroll(item_data)
 
     def _update_fountain(self, item_data):
@@ -98,33 +214,32 @@ class ItemService:
     def _attack_type(self, item_data):
         damages_types = self.enums['damageType']
         damage_type = item_data['value3']
-        if damage_type in ['blast', 'pound', 'crush', 'suction', 'beating', 'charge', 'slap', 'punch', 'peckb', 'smash',
-                           'thwack']:
-            item_data['damage_type'] = damages_types.DAM_BASH
+        if damage_type in ['blast', 'pound', 'crush', 'suction', 'beating', 'charge', 'slap', 'punch', 'peckb', 'smash', 'thwack']:
+            item_data['damage_type'] = damages_types.DAM_BASH.value
         elif damage_type in ['slash', 'whip', 'claw', 'grep', 'cleave', 'chop', 'slice']:
-            item_data['damage_type'] = damages_types.DAM_SLASH
+            item_data['damage_type'] = damages_types.DAM_SLASH.value
         elif damage_type in ['pierce', 'stab', 'bite', 'scratch', 'sting', 'chomp', 'thrust']:
-            item_data['damage_type'] = damages_types.DAM_PIERCE
+            item_data['damage_type'] = damages_types.DAM_PIERCE.value
         elif damage_type in ['digestion', 'acbite', 'slime']:
-            item_data['damage_type'] = damages_types.DAM_ACID
+            item_data['damage_type'] = damages_types.DAM_ACID.value
         elif damage_type in ['flame', 'flbite']:
-            item_data['damage_type'] = damages_types.DAM_FIRE
+            item_data['damage_type'] = damages_types.DAM_FIRE.value
         elif damage_type in ['frbite', 'chill']:
-            item_data['damage_type'] = damages_types.DAM_COLD
+            item_data['damage_type'] = damages_types.DAM_COLD.value
         elif damage_type in ['shbite', 'shock']:
-            item_data['damage_type'] = damages_types.DAM_LIGHTNING
+            item_data['damage_type'] = damages_types.DAM_LIGHTNING.value
         elif damage_type in ['wrath', 'magic']:
-            item_data['damage_type'] = damages_types.DAM_ENERGY
+            item_data['damage_type'] = damages_types.DAM_ENERGY.value
         elif damage_type in ['divine']:
-            item_data['damage_type'] = damages_types.DAM_HOLY
+            item_data['damage_type'] = damages_types.DAM_HOLY.value
         elif damage_type in ['drain']:
-            item_data['damage_type'] = damages_types.DAM_NEGATIVE
+            item_data['damage_type'] = damages_types.DAM_NEGATIVE.value
         else:
             self.logger.warn(f"Unknown damage type: {damage_type} for item {item_data}")
-            item_data['damage_type'] = damages_types.DAM_NONE
+            item_data['damage_type'] = damages_types.DAM_NONE.value
 
     def _liq_lookup(self, item_data):
-        liq_table = self.game_data.get('liquids')
+        liq_table = self.game_data.liquids
         liquid_name = item_data['value2'].replace("'", "")
         liquid = liq_table[liquid_name]
         liquid_affect_data = liquid['affect']
@@ -151,32 +266,6 @@ class ItemService:
             item_data["condition"] = "0"
         else:
             item_data["condition"] = "100"
-
-    @staticmethod
-    def _update_affect_data(item):
-        for affect in item.affect_data:
-            affect_elements = affect.split(",")
-            affect_data = AffectData(valid=True, where=-1, type=-1, level=item.level, duration=-1, location=-1, modifier=-1, bitvector=-1)
-
-            if affect_elements[0] == "A":
-                affect_data.where = AffectWhere.TO_OBJECT.value
-                affect_data.location = affect_elements[1]
-                affect_data.modifier = affect_elements[2]
-            elif affect_elements[0] == "F":
-                affect_data.location = affect_elements[2]
-                affect_data.modifier = affect_elements[3]
-                affect_data.bitvector = affect_elements[4]
-
-                if affect_elements[1] == "A":
-                    affect_data.where = AffectWhere.TO_AFFECTS.value
-                elif affect_elements[1] == "I":
-                    affect_data.where = AffectWhere.TO_IMMUNE.value
-                elif affect_elements[1] == "R":
-                    affect_data.where = AffectWhere.TO_RESIST.value
-                elif affect_elements[1] == "V":
-                    affect_data.where = AffectWhere.TO_VULN.value
-
-            item.effects.append(affect_data)
 
     @staticmethod
     def _update_extra_descr(item):

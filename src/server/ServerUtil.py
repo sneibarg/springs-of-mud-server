@@ -5,7 +5,8 @@ from typing import Dict, Any, Iterable
 from injector import singleton, Injector
 from game.GameData import GameData
 from game.GameService import GameService
-from mobile import MobileService
+from mobile.MobileService import MobileService
+from object.ObjectMacros import ObjectMacros
 from player.CharacterConstants import CharacterConstants
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
@@ -44,6 +45,9 @@ class ServerUtil:
         injector.binder.bind(CharacterMacros, to=CharacterMacros(injector.get(GameData),
                                                                  injector.get(RegistryService),
                                                                  injector.get(CharacterConstants)), scope=singleton)
+        injector.binder.bind(ObjectMacros, to=ObjectMacros(injector.get(GameData).races,
+                                                           injector.get(GameData).item_table,
+                                                           injector.get(GameService).enums['itemTypes']), scope=singleton)
         injector.binder.bind(SkillService, scope=singleton)
         injector.binder.bind(EventHandler, scope=singleton)
         injector.binder.bind(PlayerService, scope=singleton)
@@ -52,7 +56,8 @@ class ServerUtil:
         injector.binder.bind(AreaService, scope=singleton)
         injector.binder.bind(ItemService, to=ItemService(service_config,
                                                          injector.get(SkillService),
-                                                         injector.get(GameService).game_data), scope=singleton)
+                                                         injector.get(GameService).game_data,
+                                                         injector.get(ObjectMacros)), scope=singleton)
         injector.binder.bind(AuthenticationService, scope=singleton)
         injector.binder.bind(ConnectionManager, scope=singleton)
         injector.binder.bind(MessageBus, scope=singleton)
