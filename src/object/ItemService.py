@@ -1,7 +1,6 @@
-from enum import IntEnum
-
 import requests
 
+from enum import IntEnum
 from injector import inject
 from game import GameData
 from object.ObjectMacros import ObjectMacros
@@ -48,6 +47,7 @@ class ItemService:
 
     @staticmethod
     def _update_affect_data(item):
+        from server.ServerUtil import ServerUtil
         for affect in item.affect_data:
             affect_elements = affect.split(",")
             affect_data = AffectData(valid=True, where=-1, type=-1, level=item.level, duration=-1, location=-1, modifier=-1, bitvector=-1)
@@ -63,12 +63,7 @@ class ItemService:
                 if bitvector_raw.isdigit() or (bitvector_raw.startswith('-') and bitvector_raw[1:].isdigit()):
                     affect_data.bitvector = bitvector_raw
                 else:
-                    numeric_value = 0
-                    for char in bitvector_raw.upper():
-                        if char.isalpha() and 'A' <= char <= 'Z':
-                            bit_position = ord(char) - ord('A')
-                            numeric_value |= (1 << bit_position)
-                    affect_data.bitvector = numeric_value
+                    affect_data.bitvector = int(ServerUtil.convert_flags(bitvector_raw))
 
                 if affect_elements[1] == "A":
                     affect_data.where = AffectWhere.TO_AFFECTS.value
@@ -82,7 +77,7 @@ class ItemService:
             item.effects.append(affect_data)
 
     @staticmethod
-    def _convert_letter_flags_to_numeric(item_data):
+    def _convert_extra_and_wear_flags(item_data):
         """
         Each letter represents a bit: A = 1<<0 = 1, B = 1<<1 = 2, etc.
         Multiple letters are OR'd together: "AN" = (1<<0) | (1<<13) = 1 | 8192 = 8193
@@ -147,7 +142,7 @@ class ItemService:
                 item_data[value_key] = self._read_flag(item_data.get(value_key, '0'))
 
     def _normalize_item_data(self, item_data):
-        self._convert_letter_flags_to_numeric(item_data)
+        self._convert_extra_and_wear_flags(item_data)
         self._normalize_value_fields(item_data, self.object_macros.ItemTypes)
         self._update_item_type(item_data, self.object_macros.ItemTypes)
         self._update_condition(item_data)
