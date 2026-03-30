@@ -87,18 +87,13 @@ class ItemService:
         Each letter represents a bit: A = 1<<0 = 1, B = 1<<1 = 2, etc.
         Multiple letters are OR'd together: "AN" = (1<<0) | (1<<13) = 1 | 8192 = 8193
         """
+        from server.ServerUtil import ServerUtil
         for flag_field in ['extra_flags', 'wear_flags']:
             flag_value = item_data.get(flag_field, "0")
             if isinstance(flag_value, int) or (isinstance(flag_value, str) and flag_value.lstrip('-').isdigit()):
                 continue
 
-            numeric_value = 0
-            for char in str(flag_value).upper():
-                if char.isalpha() and 'A' <= char <= 'Z':
-                    bit_position = ord(char) - ord('A')
-                    numeric_value |= (1 << bit_position)
-
-            item_data[flag_field] = str(numeric_value)
+            item_data[flag_field] = str(ServerUtil.convert_flags(flag_value))
 
     @staticmethod
     def _convert_numeric_to_string(value):
@@ -118,13 +113,8 @@ class ItemService:
         if not flag_str or flag_str.lstrip('-').isdigit():
             return flag_str if flag_str else '0'
 
-        numeric_value = 0
-        for char in flag_str.upper():
-            if char.isalpha() and 'A' <= char <= 'Z':
-                bit_position = ord(char) - ord('A')
-                numeric_value |= (1 << bit_position)
-
-        return str(numeric_value)
+        from server.ServerUtil import ServerUtil
+        return str(ServerUtil.convert_flags(flag_str))
 
     # Matches load_objects() logic from ROM db2.c:341-389
     def _normalize_value_fields(self, item_data, ItemTypes: type[IntEnum]):

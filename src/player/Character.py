@@ -23,6 +23,9 @@ class Character:
     guild: str
     role: str
     sex: str
+    act: str
+    comm: str
+    affected_by: str
     cloaked: bool
     level: int
     health: int
@@ -45,6 +48,8 @@ class Character:
     magic: int
     played: int
     logon: int
+    pulse_wait: int
+    pulse_daze: int
     attributes: List[int]
     inventory: List[str]
     character_class: CharacterClass

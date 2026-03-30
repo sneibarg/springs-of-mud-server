@@ -151,6 +151,7 @@ class MobileService:
             "affect_flags": str(flags["affect_flags"]),
             "alignment": str(mobile_data.get("alignment", "0") or "0"),
             "group": str(self._safe_int(mobile_data.get("group", 0), default=0)),
+            "act": str(mobile_data.get("act", "") or ""),
             "dam_type": str(mobile_data.get("dam_type", "") or ""),
             "off_flags": str(flags["off_flags"]),
             "imm_flags": str(flags["imm_flags"]),
@@ -181,6 +182,9 @@ class MobileService:
             "ac_slash": 0,
             "ac_exotic": 0,
             "gold": self._safe_int(mobile_data.get("gold", 0), default=0),
+            "silver": self._safe_int(mobile_data.get("silver", 0), default=0),
+            "pulse_wait": self._safe_int(mobile_data.get("pulse_wait", 0), default=0),
+            "pulse_daze": self._safe_int(mobile_data.get("pulse_daze", 0), default=0),
             "lock": mobile_data.get("lock"),
         }
 

@@ -32,6 +32,7 @@ class Mobile:
     material: str
     flags: str
     id: str
+    act: str
     level: int
     hit_roll: int
     hit_dice_number: int
@@ -47,7 +48,10 @@ class Mobile:
     ac_bash: int
     ac_slash: int
     ac_exotic: int
+    pulse_wait: int
+    pulse_daze: int
     gold: int
+    silver: int
     lock: threading.Lock = field(default_factory=threading.Lock)
 
     def __post_init__(self):

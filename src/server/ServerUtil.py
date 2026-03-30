@@ -41,9 +41,12 @@ class ServerUtil:
         injector.binder.bind(RegistryService, scope=singleton)
         injector.binder.bind(GameService, scope=singleton)
         injector.binder.bind(GameData, to=injector.get(GameService).game_data, scope=singleton)
-        injector.binder.bind(CharacterConstants, to=CharacterConstants(injector.get(GameData)), scope=singleton)
-        injector.binder.bind(CharacterMacros, to=CharacterMacros(injector.get(GameData),
-                                                                 injector.get(RegistryService),
+        injector.binder.bind(CharacterConstants, to=CharacterConstants(injector.get(GameData).constants,
+                                                                       injector.get(GameService).enums['positions'],
+                                                                       injector.get(GameData).attribute_bonuses), scope=singleton)
+        injector.binder.bind(CharacterMacros, to=CharacterMacros(injector.get(RegistryService),
+                                                                 injector.get(GameData).enums['roomFlags'],
+                                                                 injector.get(GameData).attribute_bonuses,
                                                                  injector.get(CharacterConstants)), scope=singleton)
         injector.binder.bind(ObjectMacros, to=ObjectMacros(injector.get(GameData).races,
                                                            injector.get(GameData).item_table,
@@ -123,3 +126,12 @@ class ServerUtil:
             members[normalized_name] = member_value
 
         return IntEnum(enum_name, members)
+
+    @staticmethod
+    def convert_flags(flag_value: str) -> int:
+        numeric_value = 0
+        for char in str(flag_value).upper():
+            if char.isalpha() and 'A' <= char <= 'Z':
+                bit_position = ord(char) - ord('A')
+                numeric_value |= (1 << bit_position)
+        return numeric_value

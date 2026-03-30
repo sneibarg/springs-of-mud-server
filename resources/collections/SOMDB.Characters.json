@@ -10,6 +10,10 @@
   "race": "Human",
   "guild": "",
   "role": "admin",
+  "sex": "male",
+  "act": "GQRT",
+  "comm": "NOP",
+  "affectedBy": "",
   "cloaked": false,
   "health": 1000,
   "mana": 1000,
@@ -28,6 +32,10 @@
   "bashing": 100,
   "slashing": 100,
   "magic": 100,
+  "played": 0,
+  "logon": 0,
+  "pulseWait": 0,
+  "pulseDaze": 0,
   "inventory": [],
   "promptFormat": {
     "hp": true,
@@ -68,13 +76,7 @@
     25,
     25
   ],
-  "alignment": 900,
-  "played": {
-    "$numberLong": "189054"
-  },
-  "logon": {
-    "$numberLong": "1774802068"
-  }
+  "alignment": 900
 },
 {
   "_id": {
@@ -88,6 +90,10 @@
   "areaId": "673bf21189e37bdf47cf11f1",
   "guild": "",
   "role": "player",
+  "sex": "male",
+  "act": "QT",
+  "comm": "NOP",
+  "affectedBy": "J",
   "cloaked": false,
   "health": 1000,
   "mana": 1000,
@@ -109,6 +115,8 @@
   "magic": 100,
   "played": 0,
   "logon": 0,
+  "pulseWait": 0,
+  "pulseDaze": 0,
   "attributes": [],
   "inventory": [],
   "promptFormat": {

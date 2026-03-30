@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import Any
 from injector import inject
 from area import Room
-from game import GameData
 from mobile.Mobile import Mobile
 from player import Character
 from player.CharacterConstants import CharacterConstants
@@ -12,13 +11,28 @@ from server.LoggerFactory import LoggerFactory
 
 class CharacterMacros:
     @inject
-    def __init__(self, game_data: GameData, registry_service: RegistryService, character_constants: CharacterConstants):
+    def __init__(self, registry_service: RegistryService,
+                 room_flags: dict,
+                 attribute_bonuses: dict,
+                 character_constants: CharacterConstants):
         self.__name__ = "CharacterMacros"
-        self.game_data = game_data
         self.registry_service = registry_service
+        self.room_flags = room_flags
         self.character_constants = character_constants
-        self.attribute_bonuses = self.game_data.attribute_bonuses
+        self.attribute_bonuses = attribute_bonuses
         self.logger = LoggerFactory.get_logger(__name__)
+
+    @staticmethod
+    def is_set(flag: int, bit) -> bool:
+        if hasattr(bit, "value"):
+            return (flag & bit.value) != 0
+        return (flag & bit) != 0
+
+    def get_attribute_bonus(self, attr_name: str, attr_level: str):
+        return self.attribute_bonuses.get(attr_name).get(attr_level)
+
+    def is_immortal_sufficient(self, level: int, immortal_name: str) -> bool:
+        return level >= self.character_constants.immortal_levels.get(immortal_name)
 
     def is_npc(self, char: Any) -> bool:
         pass
@@ -29,11 +43,14 @@ class CharacterMacros:
     def is_hero(self, char: Character) -> bool:
         pass
 
-    def is_trusted(self, char: Character) -> bool :
+    def is_trusted(self, char: Character) -> bool:
         pass
 
-    def is_affected(self, char: Character | Mobile) -> bool:
-        pass
+    def is_affected(self, char: Character | Mobile, effect) -> bool:
+        return self.is_set(char.affected_by, effect)
+
+    def is_awake(self, char: Any) -> bool:
+        return char.position > self.character_constants.positions.POS_SLEEPING.name
 
     @staticmethod
     def get_age(char: Character) -> int:
@@ -47,9 +64,8 @@ class CharacterMacros:
     def is_evil(char: Character | Mobile) -> bool:
         return char.alignment <= -350
 
-    @staticmethod
-    def is_neutral(char: Character | Mobile) -> bool:
-        return not CharacterMacros.is_good(char) and not CharacterMacros.is_evil(char)
+    def is_neutral(self, char: Character | Mobile) -> bool:
+        return not self.is_good(char) and not self.is_evil(char)
 
     # requires normalization
     def get_ac(self, char: Character | Mobile, ac: int) -> int:
@@ -57,22 +73,28 @@ class CharacterMacros:
 
     # requires normalization
     def get_hitroll(self, char: Character | Mobile) -> int:
-        return self.character_constants.get_attribute_bonus(attr_name="strength", attr_level=str(char.level)).get('tohit')
+        return self.get_attribute_bonus(attr_name="strength", attr_level=str(char.level)).get('tohit')
 
     # requires normalization
     def get_damroll(self, char: Character | Mobile) -> int:
-        return self.character_constants.get_attribute_bonus(attr_name="strength", attr_level=str(char.level)).get('todam')
+        return self.get_attribute_bonus(attr_name="strength", attr_level=str(char.level)).get('todam')
 
     def is_outside(self, char: Any) -> bool:
         room: Room = self.registry_service.room_registry[char.room_id]
-        self.logger.debug(f"is_outside: {room.room_flags}={self.game_data.flags['room']['INDOORS']}")
-        return (room.room_flags & self.game_data.flags['room']["INDOORS"]) == 0
+        self.logger.debug(f"is_outside: {room.room_flags}={self.room_flags['room']['INDOORS']}")
+        return (room.room_flags & self.room_flags['room']["INDOORS"]) == 0
 
-    def wait_state(self, char: Character, npulse: int) -> int:
-        pass
+    @staticmethod
+    def get_carry_weight(char: Any) -> int:
+        return int(char.max_weight + ((char.silver / 10) + (char.gold * 2 / 5)))
 
-    def daze_state(self, char: Character, npulse: int) -> int:
-        pass
+    @staticmethod
+    def wait_state(char: Character, npulse: int) -> int:
+        return max(char.pulse_wait, npulse)
+
+    @staticmethod
+    def daze_state(char: Character, npulse: int) -> int:
+        return max(char.pulse_daze, npulse)
 
     def act(self, act_format: str, char: Any, arg1: str, arg2: str, act_type: int):
         pass
