@@ -35,7 +35,7 @@ class CharacterMacros:
         return level >= self.character_constants.immortal_levels.get(immortal_name)
 
     def is_npc(self, char: Any) -> bool:
-        pass
+        return self.is_set(char.act, self.character_constants.act_bits.ACT_IS_NPC)
 
     def is_immortal(self, char: Character) -> bool:
         pass
@@ -47,7 +47,8 @@ class CharacterMacros:
         pass
 
     def is_affected(self, char: Character | Mobile, effect) -> bool:
-        return self.is_set(char.affected_by, effect)
+        from server.ServerUtil import ServerUtil
+        return self.is_set(ServerUtil.convert_flags(char.affected_by), effect)
 
     def is_awake(self, char: Any) -> bool:
         return char.position > self.character_constants.positions.POS_SLEEPING.name

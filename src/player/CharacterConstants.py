@@ -10,9 +10,13 @@ class CharacterConstants:
     immortal_levels: dict[str, int]
 
     @inject
-    def __init__(self, constants: Constants, positions: type[IntEnum], attribute_bonuses: dict):
+    def __init__(self, constants: Constants,
+                 positions: type[IntEnum],
+                 act_bits: type[IntEnum],
+                 attribute_bonuses: dict):
         self.constants = constants
         self.positions = positions
+        self.act_bits = act_bits
         self.attribute_bonuses = attribute_bonuses
         self._populate_immortal_levels()
 

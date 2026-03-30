@@ -63,7 +63,7 @@ class ItemService:
                 if bitvector_raw.isdigit() or (bitvector_raw.startswith('-') and bitvector_raw[1:].isdigit()):
                     affect_data.bitvector = bitvector_raw
                 else:
-                    affect_data.bitvector = int(ServerUtil.convert_flags(bitvector_raw))
+                    affect_data.bitvector = ServerUtil.convert_flags(bitvector_raw)
 
                 if affect_elements[1] == "A":
                     affect_data.where = AffectWhere.TO_AFFECTS.value

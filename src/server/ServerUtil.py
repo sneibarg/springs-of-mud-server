@@ -43,6 +43,7 @@ class ServerUtil:
         injector.binder.bind(GameData, to=injector.get(GameService).game_data, scope=singleton)
         injector.binder.bind(CharacterConstants, to=CharacterConstants(injector.get(GameData).constants,
                                                                        injector.get(GameService).enums['positions'],
+                                                                       injector.get(GameService).enums['actBits'],
                                                                        injector.get(GameData).attribute_bonuses), scope=singleton)
         injector.binder.bind(CharacterMacros, to=CharacterMacros(injector.get(RegistryService),
                                                                  injector.get(GameData).enums['roomFlags'],
