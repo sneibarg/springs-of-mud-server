@@ -2,7 +2,6 @@ import asyncio
 import threading
 
 from player import Player
-from server.ServerUtil import ServerUtil
 from server.ServiceConfig import ServiceConfig
 from server.handlers import ConnectionHandler
 
@@ -67,6 +66,7 @@ class MudServer:
 
     def _start_services(self):
         from player.PlayerService import PlayerService
+        from server.ServerUtil import ServerUtil
 
         self.injector = ServerUtil.bind_services(self.service_config)
         self.player_service = self.injector.get(PlayerService)
@@ -75,6 +75,7 @@ class MudServer:
 
     def _load_player_one(self):
         try:
+            from server.ServerUtil import ServerUtil
             account_id = self.config['mudserver']['playerone']['accountId']
             account_json = ServerUtil.camel_to_snake_case(self.player_service.get_account_by_id(account_id))
             return Player.from_json(account_json)

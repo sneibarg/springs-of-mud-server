@@ -1029,7 +1029,7 @@
         "SPAM": 524288
       }
     },
-    "attribute_bonuses": {
+    "attributeBonuses": {
       "strength": {
         "0":  { "tohit": -5, "todam": -4, "carry": 0,   "wield": 0 },
         "1":  { "tohit": -5, "todam": -4, "carry": 3,   "wield": 1 },
@@ -1173,453 +1173,1042 @@
     },
     "classes": {
       "mage": {
-        "id": "mage",
-        "whoName": "Mag",
-        "primeAttr": "INT",
-        "defaultWeapon": "dagger",
-        "guildRooms": [
-          "3000",
-          "3001"
-        ],
-        "skillAdept": 75,
-        "thac0": {
-          "level0": 20,
-          "level32": 5
-        },
-        "hpGain": {
-          "min": 6,
-          "max": 10
-        },
-        "gainsMana": true,
-        "baseGroup": "mage_base",
-        "defaultGroup": "mage_default"
+        "who_name": "Mag",
+        "attr_prime": "STAT_INT",
+        "weapon": "OBJ_VNUM_SCHOOL_DAGGER",
+        "guild": [3018, 9618],
+        "skill_adept": 75,
+        "thac0_00": 20,
+        "thac0_32": 6,
+        "hp_min": 6,
+        "hp_max": 8,
+        "fMana": true,
+        "base_group": "mage basics",
+        "default_group": "mage default"
+      },
+      "cleric": {
+        "who_name": "Cle",
+        "attr_prime": "STAT_WIS",
+        "weapon": "OBJ_VNUM_SCHOOL_MACE",
+        "guild": [3003, 9619],
+        "skill_adept": 75,
+        "thac0_00": 20,
+        "thac0_32": 2,
+        "hp_min": 7,
+        "hp_max": 10,
+        "fMana": true,
+        "base_group": "cleric basics",
+        "default_group": "cleric default"
+      },
+      "thief": {
+        "who_name": "Thi",
+        "attr_prime": "STAT_DEX",
+        "weapon": "OBJ_VNUM_SCHOOL_DAGGER",
+        "guild": [3028, 9639],
+        "skill_adept": 75,
+        "thac0_00": 20,
+        "thac0_32": -4,
+        "hp_min": 8,
+        "hp_max": 13,
+        "fMana": false,
+        "base_group": "thief basics",
+        "default_group": "thief default"
+      },
+      "warrior": {
+        "who_name": "War",
+        "attr_prime": "STAT_STR",
+        "weapon": "OBJ_VNUM_SCHOOL_SWORD",
+        "guild": [3022, 9633],
+        "skill_adept": 75,
+        "thac0_00": 20,
+        "thac0_32": -10,
+        "hp_min": 11,
+        "hp_max": 15,
+        "fMana": false,
+        "base_group": "warrior basics",
+        "default_group": "warrior default"
       }
     },
     "races": {
+      "unique": {
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 0,
+        "parts": 0
+      },
       "human": {
-        "id": "human",
-        "pcSelectable": true,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": true,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2101377,
+        "parts": 2047
       },
       "elf": {
-        "id": "elf",
-        "pcSelectable": true,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": true,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2101377,
+        "parts": 2047
       },
       "dwarf": {
-        "id": "dwarf",
-        "pcSelectable": true,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": true,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2101377,
+        "parts": 2047
       },
       "giant": {
-        "id": "giant",
-        "pcSelectable": true,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": true,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2101377,
+        "parts": 2047
       },
       "bat": {
-        "id": "bat",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2097217,
+        "parts": 34493
       },
       "bear": {
-        "id": "bear",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2097217,
+        "parts": 3147455
       },
       "cat": {
-        "id": "cat",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2097217,
+        "parts": 3212989
       },
       "centipede": {
-        "id": "centipede",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 16451,
+        "parts": 1029
       },
       "dog": {
-        "id": "dog",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2097217,
+        "parts": 3147453
       },
       "doll": {
-        "id": "doll",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 268440080,
+        "parts": 1223
       },
       "dragon": {
-        "id": "dragon",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 33554561,
+        "parts": 11634685
       },
       "fido": {
-        "id": "fido",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2097219,
+        "parts": 2164413
       },
       "fox": {
-        "id": "fox",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2097217,
+        "parts": 2164413
       },
       "goblin": {
-        "id": "goblin",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2101377,
+        "parts": 2047
       },
       "hobgoblin": {
-        "id": "hobgoblin",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2101377,
+        "parts": 16779263
       },
       "kobold": {
-        "id": "kobold",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2101379,
+        "parts": 67583
       },
       "lizard": {
-        "id": "lizard",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 276824129,
+        "parts": 2163901
       },
       "modron": {
-        "id": "modron",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 128,
+        "parts": 1735
       },
       "orc": {
-        "id": "orc",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2101377,
+        "parts": 2047
       },
       "pig": {
-        "id": "pig",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2097217,
+        "parts": 1725
       },
       "rabbit": {
-        "id": "rabbit",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2097217,
+        "parts": 1725
       },
       "school monster": {
-        "id": "school monster",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2101249,
+        "parts": 1115839
       },
       "snake": {
-        "id": "snake",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 293601345,
+        "parts": 10554425
       },
       "song bird": {
-        "id": "song bird",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 4194369,
+        "parts": 33981
       },
       "troll": {
-        "id": "troll",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2101379,
+        "parts": 3147775
       },
       "water fowl": {
-        "id": "water fowl",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 4194369,
+        "parts": 33981
       },
       "wolf": {
-        "id": "wolf",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 2097217,
+        "parts": 2164285
       },
       "wyvern": {
-        "id": "wyvern",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
-      },
-      "unique": {
-        "id": "unique",
-        "pcSelectable": false,
-        "mobAct": [],
-        "affect": [],
-        "offense": [],
-        "immunity": [],
-        "resistance": [],
-        "vulnerability": [],
-        "form": [],
-        "parts": []
+        "pc_race": false,
+        "act": 0,
+        "aff": 0,
+        "off": 0,
+        "imm": 0,
+        "res": 0,
+        "vuln": 0,
+        "form": 33554499,
+        "parts": 10553021
       }
     },
     "pcRaces": {
       "human": {
-        "id": "human",
-        "whoName": "Human",
+        "who_name": "Human",
         "points": 0,
-        "classExpMult": {
-          "mage": 100,
-          "cleric": 100,
-          "thief": 100,
-          "warrior": 100
-        },
-        "bonusSkills": [],
-        "stats": {
-          "STR": 13,
-          "INT": 13,
-          "WIS": 13,
-          "DEX": 13,
-          "CON": 13
-        },
-        "maxStats": {
-          "STR": 18,
-          "INT": 18,
-          "WIS": 18,
-          "DEX": 18,
-          "CON": 18
-        },
-        "size": "MEDIUM"
+        "class_mult": [100, 100, 100, 100],
+        "skills": [""],
+        "stats": [13, 13, 13, 13, 13],
+        "max_stats": [18, 18, 18, 18, 18],
+        "size": "SIZE_MEDIUM"
+      },
+      "elf": {
+        "who_name": "Elf",
+        "points": 5,
+        "class_mult": [100, 125, 100, 120],
+        "skills": ["sneak", "hide"],
+        "stats": [12, 14, 13, 15, 11],
+        "max_stats": [16, 20, 18, 21, 15],
+        "size": "SIZE_SMALL"
+      },
+      "dwarf": {
+        "who_name": "Dwarf",
+        "points": 8,
+        "class_mult": [150, 100, 125, 100],
+        "skills": ["berserk"],
+        "stats": [14, 12, 14, 10, 15],
+        "max_stats": [20, 16, 19, 14, 21],
+        "size": "SIZE_MEDIUM"
+      },
+      "giant": {
+        "who_name": "Giant",
+        "points": 6,
+        "class_mult": [200, 150, 150, 105],
+        "skills": ["bash", "fast healing"],
+        "stats": [16, 11, 13, 11, 14],
+        "max_stats": [22, 15, 18, 15, 20],
+        "size": "SIZE_LARGE"
       }
     },
-    "skills": {
-      "reserved": {
-        "id": "reserved",
-        "kind": "skill",
-        "levelByClass": {
-          "mage": 60,
-          "cleric": 60,
-          "thief": 60,
-          "warrior": 60
-        },
-        "ratingByClass": {
-          "mage": 0,
-          "cleric": 0,
-          "thief": 0,
-          "warrior": 0
-        },
-        "handlerId": "spell.none",
-        "target": "IGNORE",
-        "minPosition": "STANDING",
-        "slot": 0,
-        "minMana": 0,
-        "beats": 0,
-        "nounDamage": "",
-        "msgOff": "",
-        "msgObj": ""
+    "wiznetTable": {
+      "on": {
+        "flag": "WIZ_ON",
+        "level": "IM"
+      },
+      "prefix": {
+        "flag": "WIZ_PREFIX",
+        "level": "IM"
+      },
+      "ticks": {
+        "flag": "WIZ_TICKS",
+        "level": "IM"
+      },
+      "logins": {
+        "flag": "WIZ_LOGINS",
+        "level": "IM"
+      },
+      "sites": {
+        "flag": "WIZ_SITES",
+        "level": "L4"
+      },
+      "links": {
+        "flag": "WIZ_LINKS",
+        "level": "L7"
+      },
+      "newbies": {
+        "flag": "WIZ_NEWBIE",
+        "level": "IM"
+      },
+      "spam": {
+        "flag": "WIZ_SPAM",
+        "level": "L5"
+      },
+      "deaths": {
+        "flag": "WIZ_DEATHS",
+        "level": "IM"
+      },
+      "resets": {
+        "flag": "WIZ_RESETS",
+        "level": "L4"
+      },
+      "mobdeaths": {
+        "flag": "WIZ_MOBDEATHS",
+        "level": "L4"
+      },
+      "flags": {
+        "flag": "WIZ_FLAGS",
+        "level": "L5"
+      },
+      "penalties": {
+        "flag": "WIZ_PENALTIES",
+        "level": "L5"
+      },
+      "saccing": {
+        "flag": "WIZ_SACCING",
+        "level": "L5"
+      },
+      "levels": {
+        "flag": "WIZ_LEVELS",
+        "level": "IM"
+      },
+      "load": {
+        "flag": "WIZ_LOAD",
+        "level": "L2"
+      },
+      "restore": {
+        "flag": "WIZ_RESTORE",
+        "level": "L2"
+      },
+      "snoops": {
+        "flag": "WIZ_SNOOPS",
+        "level": "L2"
+      },
+      "switches": {
+        "flag": "WIZ_SWITCHES",
+        "level": "L2"
+      },
+      "secure": {
+        "flag": "WIZ_SECURE",
+        "level": "L1"
       }
     },
     "groups": {
-      "rom_basics": {
-        "id": "rom_basics",
-        "ratingByClass": {
-          "mage": 0,
-          "cleric": 0,
-          "thief": 0,
-          "warrior": 0
+        "rom basics": {
+          "rating": [0, 0, 0, 0],
+          "spells": ["scrolls", "staves", "wands", "recall"]
         },
-        "skillIds": [
-          "reserved"
-        ]
+        "mage basics": {
+          "rating": [0, -1, -1, -1],
+          "spells": ["dagger"]
+        },
+        "cleric basics": {
+          "rating": [-1, 0, -1, -1],
+          "spells": ["mace"]
+        },
+        "thief basics": {
+          "rating": [-1, -1, 0, -1],
+          "spells": ["dagger", "steal"]
+        },
+        "warrior basics": {
+          "rating": [-1, -1, -1, 0],
+          "spells": ["sword", "second attack"]
+        },
+        "mage default": {
+          "rating": [40, -1, -1, -1],
+          "spells": [
+            "lore", "beguiling", "combat", "detection", "enhancement",
+            "illusion", "maladictions", "protective", "transportation", "weather"
+          ]
+        },
+        "cleric default": {
+          "rating": [-1, 40, -1, -1],
+          "spells": [
+            "flail", "attack", "creation", "curative", "benedictions",
+            "detection", "healing", "maladictions", "protective", "shield block",
+            "transportation", "weather"
+          ]
+        },
+        "thief default": {
+          "rating": [-1, -1, 40, -1],
+          "spells": [
+            "mace", "sword", "backstab", "disarm", "dodge", "second attack",
+            "trip", "hide", "peek", "pick lock", "sneak"
+          ]
+        },
+        "warrior default": {
+          "rating": [-1, -1, -1, 40],
+          "spells": [
+            "weaponsmaster", "shield block", "bash", "disarm", "enhanced damage",
+            "parry", "rescue", "third attack"
+          ]
+        },
+        "weaponsmaster": {
+          "rating": [40, 40, 40, 20],
+          "spells": ["axe", "dagger", "flail", "mace", "polearm", "spear", "sword", "whip"]
+        },
+        "attack": {
+          "rating": [-1, 5, -1, 8],
+          "spells": [
+            "demonfire", "dispel evil", "dispel good", "earthquake",
+            "flamestrike", "heat metal", "ray of truth"
+          ]
+        },
+        "beguiling": {
+          "rating": [4, -1, 6, -1],
+          "spells": ["calm", "charm person", "sleep"]
+        },
+        "benedictions": {
+          "rating": [-1, 4, -1, 8],
+          "spells": ["bless", "calm", "frenzy", "holy word", "remove curse"]
+        },
+        "combat": {
+          "rating": [6, -1, 10, 9],
+          "spells": [
+            "acid blast", "burning hands", "chain lightning", "chill touch",
+            "colour spray", "fireball", "lightning bolt", "magic missile",
+            "shocking grasp"
+          ]
+        },
+        "creation": {
+          "rating": [4, 4, 8, 8],
+          "spells": [
+            "continual light", "create food", "create spring", "create water",
+            "create rose", "floating disc"
+          ]
+        },
+        "curative": {
+          "rating": [-1, 4, -1, 8],
+          "spells": ["cure blindness", "cure disease", "cure poison"]
+        },
+        "detection": {
+          "rating": [4, 3, 6, -1],
+          "spells": [
+            "detect evil", "detect good", "detect hidden", "detect invis",
+            "detect magic", "detect poison", "farsight", "identify",
+            "know alignment", "locate object"
+          ]
+        },
+        "draconian": {
+          "rating": [8, -1, -1, -1],
+          "spells": [
+            "acid breath", "fire breath", "frost breath", "gas breath",
+            "lightning breath"
+          ]
+        },
+        "enchantment": {
+          "rating": [6, -1, -1, -1],
+          "spells": ["enchant armor", "enchant weapon", "fireproof", "recharge"]
+        },
+        "enhancement": {
+          "rating": [5, -1, 9, 9],
+          "spells": ["giant strength", "haste", "infravision", "refresh"]
+        },
+        "harmful": {
+          "rating": [-1, 3, -1, 6],
+          "spells": ["cause critical", "cause light", "cause serious", "harm"]
+        },
+        "healing": {
+          "rating": [-1, 3, -1, 6],
+          "spells": [
+            "cure critical", "cure light", "cure serious", "heal",
+            "mass healing", "refresh"
+          ]
+        },
+        "illusion": {
+          "rating": [4, -1, 7, -1],
+          "spells": ["invis", "mass invis", "ventriloquate"]
+        },
+        "maladictions": {
+          "rating": [5, 5, 9, 9],
+          "spells": [
+            "blindness", "change sex", "curse", "energy drain", "plague",
+            "poison", "slow", "weaken"
+          ]
+        },
+        "protective": {
+          "rating": [4, 4, 7, 8],
+          "spells": [
+            "armor", "cancellation", "dispel magic", "fireproof",
+            "protection evil", "protection good", "sanctuary", "shield",
+            "stone skin"
+          ]
+        },
+        "transportation": {
+          "rating": [4, 4, 8, 9],
+          "spells": [
+            "fly", "gate", "nexus", "pass door", "portal", "summon",
+            "teleport", "word of recall"
+          ]
+        },
+        "weather": {
+          "rating": [4, 4, 8, 8],
+          "spells": [
+            "call lightning", "control weather", "faerie fire", "faerie fog",
+            "lightning bolt"
+          ]
+        }
+      },
+    "titles": {
+      "mage": {
+        "0": { "male": "Man", "female": "Woman" },
+        "1": { "male": "Apprentice of Magic", "female": "Apprentice of Magic" },
+        "2": { "male": "Spell Student", "female": "Spell Student" },
+        "3": { "male": "Scholar of Magic", "female": "Scholar of Magic" },
+        "4": { "male": "Delver in Spells", "female": "Delveress in Spells" },
+        "5": { "male": "Medium of Magic", "female": "Medium of Magic" },
+        "6": { "male": "Scribe of Magic", "female": "Scribess of Magic" },
+        "7": { "male": "Seer", "female": "Seeress" },
+        "8": { "male": "Sage", "female": "Sage" },
+        "9": { "male": "Illusionist", "female": "Illusionist" },
+        "10": { "male": "Abjurer", "female": "Abjuress" },
+        "11": { "male": "Invoker", "female": "Invoker" },
+        "12": { "male": "Enchanter", "female": "Enchantress" },
+        "13": { "male": "Conjurer", "female": "Conjuress" },
+        "14": { "male": "Magician", "female": "Witch" },
+        "15": { "male": "Creator", "female": "Creator" },
+        "16": { "male": "Savant", "female": "Savant" },
+        "17": { "male": "Magus", "female": "Craftess" },
+        "18": { "male": "Wizard", "female": "Wizard" },
+        "19": { "male": "Warlock", "female": "War Witch" },
+        "20": { "male": "Sorcerer", "female": "Sorceress" },
+        "21": { "male": "Elder Sorcerer", "female": "Elder Sorceress" },
+        "22": { "male": "Grand Sorcerer", "female": "Grand Sorceress" },
+        "23": { "male": "Great Sorcerer", "female": "Great Sorceress" },
+        "24": { "male": "Golem Maker", "female": "Golem Maker" },
+        "25": { "male": "Greater Golem Maker", "female": "Greater Golem Maker" },
+        "26": { "male": "Maker of Stones", "female": "Maker of Stones" },
+        "27": { "male": "Maker of Potions", "female": "Maker of Potions" },
+        "28": { "male": "Maker of Scrolls", "female": "Maker of Scrolls" },
+        "29": { "male": "Maker of Wands", "female": "Maker of Wands" },
+        "30": { "male": "Maker of Staves", "female": "Maker of Staves" },
+        "31": { "male": "Demon Summoner", "female": "Demon Summoner" },
+        "32": { "male": "Greater Demon Summoner", "female": "Greater Demon Summoner" },
+        "33": { "male": "Dragon Charmer", "female": "Dragon Charmer" },
+        "34": { "male": "Greater Dragon Charmer", "female": "Greater Dragon Charmer" },
+        "35": { "male": "Master of all Magic", "female": "Master of all Magic" },
+        "36": { "male": "Master Mage", "female": "Master Mage" },
+        "37": { "male": "Master Mage", "female": "Master Mage" },
+        "38": { "male": "Master Mage", "female": "Master Mage" },
+        "39": { "male": "Master Mage", "female": "Master Mage" },
+        "40": { "male": "Master Mage", "female": "Master Mage" },
+        "41": { "male": "Master Mage", "female": "Master Mage" },
+        "42": { "male": "Master Mage", "female": "Master Mage" },
+        "43": { "male": "Master Mage", "female": "Master Mage" },
+        "44": { "male": "Master Mage", "female": "Master Mage" },
+        "45": { "male": "Master Mage", "female": "Master Mage" },
+        "46": { "male": "Master Mage", "female": "Master Mage" },
+        "47": { "male": "Master Mage", "female": "Master Mage" },
+        "48": { "male": "Master Mage", "female": "Master Mage" },
+        "49": { "male": "Master Mage", "female": "Master Mage" },
+        "50": { "male": "Master Mage", "female": "Master Mage" },
+        "51": { "male": "Mage Hero", "female": "Mage Heroine" },
+        "52": { "male": "Avatar of Magic", "female": "Avatar of Magic" },
+        "53": { "male": "Angel of Magic", "female": "Angel of Magic" },
+        "54": { "male": "Demigod of Magic", "female": "Demigoddess of Magic" },
+        "55": { "male": "Immortal of Magic", "female": "Immortal of Magic" },
+        "56": { "male": "God of Magic", "female": "Goddess of Magic" },
+        "57": { "male": "Deity of Magic", "female": "Deity of Magic" },
+        "58": { "male": "Supremity of Magic", "female": "Supremity of Magic" },
+        "59": { "male": "Creator", "female": "Creator" },
+        "60": { "male": "Implementor", "female": "Implementress" }
+      },
+      "cleric": {
+        "0": { "male": "Man", "female": "Woman" },
+        "1": { "male": "Believer", "female": "Believer" },
+        "2": { "male": "Attendant", "female": "Attendant" },
+        "3": { "male": "Acolyte", "female": "Acolyte" },
+        "4": { "male": "Novice", "female": "Novice" },
+        "5": { "male": "Missionary", "female": "Missionary" },
+        "6": { "male": "Adept", "female": "Adept" },
+        "7": { "male": "Deacon", "female": "Deaconess" },
+        "8": { "male": "Vicar", "female": "Vicaress" },
+        "9": { "male": "Priest", "female": "Priestess" },
+        "10": { "male": "Minister", "female": "Lady Minister" },
+        "11": { "male": "Canon", "female": "Canon" },
+        "12": { "male": "Levite", "female": "Levitess" },
+        "13": { "male": "Curate", "female": "Curess" },
+        "14": { "male": "Monk", "female": "Nun" },
+        "15": { "male": "Healer", "female": "Healess" },
+        "16": { "male": "Chaplain", "female": "Chaplain" },
+        "17": { "male": "Expositor", "female": "Expositress" },
+        "18": { "male": "Bishop", "female": "Bishop" },
+        "19": { "male": "Arch Bishop", "female": "Arch Lady of the Church" },
+        "20": { "male": "Patriarch", "female": "Matriarch" },
+        "21": { "male": "Elder Patriarch", "female": "Elder Matriarch" },
+        "22": { "male": "Grand Patriarch", "female": "Grand Matriarch" },
+        "23": { "male": "Great Patriarch", "female": "Great Matriarch" },
+        "24": { "male": "Demon Killer", "female": "Demon Killer" },
+        "25": { "male": "Greater Demon Killer", "female": "Greater Demon Killer" },
+        "26": { "male": "Cardinal of the Sea", "female": "Cardinal of the Sea" },
+        "27": { "male": "Cardinal of the Earth", "female": "Cardinal of the Earth" },
+        "28": { "male": "Cardinal of the Air", "female": "Cardinal of the Air" },
+        "29": { "male": "Cardinal of the Ether", "female": "Cardinal of the Ether" },
+        "30": { "male": "Cardinal of the Heavens", "female": "Cardinal of the Heavens" },
+        "31": { "male": "Avatar of an Immortal", "female": "Avatar of an Immortal" },
+        "32": { "male": "Avatar of a Deity", "female": "Avatar of a Deity" },
+        "33": { "male": "Avatar of a Supremity", "female": "Avatar of a Supremity" },
+        "34": { "male": "Avatar of an Implementor", "female": "Avatar of an Implementor" },
+        "35": { "male": "Master of all Divinity", "female": "Mistress of all Divinity" },
+        "36": { "male": "Master Cleric", "female": "Master Cleric" },
+        "37": { "male": "Master Cleric", "female": "Master Cleric" },
+        "38": { "male": "Master Cleric", "female": "Master Cleric" },
+        "39": { "male": "Master Cleric", "female": "Master Cleric" },
+        "40": { "male": "Master Cleric", "female": "Master Cleric" },
+        "41": { "male": "Master Cleric", "female": "Master Cleric" },
+        "42": { "male": "Master Cleric", "female": "Master Cleric" },
+        "43": { "male": "Master Cleric", "female": "Master Cleric" },
+        "44": { "male": "Master Cleric", "female": "Master Cleric" },
+        "45": { "male": "Master Cleric", "female": "Master Cleric" },
+        "46": { "male": "Master Cleric", "female": "Master Cleric" },
+        "47": { "male": "Master Cleric", "female": "Master Cleric" },
+        "48": { "male": "Master Cleric", "female": "Master Cleric" },
+        "49": { "male": "Master Cleric", "female": "Master Cleric" },
+        "50": { "male": "Master Cleric", "female": "Master Cleric" },
+        "51": { "male": "Holy Hero", "female": "Holy Heroine" },
+        "52": { "male": "Holy Avatar", "female": "Holy Avatar" },
+        "53": { "male": "Angel", "female": "Angel" },
+        "54": { "male": "Demigod", "female": "Demigoddess" },
+        "55": { "male": "Immortal", "female": "Immortal" },
+        "56": { "male": "God", "female": "Goddess" },
+        "57": { "male": "Deity", "female": "Deity" },
+        "58": { "male": "Supreme Master", "female": "Supreme Mistress" },
+        "59": { "male": "Creator", "female": "Creator" },
+        "60": { "male": "Implementor", "female": "Implementress" }
+      },
+      "thief": {
+        "0": { "male": "Man", "female": "Woman" },
+        "1": { "male": "Pilferer", "female": "Pilferess" },
+        "2": { "male": "Footpad", "female": "Footpad" },
+        "3": { "male": "Filcher", "female": "Filcheress" },
+        "4": { "male": "Pick-Pocket", "female": "Pick-Pocket" },
+        "5": { "male": "Sneak", "female": "Sneak" },
+        "6": { "male": "Pincher", "female": "Pincheress" },
+        "7": { "male": "Cut-Purse", "female": "Cut-Purse" },
+        "8": { "male": "Snatcher", "female": "Snatcheress" },
+        "9": { "male": "Sharper", "female": "Sharpress" },
+        "10": { "male": "Rogue", "female": "Rogue" },
+        "11": { "male": "Robber", "female": "Robber" },
+        "12": { "male": "Magsman", "female": "Magswoman" },
+        "13": { "male": "Highwayman", "female": "Highwaywoman" },
+        "14": { "male": "Burglar", "female": "Burglaress" },
+        "15": { "male": "Thief", "female": "Thief" },
+        "16": { "male": "Knifer", "female": "Knifer" },
+        "17": { "male": "Quick-Blade", "female": "Quick-Blade" },
+        "18": { "male": "Killer", "female": "Murderess" },
+        "19": { "male": "Brigand", "female": "Brigand" },
+        "20": { "male": "Cut-Throat", "female": "Cut-Throat" },
+        "21": { "male": "Spy", "female": "Spy" },
+        "22": { "male": "Grand Spy", "female": "Grand Spy" },
+        "23": { "male": "Master Spy", "female": "Master Spy" },
+        "24": { "male": "Assassin", "female": "Assassin" },
+        "25": { "male": "Greater Assassin", "female": "Greater Assassin" },
+        "26": { "male": "Master of Vision", "female": "Mistress of Vision" },
+        "27": { "male": "Master of Hearing", "female": "Mistress of Hearing" },
+        "28": { "male": "Master of Smell", "female": "Mistress of Smell" },
+        "29": { "male": "Master of Taste", "female": "Mistress of Taste" },
+        "30": { "male": "Master of Touch", "female": "Mistress of Touch" },
+        "31": { "male": "Crime Lord", "female": "Crime Mistress" },
+        "32": { "male": "Infamous Crime Lord", "female": "Infamous Crime Mistress" },
+        "33": { "male": "Greater Crime Lord", "female": "Greater Crime Mistress" },
+        "34": { "male": "Master Crime Lord", "female": "Master Crime Mistress" },
+        "35": { "male": "Godfather", "female": "Godmother" },
+        "36": { "male": "Master Thief", "female": "Master Thief" },
+        "37": { "male": "Master Thief", "female": "Master Thief" },
+        "38": { "male": "Master Thief", "female": "Master Thief" },
+        "39": { "male": "Master Thief", "female": "Master Thief" },
+        "40": { "male": "Master Thief", "female": "Master Thief" },
+        "41": { "male": "Master Thief", "female": "Master Thief" },
+        "42": { "male": "Master Thief", "female": "Master Thief" },
+        "43": { "male": "Master Thief", "female": "Master Thief" },
+        "44": { "male": "Master Thief", "female": "Master Thief" },
+        "45": { "male": "Master Thief", "female": "Master Thief" },
+        "46": { "male": "Master Thief", "female": "Master Thief" },
+        "47": { "male": "Master Thief", "female": "Master Thief" },
+        "48": { "male": "Master Thief", "female": "Master Thief" },
+        "49": { "male": "Master Thief", "female": "Master Thief" },
+        "50": { "male": "Master Thief", "female": "Master Thief" },
+        "51": { "male": "Assassin Hero", "female": "Assassin Heroine" },
+        "52": { "male": "Avatar of Death", "female": "Avatar of Death" },
+        "53": { "male": "Angel of Death", "female": "Angel of Death" },
+        "54": { "male": "Demigod of Assassins", "female": "Demigoddess of Assassins" },
+        "55": { "male": "Immortal Assasin", "female": "Immortal Assassin" },
+        "56": { "male": "God of Assassins", "female": "God of Assassins" },
+        "57": { "male": "Deity of Assassins", "female": "Deity of Assassins" },
+        "58": { "male": "Supreme Master", "female": "Supreme Mistress" },
+        "59": { "male": "Creator", "female": "Creator" },
+        "60": { "male": "Implementor", "female": "Implementress" }
+      },
+      "warrior": {
+        "0": { "male": "Man", "female": "Woman" },
+        "1": { "male": "Swordpupil", "female": "Swordpupil" },
+        "2": { "male": "Recruit", "female": "Recruit" },
+        "3": { "male": "Sentry", "female": "Sentress" },
+        "4": { "male": "Fighter", "female": "Fighter" },
+        "5": { "male": "Soldier", "female": "Soldier" },
+        "6": { "male": "Warrior", "female": "Warrior" },
+        "7": { "male": "Veteran", "female": "Veteran" },
+        "8": { "male": "Swordsman", "female": "Swordswoman" },
+        "9": { "male": "Fencer", "female": "Fenceress" },
+        "10": { "male": "Combatant", "female": "Combatess" },
+        "11": { "male": "Hero", "female": "Heroine" },
+        "12": { "male": "Myrmidon", "female": "Myrmidon" },
+        "13": { "male": "Swashbuckler", "female": "Swashbuckleress" },
+        "14": { "male": "Mercenary", "female": "Mercenaress" },
+        "15": { "male": "Swordmaster", "female": "Swordmistress" },
+        "16": { "male": "Lieutenant", "female": "Lieutenant" },
+        "17": { "male": "Champion", "female": "Lady Champion" },
+        "18": { "male": "Dragoon", "female": "Lady Dragoon" },
+        "19": { "male": "Cavalier", "female": "Lady Cavalier" },
+        "20": { "male": "Knight", "female": "Lady Knight" },
+        "21": { "male": "Grand Knight", "female": "Grand Knight" },
+        "22": { "male": "Master Knight", "female": "Master Knight" },
+        "23": { "male": "Paladin", "female": "Paladin" },
+        "24": { "male": "Grand Paladin", "female": "Grand Paladin" },
+        "25": { "male": "Demon Slayer", "female": "Demon Slayer" },
+        "26": { "male": "Greater Demon Slayer", "female": "Greater Demon Slayer" },
+        "27": { "male": "Dragon Slayer", "female": "Dragon Slayer" },
+        "28": { "male": "Greater Dragon Slayer", "female": "Greater Dragon Slayer" },
+        "29": { "male": "Underlord", "female": "Underlord" },
+        "30": { "male": "Overlord", "female": "Overlord" },
+        "31": { "male": "Baron of Thunder", "female": "Baroness of Thunder" },
+        "32": { "male": "Baron of Storms", "female": "Baroness of Storms" },
+        "33": { "male": "Baron of Tornadoes", "female": "Baroness of Tornadoes" },
+        "34": { "male": "Baron of Hurricanes", "female": "Baroness of Hurricanes" },
+        "35": { "male": "Baron of Meteors", "female": "Baroness of Meteors" },
+        "36": { "male": "Master Warrior", "female": "Master Warrior" },
+        "37": { "male": "Master Warrior", "female": "Master Warrior" },
+        "38": { "male": "Master Warrior", "female": "Master Warrior" },
+        "39": { "male": "Master Warrior", "female": "Master Warrior" },
+        "40": { "male": "Master Warrior", "female": "Master Warrior" },
+        "41": { "male": "Master Warrior", "female": "Master Warrior" },
+        "42": { "male": "Master Warrior", "female": "Master Warrior" },
+        "43": { "male": "Master Warrior", "female": "Master Warrior" },
+        "44": { "male": "Master Warrior", "female": "Master Warrior" },
+        "45": { "male": "Master Warrior", "female": "Master Warrior" },
+        "46": { "male": "Master Warrior", "female": "Master Warrior" },
+        "47": { "male": "Master Warrior", "female": "Master Warrior" },
+        "48": { "male": "Master Warrior", "female": "Master Warrior" },
+        "49": { "male": "Master Warrior", "female": "Master Warrior" },
+        "50": { "male": "Master Warrior", "female": "Master Warrior" },
+        "51": { "male": "Knight Hero", "female": "Knight Heroine" },
+        "52": { "male": "Avatar of War", "female": "Avatar of War" },
+        "53": { "male": "Angel of War", "female": "Angel of War" },
+        "54": { "male": "Demigod of War", "female": "Demigoddess of War" },
+        "55": { "male": "Immortal Warlord", "female": "Immortal Warlord" },
+        "56": { "male": "God of War", "female": "God of War" },
+        "57": { "male": "Deity of War", "female": "Deity of War" },
+        "58": { "male": "Supreme Master of War", "female": "Supreme Mistress of War" },
+        "59": { "male": "Creator", "female": "Creator" },
+        "60": { "male": "Implementor", "female": "Implementress" }
+      }
+    },
+    "itemTable": {
+      "light": {
+        "type": "ITEM_LIGHT"
+      },
+      "scroll": {
+        "type": "ITEM_SCROLL"
+      },
+      "wand": {
+        "type": "ITEM_WAND"
+      },
+      "staff": {
+        "type": "ITEM_STAFF"
+      },
+      "weapon": {
+        "type": "ITEM_WEAPON"
+      },
+      "treasure": {
+        "type": "ITEM_TREASURE"
+      },
+      "armor": {
+        "type": "ITEM_ARMOR"
+      },
+      "potion": {
+        "type": "ITEM_POTION"
+      },
+      "clothing": {
+        "type": "ITEM_CLOTHING"
+      },
+      "furniture": {
+        "type": "ITEM_FURNITURE"
+      },
+      "trash": {
+        "type": "ITEM_TRASH"
+      },
+      "container": {
+        "type": "ITEM_CONTAINER"
+      },
+      "drink": {
+        "type": "ITEM_DRINK_CON"
+      },
+      "key": {
+        "type": "ITEM_KEY"
+      },
+      "food": {
+        "type": "ITEM_FOOD"
+      },
+      "money": {
+        "type": "ITEM_MONEY"
+      },
+      "boat": {
+        "type": "ITEM_BOAT"
+      },
+      "npc_corpse": {
+        "type": "ITEM_CORPSE_NPC"
+      },
+      "pc_corpse": {
+        "type": "ITEM_CORPSE_PC"
+      },
+      "fountain": {
+        "type": "ITEM_FOUNTAIN"
+      },
+      "pill": {
+        "type": "ITEM_PILL"
+      },
+      "protect": {
+        "type": "ITEM_PROTECT"
+      },
+      "map": {
+        "type": "ITEM_MAP"
+      },
+      "portal": {
+        "type": "ITEM_PORTAL"
+      },
+      "warp_stone": {
+        "type": "ITEM_WARP_STONE"
+      },
+      "room_key": {
+        "type": "ITEM_ROOM_KEY"
+      },
+      "gem": {
+        "type": "ITEM_GEM"
+      },
+      "jewelry": {
+        "type": "ITEM_JEWELRY"
+      },
+      "jukebox": {
+        "type": "ITEM_JUKEBOX"
       }
     },
     "weapons": {
+      "sword": {
+        "vnum": "OBJ_VNUM_SCHOOL_SWORD",
+        "type": "WEAPON_SWORD",
+        "gsn": "gsn_sword"
+      },
+      "mace": {
+        "vnum": "OBJ_VNUM_SCHOOL_MACE",
+        "type": "WEAPON_MACE",
+        "gsn": "gsn_mace"
+      },
       "dagger": {
-        "id": "dagger",
-        "weaponClass": "DAGGER",
-        "gsn": "dagger"
+        "vnum": "OBJ_VNUM_SCHOOL_DAGGER",
+        "type": "WEAPON_DAGGER",
+        "gsn": "gsn_dagger"
+      },
+      "axe": {
+        "vnum": "OBJ_VNUM_SCHOOL_AXE",
+        "type": "WEAPON_AXE",
+        "gsn": "gsn_axe"
+      },
+      "staff": {
+        "vnum": "OBJ_VNUM_SCHOOL_STAFF",
+        "type": "WEAPON_SPEAR",
+        "gsn": "gsn_spear"
+      },
+      "flail": {
+        "vnum": "OBJ_VNUM_SCHOOL_FLAIL",
+        "type": "WEAPON_FLAIL",
+        "gsn": "gsn_flail"
+      },
+      "whip": {
+        "vnum": "OBJ_VNUM_SCHOOL_WHIP",
+        "type": "WEAPON_WHIP",
+        "gsn": "gsn_whip"
+      },
+      "polearm": {
+        "vnum": "OBJ_VNUM_SCHOOL_POLEARM",
+        "type": "WEAPON_POLEARM",
+        "gsn": "gsn_polearm"
       }
     },
     "attacks": {

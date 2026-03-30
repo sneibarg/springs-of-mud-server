@@ -7,14 +7,6 @@ from typing import Any, Dict, Optional
 
 @dataclass(frozen=True)
 class GameData:
-    """
-    Fits the refactored "simple-function friendly" JSON:
-
-      - top-level catalogs are flat maps: classes["mage"], races["human"], ...
-      - optional *NameIndex maps for display-name -> id resolution
-      - flags are bit-value maps: flags["room"]["INDOORS"] == 4, etc.
-      - enums are int maps: enums["sector"]["CITY"] == 1
-    """
     id: str
     kind: str
     status: str
@@ -26,8 +18,10 @@ class GameData:
     classes: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     races: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     pc_races: Dict[str, Dict[str, Any]] = field(default_factory=dict)
-    skills: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    wiznet_table: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     groups: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    titles: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    item_table: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     weapons: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     attacks: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     liquids: Dict[str, Dict[str, Any]] = field(default_factory=dict)
@@ -62,10 +56,6 @@ class GameData:
         )
 
     def flag_value(self, domain: str, name: str) -> int:
-        """
-        e.g. gd.flag_value("room", "INDOORS") -> 4
-        Raises KeyError if missing (fail-fast).
-        """
         return self.flags[domain][name]
 
 

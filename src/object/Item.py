@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from typing import Optional, List
 from object.ExtraDescriptionData import ExtraDescriptionData
 from object.AffectData import AffectData
-from server.ServerUtil import ServerUtil
 from server.LoggerFactory import LoggerFactory
 
 
@@ -47,6 +46,7 @@ class Item:
     def from_json(cls, data):
         if isinstance(data, str):
             data = json.loads(data)
+        from server.ServerUtil import ServerUtil
         data = ServerUtil.camel_to_snake_case(data)
         return cls(**data)
 
