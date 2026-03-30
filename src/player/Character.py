@@ -50,6 +50,7 @@ class Character:
     logon: int
     pulse_wait: int
     pulse_daze: int
+    trust: int
     attributes: List[int]
     inventory: List[str]
     character_class: CharacterClass

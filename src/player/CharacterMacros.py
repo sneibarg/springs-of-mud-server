@@ -23,6 +23,14 @@ class CharacterMacros(GameMacro):
         self.attribute_bonuses = attribute_bonuses
         self.logger = LoggerFactory.get_logger(__name__)
 
+    def _get_trust(self, char: Character) -> int:
+        if char.trust > 0:
+            return char.trust
+        if self.is_npc(char) and char.level >= self.character_constants.immortal_levels.get("LEVEL_HERO"):
+            return self.character_constants.immortal_levels.get("LEVEL_HERO") - 1;
+        else:
+            return char.level
+
     def get_attribute_bonus(self, attr_name: str, attr_level: str):
         return self.attribute_bonuses.get(attr_name).get(attr_level)
 
@@ -33,13 +41,13 @@ class CharacterMacros(GameMacro):
         return self.is_set(char.act, self.character_constants.act_bits.ACT_IS_NPC)
 
     def is_immortal(self, char: Character) -> bool:
-        pass
+        return self._get_trust(char) >= self.character_constants.immortal_levels.get("LEVEL_IMMORTAL")
 
     def is_hero(self, char: Character) -> bool:
-        pass
+        return self._get_trust(char) >= self.character_constants.immortal_levels.get("LEVEL_HERO")
 
     def is_trusted(self, char: Character) -> bool:
-        pass
+        return self._get_trust(char) >= char.level
 
     def is_affected(self, char: Character | Mobile, effect) -> bool:
         from server.ServerUtil import ServerUtil
