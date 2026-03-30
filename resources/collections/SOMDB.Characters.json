@@ -24,7 +24,6 @@
   "position": 1,
   "maxWeight": 10000000,
   "maxItems": 10000000,
-  "reputation": 99,
   "piercing": 100,
   "bashing": 100,
   "slashing": 100,
@@ -49,7 +48,7 @@
     "carriage_return": false
   },
   "characterClass": {
-    "name" : "Mage",
+    "name": "Mage",
     "attr_prime": 0,
     "weapon": 0,
     "guild": 0,
@@ -61,6 +60,20 @@
     "mana_gain": true,
     "base_group": "mage basics",
     "default_group": "mage basics"
+  },
+  "attributes": [
+    25,
+    25,
+    25,
+    25,
+    25
+  ],
+  "alignment": 900,
+  "played": {
+    "$numberLong": "189054"
+  },
+  "logon": {
+    "$numberLong": "1774802068"
   }
 },
 {
@@ -90,11 +103,13 @@
   "position": 1,
   "maxWeight": 10000000,
   "maxItems": 10000000,
-  "reputation": 99,
   "piercing": 100,
   "bashing": 100,
   "slashing": 100,
   "magic": 100,
+  "played": 0,
+  "logon": 0,
+  "attributes": [],
   "inventory": [],
   "promptFormat": {
     "hp": true,
@@ -114,8 +129,8 @@
     "area_name": false,
     "carriage_return": false
   },
-    "characterClass": {
-    "name" : "Warrior",
+  "characterClass": {
+    "name": "Warrior",
     "attr_prime": 0,
     "weapon": 0,
     "guild": 0,
@@ -128,5 +143,6 @@
     "base_group": "warrior basics",
     "default_group": "warrior basics"
   },
-  "_class": "org.springy.som.modulith.domain.character.internal.CharacterDocument"
+  "_class": "org.springy.som.modulith.domain.character.internal.CharacterDocument",
+  "alignment": 650
 }]
