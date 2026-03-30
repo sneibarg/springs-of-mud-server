@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Any
 from injector import inject
 from area import Room
+from game.GameMacro import GameMacro
 from mobile.Mobile import Mobile
 from player import Character
 from player.CharacterConstants import CharacterConstants
@@ -9,7 +10,7 @@ from registry import RegistryService
 from server.LoggerFactory import LoggerFactory
 
 
-class CharacterMacros:
+class CharacterMacros(GameMacro):
     @inject
     def __init__(self, registry_service: RegistryService,
                  room_flags: dict,
@@ -21,12 +22,6 @@ class CharacterMacros:
         self.character_constants = character_constants
         self.attribute_bonuses = attribute_bonuses
         self.logger = LoggerFactory.get_logger(__name__)
-
-    @staticmethod
-    def is_set(flag: int, bit) -> bool:
-        if hasattr(bit, "value"):
-            return (flag & bit.value) != 0
-        return (flag & bit) != 0
 
     def get_attribute_bonus(self, attr_name: str, attr_level: str):
         return self.attribute_bonuses.get(attr_name).get(attr_level)

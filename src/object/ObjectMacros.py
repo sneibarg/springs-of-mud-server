@@ -1,19 +1,14 @@
 from enum import IntEnum
 from typing import Dict, List
+from game.GameMacro import GameMacro
 from object import Item
 
 
-class ObjectMacros:
+class ObjectMacros(GameMacro):
     def __init__(self, races: dict, item_table: dict, ItemTypes: type[IntEnum]):
         self.races = races
         self.item_table = item_table
         self.ItemTypes = ItemTypes
-
-    @staticmethod
-    def is_set(flag: int, bit) -> bool:
-        if hasattr(bit, "value"):
-            return (flag & bit.value) != 0
-        return (flag & bit) != 0
 
     def can_wear(self, obj: Item, part: int) -> bool:
         return self.is_set(int(obj.wear_flags), part)
