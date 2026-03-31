@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import asyncio
 import threading
 
@@ -7,10 +5,12 @@ from asyncio import StreamReader, StreamWriter
 from typing import Tuple
 from injector import inject
 
+from area import Area, Room
 from area.RoomHandler import RoomHandler
 from area.Area import Area
 from area.Room import Room
 from command.CommandService import CommandService
+from player import Player, Character
 from server.connection.TelnetConnection import TelnetConnection
 from server.connection.ConnectionManager import ConnectionManager
 from server.session.SessionHandler import SessionHandler
@@ -43,16 +43,17 @@ class ConnectionHandler:
         self.auth_service = auth_service
         self.command_service = command_service
 
-    async def _receive_initial_message(self, connection: TelnetConnection, session: SessionState) -> Tuple[bool, None | str, None | dict]:
+    async def _receive_initial_message(self, connection: TelnetConnection, session: SessionState) -> tuple[bool, str | None, Character | None] | tuple[bool, None, None]:
         first_msg = await connection.receive_message()
         self.logger.debug(f"Received message: {first_msg.type if first_msg else 'None'}, data: {first_msg.data if first_msg else 'None'}")
         if first_msg and first_msg.type == MessageType.AUTH:
             self.logger.info(f"Payload-based auth attempt on session {session.session_id}")
-            success, player_id, character_data = await self.auth_service.authenticate_with_payload(connection, session, first_msg.data)
+            success, player_id, character = await self.auth_service.authenticate_with_payload(connection, session, first_msg.data)
             if success:
                 self.connection_manager.bind_player(player_id, session.session_id)
-                self.logger.info(f"Player {player_id} authenticated via payload on session {session.session_id}")
-                return success, player_id, character_data
+                self.logger.debug(f"Player {player_id} authenticated via payload on session {session.session_id}")
+                self.logger.debug(f"Player character is: {character}")
+                return success, player_id, character
             else:
                 await connection.send_text("Authentication failed.\r\n", MessageType.ERROR)
                 return False, None, None
@@ -71,14 +72,13 @@ class ConnectionHandler:
             self.logger.info(f"New connection from {peer_info}: session {session.session_id}")
 
             await self._send_welcome(connection)
-            success, player_id, character_data = await self._receive_initial_message(connection, session)
+            success, player_id, character = await self._receive_initial_message(connection, session)
             if not success:
                 return
 
-            player, character = await self._nanny(character_data, session, connection)
+            player = await self._nanny(character, session, connection)
             area, room = self._get_area_and_room(character)
-
-            await self.room_handler.print_room(player.id, self.registry_service.room_registry[character.room_id])
+            await self.room_handler.print_room(player.id, self.registry_service.room_registry.registry[character.room_id])
             await self.message_bus.send_prompt(session.player_id, character, area, room)
             await self._game_loop(connection, session, player, character)
         except Exception as e:
@@ -99,7 +99,7 @@ class ConnectionHandler:
         await connection.send_text(welcome, MessageType.GAME)
 
     async def _game_loop(self, connection: TelnetConnection, session, player, character) -> None:
-        while not connection.is_closed() and session.is_playing() or session.is_idle():
+        while not connection.is_closed() and (session.is_playing() or session.is_idle()):
             try:
                 if not session.is_idle() and self.session_handler.is_session_idle(session):
                     session.status = SessionStatus.IDLING
@@ -131,38 +131,33 @@ class ConnectionHandler:
                 return None
 
     @staticmethod
-    def _get_character(character_data) -> Character:
-        from server.ServerUtil import ServerUtil
-        from player.Character import Character
-        character_definition = ServerUtil.camel_to_snake_case(character_data) if character_data else {}
-        character_definition['lock'] = threading.Lock()
-        return Character.from_json(character_definition)
+    def _update_character(character) -> None:
+        character.lock = threading.Lock()
 
-    def _get_or_create_player(self, session, character):
-        account = self.registry_service.player_list[session.player_id]
+    def _update_player(self, session, character) -> Player | None:
+        account = self.registry_service.player_registry.get_player_by_id(session.player_id)
         if account:
-            from server.ServerUtil import ServerUtil
-            from player.Player import Player
-            account_data = ServerUtil.camel_to_snake_case(account)
-            account_data['current_character'] = character
-            account_data['ansi_enabled'] = session.ansi_enabled
-            return Player.from_json(account_data)
-        return None
+            account.current_character = character
+            account.ansi_enabled = session.ansi_enabled
+        return account
 
-    def _get_area_and_room(self, character) -> Tuple[Area, Room]:
-        area = self.registry_service.area_registry[character.area_id]
-        room = self.registry_service.room_registry[character.room_id]
+    def _get_area_and_room(self, character) -> tuple[Area | None, Room | None]:
+        area = self.registry_service.area_registry.get_area_by_id(character.area_id)
+        room = self.registry_service.room_registry.get_room_by_id(character.room_id)
         return area, room
 
-    async def _nanny(self, character_data, session, connection) -> Tuple[Player, Character]:
-        character = self._get_character(character_data)
+    async def _nanny(self, character, session, connection) -> Player | None:
+        self._update_character(character)
         session.character = character
-        player = self._get_or_create_player(session, character)
+        player = self._update_player(session, character)
 
-        if player.banned:
+        if player is not None and player.banned:
             await connection.send_text("You have been banned from the server.\r\n", MessageType.ERROR)
             await connection.close()
+            return None
+        elif player is None:
+            await connection.send_text("Player not registered. Please try again.\r\n", MessageType.ERROR)
+            return None
 
-        self.registry_service.register_character(character, player.id)
         session.status = SessionStatus.PLAYING
-        return player, character
+        return player

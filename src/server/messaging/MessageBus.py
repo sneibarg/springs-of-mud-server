@@ -1,8 +1,8 @@
 from typing import List, Optional
 from injector import inject
-
 from area.Area import Area
 from area.Room import Room
+from player import Character
 from server.LoggerFactory import LoggerFactory
 from server.connection.ConnectionManager import ConnectionManager
 from server.connection.TelnetConnection import TelnetConnection
@@ -33,7 +33,7 @@ class MessageBus:
         if connection and not connection.is_closed():
             try:
                 await connection.send_message(message)
-                self.logger.debug(f"Successfully sent message to player {player_id}")
+                self.logger.info(f"Successfully sent message to player {player_id}")
                 return True
             except Exception as e:
                 self.logger.error(f"Failed to send message to player {player_id}: {e}", exc_info=True)

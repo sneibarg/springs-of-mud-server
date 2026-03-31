@@ -141,7 +141,7 @@ class TestAreaService(unittest.TestCase):
         mock_get.side_effect = mock_get_side_effect
 
         service = AreaService(self.mock_service_config, self.mock_registry)
-        self.assertEqual(len(service.registry.area_registry), 1)
+        self.assertEqual(len(service.registry_service.area_registry), 1)
 
     @patch('area.AreaService.requests.get')
     def test_load_rooms(self, mock_get):
@@ -177,7 +177,7 @@ class TestAreaService(unittest.TestCase):
         mock_get.side_effect = mock_get_side_effect
 
         service = AreaService(self.mock_service_config, self.mock_registry)
-        self.assertEqual(len(service.registry.room_registry), 1)
+        self.assertEqual(len(service.registry_service.room_registry), 1)
 
     @patch('area.AreaService.requests.get')
     def test_load_area_by_id(self, mock_get):
@@ -218,7 +218,7 @@ class TestAreaService(unittest.TestCase):
 
         mock_get.side_effect = mock_get_specific
         service.load_area('area_002')
-        self.assertIn('area_002', service.registry.area_registry)
+        self.assertIn('area_002', service.registry_service.area_registry)
 
     @patch('area.AreaService.requests.get')
     def test_move_mobile_valid_direction(self, mock_get):
@@ -279,8 +279,8 @@ class TestAreaService(unittest.TestCase):
             'mobiles': []
         })
 
-        service.registry.register_room(room1)
-        service.registry.register_room(room2)
+        service.registry_service.register_room(room1)
+        service.registry_service.register_room(room2)
 
         # Create mock character
         character = Mock()
@@ -325,7 +325,7 @@ class TestAreaService(unittest.TestCase):
             'mobiles': []
         })
 
-        service.registry.register_room(room)
+        service.registry_service.register_room(room)
 
         character = Mock()
         character.room_id = 'room_001'

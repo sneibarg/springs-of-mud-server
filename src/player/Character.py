@@ -89,7 +89,8 @@ class Character:
 
     @classmethod
     def from_json(cls, data):
-        payload = dict(data)
+        from server.ServerUtil import ServerUtil
+        payload = ServerUtil.camel_to_snake_case(data)
         prompt_format = payload.get('prompt_format')
         character_class = payload.get('character_class')
 

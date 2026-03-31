@@ -15,6 +15,7 @@ class TelnetConnection(Connection):
 
     async def send_message(self, message: Message) -> None:
         if self.is_closed():
+            self.logger.warn("Connection closed - cannot send message.")
             return
 
         try:

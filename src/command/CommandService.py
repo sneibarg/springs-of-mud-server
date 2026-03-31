@@ -23,9 +23,14 @@ lambda_mappings = {
     'p': 'Player',
     'c': 'Character',
     'r': 'Room',
-    'rg': 'RegistryService',
+    'rgs': 'RegistryService',
     'ah': 'AreaHandler',
     'rh': 'RoomHandler',
+    'ih': 'ItemHandler',
+    'mh': 'MobileHandler',
+    'ch': 'CharacterHandler',
+    'ph': 'PlayerHandler',
+    'sh': 'SkillHandler',
     'cs': 'CommandService',
     'ps': 'PlayerService',
     'ms': 'MobileService',
@@ -107,7 +112,7 @@ def get_args(lambda_string, player, injector, parameters):
                 obj = room
             elif arg == 'i':  # Item unimplemented
                 pass
-            elif arg in ['ps', 'zs', 'ms', 'os', 'eh', 'ch', 'cs', 'rh', 'rg', 'mb', 'cnh', 'rh']:
+            elif arg in ['ps', 'zs', 'ms', 'os', 'eh', 'ch', 'cs', 'rh', 'rgs', 'mb', 'cnh', 'rh', 'ih', 'ah', 'mh', 'ph', 'ss', 'sh']:
                 obj = injector.get(class_obj)
             elif arg == 'usage':
                 obj = player.usage

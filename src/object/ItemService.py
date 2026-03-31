@@ -1,25 +1,33 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import requests
 
 from enum import IntEnum
 from injector import inject
-from game import GameData
+from game.GameData import GameData
 from object.ObjectMacros import ObjectMacros
 from object.AffectData import AffectData, AffectWhere
 from object.ExtraDescriptionData import ExtraDescriptionData
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
-from skill.SkillService import SkillService
+
+
+if TYPE_CHECKING:
+    from registry.RegistryService import RegistryService
 
 
 class ItemService:
-    def __init__(self, config: ServiceConfig, skill_service: SkillService, game_data: GameData, object_macros: ObjectMacros):
+    @inject
+    def __init__(self, config: ServiceConfig, registry_service: RegistryService, game_data: GameData, object_macros: ObjectMacros):
         self.__name__ = "ItemService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.items_endpoint = config.items_endpoint
         self.game_data = game_data
         self.object_macros = object_macros
         self.enums = self.game_data.enums
-        self.skill_service = skill_service
+        self.registry_service = registry_service
         self.all_items = {}
         self.load_items()
         self.logger.info("Initialized ItemService instance with a total of " + str(len(self.all_items)) + " in memory.")
@@ -179,7 +187,7 @@ class ItemService:
     def _update_staff(self, item_data):
         try:
             skill_name = item_data['value3']
-            skill = self.skill_service.get_skill_by_name(skill_name)
+            skill = self.registry_service.get_skill_by_name(skill_name)
             item_data['value3'] = str(skill)
         except Exception as e:
             print(f"Failed to update staff skill: {e}")
@@ -189,7 +197,7 @@ class ItemService:
             try:
                 skill_name = item_data[skill_key]
                 if skill_name != "":
-                    skill = self.skill_service.get_skill_by_name(skill_name)
+                    skill = self.registry_service.get_skill_by_name(skill_name)
                     item_data[skill_key] = str(skill)
             except Exception as e:
                 print(f"Failed to update scroll skill: {e}")

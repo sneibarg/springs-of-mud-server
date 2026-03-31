@@ -1,8 +1,10 @@
+from injector import inject
 from registry import RegistryService
 from server.messaging import MessageBus
 
 
 class AreaHandler:
+    @inject
     def __init__(self, message_bus: MessageBus, registry_service: RegistryService):
         self.__name__ = "AreaHandler"
         self.message_bus = message_bus

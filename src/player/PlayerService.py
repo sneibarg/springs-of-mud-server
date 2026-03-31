@@ -1,29 +1,33 @@
 import requests
 
-from registry.RegistryService import RegistryService
+from injector import inject
+from player import Player, Character
+from registry.PlayerRegistry import PlayerRegistry
+from registry.CharacterRegistry import CharacterRegistry
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
-from server.messaging import MessageBus
 
 
 class PlayerService:
-    def __init__(self, config: ServiceConfig, registry_service: RegistryService):
+    @inject
+    def __init__(self, config: ServiceConfig, player_registry: PlayerRegistry, character_registry: CharacterRegistry):
         self.__name__ = "PlayerService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.config = config
-        self.registry_service = registry_service
+        self.player_registry = player_registry
+        self.character_registry = character_registry
         self.message_bus = None
         self.player_list = self.get_accounts()
         self.character_list = self.get_characters()
 
-    def start(self, message_bus: MessageBus):
+    def start(self):
         self.logger.info(f"Initialized PlayerService instance with {str(len(self.player_list))} player accounts and {str(len(self.character_list))} player characters.")
         for player in self.player_list:
-            self.registry_service.player_list[player['id']] = player
-
-        for character in self.character_list:
-            self.registry_service.character_list[character['id']] = character
-        self.logger.info(f"Populated registry with {str(len(self.registry_service.character_registry))} characters and {str(len(self.registry_service.player_list))} players.")
+            self.player_registry.register_player(Player.from_json(player))
+            for character_id in player["playerCharacterList"]:
+                character = self.get_character(character_id)
+                self.character_registry.register_character(player["id"], Character.from_json(character))
+        self.logger.info(f"Populated registry with {str(len(self.character_registry.registry))} characters and {str(len(self.player_registry.registry))} players.")
 
     def get_accounts(self):
         return requests.get(self.config.players_endpoint).json()
@@ -35,7 +39,6 @@ class PlayerService:
 
     def get_account_by_name(self, account_name):
         url = self.config.players_endpoint+"/name/"+account_name
-        print(f"GET: {url}")
         self.logger.debug("GET: " + url)
         return requests.get(url).json()
 
@@ -48,9 +51,9 @@ class PlayerService:
         return requests.get(url).json()
 
     def get_character(self, character_id):
-        parameters = {"characterId": character_id}
-        self.logger.debug("GET: " + self.config.characters_endpoint + ", PARAMS=" + str(parameters))
-        return requests.get(self.config.characters_endpoint, params=parameters).json()
+        url = self.config.characters_endpoint + "/" + character_id
+        self.logger.debug(f"GET: {url}")
+        return requests.get(url).json()
 
     def create_character(self, sheet):
         self.logger.debug("POST: " + self.config.characters_endpoint + ", SHEET=" + sheet)
@@ -87,15 +90,3 @@ class PlayerService:
             data["characterName"] = character_name
         r = requests.put(f"{self.config.characters_endpoint}/{character_id}", data=data)
         return r.status_code == 204
-
-    @staticmethod
-    def get_characters_url(self):
-        return self.character_config['characters_endpoint']
-
-    @staticmethod
-    def get_character_url(self):
-        return self.character_config['characters_endpoint']
-
-    @staticmethod
-    def get_accounts_url(self):
-        return self.accounts_url

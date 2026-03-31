@@ -50,14 +50,5 @@ class Item:
         data = ServerUtil.camel_to_snake_case(data)
         return cls(**data)
 
-    def print_name(self, writer):
-        msg = "\t" + self.name + "\r\n"
-        writer.write(msg.encode('utf-8'))
 
-    def print_description(self, writer):
-        if writer is None:
-            self.logger.debug("print_description: writer="+str(writer)+", item_id="+str(id))
-            return
-        msg = "\r\n\n" + self.long_description + "\r\n\n"
-        writer.write(msg.encode('utf-8'))
 

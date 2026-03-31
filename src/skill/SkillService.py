@@ -1,6 +1,7 @@
 import requests
 
 from injector import inject
+from registry.SkillRegistry import SkillRegistry
 from server.ServiceConfig import ServiceConfig
 from server.LoggerFactory import LoggerFactory
 from skill.Skill import Skill
@@ -8,22 +9,13 @@ from skill.Skill import Skill
 
 class SkillService:
     @inject
-    def __init__(self, config: ServiceConfig):
+    def __init__(self, config: ServiceConfig, skill_registry: SkillRegistry):
         self.__name__ = "SkillService"
         self.skills_endpoint = config.skills_endpoint
         self.logger = LoggerFactory.get_logger(self.__name__)
-        self.all_skills = dict()
+        self.skill_registry = skill_registry
         self._load_skills()
-        self.logger.info("Initialized SkillService instance with a total of "+str(len(self.all_skills))+" in memory.")
-
-    def get_skill_by_id(self, skill_id) -> Skill:
-        return self.all_skills.get(skill_id)
-
-    def get_skill_by_name(self, skill_name) -> Skill | None:
-        for skill in self.all_skills.values():
-            if skill.name == skill_name:
-                return skill
-        return None
+        self.logger.info("Initialized SkillService instance with a total of "+str(len(self.skill_registry.registry))+" in memory.")
 
     def _load_skills(self) -> None:
         try:
@@ -31,6 +23,6 @@ class SkillService:
             response = requests.get(url)
             skills = response.json()
             for skill in skills:
-                self.all_skills[skill['id']] = Skill.from_json(skill)
+                self.skill_registry.register_skill(Skill.from_json(skill))
         except Exception as e:
             self.logger.error("Failed to load skills: " + str(e))

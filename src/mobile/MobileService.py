@@ -4,26 +4,26 @@ from injector import inject
 from mobile.Mobile import Mobile
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
-from registry.RegistryService import RegistryService
 from event.EventHandler import EventHandler
-from area.AreaService import AreaService
 from game.GameData import GameData
+from registry.AreaRegistry import AreaRegistry
+from registry.MobileRegistry import MobileRegistry
 
 
 class MobileService:
     @inject
     def __init__(self, config: ServiceConfig,
-                 registry: RegistryService,
-                 area_service: AreaService,
+                 area_registry: AreaRegistry,
+                 mobile_registry: MobileRegistry,
                  event_handler: EventHandler,
                  game_data: GameData):
         self.__name__ = "MobileService"
         self.logger = LoggerFactory.get_logger(self.__name__)
-        self.registry = registry
+        self.mobile_registry = mobile_registry
         self.game_data = game_data
         self.enums = self.game_data.enums
         self.mobiles_endpoint = config.mobiles_endpoint
-        self.area_service = area_service
+        self.area_registry = area_registry
         self.event_handler = event_handler
         self.task = None
         self.stop_flag = False
@@ -33,9 +33,6 @@ class MobileService:
     def start(self):
         self.load_mobiles()
         self.logger.info("Initialized MobileService instance with a total of "+str(len(self.all_mobiles))+" mobiles in memory.")
-
-    def return_mobile_by_id(self, mobile_id):
-        return self.all_mobiles[mobile_id]
 
     def load_mobiles(self) -> dict[str, Mobile]:
         """

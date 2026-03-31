@@ -531,7 +531,7 @@ class TestPlayerService(unittest.TestCase):
         char3.name = 'char3'
         char3.get_room_id.return_value = 'room_002'
 
-        service.registry_service.character_registry = {
+        service.registry.character_registry = {
             'char1': char1,
             'char2': char2,
             'char3': char3
@@ -564,7 +564,7 @@ class TestPlayerService(unittest.TestCase):
         mock_writer = Mock()
         other.get_writer.return_value = mock_writer
 
-        service.registry_service.character_registry = {
+        service.registry.character_registry = {
             'TestChar': character,
             'OtherChar': other
         }
@@ -597,7 +597,7 @@ class TestPlayerService(unittest.TestCase):
         mock_writer = Mock()
         other.get_writer.return_value = mock_writer
 
-        service.registry_service.character_registry = {
+        service.registry.character_registry = {
             'TestChar': character,
             'OtherChar': other
         }
@@ -628,7 +628,7 @@ class TestPlayerService(unittest.TestCase):
         mock_writer = Mock()
         other.get_writer.return_value = mock_writer
 
-        service.registry_service.character_registry = {
+        service.registry.character_registry = {
             'TestChar': character,
             'OtherChar': other
         }
@@ -650,7 +650,7 @@ class TestPlayerService(unittest.TestCase):
         )
 
         mock_char = Mock()
-        service.registry_service.character_registry = {'TestChar': mock_char}
+        service.registry.character_registry = {'TestChar': mock_char}
 
         result = service.get_connected_player('TestChar')
         self.assertEqual(result, mock_char)
@@ -828,7 +828,7 @@ class TestPlayerService(unittest.TestCase):
         cloaked_char.name = 'CloakedChar'
         cloaked_char.cloaked = True
 
-        service.registry_service.character_registry = {
+        service.registry.character_registry = {
             'Player1': current_char,
             'VisibleChar': visible_char,
             'CloakedChar': cloaked_char

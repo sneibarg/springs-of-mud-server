@@ -1,13 +1,15 @@
 import requests
+from injector import inject
 
 from area.Room import Room
-from registry.RegistryService import RegistryService
+from registry import RoomRegistry
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 
 
 class RoomService:
-    def __init__(self, config: ServiceConfig, registry: RegistryService):
+    @inject
+    def __init__(self, config: ServiceConfig, registry: RoomRegistry):
         self.__name__ = "RoomService"
         self.rooms_endpoint = config.rooms_endpoint
         self.logger = LoggerFactory.get_logger(self.__name__)

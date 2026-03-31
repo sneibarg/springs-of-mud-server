@@ -360,8 +360,6 @@ class TestMobileService(unittest.TestCase):
 
         result = service.load_mobiles()
         mobile_id = self._get_mobile_id(test_mobile)
-        print(f"mobile ID: {mobile_id} - {result[mobile_id]}")
-        print(f"mobile start_pos: {result[mobile_id].start_pos} - {test_mobile['startPos']}")
         mobile = result[mobile_id]
 
         self.assertEqual(mobile.start_pos, '4')  # SLEEPING
@@ -606,22 +604,6 @@ class TestMobileService(unittest.TestCase):
         self.assertEqual(result, {})
         self.assertEqual(service.all_mobiles, {})
         self.assertEqual(service.kill_table, {})
-
-    def test_return_mobile_by_id(self):
-        """Test retrieving mobile by ID"""
-        service = MobileService(
-            self.mock_config,
-            self.mock_game_data,
-            self.mock_registry,
-            self.mock_area_service,
-            self.mock_event_handler
-        )
-
-        mock_mobile = Mock(spec=Mobile)
-        service.all_mobiles['mob_001'] = mock_mobile
-
-        result = service.return_mobile_by_id('mob_001')
-        self.assertEqual(result, mock_mobile)
 
 
 if __name__ == '__main__':
