@@ -1,10 +1,13 @@
+from __future__ import annotations
+
 import asyncio
 import threading
 
 from asyncio import StreamReader, StreamWriter
-from typing import Tuple, TYPE_CHECKING
+from typing import Tuple
 from injector import inject
-from area.RoomService import RoomService
+
+from area.RoomHandler import RoomHandler
 from area.Area import Area
 from area.Room import Room
 from command.CommandService import CommandService
@@ -16,12 +19,10 @@ from server.session.AuthenticationService import AuthenticationService
 from server.messaging.MessageBus import MessageBus
 from server.protocol.Message import MessageType, Message
 from server.LoggerFactory import LoggerFactory
-from player.PlayerService import PlayerService
+from player.Player import Player
+from player.Character import Character
+from registry.RegistryService import RegistryService
 
-
-if TYPE_CHECKING:
-    from player.Character import Character
-    from player.Player import Player
 
 class ConnectionHandler:
     @inject
@@ -29,28 +30,25 @@ class ConnectionHandler:
                  connection_manager: ConnectionManager,
                  session_handler: SessionHandler,
                  message_bus: MessageBus,
-                 player_service: PlayerService,
-                 room_service: RoomService,
+                 registry_service: RegistryService,
+                 room_handler: RoomHandler,
                  auth_service: AuthenticationService,
                  command_service: CommandService):
         self.logger = LoggerFactory.get_logger(__name__)
         self.session_handler = session_handler
         self.connection_manager = connection_manager
-        self.session_handler = session_handler
         self.message_bus = message_bus
-        self.player_service = player_service
-        self.room_service = room_service
-        self.registry_service = player_service.registry_service
+        self.registry_service = registry_service
+        self.room_handler = room_handler
         self.auth_service = auth_service
         self.command_service = command_service
 
     async def _receive_initial_message(self, connection: TelnetConnection, session: SessionState) -> Tuple[bool, None | str, None | dict]:
         first_msg = await connection.receive_message()
-        self.logger.debug(
-            f"Received message: {first_msg.type if first_msg else 'None'}, data: {first_msg.data if first_msg else 'None'}")
+        self.logger.debug(f"Received message: {first_msg.type if first_msg else 'None'}, data: {first_msg.data if first_msg else 'None'}")
         if first_msg and first_msg.type == MessageType.AUTH:
             self.logger.info(f"Payload-based auth attempt on session {session.session_id}")
-            success, player_id, character_data = await self.auth_service.authenticate_with_payload(connection, session,                                                                               first_msg.data)
+            success, player_id, character_data = await self.auth_service.authenticate_with_payload(connection, session, first_msg.data)
             if success:
                 self.connection_manager.bind_player(player_id, session.session_id)
                 self.logger.info(f"Player {player_id} authenticated via payload on session {session.session_id}")
@@ -59,8 +57,7 @@ class ConnectionHandler:
                 await connection.send_text("Authentication failed.\r\n", MessageType.ERROR)
                 return False, None, None
         else:
-            self.logger.warning(
-                f"Invalid authentication message. Expected AUTH_PAYLOAD, got: {first_msg.type if first_msg else 'None'}")
+            self.logger.warning(f"Invalid authentication message. Expected AUTH_PAYLOAD, got: {first_msg.type if first_msg else 'None'}")
             await connection.send_text("Invalid authentication message.\r\n", MessageType.ERROR)
             return False, None, None
 
@@ -81,7 +78,7 @@ class ConnectionHandler:
             player, character = await self._nanny(character_data, session, connection)
             area, room = self._get_area_and_room(character)
 
-            await self.room_service.print_room(player.id, self.registry_service.room_registry[character.room_id])
+            await self.room_handler.print_room(player.id, self.registry_service.room_registry[character.room_id])
             await self.message_bus.send_prompt(session.player_id, character, area, room)
             await self._game_loop(connection, session, player, character)
         except Exception as e:
@@ -142,7 +139,7 @@ class ConnectionHandler:
         return Character.from_json(character_definition)
 
     def _get_or_create_player(self, session, character):
-        account = self.player_service.get_account_by_id(session.player_id)
+        account = self.registry_service.player_list[session.player_id]
         if account:
             from server.ServerUtil import ServerUtil
             from player.Player import Player
@@ -166,6 +163,6 @@ class ConnectionHandler:
             await connection.send_text("You have been banned from the server.\r\n", MessageType.ERROR)
             await connection.close()
 
-        self.registry_service.register_character(character)
+        self.registry_service.register_character(character, player.id)
         session.status = SessionStatus.PLAYING
         return player, character

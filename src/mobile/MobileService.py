@@ -83,7 +83,7 @@ class MobileService:
         normalized = self._build_normalized_mobile_data(mobile_id, mobile_data, player_name, race_name, flags, level)
 
         mobile = Mobile.from_json(normalized)
-        self._apply_extended_mobile_fields(mobile, mobile_data, flags)
+        self._apply_extended_mobile_fields(mobile, mobile_data)
         return mobile, level
 
     def _resolve_mobile_id(self, mobile_data: dict, raw_mobile: dict) -> str | None:
@@ -188,7 +188,7 @@ class MobileService:
             "lock": mobile_data.get("lock"),
         }
 
-    def _apply_extended_mobile_fields(self, mobile: Mobile, mobile_data: dict, flags: dict[str, int]):
+    def _apply_extended_mobile_fields(self, mobile: Mobile, mobile_data: dict):
         hit_dice = self._parse_dice(mobile_data.get("hit") or mobile_data.get("hit_dice"))
         mobile.hit_dice_number = hit_dice["number"]
         mobile.hit_dice_type = hit_dice["type"]

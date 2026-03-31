@@ -23,7 +23,7 @@ class TestEventHandler(unittest.TestCase):
 
         self.event_handler.register_character(mock_character)
         self.assertIn('TestChar', self.event_handler.character_registry)
-        self.assertEqual(self.event_handler.character_registry['TestChar'], mock_character)
+        self.assertEqual(self.event_handler.character_registry['TestChar']["current_character"], mock_character)
 
     def test_register_multiple_characters(self):
         """Test registering multiple characters"""
@@ -51,7 +51,7 @@ class TestEventHandler(unittest.TestCase):
         self.event_handler.register_character(mock_char2)
 
         self.assertEqual(len(self.event_handler.character_registry), 1)
-        self.assertEqual(self.event_handler.character_registry['TestChar'], mock_char2)
+        self.assertEqual(self.event_handler.character_registry['TestChar']["current_character"], mock_char2)
 
     def test_unregister_character(self):
         """Test unregistering a character"""

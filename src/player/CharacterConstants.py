@@ -9,7 +9,6 @@ from game.GameData import Constants
 class CharacterConstants:
     immortal_levels: dict[str, int]
 
-    @inject
     def __init__(self, constants: Constants,
                  positions: type[IntEnum],
                  act_bits: type[IntEnum],

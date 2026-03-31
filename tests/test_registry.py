@@ -113,7 +113,7 @@ class TestRegistryService(unittest.TestCase):
 
         self.registry.register_character(mock_character)
         self.assertIn('char_001', self.registry.character_registry)
-        self.assertEqual(self.registry.character_registry['char_001'], mock_character)
+        self.assertEqual(self.registry.character_registry['char_001']["current_character"], mock_character)
 
     def test_register_multiple_characters(self):
         """Test registering multiple characters"""

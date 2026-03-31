@@ -13,6 +13,7 @@ class MudServer:
         self.config = config
         self.injector = None
         self.player_one = None
+        self.connection_handler = None
         self.host = config['mudserver']['host']
         self.port = config['mudserver']['port']
         self.modulith_host = config['mudserver']['modulith_host']
@@ -20,7 +21,6 @@ class MudServer:
         self.service_endpoints = config['mudserver']['services']['endpoints']
         self.service_config: ServiceConfig = self._load_service_config()
         self._configure_server()
-        self.connection_handler = self.injector.get(ConnectionHandler)
 
     async def start(self):
         game_thread = threading.Thread(target=self._run_game_loop, daemon=True, name="GameLoop")
@@ -67,10 +67,12 @@ class MudServer:
     def _start_services(self):
         from player.PlayerService import PlayerService
         from server.ServerUtil import ServerUtil
+        from server.messaging.MessageBus import MessageBus
 
         self.injector = ServerUtil.bind_services(self.service_config)
         self.player_service = self.injector.get(PlayerService)
-
+        self.connection_handler = self.injector.get(ConnectionHandler)
+        self.player_service.start(self.injector.get(MessageBus))
         ServerUtil.load_services(self.injector)
 
     def _load_player_one(self):

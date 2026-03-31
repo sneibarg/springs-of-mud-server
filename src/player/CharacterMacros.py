@@ -1,6 +1,5 @@
 from datetime import datetime
 from typing import Any
-from injector import inject
 from area import Room
 from game.GameMacro import GameMacro
 from mobile.Mobile import Mobile
@@ -11,7 +10,6 @@ from server.LoggerFactory import LoggerFactory
 
 
 class CharacterMacros(GameMacro):
-    @inject
     def __init__(self, registry_service: RegistryService,
                  room_flags: dict,
                  attribute_bonuses: dict,
@@ -102,3 +100,16 @@ class CharacterMacros(GameMacro):
 
     def act(self, act_format: str, char: Any, arg1: str, arg2: str, act_type: int):
         pass
+
+    def visible(self, player):
+        visible = []
+        current_character = player.current_character
+        role = current_character.role
+        for character in self.registry_service.character_registry.values():
+            if character.name == current_character.name:
+                continue
+            if character.cloaked and role == "player":
+                continue
+            else:
+                visible.append(character)
+        return visible

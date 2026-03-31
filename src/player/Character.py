@@ -93,10 +93,7 @@ class Character:
         prompt_format = payload.get('prompt_format')
         character_class = payload.get('character_class')
 
-        if not isinstance(prompt_format, PromptFormat):
-            prompt_format = PromptFormat.from_template(prompt_format)
-
-        payload['prompt_format'] = prompt_format
+        payload['prompt_format'] = PromptFormat.from_template(prompt_format)
         payload['character_class'] = CharacterClass.from_json(character_class)
         return cls(**payload)
 

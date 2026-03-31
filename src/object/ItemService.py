@@ -12,7 +12,6 @@ from skill.SkillService import SkillService
 
 
 class ItemService:
-    @inject
     def __init__(self, config: ServiceConfig, skill_service: SkillService, game_data: GameData, object_macros: ObjectMacros):
         self.__name__ = "ItemService"
         self.logger = LoggerFactory.get_logger(self.__name__)

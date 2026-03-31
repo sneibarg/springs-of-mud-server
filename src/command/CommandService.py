@@ -4,6 +4,7 @@ import inspect
 
 from injector import inject, Injector
 from typing import Union, Any
+from area.RoomHandler import RoomHandler
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 from registry.RegistryService import RegistryService
@@ -11,7 +12,6 @@ from area.AreaService import AreaService
 from area.RoomService import RoomService
 from mobile.MobileService import MobileService
 from mobile.Mobile import Mobile
-from player.PlayerService import PlayerService
 from event.EventHandler import EventHandler
 from object.ItemService import ItemService
 from server.connection.ConnectionManager import ConnectionManager
@@ -24,10 +24,10 @@ lambda_mappings = {
     'c': 'Character',
     'r': 'Room',
     'rg': 'RegistryService',
-    'rs': 'RoomService',
+    'ah': 'AreaHandler',
+    'rh': 'RoomHandler',
     'cs': 'CommandService',
     'ps': 'PlayerService',
-    'zs': 'AreaService',  # the 'zs' is ZoneService
     'ms': 'MobileService',
     'os': 'ObjectService',
     'ss': 'SkillService',
@@ -47,7 +47,6 @@ def get_class_obj(class_name):
 
     class_map = {
         'CommandService': CommandService,
-        'PlayerService': PlayerService,
         'RegistryService': RegistryService,
         'RoomService': RoomService,
         'AreaService': AreaService,
@@ -55,6 +54,7 @@ def get_class_obj(class_name):
         'ObjectService': ItemService,
         'SkillService': SkillService,
         'EventHandler': EventHandler,
+        'RoomHandler': RoomHandler,
         'MessageBus': MessageBus,
         'Mobile': Mobile,
         'str': str,
@@ -107,7 +107,7 @@ def get_args(lambda_string, player, injector, parameters):
                 obj = room
             elif arg == 'i':  # Item unimplemented
                 pass
-            elif arg in ['ps', 'zs', 'ms', 'os', 'eh', 'ch', 'cs', 'rs', 'rg', 'mb', 'cnh']:
+            elif arg in ['ps', 'zs', 'ms', 'os', 'eh', 'ch', 'cs', 'rh', 'rg', 'mb', 'cnh', 'rh']:
                 obj = injector.get(class_obj)
             elif arg == 'usage':
                 obj = player.usage

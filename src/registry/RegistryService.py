@@ -3,11 +3,22 @@ import threading
 
 class RegistryService:
     def __init__(self):
+        self.player_list = {}
+        self.character_list = {}
         self.area_registry = {}
         self.room_registry = {}
         self.character_registry = {}
         self.mobile_registry = {}
         self.lock = threading.Lock()
+
+    def get_player_characters(self, player_id):
+        return self.player_list[player_id]['playerCharacterList']
+
+    def get_player_by_name(self, name):
+        for player in self.player_list.values():
+            if player.name == name:
+                return player
+        return None
 
     def unregister_room(self, room):
         with self.lock:
@@ -43,9 +54,12 @@ class RegistryService:
         with self.lock:
             del self.character_registry[character_id]
 
-    def register_character(self, character):
+    def register_character(self, character, player_id):
         with self.lock:
-            self.character_registry[character.id] = character
+            self.character_registry[character.id] = dict()
+            self.character_registry[character.id]["current_character"] = character
+            self.character_registry[character.id]["player_id"] = dict()
+            self.character_registry[character.id]["player_id"] = player_id
 
     def get_character_from_registry(self, character_id):
         return self.character_registry[character_id]

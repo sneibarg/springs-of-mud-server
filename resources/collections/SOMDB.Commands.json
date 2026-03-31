@@ -9,7 +9,7 @@
     "lambda p, c, mb: mb.send_to_character(p.id, mb.text_to_message(b\"See you next time.\\r\\n\"))",
     "lambda cn: cn.close() if cn is not None and not cn.is_closed() else None",
     "lambda c, rg: rg.unregister_character(c.id)",
-    "lambda c, ps, cs: ps.to_room(c, c.name+\" has disconnected.\", cs.get_message(\"disconnect\"))"
+    "lambda c, rh, cs: rh.to_room(c, c.name+\" has disconnected.\", cs.get_message(\"disconnect\"))"
   ],
   "message": "%p has disconnected.",
   "function": [],
@@ -121,7 +121,7 @@
   "shortcuts": "w, we, wes",
   "role": "player",
   "lambda": [
-    "lambda c, zs: zs.move_mobile(c, \"west\")"
+    "lambda c, rh: rh.move_mobile(c, \"west\")"
   ],
   "message": "",
   "function": [],
@@ -139,7 +139,7 @@
   "shortcuts": "e, ea, eas",
   "role": "player",
   "lambda": [
-    "lambda c, zs: zs.move_mobile(c, \"east\")"
+    "lambda c, rh: rh.move_mobile(c, \"east\")"
   ],
   "message": "",
   "function": [
@@ -159,7 +159,7 @@
   "shortcuts": "n, nor, nort",
   "role": "player",
   "lambda": [
-    "lambda c, zs:zs.move_mobile(c, \"north\")"
+    "lambda c, rh: rh.move_mobile(c, \"north\")"
   ],
   "message": "%c has left the room, heading north.",
   "function": [],
@@ -177,7 +177,7 @@
   "shortcuts": "s, so, sou, sout",
   "role": "player",
   "lambda": [
-    "lambda c, zs: zs.move_mobile(c, \"south\")"
+    "lambda c, rh: rh.move_mobile(c, \"south\")"
   ],
   "message": "",
   "function": [],
@@ -195,7 +195,7 @@
   "shortcuts": "lo, loo",
   "role": "player",
   "lambda": [
-    "lambda p, rs, r: rs.print_room(p.id, r)"
+    "lambda p, rh, r: rh.print_room(p.id, r)"
   ],
   "message": "",
   "function": [],
@@ -213,7 +213,7 @@
   "shortcuts": "u",
   "role": "player",
   "lambda": [
-    "lambda c, zs: zs.move_mobile(c, \"up\")"
+    "lambda c, rh: rh.move_mobile(c, \"up\")"
   ],
   "message": "",
   "function": [],
@@ -231,7 +231,7 @@
   "shortcuts": "d",
   "role": "player",
   "lambda": [
-    "lambda c, zs: zs.move_mobile(c, \"down\")"
+    "lambda c, rh: rh.move_mobile(c, \"down\")"
   ],
   "message": "",
   "function": [],

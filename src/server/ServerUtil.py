@@ -3,17 +3,20 @@ import re
 from enum import IntEnum
 from typing import Dict, Any, Iterable
 from injector import singleton, Injector
+
+from area.AreaHandler import AreaHandler
+from area.RoomHandler import RoomHandler
 from game.GameData import GameData
 from game.GameService import GameService
 from mobile.MobileService import MobileService
 from object.ObjectMacros import ObjectMacros
 from player.CharacterConstants import CharacterConstants
 from player.CharacterMacros import CharacterMacros
+from player.PlayerService import PlayerService
 from server.LoggerFactory import LoggerFactory
 from skill.SkillService import SkillService
 from registry.RegistryService import RegistryService
 from event.EventHandler import EventHandler
-from player.PlayerService import PlayerService
 from command.CommandService import CommandService
 from server.handlers.ConnectionHandler import ConnectionHandler
 from area.AreaService import AreaService
@@ -53,21 +56,23 @@ class ServerUtil:
                                                            injector.get(GameData).item_table,
                                                            injector.get(GameService).enums['itemTypes']), scope=singleton)
         injector.binder.bind(SkillService, scope=singleton)
+        injector.binder.bind(AreaHandler, scope=singleton,)
+        injector.binder.bind(RoomHandler, scope=singleton)
         injector.binder.bind(EventHandler, scope=singleton)
-        injector.binder.bind(PlayerService, scope=singleton)
+        injector.binder.bind(PlayerService, to=PlayerService(service_config, injector.get(RegistryService)), scope=singleton)
         injector.binder.bind(CommandService, scope=singleton)
         injector.binder.bind(ConnectionHandler, scope=singleton)
-        injector.binder.bind(AreaService, scope=singleton)
+        injector.binder.bind(ConnectionManager, scope=singleton)
+        injector.binder.bind(MessageBus, scope=singleton)
         injector.binder.bind(ItemService, to=ItemService(service_config,
                                                          injector.get(SkillService),
                                                          injector.get(GameService).game_data,
                                                          injector.get(ObjectMacros)), scope=singleton)
+        injector.binder.bind(AreaService, scope=singleton)
         injector.binder.bind(AuthenticationService, scope=singleton)
-        injector.binder.bind(ConnectionManager, scope=singleton)
-        injector.binder.bind(MessageBus, scope=singleton)
         injector.binder.bind(MobileService, scope=singleton)
         injector.binder.bind(SessionHandler, to=SessionHandler(injector.get(GameData).constants.max['idleTime']), scope=singleton)
-        injector.binder.bind(RoomService, scope=singleton)
+        injector.binder.bind(RoomService, to=RoomService(service_config, injector.get(RegistryService)), scope=singleton)
         injector.binder.bind(WeatherService, scope=singleton)
         return injector
 
