@@ -13,6 +13,8 @@ from area.RoomService import RoomService
 from mobile.MobileService import MobileService
 from mobile.Mobile import Mobile
 from event.EventHandler import EventHandler
+from player.PlayerHandler import PlayerHandler
+from player.PlayerService import PlayerService
 from object.ItemService import ItemService
 from server.connection.ConnectionManager import ConnectionManager
 from server.messaging.MessageBus import MessageBus
@@ -58,8 +60,10 @@ def get_class_obj(class_name):
         'MobileService': MobileService,
         'ObjectService': ItemService,
         'SkillService': SkillService,
+        'PlayerService': PlayerService,
         'EventHandler': EventHandler,
         'RoomHandler': RoomHandler,
+        'PlayerHandler': PlayerHandler,
         'MessageBus': MessageBus,
         'Mobile': Mobile,
         'str': str,
