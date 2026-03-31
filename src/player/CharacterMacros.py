@@ -3,7 +3,7 @@ from typing import Any
 from area import Room
 from game.GameMacro import GameMacro
 from mobile.Mobile import Mobile
-from player import Character
+from player.Character import Character
 from player.CharacterConstants import CharacterConstants
 from registry import RegistryService
 from server.LoggerFactory import LoggerFactory

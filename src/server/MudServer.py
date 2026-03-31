@@ -1,7 +1,7 @@
 import asyncio
 import threading
 
-from player import Player
+from player.Player import Player
 from server.ServiceConfig import ServiceConfig
 from server.handlers import ConnectionHandler
 

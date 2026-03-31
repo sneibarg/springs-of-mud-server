@@ -1,6 +1,6 @@
 import threading
 
-from typing import List
+from typing import List, Optional
 from player.Player import Player
 
 
@@ -9,19 +9,19 @@ class PlayerRegistry:
         self.registry = {}
         self.lock = threading.Lock()
 
-    def get_player_characters(self, player_id) -> List[str] | None:
+    def get_player_characters(self, player_id) -> Optional[List[str]]:
         try:
             return self.registry[player_id].player_character_list
         except KeyError:
             return None
 
-    def get_player_by_id(self, player_id) -> Player | None:
+    def get_player_by_id(self, player_id) -> Optional[Player]:
         try:
             return self.registry[player_id]
         except KeyError:
             return None
 
-    def get_player_by_name(self, player_name: str) -> Player | None:
+    def get_player_by_name(self, player_name: str) -> Optional[Player]:
         try:
             return self.registry[player_name]
         except KeyError:

@@ -7,6 +7,7 @@ from area.AreaHandler import AreaHandler
 from area.RoomHandler import RoomHandler
 from object.ItemHandler import ItemHandler
 from mobile.MobileHandler import MobileHandler
+from player.PlayerHandler import PlayerHandler
 from game.GameData import GameData
 from game.GameService import GameService
 from mobile.MobileService import MobileService
@@ -17,6 +18,7 @@ from player.PlayerService import PlayerService
 from server.LoggerFactory import LoggerFactory
 from skill.SkillService import SkillService
 from registry.RegistryService import RegistryService
+from registry import ItemRegistry, SkillRegistry
 from event.EventHandler import EventHandler
 from command.CommandService import CommandService
 from server.handlers.ConnectionHandler import ConnectionHandler
@@ -71,7 +73,8 @@ class ServerUtil:
         injector.binder.bind(AuthenticationService, scope=singleton)
         injector.binder.bind(WeatherService, scope=singleton)
         injector.binder.bind(ItemService, to=ItemService(service_config,
-                                                         injector.get(RegistryService),
+                                                         injector.get(ItemRegistry),
+                                                         injector.get(SkillRegistry),
                                                          injector.get(GameService).game_data,
                                                          injector.get(ObjectMacros)), scope=singleton)
 
@@ -82,6 +85,7 @@ class ServerUtil:
         injector.binder.bind(EventHandler, scope=singleton)
         injector.binder.bind(ItemHandler, scope=singleton)
         injector.binder.bind(MobileHandler, scope=singleton)
+        injector.binder.bind(PlayerHandler, scope=singleton)
         logger.info(f"All game handlers have been bound.")
 
     @staticmethod

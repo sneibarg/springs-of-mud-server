@@ -1,39 +1,30 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
 import requests
 
 from enum import IntEnum
 from injector import inject
 from game.GameData import GameData
+from object.Item import Item
 from object.ObjectMacros import ObjectMacros
 from object.AffectData import AffectData, AffectWhere
 from object.ExtraDescriptionData import ExtraDescriptionData
+from registry import SkillRegistry, ItemRegistry
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 
 
-if TYPE_CHECKING:
-    from registry.RegistryService import RegistryService
-
-
 class ItemService:
     @inject
-    def __init__(self, config: ServiceConfig, registry_service: RegistryService, game_data: GameData, object_macros: ObjectMacros):
+    def __init__(self, config: ServiceConfig, item_registry: ItemRegistry, skill_registry: SkillRegistry, game_data: GameData, object_macros: ObjectMacros):
         self.__name__ = "ItemService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.items_endpoint = config.items_endpoint
         self.game_data = game_data
         self.object_macros = object_macros
         self.enums = self.game_data.enums
-        self.registry_service = registry_service
-        self.all_items = {}
+        self.item_registry = item_registry
+        self.skill_registry = skill_registry
         self.load_items()
-        self.logger.info("Initialized ItemService instance with a total of " + str(len(self.all_items)) + " in memory.")
-
-    def return_item_by_id(self, item_id):
-        return self.all_items[item_id]
+        self.logger.info("Initialized ItemService instance with a total of " + str(len(self.item_registry.registry)) + " in memory.")
 
     def get_item_by_id(self, item_id):
         try:
@@ -46,8 +37,7 @@ class ItemService:
         try:
             all_items = requests.get(self.items_endpoint).json()
             for item_data in all_items:
-                item_id = item_data['id']
-                self.all_items[item_id] = self._normalize_item_data(item_data)
+                self.item_registry.register_item(self._normalize_item_data(item_data))
         except Exception as e:
             self.logger.error("Failed to get items: " + str(e))
         return None
@@ -148,13 +138,12 @@ class ItemService:
                 value_key = f'value{i}'
                 item_data[value_key] = self._read_flag(item_data.get(value_key, '0'))
 
-    def _normalize_item_data(self, item_data):
+    def _normalize_item_data(self, item_data) -> Item:
         self._convert_extra_and_wear_flags(item_data)
         self._normalize_value_fields(item_data, self.object_macros.ItemTypes)
         self._update_item_type(item_data, self.object_macros.ItemTypes)
         self._update_condition(item_data)
 
-        from object.Item import Item
         item = Item.from_json(item_data)
         if len(item.affect_data) > 0:
             item.effects = []
@@ -187,7 +176,7 @@ class ItemService:
     def _update_staff(self, item_data):
         try:
             skill_name = item_data['value3']
-            skill = self.registry_service.get_skill_by_name(skill_name)
+            skill = self.skill_registry.get_skill_by_name(skill_name)
             item_data['value3'] = str(skill)
         except Exception as e:
             print(f"Failed to update staff skill: {e}")
@@ -197,7 +186,7 @@ class ItemService:
             try:
                 skill_name = item_data[skill_key]
                 if skill_name != "":
-                    skill = self.registry_service.get_skill_by_name(skill_name)
+                    skill = self.skill_registry.get_skill_by_name(skill_name)
                     item_data[skill_key] = str(skill)
             except Exception as e:
                 print(f"Failed to update scroll skill: {e}")
