@@ -69,10 +69,9 @@ class RoomHandler:
         text = ""
         for char_in_room in characters_in_room:
             if char_in_room.cloaked:
-                text = f"Someone is here."
-            else:
-                name = char_in_room.name
-                text = text + f"{name} {char_in_room.title} is here.\r\n"
+                continue
+            name = char_in_room.name
+            text = text + f"{name} {char_in_room.title} is here.\r\n"
         message = self.message_bus.text_to_message(text)
         await self.message_bus.send_to_character(character_id, message)
 
