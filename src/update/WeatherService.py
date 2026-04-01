@@ -3,7 +3,7 @@ from injector import inject
 
 from game.GameData import GameData
 from player.CharacterMacros import CharacterMacros
-from registry.RegistryService import RegistryService
+from registry.CharacterRegistry import CharacterRegistry
 from numbers.RandomNumberGenerator import RandomNumberGenerator
 from server.LoggerFactory import LoggerFactory
 from server.messaging.MessageBus import MessageBus
@@ -30,11 +30,11 @@ class TimeInfo:
 
 class WeatherService:
     @inject
-    def __init__(self, message_bus: MessageBus, registry_service: RegistryService, game_data: GameData, character_macros: CharacterMacros):
+    def __init__(self, message_bus: MessageBus, character_registry: CharacterRegistry, game_data: GameData, character_macros: CharacterMacros):
         self.__name__ = "WeatherService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.message_bus = message_bus
-        self.registry_service = registry_service
+        self.character_registry = character_registry
         self.character_macros = character_macros
         self.game_data = game_data
         self.time_and_weather_enum = self._load_enums()
@@ -77,13 +77,13 @@ class WeatherService:
 
     def _indoors(self) -> list:
         indoors = []
-        for character in self.registry_service.character_registry.values():
+        for character in self.character_registry.registry.values():
             if not self._is_player_outdoors(character.id):
                 indoors.append(character.id)
         return indoors
 
     def _is_player_outdoors(self, character_id: str) -> bool:
-        character = self.registry_service.character_registry.get(character_id)
+        character = self.character_registry.get_character_by_id(character_id)
         self.logger.debug(f"Checking if player {character_id} is outdoors: {character}")
         if character:
             return self.character_macros.is_outside(char=character)

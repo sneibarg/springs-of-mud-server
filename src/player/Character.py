@@ -64,15 +64,14 @@ class Character:
         self.load_inventory()
 
     def load_inventory(self):
+        print(f"Loading inventory: {self.inventory}...")
         with self.lock:
-            self.logger.info("Loading inventory...")
+            index = 0
             for item in self.inventory:
-                lootable = Item.from_json(item)
-                self.loot[lootable.id] = lootable
-            self.logger.info("Inventory loaded.")
+                self.inventory[index] = Item.from_json(item)
 
-    def get_items(self):
-        return self.loot.values()
+    def get_items(self) -> List[Item]:
+        return self.inventory
 
     def get_fuzzy_item(self, fuzzy_item, usage):
         fuzzy_item = fuzzy_item.strip().replace("\r\n", "")

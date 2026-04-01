@@ -5,6 +5,7 @@ import inspect
 from injector import inject, Injector
 from typing import Union, Any
 from area.RoomHandler import RoomHandler
+from object.ItemHandler import ItemHandler
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 from registry.RegistryService import RegistryService
@@ -64,6 +65,7 @@ def get_class_obj(class_name):
         'EventHandler': EventHandler,
         'RoomHandler': RoomHandler,
         'PlayerHandler': PlayerHandler,
+        'ItemHandler': ItemHandler,
         'MessageBus': MessageBus,
         'Mobile': Mobile,
         'str': str,
@@ -84,7 +86,7 @@ def parse_args(args):
     return input_args
 
 
-def get_args(lambda_string, player, injector, parameters):
+def get_args(lambda_string, player, character, injector, parameters):
     registry = injector.get(RegistryService)
     input_args = parse_args(lambda_string)
     args = []
@@ -105,12 +107,14 @@ def get_args(lambda_string, player, injector, parameters):
             elif arg == 'm':
                 obj = registry.get_mobile_from_registry(class_name)
             elif arg == 'c':
-                obj = player.current_character
+                for playing in player.current_characters:
+                    if character.name == playing.name:
+                        obj = playing
+                        break
             elif arg == 'cn':
-                telnet_connection = injector.get(ConnectionManager).get_connection_by_player(player.id)
+                telnet_connection = injector.get(ConnectionManager).get_connection_by_character(character.id)
                 obj = telnet_connection if telnet_connection else None
             elif arg == 'r':
-                character = player.current_character
                 room = registry.room_registry.get_room_by_id(character.room_id)
                 class_obj = type(room)
                 obj = room
@@ -132,7 +136,7 @@ def get_args(lambda_string, player, injector, parameters):
     return args
 
 
-async def handle_lambdas(command_service, player, command, parameters):
+async def handle_lambdas(command_service, player, character, command, parameters):
     if parameters is None:
         parameters = []
 
@@ -148,7 +152,7 @@ async def handle_lambdas(command_service, player, command, parameters):
             if not callable(lambda_function):
                 raise TypeError('lambda_function is not a callable function.')
 
-            args = get_args(lambda_string, player, command_service.injector, parameters)
+            args = get_args(lambda_string, player, character, command_service.injector, parameters)
             result = lambda_function(*args)
             if inspect.isawaitable(result):
                 await result
@@ -201,7 +205,7 @@ class CommandService:
     def get_message(self, cmd):
         return self.command_list[cmd]['message']
 
-    async def call_lambda(self, player, command_name, command_list, parameters):
+    async def call_lambda(self, player, character, command_name, command_list, parameters):
         command_json = CommandService.find_json_object_by_name(command_name, command_list)
         if command_json is None:
             raise ValueError('Null JSON returned from find_json_object_by_name')
@@ -210,7 +214,7 @@ class CommandService:
             return await self.message_bus.send_to_character(player.id, self.command_not_found_message)
 
         try:
-            await handle_lambdas(self, player, command_json, parameters)
+            await handle_lambdas(self, player, character, command_json, parameters)
         except ValueError as ve:
             self.logger.error("ValueError: " + str(ve))
             raise
@@ -218,7 +222,7 @@ class CommandService:
             self.logger.error("TypeError: " + str(te))
             raise
 
-    async def handle_command(self, player, command):
+    async def handle_command(self, player, character, command):
         usage = None
         cmd, parameters = self.extract_parameters(command)
         if cmd is None:
@@ -236,7 +240,7 @@ class CommandService:
                 player.set_usage(usage_function)
 
         self.logger.debug(f"CMD: {cmd['name']}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
-        return await self.call_lambda(player, cmd['name'], self.command_list, parameters)
+        return await self.call_lambda(player, character, cmd['name'], self.command_list, parameters)
 
     def extract_parameters(self, command: str) -> Union[tuple[Any, str], tuple[None, None]]:
         for cmd in self.command_list:

@@ -2,15 +2,13 @@ import asyncio
 import threading
 
 from asyncio import StreamReader, StreamWriter
-from typing import Tuple
+from typing import Optional
 from injector import inject
 
-from area import Area, Room
 from area.RoomHandler import RoomHandler
 from area.Area import Area
 from area.Room import Room
 from command.CommandService import CommandService
-from player import Player, Character
 from server.connection.TelnetConnection import TelnetConnection
 from server.connection.ConnectionManager import ConnectionManager
 from server.session.SessionHandler import SessionHandler
@@ -50,8 +48,8 @@ class ConnectionHandler:
             self.logger.info(f"Payload-based auth attempt on session {session.session_id}")
             success, player_id, character = await self.auth_service.authenticate_with_payload(connection, session, first_msg.data)
             if success:
-                self.connection_manager.bind_player(player_id, session.session_id)
-                self.logger.debug(f"Player {player_id} authenticated via payload on session {session.session_id}")
+                self.connection_manager.bind_character(character.id, session.session_id)
+                self.logger.debug(f"Character {character.id} authenticated via payload on session {session.session_id}")
                 self.logger.debug(f"Player character is: {character}")
                 return success, player_id, character
             else:
@@ -78,8 +76,8 @@ class ConnectionHandler:
 
             player = await self._nanny(character, session, connection)
             area, room = self._get_area_and_room(character)
-            await self.room_handler.print_room(player.id, self.registry_service.room_registry.registry[character.room_id])
-            await self.message_bus.send_prompt(session.player_id, character, area, room)
+            await self.room_handler.print_room(character.id, room)
+            await self.message_bus.send_prompt(character.id, character, area, room)
             await self._game_loop(connection, session, player, character)
         except Exception as e:
             self.logger.error(f"Error handling connection: {e}", exc_info=True)
@@ -88,8 +86,8 @@ class ConnectionHandler:
                 await connection.close()
             if session:
                 self.session_handler.remove_session(session.session_id)
-                if session.player_id:
-                    self.connection_manager.unbind_player(session.player_id)
+                if session.character:
+                    self.connection_manager.unbind_character(session.character.id)
                 self.connection_manager.remove_connection(connection.session_id)
             self.logger.info(f"Connection closed: {peer_info if connection else 'unknown'}")
 
@@ -110,12 +108,12 @@ class ConnectionHandler:
                 session.update_activity()
                 area, room = self._get_area_and_room(character)
                 if message.type == MessageType.GAME and not message.get('text'):
-                    await self.message_bus.send_prompt(session.player_id, character, area, room)
+                    await self.message_bus.send_prompt(character.id, character, area, room)
                     continue
 
                 if message.type == MessageType.GAME:
-                    await self.command_service.handle_command(player, message.get('text', ''))
-                    await self.message_bus.send_prompt(session.player_id, character, area, room)
+                    await self.command_service.handle_command(player, character, message.get('text', ''))
+                    await self.message_bus.send_prompt(character.id, character, area, room)
             except Exception as e:
                 self.logger.error(f"Error in game loop: {e}", exc_info=True)
                 break
@@ -146,7 +144,7 @@ class ConnectionHandler:
         room = self.registry_service.room_registry.get_room_by_id(character.room_id)
         return area, room
 
-    async def _nanny(self, character, session, connection) -> Player | None:
+    async def _nanny(self, character, session, connection) -> Optional[Player]:
         self._update_character(character)
         session.character = character
         player = self._update_player(session, character)
@@ -158,6 +156,7 @@ class ConnectionHandler:
         elif player is None:
             await connection.send_text("Player not registered. Please try again.\r\n", MessageType.ERROR)
             return None
-
+        player.current_characters.append(character)
+        self.logger.info(f"Player {player.first_name} {player.last_name} is now playing {character.name}.")
         session.status = SessionStatus.PLAYING
         return player

@@ -66,7 +66,7 @@
   "shortcuts": "wh",
   "role": "player",
   "lambda": [
-    "lambda c, p, ph: ph.print_visible(p.id, c, ph.visible(p))"
+    "lambda c, ph: ph.print_visible(c, ph.visible(c))"
   ],
   "message": "",
   "function": [],
@@ -84,7 +84,7 @@
   "shortcuts": "inv, inven, invent",
   "role": "player",
   "lambda": [
-    "lambda c: c.writer.write(b\"You are carrying: \\r\\n\") or [i.print_name(c.writer) for i in c.get_items()]"
+    "lambda c, ih: ih.print_inventory(c)"
   ],
   "message": "",
   "function": [],
@@ -195,7 +195,8 @@
   "shortcuts": "lo, loo",
   "role": "player",
   "lambda": [
-    "lambda p, rh, r: rh.print_room(p.id, r)"
+    "lambda c, rh, r: rh.print_room(c.id, r)",
+    "lambda c, rh: rh.print_in_room(c.id)"
   ],
   "message": "",
   "function": [],

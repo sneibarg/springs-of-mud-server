@@ -15,7 +15,7 @@ class Player:
     password: str
     player_character_list: list
     id: str
-    current_character: Character = field(default=None)
+    current_characters: List[Character] = field(default=None)
     connection: Optional[tuple] = field(default=None)
     session_id: Optional[str] = field(default=None)
     ansi_enabled: Optional[bool] = field(default=False)
@@ -32,4 +32,5 @@ class Player:
     def from_json(cls, data):
         from server.ServerUtil import ServerUtil
         data = ServerUtil.camel_to_snake_case(data)
+        data['current_characters'] = []
         return cls(**data)

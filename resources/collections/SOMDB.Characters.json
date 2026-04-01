@@ -3,8 +3,8 @@
     "$oid": "697e4a9edf39f7359b41cbfe"
   },
   "accountId": "62d2ff6699c3578abe7941c9",
-  "areaId": "69bb43ab5c747871f084ff42",
   "roomId": "69bb43abb4f4afdaf07a4350",
+  "areaId": "69bb43ab5c747871f084ff42",
   "name": "Fizban",
   "title": "the Fabulous",
   "race": "Human",
@@ -36,7 +36,9 @@
   "logon": 0,
   "pulseWait": 0,
   "pulseDaze": 0,
-  "inventory": [],
+  "inventory": [
+    { "id": "69bb43ab02aefb5f71e23098",  "area_id": "69bb43abe40ee67ebd4177e0",  "vnum": "9586",  "name": "sledge hammer",  "short_description": "a sledge hammer",  "long_description": "A sledge hammer lies here.",  "material": "oldstyle",  "item_type": "weapon",  "extra_flags": "0",  "wear_flags": "AN",  "value0": "4117",  "value1": "2",  "value2": "7",  "value3": "266369",  "value4": "32",  "weight": 240,  "condition": "100",  "level": 10,  "cost": 660,  "affect_data": [],  "extra_descr": [], "damage_type": null,  "weapon_type": null,  "liquid_color": null,  "liquid_affect_data": null,   "effects": null,  "extra_description": null }
+  ],
   "promptFormat": {
     "hp": true,
     "max_hp": false,
@@ -83,11 +85,11 @@
     "$oid": "69a73bfdab982208ec2a22c7"
   },
   "accountId": "62d2ff6699c3578abe7941c9",
+  "roomId": "69bb43abb4f4afdaf07a4350",
+  "areaId": "69bb43ab5c747871f084ff42",
   "name": "Opie",
   "title": "the Ginger",
   "race": "Human",
-  "roomId": "673bf211dd2b4ba89bbbeabd",
-  "areaId": "673bf21189e37bdf47cf11f1",
   "guild": "",
   "role": "player",
   "sex": "male",
@@ -98,9 +100,8 @@
   "health": 1000,
   "mana": 1000,
   "movement": 1000,
-  "level": 1,
+  "level": 100,
   "experience": 1000000,
-  "accumulatedExperience": 0,
   "trains": 0,
   "practices": 0,
   "gold": 1000000,
@@ -117,7 +118,6 @@
   "logon": 0,
   "pulseWait": 0,
   "pulseDaze": 0,
-  "attributes": [],
   "inventory": [],
   "promptFormat": {
     "hp": true,
@@ -151,6 +151,12 @@
     "base_group": "warrior basics",
     "default_group": "warrior basics"
   },
-  "_class": "org.springy.som.modulith.domain.character.internal.CharacterDocument",
+  "attributes": [
+    25,
+    25,
+    25,
+    25,
+    25
+  ],
   "alignment": 650
 }]
