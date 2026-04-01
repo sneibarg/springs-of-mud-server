@@ -237,7 +237,7 @@ class CommandService:
             if not callable(usage_function):
                 self.logger.info("NOT_CALLABLE: " + str(usage_function))
             else:
-                player.set_usage(usage_function)
+                player.usage = usage_function
 
         self.logger.debug(f"CMD: {cmd['name']}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
         return await self.call_lambda(player, character, cmd['name'], self.command_list, parameters)

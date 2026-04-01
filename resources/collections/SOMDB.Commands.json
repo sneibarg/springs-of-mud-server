@@ -6,7 +6,7 @@
   "shortcuts": "qui",
   "role": "player",
   "lambda": [
-    "lambda p, c, mb: mb.send_to_character(p.id, mb.text_to_message(b\"See you next time.\\r\\n\"))",
+    "lambda p, c, mb: mb.send_to_character(c.id, mb.text_to_message(b\"See you next time.\\r\\n\"))",
     "lambda cn: cn.close() if cn is not None and not cn.is_closed() else None",
     "lambda c, rgs: rgs.character_registry.unregister_character(c)",
     "lambda c, rh, cs: rh.to_room(c, c.name+\" has disconnected.\", cs.get_message(\"disconnect\"))"
@@ -102,7 +102,7 @@
   "shortcuts": "exam, exami, examin",
   "role": "player",
   "lambda": [
-    "lambda c, msg, usage: c.get_fuzzy_item(msg, usage).print_description(c.writer) if c.get_fuzzy_item(msg, usage) is not None else None"
+    "lambda c, ih, mb, msg, usage: ih.print_description(c.id, c.get_fuzzy_item(msg, usage, mb)) if c.get_fuzzy_item(msg, usage, mb) is not None else None"
   ],
   "message": "",
   "function": [],
@@ -111,7 +111,7 @@
   "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL",
-  "usage": "lambda m: m.writer.write(b\"You must specify a valid item in your inventory.\\r\\n\")"
+  "usage": "lambda c, mb: mb.send_to_character(c.id, Message(type=MessageType.GAME, data={'text': \"You must specify a valid item in your inventory.\\r\\n\"}))"
 },
 {
   "_id": {

@@ -1,3 +1,4 @@
+import asyncio
 import threading
 
 from dataclasses import dataclass, field
@@ -73,17 +74,17 @@ class Character:
     def get_items(self) -> List[Item]:
         return self.inventory
 
-    def get_fuzzy_item(self, fuzzy_item, usage):
+    def get_fuzzy_item(self, fuzzy_item, usage, mb):
         fuzzy_item = fuzzy_item.strip().replace("\r\n", "")
-        self.logger.debug("get_fuzzy_item: fuzzy_item=" + str(fuzzy_item))
-        for item_id in self.loot:
-            lootable = self.loot[item_id]
-            if not isinstance(lootable, Item):
-                self.logger.debug("get_fuzzy_item: lootable=" + str(lootable))
+        self.logger.info("get_fuzzy_item: fuzzy_item=" + str(fuzzy_item))
+        for item in self.inventory:
+            if not isinstance(item, Item):
+                self.logger.info("get_fuzzy_item: not an Item: " + str(item))
                 continue
-            if lootable.name.startswith(fuzzy_item) or fuzzy_item == lootable.name:
-                return lootable
-        usage(self)
+            if item.name.startswith(fuzzy_item) or fuzzy_item == item.name:
+                self.logger.info("get_fuzzy_item: FOUND: " + str(item))
+                return item
+        asyncio.ensure_future(usage(self, mb))
         return None
 
     @classmethod

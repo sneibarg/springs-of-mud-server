@@ -15,9 +15,10 @@ class ItemHandler:
         msg = "\t" + item.name + "\r\n"
         await self.message_bus.send_to_character(player_id, Message(type=MessageType.GAME, data={"text": msg}))
 
-    async def print_description(self, player_id: str, item: Item):
+    async def print_description(self, character_id: str, item: Item):
+        print(f"Item: {item}")
         msg = "\r\n\n" + item.long_description + "\r\n\n"
-        await self.message_bus.send_to_character(player_id, Message(type=MessageType.GAME, data={"text": msg}))
+        await self.message_bus.send_to_character(character_id, Message(type=MessageType.GAME, data={"text": msg}))
 
     async def print_inventory(self, character: Character):
         items = character.get_items()
