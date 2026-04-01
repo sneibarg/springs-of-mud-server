@@ -4,6 +4,7 @@ import re
 from typing import Union, Any, Optional
 from injector import inject, Injector
 from command.CommandService import CommandService
+from command.CommandUtil import CommandUtil
 from command.SocialHandler import SocialHandler
 from registry import SocialRegistry
 from registry.CommandRegistry import CommandRegistry
@@ -185,7 +186,7 @@ class CommandHandler:
         return command["message"]
 
     async def call_lambda(self, player, character, command_name, command_list, parameters):
-        command_json = CommandHandler.find_json_object_by_name(command_name, command_list)
+        command_json = CommandUtil.find_json_object_by_name(command_name, command_list)
         if command_json is None:
             return await self.message_bus.send_to_character(player.id, self.command_not_found_message)
 
@@ -200,7 +201,7 @@ class CommandHandler:
 
     async def handle_command(self, player, character, command):
         usage = None
-        cmd, parameters = self.extract_parameters(command)
+        cmd, parameters = CommandUtil.extract_parameters(self.command_registry, command)
         if cmd is None:
             social = self.social_registry.get_social_by_name(command)
             if social is not None:
@@ -221,20 +222,14 @@ class CommandHandler:
         self.logger.debug(f"CMD: {cmd['name']}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
         return await self.call_lambda(player, character, cmd['name'], self.command_registry.registry.values(), parameters)
 
-    def extract_parameters(self, command: str) -> Union[tuple[Any, str], tuple[None, None]]:
-        for cmd_json in self.command_registry.registry.values():
-            shortcuts = cmd_json['shortcuts'].split(", ")
-            if command in shortcuts or command.startswith(cmd_json['name']):
-                return cmd_json, ' '.join(re.split(' ', command)[1:]).strip()
-        return None, None
+    async def help_usage(self, character, argument: str = ""):
+        arg_all = " ".join((argument or "").split()).lower()
+        if not arg_all:
+            arg_all = "summary"
+        print(f"ARG ALL: {arg_all}")
+        output_parts = []
+        for command in self.command_registry.registry.values():
+            output_parts += CommandUtil.append_entries(CommandUtil.normalize_help_entries(command.get("help"), command.get("name", "")), arg_all)
 
-    @staticmethod
-    def find_json_object_by_name(name: str, commands: dict) -> Optional[dict]:
-        if not commands:
-            return None
-        for command in commands:
-            if name in command.get('shortcuts', []):
-                return command
-            if command.get('name') == name:
-                return command
-        return None
+        message_text = "".join(output_parts) if len(output_parts) > 0 else "No help on that word.\n\r"
+        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message_text))

@@ -22,4 +22,5 @@ mudserver:
       specials_endpoint: "/specials"
       skills_endpoint: "/skills"
       socials_endpoint: "/socials"
+      helps_endpoint: "/helps"
       game_data_endpoint: "/game"

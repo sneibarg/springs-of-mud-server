@@ -777,14 +777,15 @@
   "name": "help",
   "shortcuts": "",
   "role": "player",
-  "lambda": [],
+  "lambda": ["lambda c, cmh, msg: cmh.help_usage(c, msg)"],
   "message": "",
   "function": [],
   "enabled": true,
   "skillId": "",
   "position": "POS_DEAD",
   "level": 0,
-  "log": "LOG_NORMAL"
+  "log": "LOG_NORMAL",
+  "usage": "lambda cmh: cmh.help_usage()"
 },
 {
   "_id": {

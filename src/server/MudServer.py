@@ -102,5 +102,6 @@ class MudServer:
             items_endpoint=self._construct_service_endpoint('items_endpoint'),
             mobiles_endpoint=self._construct_service_endpoint('mobiles_endpoint'),
             skills_endpoint=self._construct_service_endpoint('skills_endpoint'),
-            socials_endpoint=self._construct_service_endpoint('socials_endpoint')
+            socials_endpoint=self._construct_service_endpoint('socials_endpoint'),
+            helps_endpoint=self._construct_service_endpoint('helps_endpoint')
         )

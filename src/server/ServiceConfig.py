@@ -14,3 +14,4 @@ class ServiceConfig:
     mobiles_endpoint: str
     skills_endpoint: str
     socials_endpoint: str
+    helps_endpoint: str
