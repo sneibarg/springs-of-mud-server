@@ -2,6 +2,7 @@ import threading
 
 from dataclasses import dataclass, field
 from area.AreaUtil import AreaUtil
+from area.Exits import Exits
 
 
 @dataclass
@@ -26,6 +27,7 @@ class Room:
     sector_type: int = 0
     mobiles: list = field(default_factory=list)
     extra_description: list = field(default_factory=list)
+    exits: Exits = field(default_factory=Exits)
 
     def __post_init__(self):
         self.clan = None

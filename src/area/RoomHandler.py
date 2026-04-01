@@ -1,13 +1,13 @@
 from typing import List
-
 from injector import inject
 from area.AreaUtil import AreaUtil
+from area.Exits import Exits
 from area.Room import Room
 from player.Character import Character
 from registry import RoomRegistry, CharacterRegistry
 from server.LoggerFactory import LoggerFactory
 from server.messaging import MessageBus
-from server.protocol import Message, MessageType
+from server.protocol import Message
 from server.session.SessionHandler import SessionHandler
 
 
@@ -38,26 +38,43 @@ class RoomHandler:
             character.room_id = destination
             await self.print_room(character.id, destination_room)
         else:
-            await self.message_bus.send_to_character(character.id, Message(type=MessageType.GAME, data={'text': "You can't go that direction!\r\n"}))
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(f"You can't go that direction!\r\n"))
+
+    async def print_exits(self, character: Character, room: Room):
+        lines = [f"Obvious exits from room {room.vnum}:"]
+        exits: Exits = room.exits
+        destination_rooms = exits.get_exits()
+        for direction in destination_rooms:
+            destination = destination_rooms[direction]
+            if destination is None:
+                continue
+            destination_room: Room = self.room_registry.get_room_by_id(destination)
+            line = AreaUtil.align_exits(direction.capitalize(), destination_room.name, destination_room.vnum, width=6)
+            lines.append(line)
+
+        text = "\n".join(lines) + "\n"
+        message = self.message_bus.text_to_message(text)
+        await self.message_bus.send_to_character(character.id, message)
 
     async def print_room(self, character_id, room: Room):
         if room is None:
             self.logger.error(f"Attempted to print room to character {character_id} but room is None")
             return
-        await self.message_bus.send_to_character(character_id, self.format_room_description(room.name, room.description, self.format_exits(room)))
+        await self.message_bus.send_to_character(character_id, self.format_room_description(room.name, room.description))
 
     async def print_in_room(self, character_id):
         character = self.character_registry.get_character_by_id(character_id)
         in_room = self.get_in_room(character)
         characters_in_room: List[Character] = [self.character_registry.get_character_by_id(char_id) for char_id in in_room]
-        message = ""
+        text = ""
         for char_in_room in characters_in_room:
             if char_in_room.cloaked:
-                message = f"Someone is here."
+                text = f"Someone is here."
             else:
                 name = char_in_room.name
-                message = message + f"{name} {char_in_room.title} is here.\r\n"
-        await self.message_bus.send_to_character(character_id, Message(type=MessageType.GAME, data={"text": message}))
+                text = text + f"{name} {char_in_room.title} is here.\r\n"
+        message = self.message_bus.text_to_message(text)
+        await self.message_bus.send_to_character(character_id, message)
 
     def get_in_room(self, character: Character):
         loiterers = []
@@ -79,8 +96,7 @@ class RoomHandler:
         else:
             message = message + "\r\n"
 
-        exclude = self._get_exclude_ids(in_room)
-        await self.message_bus.send_to_room(character.room_id, Message(type=MessageType.GAME, data={"text": message}), exclude)
+        await self.message_bus.send_to_room(character.room_id, self.message_bus.text_to_message(message), self._get_exclude_ids(in_room))
 
     def _get_exclude_ids(self, in_room: list):
         exclude = []
@@ -90,12 +106,9 @@ class RoomHandler:
                 exclude.append(char.id)
         return exclude
 
+    def format_room_description(self, room_name: str, description: str) -> Message:
+        return self.message_bus.text_to_message(f"[{room_name}]\r\n{description}\r\n")
+
     @staticmethod
     def format_exits(room) -> str:
         return AreaUtil.cardinal_direction(room)
-
-    @staticmethod
-    def format_room_description(room_name: str, description: str, exits: str) -> Message:
-        text = f"[{room_name}]\r\n{description}\r\n[Exits: {exits}]"
-
-        return Message(type=MessageType.GAME, data={'text': text})

@@ -1,26 +1,6 @@
 [{
   "_id": {
-    "$oid": "69bb43aa6e0da14d449f35ba"
-  },
-  "author": "Copper",
-  "name": "In the Air",
-  "suggestedLevelRange": "5 10",
-  "rooms": [],
-  "_class": "org.springy.som.modulith.domain.area.internal.AreaDocument"
-},
-{
-  "_id": {
-    "$oid": "69bb43aabad866a3bd2bfd2a"
-  },
-  "author": "Raff",
-  "name": "Dwarven Catacombs",
-  "suggestedLevelRange": "10 20",
-  "rooms": [],
-  "_class": "org.springy.som.modulith.domain.area.internal.AreaDocument"
-},
-{
-  "_id": {
-    "$oid": "69bb43aaa0fee6afe7346434"
+    "$oid": "69cd418910849b7ddcbbb182"
   },
   "author": "Mahatma",
   "name": "Arachnos",
@@ -30,7 +10,17 @@
 },
 {
   "_id": {
-    "$oid": "69bb43aabaf7c888480ca13a"
+    "$oid": "69cd4189737dcf2e3d093fa7"
+  },
+  "author": "Copper",
+  "name": "In the Air",
+  "suggestedLevelRange": "5 10",
+  "rooms": [],
+  "_class": "org.springy.som.modulith.domain.area.internal.AreaDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd41895ca05fa6b3c2c1a9"
   },
   "author": "Raff",
   "name": "Elemental Canyon",
@@ -40,7 +30,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43aa285910bea9fa00e5"
+    "$oid": "69cd418949f9995c0cec5be3"
   },
   "author": "Andersen",
   "name": "Astral/Githyanki",
@@ -50,7 +40,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43aac4851a8e22042a5d"
+    "$oid": "69cd4189852ec60d1b748236"
   },
   "author": "Copper",
   "name": "Chapel Catacombs",
@@ -60,7 +50,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43aa2583c65ebc32632a"
+    "$oid": "69cd4189c6ea40f02ad4376a"
   },
   "author": "Sandman",
   "name": "Dwarven Day Care",
@@ -70,7 +60,17 @@
 },
 {
   "_id": {
-    "$oid": "69bb43aaa69a834b074266c0"
+    "$oid": "69cd41892a7086b4ff6a588e"
+  },
+  "author": "Raff",
+  "name": "Dwarven Catacombs",
+  "suggestedLevelRange": "10 20",
+  "rooms": [],
+  "_class": "org.springy.som.modulith.domain.area.internal.AreaDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd4189975209b4af0484a8"
   },
   "author": "Wench",
   "name": "Dragon Tower",
@@ -80,7 +80,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43aab4fa960997eff16e"
+    "$oid": "69cd4189b5381dfb98ab0382"
   },
   "author": "Furey",
   "name": "Machine Dreams",
@@ -90,7 +90,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43aa3f11b5b704a4e818"
+    "$oid": "69cd41893c0ecac432b98aa9"
   },
   "author": "Drkside",
   "name": "Drow City",
@@ -100,7 +100,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43aaf08aae1f80813491"
+    "$oid": "69cd418948d5d0fdc4818537"
   },
   "author": "Anon",
   "name": "Dwarven Kingdom",
@@ -110,7 +110,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43aa567294815ed9c03a"
+    "$oid": "69cd4189602ccf379310b945"
   },
   "author": "Dylan",
   "name": "Dylan's Area",
@@ -120,7 +120,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43aace3a84dde98e04ed"
+    "$oid": "69cd418ace06a7fe9d502e3d"
   },
   "author": "Anon",
   "name": "Sands of Sorrow",
@@ -130,7 +130,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43aa68f2731d48291ef4"
+    "$oid": "69cd418a4a5fb24f67f2dc4c"
   },
   "author": "Doctor",
   "name": "Galaxy",
@@ -140,17 +140,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43aa59fb28667d7134f2"
-  },
-  "author": "Alfa",
-  "name": "Graveyard",
-  "suggestedLevelRange": "5 10",
-  "rooms": [],
-  "_class": "org.springy.som.modulith.domain.area.internal.AreaDocument"
-},
-{
-  "_id": {
-    "$oid": "69bb43aaea88df63e663ac06"
+    "$oid": "69cd418ace582a9805d3b4fb"
   },
   "author": "Vougon",
   "name": "Gnome Village",
@@ -160,7 +150,17 @@
 },
 {
   "_id": {
-    "$oid": "69bb43aa7b1f9a5347988b67"
+    "$oid": "69cd418a062029e24d65dc11"
+  },
+  "author": "Alfa",
+  "name": "Graveyard",
+  "suggestedLevelRange": "5 10",
+  "rooms": [],
+  "_class": "org.springy.som.modulith.domain.area.internal.AreaDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd418afcf14f9b63cd4d04"
   },
   "name": "Unnamed Area",
   "rooms": [],
@@ -168,7 +168,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43aaf3b7746fc58ff44e"
+    "$oid": "69cd418a7b22256aef3e2064"
   },
   "author": "Alfa",
   "name": "Holy Grove",
@@ -178,7 +178,15 @@
 },
 {
   "_id": {
-    "$oid": "69bb43aa47d67297e5ccb115"
+    "$oid": "69cd418a03444eaa14c010af"
+  },
+  "name": "Unnamed Area",
+  "rooms": [],
+  "_class": "org.springy.som.modulith.domain.area.internal.AreaDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd418a12c3b85adf22cee8"
   },
   "author": "Diku",
   "name": "Haon Dor",
@@ -188,25 +196,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43aa29117419378c5d7c"
-  },
-  "name": "Unnamed Area",
-  "rooms": [],
-  "_class": "org.springy.som.modulith.domain.area.internal.AreaDocument"
-},
-{
-  "_id": {
-    "$oid": "69bb43ab95ebfe1c66d5df33"
-  },
-  "author": "Skylar",
-  "name": "High Tower of Sorcery",
-  "suggestedLevelRange": "10 30",
-  "rooms": [],
-  "_class": "org.springy.som.modulith.domain.area.internal.AreaDocument"
-},
-{
-  "_id": {
-    "$oid": "69bb43ab651514e97131abc5"
+    "$oid": "69cd418adc20ce8b21e95649"
   },
   "author": "Raff",
   "name": "Dangerous Neighborhood",
@@ -216,7 +206,17 @@
 },
 {
   "_id": {
-    "$oid": "69bb43ab56aa590de2ef49ce"
+    "$oid": "69cd418aa40097bca65bf6f9"
+  },
+  "author": "Skylar",
+  "name": "High Tower of Sorcery",
+  "suggestedLevelRange": "10 30",
+  "rooms": [],
+  "_class": "org.springy.som.modulith.domain.area.internal.AreaDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd418aff529a53e7eb838c"
   },
   "author": "ROM",
   "name": "Immortal Zone",
@@ -226,7 +226,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43ababb8ae5beb0a8a24"
+    "$oid": "69cd418a004e323e021d1822"
   },
   "author": "Diku",
   "name": "Limbo",
@@ -236,7 +236,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43abb47003221f2111d4"
+    "$oid": "69cd418af6b26b46af88e304"
   },
   "author": "Generic",
   "name": "Old Marsh",
@@ -246,17 +246,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43ab98278f2647ccde22"
-  },
-  "author": "Chris",
-  "name": "The Keep of Mahn-Tor",
-  "suggestedLevelRange": "5 35",
-  "rooms": [],
-  "_class": "org.springy.som.modulith.domain.area.internal.AreaDocument"
-},
-{
-  "_id": {
-    "$oid": "69bb43ab695fefecc6a448d9"
+    "$oid": "69cd418a1eccb0ba08155d5a"
   },
   "author": "Glop",
   "name": "Mega-City One",
@@ -266,7 +256,17 @@
 },
 {
   "_id": {
-    "$oid": "69bb43ab933870cdcb121e6a"
+    "$oid": "69cd418abc6b37e5ad06ca0e"
+  },
+  "author": "Chris",
+  "name": "The Keep of Mahn-Tor",
+  "suggestedLevelRange": "5 35",
+  "rooms": [],
+  "_class": "org.springy.som.modulith.domain.area.internal.AreaDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd418a25b06c12ef99aadf"
   },
   "author": "Copper",
   "name": "Miden'nir",
@@ -276,7 +276,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43ab5c747871f084ff42"
+    "$oid": "69cd418abed2c4be0d543c98"
   },
   "author": "Diku",
   "name": "Midgaard",
@@ -286,17 +286,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43ab9df220a84a80848a"
-  },
-  "author": "Kahn",
-  "name": "Old Thalos",
-  "suggestedLevelRange": "1 30",
-  "rooms": [],
-  "_class": "org.springy.som.modulith.domain.area.internal.AreaDocument"
-},
-{
-  "_id": {
-    "$oid": "69bb43ab390085c7a9996f3c"
+    "$oid": "69cd418a69caae3a3d4a6fb1"
   },
   "author": "PinkF",
   "name": "Mob Factory",
@@ -306,7 +296,17 @@
 },
 {
   "_id": {
-    "$oid": "69bb43abdb76ead49b4ba1a3"
+    "$oid": "69cd418a82c772bb95d9a351"
+  },
+  "author": "Kahn",
+  "name": "Old Thalos",
+  "suggestedLevelRange": "1 30",
+  "rooms": [],
+  "_class": "org.springy.som.modulith.domain.area.internal.AreaDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd418a10fe6bfdd4f1eda6"
   },
   "author": "Alfa",
   "name": "Moria",
@@ -316,17 +316,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43abe40ee67ebd4177e0"
-  },
-  "author": "Conner",
-  "name": "New Thalos",
-  "suggestedLevelRange": "10 35",
-  "rooms": [],
-  "_class": "org.springy.som.modulith.domain.area.internal.AreaDocument"
-},
-{
-  "_id": {
-    "$oid": "69bb43abab540e3bbcf8046f"
+    "$oid": "69cd418a5b22b16b4cea0840"
   },
   "author": "Fstall",
   "name": "Nirvana",
@@ -336,7 +326,17 @@
 },
 {
   "_id": {
-    "$oid": "69bb43acc8cf7c14957d552e"
+    "$oid": "69cd418a8b2c60dec4d2229f"
+  },
+  "author": "Conner",
+  "name": "New Thalos",
+  "suggestedLevelRange": "10 35",
+  "rooms": [],
+  "_class": "org.springy.som.modulith.domain.area.internal.AreaDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd418ca07350837dfb9048"
   },
   "author": "Alfa",
   "name": "Ofcol",
@@ -346,7 +346,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43ad25f6bd5ea7179326"
+    "$oid": "69cd418c70e366c62ab34e78"
   },
   "author": "Hatchet",
   "name": "New Ofcol",
@@ -356,7 +356,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43ae2fc6ef6cd04ae5bc"
+    "$oid": "69cd418dbd9dbf1bdf9e45d4"
   },
   "author": "Generic",
   "name": "Olympus",
@@ -366,7 +366,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43ae13aea59846dad2c8"
+    "$oid": "69cd418eb8c53c2ee8074c9b"
   },
   "author": "Copper",
   "name": "Plains of the North",
@@ -376,7 +376,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43afc52b3e65f6866a22"
+    "$oid": "69cd418f2d32c4fb2eb326df"
   },
   "author": "Merc",
   "name": "Prototype for New Area",
@@ -386,7 +386,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43b056dd77bb6f931fa5"
+    "$oid": "69cd418f6e1fe4f791b8b457"
   },
   "author": "Andersen",
   "name": "The Great Pyramid",
@@ -396,7 +396,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43b0c591cde3b2a981fe"
+    "$oid": "69cd418fbc24c5e119b43a81"
   },
   "author": "Quifael",
   "name": "Quifael's Area",
@@ -406,7 +406,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43b0c7a79f8b8c79ac17"
+    "$oid": "69cd4190f53c741dae040e70"
   },
   "author": "Diku",
   "name": "Redferne's Residence",
@@ -416,7 +416,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43b1951d1e1d0ce7ded1"
+    "$oid": "69cd41903af697314b16f748"
   },
   "name": "Unnamed Area",
   "rooms": [],
@@ -424,7 +424,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43b1eca3a59de72d7f32"
+    "$oid": "69cd4190b5c02912656eca2e"
   },
   "author": "Hatchet",
   "name": "Mud School",
@@ -434,7 +434,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43b26fa9633102243a85"
+    "$oid": "69cd41927e81fa86b01fe9fe"
   },
   "author": "Diku",
   "name": "Sewer",
@@ -444,7 +444,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43b27aa23260ee70a2af"
+    "$oid": "69cd4192af81578ca248d76c"
   },
   "author": "Poohb",
   "name": "The Shire",
@@ -454,7 +454,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43b39c0dea9979b3e4ec"
+    "$oid": "69cd41922e3fa333bab0add7"
   },
   "author": "Generic",
   "name": "Smurf Village",
@@ -464,7 +464,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43b37550c5af32fccf1e"
+    "$oid": "69cd4192bdcfef98c72c851c"
   },
   "name": "Unnamed Area",
   "rooms": [],
@@ -472,7 +472,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43b3e57291f57148d465"
+    "$oid": "69cd41920944a1bbb40363b3"
   },
   "author": "Drkside",
   "name": "Thalos",
@@ -482,7 +482,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43b3091566210a73907a"
+    "$oid": "69cd4193e12df975400d6fb4"
   },
   "author": "Strahd",
   "name": "Descent to Hell",
@@ -492,7 +492,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43b45c8dd12093fcda4e"
+    "$oid": "69cd419331e1358cf935ec31"
   },
   "author": "Merc",
   "name": "Troll Den",
@@ -502,7 +502,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43b48c74d4212b8498cc"
+    "$oid": "69cd4194ae00b12348a7141e"
   },
   "author": "Hatchet",
   "name": "Valley of the Elves",
@@ -512,7 +512,7 @@
 },
 {
   "_id": {
-    "$oid": "69bb43b400a30ed7e9bb5a34"
+    "$oid": "69cd41948b81ca56f78358ee"
   },
   "author": "Tyrst",
   "name": "Wyvern's Tower",

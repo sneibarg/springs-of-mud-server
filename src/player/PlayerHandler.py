@@ -24,11 +24,13 @@ class PlayerHandler:
             who_line = who_line + f"[{c.level}    {c.race}    {c.character_class.name}] {c.name} {c.title}\r\n"
 
         who_line = who_line + players_found
-        await self.message_bus.send_to_character(character.id, Message(type=MessageType.GAME, data={"text": who_line}))
+        message = self.message_bus.text_to_message(who_line)
+        await self.message_bus.send_to_character(character.id, message)
 
-    async def to_player(self, character_id, message):
-        message += "\r\n"
-        await self.message_bus.send_to_character(character_id, Message(type=MessageType.GAME, data={"text": message}))
+    async def to_player(self, character_id, text):
+        text += "\r\n"
+        message = self.message_bus.text_to_message(text)
+        await self.message_bus.send_to_character(character_id, message)
 
     def _visible(self, character) -> List[Character]:
         visible = []

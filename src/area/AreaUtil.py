@@ -3,6 +3,10 @@ class AreaUtil:
         pass
 
     @staticmethod
+    def align_exits(direction: str, description: str, vnum: str, width: int = 10) -> str:
+        return f"{direction:{width}}{'- '}{description} ({vnum})"
+
+    @staticmethod
     def cardinal_direction(room):
         directions = [
             ("North", room.exit_north),

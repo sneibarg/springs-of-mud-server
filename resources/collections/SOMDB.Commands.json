@@ -6,7 +6,7 @@
   "shortcuts": "qui",
   "role": "player",
   "lambda": [
-    "lambda p, c, mb: mb.send_to_character(c.id, mb.text_to_message(b\"See you next time.\\r\\n\"))",
+    "lambda p, c, mb: mb.send_to_character(c.id, mb.text_to_message(f\"See you next time.\\r\\n\"))",
     "lambda cn: cn.close() if cn is not None and not cn.is_closed() else None",
     "lambda c, rh, cs: rh.to_room(c, c.name+\" has disconnected.\", cs.get_message(\"disconnect\"))",
     "lambda c, rgs: rgs.character_registry.unregister_character(c)"
@@ -46,7 +46,7 @@
   "shortcuts": "tel",
   "role": "player",
   "lambda": [
-    "lambda c, msg, m: c.writer.write(b\"You tell {m.get_name()}, '{msg}'\\r\\n\")",
+    "lambda c, msg, m: c.writer.write(f\"You tell {m.get_name()}, '{msg}'\\r\\n\")",
     "lambda c, msg, m, eh: eh.to_mobile(c, c.cmd, m, msg)"
   ],
   "message": "%p tells you '%m'",
@@ -111,7 +111,7 @@
   "position": "POS_RESTING",
   "level": 0,
   "log": "LOG_NORMAL",
-  "usage": "lambda c, mb: mb.send_to_character(c.id, Message(type=MessageType.GAME, data={'text': \"You must specify a valid item in your inventory.\\r\\n\"}))"
+  "usage": "lambda c, mb: mb.send_to_character(c.id, mb.text_to_message(b\"You must specify a valid item in your inventory.\\r\\n\"))"
 },
 {
   "_id": {
@@ -123,7 +123,7 @@
   "lambda": [
     "lambda c, rh: rh.move_mobile(c, \"west\")"
   ],
-  "message": "",
+  "message": "%c has left the room, heading west.",
   "function": [],
   "enabled": true,
   "skillId": "",
@@ -141,7 +141,7 @@
   "lambda": [
     "lambda c, rh: rh.move_mobile(c, \"east\")"
   ],
-  "message": "",
+  "message": "%c has left the room, heading east.",
   "function": [
     ""
   ],
@@ -179,7 +179,7 @@
   "lambda": [
     "lambda c, rh: rh.move_mobile(c, \"south\")"
   ],
-  "message": "",
+  "message": "%c has left the room, heading south.",
   "function": [],
   "enabled": true,
   "skillId": "",
@@ -329,7 +329,7 @@
   "name": "exits",
   "shortcuts": "",
   "role": "player",
-  "lambda": [],
+  "lambda": ["lambda c, r, rh: rh.print_exits(c, r)"],
   "message": "",
   "function": [],
   "enabled": true,

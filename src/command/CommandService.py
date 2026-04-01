@@ -42,6 +42,7 @@ lambda_mappings = {
     'eh': 'EventHandler',
     'cn': 'TelnetConnection',
     'mb': 'MessageBus',
+    'v': 'Character',  # victim aka target
     'm': 'Mobile',
     'i': 'Item',
     'msg': 'str',
