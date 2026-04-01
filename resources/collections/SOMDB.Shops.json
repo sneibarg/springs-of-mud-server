@@ -1,8 +1,8 @@
 [{
   "_id": {
-    "$oid": "69cd4189eafef33907c53eb9"
+    "$oid": "69cd4e21b03c49f1b5b10755"
   },
-  "areaId": "69cd4189c6ea40f02ad4376a",
+  "areaId": "69cd4e21388a9100b25843d0",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -17,9 +17,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418952a68a712a0fbf32"
+    "$oid": "69cd4e2248abdbcc9e3448bc"
   },
-  "areaId": "69cd4189737dcf2e3d093fa7",
+  "areaId": "69cd4e22eb124ed43469772e",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -34,9 +34,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418af9dc6315941043bf"
+    "$oid": "69cd4e22f225abceaf187d0e"
   },
-  "areaId": "69cd418a004e323e021d1822",
+  "areaId": "69cd4e22946f707b84493c70",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -51,9 +51,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418a743d33b733a3ecdb"
+    "$oid": "69cd4e22580a302b1bca300b"
   },
-  "areaId": "69cd418aff529a53e7eb838c",
+  "areaId": "69cd4e22c9440be84ed94ff9",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -68,9 +68,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd4189b979fa16d531f1d3"
+    "$oid": "69cd4e22f904d246e6bd3998"
   },
-  "areaId": "69cd4189b5381dfb98ab0382",
+  "areaId": "69cd4e22ca775b8f355b03db",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -85,9 +85,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418a63adaa0c5122d950"
+    "$oid": "69cd4e247a2b48391d002d51"
   },
-  "areaId": "69cd418a69caae3a3d4a6fb1",
+  "areaId": "69cd4e24f4d84c47ec698a51",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -102,9 +102,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418cfac843d220b22147"
+    "$oid": "69cd4e22978d7643ed6e4ef8"
   },
-  "areaId": "69cd418ca07350837dfb9048",
+  "areaId": "69cd4e22e12ee20ba6e5aa3d",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -119,9 +119,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418abaa42248d5c92684"
+    "$oid": "69cd4e224f3db841027fe869"
   },
-  "areaId": "69cd418af6b26b46af88e304",
+  "areaId": "69cd4e22eec7ef56f8fdffdd",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -136,9 +136,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418a547b60eb7169bf88"
+    "$oid": "69cd4e2243454e2292ba6589"
   },
-  "areaId": "69cd418a062029e24d65dc11",
+  "areaId": "69cd4e22463268238986af1d",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -153,9 +153,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418a1d6a51d9d1b73fe2"
+    "$oid": "69cd4e22f8befebe08847f38"
   },
-  "areaId": "69cd418a7b22256aef3e2064",
+  "areaId": "69cd4e22e58a40c649bfffa6",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -170,9 +170,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd4189101c85456429cc93"
+    "$oid": "69cd4e21763980ce301bf80a"
   },
-  "areaId": "69cd418910849b7ddcbbb182",
+  "areaId": "69cd4e2170375999fc2647d5",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -187,9 +187,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418a1a5e911b6c83b710"
+    "$oid": "69cd4e2240039346f460f281"
   },
-  "areaId": "69cd418a1eccb0ba08155d5a",
+  "areaId": "69cd4e228ad9a02bf55cd439",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -204,9 +204,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd41893e0a75a7b189bf64"
+    "$oid": "69cd4e229e777234688535fb"
   },
-  "areaId": "69cd41893c0ecac432b98aa9",
+  "areaId": "69cd4e2246bb75d3a3bb299b",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -221,9 +221,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418fd74d599d40898de7"
+    "$oid": "69cd4e2772664a3c2cf22e01"
   },
-  "areaId": "69cd418f2d32c4fb2eb326df",
+  "areaId": "69cd4e27b3ac07ccbb19c885",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -238,9 +238,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418a3eebf0ca5e6311c1"
+    "$oid": "69cd4e22e072ce7a37355f95"
   },
-  "areaId": "69cd418a25b06c12ef99aadf",
+  "areaId": "69cd4e22439a45811f482553",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -255,26 +255,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd41897a5cd2bbcd72b735"
+    "$oid": "69cd4e2280173a983ee9f025"
   },
-  "areaId": "69cd41892a7086b4ff6a588e",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69cd4189821e534d0e81ccd2"
-  },
-  "areaId": "69cd418948d5d0fdc4818537",
+  "areaId": "69cd4e22acd33190732c1bb3",
   "keeper": 6503,
   "buyType0": 0,
   "buyType1": 0,
@@ -290,9 +273,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418a255bbe8e15df13e6"
+    "$oid": "69cd4e22834b963bea9a6917"
   },
-  "areaId": "69cd418a5b22b16b4cea0840",
+  "areaId": "69cd4e22006a73d0c5ce5445",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -307,9 +290,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd4189e42ce511ae0337d3"
+    "$oid": "69cd4e225d820a721f0b1c00"
   },
-  "areaId": "69cd4189852ec60d1b748236",
+  "areaId": "69cd4e22fdf239ddb46fefc7",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -324,9 +307,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418f917a3668c7da2dcc"
+    "$oid": "69cd4e28cdef6eff58c1590a"
   },
-  "areaId": "69cd418fbc24c5e119b43a81",
+  "areaId": "69cd4e286aca0665ff4b2a66",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -341,9 +324,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418944e920c3d171d321"
+    "$oid": "69cd4e2292df298372b70245"
   },
-  "areaId": "69cd4189975209b4af0484a8",
+  "areaId": "69cd4e223960d41408b1e83d",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -358,9 +341,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418a6fbc5f1bb967a3ba"
+    "$oid": "69cd4e2244dd7be3c2f032b0"
   },
-  "areaId": "69cd418ace06a7fe9d502e3d",
+  "areaId": "69cd4e22b953d5a535cde8c2",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -375,9 +358,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd4189184705dd066eab35"
+    "$oid": "69cd4e2279fc35dc5b00cb2b"
   },
-  "areaId": "69cd4189602ccf379310b945",
+  "areaId": "69cd4e22f98535596d35c621",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -392,9 +375,26 @@
 },
 {
   "_id": {
-    "$oid": "69cd418901b1473faec7602c"
+    "$oid": "69cd4e21ce227106d66dca31"
   },
-  "areaId": "69cd41895ca05fa6b3c2c1a9",
+  "areaId": "69cd4e211189a4eb3a221ea7",
+  "keeper": 0,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 0,
+  "profitSell": 0,
+  "openHour": 0,
+  "closeHour": 0,
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd4e21c62703d708a3eb45"
+  },
+  "areaId": "69cd4e21e4aabb133ea6a468",
   "keeper": 9238,
   "buyType0": 0,
   "buyType1": 0,
@@ -410,9 +410,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418adad8b1b261ebc76b"
+    "$oid": "69cd4e22a363696d36dddabd"
   },
-  "areaId": "69cd418adc20ce8b21e95649",
+  "areaId": "69cd4e2249081720fe9671e1",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -427,9 +427,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd41890b0d72e180b37b42"
+    "$oid": "69cd4e224a30c37f32e84670"
   },
-  "areaId": "69cd418949f9995c0cec5be3",
+  "areaId": "69cd4e22b960e8063f1fce78",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -444,9 +444,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd4190e8443d1cff788876"
+    "$oid": "69cd4e22ca50e3837d2ce234"
   },
-  "areaId": "69cd4190f53c741dae040e70",
+  "areaId": "69cd4e221b505fdf76c6292b",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -461,9 +461,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418a8be7f2c5d419abfd"
+    "$oid": "69cd4e28e76a58aa9be9c693"
   },
-  "areaId": "69cd418a12c3b85adf22cee8",
+  "areaId": "69cd4e28d7ebf213b160b82b",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -478,9 +478,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418abce039d7e2412d5e"
+    "$oid": "69cd4e222ea6998cc46a823d"
   },
-  "areaId": "69cd418a4a5fb24f67f2dc4c",
+  "areaId": "69cd4e2242052be67ec1858a",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -495,9 +495,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418e7c057cfd71f4a15a"
+    "$oid": "69cd4e2615695017a55c6771"
   },
-  "areaId": "69cd418eb8c53c2ee8074c9b",
+  "areaId": "69cd4e26c42393ef20e73b27",
   "keeper": 306,
   "buyType0": 1,
   "buyType1": 10,
@@ -513,9 +513,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418a2b53df0444248ce5"
+    "$oid": "69cd4e22edfa8cf789190e12"
   },
-  "areaId": "69cd418ace582a9805d3b4fb",
+  "areaId": "69cd4e22ff64d6bf9c81bada",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -530,9 +530,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418d0912019f2051c8a1"
+    "$oid": "69cd4e254a5b5fc86922d747"
   },
-  "areaId": "69cd418dbd9dbf1bdf9e45d4",
+  "areaId": "69cd4e2557aac80e2570062a",
   "keeper": 915,
   "buyType0": 1,
   "buyType1": 8,
@@ -548,9 +548,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd4193e61ab1c5d4e1f991"
+    "$oid": "69cd4e2cc1ec7744c963aec5"
   },
-  "areaId": "69cd419331e1358cf935ec31",
+  "areaId": "69cd4e2c76fced8b28403219",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -565,9 +565,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418a07ba425247bfca02"
+    "$oid": "69cd4e22af526b663860b543"
   },
-  "areaId": "69cd418a82c772bb95d9a351",
+  "areaId": "69cd4e222f74d3bd519ea693",
   "keeper": 5310,
   "buyType0": 0,
   "buyType1": 0,
@@ -583,9 +583,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd41921364b206b6d6bf72"
+    "$oid": "69cd4e2bbcd357c348cea335"
   },
-  "areaId": "69cd41922e3fa333bab0add7",
+  "areaId": "69cd4e2bb9f6fcb583386400",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -600,9 +600,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418f8ce14a8800c2544c"
+    "$oid": "69cd4e28a975de4c24eacd80"
   },
-  "areaId": "69cd418f6e1fe4f791b8b457",
+  "areaId": "69cd4e280c81aa12a057e285",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -617,9 +617,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418ac0390eb2f65a32b1"
+    "$oid": "69cd4e22b96806104a875eaf"
   },
-  "areaId": "69cd418a10fe6bfdd4f1eda6",
+  "areaId": "69cd4e226f9d1af0750d0626",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -634,9 +634,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd4190d248194ccea29ae0"
+    "$oid": "69cd4e29b104318bb4f8ef91"
   },
-  "areaId": "69cd4190b5c02912656eca2e",
+  "areaId": "69cd4e29692c433e03420e1d",
   "keeper": 3717,
   "buyType0": 1,
   "buyType1": 15,
@@ -652,9 +652,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd41928827c416c1e51e42"
+    "$oid": "69cd4e2a47309a0c9fd3294a"
   },
-  "areaId": "69cd4192af81578ca248d76c",
+  "areaId": "69cd4e2a47b97eab743d6c3a",
   "keeper": 1113,
   "buyType0": 17,
   "buyType1": 0,
@@ -670,9 +670,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418aba7d36265d7a1589"
+    "$oid": "69cd4e2248d176c0b551d700"
   },
-  "areaId": "69cd418abc6b37e5ad06ca0e",
+  "areaId": "69cd4e2261104fa2f38dc3fb",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -687,9 +687,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418c2d1f16024e63c5c4"
+    "$oid": "69cd4e2445a36f3e46ea05be"
   },
-  "areaId": "69cd418c70e366c62ab34e78",
+  "areaId": "69cd4e240380d02366917521",
   "keeper": 604,
   "buyType0": 5,
   "buyType1": 9,
@@ -705,9 +705,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd4194c33b5a3926348f1a"
+    "$oid": "69cd4e2b2828b638c7c53c18"
   },
-  "areaId": "69cd41948b81ca56f78358ee",
+  "areaId": "69cd4e2b750a2dfb2a9542d3",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -722,9 +722,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd4192cd9992c9090ca529"
+    "$oid": "69cd4e2c9ef2a0f4c2fe1d7a"
   },
-  "areaId": "69cd41920944a1bbb40363b3",
+  "areaId": "69cd4e2c8dedc8841f23e6d3",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -739,9 +739,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd41940330dfec8715b571"
+    "$oid": "69cd4e2c99a274a5269f0dcb"
   },
-  "areaId": "69cd4194ae00b12348a7141e",
+  "areaId": "69cd4e2c53b4d029d4ca3ebe",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -756,9 +756,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd41925698bee5743597c0"
+    "$oid": "69cd4e2a11dd0cf8f2728e49"
   },
-  "areaId": "69cd41927e81fa86b01fe9fe",
+  "areaId": "69cd4e2a9d8eec6d7ae5ac60",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -773,9 +773,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418a6b3fd59089fe9205"
+    "$oid": "69cd4e229f61fc88b49c8bb9"
   },
-  "areaId": "69cd418aa40097bca65bf6f9",
+  "areaId": "69cd4e22db293e990181f828",
   "keeper": 1305,
   "buyType0": 17,
   "buyType1": 19,
@@ -791,9 +791,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418af8ee30356a38f076"
+    "$oid": "69cd4e222181ee12ccb2d398"
   },
-  "areaId": "69cd418abed2c4be0d543c98",
+  "areaId": "69cd4e22af07cc79b1aab71a",
   "keeper": 3000,
   "buyType0": 2,
   "buyType1": 3,
@@ -809,9 +809,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd4193ce91729c4f96d4b9"
+    "$oid": "69cd4e2b3cd33f0a1b4a4d30"
   },
-  "areaId": "69cd4193e12df975400d6fb4",
+  "areaId": "69cd4e2bd3ff230b4ad2bca8",
   "keeper": 10451,
   "buyType0": 0,
   "buyType1": 0,
@@ -827,9 +827,9 @@
 },
 {
   "_id": {
-    "$oid": "69cd418a1e05d69b061d8f50"
+    "$oid": "69cd4e22618df12a092498f4"
   },
-  "areaId": "69cd418a8b2c60dec4d2229f",
+  "areaId": "69cd4e22c1738a22176505a1",
   "keeper": 9505,
   "buyType0": 0,
   "buyType1": 0,

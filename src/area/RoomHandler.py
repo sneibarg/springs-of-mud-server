@@ -32,10 +32,10 @@ class RoomHandler:
 
     async def move_mobile(self, character, direction):
         room = self.room_registry.get_room_by_id(character.room_id)
-        destination = AreaUtil.is_valid_direction(direction, room)
-        if destination is not None:
-            destination_room = self.room_registry.get_room_by_id(destination)
-            character.room_id = destination
+        destination_id = AreaUtil.is_valid_direction(direction, room)
+        if destination_id is not None:
+            destination_room = self.room_registry.get_room_by_id(destination_id)
+            character.room_id = destination_id
             await self.print_room(character.id, destination_room)
         else:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(f"You can't go that direction!\r\n"))
@@ -108,7 +108,3 @@ class RoomHandler:
 
     def format_room_description(self, room_name: str, description: str) -> Message:
         return self.message_bus.text_to_message(f"[{room_name}]\r\n{description}\r\n")
-
-    @staticmethod
-    def format_exits(room) -> str:
-        return AreaUtil.cardinal_direction(room)

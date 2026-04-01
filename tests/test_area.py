@@ -1,16 +1,24 @@
 import unittest
 
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import Mock, patch
+from registry.AreaRegistry import AreaRegistry
 from area.Area import Area
-from area.Room import Room
 from area.AreaService import AreaService
-from registry.RegistryService import RegistryService
+from area.Room import Room
 
 
 class TestArea(unittest.TestCase):
     """Test Area dataclass"""
 
     def setUp(self):
+        self.exit_data = {
+            'north': 'room_001',
+            'south': None,
+            'east': None,
+            'west': None,
+            'up': None,
+            'down': None
+        }
         self.area_data = {
             'id': 'area_001',
             'name': 'Test Area',
@@ -43,6 +51,14 @@ class TestRoom(unittest.TestCase):
     """Test Room dataclass"""
 
     def setUp(self):
+        self.exit_data = {
+            'north': 'room_001',
+            'south': None,
+            'east': None,
+            'west': None,
+            'up': None,
+            'down': None
+        }
         self.room_data = {
             'id': 'room_001',
             'area_id': 'area_001',
@@ -51,12 +67,7 @@ class TestRoom(unittest.TestCase):
             'description': 'A test room',
             'room_flags': 'none',
             'sector_type': 'inside',
-            'exit_north': 'room_002',
-            'exit_south': None,
-            'exit_east': None,
-            'exit_west': None,
-            'exit_up': None,
-            'exit_down': None,
+            'exits': self.exit_data,
             'pvp': False,
             'spawn': False,
             'spawn_timer': None,
@@ -73,37 +84,20 @@ class TestRoom(unittest.TestCase):
         self.assertEqual(room.name, 'Test Room')
         self.assertEqual(room.vnum, '1001')
 
-    def test_room_directions(self):
-        """Test room directional exits"""
-        room = Room.from_json(self.room_data)
-        self.assertEqual(room.exit_north, 'room_002')
-        self.assertIsNone(room.exit_east)
-        self.assertIsNone(room.exit_west)
-
-    @unittest.skip('Refactored out; likely to be removed.')
-    @patch('area.Room.StreamWriter')
-    def test_print_description(self, mock_writer):
-        """Test printing room description"""
-        room = Room.from_json(self.room_data)
-        writer = Mock()
-        room.print_description(writer, room)
-        writer.write.assert_called()
-
 
 class TestAreaService(unittest.TestCase):
     """Test AreaService"""
 
     def setUp(self):
         from server.ServiceConfig import ServiceConfig
-        self.mock_registry = RegistryService()
+        self.mock_area_registry = AreaRegistry()
         self.areas_endpoint = 'http://test.com/api/areas'
-        self.rooms_endpoint = 'http://test.com/api/rooms'
         self.mock_service_config = ServiceConfig(
             game_data_endpoint="http://test/game",
             commands_endpoint="http://test/commands",
             players_endpoint="http://test/players",
             characters_endpoint="http://test/characters",
-            rooms_endpoint=self.rooms_endpoint,
+            rooms_endpoint="http://test/rooms",
             areas_endpoint=self.areas_endpoint,
             items_endpoint="http://test/items",
             mobiles_endpoint="http://test/mobiles"
@@ -140,14 +134,16 @@ class TestAreaService(unittest.TestCase):
 
         mock_get.side_effect = mock_get_side_effect
 
-        service = AreaService(self.mock_service_config, self.mock_registry)
-        self.assertEqual(len(service.registry_service.area_registry), 1)
+        service = AreaService(self.mock_service_config, self.mock_area_registry)
+        self.assertEqual(len(service.area_registry), 1)
 
     @patch('area.AreaService.requests.get')
     def test_load_rooms(self, mock_get):
         """Test loading rooms from API"""
         def mock_get_side_effect(url):
             mock_response = Mock()
+            exit_data = self.exit_data
+            exit_data['north'] = 'room_002'
             if 'areas' in url:
                 mock_response.json.return_value = []
             else:  # rooms endpoint
@@ -159,12 +155,7 @@ class TestAreaService(unittest.TestCase):
                     'description': 'Test',
                     'roomFlags': 'none',
                     'sectorType': 'inside',
-                    'exit_north': None,
-                    'exit_south': None,
-                    'exit_east': None,
-                    'exit_west': None,
-                    'exit_up': None,
-                    'exit_down': None,
+                    'exits': exit_data,
                     'pvp': False,
                     'spawn': False,
                     'spawn_timer': None,
@@ -219,122 +210,6 @@ class TestAreaService(unittest.TestCase):
         mock_get.side_effect = mock_get_specific
         service.load_area('area_002')
         self.assertIn('area_002', service.registry_service.area_registry)
-
-    @patch('area.AreaService.requests.get')
-    def test_move_mobile_valid_direction(self, mock_get):
-        """Test moving mobile in valid direction"""
-        # Setup rooms
-        def mock_get_side_effect(url):
-            mock_response = Mock()
-            mock_response.json.return_value = []
-            return mock_response
-
-        mock_get.side_effect = mock_get_side_effect
-        service = AreaService(self.mock_service_config, self.mock_registry)
-
-        # Create test rooms
-        room1 = Room.from_json({
-            'id': 'room_001',
-            'area_id': 'area_001',
-            'vnum': '1001',
-            'name': 'Room 1',
-            'description': 'First room',
-            'room_flags': 'none',
-            'sector_type': 'inside',
-            'exit_north': 'room_002',
-            'exit_south': None,
-            'exit_east': None,
-            'exit_west': None,
-            'exit_up': None,
-            'exit_down': None,
-            'pvp': False,
-            'spawn': False,
-            'spawn_timer': None,
-            'spawn_time': None,
-            'tele_delay': None,
-            'extra_description': '',
-            'mobiles': []
-        })
-
-        room2 = Room.from_json({
-            'id': 'room_002',
-            'area_id': 'area_001',
-            'vnum': '1002',
-            'name': 'Room 2',
-            'description': 'Second room',
-            'room_flags': 'none',
-            'sector_type': 'inside',
-            'exit_north': None,
-            'exit_south': None,
-            'exit_east': 'room_001',
-            'exit_west': None,
-            'exit_up': None,
-            'exit_down': None,
-            'pvp': False,
-            'spawn': False,
-            'spawn_timer': None,
-            'spawn_time': None,
-            'tele_delay': None,
-            'extra_description': '',
-            'mobiles': []
-        })
-
-        service.registry_service.register_room(room1)
-        service.registry_service.register_room(room2)
-
-        # Create mock character
-        character = Mock()
-        character.room_id = 'room_001'
-        character.writer = Mock()
-
-        # Move north
-        service.move_mobile(character, 'exit_north')
-        self.assertEqual(character.room_id, 'room_002')
-
-    @patch('area.AreaService.requests.get')
-    def test_move_mobile_invalid_direction(self, mock_get):
-        """Test moving mobile in invalid direction"""
-        def mock_get_side_effect(url):
-            mock_response = Mock()
-            mock_response.json.return_value = []
-            return mock_response
-
-        mock_get.side_effect = mock_get_side_effect
-        service = AreaService(self.mock_service_config, self.mock_registry)
-
-        room = Room.from_json({
-            'id': 'room_001',
-            'area_id': 'area_001',
-            'vnum': '1001',
-            'name': 'Room 1',
-            'description': 'First room',
-            'room_flags': 'none',
-            'sector_type': 'inside',
-            'exit_north': None,
-            'exit_south': None,
-            'exit_east': None,
-            'exit_west': None,
-            'exit_up': None,
-            'exit_down': None,
-            'pvp': False,
-            'spawn': False,
-            'spawn_timer': None,
-            'spawn_time': None,
-            'tele_delay': None,
-            'extra_description': '',
-            'mobiles': []
-        })
-
-        service.registry_service.register_room(room)
-
-        character = Mock()
-        character.room_id = 'room_001'
-        character.writer = Mock()
-
-        # Try to move in direction with no exit
-        service.move_mobile(character, 'exit_north')
-        character.writer.write.assert_called_with(b"You can't go that direction!\r\n")
-        self.assertEqual(character.room_id, 'room_001')
 
 
 if __name__ == '__main__':

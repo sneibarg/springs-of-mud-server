@@ -12,12 +12,6 @@ class Room:
     vnum: str = ""
     name: str = ""
     description: str = ""
-    exit_north: str = ""
-    exit_west: str = ""
-    exit_east: str = ""
-    exit_south: str = ""
-    exit_up: str = ""
-    exit_down: str = ""
     pvp: bool = False
     spawn: bool = False
     spawn_timer: int = 0
@@ -25,8 +19,8 @@ class Room:
     tele_delay: int = 0
     room_flags: int = 0
     sector_type: int = 0
-    mobiles: list = field(default_factory=list)
     extra_description: list = field(default_factory=list)
+    mobiles: list = field(default_factory=list)
     exits: Exits = field(default_factory=Exits)
 
     def __post_init__(self):
@@ -42,11 +36,6 @@ class Room:
         valid_fields = {f.name for f in cls.__dataclass_fields__.values()}
         filtered_data = {k: v for k, v in data.items() if k in valid_fields}
         return cls(**filtered_data)
-
-    def get_exits(self):
-        return [room_exit for room_exit in
-                [self.exit_north, self.exit_south, self.exit_east, self.exit_west, self.exit_up, self.exit_down] if
-                room_exit is not None]
 
     def get_formatted_exits(self):
         return AreaUtil.cardinal_direction(self)
