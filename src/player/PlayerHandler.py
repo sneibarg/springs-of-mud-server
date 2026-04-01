@@ -16,8 +16,8 @@ class PlayerHandler:
         self.character_registry = character_registry
         self.session_handler = session_handler
 
-    async def print_visible(self, character, visible):
-        who_list = [character] + visible
+    async def print_visible(self, character):
+        who_list = [character] + self._visible(character)
         who_line = ""
         players_found = "Players found: " + str(len(who_list)) + "\r\n"
         for c in who_list:
@@ -30,7 +30,7 @@ class PlayerHandler:
         message += "\r\n"
         await self.message_bus.send_to_character(character_id, Message(type=MessageType.GAME, data={"text": message}))
 
-    def visible(self, character) -> List[Character]:
+    def _visible(self, character) -> List[Character]:
         visible = []
         for session in self.session_handler.get_playing_sessions():
             char = session.character

@@ -3,8 +3,9 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from typing import List
-from area.AreaService import AreaService
-from mobile.MobileService import MobileService
+from injector import inject
+from area.AreaHandler import AreaHandler
+from mobile.MobileHandler import MobileHandler
 
 
 @dataclass
@@ -24,12 +25,12 @@ class AreaUpdateTask:
 
 
 class UpdateService:
-    def __init__(self, injector, config, num_workers=4):
-        self.injector = injector
+    @inject
+    def __init__(self, config, area_handler: AreaHandler, mobile_handler: MobileHandler, num_workers=4):
         self.config = config
         self.executor = ThreadPoolExecutor(max_workers=num_workers)
-        self.mobile_service = self.injector.get(MobileService)
-        self.area_service = self.injector.get(AreaService)
+        self.area_handler = area_handler
+        self.mobile_handler = mobile_handler
         self.stop_flag = False
 
     async def start(self):
@@ -61,9 +62,9 @@ class UpdateService:
 
     def _prepare_area_tasks(self) -> List[AreaUpdateTask]:
         tasks = []
-        area_list = self.area_service.get_areas()
+        area_list = self.area_handler.area_registry.registry.values()
         for area in area_list:
-            passes = self.area_service.passes_update_check(area.id, area.last_reset)
+            passes = self.area_handler.passes_update_check(area.id, area.last_reset)
             if passes:
-                tasks.append(AreaUpdateTask(area.id, area.rooms, area.mobiles))
+                tasks.append(AreaUpdateTask(area.id, area.rooms, area.mobiles, area.shops, area.resets, area.specials))
         return tasks
