@@ -52,8 +52,11 @@ class RoomHandler:
         characters_in_room: List[Character] = [self.character_registry.get_character_by_id(char_id) for char_id in in_room]
         message = ""
         for char_in_room in characters_in_room:
-            name = char_in_room.name if not char_in_room.cloaked else "Someone"
-            message = message + f"{name} is here.\r\n"
+            if char_in_room.cloaked:
+                message = f"Someone is here."
+            else:
+                name = char_in_room.name
+                message = message + f"{name} {char_in_room.title} is here.\r\n"
         await self.message_bus.send_to_character(character_id, Message(type=MessageType.GAME, data={"text": message}))
 
     def get_in_room(self, character: Character):

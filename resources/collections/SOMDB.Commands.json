@@ -8,8 +8,8 @@
   "lambda": [
     "lambda p, c, mb: mb.send_to_character(c.id, mb.text_to_message(b\"See you next time.\\r\\n\"))",
     "lambda cn: cn.close() if cn is not None and not cn.is_closed() else None",
-    "lambda c, rgs: rgs.character_registry.unregister_character(c)",
-    "lambda c, rh, cs: rh.to_room(c, c.name+\" has disconnected.\", cs.get_message(\"disconnect\"))"
+    "lambda c, rh, cs: rh.to_room(c, c.name+\" has disconnected.\", cs.get_message(\"disconnect\"))",
+    "lambda c, rgs: rgs.character_registry.unregister_character(c)"
   ],
   "message": "%p has disconnected.",
   "function": [],
@@ -27,8 +27,8 @@
   "shortcuts": "s, sa, '",
   "role": "player",
   "lambda": [
-    "lambda c, msg: c.to_player(\"You say, '\"+msg+\"'\")",
-    "lambda c, cs, p, ps, msg: p.to_room(ps, msg, cs.get_message(\"say\"))"
+    "lambda c, ph, msg: ph.to_player(c.id, \"You say, '\"+msg+\"'\")",
+    "lambda c, cs, rh, msg: rh.to_room(c, msg, cs.get_message(\"say\"))"
   ],
   "message": "%p says '%m'",
   "function": [],

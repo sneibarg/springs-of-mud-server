@@ -65,24 +65,24 @@ class Character:
         self.load_inventory()
 
     def load_inventory(self):
-        print(f"Loading inventory: {self.inventory}...")
         with self.lock:
             index = 0
             for item in self.inventory:
                 self.inventory[index] = Item.from_json(item)
+                index = index + 1
 
     def get_items(self) -> List[Item]:
         return self.inventory
 
     def get_fuzzy_item(self, fuzzy_item, usage, mb):
         fuzzy_item = fuzzy_item.strip().replace("\r\n", "")
-        self.logger.info("get_fuzzy_item: fuzzy_item=" + str(fuzzy_item))
+        self.logger.debug("get_fuzzy_item: fuzzy_item=" + str(fuzzy_item))
         for item in self.inventory:
             if not isinstance(item, Item):
-                self.logger.info("get_fuzzy_item: not an Item: " + str(item))
+                self.logger.debug("get_fuzzy_item: not an Item: " + str(item))
                 continue
             if item.name.startswith(fuzzy_item) or fuzzy_item == item.name:
-                self.logger.info("get_fuzzy_item: FOUND: " + str(item))
+                self.logger.debug("get_fuzzy_item: FOUND: " + str(item))
                 return item
         asyncio.ensure_future(usage(self, mb))
         return None

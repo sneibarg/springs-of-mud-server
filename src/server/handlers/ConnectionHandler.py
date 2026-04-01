@@ -78,6 +78,7 @@ class ConnectionHandler:
             area, room = self._get_area_and_room(character)
             await self.room_handler.print_room(character.id, room)
             await self.message_bus.send_prompt(character.id, character, area, room)
+            await self.message_bus.send_to_room(room.id, Message(type=MessageType.GAME, data={"text": f"{character.name} has entered the game.\r\n"}), [character.id])
             await self._game_loop(connection, session, player, character)
         except Exception as e:
             self.logger.error(f"Error handling connection: {e}", exc_info=True)

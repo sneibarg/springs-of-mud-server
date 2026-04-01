@@ -63,7 +63,7 @@ class AuthenticationService:
     def _get_character_by_id(self, character_id: str, character_list: list) -> Optional[Character]:
         for char in character_list:
             if char == character_id:
-                return self.character_registry.registry[char]['current_character']
+                return self.character_registry.registry[char]['playing']
         return None
 
     def _get_account_by_id(self, account_id: str) -> Optional[Player]:
