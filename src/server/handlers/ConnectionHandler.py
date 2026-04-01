@@ -4,11 +4,10 @@ import threading
 from asyncio import StreamReader, StreamWriter
 from typing import Optional
 from injector import inject
-
 from area.RoomHandler import RoomHandler
 from area.Area import Area
 from area.Room import Room
-from command.CommandService import CommandService
+from command.CommandHandler import CommandHandler
 from server.connection.TelnetConnection import TelnetConnection
 from server.connection.ConnectionManager import ConnectionManager
 from server.session.SessionHandler import SessionHandler
@@ -31,7 +30,7 @@ class ConnectionHandler:
                  registry_service: RegistryService,
                  room_handler: RoomHandler,
                  auth_service: AuthenticationService,
-                 command_service: CommandService):
+                 command_handler: CommandHandler):
         self.logger = LoggerFactory.get_logger(__name__)
         self.session_handler = session_handler
         self.connection_manager = connection_manager
@@ -39,7 +38,7 @@ class ConnectionHandler:
         self.registry_service = registry_service
         self.room_handler = room_handler
         self.auth_service = auth_service
-        self.command_service = command_service
+        self.command_handler = command_handler
 
     async def _receive_initial_message(self, connection: TelnetConnection, session: SessionState) -> tuple[bool, str | None, Character | None] | tuple[bool, None, None]:
         first_msg = await connection.receive_message()
@@ -114,7 +113,7 @@ class ConnectionHandler:
                     continue
 
                 if message.type == MessageType.GAME:
-                    await self.command_service.handle_command(player, character, message.get('text', ''))
+                    await self.command_handler.handle_command(player, character, message.get('text', ''))
                     await self.message_bus.send_prompt(character.id, character, area, room)
             except Exception as e:
                 self.logger.error(f"Error in game loop: {e}", exc_info=True)

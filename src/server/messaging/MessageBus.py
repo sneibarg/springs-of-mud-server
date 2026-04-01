@@ -33,7 +33,7 @@ class MessageBus:
         if connection and not connection.is_closed():
             try:
                 await connection.send_message(message)
-                self.logger.info(f"Successfully sent message to character {character_id}")
+                self.logger.debug(f"Successfully sent message to character {character_id}")
                 return True
             except Exception as e:
                 self.logger.error(f"Failed to send message to character {character_id}: {e}", exc_info=True)

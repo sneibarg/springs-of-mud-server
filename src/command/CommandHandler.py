@@ -1,3 +1,233 @@
-class CommandHandler:
-    pass
+import inspect
+import re
+from typing import Union, Any, Optional
 
+from injector import inject, Injector
+from command.CommandService import CommandService
+from registry.CommandRegistry import CommandRegistry
+from registry.RegistryService import RegistryService
+from area.AreaService import AreaService
+from area.RoomService import RoomService
+from mobile.MobileService import MobileService
+from mobile.Mobile import Mobile
+from event.EventHandler import EventHandler
+from player.PlayerHandler import PlayerHandler
+from player.PlayerService import PlayerService
+from object.ItemService import ItemService
+from server.LoggerFactory import LoggerFactory
+from server.connection.ConnectionManager import ConnectionManager
+from area.RoomHandler import RoomHandler
+from object.ItemHandler import ItemHandler
+from server.messaging import MessageBus
+from skill.SkillService import SkillService
+
+
+lambda_mappings = {
+    'p': 'Player',
+    'c': 'Character',
+    'r': 'Room',
+    'rgs': 'RegistryService',
+    'ah': 'AreaHandler',
+    'rh': 'RoomHandler',
+    'ih': 'ItemHandler',
+    'mh': 'MobileHandler',
+    'ch': 'CharacterHandler',
+    'ph': 'PlayerHandler',
+    'cmh': 'CommandHandler',
+    'sh': 'SkillHandler',
+    'cs': 'CommandService',
+    'ps': 'PlayerService',
+    'ms': 'MobileService',
+    'os': 'ObjectService',
+    'ss': 'SkillService',
+    'eh': 'EventHandler',
+    'cn': 'TelnetConnection',
+    'mb': 'MessageBus',
+    'v': 'Character',  # victim aka target
+    'm': 'Mobile',
+    'i': 'Item',
+    'msg': 'str',
+    'usage': 'lambda'
+}
+
+
+def get_class_obj(class_name):
+    if class_name == "lambda":
+        return None
+
+    class_map = {
+        'CommandService': CommandService,
+        'RegistryService': RegistryService,
+        'RoomService': RoomService,
+        'AreaService': AreaService,
+        'MobileService': MobileService,
+        'ObjectService': ItemService,
+        'SkillService': SkillService,
+        'PlayerService': PlayerService,
+        'EventHandler': EventHandler,
+        'RoomHandler': RoomHandler,
+        'PlayerHandler': PlayerHandler,
+        'ItemHandler': ItemHandler,
+        'cmh': CommandHandler,
+        'MessageBus': MessageBus,
+        'Mobile': Mobile,
+        'str': str,
+    }
+
+    if class_name in class_map:
+        return class_map[class_name]
+
+    return globals().get(class_name)
+
+
+def parse_args(args):
+    input_args = re.search(r'lambda\s+([^:]+)', args).group(1)
+    if ", " in input_args:
+        input_args = input_args.split(", ")
+    else:
+        input_args = [input_args]
+    return input_args
+
+
+def get_args(lambda_string, player, character, injector, parameters):
+    registry = injector.get(RegistryService)
+    input_args = parse_args(lambda_string)
+    args = []
+    for arg in input_args:
+        if arg == 'msg':
+            if type(parameters) is not str:
+                raise ValueError(f'Input is not a string.')
+            if callable(parameters):
+                raise ValueError(f'Input cannot be callable.')
+            args.append(parameters)
+            continue
+        if arg in lambda_mappings:
+            class_name = lambda_mappings[arg]
+            class_obj = get_class_obj(class_name)
+            obj = None
+            if arg == 'p':
+                obj = player
+            elif arg == 'm':
+                obj = registry.get_mobile_from_registry(class_name)
+            elif arg == 'c':
+                for playing in player.current_characters:
+                    if character.name == playing.name:
+                        obj = playing
+                        break
+            elif arg == 'cn':
+                telnet_connection = injector.get(ConnectionManager).get_connection_by_character(character.id)
+                obj = telnet_connection if telnet_connection else None
+            elif arg == 'r':
+                room = registry.room_registry.get_room_by_id(character.room_id)
+                class_obj = type(room)
+                obj = room
+            elif arg == 'i':  # Item unimplemented
+                pass
+            elif arg in ['ps', 'zs', 'ms', 'os', 'eh', 'ch', 'cs', 'rh', 'rgs', 'mb',
+                         'cnh', 'rh', 'ih', 'ah', 'mh', 'ph', 'ss', 'sh', 'cmh']:
+                obj = injector.get(class_obj)
+            elif arg == 'usage':
+                obj = player.usage
+                if callable(obj):
+                    args.append(obj)
+                    continue
+
+            if class_obj is not None and not isinstance(obj, class_obj):
+                raise ValueError(f'Input is not a {class_name} object.')
+            args.append(obj)
+        else:
+            raise ValueError(f'Invalid input argument: {arg}')
+    return args
+
+
+async def handle_lambdas(handler, player, character, command, parameters):
+    if parameters is None:
+        parameters = []
+
+    lambda_list = command['lambda']
+    for lambda_function in lambda_list:
+        if lambda_function is not None:
+            if not isinstance(lambda_function, str):
+                raise TypeError('Expected string representation of lambda function')
+
+            lambda_string = str(lambda_function)
+            lambda_function = eval(lambda_function)
+
+            if not callable(lambda_function):
+                raise TypeError('lambda_function is not a callable function.')
+
+            args = get_args(lambda_string, player, character, handler.injector, parameters)
+            result = lambda_function(*args)
+            if inspect.isawaitable(result):
+                await result
+        else:
+            raise ValueError('Failed to retrieve specified lambda function from REST service')
+
+
+class CommandHandler:
+    @inject
+    def __init__(self, injector: Injector, message_bus: MessageBus, command_registry: CommandRegistry):
+        self.__name__ = "CommandHandler"
+        self.logger = LoggerFactory.get_logger(self.__name__)
+        self.injector = injector
+        self.message_bus = message_bus
+        self.command_registry = command_registry
+        self.command_not_found_message = self.message_bus.text_to_message(f"Huh?\r\n")
+
+    def get_message(self, cmd):
+        command = self.command_registry.get_command_by_name(cmd)
+        if command is None:
+            raise ValueError(f"Command {cmd} not found in command registry.")
+        return command["message"]
+
+    async def call_lambda(self, player, character, command_name, command_list, parameters):
+        command_json = CommandHandler.find_json_object_by_name(command_name, command_list)
+        if command_json is None:
+            return await self.message_bus.send_to_character(player.id, self.command_not_found_message)
+
+        try:
+            await handle_lambdas(self, player, character, command_json, parameters)
+        except ValueError as ve:
+            self.logger.error("ValueError: " + str(ve))
+            raise
+        except TypeError as te:
+            self.logger.error("TypeError: " + str(te))
+            raise
+
+    async def handle_command(self, player, character, command):
+        usage = None
+        cmd, parameters = self.extract_parameters(command)
+        if cmd is None:
+            await self.message_bus.send_to_character(player.id, self.message_bus.text_to_message(f"Huh?\r\n"))
+            return None
+
+        if cmd is not None and "usage" in cmd:
+            usage = cmd['usage']
+
+        if usage is not None:
+            usage_function = eval(usage)
+            if not callable(usage_function):
+                self.logger.info("NOT_CALLABLE: " + str(usage_function))
+            else:
+                player.usage = usage_function
+
+        self.logger.info(f"CMD: {cmd['name']}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
+        return await self.call_lambda(player, character, cmd['name'], self.command_registry.registry.values(), parameters)
+
+    def extract_parameters(self, command: str) -> Union[tuple[Any, str], tuple[None, None]]:
+        for cmd_json in self.command_registry.registry.values():
+            shortcuts = cmd_json['shortcuts'].split(", ")
+            if command in shortcuts or command.startswith(cmd_json['name']):
+                return cmd_json, ' '.join(re.split(' ', command)[1:]).strip()
+        return None, None
+
+    @staticmethod
+    def find_json_object_by_name(name: str, commands: dict) -> Optional[dict]:
+        if not commands:
+            return None
+        for command in commands:
+            if name in command.get('shortcuts', []):
+                return command
+            if command.get('name') == name:
+                return command
+        return None
