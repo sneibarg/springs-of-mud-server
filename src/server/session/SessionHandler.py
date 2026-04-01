@@ -43,9 +43,13 @@ class SessionHandler:
         if session:
             session.update_activity()
 
+    # def is_session_idle(self, session: SessionState) -> bool:
+    #     idle_time = int(datetime.now().timestamp()) - int(session.last_activity.timestamp())
+    #     return idle_time < (self.max_idle_time * 1000)
+
     def is_session_idle(self, session: SessionState) -> bool:
         idle_time = int(datetime.now().timestamp()) - int(session.last_activity.timestamp())
-        return idle_time < (self.max_idle_time * 1000)
+        return idle_time > (self.max_idle_time * 1000)
 
     def get_idle_timeout(self, session) -> int:
         return int(session.last_activity.timestamp()) + self.max_idle_time

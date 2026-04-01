@@ -73,12 +73,20 @@ class ConnectionHandler:
             if not success:
                 return
 
+            existing = self.connection_manager.get_connection_by_character(character.id)
+            if existing and existing.session_id != connection.session_id:
+                await existing.close()
+                self.connection_manager.remove_connection(existing.session_id)
+
             player = await self._nanny(character, session, connection)
-            area, room = self._get_area_and_room(character)
-            to_room = self.message_bus.text_to_message(f"{character.name} has entered the game.\r\n")
-            await self.room_handler.print_room(character.id, room)
-            await self.message_bus.send_prompt(character.id, character, area, room)
-            await self.message_bus.send_to_room(room.id, to_room, [character.id])
+            if not session.metadata.get("entered_world", False):
+                session.metadata["entered_world"] = True
+                area, room = self._get_area_and_room(character)
+                to_room = self.message_bus.text_to_message(f"{character.name} has entered the game.\r\n")
+                await self.room_handler.print_room(character.id, room)
+                await self.message_bus.send_prompt(character.id, character, area, room)
+                await self.message_bus.send_to_room(room.id, to_room, [character.id])
+
             await self._game_loop(connection, session, player, character)
         except Exception as e:
             self.logger.error(f"Error handling connection: {e}", exc_info=True)
