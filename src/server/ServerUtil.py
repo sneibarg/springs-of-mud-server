@@ -6,6 +6,8 @@ from injector import singleton, Injector
 from area.AreaHandler import AreaHandler
 from area.RoomHandler import RoomHandler
 from command.CommandHandler import CommandHandler
+from command.SocialHandler import SocialHandler
+from command.SocialService import SocialService
 from object.ItemHandler import ItemHandler
 from mobile.MobileHandler import MobileHandler
 from player.PlayerHandler import PlayerHandler
@@ -73,6 +75,7 @@ class ServerUtil:
         injector.binder.bind(MobileService, scope=singleton)
         injector.binder.bind(AuthenticationService, scope=singleton)
         injector.binder.bind(WeatherService, scope=singleton)
+        injector.binder.bind(SocialService, scope=singleton)
         injector.binder.bind(ItemService, to=ItemService(service_config,
                                                          injector.get(ItemRegistry),
                                                          injector.get(SkillRegistry),
@@ -81,6 +84,7 @@ class ServerUtil:
 
     @staticmethod
     def _bind_handlers(injector):
+        injector.binder.bind(SocialHandler, scope=singleton)
         injector.binder.bind(AreaHandler, scope=singleton)
         injector.binder.bind(RoomHandler, scope=singleton)
         injector.binder.bind(EventHandler, scope=singleton)
@@ -92,7 +96,7 @@ class ServerUtil:
 
     @staticmethod
     def _bind_registries(injector):
-        from registry import PlayerRegistry, ItemRegistry, SkillRegistry, CharacterRegistry, MobileRegistry, AreaRegistry, RoomRegistry, CommandRegistry
+        from registry import PlayerRegistry, ItemRegistry, SkillRegistry, CharacterRegistry, MobileRegistry, AreaRegistry, RoomRegistry, CommandRegistry, SocialRegistry
         injector.binder.bind(PlayerRegistry, scope=singleton)
         injector.binder.bind(CharacterRegistry, scope=singleton)
         injector.binder.bind(MobileRegistry, scope=singleton)
@@ -101,6 +105,7 @@ class ServerUtil:
         injector.binder.bind(ItemRegistry, scope=singleton)
         injector.binder.bind(SkillRegistry, scope=singleton)
         injector.binder.bind(CommandRegistry, scope=singleton)
+        injector.binder.bind(SocialRegistry, scope=singleton)
         injector.binder.bind(RegistryService, scope=singleton)
         injector.get(RegistryService)
         logger.info(f"The RegistryService has been bound with all injected dependencies: {injector.get(RegistryService)}")
@@ -129,13 +134,16 @@ class ServerUtil:
         skill_service = injector.get(SkillService)
         item_service = injector.get(ItemService)
         weather_service = injector.get(WeatherService)
+        social_service = injector.get(SocialService)
         mobile_service = injector.get(MobileService)
         command_service = injector.get(CommandService)
 
         game_service.set_weather_service(weather_service)
         game_service.start_mobile_service(mobile_service)
 
-        service_list = f"- {game_service.__name__}\r\n- {player_service.__name__}\r\n- {room_service.__name__}\r\n- {area_service.__name__}\r\n- {skill_service.__name__}\r\n- {item_service.__name__}\r\n- {weather_service.__name__}\r\n- {mobile_service.__name__}\r\n- {command_service.__name__}"
+        service_list = (f"- {game_service.__name__}\r\n- {player_service.__name__}\r\n- {room_service.__name__}\r\n- {area_service.__name__}\r\n- "
+                        f"{skill_service.__name__}\r\n- {item_service.__name__}\r\n- {weather_service.__name__}\r\n- {mobile_service.__name__}\r\n- "
+                        f"{command_service.__name__}\r\n- {social_service.__name__}")
         logger.info(f"The following services have been started:\r\n{service_list}")
 
     @staticmethod

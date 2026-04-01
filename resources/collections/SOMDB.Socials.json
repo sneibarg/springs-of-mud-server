@@ -1,0 +1,3274 @@
+[{
+  "_id": {
+    "$oid": "69cd73b8e33c35d2a0e29d60"
+  },
+  "name": "gack",
+  "charNoArg": "Gaaack!",
+  "othersNoArg": "$n gacks with dismay!",
+  "charFound": "Appalled, you gack at $N.",
+  "othersFound": "$n gacks expressively, shooting $N a dismayed look.",
+  "victFound": "$n gacks, and looks your way, dismayed.",
+  "charNotFound": "That person isn't here.",
+  "charAuto": "*GACK!*",
+  "othersAuto": "Appalled, $n gacks at $mself!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8b4131c1fad1edb6f"
+  },
+  "name": "kiss",
+  "charNoArg": "Isn't there someone you want to kiss?",
+  "charFound": "You kiss $M.",
+  "othersFound": "$n kisses $N.",
+  "victFound": "$n kisses you.",
+  "charNotFound": "Never around when required.",
+  "charAuto": "All the lonely people :(",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b831c21d24c2948b7d"
+  },
+  "name": "bounce",
+  "charNoArg": "BOIINNNNNNGG!",
+  "othersNoArg": "$n bounces around with a happy smile.",
+  "charFound": "You bounce onto $S lap and wiggle about.",
+  "othersFound": "$n bounces onto $N's lap and wiggles about.",
+  "victFound": "$n bounces onto your lap and wiggles about.",
+  "charNotFound": "You don't see your plaything.",
+  "charAuto": "You bounce your head like a basketball.",
+  "othersAuto": "$n plays basketball with $s head.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8feb09de36be3f80e"
+  },
+  "name": "smile",
+  "charNoArg": "You smile happily.",
+  "othersNoArg": "$n smiles happily.",
+  "charFound": "You smile at $M.",
+  "othersFound": "$n beams a smile at $N.",
+  "victFound": "$n smiles at you.",
+  "charNotFound": "There's no one by that name around.",
+  "charAuto": "You smile at yourself.",
+  "othersAuto": "$n smiles at $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b87790c248baa83c5f"
+  },
+  "name": "dance",
+  "charNoArg": "Feels silly, doesn't it?",
+  "othersNoArg": "$n dances wildly before you!",
+  "charFound": "You lead $M to the dancefloor.",
+  "othersFound": "$n sends $N across the dancefloor.",
+  "victFound": "$n sends you across the dancefloor.",
+  "charNotFound": "Eh, WHO?",
+  "charAuto": "You skip and dance around by yourself.",
+  "othersAuto": "$n skips a light Fandango.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b869d219bce0a007d1"
+  },
+  "name": "cackle",
+  "charNoArg": "You cackle gleefully.",
+  "othersNoArg": "$n throws back $s head and cackles with insane glee!",
+  "charFound": "You cackle gleefully at $N",
+  "othersFound": "$n cackles gleefully at $N.",
+  "victFound": "$n cackles gleefully at you.  Better keep your distance from $m.",
+  "charNotFound": "You can't find a friend to cackle with.",
+  "charAuto": "You cackle at yourself.  Now, THAT'S strange!",
+  "othersAuto": "$n is really crazy now!  $e cackles at $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b80bb30e82fce2d30f"
+  },
+  "name": "laugh",
+  "charNoArg": "You fall down laughing.",
+  "othersNoArg": "$n falls down laughing.",
+  "charFound": "You laugh at $N mercilessly.",
+  "othersFound": "$n laughs at $N mercilessly.",
+  "victFound": "$n laughs at you mercilessly.  Hmmmmph.",
+  "charNotFound": "You can't find the butt of your joke.",
+  "charAuto": "You laugh at yourself.  I would, too.",
+  "othersAuto": "$n laughs at $mself.  Let's all join in!!!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b86fb6908254c1f157"
+  },
+  "name": "giggle",
+  "charNoArg": "You giggle.",
+  "othersNoArg": "$n giggles.",
+  "charFound": "You giggle in $S presence.",
+  "othersFound": "$n giggles at $N's actions.",
+  "victFound": "$n giggles at you.  Hope it's not contagious!",
+  "charNotFound": "You giggle by yourself, since you can't find a partner to giggle with.",
+  "charAuto": "You giggle at yourself, which makes you giggle at yourself, which makes you ...",
+  "othersAuto": "$n giggles at $mself.  $e must be nervous or something.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8a90905a8fa2f0a3d"
+  },
+  "name": "shake",
+  "charNoArg": "You shake your head.",
+  "othersNoArg": "$n shakes $s head.",
+  "charFound": "You shake $S hand.",
+  "othersFound": "$n shakes $N's hand.",
+  "victFound": "$n shakes your hand.",
+  "charNotFound": "Sorry good buddy, but that person doesn't seem to be here.",
+  "charAuto": "You are shaken by yourself.",
+  "othersAuto": "$n shakes and quivers like a bowl full of jelly.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8aba655c8ddcbeed4"
+  },
+  "name": "puke",
+  "charNoArg": "You puke...chunks everywhere!!! YUK!",
+  "othersNoArg": "$n pukes.",
+  "charFound": "You puke on $M.",
+  "othersFound": "$n pukes on $N.",
+  "victFound": "$n spews vomit and pukes all over your clothing!",
+  "charNotFound": "Once again?",
+  "charAuto": "You puke on yourself.",
+  "othersAuto": "$n pukes on $s clothes.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8166815daf29ad02e"
+  },
+  "name": "growl",
+  "charNoArg": "Grrrrrrrrrr...",
+  "othersNoArg": "$n growls.",
+  "charFound": "Grrrrrrrrrr....take that, $N!!!",
+  "othersFound": "$n growls at $N.  Better leave the room before the fighting starts.",
+  "victFound": "$n growls at you.  Hey, two can play it that way!",
+  "charNotFound": "No one can see you growl that far.",
+  "charAuto": "You growl at yourself.  Boy, do you feel bitter!",
+  "othersAuto": "$n growls at $mself.  This could get interesting...",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b848e6072811e15454"
+  },
+  "name": "scream",
+  "charNoArg": "ARRRRRRRRRRGH!!!!!",
+  "othersNoArg": "$n screams loudly!",
+  "charFound": "ARRRRRRRRRRGH!!!!!  Yes, it MUST have been $S fault!!!",
+  "othersFound": "$n screams loudly at $N.  Better leave before $n blames you, too!!!",
+  "victFound": "$n screams at you!  That's not nice!  *sniff*",
+  "charNotFound": "Your lungs can't reach that far!",
+  "charAuto": "You scream at yourself.  Yes, that's ONE way of relieving tension!",
+  "othersAuto": "$n screams loudly at $mself!  Is there a full moon up?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b835f84a2697bed01e"
+  },
+  "name": "comfort",
+  "charNoArg": "Do you feel uncomfortable?",
+  "charFound": "You comfort $M.",
+  "othersFound": "$n comforts $N.",
+  "victFound": "$n comforts you.",
+  "charNotFound": "Comfort who?",
+  "charAuto": "You make a vain attempt to comfort yourself.",
+  "othersAuto": "$n has no one to comfort $m but $mself",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b86e8c45ad00a0c698"
+  },
+  "name": "sigh",
+  "charNoArg": "You sigh.",
+  "othersNoArg": "$n sighs.",
+  "charFound": "You sigh as you think of $M.",
+  "othersFound": "$n sighs at the sight of $N.",
+  "victFound": "$n sighs as $e thinks of you.  Touching, huh?",
+  "charNotFound": "You really sigh, since you don't see your friend.",
+  "charAuto": "You sigh at yourself.  You MUST be lonely.",
+  "othersAuto": "$n sighs at $mself.  What a sorry sight.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8d410538a7b38e730"
+  },
+  "name": "sulk",
+  "charNoArg": "You sulk.",
+  "othersNoArg": "$n sulks in the corner.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b85617758eb62fa598"
+  },
+  "name": "hug",
+  "charNoArg": "Hug who?",
+  "charFound": "You hug $M.",
+  "othersFound": "$n hugs $N.",
+  "victFound": "$n hugs you.",
+  "charNotFound": "Sorry, friend, I can't see that person here.",
+  "charAuto": "You hug yourself.",
+  "othersAuto": "$n hugs $mself in a vain attempt to get friendship.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8638449caf2f0333c"
+  },
+  "name": "snuggle",
+  "charNoArg": "Who?",
+  "charFound": "You snuggle $M.",
+  "othersFound": "$n snuggles up to $N.",
+  "victFound": "$n snuggles up to you.",
+  "charNotFound": "They aren't here.",
+  "charAuto": "You snuggle up, getting ready to sleep.",
+  "othersAuto": "$n snuggles up, getting ready to sleep.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b854d15e91de540649"
+  },
+  "name": "cuddle",
+  "charNoArg": "Who do you feel like cuddling today?",
+  "charFound": "You cuddle $M.",
+  "othersFound": "$n cuddles $N.",
+  "victFound": "$n cuddles you.",
+  "charNotFound": "They aren't here.",
+  "charAuto": "You must feel very cuddly indeed ... :)",
+  "othersAuto": "$n cuddles up to $s shadow.  What a sorry sight.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8450fc73d09542726"
+  },
+  "name": "nuzzle",
+  "charNoArg": "Nuzzle who??",
+  "charFound": "You nuzzle $S neck softly.",
+  "othersFound": "$n softly nuzzles $N's neck.",
+  "victFound": "$n softly nuzzles your neck.",
+  "charNotFound": "No.. they aren't here..",
+  "charAuto": "I'm sorry, friend, but that's impossible.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b89d299c1beb7fa87c"
+  },
+  "name": "cry",
+  "charNoArg": "Waaaaah..",
+  "othersNoArg": "$n bursts into tears.",
+  "charFound": "You cry on $S shoulder.",
+  "othersFound": "$n cries on $N's shoulder.",
+  "victFound": "$n cries on your shoulder.",
+  "charNotFound": "Who's that?",
+  "charAuto": "You cry to yourself.",
+  "othersAuto": "$n sobs quietly to $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8379f05047cf2d337"
+  },
+  "name": "poke",
+  "charNoArg": "Poke who??",
+  "charFound": "You poke $M in the ribs.",
+  "othersFound": "$n pokes $N in the ribs.",
+  "victFound": "$n pokes you in the ribs.",
+  "charNotFound": "You can't poke someone who's not here!.",
+  "charAuto": "You poke yourself in the ribs, feeling very silly.",
+  "othersAuto": "$n pokes $mself in the ribs, looking very sheepish.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8799d736320f2c302"
+  },
+  "name": "accuse",
+  "charNoArg": "Accuse who??",
+  "othersNoArg": "$n is in an accusing mood.",
+  "charFound": "You look accusingly at $M.",
+  "othersFound": "$n looks accusingly at $N.",
+  "victFound": "$n looks accusingly at you.",
+  "charNotFound": "Accuse somebody who's not even there ??",
+  "charAuto": "You accuse yourself.",
+  "othersAuto": "$n seems to have a bad conscience.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b850e00f9eca777338"
+  },
+  "name": "grin",
+  "charNoArg": "You grin evilly.",
+  "othersNoArg": "$n grins evilly.",
+  "charFound": "You grin evilly at $M.",
+  "othersFound": "$n grins evilly at $N.",
+  "victFound": "$n grins evilly at you.  Hmmm.  Better keep your distance.",
+  "charNotFound": "You must be delirious.",
+  "charAuto": "You grin at youself.  You must be getting very bad thoughts.",
+  "othersAuto": "$n grins at $mself.  You must wonder what's in $s mind.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8c33005bdbfa3d0db"
+  },
+  "name": "bow",
+  "charNoArg": "You bow deeply.",
+  "othersNoArg": "$n bows deeply.",
+  "charFound": "You bow before $M.",
+  "othersFound": "$n bows before $N.",
+  "victFound": "$n bows before you.",
+  "charNotFound": "Who's that?",
+  "charAuto": "You kiss your toes.",
+  "othersAuto": "$n folds up like a jacknife and kisses $s own toes.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8d9cd3bd7f7c8fefd"
+  },
+  "name": "applaud",
+  "charNoArg": "Clap, clap, clap.",
+  "othersNoArg": "$n gives a round of applause.",
+  "charFound": "You clap at $N's actions.",
+  "othersFound": "$n claps at $N's actions.",
+  "victFound": "$n gives you a round of applause.  You MUST'VE done something good!",
+  "charNotFound": "You give your imaginary round of applause to your imaginary friend.",
+  "charAuto": "You applaud at yourself.  Boy, are we conceited!",
+  "othersAuto": "$n applauds at $mself.  Boy, are we conceited!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8971918e298e488a0"
+  },
+  "name": "blush",
+  "charNoArg": "Your cheeks are burning.",
+  "othersNoArg": "$n blushes.",
+  "charFound": "You get all flustered up seeing $M.",
+  "othersFound": "$n blushes as $e sees $N here.",
+  "victFound": "$n blushes as $e sees you here.  Such an effect on people!",
+  "charNotFound": "You blush as you notice that person isn't here.",
+  "charAuto": "You blush at your own folly.",
+  "othersAuto": "$n blushes as $e notices $s boo-boo.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8506a55fa5c94c532"
+  },
+  "name": "burp",
+  "charNoArg": "You burp loudly.",
+  "othersNoArg": "$n burps loudly.",
+  "charFound": "You burp loudly to $M in response.",
+  "othersFound": "$n burps loudly in response to $N's remark.",
+  "victFound": "$n burps loudly in response to your remark.",
+  "charNotFound": "You can't find your victim.",
+  "charAuto": "You burp at yourself.",
+  "othersAuto": "$n burps at $mself.  What a sick sight.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8de955897604bbcb4"
+  },
+  "name": "chuckle",
+  "charNoArg": "You chuckle politely.",
+  "othersNoArg": "$n chuckles politely.",
+  "charFound": "You chuckle at $S joke.",
+  "othersFound": "$n chuckles at $N's joke.",
+  "victFound": "$n chuckles at your joke.",
+  "charNotFound": "You can't find a friend to chuckle with.",
+  "charAuto": "You chuckle at your own joke, since no one else would.",
+  "othersAuto": "$n chuckles at $s own joke, since none of you would.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8588cb9e9db9a7137"
+  },
+  "name": "clap",
+  "charNoArg": "You clap your hands together.",
+  "othersNoArg": "$n shows $s approval by clapping $s hands together.",
+  "charFound": "You clap at $S performance.",
+  "othersFound": "$n claps at $N's performance.",
+  "victFound": "$n claps at your performance.",
+  "charNotFound": "You clap for nothing.",
+  "charAuto": "You clap at your own performance.",
+  "othersAuto": "$n claps at $s own performance.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8cf0d7e6f45cbc1b7"
+  },
+  "name": "cough",
+  "charNoArg": "Yuck, try to cover your mouth next time!",
+  "othersNoArg": "$n coughs loudly.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b83f5432d7283b80ca"
+  },
+  "name": "curtsey",
+  "charNoArg": "You curtsey to your audience.",
+  "othersNoArg": "$n curtseys gracefully.",
+  "charFound": "You curtsey to $M.",
+  "othersFound": "$n curtseys gracefully to $N.",
+  "victFound": "$n curtseys gracefully for you.",
+  "charNotFound": "You curtsey to no one in particular.",
+  "charAuto": "You curtsey to your audience (yourself).",
+  "othersAuto": "$n curtseys to $mself, since no one is paying attention to $m.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b830a7286b8bda3255"
+  },
+  "name": "fart",
+  "charNoArg": "Where are your manners ?",
+  "othersNoArg": "$n lets off a real rip-roarer ... a greenish cloud envelops $n!",
+  "charFound": "You fart at $M.  Boy, you are sick.",
+  "othersFound": "$n farts in the direction of $N.  Better flee before $e turns to you!",
+  "victFound": "$n farts in your direction.  You gasp for air.",
+  "charNotFound": "You can't hold it that long!",
+  "charAuto": "You fart at yourself.  You deserve it.",
+  "othersAuto": "$n farts at $mself.  Better $m than you.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8df2c9deb66bf9dc4"
+  },
+  "name": "flip",
+  "charNoArg": "You flip head over heels.",
+  "othersNoArg": "$n flips head over heels.",
+  "charFound": "You flip $M over your shoulder.",
+  "othersFound": "$n flips $N over $s shoulder.",
+  "victFound": "$n flips you over $s shoulder.  Hmmmm.",
+  "charNotFound": "You can't find the person.",
+  "charAuto": "You tumble all over the room.",
+  "othersAuto": "$n does some nice tumbling and gymnastics.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b87f7ea5a59a9f5011"
+  },
+  "name": "fondle",
+  "charNoArg": "Who needs to be fondled ?",
+  "charFound": "You fondly fondle $M.",
+  "othersFound": "$n fondly fondles $N.",
+  "victFound": "$n fondly fondles you.",
+  "charNotFound": "You fondly try to fondle someone not in the room, but who cares.",
+  "charAuto": "You fondly fondle yourself, feels funny doesn't it?",
+  "othersAuto": "$n fondly fondles $mself - this is going too far!!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b83494aacd750e5018"
+  },
+  "name": "frown",
+  "charNoArg": "You frown disapprovingly.",
+  "othersNoArg": "$n frowns.",
+  "charFound": "You frown at what $E did.",
+  "othersFound": "$n frowns at what $N did.",
+  "victFound": "$n frowns at what you did.",
+  "charNotFound": "You don't see any reason to frown.",
+  "charAuto": "You frown at yourself.  Poor baby.",
+  "othersAuto": "$n frowns at $mself.  What a sad puppy....",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b80d8ad5bd6e9144bc"
+  },
+  "name": "gasp",
+  "charNoArg": "You gasp in astonishment.",
+  "othersNoArg": "$n gasps in astonishment.",
+  "charFound": "You gasp as you realize what $E did.",
+  "othersFound": "$n gasps as $e realizes what $N did.",
+  "victFound": "$n gasps as $e realizes what you did.",
+  "charNotFound": "You need to panic.",
+  "charAuto": "You look at yourself and gasp!",
+  "othersAuto": "$n takes one look at $mself and gasps in astonisment!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b82868c3f702b2d38d"
+  },
+  "name": "glare",
+  "charNoArg": "You glare at nothing in particular.",
+  "othersNoArg": "$n glares around $m.",
+  "charFound": "You glare icily at $M.",
+  "othersFound": "$n glares at $N.",
+  "victFound": "$n glares icily at you, you feel cold to your bones.",
+  "charNotFound": "You try to glare at somebody who is not present.",
+  "charAuto": "You glare icily at your feet, they are suddenly very cold.",
+  "othersAuto": "$n glares at $s feet, what is bothering $m?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b80da72a7b2075ee39"
+  },
+  "name": "groan",
+  "charNoArg": "You groan loudly.",
+  "othersNoArg": "$n groans loudly.",
+  "charFound": "You groan at the sight of $M.",
+  "othersFound": "$n groans at the sight of $N.",
+  "victFound": "$n groans at the sight of you.",
+  "charNotFound": "You see no reason to groan.",
+  "charAuto": "You groan as you realize what you have done.",
+  "othersAuto": "$n groans as $e realizes what $e has done.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b87125ecd1ed133df1"
+  },
+  "name": "grope",
+  "charNoArg": "Whom do you wish to grope ??",
+  "charFound": "Well, what sort of noise do you expect here?",
+  "othersFound": "$n gropes $N.",
+  "victFound": "$n gropes you.",
+  "charNotFound": "Try someone who's here.",
+  "charAuto": "You grope yourself - YUCK.",
+  "othersAuto": "$n gropes $mself - YUCK.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8043f25af834a6858"
+  },
+  "name": "hiccup",
+  "charNoArg": "*HIC*",
+  "othersNoArg": "$n hiccups.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8f183b5453e79c252"
+  },
+  "name": "lick",
+  "charNoArg": "You lick your mouth and smile.",
+  "othersNoArg": "$n licks $s mouth and smiles.",
+  "charFound": "You lick $N's jawline delicately.",
+  "othersFound": "$n licks $N's jawline delicately.",
+  "victFound": "$n licks your jawline delicately.",
+  "charNotFound": "Lick away, nobody's here with that name.",
+  "charAuto": "You lick your own eyebrows.",
+  "othersAuto": "$n licks $s own eyebrows.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b870281b1ae8398214"
+  },
+  "name": "love",
+  "charNoArg": "You love the whole world.",
+  "othersNoArg": "$n loves everybody in the world.",
+  "charFound": "You tell your true feelings to $N.",
+  "othersFound": "$n whispers softly to $N.",
+  "victFound": "$n whispers to you sweet words of love.",
+  "charNotFound": "Alas, your love is not present...",
+  "charAuto": "Well, we already know you love yourself (lucky someone does !)",
+  "othersAuto": "$n loves $mself, can you believe it ?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8f9bcf56fd0d96a33"
+  },
+  "name": "moan",
+  "charNoArg": "You start to moan.",
+  "othersNoArg": "$n starts moaning.",
+  "charFound": "You moan for the loss of $M.",
+  "othersFound": "$n moans for the loss of $N.",
+  "victFound": "$n moans at the sight of you.  Hmmmm.",
+  "charNotFound": "You see no cause to moan.",
+  "charAuto": "You moan at yourself.",
+  "othersAuto": "$n makes $mself moan.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8358f361071c4cb84"
+  },
+  "name": "nibble",
+  "charNoArg": "Nibble on who ?",
+  "charFound": "You nibble on $N's ear.",
+  "othersFound": "$n nibbles on $N's ear.",
+  "victFound": "$n nibbles on your ear.",
+  "charNotFound": "Sorry, not present.",
+  "charAuto": "You nibble on your OWN ear ???????????????????",
+  "othersAuto": "$n nibbles on $s OWN ear (I wonder how it is done !!).",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b81e531ab82bae7016"
+  },
+  "name": "pout",
+  "charNoArg": "Ah, don't take it so hard.",
+  "othersNoArg": "$n pouts.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b87a2cefda0a25a7bb"
+  },
+  "name": "ruffle",
+  "charNoArg": "You've got to ruffle SOMEONE.",
+  "charFound": "You ruffle $N's hair playfully.",
+  "othersFound": "$n ruffles $N's hair playfully.",
+  "victFound": "$n ruffles your hair playfully.",
+  "charNotFound": "Might be a bit difficult.",
+  "charAuto": "You ruffle your hair, wondering how far you can go before the rest think you're crazy.",
+  "othersAuto": "$n ruffles $s hair - weirdo!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8dc04b16b8b73f92d"
+  },
+  "name": "shiver",
+  "charNoArg": "Brrrrrrrrr.",
+  "othersNoArg": "$n shivers uncomfortably.",
+  "charFound": "You shiver at the thought of fighting $M.",
+  "othersFound": "$n shivers at the thought of fighting $N.",
+  "victFound": "$n shivers at the suicidal thought of fighting you.",
+  "charNotFound": "You don't see any reason to shiver.",
+  "charAuto": "You shiver to yourself?",
+  "othersAuto": "$n scares $mself to shivers.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b88024391fb688eebb"
+  },
+  "name": "shrug",
+  "charNoArg": "You shrug.",
+  "othersNoArg": "$n shrugs helplessly.",
+  "charFound": "You shrug in response to $S question.",
+  "othersFound": "$n shrugs in response to $N's question.",
+  "victFound": "$n shrugs in response to your question.",
+  "charNotFound": "You shrug to no one in particular.",
+  "charAuto": "You shrug to yourself.",
+  "othersAuto": "$n shrugs to $mself.  What a strange person.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b803c6bfd4473eda31"
+  },
+  "name": "sing",
+  "charNoArg": "You raise your clear (?) voice towards the sky.",
+  "othersNoArg": "HEY CLERICS! I COULD USE A HEAL!  $n has begun to sing.",
+  "charFound": "You sing a ballad to $M.",
+  "othersFound": "$n sings a ballad to $N.",
+  "victFound": "$n sings a ballad to you!  How sweet!",
+  "charNotFound": "You see no one to sing to.",
+  "charAuto": "You sing a little ditty to yourself.",
+  "othersAuto": "$n sings a little ditty to $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8f1a1192a4638816b"
+  },
+  "name": "slap",
+  "charNoArg": "What is the sound of one hand slapping?",
+  "charFound": "*thwock!* You slap $N ringingly.",
+  "othersFound": "*thwock!* $n slaps $N!",
+  "victFound": "$n slaps you stingingly.",
+  "charNotFound": "How about slapping someone in the same room as you ??",
+  "charAuto": "You slap yourself, silly you.",
+  "othersAuto": "$n slaps $mself, really strange ...",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8ea45b8db59c8a9c3"
+  },
+  "name": "smirk",
+  "charNoArg": "You smirk.",
+  "othersNoArg": "$n smirks.",
+  "charFound": "You smirk at $S saying.",
+  "othersFound": "$n smirks at $N's saying.",
+  "victFound": "$n smirks at your saying.",
+  "charNotFound": "You want to smirk to whom?",
+  "charAuto": "You smirk at yourself.  Okay.....",
+  "othersAuto": "$n smirks at $s own 'wisdom'.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8a082e4cab8df31e9"
+  },
+  "name": "snap",
+  "charNoArg": "Eureka!  You snap your fingers.",
+  "othersNoArg": "$n snaps $s fingers.",
+  "charFound": "You snap back at $M.",
+  "othersFound": "$n snaps back at $N.",
+  "victFound": "$n snaps back at you!",
+  "charNotFound": "You must be very agitated.",
+  "charAuto": "You snap yourself to attention.",
+  "othersAuto": "$n snaps $mself to attention.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8c2d6ef9f23a2a194"
+  },
+  "name": "sneeze",
+  "charNoArg": "Gesundheit !",
+  "othersNoArg": "$n sneezes.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8d9bb8f2b1bf70a41"
+  },
+  "name": "snicker",
+  "charNoArg": "You snicker softly.",
+  "othersNoArg": "$n snickers softly.",
+  "charFound": "You snicker with $M about your shared secret.",
+  "othersFound": "$n snickers with $N about their shared secret.",
+  "victFound": "$n snickers with you about your shared secret.",
+  "charNotFound": "Huh?",
+  "charAuto": "You snicker at your own evil thoughts.",
+  "othersAuto": "$n snickers at $s own evil thoughts.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8563fd93c10965a4e"
+  },
+  "name": "sniff",
+  "charNoArg": "You sniff sadly. *SNIFF*",
+  "othersNoArg": "$n sniffs sadly.",
+  "charFound": "You sniff sadly at the way $E is treating you.",
+  "othersFound": "$n sniffs sadly at the way $N is treating $m.",
+  "victFound": "$n sniffs sadly at the way you are treating $m.",
+  "charNotFound": "You see no reason to sniff.",
+  "charAuto": "You sniff sadly at your lost opportunities.",
+  "othersAuto": "$n sniffs sadly at $mself.  Something MUST be bothering $m.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8b82a4811bf1fd211"
+  },
+  "name": "snore",
+  "charNoArg": "Zzzzzzzzzzzzzzzzz.",
+  "othersNoArg": "$n snores loudly.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b801baa93c43c93175"
+  },
+  "name": "squeeze",
+  "charNoArg": "Where, what, how, WHO ???",
+  "charFound": "You squeeze $M fondly.",
+  "othersFound": "$n squeezes $N fondly.",
+  "victFound": "$n squeezes you fondly.",
+  "charNotFound": "Where, what, how, WHO ???",
+  "charAuto": "You squeeze yourself - try to relax a little!",
+  "othersAuto": "$n squeezes $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8abcfc775bfe65471"
+  },
+  "name": "stare",
+  "charNoArg": "You stare at the sky.",
+  "othersNoArg": "$n stares at the sky.",
+  "charFound": "You stare dreamily at $N, completely lost in $S eyes..",
+  "othersFound": "$n stares dreamily at $N.",
+  "victFound": "$n stares dreamily at you, completely lost in your eyes.",
+  "charNotFound": "You stare and stare but can't see that person anywhere...",
+  "charAuto": "You stare dreamily at yourself - enough narcissism for now.",
+  "othersAuto": "$n stares dreamily at $mself - NARCISSIST!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b87f5462c4e79e2f1a"
+  },
+  "name": "strut",
+  "charNoArg": "Strut your stuff.",
+  "othersNoArg": "$n struts proudly.",
+  "charFound": "You strut to get $S attention.",
+  "othersFound": "$n struts, hoping to get $N's attention.",
+  "victFound": "$n struts, hoping to get your attention.",
+  "charNotFound": "You don't see an audience.",
+  "charAuto": "You strut to yourself, lost in your own world.",
+  "othersAuto": "$n struts to $mself, lost in $s own world.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8685c3e72484e4b21"
+  },
+  "name": "thank",
+  "charNoArg": "Thank you too.",
+  "charFound": "You thank $N heartily.",
+  "othersFound": "$n thanks $N heartily.",
+  "victFound": "$n thanks you heartily.",
+  "charNotFound": "No one answers to that name here.",
+  "charAuto": "You thank yourself since nobody else wants to !",
+  "othersAuto": "$n thanks $mself since you won't.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8767d43706d911f0b"
+  },
+  "name": "twiddle",
+  "charNoArg": "You patiently twiddle your thumbs.",
+  "othersNoArg": "$n patiently twiddles $s thumbs.",
+  "charFound": "You twiddle $S ears.",
+  "othersFound": "$n twiddles $N's ears.",
+  "victFound": "$n twiddles your ears.",
+  "charNotFound": "You don't see the person here.",
+  "charAuto": "You twiddle your ears like Dumbo.",
+  "othersAuto": "$n twiddles $s own ears like Dumbo.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8b0dfdabce2cbcef1"
+  },
+  "name": "wave",
+  "charNoArg": "You wave.",
+  "othersNoArg": "$n waves happily.",
+  "charFound": "You wave goodbye to $N.",
+  "othersFound": "$n waves goodbye to $N.",
+  "victFound": "$n waves goodbye to you.  Have a good journey.",
+  "charNotFound": "They didn't wait for you to wave goodbye.",
+  "charAuto": "Are you going on adventures as well??",
+  "othersAuto": "$n waves goodbye to $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8e05c2cf88c977a14"
+  },
+  "name": "whistle",
+  "charNoArg": "You whistle appreciatively.",
+  "othersNoArg": "$n whistles appreciatively.",
+  "charFound": "You whistle at the sight of $M.",
+  "othersFound": "$n whistles at the sight of $N.",
+  "victFound": "$n whistles at the sight of you.",
+  "charNotFound": "You don't see nothing special to whistle at.",
+  "charAuto": "You whistle a little tune to yourself.",
+  "othersAuto": "$n whistles a little tune to $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b88a74c3fce34da2a7"
+  },
+  "name": "wiggle",
+  "charNoArg": "Your wiggle your bottom.",
+  "othersNoArg": "$n wiggles $s bottom.",
+  "charFound": "You wiggle your bottom toward $M.",
+  "othersFound": "$n wiggles $s bottom toward $N.",
+  "victFound": "$n wiggles $s bottom toward you.",
+  "charNotFound": "You must be alone.",
+  "charAuto": "You wiggle about like a fish.",
+  "othersAuto": "$n wiggles about like a fish.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8f89e86d38fd1dd27"
+  },
+  "name": "wink",
+  "charNoArg": "Have you got something in your eye?",
+  "othersNoArg": "$n winks suggestively.",
+  "charFound": "You wink suggestively at $N.",
+  "othersFound": "$n winks at $N.",
+  "victFound": "$n winks suggestively at you.",
+  "charNotFound": "No one with that name is present.",
+  "charAuto": "You wink at yourself ?? - what are you up to?",
+  "othersAuto": "$n winks at $mself - something strange is going on...",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8e8ca9807fac2fb0e"
+  },
+  "name": "yawn",
+  "charNoArg": "You must be tired.",
+  "othersNoArg": "$n yawns.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b870ac80d498a03b91"
+  },
+  "name": "snowball",
+  "charNoArg": "Who do you want to throw a snowball at?",
+  "charFound": "You throw a snowball in $N's face.",
+  "othersFound": "$n conjures a snowball from the thin air and throws it at $N.",
+  "victFound": "$n conjures a snowball from the thin air and throws it at you.",
+  "charNotFound": "You stand with the snowball in your hand because your victim is not here.",
+  "charAuto": "You conjure a snowball from the thin air and throw it at yourself.",
+  "othersAuto": "$n conjures a snowball out of the thin air and throws it at $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8d0902aea17e8dee7"
+  },
+  "name": "french",
+  "charNoArg": "Kiss whom?",
+  "charFound": "You give $N a long and passionate kiss, it seems to last forever...",
+  "othersFound": "$n kisses $N passionately.",
+  "victFound": "$n gives you a long and passionate kiss, it seems to last forever...",
+  "charNotFound": "Your heart is filled with despair as that person is not here.",
+  "charAuto": "You gather yourself in your arms and try to kiss yourself.",
+  "othersAuto": "$n makes an attempt at kissing $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8eeb3c308b9a3f33d"
+  },
+  "name": "comb",
+  "charNoArg": "You comb your hair - perfect.",
+  "othersNoArg": "$n combs $s hair, what a dashing specimen !",
+  "charFound": "You patiently untangle $N's hair - what a mess !",
+  "othersFound": "$n tries patiently to untangle $N's hair.",
+  "victFound": "$n pulls your hair in an attempt to comb it.",
+  "charNotFound": "That person is not here.",
+  "charAuto": "You pull your hair, but it will not be combed.",
+  "othersAuto": "$n tries to comb $s tangled hair.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b82d0ba03b183f3933"
+  },
+  "name": "massage",
+  "charNoArg": "Massage what?  Thin air?",
+  "charFound": "You gently massage $N's shoulders.",
+  "othersFound": "$n massages $N's shoulders.",
+  "victFound": "$n gently massages your shoulders - Ahhhhhhhhhh...",
+  "charNotFound": "You can only massage someone in the same room as you.",
+  "charAuto": "You practice yoga as you try to massage yourself.",
+  "othersAuto": "$n gives a show on yoga-positions, trying to massage $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b80fa56eceda4bb946"
+  },
+  "name": "tickle",
+  "charNoArg": "Whom do you want to tickle?",
+  "charFound": "You tickle $N.",
+  "othersFound": "$n tickles $N.",
+  "victFound": "$n tickles you - ho ho ho.",
+  "charNotFound": "Who is that??",
+  "charAuto": "You tickle yourself, how funny!",
+  "othersAuto": "$n tickles $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b87d561df19f795338"
+  },
+  "name": "pat",
+  "charNoArg": "Pat who?",
+  "charFound": "You pat $N on $S head.",
+  "othersFound": "$n pats $N on $S head.",
+  "victFound": "$n pats you on your head.",
+  "charNotFound": "Who, where, what?",
+  "charAuto": "You pat yourself on your head, very reassuring.",
+  "othersAuto": "$n pats $mself on the head.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8fbf295e366ca167f"
+  },
+  "name": "curse",
+  "charNoArg": "You swear loudly for a long time.",
+  "othersNoArg": "$n swears : #@*\"*&^*#%@*&! !!!!!",
+  "charFound": "You swear at $M.",
+  "othersFound": "$n swears at $N.",
+  "victFound": "$n swears at you!  Where are the manners?",
+  "charNotFound": "You can't find the victim of your frustrations.",
+  "charAuto": "You swear at your own mistakes.",
+  "othersAuto": "$n starts swearing at $mself.  Why don't you help?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8a869aa693833ae94"
+  },
+  "name": "pray",
+  "charNoArg": "You feel righteous, and maybe a little foolish.",
+  "othersNoArg": "$n begs and grovels to the powers that be.",
+  "charFound": "You crawl in the dust before $M.",
+  "othersFound": "$n falls down and grovels in the dirt before $N.",
+  "victFound": "$n kisses the dirt at your feet.",
+  "charNotFound": "No such person around; your prayers vanish into the endless voids.",
+  "charAuto": "Talk about narcissism...",
+  "othersAuto": "$n performs some strange yoga-exercises and mumbles a prayer to $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b81b151b2dd3706595"
+  },
+  "name": "beg",
+  "charNoArg": "You beg the gods for mercy.",
+  "othersNoArg": "The gods fall down laughing at $n's request for mercy.",
+  "charFound": "You desperately try to squeeze a few coins from $M.",
+  "othersFound": "$n begs you for money. You graciously let $m peep at your fortune.",
+  "victFound": "$n begs $N for a dime or two - or twenty !",
+  "charNotFound": "Your money-lender seems to be out for the moment.",
+  "charAuto": "Begging yourself for money doesn't help.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b830f22656d9897dc8"
+  },
+  "name": "cringe",
+  "charNoArg": "You cringe in terror.",
+  "othersNoArg": "$n cringes in terror!",
+  "charFound": "You cringe away from $M.",
+  "othersFound": "$n cringes away from $N in mortal terror.",
+  "victFound": "$n cringes away from you.",
+  "charNotFound": "I don't see anyone by that name here.. what are you afraid of?",
+  "charAuto": "I beg your pardon?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b85a7aee056092c1e1"
+  },
+  "name": "daydream",
+  "charNoArg": "You dream of better times.",
+  "othersNoArg": "$n looks absent-minded, his eyes staring into space.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8e86e286ac09c3423"
+  },
+  "name": "fume",
+  "charNoArg": "Take it easy now! count to ten, very slowly.",
+  "othersNoArg": "$n grits $s teeth and fumes with rage.",
+  "charFound": "You stare at $M, fuming.",
+  "othersFound": "$n stares at $N, fuming with rage.",
+  "victFound": "$n stares at you, fuming with rage!",
+  "charNotFound": "Fume away... they ain't here.",
+  "charAuto": "That's right - hate yourself!",
+  "othersAuto": "$n clenches $s fists and stomps his feet, fuming with anger.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8b4bfe175279e03c3"
+  },
+  "name": "grovel",
+  "charNoArg": "You grovel in the dirt.",
+  "othersNoArg": "$n grovels in the dirt.",
+  "charFound": "You grovel before $M",
+  "othersFound": "$n grovels in the dirt before $N.",
+  "victFound": "$n grovels in the dirt before you.",
+  "charNotFound": "Who?",
+  "charAuto": "That seems a little silly to me.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8258930f5dd03833c"
+  },
+  "name": "hop",
+  "charNoArg": "You hop around like a little kid.",
+  "othersNoArg": "$n hops around like a little kid.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b80de885a3e2530ffd"
+  },
+  "name": "nudge",
+  "charNoArg": "Nudge whom?",
+  "charFound": "You nudge $M.",
+  "othersFound": "$n nudges $N.",
+  "victFound": "$n nudges you.",
+  "charNotFound": "Who?",
+  "charAuto": "You nudge yourself, for some strange reason.",
+  "othersAuto": "$n nudges $mself, to keep $mself awake.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8939f3d8ab3527c17"
+  },
+  "name": "ponder",
+  "charNoArg": "You ponder the question.",
+  "othersNoArg": "$n sits down and thinks deeply.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8b0966564b4f4d2eb"
+  },
+  "name": "punch",
+  "charNoArg": "Punch whom?",
+  "charFound": "You punch $M playfully.",
+  "othersFound": "$n punches $N playfully.",
+  "victFound": "$n punches you playfully.  OUCH!",
+  "charNotFound": "You can't find your boxing partner.",
+  "charAuto": "You punch yourself.  You deserve it.",
+  "othersAuto": "$n punches $mself.  Why don't you join in?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8507d664a56c10546"
+  },
+  "name": "snarl",
+  "charNoArg": "You grizzle your teeth and look mean.",
+  "othersNoArg": "$n snarls angrily.",
+  "charFound": "You snarl at $M.",
+  "othersFound": "$n snarls at $N.",
+  "victFound": "$n snarls at you, for some reason.",
+  "charNotFound": "No need to snarl!",
+  "charAuto": "You snarl at yourself.",
+  "othersAuto": "$n snarls at $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8e22c8e0302663d8c"
+  },
+  "name": "spank",
+  "charNoArg": "Spank whom?",
+  "charFound": "You spank $M playfully.",
+  "othersFound": "$n spanks $N playfully.",
+  "victFound": "$n spanks you playfully.  OUCH!",
+  "charNotFound": "Your hand can't find your victim!",
+  "charAuto": "You spank yourself....HMMMMMMM...",
+  "othersAuto": "$n spanks $mself....HMMMMMMM...",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8535dbde60d9fc01b"
+  },
+  "name": "hand",
+  "charNoArg": "Kiss whose hand?",
+  "charFound": "You kiss $S hand.",
+  "othersFound": "$n kisses $N's hand.  How continental!",
+  "victFound": "$n kisses your hand.  How continental!",
+  "charNotFound": "You can't find a lady in THIS group.",
+  "charAuto": "You kiss your own hand.",
+  "othersAuto": "$n kisses $s own hand.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b867a61133eee1cd7c"
+  },
+  "name": "yodel",
+  "charNoArg": "You think of Julie Andrews and start to yodel.",
+  "othersNoArg": "$n begins to yodel:  HEY!! CLERICS!! I COULD USE A HEAL!!!",
+  "charFound": "$N covers $S ears as you begin to yodel.",
+  "othersFound": "$n yodels to $N.",
+  "victFound": "$n yodels to you...you cringe and turn away.",
+  "charNotFound": "That person just escaped!",
+  "charAuto": "Well, it's up to you if you want to damage your hearing.",
+  "othersAuto": "$n yodels to $mself.  What a sado-masochist.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8db412398962a85d7"
+  },
+  "name": "faint",
+  "charNoArg": "You faint.",
+  "othersNoArg": "$n faints.",
+  "charFound": "You faint into $S arms.",
+  "othersFound": "$n faints into $N's open arms.",
+  "victFound": "$n just fainted into YOUR arms.",
+  "charNotFound": "You fall on the floor and look stupid--really suave.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8e6fe4e815714beb8"
+  },
+  "name": "pinch",
+  "charNoArg": "You say, 'A pinch of this, and a dab of that.'",
+  "othersNoArg": "$n says, 'A pinch of this and a dab of that.'",
+  "charFound": "You squeeze $S bottom and grin.",
+  "othersFound": "$n pinches $N's bottom and grins.",
+  "victFound": "$n pinches your bottom and grins.",
+  "charNotFound": "You'd like to, wouldn't you?",
+  "charAuto": "You pinch yourself to see if you are dreaming!",
+  "othersAuto": "$n pinches $mself to see if $e is dreaming!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8c77d9453c9167590"
+  },
+  "name": "stroke",
+  "charNoArg": "You stroke the air vaguely.",
+  "othersNoArg": "$n makes vague stroking motions.",
+  "charFound": "You gently stroke $S inner thigh.  $N inhales sharply.",
+  "othersFound": "$N exhales sharply and suddenly.",
+  "victFound": "$n gently strokes your inner thigh.  You inhale sharply.",
+  "charNotFound": "Maybe you should practice on yourself first.",
+  "charAuto": "You are about to do something you'd rather not be caught doing.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b85f59e2952c1f1dd5"
+  },
+  "name": "apologize",
+  "charNoArg": "You apologize until you are blue in the face.",
+  "othersNoArg": "$n apologizes profusely.",
+  "charFound": "You might as well apologize because $E sure as hell won't.",
+  "othersFound": "$n apologizes to $N with a very sincere look on $s face.",
+  "victFound": "$n apologizes to you and begs for forgiveness.",
+  "charNotFound": "Who's that?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8fd0655974fe5fcb9"
+  },
+  "name": "caress",
+  "charNoArg": "Who do you wish to caress?",
+  "othersNoArg": "$n looks for someone to caress.",
+  "charFound": "You tenderly caress $M.",
+  "othersFound": "$n tenderly caresses $N.",
+  "victFound": "$n tenderly caresses your body.",
+  "charNotFound": "You're S.O.L., buddy.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b84dc2930ccf02705c"
+  },
+  "name": "stagger",
+  "charNoArg": "You stagger blindly around the room.",
+  "othersNoArg": "$n staggers blindly around the room.",
+  "charFound": "You stagger toward $N as the room begins to spin.",
+  "othersFound": "$n staggers into $N.",
+  "victFound": "$n staggers blindly into you.",
+  "charNotFound": "Stagger into whom!?!?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8cb6d7e60d151945c"
+  },
+  "name": "snort",
+  "charNoArg": "You snort derisively.",
+  "othersNoArg": "$n snorts derisively.",
+  "charFound": "You snort derisively at $N.",
+  "othersFound": "$n snorts derisively at $N.",
+  "victFound": "$n snorts at you.",
+  "charNotFound": "Snort at whom?",
+  "charAuto": "You snort derisively at yourself.",
+  "othersAuto": "$n snorts derisively at $sself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8f7c69144598bc187"
+  },
+  "name": "slobber",
+  "charNoArg": "You slobber down your front.",
+  "othersNoArg": "$n slobbers all over $mself.",
+  "charFound": "You slobber on $N.",
+  "othersFound": "$n slobbers on $N  **Yuck**",
+  "victFound": "$n slobbers disgustingly on you.",
+  "charNotFound": "Slobber on WHOM?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8b6fc02e1fe84c8f8"
+  },
+  "name": "blink",
+  "charNoArg": "You bat your eyelashes.",
+  "othersNoArg": "$n blinks innocently.",
+  "charFound": "You blink innocently at $N.",
+  "othersFound": "$n blinks innocently at $N.",
+  "victFound": "$n blinks innocently at you.",
+  "charNotFound": "Feign innocence for whom?",
+  "charAuto": "You try to convince yourself of your innocence.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8371416b75f3ac5d7"
+  },
+  "name": "tease",
+  "charNoArg": "What a tease.   SHEESH.",
+  "othersNoArg": "$n looks around for someone to tease.",
+  "charFound": "You tease $N in a playful way.",
+  "othersFound": "$n sticks $s tongue out at $N.",
+  "victFound": "$n sticks $s tongue out at you, what a DORK!!",
+  "charNotFound": "Tease whom?",
+  "charAuto": "You tease yourself. NYAH NYAH NYAH.",
+  "othersAuto": "$n teases $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8dc7691ae1e1f2404"
+  },
+  "name": "knee",
+  "charNoArg": "You raise one knee, preparing to do justice...",
+  "othersNoArg": "$n cocks one knee threateningly.",
+  "charFound": "You knee $M hard in the groin.",
+  "othersFound": "$N doubles over in pain as $n knees $M in the groin!",
+  "victFound": "$n suddenly knees you in the groin!  You fall to your knees in agony.",
+  "charNotFound": "Whom do you wish to render impotent?",
+  "charAuto": "What ARE you thinking !?!??!?!?!?!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b82c08919b15ff75b4"
+  },
+  "name": "flirt",
+  "charNoArg": "You flirt outrageously.",
+  "othersNoArg": "$n is an outrageous flirt.",
+  "charFound": "You flirt with $N trying to get $S attention.",
+  "othersFound": "$n flirts with $N, hmmm wonder what $e wants? *wink*",
+  "victFound": "$n flirts with you.",
+  "charNotFound": "Sorry no one here to flirt with. :(",
+  "charAuto": "You flirt with yourself -- what ARE you trying to gain!?!?!?",
+  "othersAuto": "$n flirts with $mself, wonder what $e is trying to accomplish?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b832022d198bded8f8"
+  },
+  "name": "tip",
+  "charNoArg": "You tip your hat gallantly.",
+  "othersNoArg": "$n gallantly tips $s hat.",
+  "charFound": "You tip your hat to $N.",
+  "othersFound": "$n gallantly tips $s hat to $N.",
+  "victFound": "$n gallantly tips $s hat to you.",
+  "charNotFound": "But there is no one here to impress?!?!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b867072e8479b91236"
+  },
+  "name": "lust",
+  "charNoArg": "Your hormones begin to rage.",
+  "othersNoArg": "$n has that look of lust in $s eyes --- Get away QUICK!",
+  "charFound": "You have lust after $N.",
+  "othersFound": "$n looks lustily at $N.",
+  "victFound": "$n lusts after your delectable body.",
+  "charNotFound": "Whom are you trying to lust after?",
+  "charAuto": "Oh, please! You aren't THAT great...",
+  "othersAuto": "$n lusts after $mself, lonely eh?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8b248c8461cde90a1"
+  },
+  "name": "flutter",
+  "charNoArg": "You flutter your eyelashes seductively.",
+  "othersNoArg": "$n flutters $s eyelashes seductively.",
+  "charFound": "You flutter your eyelashes at $N, trying to be seductive.",
+  "othersFound": "$n flirts with $N, flutters $s eyelashes at $M.",
+  "victFound": "$n flutters $s eyelashes at you coyly.",
+  "charNotFound": "EH? Can't see them here.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8c23cf9da8a0a7598"
+  },
+  "name": "bark",
+  "charNoArg": "You bark loudly.",
+  "othersNoArg": "$n barks like a dog. GO DAWGS SIC 'EM!!! WOOF! WOOF! WOOF! WOOF!",
+  "charFound": "You bark at $N scaring $M silly -- SHAME ON YOU!!",
+  "othersFound": "$n barks at $N scaring $M senseless.",
+  "victFound": "$n barks loudly at you, you back away, because $e might bite too!!",
+  "charNotFound": "Bark at whom?",
+  "charAuto": "You bark at yourself and jump back in fear.",
+  "othersAuto": "$n barks at $mself and cowers in fear.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8304411aeac3b7453"
+  },
+  "name": "howl",
+  "charNoArg": "You howl at the moon.",
+  "othersNoArg": "$n howls at the moon.",
+  "charFound": "You howl soulfully at $N.",
+  "othersFound": "$n howls at $N.",
+  "victFound": "$n howls soulfully at you.",
+  "charNotFound": "Who? What? Where?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8cf2235c41030b656"
+  },
+  "name": "babble",
+  "charNoArg": "You babble endlessly.",
+  "othersNoArg": "$n babbles endlessly, won't $e EVER shut up?",
+  "charFound": "You babble to $N for hours on end.",
+  "othersFound": "$n babbles to $N for what seems an eternity, how can $N stand it?",
+  "victFound": "$n babbles at you. You nod mechanically, hoping $e will shut up soon.",
+  "charNotFound": "Whom do you wish to annoy with your babble?",
+  "charAuto": "You babble on and on to yourself, FINALLY! someone who LISTENS!!",
+  "othersAuto": "$n babbles quietly to $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b80af4da8451b73fb3"
+  },
+  "name": "ramble",
+  "charNoArg": "You ramble on and on.",
+  "othersNoArg": "$n rambles on about a boring exploit.",
+  "charFound": "You ramble on to $N about your past adventures.",
+  "othersFound": "$n blithers on and on to $N about something.",
+  "victFound": "$n tells you a rather boring tale, you feign interest.",
+  "charNotFound": "??EH??",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b803e428768d0edd90"
+  },
+  "name": "hush",
+  "charNoArg": "SHHHHHHHHHHHHHHHHHHHHHH",
+  "othersNoArg": "$n requests everyone quiet down.  Shhhhhhhhhhh...",
+  "charFound": "You nicely ask $N to be more quiet.",
+  "othersFound": "$n nicely asks $N to be more quiet.",
+  "victFound": "$n kindly requests that you please quiet down.",
+  "charNotFound": "Who needs to be silenced?",
+  "charAuto": "You realize you are loud and obnoxious and try to silence yourself.",
+  "othersAuto": "$n covers $s mouth in an attempt to silence $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8ec727078a15d1ab1"
+  },
+  "name": "threaten",
+  "charNoArg": "You threaten everyone with your overwhelming presence.",
+  "othersNoArg": "You feel threatened in the presence of the great $n.",
+  "charFound": "You stand tall as you threaten $N.",
+  "othersFound": "$n threatens $N forcefully.",
+  "victFound": "$n threatens you...oooooooh scary *laugh*",
+  "charNotFound": "Whom do you wish to intimidate?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8909aaea6e4ba3dcb"
+  },
+  "name": "roll",
+  "charNoArg": "You roll your eyes in disgust.",
+  "othersNoArg": "$n rolls $s eyes, disgusted.",
+  "charFound": "You look at $N and roll your eyes in disgust.",
+  "othersFound": "$n rolls $s eyes in disgust at $N.",
+  "victFound": "$n rolls $s eyes at you.",
+  "charNotFound": "You should be disgusted with yourself because you look so foolish.",
+  "charAuto": "At whom do you wish to roll your eyes?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b830e754133cc662f0"
+  },
+  "name": "swoon",
+  "charNoArg": "You swoon.",
+  "othersNoArg": "$n swoons in absolute ecstasy.",
+  "charFound": "You look at $N and swoon in ecstasy.",
+  "othersFound": "$n looks at $N and swoons in ecstasy.",
+  "victFound": "$n looks at you and swoons in ecstasy.",
+  "charNotFound": "Who?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8499a08ee80c383c9"
+  },
+  "name": "bird",
+  "charNoArg": "You flick a bird...How obscene!",
+  "othersNoArg": "$n flicks a bird at no one in particular.",
+  "charFound": "You shoot a bird at $N.",
+  "othersFound": "$n gives $N the bird.",
+  "victFound": "$n gives you the bird...What an ass!",
+  "charNotFound": "Don't you hate to waste a good obscene gesture like that?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8d0d8286476d57cbe"
+  },
+  "name": "eyebrow",
+  "charNoArg": "You raise an eyebrow at the notion.",
+  "othersNoArg": "$n raises an eyebrow.",
+  "charFound": "You raise your eyebrow at $N.",
+  "othersFound": "$n raises an eyebrow at $N's weird actions.",
+  "victFound": "$n raises an eyebrow at you.",
+  "charNotFound": "Forget it.  They aren't here.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b85936d13cfd3529c0"
+  },
+  "name": "serenade",
+  "charNoArg": "You raise your voice in a loud serenade to your invisible love.",
+  "othersNoArg": "$n raises $s voice to serenade the world.",
+  "charFound": "You raise your voice in a loving serenade to $N.",
+  "othersFound": "$n raises $s voice in a loving serenade to $N.",
+  "victFound": "$n serenades you, you are swept away by $s voice.",
+  "charNotFound": "The one that you wish to serenade has left you to sing to yourself.",
+  "charAuto": "You sing a loud serenade to yourself.  What type of person are you?!",
+  "othersAuto": "$n serenades $mself.  What an ego!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8d7395935705b2f8b"
+  },
+  "name": "grimace",
+  "charNoArg": "You grimace painfully at the thought.",
+  "othersNoArg": "$n grimaces painfully at the thought.",
+  "charFound": "You grimace at $N.",
+  "othersFound": "$n grimaces at $n.",
+  "victFound": "$n grimaces at you.  What could be wrong?",
+  "charNotFound": "You grimace at no one in particular.",
+  "charAuto": "You grimace painfully at your thoughts.",
+  "othersAuto": "$n grimaces painfully to $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8521a11f7aebbe4c8"
+  },
+  "name": "boggle",
+  "charNoArg": "You boggle at the concept.",
+  "othersNoArg": "$n boggles at the concept.",
+  "charFound": "You boggle at $N.",
+  "othersFound": "$n boggles at $N.",
+  "victFound": "$n boggles at you.",
+  "charNotFound": "Boggle away.  They've left.",
+  "charAuto": "You boggle at yourself.  Hmmm...intriguing.",
+  "othersAuto": "$n boggles quietly to $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8649fa820c4496627"
+  },
+  "name": "beckon",
+  "charNoArg": "You beckon for everyone to follow.",
+  "othersNoArg": "$n beckons for everyone to follow.",
+  "charFound": "You beckon for $N to follow -- sure hope they do!",
+  "othersFound": "$n beckons $N to follow...hmmm what's going on?",
+  "victFound": "$n beckons for you to follow.",
+  "charNotFound": "So sorry, that person has already left.",
+  "charAuto": "You beckon to your shadow to follow.",
+  "othersAuto": "$n beckons to $s shadow to follow.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8dc8c2df22f9deb0c"
+  },
+  "name": "wonder",
+  "charNoArg": "You wonder about how things could have been.",
+  "othersNoArg": "$n gets a blank stare on $s face.  What could $e be wondering about?",
+  "charFound": "You look at $N and wonder what will happen.",
+  "othersFound": "$n looks at $N and wonders....",
+  "victFound": "$n looks at you quizzically.",
+  "charNotFound": "You wonder what would have happened had they been here.",
+  "charAuto": "You wonder about yourself and your purpose here.",
+  "othersAuto": "A blank stare crosses $n's face.  What could $e be wondering about?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b834799a356232ecec"
+  },
+  "name": "worry",
+  "charNoArg": "You worry about what's going to happen.",
+  "othersNoArg": "A troubled look suddenly crosses $n's face.  Wonder what's wrong?",
+  "charFound": "You look at $N worriedly.",
+  "othersFound": "$n looks at $N with a troubled gaze.",
+  "victFound": "$n looks at you worriedly.",
+  "charNotFound": "Well they obviously aren't worried -- they left!",
+  "charAuto": "You worry about what's going to happen.",
+  "othersAuto": "A troubled look suddenly crosses $n's face.  Wonder what's wrong?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8a358aef450585db9"
+  },
+  "name": "drool",
+  "charNoArg": "You drool down the front of your shirt.",
+  "othersNoArg": "$n drools all over $mself -- making a TERRIBLE mess!",
+  "charFound": "You drool messily on $N.",
+  "othersFound": "$n drools upon $N.",
+  "victFound": "$n looks at you lustily and drools.",
+  "charNotFound": "Oh fine, make a pool of slobber -- they aren't even here!",
+  "charAuto": "You drool down the front of your shirt.",
+  "othersAuto": "$n drools all over $mself -- making a TERRIBLE mess!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8c14e53d9ea1bb6da"
+  },
+  "name": "nod",
+  "charNoArg": "You nod.",
+  "othersNoArg": "$n nods.",
+  "charFound": "You nod at $N.",
+  "othersFound": "$n nods at $N.",
+  "victFound": "$n nods at you in agreement.",
+  "charNotFound": "Nod your head off -- they aren't here.",
+  "charAuto": "You attempt to nod at yourself and get dizzy instead.",
+  "othersAuto": "$n nods quietly to $mself.  What a wacko.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b83ac51e34a92ca66e"
+  },
+  "name": "purr",
+  "charNoArg": "MMMMMMEEEEEEEEEOOOOOOOOOOOOOWWWWWWWWWWW!!!!!!!!!!!",
+  "othersNoArg": "$n purrs contentedly.",
+  "charFound": "You rub up against $N and purr contentedly.",
+  "othersFound": "$n rubs against $N and purrs contentedly.",
+  "victFound": "$n rubs up against you and purrs contentedly.",
+  "charNotFound": "You silly cat!  They aren't here.",
+  "charAuto": "You purr quietly to yourself.",
+  "othersAuto": "$n purrs contentedly to $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b870aeec29daa0e4cb"
+  },
+  "name": "point",
+  "charNoArg": "You point in every direction.",
+  "othersNoArg": "$n points excitedly!",
+  "charFound": "You point at $N.",
+  "othersFound": "$n points excitedly at $N!",
+  "victFound": "$n points at you.  How rude!",
+  "charNotFound": "You point at no one in particular.",
+  "charAuto": "You point at yourself, obviously very confused.",
+  "othersAuto": "$n points at $mself, obviously very confused.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b848b5143e4587d52e"
+  },
+  "name": "rub",
+  "charNoArg": "You rub your hands together in greedy anticipation.",
+  "othersNoArg": "$n rubs $s hands together in greedy anticipation.",
+  "charFound": "You give $N a nice, long, kinky rubdown.",
+  "othersFound": "$n gives $N a nice long rubdown.",
+  "victFound": "$n gives you a rubdown, running $s hands over your tense shoulders...Mmmm...",
+  "charNotFound": "Shame to waste those talented hands, but they've already left.",
+  "charAuto": "You rub yourself...lingering a little too long in some places.",
+  "othersAuto": "$n rubs $mself...what a creep!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8a6e4d5f1ece8e74f"
+  },
+  "name": "bleed",
+  "charNoArg": "You bleed profusely -- making a horrible mess!",
+  "othersNoArg": "$n weakly bleeds all over the floor.",
+  "charFound": "You bleed on $N -- ewww!",
+  "othersFound": "$n bleeds on $N.  Watch out, YOU might be next!",
+  "victFound": "$n bleeds on you -- ewww!  Get away!!",
+  "charNotFound": "Bleed on whom?",
+  "charAuto": "You bleed all over yourself.",
+  "othersAuto": "$n bleeds profusely all over $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b845a29f0f451d9c1c"
+  },
+  "name": "highfive",
+  "charNoArg": "You jump in the air and give a BIG high five to...umm...absolutely nothing.",
+  "othersNoArg": "$n wildly high fives the air, looking very foolish -- very foolish indeed.",
+  "charFound": "You jump in the air and give a BIG high five to $N!",
+  "othersFound": "$n enthusiastically high-five's $N!",
+  "victFound": "$n gives you a BIG high five!  Way to go!!",
+  "charNotFound": "Sorry, they have already left.",
+  "charAuto": "You try to give yourself a high five.  What ARE you thinking?",
+  "othersAuto": "$n tries to high five $mself, but ends up looking foolish instead.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b873e48911b00cfd3e"
+  },
+  "name": "propose",
+  "charNoArg": "You propose to everyone in the room.",
+  "othersNoArg": "$n proposes to everyone in the room.  Very odd.",
+  "charFound": "You kneel and romantically propose to $N.",
+  "othersFound": "$n gets on one knee and proposes to $N.",
+  "victFound": "$n gets down on one knee and romantically proposes to you.",
+  "charNotFound": "You must be lonely.  They aren't here.",
+  "charAuto": "You are SO full of yourself!",
+  "othersAuto": "$n proposes to $mself -- how narcissistic!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8aa71a0d4289f106c"
+  },
+  "name": "peer",
+  "charNoArg": "You peer around yourself intently.",
+  "othersNoArg": "$n peers around $mself intently.",
+  "charFound": "You peer intently at $N.",
+  "othersFound": "$n peers intently at $N.",
+  "victFound": "$n peers at you intently.",
+  "charNotFound": "They aren't here.",
+  "charAuto": "You get a little cross-eyed with your attempts to stare yourself down.",
+  "othersAuto": "$n peers at $mself, crossing $s eyes in the process.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b81c07b391609b114b"
+  },
+  "name": "worship",
+  "charNoArg": "You prostrate yourself and worship the gods!",
+  "othersNoArg": "$n prostrates $mself and worships the gods!",
+  "charFound": "You fall on your knees and worship $N.",
+  "othersFound": "$n falls on $s knees and worships $N.",
+  "victFound": "$n falls to the ground and worships you.",
+  "charNotFound": "You can't worship someone who isn't here.",
+  "charAuto": "You worship yourself.",
+  "othersAuto": "$n worships $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8231f45226e22009b"
+  },
+  "name": "bearhug",
+  "charNoArg": "Whom do you wish to bearhug?",
+  "charFound": "You overwhelm $N with a great, big, hulking bearhug.",
+  "othersFound": "$n encompasses $N in an ENORMOUS bearhug!",
+  "victFound": "$n clutches you tightly in an overwhelming bearhug!",
+  "charNotFound": "Perhaps you should shower your affections on someone who is here?",
+  "charAuto": "You vainly clutch yourself in a bearhug for consolation.",
+  "othersAuto": "$n hugs $mself as tightly as possible.  Looks like $e could use a hand.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b858da5c878552697d"
+  },
+  "name": "innocent",
+  "charNoArg": "You innocently whistle a tune.",
+  "othersNoArg": "$n looks around and whistles innocently.",
+  "charFound": "You look at $N and bat your eyelashes -- the picture of innocence!",
+  "othersFound": "$n bats $s eyelashes innocently at $N.",
+  "victFound": "$n looks at you and innocently bats $s eyelashes.",
+  "charNotFound": "Don't even TRY -- they've already left.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8639a44cbe19f969c"
+  },
+  "name": "collapse",
+  "charNoArg": "You collapse on the floor from exhaustion.",
+  "othersNoArg": "$n dramatically collapses to the floor from exhaustion.",
+  "charFound": "You collapse right into $N's arms.",
+  "othersFound": "$n collapses right into $N's arms.",
+  "victFound": "Suddenly, $n collapses into your arms from exhaustion.",
+  "charNotFound": "They've already left, just collapse on the floor.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8dc33b0baa9f8f5a7"
+  },
+  "name": "stretch",
+  "charNoArg": "You lean back and streeeeeettch your arms and legs.",
+  "othersNoArg": "$n stretches luxuriously.  Kinda makes you want to doesn't it?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b876c88a23e15cbc63"
+  },
+  "name": "spam",
+  "charNoArg": "You mutter, 'spam' quietly to yourself again and again.",
+  "othersNoArg": "$n rests in a corner and mutters 'spam' quietly to $mself.",
+  "charFound": "You SPAM $N mercilessly!",
+  "othersFound": "$n spams $N!",
+  "victFound": "You've been SPAMMED by $n!",
+  "charNotFound": "Spam away -- they've left.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8410d68fa6fc6d375"
+  },
+  "name": "boast",
+  "charNoArg": "You boast loudly of all your amazing accomplishments.",
+  "othersNoArg": "$n boasts loudly in a pigheaded fashion.",
+  "charFound": "You boast to $N of all your great deeds.",
+  "othersFound": "$n boasts to $N.",
+  "victFound": "Once again, $n boasts to you, what a bloated ego!",
+  "charNotFound": "Your ego takes a blow.  They've already left.",
+  "charAuto": "You boast to yourself of all your great feats!  Your own biggest fan.",
+  "othersAuto": "$n boasts to $mself -- what an ego!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b870030ce96d0d0c0d"
+  },
+  "name": "squirm",
+  "charNoArg": "You squirm uncontrollably in your consternation.",
+  "othersNoArg": "$n squirms uncontrollably, suddenly looking very uncomfortable.",
+  "charFound": "You look at $N and squirm with delight.",
+  "othersFound": "$n looks at $N and squirms with delight.",
+  "victFound": "$n looks at you and squirms with delight.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b890ff8b437a06f715"
+  },
+  "name": "moo",
+  "charNoArg": "You chew your cud and moo plaintively.  Muh-OOOOO!",
+  "othersNoArg": "$n turns cowlike eyes on you, chews $s cud, and moos plaintively.",
+  "charFound": "You focus all your bovine Zen on $N, and speak your thoughts.  Muh-OOOOO!",
+  "othersFound": "Slowly, $n looks at $N, chews $s cud, and muh-OOOOs!",
+  "victFound": "$n moos at you.  What could that possibly mean?",
+  "charNotFound": "You'd better find someone else to moo at.",
+  "charAuto": "You settle down into the center of your bovine Zen; the foolish world thinks you're just mooing.",
+  "othersAuto": "$n is mooing at $mself again...  You look for an exit...",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8cb433dfccd00edb8"
+  },
+  "name": "moon",
+  "charNoArg": "You drop your drawers and moon everyone in the room!",
+  "othersNoArg": "$n drops $s pants and gives you the vertical smile!",
+  "charFound": "You bend over and moon $N.",
+  "othersFound": "$n drops $s pants and rudely moons $N!",
+  "victFound": "$n bends over and gives you the vertical smile!",
+  "charNotFound": "You stand, with your pants around your ankles, looking VERY silly!",
+  "charAuto": "You try to moon yourself, but you can't see your A** that well.",
+  "othersAuto": "$n nearly goes into convulsions while trying to moon $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b885bb535853869e42"
+  },
+  "name": "goose",
+  "charNoArg": "Who would you like to goose?",
+  "charFound": "You tenderly goose $N on the tush.",
+  "othersFound": "$n reaches around $N's backside and gooses $M tenderly.",
+  "victFound": "$n gooses you tenderly!",
+  "charNotFound": "You should go hunting for another victim, they left.",
+  "charAuto": "You pinch yourself on the rear, you must be desperate.",
+  "othersAuto": "$n pinches $mself on the rear.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8b6550608c0fcbb56"
+  },
+  "name": "wince",
+  "charNoArg": "You wince in agony.",
+  "othersNoArg": "$n winces in agony.",
+  "charFound": "You look at $N and wince at $S remark.",
+  "othersFound": "$n winces at $N's remark.",
+  "victFound": "$n winces at your remark.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8d8bd5b1331ffdade"
+  },
+  "name": "type",
+  "charNoArg": "You can't type for crap tonight!  You give up in frustration!",
+  "othersNoArg": "$n throws $s hands up in disgust at $s lousy typing skills!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b869714debb29e2b55"
+  },
+  "name": "brb",
+  "charNoArg": "Hope to see you soon!",
+  "othersNoArg": "$n will be right back!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8f5d305ef086e1423"
+  },
+  "name": "mutter",
+  "charNoArg": "You mutter quietly to yourself.",
+  "othersNoArg": "$n mutters something quietly to $mself.",
+  "charFound": "You mutter something to $N.",
+  "othersFound": "$n looks at $N and mutters something nasty under $s breath.",
+  "victFound": "$n looks at you and mutters something nasty under $s breath.",
+  "charNotFound": "There's nothing left for you to say, they've left!",
+  "charAuto": "You mutter quietly to yourself.",
+  "othersAuto": "$n mutters something quietly to $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8fd158e76aa2b529a"
+  },
+  "name": "rofl",
+  "charNoArg": "You roll on the floor, laughing hysterically.",
+  "othersNoArg": "$n falls to the ground and rolls around laughing hysterically.",
+  "charFound": "You fall to the floor laughing at $N's remark.",
+  "othersFound": "$n rolls on the floor laughing at $N's antics!",
+  "victFound": "$n rolls on the floor laughing at your antics!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8272c4458ce20a703"
+  },
+  "name": "sob",
+  "charNoArg": "You sob quietly to yourself.",
+  "othersNoArg": "$n sobs in misery.",
+  "charFound": "You sob quietly to yourself because $N has hurt your feelings so badly.",
+  "othersFound": "$n sobs quietly to $mself because $N was a jerk!",
+  "victFound": "You feel like a cad because you've made $n sob.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b826a1df6adc4dbff1"
+  },
+  "name": "pant",
+  "charNoArg": "You pant lustily.",
+  "othersNoArg": "$n pants lustily.",
+  "charFound": "You pant lustily at $M.",
+  "othersFound": "$n looks at $N and pants lustily.",
+  "victFound": "$n looks at you and pants lustily...",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8d5c1fbf25b4fc24f"
+  },
+  "name": "whine",
+  "charNoArg": "You whine to anyone who will listen to you.",
+  "othersNoArg": "$n whines pathetically to anyone who will listen.",
+  "charFound": "You whine to $M, hoping desperately that at least $E will give a damn.",
+  "othersFound": "$n whines pathetically to $N.",
+  "victFound": "$n whines pathetically to you.  What a loser!",
+  "charNotFound": "They really don't care.",
+  "charAuto": "You whine to yourself, probably the only one who will listen.",
+  "othersAuto": "$n whines to $mself.  At least $e isn't bitching to YOU.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b87d2d8f1352546891"
+  },
+  "name": "flex",
+  "charNoArg": "You flex your muscles proudly!",
+  "othersNoArg": "$n flexes $s muscles...what a stud!?!",
+  "charFound": "You show off to $N, flexing your muscles proudly.",
+  "othersFound": "$n flexes $s muscles, in a vain attempt to impress $N.",
+  "victFound": "$n flexes $s muscles in a vain attempt to show off to you.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8d06701f8b52cf929"
+  },
+  "name": "embrace",
+  "charNoArg": "Who would you like to embrace?",
+  "charFound": "You wrap your arms around $N in a warm and loving embrace.",
+  "othersFound": "$n wraps $s arms around $N in a warm and loving embrace.",
+  "victFound": "$n takes you in $s arms in a warm and loving embrace.",
+  "charNotFound": "Your heart breaks as you realize you are alone.",
+  "charAuto": "You try to console yourself with a loving embrace.",
+  "othersAuto": "$n tries to console $mself by wrapping $s arms around $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8b56ed97cb14bcc1d"
+  },
+  "name": "duck",
+  "charNoArg": "DUCK!!!!",
+  "othersNoArg": "$n ducks defensively.",
+  "charFound": "You duck defensively, anticipating the oncoming swipe from $N.",
+  "othersFound": "$n ducks, anticipating $N's reaction.",
+  "victFound": "$n ducks, please oh please don't hit $m!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8bfd258a9c4d748ae"
+  },
+  "name": "bonk",
+  "charNoArg": "***BONK!!!***",
+  "charFound": "You bonk $N on the head for being such a moron.",
+  "othersFound": "$n bonks $N on the head for being such an UTTER moron.",
+  "victFound": "$n bonks you on the head for being so foolish.",
+  "charNotFound": "***BONK*** they left...",
+  "charAuto": "You bonk yourself, fool that you are.",
+  "othersAuto": "$n bonks $mself and grimaces in pain.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b847b6e8c1258e4630"
+  },
+  "name": "squeal",
+  "charNoArg": "You squeal with delight!",
+  "othersNoArg": "$n lets out a sudden squeal of delight!",
+  "charFound": "You look at $N and squeal with delight!",
+  "othersFound": "$n squeals with delight at $N.",
+  "victFound": "$n looks at you and squeals with delight!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b83df9de59ba7e17a9"
+  },
+  "name": "tackle",
+  "charNoArg": "You're going to tackle everyone in the room?!",
+  "charFound": "You tackle $N playfully.",
+  "othersFound": "$n playfully tackles $N.",
+  "victFound": "$n brings you down in a playful tackle!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8cf0e3fb10222e91a"
+  },
+  "name": "spit",
+  "charNoArg": "You spit in utter disgust.",
+  "othersNoArg": "$n spits in utter disgust!",
+  "charFound": "You spit on $N...you're gross!",
+  "othersFound": "$n spits on $N.",
+  "victFound": "$n spits on you -- how gross!",
+  "charNotFound": "Your victim isn't here.",
+  "charAuto": "You spit on yourself, pretty nasty eh?",
+  "othersAuto": "$n spits on $mself...what a sicko!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8c5c27dbac3aeeb7d"
+  },
+  "name": "life",
+  "charNoArg": "You try to get a life, and fail.",
+  "othersNoArg": "$n tries to get a life, and fails.",
+  "charFound": "$N needs to get a life!",
+  "othersFound": "$N needs to get a life!",
+  "victFound": "You need to get a life!",
+  "charNotFound": "Who needs a life?",
+  "charAuto": "But you have none to give!",
+  "othersAuto": "$n attempts to give $mself a life, but has none to spare.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b864634de506621571"
+  },
+  "name": "mosh",
+  "charNoArg": "You mosh insanely around the room!",
+  "othersNoArg": "$n moshes insanely around the room!",
+  "charFound": "You mosh sadistically against $N ... you WILL be punished.",
+  "othersFound": "$n bounces off of $N in a vain attempt to mosh... what a LOSER.",
+  "victFound": "$n slams into you, moshing painfully against you.  That REALLY hurts!",
+  "charNotFound": "Hmmm...  your victim found a new dance partner.",
+  "charAuto": "Masochist!",
+  "othersAuto": "$n throws $mself on the floor, grinding $mself into a bloody pulp",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8b3ccf8c06376adad"
+  },
+  "name": "flinch",
+  "charNoArg": "EEEK... You flinch in obvious pain.",
+  "othersNoArg": "$n flinches in obvious pain... you wonder what $e did THIS time.",
+  "charFound": "Don't you wish you could just crawl under a rock and die?",
+  "othersFound": "$n sneaks a glance at $N and flinches.",
+  "victFound": "$n flinches in response to your cold rebuke.",
+  "charNotFound": "Relax, $E is gone.",
+  "charAuto": "You can't belive what you've done...",
+  "othersAuto": "$n twitches violently, shocked at $s own behavior.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b82cf058682c33e0f9"
+  },
+  "name": "air",
+  "charNoArg": "You grab your air guitar and play for all you're worth.",
+  "othersNoArg": "$n air-guitars like a mad man ... EXCELLENT!!!",
+  "charFound": "You hope $E appreciates your (total lack of) talent.",
+  "othersFound": "$n is surrounded by air groupies.",
+  "victFound": "$n plays a most excellent tune for you on $s most excellent air guitar.",
+  "charNotFound": "Awww... you have no audience!",
+  "charAuto": "You play softly to yourself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b831a60162068c9378"
+  },
+  "name": "tweak",
+  "charNoArg": "Tweak who?",
+  "charFound": "You gently tweak $S cheek.  Isn't $E so CUTE?",
+  "othersFound": "$n tweaked $N's cheek... don't they look so adorable together?",
+  "victFound": "$n lovingly tweaks your cheek.  It reminds you of Grandma... sniff...",
+  "charNotFound": "*Sniff*  That cheek seems to be missing.",
+  "charAuto": "You can't DO that.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b88236506a194454dd"
+  },
+  "name": "peck",
+  "charNoArg": "Wouldn't you like to do that to a person, or do you prefer air?",
+  "charFound": "Risking a slap to the face, you give $N a peck on the cheek.",
+  "othersFound": "$n smiles and gives $N a chaste peck on the cheek.",
+  "victFound": "$n pecks you on the cheek, how sweet!",
+  "charNotFound": "I guess you scared them away...",
+  "charAuto": "You must REALLY like yourself.",
+  "othersAuto": "$n tries in vain to wrap $s lips around $s cheeks.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8821993139b006af8"
+  },
+  "name": "explode",
+  "charNoArg": "You feel the blood boiling in your veins!",
+  "othersNoArg": "$n turns a deep red, fighting to contain $s temper...",
+  "charFound": "You feel your rage explode deep in the pit of your stomach...",
+  "othersFound": "$n burns holes through $N with his explosive anger!",
+  "victFound": "$n is ANGRY with you... I'd run if I were you!!!",
+  "charNotFound": "Temper Temper... they left.",
+  "charAuto": "Your soul burns brightly then fades to nothing.",
+  "othersAuto": "$n implodes!!!  Only a grease spot remains where $e once stood.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8c112e7bb7f1c2c87"
+  },
+  "name": "raspberry",
+  "charNoArg": "You stick your tongue out at ... well, no one.",
+  "othersNoArg": "$n sticks $s tongue out, catching a few flies in the process.",
+  "charFound": "You give $N the raspberry... and spit all over yourself.",
+  "othersFound": "$n gives $N the raspberry... PHBT!  What a mess... Spit EVERYWHERE!",
+  "victFound": "You are splattered with saliva as $n gives you the raspberry... HOW RUDE!",
+  "charNotFound": "Hang your tongue out if you like, $e isn't here.",
+  "charAuto": "You try to stick your tongue out at yourself... somehow, it isn't the same.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b833741111b7d20770"
+  },
+  "name": "flash",
+  "charNoArg": "You grin and strut as you open your coat and show what you've got!",
+  "othersNoArg": "$n rips $s clothes off and parades naked around the room!",
+  "charFound": "Swiftly you jerk open your jacket, trying to get $M to notice you.",
+  "othersFound": "Cover your eyes, $n is exposing $mself to $n!  EWWWW!",
+  "victFound": "You gasp!  $n has just revealed $s \"equipment\" to you!",
+  "charNotFound": "Exhibitionist, that person isn't here!",
+  "charAuto": "That's sick.",
+  "othersAuto": "PERVERT PRESENT!  $n is trying to flash $mself",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b833b868f952c9408a"
+  },
+  "name": "strip",
+  "charNoArg": "You do a slow strip tease for the people...",
+  "othersNoArg": "$n begins a slow, erotic strip-tease act...",
+  "charFound": "You start to undress $N ... one piece of clothing at a time...",
+  "othersFound": "$n runs $s hands over $Ns body, slowly stripping away the clothing...",
+  "victFound": "$n has started to strip you... woah BABY!",
+  "charNotFound": "Your toy doesn't seem to be here...",
+  "charAuto": "You can't DO that in public!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8864d56e39e2177ea"
+  },
+  "name": "undress",
+  "charNoArg": "You start to undress in the shadows, waiting for someone to notice.",
+  "othersNoArg": "$n begins to undress... $e is VERY sexy... *Pant*",
+  "charFound": "You undress $M with your eyes... Kinky.",
+  "othersFound": "You feel the temperature of the room rise as $n lusts on $N...",
+  "victFound": "Feeling exposed, you sense $n undressing you with $s eyes...",
+  "charNotFound": "They are not here...",
+  "charAuto": "A mirror would work better...",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8b9c431b1cf18af7a"
+  },
+  "name": "tongue",
+  "charNoArg": "You slowly give your tongue a nice workout.",
+  "charFound": "Mmmm... you give $N a good working over with your tongue...",
+  "othersFound": "$n slides $s tongue over $N's body...",
+  "victFound": "$n wraps $s tongue around you, moving it across your young, nubile flesh...",
+  "charNotFound": "Never around when required...",
+  "charAuto": "You slowly tongue yourself.",
+  "othersAuto": "$n slowly tongues $mself... ICK.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b825975061697fc81a"
+  },
+  "name": "view",
+  "charNoArg": "You sit back and watch the world go by.",
+  "othersNoArg": "$n kicks back and enjoys the view.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b859bb0a4ecd58062c"
+  },
+  "name": "grumble",
+  "charNoArg": "You grumble distractedly to yourself",
+  "othersNoArg": "$n grumbles and growls. You wonder what's wrong...",
+  "charFound": "You grumble at $N, disgusted with their presence.",
+  "othersFound": "$n seems to be a grumpy bear... $e is grumbling at poor $N.",
+  "victFound": "$n is grumbling at you... what'd you do?",
+  "charNotFound": "That person is presently AWOL.",
+  "charAuto": "Why bother?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b816d92ea75ee5245c"
+  },
+  "name": "cheer",
+  "charNoArg": "You cheer and dance as the joy within you bursts forth!",
+  "othersNoArg": "$n cheers and sings... $e is just BURSTING with joy!",
+  "charFound": "You cheer $N on and wish $M good luck!",
+  "othersFound": "*Yay!*  Go $N!!!  $n cheers $M on.",
+  "victFound": "You are cheered on by $n... you feel so loved!",
+  "charNotFound": "Who? Huh? Where?  They're not here, that's for sure",
+  "charAuto": "You cheer silently for yourself since nobody else will",
+  "othersAuto": "$n resorts to cheering for $mself... how sad.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8e96469e2678a78a8"
+  },
+  "name": "plead",
+  "charNoArg": "You beg and plead to anyone who will listen.",
+  "othersNoArg": "$n pleads $s case to anyone who will listen... You ALMOST feel sorry for $s.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8cc2171506a3ec2d2"
+  },
+  "name": "charge",
+  "charNoArg": "You charge into the fray!",
+  "othersNoArg": "$n charges into the fray!  All guts, no brains.",
+  "charFound": "With surprising dexterity, you head-butt $N!",
+  "othersFound": "$n ducks down low, charges forward, and head-butts $N!",
+  "victFound": "OOF!  $n rammed $s head into your stomach!  That HURT.",
+  "charNotFound": "Nobody 'round with that name, Mister!",
+  "charAuto": "You run your head into a brick wall.  OUCH!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b82eb97560b5c9e0cb"
+  },
+  "name": "criticize",
+  "charNoArg": "Yes, but who?",
+  "charFound": "You criticize $M with all the warmth of a snake.",
+  "othersFound": "With a nasty grin, $n rips apart $Ns efforts.",
+  "victFound": "$n informs you that your attempts need some MAJOR adjustments.",
+  "charNotFound": "Where oh where has my victim gone, oh where oh where...",
+  "charAuto": "You criticize yourself profusely.",
+  "othersAuto": "$n tears $mself apart, cursing $s own stupidity.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b88670cf1b6ef6a25e"
+  },
+  "name": "run",
+  "charNoArg": "You run away in terror and horror!",
+  "othersNoArg": "$n runs away in utter terror!",
+  "charFound": "You run away from $N in complete terror!",
+  "othersFound": "$n runs away from $N in utter terror and horror!",
+  "victFound": "$n runs from you, fearing for $s life!",
+  "charNotFound": "No reason to be afraid, they aren't here.",
+  "charAuto": "Are you THAT ugly?",
+  "othersAuto": "$n looks in the mirror, sees $s face, and runs away terrified!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8715c32466a8099f0"
+  },
+  "name": "judge",
+  "charNoArg": "Yes, but who?",
+  "charFound": "You judge $m on a scale of 1 to 10.",
+  "othersFound": "On a scale from 1 to 10, $n thinks $N is a complete ZERO!!!",
+  "victFound": "$n judges your actions on a scale of 1 to 10 and comes up with ZERO!!!",
+  "charNotFound": "They aren't here right now.",
+  "charAuto": "You don't REALLY want to do that.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8ce35165f19e4dd93"
+  },
+  "name": "insane",
+  "charNoArg": "You feel your sanity slipping away...",
+  "othersNoArg": "Before your eyes, $n's sanity is slipping away...",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b826e8f96747b35b18"
+  },
+  "name": "cover",
+  "charNoArg": "You cover your ears to protect them from the noise.",
+  "othersNoArg": "$n covers $s ears to protect them from all the noise.",
+  "charFound": "You glare at $N and cover your ears.",
+  "othersFound": "$n glares at $N and covers $s ears.",
+  "victFound": "$n covers $s ears because of you... you are TOO LOUD!",
+  "charNotFound": "They aren't here right now.",
+  "charAuto": "No... I don't think so.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8d6319394541ec350"
+  },
+  "name": "flare",
+  "charNoArg": "You flare your nostrils disdainfully.",
+  "othersNoArg": "$n flares $s nostrils disdainfully.",
+  "charFound": "You flare your nostrils disdainfully at $N... HOW RUDE!",
+  "othersFound": "$n flares $s nostrils disdainfully at $N and turns up $s snobbish nose.",
+  "victFound": "$n flares $s nostrils disdainfully at you... what'd you DO???",
+  "charNotFound": "Flare if you wish, but that person isn't here to see it.",
+  "charAuto": "*Sniff*  But you should LOVE yourself!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8c091b798cdf5569f"
+  },
+  "name": "head",
+  "charNoArg": "You toss your head haughtily.",
+  "othersNoArg": "$n tosses $s head haughtily.",
+  "charFound": "You toss your head haughtily at $N.",
+  "othersFound": "$n tosses her head haughtily at $N... what an ATTITUDE!",
+  "victFound": "$n tossed $s head haughtily at you... :(",
+  "charNotFound": "That person is AWOL.",
+  "charAuto": "Why would you do that?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b82d4204ec5bc29e9d"
+  },
+  "name": "pie",
+  "charNoArg": "You pick up a pie and toss it around for a bit.",
+  "othersNoArg": "$n picks up a pie and tosses it around for a bit.",
+  "charFound": "You toss a pie at $N and hit $M right in the FACE!",
+  "othersFound": "$n tosses a pie at $N and hits $m right in the FACE!",
+  "victFound": "$n tossed a pie in your face... and now you are all covered in GOO!",
+  "charNotFound": "That person isn't here...",
+  "charAuto": "You bury your face in the pie... yummmmm!!! :)",
+  "othersAuto": "$n buries $s face in the pie, licking the pan clean.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8627c0c9c8001b31f"
+  },
+  "name": "cower",
+  "charNoArg": "You cower in a corner.",
+  "othersNoArg": "$n cowers in a corner and whimpers softly.",
+  "charFound": "You cower away from $N and $S harsh words.",
+  "othersFound": "$n cowers in a corner, terrified that $N will come after $m.",
+  "victFound": "You scared poor $n!  Now $S is cowering in a corner, afraid for $s life.",
+  "charNotFound": "That person is AWOL at the moment.",
+  "charAuto": "You are afraid of your own shadow!",
+  "othersAuto": "$n cowers in the corner afraid of $s own shadow",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b861e9ace8ec940b11"
+  },
+  "name": "noogie",
+  "charNoArg": "You can't noogie the AIR!  It has no head.",
+  "charFound": "You grab $N, get $M in a head lock and NOOGIE $M!",
+  "othersFound": "$n grabs $N in a head lock and NOOGIES $M... ARGH!!!",
+  "victFound": "Oh NO, $n grabs you, throws you in a head lock and NOOGIES you!",
+  "charNotFound": "That person has gone off to other lands...",
+  "charAuto": "You rub your head and create a static charge...",
+  "othersAuto": "$n rubs $s OWN head and creates a static charge... *ZAP*",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8c23cd15571248afc"
+  },
+  "name": "yeehaw",
+  "charNoArg": "You mount your pony(?) and shout YEEEEEEEHAAAAAAAW!",
+  "othersNoArg": "$n bounces up and down screaming *YEEEEEEHAAAAAAW!*",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8aaaed975d9268de6"
+  },
+  "name": "pissed",
+  "charNoArg": "You are PISSED!",
+  "othersNoArg": "$n is PISSED so watch out!",
+  "charFound": "You turn a stoney gaze toward $N... you are SOOO pissed at $N!",
+  "othersFound": "$n glares at $n.... $n is SOOO PISSED at $m!",
+  "victFound": "$n is pissed at you now... What do you think $e'll DO?",
+  "charNotFound": "That person is not here...",
+  "charAuto": "You are PISSED at yourself!",
+  "othersAuto": "$n is so pissed at $mself.  How could $e be so stupid???",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b81726e3ff41afb38d"
+  },
+  "name": "passout",
+  "charNoArg": "You belch and pass out.",
+  "othersNoArg": "$n is OBVIOUSLY intoxicated... $e burps loudly and passes out!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b87cec011550d6d5b7"
+  },
+  "name": "adjust",
+  "charNoArg": "You look around, make sure nobody is watching, and you adjust your \"Tool.\"",
+  "othersNoArg": "$n looks around slyly, smiles, then reaches down and \"adjusts\" $mself...",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b82ea894a849c7bea1"
+  },
+  "name": "scratch",
+  "charNoArg": "You scratch yourself contentedly.",
+  "othersNoArg": "$n reaches down and scratches $mself...  Now $e looks VERY happy.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8dc1619e58bdbb9b2"
+  },
+  "name": "meditate",
+  "charNoArg": "You assume a very comfortable position and begin to meditate.",
+  "othersNoArg": "$n rests and begins to meditate... $e chants softly to $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b84c2f7b073999d43c"
+  },
+  "name": "bkiss",
+  "charNoArg": "You blow kisses to the air.",
+  "othersNoArg": "$n blows kisses at no one in particular.",
+  "charFound": "You blow a kiss at $N and wonder if $E will catch it.",
+  "othersFound": "$n blows a kiss at $N ... isn't $e so CUTE?",
+  "victFound": "$n blows a kiss at you and hopes you'll blow one back at $m.",
+  "charNotFound": "You kiss falls to the ground with no one to go to.",
+  "charAuto": "You blow a kiss to yourself... isn't the world beautiful?",
+  "othersAuto": "$n blows a kiss to $mself, obviously very in love.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b82cabff6deb34a601"
+  },
+  "name": "beer",
+  "charNoArg": "You pull out a six-pack.",
+  "othersNoArg": "$n starts to juggle a six-pack of beer.",
+  "charFound": "You toss a bottle of beer at $N.",
+  "othersFound": "$n tosses a bottle of beer at $N ... let's just hope $e'll catch it!",
+  "victFound": "$n tossed you a bottle of beer... I think $e wants something...",
+  "charNotFound": "The bottle crashes to the floor and shatters.",
+  "charAuto": "You pop off the top and down a beer.",
+  "othersAuto": "$n pops the top off a bottle of beer and downs it in one gulp.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8140108f7e1356b37"
+  },
+  "name": "bcatch",
+  "charNoArg": "You reach out and rescue the bottle from its flight.",
+  "othersNoArg": "$n reaches out and grabs the bottle of beer tossed to $m.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b807b82326d7c8197a"
+  },
+  "name": "claw",
+  "charNoArg": "You tighten your hands into a fist.",
+  "othersNoArg": "$n clenches $s fists until blood drips from them...",
+  "charFound": "You claw $S eyes out... GROSS!",
+  "othersFound": "$n buries $s nails in $N's eyes ... OH GOD, THE BLOOD!",
+  "victFound": "$n buries $s nails in your eyes and you are blinded by your own blood!",
+  "charNotFound": "They aren't here to claw.",
+  "charAuto": "You claw yourself to shreds!",
+  "othersAuto": "$n rips $mself to shreds with $s fingernails!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8aa0ab1799b50fead"
+  },
+  "name": "rose",
+  "charNoArg": "Who would you like to give it to?",
+  "charFound": "You give $M a pretty rose.",
+  "othersFound": "$n hands $N a beautiful rose.",
+  "victFound": "$n hands you a beautiful ---'---,--{@",
+  "charNotFound": "They seem to have left.",
+  "charAuto": "You give yourself a rose and feel a little sad...",
+  "othersAuto": "$n gives $mself a rose, dont you feel sorry for $m?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b888358b033f72d053"
+  },
+  "name": "laces",
+  "charNoArg": "Whose laces?",
+  "charFound": "With the greatest of stealth, you tie $S shoelaces together.",
+  "othersFound": "$n sneaks up to $N and ties $S shoelaces together.",
+  "victFound": "You try to take a step, and you hit the world facedown!  Someone must have tied your shoelaces together!",
+  "charNotFound": "Whose laces?",
+  "charAuto": "You tie your own shoelaces together, try to walk, and promptly fall.",
+  "othersAuto": "$n cleverly ties $s own shoelaces together, tries to walk, and sprawls flat on the floor.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8a07ae2160ed3fc20"
+  },
+  "name": "tag",
+  "charNoArg": "Tag whom?",
+  "othersNoArg": "$n casts about for someone to tag.",
+  "charFound": ">From nowhere, you pounce on $N and TAG $M remorselessly!  BWAHAHA!!!",
+  "othersFound": "$n dives from the shadows and TAGS $N.  $N IS IT!",
+  "victFound": "$n pounces on you and >>> TAGS <<< you!  You're IT!",
+  "charNotFound": "Who were you going to tag, then?",
+  "charAuto": "Unable to catch anyone else, you do the intelligent thing and tag yourself. You're still IT!",
+  "othersAuto": "Unable to catch anyone else, $n tags $mself.  Are you impressed?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8c8b2252f68eed3cb"
+  },
+  "name": "tank",
+  "charNoArg": "You boldly offer to tank for your everyone else.  Are you sure you know what you're getting into?",
+  "othersNoArg": "$n offers to tank!",
+  "charFound": "You offer to tank for $N.",
+  "othersFound": "$n offers to tank for $N.",
+  "victFound": "$n offers to tank for you!",
+  "charNotFound": "Tank for whom?",
+  "charAuto": "No one will tank for you, eh?!? WELL, YOU'LL SHOW THEM!  (right?)",
+  "othersAuto": "In dazzling chivalry, $n offers to tank-- for $mself!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b83473845610d8b020"
+  },
+  "name": "starve",
+  "charNoArg": "You show your prominent ribs and hope that someone will take pity.",
+  "othersNoArg": "$n is withering before your eyes!  Starvation!",
+  "charFound": "You throw yourself upon $S mercy, begging for food.",
+  "othersFound": "$n begs $N for food.  One would think that magic would have cured hunger by now...",
+  "victFound": "$n is starving before your eyes!  Could you spare some food, please?",
+  "charNotFound": "Sorry, but that person isn't around-- looks like you'll starve.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8aa16732ea0de5fea"
+  },
+  "name": "aargh",
+  "charNoArg": "AAAAAARRRRRRGGGGGGHHHHHH!!!!!!",
+  "othersNoArg": "$n throws back $s head and howls in profound frustration!",
+  "charFound": "You scream your frustration and grab for $S throat with both hands!",
+  "othersFound": "$n howls in frustration, and leaps for $N, trying to throttle $M!",
+  "victFound": "$n grabs for your throat with two hands, howling in frustration!",
+  "charNotFound": "You get even MORE frustrated when you can't find anyone to throttle!",
+  "charAuto": "You scream in frustration at your own stupidity!",
+  "othersAuto": "$n screams in frustration at $s own stupidity!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b870ac3573c6d1d5f4"
+  },
+  "name": "homework",
+  "charNoArg": "Your suddenly remember that you have to defend your thesis today...",
+  "othersNoArg": "$n looks stricken.  Could $e have blown off some important homework?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8cc1277b28b5f9833"
+  },
+  "name": "puff",
+  "charNoArg": "You mimic Puff at her most annoying.",
+  "othersNoArg": "$n says, \"Did you know that I'm written in C?\"",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8dfa2c536f1bd5707"
+  },
+  "name": "yae",
+  "charNoArg": "You sigh, burdened with Yet Another Eeediot.",
+  "othersNoArg": "$n sighs, burdened with Yet Another Eeediot.",
+  "charFound": "There's Yet Another Eeediot in the room, and you're looking right at $M.",
+  "othersFound": "$n clearly believes that $N is an Eeediot!",
+  "victFound": "$n glares at you, obviously not impressed with your intelligence.",
+  "charNotFound": "There are plenty of Eeediots, but that one doesn't seem to be present.",
+  "charAuto": "You bonk yourself for the Eeediot you are!",
+  "othersAuto": "$n bonks $mself, HARD, and curses $mself for the Eeediot $e is!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8380e5ef204c16b31"
+  },
+  "name": "lightbulb",
+  "charNoArg": "*Ding!*  Inspiration!",
+  "othersNoArg": "A light bulb appears above $n's head!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b871edadff97de6e3b"
+  },
+  "name": "voodoo",
+  "charNoArg": "Bad juju like this has to be directed at a person.",
+  "othersNoArg": "$n looks hostile for a moment.",
+  "charFound": "You stare daggers at $N, jabbing pins into $S effigy.",
+  "othersFound": "$n glares balefully at $N while stabbing a pin into a voodoo doll.",
+  "victFound": "Your heart lurches in your chest, and fiery pain stabs through your skull!",
+  "charNotFound": "Your hatred finds no such target.",
+  "charAuto": "You stab a pin into your own voodoo doll!  Agony!",
+  "othersAuto": "$n jabs a pin into $s own voodoo doll, and twitches in agony!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8b37d03ef624ab180"
+  },
+  "name": "ogg",
+  "charNoArg": "Ogg who?",
+  "charFound": "Engage!",
+  "othersFound": "$n oggs $N's head with photon torpedos!  $N reels.",
+  "victFound": "$n oggs your head with photon torpedos!  You are reeling.",
+  "charNotFound": "You can't find your target.",
+  "charAuto": "If you do that, the universe will explode.",
+  "othersAuto": "$n almost oggs $mself, but wisely reconsiders.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8b0cca0e419ab850d"
+  },
+  "name": "confused",
+  "charNoArg": "Your confusion is showing.",
+  "othersNoArg": "$n blinks slowly...",
+  "charFound": "You blink slowly, trying to decipher $S comment.",
+  "othersFound": "$n blinks slowly.  Maybe $N left a word out of $S sentence...",
+  "victFound": "$n blinks slowly.  Maybe you left a word out of your sentence?",
+  "charNotFound": "No wonder you're confused.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b864f7819f5105c87d"
+  },
+  "name": "beam",
+  "charNoArg": "You beam delightedly at nothing in particular.",
+  "othersNoArg": "$n beams broadly at nothing in particular.",
+  "charFound": "You dazzle $N with your smile.",
+  "othersFound": "$n must like $N a great deal to beam at $M so broadly!",
+  "victFound": "$n must like you a great deal to beam at you so broadly!",
+  "charNotFound": "You look pretty silly beaming at imaginary friends...",
+  "charAuto": "Well, aren't you special?",
+  "othersAuto": "$n beams at $mself, obviously pleased.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b85cef3909cb6b500b"
+  },
+  "name": "bite",
+  "charNoArg": "You glare around, muttering \"Bite me...\" under your breath.",
+  "othersNoArg": "$n glares around, muttering \"Bite me...\" under $s breath.",
+  "charFound": "You bite $N on the neck.",
+  "othersFound": "$n bites $N on the neck!",
+  "victFound": "$n bites you on the neck.",
+  "charNotFound": "Hungry?  No such luck.",
+  "charAuto": "You bite your knuckle in anguish.",
+  "othersAuto": "$n bites $s knuckle in anguish...the tragedy!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b800c2780c7af7ddc5"
+  },
+  "name": "discodance",
+  "charNoArg": "Groovy!",
+  "othersNoArg": "$n discos wildly!",
+  "charFound": "You grab $N and disco wildly!  Groovy!",
+  "othersFound": "$n grabs $N and does $m best Travolta!",
+  "victFound": "$n grabs you and does $m best Travolta!",
+  "charNotFound": "It's okay, you can disco solo too.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8035f2eeda879e019"
+  },
+  "name": "scuff",
+  "charNoArg": "You scuff your foot sheepishly.",
+  "othersNoArg": "$n scuffs $s foot in the dirt, looking very sheepish.",
+  "charFound": "You scuff your foot, avoiding $N's gaze.",
+  "othersFound": "$n scuffs $s foot and shyly avoids $N's gaze.",
+  "victFound": "$n scuffs $s foot and shyly avoids your gaze.",
+  "charNotFound": "They aren't here.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b844635bcd9710ca19"
+  },
+  "name": "whap",
+  "charNoArg": "Whap who?",
+  "charFound": "You whap $N upside the head!",
+  "othersFound": "With a resounding WHAP!, $n reprimands $N.",
+  "victFound": "HEY!  $n whaps you upside the head!",
+  "charNotFound": "Whiff...",
+  "charAuto": "Ow! You give yourself a resounding whap upside the head.",
+  "othersAuto": "Biff!  $n whaps $mself upside the head!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b80e60168e32182b5b"
+  },
+  "name": "lag",
+  "charNoArg": "Yes, yes.",
+  "othersNoArg": "$n is   m o v i n g      v  e    ry  sl  o w   l   y ...",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8d5b9aec268c1565c"
+  },
+  "name": "chortle",
+  "charNoArg": "Heh.",
+  "othersNoArg": "$n chortles mischievously.",
+  "charFound": "You chortle mischievously at $N.",
+  "othersFound": "$n chortles mischievously at $N.",
+  "victFound": "$n chortles mischievously at you.",
+  "charNotFound": "Took you a while to get that....they aren't here.",
+  "charAuto": "You chortle at your own joke.",
+  "othersAuto": "$n chortles at $s own joke.  Don't bother.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b809647034641a0d08"
+  },
+  "name": "zerbert",
+  "charNoArg": "Gotta zerbert SOMEBODY.",
+  "charFound": "You lift $N's shirt and blow loudly into $S navel!",
+  "othersFound": "$n lifts $N's shirt and blows loudly into $S navel!",
+  "victFound": "Yeek!  $n lifts your shirt and blows loudly into your navel!",
+  "charNotFound": "You missed.",
+  "charAuto": "Careful, people are staring...",
+  "othersAuto": "$n looks around furtively, and then bends over and blows loudly into $s own navel!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8d85270b672a203c8"
+  },
+  "name": "twitch",
+  "charNoArg": "You twitch nervously.",
+  "othersNoArg": "$n twitches nervously.",
+  "charFound": "You twitch involuntarily at $N's presence.",
+  "othersFound": "$N must really be getting to $n...",
+  "victFound": "$n notices you and twitches.",
+  "charNotFound": "Nervous? They aren't even here.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8caad538a418e8329"
+  },
+  "name": "leer",
+  "charNoArg": "You peer around the room, leering like the pervert you are!",
+  "othersNoArg": "$n peers about, leering like a filthy pervert!",
+  "charFound": "You leer at $N like the pervert you are.",
+  "othersFound": "$n eyes $N up and down, leering like a filthy pervert!",
+  "victFound": "$n eyes you up and down, leering like a filthy pervert!",
+  "charNotFound": "You'll have to settle for memories -- that person isn't here.",
+  "charAuto": "Desperation has reached new heights, hasn't it?",
+  "othersAuto": "$n leers at $mself shamelessly.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8b3aa97657baa73ba"
+  },
+  "name": "polite",
+  "charNoArg": "You give a polite little chuckle.",
+  "othersNoArg": "$n gives a polite little chuckle.",
+  "charFound": "You indicate your underappreciation of $S joke.",
+  "othersFound": "$n gives a polite little chuckle to $N's joke.",
+  "victFound": "$n gives a politle but unappreciative chuckle to your joke.",
+  "charNotFound": "You can't find a friend to chuckle with.",
+  "charAuto": "You chuckle at your own joke, since no one else would.",
+  "othersAuto": "$n chuckles at $s own joke, since none of you would.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8df3529dae9cadc7a"
+  },
+  "name": "mischievous",
+  "charNoArg": "You give a mischievous smile at the trouble you have in mind.",
+  "othersNoArg": "$n grins mischievously at a nasty idea.",
+  "charFound": "You grin mischievously at $M, thinking an evil thought.",
+  "othersFound": "$n grins mischievously at $N.  $m must be thinking something evil.",
+  "victFound": "$n grins mischievously at you.  You inch toward the door.",
+  "charNotFound": "You must be delirious.",
+  "charAuto": "You grin mischievously to yourself.",
+  "othersAuto": "$n grins mischievously to $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8039f0b98c17f0842"
+  },
+  "name": "accept",
+  "charNoArg": "You accept the proferred apology graciously.",
+  "othersNoArg": "$n graciously accepts the proferred apology.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b891fd84124ef925bc"
+  },
+  "name": "anticipate",
+  "charNoArg": "You murmur 'Sssssoonnn, my presssssciousssss...'",
+  "othersNoArg": "$n murmurs 'Ssssssooonnnn, my pressssscioussss...'",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b847abcf26ec90f658"
+  },
+  "name": "shudder",
+  "charNoArg": "You shudder at the horror and repress tears.",
+  "othersNoArg": "$n shudders at the horror and represses tears.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8a8a2de6755d124f2"
+  },
+  "name": "powertrip",
+  "charNoArg": "You scream 'The PPppppPOOOOoooWWWwwwErrRRR!' and writhe.",
+  "othersNoArg": "$n writhes, screaming 'The PPppppPOOOOoooWWWwwwErrRRR!'",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b82079f5b8b1cc35ae"
+  },
+  "name": "mull",
+  "charNoArg": "You mull over the idea at hand, asking for patience.",
+  "othersNoArg": "$n mulls over the idea at hand.  Please be patient.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b878ee978d6d0e4a3f"
+  },
+  "name": "wait",
+  "charNoArg": "You wait patiently.",
+  "othersNoArg": "$n waits patiently.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8e928717696bdb368"
+  },
+  "name": "bat",
+  "charNoArg": "You bat your long, dark lashes and smile innocently.",
+  "othersNoArg": "$n bats $s long, dark lashes and smiles innocently.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b85e4f98a456001b60"
+  },
+  "name": "sage",
+  "charNoArg": "You nod sagely.",
+  "othersNoArg": "$n nods sagely.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b814ad9335a46d9893"
+  },
+  "name": "contemplate",
+  "charNoArg": "You bite your lip contemplatively.",
+  "othersNoArg": "$n bites $s lip contemplatively.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b87aecae0dd2d70a4f"
+  },
+  "name": "agree",
+  "charNoArg": "You agree absolutely.",
+  "othersNoArg": "$n agrees absolutely.",
+  "charFound": "You nod in enthusiastic agreement with $N.",
+  "othersFound": "$n nods in enthusiastic agreement with $N.",
+  "victFound": "$n nods in enthusiastic agreement with you.",
+  "charNotFound": "Sorry, your target is absent.",
+  "charAuto": "You find yourself most agreeable.",
+  "othersAuto": "$n finds $mself the most agreeable being alive.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b80667bf6788562fe3"
+  },
+  "name": "toast",
+  "charNoArg": "You raise a glass of champagne in a toast.",
+  "othersNoArg": "$n raises $s glass of champagne in a toast.",
+  "charFound": "You raise your glass of champagne to $S.",
+  "othersFound": "$n silently toasts $N.",
+  "victFound": "$n silently toasts you.",
+  "charNotFound": "Your object of praise is absent.",
+  "charAuto": "You grin evilly and toast yourself.",
+  "othersAuto": "$n grins evilly and toasts $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b85af3063e5ba4d0b0"
+  },
+  "name": "conspire",
+  "charNoArg": "You wink conspiratorily, waiting for the countersign.",
+  "othersNoArg": "$n winks conspiratorily, waiting for the countersign.",
+  "charFound": "You induct $S into your private conspiracy with a wink.",
+  "othersFound": "$n winks conspiratorily at $N.  You wonder what this can mean.",
+  "victFound": "$n inducts you into $m private conspiracy with a wink.",
+  "charNotFound": "Even you conspire against yourself.",
+  "charAuto": "$n is paranoid enough to distrust even $mself.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8f606107ad6493eaf"
+  },
+  "name": "support",
+  "charNoArg": "You fully support the plan.",
+  "othersNoArg": "$n fully supports the plan.",
+  "charFound": "You hug $M supportively and smile.",
+  "othersFound": "$n hugs $N supportively and smiles.",
+  "victFound": "$n hugs you supportively and smiles.",
+  "charNotFound": "Sorry, friend, I can't see that person here.",
+  "charAuto": "You hug yourself sadly.",
+  "othersAuto": "$n hugs $mself sadly.  Perhaps you could help?",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8cea44783e56cac79"
+  },
+  "name": "pound",
+  "charNoArg": "You make vague pounding motions with your fist at the thought.",
+  "othersNoArg": "$n makes vague pounding motions with $m fist at the thought.",
+  "charFound": "You pound $M into a bloody mass.",
+  "othersFound": "$n pounds $N into a bloody mass.",
+  "victFound": "$n pounds you into a bloody mass.",
+  "charNotFound": "Sorry, friend, I can't see that person here.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8d46018eaabf0503c"
+  },
+  "name": "wrist",
+  "charNoArg": "You hold out out a wrist for a slap.",
+  "othersNoArg": "$n holds out a wrist for a slap.",
+  "charFound": "You slaps $M wrist sharply.",
+  "othersFound": "$n slaps $N's wrist sharply.",
+  "victFound": "$n slaps your wrist sharply.",
+  "charNotFound": "Sorry, friend, I can't see that person here.",
+  "charAuto": "You slap your own wrist.",
+  "othersAuto": "$n slaps $m own wrist.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8373c08889e3d5580"
+  },
+  "name": "romeo",
+  "charNoArg": "You light up a Romeo y Julietta cigar and puff contentedly.",
+  "othersNoArg": "$n lights up a Romeo y Julietta cigar and puffs contentedly.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b810ff0340289df246"
+  },
+  "name": "camel",
+  "charNoArg": "You pretend you are a camel.",
+  "othersNoArg": "$n pretends to be a camel.",
+  "charFound": "You light a Camel cigarette for $M.",
+  "othersFound": "$n lights a Camel cigarette for $N.",
+  "victFound": "$n lights a Camel cigarette for you.",
+  "charNotFound": "You don't see that personhere.",
+  "charAuto": "You light a Camel cigarette and inhale sharply.",
+  "othersAuto": "$n lights a Camel cigarette and inhales sharply.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8f88d12eb00a1ff3e"
+  },
+  "name": "whip",
+  "charNoArg": "You crack your bullwhip menacingly.",
+  "othersNoArg": "$n cracks a bullwhip menacingly.",
+  "charFound": "You flick your whip across $M bare back.",
+  "othersFound": "$n flicks $s whip across $N's bare back.",
+  "victFound": "$n flicks a whip across your back... the pain.. the pleasure..",
+  "charNotFound": "Sorry, friend, I can't see that person here.",
+  "charAuto": "You whip yourself into a frenzy.",
+  "othersAuto": "$n whips $mself into a frenzy.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b840abcc42cc078f25"
+  },
+  "name": "cramp",
+  "charNoArg": "You gasp and clutch your abdomen, wheezing with the pain.",
+  "othersNoArg": "$n gasps and clutches $m abdomen in agony.",
+  "charFound": "You hammerlock $M, screaming, \"AAAAARRRRRGH!! I HAVE A CRAMP!!!\"",
+  "othersFound": "$n hammerlocks $N, screaming, \"AAAAARRRRRGH!! I HAVE A CRAMP!!!\".",
+  "victFound": "$n hammerlocks you, screaming \"AAAAARRRRRGH!! I HAVE A CRAMP!!!\"",
+  "charNotFound": "Suffering as you are, you didn't see that person slip out.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8ba47710ca175be94"
+  },
+  "name": "make",
+  "charNoArg": "You breathe heavily and wetly.",
+  "othersNoArg": "$n breathes heavily and wetly.",
+  "charFound": "You steam up the windows with $M.",
+  "othersFound": "$n and $N start steaming up the windows.",
+  "victFound": "$n starts steaming up the windows with you.",
+  "charNotFound": "Sorry, friend, I can't see that person here.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b87463874f766ac006"
+  },
+  "name": "sweep",
+  "charNoArg": "You look at your empty arms and sigh.",
+  "othersNoArg": "$n looks at $s empty arms and sighs.",
+  "charFound": "You sweep $M into your arms and kiss $M long and deeply.",
+  "othersFound": "$n sweeps $N into $s arms and kisses $M long and deeply.",
+  "victFound": "$n sweeps you into $s arms and kisses you long and deeply.",
+  "charNotFound": "The object of your kiss is absent.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b80ff892d9c6c2530a"
+  },
+  "name": "buff",
+  "charNoArg": "You buff your nails on your cloak.",
+  "othersNoArg": "$n buffs $s nails on $s cloak.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b80b5a931fb6f8b3fd"
+  },
+  "name": "liver",
+  "charNoArg": "You look angrily for someone to disembowel.",
+  "othersNoArg": "$n angrily for someone to disembowel.",
+  "charFound": "You rip out $S liver and eat it.",
+  "othersFound": "$n rips out $N's liver and eats it.",
+  "victFound": "$n rips out your liver and eats it.",
+  "charNotFound": "The object of your wrath is absent.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b808952d93d06f5d0f"
+  },
+  "name": "wrestle",
+  "charFound": "You wrestle $M to the floor and pin $M there.",
+  "othersFound": "$n wrestles $N to the floor, pinning $M there.",
+  "victFound": "$n wrestles you to the floor and pins you.",
+  "charNotFound": "Sorry, friend, I can't see that person here.",
+  "charAuto": "You wrestle with your conscience.",
+  "othersAuto": "$n wrestles with $m conscience.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b86365fbbeb36bee94"
+  },
+  "name": "tie",
+  "charNoArg": "You toy with a pair of handcuffs suggestively.",
+  "othersNoArg": "$n toys suggestively with a pair of handcuffs.",
+  "charFound": "You grab $N and tie $M to the bedposts.",
+  "othersFound": "$n grabs $N and ties $S to a four poster bed.",
+  "victFound": "$n grabs you and ties you securely to a four poster bed.",
+  "charNotFound": "Sorry, friend, I can't see that person here.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b858337f330a3d48f3"
+  },
+  "name": "tight",
+  "charFound": "You hold $M tightly in your arms.",
+  "othersFound": "$n holds $N tightly in $m arms.",
+  "victFound": "$n holds you in $m arms.",
+  "charNotFound": "Sorry, friend, I can't see that person here.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8470198a8311956ec"
+  },
+  "name": "fatality",
+  "charFound": "You intone, '$N wins.  Fatality.'",
+  "othersFound": "$n intones, '$N wins.  Fatality.'",
+  "victFound": "$n intones, '$N wins.  Fatality.'",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8531a3ecdc67a2ea6"
+  },
+  "name": "yowl",
+  "charNoArg": "You yowl in frustration.",
+  "othersNoArg": "$n yowls in frustration!",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+},
+{
+  "_id": {
+    "$oid": "69cd73b8f2fa9337e5870e4a"
+  },
+  "name": "silly",
+  "charNoArg": "You do the silly walk all around the room.",
+  "othersNoArg": "$n does the silly walk all around the room.  $e *is* silly.",
+  "_class": "org.springy.som.modulith.domain.command.internal.SocialDocument"
+}]

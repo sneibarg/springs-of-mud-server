@@ -1,10 +1,10 @@
 from enum import IntEnum
 from typing import Dict, List
-from game.GameMacro import GameMacro
+from game.GameMacros import GameMacros
 from object import Item
 
 
-class ObjectMacros(GameMacro):
+class ObjectMacros(GameMacros):
     def __init__(self, races: dict, item_table: dict, ItemTypes: type[IntEnum]):
         self.races = races
         self.item_table = item_table
@@ -20,7 +20,7 @@ class ObjectMacros(GameMacro):
         return self.is_set(int(obj.value4), stat)
 
     def weight_multiplier(self, obj: Item) -> int:
-        return obj.value3 if self.item_table[obj.item_type] == self.ItemTypes.ITEM_CONTAINER.name else 100
+        return int(obj.value3) if self.item_table[obj.item_type] == self.ItemTypes.ITEM_CONTAINER.name else 100
 
     def decode_form_and_parts(self, race_name: str, BodyForm: type[IntEnum], BodyParts: type[IntEnum]) -> Dict[str, List[str]]:
         race = self.races.get(race_name)

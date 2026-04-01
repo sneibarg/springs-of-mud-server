@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any
 from area import Room
-from game.GameMacro import GameMacro
+from game.GameMacros import GameMacros
 from mobile.Mobile import Mobile
 from player.Character import Character
 from player.CharacterConstants import CharacterConstants
@@ -9,7 +9,7 @@ from registry import RegistryService
 from server.LoggerFactory import LoggerFactory
 
 
-class CharacterMacros(GameMacro):
+class CharacterMacros(GameMacros):
     def __init__(self, registry_service: RegistryService,
                  room_flags: dict,
                  attribute_bonuses: dict,

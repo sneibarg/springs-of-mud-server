@@ -1,9 +1,11 @@
 import inspect
 import re
-from typing import Union, Any, Optional
 
+from typing import Union, Any, Optional
 from injector import inject, Injector
 from command.CommandService import CommandService
+from command.SocialHandler import SocialHandler
+from registry import SocialRegistry
 from registry.CommandRegistry import CommandRegistry
 from registry.RegistryService import RegistryService
 from area.AreaService import AreaService
@@ -166,13 +168,15 @@ async def handle_lambdas(handler, player, character, command, parameters):
 
 class CommandHandler:
     @inject
-    def __init__(self, injector: Injector, message_bus: MessageBus, command_registry: CommandRegistry):
+    def __init__(self, injector: Injector, message_bus: MessageBus, command_registry: CommandRegistry, social_registry: SocialRegistry, social_handler: SocialHandler):
         self.__name__ = "CommandHandler"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.injector = injector
         self.message_bus = message_bus
         self.command_registry = command_registry
-        self.command_not_found_message = self.message_bus.text_to_message(f"Huh?\r\n")
+        self.social_registry = social_registry
+        self.social_handler = social_handler
+        self.command_not_found_message = self.message_bus.text_to_message("Huh?\r\n")
 
     def get_message(self, cmd):
         command = self.command_registry.get_command_by_name(cmd)
@@ -198,11 +202,14 @@ class CommandHandler:
         usage = None
         cmd, parameters = self.extract_parameters(command)
         if cmd is None:
-            await self.message_bus.send_to_character(player.id, self.message_bus.text_to_message(f"Huh?\r\n"))
+            social = self.social_registry.get_social_by_name(command)
+            if social is not None:
+                return await self.social_handler.handle_social(character, command, social)
+            await self.message_bus.send_to_character(player.id, self.command_not_found_message)
             return None
 
-        if cmd is not None and "usage" in cmd:
-            usage = cmd['usage']
+        if "usage" in cmd:
+            usage = cmd["usage"]
 
         if usage is not None:
             usage_function = eval(usage)
@@ -211,7 +218,7 @@ class CommandHandler:
             else:
                 player.usage = usage_function
 
-        self.logger.info(f"CMD: {cmd['name']}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
+        self.logger.debug(f"CMD: {cmd['name']}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
         return await self.call_lambda(player, character, cmd['name'], self.command_registry.registry.values(), parameters)
 
     def extract_parameters(self, command: str) -> Union[tuple[Any, str], tuple[None, None]]:

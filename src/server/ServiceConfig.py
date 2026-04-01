@@ -13,3 +13,4 @@ class ServiceConfig:
     items_endpoint: str
     mobiles_endpoint: str
     skills_endpoint: str
+    socials_endpoint: str

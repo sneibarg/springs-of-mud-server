@@ -7,6 +7,7 @@ from .RoomRegistry import RoomRegistry
 from .ItemRegistry import ItemRegistry
 from .SkillRegistry import SkillRegistry
 from .CommandRegistry import CommandRegistry
+from .SocialRegistry import SocialRegistry
 
 __all__ = ['RegistryService',
            'PlayerRegistry',
@@ -16,4 +17,5 @@ __all__ = ['RegistryService',
            'RoomRegistry',
            'ItemRegistry',
            'SkillRegistry',
-           'CommandRegistry']
+           'CommandRegistry',
+           'SocialRegistry']
