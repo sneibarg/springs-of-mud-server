@@ -10,6 +10,9 @@ from area.Special import Special
 class AreaRegistry:
     def __init__(self):
         self.registry = {}
+        self.shop_registry = {}
+        self.special_registry = {}
+        self.reset_registry = {}
         self.lock = threading.Lock()
 
     def get_area_by_name(self, area_name: str) -> Optional[Area]:
@@ -25,9 +28,21 @@ class AreaRegistry:
             return None
 
     def get_reset_by_area_id(self, area_id: str) -> Optional[Reset]:
-        for reset in self.registry.values():
+        for reset in self.reset_registry.values():
             if reset.area_id == area_id:
                 return reset
+        return None
+
+    def get_shop_by_area_id(self, area_id: str) -> Optional[Shop]:
+        for shop in self.shop_registry.values():
+            if shop.area_id == area_id:
+                return shop
+        return None
+
+    def get_special_by_area_id(self, area_id: str) -> Optional[Special]:
+        for special in self.special_registry.values():
+            if special.area_id == area_id:
+                return special
         return None
 
     def unregister_area(self, area: Area):
@@ -40,24 +55,24 @@ class AreaRegistry:
 
     def register_reset(self, reset: Reset):
         with self.lock:
-            self.registry[reset.id] = reset
+            self.reset_registry[reset.id] = reset
 
     def unregister_reset(self, reset_id: str):
         with self.lock:
-            del self.registry[reset_id]
+            del self.reset_registry[reset_id]
 
     def register_shop(self, shop: Shop):
         with self.lock:
-            self.registry[shop.id] = shop
+            self.shop_registry[shop.id] = shop
 
     def unregister_shop(self, shop_id: str):
         with self.lock:
-            del self.registry[shop_id]
+            del self.shop_registry[shop_id]
 
     def register_special(self, special: Special):
         with self.lock:
-            self.registry[special.id] = special
+            self.special_registry[special.id] = special
 
     def unregister_special(self, special_id: str):
         with self.lock:
-            del self.registry[special_id]
+            del self.special_registry[special_id]
