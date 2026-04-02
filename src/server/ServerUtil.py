@@ -13,6 +13,8 @@ from mobile.MobileHandler import MobileHandler
 from player.PlayerHandler import PlayerHandler
 from game.GameData import GameData
 from game.GameService import GameService
+from game.NoteHandler import NoteHandler
+from game.NoteService import NoteService
 from mobile.MobileService import MobileService
 from object.ObjectMacros import ObjectMacros
 from player.CharacterConstants import CharacterConstants
@@ -76,6 +78,7 @@ class ServerUtil:
         injector.binder.bind(AuthenticationService, scope=singleton)
         injector.binder.bind(WeatherService, scope=singleton)
         injector.binder.bind(SocialService, scope=singleton)
+        injector.binder.bind(NoteService, scope=singleton)
         injector.binder.bind(ItemService, to=ItemService(service_config,
                                                          injector.get(ItemRegistry),
                                                          injector.get(SkillRegistry),
@@ -92,11 +95,13 @@ class ServerUtil:
         injector.binder.bind(MobileHandler, scope=singleton)
         injector.binder.bind(PlayerHandler, scope=singleton)
         injector.binder.bind(CommandHandler, scope=singleton)
+        injector.binder.bind(NoteHandler, scope=singleton)
         logger.info(f"All game handlers have been bound.")
 
     @staticmethod
     def _bind_registries(injector):
-        from registry import PlayerRegistry, ItemRegistry, SkillRegistry, CharacterRegistry, MobileRegistry, AreaRegistry, RoomRegistry, CommandRegistry, SocialRegistry
+        from registry import PlayerRegistry, ItemRegistry, SkillRegistry, CharacterRegistry, MobileRegistry, AreaRegistry, RoomRegistry, CommandRegistry, SocialRegistry, NoteRegistry
+        injector.binder.bind(NoteRegistry, scope=singleton)
         injector.binder.bind(PlayerRegistry, scope=singleton)
         injector.binder.bind(CharacterRegistry, scope=singleton)
         injector.binder.bind(MobileRegistry, scope=singleton)
@@ -137,13 +142,14 @@ class ServerUtil:
         social_service = injector.get(SocialService)
         mobile_service = injector.get(MobileService)
         command_service = injector.get(CommandService)
+        note_service = injector.get(NoteService)
 
         game_service.set_weather_service(weather_service)
         game_service.start_mobile_service(mobile_service)
 
         service_list = (f"- {game_service.__name__}\r\n- {player_service.__name__}\r\n- {room_service.__name__}\r\n- {area_service.__name__}\r\n- "
                         f"{skill_service.__name__}\r\n- {item_service.__name__}\r\n- {weather_service.__name__}\r\n- {mobile_service.__name__}\r\n- "
-                        f"{command_service.__name__}\r\n- {social_service.__name__}")
+                        f"{command_service.__name__}\r\n- {social_service.__name__}\r\n- {note_service.__name__}\r\n")
         logger.info(f"The following services have been started:\r\n{service_list}")
 
     @staticmethod

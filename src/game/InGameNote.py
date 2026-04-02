@@ -12,6 +12,7 @@ class InGameNoteEnum(IntEnum):
 
 @dataclass
 class InGameNote:
+    id: str
     valid: bool
     type: int
     sender: str
@@ -20,3 +21,9 @@ class InGameNote:
     subject: str
     text: str
     date_stamp: int
+
+    @classmethod
+    def from_json(cls, data):
+        from server.ServerUtil import ServerUtil
+        data = ServerUtil.camel_to_snake_case(data)
+        return cls(**data)

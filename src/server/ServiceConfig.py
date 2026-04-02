@@ -18,3 +18,4 @@ class ServiceConfig:
     socials_endpoint: str
     helps_endpoint: str
     resets_endpoint: str
+    notes_endpoint: str

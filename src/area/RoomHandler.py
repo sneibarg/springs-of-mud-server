@@ -21,15 +21,6 @@ class RoomHandler:
         self.session_handler = session_handler
         self.logger = LoggerFactory.get_logger(__name__)
 
-    def get_room(self, room_id) -> Room | None:
-        if room_id is None:
-            self.logger.debug("get_room: room_id is None")
-            return None
-        if room_id not in self.room_registry:
-            self.logger.debug("get_room: room_id="+str(room_id)+" not in registry.")
-            return None
-        return self.room_registry.get_room_by_id(room_id)
-
     async def move_mobile(self, character, direction):
         room = self.room_registry.get_room_by_id(character.room_id)
         destination_id = AreaUtil.is_valid_direction(direction, room)
@@ -75,16 +66,6 @@ class RoomHandler:
         message = self.message_bus.text_to_message(text)
         await self.message_bus.send_to_character(character_id, message)
 
-    def get_in_room(self, character: Character):
-        loiterers = []
-        for session in self.session_handler.get_playing_sessions():
-            char: Character = session.character
-            if char.id == character.id:
-                continue
-            if char.room_id == character.room_id:
-                loiterers.append(char.id)
-        return loiterers
-
     async def to_room(self, character, message, pattern):
         in_room = self.get_in_room(character)
         cloaked_name = "Someone"
@@ -97,6 +78,28 @@ class RoomHandler:
 
         await self.message_bus.send_to_room(character.room_id, self.message_bus.text_to_message(message), self._get_exclude_ids(in_room))
 
+    def get_room(self, room_id) -> Room | None:
+        if room_id is None:
+            self.logger.debug("get_room: room_id is None")
+            return None
+        if room_id not in self.room_registry:
+            self.logger.debug("get_room: room_id="+str(room_id)+" not in registry.")
+            return None
+        return self.room_registry.get_room_by_id(room_id)
+
+    def get_in_room(self, character: Character):
+        loiterers = []
+        for session in self.session_handler.get_playing_sessions():
+            char: Character = session.character
+            if char.id == character.id:
+                continue
+            if char.room_id == character.room_id:
+                loiterers.append(char.id)
+        return loiterers
+
+    def format_room_description(self, room_name: str, description: str) -> Message:
+        return self.message_bus.text_to_message(f"[{room_name}]\r\n{description}\r\n")
+
     def _get_exclude_ids(self, in_room: list):
         exclude = []
         for session in self.session_handler.get_playing_sessions():
@@ -104,6 +107,3 @@ class RoomHandler:
             if char.id not in in_room:
                 exclude.append(char.id)
         return exclude
-
-    def format_room_description(self, room_name: str, description: str) -> Message:
-        return self.message_bus.text_to_message(f"[{room_name}]\r\n{description}\r\n")

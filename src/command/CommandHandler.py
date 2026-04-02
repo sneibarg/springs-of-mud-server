@@ -226,7 +226,6 @@ class CommandHandler:
         arg_all = " ".join((argument or "").split()).lower()
         if not arg_all:
             arg_all = "summary"
-        print(f"ARG ALL: {arg_all}")
         output_parts = []
         for command in self.command_registry.registry.values():
             output_parts += CommandUtil.append_entries(CommandUtil.normalize_help_entries(command.get("help"), command.get("name", "")), arg_all)

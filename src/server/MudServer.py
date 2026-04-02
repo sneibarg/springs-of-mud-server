@@ -106,5 +106,6 @@ class MudServer:
             helps_endpoint=self._construct_service_endpoint('helps_endpoint'),
             shops_endpoint=self._construct_service_endpoint('shops_endpoint'),
             resets_endpoint=self._construct_service_endpoint('resets_endpoint'),
-            specials_endpoint=self._construct_service_endpoint('specials_endpoint')
+            specials_endpoint=self._construct_service_endpoint('specials_endpoint'),
+            notes_endpoint=self._construct_service_endpoint('notes_endpoint')
         )

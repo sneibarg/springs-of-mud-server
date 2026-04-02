@@ -5,8 +5,9 @@ from dataclasses import dataclass
 from typing import List
 from injector import inject
 from area.AreaHandler import AreaHandler
+from registry.AreaRegistry import AreaRegistry
+from registry.MobileRegistry import MobileRegistry
 from mobile.MobileHandler import MobileHandler
-
 
 @dataclass
 class ObjectUpdateTask:
@@ -26,9 +27,11 @@ class AreaUpdateTask:
 
 class UpdateService:
     @inject
-    def __init__(self, config, area_handler: AreaHandler, mobile_handler: MobileHandler, num_workers=4):
+    def __init__(self, config, area_registry: AreaRegistry, mobile_registry: MobileRegistry, area_handler: AreaHandler, mobile_handler: MobileHandler, num_workers=4):
         self.config = config
         self.executor = ThreadPoolExecutor(max_workers=num_workers)
+        self.area_registry = area_registry
+        self.mobile_registry = mobile_registry
         self.area_handler = area_handler
         self.mobile_handler = mobile_handler
         self.stop_flag = False
