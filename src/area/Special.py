@@ -11,7 +11,7 @@ class Special:
     comment: str
 
     def __post_init__(self):
-        self.__name__ = "Shop"
+        self.__name__ = "Special"
         self.logger = LoggerFactory.get_logger(self.__name__)
 
     @classmethod
