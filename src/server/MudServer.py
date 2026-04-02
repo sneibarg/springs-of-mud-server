@@ -103,5 +103,8 @@ class MudServer:
             mobiles_endpoint=self._construct_service_endpoint('mobiles_endpoint'),
             skills_endpoint=self._construct_service_endpoint('skills_endpoint'),
             socials_endpoint=self._construct_service_endpoint('socials_endpoint'),
-            helps_endpoint=self._construct_service_endpoint('helps_endpoint')
+            helps_endpoint=self._construct_service_endpoint('helps_endpoint'),
+            shops_endpoint=self._construct_service_endpoint('shops_endpoint'),
+            resets_endpoint=self._construct_service_endpoint('resets_endpoint'),
+            specials_endpoint=self._construct_service_endpoint('specials_endpoint')
         )

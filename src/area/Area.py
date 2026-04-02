@@ -24,7 +24,7 @@ class Area:
     specials: list = None
 
     def __post_init__(self):
-        self.__name__ = "Area"
+        self.__name__ = f"Area.{self.name}"
         self.logger = LoggerFactory.get_logger(self.__name__)
 
     @classmethod

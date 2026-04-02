@@ -19,4 +19,6 @@ class Reset:
 
     @classmethod
     def from_json(cls, data):
+        from server.ServerUtil import ServerUtil
+        data = ServerUtil.camel_to_snake_case(data)
         return cls(**data)
