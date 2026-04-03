@@ -1,12 +1,11 @@
 import requests
 
 from injector import inject
-
 from game import GameData
 from registry.SkillRegistry import SkillRegistry
 from server.ServiceConfig import ServiceConfig
 from server.LoggerFactory import LoggerFactory
-from skill.GroupTable import GroupTable
+from skill.GroupType import GroupType
 from skill.Skill import Skill
 
 
@@ -36,5 +35,5 @@ class SkillService:
         for group_data in self.groups:
             group_json = self.groups.get(group_data)
             group_json['name'] = group_data
-            group = GroupTable.from_json(group_json)
+            group = GroupType.from_json(group_json)
             self.skill_registry.register_group(group)

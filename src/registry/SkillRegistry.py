@@ -1,6 +1,6 @@
 import threading
 
-from skill.GroupTable import GroupTable
+from skill.GroupType import GroupType
 from skill.Skill import Skill
 
 
@@ -30,7 +30,7 @@ class SkillRegistry:
         with self.lock:
             del self.registry[skill.id]
 
-    def register_group(self, group_table: GroupTable):
+    def register_group(self, group_table: GroupType):
         with self.lock:
             self.group_registry[group_table.name] = group_table
 
@@ -38,7 +38,7 @@ class SkillRegistry:
         with self.lock:
             del self.group_registry[group_name]
 
-    def get_group_by_name(self, group_name: str) -> GroupTable | None:
+    def get_group_by_name(self, group_name: str) -> GroupType | None:
         try:
             return self.group_registry[group_name]
         except KeyError:

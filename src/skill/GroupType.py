@@ -3,7 +3,7 @@ from typing import List
 
 
 @dataclass
-class GroupTable:
+class GroupType:
     name: str
     rating: List[int]
     spells: List[str]
