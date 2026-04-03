@@ -1,29 +1,16 @@
-import threading
-
 from mobile.Mobile import Mobile
+from registries import Registry
+from server.LoggerFactory import LoggerFactory
 
 
-class MobileRegistry:
+class MobileRegistry(Registry[Mobile]):
+    lookup_attrs = ('id', 'vnum')
+
     def __init__(self):
-        self.registry = {}
-        self.lock = threading.Lock()
+        super().__init__()
 
-    def get_mobile_by_id(self, mobile_id) -> Mobile | None:
-        try:
-            return self.registry[mobile_id]
-        except KeyError:
-            return None
+        self.__name__ = "MobileRegistry"
+        self.logger = LoggerFactory.get_logger(self.__name__)
 
-    def get_mobile_by_name(self, mobile_name) -> Mobile | None:
-        for mobile in self.registry.values():
-            if mobile_name == mobile.name:
-                return mobile
-        return None
-
-    def unregister_mobile(self, mobile: Mobile):
-        with self.lock:
-            del self.registry[mobile.id]
-
-    def register_mobile(self, mobile):
-        with self.lock:
-            self.registry[mobile.id] = mobile
+    def all_mobiles(self) -> list[Mobile]:
+        return list(self.registry.values())

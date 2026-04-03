@@ -61,6 +61,14 @@ class Mobile:
         self.__name__ = "Mobile-" + str(self.instance_id)
         self.logger = LoggerFactory.get_logger(self.__name__)
 
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        if isinstance(other, Mobile):
+            return self.id == other.id
+        return False
+
     @classmethod
     def from_json(cls, data):
         data.setdefault('lock', None)

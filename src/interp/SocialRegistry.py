@@ -1,4 +1,3 @@
-from typing import Type
 from registries import Registry
 from interp.Social import Social
 from server.LoggerFactory import LoggerFactory
