@@ -31,12 +31,15 @@ class Item:
     cost: int
     affect_data: list
     extra_descr: list
+    enchanted: Optional[bool] = False
+    timer: Optional[int] = None
     damage_type: Optional[str] = None
     weapon_type: Optional[str] = None
     liquid_color: Optional[str] = None
     liquid_affect_data: Optional[list] = None
     effects: Optional[List[AffectData]] = None
     extra_description: Optional[ExtraDescriptionData] = None
+    room_index_data: Optional[dict] = None
 
     def __post_init__(self):
         self.__name__ = "Item"

@@ -1,4 +1,7 @@
 from dataclasses import dataclass
+from typing import Tuple, Optional
+
+from area import Reset
 from server.LoggerFactory import LoggerFactory
 
 
@@ -13,8 +16,10 @@ class Area:
     security: str = "0"
     min_vnum: str = "0"
     max_vnum: str = "0"
-    last_reset: int = 0
-    suggested_level_range: tuple = None
+    age: int = 0
+    number_of_players: int = 0
+    suggested_level_range: Tuple[int, int] = None
+    vnum_range: Tuple[int, int] = None
     area_flags: list = None
     rooms: list = None
     mobiles: list = None
@@ -22,6 +27,8 @@ class Area:
     shops: list = None
     resets: list = None
     specials: list = None
+    reset_first: Optional[Reset] = None
+    reset_last: Optional[Reset] = None
 
     def __post_init__(self):
         self.__name__ = f"Area.{self.name}"

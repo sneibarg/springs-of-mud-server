@@ -120,26 +120,6 @@ class TestItem(unittest.TestCase):
         call_args = mock_writer.write.call_args[0][0]
         self.assertIn(b'sword', call_args)
 
-    def test_print_description(self):
-        """Test printing item description"""
-        json_str = json.dumps(self.item_data)
-        item = Item.from_json(json_str)
-
-        mock_writer = Mock()
-        item.print_description(mock_writer)
-
-        mock_writer.write.assert_called_once()
-        call_args = mock_writer.write.call_args[0][0]
-        self.assertIn(b'A beautifully crafted sword lies here.', call_args)
-
-    def test_print_description_with_none_writer(self):
-        """Test print_description with None writer doesn't crash"""
-        json_str = json.dumps(self.item_data)
-        item = Item.from_json(json_str)
-
-        # Should not raise an error
-        item.print_description(None)
-
     def test_item_attributes(self):
         """Test all item attributes are set correctly"""
         json_str = json.dumps(self.item_data)

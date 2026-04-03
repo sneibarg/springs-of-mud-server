@@ -19,6 +19,10 @@ class Room:
     tele_delay: int = 0
     room_flags: int = 0
     sector_type: int = 0
+    light: int = 0
+    heal_rate: int = 0
+    mana_rate: int = 0
+    clan: int = 0
     extra_description: list = field(default_factory=list)
     mobiles: list = field(default_factory=list)
     exits: Exits = field(default_factory=Exits)
@@ -63,9 +67,3 @@ class Room:
     def remove_from_combat_events(self, combat_event):
         with self.lock:
             self.combat_events.remove(combat_event)
-
-    def print_description(self, writer, room):
-        if writer is None or room is None:
-            room.logger.info("print_description: writer=" + str(writer) + ", room=" + self.name)
-            return
-        writer.write(str(room.description + "\r\n").encode('utf-8'))
