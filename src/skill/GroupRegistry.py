@@ -1,14 +1,15 @@
 from registries import Registry
+from skill.GroupType import GroupType
 from server.LoggerFactory import LoggerFactory
-from skill.Skill import Skill
 
 
-class SkillRegistry(Registry[Skill]):
+class GroupRegistry(Registry[GroupType]):
+    lookup_attrs = ('name', )
+
     def __init__(self):
         super().__init__()
-
-        self.__name__ = "SkillRegistry"
+        self.__name__ = "GroupRegistry"
         self.logger = LoggerFactory.get_logger(self.__name__)
 
-    def all_skills(self) -> list[Skill]:
+    def all_groups(self) -> list[GroupType]:
         return list(self.registry.values())

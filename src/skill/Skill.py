@@ -3,7 +3,6 @@ import json
 from dataclasses import dataclass
 
 
-
 @dataclass
 class Skill:
     id: str
@@ -20,6 +19,14 @@ class Skill:
     slot: int
     min_mana: int
     beats: int
+
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        if isinstance(other, Skill):
+            return self.id == other.id
+        return False
 
     @classmethod
     def from_json(cls, data) -> Skill:

@@ -1,4 +1,6 @@
+import random
 import re
+import time
 
 from enum import IntEnum
 from typing import Dict, Any, Iterable
@@ -214,3 +216,11 @@ class ServerUtil:
                 bit_position = ord(char) - ord('A')
                 numeric_value |= (1 << bit_position)
         return numeric_value
+
+    @staticmethod
+    def generate_mongo_id() -> str:
+        timestamp = int(time.time()).to_bytes(4, 'big')
+        machine_id = random.getrandbits(24).to_bytes(3, 'big')
+        process_id = random.getrandbits(16).to_bytes(2, 'big')
+        counter = random.getrandbits(24).to_bytes(3, 'big')
+        return (timestamp + machine_id + process_id + counter).hex()

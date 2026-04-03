@@ -26,6 +26,12 @@ class ItemService:
         self.skill_registry = skill_registry
         self.load_items()
 
+    def reload_mobiles(self) -> None:
+        self.logger.info("Reloading all mobiles...")
+        self.item_registry.reset()
+        self.load_items()
+        self.logger.info("Mobiles reload completed.")
+
     def load_items(self):
         self._fetch_and_register(self.items_endpoint, "all items")
 
