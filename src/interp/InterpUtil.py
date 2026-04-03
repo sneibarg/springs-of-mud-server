@@ -73,9 +73,9 @@ class CommandUtil:
         return all(any(k.startswith(q) for k in k_words) for q in q_words)
 
     @staticmethod
-    def extract_parameters(command_registry, command: str) -> Union[tuple[Any, str], tuple[None, None]]:
-        for cmd_json in command_registry.registry.values():
-            shortcuts = cmd_json['shortcuts'].split(", ")
+    def extract_parameters(interp_registry, command: str) -> Union[tuple[Any, str], tuple[None, None]]:
+        for cmd_json in interp_registry.registry.values():
+            shortcuts = cmd_json['shortcuts'].split(", ") if "shortcuts" in cmd_json else ""
             if command in shortcuts or command.startswith(cmd_json['name']):
                 return cmd_json, ' '.join(re.split(' ', command)[1:]).strip()
         return None, None

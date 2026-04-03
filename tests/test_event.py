@@ -1,16 +1,16 @@
 import unittest
 from unittest.mock import Mock
-from event import EventHandler
+from fight import FightHandler
 
 
 class TestEventHandler(unittest.TestCase):
-    """Test EventHandler"""
+    """Test FightHandler"""
 
     def setUp(self):
-        self.event_handler = EventHandler()
+        self.event_handler = FightHandler()
 
     def test_initialization(self):
-        """Test EventHandler initialization"""
+        """Test FightHandler initialization"""
         self.assertIsNotNone(self.event_handler.logger)
         self.assertIsInstance(self.event_handler.command_list, list)
         self.assertIsInstance(self.event_handler.character_registry, dict)

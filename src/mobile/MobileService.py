@@ -4,7 +4,7 @@ from injector import inject
 from mobile.Mobile import Mobile
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
-from event.EventHandler import EventHandler
+from fight.FightHandler import FightHandler
 from game.GameData import GameData
 from area.AreaRegistry import AreaRegistry
 from mobile.MobileRegistry import MobileRegistry
@@ -15,7 +15,7 @@ class MobileService:
     def __init__(self, config: ServiceConfig,
                  area_registry: AreaRegistry,
                  mobile_registry: MobileRegistry,
-                 event_handler: EventHandler,
+                 event_handler: FightHandler,
                  game_data: GameData):
         self.__name__ = "MobileService"
         self.logger = LoggerFactory.get_logger(self.__name__)

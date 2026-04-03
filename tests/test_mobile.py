@@ -125,7 +125,7 @@ class TestMobileService(unittest.TestCase):
         from game import GameData
         from registry import RegistryService
         from area import AreaService
-        from event import EventHandler
+        from fight import FightHandler
 
         self.mock_config = Mock(spec=ServiceConfig)
         self.mock_config.mobiles_endpoint = 'http://test/mobiles'
@@ -139,7 +139,7 @@ class TestMobileService(unittest.TestCase):
 
         self.mock_registry = Mock(spec=RegistryService)
         self.mock_area_service = Mock(spec=AreaService)
-        self.mock_event_handler = Mock(spec=EventHandler)
+        self.mock_event_handler = Mock(spec=FightHandler)
 
         # Load real mobile data
         json_path = os.path.join(os.path.dirname(__file__), '..', 'resources', 'collections', 'SOMDB.Mobiles.json')

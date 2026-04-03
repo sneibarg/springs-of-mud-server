@@ -19,7 +19,7 @@ class SocialHandler:
         parts = text.split(" ", 1)
         social_name = parts[0].lower()
         target_name = parts[1].strip() if len(parts) > 1 and parts[1].strip() else None
-        social = social or self.social_registry.get_social_by_name(social_name)
+        social = social or self.social_registry.get(name=social_name)
         if social is None:
             return False
 

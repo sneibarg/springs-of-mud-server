@@ -288,7 +288,7 @@ class TestMudServer(unittest.TestCase):
             # Run the game loop
             server._run_game_loop()
 
-            # Verify event loop was created and set
+            # Verify fight loop was created and set
             mock_new_event_loop.assert_called_once()
             mock_set_event_loop.assert_called_once_with(mock_loop)
 

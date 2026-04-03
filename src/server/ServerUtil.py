@@ -25,7 +25,7 @@ from server.LoggerFactory import LoggerFactory
 from skill.SkillRegistry import SkillRegistry
 from skill.SkillService import SkillService
 from game.RegistryService import RegistryService
-from event.EventHandler import EventHandler
+from fight.FightHandler import FightHandler
 from interp.InterpService import CommandService
 from server.handlers.ConnectionHandler import ConnectionHandler
 from area.AreaService import AreaService
@@ -91,7 +91,7 @@ class ServerUtil:
         injector.binder.bind(SocialHandler, scope=singleton)
         injector.binder.bind(AreaHandler, scope=singleton)
         injector.binder.bind(RoomHandler, scope=singleton)
-        injector.binder.bind(EventHandler, scope=singleton)
+        injector.binder.bind(FightHandler, scope=singleton)
         injector.binder.bind(ItemHandler, scope=singleton)
         injector.binder.bind(MobileHandler, scope=singleton)
         injector.binder.bind(PlayerHandler, scope=singleton)

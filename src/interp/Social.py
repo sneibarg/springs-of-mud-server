@@ -14,6 +14,14 @@ class Social:
     char_auto: str
     others_auto: str
 
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        if isinstance(other, Social):
+            return self.id == other.id
+        return False
+
     @classmethod
     def from_json(cls, data):
         from server.ServerUtil import ServerUtil

@@ -12,7 +12,7 @@ from area.AreaService import AreaService
 from area.RoomService import RoomService
 from mobile.MobileService import MobileService
 from mobile.Mobile import Mobile
-from event.EventHandler import EventHandler
+from fight.FightHandler import FightHandler
 from player.PlayerHandler import PlayerHandler
 from player.PlayerService import PlayerService
 from object.ItemService import ItemService
@@ -42,7 +42,7 @@ lambda_mappings = {
     'ms': 'MobileService',
     'os': 'ObjectService',
     'ss': 'SkillService',
-    'eh': 'EventHandler',
+    'eh': 'FightHandler',
     'cn': 'TelnetConnection',
     'mb': 'MessageBus',
     'v': 'Character',  # victim aka target
@@ -66,7 +66,7 @@ def get_class_obj(class_name):
         'ObjectService': ItemService,
         'SkillService': SkillService,
         'PlayerService': PlayerService,
-        'EventHandler': EventHandler,
+        'FightHandler': FightHandler,
         'RoomHandler': RoomHandler,
         'PlayerHandler': PlayerHandler,
         'ItemHandler': ItemHandler,
@@ -202,7 +202,7 @@ class CommandHandler:
         usage = None
         cmd, parameters = CommandUtil.extract_parameters(self.interp_registry, command)
         if cmd is None:
-            social = self.social_registry.get_social_by_name(command)
+            social = self.social_registry.get(name=command.lower())
             if social is not None:
                 return await self.social_handler.handle_social(character, command, social)
             await self.message_bus.send_to_character(player.id, self.command_not_found_message)
