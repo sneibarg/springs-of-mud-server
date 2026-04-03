@@ -3,7 +3,7 @@ import threading
 
 from dataclasses import dataclass, field
 from typing import Dict, List
-from game.PromptFormat import PromptFormat
+from interp.PromptFormat import PromptFormat
 from object.Item import Item
 from player.CharacterClass import CharacterClass
 from server.LoggerFactory import LoggerFactory

@@ -7,7 +7,7 @@ from injector import inject
 from area.RoomHandler import RoomHandler
 from area.Area import Area
 from area.Room import Room
-from command.CommandHandler import CommandHandler
+from interp.InterpHandler import CommandHandler
 from server.connection.TelnetConnection import TelnetConnection
 from server.connection.ConnectionManager import ConnectionManager
 from server.session.SessionHandler import SessionHandler
@@ -18,7 +18,7 @@ from server.protocol.Message import MessageType, Message
 from server.LoggerFactory import LoggerFactory
 from player.Player import Player
 from player.Character import Character
-from registry.RegistryService import RegistryService
+from game.RegistryService import RegistryService
 
 
 class ConnectionHandler:

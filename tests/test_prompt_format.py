@@ -1,8 +1,7 @@
 import unittest
 
-from game.PromptFormat import PromptFormat
+from interp.PromptFormat import PromptFormat
 from server.session.SessionState import SessionStatus
-from server.protocol import MessageType
 
 
 class StubCharacter:

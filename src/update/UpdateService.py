@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from typing import List
 from injector import inject
 from area.AreaHandler import AreaHandler
-from registry.AreaRegistry import AreaRegistry
-from registry.MobileRegistry import MobileRegistry
+from area.AreaRegistry import AreaRegistry
+from mobile.MobileRegistry import MobileRegistry
 from mobile.MobileHandler import MobileHandler
 
 @dataclass

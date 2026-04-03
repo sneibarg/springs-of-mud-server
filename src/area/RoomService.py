@@ -4,7 +4,7 @@ import json
 from injector import inject
 from area.Exits import Exits
 from area.Room import Room
-from registry import RoomRegistry
+from area.RoomRegistry import RoomRegistry
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 

@@ -5,8 +5,8 @@ from game.GameMacros import GameMacros
 from mobile.Mobile import Mobile
 from player.Character import Character
 from player.CharacterConstants import CharacterConstants
-from registry import RegistryService
 from server.LoggerFactory import LoggerFactory
+from game.RegistryService import RegistryService
 
 
 class CharacterMacros(GameMacros):

@@ -1,5 +1,5 @@
 from injector import inject
-from registry.SocialRegistry import SocialRegistry
+from interp.SocialRegistry import SocialRegistry
 from server.messaging import MessageBus
 from server.session.SessionHandler import SessionHandler
 

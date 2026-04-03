@@ -3,7 +3,7 @@ from injector import inject
 
 from game.GameData import GameData
 from player.CharacterMacros import CharacterMacros
-from registry.CharacterRegistry import CharacterRegistry
+from player.CharacterRegistry import CharacterRegistry
 from numbers.RandomNumberGenerator import RandomNumberGenerator
 from server.LoggerFactory import LoggerFactory
 from server.messaging.MessageBus import MessageBus

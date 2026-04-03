@@ -144,12 +144,12 @@ class TestMessageCodec(unittest.TestCase):
         """Test text encoding for error"""
         msg = Message(
             type=MessageType.ERROR,
-            data={'text': 'Invalid command'}
+            data={'text': 'Invalid interp'}
         )
 
         encoded = MessageCodec.encode_text(msg)
 
-        self.assertEqual(encoded, b'ERROR: Invalid command\r\n')
+        self.assertEqual(encoded, b'ERROR: Invalid interp\r\n')
 
     def test_encode_text_adds_crlf(self):
         """Test that text encoding always adds CRLF"""
@@ -170,7 +170,7 @@ class TestMessageCodec(unittest.TestCase):
         self.assertEqual(msg.data['text'], '')
 
     def test_decode_text_command(self):
-        """Test decoding regular command"""
+        """Test decoding regular interp"""
         msg = MessageCodec.decode_text(b'look\r\n')
 
         self.assertEqual(msg.type, MessageType.COMMAND)

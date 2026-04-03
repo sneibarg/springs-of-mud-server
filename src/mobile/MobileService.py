@@ -6,8 +6,8 @@ from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 from event.EventHandler import EventHandler
 from game.GameData import GameData
-from registry.AreaRegistry import AreaRegistry
-from registry.MobileRegistry import MobileRegistry
+from area.AreaRegistry import AreaRegistry
+from mobile.MobileRegistry import MobileRegistry
 
 
 class MobileService:

@@ -1,9 +1,9 @@
 import requests
 
 from injector import inject
-from command.Social import Social
+from interp.Social import Social
 from server.LoggerFactory import LoggerFactory
-from registry.SocialRegistry import SocialRegistry
+from interp.SocialRegistry import SocialRegistry
 from server.ServiceConfig import ServiceConfig
 
 

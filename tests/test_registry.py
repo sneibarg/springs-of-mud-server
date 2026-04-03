@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock
 import threading
-from registry.RegistryService import RegistryService
+from game.RegistryService import RegistryService
 
 
 class TestRegistryService(unittest.TestCase):

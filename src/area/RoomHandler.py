@@ -3,8 +3,9 @@ from injector import inject
 from area.AreaUtil import AreaUtil
 from area.Exits import Exits
 from area.Room import Room
+from area.RoomRegistry import RoomRegistry
 from player.Character import Character
-from registry import RoomRegistry, CharacterRegistry
+from player.CharacterRegistry import CharacterRegistry
 from server.LoggerFactory import LoggerFactory
 from server.messaging import MessageBus
 from server.protocol import Message

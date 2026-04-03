@@ -2,7 +2,7 @@ import threading
 
 from typing import Optional
 from injector import inject
-from command.Social import Social
+from interp.Social import Social
 from server.LoggerFactory import LoggerFactory
 from server.messaging import MessageBus
 

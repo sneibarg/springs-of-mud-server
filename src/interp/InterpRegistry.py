@@ -3,7 +3,7 @@ import threading
 from typing import Optional
 
 
-class CommandRegistry:
+class InterpRegistry:
     def __init__(self):
         self.registry = {}
         self.help_registry = {}

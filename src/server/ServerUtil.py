@@ -5,11 +5,12 @@ from typing import Dict, Any, Iterable
 from injector import singleton, Injector
 from area.AreaHandler import AreaHandler
 from area.RoomHandler import RoomHandler
-from command.CommandHandler import CommandHandler
-from command.SocialHandler import SocialHandler
-from command.SocialService import SocialService
+from interp.InterpHandler import CommandHandler
+from interp.SocialHandler import SocialHandler
+from interp.SocialService import SocialService
 from object.ItemHandler import ItemHandler
 from mobile.MobileHandler import MobileHandler
+from object.ItemRegistry import ItemRegistry
 from player.PlayerHandler import PlayerHandler
 from game.GameData import GameData
 from game.GameService import GameService
@@ -21,11 +22,11 @@ from player.CharacterConstants import CharacterConstants
 from player.CharacterMacros import CharacterMacros
 from player.PlayerService import PlayerService
 from server.LoggerFactory import LoggerFactory
+from skill.SkillRegistry import SkillRegistry
 from skill.SkillService import SkillService
-from registry.RegistryService import RegistryService
-from registry import ItemRegistry, SkillRegistry
+from game.RegistryService import RegistryService
 from event.EventHandler import EventHandler
-from command.CommandService import CommandService
+from interp.InterpService import CommandService
 from server.handlers.ConnectionHandler import ConnectionHandler
 from area.AreaService import AreaService
 from area.RoomService import RoomService
@@ -100,7 +101,17 @@ class ServerUtil:
 
     @staticmethod
     def _bind_registries(injector):
-        from registry import PlayerRegistry, ItemRegistry, SkillRegistry, CharacterRegistry, MobileRegistry, AreaRegistry, RoomRegistry, CommandRegistry, SocialRegistry, NoteRegistry
+        from game.NoteRegistry import NoteRegistry
+        from player.PlayerRegistry import PlayerRegistry
+        from player.CharacterRegistry import CharacterRegistry
+        from mobile.MobileRegistry import MobileRegistry
+        from area.AreaRegistry import AreaRegistry
+        from area.RoomRegistry import RoomRegistry
+        from object.ItemRegistry import ItemRegistry
+        from skill.SkillRegistry import SkillRegistry
+        from interp.InterpRegistry import InterpRegistry
+        from interp.SocialRegistry import SocialRegistry
+
         injector.binder.bind(NoteRegistry, scope=singleton)
         injector.binder.bind(PlayerRegistry, scope=singleton)
         injector.binder.bind(CharacterRegistry, scope=singleton)
@@ -109,7 +120,7 @@ class ServerUtil:
         injector.binder.bind(RoomRegistry, scope=singleton)
         injector.binder.bind(ItemRegistry, scope=singleton)
         injector.binder.bind(SkillRegistry, scope=singleton)
-        injector.binder.bind(CommandRegistry, scope=singleton)
+        injector.binder.bind(InterpRegistry, scope=singleton)
         injector.binder.bind(SocialRegistry, scope=singleton)
         injector.binder.bind(RegistryService, scope=singleton)
         injector.get(RegistryService)

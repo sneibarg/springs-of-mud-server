@@ -2,7 +2,7 @@ import requests
 
 from injector import inject
 from game import GameData
-from registry.SkillRegistry import SkillRegistry
+from skill.SkillRegistry import SkillRegistry
 from server.ServiceConfig import ServiceConfig
 from server.LoggerFactory import LoggerFactory
 from skill.GroupType import GroupType

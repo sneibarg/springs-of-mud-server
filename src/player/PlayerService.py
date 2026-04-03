@@ -3,8 +3,8 @@ import requests
 from injector import inject
 from player.Player import Player
 from player.Character import Character
-from registry.PlayerRegistry import PlayerRegistry
-from registry.CharacterRegistry import CharacterRegistry
+from player.PlayerRegistry import PlayerRegistry
+from player.CharacterRegistry import CharacterRegistry
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 

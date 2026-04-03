@@ -1,7 +1,7 @@
 import unittest
 
 from unittest.mock import Mock, patch
-from registry.AreaRegistry import AreaRegistry
+from area.AreaRegistry import AreaRegistry
 from area.Area import Area
 from area.AreaService import AreaService
 from area.Room import Room

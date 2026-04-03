@@ -7,7 +7,7 @@ from .MessageCodec import MessageCodec
 class TelnetProtocol:
     """
     Handles telnet-specific protocol concerns:
-    - IAC command stripping
+    - IAC interp stripping
     - ANSI color support
     - Text encoding/decoding
     """

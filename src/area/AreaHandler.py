@@ -1,5 +1,6 @@
 from injector import inject
-from registry import AreaRegistry
+
+from area.AreaRegistry import AreaRegistry
 from server.messaging import MessageBus
 
 

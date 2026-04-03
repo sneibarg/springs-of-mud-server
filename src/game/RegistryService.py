@@ -1,11 +1,11 @@
 from injector import inject
-from registry.PlayerRegistry import PlayerRegistry
-from registry.CharacterRegistry import CharacterRegistry
-from registry.MobileRegistry import MobileRegistry
-from registry.AreaRegistry import AreaRegistry
-from registry.RoomRegistry import RoomRegistry
-from registry.ItemRegistry import ItemRegistry
-from registry.SkillRegistry import SkillRegistry
+from player.PlayerRegistry import PlayerRegistry
+from player.CharacterRegistry import CharacterRegistry
+from mobile.MobileRegistry import MobileRegistry
+from area.AreaRegistry import AreaRegistry
+from area.RoomRegistry import RoomRegistry
+from object.ItemRegistry import ItemRegistry
+from skill.SkillRegistry import SkillRegistry
 
 
 class RegistryService:

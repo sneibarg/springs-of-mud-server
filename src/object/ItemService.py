@@ -4,12 +4,13 @@ from enum import IntEnum
 from injector import inject
 from game.GameData import GameData
 from object.Item import Item
+from object.ItemRegistry import ItemRegistry
 from object.ObjectMacros import ObjectMacros
 from object.AffectData import AffectData, AffectWhere
 from object.ExtraDescriptionData import ExtraDescriptionData
-from registry import SkillRegistry, ItemRegistry
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
+from skill.SkillRegistry import SkillRegistry
 
 
 class ItemService:

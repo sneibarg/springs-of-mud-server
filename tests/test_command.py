@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock, MagicMock, patch
-from command.CommandHandler import CommandHandler
-from command.CommandService import (
+from interp.InterpHandler import CommandHandler
+from interp.InterpService import (
     CommandService, get_class_obj, parse_args, get_args,
     handle_lambdas, lambda_mappings
 )
@@ -13,7 +13,7 @@ class TestCommandHandler(unittest.TestCase):
     """Test CommandHandler"""
 
     def setUp(self):
-        from command.CommandService import CommandService
+        from interp.InterpService import CommandService
         self.mock_command_service = Mock(spec=CommandService)
         self.mock_command_service.command_list = {
             'look': {
@@ -37,7 +37,7 @@ class TestCommandHandler(unittest.TestCase):
         self.assertIsNotNone(self.handler.command_list)
 
     def test_extract_parameters_full_command(self):
-        """Test extracting parameters from full command"""
+        """Test extracting parameters from full interp"""
         cmd, params = self.handler.extract_parameters('look north')
         self.assertEqual(cmd['name'], 'look')
         self.assertEqual(params, 'north')
@@ -55,13 +55,13 @@ class TestCommandHandler(unittest.TestCase):
         self.assertEqual(params, 'hello world')
 
     def test_extract_parameters_invalid_command(self):
-        """Test extracting parameters from invalid command"""
+        """Test extracting parameters from invalid interp"""
         cmd, params = self.handler.extract_parameters('invalid')
         self.assertIsNone(cmd)
         self.assertIsNone(params)
 
     def test_handle_command_with_usage(self):
-        """Test handling command with usage function"""
+        """Test handling interp with usage function"""
         mock_player = Mock()
         mock_player.writer.return_value = Mock()
 
@@ -69,7 +69,7 @@ class TestCommandHandler(unittest.TestCase):
         mock_player.set_usage.assert_called()
 
     def test_handle_command_invalid(self):
-        """Test handling invalid command"""
+        """Test handling invalid interp"""
         mock_player = Mock()
         mock_writer = Mock()
         mock_player.writer.return_value = mock_writer
@@ -96,7 +96,7 @@ class TestCommandService(unittest.TestCase):
             mobiles_endpoint="http://test/mobiles"
         )
 
-    @patch('command.CommandService.requests.get')
+    @patch('interp.CommandService.requests.get')
     def test_initialization_success(self, mock_get):
         """Test successful initialization"""
         mock_response = Mock()
@@ -112,7 +112,7 @@ class TestCommandService(unittest.TestCase):
         self.assertIn('look', service.command_list)
         self.assertIn('say', service.command_list)
 
-    @patch('command.CommandService.requests.get')
+    @patch('interp.CommandService.requests.get')
     def test_initialization_failure(self, mock_get):
         """Test initialization failure"""
         mock_response = Mock()
@@ -122,15 +122,15 @@ class TestCommandService(unittest.TestCase):
         with self.assertRaises(ValueError):
             CommandService(self.mock_injector, self.commands_endpoint)
 
-    @patch('command.CommandService.requests.get')
+    @patch('interp.CommandService.requests.get')
     def test_get_command_by_name(self, mock_get):
-        """Test getting single command"""
+        """Test getting single interp"""
         # First call for initialization
         init_response = Mock()
         init_response.status_code = 200
         init_response.json.return_value = []
 
-        # Second call for fetching specific command
+        # Second call for fetching specific interp
         fetch_response = Mock()
         fetch_response.status_code = 200
         fetch_response.json.return_value = {
@@ -144,9 +144,9 @@ class TestCommandService(unittest.TestCase):
         result = service.get_command_by_name('look')
         self.assertEqual(result['name'], 'look')
 
-    @patch('command.CommandService.requests.get')
+    @patch('interp.CommandService.requests.get')
     def test_get_message(self, mock_get):
-        """Test getting command message"""
+        """Test getting interp message"""
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.json.return_value = [
@@ -158,9 +158,9 @@ class TestCommandService(unittest.TestCase):
         message = service.get_message('look')
         self.assertEqual(message, 'You look around.')
 
-    @patch('command.CommandService.requests.get')
+    @patch('interp.CommandService.requests.get')
     def test_call_lambda_with_null_json(self, mock_get):
-        """Test call_lambda with nonexistent command sends Huh? message"""
+        """Test call_lambda with nonexistent interp sends Huh? message"""
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.json.return_value = []
@@ -176,7 +176,7 @@ class TestCommandService(unittest.TestCase):
 
 
 class TestCommandUtilityFunctions(unittest.TestCase):
-    """Test command utility functions"""
+    """Test interp utility functions"""
 
     def test_get_class_obj_player(self):
         """Test getting Player class object"""
@@ -278,7 +278,7 @@ class TestCommandUtilityFunctions(unittest.TestCase):
         with self.assertRaises(ValueError):
             get_args('lambda x: x.do_something()', mock_player, mock_injector, '')
 
-    @patch('command.CommandService.requests.get')
+    @patch('interp.CommandService.requests.get')
     def test_handle_lambdas_success(self, mock_get):
         """Test handling lambdas successfully"""
         mock_response = Mock()
@@ -311,7 +311,7 @@ class TestCommandUtilityFunctions(unittest.TestCase):
         # Should execute without error
         handle_lambdas(command_service, mock_player, command, '')
 
-    @patch('command.CommandService.requests.get')
+    @patch('interp.CommandService.requests.get')
     def test_handle_lambdas_with_none(self, mock_get):
         """Test handling lambdas with None value"""
         mock_response = Mock()
@@ -340,7 +340,7 @@ class TestCommandUtilityFunctions(unittest.TestCase):
         with self.assertRaises(ValueError):
             handle_lambdas(command_service, Mock(), command, '')
 
-    @patch('command.CommandService.requests.get')
+    @patch('interp.CommandService.requests.get')
     def test_handle_lambdas_with_non_string(self, mock_get):
         """Test handling lambdas with non-string value"""
         mock_response = Mock()

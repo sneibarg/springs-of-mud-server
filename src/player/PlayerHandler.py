@@ -2,9 +2,8 @@ from typing import List
 
 from injector import inject
 from player.Character import Character
-from registry.CharacterRegistry import CharacterRegistry
+from player.CharacterRegistry import CharacterRegistry
 from server.messaging import MessageBus
-from server.protocol import Message, MessageType
 from server.session.SessionHandler import SessionHandler
 
 

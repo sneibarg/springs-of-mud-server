@@ -1,9 +1,10 @@
 from typing import Optional, Tuple
 from injector import inject
 
+from player.CharacterRegistry import CharacterRegistry
 from player.Player import Player
 from player.Character import Character
-from registry import PlayerRegistry, CharacterRegistry
+from player.PlayerRegistry import PlayerRegistry
 from server.connection.Connection import Connection
 from server.protocol.Message import Message, MessageType
 from server.session.SessionState import SessionState, SessionStatus

@@ -1,14 +1,13 @@
 import inspect
 import re
 
-from typing import Union, Any, Optional
 from injector import inject, Injector
-from command.CommandService import CommandService
-from command.CommandUtil import CommandUtil
-from command.SocialHandler import SocialHandler
-from registry import SocialRegistry
-from registry.CommandRegistry import CommandRegistry
-from registry.RegistryService import RegistryService
+from interp.SocialRegistry import SocialRegistry
+from interp.InterpService import CommandService
+from interp.InterpUtil import CommandUtil
+from interp.SocialHandler import SocialHandler
+from interp.InterpRegistry import InterpRegistry
+from game.RegistryService import RegistryService
 from area.AreaService import AreaService
 from area.RoomService import RoomService
 from mobile.MobileService import MobileService
@@ -169,18 +168,18 @@ async def handle_lambdas(handler, player, character, command, parameters):
 
 class CommandHandler:
     @inject
-    def __init__(self, injector: Injector, message_bus: MessageBus, command_registry: CommandRegistry, social_registry: SocialRegistry, social_handler: SocialHandler):
+    def __init__(self, injector: Injector, message_bus: MessageBus, interp_registry: InterpRegistry, social_registry: SocialRegistry, social_handler: SocialHandler):
         self.__name__ = "CommandHandler"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.injector = injector
         self.message_bus = message_bus
-        self.command_registry = command_registry
+        self.interp_registry = interp_registry
         self.social_registry = social_registry
         self.social_handler = social_handler
         self.command_not_found_message = self.message_bus.text_to_message("Huh?\r\n")
 
     def get_message(self, cmd):
-        command = self.command_registry.get_command_by_name(cmd)
+        command = self.interp_registry.get_command_by_name(cmd)
         if command is None:
             raise ValueError(f"Command {cmd} not found in command registry.")
         return command["message"]
@@ -201,7 +200,7 @@ class CommandHandler:
 
     async def handle_command(self, player, character, command):
         usage = None
-        cmd, parameters = CommandUtil.extract_parameters(self.command_registry, command)
+        cmd, parameters = CommandUtil.extract_parameters(self.interp_registry, command)
         if cmd is None:
             social = self.social_registry.get_social_by_name(command)
             if social is not None:
@@ -220,14 +219,14 @@ class CommandHandler:
                 player.usage = usage_function
 
         self.logger.debug(f"CMD: {cmd['name']}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
-        return await self.call_lambda(player, character, cmd['name'], self.command_registry.registry.values(), parameters)
+        return await self.call_lambda(player, character, cmd['name'], self.interp_registry.registry.values(), parameters)
 
     async def help_usage(self, character, argument: str = ""):
         arg_all = " ".join((argument or "").split()).lower()
         if not arg_all:
             arg_all = "summary"
         output_parts = []
-        for command in self.command_registry.registry.values():
+        for command in self.interp_registry.registry.values():
             output_parts += CommandUtil.append_entries(CommandUtil.normalize_help_entries(command.get("help"), command.get("name", "")), arg_all)
 
         message_text = "".join(output_parts) if len(output_parts) > 0 else "No help on that word.\n\r"

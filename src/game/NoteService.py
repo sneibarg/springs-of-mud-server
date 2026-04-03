@@ -2,7 +2,7 @@ import requests
 
 from injector import inject
 from game.InGameNote import InGameNote
-from registry.NoteRegistry import NoteRegistry
+from game.NoteRegistry import NoteRegistry
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 

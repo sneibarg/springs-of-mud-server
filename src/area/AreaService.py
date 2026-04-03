@@ -5,7 +5,7 @@ from area.Special import Special
 from area.Shop import Shop
 from area.Reset import Reset
 from area.Area import Area
-from registry.AreaRegistry import AreaRegistry
+from area.AreaRegistry import AreaRegistry
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 
