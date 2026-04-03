@@ -6,7 +6,7 @@ from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 
 
-class CommandService:
+class InterpService:
     @inject
     def __init__(self, config: ServiceConfig, interp_registry: InterpRegistry):
         self.__name__ = "CommandService"

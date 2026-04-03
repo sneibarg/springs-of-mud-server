@@ -45,6 +45,14 @@ class Item:
         self.__name__ = "Item"
         self.logger = LoggerFactory.get_logger(self.__name__)
 
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        if isinstance(other, Item):
+            return self.id == other.id
+        return False
+
     @classmethod
     def from_json(cls, data):
         if isinstance(data, str):

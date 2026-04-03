@@ -1,3 +1,3 @@
-from .InterpService import CommandService
+from .InterpService import InterpService
 
-__all__ = ['CommandService']
+__all__ = ['InterpService']

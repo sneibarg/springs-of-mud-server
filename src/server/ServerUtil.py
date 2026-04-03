@@ -26,7 +26,7 @@ from skill.SkillRegistry import SkillRegistry
 from skill.SkillService import SkillService
 from game.RegistryService import RegistryService
 from fight.FightHandler import FightHandler
-from interp.InterpService import CommandService
+from interp.InterpService import InterpService
 from server.handlers.ConnectionHandler import ConnectionHandler
 from area.AreaService import AreaService
 from area.RoomService import RoomService
@@ -72,7 +72,7 @@ class ServerUtil:
         injector.binder.bind(GameService, scope=singleton)
         injector.binder.bind(SkillService, scope=singleton)
         injector.binder.bind(PlayerService, scope=singleton)
-        injector.binder.bind(CommandService, scope=singleton)
+        injector.binder.bind(InterpService, scope=singleton)
         injector.binder.bind(AreaService, scope=singleton)
         injector.binder.bind(RoomService, scope=singleton)
         injector.binder.bind(MobileService, scope=singleton)
@@ -139,7 +139,8 @@ class ServerUtil:
                                                                  injector.get(CharacterConstants)), scope=singleton)
         injector.binder.bind(ObjectMacros, to=ObjectMacros(injector.get(GameData).races,
                                                            injector.get(GameData).item_table,
-                                                           injector.get(GameService).enums['itemTypes']), scope=singleton)
+                                                           injector.get(GameService).enums['itemTypes'],
+                                                           injector.get(GameService).enums['damageTypes']), scope=singleton)
 
     @staticmethod
     def load_services(injector) -> None:
@@ -152,7 +153,7 @@ class ServerUtil:
         weather_service = injector.get(WeatherService)
         social_service = injector.get(SocialService)
         mobile_service = injector.get(MobileService)
-        command_service = injector.get(CommandService)
+        command_service = injector.get(InterpService)
         note_service = injector.get(NoteService)
 
         game_service.set_weather_service(weather_service)

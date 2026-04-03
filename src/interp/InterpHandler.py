@@ -3,7 +3,7 @@ import re
 
 from injector import inject, Injector
 from interp.SocialRegistry import SocialRegistry
-from interp.InterpService import CommandService
+from interp.InterpService import InterpService
 from interp.InterpUtil import CommandUtil
 from interp.SocialHandler import SocialHandler
 from interp.InterpRegistry import InterpRegistry
@@ -37,7 +37,7 @@ lambda_mappings = {
     'ph': 'PlayerHandler',
     'cmh': 'CommandHandler',
     'sh': 'SkillHandler',
-    'cs': 'CommandService',
+    'cs': 'InterpService',
     'ps': 'PlayerService',
     'ms': 'MobileService',
     'os': 'ObjectService',
@@ -58,7 +58,7 @@ def get_class_obj(class_name):
         return None
 
     class_map = {
-        'CommandService': CommandService,
+        'InterpService': InterpService,
         'RegistryService': RegistryService,
         'RoomService': RoomService,
         'AreaService': AreaService,
