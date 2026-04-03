@@ -1,10 +1,10 @@
-from typing import Optional, Type
+from typing import Type
 from registries import Registry
 from interp.Social import Social
 from server.LoggerFactory import LoggerFactory
 
 
-class SocialRegistry(Registry[Type[Social]]):
+class SocialRegistry(Registry[Social]):
     lookup_attrs = ('id', 'name')
 
     def __init__(self):
@@ -12,3 +12,6 @@ class SocialRegistry(Registry[Type[Social]]):
 
         self.__name__ = "SocialRegistry"
         self.logger = LoggerFactory.get_logger(self.__name__)
+
+    def all_socials(self) -> list[Social]:
+        return list(self.registry.values())
