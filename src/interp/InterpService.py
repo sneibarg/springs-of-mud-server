@@ -25,8 +25,8 @@ class InterpService:
 
     def reload_commands(self) -> None:
         self.logger.info("Reloading all commands...")
-        self.social_registry.reset()
-        self.load_socials()
+        self.interp_registry.reset()
+        self.load_commands()
         self.logger.info("Commands reload completed.")
 
     def load_commands(self):
