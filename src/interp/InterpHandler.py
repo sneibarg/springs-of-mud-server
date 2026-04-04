@@ -188,7 +188,7 @@ class InterpHandler:
         return InterpUtil.command_attr(command, "message", None)
 
     async def call_lambda(self, player, character, command_name, command_list, parameters):
-        command_json = InterpUtil.find_json_object_by_name(command_name, command_list)
+        command_json = InterpUtil.find_command_by_name(command_name, command_list)
         if command_json is None:
             return await self.message_bus.send_to_character(character.id, self.command_not_found_message)
 
@@ -202,13 +202,8 @@ class InterpHandler:
             raise
 
     async def handle_command(self, player, character, command):
-        usage = None
         cmd, parameters = InterpUtil.extract_parameters(self.interp_registry, command)
         if cmd is None:
-            raw = " ".join((command or "").split()).strip().lower()
-            token = raw.split(" ", 1)[0] if raw else ""
-            registry_count = len(self.interp_registry.all_commands())
-            self.logger.warning(f"Unmatched command token='{token}' raw='{raw}' registry_count={registry_count}")
             social = self.social_registry.get_or_none(name=command.lower())
             if social is not None:
                 return await self.social_handler.handle_social(character, command, social)
@@ -219,12 +214,12 @@ class InterpHandler:
         if isinstance(usage, str) and usage.strip():
             usage_function = eval(usage)
             if not callable(usage_function):
-                self.logger.info("NOT_CALLABLE: " + str(usage_function))
+                self.logger.debug("NOT_CALLABLE: " + str(usage_function))
             else:
                 player.usage = usage_function
 
         cmd_name = InterpUtil.command_attr(cmd, "name", "")
-        self.logger.info(f"CMD: {cmd_name}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
+        self.logger.debug(f"CMD: {cmd_name}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
         return await self.call_lambda(player, character, cmd_name, self.interp_registry.all_commands(), parameters)
 
     async def help_usage(self, character, argument: str = ""):
@@ -238,12 +233,11 @@ class InterpHandler:
             if help_entry is None:
                 continue
 
-            keyword = str(getattr(help_entry, "keyword", "") or "").strip().lower()
-            if not keyword:
+            if not help_entry.keyword:
                 continue
 
             q_words = arg_all.split()
-            k_words = keyword.split()
+            k_words = help_entry.keyword.split()
             if not q_words or not k_words:
                 continue
             if not all(any(k.startswith(q) for k in k_words) for q in q_words):

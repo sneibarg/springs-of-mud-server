@@ -27,7 +27,7 @@ class InterpUtil:
         return tokens
 
     @staticmethod
-    def find_json_object_by_name(name: str, commands) -> Optional[Any]:
+    def find_command_by_name(name: str, commands) -> Optional[Any]:
         for command in commands:
             shortcuts = InterpUtil.shortcut_tokens(command.shortcuts)
             if name in shortcuts:
