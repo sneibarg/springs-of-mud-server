@@ -27,12 +27,10 @@ class HelpService:
         self._fetch_and_register(self.helps_endpoint, "helps")
 
     def _fetch_and_register(self, url: str, description: str) -> Optional[HelpEntry]:
-        from .InterpUtil import InterpUtil
         try:
             response = requests.get(url, timeout=10)
             response.raise_for_status()
             data = response.json()
-            normalized_data = InterpUtil.normalize_help_entries(data, "summary")
             if isinstance(data, list):
                 count = 0
                 for help_data in data:
