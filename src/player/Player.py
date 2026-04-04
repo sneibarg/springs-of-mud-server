@@ -1,7 +1,7 @@
 import threading
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, List
 from player.Character import Character
 
 
@@ -27,6 +27,14 @@ class Player:
         from server.LoggerFactory import LoggerFactory
         self.logger = LoggerFactory.get_logger(__name__)
         self.logger.info("Instantiated Player account " + self.account_name)
+
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        if isinstance(other, Player):
+            return self.id == other.id
+        return False
 
     @classmethod
     def from_json(cls, data):

@@ -77,13 +77,13 @@ class WeatherService:
 
     def _indoors(self) -> list:
         indoors = []
-        for character in self.character_registry.registry.values():
+        for character in self.character_registry.all_characters():
             if not self._is_player_outdoors(character.id):
                 indoors.append(character.id)
         return indoors
 
     def _is_player_outdoors(self, character_id: str) -> bool:
-        character = self.character_registry.get_character_by_id(character_id)
+        character = self.character_registry.get(id=character_id)
         self.logger.debug(f"Checking if player {character_id} is outdoors: {character}")
         if character:
             return self.character_macros.is_outside(char=character)

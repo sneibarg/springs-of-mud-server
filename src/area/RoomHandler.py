@@ -55,9 +55,9 @@ class RoomHandler:
         await self.message_bus.send_to_character(character_id, self.format_room_description(room.name, room.description))
 
     async def print_in_room(self, character_id):
-        character = self.character_registry.get_character_by_id(character_id)
+        character = self.character_registry.get(id=character_id)
         in_room = self.get_in_room(character)
-        characters_in_room: List[Character] = [self.character_registry.get_character_by_id(char_id) for char_id in in_room]
+        characters_in_room: List[Character] = [self.character_registry.get(id=char_id) for char_id in in_room]
         text = ""
         for char_in_room in characters_in_room:
             if char_in_room.cloaked:

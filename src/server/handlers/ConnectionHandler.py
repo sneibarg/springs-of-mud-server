@@ -7,7 +7,7 @@ from injector import inject
 from area.RoomHandler import RoomHandler
 from area.Area import Area
 from area.Room import Room
-from interp.InterpHandler import CommandHandler
+from interp.InterpHandler import InterpHandler
 from server.connection.TelnetConnection import TelnetConnection
 from server.connection.ConnectionManager import ConnectionManager
 from server.session.SessionHandler import SessionHandler
@@ -30,7 +30,7 @@ class ConnectionHandler:
                  registry_service: RegistryService,
                  room_handler: RoomHandler,
                  auth_service: AuthenticationService,
-                 command_handler: CommandHandler):
+                 command_handler: InterpHandler):
         self.logger = LoggerFactory.get_logger(__name__)
         self.session_handler = session_handler
         self.connection_manager = connection_manager
@@ -142,9 +142,9 @@ class ConnectionHandler:
         character.lock = threading.Lock()
 
     def _update_player(self, session, character) -> Player | None:
-        account = self.registry_service.player_registry.get_player_by_id(session.player_id)
+        account = self.registry_service.player_registry.get(id=session.player_id)
         if account:
-            account.current_character = character
+            account.current_characters.append(character)
             account.ansi_enabled = session.ansi_enabled
         return account
 

@@ -1,12 +1,33 @@
-import re
 from typing import Optional, Union, Any
 
 
-class CommandUtil:
+class InterpUtil:
     pass
 
     @staticmethod
-    def _coerce_entries(payload, fallback_keyword):
+    def command_attr(command, attr_name: str, default=None):
+        if isinstance(command, dict):
+            return command.get(attr_name, default)
+        return getattr(command, attr_name, default)
+
+    @staticmethod
+    def shortcut_tokens(shortcuts) -> list[str]:
+        if shortcuts is None:
+            return []
+        if isinstance(shortcuts, list):
+            values = shortcuts
+        else:
+            values = str(shortcuts).split(",")
+
+        tokens = []
+        for value in values:
+            token = str(value).strip().lower()
+            if token:
+                tokens.append(token)
+        return tokens
+
+    @staticmethod
+    def coerce_entries(payload, fallback_keyword):
         if payload is None:
             return []
         if isinstance(payload, list):
@@ -30,13 +51,12 @@ class CommandUtil:
         return []
 
     @staticmethod
-    def find_json_object_by_name(name: str, commands: dict) -> Optional[dict]:
-        if not commands:
-            return None
+    def find_json_object_by_name(name: str, commands) -> Optional[Any]:
         for command in commands:
-            if name in command.get('shortcuts', []):
+            shortcuts = InterpUtil.shortcut_tokens(command.shortcuts)
+            if name in shortcuts:
                 return command
-            if command.get('name') == name:
+            if command.name == name:
                 return command
         return None
 
@@ -44,7 +64,7 @@ class CommandUtil:
     def normalize_help_entries(help_payload, fallback_keyword: str) -> list[dict]:
         fallback_keyword = (fallback_keyword or "").strip().lower()
         normalized = []
-        for raw in CommandUtil._coerce_entries(help_payload, fallback_keyword):
+        for raw in InterpUtil.coerce_entries(help_payload, fallback_keyword):
             if not isinstance(raw, dict):
                 continue
 
@@ -65,43 +85,26 @@ class CommandUtil:
         return normalized
 
     @staticmethod
-    def is_name_match(query: str, keyword: str) -> bool:
-        q_words = (query or "").strip().lower().split()
-        k_words = (keyword or "").strip().lower().split()
-        if not q_words or not k_words:
-            return False
-        return all(any(k.startswith(q) for k in k_words) for q in q_words)
-
-    @staticmethod
     def extract_parameters(interp_registry, command: str) -> Union[tuple[Any, str], tuple[None, None]]:
-        for cmd_json in interp_registry.registry.values():
-            shortcuts = cmd_json['shortcuts'].split(", ") if "shortcuts" in cmd_json else ""
-            if command in shortcuts or command.startswith(cmd_json['name']):
-                return cmd_json, ' '.join(re.split(' ', command)[1:]).strip()
+        normalized = " ".join((command or "").split()).strip()
+        if not normalized:
+            return None, None
+
+        parts = normalized.split(" ", 1)
+        command_text = parts[0].lower()
+        parameters = parts[1].strip() if len(parts) > 1 else ""
+        get_or_none = getattr(interp_registry, "get_or_none", None)
+        if callable(get_or_none):
+            exact = get_or_none(name=command_text)
+            if exact is not None:
+                return exact, parameters
+
+        for cmd in interp_registry.all_commands():
+            if not cmd.name:
+                continue
+
+            shortcuts = InterpUtil.shortcut_tokens(cmd.name)
+            if command_text == cmd.name or command_text in shortcuts:
+                return cmd, parameters
         return None, None
 
-    @staticmethod
-    def append_entries(entries: list[dict], topic: str) -> list[str]:
-        found = False
-        output_parts: list[str] = []
-        for help_entry in entries:
-            keyword = str(help_entry.get("keyword", "")).strip().lower()
-            if not keyword:
-                continue
-            if not CommandUtil.is_name_match(topic, keyword):
-                continue
-
-            level = int(help_entry.get("level", 0))
-            if found:
-                output_parts.append("\n\r============================================================\n\r\n\r")
-
-            if level >= 0 and topic != "imotd":
-                output_parts.append(str(help_entry.get("keyword", "")))
-                output_parts.append("\n\r")
-
-            text = str(help_entry.get("text", ""))
-            if text.startswith("."):
-                text = text[1:]
-            output_parts.append(text)
-
-        return output_parts

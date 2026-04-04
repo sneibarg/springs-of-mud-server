@@ -7,12 +7,12 @@ from typing import Dict, Any, Iterable
 from injector import singleton, Injector
 from area.AreaHandler import AreaHandler
 from area.RoomHandler import RoomHandler
-from interp.InterpHandler import CommandHandler
+from interp.HelpService import HelpService
+from interp.InterpHandler import InterpHandler
 from interp.SocialHandler import SocialHandler
 from interp.SocialService import SocialService
 from object.ItemHandler import ItemHandler
 from mobile.MobileHandler import MobileHandler
-from object.ItemRegistry import ItemRegistry
 from player.PlayerHandler import PlayerHandler
 from game.GameData import GameData
 from game.GameService import GameService
@@ -23,8 +23,8 @@ from object.ObjectMacros import ObjectMacros
 from player.CharacterConstants import CharacterConstants
 from player.CharacterMacros import CharacterMacros
 from player.PlayerService import PlayerService
+from player.CharacterService import CharacterService
 from server.LoggerFactory import LoggerFactory
-from skill.SkillRegistry import SkillRegistry
 from skill.SkillService import SkillService
 from game.RegistryService import RegistryService
 from fight.FightHandler import FightHandler
@@ -71,9 +71,13 @@ class ServerUtil:
 
     @staticmethod
     def _bind_game_services(injector, service_config):
+        from object.ItemRegistry import ItemRegistry
+        from skill.SkillRegistry import SkillRegistry
         injector.binder.bind(GameService, scope=singleton)
         injector.binder.bind(SkillService, scope=singleton)
         injector.binder.bind(PlayerService, scope=singleton)
+        injector.binder.bind(CharacterService, scope=singleton)
+        injector.binder.bind(HelpService, scope=singleton)
         injector.binder.bind(InterpService, scope=singleton)
         injector.binder.bind(AreaService, scope=singleton)
         injector.binder.bind(RoomService, scope=singleton)
@@ -97,7 +101,7 @@ class ServerUtil:
         injector.binder.bind(ItemHandler, scope=singleton)
         injector.binder.bind(MobileHandler, scope=singleton)
         injector.binder.bind(PlayerHandler, scope=singleton)
-        injector.binder.bind(CommandHandler, scope=singleton)
+        injector.binder.bind(InterpHandler, scope=singleton)
         injector.binder.bind(NoteHandler, scope=singleton)
         logger.info(f"All game handlers have been bound.")
 
@@ -113,6 +117,7 @@ class ServerUtil:
         from skill.SkillRegistry import SkillRegistry
         from interp.InterpRegistry import InterpRegistry
         from interp.SocialRegistry import SocialRegistry
+        from interp.HelpRegistry import HelpRegistry
 
         injector.binder.bind(NoteRegistry, scope=singleton)
         injector.binder.bind(PlayerRegistry, scope=singleton)
@@ -122,6 +127,7 @@ class ServerUtil:
         injector.binder.bind(RoomRegistry, scope=singleton)
         injector.binder.bind(ItemRegistry, scope=singleton)
         injector.binder.bind(SkillRegistry, scope=singleton)
+        injector.binder.bind(HelpRegistry, scope=singleton)
         injector.binder.bind(InterpRegistry, scope=singleton)
         injector.binder.bind(SocialRegistry, scope=singleton)
         injector.binder.bind(RegistryService, scope=singleton)
@@ -148,6 +154,7 @@ class ServerUtil:
     def load_services(injector) -> None:
         game_service = injector.get(GameService)
         player_service = injector.get(PlayerService)
+        character_service = injector.get(CharacterService)
         room_service = injector.get(RoomService)
         area_service = injector.get(AreaService)
         skill_service = injector.get(SkillService)
@@ -155,7 +162,8 @@ class ServerUtil:
         weather_service = injector.get(WeatherService)
         social_service = injector.get(SocialService)
         mobile_service = injector.get(MobileService)
-        command_service = injector.get(InterpService)
+        help_service = injector.get(HelpService)
+        interp_service = injector.get(InterpService)
         note_service = injector.get(NoteService)
 
         game_service.set_weather_service(weather_service)
@@ -163,7 +171,8 @@ class ServerUtil:
 
         service_list = (f"- {game_service.__name__}\r\n- {player_service.__name__}\r\n- {room_service.__name__}\r\n- {area_service.__name__}\r\n- "
                         f"{skill_service.__name__}\r\n- {item_service.__name__}\r\n- {weather_service.__name__}\r\n- {mobile_service.__name__}\r\n- "
-                        f"{command_service.__name__}\r\n- {social_service.__name__}\r\n- {note_service.__name__}\r\n")
+                        f"{interp_service.__name__}\r\n- {social_service.__name__}\r\n- {note_service.__name__}\r\n- {character_service.__name__}\r\n- "
+                        f"{help_service.__name__}\r\n")
         logger.info(f"The following services have been started:\r\n{service_list}")
 
     @staticmethod

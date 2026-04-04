@@ -71,7 +71,6 @@ class MudServer:
         self.injector = ServerUtil.bind_dependencies(self.service_config)
         self.player_service = self.injector.get(PlayerService)
         self.connection_handler = self.injector.get(ConnectionHandler)
-        self.player_service.start()
 
         ServerUtil.load_services(self.injector)
 
@@ -79,8 +78,7 @@ class MudServer:
         try:
             from server.ServerUtil import ServerUtil
             account_id = self.config['mudserver']['playerone']['accountId']
-            account_json = ServerUtil.camel_to_snake_case(self.player_service.get_account_by_id(account_id))
-            return Player.from_json(account_json)
+            return self.player_service.player_registry.get(id=account_id)
         except KeyError as e:
             self.logger.error(f"Missing configuration key: {e}")
             self.logger.error(f"Available keys in config['mudserver']: {list(self.config.get('mudserver', {}).keys())}")

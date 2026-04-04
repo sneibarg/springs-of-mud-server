@@ -11,5 +11,5 @@ class GroupRegistry(Registry[GroupType]):
         self.__name__ = "GroupRegistry"
         self.logger = LoggerFactory.get_logger(self.__name__)
 
-    def all_groups(self) -> list[GroupType]:
-        return list(self.registry.values())
+    def all_groups(self) -> set[GroupType]:
+        return self._items

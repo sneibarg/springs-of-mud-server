@@ -12,5 +12,5 @@ class SocialRegistry(Registry[Social]):
         self.__name__ = "SocialRegistry"
         self.logger = LoggerFactory.get_logger(self.__name__)
 
-    def all_socials(self) -> list[Social]:
-        return list(self.registry.values())
+    def all_socials(self) -> set[Social]:
+        return self._items

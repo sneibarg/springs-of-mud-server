@@ -1,3 +1,4 @@
+from mobile import Mobile
 from mobile.Mobile import Mobile
 from registries import Registry
 from server.LoggerFactory import LoggerFactory
@@ -12,5 +13,5 @@ class MobileRegistry(Registry[Mobile]):
         self.__name__ = "MobileRegistry"
         self.logger = LoggerFactory.get_logger(self.__name__)
 
-    def all_mobiles(self) -> list[Mobile]:
-        return list(self.registry.values())
+    def all_mobiles(self) -> set[Mobile]:
+        return self._items

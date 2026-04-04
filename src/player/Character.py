@@ -64,6 +64,14 @@ class Character:
         self.logger = LoggerFactory.get_logger(__name__)
         self.load_inventory()
 
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        if isinstance(other, Character):
+            return self.id == other.id
+        return False
+
     def load_inventory(self):
         with self.lock:
             index = 0

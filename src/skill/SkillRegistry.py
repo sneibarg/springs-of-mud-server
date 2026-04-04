@@ -10,5 +10,5 @@ class SkillRegistry(Registry[Skill]):
         self.__name__ = "SkillRegistry"
         self.logger = LoggerFactory.get_logger(self.__name__)
 
-    def all_skills(self) -> list[Skill]:
-        return list(self.registry.values())
+    def all_skills(self) -> set[Skill]:
+        return self._items

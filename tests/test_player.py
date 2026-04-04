@@ -415,7 +415,7 @@ class TestCharacter(unittest.TestCase):
 
 
 class TestPlayerService(unittest.TestCase):
-    """Test PlayerService"""
+    """Test CharacterService"""
 
     def setUp(self):
         from server.ServiceConfig import ServiceConfig
@@ -435,9 +435,9 @@ class TestPlayerService(unittest.TestCase):
             mobiles_endpoint="http://test/mobiles"
         )
 
-    @patch('player.PlayerService.requests.get')
+    @patch('player.CharacterService.requests.get')
     def test_initialization(self, mock_get):
-        """Test PlayerService initialization"""
+        """Test CharacterService initialization"""
 
         mock_response = Mock()
         mock_response.json.return_value = []
@@ -452,8 +452,8 @@ class TestPlayerService(unittest.TestCase):
         self.assertIsNotNone(service.player_list)
         self.assertIsNotNone(service.character_list)
 
-    @unittest.skip("Method get_connected_players no longer exists in PlayerService")
-    @patch('player.PlayerService.requests.get')
+    @unittest.skip("Method get_connected_players no longer exists in CharacterService")
+    @patch('player.CharacterService.requests.get')
     def test_get_connected_players(self, mock_get):
         """Test getting connected players"""
 
@@ -469,7 +469,7 @@ class TestPlayerService(unittest.TestCase):
         result = service.get_connected_players()
         self.assertEqual(result, {})
 
-    @patch('player.PlayerService.requests.get')
+    @patch('player.CharacterService.requests.get')
     def test_get_account_by_id(self, mock_get):
         """Test getting account by ID"""
 
@@ -489,8 +489,8 @@ class TestPlayerService(unittest.TestCase):
         result = service.get_account_by_id('account_001')
         self.assertEqual(result['id'], 'account_001')
 
-    @patch('player.PlayerService.requests.post')
-    @patch('player.PlayerService.requests.get')
+    @patch('player.CharacterService.requests.post')
+    @patch('player.CharacterService.requests.get')
     def test_create_account(self, mock_get, mock_post):
         """Test creating account"""
 
@@ -508,7 +508,7 @@ class TestPlayerService(unittest.TestCase):
         result = service.create_account('newuser', 'password')
         self.assertEqual(result, 'new_account_id')
 
-    @patch('player.PlayerService.requests.get')
+    @patch('player.CharacterService.requests.get')
     def test_get_in_room(self, mock_get):
         """Test getting characters in the same room"""
 
@@ -541,7 +541,7 @@ class TestPlayerService(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].name, 'char2')
 
-    @patch('player.PlayerService.requests.get')
+    @patch('player.CharacterService.requests.get')
     def test_to_room_with_pattern(self, mock_get):
         """Test sending message to room with pattern"""
 
@@ -574,7 +574,7 @@ class TestPlayerService(unittest.TestCase):
         call_args = mock_writer.write.call_args[0][0]
         self.assertIn(b'TestChar says hello', call_args)
 
-    @patch('player.PlayerService.requests.get')
+    @patch('player.CharacterService.requests.get')
     def test_to_room_cloaked(self, mock_get):
         """Test sending message to room while cloaked"""
 
@@ -607,7 +607,7 @@ class TestPlayerService(unittest.TestCase):
         call_args = mock_writer.write.call_args[0][0]
         self.assertIn(b'Someone says hello', call_args)
 
-    @patch('player.PlayerService.requests.get')
+    @patch('player.CharacterService.requests.get')
     def test_to_room_no_pattern(self, mock_get):
         """Test sending message to room without pattern"""
         mock_get.return_value.json.return_value = []
@@ -638,8 +638,8 @@ class TestPlayerService(unittest.TestCase):
         call_args = mock_writer.write.call_args[0][0]
         self.assertEqual(call_args, b'hello world\r\n')
 
-    @unittest.skip("Method get_connected_player no longer exists in PlayerService")
-    @patch('player.PlayerService.requests.get')
+    @unittest.skip("Method get_connected_player no longer exists in CharacterService")
+    @patch('player.CharacterService.requests.get')
     def test_get_connected_player(self, mock_get):
         """Test getting a specific connected player"""
 
@@ -655,7 +655,7 @@ class TestPlayerService(unittest.TestCase):
         result = service.get_connected_player('TestChar')
         self.assertEqual(result, mock_char)
 
-    @patch('player.PlayerService.requests.get')
+    @patch('player.CharacterService.requests.get')
     def test_get_account_by_name(self, mock_get):
         """Test getting account by name"""
 
@@ -674,7 +674,7 @@ class TestPlayerService(unittest.TestCase):
         self.assertEqual(result['accountName'], 'testuser')
         mock_get.assert_called_with('http://test.com/api/players/name/testuser')
 
-    @patch('player.PlayerService.requests.get')
+    @patch('player.CharacterService.requests.get')
     def test_get_player_characters(self, mock_get):
         """Test getting player characters by account ID"""
 
@@ -693,7 +693,7 @@ class TestPlayerService(unittest.TestCase):
         self.assertEqual(len(result), 2)
         mock_get.assert_called_with('http://test.com/api/characters/account/account_001')
 
-    @patch('player.PlayerService.requests.get')
+    @patch('player.CharacterService.requests.get')
     def test_get_character(self, mock_get):
         """Test getting a specific character"""
 
@@ -715,8 +715,8 @@ class TestPlayerService(unittest.TestCase):
             params={'characterId': 'char_001'}
         )
 
-    @patch('player.PlayerService.requests.post')
-    @patch('player.PlayerService.requests.get')
+    @patch('player.CharacterService.requests.post')
+    @patch('player.CharacterService.requests.get')
     def test_create_character_with_sheet(self, mock_get, mock_post):
         """Test creating character with sheet"""
 
@@ -737,8 +737,8 @@ class TestPlayerService(unittest.TestCase):
             json=sheet
         )
 
-    @patch('player.PlayerService.requests.post')
-    @patch('player.PlayerService.requests.get')
+    @patch('player.CharacterService.requests.post')
+    @patch('player.CharacterService.requests.get')
     def test_create_character_with_name_and_account(self, mock_get, mock_post):
         """Test creating character with name and account ID"""
 
@@ -761,8 +761,8 @@ class TestPlayerService(unittest.TestCase):
             json='{"characterName": "TestChar", "accountId": "account_001"}'
         )
 
-    @patch('player.PlayerService.requests.post')
-    @patch('player.PlayerService.requests.get')
+    @patch('player.CharacterService.requests.post')
+    @patch('player.CharacterService.requests.get')
     def test_create_character_error(self, mock_get, mock_post):
         """Test creating character with error response"""
 
@@ -782,8 +782,8 @@ class TestPlayerService(unittest.TestCase):
             service.create_character(sheet)
         self.assertIn('Error creating character', str(context.exception))
 
-    @patch('player.PlayerService.requests.delete')
-    @patch('player.PlayerService.requests.get')
+    @patch('player.CharacterService.requests.delete')
+    @patch('player.CharacterService.requests.get')
     def test_delete_character(self, mock_get, mock_delete):
         """Test deleting a character"""
 
@@ -802,7 +802,7 @@ class TestPlayerService(unittest.TestCase):
             json={'characterId': 'char_001'}
         )
 
-    @patch('player.PlayerService.requests.get')
+    @patch('player.CharacterService.requests.get')
     def test_visible_player_role(self, mock_get):
         """Test visible method filters cloaked characters for players"""
 
@@ -838,7 +838,7 @@ class TestPlayerService(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].name, 'VisibleChar')
 
-    @patch('player.PlayerService.requests.get')
+    @patch('player.CharacterService.requests.get')
     def test_visible_admin_role(self, mock_get):
         """Test visible method shows all characters to admins"""
 

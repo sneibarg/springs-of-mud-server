@@ -49,12 +49,18 @@ class AuthenticationService:
             await connection.send_message(Message(MessageType.ERROR, data={"text": "Invalid authentication payload for registered account.\r\n"}))
             return False, None, None
 
-        character_list = self.player_registry.get_player_characters(account_id)
+        player_account = self.player_registry.get(id=account_id)
+        if player_account is None:
+            await connection.send_message(Message(MessageType.ERROR, data={"text": "Player account not in registry.\r\n"}))
+            return False, None, None
+
+        character_list = player_account.player_character_list
         character = self._get_character_by_id(character_id, character_list)
         if not character:
             await connection.send_message(Message(MessageType.ERROR, data={"text": "Invalid authentication payload for registered character.\r\n"}))
             return False, None, None
 
+        self.character_registry.set_playing(character)
         session.player_id = account_id
         session.account_name = account.account_name
 
@@ -64,12 +70,12 @@ class AuthenticationService:
     def _get_character_by_id(self, character_id: str, character_list: list) -> Optional[Character]:
         for char in character_list:
             if char == character_id:
-                return self.character_registry.registry[char]['playing']
+                return self.character_registry.get(char)
         return None
 
     def _get_account_by_id(self, account_id: str) -> Optional[Player]:
         try:
-            account = self.player_registry.registry[account_id]
+            account = self.player_registry.get(id=account_id)
             if account:
                 return account
         except Exception as e:

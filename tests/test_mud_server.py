@@ -41,7 +41,7 @@ class TestMudServer(unittest.TestCase):
 
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
-    @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.CharacterService')
     @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
@@ -84,7 +84,7 @@ class TestMudServer(unittest.TestCase):
 
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
-    @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.CharacterService')
     @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
@@ -124,7 +124,7 @@ class TestMudServer(unittest.TestCase):
 
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
-    @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.CharacterService')
     @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
@@ -170,7 +170,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.threading.Thread')
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
-    @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.CharacterService')
     @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
@@ -241,7 +241,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.asyncio.set_event_loop')
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
-    @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.CharacterService')
     @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
@@ -302,7 +302,7 @@ class TestMudServer(unittest.TestCase):
     @patch('server.MudServer.asyncio.set_event_loop')
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
-    @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.CharacterService')
     @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
@@ -357,7 +357,7 @@ class TestMudServer(unittest.TestCase):
 
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
-    @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.CharacterService')
     @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
@@ -408,7 +408,7 @@ class TestMudServer(unittest.TestCase):
 
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
-    @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.CharacterService')
     @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
@@ -460,7 +460,7 @@ class TestMudServer(unittest.TestCase):
 
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
-    @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.CharacterService')
     @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
@@ -513,7 +513,7 @@ class TestMudServer(unittest.TestCase):
 
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
-    @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.CharacterService')
     @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
@@ -565,7 +565,7 @@ class TestMudServer(unittest.TestCase):
 
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
-    @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.CharacterService')
     @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
@@ -617,7 +617,7 @@ class TestMudServer(unittest.TestCase):
 
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
-    @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.CharacterService')
     @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')
@@ -672,7 +672,7 @@ class TestMudServer(unittest.TestCase):
 
     @patch('server.MudServer.GameService')
     @patch('server.MudServer.ConnectionHandler')
-    @patch('server.MudServer.PlayerService')
+    @patch('server.MudServer.CharacterService')
     @patch('server.MudServer.RoomService')
     @patch('server.MudServer.AreaService')
     @patch('server.MudServer.ItemService')

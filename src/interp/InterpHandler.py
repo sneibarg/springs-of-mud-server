@@ -4,7 +4,7 @@ import re
 from injector import inject, Injector
 from interp.SocialRegistry import SocialRegistry
 from interp.InterpService import InterpService
-from interp.InterpUtil import CommandUtil
+from interp.InterpUtil import InterpUtil
 from interp.SocialHandler import SocialHandler
 from interp.InterpRegistry import InterpRegistry
 from game.RegistryService import RegistryService
@@ -35,10 +35,10 @@ lambda_mappings = {
     'mh': 'MobileHandler',
     'ch': 'CharacterHandler',
     'ph': 'PlayerHandler',
-    'cmh': 'CommandHandler',
+    'cmh': 'InterpHandler',
     'sh': 'SkillHandler',
     'cs': 'InterpService',
-    'ps': 'PlayerService',
+    'ps': 'CharacterService',
     'ms': 'MobileService',
     'os': 'ObjectService',
     'ss': 'SkillService',
@@ -65,12 +65,12 @@ def get_class_obj(class_name):
         'MobileService': MobileService,
         'ObjectService': ItemService,
         'SkillService': SkillService,
-        'PlayerService': PlayerService,
+        'CharacterService': PlayerService,
         'FightHandler': FightHandler,
         'RoomHandler': RoomHandler,
         'PlayerHandler': PlayerHandler,
         'ItemHandler': ItemHandler,
-        'cmh': CommandHandler,
+        'cmh': InterpHandler,
         'MessageBus': MessageBus,
         'Mobile': Mobile,
         'str': str,
@@ -146,7 +146,10 @@ async def handle_lambdas(handler, player, character, command, parameters):
     if parameters is None:
         parameters = []
 
-    lambda_list = command['lambda']
+    lambda_list = getattr(command, "lambdas", None)
+    if lambda_list is None and isinstance(command, dict):
+        lambda_list = command.get("lambda") or command.get("lambdas")
+    lambda_list = lambda_list or []
     for lambda_function in lambda_list:
         if lambda_function is not None:
             if not isinstance(lambda_function, str):
@@ -166,10 +169,10 @@ async def handle_lambdas(handler, player, character, command, parameters):
             raise ValueError('Failed to retrieve specified lambda function from REST service')
 
 
-class CommandHandler:
+class InterpHandler:
     @inject
     def __init__(self, injector: Injector, message_bus: MessageBus, interp_registry: InterpRegistry, social_registry: SocialRegistry, social_handler: SocialHandler):
-        self.__name__ = "CommandHandler"
+        self.__name__ = "InterpHandler"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.injector = injector
         self.message_bus = message_bus
@@ -179,15 +182,15 @@ class CommandHandler:
         self.command_not_found_message = self.message_bus.text_to_message("Huh?\r\n")
 
     def get_message(self, cmd):
-        command = self.interp_registry.get_command_by_name(cmd)
+        command = self.interp_registry.get_or_none(name=cmd.lower())
         if command is None:
             raise ValueError(f"Command {cmd} not found in command registry.")
-        return command["message"]
+        return InterpUtil.command_attr(command, "message", None)
 
     async def call_lambda(self, player, character, command_name, command_list, parameters):
-        command_json = CommandUtil.find_json_object_by_name(command_name, command_list)
+        command_json = InterpUtil.find_json_object_by_name(command_name, command_list)
         if command_json is None:
-            return await self.message_bus.send_to_character(player.id, self.command_not_found_message)
+            return await self.message_bus.send_to_character(character.id, self.command_not_found_message)
 
         try:
             await handle_lambdas(self, player, character, command_json, parameters)
@@ -200,34 +203,70 @@ class CommandHandler:
 
     async def handle_command(self, player, character, command):
         usage = None
-        cmd, parameters = CommandUtil.extract_parameters(self.interp_registry, command)
+        cmd, parameters = InterpUtil.extract_parameters(self.interp_registry, command)
         if cmd is None:
-            social = self.social_registry.get(name=command.lower())
+            raw = " ".join((command or "").split()).strip().lower()
+            token = raw.split(" ", 1)[0] if raw else ""
+            registry_count = len(self.interp_registry.all_commands())
+            self.logger.warning(f"Unmatched command token='{token}' raw='{raw}' registry_count={registry_count}")
+            social = self.social_registry.get_or_none(name=command.lower())
             if social is not None:
                 return await self.social_handler.handle_social(character, command, social)
-            await self.message_bus.send_to_character(player.id, self.command_not_found_message)
+            await self.message_bus.send_to_character(character.id, self.command_not_found_message)
             return None
 
-        if "usage" in cmd:
-            usage = cmd["usage"]
-
-        if usage is not None:
+        usage = InterpUtil.command_attr(cmd, "usage", None)
+        if isinstance(usage, str) and usage.strip():
             usage_function = eval(usage)
             if not callable(usage_function):
                 self.logger.info("NOT_CALLABLE: " + str(usage_function))
             else:
                 player.usage = usage_function
 
-        self.logger.debug(f"CMD: {cmd['name']}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
-        return await self.call_lambda(player, character, cmd['name'], self.interp_registry.registry.values(), parameters)
+        cmd_name = InterpUtil.command_attr(cmd, "name", "")
+        self.logger.info(f"CMD: {cmd_name}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
+        return await self.call_lambda(player, character, cmd_name, self.interp_registry.all_commands(), parameters)
 
     async def help_usage(self, character, argument: str = ""):
         arg_all = " ".join((argument or "").split()).lower()
         if not arg_all:
             arg_all = "summary"
         output_parts = []
-        for command in self.interp_registry.registry.values():
-            output_parts += CommandUtil.append_entries(CommandUtil.normalize_help_entries(command.get("help"), command.get("name", "")), arg_all)
+        found = False
+        for command in self.interp_registry.all_commands():
+            help_entry = InterpUtil.command_attr(command, "help", None)
+            if help_entry is None:
+                continue
+
+            keyword = str(getattr(help_entry, "keyword", "") or "").strip().lower()
+            if not keyword:
+                continue
+
+            q_words = arg_all.split()
+            k_words = keyword.split()
+            if not q_words or not k_words:
+                continue
+            if not all(any(k.startswith(q) for k in k_words) for q in q_words):
+                continue
+
+            level_raw = getattr(help_entry, "level", 0)
+            try:
+                level = int(level_raw)
+            except (TypeError, ValueError):
+                level = 0
+
+            if found:
+                output_parts.append("\n\r============================================================\n\r\n\r")
+            found = True
+
+            if level >= 0 and arg_all != "imotd":
+                output_parts.append(str(getattr(help_entry, "keyword", "")))
+                output_parts.append("\n\r")
+
+            text = str(getattr(help_entry, "text", "") or "")
+            if text.startswith("."):
+                text = text[1:]
+            output_parts.append(text)
 
         message_text = "".join(output_parts) if len(output_parts) > 0 else "No help on that word.\n\r"
         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message_text))
