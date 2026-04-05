@@ -1,10 +1,8 @@
 import requests
 
+from typing import Optional
 from injector import inject
-from area.Special import Special
-from area.Shop import Shop
-from area.Reset import Reset
-from area.Area import Area
+from area import Area
 from area.AreaRegistry import AreaRegistry
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
@@ -17,39 +15,41 @@ class AreaService:
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.area_registry = area_registry
         self.areas_endpoint = config.areas_endpoint
-        self.resets_endpoint = config.resets_endpoint
-        self.shops_endpoint = config.shops_endpoint
-        self.specials_endpoint = config.specials_endpoint
         self.load_areas()
-        self.logger.info(f"Initialized AreaService instance with {str(len(self.area_registry.registry))} areas in memory.")
+        self.logger.info(f"Initialized AreaService instance with {len(self.area_registry.all_areas())} areas in memory.")
 
-    def load_specials(self):
-        response = requests.get(self.specials_endpoint).json()
-        for special_json in response:
-            special = Special.from_json(special_json)
-            self.area_registry.register_special(special)
-
-    def load_shops(self):
-        response = requests.get(self.shops_endpoint).json()
-        for shop_json in response:
-            shop = Shop.from_json(shop_json)
-            self.area_registry.register_shop(shop)
-
-    def load_resets(self):
-        response = requests.get(self.resets_endpoint).json()
-        for reset_json in response:
-            reset = Reset.from_json(reset_json)
-            self.area_registry.register_reset(reset)
+    def reload_areas(self):
+        self.logger.info("Reloading all areas...")
+        self.area_registry.reset()
+        self.load_areas()
+        self.logger.info("Areas reload completed.")
 
     def load_areas(self):
-        from server.ServerUtil import ServerUtil
-        response = requests.get(self.areas_endpoint).json()
-        for area_json in response:
-            area = Area.from_json(ServerUtil.camel_to_snake_case(area_json))
-            self.area_registry.register_area(area)
+        self._fetch_and_register(self.areas_endpoint, "all areas")
 
-    def load_area(self, area_id):
-        from server.ServerUtil import ServerUtil
-        url = self.areas_endpoint + "/" + area_id
-        area_json = requests.get(url).json()
-        self.area_registry.register_area(Area.from_json(ServerUtil.camel_to_snake_case(area_json)))
+    def load_area(self, area_name: str):
+        url = f"{self.areas_endpoint}/name/{area_name}"
+        return self._fetch_and_register(url, f"area '{area_name}'")
+
+    def _fetch_and_register(self, url: str, description: str) -> Optional[Area]:
+        try:
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+            if isinstance(data, list):
+                for area_data in data:
+                    area = Area.from_json(area_data)
+                    self.area_registry.register(area)
+                return None
+            else:
+                area = Area.from_json(data)
+                self.area_registry.register(area)
+                self.logger.info(f"Loaded {description}.")
+                return area
+
+        except requests.RequestException as e:
+            self.logger.error(f"Failed to fetch {description} from {url}: {e}")
+            return None
+        except Exception as e:
+            self.logger.error(f"Unexpected error processing {description}: {e}", exc_info=True)
+            return None

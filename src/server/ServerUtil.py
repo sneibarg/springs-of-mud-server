@@ -5,8 +5,12 @@ import time
 from enum import IntEnum
 from typing import Dict, Any, Iterable
 from injector import singleton, Injector
+
+from area.ShopService import ShopService
 from area.AreaHandler import AreaHandler
+from area.ResetService import ResetService
 from area.RoomHandler import RoomHandler
+from area.SpecialService import SpecialService
 from interp.HelpService import HelpService
 from interp.InterpHandler import InterpHandler
 from interp.SocialHandler import SocialHandler
@@ -118,6 +122,9 @@ class ServerUtil:
         from interp.InterpRegistry import InterpRegistry
         from interp.SocialRegistry import SocialRegistry
         from interp.HelpRegistry import HelpRegistry
+        from area.ShopRegistry import ShopRegistry
+        from area.SpecialRegistry import SpecialRegistry
+        from area.ResetRegistry import ResetRegistry
 
         injector.binder.bind(NoteRegistry, scope=singleton)
         injector.binder.bind(PlayerRegistry, scope=singleton)
@@ -130,6 +137,9 @@ class ServerUtil:
         injector.binder.bind(HelpRegistry, scope=singleton)
         injector.binder.bind(InterpRegistry, scope=singleton)
         injector.binder.bind(SocialRegistry, scope=singleton)
+        injector.binder.bind(ShopRegistry, scope=singleton)
+        injector.binder.bind(ResetRegistry, scope=singleton)
+        injector.binder.bind(SpecialRegistry, scope=singleton)
         injector.binder.bind(RegistryService, scope=singleton)
         injector.get(RegistryService)
         logger.info(f"The RegistryService has been bound with all injected dependencies: {injector.get(RegistryService)}")
@@ -165,6 +175,9 @@ class ServerUtil:
         help_service = injector.get(HelpService)
         interp_service = injector.get(InterpService)
         note_service = injector.get(NoteService)
+        shop_service = injector.get(ShopService)
+        reset_service = injector.get(ResetService)
+        special_service = injector.get(SpecialService)
 
         game_service.set_weather_service(weather_service)
         game_service.start_mobile_service(mobile_service)
@@ -172,7 +185,7 @@ class ServerUtil:
         service_list = (f"- {game_service.__name__}\r\n- {player_service.__name__}\r\n- {room_service.__name__}\r\n- {area_service.__name__}\r\n- "
                         f"{skill_service.__name__}\r\n- {item_service.__name__}\r\n- {weather_service.__name__}\r\n- {mobile_service.__name__}\r\n- "
                         f"{interp_service.__name__}\r\n- {social_service.__name__}\r\n- {note_service.__name__}\r\n- {character_service.__name__}\r\n- "
-                        f"{help_service.__name__}\r\n")
+                        f"{help_service.__name__}\r\n- {shop_service.__name__}\r\n- {reset_service.__name__}\r\n- {special_service.__name__}\r\n")
         logger.info(f"The following services have been started:\r\n{service_list}")
 
     @staticmethod

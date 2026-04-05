@@ -34,8 +34,18 @@ class Area:
         self.__name__ = f"Area.{self.name}"
         self.logger = LoggerFactory.get_logger(self.__name__)
 
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        if isinstance(other, Area):
+            return self.id == other.id
+        return False
+
     @classmethod
     def from_json(cls, data):
+        from server.ServerUtil import ServerUtil
+        data = ServerUtil.camel_to_snake_case(data)
         if 'area_id' in data:
             data['id'] = data.pop('area_id')
         return cls(**data)

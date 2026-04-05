@@ -35,35 +35,19 @@ class Room:
         self.populace = {}
         self.lock = threading.Lock()
 
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        if isinstance(other, Room):
+            return self.id == other.id
+        return False
+
     @classmethod
     def from_json(cls, data):
-        valid_fields = {f.name for f in cls.__dataclass_fields__.values()}
-        filtered_data = {k: v for k, v in data.items() if k in valid_fields}
-        return cls(**filtered_data)
+        from server.ServerUtil import ServerUtil
+        data = ServerUtil.camel_to_snake_case(data)
+        return cls(**data)
 
     def get_formatted_exits(self):
         return AreaUtil.cardinal_direction(self)
-
-    def get_populace(self):
-        with self.lock:
-            return self.populace
-
-    def add_to_populace(self, mobile):
-        with self.lock:
-            self.populace[mobile.get_instance_id()] = mobile
-
-    def remove_from_populace(self, mobile):
-        with self.lock:
-            del self.populace[mobile.get_instance_id()]
-
-    def get_combat_events(self):
-        with self.lock:
-            return self.combat_events
-
-    def add_to_combat_events(self, combat_event):
-        with self.lock:
-            self.combat_events.append(combat_event)
-
-    def remove_from_combat_events(self, combat_event):
-        with self.lock:
-            self.combat_events.remove(combat_event)

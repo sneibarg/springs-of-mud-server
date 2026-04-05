@@ -18,7 +18,6 @@ class Shop:
     buy_type2: int
     buy_type3: int
     buy_type4: int
-    buy_type5: int
     profit_buy: int
     profit_sell: int
     open_hour: int
@@ -27,6 +26,14 @@ class Shop:
     def __post_init__(self):
         self.__name__ = "Shop"
         self.logger = LoggerFactory.get_logger(self.__name__)
+
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        if isinstance(other, Shop):
+            return self.id == other.id
+        return False
 
     @classmethod
     def from_json(cls, data):

@@ -1,30 +1,16 @@
-import threading
-
-from typing import Optional
+from registries import Registry
 from area.Room import Room
+from server.LoggerFactory import LoggerFactory
 
 
-class RoomRegistry:
+class RoomRegistry(Registry[Room]):
+    lookup_attrs = ('id', 'vnum')
+
     def __init__(self):
-        self.registry = {}
-        self.lock = threading.Lock()
+        super().__init__()
 
-    def get_room_by_id(self, room_id) -> Optional[Room]:
-        try:
-            return self.registry[room_id]
-        except KeyError:
-            return None
+        self.__name__ = "RoomRegistry"
+        self.logger = LoggerFactory.get_logger(self.__name__)
 
-    def get_room_by_name(self, room_name) -> Optional[Room]:
-        for room in self.registry.values():
-            if room.name == room_name:
-                return room
-        return None
-
-    def unregister_room(self, room: Room):
-        with self.lock:
-            del self.registry[room.id]
-
-    def register_room(self, room: Room):
-        with self.lock:
-            self.registry[room.id] = room
+    def all_rooms(self) -> set[Room]:
+        return self._items

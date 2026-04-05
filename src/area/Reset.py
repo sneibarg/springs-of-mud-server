@@ -17,6 +17,14 @@ class Reset:
         self.__name__ = "Reset"
         self.logger = LoggerFactory.get_logger(self.__name__)
 
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        if isinstance(other, Reset):
+            return self.id == other.id
+        return False
+
     @classmethod
     def from_json(cls, data):
         from server.ServerUtil import ServerUtil

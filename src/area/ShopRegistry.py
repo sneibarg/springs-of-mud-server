@@ -1,19 +1,16 @@
 from registries import Registry
-from area.Area import Area
+from area.Shop import Shop
 from server.LoggerFactory import LoggerFactory
 
 
-class AreaRegistry(Registry[Area]):
-    lookup_attrs = ('id', 'name', 'vnum')
+class ShopRegistry(Registry[Shop]):
+    lookup_attrs = ('id',)
 
     def __init__(self):
         super().__init__()
 
-        self.__name__ = "AreaRegistry"
+        self.__name__ = "ShopRegistry"
         self.logger = LoggerFactory.get_logger(self.__name__)
 
-    def all_areas(self) -> set[Area]:
+    def all_shops(self) -> set[Shop]:
         return self._items
-
-
-

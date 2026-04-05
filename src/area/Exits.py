@@ -1,4 +1,7 @@
 from dataclasses import dataclass
+import ast
+import json
+from typing import Any, Mapping
 
 
 @dataclass
@@ -21,19 +24,16 @@ class Exits:
         }
 
     @classmethod
-    def from_json(cls, data):
-        import json
-        import ast
-        from typing import Mapping
-        try:
-            data = json.loads(data)
-        except json.JSONDecodeError:
+    def from_json(cls, data: Any):
+        if isinstance(data, str):
             try:
-                data = ast.literal_eval(data)
-            except (SyntaxError, ValueError):
-                data = json.loads(data.replace("'", '"'))
+                parsed = json.loads(data)
+            except json.JSONDecodeError:
+                try:
+                    parsed = ast.literal_eval(data)
+                except (SyntaxError, ValueError) as exc:
+                    raise ValueError(f"Unable to parse exits value: {data!r}") from exc
+        else:
+            raise TypeError(f"Exits.from_json expected mapping, JSON string, or None; got {type(data).__name__}")
 
-        if not isinstance(data, Mapping):
-            raise TypeError(f"Exits.from_json expected mapping or JSON string, got {type(data).__name__}")
-
-        return cls(**data)
+        return cls(**parsed)
