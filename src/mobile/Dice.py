@@ -20,7 +20,7 @@ class Dice:
         return {"number": 0, "type": 0, "bonus": 0}
 
     @classmethod
-    def get_dice(cls, value: str):
+    def get_dice(cls, value: str) -> Dice:
         if value is None:
             value = str({"number": 0, "type": 0, "bonus": 0})
         return cls(**Dice._parse_dice(value))

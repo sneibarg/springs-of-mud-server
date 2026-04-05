@@ -1,3 +1,5 @@
+import json
+
 from dataclasses import dataclass
 
 
@@ -10,4 +12,8 @@ class ArmorClass:
 
     @classmethod
     def from_json(cls, data) -> ArmorClass:
+        try:
+            data = json.loads(data.replace("'", '"'))
+        except json.JSONDecodeError:
+            print(f"ERROR: data={data}")
         return cls(**data)

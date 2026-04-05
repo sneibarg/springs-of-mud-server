@@ -1,7 +1,12 @@
 import threading
 
 from dataclasses import dataclass, field
+from typing import Optional
 from uuid import uuid1
+
+from mobile.ArmorClass import ArmorClass
+from mobile.CombatFlags import CombatFlags
+from mobile.Dice import Dice
 from server.LoggerFactory import LoggerFactory
 
 
@@ -19,10 +24,6 @@ class Mobile:
     alignment: str
     group: str
     dam_type: str
-    off_flags: str
-    imm_flags: str
-    res_flags: str
-    vuln_flags: str
     start_pos: str
     default_pos: str
     sex: str
@@ -35,23 +36,15 @@ class Mobile:
     act: str
     level: int
     hit_roll: int
-    hit_dice_number: int
-    hit_dice_type: int
-    hit_dice_bonus: int
-    mana_dice_number: int
-    mana_dice_type: int
-    mana_dice_bonus: int
-    damage_dice_number: int
-    damage_dice_type: int
-    damage_dice_bonus: int
-    ac_pierce: int
-    ac_bash: int
-    ac_slash: int
-    ac_exotic: int
     pulse_wait: int
     pulse_daze: int
     gold: int
     silver: int
+    combat_flags: Optional[CombatFlags] = None
+    armor_class: Optional[ArmorClass] = None
+    hit_dice: Optional[Dice] = None
+    mana_dice: Optional[Dice] = None
+    damage_dice: Optional[Dice] = None
     lock: threading.Lock = field(default_factory=threading.Lock)
 
     def __post_init__(self):
