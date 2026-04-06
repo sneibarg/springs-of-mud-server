@@ -6,6 +6,7 @@ from typing import Dict, List
 from interp.PromptFormat import PromptFormat
 from object.Item import Item
 from player.CharacterClass import CharacterClass
+from player.PCArmorClass import PCArmorClass
 from server.LoggerFactory import LoggerFactory
 
 
@@ -43,10 +44,6 @@ class Character:
     max_weight: int
     max_items: int
     alignment: int
-    piercing: int
-    bashing: int
-    slashing: int
-    magic: int
     played: int
     logon: int
     pulse_wait: int
@@ -54,6 +51,7 @@ class Character:
     trust: int
     attributes: List[int]
     inventory: List[str]
+    armor_class: PCArmorClass
     character_class: CharacterClass
     prompt_format: PromptFormat
     loot: Dict[str, object] = field(default_factory=dict)
@@ -101,8 +99,12 @@ class Character:
         payload = ServerUtil.camel_to_snake_case(data)
         prompt_format = payload.get('prompt_format')
         character_class = payload.get('character_class')
+        armor_class = payload.get('armor_class')
 
+        payload['armor_class'] = PCArmorClass.from_json(armor_class)
         payload['prompt_format'] = PromptFormat.from_template(prompt_format)
         payload['character_class'] = CharacterClass.from_json(character_class)
         return cls(**payload)
+
+
 
