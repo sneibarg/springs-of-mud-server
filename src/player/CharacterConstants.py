@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 from enum import IntEnum
-
-from injector import inject
 from game.GameData import Constants
 
 

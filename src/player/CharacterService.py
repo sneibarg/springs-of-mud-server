@@ -39,7 +39,9 @@ class CharacterService:
             if isinstance(data, list):
                 count = 0
                 for character_data in data:
-                    self.character_registry.register(Character.from_json(character_data))
+                    char = Character.from_json(character_data)
+                    self.logger.debug(f"Registering character {char.name}: {char}")
+                    self.character_registry.register(char)
                     count += 1
                 self.logger.info(f"Loaded {count} {description}.")
                 return None

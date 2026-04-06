@@ -6,11 +6,19 @@ from dataclasses import dataclass
 
 
 @dataclass
-class TemporalMechanics:
-    played: int
-    logon: int
-    pulse_wait: int
-    pulse_daze: int
+class CharacterAttributes:
+    strength: int
+    intelligence: int
+    wisdom: int
+    dexterity: int
+    constitution: int
+    alignment: int
+    max_weight: int
+    max_items: int
+    position: int
+    wimpy: int
+    trains: int
+    practices: int
 
     @classmethod
     def from_json(cls, data):
@@ -23,6 +31,5 @@ class TemporalMechanics:
                 data = json.loads(data.replace("'", '"'))
 
         if not isinstance(data, Mapping):
-            raise TypeError(f"TemporalMechanics.from_json expected mapping or JSON string, got {type(data).__name__}")
-        from server.ServerUtil import ServerUtil
-        return cls(**ServerUtil.camel_to_snake_case(data))
+            raise TypeError(f"CharacterClass.from_json expected mapping or JSON string, got {type(data).__name__}")
+        return cls(**data)

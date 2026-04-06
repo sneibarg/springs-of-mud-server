@@ -11,28 +11,38 @@
   "guild": "",
   "role": "admin",
   "sex": "male",
-  "act": "GQRT",
-  "comm": "NOP",
-  "affectedBy": "",
   "cloaked": false,
   "health": 1000,
   "mana": 1000,
   "movement": 1000,
   "level": 100,
   "experience": 1000000,
-  "trains": 0,
-  "practices": 0,
   "gold": 1000000,
   "silver": 1000000,
-  "wimpy": 100,
-  "position": 1,
-  "maxWeight": 10000000,
-  "maxItems": 10000000,
+  "characterFlags": {
+    "act": "GQRT",
+    "comm": "NOP",
+    "affectedBy": ""
+  },
   "armorClass": {
     "piercing": 100,
     "slashing": 100,
     "bashing": 100,
     "magic": 100
+  },
+  "characterAttributes": {
+    "strength": 25,
+    "intelligence": 25,
+    "wisdom": 25,
+    "dexterity": 25,
+    "constitution": 25,
+    "alignment": 900,
+    "max_weight": 10000000,
+    "max_items": 10000000,
+    "position": 1,
+    "wimpy": 100,
+    "trains": 0,
+    "practices": 0
   },
   "temporalMechanics": {
     "played": 0,
@@ -74,15 +84,7 @@
     "mana_gain": true,
     "base_group": "mage basics",
     "default_group": "mage basics"
-  },
-  "attributes": [
-    25,
-    25,
-    25,
-    25,
-    25
-  ],
-  "alignment": 900
+  }
 },
 {
   "_id": {
@@ -100,11 +102,30 @@
   "act": "QT",
   "comm": "NOP",
   "affectedBy": "J",
+  "characterFlags": {
+    "act": "QT",
+    "comm": "NOP",
+    "affectedBy": "J"
+  },
   "armorClass": {
     "piercing": 100,
     "slashing": 100,
     "bashing": 100,
     "magic": 100
+  },
+  "characterAttributes": {
+    "strength": 25,
+    "intelligence": 25,
+    "wisdom": 25,
+    "dexterity": 25,
+    "constitution": 25,
+    "alignment": 900,
+    "max_weight": 10000000,
+    "max_items": 10000000,
+    "position": 1,
+    "wimpy": 100,
+    "trains": 0,
+    "practices": 0
   },
   "temporalMechanics": {
     "played": 0,
@@ -118,14 +139,8 @@
   "movement": 1000,
   "level": 100,
   "experience": 1000000,
-  "trains": 0,
-  "practices": 0,
   "gold": 1000000,
   "silver": 1000000,
-  "wimpy": 100,
-  "position": 1,
-  "maxWeight": 10000000,
-  "maxItems": 10000000,
   "inventory": [],
   "promptFormat": {
     "hp": true,
@@ -159,12 +174,5 @@
     "base_group": "warrior basics",
     "default_group": "warrior basics"
   },
-  "attributes": [
-    25,
-    25,
-    25,
-    25,
-    25
-  ],
   "alignment": 650
 }]

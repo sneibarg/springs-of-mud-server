@@ -8,6 +8,8 @@ from object.Item import Item
 from player.CharacterClass import CharacterClass
 from player.PCArmorClass import PCArmorClass
 from player.TemporalMechanics import TemporalMechanics
+from player.CharacterAttributes import CharacterAttributes
+from player.CharacterFlags import CharacterFlags
 from server.LoggerFactory import LoggerFactory
 
 
@@ -26,9 +28,6 @@ class Character:
     guild: str
     role: str
     sex: str
-    act: str
-    comm: str
-    affected_by: str
     cloaked: bool
     level: int
     health: int
@@ -36,18 +35,12 @@ class Character:
     movement: int
     experience: int
     accumulated_experience: int
-    trains: int
-    practices: int
     gold: int
     silver: int
-    wimpy: int
-    position: int
-    max_weight: int
-    max_items: int
-    alignment: int
     trust: int
-    attributes: List[int]
     inventory: List[str]
+    character_flags: CharacterFlags
+    character_attributes: CharacterAttributes
     temporal_mechanics: TemporalMechanics
     armor_class: PCArmorClass
     character_class: CharacterClass
@@ -99,7 +92,11 @@ class Character:
         character_class = payload.get('character_class')
         armor_class = payload.get('armor_class')
         temporal_mechanics = payload.get('temporal_mechanics')
+        character_attributes = payload.get('character_attributes')
+        character_flags = payload.get('character_flags')
 
+        payload['character_flags'] = CharacterFlags.from_json(character_flags)
+        payload['character_attributes'] = CharacterAttributes.from_json(character_attributes)
         payload['temporal_mechanics'] = TemporalMechanics.from_json(temporal_mechanics)
         payload['armor_class'] = PCArmorClass.from_json(armor_class)
         payload['prompt_format'] = PromptFormat.from_template(prompt_format)
