@@ -4,7 +4,7 @@ mudserver:
   host: malboji
   port: 6969
   debug: false
-  modulith_host: localhost
+  modulith_host: dragon
   modulith_port: 9080
   api_version: /api/v1
   services:

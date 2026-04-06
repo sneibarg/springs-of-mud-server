@@ -34,10 +34,12 @@
     "bashing": 100,
     "magic": 100
   },
-  "played": 0,
-  "logon": 0,
-  "pulseWait": 0,
-  "pulseDaze": 0,
+  "temporalMechanics": {
+    "played": 0,
+    "logon": 0,
+    "pulseWait": 0,
+    "pulseDaze": 0
+  },
   "inventory": [
     { "id": "69bb43ab02aefb5f71e23098",  "area_id": "69bb43abe40ee67ebd4177e0",  "vnum": "9586",  "name": "sledge hammer",  "short_description": "a sledge hammer",  "long_description": "A sledge hammer lies here.",  "material": "oldstyle",  "item_type": "weapon",  "extra_flags": "0",  "wear_flags": "AN",  "value0": "4117",  "value1": "2",  "value2": "7",  "value3": "266369",  "value4": "32",  "weight": 240,  "condition": "100",  "level": 10,  "cost": 660,  "affect_data": [],  "extra_descr": [], "damage_type": null,  "weapon_type": null,  "liquid_color": null,  "liquid_affect_data": null,   "effects": null,  "extra_description": null }
   ],
@@ -104,6 +106,12 @@
     "bashing": 100,
     "magic": 100
   },
+  "temporalMechanics": {
+    "played": 0,
+    "logon": 0,
+    "pulseWait": 0,
+    "pulseDaze": 0
+  },
   "cloaked": false,
   "health": 1000,
   "mana": 1000,
@@ -118,10 +126,6 @@
   "position": 1,
   "maxWeight": 10000000,
   "maxItems": 10000000,
-  "played": 0,
-  "logon": 0,
-  "pulseWait": 0,
-  "pulseDaze": 0,
   "inventory": [],
   "promptFormat": {
     "hp": true,

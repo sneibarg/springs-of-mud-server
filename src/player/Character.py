@@ -7,6 +7,7 @@ from interp.PromptFormat import PromptFormat
 from object.Item import Item
 from player.CharacterClass import CharacterClass
 from player.PCArmorClass import PCArmorClass
+from player.TemporalMechanics import TemporalMechanics
 from server.LoggerFactory import LoggerFactory
 
 
@@ -44,13 +45,10 @@ class Character:
     max_weight: int
     max_items: int
     alignment: int
-    played: int
-    logon: int
-    pulse_wait: int
-    pulse_daze: int
     trust: int
     attributes: List[int]
     inventory: List[str]
+    temporal_mechanics: TemporalMechanics
     armor_class: PCArmorClass
     character_class: CharacterClass
     prompt_format: PromptFormat
@@ -100,7 +98,9 @@ class Character:
         prompt_format = payload.get('prompt_format')
         character_class = payload.get('character_class')
         armor_class = payload.get('armor_class')
+        temporal_mechanics = payload.get('temporal_mechanics')
 
+        payload['temporal_mechanics'] = TemporalMechanics.from_json(temporal_mechanics)
         payload['armor_class'] = PCArmorClass.from_json(armor_class)
         payload['prompt_format'] = PromptFormat.from_template(prompt_format)
         payload['character_class'] = CharacterClass.from_json(character_class)
