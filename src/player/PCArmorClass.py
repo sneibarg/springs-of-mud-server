@@ -13,7 +13,7 @@ class PCArmorClass:
     magic: int
 
     @classmethod
-    def from_json(cls, data):
+    def from_json(cls, data) -> PCArmorClass:
         try:
             data = json.loads(data)
         except json.JSONDecodeError:
