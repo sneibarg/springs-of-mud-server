@@ -1,10 +1,11 @@
 import requests
 
-from typing import Optional
+from typing import Optional, List
 from injector import inject
-from area.Exits import Exits
+from area.Exit import Exit
 from area.Room import Room
 from area.RoomRegistry import RoomRegistry
+from object.ExtraDescriptionData import ExtraDescriptionData
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 
@@ -36,16 +37,20 @@ class RoomService:
         try:
             response = requests.get(url, timeout=10)
             response.raise_for_status()
+            from server.ServerUtil import ServerUtil
             data = response.json()
             if isinstance(data, list):
                 for room_data in data:
+                    room_data = ServerUtil.camel_to_snake_case(room_data)
                     room = Room.from_json(room_data)
                     room.exits = self._load_exits(room_data)
+                    room.extra_description = self._load_extra_description(room_data)
                     self.room_registry.register(room)
                 return None
             else:
                 room = Room.from_json(data)
                 room.exits = self._load_exits(data)
+                room.extra_description = self._load_extra_description(data)
                 self.room_registry.register(room)
                 self.logger.info(f"Loaded {description}.")
                 return room
@@ -57,11 +62,31 @@ class RoomService:
             self.logger.error(f"Unexpected error processing {description}: {e}", exc_info=True)
             return None
 
-    def _load_exits(self, room_json: dict) -> Exits:
-        room_exits = room_json.get('exits')
+    def _load_extra_description(self, room_json: dict) -> Optional[ExtraDescriptionData]:
+        extra_desc = room_json.get('extra_description')
+        if extra_desc is None:
+            return None
+        if not isinstance(extra_desc, str):
+            self.logger.warning(f"Expected extra description to be a string, got {type(extra_desc).__name__}")
+        return ExtraDescriptionData.from_json(extra_desc)
+
+    def _load_exits(self, room_json: dict) -> List[Exit]:
+        exit_list = []
+        room_id = room_json.get('id') or room_json.get('vnum') or "unknown"
+
         try:
-            return Exits.from_json(room_exits)
+            room_exits = room_json.get('exits') or []
+            if not isinstance(room_exits, list):
+                raise TypeError(f"Expected exits to be a list, got {type(room_exits).__name__}")
+
+            for index, raw_exit in enumerate(room_exits):
+                try:
+                    exit_obj = Exit.from_json(raw_exit)
+                    if exit_obj.room_id is None:
+                        exit_obj.room_id = str(room_id)
+                    exit_list.append(exit_obj)
+                except (TypeError, ValueError) as exit_error:
+                    self.logger.warning(f"Skipping malformed exit #{index} for room {room_id}: {exit_error}")
         except (TypeError, ValueError) as e:
-            room_id = room_json.get('id') or room_json.get('vnum') or "unknown"
             self.logger.error(f"Failed to parse exits for room {room_id}: {e}")
-            return Exits.from_json(None)
+        return exit_list

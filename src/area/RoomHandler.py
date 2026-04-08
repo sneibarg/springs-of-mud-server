@@ -1,7 +1,8 @@
+from enum import IntEnum
 from typing import List
 from injector import inject
 from area.AreaUtil import AreaUtil
-from area.Exits import Exits
+from area.Exit import Exit
 from area.Room import Room
 from area.RoomRegistry import RoomRegistry
 from player.Character import Character
@@ -23,10 +24,10 @@ class RoomHandler:
         self.logger = LoggerFactory.get_logger(__name__)
 
     async def move_mobile(self, character, direction):
-        room = self.room_registry.get_room_by_id(character.room_id)
+        room = self.room_registry.get(id=character.room_id)
         destination_id = AreaUtil.is_valid_direction(direction, room)
         if destination_id is not None:
-            destination_room = self.room_registry.get_room_by_id(destination_id)
+            destination_room = self.room_registry.get(id=destination_id)
             character.room_id = destination_id
             await self.print_room(character.id, destination_room)
         else:
@@ -34,14 +35,13 @@ class RoomHandler:
 
     async def print_exits(self, character: Character, room: Room):
         lines = [f"Obvious exits from room {room.vnum}:"]
-        exits: Exits = room.exits
-        destination_rooms = exits.get_exits()
-        for direction in destination_rooms:
-            destination = destination_rooms[direction]
+        exits: List[Exit] = room.exits
+        for direction in exits:
+            destination = direction.to_room_id
             if destination is None:
                 continue
-            destination_room: Room = self.room_registry.get_room_by_id(destination)
-            line = AreaUtil.align_exits(direction.capitalize(), destination_room.name, destination_room.vnum, width=6)
+            destination_room: Room = self.room_registry.get(id=destination)
+            line = AreaUtil.align_exits(direction.direction, destination_room.name, destination_room.vnum, width=6)
             lines.append(line)
 
         text = "\n".join(lines) + "\n"

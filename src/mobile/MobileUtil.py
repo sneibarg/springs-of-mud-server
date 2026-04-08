@@ -135,16 +135,16 @@ class MobileUtil:
 
     @staticmethod
     def parse_dice(mobile_data: dict) -> Tuple[Dice, Dice, Dice]:
-        hit_dice = Dice.get_dice(str(mobile_data.get("hit_dice")))
-        mana_dice = Dice.get_dice(str(mobile_data.get("mana_dice")))
-        damage_dice = Dice.get_dice(str(mobile_data.get("damage_dice")))
+        hit_dice = Dice.from_json(str(mobile_data.get("hit_dice")))
+        mana_dice = Dice.from_json(str(mobile_data.get("mana_dice")))
+        damage_dice = Dice.from_json(str(mobile_data.get("damage_dice")))
         return hit_dice, mana_dice, damage_dice
 
     @staticmethod
     def parse_ac(mobile_data: dict) -> ArmorClass:
         ac = mobile_data.get("armor_class")
         if ac is None:
-            logger.warn(f"AC is None for mobile: {mobile_data}")
+            logger.warn("AC is None for mobile: {mobile_data")
             return ArmorClass(bash=0, pierce=0, slash=0, exotic=0)
         return ArmorClass.from_json(mobile_data.get("armor_class"))
 

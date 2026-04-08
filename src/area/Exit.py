@@ -5,23 +5,15 @@ from typing import Any, Mapping
 
 
 @dataclass
-class Exits:
-    north: str
-    south: str
-    east: str
-    west: str
-    up: str
-    down: str
-
-    def get_exits(self) -> dict[str, str]:
-        return {
-            'north': self.north,
-            'south': self.south,
-            'east': self.east,
-            'west': self.west,
-            'up': self.up,
-            'down': self.down
-        }
+class Exit:
+    direction: int
+    description: str
+    keyword: str
+    exit_flags: int
+    key: int
+    to_room_vnum: int
+    to_room_id: str
+    room_id: str
 
     @classmethod
     def from_json(cls, data: Any):
@@ -33,7 +25,11 @@ class Exits:
                     parsed = ast.literal_eval(data)
                 except (SyntaxError, ValueError) as exc:
                     raise ValueError(f"Unable to parse exits value: {data!r}") from exc
+        elif isinstance(data, Mapping):
+            parsed = dict(data)
         else:
-            raise TypeError(f"Exits.from_json expected mapping, JSON string, or None; got {type(data).__name__}")
+            raise TypeError(f"Exit.from_json expected mapping or JSON string; got {type(data).__name__}")
 
+        if not isinstance(parsed, Mapping):
+            raise TypeError(f"Parsed exit must be a mapping, got {type(parsed).__name__}")
         return cls(**parsed)

@@ -1,8 +1,11 @@
 import threading
 
 from dataclasses import dataclass, field
+from typing import List
+
 from area.AreaUtil import AreaUtil
-from area.Exits import Exits
+from area.Exit import Exit
+from object.ExtraDescriptionData import ExtraDescriptionData
 
 
 @dataclass
@@ -23,9 +26,9 @@ class Room:
     heal_rate: int = 0
     mana_rate: int = 0
     clan: int = 0
-    extra_description: list = field(default_factory=list)
+    extra_description: ExtraDescriptionData = None
     mobiles: list = field(default_factory=list)
-    exits: Exits = field(default_factory=Exits)
+    exits: List[Exit] = field(default_factory=list)
 
     def __post_init__(self):
         self.clan = None
@@ -45,8 +48,6 @@ class Room:
 
     @classmethod
     def from_json(cls, data):
-        from server.ServerUtil import ServerUtil
-        data = ServerUtil.camel_to_snake_case(data)
         return cls(**data)
 
     def get_formatted_exits(self):
