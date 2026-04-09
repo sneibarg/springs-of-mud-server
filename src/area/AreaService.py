@@ -3,27 +3,21 @@ import requests
 from typing import Optional
 from injector import inject
 from area.Area import Area
-from area.SpecialRegistry import SpecialRegistry
-from area.AreaRegistry import AreaRegistry
-from area.ResetRegistry import ResetRegistry
-from area.ShopRegistry import ShopRegistry
+from game.RegistryService import RegistryService
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 
 
 class AreaService:
     @inject
-    def __init__(self, config: ServiceConfig,
-                 area_registry: AreaRegistry,
-                 reset_registry: ResetRegistry,
-                 shop_registry: ShopRegistry,
-                 special_registry: SpecialRegistry):
+    def __init__(self, config: ServiceConfig, registry_service: RegistryService):
         self.__name__ = "AreaService"
         self.logger = LoggerFactory.get_logger(self.__name__)
-        self.area_registry = area_registry
-        self.reset_registry = reset_registry
-        self.shop_registry = shop_registry
-        self.special_registry = special_registry
+        self.registry_service = registry_service
+        self.area_registry = self.registry_service.area_registry
+        self.reset_registry = self.registry_service.reset_registry
+        self.shop_registry = self.registry_service.shop_registry
+        self.special_registry = self.registry_service.special_registry
         self.areas_endpoint = config.areas_endpoint
         self.load_areas()
         self.logger.info(f"Initialized AreaService instance with {len(self.area_registry.all_areas())} areas in memory.")

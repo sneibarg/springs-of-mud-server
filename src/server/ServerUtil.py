@@ -186,7 +186,7 @@ class ServerUtil:
         service_list = (f"{game_service.__name__}; {player_service.__name__}; {room_service.__name__}; {area_service.__name__}; "
                         f"{skill_service.__name__}; {item_service.__name__}\r\n{weather_service.__name__}; {mobile_service.__name__}; "
                         f"{interp_service.__name__}; {social_service.__name__}; {note_service.__name__}; {character_service.__name__} "
-                        f"{help_service.__name__}; {shop_service.__name__}; {reset_service.__name__}; {special_service.__name__}")
+                        f"{help_service.__name__}; {shop_service.__name__}; {reset_service.__name__}; {special_service.__name__}.")
         logger.info(f"The following services have been started: {service_list}")
 
     @staticmethod
