@@ -1,7 +1,13 @@
+from enum import IntEnum
 from typing import Tuple
-from mobile import Mobile
+
+from game.GameMacros import GameMacros
+from mobile.CombatFlags import CombatFlags
+from mobile.Mobile import Mobile
 from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice
+from mobile.MobileFlags import MobileFlags
+from object.ObjectMacros import ObjectMacros
 from server.LoggerFactory import LoggerFactory
 
 logger = LoggerFactory.get_logger('MobileUtil')
@@ -11,17 +17,27 @@ class MobileUtil:
     pass
 
     @staticmethod
-    def build_mobile(mobile_id: str, races: dict, mobile_data: dict, npc_flag: int) -> tuple[Mobile, int]:
+    def build_mobile(mobile_id: str, races: dict, mobile_data: dict, npc_flag: int, enums: dict[str, type[IntEnum]]) -> tuple[Mobile, int]:
         player_name = str(mobile_data.get("name", "") or "")
         race_name = MobileUtil.resolve_race_name(races, mobile_data.get("race"), player_name)
         race = races[race_name] or {}
-        flags = MobileUtil.resolve_mobile_flags(mobile_data, race, npc_flag)
+        flag_letters = enums.get("flagLetters")
+        flags = MobileUtil.resolve_mobile_flags(mobile_data, race, npc_flag, flag_letters)
         level = MobileUtil.safe_int(mobile_data.get("level", 0), default=0)
-        normalized = MobileUtil.build_normalized_mobile_data(mobile_id, mobile_data, player_name, race_name, flags, level)
+        normalized = MobileUtil.build_normalized_mobile_data(mobile_id, mobile_data, player_name, race_name, level)
 
         mobile = Mobile.from_json(normalized)
+        mobile.flags = flags
         MobileUtil.apply_extended_mobile_fields(mobile, mobile_data)
         return mobile, level
+
+    @staticmethod
+    def convert_form(race: str, form: int, object_macros: ObjectMacros):
+        return object_macros.set_bit(form, object_macros.races[race].get(form, 0))
+
+    @staticmethod
+    def convert_parts(race: str, parts: int, object_macros: ObjectMacros):
+        return object_macros.set_bit(parts, object_macros.races[race].get(parts, 0))
 
     @staticmethod
     def resolve_mobile_id(mobile_data: dict, raw_mobile: dict) -> str | None:
@@ -32,15 +48,45 @@ class MobileUtil:
         return None
 
     @staticmethod
-    def resolve_mobile_flags(mobile_data: dict, race: dict, npc_flag: int) -> dict[str, int]:
-        flags = {
-            "act_flags": MobileUtil.safe_int(mobile_data.get("act_flags", 0), default=0) | npc_flag | MobileUtil.race_flag_value(race, "act"),
-            "affect_flags": MobileUtil.safe_int(mobile_data.get("affect_flags", 0), default=0) | MobileUtil.race_flag_value(race, "aff"),
-            "form": MobileUtil.safe_int(mobile_data.get("form", 0), default=0) | MobileUtil.race_flag_value(race, "form"),
-            "parts": MobileUtil.safe_int(mobile_data.get("parts", 0), default=0) | MobileUtil.race_flag_value(race, "parts"),
-        }
-        MobileUtil.apply_flag_removes(flags, mobile_data.get("flag_removes", []) or [])
-        return flags
+    def resolve_mobile_flags(mobile_data: dict, race: dict, npc_flag: int, flag_letters: type[IntEnum]) -> MobileFlags:
+        raw_act = MobileUtil.safe_int(mobile_data.get("actFlags") or mobile_data.get("act_flags"), 0)
+        raw_aff = MobileUtil.safe_int(mobile_data.get("affectFlags") or mobile_data.get("affect_flags"), 0)
+        raw_off = 0
+        raw_imm = 0
+        raw_res = 0
+        raw_vuln = 0
+        import json
+        combat_raw = json.loads(mobile_data.get("combat_flags").replace("'", '"') if mobile_data.get("combat_flags") else "{}")
+        combat_raw['off_flags'] = GameMacros.parse_flag_string(combat_raw.get('off_flags'), flag_letters)
+        if combat_raw:
+            cf = CombatFlags.from_raw(combat_raw, flag_letters)
+            raw_off = cf.off_flags
+            raw_imm = cf.imm_flags
+            raw_res = cf.res_flags
+            raw_vuln = cf.vuln_flags
+
+        raw_form = MobileUtil.safe_int(mobile_data.get("form"), 0)
+        raw_parts = MobileUtil.safe_int(mobile_data.get("parts"), 0)
+        race_act = MobileUtil.race_flag_value(race, "act")
+        race_aff = MobileUtil.race_flag_value(race, "aff")
+        race_off = MobileUtil.race_flag_value(race, "off")
+        race_imm = MobileUtil.race_flag_value(race, "imm")
+        race_res = MobileUtil.race_flag_value(race, "res")
+        race_vuln = MobileUtil.race_flag_value(race, "vuln")
+        race_form = MobileUtil.race_flag_value(race, "form")
+        race_parts = MobileUtil.race_flag_value(race, "parts")
+        mobile_flags = MobileFlags(
+            act=raw_act | npc_flag | race_act,
+            affect=raw_aff | race_aff,
+            off=raw_off | race_off,
+            imm=raw_imm | race_imm,
+            res=raw_res | race_res,
+            vuln=raw_vuln | race_vuln,
+            form=raw_form | race_form,
+            parts=raw_parts | race_parts,
+        )
+        MobileUtil.apply_flag_removes(mobile_flags, mobile_data.get("flag_removes", []))
+        return mobile_flags
 
     @staticmethod
     def increment_kill_table(kill_table: dict[int, int], level: int):
@@ -92,47 +138,6 @@ class MobileUtil:
             return 0
 
     @staticmethod
-    def normalize_position(enums: dict, value, fallback_key="standing") -> int:
-        pos_enum = enums["positions"]
-        if isinstance(value, int):
-            result = value
-        else:
-            text = str(value or "").strip()
-            if text.isdigit():
-                result = int(text)
-            elif text:
-                result = pos_enum.get(text.lower(), 0)
-            else:
-                result = 0
-
-        fallback = enums.get(fallback_key.lower(), 8)
-        return result if result > 0 else fallback
-
-    @staticmethod
-    def resolve_attack(attacks, value):
-        if value is None:
-            return None
-        attack = attacks.get(value)
-        if attack is not None:
-            return attack.get("message", value)
-        return value
-
-    @staticmethod
-    def resolve_size(enums, value):
-        if value is None:
-            return None
-
-        enum_lookup = enums.get("size")
-        if isinstance(value, int):
-            return value
-
-        text = str(value).strip()
-        if text.isdigit():
-            return int(text)
-
-        return enum_lookup.get(text.lower())
-
-    @staticmethod
     def parse_dice(mobile_data: dict) -> Tuple[Dice, Dice, Dice]:
         hit_dice = Dice.from_json(str(mobile_data.get("hit_dice")))
         mana_dice = Dice.from_json(str(mobile_data.get("mana_dice")))
@@ -148,13 +153,6 @@ class MobileUtil:
         return ArmorClass.from_json(mobile_data.get("armor_class"))
 
     @staticmethod
-    def resolve_flag_domain_key(domain: str, domain_map: dict[str, str]) -> str | None:
-        for prefix, key in domain_map.items():
-            if domain.startswith(prefix):
-                return key
-        return None
-    
-    @staticmethod
     def apply_extended_mobile_fields(mobile: Mobile, mobile_data: dict):
         mobile.armor_class = MobileUtil.parse_ac(mobile_data)
         mobile.hit_dice, mobile.mana_dice, mobile.damage_dice = MobileUtil.parse_dice(mobile_data)
@@ -162,11 +160,10 @@ class MobileUtil:
         mobile.wealth = MobileUtil.safe_int(mobile_data.get("wealth", mobile_data.get("gold", 0)), default=0)
     
     @staticmethod
-    def build_normalized_mobile_data(mobile_id: str, mobile_data: dict, player_name: str, race_name: str, flags: dict[str, int], level: int) -> dict:
+    def build_normalized_mobile_data(mobile_id: str, mobile_data: dict, player_name: str, race_name: str, level: int) -> dict:
         start_pos = mobile_data.get("start_pos")
         default_pos = mobile_data.get("default_pos")
         sex_value = mobile_data.get("sex")
-        
         return {
             "area_id": str(mobile_data.get("area_id", "") or ""),
             "vnum": str(mobile_data.get("vnum", mobile_id) or mobile_id),
@@ -175,8 +172,8 @@ class MobileUtil:
             "long_description": MobileUtil.capitalize_first(mobile_data.get("long_description", "")),
             "description": MobileUtil.capitalize_first(mobile_data.get("description", "")),
             "race": race_name,
-            "act_flags": str(flags["act_flags"]),
-            "affect_flags": str(flags["affect_flags"]),
+            "act_flags": None,  # str(flags["act_flags"]),
+            "affect_flags": None,  # str(flags["affect_flags"]),
             "alignment": str(mobile_data.get("alignment", "0") or "0"),
             "group": str(MobileUtil.safe_int(mobile_data.get("group", 0), default=0)),
             "act": str(mobile_data.get("act", "") or ""),
@@ -185,8 +182,8 @@ class MobileUtil:
             "start_pos": str(start_pos),
             "default_pos": str(default_pos),
             "sex": str(sex_value),
-            "form": str(flags["form"]),
-            "parts": str(flags["parts"]),
+            "form": None,
+            "parts": None,
             "size": str(mobile_data.get("size", "") or ""),
             "material": str(mobile_data.get("material", "") or ""),
             "flags": str(mobile_data.get("flags", "") or ""),
@@ -201,6 +198,7 @@ class MobileUtil:
             "silver": MobileUtil.safe_int(mobile_data.get("silver", 0), default=0),
             "pulse_wait": MobileUtil.safe_int(mobile_data.get("pulse_wait", 0), default=0),
             "pulse_daze": MobileUtil.safe_int(mobile_data.get("pulse_daze", 0), default=0),
+            "mobile_flags": None,
             "lock": mobile_data.get("lock"),
         }
     
@@ -215,25 +213,25 @@ class MobileUtil:
             return int(value)
         except (TypeError, ValueError):
             return default
-    
-    @staticmethod
-    def apply_flag_removes(flags: dict[str, int], removals: list[dict]):
-        domain_map = {
-            "act": "act_flags",
-            "aff": "affect_flags",
-            "off": "off_flags",
-            "imm": "imm_flags",
-            "res": "res_flags",
-            "vul": "vuln_flags",
-            "for": "form",
-            "par": "parts",
-        }
 
+    @staticmethod
+    def apply_flag_removes(flags: MobileFlags, removals: list):
         for removal in removals:
-            domain = str(removal.get("domain", "")).lower()
-            vector = MobileUtil.safe_int(removal.get("vector", 0), default=0)
-            key = MobileUtil.resolve_flag_domain_key(domain, domain_map)
-            if key is None:
-                raise ValueError(f"Flag remove: flag not found: {domain}")
-            flags[key] &= ~vector
-            
+            domain = str(removal.get("domain", "")).lower().strip()
+            vector = MobileUtil.safe_int(removal.get("vector", 0))
+            if domain == "act":
+                flags.act &= ~vector
+            elif domain.startswith("aff"):
+                flags.affect &= ~vector
+            elif domain == "off":
+                flags.off &= ~vector
+            elif domain == "imm":
+                flags.imm &= ~vector
+            elif domain == "res":
+                flags.res &= ~vector
+            elif domain.startswith("vul"):
+                flags.vuln &= ~vector
+            elif domain.startswith("for"):
+                flags.form &= ~vector
+            elif domain.startswith("par"):
+                flags.parts &= ~vector

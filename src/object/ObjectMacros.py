@@ -5,11 +5,12 @@ from object import Item
 
 
 class ObjectMacros(GameMacros):
-    def __init__(self, races: dict, item_table: dict, ItemTypes: type[IntEnum], DamageTypes: type[IntEnum]):
+    def __init__(self, races: dict, item_table: dict, ItemTypes: type[IntEnum], DamageTypes: type[IntEnum], FlagLetters: type[IntEnum]):
         self.races = races
         self.item_table = item_table
         self.ItemTypes = ItemTypes
         self.DamageTypes = DamageTypes
+        self.FlagLetters = FlagLetters
 
     def can_wear(self, obj: Item, part: int) -> bool:
         return self.is_set(int(obj.wear_flags), part)

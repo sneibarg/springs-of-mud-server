@@ -52,7 +52,7 @@ class WeatherHandler:
 
     # every 60 seconds is one game hour.
     async def update(self):
-        self.logger.info("TimeInfo: " + str(self.time_info) + " WeatherInfo: " + str(self.weather_info))
+        self.logger.info(f"{str(self.time_info)}; {str(self.weather_info)}")
         await self._time_update()
         await self._sky_update()
 

@@ -158,7 +158,8 @@ class ServerUtil:
         injector.binder.bind(ObjectMacros, to=ObjectMacros(injector.get(GameData).races,
                                                            injector.get(GameData).item_table,
                                                            injector.get(GameService).enums['itemTypes'],
-                                                           injector.get(GameService).enums['damageTypes']), scope=singleton)
+                                                           injector.get(GameService).enums['damageTypes'],
+                                                           injector.get(GameService).enums['flagLetters']), scope=singleton)
 
     @staticmethod
     def load_services(injector) -> None:

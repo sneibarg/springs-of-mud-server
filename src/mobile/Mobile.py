@@ -1,5 +1,4 @@
 import threading
-
 from dataclasses import dataclass, field
 from typing import Optional
 from uuid import uuid1
@@ -7,11 +6,13 @@ from uuid import uuid1
 from mobile.ArmorClass import ArmorClass
 from mobile.CombatFlags import CombatFlags
 from mobile.Dice import Dice
+from mobile.MobileFlags import MobileFlags
 from server.LoggerFactory import LoggerFactory
 
 
 @dataclass
 class Mobile:
+    # === Fields without defaults (required) ===
     area_id: str
     vnum: str
     name: str
@@ -27,8 +28,8 @@ class Mobile:
     start_pos: str
     default_pos: str
     sex: str
-    form: str
-    parts: str
+    form: int
+    parts: int
     size: str
     material: str
     flags: str
@@ -40,11 +41,12 @@ class Mobile:
     pulse_daze: int
     gold: int
     silver: int
-    combat_flags: Optional[CombatFlags] = None
+    combat_flags: str
     armor_class: Optional[ArmorClass] = None
     hit_dice: Optional[Dice] = None
     mana_dice: Optional[Dice] = None
     damage_dice: Optional[Dice] = None
+    mobile_flags: Optional[MobileFlags] = None
     lock: threading.Lock = field(default_factory=threading.Lock)
 
     def __post_init__(self):
@@ -65,4 +67,6 @@ class Mobile:
     @classmethod
     def from_json(cls, data):
         data.setdefault('lock', None)
+        if 'mobile_flags' not in data:
+            data['mobile_flags'] = MobileFlags.default()
         return cls(**data)
