@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-from typing import Tuple, Optional
-
+from typing import Tuple
 from area import Room
 from area.Reset import Reset
 from area.Shop import Shop
@@ -23,8 +22,8 @@ class Area:
     max_vnum: str = "0"
     age: int = 15
     number_of_players: int = 0
-    suggested_level_range: Tuple[int, int] = None
-    vnum_range: Tuple[int, int] = None
+    suggested_level_range: str = None
+    vnum_range: Tuple[int, int] | Tuple[int, ...] = None
     area_flags: list = None
     rooms: list[Room] = None
     mobiles: list[Mobile] = None
@@ -37,6 +36,7 @@ class Area:
     def __post_init__(self):
         self.__name__ = f"Area.{self.name}"
         self.logger = LoggerFactory.get_logger(self.__name__)
+        self.vnum_range = self.parse_vnum_range(self.suggested_level_range)
 
     def __hash__(self):
         return hash(self.id)
@@ -46,10 +46,22 @@ class Area:
             return self.id == other.id
         return False
 
+    def parse_vnum_range(self, vnum_range: str) -> tuple[int, int] | tuple[int, ...]:
+        if vnum_range is None or vnum_range == "None" or not vnum_range.strip():
+            return 0, 0
+        parts = vnum_range.split()
+        if len(parts) != 2:
+            self.logger.warning(f"Invalid vnum range format: '{vnum_range}'")
+            return 0, 0
+        return tuple(int(x.strip()) for x in parts)
+
     @classmethod
     def from_json(cls, data):
         from server.ServerUtil import ServerUtil
         data = ServerUtil.camel_to_snake_case(data)
+        if data['suggested_level_range'] == "All":
+            data['suggested_level_range'] = "1 50"
+        data['suggested_level_range'] = data['suggested_level_range'].replace("-", " ")
         if 'area_id' in data:
             data['id'] = data.pop('area_id')
         return cls(**data)

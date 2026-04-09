@@ -1,3 +1,4 @@
+from enum import IntEnum
 from injector import inject
 from area.AreaHandler import AreaHandler
 from game.WeatherHandler import WeatherHandler
@@ -10,8 +11,35 @@ class UpdateHandler:
         self.weather_handler = weather_handler
         self.area_handler = area_handler
         self.mobile_handler = mobile_handler
-        self.stop_flag = False
+        self.enums: dict[str, IntEnum] = {}
+        self.pulse_area = 0
+        self.pulse_mobile = 0
+        self.pulse_violence = 0
+        self.pulse_point = 0
+        self.pulse_music = 0  # maybe we skip migrating music
+        self.GameParametersEnum = None
+
+    def set_enums(self, enums: dict[str, IntEnum]):
+        self.enums = enums
+        self.GameParametersEnum = enums.get('gameParameters')
 
     async def handle_updates(self):
-        await self.weather_handler.update()
+        self.pulse_area -= 1
+        self.pulse_mobile -= 1
+        self.pulse_violence -= 1
+        self.pulse_point -= 1
+        self.pulse_music -= 1
+
+        if self.pulse_area <= 0:
+            self.pulse_area = self.GameParametersEnum.PULSE_AREA.value
+            self.area_handler.area_update()
+        if self.pulse_point <= 0:
+            self.pulse_point = self.GameParametersEnum.PULSE_TICK.value
+            await self.weather_handler.update()
+        if self.pulse_music <= 0:
+            pass
+        if self.pulse_mobile <= 0:
+            pass
+        if self.pulse_violence <= 0:
+            pass
 

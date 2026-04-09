@@ -1,7 +1,6 @@
 from enum import IntEnum
 from injector import inject
 from area.Area import Area
-from area.Reset import Reset
 from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
 from object.ObjectMacros import ObjectMacros
@@ -44,19 +43,20 @@ class AreaHandler:
 
             if (not area.empty and (area.number_of_players == 0 or area.age >= 15)) or area.age >= 31:
                 school_vnum = self.WellKnownRoomVnums.ROOM_VNUM_SCHOOL
-                school_room = self.room_registry.get(vnum=school_vnum)
+                school_room = self.room_registry.get(vnum=str(school_vnum))
 
                 self._reset_area(area)
                 area.age = rng.number_range(0, 3)
-
-                if (school_room is not None and school_room.area_id == area.id) or school_vnum in getattr(area, 'vnum_range', ()):
+                if area.vnum_range is None:
+                    self.logger.warning(f"Area {area.name} has no vnum range.")
+                if (school_room is not None and school_room.area_id == area.id) or area.vnum_range is not None and school_vnum in area.vnum_range:
                     area.age = 13  # 15 - 2 → ~2 minute grace period before it can reset again
                 elif area.number_of_players == 0:
                     area.empty = True
 
-    def _reset_area(self, area: Area):
+    @staticmethod
+    def _reset_area(area: Area):
         for reset in area.resets:
-            self.logger.info(f"Resetting type: {reset.command}")
             if reset.command == "M":
                 pass
             elif reset.command == "O":

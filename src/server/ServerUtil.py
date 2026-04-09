@@ -179,7 +179,9 @@ class ServerUtil:
         note_service = injector.get(NoteService)
         area_handler = injector.get(AreaHandler)
         weather_handler = injector.get(WeatherHandler)
+        update_handler = injector.get(UpdateHandler)
 
+        update_handler.set_enums(injector.get(GameService).enums)
         area_handler.set_enums(injector.get(GameService).enums)
         weather_handler.lazy_load(injector.get(GameService).enums, injector.get(GameData).constants)
         game_service.set_update_handler(injector.get(UpdateHandler))

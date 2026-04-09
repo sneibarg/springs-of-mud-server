@@ -39,8 +39,6 @@ class WeatherHandler:
         self.character_macros = character_macros
         self.weather_info = None
         self.time_info = None
-        self.pulse_count = 0
-        self.pulse_tick = 60  # default
         self.constants = None
         self.session_handler = None
         self.TimeAndWeatherEnum = None
@@ -48,21 +46,15 @@ class WeatherHandler:
     def lazy_load(self, enums: dict[str, IntEnum], constants: Constants):
         self.TimeAndWeatherEnum = enums.get('timeAndWeather')
         self.constants = constants
-        self.pulse_tick = 10 #self.constants.pulses.get('tick', 60 * self.constants.pulses.get('perSecond', 4))
         self.weather_info = WeatherInfo(mmhg=1000, change=0, sky=self.TimeAndWeatherEnum.SKY_CLOUDLESS, sunlight=self.TimeAndWeatherEnum.SUN_LIGHT)
         self.time_info = TimeInfo(hour=0, day=1, month=1, year=1)
-        self.logger.info(f"WeatherHandler online. Pulse tick: {self.pulse_tick}")
+        self.logger.info(f"WeatherHandler online.")
 
     # every 60 seconds is one game hour.
     async def update(self):
-        """Update weather and time."""
-        self.pulse_count += 1
-        self.logger.debug(f"WeatherService pulse count: {self.pulse_count}")
-        if self.pulse_count >= self.pulse_tick:
-            self.pulse_count = 0
-            self.logger.info("TimeInfo: " + str(self.time_info) + " WeatherInfo: " + str(self.weather_info))
-            await self._time_update()
-            await self._sky_update()
+        self.logger.info("TimeInfo: " + str(self.time_info) + " WeatherInfo: " + str(self.weather_info))
+        await self._time_update()
+        await self._sky_update()
 
     async def _time_update(self):
         time_msg = self._time_change()
