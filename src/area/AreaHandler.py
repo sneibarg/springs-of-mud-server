@@ -47,9 +47,7 @@ class AreaHandler:
 
                 self._reset_area(area)
                 area.age = rng.number_range(0, 3)
-                if area.vnum_range is None:
-                    self.logger.warning(f"Area {area.name} has no vnum range.")
-                if (school_room is not None and school_room.area_id == area.id) or area.vnum_range is not None and school_vnum in area.vnum_range:
+                if (school_room is not None and school_room.area_id == area.id) or school_vnum in area.vnum_range:
                     area.age = 13  # 15 - 2 → ~2 minute grace period before it can reset again
                 elif area.number_of_players == 0:
                     area.empty = True
