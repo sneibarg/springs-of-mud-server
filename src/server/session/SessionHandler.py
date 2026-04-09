@@ -17,7 +17,7 @@ class SessionHandler:
     def get_session(self, session_id: str) -> Optional[SessionState]:
         return self._sessions.get(session_id)
 
-    def get_session_by_player(self, player_id: str) -> Optional[SessionState] :
+    def get_session_by_player(self, player_id: str) -> Optional[SessionState]:
         for session in self._sessions.values():
             if session.player_id == player_id:
                 return session

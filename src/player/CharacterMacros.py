@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import IntEnum
 from typing import Any
 from area import Room
 from game.GameMacros import GameMacros
@@ -11,13 +12,14 @@ from game.RegistryService import RegistryService
 
 class CharacterMacros(GameMacros):
     def __init__(self, registry_service: RegistryService,
-                 room_flags: dict,
-                 attribute_bonuses: dict,
-                 character_constants: CharacterConstants):
+                 character_constants: CharacterConstants,
+                 enums: dict[str, IntEnum],
+                 attribute_bonuses: dict[str, dict[str, dict[str, int]]]):
         self.__name__ = "CharacterMacros"
         self.registry_service = registry_service
-        self.room_flags = room_flags
+        self.enums = enums
         self.character_constants = character_constants
+        self.RoomFlagsEnum = self.enums.get("roomFlags")
         self.attribute_bonuses = attribute_bonuses
         self.logger = LoggerFactory.get_logger(__name__)
 
@@ -52,7 +54,7 @@ class CharacterMacros(GameMacros):
         return self.is_set(ServerUtil.convert_flags(char.affected_by), effect)
 
     def is_awake(self, char: Any) -> bool:
-        return char.position > self.character_constants.positions.POS_SLEEPING.name
+        return char.character_attributes.position > self.character_constants.positions.POS_SLEEPING.value
 
     @staticmethod
     def get_age(char: Character) -> int:
@@ -60,11 +62,11 @@ class CharacterMacros(GameMacros):
 
     @staticmethod
     def is_good(char: Character | Mobile) -> bool:
-        return char.alignment >= 350
+        return char.character_attributes.alignment >= 350
 
     @staticmethod
     def is_evil(char: Character | Mobile) -> bool:
-        return char.alignment <= -350
+        return char.character_attributes.alignment <= -350
 
     def is_neutral(self, char: Character | Mobile) -> bool:
         return not self.is_good(char) and not self.is_evil(char)
@@ -82,9 +84,9 @@ class CharacterMacros(GameMacros):
         return self.get_attribute_bonus(attr_name="strength", attr_level=str(char.level)).get('todam')
 
     def is_outside(self, char: Any) -> bool:
-        room: Room = self.registry_service.room_registry[char.room_id]
-        self.logger.debug(f"is_outside: {room.room_flags}={self.room_flags['room']['INDOORS']}")
-        return (room.room_flags & self.room_flags['room']["INDOORS"]) == 0
+        room: Room = self.registry_service.room_registry.get(id=char.room_id)
+        self.logger.debug(f"is_outside: {room.room_flags}={self.RoomFlagsEnum.ROOM_INDOORS}")
+        return (room.room_flags & self.RoomFlagsEnum.ROOM_INDOORS) == 0
 
     @staticmethod
     def get_carry_weight(char: Any) -> int:

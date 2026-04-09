@@ -1,9 +1,12 @@
 from dataclasses import dataclass
 from typing import Tuple, Optional
 
+from area import Room
 from area.Reset import Reset
 from area.Shop import Shop
 from area.Special import Special
+from object.Item import Item
+from mobile.Mobile import Mobile
 from server.LoggerFactory import LoggerFactory
 
 
@@ -23,15 +26,13 @@ class Area:
     suggested_level_range: Tuple[int, int] = None
     vnum_range: Tuple[int, int] = None
     area_flags: list = None
-    rooms: list = None
-    mobiles: list = None
-    objects: list = None
+    rooms: list[Room] = None
+    mobiles: list[Mobile] = None
+    objects: list[Item] = None
     shops: list[Shop] = None
     resets: list[Reset] = None
     specials: list[Special] = None
     empty: bool = False
-    reset_first: Optional[Reset] = None
-    reset_last: Optional[Reset] = None
 
     def __post_init__(self):
         self.__name__ = f"Area.{self.name}"

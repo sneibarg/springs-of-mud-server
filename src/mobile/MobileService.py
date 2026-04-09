@@ -28,9 +28,10 @@ class MobileService:
         self.area_registry = area_registry
         self.fight_handler = fight_handler
         self.kill_table: dict[int, int] = {}
-
-    def start(self):
         self.load_mobiles()
+
+    # def start(self):
+    #     self.load_mobiles()
 
     def reload_mobiles(self) -> None:
         self.logger.info("Reloading all socials...")

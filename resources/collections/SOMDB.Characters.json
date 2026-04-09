@@ -3,8 +3,8 @@
     "$oid": "697e4a9edf39f7359b41cbfe"
   },
   "accountId": "62d2ff6699c3578abe7941c9",
-  "roomId": "69d1cb4775c9d585b5ecd074",
-  "areaId": "69d1cb47e4fa612bc80d133e",
+  "roomId": "69d5d5abba59371b099eb6a8",
+  "areaId": "69d5d5ab63b509937c2a139b",
   "name": "Fizban",
   "title": "the Fabulous",
   "race": "Human",
@@ -39,7 +39,7 @@
     "alignment": 900,
     "max_weight": 10000000,
     "max_items": 10000000,
-    "position": 1,
+    "position": 8,
     "wimpy": 100,
     "trains": 0,
     "practices": 0
@@ -91,8 +91,8 @@
     "$oid": "69a73bfdab982208ec2a22c7"
   },
   "accountId": "62d2ff6699c3578abe7941c9",
-  "roomId": "69d1cb4775c9d585b5ecd074",
-  "areaId": "69d1cb47e4fa612bc80d133e",
+  "roomId": "69d5d5abba59371b099eb6a8",
+  "areaId": "69d5d5ab63b509937c2a139b",
   "name": "Opie",
   "title": "the Ginger",
   "race": "Human",
@@ -122,7 +122,7 @@
     "alignment": 900,
     "max_weight": 10000000,
     "max_items": 10000000,
-    "position": 1,
+    "position": 8,
     "wimpy": 100,
     "trains": 0,
     "practices": 0

@@ -15,3 +15,6 @@ class ItemRegistry(Registry[Item]):
     def all_items(self) -> set[Item]:
         return self._items
 
+    def all_items_by_area_id(self, area_id: str) -> list[Item]:
+        return [item for item in self._items if item.area_id == area_id]
+

@@ -42,8 +42,8 @@ from server.messaging.MessageBus import MessageBus
 from server.session.AuthenticationService import AuthenticationService
 from server.session.SessionHandler import SessionHandler
 from server.ServiceConfig import ServiceConfig
-from update import WeatherService
-
+from game.WeatherHandler import WeatherHandler
+from game.UpdateHandler import UpdateHandler
 
 logger = LoggerFactory.get_logger("ServerUtil")
 
@@ -87,7 +87,6 @@ class ServerUtil:
         injector.binder.bind(RoomService, scope=singleton)
         injector.binder.bind(MobileService, scope=singleton)
         injector.binder.bind(AuthenticationService, scope=singleton)
-        injector.binder.bind(WeatherService, scope=singleton)
         injector.binder.bind(SocialService, scope=singleton)
         injector.binder.bind(NoteService, scope=singleton)
         injector.binder.bind(ItemService, to=ItemService(service_config,
@@ -107,6 +106,8 @@ class ServerUtil:
         injector.binder.bind(PlayerHandler, scope=singleton)
         injector.binder.bind(InterpHandler, scope=singleton)
         injector.binder.bind(NoteHandler, scope=singleton)
+        injector.binder.bind(WeatherHandler, scope=singleton)
+        injector.binder.bind(UpdateHandler, scope=singleton)
         logger.info(f"All game handlers have been bound.")
 
     @staticmethod
@@ -151,9 +152,9 @@ class ServerUtil:
                                                                        injector.get(GameService).enums['actBits'],
                                                                        injector.get(GameData).attribute_bonuses), scope=singleton)
         injector.binder.bind(CharacterMacros, to=CharacterMacros(injector.get(RegistryService),
-                                                                 injector.get(GameData).enums['roomFlags'],
-                                                                 injector.get(GameData).attribute_bonuses,
-                                                                 injector.get(CharacterConstants)), scope=singleton)
+                                                                 injector.get(CharacterConstants),
+                                                                 injector.get(GameService).enums,
+                                                                 injector.get(GameData).attribute_bonuses), scope=singleton)
         injector.binder.bind(ObjectMacros, to=ObjectMacros(injector.get(GameData).races,
                                                            injector.get(GameData).item_table,
                                                            injector.get(GameService).enums['itemTypes'],
@@ -171,22 +172,22 @@ class ServerUtil:
         area_service = injector.get(AreaService)
         skill_service = injector.get(SkillService)
         item_service = injector.get(ItemService)
-        weather_service = injector.get(WeatherService)
         social_service = injector.get(SocialService)
         mobile_service = injector.get(MobileService)
         help_service = injector.get(HelpService)
         interp_service = injector.get(InterpService)
         note_service = injector.get(NoteService)
         area_handler = injector.get(AreaHandler)
+        weather_handler = injector.get(WeatherHandler)
 
         area_handler.set_enums(injector.get(GameService).enums)
-        game_service.set_weather_service(weather_service)
-        game_service.start_mobile_service(mobile_service)
+        weather_handler.lazy_load(injector.get(GameService).enums, injector.get(GameData).constants)
+        game_service.set_update_handler(injector.get(UpdateHandler))
 
         service_list = (f"{game_service.__name__}; {player_service.__name__}; {room_service.__name__}; {area_service.__name__}; "
-                        f"{skill_service.__name__}; {item_service.__name__}\r\n{weather_service.__name__}; {mobile_service.__name__}; "
+                        f"{skill_service.__name__}; {item_service.__name__}\r\n{help_service.__name__}; {mobile_service.__name__}; "
                         f"{interp_service.__name__}; {social_service.__name__}; {note_service.__name__}; {character_service.__name__} "
-                        f"{help_service.__name__}; {shop_service.__name__}; {reset_service.__name__}; {special_service.__name__}.")
+                        f"{shop_service.__name__}; {reset_service.__name__}; {special_service.__name__}.")
         logger.info(f"The following services have been started: {service_list}")
 
     @staticmethod

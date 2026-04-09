@@ -1,5 +1,4 @@
 from typing import Tuple
-
 from mobile import Mobile
 from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice

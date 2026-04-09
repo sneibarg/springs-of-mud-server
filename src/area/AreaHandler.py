@@ -4,21 +4,29 @@ from area.Area import Area
 from area.Reset import Reset
 from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
+from object.ObjectMacros import ObjectMacros
 from numbers import RandomNumberGenerator
 from object.ItemRegistry import ItemRegistry
 from server.messaging import MessageBus
+from server.LoggerFactory import LoggerFactory
 
 rng = RandomNumberGenerator()
 
 
 class AreaHandler:
     @inject
-    def __init__(self, message_bus: MessageBus, area_registry: AreaRegistry, room_registry: RoomRegistry, item_registry: ItemRegistry):
+    def __init__(self, message_bus: MessageBus,
+                 area_registry: AreaRegistry,
+                 room_registry: RoomRegistry,
+                 item_registry: ItemRegistry,
+                 object_macros: ObjectMacros):
         self.__name__ = "AreaHandler"
+        self.logger = LoggerFactory.get_logger(__name__)
         self.message_bus = message_bus
         self.area_registry = area_registry
         self.room_registry = room_registry
         self.item_registry = item_registry
+        self.object_macros = object_macros
         self.enums = None
         self.WellKnownRoomVnums = None
         self.ExitFlags = None
@@ -46,10 +54,20 @@ class AreaHandler:
                 elif area.number_of_players == 0:
                     area.empty = True
 
-    def passes_update_check(self, area_id, last_reset: Reset):
-        if area_id not in [area.id for area in self.area_registry.all_areas()]:
-            return False
-        return self.area_registry.get(id=area_id).reset_last != last_reset
-
     def _reset_area(self, area: Area):
-        pass
+        for reset in area.resets:
+            self.logger.info(f"Resetting type: {reset.command}")
+            if reset.command == "M":
+                pass
+            elif reset.command == "O":
+                pass
+            elif reset.command == "P":
+                pass
+            elif reset.command == "G":
+                pass
+            elif reset.command == "E":
+                pass
+            elif reset.command == "D":
+                pass
+            elif reset.command == "R":
+                pass

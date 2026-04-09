@@ -18,6 +18,8 @@ class AreaService:
         self.reset_registry = self.registry_service.reset_registry
         self.shop_registry = self.registry_service.shop_registry
         self.special_registry = self.registry_service.special_registry
+        self.mobile_registry = self.registry_service.mobile_registry
+        self.item_registry = self.registry_service.item_registry
         self.areas_endpoint = config.areas_endpoint
         self.load_areas()
         self.logger.info(f"Initialized AreaService instance with {len(self.area_registry.all_areas())} areas in memory.")
@@ -64,3 +66,5 @@ class AreaService:
         area.resets = self.reset_registry.all_resets_by_area_id(area.id)
         area.shops = self.shop_registry.all_shops_by_area_id(area.id)
         area.specials = self.special_registry.all_specials_by_area_id(area.id)
+        area.items = self.item_registry.all_items_by_area_id(area.id)
+        area.mobiles = self.mobile_registry.all_mobiles_by_area_id(area.id)

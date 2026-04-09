@@ -1,16 +1,10 @@
 import requests
 
-from typing import TYPE_CHECKING
 from injector import inject
-
 from game.GameData import GameData
 from server.LoggerFactory import LoggerFactory
 from server.TimeVal import gettimeofday, TimeVal, stall_until_last_time
 from server.ServiceConfig import ServiceConfig
-
-if TYPE_CHECKING:
-    from update.WeatherService import WeatherService
-    from mobile.MobileService import MobileService
 
 
 class GameService:
@@ -19,27 +13,19 @@ class GameService:
         self.__name__ = "GameService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.game_data_endpoint = config.game_data_endpoint
-        self.weather_service = None
-        self.mobile_service = None
+        self.update_handler = None
         self.game_data = self._load_game_data()
         self.enums = dict()
-        self.load_enums()
+        self._load_enums()
         self.last_time: TimeVal = gettimeofday()
 
-    def set_weather_service(self, weather_service: WeatherService):
-        self.weather_service = weather_service
-
-    def start_mobile_service(self, mobile_service: MobileService):
-        self.mobile_service = mobile_service
-        self.mobile_service.start()
-
-    def load_enums(self):
-        self._load_enums()
+    def set_update_handler(self, update_handler):
+        self.update_handler = update_handler
 
     async def start(self):
-        await self.game_loop()
+        await self._game_loop()
 
-    async def game_loop(self):
+    async def _game_loop(self):
         while True:
             await self._game_loop_iteration()
 
@@ -47,7 +33,7 @@ class GameService:
         self.last_time = gettimeofday()
         current_time = self.last_time.tv_sec
         self.logger.debug(f"Current time: {current_time}; Pulses per second: {self.game_data.constants.pulses['perSecond']}")
-        await self.weather_service.update()
+        await self.update_handler.handle_updates()
         stall_until_last_time(self.last_time, self.game_data.constants.pulses['perSecond'])
 
     def _load_game_data(self):
