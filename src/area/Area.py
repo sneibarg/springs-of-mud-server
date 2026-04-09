@@ -16,7 +16,7 @@ class Area:
     security: str = "0"
     min_vnum: str = "0"
     max_vnum: str = "0"
-    age: int = 0
+    age: int = 15
     number_of_players: int = 0
     suggested_level_range: Tuple[int, int] = None
     vnum_range: Tuple[int, int] = None
@@ -27,6 +27,7 @@ class Area:
     shops: list = None
     resets: list = None
     specials: list = None
+    empty: bool = False
     reset_first: Optional[Reset] = None
     reset_last: Optional[Reset] = None
 

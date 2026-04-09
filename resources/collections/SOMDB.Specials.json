@@ -1,8 +1,8 @@
 [{
   "_id": {
-    "$oid": "69d00c3fc6e4577789bfbe6d"
+    "$oid": "69d5d5aa7714bb270f54c7a8"
   },
-  "areaId": "69d00c3faef81d1e0f35320e",
+  "areaId": "69d5d5aa58c4d083c08a8790",
   "mobVnum": "1000",
   "specialFunction": "spec_cast_mage",
   "comment": "A fairy dragon",
@@ -10,37 +10,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f6cc31ffb43dba2ef"
+    "$oid": "69d5d5aa2ad5645347d2904b"
   },
-  "areaId": "69d00c3faef81d1e0f35320e",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3fe8c794b0c4f1a1fd"
-  },
-  "areaId": "69d00c3faef81d1e0f35320e",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f4ce47e1c824ad589"
-  },
-  "areaId": "69d00c3faef81d1e0f35320e",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40591c5667195e5660"
-  },
-  "areaId": "69d00c40f1906dc85ce9e235",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f7edcca787d4b7aa2"
-  },
-  "areaId": "69d00c3ffbf048aaed1e3457",
+  "areaId": "69d5d5aabed6ce0837b48d48",
   "mobVnum": "6600",
   "specialFunction": "spec_thief",
   "comment": "the dwarven youth",
@@ -48,23 +20,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40abecc2e45248ea31"
+    "$oid": "69d5d5aa92b56c6b75a38cfe"
   },
-  "areaId": "69d00c40534ae03297f0a185",
+  "areaId": "69d5d5aa58c4d083c08a8790",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40d1c49ba7b4686ad6"
+    "$oid": "69d5d5aa76e41942253b3239"
   },
-  "areaId": "69d00c40f1906dc85ce9e235",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f3907027f50b0074c"
-  },
-  "areaId": "69d00c3ffbf048aaed1e3457",
+  "areaId": "69d5d5aabed6ce0837b48d48",
   "mobVnum": "6604",
   "specialFunction": "spec_thief",
   "comment": "the ugly bear",
@@ -72,23 +37,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40ecd4f4688a46a985"
+    "$oid": "69d5d5aa200a322fd5cdf08f"
   },
-  "areaId": "69d00c40534ae03297f0a185",
+  "areaId": "69d5d5aa58c4d083c08a8790",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4007b29ff04e4d1e9e"
+    "$oid": "69d5d5aa715b90150bf34ffc"
   },
-  "areaId": "69d00c40f1906dc85ce9e235",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f90e24bba26958bf1"
-  },
-  "areaId": "69d00c3ffbf048aaed1e3457",
+  "areaId": "69d5d5aabed6ce0837b48d48",
   "mobVnum": "6606",
   "specialFunction": "spec_cast_cleric",
   "comment": "the nanny",
@@ -96,16 +54,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40a72426ca47689693"
+    "$oid": "69d5d5aa16c1ae14f18602f9"
   },
-  "areaId": "69d00c40534ae03297f0a185",
+  "areaId": "69d5d5aa58c4d083c08a8790",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f731e3d62ae0d024a"
+    "$oid": "69d5d5aab286dbd3877aae72"
   },
-  "areaId": "69d00c3ffbf048aaed1e3457",
+  "areaId": "69d5d5aabed6ce0837b48d48",
   "mobVnum": "6608",
   "specialFunction": "spec_thief",
   "comment": "the spoiled brat",
@@ -113,93 +71,135 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f2a7ff64190922227"
+    "$oid": "69d5d5aac80e6f52c333999b"
   },
-  "areaId": "69d00c3ffbf048aaed1e3457",
+  "areaId": "69d5d5aabed6ce0837b48d48",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3fe8737821d713ad33"
+    "$oid": "69d5d5aa70912a813c0c0a6e"
   },
-  "areaId": "69d00c3ffbf048aaed1e3457",
+  "areaId": "69d5d5aabed6ce0837b48d48",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3fc785902cf3e3e6a0"
+    "$oid": "69d5d5aaf7002178701ea77a"
   },
-  "areaId": "69d00c3ffbf048aaed1e3457",
+  "areaId": "69d5d5aabed6ce0837b48d48",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f324a480f96e6e342"
+    "$oid": "69d5d5ab471ebbd8b71df191"
   },
-  "areaId": "69d00c3ffaaf11d394da544c",
+  "areaId": "69d5d5ab612e8b1467133075",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3fe754559f2e5152c9"
+    "$oid": "69d5d5ab1dbe0f567d80d7ec"
   },
-  "areaId": "69d00c3ffaaf11d394da544c",
+  "areaId": "69d5d5ab612e8b1467133075",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c403ae003614c37c7d9"
+    "$oid": "69d5d5ab299d29a653954bb4"
   },
-  "areaId": "69d00c40ee4c50be474ab649",
+  "areaId": "69d5d5abe62e9a6cb4898fc9",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f229921c0e053bed0"
+    "$oid": "69d5d5abc239ab259cf70ab6"
   },
-  "areaId": "69d00c3ffaaf11d394da544c",
+  "areaId": "69d5d5ab612e8b1467133075",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4072094901da63e4c6"
+    "$oid": "69d5d5ab1f8a59b6550ed79f"
   },
-  "areaId": "69d00c40ee4c50be474ab649",
+  "areaId": "69d5d5abe62e9a6cb4898fc9",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4075231b31554c1fe7"
+    "$oid": "69d5d5ab01bc23b106c02d93"
   },
-  "areaId": "69d00c40ee4c50be474ab649",
+  "areaId": "69d5d5ab55af48561fb7a440",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c428e12367188d15cbe"
+    "$oid": "69d5d5ab356287e483aa95f6"
   },
-  "areaId": "69d00c42bf2b8cb41e19dc80",
+  "areaId": "69d5d5abe62e9a6cb4898fc9",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c423701c4942eedbdc6"
+    "$oid": "69d5d5abae41e0769699a9a5"
   },
-  "areaId": "69d00c42bf2b8cb41e19dc80",
+  "areaId": "69d5d5ab55af48561fb7a440",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c429cad9c7179e0ca6c"
+    "$oid": "69d5d5ab33627a5f9f7b90c6"
   },
-  "areaId": "69d00c42bf2b8cb41e19dc80",
+  "areaId": "69d5d5ab55af48561fb7a440",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40e3e0bfa6cfb5fbd8"
+    "$oid": "69d5d5ad307e084a559cc12e"
   },
-  "areaId": "69d00c40c4a589b2973de55b",
+  "areaId": "69d5d5ad2011f0b9f0d1a121",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5add7e0c65951b89ee8"
+  },
+  "areaId": "69d5d5ad2011f0b9f0d1a121",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ade0eb63c753664a16"
+  },
+  "areaId": "69d5d5ad2011f0b9f0d1a121",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab07bc46606795c83b"
+  },
+  "areaId": "69d5d5abe3b45af9d9a77e5c",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5abf7a755f2c978e9f7"
+  },
+  "areaId": "69d5d5abe3b45af9d9a77e5c",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab46d4c1d55a7e7fa8"
+  },
+  "areaId": "69d5d5abe3b45af9d9a77e5c",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab8be2689a5604d4c3"
+  },
+  "areaId": "69d5d5ab6802965f3540466c",
   "mobVnum": "8309",
   "specialFunction": "spec_poison",
   "comment": "the monstrous snake",
@@ -207,9 +207,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40f2869c3b3e7025c2"
+    "$oid": "69d5d5ab4220f7acb94daf63"
   },
-  "areaId": "69d00c40c4a589b2973de55b",
+  "areaId": "69d5d5ab6802965f3540466c",
   "mobVnum": "8310",
   "specialFunction": "spec_poison",
   "comment": "a large snake",
@@ -217,9 +217,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40776b69d85acc7389"
+    "$oid": "69d5d5abaf568a05e4c7d460"
   },
-  "areaId": "69d00c40c4a589b2973de55b",
+  "areaId": "69d5d5ab6802965f3540466c",
   "mobVnum": "8312",
   "specialFunction": "spec_thief",
   "comment": "the Marsh Hag",
@@ -227,184 +227,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40282886ed1fa90c88"
+    "$oid": "69d5d5aaaaaf68247c45be05"
   },
-  "areaId": "69d00c40c4a589b2973de55b",
-  "mobVnum": "8313",
-  "specialFunction": "spec_cast_undead",
-  "comment": "a Death Slaad",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40039963ac0f832126"
-  },
-  "areaId": "69d00c40c4a589b2973de55b",
-  "mobVnum": "8319",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "the orc shaman",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40f67e945a8bc69a77"
-  },
-  "areaId": "69d00c40c4a589b2973de55b",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c401f0e9e9fa3f8173f"
-  },
-  "areaId": "69d00c40a00c3cdbfc6641b0",
-  "mobVnum": "8900",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "The Hierophant",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40ce05239981beaee3"
-  },
-  "areaId": "69d00c40ad8f0001668a1fe1",
-  "mobVnum": "3601",
-  "specialFunction": "spec_cast_undead",
-  "comment": "the rotting zombie",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40ff11fc76386c3e5b"
-  },
-  "areaId": "69d00c40c4a589b2973de55b",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c404c2d2139c216737b"
-  },
-  "areaId": "69d00c40a00c3cdbfc6641b0",
-  "mobVnum": "8901",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "The Hierophant",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40ee0df82363c013c7"
-  },
-  "areaId": "69d00c40ad8f0001668a1fe1",
-  "mobVnum": "3602",
-  "specialFunction": "spec_cast_undead",
-  "comment": "the ghastly ghoul",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c4045c8252191ee0988"
-  },
-  "areaId": "69d00c40c4a589b2973de55b",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40050c095240eed178"
-  },
-  "areaId": "69d00c40a00c3cdbfc6641b0",
-  "mobVnum": "8902",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "an elder druid",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c402856b89fb5f08c16"
-  },
-  "areaId": "69d00c40ad8f0001668a1fe1",
-  "mobVnum": "3603",
-  "specialFunction": "spec_cast_undead",
-  "comment": "a dusty skeleton",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c4091a32b05cd5345d6"
-  },
-  "areaId": "69d00c40a00c3cdbfc6641b0",
-  "mobVnum": "8903",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "an elder druidess",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40ce946a3f21c1609b"
-  },
-  "areaId": "69d00c40ad8f0001668a1fe1",
-  "mobVnum": "3604",
-  "specialFunction": "spec_cast_undead",
-  "comment": "a dusty skeleton",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c405dc1146e5d340b8f"
-  },
-  "areaId": "69d00c40a00c3cdbfc6641b0",
-  "mobVnum": "8908",
-  "specialFunction": "spec_poison",
-  "comment": "a harmless snake",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c409dab7dbfb99ba2c1"
-  },
-  "areaId": "69d00c40ad8f0001668a1fe1",
-  "mobVnum": "3605",
-  "specialFunction": "spec_cast_undead",
-  "comment": "the rotting zombie",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40146ab84ac45da10a"
-  },
-  "areaId": "69d00c40a00c3cdbfc6641b0",
-  "mobVnum": "8909",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "a druid",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c401f8d460e77c6e1fc"
-  },
-  "areaId": "69d00c40ad8f0001668a1fe1",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40fedaf855bcd4a725"
-  },
-  "areaId": "69d00c40a00c3cdbfc6641b0",
-  "mobVnum": "8910",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "a druidess",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40f613dc154bc3e8bb"
-  },
-  "areaId": "69d00c40ad8f0001668a1fe1",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f99ca56b3e4908d1c"
-  },
-  "areaId": "69d00c3f5672961aa7011fdc",
+  "areaId": "69d5d5aa8a55e0e7e1db4a88",
   "mobVnum": "6302",
   "specialFunction": "spec_breath_gas",
   "comment": "Yevaud",
@@ -412,23 +237,29 @@
 },
 {
   "_id": {
-    "$oid": "69d00c406616f2ac7a488e75"
+    "$oid": "69d5d5ab22e2c514d60087e0"
   },
-  "areaId": "69d00c40a00c3cdbfc6641b0",
+  "areaId": "69d5d5ab7781c286bf4c83fb",
+  "mobVnum": "8900",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "The Hierophant",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40512ecd468d0ebd6a"
+    "$oid": "69d5d5abad311bcad7d1b3ea"
   },
-  "areaId": "69d00c40ad8f0001668a1fe1",
+  "areaId": "69d5d5ab6802965f3540466c",
+  "mobVnum": "8313",
+  "specialFunction": "spec_cast_undead",
+  "comment": "a Death Slaad",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f282f34d73d9d790d"
+    "$oid": "69d5d5aa8cfa39ae64691500"
   },
-  "areaId": "69d00c3f5672961aa7011fdc",
+  "areaId": "69d5d5aa8a55e0e7e1db4a88",
   "mobVnum": "6314",
   "specialFunction": "spec_breath_gas",
   "comment": "Arachnos",
@@ -436,16 +267,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c404d1426de6676af50"
+    "$oid": "69d5d5ab7f5d45ff04c4f086"
   },
-  "areaId": "69d00c40a00c3cdbfc6641b0",
+  "areaId": "69d5d5ab5fb003964643b617",
+  "mobVnum": "3601",
+  "specialFunction": "spec_cast_undead",
+  "comment": "the rotting zombie",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f776f9315f4b04d08"
+    "$oid": "69d5d5aad58d232f43cf01c8"
   },
-  "areaId": "69d00c3f5672961aa7011fdc",
+  "areaId": "69d5d5aa8a55e0e7e1db4a88",
   "mobVnum": "6316",
   "specialFunction": "spec_breath_gas",
   "comment": "the young dragon wormkin",
@@ -453,16 +287,56 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40ed11c225d30c93da"
+    "$oid": "69d5d5ab08fd4784111acaaa"
   },
-  "areaId": "69d00c40a00c3cdbfc6641b0",
+  "areaId": "69d5d5ab6802965f3540466c",
+  "mobVnum": "8319",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the orc shaman",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f41ab34d277129621"
+    "$oid": "69d5d5ab6512b9ddd7604390"
   },
-  "areaId": "69d00c3f5672961aa7011fdc",
+  "areaId": "69d5d5ab7781c286bf4c83fb",
+  "mobVnum": "8901",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "The Hierophant",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab2004ab9729a1f1dc"
+  },
+  "areaId": "69d5d5ab5fb003964643b617",
+  "mobVnum": "3602",
+  "specialFunction": "spec_cast_undead",
+  "comment": "the ghastly ghoul",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab38cc763b99dc9215"
+  },
+  "areaId": "69d5d5ab7781c286bf4c83fb",
+  "mobVnum": "8902",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "an elder druid",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab17306735091c715d"
+  },
+  "areaId": "69d5d5ab6802965f3540466c",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aa50ce69d51806ab37"
+  },
+  "areaId": "69d5d5aa8a55e0e7e1db4a88",
   "mobVnum": "6317",
   "specialFunction": "spec_breath_gas",
   "comment": "the medium dragon wormkin",
@@ -470,9 +344,46 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3fde6ff50c9c383068"
+    "$oid": "69d5d5ab6f9d9ac6419cc288"
   },
-  "areaId": "69d00c3f5672961aa7011fdc",
+  "areaId": "69d5d5ab5fb003964643b617",
+  "mobVnum": "3603",
+  "specialFunction": "spec_cast_undead",
+  "comment": "a dusty skeleton",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab1c2d7797ac9fc2d3"
+  },
+  "areaId": "69d5d5ab7781c286bf4c83fb",
+  "mobVnum": "8903",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "an elder druidess",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5abe5582abae09abb55"
+  },
+  "areaId": "69d5d5ab6802965f3540466c",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aba38d2158a65b7f1d"
+  },
+  "areaId": "69d5d5ab5fb003964643b617",
+  "mobVnum": "3604",
+  "specialFunction": "spec_cast_undead",
+  "comment": "a dusty skeleton",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aa383e8e2648d767fd"
+  },
+  "areaId": "69d5d5aa8a55e0e7e1db4a88",
   "mobVnum": "6318",
   "specialFunction": "spec_poison",
   "comment": "the huge, poisonous spider",
@@ -480,9 +391,36 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f38620dceffc43073"
+    "$oid": "69d5d5aba30edbe426da636f"
   },
-  "areaId": "69d00c3f5672961aa7011fdc",
+  "areaId": "69d5d5ab7781c286bf4c83fb",
+  "mobVnum": "8908",
+  "specialFunction": "spec_poison",
+  "comment": "a harmless snake",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab3dffb6af6c8abac1"
+  },
+  "areaId": "69d5d5ab6802965f3540466c",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab3bdf9e77764d96e6"
+  },
+  "areaId": "69d5d5ab5fb003964643b617",
+  "mobVnum": "3605",
+  "specialFunction": "spec_cast_undead",
+  "comment": "the rotting zombie",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aa15ee658ee4fe5b58"
+  },
+  "areaId": "69d5d5aa8a55e0e7e1db4a88",
   "mobVnum": "6319",
   "specialFunction": "spec_poison",
   "comment": "the Queen Spider",
@@ -490,16 +428,113 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3ff3e119e2b47450ab"
+    "$oid": "69d5d5abc7388baeef6fd47e"
   },
-  "areaId": "69d00c3f5672961aa7011fdc",
+  "areaId": "69d5d5ab7781c286bf4c83fb",
+  "mobVnum": "8909",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "a druid",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c404d9d38c155ebcd8b"
+    "$oid": "69d5d5ab451c547065bb71b4"
   },
-  "areaId": "69d00c4054aae5959f20dee2",
+  "areaId": "69d5d5ab5fb003964643b617",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aaaeea2a1a10b76664"
+  },
+  "areaId": "69d5d5aa8a55e0e7e1db4a88",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5abd22bbafc3af34dcb"
+  },
+  "areaId": "69d5d5ab7781c286bf4c83fb",
+  "mobVnum": "8910",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "a druidess",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab67709d37d41b2218"
+  },
+  "areaId": "69d5d5ab5fb003964643b617",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aa78d89dc89cf74179"
+  },
+  "areaId": "69d5d5aa8a55e0e7e1db4a88",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aa170e994e38b91b45"
+  },
+  "areaId": "69d5d5aa8a55e0e7e1db4a88",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab627ddfef360d4861"
+  },
+  "areaId": "69d5d5ab5fb003964643b617",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab7eea8f2810ff5348"
+  },
+  "areaId": "69d5d5ab7781c286bf4c83fb",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5abceb9e71453fd1682"
+  },
+  "areaId": "69d5d5ab7781c286bf4c83fb",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab5fb0c4a099969ef1"
+  },
+  "areaId": "69d5d5ab7781c286bf4c83fb",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ae8dc0b0442cee2eed"
+  },
+  "areaId": "69d5d5ae2ae213a2bcf60447",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ae1b20fb687af4665c"
+  },
+  "areaId": "69d5d5ae2ae213a2bcf60447",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ae691fd39fcada3a5b"
+  },
+  "areaId": "69d5d5ae2ae213a2bcf60447",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5abfdfe0bedfeace1a0"
+  },
+  "areaId": "69d5d5ab5dd2246af168f111",
   "mobVnum": "8003",
   "specialFunction": "spec_cast_judge",
   "comment": "a Citi-Def Militiaman",
@@ -507,16 +542,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3fd1fcae6c6cd22d2e"
+    "$oid": "69d5d5ae709e7d0a24ba44d8"
   },
-  "areaId": "69d00c3f5672961aa7011fdc",
+  "areaId": "69d5d5ae2ae213a2bcf60447",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40f6346c1147decf84"
+    "$oid": "69d5d5ab4a1693be55b43898"
   },
-  "areaId": "69d00c4054aae5959f20dee2",
+  "areaId": "69d5d5ab5dd2246af168f111",
   "mobVnum": "8004",
   "specialFunction": "spec_thief",
   "comment": "a dunk",
@@ -524,16 +559,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f0c83a574d702ce25"
+    "$oid": "69d5d5ae5e8bed80f79f9be3"
   },
-  "areaId": "69d00c3f5672961aa7011fdc",
+  "areaId": "69d5d5ae2ae213a2bcf60447",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c401219aa20a05d2501"
+    "$oid": "69d5d5ab28b9739bfd3703f7"
   },
-  "areaId": "69d00c4054aae5959f20dee2",
+  "areaId": "69d5d5ab5dd2246af168f111",
   "mobVnum": "8006",
   "specialFunction": "spec_cast_judge",
   "comment": "a rookie judge",
@@ -541,9 +576,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4046e957612795aa77"
+    "$oid": "69d5d5ab60b9387d663f38c2"
   },
-  "areaId": "69d00c4054aae5959f20dee2",
+  "areaId": "69d5d5ab5dd2246af168f111",
   "mobVnum": "8010",
   "specialFunction": "spec_cast_judge",
   "comment": "Judge Eckersely",
@@ -551,9 +586,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40051f798fad3b907a"
+    "$oid": "69d5d5ab73d30341dba1a745"
   },
-  "areaId": "69d00c4054aae5959f20dee2",
+  "areaId": "69d5d5ab5dd2246af168f111",
   "mobVnum": "8011",
   "specialFunction": "spec_cast_judge",
   "comment": "Judge Beddows",
@@ -561,30 +596,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c400d674fa097333eb2"
+    "$oid": "69d5d5abf959ddcc8d76fb6a"
   },
-  "areaId": "69d00c4054aae5959f20dee2",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40665642665471b9a3"
-  },
-  "areaId": "69d00c4054aae5959f20dee2",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40bae8a1d9f6f7dc37"
-  },
-  "areaId": "69d00c4054aae5959f20dee2",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f678c5982c0985d5e"
-  },
-  "areaId": "69d00c3fe4b0267b74ce3813",
+  "areaId": "69d5d5ab7db7e7e12f29ef15",
   "mobVnum": "5103",
   "specialFunction": "spec_cast_mage",
   "comment": "the drow mage noble",
@@ -592,19 +606,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40332abd28dd468b81"
+    "$oid": "69d5d5abe1cfc517cafce62f"
   },
-  "areaId": "69d00c40caa0b085d1f7fb85",
-  "mobVnum": "3500",
-  "specialFunction": "spec_poison",
-  "comment": "the wyvern",
+  "areaId": "69d5d5ab5dd2246af168f111",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f1c75d7183a9d0459"
+    "$oid": "69d5d5ab5a598242f8e20e16"
   },
-  "areaId": "69d00c3fe4b0267b74ce3813",
+  "areaId": "69d5d5ab7db7e7e12f29ef15",
   "mobVnum": "5104",
   "specialFunction": "spec_cast_cleric",
   "comment": "the drow priestess",
@@ -612,16 +623,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c402a3a4f086f282455"
+    "$oid": "69d5d5ab2e1d7d4290c95ac9"
   },
-  "areaId": "69d00c40caa0b085d1f7fb85",
+  "areaId": "69d5d5ab5dd2246af168f111",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f1c72a71c3373472b"
+    "$oid": "69d5d5ab905ebb6b5101adc2"
   },
-  "areaId": "69d00c3fe4b0267b74ce3813",
+  "areaId": "69d5d5ab7db7e7e12f29ef15",
   "mobVnum": "5108",
   "specialFunction": "spec_cast_cleric",
   "comment": "the matron mother",
@@ -629,16 +640,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40646d4c5ce75dcbcc"
+    "$oid": "69d5d5ab4db3c763f396a5de"
   },
-  "areaId": "69d00c40caa0b085d1f7fb85",
+  "areaId": "69d5d5ab5dd2246af168f111",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f1dd33afb0e429dba"
+    "$oid": "69d5d5abb2cfb9831b42cb8a"
   },
-  "areaId": "69d00c3fe4b0267b74ce3813",
+  "areaId": "69d5d5ab7db7e7e12f29ef15",
   "mobVnum": "5109",
   "specialFunction": "spec_breath_any",
   "comment": "the yochlol",
@@ -646,72 +657,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c404b16bef639237793"
+    "$oid": "69d5d5ab3f8214b7fc8057f4"
   },
-  "areaId": "69d00c40caa0b085d1f7fb85",
+  "areaId": "69d5d5ab7db7e7e12f29ef15",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c456a4946a3cc7c3d0a"
+    "$oid": "69d5d5aaa10fc85723e8d29d"
   },
-  "areaId": "69d00c45460a7cbf43b7156b",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3fe8605f2f5d7e03b7"
-  },
-  "areaId": "69d00c3fe4b0267b74ce3813",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c459b5d34161d4b6774"
-  },
-  "areaId": "69d00c45460a7cbf43b7156b",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f2ac4b30b5d39be40"
-  },
-  "areaId": "69d00c3fe4b0267b74ce3813",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3ffe8467306a6e0018"
-  },
-  "areaId": "69d00c3fe4b0267b74ce3813",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c456f36208ff66ee0f4"
-  },
-  "areaId": "69d00c45460a7cbf43b7156b",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c45c294a0ff9e9e0ecd"
-  },
-  "areaId": "69d00c45460a7cbf43b7156b",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f228ab497622753a8"
-  },
-  "areaId": "69d00c3fda7cc9b3551f06d1",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3fcd6ff189462f0c7b"
-  },
-  "areaId": "69d00c3fa2d58f906bae8bb6",
+  "areaId": "69d5d5aa326c0a270707dfb6",
   "mobVnum": "2007",
   "specialFunction": "spec_cast_undead",
   "comment": "a skeleton",
@@ -719,23 +674,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c457857ca22e981e793"
+    "$oid": "69d5d5ab08e8664d55ceef7c"
   },
-  "areaId": "69d00c45460a7cbf43b7156b",
+  "areaId": "69d5d5ab7db7e7e12f29ef15",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f8b6ded3b9c506179"
+    "$oid": "69d5d5aaf31093f4de276f55"
   },
-  "areaId": "69d00c3fda7cc9b3551f06d1",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f1d420450aabcad69"
-  },
-  "areaId": "69d00c3fa2d58f906bae8bb6",
+  "areaId": "69d5d5aa326c0a270707dfb6",
   "mobVnum": "2009",
   "specialFunction": "spec_cast_undead",
   "comment": "a mysterious wraith",
@@ -743,23 +691,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3fba2596329b9258c2"
+    "$oid": "69d5d5abf624384fb1742c64"
   },
-  "areaId": "69d00c3fda7cc9b3551f06d1",
+  "areaId": "69d5d5ab7db7e7e12f29ef15",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40a3b7cc600fb3b9be"
+    "$oid": "69d5d5aaecc13590eb528f23"
   },
-  "areaId": "69d00c401df5f3caa5a55973",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3fa19652fa0658274b"
-  },
-  "areaId": "69d00c3fa2d58f906bae8bb6",
+  "areaId": "69d5d5aa326c0a270707dfb6",
   "mobVnum": "2011",
   "specialFunction": "spec_cast_mage",
   "comment": "zombie",
@@ -767,9 +708,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f883367d5f812bfe6"
+    "$oid": "69d5d5aa32e4f5bcd88696de"
   },
-  "areaId": "69d00c3fa2d58f906bae8bb6",
+  "areaId": "69d5d5aa326c0a270707dfb6",
   "mobVnum": "2013",
   "specialFunction": "spec_cast_undead",
   "comment": "The vampire",
@@ -777,23 +718,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4075b49fa0d7df662f"
+    "$oid": "69d5d5ab13dc6c4f2365a8ee"
   },
-  "areaId": "69d00c401df5f3caa5a55973",
+  "areaId": "69d5d5ab8e9ffdbdaab11faf",
+  "mobVnum": "3500",
+  "specialFunction": "spec_poison",
+  "comment": "the wyvern",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4049dc87f0eeba9f2c"
+    "$oid": "69d5d5aa5bbfe4506b326017"
   },
-  "areaId": "69d00c401df5f3caa5a55973",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f65558c6b6804f95b"
-  },
-  "areaId": "69d00c3fa2d58f906bae8bb6",
+  "areaId": "69d5d5aa326c0a270707dfb6",
   "mobVnum": "2014",
   "specialFunction": "spec_cast_undead",
   "comment": "the evil necromancer",
@@ -801,9 +738,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f203d552d36422c41"
+    "$oid": "69d5d5ab922e568885263451"
   },
-  "areaId": "69d00c3fa2d58f906bae8bb6",
+  "areaId": "69d5d5ab8e9ffdbdaab11faf",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aa594ce85fa736152e"
+  },
+  "areaId": "69d5d5aa326c0a270707dfb6",
   "mobVnum": "2016",
   "specialFunction": "spec_breath_any",
   "comment": "the prism dragon",
@@ -811,9 +755,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3fc84c58192c3f1faa"
+    "$oid": "69d5d5ab9653cf20d3c72c41"
   },
-  "areaId": "69d00c3fa2d58f906bae8bb6",
+  "areaId": "69d5d5ab8e9ffdbdaab11faf",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aa5a904cf7d728283b"
+  },
+  "areaId": "69d5d5aa326c0a270707dfb6",
   "mobVnum": "2017",
   "specialFunction": "spec_poison",
   "comment": "The DarkenBeast",
@@ -821,30 +772,65 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f0771bf2a54c3957d"
+    "$oid": "69d5d5abfe96fec71a2fc9f6"
   },
-  "areaId": "69d00c3fa2d58f906bae8bb6",
+  "areaId": "69d5d5ab8e9ffdbdaab11faf",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f35f51acc538f73c8"
+    "$oid": "69d5d5aab55b88394f2e8b95"
   },
-  "areaId": "69d00c3fa2d58f906bae8bb6",
+  "areaId": "69d5d5aa326c0a270707dfb6",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f45043c1e3dde044e"
+    "$oid": "69d5d5af99d0c998757dfbcf"
   },
-  "areaId": "69d00c3fa2d58f906bae8bb6",
+  "areaId": "69d5d5afadd9d6accfa6951e",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f0048614b69b6b990"
+    "$oid": "69d5d5aaefe0d4bda19f10fb"
   },
-  "areaId": "69d00c3f009cd6c6094220c8",
+  "areaId": "69d5d5aa326c0a270707dfb6",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5afe34fab345adb7a77"
+  },
+  "areaId": "69d5d5afadd9d6accfa6951e",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aa4428db817a5e1d94"
+  },
+  "areaId": "69d5d5aa326c0a270707dfb6",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5afa55f81285309a3b1"
+  },
+  "areaId": "69d5d5afadd9d6accfa6951e",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5abfdea54f7ab69e8da"
+  },
+  "areaId": "69d5d5abfb7fd4c4cc25f579",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aa4bc17cb7c8d3bf92"
+  },
+  "areaId": "69d5d5aa358991cb011e0833",
   "mobVnum": "3400",
   "specialFunction": "spec_cast_undead",
   "comment": "the bony skeleton",
@@ -852,9 +838,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f6681063e7e90ebd5"
+    "$oid": "69d5d5ab09edba5f9c8d4dd4"
   },
-  "areaId": "69d00c3f009cd6c6094220c8",
+  "areaId": "69d5d5abfb7fd4c4cc25f579",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aa34c4749e9af41638"
+  },
+  "areaId": "69d5d5aa358991cb011e0833",
   "mobVnum": "3401",
   "specialFunction": "spec_cast_undead",
   "comment": "the undead zombie",
@@ -862,151 +855,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c46cab051ec39421682"
+    "$oid": "69d5d5ab0ffbbab92f47576a"
   },
-  "areaId": "69d00c46020bb53f4998597d",
+  "areaId": "69d5d5abfb7fd4c4cc25f579",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f6712e216100a74fe"
+    "$oid": "69d5d5abeffac03139a185cb"
   },
-  "areaId": "69d00c3f009cd6c6094220c8",
-  "mobVnum": "3402",
-  "specialFunction": "spec_cast_undead",
-  "comment": "The ghoul",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c469a2ddd1e95934211"
-  },
-  "areaId": "69d00c46020bb53f4998597d",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f5a898887c3fc7641"
-  },
-  "areaId": "69d00c3f009cd6c6094220c8",
-  "mobVnum": "3403",
-  "specialFunction": "spec_cast_undead",
-  "comment": "The wraith",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c46ddc458867a23ed5e"
-  },
-  "areaId": "69d00c46020bb53f4998597d",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3fff1b2d1c8226e62a"
-  },
-  "areaId": "69d00c3fc5bffa7f55fe0ade",
-  "mobVnum": "5005",
-  "specialFunction": "spec_breath_any",
-  "comment": "the brass dragon",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f151e3a60fb467a6c"
-  },
-  "areaId": "69d00c3f009cd6c6094220c8",
-  "mobVnum": "3404",
-  "specialFunction": "spec_cast_undead",
-  "comment": "The guardian vampire",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f16927238dc5d1197"
-  },
-  "areaId": "69d00c3fc5bffa7f55fe0ade",
-  "mobVnum": "5010",
-  "specialFunction": "spec_breath_fire",
-  "comment": "The dracolich",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3ffffc40051fc910e3"
-  },
-  "areaId": "69d00c3f009cd6c6094220c8",
-  "mobVnum": "3405",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "the priest",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f129568cb36061584"
-  },
-  "areaId": "69d00c3fd5ada729718214ff",
-  "mobVnum": "9107",
-  "specialFunction": "spec_cast_undead",
-  "comment": "the ugly, wicked witch",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3fceaf86ea1c123788"
-  },
-  "areaId": "69d00c3fc5bffa7f55fe0ade",
-  "mobVnum": "5014",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "The myconoid shaman",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3fe1dc49fde2ba08f2"
-  },
-  "areaId": "69d00c3f009cd6c6094220c8",
-  "mobVnum": "3407",
-  "specialFunction": "spec_cast_undead",
-  "comment": "The nightgaunt",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3faf953d2f3d4f08bd"
-  },
-  "areaId": "69d00c3fd5ada729718214ff",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f344ba19cc732561e"
-  },
-  "areaId": "69d00c3fc5bffa7f55fe0ade",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f21efb8bc1e3d07e7"
-  },
-  "areaId": "69d00c3fd5ada729718214ff",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3fe7fd08b1e20341c5"
-  },
-  "areaId": "69d00c3f009cd6c6094220c8",
-  "mobVnum": "3408",
-  "specialFunction": "spec_cast_undead",
-  "comment": "The hunting horror",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3ff831018a90aae3f8"
-  },
-  "areaId": "69d00c3f15e6e76f359172f5",
+  "areaId": "69d5d5abed40d6537beb2362",
   "mobVnum": "2200",
   "specialFunction": "spec_breath_any",
   "comment": "the dragon hatchling",
@@ -1014,33 +872,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f649e5431f87dda2d"
+    "$oid": "69d5d5aa7be6debd70bc7456"
   },
-  "areaId": "69d00c3fc5bffa7f55fe0ade",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f09388de09a385a60"
-  },
-  "areaId": "69d00c3f009cd6c6094220c8",
-  "mobVnum": "3410",
+  "areaId": "69d5d5aa358991cb011e0833",
+  "mobVnum": "3402",
   "specialFunction": "spec_cast_undead",
-  "comment": "Snapper Joe",
+  "comment": "The ghoul",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3fd054287d2bc1ba19"
+    "$oid": "69d5d5ab26d496c6a002cec4"
   },
-  "areaId": "69d00c3fd5ada729718214ff",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3fc42c7e2e4d5704eb"
-  },
-  "areaId": "69d00c3f15e6e76f359172f5",
+  "areaId": "69d5d5abed40d6537beb2362",
   "mobVnum": "2203",
   "specialFunction": "spec_cast_mage",
   "comment": "a powerful mage",
@@ -1048,26 +892,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f5fab960f8bf0c0e1"
+    "$oid": "69d5d5aa082c92cb63fcc35f"
   },
-  "areaId": "69d00c3fc5bffa7f55fe0ade",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3fd8c0e4f30b88ce5c"
-  },
-  "areaId": "69d00c3f009cd6c6094220c8",
-  "mobVnum": "3411",
+  "areaId": "69d5d5aa358991cb011e0833",
+  "mobVnum": "3403",
   "specialFunction": "spec_cast_undead",
-  "comment": "The X-ist flesh eater",
+  "comment": "The wraith",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f329d139a180d32be"
+    "$oid": "69d5d5ab16613917c100e727"
   },
-  "areaId": "69d00c3f15e6e76f359172f5",
+  "areaId": "69d5d5abed40d6537beb2362",
   "mobVnum": "2204",
   "specialFunction": "spec_cast_cleric",
   "comment": "the holy Draconian",
@@ -1075,19 +912,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f751b4a030354834f"
+    "$oid": "69d5d5aafc5464bb1dbc4746"
   },
-  "areaId": "69d00c3f009cd6c6094220c8",
-  "mobVnum": "3412",
-  "specialFunction": "spec_cast_mage",
-  "comment": "the spirit of King Crotus",
+  "areaId": "69d5d5aa358991cb011e0833",
+  "mobVnum": "3404",
+  "specialFunction": "spec_cast_undead",
+  "comment": "The guardian vampire",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3fa782a66f8bd55d12"
+    "$oid": "69d5d5ab7d4ad04bb6711e93"
   },
-  "areaId": "69d00c3f15e6e76f359172f5",
+  "areaId": "69d5d5abed40d6537beb2362",
   "mobVnum": "2205",
   "specialFunction": "spec_breath_any",
   "comment": "the Draconian King",
@@ -1095,19 +932,26 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f22b0d72c85609dd0"
+    "$oid": "69d5d5ab3f88f4d26c816f28"
   },
-  "areaId": "69d00c3f009cd6c6094220c8",
-  "mobVnum": "3414",
-  "specialFunction": "spec_cast_mage",
-  "comment": "The mad etcher",
+  "areaId": "69d5d5ab13f31795b1ef998d",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3fc23e28ae93d07510"
+    "$oid": "69d5d5aaa9706f2668489b7b"
   },
-  "areaId": "69d00c3f15e6e76f359172f5",
+  "areaId": "69d5d5aa358991cb011e0833",
+  "mobVnum": "3405",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the priest",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5abc8d3bdbb471ca06d"
+  },
+  "areaId": "69d5d5abed40d6537beb2362",
   "mobVnum": "2220",
   "specialFunction": "spec_breath_any",
   "comment": "Tiamat",
@@ -1115,19 +959,26 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3fe281ae0e62efd3e1"
+    "$oid": "69d5d5aba6b3c504b67294b3"
   },
-  "areaId": "69d00c3f009cd6c6094220c8",
-  "mobVnum": "3415",
-  "specialFunction": "spec_cast_undead",
-  "comment": "The spectral etcher's wife",
+  "areaId": "69d5d5ab13f31795b1ef998d",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f5b95b3cb72aa6a41"
+    "$oid": "69d5d5aa11d11d55e0137fba"
   },
-  "areaId": "69d00c3f15e6e76f359172f5",
+  "areaId": "69d5d5aa358991cb011e0833",
+  "mobVnum": "3407",
+  "specialFunction": "spec_cast_undead",
+  "comment": "The nightgaunt",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab5b0925277767e78e"
+  },
+  "areaId": "69d5d5abed40d6537beb2362",
   "mobVnum": "2221",
   "specialFunction": "spec_breath_fire",
   "comment": "the Great Red Dragon",
@@ -1135,29 +986,26 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3faf042d1ea2d2167c"
+    "$oid": "69d5d5abc1321cad6462ab9c"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
-  "mobVnum": "9202",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "the cyclops",
+  "areaId": "69d5d5ab13f31795b1ef998d",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c407c19dce9ddd1249e"
+    "$oid": "69d5d5aab4157afc7f202554"
   },
-  "areaId": "69d00c402665926fb2bbf5b4",
-  "mobVnum": "2101",
-  "specialFunction": "spec_troll_member",
-  "comment": "a troll gang member",
+  "areaId": "69d5d5aa358991cb011e0833",
+  "mobVnum": "3408",
+  "specialFunction": "spec_cast_undead",
+  "comment": "The hunting horror",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3fa3b33c5def4c0e90"
+    "$oid": "69d5d5abe4886b6d8cb2576e"
   },
-  "areaId": "69d00c3f15e6e76f359172f5",
+  "areaId": "69d5d5abed40d6537beb2362",
   "mobVnum": "2222",
   "specialFunction": "spec_breath_acid",
   "comment": "the Great Black Dragon",
@@ -1165,39 +1013,29 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f31ea37e1f0cfb33d"
+    "$oid": "69d5d5aa9122125e44994e0c"
   },
-  "areaId": "69d00c3f009cd6c6094220c8",
-  "mobVnum": "3416",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
+  "mobVnum": "9202",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the cyclops",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aae97fed28cfd40038"
+  },
+  "areaId": "69d5d5aa358991cb011e0833",
+  "mobVnum": "3410",
   "specialFunction": "spec_cast_undead",
-  "comment": "The half-decomposed body",
+  "comment": "Snapper Joe",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f48ffa08cf990504c"
+    "$oid": "69d5d5abc46bac36d8a7e74f"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
-  "mobVnum": "9204",
-  "specialFunction": "spec_breath_any",
-  "comment": "the elemental guardian",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40c0626b18dcf08e32"
-  },
-  "areaId": "69d00c402665926fb2bbf5b4",
-  "mobVnum": "2102",
-  "specialFunction": "spec_ogre_member",
-  "comment": "an ogre gang member",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f1b4f2f05606cad7e"
-  },
-  "areaId": "69d00c3f15e6e76f359172f5",
+  "areaId": "69d5d5abed40d6537beb2362",
   "mobVnum": "2223",
   "specialFunction": "spec_breath_frost",
   "comment": "the Great White Dragon",
@@ -1205,46 +1043,29 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3ff7a47640a8aed567"
+    "$oid": "69d5d5aaf08e31762f460a3c"
   },
-  "areaId": "69d00c3f009cd6c6094220c8",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3fda876e362147ff29"
-  },
-  "areaId": "69d00c3ff23e6b335da739aa",
-  "mobVnum": "9207",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
+  "mobVnum": "9204",
   "specialFunction": "spec_breath_any",
-  "comment": "a large elemental",
+  "comment": "the elemental guardian",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f2297b6f51ea4113e"
+    "$oid": "69d5d5aa846fbe8652ad8314"
   },
-  "areaId": "69d00c3fee8656be0bf81ea8",
-  "mobVnum": "7702",
-  "specialFunction": "spec_cast_mage",
-  "comment": "An evil night hag",
+  "areaId": "69d5d5aa358991cb011e0833",
+  "mobVnum": "3411",
+  "specialFunction": "spec_cast_undead",
+  "comment": "The X-ist flesh eater",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c404300152e2d9bc65a"
+    "$oid": "69d5d5abfac16d7388013221"
   },
-  "areaId": "69d00c402665926fb2bbf5b4",
-  "mobVnum": "2103",
-  "specialFunction": "spec_troll_member",
-  "comment": "the Troll gang leader",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f88f2f515662aed96"
-  },
-  "areaId": "69d00c3f15e6e76f359172f5",
+  "areaId": "69d5d5abed40d6537beb2362",
   "mobVnum": "2225",
   "specialFunction": "spec_breath_gas",
   "comment": "the Ancient Green Dragon",
@@ -1252,46 +1073,29 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3fd77f7e5b50fdac68"
+    "$oid": "69d5d5aaa6ab91c8ff57068a"
   },
-  "areaId": "69d00c3f009cd6c6094220c8",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
+  "mobVnum": "9207",
+  "specialFunction": "spec_breath_any",
+  "comment": "a large elemental",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3fb0000716b1293f17"
+    "$oid": "69d5d5aa81c65ce8abcd14a9"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
-  "mobVnum": "9208",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "the Earth Ruler",
+  "areaId": "69d5d5aa358991cb011e0833",
+  "mobVnum": "3412",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the spirit of King Crotus",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f284054885de90545"
+    "$oid": "69d5d5ab3dddd7c392495d48"
   },
-  "areaId": "69d00c3fee8656be0bf81ea8",
-  "mobVnum": "7705",
-  "specialFunction": "spec_thief",
-  "comment": "A githyanki hunter",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c408cfb85970bea2014"
-  },
-  "areaId": "69d00c402665926fb2bbf5b4",
-  "mobVnum": "2104",
-  "specialFunction": "spec_troll_member",
-  "comment": "a bruiser",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f0d31d97daf231c6c"
-  },
-  "areaId": "69d00c3f15e6e76f359172f5",
+  "areaId": "69d5d5abed40d6537beb2362",
   "mobVnum": "2226",
   "specialFunction": "spec_poison",
   "comment": "a large hydra",
@@ -1299,56 +1103,39 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f1f05f81cd45269d9"
+    "$oid": "69d5d5abb81ac57fee4f0000"
   },
-  "areaId": "69d00c3f009cd6c6094220c8",
+  "areaId": "69d5d5abd27c9db5de444b48",
+  "mobVnum": "5005",
+  "specialFunction": "spec_breath_any",
+  "comment": "the brass dragon",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3fb2762e42dd2f6376"
+    "$oid": "69d5d5aa3397857b16d871eb"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
-  "mobVnum": "9209",
-  "specialFunction": "spec_breath_fire",
-  "comment": "the Fire Ruler",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
+  "mobVnum": "9208",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the Earth Ruler",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3fcde6b02c1c95d38d"
+    "$oid": "69d5d5aaeada9e0236cd917b"
   },
-  "areaId": "69d00c3fee8656be0bf81ea8",
-  "mobVnum": "7710",
+  "areaId": "69d5d5aa358991cb011e0833",
+  "mobVnum": "3414",
   "specialFunction": "spec_cast_mage",
-  "comment": "An evil gish",
+  "comment": "The mad etcher",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40efa38131b5b9caa3"
+    "$oid": "69d5d5abba54f0482f477aa0"
   },
-  "areaId": "69d00c404c1a105012746e20",
-  "mobVnum": "6112",
-  "specialFunction": "spec_breath_gas",
-  "comment": "the huge, green dragon",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c404e645ff1bd29f819"
-  },
-  "areaId": "69d00c402665926fb2bbf5b4",
-  "mobVnum": "2106",
-  "specialFunction": "spec_patrolman",
-  "comment": "a patrolman",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3fe569e9efad951fbd"
-  },
-  "areaId": "69d00c3f15e6e76f359172f5",
+  "areaId": "69d5d5abed40d6537beb2362",
   "mobVnum": "2227",
   "specialFunction": "spec_thief",
   "comment": "A human slave",
@@ -1356,49 +1143,49 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f962fe8f6c97caeec"
+    "$oid": "69d5d5ab0b835e027a6d0a7c"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
-  "mobVnum": "9210",
-  "specialFunction": "spec_breath_gas",
-  "comment": "The Air Ruler",
+  "areaId": "69d5d5abd27c9db5de444b48",
+  "mobVnum": "5010",
+  "specialFunction": "spec_breath_fire",
+  "comment": "The dracolich",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f467296e1e609eeb7"
+    "$oid": "69d5d5aae87f6010ca0e455a"
   },
-  "areaId": "69d00c3fee8656be0bf81ea8",
-  "mobVnum": "7711",
-  "specialFunction": "spec_cast_mage",
-  "comment": "An evil gish",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
+  "mobVnum": "9209",
+  "specialFunction": "spec_breath_fire",
+  "comment": "the Fire Ruler",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c403cd91145967ff74b"
+    "$oid": "69d5d5aa743a236ed521896c"
   },
-  "areaId": "69d00c404c1a105012746e20",
-  "mobVnum": "6116",
+  "areaId": "69d5d5aa358991cb011e0833",
+  "mobVnum": "3415",
+  "specialFunction": "spec_cast_undead",
+  "comment": "The spectral etcher's wife",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab648066ebe3ebc94c"
+  },
+  "areaId": "69d5d5abd27c9db5de444b48",
+  "mobVnum": "5014",
   "specialFunction": "spec_cast_cleric",
-  "comment": "the elder druid",
+  "comment": "The myconoid shaman",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40487fc051aba3629f"
+    "$oid": "69d5d5ab90955cf85d34eb91"
   },
-  "areaId": "69d00c402665926fb2bbf5b4",
-  "mobVnum": "2107",
-  "specialFunction": "spec_ogre_member",
-  "comment": "a vandal",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3fac847e7370daedc1"
-  },
-  "areaId": "69d00c3f15e6e76f359172f5",
+  "areaId": "69d5d5abed40d6537beb2362",
   "mobVnum": "2240",
   "specialFunction": "spec_cast_undead",
   "comment": "a Draconian zombie",
@@ -1406,46 +1193,46 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3ffa44db8c09b70d2f"
+    "$oid": "69d5d5aa6f536545c1ded086"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
-  "mobVnum": "9211",
-  "specialFunction": "spec_breath_lightning",
-  "comment": "The Lightning Ruler",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
+  "mobVnum": "9210",
+  "specialFunction": "spec_breath_gas",
+  "comment": "The Air Ruler",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f8785e0faf86266d1"
+    "$oid": "69d5d5aa9a2b39ff44632b72"
   },
-  "areaId": "69d00c3fee8656be0bf81ea8",
-  "mobVnum": "7712",
+  "areaId": "69d5d5aaf3c5f1b1702f79b0",
+  "mobVnum": "7702",
   "specialFunction": "spec_cast_mage",
-  "comment": "A warlock of the Gith",
+  "comment": "An evil night hag",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40ff611c8c767d6005"
+    "$oid": "69d5d5aa56f849432839ae2a"
   },
-  "areaId": "69d00c404c1a105012746e20",
+  "areaId": "69d5d5aa358991cb011e0833",
+  "mobVnum": "3416",
+  "specialFunction": "spec_cast_undead",
+  "comment": "The half-decomposed body",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40f9f69db187752992"
+    "$oid": "69d5d5abd3d785b52d6e8072"
   },
-  "areaId": "69d00c402665926fb2bbf5b4",
-  "mobVnum": "2109",
-  "specialFunction": "spec_troll_member",
-  "comment": "a punk",
+  "areaId": "69d5d5abd27c9db5de444b48",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3fbc3d05c776b5cd6f"
+    "$oid": "69d5d5ab121cf529c876bbd9"
   },
-  "areaId": "69d00c3f15e6e76f359172f5",
+  "areaId": "69d5d5abed40d6537beb2362",
   "mobVnum": "2241",
   "specialFunction": "spec_breath_gas",
   "comment": "the phase dragon",
@@ -1453,46 +1240,63 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f71c802563430e7af"
+    "$oid": "69d5d5aa0e0ef9e6dc6088e6"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
-  "mobVnum": "9212",
-  "specialFunction": "spec_breath_acid",
-  "comment": "The Water Ruler",
+  "areaId": "69d5d5aaf3c5f1b1702f79b0",
+  "mobVnum": "7705",
+  "specialFunction": "spec_thief",
+  "comment": "A githyanki hunter",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3fe69f31f5453f73c7"
+    "$oid": "69d5d5aa52f0eda8ffce6078"
   },
-  "areaId": "69d00c3fee8656be0bf81ea8",
-  "mobVnum": "7713",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
+  "mobVnum": "9211",
+  "specialFunction": "spec_breath_lightning",
+  "comment": "The Lightning Ruler",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aa9f8d03932f9b957e"
+  },
+  "areaId": "69d5d5aa358991cb011e0833",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab8c39099f6f488194"
+  },
+  "areaId": "69d5d5ab4e1be1557e1f09ca",
+  "mobVnum": "9107",
   "specialFunction": "spec_cast_undead",
-  "comment": "The lich-queen",
+  "comment": "the ugly, wicked witch",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40151ba6607283e30a"
+    "$oid": "69d5d5aba6d71a607a8e02cf"
   },
-  "areaId": "69d00c404c1a105012746e20",
+  "areaId": "69d5d5abd27c9db5de444b48",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c404a4b68099f6cc557"
+    "$oid": "69d5d5aaab074807508db9ed"
   },
-  "areaId": "69d00c402665926fb2bbf5b4",
-  "mobVnum": "2110",
-  "specialFunction": "spec_ogre_member",
-  "comment": "the Ogre gang leader",
+  "areaId": "69d5d5aaf3c5f1b1702f79b0",
+  "mobVnum": "7710",
+  "specialFunction": "spec_cast_mage",
+  "comment": "An evil gish",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f6d72b49d8296750b"
+    "$oid": "69d5d5abcd124ee76f562d95"
   },
-  "areaId": "69d00c3f15e6e76f359172f5",
+  "areaId": "69d5d5abed40d6537beb2362",
   "mobVnum": "2242",
   "specialFunction": "spec_thief",
   "comment": "the draconian fool",
@@ -1500,36 +1304,26 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f7a423acfe60a4e98"
+    "$oid": "69d5d5aa3a6509f3900cf6a1"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
-  "mobVnum": "9219",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
+  "mobVnum": "9212",
   "specialFunction": "spec_breath_acid",
-  "comment": "a small blob of acid",
+  "comment": "The Water Ruler",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f6bb5da66096596fb"
+    "$oid": "69d5d5ab2b1106290eb69660"
   },
-  "areaId": "69d00c3fee8656be0bf81ea8",
-  "mobVnum": "7714",
-  "specialFunction": "spec_cast_undead",
-  "comment": "Lord Gith",
+  "areaId": "69d5d5ab4e1be1557e1f09ca",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4008d52b46464b6c0c"
+    "$oid": "69d5d5af37927ae22949aa83"
   },
-  "areaId": "69d00c404c1a105012746e20",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c46399d9471cf95c304"
-  },
-  "areaId": "69d00c46d49ad88595e277d3",
+  "areaId": "69d5d5af37f48fb566ad3094",
   "mobVnum": "7900",
   "specialFunction": "spec_cast_cleric",
   "comment": "the Grand Knight of paladins",
@@ -1537,19 +1331,33 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40021cb9c6d6f1d4d7"
+    "$oid": "69d5d5aa52f0d179a11cc33a"
   },
-  "areaId": "69d00c402665926fb2bbf5b4",
-  "mobVnum": "2111",
-  "specialFunction": "spec_ogre_member",
-  "comment": "a thug",
+  "areaId": "69d5d5aa358991cb011e0833",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f7221f199aa16ea00"
+    "$oid": "69d5d5ab42f4459c7692d7c0"
   },
-  "areaId": "69d00c3f15e6e76f359172f5",
+  "areaId": "69d5d5abd27c9db5de444b48",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aadac534a50cef5d69"
+  },
+  "areaId": "69d5d5aaf3c5f1b1702f79b0",
+  "mobVnum": "7711",
+  "specialFunction": "spec_cast_mage",
+  "comment": "An evil gish",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aba58c6178781b1a3d"
+  },
+  "areaId": "69d5d5abed40d6537beb2362",
   "mobVnum": "2243",
   "specialFunction": "spec_breath_any",
   "comment": "the Draconian Queen",
@@ -1557,9 +1365,50 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f92ed40126712ed41"
+    "$oid": "69d5d5aa037ad57d77552b71"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
+  "mobVnum": "9219",
+  "specialFunction": "spec_breath_acid",
+  "comment": "a small blob of acid",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab290cad90dbadeb16"
+  },
+  "areaId": "69d5d5ab4e1be1557e1f09ca",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aaeff2adb2dad1fe51"
+  },
+  "areaId": "69d5d5aa358991cb011e0833",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5af388d37667ab827b8"
+  },
+  "areaId": "69d5d5af37f48fb566ad3094",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aa01e3f6ae4e61f05e"
+  },
+  "areaId": "69d5d5aaf3c5f1b1702f79b0",
+  "mobVnum": "7712",
+  "specialFunction": "spec_cast_mage",
+  "comment": "A warlock of the Gith",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aaac913857ab8baa05"
+  },
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
   "mobVnum": "9223",
   "specialFunction": "spec_breath_lightning",
   "comment": "a particle",
@@ -1567,40 +1416,47 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f181fd0de46077610"
+    "$oid": "69d5d5ab52733619227e74e9"
   },
-  "areaId": "69d00c3fee8656be0bf81ea8",
-  "mobVnum": "7715",
+  "areaId": "69d5d5abed40d6537beb2362",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab2d45d6f7ee00c7d6"
+  },
+  "areaId": "69d5d5ab4e1be1557e1f09ca",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5af29ef74aa13860d0a"
+  },
+  "areaId": "69d5d5af37f48fb566ad3094",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aa061ad5e751509eba"
+  },
+  "areaId": "69d5d5aaf3c5f1b1702f79b0",
+  "mobVnum": "7713",
   "specialFunction": "spec_cast_undead",
-  "comment": "An insubstantial ghost",
+  "comment": "The lich-queen",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c46eee2f48cb0fcff2e"
+    "$oid": "69d5d5ab9f49df936e114bed"
   },
-  "areaId": "69d00c46d49ad88595e277d3",
+  "areaId": "69d5d5abed40d6537beb2362",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4084ee26df3c0baee2"
+    "$oid": "69d5d5aa716e354722e7883b"
   },
-  "areaId": "69d00c402665926fb2bbf5b4",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f20a0571544e74119"
-  },
-  "areaId": "69d00c3f15e6e76f359172f5",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3fbde24e2d18f589a3"
-  },
-  "areaId": "69d00c3ff23e6b335da739aa",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
   "mobVnum": "9224",
   "specialFunction": "spec_thief",
   "comment": "a dust cloud",
@@ -1608,40 +1464,26 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f36f2ebd1158562ca"
+    "$oid": "69d5d5af74d0cc3a465d34da"
   },
-  "areaId": "69d00c3fee8656be0bf81ea8",
-  "mobVnum": "7717",
-  "specialFunction": "spec_cast_mage",
-  "comment": "A tortured mindflayer prisoner",
+  "areaId": "69d5d5af37f48fb566ad3094",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4695766b1b3cdf1aba"
+    "$oid": "69d5d5aaa074cc7e1aa373e7"
   },
-  "areaId": "69d00c46d49ad88595e277d3",
+  "areaId": "69d5d5aaf3c5f1b1702f79b0",
+  "mobVnum": "7714",
+  "specialFunction": "spec_cast_undead",
+  "comment": "Lord Gith",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40ef3bfd8ed47fec6c"
+    "$oid": "69d5d5aa479897585e1d0da7"
   },
-  "areaId": "69d00c402665926fb2bbf5b4",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f067b2d4059e146f6"
-  },
-  "areaId": "69d00c3f15e6e76f359172f5",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f4fc5e6b11a7c005d"
-  },
-  "areaId": "69d00c3ff23e6b335da739aa",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
   "mobVnum": "9225",
   "specialFunction": "spec_thief",
   "comment": "an eddie",
@@ -1649,40 +1491,26 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f6b06695bd8e20bcb"
+    "$oid": "69d5d5abdd54cc2731bd73b9"
   },
-  "areaId": "69d00c3fee8656be0bf81ea8",
-  "mobVnum": "7718",
-  "specialFunction": "spec_cast_mage",
-  "comment": "The enslaved red dragon",
+  "areaId": "69d5d5abed40d6537beb2362",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c462a9e1505a756754c"
+    "$oid": "69d5d5aa0a16f09089e6c07c"
   },
-  "areaId": "69d00c46d49ad88595e277d3",
+  "areaId": "69d5d5aaf3c5f1b1702f79b0",
+  "mobVnum": "7715",
+  "specialFunction": "spec_cast_undead",
+  "comment": "An insubstantial ghost",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4092e87ff887af1e41"
+    "$oid": "69d5d5aa333dc74b4b5453df"
   },
-  "areaId": "69d00c402665926fb2bbf5b4",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3f6807220748629d0c"
-  },
-  "areaId": "69d00c3f15e6e76f359172f5",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c3fc4b529a81ed2de6b"
-  },
-  "areaId": "69d00c3ff23e6b335da739aa",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
   "mobVnum": "9226",
   "specialFunction": "spec_breath_fire",
   "comment": "the Blue Flame",
@@ -1690,19 +1518,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3fd9a8dcad725fbdc4"
+    "$oid": "69d5d5aad6046821e5d6d12f"
   },
-  "areaId": "69d00c3fee8656be0bf81ea8",
-  "mobVnum": "7719",
-  "specialFunction": "spec_breath_fire",
-  "comment": "A massive blast of fire",
+  "areaId": "69d5d5aaf3c5f1b1702f79b0",
+  "mobVnum": "7717",
+  "specialFunction": "spec_cast_mage",
+  "comment": "A tortured mindflayer prisoner",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3fe72a741dd79b0d72"
+    "$oid": "69d5d5aa4f8890ac01eebe63"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
   "mobVnum": "9227",
   "specialFunction": "spec_breath_lightning",
   "comment": "the Magneto",
@@ -1710,16 +1538,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f28b0dcecdb5326de"
+    "$oid": "69d5d5aa7005d23775fa2bfd"
   },
-  "areaId": "69d00c3fee8656be0bf81ea8",
+  "areaId": "69d5d5aaf3c5f1b1702f79b0",
+  "mobVnum": "7718",
+  "specialFunction": "spec_cast_mage",
+  "comment": "The enslaved red dragon",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f8e026686837e531e"
+    "$oid": "69d5d5aad70246ce7b48dcd1"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
   "mobVnum": "9228",
   "specialFunction": "spec_breath_frost",
   "comment": "the Ice Bandit",
@@ -1727,16 +1558,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3fd5871087fc418dd0"
+    "$oid": "69d5d5aa0af1cf18793bab25"
   },
-  "areaId": "69d00c3fee8656be0bf81ea8",
+  "areaId": "69d5d5aaf3c5f1b1702f79b0",
+  "mobVnum": "7719",
+  "specialFunction": "spec_breath_fire",
+  "comment": "A massive blast of fire",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3fc889ebfe4d3a4d39"
+    "$oid": "69d5d5aa2a5b0faf5e986a1a"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
   "mobVnum": "9230",
   "specialFunction": "spec_breath_gas",
   "comment": "the Hurricane",
@@ -1744,16 +1578,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3f7101ce034e2520d2"
+    "$oid": "69d5d5aaead860dc57aac3f4"
   },
-  "areaId": "69d00c3fee8656be0bf81ea8",
+  "areaId": "69d5d5aaf3c5f1b1702f79b0",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3fe43f7976f53efa79"
+    "$oid": "69d5d5aad0ed470a2862a82d"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
   "mobVnum": "9231",
   "specialFunction": "spec_cast_mage",
   "comment": "an elemental magician",
@@ -1761,9 +1595,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c3fb0bf232df631770d"
+    "$oid": "69d5d5aa342a618a228cdc15"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
+  "areaId": "69d5d5aaf3c5f1b1702f79b0",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aa2523e82af361b092"
+  },
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
   "mobVnum": "9232",
   "specialFunction": "spec_cast_cleric",
   "comment": "a rainbow warrior",
@@ -1771,19 +1612,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40d657642a5d34d4b0"
+    "$oid": "69d5d5aa83ad3b25711f8d47"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
-  "mobVnum": "9301",
-  "specialFunction": "spec_thief",
-  "comment": "a poor mudder",
+  "areaId": "69d5d5aaf3c5f1b1702f79b0",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3ffced4ee44486112a"
+    "$oid": "69d5d5aa91f036628d8ddee7"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
   "mobVnum": "9233",
   "specialFunction": "spec_cast_mage",
   "comment": "an illusionist",
@@ -1791,19 +1629,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40b285966fda42f4cf"
+    "$oid": "69d5d5abb0f201d23972059b"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
-  "mobVnum": "9313",
-  "specialFunction": "spec_breath_fire",
-  "comment": "the Head of Draco",
+  "areaId": "69d5d5abc12cf6a9e11d4513",
+  "mobVnum": "2101",
+  "specialFunction": "spec_troll_member",
+  "comment": "a troll gang member",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f8d33766eb3d6f6c1"
+    "$oid": "69d5d5aaa72b5856cae4bd70"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
   "mobVnum": "9234",
   "specialFunction": "spec_thief",
   "comment": "an alchemist",
@@ -1811,19 +1649,29 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40fcb643ffd068db41"
+    "$oid": "69d5d5abd6cef22f8d3fcf7b"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
-  "mobVnum": "9314",
-  "specialFunction": "spec_breath_fire",
-  "comment": "a baby draco",
+  "areaId": "69d5d5abc12cf6a9e11d4513",
+  "mobVnum": "2102",
+  "specialFunction": "spec_ogre_member",
+  "comment": "an ogre gang member",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3fac6d67ef50b57578"
+    "$oid": "69d5d5ab994d1f7327fb04a1"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
+  "areaId": "69d5d5abcb9f1d0c96443971",
+  "mobVnum": "6112",
+  "specialFunction": "spec_breath_gas",
+  "comment": "the huge, green dragon",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aa0ac90b4ddb12493e"
+  },
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
   "mobVnum": "9235",
   "specialFunction": "spec_breath_any",
   "comment": "a baby rainbow dragon",
@@ -1831,19 +1679,39 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4073c1301959abd92e"
+    "$oid": "69d5d5abf12b12024dce9ebd"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
-  "mobVnum": "9315",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "Aries",
+  "areaId": "69d5d5abc12cf6a9e11d4513",
+  "mobVnum": "2103",
+  "specialFunction": "spec_troll_member",
+  "comment": "the Troll gang leader",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3fc73a66ca79388931"
+    "$oid": "69d5d5ab8c3bd4c1d4417ed5"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
+  "areaId": "69d5d5abcb9f1d0c96443971",
+  "mobVnum": "6116",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the elder druid",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab60e091ad66dda22f"
+  },
+  "areaId": "69d5d5abc12cf6a9e11d4513",
+  "mobVnum": "2104",
+  "specialFunction": "spec_troll_member",
+  "comment": "a bruiser",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aa69f48689b7b5bb24"
+  },
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
   "mobVnum": "9237",
   "specialFunction": "spec_breath_any",
   "comment": "a HUGE elemental",
@@ -1851,19 +1719,26 @@
 },
 {
   "_id": {
-    "$oid": "69d00c403e872a7f56683afc"
+    "$oid": "69d5d5ab642d6f19e1c4e932"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
-  "mobVnum": "9316",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "Taurus",
+  "areaId": "69d5d5abcb9f1d0c96443971",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f988af6b458b153b3"
+    "$oid": "69d5d5ab72c6bd2c89cd3948"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
+  "areaId": "69d5d5abc12cf6a9e11d4513",
+  "mobVnum": "2106",
+  "specialFunction": "spec_patrolman",
+  "comment": "a patrolman",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aa89687e5d8ab8b1fe"
+  },
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
   "mobVnum": "9238",
   "specialFunction": "spec_cast_mage",
   "comment": "the elixir vendor",
@@ -1871,60 +1746,91 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40fde59b1dc60d6c5a"
+    "$oid": "69d5d5ab66f91570f85608ef"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
-  "mobVnum": "9317",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "Gemini",
+  "areaId": "69d5d5abcb9f1d0c96443971",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f0d06dea459be5352"
+    "$oid": "69d5d5abd3a28023bae99a73"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
+  "areaId": "69d5d5abc12cf6a9e11d4513",
+  "mobVnum": "2107",
+  "specialFunction": "spec_ogre_member",
+  "comment": "a vandal",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4076cbceb98e215c0b"
+    "$oid": "69d5d5aaa075a819f0943bd0"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
-  "mobVnum": "9318",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "Gemini",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3fce2bf543eccd2782"
+    "$oid": "69d5d5ab8c9a8b95532ad7d9"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
+  "areaId": "69d5d5abcb9f1d0c96443971",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40a9494f6fdfbccde8"
+    "$oid": "69d5d5ab19894921c7fc414b"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
-  "mobVnum": "9319",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "Cancer",
+  "areaId": "69d5d5abc12cf6a9e11d4513",
+  "mobVnum": "2109",
+  "specialFunction": "spec_troll_member",
+  "comment": "a punk",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c3f9463b27d4b58c58c"
+    "$oid": "69d5d5aa6b5c6622131cfb9d"
   },
-  "areaId": "69d00c3ff23e6b335da739aa",
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c44c5a460a5c8e2ab16"
+    "$oid": "69d5d5ab613c4e96fdfb6a18"
   },
-  "areaId": "69d00c44c242e53370c717e9",
+  "areaId": "69d5d5abc12cf6a9e11d4513",
+  "mobVnum": "2110",
+  "specialFunction": "spec_ogre_member",
+  "comment": "the Ogre gang leader",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aa188dab63aef5d489"
+  },
+  "areaId": "69d5d5aa051f8f2f4b5d5bd8",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab31bbf36c96e64b3e"
+  },
+  "areaId": "69d5d5abc12cf6a9e11d4513",
+  "mobVnum": "2111",
+  "specialFunction": "spec_ogre_member",
+  "comment": "a thug",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab4e67a06fe754ca93"
+  },
+  "areaId": "69d5d5abc12cf6a9e11d4513",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ae55d0621e23cafea6"
+  },
+  "areaId": "69d5d5ae45ce88e8f2fb3ba5",
   "mobVnum": "350",
   "specialFunction": "spec_cast_mage",
   "comment": "the pet dragon",
@@ -1932,9 +1838,124 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40f8372957a5943e54"
+    "$oid": "69d5d5ab20ec98c08424855f"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
+  "areaId": "69d5d5abc12cf6a9e11d4513",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aeac43278cf88fdbc5"
+  },
+  "areaId": "69d5d5ae45ce88e8f2fb3ba5",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5abb3b2f9e58d0cfa56"
+  },
+  "areaId": "69d5d5abc12cf6a9e11d4513",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aeddc23f486ebfc121"
+  },
+  "areaId": "69d5d5ae45ce88e8f2fb3ba5",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ae4c8c08a54302b032"
+  },
+  "areaId": "69d5d5ae45ce88e8f2fb3ba5",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5abc16a058ea4d80480"
+  },
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
+  "mobVnum": "9301",
+  "specialFunction": "spec_thief",
+  "comment": "a poor mudder",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab83f1d63c3bc55951"
+  },
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
+  "mobVnum": "9313",
+  "specialFunction": "spec_breath_fire",
+  "comment": "the Head of Draco",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab7588cf609ece77f4"
+  },
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
+  "mobVnum": "9314",
+  "specialFunction": "spec_breath_fire",
+  "comment": "a baby draco",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab08dac7dca0069aa8"
+  },
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
+  "mobVnum": "9315",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Aries",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aba779914f9e89aa6c"
+  },
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
+  "mobVnum": "9316",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Taurus",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab2987cdf184516833"
+  },
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
+  "mobVnum": "9317",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Gemini",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab1bb889b165085542"
+  },
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
+  "mobVnum": "9318",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Gemini",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab8aaedf059b83160c"
+  },
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
+  "mobVnum": "9319",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Cancer",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5abbaa0fca0ba566f71"
+  },
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
   "mobVnum": "9320",
   "specialFunction": "spec_cast_cleric",
   "comment": "Leo",
@@ -1942,16 +1963,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c44a132dec4035bd920"
+    "$oid": "69d5d5ab21b5bbd43f0b6d92"
   },
-  "areaId": "69d00c44c242e53370c717e9",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40c6a8b5f063891fcc"
-  },
-  "areaId": "69d00c4069d85fb73e4107dc",
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
   "mobVnum": "9321",
   "specialFunction": "spec_cast_cleric",
   "comment": "Virgo",
@@ -1959,16 +1973,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c44d0c0794860c6e669"
+    "$oid": "69d5d5abd36ccba911a017a5"
   },
-  "areaId": "69d00c44c242e53370c717e9",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c4080f11659fe1c5f63"
-  },
-  "areaId": "69d00c4069d85fb73e4107dc",
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
   "mobVnum": "9322",
   "specialFunction": "spec_cast_cleric",
   "comment": "Libra",
@@ -1976,16 +1983,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4449a0a40174d9a8a8"
+    "$oid": "69d5d5ab4ac603ad02c86520"
   },
-  "areaId": "69d00c44c242e53370c717e9",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40d02a8e37827de8f9"
-  },
-  "areaId": "69d00c4069d85fb73e4107dc",
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
   "mobVnum": "9323",
   "specialFunction": "spec_cast_cleric",
   "comment": "Scorpio",
@@ -1993,9 +1993,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c408c096f8010601018"
+    "$oid": "69d5d5abdc0c535a15e14f1b"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
   "mobVnum": "9324",
   "specialFunction": "spec_cast_cleric",
   "comment": "Sagittarius",
@@ -2003,9 +2003,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4071ab6cf8f48cd674"
+    "$oid": "69d5d5abf2e84fc178830ca2"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
   "mobVnum": "9325",
   "specialFunction": "spec_cast_cleric",
   "comment": "Capricorn",
@@ -2013,9 +2013,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c409f721836a7a4eb48"
+    "$oid": "69d5d5ab2ac8702155202a04"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
   "mobVnum": "9326",
   "specialFunction": "spec_cast_cleric",
   "comment": "Aquarius",
@@ -2023,9 +2023,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c407c47bcddf7f0880f"
+    "$oid": "69d5d5ab822ef4dfdc61d1f6"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
   "mobVnum": "9327",
   "specialFunction": "spec_cast_cleric",
   "comment": "Pisces the mermaid",
@@ -2033,9 +2033,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4071611849f01f14d1"
+    "$oid": "69d5d5abc25f1e9311f16179"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
   "mobVnum": "9328",
   "specialFunction": "spec_cast_cleric",
   "comment": "Pisces the fish",
@@ -2043,9 +2043,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40b3c44d7c7644ceb3"
+    "$oid": "69d5d5ab2e352c1ae9256201"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
   "mobVnum": "9329",
   "specialFunction": "spec_cast_cleric",
   "comment": "Ursa Major the bear",
@@ -2053,9 +2053,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c409af5cdb6112fce1c"
+    "$oid": "69d5d5ab90cd20c7224d5c4a"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
   "mobVnum": "9330",
   "specialFunction": "spec_cast_mage",
   "comment": "Cassiopeia the Queen",
@@ -2063,19 +2063,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40004519eb0bb316a3"
+    "$oid": "69d5d5ab1b90e2b5f5dcb7c9"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
-  "mobVnum": "9331",
-  "specialFunction": "spec_cast_mage",
-  "comment": "Cepheus the King",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c405492c3a179a4c70e"
-  },
-  "areaId": "69d00c406b6a9159fdffa6ad",
+  "areaId": "69d5d5ab60320cabe25a4477",
   "mobVnum": "1503",
   "specialFunction": "spec_cast_mage",
   "comment": "a gnome scientist",
@@ -2083,19 +2073,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40ec948e7af07209d7"
+    "$oid": "69d5d5abd922091cb5e8f6b1"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
-  "mobVnum": "9332",
-  "specialFunction": "spec_breath_acid",
-  "comment": "Polaris, the polar star",
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
+  "mobVnum": "9331",
+  "specialFunction": "spec_cast_mage",
+  "comment": "Cepheus the King",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c404f89d417c7e8829f"
+    "$oid": "69d5d5ab321622d2c9bb8710"
   },
-  "areaId": "69d00c406b6a9159fdffa6ad",
+  "areaId": "69d5d5ab60320cabe25a4477",
   "mobVnum": "1505",
   "specialFunction": "spec_cast_cleric",
   "comment": "the chief gnome",
@@ -2103,16 +2093,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c403d46fc4e69056983"
+    "$oid": "69d5d5ab8f2d050ed53ab740"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
+  "mobVnum": "9332",
+  "specialFunction": "spec_breath_acid",
+  "comment": "Polaris, the polar star",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4082bc39b60c8f526f"
+    "$oid": "69d5d5ab97db3b9e9597cb50"
   },
-  "areaId": "69d00c406b6a9159fdffa6ad",
+  "areaId": "69d5d5ab60320cabe25a4477",
   "mobVnum": "1509",
   "specialFunction": "spec_poison",
   "comment": "a rat",
@@ -2120,16 +2113,23 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40b68bbda8ecb55e80"
+    "$oid": "69d5d5ab0fcca9aa70158aba"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40d7a02b1a999b3d2f"
+    "$oid": "69d5d5abf18bd03ed2a96877"
   },
-  "areaId": "69d00c406b6a9159fdffa6ad",
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab2f500969425b8581"
+  },
+  "areaId": "69d5d5ab60320cabe25a4477",
   "mobVnum": "1510",
   "specialFunction": "spec_poison",
   "comment": "a large rat",
@@ -2137,16 +2137,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40dd967a86c8fc859a"
+    "$oid": "69d5d5abd53af4c02e7cf785"
   },
-  "areaId": "69d00c4069d85fb73e4107dc",
+  "areaId": "69d5d5ab9f9262d371ac4d7c",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40a17b273bd1d80509"
+    "$oid": "69d5d5ab9d433fe46a70a01a"
   },
-  "areaId": "69d00c406b6a9159fdffa6ad",
+  "areaId": "69d5d5ab60320cabe25a4477",
   "mobVnum": "1511",
   "specialFunction": "spec_poison",
   "comment": "a giant rat",
@@ -2154,9 +2154,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c408776c328267a98d5"
+    "$oid": "69d5d5abbf3919152a035482"
   },
-  "areaId": "69d00c406b6a9159fdffa6ad",
+  "areaId": "69d5d5ab60320cabe25a4477",
   "mobVnum": "1513",
   "specialFunction": "spec_breath_acid",
   "comment": "a black bat",
@@ -2164,9 +2164,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c400a9de677db7d4a7f"
+    "$oid": "69d5d5ab286e01caafe91274"
   },
-  "areaId": "69d00c406b6a9159fdffa6ad",
+  "areaId": "69d5d5ab60320cabe25a4477",
   "mobVnum": "1514",
   "specialFunction": "spec_cast_undead",
   "comment": "the zombie gnome",
@@ -2174,9 +2174,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40059d4a6ed0f2e59e"
+    "$oid": "69d5d5ab8a71441a2129d50f"
   },
-  "areaId": "69d00c406b6a9159fdffa6ad",
+  "areaId": "69d5d5ab60320cabe25a4477",
   "mobVnum": "1515",
   "specialFunction": "spec_breath_fire",
   "comment": "the fire bat",
@@ -2184,9 +2184,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4012fc3420f5448a4f"
+    "$oid": "69d5d5ab7083a478e580694c"
   },
-  "areaId": "69d00c406b6a9159fdffa6ad",
+  "areaId": "69d5d5ab60320cabe25a4477",
   "mobVnum": "1519",
   "specialFunction": "spec_cast_mage",
   "comment": "the king of the hobgoblins",
@@ -2194,30 +2194,30 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4082959bbbf1e3d863"
+    "$oid": "69d5d5ab1652c9edee1b954f"
   },
-  "areaId": "69d00c406b6a9159fdffa6ad",
+  "areaId": "69d5d5ab60320cabe25a4477",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40dcebd1e0c1923062"
+    "$oid": "69d5d5ab1f595b782db60b96"
   },
-  "areaId": "69d00c406b6a9159fdffa6ad",
+  "areaId": "69d5d5ab60320cabe25a4477",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4012cfdd77073f11ab"
+    "$oid": "69d5d5ab646d244067cf37bd"
   },
-  "areaId": "69d00c406b6a9159fdffa6ad",
+  "areaId": "69d5d5ab60320cabe25a4477",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4311814214a8316603"
+    "$oid": "69d5d5ae7c69419cb2716644"
   },
-  "areaId": "69d00c43607e3bc17a5b45f0",
+  "areaId": "69d5d5aefab021e0276bdec3",
   "mobVnum": "901",
   "specialFunction": "spec_cast_cleric",
   "comment": "Zeus",
@@ -2225,9 +2225,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c430b9a50941a16ee82"
+    "$oid": "69d5d5ae5899d6120131201b"
   },
-  "areaId": "69d00c43607e3bc17a5b45f0",
+  "areaId": "69d5d5aefab021e0276bdec3",
   "mobVnum": "902",
   "specialFunction": "spec_breath_fire",
   "comment": "Prometheus",
@@ -2235,9 +2235,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c438c4afe6e278dbac3"
+    "$oid": "69d5d5aeeef504f93dee7d3f"
   },
-  "areaId": "69d00c43607e3bc17a5b45f0",
+  "areaId": "69d5d5aefab021e0276bdec3",
   "mobVnum": "903",
   "specialFunction": "spec_thief",
   "comment": "Hermes",
@@ -2245,16 +2245,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4ad11d338ef545595a"
+    "$oid": "69d5d5b3e9cc713e325e8390"
   },
-  "areaId": "69d00c4ae0d9205910274266",
+  "areaId": "69d5d5b362d2b25e26e20256",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4312aec7f5b28deac4"
+    "$oid": "69d5d5aebb1f4c4a8f7875a3"
   },
-  "areaId": "69d00c43607e3bc17a5b45f0",
+  "areaId": "69d5d5aefab021e0276bdec3",
   "mobVnum": "904",
   "specialFunction": "spec_cast_mage",
   "comment": "Poseidon",
@@ -2262,16 +2262,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4a8556e65b17e2936a"
+    "$oid": "69d5d5b3ba9fed54010cb1a5"
   },
-  "areaId": "69d00c4ae0d9205910274266",
+  "areaId": "69d5d5b362d2b25e26e20256",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c43ac3995bb98b1685f"
+    "$oid": "69d5d5ae33134b04261c129d"
   },
-  "areaId": "69d00c43607e3bc17a5b45f0",
+  "areaId": "69d5d5aefab021e0276bdec3",
   "mobVnum": "905",
   "specialFunction": "spec_cast_adept",
   "comment": "Apollo",
@@ -2279,16 +2279,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4a35f09d75dc054341"
+    "$oid": "69d5d5b3b327a7039905b71d"
   },
-  "areaId": "69d00c4ae0d9205910274266",
+  "areaId": "69d5d5b362d2b25e26e20256",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c43c765c779b839df97"
+    "$oid": "69d5d5aee798136e6b4cda05"
   },
-  "areaId": "69d00c43607e3bc17a5b45f0",
+  "areaId": "69d5d5aefab021e0276bdec3",
   "mobVnum": "907",
   "specialFunction": "spec_cast_adept",
   "comment": "Athena",
@@ -2296,9 +2296,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4326ea2424f8b073da"
+    "$oid": "69d5d5ae85ad98d821c4a391"
   },
-  "areaId": "69d00c43607e3bc17a5b45f0",
+  "areaId": "69d5d5aefab021e0276bdec3",
   "mobVnum": "908",
   "specialFunction": "spec_breath_lightning",
   "comment": "Hephaestus",
@@ -2306,19 +2306,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c407d855faf1c3f6ce3"
+    "$oid": "69d5d5ae77cff97b36ccb732"
   },
-  "areaId": "69d00c4055124d6b1c1c3bf9",
-  "mobVnum": "5300",
-  "specialFunction": "spec_cast_mage",
-  "comment": "the baby beholder",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c4374ab44c34f2b5d18"
-  },
-  "areaId": "69d00c43607e3bc17a5b45f0",
+  "areaId": "69d5d5aefab021e0276bdec3",
   "mobVnum": "909",
   "specialFunction": "spec_guard",
   "comment": "A Golden Maiden",
@@ -2326,19 +2316,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4064921d681b3b8190"
+    "$oid": "69d5d5aea1de0a733813cef5"
   },
-  "areaId": "69d00c4055124d6b1c1c3bf9",
-  "mobVnum": "5303",
-  "specialFunction": "spec_guard",
-  "comment": "an imperial cityguard",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c43b57d75b34847df64"
-  },
-  "areaId": "69d00c43607e3bc17a5b45f0",
+  "areaId": "69d5d5aefab021e0276bdec3",
   "mobVnum": "914",
   "specialFunction": "spec_breath_any",
   "comment": "Odin",
@@ -2346,19 +2326,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4044bcd9159237b176"
+    "$oid": "69d5d5ae31cae9e38a5ffc09"
   },
-  "areaId": "69d00c4055124d6b1c1c3bf9",
-  "mobVnum": "5305",
-  "specialFunction": "spec_guard",
-  "comment": "Gordon the Brave",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c430110f0ec9c71cd5f"
-  },
-  "areaId": "69d00c43607e3bc17a5b45f0",
+  "areaId": "69d5d5aefab021e0276bdec3",
   "mobVnum": "919",
   "specialFunction": "spec_breath_any",
   "comment": "Ra the Sun God",
@@ -2366,19 +2336,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4092ae986f15847018"
+    "$oid": "69d5d5ae055613d259da6d5f"
   },
-  "areaId": "69d00c4055124d6b1c1c3bf9",
-  "mobVnum": "5306",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "the fanatic priest",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c4308412a6a1a039200"
-  },
-  "areaId": "69d00c43607e3bc17a5b45f0",
+  "areaId": "69d5d5aefab021e0276bdec3",
   "mobVnum": "920",
   "specialFunction": "spec_breath_fire",
   "comment": "a chimera",
@@ -2386,19 +2346,29 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4017336b1aded504de"
+    "$oid": "69d5d5ab55424e12addaba05"
   },
-  "areaId": "69d00c4055124d6b1c1c3bf9",
-  "mobVnum": "5307",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "the priest of Thalos",
+  "areaId": "69d5d5ab8d02690a0cb041b2",
+  "mobVnum": "5300",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the baby beholder",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c43a7900bc1c34301d9"
+    "$oid": "69d5d5abe36cc4bebad0628e"
   },
-  "areaId": "69d00c43607e3bc17a5b45f0",
+  "areaId": "69d5d5ab8d02690a0cb041b2",
+  "mobVnum": "5303",
+  "specialFunction": "spec_guard",
+  "comment": "an imperial cityguard",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aea0a269d0c6599c35"
+  },
+  "areaId": "69d5d5aefab021e0276bdec3",
   "mobVnum": "921",
   "specialFunction": "spec_cast_cleric",
   "comment": "Hera",
@@ -2406,19 +2376,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4086634d66d8f3b0a6"
+    "$oid": "69d5d5ab0a723db0557a4a3c"
   },
-  "areaId": "69d00c4055124d6b1c1c3bf9",
-  "mobVnum": "5317",
-  "specialFunction": "spec_cast_mage",
-  "comment": "an old wizard",
+  "areaId": "69d5d5ab8d02690a0cb041b2",
+  "mobVnum": "5305",
+  "specialFunction": "spec_guard",
+  "comment": "Gordon the Brave",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c43851565b96ed75f60"
+    "$oid": "69d5d5ae4078982ddd7b2253"
   },
-  "areaId": "69d00c43607e3bc17a5b45f0",
+  "areaId": "69d5d5aefab021e0276bdec3",
   "mobVnum": "922",
   "specialFunction": "spec_poison",
   "comment": "a roc",
@@ -2426,19 +2396,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4073221547ea21fd5f"
+    "$oid": "69d5d5ab2268ffd62fd04452"
   },
-  "areaId": "69d00c4055124d6b1c1c3bf9",
-  "mobVnum": "5320",
-  "specialFunction": "spec_guard",
-  "comment": "An imperial cityguard",
+  "areaId": "69d5d5ab8d02690a0cb041b2",
+  "mobVnum": "5306",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the fanatic priest",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4308aa502ddcaabc39"
+    "$oid": "69d5d5aeb3692c06a9e31b2c"
   },
-  "areaId": "69d00c43607e3bc17a5b45f0",
+  "areaId": "69d5d5aefab021e0276bdec3",
   "mobVnum": "923",
   "specialFunction": "spec_thief",
   "comment": "A citizen",
@@ -2446,19 +2416,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40263f5502281c4866"
+    "$oid": "69d5d5ae3699cf78a746ac85"
   },
-  "areaId": "69d00c4055124d6b1c1c3bf9",
-  "mobVnum": "5321",
-  "specialFunction": "spec_guard",
-  "comment": "an imperial cityguard",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c436cff485d476aec75"
-  },
-  "areaId": "69d00c43607e3bc17a5b45f0",
+  "areaId": "69d5d5aefab021e0276bdec3",
   "mobVnum": "926",
   "specialFunction": "spec_cast_mage",
   "comment": "The Jailer",
@@ -2466,90 +2426,53 @@
 },
 {
   "_id": {
-    "$oid": "69d00c404294dc7b8cb1f106"
+    "$oid": "69d5d5abf9b5930498b00211"
   },
-  "areaId": "69d00c4055124d6b1c1c3bf9",
-  "mobVnum": "5327",
+  "areaId": "69d5d5ab8d02690a0cb041b2",
+  "mobVnum": "5307",
   "specialFunction": "spec_cast_cleric",
-  "comment": "a druid",
+  "comment": "the priest of Thalos",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4311f91499444de0b9"
+    "$oid": "69d5d5aeefc4e2680dae290e"
   },
-  "areaId": "69d00c43607e3bc17a5b45f0",
+  "areaId": "69d5d5aefab021e0276bdec3",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40c2ef2592f82d1571"
+    "$oid": "69d5d5ab325b8694d5247efe"
   },
-  "areaId": "69d00c4055124d6b1c1c3bf9",
-  "mobVnum": "5328",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "a druidess",
+  "areaId": "69d5d5ab8d02690a0cb041b2",
+  "mobVnum": "5317",
+  "specialFunction": "spec_cast_mage",
+  "comment": "an old wizard",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c43737d72044a007efe"
+    "$oid": "69d5d5abddcd1f72eaeb903d"
   },
-  "areaId": "69d00c43607e3bc17a5b45f0",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c409b805fa64f17585f"
-  },
-  "areaId": "69d00c4055124d6b1c1c3bf9",
-  "mobVnum": "5331",
+  "areaId": "69d5d5ab8d02690a0cb041b2",
+  "mobVnum": "5320",
   "specialFunction": "spec_guard",
-  "comment": "the cityguard",
+  "comment": "An imperial cityguard",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c434d1faf9385b87a91"
+    "$oid": "69d5d5aeffc6df6e7b8dc191"
   },
-  "areaId": "69d00c43607e3bc17a5b45f0",
+  "areaId": "69d5d5aefab021e0276bdec3",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40915294560d6b1c24"
+    "$oid": "69d5d5b261c17736ef70eb63"
   },
-  "areaId": "69d00c4055124d6b1c1c3bf9",
-  "mobVnum": "5332",
-  "specialFunction": "spec_janitor",
-  "comment": "the janitor",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c4069e2aafb35d1d62c"
-  },
-  "areaId": "69d00c4055124d6b1c1c3bf9",
-  "mobVnum": "5333",
-  "specialFunction": "spec_fido",
-  "comment": "the beastly fido",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40ee87e00dbf1df128"
-  },
-  "areaId": "69d00c4055124d6b1c1c3bf9",
-  "mobVnum": "5334",
-  "specialFunction": "spec_guard",
-  "comment": "the cityguard",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c49398a72f48af87420"
-  },
-  "areaId": "69d00c496d78c73fef38c292",
+  "areaId": "69d5d5b228f5e6438b4368dc",
   "mobVnum": "101",
   "specialFunction": "spec_thief",
   "comment": "a smurf",
@@ -2557,16 +2480,26 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40d572244ad9f0279c"
+    "$oid": "69d5d5abe03867cae9b4aba8"
   },
-  "areaId": "69d00c4055124d6b1c1c3bf9",
+  "areaId": "69d5d5ab8d02690a0cb041b2",
+  "mobVnum": "5321",
+  "specialFunction": "spec_guard",
+  "comment": "an imperial cityguard",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4972af618b375f0d63"
+    "$oid": "69d5d5aea3b6d90366c5901c"
   },
-  "areaId": "69d00c496d78c73fef38c292",
+  "areaId": "69d5d5aefab021e0276bdec3",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b24b50605bb8cf7486"
+  },
+  "areaId": "69d5d5b228f5e6438b4368dc",
   "mobVnum": "102",
   "specialFunction": "spec_thief",
   "comment": "a smurf",
@@ -2574,16 +2507,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4056b8d68757b1ba3d"
+    "$oid": "69d5d5ab7128dbe584781413"
   },
-  "areaId": "69d00c4055124d6b1c1c3bf9",
+  "areaId": "69d5d5ab8d02690a0cb041b2",
+  "mobVnum": "5327",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "a druid",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c49bfe7dc4f3fca5630"
+    "$oid": "69d5d5b2bdb8464d50fef442"
   },
-  "areaId": "69d00c496d78c73fef38c292",
+  "areaId": "69d5d5b228f5e6438b4368dc",
   "mobVnum": "103",
   "specialFunction": "spec_thief",
   "comment": "Brainy Smurf",
@@ -2591,16 +2527,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40180582e8f2fbe3ef"
+    "$oid": "69d5d5abaf1a2dc3de11aa4f"
   },
-  "areaId": "69d00c4055124d6b1c1c3bf9",
+  "areaId": "69d5d5ab8d02690a0cb041b2",
+  "mobVnum": "5328",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "a druidess",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c499c28462e3c5045ce"
+    "$oid": "69d5d5b23cf79f6dc6269671"
   },
-  "areaId": "69d00c496d78c73fef38c292",
+  "areaId": "69d5d5b228f5e6438b4368dc",
   "mobVnum": "104",
   "specialFunction": "spec_thief",
   "comment": "Handy Smurf",
@@ -2608,9 +2547,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c496348d1a8112a409c"
+    "$oid": "69d5d5ab0d87b2eb98901ffe"
   },
-  "areaId": "69d00c496d78c73fef38c292",
+  "areaId": "69d5d5ab8d02690a0cb041b2",
+  "mobVnum": "5331",
+  "specialFunction": "spec_guard",
+  "comment": "the cityguard",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b2800fca8f5630a6ea"
+  },
+  "areaId": "69d5d5b228f5e6438b4368dc",
   "mobVnum": "105",
   "specialFunction": "spec_thief",
   "comment": "Sleepy Smurf",
@@ -2618,9 +2567,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49bf5d8d5ef4963009"
+    "$oid": "69d5d5abf249463fca2a3dc1"
   },
-  "areaId": "69d00c496d78c73fef38c292",
+  "areaId": "69d5d5ab8d02690a0cb041b2",
+  "mobVnum": "5332",
+  "specialFunction": "spec_janitor",
+  "comment": "the janitor",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b213b7830ea4e796d4"
+  },
+  "areaId": "69d5d5b228f5e6438b4368dc",
   "mobVnum": "106",
   "specialFunction": "spec_thief",
   "comment": "Hefty Smurf",
@@ -2628,9 +2587,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c495346cdeddad9a0f7"
+    "$oid": "69d5d5ab80b37b553f40afd6"
   },
-  "areaId": "69d00c496d78c73fef38c292",
+  "areaId": "69d5d5ab8d02690a0cb041b2",
+  "mobVnum": "5333",
+  "specialFunction": "spec_fido",
+  "comment": "the beastly fido",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b27c84d4d9e6911ca2"
+  },
+  "areaId": "69d5d5b228f5e6438b4368dc",
   "mobVnum": "107",
   "specialFunction": "spec_thief",
   "comment": "Grumpy Smurf",
@@ -2638,9 +2607,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c498a33f1d65647dfde"
+    "$oid": "69d5d5ab7a7381ccba1b0d0f"
   },
-  "areaId": "69d00c496d78c73fef38c292",
+  "areaId": "69d5d5ab8d02690a0cb041b2",
+  "mobVnum": "5334",
+  "specialFunction": "spec_guard",
+  "comment": "the cityguard",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b2ca8a73a40852bd6f"
+  },
+  "areaId": "69d5d5b228f5e6438b4368dc",
   "mobVnum": "108",
   "specialFunction": "spec_thief",
   "comment": "Jokey Smurf",
@@ -2648,9 +2627,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c498b7db77b69ab384c"
+    "$oid": "69d5d5ab71c29739cf9f8f92"
   },
-  "areaId": "69d00c496d78c73fef38c292",
+  "areaId": "69d5d5ab8d02690a0cb041b2",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b2f433b82a429b5d66"
+  },
+  "areaId": "69d5d5b228f5e6438b4368dc",
   "mobVnum": "109",
   "specialFunction": "spec_thief",
   "comment": "Smurfette",
@@ -2658,9 +2644,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49f48ea9a6708817ea"
+    "$oid": "69d5d5abea3e5ae298d795f9"
   },
-  "areaId": "69d00c496d78c73fef38c292",
+  "areaId": "69d5d5ab8d02690a0cb041b2",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b2009e38037bbc89e4"
+  },
+  "areaId": "69d5d5b228f5e6438b4368dc",
   "mobVnum": "110",
   "specialFunction": "spec_cast_mage",
   "comment": "Papa Smurf",
@@ -2668,9 +2661,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49cebec292b54aa453"
+    "$oid": "69d5d5aba3072e85d248fa49"
   },
-  "areaId": "69d00c496d78c73fef38c292",
+  "areaId": "69d5d5ab8d02690a0cb041b2",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b2000ea07744bcf1ea"
+  },
+  "areaId": "69d5d5b228f5e6438b4368dc",
   "mobVnum": "111",
   "specialFunction": "spec_cast_cleric",
   "comment": "Gargamel",
@@ -2678,26 +2678,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49fee15452a092f19b"
+    "$oid": "69d5d5ae64771dcc2500e755"
   },
-  "areaId": "69d00c496d78c73fef38c292",
-  "mobVnum": "112",
-  "specialFunction": "spec_poison",
-  "comment": "Azreal",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c492693d74fdc5de896"
-  },
-  "areaId": "69d00c496d78c73fef38c292",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c45afd369cee5f2f168"
-  },
-  "areaId": "69d00c4585e8d055a6d697e6",
+  "areaId": "69d5d5ae68ae195f5569a2d2",
   "mobVnum": "8700",
   "specialFunction": "spec_poison",
   "comment": "A horrible asp",
@@ -2705,16 +2688,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c496146506643c25e31"
+    "$oid": "69d5d5b2d71847411e373d21"
   },
-  "areaId": "69d00c496d78c73fef38c292",
+  "areaId": "69d5d5b228f5e6438b4368dc",
+  "mobVnum": "112",
+  "specialFunction": "spec_poison",
+  "comment": "Azreal",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4562a84cffc71f8ee0"
+    "$oid": "69d5d5ae9d57e6afb50e4a67"
   },
-  "areaId": "69d00c4585e8d055a6d697e6",
+  "areaId": "69d5d5ae68ae195f5569a2d2",
   "mobVnum": "8701",
   "specialFunction": "spec_poison",
   "comment": "A hooded cobra snake",
@@ -2722,16 +2708,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4999b8a01d57431177"
+    "$oid": "69d5d5b21613221857b28978"
   },
-  "areaId": "69d00c496d78c73fef38c292",
+  "areaId": "69d5d5b228f5e6438b4368dc",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c45ffff875191a4f933"
+    "$oid": "69d5d5aeb5e36bf5f47a3b52"
   },
-  "areaId": "69d00c4585e8d055a6d697e6",
+  "areaId": "69d5d5ae68ae195f5569a2d2",
   "mobVnum": "8704",
   "specialFunction": "spec_thief",
   "comment": "A tomb thief",
@@ -2739,9 +2725,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c45578c6735981cf1a0"
+    "$oid": "69d5d5b25a806ddeb34b5598"
   },
-  "areaId": "69d00c4585e8d055a6d697e6",
+  "areaId": "69d5d5b228f5e6438b4368dc",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ae46224487bd4fca74"
+  },
+  "areaId": "69d5d5ae68ae195f5569a2d2",
   "mobVnum": "8705",
   "specialFunction": "spec_thief",
   "comment": "Ali Baba",
@@ -2749,9 +2742,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c45cdb297514e89067e"
+    "$oid": "69d5d5b258397b97a009c6fe"
   },
-  "areaId": "69d00c4585e8d055a6d697e6",
+  "areaId": "69d5d5b228f5e6438b4368dc",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ae1bd72fe5b86a08be"
+  },
+  "areaId": "69d5d5ae68ae195f5569a2d2",
   "mobVnum": "8709",
   "specialFunction": "spec_breath_fire",
   "comment": "The efreeti",
@@ -2759,19 +2759,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c407f1dac77b6f9750a"
+    "$oid": "69d5d5ae10f55a953bf3b292"
   },
-  "areaId": "69d00c403ac0ed1f172d90bc",
-  "mobVnum": "4000",
-  "specialFunction": "spec_poison",
-  "comment": "the huge python",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c4510c52c9e6709d1da"
-  },
-  "areaId": "69d00c4585e8d055a6d697e6",
+  "areaId": "69d5d5ae68ae195f5569a2d2",
   "mobVnum": "8711",
   "specialFunction": "spec_cast_mage",
   "comment": "The djinn",
@@ -2779,19 +2769,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40e6f89c7106db274e"
+    "$oid": "69d5d5ae4fe35de6323af9df"
   },
-  "areaId": "69d00c403ac0ed1f172d90bc",
-  "mobVnum": "4001",
-  "specialFunction": "spec_poison",
-  "comment": "the garter snake",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c45c9465bcea24614a4"
-  },
-  "areaId": "69d00c4585e8d055a6d697e6",
+  "areaId": "69d5d5ae68ae195f5569a2d2",
   "mobVnum": "8713",
   "specialFunction": "spec_cast_cleric",
   "comment": "A gynosphinx",
@@ -2799,19 +2779,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40a5c77c91a96f4b81"
+    "$oid": "69d5d5aeef0440897afc9f41"
   },
-  "areaId": "69d00c403ac0ed1f172d90bc",
-  "mobVnum": "4053",
-  "specialFunction": "spec_poison",
-  "comment": "the snake",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c4518abf0b6b23932f7"
-  },
-  "areaId": "69d00c4585e8d055a6d697e6",
+  "areaId": "69d5d5ae68ae195f5569a2d2",
   "mobVnum": "8714",
   "specialFunction": "spec_cast_cleric",
   "comment": "A criosphinx",
@@ -2819,19 +2789,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40463e02069943aa50"
+    "$oid": "69d5d5aedb67770fe3046c40"
   },
-  "areaId": "69d00c403ac0ed1f172d90bc",
-  "mobVnum": "4100",
-  "specialFunction": "spec_cast_mage",
-  "comment": "the Mage",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c458ab800277586c300"
-  },
-  "areaId": "69d00c4585e8d055a6d697e6",
+  "areaId": "69d5d5ae68ae195f5569a2d2",
   "mobVnum": "8715",
   "specialFunction": "spec_cast_cleric",
   "comment": "An androsphinx",
@@ -2839,19 +2799,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40d272fcc1d852ff7a"
+    "$oid": "69d5d5ae143ae0452d8b2260"
   },
-  "areaId": "69d00c403ac0ed1f172d90bc",
-  "mobVnum": "4102",
-  "specialFunction": "spec_poison",
-  "comment": "the guardian snake",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c4594bdfa348e84b425"
-  },
-  "areaId": "69d00c4585e8d055a6d697e6",
+  "areaId": "69d5d5ae68ae195f5569a2d2",
   "mobVnum": "8716",
   "specialFunction": "spec_breath_any",
   "comment": "The great sphinx",
@@ -2859,19 +2809,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c402ef92e6a8ae81cc3"
+    "$oid": "69d5d5aedc8b6c137b6aec9b"
   },
-  "areaId": "69d00c403ac0ed1f172d90bc",
-  "mobVnum": "4150",
-  "specialFunction": "spec_breath_lightning",
-  "comment": "the blue bat",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c45f4ab4a38417b8059"
-  },
-  "areaId": "69d00c4585e8d055a6d697e6",
+  "areaId": "69d5d5ae68ae195f5569a2d2",
   "mobVnum": "8717",
   "specialFunction": "spec_cast_cleric",
   "comment": "Ramses the Damned",
@@ -2879,114 +2819,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c402bd31b0a69a4df28"
+    "$oid": "69d5d5ae94577cce64ffa445"
   },
-  "areaId": "69d00c403ac0ed1f172d90bc",
-  "mobVnum": "4151",
-  "specialFunction": "spec_breath_fire",
-  "comment": "the red bat",
+  "areaId": "69d5d5ae68ae195f5569a2d2",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c45fda20ca0f5f12d37"
+    "$oid": "69d5d5af6a548a732cf4eaac"
   },
-  "areaId": "69d00c4585e8d055a6d697e6",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40c32001e8655b55b1"
-  },
-  "areaId": "69d00c403ac0ed1f172d90bc",
-  "mobVnum": "4152",
-  "specialFunction": "spec_breath_gas",
-  "comment": "the green bat",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c45b96b114879a1a4db"
-  },
-  "areaId": "69d00c4585e8d055a6d697e6",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c4053cd377778a8b120"
-  },
-  "areaId": "69d00c403ac0ed1f172d90bc",
-  "mobVnum": "4153",
-  "specialFunction": "spec_breath_frost",
-  "comment": "the white bat",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c45c8a60404b513282b"
-  },
-  "areaId": "69d00c4585e8d055a6d697e6",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c4077fffc3932aceead"
-  },
-  "areaId": "69d00c403ac0ed1f172d90bc",
-  "mobVnum": "4154",
-  "specialFunction": "spec_breath_acid",
-  "comment": "the black bat",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c404744f2bdd8b3305d"
-  },
-  "areaId": "69d00c403ac0ed1f172d90bc",
-  "mobVnum": "4155",
-  "specialFunction": "spec_thief",
-  "comment": "the thief",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c4043c79d57dd2df9c2"
-  },
-  "areaId": "69d00c403ac0ed1f172d90bc",
-  "mobVnum": "4157",
-  "specialFunction": "spec_cast_mage",
-  "comment": "the Mage",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40598942595cef2bf4"
-  },
-  "areaId": "69d00c403ac0ed1f172d90bc",
-  "mobVnum": "4158",
-  "specialFunction": "spec_poison",
-  "comment": "the snake",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c408d11a2a9a3927822"
-  },
-  "areaId": "69d00c403ac0ed1f172d90bc",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40c96687ef301f7da9"
-  },
-  "areaId": "69d00c403ac0ed1f172d90bc",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c47702d44c53c7ad8dd"
-  },
-  "areaId": "69d00c47a62ecba1acfa6fe8",
+  "areaId": "69d5d5af196c03322db599a5",
   "mobVnum": "3707",
   "specialFunction": "spec_cast_adept",
   "comment": "the adept of Satin",
@@ -2994,16 +2836,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40274db1268472a680"
+    "$oid": "69d5d5ae708ce28a9bd00655"
   },
-  "areaId": "69d00c403ac0ed1f172d90bc",
+  "areaId": "69d5d5ae68ae195f5569a2d2",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c47856415b3e9608d99"
+    "$oid": "69d5d5afe97aacc5db5de48b"
   },
-  "areaId": "69d00c47a62ecba1acfa6fe8",
+  "areaId": "69d5d5af196c03322db599a5",
   "mobVnum": "3708",
   "specialFunction": "spec_cast_adept",
   "comment": "the adept of Alander",
@@ -3011,9 +2853,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4719f9b1df94443973"
+    "$oid": "69d5d5ae1190be6b0d57c64d"
   },
-  "areaId": "69d00c47a62ecba1acfa6fe8",
+  "areaId": "69d5d5ae68ae195f5569a2d2",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5af1938b0e018a0df5d"
+  },
+  "areaId": "69d5d5af196c03322db599a5",
   "mobVnum": "3714",
   "specialFunction": "spec_fido",
   "comment": "the beast",
@@ -3021,30 +2870,181 @@
 },
 {
   "_id": {
-    "$oid": "69d00c47cfefd19ae5909c08"
+    "$oid": "69d5d5afa5bf691736a575a5"
   },
-  "areaId": "69d00c47a62ecba1acfa6fe8",
+  "areaId": "69d5d5af196c03322db599a5",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c47ff561e3a57319f74"
+    "$oid": "69d5d5afcc151f602364fd39"
   },
-  "areaId": "69d00c47a62ecba1acfa6fe8",
+  "areaId": "69d5d5af196c03322db599a5",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4718589da49c007b1c"
+    "$oid": "69d5d5abed5f3e7811990d95"
   },
-  "areaId": "69d00c47a62ecba1acfa6fe8",
+  "areaId": "69d5d5abdf0b4b9c3e9d529c",
+  "mobVnum": "4000",
+  "specialFunction": "spec_poison",
+  "comment": "the huge python",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c48509f3232fae02746"
+    "$oid": "69d5d5af45753f442d2e2bd9"
   },
-  "areaId": "69d00c48583845e221d44661",
+  "areaId": "69d5d5af196c03322db599a5",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5abf7b533c56b2ebd3c"
+  },
+  "areaId": "69d5d5abdf0b4b9c3e9d529c",
+  "mobVnum": "4001",
+  "specialFunction": "spec_poison",
+  "comment": "the garter snake",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab1f5f699ad02902f0"
+  },
+  "areaId": "69d5d5abdf0b4b9c3e9d529c",
+  "mobVnum": "4053",
+  "specialFunction": "spec_poison",
+  "comment": "the snake",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5abbeea8f83b5d4d670"
+  },
+  "areaId": "69d5d5abdf0b4b9c3e9d529c",
+  "mobVnum": "4100",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the Mage",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5abf180d2edf0364bba"
+  },
+  "areaId": "69d5d5abdf0b4b9c3e9d529c",
+  "mobVnum": "4102",
+  "specialFunction": "spec_poison",
+  "comment": "the guardian snake",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab6661c20e76e394bb"
+  },
+  "areaId": "69d5d5abdf0b4b9c3e9d529c",
+  "mobVnum": "4150",
+  "specialFunction": "spec_breath_lightning",
+  "comment": "the blue bat",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab4aa800ea1a24d06e"
+  },
+  "areaId": "69d5d5abdf0b4b9c3e9d529c",
+  "mobVnum": "4151",
+  "specialFunction": "spec_breath_fire",
+  "comment": "the red bat",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab78dfbddc59cbca86"
+  },
+  "areaId": "69d5d5abdf0b4b9c3e9d529c",
+  "mobVnum": "4152",
+  "specialFunction": "spec_breath_gas",
+  "comment": "the green bat",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab61dadb1ce4a35589"
+  },
+  "areaId": "69d5d5abdf0b4b9c3e9d529c",
+  "mobVnum": "4153",
+  "specialFunction": "spec_breath_frost",
+  "comment": "the white bat",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab6519c4a57886c9b3"
+  },
+  "areaId": "69d5d5abdf0b4b9c3e9d529c",
+  "mobVnum": "4154",
+  "specialFunction": "spec_breath_acid",
+  "comment": "the black bat",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab3baa28008679686a"
+  },
+  "areaId": "69d5d5abdf0b4b9c3e9d529c",
+  "mobVnum": "4155",
+  "specialFunction": "spec_thief",
+  "comment": "the thief",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab403daca774462e13"
+  },
+  "areaId": "69d5d5abdf0b4b9c3e9d529c",
+  "mobVnum": "4157",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the Mage",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab1d9f9e43cad37b6c"
+  },
+  "areaId": "69d5d5abdf0b4b9c3e9d529c",
+  "mobVnum": "4158",
+  "specialFunction": "spec_poison",
+  "comment": "the snake",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab1a9ac321548562d5"
+  },
+  "areaId": "69d5d5abdf0b4b9c3e9d529c",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5abe3d059179550f996"
+  },
+  "areaId": "69d5d5abdf0b4b9c3e9d529c",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5abaafb4df76daa1745"
+  },
+  "areaId": "69d5d5abdf0b4b9c3e9d529c",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b1ec30f05e7ed3fe49"
+  },
+  "areaId": "69d5d5b168abacdc021db6db",
   "mobVnum": "1100",
   "specialFunction": "spec_cast_mage",
   "comment": "the Elven Wizard",
@@ -3052,9 +3052,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4871acba5903372708"
+    "$oid": "69d5d5b13c5c6633702e7265"
   },
-  "areaId": "69d00c48583845e221d44661",
+  "areaId": "69d5d5b168abacdc021db6db",
   "mobVnum": "1101",
   "specialFunction": "spec_thief",
   "comment": "the Keeper of the Ring",
@@ -3062,9 +3062,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c483ced2a4ca935be9c"
+    "$oid": "69d5d5b1323585b31c3895ab"
   },
-  "areaId": "69d00c48583845e221d44661",
+  "areaId": "69d5d5b168abacdc021db6db",
   "mobVnum": "1110",
   "specialFunction": "spec_guard",
   "comment": "a shiriff",
@@ -3072,9 +3072,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4823ea1d46aee687fa"
+    "$oid": "69d5d5b1fa54684d5e1ad106"
   },
-  "areaId": "69d00c48583845e221d44661",
+  "areaId": "69d5d5b168abacdc021db6db",
   "mobVnum": "1111",
   "specialFunction": "spec_guard",
   "comment": "a shiriff",
@@ -3082,9 +3082,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4838e4430c9fb9f690"
+    "$oid": "69d5d5b14f9bc1db09ae0763"
   },
-  "areaId": "69d00c48583845e221d44661",
+  "areaId": "69d5d5b168abacdc021db6db",
   "mobVnum": "1112",
   "specialFunction": "spec_guard",
   "comment": "the Thain",
@@ -3092,9 +3092,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c48a80f9cb4d4f41c64"
+    "$oid": "69d5d5b13b43c087f1d300cc"
   },
-  "areaId": "69d00c48583845e221d44661",
+  "areaId": "69d5d5b168abacdc021db6db",
   "mobVnum": "1116",
   "specialFunction": "spec_cast_mage",
   "comment": "the elven warrior",
@@ -3102,9 +3102,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c48fd72135b67591ea6"
+    "$oid": "69d5d5b15029d6282aab12b2"
   },
-  "areaId": "69d00c48583845e221d44661",
+  "areaId": "69d5d5b168abacdc021db6db",
   "mobVnum": "1117",
   "specialFunction": "spec_cast_cleric",
   "comment": "the dwarven prince",
@@ -3112,9 +3112,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4824d2a39ab35d6cc2"
+    "$oid": "69d5d5b1cb701aa7ada94f2f"
   },
-  "areaId": "69d00c48583845e221d44661",
+  "areaId": "69d5d5b168abacdc021db6db",
   "mobVnum": "1121",
   "specialFunction": "spec_guard",
   "comment": "the battle master",
@@ -3122,9 +3122,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c48490e3e2f5b42d42a"
+    "$oid": "69d5d5b1b5e39a903799f6fd"
   },
-  "areaId": "69d00c48583845e221d44661",
+  "areaId": "69d5d5b168abacdc021db6db",
   "mobVnum": "1122",
   "specialFunction": "spec_thief",
   "comment": "a halfling youth",
@@ -3132,9 +3132,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4817ba68e58ddf9ec1"
+    "$oid": "69d5d5b12279ea427a2fc2ca"
   },
-  "areaId": "69d00c48583845e221d44661",
+  "areaId": "69d5d5b168abacdc021db6db",
   "mobVnum": "1132",
   "specialFunction": "spec_guard",
   "comment": "a shiriff",
@@ -3142,30 +3142,30 @@
 },
 {
   "_id": {
-    "$oid": "69d00c488121fa743147bcb4"
+    "$oid": "69d5d5b17c6db84e05515b49"
   },
-  "areaId": "69d00c48583845e221d44661",
+  "areaId": "69d5d5b168abacdc021db6db",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4868326e76ec87980f"
+    "$oid": "69d5d5b127cf6d44fd6e47ab"
   },
-  "areaId": "69d00c48583845e221d44661",
+  "areaId": "69d5d5b168abacdc021db6db",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4873113c8019d0fcc1"
+    "$oid": "69d5d5b10ebeb3cd44d6b3d6"
   },
-  "areaId": "69d00c48583845e221d44661",
+  "areaId": "69d5d5b168abacdc021db6db",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40594c3bdd5434066f"
+    "$oid": "69d5d5ab8ca7a6bd4d3d7755"
   },
-  "areaId": "69d00c406b6cbe6a48033124",
+  "areaId": "69d5d5abab10d74613af7e2e",
   "mobVnum": "2300",
   "specialFunction": "spec_cast_undead",
   "comment": "the Dark Ethereal Knight",
@@ -3173,9 +3173,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40dcfa2422bc66a44a"
+    "$oid": "69d5d5abc1c58caae3655879"
   },
-  "areaId": "69d00c406b6cbe6a48033124",
+  "areaId": "69d5d5abab10d74613af7e2e",
   "mobVnum": "2302",
   "specialFunction": "spec_breath_acid",
   "comment": "the Cave Dweller",
@@ -3183,9 +3183,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40d2cd59be70e02ed0"
+    "$oid": "69d5d5ab3bcd8ef76e4466e9"
   },
-  "areaId": "69d00c406b6cbe6a48033124",
+  "areaId": "69d5d5abab10d74613af7e2e",
   "mobVnum": "2306",
   "specialFunction": "spec_poison",
   "comment": "the Swamp Wraith",
@@ -3193,9 +3193,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4000209bf16893d690"
+    "$oid": "69d5d5ab07a152183a4d9bfd"
   },
-  "areaId": "69d00c406b6cbe6a48033124",
+  "areaId": "69d5d5abab10d74613af7e2e",
   "mobVnum": "2310",
   "specialFunction": "spec_cast_cleric",
   "comment": "The Ogre Shaman",
@@ -3203,9 +3203,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4066631d5658bf01f7"
+    "$oid": "69d5d5ab34d1fd94c59c7ca7"
   },
-  "areaId": "69d00c406b6cbe6a48033124",
+  "areaId": "69d5d5abab10d74613af7e2e",
   "mobVnum": "2313",
   "specialFunction": "spec_breath_frost",
   "comment": "the White Yeti",
@@ -3213,9 +3213,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40be1f4cbac7bca65e"
+    "$oid": "69d5d5abfd59606933593adb"
   },
-  "areaId": "69d00c406b6cbe6a48033124",
+  "areaId": "69d5d5abab10d74613af7e2e",
   "mobVnum": "2314",
   "specialFunction": "spec_breath_acid",
   "comment": "the Ice Worm",
@@ -3223,59 +3223,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c402f70f413e4680e5f"
+    "$oid": "69d5d5ad93ce48e2982a5658"
   },
-  "areaId": "69d00c406b6cbe6a48033124",
-  "mobVnum": "2324",
-  "specialFunction": "spec_cast_mage",
-  "comment": "the Minotaur Ring-Keeper",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c402e2ea21f3ab9496e"
-  },
-  "areaId": "69d00c406b6cbe6a48033124",
-  "mobVnum": "2326",
-  "specialFunction": "spec_cast_undead",
-  "comment": "Darkoth",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40797e25df21176361"
-  },
-  "areaId": "69d00c406b6cbe6a48033124",
-  "mobVnum": "2328",
-  "specialFunction": "spec_cast_mage",
-  "comment": "Amyrok",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c407727274368bdef0f"
-  },
-  "areaId": "69d00c406b6cbe6a48033124",
-  "mobVnum": "2329",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "Sumaron",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c4071be4f876f001f3b"
-  },
-  "areaId": "69d00c406b6cbe6a48033124",
-  "mobVnum": "2330",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "Nasturn",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c42b9b9ef18b0a78045"
-  },
-  "areaId": "69d00c42067cb7420fa0f123",
+  "areaId": "69d5d5ad9063ca567ac8ff21",
   "mobVnum": "600",
   "specialFunction": "spec_guard",
   "comment": "the Ofcol cityguard",
@@ -3283,19 +3233,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40e18de8b73c00e841"
+    "$oid": "69d5d5ab89578ba0068bf8df"
   },
-  "areaId": "69d00c406b6cbe6a48033124",
-  "mobVnum": "2333",
+  "areaId": "69d5d5abab10d74613af7e2e",
+  "mobVnum": "2324",
   "specialFunction": "spec_cast_mage",
-  "comment": "Mahn-Tor",
+  "comment": "the Minotaur Ring-Keeper",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c425172bb80751217f9"
+    "$oid": "69d5d5ada10d1567de348460"
   },
-  "areaId": "69d00c42067cb7420fa0f123",
+  "areaId": "69d5d5ad9063ca567ac8ff21",
   "mobVnum": "601",
   "specialFunction": "spec_cast_cleric",
   "comment": "Marshall Diana",
@@ -3303,16 +3253,29 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40135433c424ab1ae5"
+    "$oid": "69d5d5ab894e0b0f426d5369"
   },
-  "areaId": "69d00c406b6cbe6a48033124",
+  "areaId": "69d5d5abab10d74613af7e2e",
+  "mobVnum": "2326",
+  "specialFunction": "spec_cast_undead",
+  "comment": "Darkoth",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c42f198cc36aa06acfa"
+    "$oid": "69d5d5ab762fd13e0c04d826"
   },
-  "areaId": "69d00c42067cb7420fa0f123",
+  "areaId": "69d5d5abab10d74613af7e2e",
+  "mobVnum": "2328",
+  "specialFunction": "spec_cast_mage",
+  "comment": "Amyrok",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5adcd0ebe8516c54bdc"
+  },
+  "areaId": "69d5d5ad9063ca567ac8ff21",
   "mobVnum": "602",
   "specialFunction": "spec_cast_cleric",
   "comment": "Captain Derrick",
@@ -3320,16 +3283,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c402ebb9e938bc1e329"
+    "$oid": "69d5d5adbfee8968310aab79"
   },
-  "areaId": "69d00c406b6cbe6a48033124",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c42cbc9feae9c073a04"
-  },
-  "areaId": "69d00c42067cb7420fa0f123",
+  "areaId": "69d5d5ad9063ca567ac8ff21",
   "mobVnum": "603",
   "specialFunction": "spec_cast_mage",
   "comment": "Captain Jacklyn",
@@ -3337,16 +3293,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c402acc522e378c9e96"
+    "$oid": "69d5d5ab0dc0d85d982e9894"
   },
-  "areaId": "69d00c406b6cbe6a48033124",
+  "areaId": "69d5d5abab10d74613af7e2e",
+  "mobVnum": "2329",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Sumaron",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c427ffc28ccf50e0c40"
+    "$oid": "69d5d5adfad15cc2a9ffeb2c"
   },
-  "areaId": "69d00c42067cb7420fa0f123",
+  "areaId": "69d5d5ad9063ca567ac8ff21",
   "mobVnum": "621",
   "specialFunction": "spec_janitor",
   "comment": "the maid",
@@ -3354,9 +3313,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c423d56fea4c6f9ebd3"
+    "$oid": "69d5d5aba3983d551de86e9a"
   },
-  "areaId": "69d00c42067cb7420fa0f123",
+  "areaId": "69d5d5abab10d74613af7e2e",
+  "mobVnum": "2330",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "Nasturn",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ad6a7aa98aa67c1672"
+  },
+  "areaId": "69d5d5ad9063ca567ac8ff21",
   "mobVnum": "623",
   "specialFunction": "spec_guard",
   "comment": "the Ofcol cityguard",
@@ -3364,9 +3333,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c429bd5c9ddc5c0dbf4"
+    "$oid": "69d5d5ab146070db663b8c9f"
   },
-  "areaId": "69d00c42067cb7420fa0f123",
+  "areaId": "69d5d5abab10d74613af7e2e",
+  "mobVnum": "2333",
+  "specialFunction": "spec_cast_mage",
+  "comment": "Mahn-Tor",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ad9995ff12260f20b5"
+  },
+  "areaId": "69d5d5ad9063ca567ac8ff21",
   "mobVnum": "628",
   "specialFunction": "spec_cast_adept",
   "comment": "the Priestess of Ofcol",
@@ -3374,9 +3353,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c427998b179133ab23b"
+    "$oid": "69d5d5aba1ad70bebefc74bf"
   },
-  "areaId": "69d00c42067cb7420fa0f123",
+  "areaId": "69d5d5abab10d74613af7e2e",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ad75d3b1ace741845d"
+  },
+  "areaId": "69d5d5ad9063ca567ac8ff21",
   "mobVnum": "629",
   "specialFunction": "spec_guard",
   "comment": "Chaplain Jerrold",
@@ -3384,9 +3370,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4a9c7771d8593e3cba"
+    "$oid": "69d5d5b39e5d2834878752df"
   },
-  "areaId": "69d00c4afd096ec3b9f9ab6e",
+  "areaId": "69d5d5b3c19c03e2168c882d",
   "mobVnum": "1605",
   "specialFunction": "spec_cast_cleric",
   "comment": "the gargoyle shaman",
@@ -3394,9 +3380,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c422e1949a9e5b93378"
+    "$oid": "69d5d5abc8101de9e2703203"
   },
-  "areaId": "69d00c42067cb7420fa0f123",
+  "areaId": "69d5d5abab10d74613af7e2e",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5add32448bcb842b50d"
+  },
+  "areaId": "69d5d5ad9063ca567ac8ff21",
   "mobVnum": "630",
   "specialFunction": "spec_breath_any",
   "comment": "a Dragonlord",
@@ -3404,9 +3397,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4a748f8fd2ecf32c9a"
+    "$oid": "69d5d5b3b7661bc17200f121"
   },
-  "areaId": "69d00c4afd096ec3b9f9ab6e",
+  "areaId": "69d5d5b3c19c03e2168c882d",
   "mobVnum": "1609",
   "specialFunction": "spec_cast_undead",
   "comment": "an evil wight",
@@ -3414,9 +3407,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c42022b7e8164930ce4"
+    "$oid": "69d5d5abd4772532788a40f6"
   },
-  "areaId": "69d00c42067cb7420fa0f123",
+  "areaId": "69d5d5abab10d74613af7e2e",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ade8f1554e561b5803"
+  },
+  "areaId": "69d5d5ad9063ca567ac8ff21",
   "mobVnum": "631",
   "specialFunction": "spec_breath_any",
   "comment": "The Ancient Gold Dragon",
@@ -3424,9 +3424,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4acbbf49e347f8682e"
+    "$oid": "69d5d5b32c960cf4e0102c2a"
   },
-  "areaId": "69d00c4afd096ec3b9f9ab6e",
+  "areaId": "69d5d5b3c19c03e2168c882d",
   "mobVnum": "1614",
   "specialFunction": "spec_breath_acid",
   "comment": "the black pudding",
@@ -3434,19 +3434,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49d8e633f2befab964"
+    "$oid": "69d5d5ad7256ee0ede6ba2b5"
   },
-  "areaId": "69d00c496cca07c9fc56737f",
-  "mobVnum": "5200",
-  "specialFunction": "spec_cast_mage",
-  "comment": "The mighty beholder",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c42bf18502299c314c9"
-  },
-  "areaId": "69d00c42067cb7420fa0f123",
+  "areaId": "69d5d5ad9063ca567ac8ff21",
   "mobVnum": "632",
   "specialFunction": "spec_cast_mage",
   "comment": "an attendant of the dragon",
@@ -3454,9 +3444,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4ae76a97e65e538c11"
+    "$oid": "69d5d5b207b7ec140d4571fd"
   },
-  "areaId": "69d00c4afd096ec3b9f9ab6e",
+  "areaId": "69d5d5b2712a5b716a27c9d3",
+  "mobVnum": "5200",
+  "specialFunction": "spec_cast_mage",
+  "comment": "The mighty beholder",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b3f2253e18ffec16a3"
+  },
+  "areaId": "69d5d5b3c19c03e2168c882d",
   "mobVnum": "1616",
   "specialFunction": "spec_breath_any",
   "comment": "the ancient wyvern",
@@ -3464,16 +3464,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c494a43d1dd1786bec9"
+    "$oid": "69d5d5adb7c6c115ac087aa0"
   },
-  "areaId": "69d00c496cca07c9fc56737f",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c42914bd9e55d7f533c"
-  },
-  "areaId": "69d00c42067cb7420fa0f123",
+  "areaId": "69d5d5ad9063ca567ac8ff21",
   "mobVnum": "633",
   "specialFunction": "spec_breath_any",
   "comment": "a Dragonknight",
@@ -3481,16 +3474,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49490eea367d23e83c"
+    "$oid": "69d5d5b2e58e4ed213a23f8c"
   },
-  "areaId": "69d00c496cca07c9fc56737f",
+  "areaId": "69d5d5b2712a5b716a27c9d3",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4a7c64880b4335cdbe"
+    "$oid": "69d5d5b3aa458cece4c919d0"
   },
-  "areaId": "69d00c4afd096ec3b9f9ab6e",
+  "areaId": "69d5d5b3c19c03e2168c882d",
   "mobVnum": "1617",
   "specialFunction": "spec_cast_undead",
   "comment": "the spectre",
@@ -3498,9 +3491,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c42839d3a620044d15c"
+    "$oid": "69d5d5ad9fb41e338355bced"
   },
-  "areaId": "69d00c42067cb7420fa0f123",
+  "areaId": "69d5d5ad9063ca567ac8ff21",
   "mobVnum": "634",
   "specialFunction": "spec_guard",
   "comment": "the Ofcol cityguard",
@@ -3508,16 +3501,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49a0a79a021868e746"
+    "$oid": "69d5d5b2e92a9b5ff9d96fab"
   },
-  "areaId": "69d00c496cca07c9fc56737f",
+  "areaId": "69d5d5b2712a5b716a27c9d3",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4a313eac41e2252544"
+    "$oid": "69d5d5b3a262f4e5ee82029b"
   },
-  "areaId": "69d00c4afd096ec3b9f9ab6e",
+  "areaId": "69d5d5b3c19c03e2168c882d",
   "mobVnum": "1716",
   "specialFunction": "spec_cast_undead",
   "comment": "the centaur chief",
@@ -3525,51 +3518,58 @@
 },
 {
   "_id": {
-    "$oid": "69d00c42f58f64773712f444"
+    "$oid": "69d5d5ad565c13b70337bf15"
   },
-  "areaId": "69d00c42067cb7420fa0f123",
+  "areaId": "69d5d5ad9063ca567ac8ff21",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4a96f03f41bfdbd2e7"
+    "$oid": "69d5d5b2c04abcc9fd9e031b"
   },
-  "areaId": "69d00c4afd096ec3b9f9ab6e",
+  "areaId": "69d5d5b2712a5b716a27c9d3",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4267abf87c5fdd21b4"
+    "$oid": "69d5d5b39b559c98727f0815"
   },
-  "areaId": "69d00c42067cb7420fa0f123",
+  "areaId": "69d5d5b3c19c03e2168c882d",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4a240878f3a8dc01ca"
+    "$oid": "69d5d5ad96d01455734936e9"
   },
-  "areaId": "69d00c4afd096ec3b9f9ab6e",
+  "areaId": "69d5d5ad9063ca567ac8ff21",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4253a868255d664ea1"
+    "$oid": "69d5d5b3aa51fe84fd070208"
   },
-  "areaId": "69d00c42067cb7420fa0f123",
+  "areaId": "69d5d5b3c19c03e2168c882d",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4a0d73b57f6fd295df"
+    "$oid": "69d5d5ad86b183df2eefc1d4"
   },
-  "areaId": "69d00c4afd096ec3b9f9ab6e",
+  "areaId": "69d5d5ad9063ca567ac8ff21",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4aabff2bd4d4bfda5b"
+    "$oid": "69d5d5b37c06c1bc785078da"
   },
-  "areaId": "69d00c4ad3ae73ac5aed152f",
+  "areaId": "69d5d5b3c19c03e2168c882d",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b36a35101afc7b9d42"
+  },
+  "areaId": "69d5d5b3e6e6b5bf717df753",
   "mobVnum": "7807",
   "specialFunction": "spec_cast_cleric",
   "comment": "a valley elf elder",
@@ -3577,9 +3577,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4a31b4cf3a810211c8"
+    "$oid": "69d5d5b395b4e1173d740b41"
   },
-  "areaId": "69d00c4ad3ae73ac5aed152f",
+  "areaId": "69d5d5b3e6e6b5bf717df753",
   "mobVnum": "7808",
   "specialFunction": "spec_cast_mage",
   "comment": "a valley elf elder",
@@ -3587,9 +3587,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4a657a87c3911b59ed"
+    "$oid": "69d5d5b305f847b2c1b0d426"
   },
-  "areaId": "69d00c4ad3ae73ac5aed152f",
+  "areaId": "69d5d5b3e6e6b5bf717df753",
   "mobVnum": "7809",
   "specialFunction": "spec_breath_fire",
   "comment": "the pyrohydra",
@@ -3597,9 +3597,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4a1819c15ef02be63a"
+    "$oid": "69d5d5b30af8a091729a9a44"
   },
-  "areaId": "69d00c4ad3ae73ac5aed152f",
+  "areaId": "69d5d5b3e6e6b5bf717df753",
   "mobVnum": "7811",
   "specialFunction": "spec_cast_mage",
   "comment": "Talemon",
@@ -3607,30 +3607,30 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4a63bda06bba94c223"
+    "$oid": "69d5d5b343a6e1f48e3582be"
   },
-  "areaId": "69d00c4ad3ae73ac5aed152f",
+  "areaId": "69d5d5b3e6e6b5bf717df753",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4a9fe3b703c52db9c3"
+    "$oid": "69d5d5b3596de90a486d5f2b"
   },
-  "areaId": "69d00c4ad3ae73ac5aed152f",
+  "areaId": "69d5d5b3e6e6b5bf717df753",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4a557de8aac7bfd569"
+    "$oid": "69d5d5b3fa0308b8c8d7c0dd"
   },
-  "areaId": "69d00c4ad3ae73ac5aed152f",
+  "areaId": "69d5d5b3e6e6b5bf717df753",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c48fc3da4d209279fa6"
+    "$oid": "69d5d5b1f7d9fff361add53e"
   },
-  "areaId": "69d00c480a5de6ffb2ed4279",
+  "areaId": "69d5d5b10cb33e76b1e30a2b",
   "mobVnum": "7006",
   "specialFunction": "spec_poison",
   "comment": "the slithering snake",
@@ -3638,9 +3638,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4859fd6bcfd08625c6"
+    "$oid": "69d5d5b1ff90bafd72d5e89b"
   },
-  "areaId": "69d00c480a5de6ffb2ed4279",
+  "areaId": "69d5d5b10cb33e76b1e30a2b",
   "mobVnum": "7040",
   "specialFunction": "spec_breath_fire",
   "comment": "the red dragon",
@@ -3648,9 +3648,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c484ac0da3639b5af22"
+    "$oid": "69d5d5b1eccd4beaea164325"
   },
-  "areaId": "69d00c480a5de6ffb2ed4279",
+  "areaId": "69d5d5b10cb33e76b1e30a2b",
   "mobVnum": "7041",
   "specialFunction": "spec_cast_undead",
   "comment": "the sea hag",
@@ -3658,9 +3658,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c48c822e806e9ff5bef"
+    "$oid": "69d5d5b12fbbe24952d298ff"
   },
-  "areaId": "69d00c480a5de6ffb2ed4279",
+  "areaId": "69d5d5b10cb33e76b1e30a2b",
   "mobVnum": "7042",
   "specialFunction": "spec_cast_cleric",
   "comment": "the guardian naga",
@@ -3668,9 +3668,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c482e431d57a7207761"
+    "$oid": "69d5d5b11f6481ddea8ea296"
   },
-  "areaId": "69d00c480a5de6ffb2ed4279",
+  "areaId": "69d5d5b10cb33e76b1e30a2b",
   "mobVnum": "7043",
   "specialFunction": "spec_breath_any",
   "comment": "the scaled basilisk",
@@ -3678,9 +3678,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c48e97bc696a65fd2a3"
+    "$oid": "69d5d5b186e0c4430018507a"
   },
-  "areaId": "69d00c480a5de6ffb2ed4279",
+  "areaId": "69d5d5b10cb33e76b1e30a2b",
   "mobVnum": "7200",
   "specialFunction": "spec_cast_mage",
   "comment": "the master mindflayer",
@@ -3688,9 +3688,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c489896f0954d432380"
+    "$oid": "69d5d5b14f8a58a99fae66f2"
   },
-  "areaId": "69d00c480a5de6ffb2ed4279",
+  "areaId": "69d5d5b10cb33e76b1e30a2b",
   "mobVnum": "7201",
   "specialFunction": "spec_cast_mage",
   "comment": "the senior mindflayer",
@@ -3698,19 +3698,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c404acc66c4b7357f96"
+    "$oid": "69d5d5b1b0888d601a4462f9"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1300",
-  "specialFunction": "spec_cast_undead",
-  "comment": "a shadow guardian",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c481e0bdde3e2873293"
-  },
-  "areaId": "69d00c480a5de6ffb2ed4279",
+  "areaId": "69d5d5b10cb33e76b1e30a2b",
   "mobVnum": "7202",
   "specialFunction": "spec_cast_mage",
   "comment": "the junior mindflayer",
@@ -3718,19 +3708,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40c7762ba0d4aa76ee"
+    "$oid": "69d5d5b17a75508018f36a64"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1301",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "a lost adventurer",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c4816ade98361579bb4"
-  },
-  "areaId": "69d00c480a5de6ffb2ed4279",
+  "areaId": "69d5d5b10cb33e76b1e30a2b",
   "mobVnum": "7203",
   "specialFunction": "spec_poison",
   "comment": "the ugly wererat",
@@ -3738,19 +3718,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c408a18c9912fcdc593"
+    "$oid": "69d5d5b1c6f9e4e0af669d24"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1304",
-  "specialFunction": "spec_cast_mage",
-  "comment": "a mage",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c4838550a534e4cbc32"
-  },
-  "areaId": "69d00c480a5de6ffb2ed4279",
+  "areaId": "69d5d5b10cb33e76b1e30a2b",
   "mobVnum": "7204",
   "specialFunction": "spec_poison",
   "comment": "the gigantic rat",
@@ -3758,9 +3728,60 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40c86e28568afa153f"
+    "$oid": "69d5d5b1cf1e77f59edf6260"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5b10cb33e76b1e30a2b",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b1d6e49de981ca5fcc"
+  },
+  "areaId": "69d5d5b10cb33e76b1e30a2b",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b128d58c53b773c9cf"
+  },
+  "areaId": "69d5d5b10cb33e76b1e30a2b",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5abb28b889f610f7dda"
+  },
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1300",
+  "specialFunction": "spec_cast_undead",
+  "comment": "a shadow guardian",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab6ed748ab19781a42"
+  },
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1301",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "a lost adventurer",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab070a4c55df3e7aeb"
+  },
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1304",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a mage",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5aba722b3f821318f96"
+  },
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1306",
   "specialFunction": "spec_cast_mage",
   "comment": "Tatorious",
@@ -3768,16 +3789,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c48d61ef7a2082c41cd"
+    "$oid": "69d5d5ab38f08e4680452077"
   },
-  "areaId": "69d00c480a5de6ffb2ed4279",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c409f6d3ac3556ba3ba"
-  },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1307",
   "specialFunction": "spec_cast_mage",
   "comment": "Ezmerelda",
@@ -3785,23 +3799,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c48b1cb4ca1b649404b"
+    "$oid": "69d5d5ab7dfeac2826de285d"
   },
-  "areaId": "69d00c480a5de6ffb2ed4279",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c4804e6ca6eb19b15d9"
-  },
-  "areaId": "69d00c480a5de6ffb2ed4279",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40da79b098aefa4e0a"
-  },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1308",
   "specialFunction": "spec_cast_mage",
   "comment": "The cook's assistant",
@@ -3809,9 +3809,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c407d27be696ef126e0"
+    "$oid": "69d5d5ab7ad52b34feb8cd69"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1309",
   "specialFunction": "spec_cast_mage",
   "comment": "The prisoner",
@@ -3819,9 +3819,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40199ba2f8f3960b72"
+    "$oid": "69d5d5ab9a5b06960c9c0f7b"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1310",
   "specialFunction": "spec_cast_mage",
   "comment": "the Jailor",
@@ -3829,9 +3829,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c407d97cc3f38a44974"
+    "$oid": "69d5d5ab3c1fa2c298f138fc"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1311",
   "specialFunction": "spec_thief",
   "comment": "a broom",
@@ -3839,9 +3839,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4070ff2c4659abfd03"
+    "$oid": "69d5d5ab1201e7e1a731344e"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1312",
   "specialFunction": "spec_cast_undead",
   "comment": "a pair of disembodied hands",
@@ -3849,9 +3849,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40124df9b0d6127660"
+    "$oid": "69d5d5ab709b6d44cd664ded"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1313",
   "specialFunction": "spec_cast_undead",
   "comment": "a pair of disembodied eyes",
@@ -3859,9 +3859,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40ef4ef3db994e0416"
+    "$oid": "69d5d5abb59da51075411723"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1314",
   "specialFunction": "spec_cast_mage",
   "comment": "the mage",
@@ -3869,9 +3869,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40690325c10751380c"
+    "$oid": "69d5d5ab4d9118d8c6c9a025"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1315",
   "specialFunction": "spec_cast_mage",
   "comment": "a young apprentice magic user",
@@ -3879,9 +3879,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40936a166129d2e202"
+    "$oid": "69d5d5ab99b249bb1179f36c"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1316",
   "specialFunction": "spec_cast_mage",
   "comment": "a young apprentice",
@@ -3889,9 +3889,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c408aaecaffa6e6cd90"
+    "$oid": "69d5d5ab5ddcc08bee323ab9"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1317",
   "specialFunction": "spec_cast_mage",
   "comment": "a young apprentice",
@@ -3899,9 +3899,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c403f7f0f3b4a8954ef"
+    "$oid": "69d5d5ab792ca81a37222c8f"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1318",
   "specialFunction": "spec_cast_mage",
   "comment": "A young apprentice",
@@ -3909,9 +3909,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40904b4f7c45b92b87"
+    "$oid": "69d5d5ab754476f984f45712"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1320",
   "specialFunction": "spec_cast_mage",
   "comment": "a student",
@@ -3919,9 +3919,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c409a2f080885c9065a"
+    "$oid": "69d5d5ab2106deab93eadd36"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1321",
   "specialFunction": "spec_cast_mage",
   "comment": "an instructor of magic",
@@ -3929,9 +3929,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c401421672d30de5a16"
+    "$oid": "69d5d5abdd96fddb9d7aebbc"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1322",
   "specialFunction": "spec_cast_mage",
   "comment": "a student of spells",
@@ -3939,9 +3939,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c402a22f7a2c2c91ef9"
+    "$oid": "69d5d5abb8c0e7e1bb3f8d87"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1323",
   "specialFunction": "spec_cast_mage",
   "comment": "a spell teacher",
@@ -3949,9 +3949,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c409a1b2619de36638c"
+    "$oid": "69d5d5ab73705bf9b6eadb77"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1324",
   "specialFunction": "spec_cast_mage",
   "comment": "a student of spells",
@@ -3959,9 +3959,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4060e19df55073301e"
+    "$oid": "69d5d5abde5669b2129db92f"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1325",
   "specialFunction": "spec_cast_mage",
   "comment": "a wizard",
@@ -3969,9 +3969,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c403e63b195327a46c3"
+    "$oid": "69d5d5ab05bec92167665985"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1326",
   "specialFunction": "spec_cast_mage",
   "comment": "a young mage",
@@ -3979,9 +3979,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c409b3893d777950863"
+    "$oid": "69d5d5abd9d435d6d6a2a924"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1327",
   "specialFunction": "spec_cast_mage",
   "comment": "the battle mistress",
@@ -3989,9 +3989,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40029068954026feac"
+    "$oid": "69d5d5ab31f57a0c4de19663"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1328",
   "specialFunction": "spec_cast_mage",
   "comment": "a spell teacher",
@@ -3999,9 +3999,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c406ce8dc6616420ae4"
+    "$oid": "69d5d5ab2aa95ac5fe7bfc1e"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1329",
   "specialFunction": "spec_cast_mage",
   "comment": "an aged wizard",
@@ -4009,9 +4009,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40edd18c1077651241"
+    "$oid": "69d5d5ab9e1f914f5f0b5d15"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1330",
   "specialFunction": "spec_cast_mage",
   "comment": "a scribe",
@@ -4019,9 +4019,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40ea47268580566260"
+    "$oid": "69d5d5ab35f6022eb17fdf19"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1331",
   "specialFunction": "spec_cast_mage",
   "comment": "a scribe",
@@ -4029,9 +4029,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4052975e47d6feaf16"
+    "$oid": "69d5d5abecc5f532c86c9bff"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1332",
   "specialFunction": "spec_cast_mage",
   "comment": "the master scribe",
@@ -4039,9 +4039,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40c8471f98f8b62fbf"
+    "$oid": "69d5d5abd4273cd3576fff15"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1333",
   "specialFunction": "spec_cast_mage",
   "comment": "the scribe's assistant",
@@ -4049,9 +4049,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40b8653cabce310876"
+    "$oid": "69d5d5ab2a3e2f572047755a"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1334",
   "specialFunction": "spec_cast_mage",
   "comment": "the Enchanter",
@@ -4059,9 +4059,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4024f6b1aa11e34433"
+    "$oid": "69d5d5abb73cc8e74e4e7995"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1336",
   "specialFunction": "spec_cast_mage",
   "comment": "the Mad Alchemist",
@@ -4069,9 +4069,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40970108f756edc742"
+    "$oid": "69d5d5abc2d2a185e9fa5c43"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "mobVnum": "1337",
   "specialFunction": "spec_cast_mage",
   "comment": "the master summoner",
@@ -4079,19 +4079,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c405cf842870ef7a2ac"
+    "$oid": "69d5d5ab6c72b93a8d8e8224"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1338",
-  "specialFunction": "spec_cast_mage",
-  "comment": "the master charmer",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c402c25d01d0316f4aa"
-  },
-  "areaId": "69d00c400561bdf8bfaecc2a",
+  "areaId": "69d5d5ab63b509937c2a139b",
   "mobVnum": "3000",
   "specialFunction": "spec_cast_mage",
   "comment": "the wizard",
@@ -4099,19 +4089,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c401c610378364789c5"
+    "$oid": "69d5d5ab2c8d38e449d7afa6"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1340",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1338",
   "specialFunction": "spec_cast_mage",
-  "comment": "the master spell binder",
+  "comment": "the master charmer",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4020adbe9e334d064b"
+    "$oid": "69d5d5abe3833746d9904271"
   },
-  "areaId": "69d00c400561bdf8bfaecc2a",
+  "areaId": "69d5d5ab63b509937c2a139b",
   "mobVnum": "3005",
   "specialFunction": "spec_thief",
   "comment": "the thief",
@@ -4119,19 +4109,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c401f6daf880a28aaa6"
+    "$oid": "69d5d5abffa9890ace8bf8f9"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1341",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1340",
   "specialFunction": "spec_cast_mage",
-  "comment": "the golem maker",
+  "comment": "the master spell binder",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c407db24c035b3010cd"
+    "$oid": "69d5d5abf3f4a7a74ca27c4c"
   },
-  "areaId": "69d00c400561bdf8bfaecc2a",
+  "areaId": "69d5d5ab63b509937c2a139b",
   "mobVnum": "3011",
   "specialFunction": "spec_executioner",
   "comment": "Hassan",
@@ -4139,19 +4129,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4013d3a6326292d896"
+    "$oid": "69d5d5ab3e417c366a81d9a6"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1348",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1341",
   "specialFunction": "spec_cast_mage",
-  "comment": "the master of illusions",
+  "comment": "the golem maker",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c408f223c1fd7dbdd17"
+    "$oid": "69d5d5ab9344701e86cf9f9e"
   },
-  "areaId": "69d00c400561bdf8bfaecc2a",
+  "areaId": "69d5d5ab63b509937c2a139b",
   "mobVnum": "3012",
   "specialFunction": "spec_cast_adept",
   "comment": "the healer",
@@ -4159,19 +4149,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40cae0aa83611b4863"
+    "$oid": "69d5d5ab751ee5fb6054ea5f"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1349",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1348",
   "specialFunction": "spec_cast_mage",
-  "comment": "the Necromancer",
+  "comment": "the master of illusions",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4017480fe2a6fd33e3"
+    "$oid": "69d5d5ab79d421bab3493515"
   },
-  "areaId": "69d00c400561bdf8bfaecc2a",
+  "areaId": "69d5d5ab63b509937c2a139b",
   "mobVnum": "3020",
   "specialFunction": "spec_cast_mage",
   "comment": "the guildmaster",
@@ -4179,19 +4169,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40819d30f5fcfdda4a"
+    "$oid": "69d5d5ab81415a906f623cf2"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1350",
-  "specialFunction": "spec_cast_undead",
-  "comment": "an animated skeleton",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1349",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the Necromancer",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40b7792cf376d9e642"
+    "$oid": "69d5d5aba5af6f879801cee3"
   },
-  "areaId": "69d00c400561bdf8bfaecc2a",
+  "areaId": "69d5d5ab63b509937c2a139b",
   "mobVnum": "3021",
   "specialFunction": "spec_cast_cleric",
   "comment": "the guildmaster",
@@ -4199,19 +4189,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40543b41d8fdcd69a3"
+    "$oid": "69d5d5ab8a3e3ede50d38590"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1351",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1350",
   "specialFunction": "spec_cast_undead",
-  "comment": "an undead giant",
+  "comment": "an animated skeleton",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40b819452d42971c8d"
+    "$oid": "69d5d5ab47e922cd2b01527b"
   },
-  "areaId": "69d00c400561bdf8bfaecc2a",
+  "areaId": "69d5d5ab63b509937c2a139b",
   "mobVnum": "3024",
   "specialFunction": "spec_cast_mage",
   "comment": "the sorcerer",
@@ -4219,19 +4209,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40d8ec9f7120c39918"
+    "$oid": "69d5d5abc3e104e0b0702440"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1352",
-  "specialFunction": "spec_cast_mage",
-  "comment": "an ugly witch",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1351",
+  "specialFunction": "spec_cast_undead",
+  "comment": "an undead giant",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40f93cdd9b0a50d3b7"
+    "$oid": "69d5d5ab77c7a2d88ba8e067"
   },
-  "areaId": "69d00c400561bdf8bfaecc2a",
+  "areaId": "69d5d5ab63b509937c2a139b",
   "mobVnum": "3042",
   "specialFunction": "spec_cast_mage",
   "comment": "the waiter",
@@ -4239,19 +4229,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40e6836047b236ec61"
+    "$oid": "69d5d5ab58792618499878e1"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1353",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1352",
   "specialFunction": "spec_cast_mage",
-  "comment": "the Librarian",
+  "comment": "an ugly witch",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c406141ef972dd3afdd"
+    "$oid": "69d5d5abcf3cabe47b3d39c2"
   },
-  "areaId": "69d00c400561bdf8bfaecc2a",
+  "areaId": "69d5d5ab63b509937c2a139b",
   "mobVnum": "3043",
   "specialFunction": "spec_cast_cleric",
   "comment": "the waiter",
@@ -4259,19 +4249,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c406521173438667876"
+    "$oid": "69d5d5ab65297ebc610a0bc2"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1354",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1353",
   "specialFunction": "spec_cast_mage",
-  "comment": "the master's apprentice",
+  "comment": "the Librarian",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40da03250558c543dc"
+    "$oid": "69d5d5abbe4a3eabab0fc641"
   },
-  "areaId": "69d00c400561bdf8bfaecc2a",
+  "areaId": "69d5d5ab63b509937c2a139b",
   "mobVnum": "3060",
   "specialFunction": "spec_guard",
   "comment": "the cityguard",
@@ -4279,19 +4269,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40480a1461fc2ea56e"
+    "$oid": "69d5d5abd47a0791ac5a15cf"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1355",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1354",
   "specialFunction": "spec_cast_mage",
-  "comment": "a grey cat",
+  "comment": "the master's apprentice",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c402b561bf7dd1265de"
+    "$oid": "69d5d5ab2369d3eb879aa242"
   },
-  "areaId": "69d00c400561bdf8bfaecc2a",
+  "areaId": "69d5d5ab63b509937c2a139b",
   "mobVnum": "3061",
   "specialFunction": "spec_janitor",
   "comment": "the janitor",
@@ -4299,9 +4289,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49d31021ae7c84ee5a"
+    "$oid": "69d5d5ab42a009aee7248ef7"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1355",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a grey cat",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b2b675d8c54fa9e0c1"
+  },
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10401",
   "specialFunction": "spec_cast_judge",
   "comment": "the Guardian of Hell",
@@ -4309,19 +4309,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40f226bb7be2ea5aca"
+    "$oid": "69d5d5abdd1ae54641d1bb21"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1356",
-  "specialFunction": "spec_cast_mage",
-  "comment": "the master of Neutrality",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c409fff72005118cc19"
-  },
-  "areaId": "69d00c400561bdf8bfaecc2a",
+  "areaId": "69d5d5ab63b509937c2a139b",
   "mobVnum": "3062",
   "specialFunction": "spec_fido",
   "comment": "the beastly fido",
@@ -4329,9 +4319,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49ab93986395fedf26"
+    "$oid": "69d5d5abb452860ad81cf70e"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1356",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the master of Neutrality",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b2044a682e62ea41a1"
+  },
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10402",
   "specialFunction": "spec_thief",
   "comment": "the pile of gold coins",
@@ -4339,19 +4339,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c407b814baf7e591aae"
+    "$oid": "69d5d5ab3c2cfcca766064ac"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1357",
-  "specialFunction": "spec_cast_mage",
-  "comment": "a black robed apprentice",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c402698cd2a083de478"
-  },
-  "areaId": "69d00c400561bdf8bfaecc2a",
+  "areaId": "69d5d5ab63b509937c2a139b",
   "mobVnum": "3067",
   "specialFunction": "spec_guard",
   "comment": "the cityguard",
@@ -4359,9 +4349,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49f2890d651a993671"
+    "$oid": "69d5d5abbc8fd864a87d4698"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1357",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a black robed apprentice",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b21deb9684ce64e2a8"
+  },
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10403",
   "specialFunction": "spec_breath_fire",
   "comment": "the male Dee",
@@ -4369,19 +4369,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4026a16e2b91be097c"
+    "$oid": "69d5d5ab636219abc7491a57"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1358",
-  "specialFunction": "spec_cast_mage",
-  "comment": "a black cat",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c40e5b5d44706a0ae8f"
-  },
-  "areaId": "69d00c400561bdf8bfaecc2a",
+  "areaId": "69d5d5ab63b509937c2a139b",
   "mobVnum": "3068",
   "specialFunction": "spec_guard",
   "comment": "the cityguard",
@@ -4389,19 +4379,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c409633a981ab67829b"
+    "$oid": "69d5d5abc38f06a22949c5bc"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1359",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1358",
   "specialFunction": "spec_cast_mage",
-  "comment": "the master of the black robes",
+  "comment": "a black cat",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c499070bb9862a15e06"
+    "$oid": "69d5d5b2660eb64fc0eeae7d"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10405",
   "specialFunction": "spec_thief",
   "comment": "the gold bar",
@@ -4409,9 +4399,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40a30fd658e1447452"
+    "$oid": "69d5d5abc47c9619e7b2042c"
   },
-  "areaId": "69d00c400561bdf8bfaecc2a",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1359",
+  "specialFunction": "spec_cast_mage",
+  "comment": "the master of the black robes",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5abc3e51b0e7512f18f"
+  },
+  "areaId": "69d5d5ab63b509937c2a139b",
   "mobVnum": "3069",
   "specialFunction": "spec_guard",
   "comment": "the cityguard",
@@ -4419,29 +4419,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40fd17b23125b93cbe"
+    "$oid": "69d5d5b26698c9a4484c06d5"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1360",
-  "specialFunction": "spec_cast_mage",
-  "comment": "a white robed apprentice",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c4030b5f28b22a48002"
-  },
-  "areaId": "69d00c400561bdf8bfaecc2a",
-  "mobVnum": "3100",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "the maid",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c497530eb6b73bb74ff"
-  },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10406",
   "specialFunction": "spec_poison",
   "comment": "pie",
@@ -4449,29 +4429,19 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40d3ad58ae78744849"
+    "$oid": "69d5d5abbee3378e1f069d6b"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1361",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1360",
   "specialFunction": "spec_cast_mage",
-  "comment": "a white cat",
+  "comment": "a white robed apprentice",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c405859e6a8129873ee"
+    "$oid": "69d5d5b24657ce1127426ccf"
   },
-  "areaId": "69d00c400561bdf8bfaecc2a",
-  "mobVnum": "3120",
-  "specialFunction": "spec_cast_cleric",
-  "comment": "the sexton",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c4984c56315c21273d6"
-  },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10407",
   "specialFunction": "spec_cast_judge",
   "comment": "pie",
@@ -4479,29 +4449,29 @@
 },
 {
   "_id": {
-    "$oid": "69d00c404d11153713c330bd"
+    "$oid": "69d5d5ab5666c75af8c008da"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1362",
+  "areaId": "69d5d5ab63b509937c2a139b",
+  "mobVnum": "3100",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the maid",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5abe94007678ccff6ab"
+  },
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1361",
   "specialFunction": "spec_cast_mage",
-  "comment": "The master of goodness",
+  "comment": "a white cat",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c408a9785000f1fde3a"
+    "$oid": "69d5d5b241045a1891140050"
   },
-  "areaId": "69d00c400561bdf8bfaecc2a",
-  "mobVnum": "3143",
-  "specialFunction": "spec_mayor",
-  "comment": "the mayor",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c49d2ad8e251830b980"
-  },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10408",
   "specialFunction": "spec_cast_cleric",
   "comment": "pie",
@@ -4509,19 +4479,29 @@
 },
 {
   "_id": {
-    "$oid": "69d00c401eebf725395c43da"
+    "$oid": "69d5d5abc9a337f7ce3411e6"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1363",
-  "specialFunction": "spec_cast_mage",
-  "comment": "A calico cat",
+  "areaId": "69d5d5ab63b509937c2a139b",
+  "mobVnum": "3120",
+  "specialFunction": "spec_cast_cleric",
+  "comment": "the sexton",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c49353f4a949e131fa4"
+    "$oid": "69d5d5ab5803bf50ad371687"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1362",
+  "specialFunction": "spec_cast_mage",
+  "comment": "The master of goodness",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b290d8d42d95f4849c"
+  },
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10409",
   "specialFunction": "spec_cast_cleric",
   "comment": "a damned soul",
@@ -4529,36 +4509,29 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40e64ae1b1941cf39a"
+    "$oid": "69d5d5ab21f9a100c5139e71"
   },
-  "areaId": "69d00c400561bdf8bfaecc2a",
-  "mobVnum": "3163",
-  "specialFunction": "spec_nasty",
-  "comment": "the thief",
+  "areaId": "69d5d5ab63b509937c2a139b",
+  "mobVnum": "3143",
+  "specialFunction": "spec_mayor",
+  "comment": "the mayor",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40de53f257ccf23a0d"
+    "$oid": "69d5d5abbd29be86597fe397"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1364",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1363",
   "specialFunction": "spec_cast_mage",
-  "comment": "The Grand Mistress",
+  "comment": "A calico cat",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c409cd36fa4497defdb"
+    "$oid": "69d5d5b2f2dfabb621ddfc99"
   },
-  "areaId": "69d00c400561bdf8bfaecc2a",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c495a104fcd56f79cb3"
-  },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10410",
   "specialFunction": "spec_cast_mage",
   "comment": "a tortured soul",
@@ -4566,26 +4539,29 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40000483266e4cb109"
+    "$oid": "69d5d5ab32f5db64c8961367"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
-  "mobVnum": "1365",
+  "areaId": "69d5d5ab63b509937c2a139b",
+  "mobVnum": "3163",
+  "specialFunction": "spec_nasty",
+  "comment": "the thief",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5ab40cbf136b6c2920a"
+  },
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1364",
   "specialFunction": "spec_cast_mage",
-  "comment": "a wizard",
+  "comment": "The Grand Mistress",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40ea12d0ae100d8b27"
+    "$oid": "69d5d5b242874fe15eb87ae5"
   },
-  "areaId": "69d00c400561bdf8bfaecc2a",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69d00c49513981b6ede7b053"
-  },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10411",
   "specialFunction": "spec_cast_undead",
   "comment": "the half-eaten person",
@@ -4593,30 +4569,33 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40ce5321f77ccfde3f"
+    "$oid": "69d5d5ab91e987f8c23f8fbf"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5ab63b509937c2a139b",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c405c5ca52b4cc669d7"
+    "$oid": "69d5d5abbcb09561f35f9637"
   },
-  "areaId": "69d00c400561bdf8bfaecc2a",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "mobVnum": "1365",
+  "specialFunction": "spec_cast_mage",
+  "comment": "a wizard",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40462b4b4df188231d"
+    "$oid": "69d5d5abf9849c3cc2da60dc"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5ab63b509937c2a139b",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c49d4970b02df9e274a"
+    "$oid": "69d5d5b2ba5e309f6a7f6c98"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10412",
   "specialFunction": "spec_breath_acid",
   "comment": "the living wall",
@@ -4624,16 +4603,23 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40be9e4bd690311e0c"
+    "$oid": "69d5d5ab4a7052b076a2f779"
   },
-  "areaId": "69d00c40b99bb7dac9a66b6f",
+  "areaId": "69d5d5abc45ac1abca2779d2",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c49671a25c2cea89037"
+    "$oid": "69d5d5ab7573313decedf812"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5ab63b509937c2a139b",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b262342a8642198aec"
+  },
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10417",
   "specialFunction": "spec_breath_gas",
   "comment": "the blood from the fountain",
@@ -4641,9 +4627,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49e4bb53952cf45e9e"
+    "$oid": "69d5d5ab18e002026a2ff30b"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b221a320be1d6cdc63"
+  },
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10418",
   "specialFunction": "spec_cast_mage",
   "comment": "the lost soul",
@@ -4651,9 +4644,16 @@
 },
 {
   "_id": {
-    "$oid": "69d00c496fe80919836637ca"
+    "$oid": "69d5d5ab609ea51efe289020"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5abc45ac1abca2779d2",
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+},
+{
+  "_id": {
+    "$oid": "69d5d5b26f9ada559759f899"
+  },
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10419",
   "specialFunction": "spec_breath_fire",
   "comment": "the crispy critter",
@@ -4661,9 +4661,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49838d688863cc0bee"
+    "$oid": "69d5d5b2b7c08a76ace3ee54"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10421",
   "specialFunction": "spec_fido",
   "comment": "the manes",
@@ -4671,9 +4671,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c499dcb161830363fde"
+    "$oid": "69d5d5b2270b919585447bee"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10422",
   "specialFunction": "spec_breath_lightning",
   "comment": "the prisoner Raiden",
@@ -4681,9 +4681,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49ebc3db56ea991290"
+    "$oid": "69d5d5b204d2f5a4f7b3105d"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10425",
   "specialFunction": "spec_poison",
   "comment": "demonguard",
@@ -4691,9 +4691,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49c5f03ff4bb9024b3"
+    "$oid": "69d5d5b2a3319a88178a3f29"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10426",
   "specialFunction": "spec_breath_fire",
   "comment": "the burning fool",
@@ -4701,9 +4701,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c495a00be2054685bde"
+    "$oid": "69d5d5b2ac240e737fa0d45f"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10430",
   "specialFunction": "spec_breath_fire",
   "comment": "the fire devil",
@@ -4711,9 +4711,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49b91eacc13e11f6a1"
+    "$oid": "69d5d5b239d70ddcb07af29e"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10432",
   "specialFunction": "spec_breath_fire",
   "comment": "the hell hound",
@@ -4721,9 +4721,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c495aefbf9f6a74dd1c"
+    "$oid": "69d5d5b2181539421e875531"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10433",
   "specialFunction": "spec_breath_frost",
   "comment": "the frozen body",
@@ -4731,9 +4731,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49672c3b8ff98c13bb"
+    "$oid": "69d5d5b2c5d3906bed35ee8e"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10434",
   "specialFunction": "spec_breath_frost",
   "comment": "the ice devil",
@@ -4741,9 +4741,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4993532e1cfcab744d"
+    "$oid": "69d5d5b2906609f47b5679b0"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10437",
   "specialFunction": "spec_cast_mage",
   "comment": "the killer penguin",
@@ -4751,9 +4751,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49d84831119cc40ab0"
+    "$oid": "69d5d5b2e0eba85007587f45"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10438",
   "specialFunction": "spec_breath_frost",
   "comment": "the I-scream worker",
@@ -4761,9 +4761,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4978dc3b13eb835641"
+    "$oid": "69d5d5b2c0f9afe0c95152c9"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10439",
   "specialFunction": "spec_breath_frost",
   "comment": "the Ice Screamer",
@@ -4771,9 +4771,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4960508dffead2cc75"
+    "$oid": "69d5d5b2de8e1f85f8ad4210"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10442",
   "specialFunction": "spec_thief",
   "comment": "office worker from Hell",
@@ -4781,9 +4781,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49c450843e671e53f3"
+    "$oid": "69d5d5b235dcfca395124bdb"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10445",
   "specialFunction": "spec_cast_cleric",
   "comment": "High Priest of Hell",
@@ -4791,9 +4791,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49f1ded028db428647"
+    "$oid": "69d5d5b22c7ca377edb119e4"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10448",
   "specialFunction": "spec_cast_judge",
   "comment": "Judge Whopper",
@@ -4801,9 +4801,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c49e78b4e43beb7eb49"
+    "$oid": "69d5d5b29b959c2f3d343329"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10456",
   "specialFunction": "spec_breath_acid",
   "comment": "stomach dragon",
@@ -4811,9 +4811,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c496298d560bca0a3e6"
+    "$oid": "69d5d5b23f48633db14a0a6c"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10468",
   "specialFunction": "spec_breath_fire",
   "comment": "Greater Fire Demon",
@@ -4821,9 +4821,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4902c4771dcbbe248c"
+    "$oid": "69d5d5b288b061b0d7d34868"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10469",
   "specialFunction": "spec_breath_frost",
   "comment": "side of frozen beef",
@@ -4831,9 +4831,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c490dcf77ac8a17ce67"
+    "$oid": "69d5d5b2ce9fbbcd4562b536"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "mobVnum": "10470",
   "specialFunction": "spec_fido",
   "comment": "guard dog",
@@ -4841,30 +4841,30 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4976254b342bab0350"
+    "$oid": "69d5d5b29bc7799620e22f20"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c49438c271167a981ae"
+    "$oid": "69d5d5b23e68db84dc4258e7"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c49e514c6cbd72b2078"
+    "$oid": "69d5d5b2b218b17d05ad9e36"
   },
-  "areaId": "69d00c491f1948631b76d7e6",
+  "areaId": "69d5d5b212f0746b47b988b6",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c4044481d88fdacc650"
+    "$oid": "69d5d5abbd0dea1e556afaf9"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9521",
   "specialFunction": "spec_cast_cleric",
   "comment": "the statue of Nati",
@@ -4872,9 +4872,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40bece09dd297c9136"
+    "$oid": "69d5d5abf38df17e883d56c2"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9522",
   "specialFunction": "spec_cast_cleric",
   "comment": "the statue of Alander",
@@ -4882,9 +4882,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c409ef955f33ac7651e"
+    "$oid": "69d5d5abf602a02f2ac3e523"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9523",
   "specialFunction": "spec_cast_cleric",
   "comment": "the statue of Zump",
@@ -4892,9 +4892,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c404a88c2a131cd5c08"
+    "$oid": "69d5d5aba1977c83a3a9bc60"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9524",
   "specialFunction": "spec_cast_cleric",
   "comment": "the statue of Nightshade",
@@ -4902,9 +4902,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40177353b32f566917"
+    "$oid": "69d5d5abd373e2e2a308cfa5"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9525",
   "specialFunction": "spec_cast_cleric",
   "comment": "the statue of Satin",
@@ -4912,9 +4912,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40213e63cf85cbdbec"
+    "$oid": "69d5d5abf17289baeb1c4d01"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9526",
   "specialFunction": "spec_cast_cleric",
   "comment": "the statue of Shandra",
@@ -4922,9 +4922,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4049b29a6d09419b0b"
+    "$oid": "69d5d5ab041d8391d8da665c"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9527",
   "specialFunction": "spec_cast_cleric",
   "comment": "the statue of Furey",
@@ -4932,9 +4932,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40cc81dcb264071a0a"
+    "$oid": "69d5d5ab2c13a83cad93ea93"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9528",
   "specialFunction": "spec_cast_cleric",
   "comment": "the statue of Landru",
@@ -4942,9 +4942,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40c9b6da1e15a6fc29"
+    "$oid": "69d5d5ab2ece5dd0521930da"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9529",
   "specialFunction": "spec_cast_mage",
   "comment": "Aziz",
@@ -4952,9 +4952,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40da1cd6d2d4a79f78"
+    "$oid": "69d5d5abc3c205586c5d6600"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9530",
   "specialFunction": "spec_thief",
   "comment": "Mustafah",
@@ -4962,9 +4962,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4088c525ce96c16f41"
+    "$oid": "69d5d5ab5122dcaa1e166e91"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9531",
   "specialFunction": "spec_cast_mage",
   "comment": "Fatima",
@@ -4972,9 +4972,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40688549cd9ed65f16"
+    "$oid": "69d5d5ab38ffa153558e68ec"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9535",
   "specialFunction": "spec_thief",
   "comment": "the skinny kid",
@@ -4982,9 +4982,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40dfc5c183b738ae8c"
+    "$oid": "69d5d5ab105f02331c1db73f"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9538",
   "specialFunction": "spec_thief",
   "comment": "Gord",
@@ -4992,9 +4992,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40418a01331c54ce5b"
+    "$oid": "69d5d5abd36afe93830eb829"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9540",
   "specialFunction": "spec_cast_mage",
   "comment": "Raistlin",
@@ -5002,9 +5002,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40db928f56517b8e8a"
+    "$oid": "69d5d5abebe2d0946ec32dfc"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9541",
   "specialFunction": "spec_cast_cleric",
   "comment": "Curley GreenLeaf",
@@ -5012,9 +5012,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40416bd0f0ebfdb4f7"
+    "$oid": "69d5d5abcbd1f0ce2ac905f0"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9542",
   "specialFunction": "spec_cast_cleric",
   "comment": "the wandering prophet",
@@ -5022,9 +5022,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40662bb6447ba8d28c"
+    "$oid": "69d5d5ab22f0c469af00c382"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9544",
   "specialFunction": "spec_fido",
   "comment": "the vulture",
@@ -5032,9 +5032,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c406ac7dd33c91707c5"
+    "$oid": "69d5d5ab97786950370d1d2c"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9548",
   "specialFunction": "spec_cast_mage",
   "comment": "the lamia",
@@ -5042,9 +5042,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40710b41653bcd4d68"
+    "$oid": "69d5d5ab954b93f186a2985b"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9555",
   "specialFunction": "spec_cast_cleric",
   "comment": "Allah",
@@ -5052,9 +5052,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c402d7ab1d218f08d96"
+    "$oid": "69d5d5abce49aa8226f216f3"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9561",
   "specialFunction": "spec_guard",
   "comment": "the sultan's guard",
@@ -5062,9 +5062,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4068c0fff16ca88336"
+    "$oid": "69d5d5ab82e945992ca05673"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9562",
   "specialFunction": "spec_guard",
   "comment": "the sultans guard",
@@ -5072,9 +5072,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4064613169a8991d1e"
+    "$oid": "69d5d5ab67159db4bcc4e0b1"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9570",
   "specialFunction": "spec_breath_frost",
   "comment": "the cryohydra",
@@ -5082,9 +5082,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4003126ac5a0bddc8c"
+    "$oid": "69d5d5ab3fd3e6f21ce0f6df"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9574",
   "specialFunction": "spec_breath_lightning",
   "comment": "the behir",
@@ -5092,9 +5092,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c401c5651a5808513b0"
+    "$oid": "69d5d5ab7daad2cc67e6002c"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9575",
   "specialFunction": "spec_breath_fire",
   "comment": "the chimera",
@@ -5102,9 +5102,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c4093f1ae208d7bc468"
+    "$oid": "69d5d5abb4e533f9c35e0523"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9577",
   "specialFunction": "spec_poison",
   "comment": "the giant hornet",
@@ -5112,9 +5112,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c408a3cc336ce6fea7e"
+    "$oid": "69d5d5ab6a5d4d4fe2e435b8"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9582",
   "specialFunction": "spec_guard",
   "comment": "The Royal Guard",
@@ -5122,9 +5122,9 @@
 },
 {
   "_id": {
-    "$oid": "69d00c40776ee0d00e57db96"
+    "$oid": "69d5d5aba8a96a19ea63c242"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "mobVnum": "9592",
   "specialFunction": "spec_guard",
   "comment": "the bodyguard",
@@ -5132,22 +5132,22 @@
 },
 {
   "_id": {
-    "$oid": "69d00c403e182eb8e3522fbc"
+    "$oid": "69d5d5abecbeec1c4466b932"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40abd8dcdd13cd7a12"
+    "$oid": "69d5d5abe0b172ba6ab78b59"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
   "_id": {
-    "$oid": "69d00c40155f3fa8a29d55e5"
+    "$oid": "69d5d5abcff17b253367fc86"
   },
-  "areaId": "69d00c40126d7325ecb7a770",
+  "areaId": "69d5d5abe8830437847512fc",
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 }]

@@ -1,6 +1,6 @@
 [{
   "_id": {
-    "$oid": "69d00c5dfc2bbbdf38f2f315"
+    "$oid": "69d5d5c6499d70d1a189d399"
   },
   "name": "gack",
   "charNoArg": "Gaaack!",
@@ -15,7 +15,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d7511436659be6368"
+    "$oid": "69d5d5c650c1f628f46e990b"
   },
   "name": "kiss",
   "charNoArg": "Isn't there someone you want to kiss?",
@@ -28,7 +28,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5db66829e55ee30bcd"
+    "$oid": "69d5d5c67f79e88e6194046e"
   },
   "name": "bounce",
   "charNoArg": "BOIINNNNNNGG!",
@@ -43,7 +43,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d6e701afdf5b81334"
+    "$oid": "69d5d5c6bf03f1d572374448"
   },
   "name": "smile",
   "charNoArg": "You smile happily.",
@@ -58,7 +58,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dbaa346a0776e1121"
+    "$oid": "69d5d5c6e3e7bf217d4c5704"
   },
   "name": "dance",
   "charNoArg": "Feels silly, doesn't it?",
@@ -73,7 +73,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5deed0a11127583e11"
+    "$oid": "69d5d5c6eaf02e8a1ca8122f"
   },
   "name": "cackle",
   "charNoArg": "You cackle gleefully.",
@@ -88,7 +88,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d0617fe731cda0ac5"
+    "$oid": "69d5d5c6a9ed3a68a6402afe"
   },
   "name": "laugh",
   "charNoArg": "You fall down laughing.",
@@ -103,7 +103,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d72b337b474ed29c7"
+    "$oid": "69d5d5c64ac9d2f047595c1c"
   },
   "name": "giggle",
   "charNoArg": "You giggle.",
@@ -118,7 +118,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5de0f0e67d040143fb"
+    "$oid": "69d5d5c654bb185d346f102f"
   },
   "name": "shake",
   "charNoArg": "You shake your head.",
@@ -133,7 +133,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d995af023a4d61727"
+    "$oid": "69d5d5c66f18e35baffd5d45"
   },
   "name": "puke",
   "charNoArg": "You puke...chunks everywhere!!! YUK!",
@@ -148,7 +148,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d059d3f08c220968c"
+    "$oid": "69d5d5c630f211b30e6c2fc9"
   },
   "name": "growl",
   "charNoArg": "Grrrrrrrrrr...",
@@ -163,7 +163,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5db60b80f862494194"
+    "$oid": "69d5d5c6b7c16a47c1bb856f"
   },
   "name": "scream",
   "charNoArg": "ARRRRRRRRRRGH!!!!!",
@@ -178,7 +178,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d19f59879fa9ef707"
+    "$oid": "69d5d5c63ac63de0133cdb8b"
   },
   "name": "comfort",
   "charNoArg": "Do you feel uncomfortable?",
@@ -192,7 +192,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5da26550a22ad7993a"
+    "$oid": "69d5d5c676a48647508ea63a"
   },
   "name": "sigh",
   "charNoArg": "You sigh.",
@@ -207,7 +207,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d7aebf2bbe4fb04aa"
+    "$oid": "69d5d5c675a62cc21d1451b7"
   },
   "name": "sulk",
   "charNoArg": "You sulk.",
@@ -216,7 +216,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d43289d0a822ff1f8"
+    "$oid": "69d5d5c6e4071ef87e47e29d"
   },
   "name": "hug",
   "charNoArg": "Hug who?",
@@ -230,7 +230,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5daa0237da05d11b4f"
+    "$oid": "69d5d5c6bcf4fff4c643f494"
   },
   "name": "snuggle",
   "charNoArg": "Who?",
@@ -244,7 +244,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d44b639e0be1c9267"
+    "$oid": "69d5d5c6100a04a9c424ada4"
   },
   "name": "cuddle",
   "charNoArg": "Who do you feel like cuddling today?",
@@ -258,7 +258,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5df01143ea94a927ba"
+    "$oid": "69d5d5c650f345c43cbef731"
   },
   "name": "nuzzle",
   "charNoArg": "Nuzzle who??",
@@ -271,7 +271,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dcc69e356ee97c388"
+    "$oid": "69d5d5c6ea16071e2285a9f0"
   },
   "name": "cry",
   "charNoArg": "Waaaaah..",
@@ -286,7 +286,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dee1b4e99e9af98e2"
+    "$oid": "69d5d5c6be95d1d9c1699101"
   },
   "name": "poke",
   "charNoArg": "Poke who??",
@@ -300,7 +300,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d8e24fe0dab2b555e"
+    "$oid": "69d5d5c6bb765bd0936cc921"
   },
   "name": "accuse",
   "charNoArg": "Accuse who??",
@@ -315,7 +315,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d6db91c4c9df09568"
+    "$oid": "69d5d5c6a6db21f947de917d"
   },
   "name": "grin",
   "charNoArg": "You grin evilly.",
@@ -330,7 +330,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d2997f0f2728c25e7"
+    "$oid": "69d5d5c672124effc7b567f2"
   },
   "name": "bow",
   "charNoArg": "You bow deeply.",
@@ -345,7 +345,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d9e14850ebeb8de03"
+    "$oid": "69d5d5c65de4da75ffc921b6"
   },
   "name": "applaud",
   "charNoArg": "Clap, clap, clap.",
@@ -360,7 +360,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5da0bf4025ae15370a"
+    "$oid": "69d5d5c601c93bb9abd0ee28"
   },
   "name": "blush",
   "charNoArg": "Your cheeks are burning.",
@@ -375,7 +375,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d9e7f49b016f1f528"
+    "$oid": "69d5d5c643137211685c31da"
   },
   "name": "burp",
   "charNoArg": "You burp loudly.",
@@ -390,7 +390,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d501bec2dcd4ff78b"
+    "$oid": "69d5d5c6cdbe2894a696ebe7"
   },
   "name": "chuckle",
   "charNoArg": "You chuckle politely.",
@@ -405,7 +405,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d17900620a4631e1b"
+    "$oid": "69d5d5c67d378c371cc819b4"
   },
   "name": "clap",
   "charNoArg": "You clap your hands together.",
@@ -420,7 +420,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d4fcdafbf64a22a85"
+    "$oid": "69d5d5c67b4e03e4bfae1401"
   },
   "name": "cough",
   "charNoArg": "Yuck, try to cover your mouth next time!",
@@ -429,7 +429,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d104b68232d06172a"
+    "$oid": "69d5d5c6d356a19bc17ae9b0"
   },
   "name": "curtsey",
   "charNoArg": "You curtsey to your audience.",
@@ -444,7 +444,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5de9160c4b38089518"
+    "$oid": "69d5d5c68f0f2b1477be151e"
   },
   "name": "fart",
   "charNoArg": "Where are your manners ?",
@@ -459,7 +459,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d1380a2f52b5ee622"
+    "$oid": "69d5d5c61c0f9474063529ac"
   },
   "name": "flip",
   "charNoArg": "You flip head over heels.",
@@ -474,7 +474,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5daa06e428310d1d0a"
+    "$oid": "69d5d5c6db365ff5fd6532fa"
   },
   "name": "fondle",
   "charNoArg": "Who needs to be fondled ?",
@@ -488,7 +488,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5de619d9a0e4e055c2"
+    "$oid": "69d5d5c672dc8f530b6e2513"
   },
   "name": "frown",
   "charNoArg": "You frown disapprovingly.",
@@ -503,7 +503,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dba19a4d558cffcc7"
+    "$oid": "69d5d5c67c6b8ed43f05d698"
   },
   "name": "gasp",
   "charNoArg": "You gasp in astonishment.",
@@ -518,7 +518,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d607175d0a7852eda"
+    "$oid": "69d5d5c6c7c533b5547d2276"
   },
   "name": "glare",
   "charNoArg": "You glare at nothing in particular.",
@@ -533,7 +533,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d70cb924206bb72c1"
+    "$oid": "69d5d5c6e88e51299cc9e424"
   },
   "name": "groan",
   "charNoArg": "You groan loudly.",
@@ -548,7 +548,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d5b21ce1b055c9cfa"
+    "$oid": "69d5d5c669edcdab10f07642"
   },
   "name": "grope",
   "charNoArg": "Whom do you wish to grope ??",
@@ -562,7 +562,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dcd5bf32c78dfd517"
+    "$oid": "69d5d5c6012db3129fb10ff1"
   },
   "name": "hiccup",
   "charNoArg": "*HIC*",
@@ -571,7 +571,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d3fafa6d717ae59c7"
+    "$oid": "69d5d5c6fbca6cab92bf98ad"
   },
   "name": "lick",
   "charNoArg": "You lick your mouth and smile.",
@@ -586,7 +586,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d876af247424611d8"
+    "$oid": "69d5d5c6236440c649429d91"
   },
   "name": "love",
   "charNoArg": "You love the whole world.",
@@ -601,7 +601,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dcdd7fcb0269436e9"
+    "$oid": "69d5d5c6889fdeb0bc6d83e1"
   },
   "name": "moan",
   "charNoArg": "You start to moan.",
@@ -616,7 +616,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d9a2b9778c455bd82"
+    "$oid": "69d5d5c6d129b7d6b36c855e"
   },
   "name": "nibble",
   "charNoArg": "Nibble on who ?",
@@ -630,7 +630,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d9360220c0eef60e5"
+    "$oid": "69d5d5c62006f4e1cd522dd4"
   },
   "name": "pout",
   "charNoArg": "Ah, don't take it so hard.",
@@ -639,7 +639,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d1d4c91661cdc390c"
+    "$oid": "69d5d5c6192925c793b7cf2b"
   },
   "name": "ruffle",
   "charNoArg": "You've got to ruffle SOMEONE.",
@@ -653,7 +653,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d16721cc1a8012a1a"
+    "$oid": "69d5d5c6366b501de5590221"
   },
   "name": "shiver",
   "charNoArg": "Brrrrrrrrr.",
@@ -668,7 +668,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5db8d32e330292e547"
+    "$oid": "69d5d5c6cd4b9dc673f03acd"
   },
   "name": "shrug",
   "charNoArg": "You shrug.",
@@ -683,7 +683,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dd9da430bf5c77133"
+    "$oid": "69d5d5c60bbe91a6913ffe6e"
   },
   "name": "sing",
   "charNoArg": "You raise your clear (?) voice towards the sky.",
@@ -698,7 +698,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d751f67199108237f"
+    "$oid": "69d5d5c6a004f94a28913e8d"
   },
   "name": "slap",
   "charNoArg": "What is the sound of one hand slapping?",
@@ -712,7 +712,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d3af09f4440c17219"
+    "$oid": "69d5d5c6001c2b96142f9a7b"
   },
   "name": "smirk",
   "charNoArg": "You smirk.",
@@ -727,7 +727,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d352951f79340d9fb"
+    "$oid": "69d5d5c69c327ff72a7ad433"
   },
   "name": "snap",
   "charNoArg": "Eureka!  You snap your fingers.",
@@ -742,7 +742,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d4d83209f4347d616"
+    "$oid": "69d5d5c6584c401efb2019ed"
   },
   "name": "sneeze",
   "charNoArg": "Gesundheit !",
@@ -751,7 +751,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d9fe63c7bf39f81fd"
+    "$oid": "69d5d5c6dcdf0e319580bf1e"
   },
   "name": "snicker",
   "charNoArg": "You snicker softly.",
@@ -766,7 +766,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dccc20a768d0dfd2c"
+    "$oid": "69d5d5c6a2bc2beed684fd6e"
   },
   "name": "sniff",
   "charNoArg": "You sniff sadly. *SNIFF*",
@@ -781,7 +781,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dd8a77104c86c4357"
+    "$oid": "69d5d5c6fc07f7bc6a2da3b8"
   },
   "name": "snore",
   "charNoArg": "Zzzzzzzzzzzzzzzzz.",
@@ -790,7 +790,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5ddf78b7ca08df4fae"
+    "$oid": "69d5d5c62e833d7bf8eb62b4"
   },
   "name": "squeeze",
   "charNoArg": "Where, what, how, WHO ???",
@@ -804,7 +804,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d1634adc3c1d0e21c"
+    "$oid": "69d5d5c6bb91edc61bb3fd9c"
   },
   "name": "stare",
   "charNoArg": "You stare at the sky.",
@@ -819,7 +819,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d156688989e1fcdcb"
+    "$oid": "69d5d5c6dc0f78b07f97c9ec"
   },
   "name": "strut",
   "charNoArg": "Strut your stuff.",
@@ -834,7 +834,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d4aad0b3f8d8c08c8"
+    "$oid": "69d5d5c6669f36d3db23bbf5"
   },
   "name": "thank",
   "charNoArg": "Thank you too.",
@@ -848,7 +848,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5df2258a76ed8fc501"
+    "$oid": "69d5d5c66f899cefd5534952"
   },
   "name": "twiddle",
   "charNoArg": "You patiently twiddle your thumbs.",
@@ -863,7 +863,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dd62cef2a0ea003fc"
+    "$oid": "69d5d5c62f8298e543c40739"
   },
   "name": "wave",
   "charNoArg": "You wave.",
@@ -878,7 +878,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d32e21aeb243ca0c0"
+    "$oid": "69d5d5c6b255a28609e36cc7"
   },
   "name": "whistle",
   "charNoArg": "You whistle appreciatively.",
@@ -893,7 +893,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5db00b06c06465558a"
+    "$oid": "69d5d5c6049a388f1f969549"
   },
   "name": "wiggle",
   "charNoArg": "Your wiggle your bottom.",
@@ -908,7 +908,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dd658e0bf6c213d9d"
+    "$oid": "69d5d5c6c4a28e62da5f83f6"
   },
   "name": "wink",
   "charNoArg": "Have you got something in your eye?",
@@ -923,7 +923,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d2aebd375a63b9b9b"
+    "$oid": "69d5d5c61da61d68c884fafa"
   },
   "name": "yawn",
   "charNoArg": "You must be tired.",
@@ -932,7 +932,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d9556e988b634e5a4"
+    "$oid": "69d5d5c6997fd8bebbfe1ee9"
   },
   "name": "snowball",
   "charNoArg": "Who do you want to throw a snowball at?",
@@ -946,7 +946,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d8674ace358648cc2"
+    "$oid": "69d5d5c646023657e380127a"
   },
   "name": "french",
   "charNoArg": "Kiss whom?",
@@ -960,7 +960,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d8b40c74417ff72d3"
+    "$oid": "69d5d5c6528bd9c08b044f01"
   },
   "name": "comb",
   "charNoArg": "You comb your hair - perfect.",
@@ -975,7 +975,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d323551f585113ebd"
+    "$oid": "69d5d5c67dccff7090406f08"
   },
   "name": "massage",
   "charNoArg": "Massage what?  Thin air?",
@@ -989,7 +989,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dd06ff2d6a1617655"
+    "$oid": "69d5d5c643a38dcc547f9a39"
   },
   "name": "tickle",
   "charNoArg": "Whom do you want to tickle?",
@@ -1003,7 +1003,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dc79b6dfca9e45414"
+    "$oid": "69d5d5c6d1f29a676501fb4d"
   },
   "name": "pat",
   "charNoArg": "Pat who?",
@@ -1017,7 +1017,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5db88078c0cbd1002a"
+    "$oid": "69d5d5c6fce8fd51f6ae4751"
   },
   "name": "curse",
   "charNoArg": "You swear loudly for a long time.",
@@ -1032,7 +1032,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5db34454958e9ee6ff"
+    "$oid": "69d5d5c6d95298b36777a9b2"
   },
   "name": "pray",
   "charNoArg": "You feel righteous, and maybe a little foolish.",
@@ -1047,7 +1047,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d48505f56f1cc8326"
+    "$oid": "69d5d5c6740ba07dd6ceba71"
   },
   "name": "beg",
   "charNoArg": "You beg the gods for mercy.",
@@ -1061,7 +1061,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d5eb7042ed1a6fe00"
+    "$oid": "69d5d5c69718cf70b9b91a0e"
   },
   "name": "cringe",
   "charNoArg": "You cringe in terror.",
@@ -1075,7 +1075,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5df6de4ca52cf6c2fa"
+    "$oid": "69d5d5c6f292043fd176c68e"
   },
   "name": "daydream",
   "charNoArg": "You dream of better times.",
@@ -1084,7 +1084,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d2d50600ce738b780"
+    "$oid": "69d5d5c6fbaf1fb8b64201a2"
   },
   "name": "fume",
   "charNoArg": "Take it easy now! count to ten, very slowly.",
@@ -1099,7 +1099,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dce23ba3734634e2b"
+    "$oid": "69d5d5c60b4eb941f86b81da"
   },
   "name": "grovel",
   "charNoArg": "You grovel in the dirt.",
@@ -1113,7 +1113,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dd9d8e772d54abd33"
+    "$oid": "69d5d5c64da856b9a76e79de"
   },
   "name": "hop",
   "charNoArg": "You hop around like a little kid.",
@@ -1122,7 +1122,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d76fa85c2363a6ba7"
+    "$oid": "69d5d5c6ab0236834665e5d1"
   },
   "name": "nudge",
   "charNoArg": "Nudge whom?",
@@ -1136,7 +1136,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5ddec1919246fdd41a"
+    "$oid": "69d5d5c6331156025003d830"
   },
   "name": "ponder",
   "charNoArg": "You ponder the question.",
@@ -1145,7 +1145,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dbb77a6cfd3785f70"
+    "$oid": "69d5d5c601f1d27c390ecf80"
   },
   "name": "punch",
   "charNoArg": "Punch whom?",
@@ -1159,7 +1159,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dfbeab6f6ec2afc8b"
+    "$oid": "69d5d5c689d1fed609643309"
   },
   "name": "snarl",
   "charNoArg": "You grizzle your teeth and look mean.",
@@ -1174,7 +1174,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d95472d922da1950f"
+    "$oid": "69d5d5c66df636fc5db981ec"
   },
   "name": "spank",
   "charNoArg": "Spank whom?",
@@ -1188,7 +1188,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d8483c50f6da09131"
+    "$oid": "69d5d5c6362a1716b35ffc68"
   },
   "name": "hand",
   "charNoArg": "Kiss whose hand?",
@@ -1202,7 +1202,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d7c4882f3ff1de1f4"
+    "$oid": "69d5d5c670cf3d294ef4b672"
   },
   "name": "yodel",
   "charNoArg": "You think of Julie Andrews and start to yodel.",
@@ -1217,7 +1217,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dea90969a588cd8a7"
+    "$oid": "69d5d5c6cc8a65fd97f50278"
   },
   "name": "faint",
   "charNoArg": "You faint.",
@@ -1230,7 +1230,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5df169ae7e8497dab2"
+    "$oid": "69d5d5c6ef1f81309d170992"
   },
   "name": "pinch",
   "charNoArg": "You say, 'A pinch of this, and a dab of that.'",
@@ -1245,7 +1245,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dbfe6ffb46c949e58"
+    "$oid": "69d5d5c6dd1f61d811aca884"
   },
   "name": "stroke",
   "charNoArg": "You stroke the air vaguely.",
@@ -1259,7 +1259,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dcca7280709fbe61e"
+    "$oid": "69d5d5c6376c833db18157e7"
   },
   "name": "apologize",
   "charNoArg": "You apologize until you are blue in the face.",
@@ -1272,7 +1272,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d8236f0ba9d5877ba"
+    "$oid": "69d5d5c643871bf97c2dac22"
   },
   "name": "caress",
   "charNoArg": "Who do you wish to caress?",
@@ -1285,7 +1285,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d6f0cb6c54e009e9a"
+    "$oid": "69d5d5c64a8f813d1f374987"
   },
   "name": "stagger",
   "charNoArg": "You stagger blindly around the room.",
@@ -1298,7 +1298,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5de849c64b74724f74"
+    "$oid": "69d5d5c6f684c0786173b545"
   },
   "name": "snort",
   "charNoArg": "You snort derisively.",
@@ -1313,7 +1313,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d301c3be69ff61514"
+    "$oid": "69d5d5c65f9849294b39f7aa"
   },
   "name": "slobber",
   "charNoArg": "You slobber down your front.",
@@ -1326,7 +1326,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5df8d53f56b43cc67b"
+    "$oid": "69d5d5c65c70a1bb2bb85319"
   },
   "name": "blink",
   "charNoArg": "You bat your eyelashes.",
@@ -1340,7 +1340,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5df1cd8083c49e239d"
+    "$oid": "69d5d5c6f6130ea89a1e8ca4"
   },
   "name": "tease",
   "charNoArg": "What a tease.   SHEESH.",
@@ -1355,7 +1355,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d39c29f9a0e677527"
+    "$oid": "69d5d5c6ccbaa620e586e59d"
   },
   "name": "knee",
   "charNoArg": "You raise one knee, preparing to do justice...",
@@ -1369,7 +1369,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d16366bbe20ee2037"
+    "$oid": "69d5d5c6c8c14a73ea307a47"
   },
   "name": "flirt",
   "charNoArg": "You flirt outrageously.",
@@ -1384,7 +1384,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d7ec9e67ecd464843"
+    "$oid": "69d5d5c64e8e11f777c40840"
   },
   "name": "tip",
   "charNoArg": "You tip your hat gallantly.",
@@ -1397,7 +1397,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d6f1b0b075d1d35b9"
+    "$oid": "69d5d5c60fff179d72fd2c1e"
   },
   "name": "lust",
   "charNoArg": "Your hormones begin to rage.",
@@ -1412,7 +1412,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d4603fb03f845a229"
+    "$oid": "69d5d5c611219fb32d9044e3"
   },
   "name": "flutter",
   "charNoArg": "You flutter your eyelashes seductively.",
@@ -1425,7 +1425,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d28b431256df9360c"
+    "$oid": "69d5d5c672ae77934ad891fc"
   },
   "name": "bark",
   "charNoArg": "You bark loudly.",
@@ -1440,7 +1440,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d63ae27a03c8c6d7b"
+    "$oid": "69d5d5c666af3c6d85d9ac3d"
   },
   "name": "howl",
   "charNoArg": "You howl at the moon.",
@@ -1453,7 +1453,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d1be58ac024466a35"
+    "$oid": "69d5d5c6ebef5901a67e8f95"
   },
   "name": "babble",
   "charNoArg": "You babble endlessly.",
@@ -1468,7 +1468,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d6a42342309b90e8a"
+    "$oid": "69d5d5c6e4322f46fdfdec5c"
   },
   "name": "ramble",
   "charNoArg": "You ramble on and on.",
@@ -1481,7 +1481,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dd00b0dd127368a31"
+    "$oid": "69d5d5c68a9728a651a84b8c"
   },
   "name": "hush",
   "charNoArg": "SHHHHHHHHHHHHHHHHHHHHHH",
@@ -1496,7 +1496,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5def4991dc479f30d6"
+    "$oid": "69d5d5c63bb9da901a43e138"
   },
   "name": "threaten",
   "charNoArg": "You threaten everyone with your overwhelming presence.",
@@ -1509,7 +1509,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d3c0f525149313721"
+    "$oid": "69d5d5c6dc65d48f9bf0d6cd"
   },
   "name": "roll",
   "charNoArg": "You roll your eyes in disgust.",
@@ -1523,7 +1523,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d0281426b230757c9"
+    "$oid": "69d5d5c6928a5f74b36ce9f1"
   },
   "name": "swoon",
   "charNoArg": "You swoon.",
@@ -1536,7 +1536,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d9ce03b8926b3359a"
+    "$oid": "69d5d5c69aebc1d77abe1405"
   },
   "name": "bird",
   "charNoArg": "You flick a bird...How obscene!",
@@ -1549,7 +1549,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d43219b88d0eb7914"
+    "$oid": "69d5d5c69d381e9f8b679316"
   },
   "name": "eyebrow",
   "charNoArg": "You raise an eyebrow at the notion.",
@@ -1562,7 +1562,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d81392415dbc50dfa"
+    "$oid": "69d5d5c6968213714677af10"
   },
   "name": "serenade",
   "charNoArg": "You raise your voice in a loud serenade to your invisible love.",
@@ -1577,7 +1577,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d36a3b8f0c9866564"
+    "$oid": "69d5d5c60d5d570ea2e7d991"
   },
   "name": "grimace",
   "charNoArg": "You grimace painfully at the thought.",
@@ -1592,7 +1592,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d3f883f8aab64546a"
+    "$oid": "69d5d5c64ac6784b3172db8b"
   },
   "name": "boggle",
   "charNoArg": "You boggle at the concept.",
@@ -1607,7 +1607,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d6552c8cd048623bc"
+    "$oid": "69d5d5c6deec86baeef445d6"
   },
   "name": "beckon",
   "charNoArg": "You beckon for everyone to follow.",
@@ -1622,7 +1622,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5de1ee6c2d14f2ea58"
+    "$oid": "69d5d5c66dee8ba1b2042e8d"
   },
   "name": "wonder",
   "charNoArg": "You wonder about how things could have been.",
@@ -1637,7 +1637,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d22917e16f8f72014"
+    "$oid": "69d5d5c6f57555d54876dfd2"
   },
   "name": "worry",
   "charNoArg": "You worry about what's going to happen.",
@@ -1652,7 +1652,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d62c17bb72ba81161"
+    "$oid": "69d5d5c6fac2680a7e1972e7"
   },
   "name": "drool",
   "charNoArg": "You drool down the front of your shirt.",
@@ -1667,7 +1667,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5de2631afe129c03e0"
+    "$oid": "69d5d5c651415e322432e77f"
   },
   "name": "nod",
   "charNoArg": "You nod.",
@@ -1682,7 +1682,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5da67989c24d081e43"
+    "$oid": "69d5d5c6be3211f530b84320"
   },
   "name": "purr",
   "charNoArg": "MMMMMMEEEEEEEEEOOOOOOOOOOOOOWWWWWWWWWWW!!!!!!!!!!!",
@@ -1697,7 +1697,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d86cccb52b698a324"
+    "$oid": "69d5d5c6c38a38bdf706c5bb"
   },
   "name": "point",
   "charNoArg": "You point in every direction.",
@@ -1712,7 +1712,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5df82a575d26b7a6b4"
+    "$oid": "69d5d5c6b136158b6013e877"
   },
   "name": "rub",
   "charNoArg": "You rub your hands together in greedy anticipation.",
@@ -1727,7 +1727,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d5b7fdaabc7ce6da0"
+    "$oid": "69d5d5c693a9832d78848ab8"
   },
   "name": "bleed",
   "charNoArg": "You bleed profusely -- making a horrible mess!",
@@ -1742,7 +1742,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d936e58e7df996dba"
+    "$oid": "69d5d5c6803a764fcc678c6e"
   },
   "name": "highfive",
   "charNoArg": "You jump in the air and give a BIG high five to...umm...absolutely nothing.",
@@ -1757,7 +1757,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d45699fe6a045a95a"
+    "$oid": "69d5d5c6391cbce8cb2e824d"
   },
   "name": "propose",
   "charNoArg": "You propose to everyone in the room.",
@@ -1772,7 +1772,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d765095ce1a85a5c5"
+    "$oid": "69d5d5c69b47b0a1fe5f11ae"
   },
   "name": "peer",
   "charNoArg": "You peer around yourself intently.",
@@ -1787,7 +1787,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d046b51c469391c64"
+    "$oid": "69d5d5c693a4ebca90c3e029"
   },
   "name": "worship",
   "charNoArg": "You prostrate yourself and worship the gods!",
@@ -1802,7 +1802,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d858276bd5da0cb12"
+    "$oid": "69d5d5c67eb860f433102e5e"
   },
   "name": "bearhug",
   "charNoArg": "Whom do you wish to bearhug?",
@@ -1816,7 +1816,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d1501373f08a46c29"
+    "$oid": "69d5d5c661bffc9af6b4865d"
   },
   "name": "innocent",
   "charNoArg": "You innocently whistle a tune.",
@@ -1829,7 +1829,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d773c262da29dc47a"
+    "$oid": "69d5d5c631fd868a294ea324"
   },
   "name": "collapse",
   "charNoArg": "You collapse on the floor from exhaustion.",
@@ -1842,7 +1842,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d25f6cd8ca2117a1a"
+    "$oid": "69d5d5c67bb6f67bb96dd1d1"
   },
   "name": "stretch",
   "charNoArg": "You lean back and streeeeeettch your arms and legs.",
@@ -1851,7 +1851,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d1c1738b26e903b32"
+    "$oid": "69d5d5c67d10270d08a74081"
   },
   "name": "spam",
   "charNoArg": "You mutter, 'spam' quietly to yourself again and again.",
@@ -1864,7 +1864,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5deb1ad362e053a021"
+    "$oid": "69d5d5c6fc8d0fdee2356da3"
   },
   "name": "boast",
   "charNoArg": "You boast loudly of all your amazing accomplishments.",
@@ -1879,7 +1879,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5de5beb838f743ffab"
+    "$oid": "69d5d5c63c7ad65e5c0098ee"
   },
   "name": "squirm",
   "charNoArg": "You squirm uncontrollably in your consternation.",
@@ -1891,7 +1891,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d95475a0d82665b62"
+    "$oid": "69d5d5c6e6de6e3ddff5e532"
   },
   "name": "moo",
   "charNoArg": "You chew your cud and moo plaintively.  Muh-OOOOO!",
@@ -1906,7 +1906,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d1723d34f6685f296"
+    "$oid": "69d5d5c68d2fdfeb82e18259"
   },
   "name": "moon",
   "charNoArg": "You drop your drawers and moon everyone in the room!",
@@ -1921,7 +1921,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dc2f8d4a677868cc4"
+    "$oid": "69d5d5c66760570e5a031bd5"
   },
   "name": "goose",
   "charNoArg": "Who would you like to goose?",
@@ -1935,7 +1935,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5ddf1dd2cda4c10a73"
+    "$oid": "69d5d5c6f310511b3951e0f9"
   },
   "name": "wince",
   "charNoArg": "You wince in agony.",
@@ -1947,7 +1947,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d1821ee96c6a20db9"
+    "$oid": "69d5d5c6dcbf91bae2349ab0"
   },
   "name": "type",
   "charNoArg": "You can't type for crap tonight!  You give up in frustration!",
@@ -1956,7 +1956,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dd05b2f24cebe43aa"
+    "$oid": "69d5d5c6f72304665d9ad213"
   },
   "name": "brb",
   "charNoArg": "Hope to see you soon!",
@@ -1965,7 +1965,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d4786f8394e1c2b64"
+    "$oid": "69d5d5c62bf892644159ed20"
   },
   "name": "mutter",
   "charNoArg": "You mutter quietly to yourself.",
@@ -1980,7 +1980,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dc7c1377b9646a182"
+    "$oid": "69d5d5c67b5a11908383eb95"
   },
   "name": "rofl",
   "charNoArg": "You roll on the floor, laughing hysterically.",
@@ -1992,7 +1992,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5da26b6cac0cd42c5d"
+    "$oid": "69d5d5c6628958d4b82df679"
   },
   "name": "sob",
   "charNoArg": "You sob quietly to yourself.",
@@ -2004,7 +2004,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d0d5b8b6e755bbcb1"
+    "$oid": "69d5d5c61e59b3a5c02e0de1"
   },
   "name": "pant",
   "charNoArg": "You pant lustily.",
@@ -2016,7 +2016,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5ddc792bc8080ba6aa"
+    "$oid": "69d5d5c6c1230670991ecbc9"
   },
   "name": "whine",
   "charNoArg": "You whine to anyone who will listen to you.",
@@ -2031,7 +2031,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5daea477ef30529e59"
+    "$oid": "69d5d5c6931cc67d9f23fd5c"
   },
   "name": "flex",
   "charNoArg": "You flex your muscles proudly!",
@@ -2043,7 +2043,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dcce0d5223945eca0"
+    "$oid": "69d5d5c604fb2aac63828ad0"
   },
   "name": "embrace",
   "charNoArg": "Who would you like to embrace?",
@@ -2057,7 +2057,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d1df0e1df486c86cf"
+    "$oid": "69d5d5c6b13123d65937dc9d"
   },
   "name": "duck",
   "charNoArg": "DUCK!!!!",
@@ -2069,7 +2069,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5db1650d325cd0945b"
+    "$oid": "69d5d5c6514588eeae005a1f"
   },
   "name": "bonk",
   "charNoArg": "***BONK!!!***",
@@ -2083,7 +2083,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d6c50c2992b69e2b1"
+    "$oid": "69d5d5c6171ce6a0a1721e1f"
   },
   "name": "squeal",
   "charNoArg": "You squeal with delight!",
@@ -2095,7 +2095,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dee9f5b41384d384b"
+    "$oid": "69d5d5c63a8f9912cb24c478"
   },
   "name": "tackle",
   "charNoArg": "You're going to tackle everyone in the room?!",
@@ -2106,7 +2106,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5db5bd45c4b368e039"
+    "$oid": "69d5d5c6e218fec69fa5d1a3"
   },
   "name": "spit",
   "charNoArg": "You spit in utter disgust.",
@@ -2121,7 +2121,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dad7ff7fb5c933ea2"
+    "$oid": "69d5d5c692980ea5fdc6c714"
   },
   "name": "life",
   "charNoArg": "You try to get a life, and fail.",
@@ -2136,7 +2136,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5ddc255a4aa225f46f"
+    "$oid": "69d5d5c60b6255dd819367c2"
   },
   "name": "mosh",
   "charNoArg": "You mosh insanely around the room!",
@@ -2151,7 +2151,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d2eb6adc6430b6abb"
+    "$oid": "69d5d5c6ac95549f0c364b90"
   },
   "name": "flinch",
   "charNoArg": "EEEK... You flinch in obvious pain.",
@@ -2166,7 +2166,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d5125b3857c231f3f"
+    "$oid": "69d5d5c62720c42ccb2210a8"
   },
   "name": "air",
   "charNoArg": "You grab your air guitar and play for all you're worth.",
@@ -2180,7 +2180,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dcb2bb25b6ffdb143"
+    "$oid": "69d5d5c6f4143fc3537f2ebc"
   },
   "name": "tweak",
   "charNoArg": "Tweak who?",
@@ -2193,7 +2193,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d96e36b19af404de5"
+    "$oid": "69d5d5c6cec6361cbee92ad9"
   },
   "name": "peck",
   "charNoArg": "Wouldn't you like to do that to a person, or do you prefer air?",
@@ -2207,7 +2207,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d15cab47c4c82234d"
+    "$oid": "69d5d5c6c65a26d65c0423ee"
   },
   "name": "explode",
   "charNoArg": "You feel the blood boiling in your veins!",
@@ -2222,7 +2222,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d8125158b059c9da2"
+    "$oid": "69d5d5c6268459fc62281926"
   },
   "name": "raspberry",
   "charNoArg": "You stick your tongue out at ... well, no one.",
@@ -2236,7 +2236,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d1e740891b887e7b4"
+    "$oid": "69d5d5c67fc298ae043da712"
   },
   "name": "flash",
   "charNoArg": "You grin and strut as you open your coat and show what you've got!",
@@ -2251,7 +2251,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d74113995513b2002"
+    "$oid": "69d5d5c6ecd80196c32fe07e"
   },
   "name": "strip",
   "charNoArg": "You do a slow strip tease for the people...",
@@ -2265,7 +2265,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d6bdd7bed45913fce"
+    "$oid": "69d5d5c60c76da8e0beea56a"
   },
   "name": "undress",
   "charNoArg": "You start to undress in the shadows, waiting for someone to notice.",
@@ -2279,7 +2279,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dc9161e56c0093e91"
+    "$oid": "69d5d5c6c5607b48dd34b377"
   },
   "name": "tongue",
   "charNoArg": "You slowly give your tongue a nice workout.",
@@ -2293,7 +2293,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d338f4879309a83bb"
+    "$oid": "69d5d5c6729c7b291ad45032"
   },
   "name": "view",
   "charNoArg": "You sit back and watch the world go by.",
@@ -2302,7 +2302,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d6ff3550e63e15d1a"
+    "$oid": "69d5d5c647d30a04b5fdebbc"
   },
   "name": "grumble",
   "charNoArg": "You grumble distractedly to yourself",
@@ -2316,7 +2316,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d571a08b58adae2f1"
+    "$oid": "69d5d5c6a64b556d5f79cad7"
   },
   "name": "cheer",
   "charNoArg": "You cheer and dance as the joy within you bursts forth!",
@@ -2331,7 +2331,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d1bb620b4461fc0a9"
+    "$oid": "69d5d5c60cf5b030389d1f57"
   },
   "name": "plead",
   "charNoArg": "You beg and plead to anyone who will listen.",
@@ -2340,7 +2340,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d3394f379d23bd885"
+    "$oid": "69d5d5c6dcfd1bbfd301b45e"
   },
   "name": "charge",
   "charNoArg": "You charge into the fray!",
@@ -2354,7 +2354,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d3468133e0836da62"
+    "$oid": "69d5d5c65658074a4bea5db0"
   },
   "name": "criticize",
   "charNoArg": "Yes, but who?",
@@ -2368,7 +2368,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d3e04251367f9c50e"
+    "$oid": "69d5d5c661e3f8103f0e8600"
   },
   "name": "run",
   "charNoArg": "You run away in terror and horror!",
@@ -2383,7 +2383,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dbd148a89e44da848"
+    "$oid": "69d5d5c631f639875802b4b3"
   },
   "name": "judge",
   "charNoArg": "Yes, but who?",
@@ -2396,7 +2396,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d2ef36606b960cf00"
+    "$oid": "69d5d5c694f38ce2887a89ec"
   },
   "name": "insane",
   "charNoArg": "You feel your sanity slipping away...",
@@ -2405,7 +2405,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d32cca9c261e3974f"
+    "$oid": "69d5d5c6d43d1f28aec58605"
   },
   "name": "cover",
   "charNoArg": "You cover your ears to protect them from the noise.",
@@ -2419,7 +2419,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5ddf4c95f08da7b205"
+    "$oid": "69d5d5c654c8129988f01e11"
   },
   "name": "flare",
   "charNoArg": "You flare your nostrils disdainfully.",
@@ -2433,7 +2433,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dee16172a1a3b7d55"
+    "$oid": "69d5d5c6f3e37f78a7f8af81"
   },
   "name": "head",
   "charNoArg": "You toss your head haughtily.",
@@ -2447,7 +2447,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d4c15ed0013e46430"
+    "$oid": "69d5d5c633908916b7c50141"
   },
   "name": "pie",
   "charNoArg": "You pick up a pie and toss it around for a bit.",
@@ -2462,7 +2462,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d97861956a39d74c2"
+    "$oid": "69d5d5c68cb4745ac1bd57ca"
   },
   "name": "cower",
   "charNoArg": "You cower in a corner.",
@@ -2477,7 +2477,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5db9db345cd276ecc4"
+    "$oid": "69d5d5c6f6e092fca805d455"
   },
   "name": "noogie",
   "charNoArg": "You can't noogie the AIR!  It has no head.",
@@ -2491,7 +2491,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d95f9029020186f45"
+    "$oid": "69d5d5c665eaa276e78b120b"
   },
   "name": "yeehaw",
   "charNoArg": "You mount your pony(?) and shout YEEEEEEEHAAAAAAAW!",
@@ -2500,7 +2500,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d8fdac6a6920b2f9c"
+    "$oid": "69d5d5c650c2f92cb1c08180"
   },
   "name": "pissed",
   "charNoArg": "You are PISSED!",
@@ -2515,7 +2515,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d1adbbe6205639853"
+    "$oid": "69d5d5c615434ee5f31a949c"
   },
   "name": "passout",
   "charNoArg": "You belch and pass out.",
@@ -2524,7 +2524,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d71d5eb04dd1d6cf2"
+    "$oid": "69d5d5c6de831c883d5e9128"
   },
   "name": "adjust",
   "charNoArg": "You look around, make sure nobody is watching, and you adjust your \"Tool.\"",
@@ -2533,7 +2533,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d41054fa4133e6918"
+    "$oid": "69d5d5c69a764d53416ac8f9"
   },
   "name": "scratch",
   "charNoArg": "You scratch yourself contentedly.",
@@ -2542,7 +2542,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d20c98954af4ee7d4"
+    "$oid": "69d5d5c671e6c8a278dca2b2"
   },
   "name": "meditate",
   "charNoArg": "You assume a very comfortable position and begin to meditate.",
@@ -2551,7 +2551,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d28390d7d155ce5f0"
+    "$oid": "69d5d5c6b01cf29166bf0654"
   },
   "name": "bkiss",
   "charNoArg": "You blow kisses to the air.",
@@ -2566,7 +2566,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5debfb8992277b9f2e"
+    "$oid": "69d5d5c6cea038cb5b6f7754"
   },
   "name": "beer",
   "charNoArg": "You pull out a six-pack.",
@@ -2581,7 +2581,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d2932be2fffd309a9"
+    "$oid": "69d5d5c63c01f3760792bf7c"
   },
   "name": "bcatch",
   "charNoArg": "You reach out and rescue the bottle from its flight.",
@@ -2590,7 +2590,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d9b9b9ea1b68606f2"
+    "$oid": "69d5d5c6c6dfc851c515b71b"
   },
   "name": "claw",
   "charNoArg": "You tighten your hands into a fist.",
@@ -2605,7 +2605,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d58dd815f0b3e6093"
+    "$oid": "69d5d5c6495ba71f6fdf3050"
   },
   "name": "rose",
   "charNoArg": "Who would you like to give it to?",
@@ -2619,7 +2619,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d25bd1acffee73f6d"
+    "$oid": "69d5d5c6a346873bf5e24dfd"
   },
   "name": "laces",
   "charNoArg": "Whose laces?",
@@ -2633,7 +2633,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d598baaa22bc133b4"
+    "$oid": "69d5d5c64c65d50c40538f9a"
   },
   "name": "tag",
   "charNoArg": "Tag whom?",
@@ -2648,7 +2648,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dea2ad804dcea1cba"
+    "$oid": "69d5d5c68a4f2348882a9d36"
   },
   "name": "tank",
   "charNoArg": "You boldly offer to tank for your everyone else.  Are you sure you know what you're getting into?",
@@ -2663,7 +2663,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d8abd8806b5a37f89"
+    "$oid": "69d5d5c67665304ded6f9678"
   },
   "name": "starve",
   "charNoArg": "You show your prominent ribs and hope that someone will take pity.",
@@ -2676,7 +2676,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d36c61af133e57f32"
+    "$oid": "69d5d5c68feb67e2e613bc11"
   },
   "name": "aargh",
   "charNoArg": "AAAAAARRRRRRGGGGGGHHHHHH!!!!!!",
@@ -2691,7 +2691,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d0330248e4406860f"
+    "$oid": "69d5d5c63a0393d6978a523a"
   },
   "name": "homework",
   "charNoArg": "Your suddenly remember that you have to defend your thesis today...",
@@ -2700,7 +2700,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d44b1ffe0e46be2a4"
+    "$oid": "69d5d5c61022e127e0305273"
   },
   "name": "puff",
   "charNoArg": "You mimic Puff at her most annoying.",
@@ -2709,7 +2709,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d0d7de17dd38c03df"
+    "$oid": "69d5d5c60386bb7c51b33d73"
   },
   "name": "yae",
   "charNoArg": "You sigh, burdened with Yet Another Eeediot.",
@@ -2724,7 +2724,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d9433642729c7aba2"
+    "$oid": "69d5d5c642a3a8887afab3af"
   },
   "name": "lightbulb",
   "charNoArg": "*Ding!*  Inspiration!",
@@ -2733,7 +2733,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d105c7a94e7355795"
+    "$oid": "69d5d5c6301c89f331a9c4ac"
   },
   "name": "voodoo",
   "charNoArg": "Bad juju like this has to be directed at a person.",
@@ -2748,7 +2748,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5ddde8a38de1bcd0b0"
+    "$oid": "69d5d5c606bf6b943d87d1b7"
   },
   "name": "ogg",
   "charNoArg": "Ogg who?",
@@ -2762,7 +2762,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d6047c56115cfffbd"
+    "$oid": "69d5d5c6e4efadcf09bc5def"
   },
   "name": "confused",
   "charNoArg": "Your confusion is showing.",
@@ -2775,7 +2775,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d68384bef38f3d7aa"
+    "$oid": "69d5d5c6df3468a1ad37986c"
   },
   "name": "beam",
   "charNoArg": "You beam delightedly at nothing in particular.",
@@ -2790,7 +2790,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d093e185218c784c2"
+    "$oid": "69d5d5c612ec42cc703ec77b"
   },
   "name": "bite",
   "charNoArg": "You glare around, muttering \"Bite me...\" under your breath.",
@@ -2805,7 +2805,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5db3fc217fa1bf76cd"
+    "$oid": "69d5d5c6c5f3719152f580e4"
   },
   "name": "discodance",
   "charNoArg": "Groovy!",
@@ -2818,7 +2818,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d07480c8b3c230639"
+    "$oid": "69d5d5c69b562bd196352340"
   },
   "name": "scuff",
   "charNoArg": "You scuff your foot sheepishly.",
@@ -2831,7 +2831,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5da6672254053ec2ea"
+    "$oid": "69d5d5c6817e0e23c479046f"
   },
   "name": "whap",
   "charNoArg": "Whap who?",
@@ -2845,7 +2845,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d80365d614f207e8a"
+    "$oid": "69d5d5c6f2eba2984e69461a"
   },
   "name": "lag",
   "charNoArg": "Yes, yes.",
@@ -2854,7 +2854,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d8abdec83b75a5d50"
+    "$oid": "69d5d5c65bc2bf76e2ade36c"
   },
   "name": "chortle",
   "charNoArg": "Heh.",
@@ -2869,7 +2869,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5de1b3d0ba04b680df"
+    "$oid": "69d5d5c6b5419c7dd4c0125d"
   },
   "name": "zerbert",
   "charNoArg": "Gotta zerbert SOMEBODY.",
@@ -2883,7 +2883,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dd03e97f8cca73786"
+    "$oid": "69d5d5c6a82e210f4a31eea3"
   },
   "name": "twitch",
   "charNoArg": "You twitch nervously.",
@@ -2896,7 +2896,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d2e7c7a4126acb797"
+    "$oid": "69d5d5c68664e3a151f9cfa7"
   },
   "name": "leer",
   "charNoArg": "You peer around the room, leering like the pervert you are!",
@@ -2911,7 +2911,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d9779915436957fb6"
+    "$oid": "69d5d5c6b98898fdd7e096f5"
   },
   "name": "polite",
   "charNoArg": "You give a polite little chuckle.",
@@ -2926,7 +2926,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d174918aa31b52dcd"
+    "$oid": "69d5d5c64f895834332b9760"
   },
   "name": "mischievous",
   "charNoArg": "You give a mischievous smile at the trouble you have in mind.",
@@ -2941,7 +2941,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d05650af070de9ebe"
+    "$oid": "69d5d5c6353d534f7e2881d0"
   },
   "name": "accept",
   "charNoArg": "You accept the proferred apology graciously.",
@@ -2950,7 +2950,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dc08ce92d92888e85"
+    "$oid": "69d5d5c66037e41bd14f57ce"
   },
   "name": "anticipate",
   "charNoArg": "You murmur 'Sssssoonnn, my presssssciousssss...'",
@@ -2959,7 +2959,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5db71b2676a4913080"
+    "$oid": "69d5d5c6f1fb907135dbe462"
   },
   "name": "shudder",
   "charNoArg": "You shudder at the horror and repress tears.",
@@ -2968,7 +2968,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d37969f2bc8c1b1c7"
+    "$oid": "69d5d5c626a31fee49fb8a54"
   },
   "name": "powertrip",
   "charNoArg": "You scream 'The PPppppPOOOOoooWWWwwwErrRRR!' and writhe.",
@@ -2977,7 +2977,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d1db3d5e8f15bc240"
+    "$oid": "69d5d5c6c0f75867c30e242a"
   },
   "name": "mull",
   "charNoArg": "You mull over the idea at hand, asking for patience.",
@@ -2986,7 +2986,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d9ea46328f1779b5d"
+    "$oid": "69d5d5c62e7205515201230b"
   },
   "name": "wait",
   "charNoArg": "You wait patiently.",
@@ -2995,7 +2995,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d6b29455218aba869"
+    "$oid": "69d5d5c6ffeba416a825a157"
   },
   "name": "bat",
   "charNoArg": "You bat your long, dark lashes and smile innocently.",
@@ -3004,7 +3004,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5db26e5edaf7308d35"
+    "$oid": "69d5d5c6a81d51c2262cbe17"
   },
   "name": "sage",
   "charNoArg": "You nod sagely.",
@@ -3013,7 +3013,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d03684b4ef794a559"
+    "$oid": "69d5d5c6393342113fed2b7c"
   },
   "name": "contemplate",
   "charNoArg": "You bite your lip contemplatively.",
@@ -3022,7 +3022,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5db68e93e6e5d0ad38"
+    "$oid": "69d5d5c6d93d204656644770"
   },
   "name": "agree",
   "charNoArg": "You agree absolutely.",
@@ -3037,7 +3037,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5da2cd30e2a6f7322b"
+    "$oid": "69d5d5c6eed3fe9b94a12bff"
   },
   "name": "toast",
   "charNoArg": "You raise a glass of champagne in a toast.",
@@ -3052,7 +3052,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5da9a13c7c94daa396"
+    "$oid": "69d5d5c6a86f099245753ff5"
   },
   "name": "conspire",
   "charNoArg": "You wink conspiratorily, waiting for the countersign.",
@@ -3066,7 +3066,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d9b4e5502bc614092"
+    "$oid": "69d5d5c60cb534d465257d15"
   },
   "name": "support",
   "charNoArg": "You fully support the plan.",
@@ -3081,7 +3081,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d641ba6e8ac37a82a"
+    "$oid": "69d5d5c6d182a755ecf4c640"
   },
   "name": "pound",
   "charNoArg": "You make vague pounding motions with your fist at the thought.",
@@ -3094,7 +3094,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5df2487be876231752"
+    "$oid": "69d5d5c6b6e146410e51e5df"
   },
   "name": "wrist",
   "charNoArg": "You hold out out a wrist for a slap.",
@@ -3109,7 +3109,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d30bbe23a2d689a7c"
+    "$oid": "69d5d5c643a05316efe7a68f"
   },
   "name": "romeo",
   "charNoArg": "You light up a Romeo y Julietta cigar and puff contentedly.",
@@ -3118,7 +3118,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d2e84dd94042e8000"
+    "$oid": "69d5d5c612434633c83781ff"
   },
   "name": "camel",
   "charNoArg": "You pretend you are a camel.",
@@ -3133,7 +3133,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d32dda1a715f571c4"
+    "$oid": "69d5d5c64bad8457816d1125"
   },
   "name": "whip",
   "charNoArg": "You crack your bullwhip menacingly.",
@@ -3148,7 +3148,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d5fbdc359f9ffe93b"
+    "$oid": "69d5d5c6fb568dd5b28d156f"
   },
   "name": "cramp",
   "charNoArg": "You gasp and clutch your abdomen, wheezing with the pain.",
@@ -3161,7 +3161,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dc0e18199296e646f"
+    "$oid": "69d5d5c602f91bc3df6fb195"
   },
   "name": "make",
   "charNoArg": "You breathe heavily and wetly.",
@@ -3174,7 +3174,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dfdb477b27e122b8c"
+    "$oid": "69d5d5c684e78690d35e5023"
   },
   "name": "sweep",
   "charNoArg": "You look at your empty arms and sigh.",
@@ -3187,7 +3187,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dfa0978f350973f11"
+    "$oid": "69d5d5c65f9ec7931132e6c4"
   },
   "name": "buff",
   "charNoArg": "You buff your nails on your cloak.",
@@ -3196,7 +3196,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d293c6109ca9d0140"
+    "$oid": "69d5d5c6cd489af09fe1a221"
   },
   "name": "liver",
   "charNoArg": "You look angrily for someone to disembowel.",
@@ -3209,7 +3209,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d2331667c1f2c5481"
+    "$oid": "69d5d5c6c90bfeb0395c4766"
   },
   "name": "wrestle",
   "charFound": "You wrestle $M to the floor and pin $M there.",
@@ -3222,7 +3222,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d00d48876cc50d376"
+    "$oid": "69d5d5c6053d04720d6ec3d4"
   },
   "name": "tie",
   "charNoArg": "You toy with a pair of handcuffs suggestively.",
@@ -3235,7 +3235,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d867c89a25fbc6634"
+    "$oid": "69d5d5c667e6d7e6a08322fe"
   },
   "name": "tight",
   "charFound": "You hold $M tightly in your arms.",
@@ -3246,7 +3246,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d4804d5d1b9384c49"
+    "$oid": "69d5d5c618bb6fe7f68a891c"
   },
   "name": "fatality",
   "charFound": "You intone, '$N wins.  Fatality.'",
@@ -3256,7 +3256,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5d233f1e8521b2aa20"
+    "$oid": "69d5d5c610b8fc9ecee287f5"
   },
   "name": "yowl",
   "charNoArg": "You yowl in frustration.",
@@ -3265,7 +3265,7 @@
 },
 {
   "_id": {
-    "$oid": "69d00c5dc78546a558c598e5"
+    "$oid": "69d5d5c622626b498eb24f2e"
   },
   "name": "silly",
   "charNoArg": "You do the silly walk all around the room.",

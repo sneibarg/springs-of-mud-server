@@ -63,7 +63,7 @@ class RoomService:
             return None
 
     def _load_extra_description(self, room_json: dict) -> Optional[ExtraDescriptionData]:
-        extra_desc = room_json.get('extra_description')
+        extra_desc = str(room_json.get('extra_description'))
         if extra_desc is None:
             return None
         if not isinstance(extra_desc, str):

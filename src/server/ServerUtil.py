@@ -141,7 +141,6 @@ class ServerUtil:
         injector.binder.bind(ResetRegistry, scope=singleton)
         injector.binder.bind(SpecialRegistry, scope=singleton)
         injector.binder.bind(RegistryService, scope=singleton)
-        injector.get(RegistryService)
         logger.info(f"The RegistryService has been bound with all injected dependencies: {injector.get(RegistryService)}")
 
     @staticmethod
@@ -178,7 +177,9 @@ class ServerUtil:
         shop_service = injector.get(ShopService)
         reset_service = injector.get(ResetService)
         special_service = injector.get(SpecialService)
+        area_handler = injector.get(AreaHandler)
 
+        area_handler.set_enums(injector.get(GameService).enums)
         game_service.set_weather_service(weather_service)
         game_service.start_mobile_service(mobile_service)
 
