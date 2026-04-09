@@ -14,3 +14,6 @@ class SpecialRegistry(Registry[Special]):
 
     def all_specials(self) -> set[Special]:
         return self._items
+
+    def all_specials_by_area_id(self, area_id: str) -> list[Special]:
+        return [special for special in self._items if special.area_id == area_id]

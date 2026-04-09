@@ -130,7 +130,6 @@ class ServerUtil:
         injector.binder.bind(PlayerRegistry, scope=singleton)
         injector.binder.bind(CharacterRegistry, scope=singleton)
         injector.binder.bind(MobileRegistry, scope=singleton)
-        injector.binder.bind(AreaRegistry, scope=singleton)
         injector.binder.bind(RoomRegistry, scope=singleton)
         injector.binder.bind(ItemRegistry, scope=singleton)
         injector.binder.bind(SkillRegistry, scope=singleton)
@@ -141,6 +140,7 @@ class ServerUtil:
         injector.binder.bind(ResetRegistry, scope=singleton)
         injector.binder.bind(SpecialRegistry, scope=singleton)
         injector.binder.bind(RegistryService, scope=singleton)
+        injector.binder.bind(AreaRegistry, scope=singleton)
         logger.info(f"The RegistryService has been bound with all injected dependencies: {injector.get(RegistryService)}")
 
     @staticmethod
@@ -164,6 +164,9 @@ class ServerUtil:
         game_service = injector.get(GameService)
         player_service = injector.get(PlayerService)
         character_service = injector.get(CharacterService)
+        shop_service = injector.get(ShopService)
+        reset_service = injector.get(ResetService)
+        special_service = injector.get(SpecialService)
         room_service = injector.get(RoomService)
         area_service = injector.get(AreaService)
         skill_service = injector.get(SkillService)
@@ -174,20 +177,17 @@ class ServerUtil:
         help_service = injector.get(HelpService)
         interp_service = injector.get(InterpService)
         note_service = injector.get(NoteService)
-        shop_service = injector.get(ShopService)
-        reset_service = injector.get(ResetService)
-        special_service = injector.get(SpecialService)
         area_handler = injector.get(AreaHandler)
 
         area_handler.set_enums(injector.get(GameService).enums)
         game_service.set_weather_service(weather_service)
         game_service.start_mobile_service(mobile_service)
 
-        service_list = (f"- {game_service.__name__}\r\n- {player_service.__name__}\r\n- {room_service.__name__}\r\n- {area_service.__name__}\r\n- "
-                        f"{skill_service.__name__}\r\n- {item_service.__name__}\r\n- {weather_service.__name__}\r\n- {mobile_service.__name__}\r\n- "
-                        f"{interp_service.__name__}\r\n- {social_service.__name__}\r\n- {note_service.__name__}\r\n- {character_service.__name__}\r\n- "
-                        f"{help_service.__name__}\r\n- {shop_service.__name__}\r\n- {reset_service.__name__}\r\n- {special_service.__name__}\r\n")
-        logger.info(f"The following services have been started:\r\n{service_list}")
+        service_list = (f"{game_service.__name__}; {player_service.__name__}; {room_service.__name__}; {area_service.__name__}; "
+                        f"{skill_service.__name__}; {item_service.__name__}\r\n{weather_service.__name__}; {mobile_service.__name__}; "
+                        f"{interp_service.__name__}; {social_service.__name__}; {note_service.__name__}; {character_service.__name__} "
+                        f"{help_service.__name__}; {shop_service.__name__}; {reset_service.__name__}; {special_service.__name__}")
+        logger.info(f"The following services have been started: {service_list}")
 
     @staticmethod
     def camel_to_snake_case(dictionary: Dict[str, Any]) -> Dict[str, Any]:

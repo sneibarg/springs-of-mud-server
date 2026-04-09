@@ -14,3 +14,6 @@ class ResetRegistry(Registry[Reset]):
 
     def all_resets(self) -> set[Reset]:
         return self._items
+
+    def all_resets_by_area_id(self, area_id: str) -> list[Reset]:
+        return [reset for reset in self._items if reset.area_id == area_id]

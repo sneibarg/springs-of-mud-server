@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from typing import Tuple, Optional
 
-from area import Reset
+from area.Reset import Reset
+from area.Shop import Shop
+from area.Special import Special
 from server.LoggerFactory import LoggerFactory
 
 
@@ -24,9 +26,9 @@ class Area:
     rooms: list = None
     mobiles: list = None
     objects: list = None
-    shops: list = None
-    resets: list = None
-    specials: list = None
+    shops: list[Shop] = None
+    resets: list[Reset] = None
+    specials: list[Special] = None
     empty: bool = False
     reset_first: Optional[Reset] = None
     reset_last: Optional[Reset] = None
