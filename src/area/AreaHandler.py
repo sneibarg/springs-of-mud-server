@@ -1,11 +1,16 @@
 from enum import IntEnum
 from injector import inject
+from area import Reset
 from area.Area import Area
 from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
+from mobile import Mobile
+from mobile.MobileUtil import MobileUtil
+from mobile.MobileRegistry import MobileRegistry
 from object.ObjectMacros import ObjectMacros
 from game.RandomNumberGenerator import RandomNumberGenerator
 from object.ItemRegistry import ItemRegistry
+from player.CharacterMacros import CharacterMacros
 from server.messaging import MessageBus
 from server.LoggerFactory import LoggerFactory
 
@@ -18,20 +23,25 @@ class AreaHandler:
                  area_registry: AreaRegistry,
                  room_registry: RoomRegistry,
                  item_registry: ItemRegistry,
-                 object_macros: ObjectMacros):
+                 mobile_registry: MobileRegistry,
+                 object_macros: ObjectMacros,
+                 character_macros: CharacterMacros):
         self.__name__ = "AreaHandler"
         self.logger = LoggerFactory.get_logger(__name__)
         self.message_bus = message_bus
         self.area_registry = area_registry
         self.room_registry = room_registry
         self.item_registry = item_registry
+        self.mobile_registry = mobile_registry
         self.object_macros = object_macros
+        self.character_macros = character_macros
         self.enums = None
         self.WellKnownRoomVnums = None
         self.ExitFlags = None
 
     def set_enums(self, enums: dict[str, IntEnum]):
         self.enums = enums
+
         self.WellKnownRoomVnums = enums.get('wellKnownRoomVnums')
         self.ExitFlags = enums.get('exitFlags')
 
@@ -52,11 +62,11 @@ class AreaHandler:
                 elif area.number_of_players == 0:
                     area.empty = True
 
-    @staticmethod
-    def _reset_area(area: Area):
+    def _reset_area(self, area: Area):
+        last = True
         for reset in area.resets:
             if reset.command == "M":
-                pass
+                self._do_mob_reset(last, reset)
             elif reset.command == "O":
                 pass
             elif reset.command == "P":
@@ -69,3 +79,26 @@ class AreaHandler:
                 pass
             elif reset.command == "R":
                 pass
+
+    def _do_mob_reset(self, last: bool, reset: Reset):
+        mob_vnum = reset.arg1
+        area_max = int(reset.arg2)
+        room_vnum = reset.arg3
+        room_max = int(reset.arg4)
+        template_mob: Mobile = self.mobile_registry.get(vnum=str(mob_vnum))
+        if template_mob is None:
+            return False
+        if template_mob.count >= area_max:
+            last = False
+            return last
+        room = self.room_registry.get(vnum=room_vnum)
+        for mob in room.mobiles:
+            template_mob.count += 1
+            if mob.count >= room_max:
+                last = False
+                break
+        if template_mob.count >= room_max:
+            return last
+        mob = MobileUtil.create_mobile(template_mob, self.enums, self.character_macros)
+        # MobileUtil.char_to_room(mob, room)
+        return last

@@ -30,6 +30,7 @@ class Mobile:
     parts: int
     size: str
     material: str
+    act: str
     flags: str
     id: str
     act: str
@@ -40,6 +41,7 @@ class Mobile:
     gold: int
     silver: int
     combat_flags: str
+    count: int = 0
     perm_stat: Optional[CharacterAttributes] = None
     armor_class: Optional[ArmorClass] = None
     hit_dice: Optional[Dice] = None

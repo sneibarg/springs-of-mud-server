@@ -51,7 +51,7 @@ class CharacterMacros(GameMacros):
         if type(char) is Character:
             return self.is_set(ServerUtil.convert_flags(char.affected_by), effect)
         else:
-            return self.is_set(ServerUtil.convert_flags(char.mobile_flags.affect), effect)
+            return self.is_set(ServerUtil.convert_flags(char.mobile_flags.affected_by), effect)
 
     def is_awake(self, char: Any) -> bool:
         return char.character_attributes.position > self.character_constants.positions.POS_SLEEPING.value

@@ -257,7 +257,7 @@ class MobileUtil:
     @staticmethod
     def _random_dam_type() -> int:
         dam_type = {0: 3, 1: 7, 2: 11}
-        return dam_type[rng.dice(1, 3)]
+        return dam_type[rng.dice(0, 2)]
 
     @staticmethod
     def _apply_mob_stat_bonuses(mob: Mobile, enums: dict[str, type[IntEnum]]):
@@ -270,29 +270,30 @@ class MobileUtil:
         mob.perm_stat.dexterity = min(25, 11 + mob.level // 4)
         mob.perm_stat.constitution = min(25, 11 + mob.level // 4)
 
-        if GameMacros.is_set(mob.mobile_flags.act, act_bits.WARRIOR):
+        if GameMacros.is_set(mob.mobile_flags.act, act_bits.ACT_WARRIOR.value):
             mob.perm_stat.strength += 3
             mob.perm_stat.intelligence -= 1
             mob.perm_stat.constitution += 2
-        elif GameMacros.is_set(mob.mobile_flags.act, act_bits.THIEF):
+        elif GameMacros.is_set(mob.mobile_flags.act, act_bits.ACT_THIEF.value):
             mob.perm_stat.dexterity += 3
             mob.perm_stat.intelligence += 1
             mob.perm_stat.wisdom -= 1
-        elif GameMacros.is_set(mob.mobile_flags.act, act_bits.CLERIC):
+        elif GameMacros.is_set(mob.mobile_flags.act, act_bits.ACT_CLERIC.value):
             mob.perm_stat.wisdom += 3
             mob.perm_stat.dexterity -= 1
             mob.perm_stat.strength += 1
-        elif GameMacros.is_set(mob.mobile_flags.act, act_bits.MAGE):
+        elif GameMacros.is_set(mob.mobile_flags.act, act_bits.ACT_MAGE.value):
             mob.perm_stat.intelligence += 3
             mob.perm_stat.strength -= 1
             mob.perm_stat.dexterity += 1
 
-        if GameMacros.is_set(mob.mobile_flags.off, off_bits.OFF_FAST):
+        if GameMacros.is_set(mob.mobile_flags.off, off_bits.OFF_FAST.value):
             mob.perm_stat.dexterity += 2
 
-        size_bonus = enums["size"].get(mob.size.upper(), 2) - 2
-        mob.perm_stat[0] += size_bonus
-        mob.perm_stat[4] += size_bonus // 2
+        size_key = "SIZE_" + mob.size.upper()
+        size_bonus = enums["size"][size_key] - 2
+        mob.perm_stat.strength += size_bonus
+        mob.perm_stat.constitution += size_bonus // 2
 
     #  aff_type needs to be replaced with the result of skill_lookup("haste") etc.
     @staticmethod
@@ -346,6 +347,8 @@ class MobileUtil:
             "hit_roll": pMobIndex.hit_roll,
             "gold": 0,
             "silver": 0,
+            "flags": None,
+            "act": None,
             "pulse_wait": 0,
             "pulse_daze": 0,
             "perm_stat": CharacterAttributes.default()
@@ -380,16 +383,17 @@ class MobileUtil:
                 mob.dam_type = MobileUtil._random_dam_type()
 
             mob.armor_class = pMobIndex.armor_class
-            mob.mobile_flags = MobileFlags(
-                act=pMobIndex.mobile_flags.act,
-                affected_by=pMobIndex.mobile_flags.affected_by,
-                off=pMobIndex.mobile_flags.off,
-                imm=pMobIndex.mobile_flags.imm,
-                res=pMobIndex.mobile_flags.res,
-                vuln=pMobIndex.mobile_flags.vuln,
-                form=pMobIndex.mobile_flags.form,
-                parts=pMobIndex.mobile_flags.parts
-            )
+            if pMobIndex.mobile_flags is not None:
+                mob.mobile_flags = MobileFlags(
+                    act=pMobIndex.mobile_flags.act,
+                    affected_by=pMobIndex.mobile_flags.affected_by,
+                    off=pMobIndex.mobile_flags.off,
+                    imm=pMobIndex.mobile_flags.imm,
+                    res=pMobIndex.mobile_flags.res,
+                    vuln=pMobIndex.mobile_flags.vuln,
+                    form=pMobIndex.mobile_flags.form,
+                    parts=pMobIndex.mobile_flags.parts
+                )
             mob.start_pos = pMobIndex.start_pos
             mob.default_pos = pMobIndex.default_pos
             mob.perm_stat.position = mob.start_pos
@@ -407,3 +411,7 @@ class MobileUtil:
         pMobIndex.count = getattr(pMobIndex, 'count', 0) + 1
 
         return mob
+
+    @staticmethod
+    def char_to_room(char: Character | Mobile, room: Room):
+        pass
