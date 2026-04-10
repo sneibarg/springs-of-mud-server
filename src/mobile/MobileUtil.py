@@ -52,19 +52,10 @@ class MobileUtil:
         raw_act = MobileUtil.safe_int(mobile_data.get("actFlags") or mobile_data.get("act_flags"), 0)
         raw_aff = MobileUtil.safe_int(mobile_data.get("affectFlags") or mobile_data.get("affect_flags"), 0)
         combat_raw = MobileUtil.parse_combat_flags(mobile_data.get("combat_flags"))
-        raw_off = MobileUtil.resolve_combat_flag(
-            mobile_data, combat_raw, "off_flags", "offFlags", flag_letters
-        )
-        raw_imm = MobileUtil.resolve_combat_flag(
-            mobile_data, combat_raw, "imm_flags", "immFlags", flag_letters
-        )
-        raw_res = MobileUtil.resolve_combat_flag(
-            mobile_data, combat_raw, "res_flags", "resFlags", flag_letters
-        )
-        raw_vuln = MobileUtil.resolve_combat_flag(
-            mobile_data, combat_raw, "vuln_flags", "vulnFlags", flag_letters
-        )
-
+        raw_off = MobileUtil.resolve_combat_flag(mobile_data, combat_raw, "off_flags", "offFlags", flag_letters)
+        raw_imm = MobileUtil.resolve_combat_flag(mobile_data, combat_raw, "imm_flags", "immFlags", flag_letters)
+        raw_res = MobileUtil.resolve_combat_flag(mobile_data, combat_raw, "res_flags", "resFlags", flag_letters)
+        raw_vuln = MobileUtil.resolve_combat_flag(mobile_data, combat_raw, "vuln_flags", "vulnFlags", flag_letters)
         raw_form = MobileUtil.safe_int(mobile_data.get("form"), 0)
         raw_parts = MobileUtil.safe_int(mobile_data.get("parts"), 0)
         race_act = MobileUtil.race_flag_value(race, "act")
