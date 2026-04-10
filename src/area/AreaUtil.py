@@ -32,21 +32,31 @@ class AreaUtil:
         return f"{dir_name:{width}}{'- '}{description} ({vnum})"
 
     @staticmethod
-    def cardinal_direction(room):
-        directions = [
-            ("North", room.exits.north),
-            ("South", room.exits.south),
-            ("East", room.exits.east),
-            ("West", room.exits.west),
-            ("Up", room.exits.up),
-            ("Down", room.exits.down),
-        ]
+    def cardinal_direction(room) -> str:
+        if not room.exits:
+            return "none"
 
-        return ", ".join(name for name, value in directions if value)
+        dir_map = {
+            DirectionEnum.NORTH: "North",
+            DirectionEnum.EAST:  "East",
+            DirectionEnum.SOUTH: "South",
+            DirectionEnum.WEST:  "West",
+            DirectionEnum.UP:    "Up",
+            DirectionEnum.DOWN:  "Down",
+        }
+
+        visible = []
+        for exit_obj in room.exits:
+            if exit_obj.direction is not None:
+                name = dir_map.get(DirectionEnum(exit_obj.direction))
+                if name:
+                    visible.append(name)
+
+        return ", ".join(visible) if visible else "none"
 
     @staticmethod
     def is_valid_direction(direction, room):
         for destination in room.exits:
-            if destination.keyword == direction:
+            if destination.direction == DirectionEnum[direction.upper()].value:
                 return destination.to_room_id
         return None
