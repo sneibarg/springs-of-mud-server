@@ -24,7 +24,7 @@
     "$oid": "673bf1dbb49d7223c66faa4f"
   },
   "name": "say",
-  "shortcuts": "s, sa, '",
+  "shortcuts": "sa, '",
   "role": "player",
   "lambdas": [
     "lambda c, ph, msg: ph.to_player(c.id, \"You say, '\"+msg+\"'\")",
@@ -195,8 +195,20 @@
   "shortcuts": "lo, loo",
   "role": "player",
   "lambdas": [
-    "lambda c, rh, r: rh.print_room(c.id, r)",
-    "lambda c, rh: rh.print_in_room(c.id)"
+    "lambda c, ph, msg: ph.look_begin(c, msg)",
+    "lambda c, ph, rh: rh.look_room_header(c, ph)",
+    "lambda c, ph, ih: ih.look_room_items(c, ph)",
+    "lambda c, ph, rh, mh: rh.look_room_characters(c, ph, mh)",
+    "lambda c, ph: ph.look_complete_default(c)",
+    "lambda c, ph, ih: ih.look_in_item(c, ph)",
+    "lambda c, ph: ph.look_player_target(c)",
+    "lambda c, ph, mh: mh.look_mobile_target(c, ph)",
+    "lambda c, ph, ih: ih.look_item_or_extra(c, ph)",
+    "lambda c, ph, rh: rh.look_room_extra(c, ph)",
+    "lambda c, ph: ph.look_finalize_count_message(c)",
+    "lambda c, ph, rh: rh.look_direction(c, ph)",
+    "lambda c, ph: ph.look_fallback_not_here(c)",
+    "lambda c, ph: ph.look_finish(c)"
   ],
   "message": "",
   "function": [],

@@ -46,5 +46,7 @@ class AreaUtil:
 
     @staticmethod
     def is_valid_direction(direction, room):
-        exits = room.exits.get_exits()
-        return exits[direction] if exits[direction] is not None else None
+        for destination in room.exits:
+            if destination.keyword == direction:
+                return destination.to_room_id
+        return None

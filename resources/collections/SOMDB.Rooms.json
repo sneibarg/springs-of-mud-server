@@ -9122,7 +9122,7 @@
   "exits": [
     "{\"direction\": 0, \"description\": \"At the northern end of the temple hall is a statue and a huge altar.\", \"keyword\": \"\", \"exit_flags\": 0, \"key\": -1, \"to_room_vnum\": 3054, \"room_id\": \"69d953e7ee314e978bc69234\", \"to_room_id\": \"69d953e71e0c2c68a2917f80\"}",
     "{\"direction\": 2, \"description\": \"You see the temple square.\", \"keyword\": \"\", \"exit_flags\": 0, \"key\": -1, \"to_room_vnum\": 3005, \"room_id\": \"69d953e7ee314e978bc69234\", \"to_room_id\": \"69d953e7a3a655568b71b5da\"}",
-    "{\"direction\": 4, \"description\": \"You see the entrance to Mud School.\", \"keyword\": \"\", \"exit_flags\": 0, \"key\": 0, \"to_room_vnum\": 3700, \"room_id\": \"69d953e7ee314e978bc69234\", \"to_room_id\": null}"
+    "{\"direction\": 4, \"description\": \"You see the entrance to Mud School.\", \"keyword\": \"\", \"exit_flags\": 0, \"key\": 0, \"to_room_vnum\": 3700, \"room_id\": \"69d953e7ee314e978bc69234\", \"to_room_id\": \"69d953ed30e12d2aa2003cbd\"}"
   ],
   "mobiles": [],
   "_class": "org.springy.som.modulith.domain.room.internal.RoomDocument"

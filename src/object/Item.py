@@ -31,6 +31,7 @@ class Item:
     cost: int
     affect_data: list
     extra_descr: list
+    contains: Optional[List[Item]] = None
     enchanted: Optional[bool] = False
     timer: Optional[int] = None
     damage_type: Optional[str] = None

@@ -10,6 +10,7 @@ from interp.InterpRegistry import InterpRegistry
 from game.RegistryService import RegistryService
 from area.AreaService import AreaService
 from area.RoomService import RoomService
+from mobile.MobileHandler import MobileHandler
 from mobile.MobileService import MobileService
 from mobile.Mobile import Mobile
 from fight.FightHandler import FightHandler
@@ -70,6 +71,7 @@ def get_class_obj(class_name):
         'RoomHandler': RoomHandler,
         'PlayerHandler': PlayerHandler,
         'ItemHandler': ItemHandler,
+        'MobileHandler': MobileHandler,
         'cmh': InterpHandler,
         'MessageBus': MessageBus,
         'Mobile': Mobile,
@@ -188,12 +190,16 @@ class InterpHandler:
         return InterpUtil.command_attr(command, "message", None)
 
     async def call_lambda(self, player, character, command_name, command_list, parameters):
-        command_json = InterpUtil.find_command_by_name(command_name, command_list)
-        if command_json is None:
-            return await self.message_bus.send_to_character(character.id, self.command_not_found_message)
+        command = self.interp_registry.get_or_none(name=command_name)
+        if command is None:
+            command_json = InterpUtil.find_command_by_name(command_name, command_list)
+            if command_json is None:
+                return await self.message_bus.send_to_character(character.id, self.command_not_found_message)
+            else:
+                command = self.interp_registry.get(id=command_json["id"])
 
         try:
-            await handle_lambdas(self, player, character, command_json, parameters)
+            await handle_lambdas(self, player, character, command, parameters)
         except ValueError as ve:
             self.logger.error("ValueError: " + str(ve))
             raise
@@ -219,7 +225,7 @@ class InterpHandler:
                 player.usage = usage_function
 
         cmd_name = InterpUtil.command_attr(cmd, "name", "")
-        self.logger.debug(f"CMD: {cmd_name}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
+        self.logger.info(f"CMD: {cmd_name}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
         return await self.call_lambda(player, character, cmd_name, self.interp_registry.all_commands(), parameters)
 
     async def help_usage(self, character, argument: str = ""):

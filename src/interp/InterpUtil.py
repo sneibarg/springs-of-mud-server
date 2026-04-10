@@ -1,4 +1,5 @@
-from typing import Optional, Union, Any
+from typing import Optional, Union, Any, List
+from interp.Command import Command
 
 
 class InterpUtil:
@@ -27,7 +28,7 @@ class InterpUtil:
         return tokens
 
     @staticmethod
-    def find_command_by_name(name: str, commands) -> Optional[Any]:
+    def find_command_by_name(name: str, commands: List[Command]) -> Optional[Command]:
         for command in commands:
             shortcuts = InterpUtil.shortcut_tokens(command.shortcuts)
             if name in shortcuts:
@@ -55,7 +56,7 @@ class InterpUtil:
             if not cmd.name:
                 continue
 
-            shortcuts = InterpUtil.shortcut_tokens(cmd.name)
+            shortcuts = InterpUtil.shortcut_tokens(cmd.shortcuts)
             if command_text == cmd.name or command_text in shortcuts:
                 return cmd, parameters
         return None, None

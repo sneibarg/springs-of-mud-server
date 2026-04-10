@@ -107,3 +107,114 @@ class RoomHandler:
             if char.id not in in_room:
                 exclude.append(char.id)
         return exclude
+
+    async def look_room_header(self, character: Character, player_handler):
+        if player_handler.look_done(character):
+            return
+        ctx = player_handler.look_context(character)
+        if ctx.get("branch") != "default":
+            return
+
+        room = self.room_registry.get(id=character.room_id)
+        if room is None:
+            await self.message_bus.send_to_character(character.id,
+                                                     self.message_bus.text_to_message("You are nowhere.\r\n"))
+            player_handler.look_mark_done(character)
+            return
+
+        await self.print_room(character.id, room)
+
+    async def look_room_characters(self, character: Character, player_handler, mobile_handler):
+        if player_handler.look_done(character):
+            return
+        ctx = player_handler.look_context(character)
+        if ctx.get("branch") != "default":
+            return
+
+        await self.print_in_room(character.id)
+        await mobile_handler.print_mobiles_in_room(character)
+
+    async def look_room_extra(self, character: Character, player_handler):
+        if player_handler.look_done(character):
+            return
+
+        ctx = player_handler.look_context(character)
+        token = (ctx.get("arg3", "") or "").strip().lower()
+        if not token:
+            return
+
+        room = self.room_registry.get(id=character.room_id)
+        if room is None:
+            return
+
+        extra = getattr(room, "extra_description", None)
+        if extra and player_handler.look_keyword_matches(token, extra.keyword or ""):
+            if player_handler.look_register_match(character):
+                await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(
+                    (extra.description or "") + "\r\n"))
+                player_handler.look_mark_done(character)
+
+    async def look_direction(self, character: Character, player_handler):
+        if player_handler.look_done(character):
+            return
+
+        ctx = player_handler.look_context(character)
+        arg1 = ctx.get("arg1", "")
+
+        direction_map = {
+            "n": 0, "north": 0,
+            "e": 1, "east": 1,
+            "s": 2, "south": 2,
+            "w": 3, "west": 3,
+            "u": 4, "up": 4,
+            "d": 5, "down": 5,
+        }
+        if arg1 not in direction_map:
+            return
+
+        room = self.room_registry.get(id=character.room_id)
+        if room is None:
+            await self.message_bus.send_to_character(character.id,
+                                                     self.message_bus.text_to_message("Nothing special there.\r\n"))
+            player_handler.look_mark_done(character)
+            return
+
+        door = direction_map[arg1]
+        exits = list(room.exits or [])
+        pexit = None
+        for ex in exits:
+            if ex.direction == door:
+                pexit = ex
+                break
+
+        if pexit is None:
+            await self.message_bus.send_to_character(character.id,
+                                                     self.message_bus.text_to_message("Nothing special there.\r\n"))
+            player_handler.look_mark_done(character)
+            return
+
+        text = (pexit.description or "").strip()
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text + "\r\n"))
+        else:
+            await self.message_bus.send_to_character(character.id,
+                                                     self.message_bus.text_to_message("Nothing special there.\r\n"))
+
+        # ROM-compatible defaults (customizers can change these bits)
+        EXIT_IS_DOOR_BIT = 1
+        EXIT_CLOSED_BIT = 2
+        try:
+            flags = int(pexit.exit_flags)
+        except (TypeError, ValueError):
+            flags = 0
+
+        keyword = (pexit.keyword or "").strip()
+        if keyword:
+            if (flags & EXIT_CLOSED_BIT) != 0:
+                await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(
+                    f"The {keyword} is closed.\r\n"))
+            elif (flags & EXIT_IS_DOOR_BIT) != 0:
+                await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(
+                    f"The {keyword} is open.\r\n"))
+
+        player_handler.look_mark_done(character)
