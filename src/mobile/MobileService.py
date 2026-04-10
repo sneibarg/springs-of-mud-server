@@ -15,12 +15,7 @@ from object.ObjectMacros import ObjectMacros
 
 class MobileService:
     @inject
-    def __init__(self, config: ServiceConfig,
-                 area_registry: AreaRegistry,
-                 mobile_registry: MobileRegistry,
-                 fight_handler: FightHandler,
-                 game_data: GameData,
-                 object_macros: ObjectMacros):
+    def __init__(self, config: ServiceConfig, area_registry: AreaRegistry, mobile_registry: MobileRegistry, fight_handler: FightHandler, game_data: GameData, object_macros: ObjectMacros):
         self.__name__ = "MobileService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.mobile_registry = mobile_registry
@@ -60,6 +55,7 @@ class MobileService:
                     if mobile is None:
                         self.logger.error(f"Failed to build mobile for {raw_mobile}")
                         continue
+                    print(f"Mobile flags: {mobile.flags}")
                     self.mobile_registry.register(mobile)
                     count += 1
                 self.kill_table = kill_table

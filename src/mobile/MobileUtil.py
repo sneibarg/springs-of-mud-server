@@ -19,8 +19,7 @@ class MobileUtil:
     pass
 
     @staticmethod
-    def build_mobile(mobile_id: str, races: dict, mobile_data: dict, npc_flag: int, enums: dict[str, type[IntEnum]]) -> \
-    tuple[Mobile, int]:
+    def build_mobile(mobile_id: str, races: dict, mobile_data: dict, npc_flag: int, enums: dict[str, type[IntEnum]]) -> tuple[Mobile, int]:
         player_name = str(mobile_data.get("name", "") or "")
         race_name = MobileUtil.resolve_race_name(races, mobile_data.get("race"), player_name)
         race = races[race_name] or {}
@@ -51,7 +50,7 @@ class MobileUtil:
         return None
 
     @staticmethod
-    def resolve_mobile_flags(mobile_data: dict, race: dict, npc_flag: int, flag_letters: type[IntEnum]) -> MobileFlags:
+    def resolve_mobile_flags(mobile_data: dict, race: dict, npc_flag: int, flag_letters: type[IntEnum] | None) -> MobileFlags:
         raw_act = MobileUtil.safe_int(mobile_data.get("actFlags") or mobile_data.get("act_flags"), 0)
         raw_aff = MobileUtil.safe_int(mobile_data.get("affectFlags") or mobile_data.get("affect_flags"), 0)
         combat_raw = MobileUtil.parse_combat_flags(mobile_data.get("combat_flags"))
@@ -61,14 +60,14 @@ class MobileUtil:
         raw_vuln = MobileUtil.resolve_combat_flag(mobile_data, combat_raw, "vuln_flags", "vulnFlags", flag_letters)
         raw_form = MobileUtil.safe_int(mobile_data.get("form"), 0)
         raw_parts = MobileUtil.safe_int(mobile_data.get("parts"), 0)
-        race_act = MobileUtil.race_flag_value(race, "act")
-        race_aff = MobileUtil.race_flag_value(race, "aff")
-        race_off = MobileUtil.race_flag_value(race, "off")
-        race_imm = MobileUtil.race_flag_value(race, "imm")
-        race_res = MobileUtil.race_flag_value(race, "res")
-        race_vuln = MobileUtil.race_flag_value(race, "vuln")
-        race_form = MobileUtil.race_flag_value(race, "form")
-        race_parts = MobileUtil.race_flag_value(race, "parts")
+        race_act = MobileUtil.race_flag_value(race, "act", mobile_data.get("race"))
+        race_aff = MobileUtil.race_flag_value(race, "aff", mobile_data.get("race"))
+        race_off = MobileUtil.race_flag_value(race, "off", mobile_data.get("race"))
+        race_imm = MobileUtil.race_flag_value(race, "imm", mobile_data.get("race"))
+        race_res = MobileUtil.race_flag_value(race, "res", mobile_data.get("race"))
+        race_vuln = MobileUtil.race_flag_value(race, "vuln", mobile_data.get("race"))
+        race_form = MobileUtil.race_flag_value(race, "form", mobile_data.get("race"))
+        race_parts = MobileUtil.race_flag_value(race, "parts", mobile_data.get("race"))
         mobile_flags = MobileFlags(
             act=raw_act | npc_flag | race_act,
             affect=raw_aff | race_aff,
@@ -79,8 +78,7 @@ class MobileUtil:
             form=raw_form | race_form,
             parts=raw_parts | race_parts,
         )
-        MobileUtil.apply_flag_removes(mobile_flags, mobile_data.get("flag_removes",
-                                                                    []))  # this always defaults to [] - there are no flag removal entries in ROM2.4.
+        MobileUtil.apply_flag_removes(mobile_flags, mobile_data.get("flag_removes",[]))  # this always defaults to [] - there are no flag removal entries in ROM2.4.
         return mobile_flags
 
     @staticmethod
@@ -97,8 +95,7 @@ class MobileUtil:
             return {}
 
     @staticmethod
-    def resolve_combat_flag(mobile_data: dict, combat_raw: dict, snake_key: str, camel_key: str,
-                            flag_letters: type[IntEnum]) -> int:
+    def resolve_combat_flag(mobile_data: dict, combat_raw: dict, snake_key: str, camel_key: str, flag_letters: type[IntEnum] | None) -> int:
         value = combat_raw.get(snake_key, combat_raw.get(camel_key))
         if value in (None, ""):
             value = mobile_data.get(snake_key, mobile_data.get(camel_key))
@@ -146,10 +143,11 @@ class MobileUtil:
         return "human"
 
     @staticmethod
-    def race_flag_value(race: dict, key: str) -> int:
+    def race_flag_value(race: dict, key: str, race_name: str | None) -> int:
+        race_data = race.get(race_name, {})
         if not race:
             return 0
-        value = race.get(key, 0)
+        value = race_data.get(key, 0)
         try:
             return int(value)
         except (TypeError, ValueError):
@@ -178,8 +176,7 @@ class MobileUtil:
         mobile.wealth = MobileUtil.safe_int(mobile_data.get("wealth", mobile_data.get("gold", 0)), default=0)
 
     @staticmethod
-    def build_normalized_mobile_data(mobile_id: str, mobile_data: dict, player_name: str, race_name: str,
-                                     level: int) -> dict:
+    def build_normalized_mobile_data(mobile_id: str, mobile_data: dict, player_name: str, race_name: str, level: int) -> dict:
         start_pos = mobile_data.get("start_pos")
         default_pos = mobile_data.get("default_pos")
         sex_value = mobile_data.get("sex")
@@ -262,18 +259,33 @@ class MobileUtil:
 
     @staticmethod
     def _apply_mob_stat_bonuses(mob: Mobile, enums: dict[str, type[IntEnum]]):
-        """Apply stock ROM stat adjustments based on act flags / race."""
+        act_bits = enums.get('actBits')
+        off_bits = enums.get('offenseTypes')
         mob.perm_stat.strength = min(25, 11 + mob.level // 4)
         mob.perm_stat.intelligence = min(25, 11 + mob.level // 4)
         mob.perm_stat.wisdom = min(25, 11 + mob.level // 4)
         mob.perm_stat.dexterity = min(25, 11 + mob.level // 4)
         mob.perm_stat.constitution = min(25, 11 + mob.level // 4)
 
-        if "WARRIOR" in mob.act.upper():
-            mob.perm_stat.strength += 3  # STR
-            mob.perm_stat.intelligence -= 1  # INT
-            mob.perm_stat.constitution += 2  # CON
-        # ... add similar for thief, cleric, mage if you want
+        if GameMacros.is_set(mob.mobile_flags.act, act_bits.WARRIOR):
+            mob.perm_stat.strength += 3
+            mob.perm_stat.intelligence -= 1
+            mob.perm_stat.constitution += 2
+        elif GameMacros.is_set(mob.mobile_flags.act, act_bits.THIEF):
+            mob.perm_stat.dexterity += 3
+            mob.perm_stat.intelligence += 1
+            mob.perm_stat.wisdom -= 1
+        elif GameMacros.is_set(mob.mobile_flags.act == act_bits.CLERIC):
+            mob.perm_stat.wisdom += 3
+            mob.perm_stat.dexterity -= 1
+            mob.perm_stat.strength += 1
+        elif GameMacros.is_set(mob.mobile_flags.act, act_bits.MAGE):
+            mob.perm_stat.intelligence += 3
+            mob.perm_stat.strength -= 1
+            mob.perm_stat.dexterity += 1
+
+        if GameMacros.is_set(mob.mobile_flags.off, off_bits.OFF_FAST):
+            mob.perm_stat.dexterity += 2
 
         size_bonus = enums["size"].get(mob.size.upper(), 2) - 2
         mob.perm_stat[0] += size_bonus

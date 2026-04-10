@@ -21,7 +21,7 @@ class GameMacros:
         return flag & ~bit
 
     @staticmethod
-    def parse_flag_string(flag_str: str | None, FlagLetters: type[IntEnum]) -> int:
+    def parse_flag_string(flag_str: str | None, FlagLetters: type[IntEnum] | None) -> int:
         if not flag_str or str(flag_str).strip() in ("", "0", "None", "null"):
             return 0
 
