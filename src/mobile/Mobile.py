@@ -4,7 +4,6 @@ from typing import Optional
 from uuid import uuid1
 
 from mobile.ArmorClass import ArmorClass
-from mobile.CombatFlags import CombatFlags
 from mobile.Dice import Dice
 from mobile.MobileFlags import MobileFlags
 from server.LoggerFactory import LoggerFactory
@@ -67,6 +66,7 @@ class Mobile:
     @classmethod
     def from_json(cls, data):
         data.setdefault('lock', None)
+        data['combat_flags'] = str(data.get('combat_flags', '') or '')
         if 'mobile_flags' not in data:
             data['mobile_flags'] = MobileFlags.default()
         return cls(**data)

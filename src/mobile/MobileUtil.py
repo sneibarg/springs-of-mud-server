@@ -1,8 +1,8 @@
+import json
 from enum import IntEnum
 from typing import Tuple
 
 from game.GameMacros import GameMacros
-from mobile.CombatFlags import CombatFlags
 from mobile.Mobile import Mobile
 from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice
@@ -51,19 +51,19 @@ class MobileUtil:
     def resolve_mobile_flags(mobile_data: dict, race: dict, npc_flag: int, flag_letters: type[IntEnum]) -> MobileFlags:
         raw_act = MobileUtil.safe_int(mobile_data.get("actFlags") or mobile_data.get("act_flags"), 0)
         raw_aff = MobileUtil.safe_int(mobile_data.get("affectFlags") or mobile_data.get("affect_flags"), 0)
-        raw_off = 0
-        raw_imm = 0
-        raw_res = 0
-        raw_vuln = 0
-        import json
-        combat_raw = json.loads(mobile_data.get("combat_flags").replace("'", '"') if mobile_data.get("combat_flags") else "{}")
-        combat_raw['off_flags'] = GameMacros.parse_flag_string(combat_raw.get('off_flags'), flag_letters)
-        if combat_raw:
-            cf = CombatFlags.from_raw(combat_raw, flag_letters)
-            raw_off = cf.off_flags
-            raw_imm = cf.imm_flags
-            raw_res = cf.res_flags
-            raw_vuln = cf.vuln_flags
+        combat_raw = MobileUtil.parse_combat_flags(mobile_data.get("combat_flags"))
+        raw_off = MobileUtil.resolve_combat_flag(
+            mobile_data, combat_raw, "off_flags", "offFlags", flag_letters
+        )
+        raw_imm = MobileUtil.resolve_combat_flag(
+            mobile_data, combat_raw, "imm_flags", "immFlags", flag_letters
+        )
+        raw_res = MobileUtil.resolve_combat_flag(
+            mobile_data, combat_raw, "res_flags", "resFlags", flag_letters
+        )
+        raw_vuln = MobileUtil.resolve_combat_flag(
+            mobile_data, combat_raw, "vuln_flags", "vulnFlags", flag_letters
+        )
 
         raw_form = MobileUtil.safe_int(mobile_data.get("form"), 0)
         raw_parts = MobileUtil.safe_int(mobile_data.get("parts"), 0)
@@ -87,6 +87,28 @@ class MobileUtil:
         )
         MobileUtil.apply_flag_removes(mobile_flags, mobile_data.get("flag_removes", []))
         return mobile_flags
+
+    @staticmethod
+    def parse_combat_flags(value) -> dict:
+        if isinstance(value, dict):
+            return value
+        text = str(value or "").strip()
+        if not text:
+            return {}
+        try:
+            parsed = json.loads(text.replace("'", '"'))
+            return parsed if isinstance(parsed, dict) else {}
+        except json.JSONDecodeError:
+            return {}
+
+    @staticmethod
+    def resolve_combat_flag(mobile_data: dict, combat_raw: dict, snake_key: str, camel_key: str, flag_letters: type[IntEnum]) -> int:
+        value = combat_raw.get(snake_key, combat_raw.get(camel_key))
+        if value in (None, ""):
+            value = mobile_data.get(snake_key, mobile_data.get(camel_key))
+        if isinstance(value, str):
+            return GameMacros.parse_flag_string(value, flag_letters)
+        return MobileUtil.safe_int(value, default=0)
 
     @staticmethod
     def increment_kill_table(kill_table: dict[int, int], level: int):
@@ -178,7 +200,7 @@ class MobileUtil:
             "group": str(MobileUtil.safe_int(mobile_data.get("group", 0), default=0)),
             "act": str(mobile_data.get("act", "") or ""),
             "dam_type": str(mobile_data.get("dam_type", "") or ""),
-            "combat_flags": None,
+            "combat_flags": str(mobile_data.get("combat_flags", "") or ""),
             "start_pos": str(start_pos),
             "default_pos": str(default_pos),
             "sex": str(sex_value),

@@ -60,7 +60,6 @@ class MobileService:
                     if mobile is None:
                         self.logger.error(f"Failed to build mobile for {raw_mobile}")
                         continue
-
                     self.mobile_registry.register(mobile)
                     count += 1
                 self.kill_table = kill_table
