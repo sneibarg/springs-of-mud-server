@@ -45,7 +45,8 @@ class Character:
     armor_class: PCArmorClass
     character_class: CharacterClass
     prompt_format: PromptFormat
-    loot: Dict[str, object] = field(default_factory=dict)
+    context: Dict[str, object] = field(default_factory=dict)
+    loot: List[Item] = field(default_factory=list)
     lock: threading.Lock = field(default_factory=threading.Lock)
     carriage_return: bool = True
 
@@ -63,18 +64,16 @@ class Character:
 
     def load_inventory(self):
         with self.lock:
-            index = 0
             for item in self.inventory:
-                self.inventory[index] = Item.from_json(item)
-                index = index + 1
+                self.loot.append(Item.from_json(item))
 
     def get_items(self) -> List[Item]:
-        return self.inventory
+        return self.loot
 
     def get_fuzzy_item(self, fuzzy_item, usage, mb):
         fuzzy_item = fuzzy_item.strip().replace("\r\n", "")
         self.logger.debug("get_fuzzy_item: fuzzy_item=" + str(fuzzy_item))
-        for item in self.inventory:
+        for item in self.loot:
             if not isinstance(item, Item):
                 self.logger.debug("get_fuzzy_item: not an Item: " + str(item))
                 continue

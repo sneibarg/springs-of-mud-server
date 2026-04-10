@@ -117,8 +117,7 @@ class RoomHandler:
 
         room = self.room_registry.get(id=character.room_id)
         if room is None:
-            await self.message_bus.send_to_character(character.id,
-                                                     self.message_bus.text_to_message("You are nowhere.\r\n"))
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You are nowhere.\r\n"))
             player_handler.look_mark_done(character)
             return
 

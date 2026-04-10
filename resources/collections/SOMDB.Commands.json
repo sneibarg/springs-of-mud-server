@@ -8,8 +8,7 @@
   "lambdas": [
     "lambda p, c, mb: mb.send_to_character(c.id, mb.text_to_message(f\"See you next time.\\r\\n\"))",
     "lambda cn: cn.close() if cn is not None and not cn.is_closed() else None",
-    "lambda c, rh, cmh: rh.to_room(c, c.name+\" has disconnected.\", cmh.get_message(\"disconnect\"))",
-    "lambda c, rgs: rgs.character_registry.unregister(c)"
+    "lambda c, rh, cmh: rh.to_room(c, c.name+\" has disconnected.\", cmh.get_message(\"disconnect\"))"
   ],
   "message": "%p has disconnected.",
   "function": [],

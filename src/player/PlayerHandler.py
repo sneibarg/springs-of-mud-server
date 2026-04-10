@@ -49,9 +49,9 @@ class PlayerHandler:
         return visible
 
     def _look_ctx(self, character: Character) -> Dict[str, Any]:
-        if character.loot is None:
-            character.loot = {}
-        ctx = character.loot.get(LOOK_CTX_KEY)
+        if character.context is None:
+            character.context = {}
+        ctx = character.context.get(LOOK_CTX_KEY)
         if not isinstance(ctx, dict):
             ctx = {
                 "arg1": "",
@@ -63,7 +63,7 @@ class PlayerHandler:
                 "branch": None,
                 "done": False,
             }
-            character.loot[LOOK_CTX_KEY] = ctx
+            character.context[LOOK_CTX_KEY] = ctx
         return ctx
 
     async def look_begin(self, character: Character, argument: str = ""):
@@ -79,7 +79,7 @@ class PlayerHandler:
             number = max(1, int(match.group(1)))
             arg3 = match.group(2).strip().lower()
 
-        character.loot[LOOK_CTX_KEY] = {
+        character.context[LOOK_CTX_KEY] = {
             "arg1": arg1,
             "arg2": arg2,
             "arg3": arg3,
@@ -184,5 +184,6 @@ class PlayerHandler:
             self.look_mark_done(character)
 
     async def look_finish(self, character: Character):
-        if character.loot and LOOK_CTX_KEY in character.loot:
-            del character.loot[LOOK_CTX_KEY]
+        if character.context and LOOK_CTX_KEY in character.context:
+            del character.context[LOOK_CTX_KEY]
+            
