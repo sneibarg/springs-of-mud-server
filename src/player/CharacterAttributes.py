@@ -25,3 +25,7 @@ class CharacterAttributes:
         except json.JSONDecodeError:
             raise TypeError(f"CharacterClass.from_json expected mapping or JSON string, got {type(data).__name__}")
         return cls(**data)
+
+    @classmethod
+    def default(cls) -> CharacterAttributes:
+        return cls(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)

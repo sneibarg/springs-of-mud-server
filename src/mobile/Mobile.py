@@ -1,11 +1,13 @@
 import threading
+
 from dataclasses import dataclass, field
 from typing import Optional
 from uuid import uuid1
-
+from game import GameData
 from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice
 from mobile.MobileFlags import MobileFlags
+from player.CharacterAttributes import CharacterAttributes
 from server.LoggerFactory import LoggerFactory
 
 
@@ -41,6 +43,7 @@ class Mobile:
     gold: int
     silver: int
     combat_flags: str
+    perm_stat: Optional[CharacterAttributes] = None
     armor_class: Optional[ArmorClass] = None
     hit_dice: Optional[Dice] = None
     mana_dice: Optional[Dice] = None

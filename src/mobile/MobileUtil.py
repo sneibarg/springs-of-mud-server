@@ -1,23 +1,26 @@
 import json
+
 from enum import IntEnum
 from typing import Tuple
-
 from game.GameMacros import GameMacros
 from mobile.Mobile import Mobile
 from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice
 from mobile.MobileFlags import MobileFlags
+from numbers import RandomNumberGenerator
 from object.ObjectMacros import ObjectMacros
 from server.LoggerFactory import LoggerFactory
 
 logger = LoggerFactory.get_logger('MobileUtil')
+rng = RandomNumberGenerator()
 
 
 class MobileUtil:
     pass
 
     @staticmethod
-    def build_mobile(mobile_id: str, races: dict, mobile_data: dict, npc_flag: int, enums: dict[str, type[IntEnum]]) -> tuple[Mobile, int]:
+    def build_mobile(mobile_id: str, races: dict, mobile_data: dict, npc_flag: int, enums: dict[str, type[IntEnum]]) -> \
+    tuple[Mobile, int]:
         player_name = str(mobile_data.get("name", "") or "")
         race_name = MobileUtil.resolve_race_name(races, mobile_data.get("race"), player_name)
         race = races[race_name] or {}
@@ -76,7 +79,8 @@ class MobileUtil:
             form=raw_form | race_form,
             parts=raw_parts | race_parts,
         )
-        MobileUtil.apply_flag_removes(mobile_flags, mobile_data.get("flag_removes", []))
+        MobileUtil.apply_flag_removes(mobile_flags, mobile_data.get("flag_removes",
+                                                                    []))  # this always defaults to [] - there are no flag removal entries in ROM2.4.
         return mobile_flags
 
     @staticmethod
@@ -93,7 +97,8 @@ class MobileUtil:
             return {}
 
     @staticmethod
-    def resolve_combat_flag(mobile_data: dict, combat_raw: dict, snake_key: str, camel_key: str, flag_letters: type[IntEnum]) -> int:
+    def resolve_combat_flag(mobile_data: dict, combat_raw: dict, snake_key: str, camel_key: str,
+                            flag_letters: type[IntEnum]) -> int:
         value = combat_raw.get(snake_key, combat_raw.get(camel_key))
         if value in (None, ""):
             value = mobile_data.get(snake_key, mobile_data.get(camel_key))
@@ -171,9 +176,10 @@ class MobileUtil:
         mobile.hit_dice, mobile.mana_dice, mobile.damage_dice = MobileUtil.parse_dice(mobile_data)
         mobile.hitroll = MobileUtil.safe_int(mobile_data.get("hitroll", 0), default=0)
         mobile.wealth = MobileUtil.safe_int(mobile_data.get("wealth", mobile_data.get("gold", 0)), default=0)
-    
+
     @staticmethod
-    def build_normalized_mobile_data(mobile_id: str, mobile_data: dict, player_name: str, race_name: str, level: int) -> dict:
+    def build_normalized_mobile_data(mobile_id: str, mobile_data: dict, player_name: str, race_name: str,
+                                     level: int) -> dict:
         start_pos = mobile_data.get("start_pos")
         default_pos = mobile_data.get("default_pos")
         sex_value = mobile_data.get("sex")
@@ -214,7 +220,7 @@ class MobileUtil:
             "mobile_flags": None,
             "lock": mobile_data.get("lock"),
         }
-    
+
     @staticmethod
     def capitalize_first(value) -> str:
         text = str(value or "")
@@ -248,3 +254,120 @@ class MobileUtil:
                 flags.form &= ~vector
             elif domain.startswith("par"):
                 flags.parts &= ~vector
+
+    @staticmethod
+    def _random_dam_type() -> str:
+        dam_type = {0: "slash", 1: "pound", 2: "pierce"}
+        return dam_type[rng.dice(1, 3)]
+
+    @staticmethod
+    def _apply_mob_stat_bonuses(mob: Mobile, enums: dict[str, type[IntEnum]]):
+        """Apply stock ROM stat adjustments based on act flags / race."""
+        mob.perm_stat.strength = min(25, 11 + mob.level // 4)
+        mob.perm_stat.intelligence = min(25, 11 + mob.level // 4)
+        mob.perm_stat.wisdom = min(25, 11 + mob.level // 4)
+        mob.perm_stat.dexterity = min(25, 11 + mob.level // 4)
+        mob.perm_stat.constitution = min(25, 11 + mob.level // 4)
+
+        if "WARRIOR" in mob.act.upper():
+            mob.perm_stat.strength += 3  # STR
+            mob.perm_stat.intelligence -= 1  # INT
+            mob.perm_stat.constitution += 2  # CON
+        # ... add similar for thief, cleric, mage if you want
+
+        size_bonus = enums["size"].get(mob.size.upper(), 2) - 2
+        mob.perm_stat[0] += size_bonus
+        mob.perm_stat[4] += size_bonus // 2
+
+    @staticmethod
+    def create_mobile(pMobIndex: Mobile, enums: dict[str, type[IntEnum]]) -> Mobile:
+        from server.ServerUtil import ServerUtil
+        from player.CharacterAttributes import CharacterAttributes
+        if pMobIndex is None:
+            logger.error("create_mobile: NULL pMobIndex.")
+            raise ValueError("Cannot create mobile from None index")
+
+        mob = Mobile.from_json({
+            "area_id": pMobIndex.area_id,
+            "vnum": pMobIndex.vnum,
+            "id": ServerUtil.generate_mongo_id(),
+            "name": pMobIndex.name,
+            "short_description": pMobIndex.short_description,
+            "long_description": pMobIndex.long_description,
+            "description": pMobIndex.description,
+            "race": pMobIndex.race,
+            "act_flags": pMobIndex.act_flags,
+            "affect_flags": pMobIndex.affect_flags,
+            "alignment": pMobIndex.alignment,
+            "group": pMobIndex.group,
+            "dam_type": pMobIndex.dam_type,
+            "start_pos": pMobIndex.start_pos,
+            "default_pos": pMobIndex.default_pos,
+            "sex": pMobIndex.sex,
+            "form": pMobIndex.form,
+            "parts": pMobIndex.parts,
+            "size": pMobIndex.size,
+            "material": pMobIndex.material,
+            "level": pMobIndex.level,
+            "hit_roll": pMobIndex.hit_roll,
+            "gold": 0,
+            "silver": 0,
+            "pulse_wait": 0,
+            "pulse_daze": 0,
+            "perm_stat": CharacterAttributes.default()
+        })
+
+        if pMobIndex.gold and pMobIndex.gold > 0:
+            wealth = rng.number_range(pMobIndex.gold // 2, 3 * pMobIndex.gold // 2)
+            mob.gold = rng.number_range(wealth // 200, wealth // 100)
+            mob.silver = wealth - (mob.gold * 100)
+        else:
+            mob.gold = 0
+            mob.silver = 0
+
+        if True:
+            mob.act = pMobIndex.act_flags
+            mob.affect_flags = pMobIndex.affect_flags
+            mob.alignment = pMobIndex.alignment
+            mob.level = pMobIndex.level
+            mob.hit_roll = pMobIndex.hit_roll
+
+            mob.hit_dice = pMobIndex.hit_dice
+            mob.mana_dice = pMobIndex.mana_dice
+            mob.damage_dice = pMobIndex.damage_dice
+
+            mob.max_hit = rng.dice(pMobIndex.hit_dice.number, pMobIndex.hit_dice.type) + pMobIndex.hit_dice.bonus
+            mob.hit = mob.max_hit
+            mob.max_mana = rng.dice(pMobIndex.mana_dice.number, pMobIndex.mana_dice.type) + pMobIndex.mana_dice.bonus
+            mob.mana = mob.max_mana
+
+            mob.dam_type = pMobIndex.dam_type
+            if not mob.dam_type or mob.dam_type == "none":
+                mob.dam_type = MobileUtil._random_dam_type()
+
+            mob.armor_class = pMobIndex.armor_class
+            mob.mobile_flags = MobileFlags(
+                act=pMobIndex.mobile_flags.act,
+                affect=pMobIndex.mobile_flags.affect,
+                off=pMobIndex.mobile_flags.off,
+                imm=pMobIndex.mobile_flags.imm,
+                res=pMobIndex.mobile_flags.res,
+                vuln=pMobIndex.mobile_flags.vuln,
+                form=pMobIndex.mobile_flags.form,
+                parts=pMobIndex.mobile_flags.parts
+            )
+            mob.start_pos = pMobIndex.start_pos
+            mob.default_pos = pMobIndex.default_pos
+            mob.sex = pMobIndex.sex
+            if mob.sex == "3":
+                mob.sex = str(rng.number_range(1, 2))
+
+            mob.size = pMobIndex.size
+            mob.material = pMobIndex.material
+
+            MobileUtil._apply_mob_stat_bonuses(mob, enums)
+
+        mob.position = mob.start_pos
+        pMobIndex.count = getattr(pMobIndex, 'count', 0) + 1
+
+        return mob
