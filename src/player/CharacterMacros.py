@@ -11,10 +11,7 @@ from game.RegistryService import RegistryService
 
 
 class CharacterMacros(GameMacros):
-    def __init__(self, registry_service: RegistryService,
-                 character_constants: CharacterConstants,
-                 enums: dict[str, IntEnum],
-                 attribute_bonuses: dict[str, dict[str, dict[str, int]]]):
+    def __init__(self, registry_service: RegistryService, character_constants: CharacterConstants, enums: dict[str, IntEnum], attribute_bonuses: dict[str, dict[str, dict[str, int]]]):
         self.__name__ = "CharacterMacros"
         self.registry_service = registry_service
         self.enums = enums
@@ -51,7 +48,10 @@ class CharacterMacros(GameMacros):
 
     def is_affected(self, char: Character | Mobile, effect) -> bool:
         from server.ServerUtil import ServerUtil
-        return self.is_set(ServerUtil.convert_flags(char.affected_by), effect)
+        if type(char) is Character:
+            return self.is_set(ServerUtil.convert_flags(char.affected_by), effect)
+        else:
+            return self.is_set(ServerUtil.convert_flags(char.mobile_flags.affect), effect)
 
     def is_awake(self, char: Any) -> bool:
         return char.character_attributes.position > self.character_constants.positions.POS_SLEEPING.value
@@ -62,11 +62,17 @@ class CharacterMacros(GameMacros):
 
     @staticmethod
     def is_good(char: Character | Mobile) -> bool:
-        return char.character_attributes.alignment >= 350
+        if type(char) is Character:
+            return char.character_attributes.alignment >= 350
+        else:
+            return char.perm_stat.alignment >= 350
 
     @staticmethod
     def is_evil(char: Character | Mobile) -> bool:
-        return char.character_attributes.alignment <= -350
+        if type(char) is Character:
+            return char.character_attributes.alignment <= -350
+        else:
+            return char.perm_stat.alignment <= -350
 
     def is_neutral(self, char: Character | Mobile) -> bool:
         return not self.is_good(char) and not self.is_evil(char)
@@ -90,15 +96,15 @@ class CharacterMacros(GameMacros):
 
     @staticmethod
     def get_carry_weight(char: Any) -> int:
-        return int(char.max_weight + ((char.silver / 10) + (char.gold * 2 / 5)))
+        return int(char.character_attributes.max_weight + ((char.silver / 10) + (char.gold * 2 / 5)))
 
     @staticmethod
     def wait_state(char: Character, npulse: int) -> int:
-        return max(char.pulse_wait, npulse)
+        return max(char.temporal_mechanics.pulse_wait, npulse)
 
     @staticmethod
     def daze_state(char: Character, npulse: int) -> int:
-        return max(char.pulse_daze, npulse)
+        return max(char.temporal_mechanics.pulse_daze, npulse)
 
     def act(self, act_format: str, char: Any, arg1: str, arg2: str, act_type: int):
         pass

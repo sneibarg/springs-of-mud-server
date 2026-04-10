@@ -149,8 +149,8 @@ class ConnectionHandler:
         return account
 
     def _get_area_and_room(self, character) -> tuple[Area | None, Room | None]:
-        area = self.registry_service.area_registry.get_area_by_id(character.area_id)
-        room = self.registry_service.room_registry.get_room_by_id(character.room_id)
+        area = self.registry_service.area_registry.get(id=character.area_id)
+        room = self.registry_service.room_registry.get(id=character.room_id)
         return area, room
 
     async def _nanny(self, character, session, connection) -> Optional[Player]:

@@ -120,7 +120,7 @@ def get_args(lambda_string, player, character, injector, parameters):
                 telnet_connection = injector.get(ConnectionManager).get_connection_by_character(character.id)
                 obj = telnet_connection if telnet_connection else None
             elif arg == 'r':
-                room = registry.room_registry.get_room_by_id(character.room_id)
+                room = registry.room_registry.get(id=character.room_id)
                 class_obj = type(room)
                 obj = room
             elif arg == 'i':  # Item unimplemented

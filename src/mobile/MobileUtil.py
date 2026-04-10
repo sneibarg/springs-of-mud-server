@@ -8,7 +8,9 @@ from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice
 from mobile.MobileFlags import MobileFlags
 from game.RandomNumberGenerator import RandomNumberGenerator
+from object.AffectData import AffectWhere, AffectData
 from object.ObjectMacros import ObjectMacros
+from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
 
 logger = LoggerFactory.get_logger('MobileUtil')
@@ -70,7 +72,7 @@ class MobileUtil:
         race_parts = MobileUtil.race_flag_value(race, "parts", mobile_data.get("race"))
         mobile_flags = MobileFlags(
             act=raw_act | npc_flag | race_act,
-            affect=raw_aff | race_aff,
+            affected_by=raw_aff | race_aff,
             off=raw_off | race_off,
             imm=raw_imm | race_imm,
             res=raw_res | race_res,
@@ -238,7 +240,7 @@ class MobileUtil:
             if domain == "act":
                 flags.act &= ~vector
             elif domain.startswith("aff"):
-                flags.affect &= ~vector
+                flags.affected_by &= ~vector
             elif domain == "off":
                 flags.off &= ~vector
             elif domain == "imm":
@@ -253,14 +255,15 @@ class MobileUtil:
                 flags.parts &= ~vector
 
     @staticmethod
-    def _random_dam_type() -> str:
-        dam_type = {0: "slash", 1: "pound", 2: "pierce"}
+    def _random_dam_type() -> int:
+        dam_type = {0: 3, 1: 7, 2: 11}
         return dam_type[rng.dice(1, 3)]
 
     @staticmethod
     def _apply_mob_stat_bonuses(mob: Mobile, enums: dict[str, type[IntEnum]]):
         act_bits = enums.get('actBits')
         off_bits = enums.get('offenseTypes')
+
         mob.perm_stat.strength = min(25, 11 + mob.level // 4)
         mob.perm_stat.intelligence = min(25, 11 + mob.level // 4)
         mob.perm_stat.wisdom = min(25, 11 + mob.level // 4)
@@ -291,8 +294,27 @@ class MobileUtil:
         mob.perm_stat[0] += size_bonus
         mob.perm_stat[4] += size_bonus // 2
 
+    #  aff_type needs to be replaced with the result of skill_lookup("haste") etc.
     @staticmethod
-    def create_mobile(pMobIndex: Mobile, enums: dict[str, type[IntEnum]]) -> Mobile:
+    def _apply_affected_by(mob: Mobile, enums: dict[str, type[IntEnum]], character_macros: CharacterMacros):
+        affect_bits = enums.get('affectedBy')
+        apply_types = enums.get('applyTypes')
+        if character_macros.is_affected(mob, affect_bits.AFF_SANCTUARY):
+            sanctuary = MobileUtil._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, 0, apply_types.APPLY_NONE.value, affect_bits.AFF_SANCTUARY.value)
+        if character_macros.is_affected(mob, affect_bits.AFF_HASTE):
+            modifier = 1 + (mob.level >= 18) + (mob.level >= 25) + (mob.level >= 32)
+            haste = MobileUtil._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, modifier, apply_types.APPLY_DEX.value, affect_bits.AFF_HASTE.value)
+        if character_macros.is_affected(mob, affect_bits.AFF_PROTECT_EVIL):
+            protect_evil = MobileUtil._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, -1, apply_types.APPLY_SAVES.value, affect_bits.AFF_PROTECT_EVIL.value)
+        if character_macros.is_affected(mob, affect_bits.AFF_PROTECT_GOOD):
+            protect_good = MobileUtil._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, -1, apply_types.APPLY_SAVES.value, affect_bits.AFF_PROTECT_GOOD.value)
+
+    @staticmethod
+    def _build_affect_data(level: int, aff_type: int, where: int, duration: int, modifier: int, location: int, bitvector: int) -> AffectData:
+        return AffectData(valid=True, level=level, where=where, type=aff_type, duration=duration, modifier=modifier, location=location, bitvector=bitvector)
+
+    @staticmethod
+    def create_mobile(pMobIndex: Mobile, enums: dict[str, type[IntEnum]], character_macros: CharacterMacros) -> Mobile:
         from server.ServerUtil import ServerUtil
         from player.CharacterAttributes import CharacterAttributes
         if pMobIndex is None:
@@ -360,7 +382,7 @@ class MobileUtil:
             mob.armor_class = pMobIndex.armor_class
             mob.mobile_flags = MobileFlags(
                 act=pMobIndex.mobile_flags.act,
-                affect=pMobIndex.mobile_flags.affect,
+                affected_by=pMobIndex.mobile_flags.affected_by,
                 off=pMobIndex.mobile_flags.off,
                 imm=pMobIndex.mobile_flags.imm,
                 res=pMobIndex.mobile_flags.res,
@@ -370,6 +392,7 @@ class MobileUtil:
             )
             mob.start_pos = pMobIndex.start_pos
             mob.default_pos = pMobIndex.default_pos
+            mob.perm_stat.position = mob.start_pos
             mob.sex = pMobIndex.sex
             if mob.sex == "3":
                 mob.sex = str(rng.number_range(1, 2))
@@ -378,6 +401,7 @@ class MobileUtil:
             mob.material = pMobIndex.material
 
             MobileUtil._apply_mob_stat_bonuses(mob, enums)
+            MobileUtil._apply_affected_by(mob, enums, character_macros)
 
         mob.position = mob.start_pos
         pMobIndex.count = getattr(pMobIndex, 'count', 0) + 1

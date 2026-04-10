@@ -2,8 +2,6 @@ import threading
 
 from dataclasses import dataclass, field
 from typing import Optional
-from uuid import uuid1
-from game import GameData
 from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice
 from mobile.MobileFlags import MobileFlags
@@ -13,7 +11,6 @@ from server.LoggerFactory import LoggerFactory
 
 @dataclass
 class Mobile:
-    # === Fields without defaults (required) ===
     area_id: str
     vnum: str
     name: str
@@ -52,7 +49,8 @@ class Mobile:
     lock: threading.Lock = field(default_factory=threading.Lock)
 
     def __post_init__(self):
-        self.instance_id = uuid1()
+        from server.ServerUtil import ServerUtil
+        self.instance_id = ServerUtil.generate_mongo_id()
         if self.lock is None:
             self.lock = threading.Lock()
         self.__name__ = "Mobile-" + str(self.instance_id)

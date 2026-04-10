@@ -4,7 +4,7 @@ from dataclasses import dataclass
 @dataclass
 class MobileFlags:
     act: int
-    affect: int
+    affected_by: int
     off: int
     imm: int
     res: int
