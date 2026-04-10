@@ -210,7 +210,7 @@ class ServerUtil:
         return snake_case_dict
 
     @staticmethod
-    def build_int_enum(enum_name: str, enum_fields: dict[str, int] | list[str] | tuple[str, ...]) -> type[IntEnum]:
+    def build_int_enum(enum_name: str, enum_fields: dict[str, int] | list[str] | tuple[str, ...] | None) -> type[IntEnum]:
         if isinstance(enum_fields, dict):
             items: Iterable[tuple[str, int]] = (
                 (str(member_name), int(member_value))
