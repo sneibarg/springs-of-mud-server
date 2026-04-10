@@ -1,6 +1,6 @@
 [{
   "_id": {
-    "$oid": "69d5d5c9b0a012486c2ab68f"
+    "$oid": "69d954064251a61d7bf6b595"
   },
   "keyword": "QMCONFIG",
   "level": 0,
@@ -9,7 +9,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c914161dd6b0e72c40"
+    "$oid": "69d954066a67a3e5c12e3158"
   },
   "keyword": "COLOUR COLOR ANSI",
   "level": 0,
@@ -18,7 +18,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9aa2753ac3e63bf99"
+    "$oid": "69d95406c3b9d2f349d84ee1"
   },
   "keyword": "COLOUR2 COLOR2 ANSI2",
   "level": 0,
@@ -27,7 +27,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9758e080f0954bf35"
+    "$oid": "69d95406cec260ec4dfe039a"
   },
   "keyword": "DIKU",
   "level": -1,
@@ -36,7 +36,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c949e2edd35cb79049"
+    "$oid": "69d95406fef5d744fce04394"
   },
   "keyword": "GOLD SILVER MONEY",
   "level": -1,
@@ -45,7 +45,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c97ede3cc161f85e26"
+    "$oid": "69d95406c041a357e2f1ba4f"
   },
   "keyword": "BRIEF COMPACT",
   "level": 0,
@@ -54,7 +54,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9c72568eeacc95dbd"
+    "$oid": "69d95406c07f988135f5da47"
   },
   "keyword": "DEAF",
   "level": -1,
@@ -63,7 +63,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9d7fe7273485da9eb"
+    "$oid": "69d95406e4728bbcf12e742a"
   },
   "keyword": "AFK",
   "level": -1,
@@ -72,7 +72,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c98dd015088109684a"
+    "$oid": "69d95406d23b9dea049c222a"
   },
   "keyword": "PROMPT",
   "level": -1,
@@ -81,7 +81,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c96469f5111ea03298"
+    "$oid": "69d954063adfdccf8c356492"
   },
   "keyword": "SUMMARY",
   "level": -1,
@@ -90,7 +90,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c97e6f69ad72a701ad"
+    "$oid": "69d9540658105e456b7e04ec"
   },
   "keyword": "DEATH",
   "level": 0,
@@ -99,7 +99,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c93354e16496217356"
+    "$oid": "69d95406b1760e7f0266ad7b"
   },
   "keyword": "EXPERIENCE LEVEL XP",
   "level": 0,
@@ -108,7 +108,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9f84c31b42161d8d5"
+    "$oid": "69d95406839afd86b8d2aca0"
   },
   "keyword": "PET PETS",
   "level": 0,
@@ -117,7 +117,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9cfedce4b4e4691d3"
+    "$oid": "69d95406d60962c266472a73"
   },
   "keyword": "TICK",
   "level": 0,
@@ -126,7 +126,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9317990be6eb6dbeb"
+    "$oid": "69d954061a046f66140bbf3a"
   },
   "keyword": "!",
   "level": 0,
@@ -135,7 +135,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9dbb1937d17f45954"
+    "$oid": "69d95406bec391a8d4457a2a"
   },
   "keyword": "NORTH SOUTH EAST WEST UP DOWN",
   "level": 0,
@@ -144,7 +144,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c95f22d09fd090c9c4"
+    "$oid": "69d95406fd824f3f5380a6df"
   },
   "keyword": "CAST",
   "level": 0,
@@ -153,7 +153,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c94ecf8235cc1e6684"
+    "$oid": "69d95406d085a6b54fe42940"
   },
   "keyword": "EXITS",
   "level": 0,
@@ -162,7 +162,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9525763fecd998614"
+    "$oid": "69d9540636dd1e1ebd0e7054"
   },
   "keyword": "DROP GET GIVE PUT TAKE",
   "level": 0,
@@ -171,7 +171,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9318102b6ec4c6b85"
+    "$oid": "69d954062e149077aba2f106"
   },
   "keyword": "EQUIPMENT INVENTORY",
   "level": 0,
@@ -180,7 +180,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9a4fc946484c1c491"
+    "$oid": "69d95406737d074122daa3f0"
   },
   "keyword": "COMPARE",
   "level": 0,
@@ -189,7 +189,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c98265bcdf39d69b42"
+    "$oid": "69d9540697e99d2cce245ce0"
   },
   "keyword": "FLEE",
   "level": 0,
@@ -198,7 +198,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9550e220b28edb26a"
+    "$oid": "69d95406ded997cec64c2661"
   },
   "keyword": "EXAMINE LOOK",
   "level": 0,
@@ -207,7 +207,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c92d248a5b5ad68c65"
+    "$oid": "69d95406f407a718988bc318"
   },
   "keyword": "ORDER",
   "level": 0,
@@ -216,7 +216,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c90744b3b36eb06230"
+    "$oid": "69d9540631073036c95d3ca2"
   },
   "keyword": "REST SLEEP STAND WAKE",
   "level": 0,
@@ -225,7 +225,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9c4ab28cb44118716"
+    "$oid": "69d954064b33dc0b0bf40c64"
   },
   "keyword": "GTELL ; REPLY SAY TELL",
   "level": 0,
@@ -234,7 +234,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c913b631e03bb9590b"
+    "$oid": "69d954069713056b60e80812"
   },
   "keyword": "NOTE 'NOTE WRITE' 'NOTE READ' BOARD 'NOTE SYSTEM' BOARDS",
   "level": 0,
@@ -243,7 +243,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c98febd692d91b0254"
+    "$oid": "69d9540639d12e962baff560"
   },
   "keyword": "GOSSIP CGOSSIP . SHOUT YELL",
   "level": 0,
@@ -252,7 +252,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c996fd0a576e76cc20"
+    "$oid": "69d954065811a5da619e77bb"
   },
   "keyword": "EMOTE PMOTE POSE SOCIAL",
   "level": 0,
@@ -261,7 +261,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c92128b9cbfdfd0082"
+    "$oid": "69d954066b37687c00b80687"
   },
   "keyword": "SMOTE",
   "level": 52,
@@ -270,7 +270,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c94eb209188a6d851d"
+    "$oid": "69d95406df47a25b0b7566d1"
   },
   "keyword": "HOLD REMOVE WEAR WIELD",
   "level": 0,
@@ -279,7 +279,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9685b61cfdf379e13"
+    "$oid": "69d95406cd08995bceee38e4"
   },
   "keyword": "BUG TYPO",
   "level": 0,
@@ -288,7 +288,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9ae2b3e1999ed1c14"
+    "$oid": "69d954067eaca42f2434c292"
   },
   "keyword": "CREDITS",
   "level": 0,
@@ -297,7 +297,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c94fc903e809974bf2"
+    "$oid": "69d9540614c9345152bc230a"
   },
   "keyword": "AREAS COMMANDS REPORT SCORE TIME",
   "level": 0,
@@ -306,7 +306,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c91971ed1f7444c8ec"
+    "$oid": "69d9540628cd5d54a0d2c034"
   },
   "keyword": "WHO",
   "level": -1,
@@ -315,7 +315,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c995f1ff0793045afe"
+    "$oid": "69d954060e1243a426b0a258"
   },
   "keyword": "WHOIS",
   "level": -1,
@@ -324,7 +324,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9ab048ba23fa5983e"
+    "$oid": "69d9540644dcabb064beffbb"
   },
   "keyword": "WHERE",
   "level": 0,
@@ -333,7 +333,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c991adb30cc9e90f65"
+    "$oid": "69d95406571093efcae100ab"
   },
   "keyword": "HELP",
   "level": 0,
@@ -342,7 +342,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c995cead654ce853b0"
+    "$oid": "69d95406823a36f7ca926480"
   },
   "keyword": "DESCRIPTION DESC",
   "level": 0,
@@ -351,7 +351,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9790e91782033bb47"
+    "$oid": "69d954065dd1cf7b23e966bb"
   },
   "keyword": "PASSWORD",
   "level": 0,
@@ -360,7 +360,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9f994f95457a476a1"
+    "$oid": "69d95406ccec09011e68559b"
   },
   "keyword": "TITLE",
   "level": 0,
@@ -369,7 +369,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c99ae361ed248a0486"
+    "$oid": "69d95406ad0cac49207f2ed2"
   },
   "keyword": "WIMPY",
   "level": 0,
@@ -378,7 +378,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9c6d048404c9d0da3"
+    "$oid": "69d95406f150ecd78c86a9d4"
   },
   "keyword": "OPEN CLOSE LOCK UNLOCK PICK",
   "level": 0,
@@ -387,7 +387,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c98d1afd6dfea0b029"
+    "$oid": "69d95406b0ed4cd82548242c"
   },
   "keyword": "DRINK EAT FILL POUR",
   "level": 0,
@@ -396,7 +396,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c95007b364e8f04702"
+    "$oid": "69d95406267a1efd13302062"
   },
   "keyword": "BUY LIST SELL VALUE",
   "level": 0,
@@ -405,7 +405,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c981165791c9d37ca3"
+    "$oid": "69d9540622d83535184c95cf"
   },
   "keyword": "SACRIFICE",
   "level": 0,
@@ -414,7 +414,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9d81c3dc7617ba6bf"
+    "$oid": "69d9540692bb7452de967bb9"
   },
   "keyword": "SCROLL",
   "level": 0,
@@ -423,7 +423,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c96892dc023da54396"
+    "$oid": "69d95406d224335a76917e8a"
   },
   "keyword": "BRANDISH QUAFF RECITE ZAP",
   "level": 0,
@@ -432,7 +432,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9fe44f066495cf77f"
+    "$oid": "69d954065f6e2112d3c6c625"
   },
   "keyword": "CONSIDER",
   "level": 0,
@@ -441,7 +441,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c989a53497486511f2"
+    "$oid": "69d954067298cc261ff54ff1"
   },
   "keyword": "FOLLOW GROUP",
   "level": 0,
@@ -450,7 +450,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9b1511df35bbf227c"
+    "$oid": "69d95406305f6d43dda4dfa9"
   },
   "keyword": "VISIBLE",
   "level": 0,
@@ -459,7 +459,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9c8a8c4269b5e0bf0"
+    "$oid": "69d9540690fe25f4fd756fe6"
   },
   "keyword": "QUIT RENT SAVE",
   "level": 0,
@@ -468,7 +468,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9a79efb0261e556e9"
+    "$oid": "69d95406d7a050b3615d4254"
   },
   "keyword": "RECALL /",
   "level": 0,
@@ -477,7 +477,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9be4918f965f1a50c"
+    "$oid": "69d9540602c332d5097f72c4"
   },
   "keyword": "SPLIT",
   "level": -1,
@@ -486,7 +486,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c907a9bda71ac6e961"
+    "$oid": "69d954062b4288e4c0752779"
   },
   "keyword": "STEAL",
   "level": 0,
@@ -495,7 +495,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c93bf934ddafc8bea1"
+    "$oid": "69d95406bcc2423b811e2f43"
   },
   "keyword": "PRACTICE",
   "level": 0,
@@ -504,7 +504,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c938a9b2b3adb7dbe6"
+    "$oid": "69d954066380569e623a685e"
   },
   "keyword": "TRAIN",
   "level": 0,
@@ -513,7 +513,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9c74a1ddd786562dc"
+    "$oid": "69d9540642057185f702c5fb"
   },
   "keyword": "ADVANCE",
   "level": 60,
@@ -522,7 +522,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9766baed3930832a3"
+    "$oid": "69d95406ba4dec8356289f9a"
   },
   "keyword": "TRUST",
   "level": 60,
@@ -531,7 +531,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c908afdbcd81464252"
+    "$oid": "69d954069a505e55998e9dcc"
   },
   "keyword": "ALLOW BAN PERMBAN",
   "level": 58,
@@ -540,7 +540,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9e4e8550ccc09d792"
+    "$oid": "69d95406fa5350d87cc6c4d7"
   },
   "keyword": "REBOOT SHUTDOWN",
   "level": 59,
@@ -549,7 +549,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9749d7f245f9a5130"
+    "$oid": "69d95406f0e841936ab4dc28"
   },
   "keyword": "WIZLOCK NEWLOCK",
   "level": 56,
@@ -558,7 +558,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9f73552e7c6a2ed6a"
+    "$oid": "69d954067875278b03a952c7"
   },
   "keyword": "DENY",
   "level": 59,
@@ -567,7 +567,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c933f6585c5b998a1a"
+    "$oid": "69d95406d3fb02526f11cce2"
   },
   "keyword": "DISCONNECT",
   "level": 57,
@@ -576,7 +576,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9550fab31c3ee72d1"
+    "$oid": "69d95406d9420698cee08ba3"
   },
   "keyword": "FREEZE",
   "level": 57,
@@ -585,7 +585,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c967cac06c5b638ab2"
+    "$oid": "69d9540628dfebf80d5f8593"
   },
   "keyword": "FORCE",
   "level": 53,
@@ -594,7 +594,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9b9c0c2d0922cf29e"
+    "$oid": "69d95406f16e125e3270c4aa"
   },
   "keyword": "SOCKETS",
   "level": 56,
@@ -603,7 +603,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c98465f703f0b866d2"
+    "$oid": "69d95406f16d03f9ae7ce3c3"
   },
   "keyword": "LOAD",
   "level": 56,
@@ -612,7 +612,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9f923d49a7a805372"
+    "$oid": "69d95406a108e3827f8487e7"
   },
   "keyword": "SET",
   "level": 58,
@@ -621,7 +621,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c95e722cbc5c43d360"
+    "$oid": "69d95406171a25e190e12d7c"
   },
   "keyword": "STRING",
   "level": 55,
@@ -630,7 +630,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9841cbbcdbbed3e39"
+    "$oid": "69d954061b6fbee92fc8ebfe"
   },
   "keyword": "NOCHANNEL NOEMOTE NOSHOUT NOTELL",
   "level": 55,
@@ -639,7 +639,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c970f61ebcdb8e1b89"
+    "$oid": "69d95406949ef33d6e6a7529"
   },
   "keyword": "PARDON",
   "level": 57,
@@ -648,7 +648,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9c4bd97a62aa53100"
+    "$oid": "69d95406da2e478471261da5"
   },
   "keyword": "PURGE",
   "level": 56,
@@ -657,7 +657,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9101438b4cfe3015f"
+    "$oid": "69d9540630ec64b4a2b3e058"
   },
   "keyword": "RESTORE",
   "level": 56,
@@ -666,7 +666,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c933ef48a4f6ab4fcc"
+    "$oid": "69d95406927499e15bfcdbb9"
   },
   "keyword": "SLAY",
   "level": 57,
@@ -675,7 +675,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c907f1243638a74805"
+    "$oid": "69d95406fa1e1a8abf9c939a"
   },
   "keyword": "TRANSFER TELEPORT",
   "level": 55,
@@ -684,7 +684,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c954673a493091b0be"
+    "$oid": "69d95406aca32be65ab7626e"
   },
   "keyword": "AT",
   "level": 54,
@@ -693,7 +693,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9e7508a21007d5daa"
+    "$oid": "69d954068da40bcada7d29a6"
   },
   "keyword": "ECHO GECHO PECHO",
   "level": 54,
@@ -702,7 +702,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9f8b4cc05c53ea933"
+    "$oid": "69d9540653a89df9a52263ac"
   },
   "keyword": "GOTO",
   "level": 52,
@@ -711,7 +711,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c96e61f10dafdf634c"
+    "$oid": "69d954062aa8ceeba829025b"
   },
   "keyword": "HOLYLIGHT INVIS WIZINVIS",
   "level": 52,
@@ -720,7 +720,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c954fa7c0ff22fd078"
+    "$oid": "69d954063270e49cae557f0a"
   },
   "keyword": "INCOGNITO",
   "level": 52,
@@ -729,7 +729,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c93367788f64c44792"
+    "$oid": "69d95406c75e75020c783c0f"
   },
   "keyword": "memory\n\nMemory reports the size of your mud.\n\nThe 'Mobs' and 'Objs' lines report the number of types of mobiles and objects,\nnot the number of instances currently in the game.\n\nThe 'Strings' line shows memory used by area-file strings.  These strings have\na maximum limit, which is also shown.\n\nThe 'Perms' line shows permanently allocated memory blocks.  There is no limit\non the number and size of these blocks.",
   "level": 0,
@@ -738,7 +738,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c93275bf178218eb01"
+    "$oid": "69d95406f5f51be7b729642b"
   },
   "keyword": "vnum <name>\n\tvnum <obj or mob> <name>\n\tvnum skill <name>\n\nVnum finds all objects and mobiles with a particular name, and prints out\nthe results.  Use vnum obj or vnum mob to limit the search.  This vnum is\nvery useful for loading. Vnum skill returns the skill number (for set) and\nthe slot number (for making new zones) of a skill name.\n(see also load)",
   "level": 0,
@@ -747,7 +747,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9cbf912549063d1e9"
+    "$oid": "69d95406bb5a13ee9f303a5f"
   },
   "keyword": "stat <name>\n\tstat mob  <name>\n\tstat obj  <name>\n\tstat room <number>\n\nThe stat command gives you detailed information on an object, mobile, or room\nwithin the game.  Without a class argument, the command will return a object\n(if found), a mobile (if no object exists, but a mobile does), or a room \n(if a number is  given).  Stat room with no argument stats the room you are\nstanding in.  Stat can be used to find room vnums for goto.\n(see also goto, transfer)",
   "level": 0,
@@ -756,7 +756,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c957b6bd4d8ba09509"
+    "$oid": "69d95406bbb8c785f48738de"
   },
   "keyword": "mwhere <name>\n\nMwhere shows you the locations of all mobiles with a particular name.",
   "level": 0,
@@ -765,7 +765,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c954f1c58efdca223c"
+    "$oid": "69d954065b71bfd418b1a43d"
   },
   "keyword": "peace\n\nPeace causes all characters in a room to stop fighting. It also strips the\nAGGRESSIVE bit from mobiles.",
   "level": 0,
@@ -774,7 +774,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9e1e1974eb13d068d"
+    "$oid": "69d954060ebbf9b1df350716"
   },
   "keyword": "poofin  <message>\nSyntax: pooffout <message>\n\nThe standard messages for goto are 'arrives in a swirling mist' and\n'leaves in a swirling mist'.  You can replace these messages with messages of\nyour own choosing using the poofin and poofout commands.  These messages\nmust include your name somewhere in the string.\n\nPoofin and poofout only show to characters who can see you.\n(see also goto)",
   "level": 0,
@@ -783,7 +783,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9e9f5676363e98d12"
+    "$oid": "69d954067ee3909d96448266"
   },
   "keyword": "protect <character>\n\nProtect is used to protect a character from unwanted snooping.  Removing \nprotected status from a character WILL be seen by that character.",
   "level": 0,
@@ -792,7 +792,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9738c7fa507184ea7"
+    "$oid": "69d954064d8335fe1917320b"
   },
   "keyword": "log   <character>\n\tlog   all\n\tsnoop <character>\n\nLog <character> causes all of a character's commands to be logged into\nthe server's log file.  Like Freeze, it is a permanent character toggle.\nLogs may only be used by creators and implementors, and should be accompanied\nby mail to the implementors.\n\nCertain commands (Password) are protected against log.  Conversely, certain\ncommands (especially immortal commands) are always logged.\n\nLog all logs all character commands.  It is a server-wide toggle; it does not\npersist across reboots. Please do not use this unless you tell the imps.\n\nSnoop shows you a copy of all the input and output going to a character.\nThe character must have an open channel.  You may snoop more than one\ncharacter at a time. Try to respect privacy.\n\nSnoop yourself to cancel all outstanding snoops.",
   "level": 0,
@@ -801,7 +801,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9a1216cda24e96649"
+    "$oid": "69d95406c39acc4ce927d79e"
   },
   "keyword": "switch <character>\n\treturn\n\nSwitch switches you into the body of another character (who must not\nalready have a descriptor, e.g. you can't switch into a PC). You also cannot\nswitch into link-dead PCs.\n\nReturn returns you to your original body.",
   "level": 0,
@@ -810,7 +810,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c91b94f387ea6904ad"
+    "$oid": "69d954069b89f01ec122aa59"
   },
   "keyword": "immtalk <message>\n\timmtalk\n\nImmtalk sends a message to all immortals.  : is a synonym for immtalk.\nUsing this command with no argument turns off the immortal channel (or\nturns it back on).",
   "level": 0,
@@ -819,7 +819,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9f557e0434963ba74"
+    "$oid": "69d95406edb15653c48de191"
   },
   "keyword": "wiznet \n\twiznet show\n\twiznet status\n\twiznet <field>\n\nWiznet is sort of an immortal news service, to show important events to\nthe wiznetted immoral.  Wiznet by itself turns wiznet on and off, \nwiznet show lists all settable flags (they are not detailed here), \nwiznet status shows your current wiznet settings, and wiznet <field> toggles\na field on and off.  The events should be self-explanatory, if they are not,\nfiddle with them a while.  More events are available at higher levels.",
   "level": 0,
@@ -828,7 +828,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9b38240c519f8814c"
+    "$oid": "69d95406d64841a7800c609a"
   },
   "keyword": "wizhelp\n\nWizhelp provides a list of all the immortal commands.",
   "level": 0,
@@ -837,7 +837,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c94bcb486e3aff2064"
+    "$oid": "69d954066e9a8d0e50514f06"
   },
   "keyword": "cast armor <character>\n\nThis spell decreases (improves) the armor class of the target character\nby 20 points.",
   "level": 0,
@@ -846,7 +846,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c90b571631bd8ddd64"
+    "$oid": "69d954060e0b4fa509875b6a"
   },
   "keyword": "cast bless <character>\nSyntax: cast bless <object>\n\nThis spell improves the to-hit roll and saving throw versus spell of the\ntarget character by 1 for every 8 levels of the caster. It may also be\ncast on an object to temporarily bless it (blessed weapons, for example,\nare more effective against demonic beings).",
   "level": 0,
@@ -855,7 +855,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c970a97c1d5b1d2b9b"
+    "$oid": "69d95406f210c568042aea55"
   },
   "keyword": "cast blindness <victim>\n\nThis spell renders the target character blind.",
   "level": 0,
@@ -864,7 +864,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c91686f7880b396e17"
+    "$oid": "69d954068d969afaa341e86d"
   },
   "keyword": "cast 'acid blast'     <victim>\nSyntax: cast 'burning hands'  <victim>\nSyntax: cast 'colour spray'   <victim>\nSyntax: cast 'fireball'       <victim>\nSyntax: cast 'lightning bolt' <victim>\nSyntax: cast 'magic missile'  <victim>\nSyntax: cast 'shocking grasp' <victim>\n\nThese spells inflict damage on the victim.  The higher-level spells do\nmore damage.",
   "level": 0,
@@ -873,7 +873,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c93afe8338ade9c929"
+    "$oid": "69d95406c2a67d419205a1f7"
   },
   "keyword": "cast 'call lightning'\n\nThis spell works only out of doors, and only when the weather is bad.\nIt calls down lightning bolts from Mota.",
   "level": 0,
@@ -882,7 +882,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9700c2cc6539d6509"
+    "$oid": "69d95406fdbb0364f0e53a7f"
   },
   "keyword": "cast 'cause light'    <victim>\nSyntax: cast 'cause serious'  <victim>\nSyntax: cast 'cause critical' <victim>\nSyntax: cast harm             <victim>\n\nThese spells inflict damage on the victim.  The higher-level spells do\nmore damage.",
   "level": 0,
@@ -891,7 +891,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9ef8e728c11103574"
+    "$oid": "69d954060b89b27fef70e235"
   },
   "keyword": "cast 'change sex' <victim>\n\nThis spell changes the sex of the victim (temporarily).",
   "level": 0,
@@ -900,7 +900,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9f3bfe1e5527e043c"
+    "$oid": "69d954065118ae9e438b288c"
   },
   "keyword": "cast 'charm person' <victim>\n\nThis spell, if successful, causes the victim to follow you and to take orders\nfrom you.  Use ORDER to order your charmed followers.\n\nYou are responsible for the actions of your followers.  Conversely, other\npeople who attack your followers will be penalized as if they attacked you.",
   "level": 0,
@@ -909,7 +909,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9597109df70133467"
+    "$oid": "69d95406d461d7792b3f839a"
   },
   "keyword": "cast 'chill touch' <victim>\n\nThis spell inflicts damage on the victim and also reduces the victim's\nstrength by one.",
   "level": 0,
@@ -918,7 +918,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c97b7a419570367936"
+    "$oid": "69d954068a9789f60f43f71b"
   },
   "keyword": "cast 'continual light'\nSyntax: cast 'continual light' <object>\n\nThis spell creates a ball of light, which you can hold as a light source.\nThe ball of light will last indefinitely. It may also be used on an object\nto give it an enchanted glow.",
   "level": 0,
@@ -927,7 +927,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9b3d83fd27a621926"
+    "$oid": "69d954063de59b726b8f8ffb"
   },
   "keyword": "cast 'control weather' better\nSyntax: cast 'control weather' worse\n\nThis spell makes the weather either better or worse.",
   "level": 0,
@@ -936,7 +936,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c975a5819f51411900"
+    "$oid": "69d95406daee79e1281efcfd"
   },
   "keyword": "cast 'create food'\n\nThis spell creates a Magic Mushroom, which you or anyone else can eat.",
   "level": 0,
@@ -945,7 +945,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c925651df4210c944f"
+    "$oid": "69d954066d8c85c7db506fa5"
   },
   "keyword": "cast 'create spring'\n\nThis spell brings forth a magical spring from the ground, which has the\nsame properties as a fountain.",
   "level": 0,
@@ -954,7 +954,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9e104c65dc95c62c9"
+    "$oid": "69d954060dd70e507dc65476"
   },
   "keyword": "cast 'create water' <drink-container>\n\nThis spell replenishes a drink container with water.",
   "level": 0,
@@ -963,7 +963,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9972abb65a0743aef"
+    "$oid": "69d954061f03da7aba77296c"
   },
   "keyword": "cast 'cure blindness' <character>\n\nThis spell cures blindness in one so unfortunate.",
   "level": 0,
@@ -972,7 +972,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c97d9f7d6e3caad1b8"
+    "$oid": "69d954069cb2e8d355e1a550"
   },
   "keyword": "cast 'cure poison' <character>\n\nThis spell cures poison in one so unfortunate.",
   "level": 0,
@@ -981,7 +981,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c98e43b5a517ac6d59"
+    "$oid": "69d95406992e3fd12b1c618e"
   },
   "keyword": "cast 'cure light'    <character>\nSyntax: cast 'cure serious'  <character>\nSyntax: cast 'cure critical' <character>\nSyntax: cast 'heal'          <character>\n\nThese spells cure damage on the target character.  The higher-level spells\nheal more damage.\n\n(see 'help healer' for details on the heal command)",
   "level": 0,
@@ -990,7 +990,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c93e9ee0015287e9db"
+    "$oid": "69d954066b5557b720e5d3e6"
   },
   "keyword": "cast 'curse' <character>\n\nThis spell reduces the character's to-hit roll and save versus spells.\nIt also renders the character unclean in the eyes of Mota and\nunable to RECALL. Curse may be used to fill equipment with evil power,\nallowing (for example) weapons to do more damage to particularly holy\nopponents.",
   "level": 0,
@@ -999,7 +999,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9e5ae9350efcfe764"
+    "$oid": "69d95406e2ea4ebc762f7f25"
   },
   "keyword": "cast 'detect evil'\n\nThis spell enables the caster to detect evil characters, which will\nreveal a characteristic red aura.",
   "level": 0,
@@ -1008,7 +1008,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c907293c6f06d2e69c"
+    "$oid": "69d954063887dea89a14d384"
   },
   "keyword": "cast 'detect hidden'\n\nThis spell enables the caster to detect hidden creatures.",
   "level": 0,
@@ -1017,7 +1017,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9b2098fb70a05de54"
+    "$oid": "69d954067a0d376e7e81e53d"
   },
   "keyword": "cast 'detect invis'\n\nThis spell enables the caster to detect invisible objects and characters.",
   "level": 0,
@@ -1026,7 +1026,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c981fe8f6eb5c9ad2a"
+    "$oid": "69d95406310d97514aa4a2c9"
   },
   "keyword": "cast 'detect magic'\n\nThis spell enables the caster to detect magical objects.",
   "level": 0,
@@ -1035,7 +1035,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9ac381202d1330f55"
+    "$oid": "69d954069f010fa2a2e2bfd6"
   },
   "keyword": "cast 'detect poison' <object>\n\nThis spell detects the presence of poison in food or drink.",
   "level": 0,
@@ -1044,7 +1044,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c935b408b9d01af170"
+    "$oid": "69d954064b9c0bdc698305c8"
   },
   "keyword": "cast 'dispel evil' <victim>\n\nThis spell invokes the wrath of Mota on an evil victim. It can be very\ndangerous for casters who are not pure of heart.",
   "level": 0,
@@ -1053,7 +1053,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9ea7e7000df2be52c"
+    "$oid": "69d95406d2837be367905d3a"
   },
   "keyword": "cast 'dispel magic' <character>\n        cast 'cancellation' <characte>\n \nBoth of these spells remove magical effects from the target.  Dispel magic\nhas a reduced chance of working, and is considering an attack spell.\nCancellation can only be used on allies, but is much more effective and does\nnot provoke attack.  Unfortunately, the spells do not discriminate between\nharmful and benign spells.\n \nThe chance of dispelling is based on the level of the spell. Permanent spells\n(such as mobile sanctuary) are much harder to remove.  Not all spells may\nbe dispelled, notable examples are poison and plague.",
   "level": 0,
@@ -1062,7 +1062,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9c8c2d05d1a4eb0ea"
+    "$oid": "69d95406b159687370a10b4b"
   },
   "keyword": "cast 'earthquake'\n\nThis spell inflicts damage on every enemy character in the room.\nBeware that other characters who are not yet fighting may attack\nyou as a result!",
   "level": 0,
@@ -1071,7 +1071,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c990dfbacd3ad65675"
+    "$oid": "69d95406c55e888f64c053f2"
   },
   "keyword": "cast 'enchant weapon' <weapon>\n\nThis spell magically enchants a weapon, increasing its to-hit and to-dam\nbonuses by one or two points.  Multiple enchants may be cast, but as the\nweapon grows more and more powerful, it is more likely to be drained or\ndestroyed by the magic.  Also, every successful enchant increases the level\nof the weapon by one...and there is no turning back.",
   "level": 0,
@@ -1080,7 +1080,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c95e6740d3a8315563"
+    "$oid": "69d95406990b8e2b0af17651"
   },
   "keyword": "enchant armor spell imbues armor with powerful protective magics. It is\nnot nearly as reliable as enchant weapon, being far more prone to destructive\neffects.  Each succesful enchant increases the plus of the armor by 1 or 2\npoints, and raises its level by one.",
   "level": 0,
@@ -1089,7 +1089,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c97e2d2aa3e145ab6c"
+    "$oid": "69d954063f615e390a7862e1"
   },
   "keyword": "cast 'energy drain' <victim>\n\nThis spell saps the experience points, mana, and movement points of its\ntarget.",
   "level": 0,
@@ -1098,7 +1098,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c98d6338c109d58560"
+    "$oid": "69d9540605fa0e242bedf297"
   },
   "keyword": "cast 'faerie fire' <victim>\n\nThis spell increases (makes worse) the armor class of its victim.  For each\nlevel of the caster, the victim's armor class is increased by two points.",
   "level": 0,
@@ -1107,7 +1107,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9376734e7726776ee"
+    "$oid": "69d954064ee1ec66a8e696be"
   },
   "keyword": "cast 'faerie fog'\n\nThis spell reveals all manner of invisible, hidden, and sneaking creatures in\nthe same room as you.",
   "level": 0,
@@ -1116,7 +1116,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c93d5c75b32bff3ffb"
+    "$oid": "69d9540661b2ac18c1cd9e1e"
   },
   "keyword": "cast 'flamestrike' <victim>\n\nThis spell inflicts damage on the victim.",
   "level": 0,
@@ -1125,7 +1125,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9d63f638475e9bdfe"
+    "$oid": "69d95406619ac09cce837b77"
   },
   "keyword": "cast 'fly' <character>\n\nThis spell enables the target character to fly.",
   "level": 0,
@@ -1134,7 +1134,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c94592e770153c41d5"
+    "$oid": "69d9540632fa2012452d4c90"
   },
   "keyword": "cast identify <object>\n\nThis spell reveals information about the object.",
   "level": 0,
@@ -1143,7 +1143,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9bd2833f7a7de18d4"
+    "$oid": "69d954062ff146bb62657ef0"
   },
   "keyword": "cast infravision <character>\n\nThis spell enables the target character to see warm-blooded creatures even\nwhile in the dark, and exits of a room as well.",
   "level": 0,
@@ -1152,7 +1152,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9ecca7ee4c83d1e4a"
+    "$oid": "69d95406651b92990b8245ff"
   },
   "keyword": "'KNOW ALIGNMENT'",
   "level": 0,
@@ -1161,7 +1161,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9209a5804770caa6a"
+    "$oid": "69d954064ad8facb62461ec8"
   },
   "keyword": "'LOCATE OBJECT'",
   "level": 0,
@@ -1170,7 +1170,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9433993670e1f8d7a"
+    "$oid": "69d9540631773c343768be1e"
   },
   "keyword": "'PASS DOOR'",
   "level": 0,
@@ -1179,7 +1179,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c954c6eef1422541ec"
+    "$oid": "69d954061de1041368372dbc"
   },
   "keyword": "POISON",
   "level": 0,
@@ -1188,7 +1188,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9cab9c2668c303ab2"
+    "$oid": "69d95406bd72de30cd5ac1b7"
   },
   "keyword": "SANCTUARY",
   "level": 0,
@@ -1197,7 +1197,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c942e9e4add2b89554"
+    "$oid": "69d9540691bcf4a7f3805460"
   },
   "keyword": "REFRESH",
   "level": 0,
@@ -1206,7 +1206,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c945e5eff216b0b625"
+    "$oid": "69d9540687e59a1bd472b4ab"
   },
   "keyword": "'REMOVE CURSE'",
   "level": 0,
@@ -1215,7 +1215,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9f01a48974647c60a"
+    "$oid": "69d95406bdecedb14588768e"
   },
   "keyword": "SHIELD 'STONE SKIN'",
   "level": 0,
@@ -1224,7 +1224,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c94a2869946f7f8518"
+    "$oid": "69d95406a03d28768ddab5c9"
   },
   "keyword": "SLEEP",
   "level": 0,
@@ -1233,7 +1233,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c99fe41ce90027f63e"
+    "$oid": "69d95406d2460c6601f6762f"
   },
   "keyword": "SUMMON",
   "level": 0,
@@ -1242,7 +1242,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c944fb97e400b3ae07"
+    "$oid": "69d95406ece1586de48afd1e"
   },
   "keyword": "TELEPORT",
   "level": 0,
@@ -1251,7 +1251,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c99e8078db7303726b"
+    "$oid": "69d9540671a16ca6710a8249"
   },
   "keyword": "VENTRILOQUATE",
   "level": 0,
@@ -1260,7 +1260,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c96edd09779a6cac24"
+    "$oid": "69d954064005b60c408b68d7"
   },
   "keyword": "WEAKEN",
   "level": 0,
@@ -1269,7 +1269,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9fc671831bc1caa80"
+    "$oid": "69d95406861597f863ae43ae"
   },
   "keyword": "'WORD OF RECALL'",
   "level": 0,
@@ -1278,7 +1278,7 @@
 },
 {
   "_id": {
-    "$oid": "69d5d5c9547866e47a1b16d6"
+    "$oid": "69d95406fb9bafed07cb9d90"
   },
   "keyword": "'ACID BREATH' 'FIRE BREATH' 'FROST BREATH' 'GAS BREATH' 'LIGHTNING BREATH'",
   "level": 0,

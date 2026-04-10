@@ -414,4 +414,4 @@ class MobileUtil:
 
     @staticmethod
     def char_to_room(char: Character | Mobile, room: Room):
-        pass
+        char.room_id = room.id

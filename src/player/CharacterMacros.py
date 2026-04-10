@@ -90,6 +90,7 @@ class CharacterMacros(GameMacros):
         return self.get_attribute_bonus(attr_name="strength", attr_level=str(char.level)).get('todam')
 
     def is_outside(self, char: Any) -> bool:
+        print(f"char: {char}")
         room: Room = self.registry_service.room_registry.get(id=char.room_id)
         self.logger.debug(f"is_outside: {room.room_flags}={self.RoomFlagsEnum.ROOM_INDOORS}")
         return (room.room_flags & self.RoomFlagsEnum.ROOM_INDOORS) == 0

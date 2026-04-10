@@ -1,10 +1,10 @@
 from enum import IntEnum
 from injector import inject
-from area import Reset
+from area.Reset import Reset
 from area.Area import Area
 from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
-from mobile import Mobile
+from mobile.Mobile import Mobile
 from mobile.MobileUtil import MobileUtil
 from mobile.MobileRegistry import MobileRegistry
 from object.ObjectMacros import ObjectMacros
@@ -100,5 +100,5 @@ class AreaHandler:
         if template_mob.count >= room_max:
             return last
         mob = MobileUtil.create_mobile(template_mob, self.enums, self.character_macros)
-        # MobileUtil.char_to_room(mob, room)
+        MobileUtil.char_to_room(mob, room)
         return last
