@@ -275,7 +275,7 @@ class MobileUtil:
             mob.perm_stat.dexterity += 3
             mob.perm_stat.intelligence += 1
             mob.perm_stat.wisdom -= 1
-        elif GameMacros.is_set(mob.mobile_flags.act == act_bits.CLERIC):
+        elif GameMacros.is_set(mob.mobile_flags.act, act_bits.CLERIC):
             mob.perm_stat.wisdom += 3
             mob.perm_stat.dexterity -= 1
             mob.perm_stat.strength += 1
