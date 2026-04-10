@@ -7,7 +7,7 @@ from mobile.Mobile import Mobile
 from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice
 from mobile.MobileFlags import MobileFlags
-from numbers import RandomNumberGenerator
+from game.RandomNumberGenerator import RandomNumberGenerator
 from object.ObjectMacros import ObjectMacros
 from server.LoggerFactory import LoggerFactory
 

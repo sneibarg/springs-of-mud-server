@@ -4,7 +4,7 @@ from area.Area import Area
 from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
 from object.ObjectMacros import ObjectMacros
-from numbers import RandomNumberGenerator
+from game.RandomNumberGenerator import RandomNumberGenerator
 from object.ItemRegistry import ItemRegistry
 from server.messaging import MessageBus
 from server.LoggerFactory import LoggerFactory

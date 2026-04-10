@@ -5,7 +5,7 @@ from injector import inject
 from game.GameData import Constants
 from player.CharacterMacros import CharacterMacros
 from player.CharacterRegistry import CharacterRegistry
-from numbers.RandomNumberGenerator import RandomNumberGenerator
+from game.RandomNumberGenerator import RandomNumberGenerator
 from server.LoggerFactory import LoggerFactory
 from server.messaging.MessageBus import MessageBus
 from server.protocol.Message import Message, MessageType
