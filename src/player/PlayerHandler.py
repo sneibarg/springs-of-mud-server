@@ -1,16 +1,16 @@
 import re
-from typing import List, Dict, Any
 
+from typing import Dict, Any
 from injector import inject
 from player.Character import Character
 from player.CharacterRegistry import CharacterRegistry
+from player.PlayerUtil import PlayerUtil
 from server.messaging import MessageBus
 from server.session.SessionHandler import SessionHandler
-
+from server.LoggerFactory import LoggerFactory
 
 LOOK_CTX_KEY = "_look_ctx"
 LOOK_IN_ALIASES = {"i", "in", "on"}
-LOOK_DIRECTIONS = {"n", "north", "e", "east", "s", "south", "w", "west", "u", "up", "d", "down"}
 
 
 class PlayerHandler:
@@ -20,9 +20,10 @@ class PlayerHandler:
         self.message_bus = message_bus
         self.character_registry = character_registry
         self.session_handler = session_handler
+        self.logger = LoggerFactory.get_logger(__name__)
 
     async def print_visible(self, character):
-        who_list = [character] + self._visible(character)
+        who_list = [character] + PlayerUtil.visible(character, self.session_handler)
         who_line = ""
         players_found = "Players found: " + str(len(who_list)) + "\r\n"
         for c in who_list:
@@ -36,17 +37,6 @@ class PlayerHandler:
         text += "\r\n"
         message = self.message_bus.text_to_message(text)
         await self.message_bus.send_to_character(character_id, message)
-
-    def _visible(self, character) -> List[Character]:
-        visible = []
-        for session in self.session_handler.get_playing_sessions():
-            char = session.character
-            if char.id == character.id:
-                continue
-            if char.cloaked and character.role == "player":
-                continue
-            visible.append(char)
-        return visible
 
     def _look_ctx(self, character: Character) -> Dict[str, Any]:
         if character.context is None:
@@ -64,6 +54,7 @@ class PlayerHandler:
                 "done": False,
             }
             character.context[LOOK_CTX_KEY] = ctx
+        self.logger.debug(f"Look context: {ctx}")
         return ctx
 
     async def look_begin(self, character: Character, argument: str = ""):
@@ -89,6 +80,7 @@ class PlayerHandler:
             "branch": "default" if arg1 in ("", "auto") else None,
             "done": False,
         }
+        self.logger.debug(f"Look context: {character.context[LOOK_CTX_KEY]}")
 
     def look_context(self, character: Character) -> Dict[str, Any]:
         return self._look_ctx(character)
@@ -110,6 +102,7 @@ class PlayerHandler:
         if not t or not k:
             return False
         words = [w for w in k.split() if w]
+        self.logger.debug(f"Looking for keywords: {words}")
         return any(w == t or w.startswith(t) for w in words)
 
     def look_is_named_target_query(self, character: Character) -> bool:
@@ -185,5 +178,7 @@ class PlayerHandler:
 
     async def look_finish(self, character: Character):
         if character.context and LOOK_CTX_KEY in character.context:
-            del character.context[LOOK_CTX_KEY]
+            with character.lock:
+                del character.context[LOOK_CTX_KEY]
+                self.logger.debug(f"Look context deleted: {character.context}")
             

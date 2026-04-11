@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Optional
+from interp.HelpEntry import HelpEntry
 
 
 @dataclass
@@ -15,9 +16,10 @@ class Command:
     enabled: bool
     lambdas: list[str]
     function: list[str]
+    pipeline: bool = False
     usage: Optional[str] = field(default=None)
     log: Optional[str] = field(default=None)
-    help: Optional[str] = field(default=None)
+    help: Optional[HelpEntry] = field(default=None)
     level: Optional[int] = field(default=None)
 
     def __hash__(self):

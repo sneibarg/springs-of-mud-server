@@ -11,6 +11,7 @@ from area.AreaHandler import AreaHandler
 from area.ResetService import ResetService
 from area.RoomHandler import RoomHandler
 from area.SpecialService import SpecialService
+from game.HandlerService import HandlerService
 from interp.HelpService import HelpService
 from interp.InterpHandler import InterpHandler
 from interp.SocialHandler import SocialHandler
@@ -89,6 +90,7 @@ class ServerUtil:
         injector.binder.bind(AuthenticationService, scope=singleton)
         injector.binder.bind(SocialService, scope=singleton)
         injector.binder.bind(NoteService, scope=singleton)
+        injector.binder.bind(HandlerService, scope=singleton)
         injector.binder.bind(ItemService, to=ItemService(service_config,
                                                          injector.get(ItemRegistry),
                                                          injector.get(SkillRegistry),

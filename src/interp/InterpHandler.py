@@ -2,11 +2,13 @@ import inspect
 import re
 
 from injector import inject, Injector
-from interp.SocialRegistry import SocialRegistry
+
+from interp.Command import Command
+from interp.HelpEntry import HelpEntry
 from interp.InterpService import InterpService
 from interp.InterpUtil import InterpUtil
 from interp.SocialHandler import SocialHandler
-from interp.InterpRegistry import InterpRegistry
+from interp.Context import Context
 from game.RegistryService import RegistryService
 from area.AreaService import AreaService
 from area.RoomService import RoomService
@@ -14,6 +16,8 @@ from mobile.MobileHandler import MobileHandler
 from mobile.MobileService import MobileService
 from mobile.Mobile import Mobile
 from fight.FightHandler import FightHandler
+from player.Character import Character
+from player.Player import Player
 from player.PlayerHandler import PlayerHandler
 from player.PlayerService import PlayerService
 from object.ItemService import ItemService
@@ -144,24 +148,26 @@ def get_args(lambda_string, player, character, injector, parameters):
     return args
 
 
-async def handle_lambdas(handler, player, character, command, parameters):
+async def handle_lambdas(handler: InterpHandler, player: Player, character: Character, command: Command, parameters):
     if parameters is None:
         parameters = []
 
-    lambda_list = getattr(command, "lambdas", None)
-    if lambda_list is None and isinstance(command, dict):
-        lambda_list = command.get("lambda") or command.get("lambdas")
-    lambda_list = lambda_list or []
+    context = Context(player=player, character=character, parameters=parameters, injector=handler.injector, result=parameters)
+    lambda_list = command.lambdas
+    if lambda_list is None:
+        lambda_list = []
     for lambda_function in lambda_list:
         if lambda_function is not None:
             if not isinstance(lambda_function, str):
-                raise TypeError('Expected string representation of lambda function')
+                handler.logger.error(f'Expected string representation of lambda function: {lambda_function}')
+                continue
 
             lambda_string = str(lambda_function)
             lambda_function = eval(lambda_function)
 
             if not callable(lambda_function):
-                raise TypeError('lambda_function is not a callable function.')
+                handler.logger.error(f'lambda_function is not a callable function: {lambda_function}.')
+                continue
 
             args = get_args(lambda_string, player, character, handler.injector, parameters)
             result = lambda_function(*args)
@@ -173,21 +179,23 @@ async def handle_lambdas(handler, player, character, command, parameters):
 
 class InterpHandler:
     @inject
-    def __init__(self, injector: Injector, message_bus: MessageBus, interp_registry: InterpRegistry, social_registry: SocialRegistry, social_handler: SocialHandler):
+    def __init__(self, injector: Injector, message_bus: MessageBus, registry_service: RegistryService, social_handler: SocialHandler):
         self.__name__ = "InterpHandler"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.injector = injector
         self.message_bus = message_bus
-        self.interp_registry = interp_registry
-        self.social_registry = social_registry
+        self.registry_service = registry_service
+        self.interp_registry = registry_service.interp_registry
+        self.social_registry = registry_service.social_registry
         self.social_handler = social_handler
         self.command_not_found_message = self.message_bus.text_to_message("Huh?\r\n")
 
     def get_message(self, cmd):
         command = self.interp_registry.get_or_none(name=cmd.lower())
-        if command is None:
-            raise ValueError(f"Command {cmd} not found in command registry.")
-        return InterpUtil.command_attr(command, "message", None)
+        if command is None or command.message is None:
+            self.logger.error(f"Issue with command {cmd} in registry; message is {command.message if command else 'None'}")
+            return None
+        return command.message
 
     async def call_lambda(self, player, character, command_name, command_list, parameters):
         command = self.interp_registry.get_or_none(name=command_name)
@@ -195,8 +203,6 @@ class InterpHandler:
             command_json = InterpUtil.find_command_by_name(command_name, command_list)
             if command_json is None:
                 return await self.message_bus.send_to_character(character.id, self.command_not_found_message)
-            else:
-                command = self.interp_registry.get(id=command_json["id"])
 
         try:
             await handle_lambdas(self, player, character, command, parameters)
@@ -210,23 +216,22 @@ class InterpHandler:
     async def handle_command(self, player, character, command):
         cmd, parameters = InterpUtil.extract_parameters(self.interp_registry, command)
         if cmd is None:
-            social = self.social_registry.get_or_none(name=command.lower())
+            social = self.social_registry.get(name=command.lower())
             if social is not None:
                 return await self.social_handler.handle_social(character, command, social)
             await self.message_bus.send_to_character(character.id, self.command_not_found_message)
             return None
 
-        usage = InterpUtil.command_attr(cmd, "usage", None)
+        usage = cmd.usage
         if isinstance(usage, str) and usage.strip():
             usage_function = eval(usage)
             if not callable(usage_function):
-                self.logger.debug("NOT_CALLABLE: " + str(usage_function))
+                self.logger.error("NOT_CALLABLE: " + str(usage_function))
             else:
                 player.usage = usage_function
 
-        cmd_name = InterpUtil.command_attr(cmd, "name", "")
-        self.logger.info(f"CMD: {cmd_name}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
-        return await self.call_lambda(player, character, cmd_name, self.interp_registry.all_commands(), parameters)
+        self.logger.info(f"CMD: {cmd.name}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
+        return await self.call_lambda(player, character, cmd.name, self.interp_registry.all_commands(), parameters)
 
     async def help_usage(self, character, argument: str = ""):
         arg_all = " ".join((argument or "").split()).lower()
@@ -235,11 +240,8 @@ class InterpHandler:
         output_parts = []
         found = False
         for command in self.interp_registry.all_commands():
-            help_entry = InterpUtil.command_attr(command, "help", None)
-            if help_entry is None:
-                continue
-
-            if not help_entry.keyword:
+            help_entry: HelpEntry = command.help
+            if help_entry is None or not help_entry.keyword:
                 continue
 
             q_words = arg_all.split()

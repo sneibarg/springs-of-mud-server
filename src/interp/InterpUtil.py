@@ -6,12 +6,6 @@ class InterpUtil:
     pass
 
     @staticmethod
-    def command_attr(command, attr_name: str, default=None):
-        if isinstance(command, dict):
-            return command.get(attr_name, default)
-        return getattr(command, attr_name, default)
-
-    @staticmethod
     def shortcut_tokens(shortcuts) -> list[str]:
         if shortcuts is None:
             return []
