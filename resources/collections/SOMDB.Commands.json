@@ -191,7 +191,7 @@
     "$oid": "673bf1dbb49d7223c66faa59"
   },
   "name": "look",
-  "shortcuts": "lo, loo",
+  "shortcuts": "l, lo, loo",
   "role": "player",
   "lambdas": [
     "lambda c, ph, msg: ph.look_begin(c, msg)",

@@ -2,32 +2,25 @@ import inspect
 import re
 
 from injector import inject, Injector
-
+from area.RoomHandler import RoomHandler
+from fight.FightHandler import FightHandler
+from game.HandlerService import HandlerService
+from game.RegistryService import RegistryService
 from interp.Command import Command
+from interp.Context import Context
 from interp.HelpEntry import HelpEntry
 from interp.InterpService import InterpService
 from interp.InterpUtil import InterpUtil
 from interp.SocialHandler import SocialHandler
-from interp.Context import Context
-from game.RegistryService import RegistryService
-from area.AreaService import AreaService
-from area.RoomService import RoomService
-from mobile.MobileHandler import MobileHandler
-from mobile.MobileService import MobileService
 from mobile.Mobile import Mobile
-from fight.FightHandler import FightHandler
+from mobile.MobileHandler import MobileHandler
+from object.ItemHandler import ItemHandler
 from player.Character import Character
 from player.Player import Player
 from player.PlayerHandler import PlayerHandler
-from player.PlayerService import PlayerService
-from object.ItemService import ItemService
 from server.LoggerFactory import LoggerFactory
 from server.connection.ConnectionManager import ConnectionManager
-from area.RoomHandler import RoomHandler
-from object.ItemHandler import ItemHandler
 from server.messaging import MessageBus
-from skill.SkillService import SkillService
-
 
 lambda_mappings = {
     'p': 'Player',
@@ -42,11 +35,6 @@ lambda_mappings = {
     'ph': 'PlayerHandler',
     'cmh': 'InterpHandler',
     'sh': 'SkillHandler',
-    'cs': 'InterpService',
-    'ps': 'CharacterService',
-    'ms': 'MobileService',
-    'os': 'ObjectService',
-    'ss': 'SkillService',
     'eh': 'FightHandler',
     'cn': 'TelnetConnection',
     'mb': 'MessageBus',
@@ -65,12 +53,7 @@ def get_class_obj(class_name):
     class_map = {
         'InterpService': InterpService,
         'RegistryService': RegistryService,
-        'RoomService': RoomService,
-        'AreaService': AreaService,
-        'MobileService': MobileService,
-        'ObjectService': ItemService,
-        'SkillService': SkillService,
-        'CharacterService': PlayerService,
+        'HandlerService': HandlerService,
         'FightHandler': FightHandler,
         'RoomHandler': RoomHandler,
         'PlayerHandler': PlayerHandler,
@@ -129,10 +112,7 @@ def get_args(lambda_string, player, character, injector, parameters):
                 room = registry.room_registry.get(id=character.room_id)
                 class_obj = type(room)
                 obj = room
-            elif arg == 'i':  # Item unimplemented
-                pass
-            elif arg in ['ps', 'zs', 'ms', 'os', 'eh', 'ch', 'cs', 'rh', 'rgs', 'mb',
-                         'cnh', 'rh', 'ih', 'ah', 'mh', 'ph', 'ss', 'sh', 'cmh']:
+            elif arg in ['eh', 'ch', 'rh', 'rgs', 'mb', 'cnh', 'rh', 'ih', 'ah', 'mh', 'ph', 'sh', 'cmh']:
                 obj = injector.get(class_obj)
             elif arg == 'usage':
                 obj = player.usage
@@ -152,11 +132,10 @@ async def handle_lambdas(handler: InterpHandler, player: Player, character: Char
     if parameters is None:
         parameters = []
 
-    context = Context(player=player, character=character, parameters=parameters, injector=handler.injector, result=parameters)
-    lambda_list = command.lambdas
-    if lambda_list is None:
-        lambda_list = []
-    for lambda_function in lambda_list:
+    context = Context(player=player, character=character, parameters=parameters, handler_service=handler.injector.get(HandlerService), result=parameters)
+    if command.lambdas is None:
+        return
+    for lambda_function in command.lambdas:
         if lambda_function is not None:
             if not isinstance(lambda_function, str):
                 handler.logger.error(f'Expected string representation of lambda function: {lambda_function}')
@@ -216,7 +195,7 @@ class InterpHandler:
     async def handle_command(self, player, character, command):
         cmd, parameters = InterpUtil.extract_parameters(self.interp_registry, command)
         if cmd is None:
-            social = self.social_registry.get(name=command.lower())
+            social = self.social_registry.get_or_none(name=command.lower())
             if social is not None:
                 return await self.social_handler.handle_social(character, command, social)
             await self.message_bus.send_to_character(character.id, self.command_not_found_message)
@@ -246,9 +225,7 @@ class InterpHandler:
 
             q_words = arg_all.split()
             k_words = help_entry.keyword.split()
-            if not q_words or not k_words:
-                continue
-            if not all(any(k.startswith(q) for k in k_words) for q in q_words):
+            if (not q_words or not k_words) or not all(any(k.startswith(q) for k in k_words) for q in q_words):
                 continue
 
             level_raw = getattr(help_entry, "level", 0)
