@@ -1,33 +1,38 @@
 from datetime import datetime
 from enum import IntEnum
-from typing import Any
-from area import Room
-from area.RoomHelper import RoomHelper
+from typing import Any, TYPE_CHECKING
+
+from area.Room import Room
 from game.GameMacros import GameMacros
 from game.RandomNumberGenerator import RandomNumberGenerator
-from game.WeatherHandler import WeatherHandler
 from mobile.Mobile import Mobile
 from player.Character import Character
-from player.CharacterConstants import CharacterConstants
 from server.LoggerFactory import LoggerFactory
-from game.RegistryService import RegistryService
+
 
 rng = RandomNumberGenerator()
 
 
 class CharacterMacros(GameMacros):
-    def __init__(self, registry_service: RegistryService, character_constants: CharacterConstants, enums: dict[str, IntEnum], attribute_bonuses: dict[str, dict[str, dict[str, int]]], weather_handler: WeatherHandler):
+    def __init__(self,
+                 registry_service,
+                 character_constants,
+                 enums: dict[str, IntEnum],
+                 attribute_bonuses: dict[str, dict[str, dict[str, int]]]):
         self.__name__ = "CharacterMacros"
         self.registry_service = registry_service
         self.enums = enums
         self.character_constants = character_constants
-        self.weather_handler = weather_handler
+        self.weather_handler = None
         self.RoomFlagsEnum = self.enums.get("roomFlags")
         self.PlayerActBits = self.enums.get("playerActBits")
         self.AffectedBits = self.enums.get('affectedBy')
         self.TimeAndWeatherEnum = enums.get('timeAndWeather')
         self.attribute_bonuses = attribute_bonuses
         self.logger = LoggerFactory.get_logger(__name__)
+
+    def lazy_load(self, weather_handler):
+        self.weather_handler = weather_handler
 
     def get_trust(self, char: Any) -> int:
         if type(char) is Character and char.trust > 0:

@@ -196,11 +196,13 @@ class ServerUtil:
         weather_handler = injector.get(WeatherHandler)
         update_handler = injector.get(UpdateHandler)
         item_handler = injector.get(ItemHandler)
+        character_macros = injector.get(CharacterMacros)
 
         item_handler.set_object_macros(injector.get(ObjectMacros))
         update_handler.set_enums(injector.get(GameService).enums)
         area_handler.set_enums(injector.get(GameService).enums)
         weather_handler.lazy_load(injector.get(GameService).enums, injector.get(GameData).constants)
+        character_macros.lazy_load(weather_handler)
         game_service.set_update_handler(injector.get(UpdateHandler))
 
         service_list = (f"{game_service.__name__}; {player_service.__name__}; {room_service.__name__}; {area_service.__name__}; "
