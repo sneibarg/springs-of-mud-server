@@ -2,6 +2,7 @@ import inspect
 
 from typing import List
 from injector import inject, Injector
+
 from game.HandlerService import HandlerService
 from game.RegistryService import RegistryService
 from interp.Command import Command
@@ -9,7 +10,6 @@ from interp.Context import Context
 from interp.HelpEntry import HelpEntry
 from interp.InterpUtil import InterpUtil
 from player.Character import Character
-from player.Player import Player
 from server.LoggerFactory import LoggerFactory
 from server.connection.ConnectionManager import ConnectionManager
 from server.messaging import MessageBus
@@ -86,8 +86,8 @@ class InterpHandler:
         arguments = InterpUtil.build_arguments(command, parameters)
         connection = self.connection_manager.get_connection_by_character(character.id)
         context = Context(character=character, handler_service=self.handler_service, conn=connection, command=command, parameters=arguments, result=parameters)
-
-        if len(arguments) < command.max_arguments:
+        print(f"Context.parameters: {context.parameters}; context.command.max_arguments: {context.command.max_arguments}; len(arguments): {len(arguments)}")
+        if len(arguments) < command.max_arguments and command.usage is not "":
             await self.handle_usage(command, context)
             return None
 

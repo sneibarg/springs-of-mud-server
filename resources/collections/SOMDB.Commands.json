@@ -7,7 +7,7 @@
     "lambdas": [
       "lambda ctx: ctx.player_handler().do_quit(ctx.character, ctx)"
     ],
-    "message": "%p has disconnected.",
+    "message": "%c has disconnected.",
     "function": [],
     "enabled": true,
     "skillId": "",
@@ -26,7 +26,7 @@
       "lambda ctx: ctx.player_handler().to_player(ctx.character.id, \"You say, '\"+ctx.parameters[0]+\"'\")",
       "lambda ctx: ctx.player_handler().to_room(ctx.character, ctx.command.message)"
     ],
-    "message": "%p says '%m'",
+    "message": "%c says '%m'",
     "function": [],
     "usage": "lambda ctx: ctx.player_handler().to_player(ctx.character.id, \"Say what?\")",
     "enabled": true,
@@ -43,19 +43,19 @@
     "shortcuts": "tel",
     "role": "player",
     "lambdas": [
-      "lambda c, msg, m: c.writer.write(f\"You tell {m.get_name()}, '{msg}'\\r\\n\")",
-      "lambda c, msg, m, eh: eh.to_mobile(c, c.cmd, m, msg)"
+      "lambda ctx: ctx.player_handler().to_player(ctx.character, f\"You tell {ctx.parameters[0]}, '{ctx.parameters[1]}'\")",
+      "lambda ctx: ctx.player_handler().to_target(ctx)"
     ],
-    "message": "%p tells you '%m'",
+    "message": "%c tells you '%m'",
     "function": [],
+    "usage": "lambda ctx: cttell x.player_handler().to_player(ctx.character, \"Tell whom what?\") if len(ctx.parameters) != 2 else None",
     "enabled": true,
     "skillId": "",
     "position": "POS_RESTING",
     "level": 0,
     "log": "LOG_NORMAL",
-    "usage": "lambda c, msg: c.writer.write(b\"Invalid target.\") if m.invalid_target(msg)",
     "pipeline": false,
-    "maxArguments": 0
+    "maxArguments": 2
   },
   {
     "_id": { "$oid": "673bf1dbb49d7223c66faa51" },
@@ -81,7 +81,7 @@
     "shortcuts": "inv, inven, invent",
     "role": "player",
     "lambdas": [
-      "lambda c, ih: ih.print_inventory(c)"
+      "lambda ctx: ctx.item_handler().print_inventory(ctx.character)"
     ],
     "message": "",
     "function": [],
@@ -99,7 +99,7 @@
     "shortcuts": "exam, exami, examin",
     "role": "player",
     "lambdas": [
-      "lambda c, ih, mb, msg, usage: ih.print_description(c.id, c.get_fuzzy_item(msg, usage, mb)) if c.get_fuzzy_item(msg, usage, mb) is not None else None"
+      "lambda ctx: ctx.item_handler().print_description(ctx.character.id, ctx.character.get_fuzzy_item(msg, ctx.command.usage, mb)) if ctx.character.get_fuzzy_item(msg, ctx.command.usage, mb) is not None else None"
     ],
     "message": "",
     "function": [],
@@ -108,9 +108,9 @@
     "position": "POS_RESTING",
     "level": 0,
     "log": "LOG_NORMAL",
-    "usage": "lambda c, mb: mb.send_to_character(c.id, mb.text_to_message(b\"You must specify a valid item in your inventory.\\r\\n\"))",
+    "usage": "lambda ctx: ctx.player_handler.to_player(ctx.character.id, \"You must specify a valid item in your inventory.\")",
     "pipeline": false,
-    "maxArguments": 0
+    "maxArguments": 1
   },
   {
     "_id": { "$oid": "673bf1dbb49d7223c66faa55" },
@@ -118,7 +118,8 @@
     "shortcuts": "w, we, wes",
     "role": "player",
     "lambdas": [
-      "lambda c, rh: rh.move_mobile(c, \"west\")"
+      "lambda ctx: ctx.room_handler().move_player(ctx.character, \"west\")",
+      "lambda ctx: ctx.player_handler().to_room(ctx.character, ctx.command.message)"
     ],
     "message": "%c has left the room, heading west.",
     "function": [],
@@ -136,7 +137,8 @@
     "shortcuts": "e, ea, eas",
     "role": "player",
     "lambdas": [
-      "lambda c, rh: rh.move_mobile(c, \"east\")"
+      "lambda ctx: ctx.room_handler().move_player(ctx.character, \"east\")",
+      "lambda ctx: ctx.player_handler().to_room(ctx.character, ctx.command.message)"
     ],
     "message": "%c has left the room, heading east.",
     "function": [ "" ],
@@ -154,7 +156,8 @@
     "shortcuts": "n, nor, nort",
     "role": "player",
     "lambdas": [
-      "lambda c, rh: rh.move_mobile(c, \"north\")"
+      "lambda ctx: ctx.room_handler().move_player(ctx.character, \"north\")",
+      "lambda ctx: ctx.player_handler().to_room(ctx.character, ctx.command.message)"
     ],
     "message": "%c has left the room, heading north.",
     "function": [],
@@ -172,7 +175,8 @@
     "shortcuts": "s, so, sou, sout",
     "role": "player",
     "lambdas": [
-      "lambda c, rh: rh.move_mobile(c, \"south\")"
+      "lambda ctx: ctx.room_handler().move_player(ctx.character, \"south\")",
+      "lambda ctx: ctx.player_handler().to_room(ctx.character, ctx.command.message)"
     ],
     "message": "%c has left the room, heading south.",
     "function": [],
@@ -191,7 +195,7 @@
     "role": "player",
     "lambdas": [
       "lambda ctx: ctx.player_handler().do_look(ctx.character, ctx)",
-      "lambda ctx: ctx.room_handler().print_in_room(ctx.character.id, ctx.player_handler(), ctx.mobile_handler())",
+      "lambda ctx: ctx.room_handler().print_in_room(ctx)",
       "lambda ctx: ctx.item_handler().look_in_item(ctx.character, ctx)",
       "lambda ctx: ctx.player_handler().look_target(ctx.character, ctx)",
       "lambda ctx: ctx.item_handler().look_item_or_extra(ctx.character, ctx)",
@@ -214,7 +218,8 @@
     "shortcuts": "u",
     "role": "player",
     "lambdas": [
-      "lambda c, rh: rh.move_mobile(c, \"up\")"
+      "lambda ctx: ctx.room_handler().move_player(ctx.character, \"up\")",
+      "lambda ctx: ctx.player_handler().to_room(ctx.character, ctx.command.message)"
     ],
     "message": "",
     "function": [],
@@ -232,7 +237,8 @@
     "shortcuts": "d",
     "role": "player",
     "lambdas": [
-      "lambda c, rh: rh.move_mobile(c, \"down\")"
+      "lambda ctx: ctx.room_handler().move_player(ctx.character, \"down\")",
+      "lambda ctx: ctx.player_handler().to_room(ctx.character, ctx.command.message)"
     ],
     "message": "",
     "function": [],

@@ -4,6 +4,7 @@ import threading
 from asyncio import StreamReader, StreamWriter
 from typing import Optional
 from injector import inject
+
 from area.RoomHandler import RoomHandler
 from area.Area import Area
 from area.Room import Room
@@ -87,9 +88,11 @@ class ConnectionHandler:
                 area, room = self._get_area_and_room(character)
                 to_room = self.message_bus.text_to_message(f"{character.name} has entered the game.\r\n")
                 in_room = self.player_helper.players_in_room(character, room)
-                await self.room_handler.print_room(character.id, room)
-                await self.message_bus.send_prompt(character.id, character, area, room)
-                await self.message_bus.send_to_room(to_room, in_room)
+                if room is not None:
+                    room.add_player_to_room(character)
+                    await self.room_handler.print_room(character.id, room)
+                    await self.message_bus.send_prompt(character.id, character, area, room)
+                    await self.message_bus.send_to_room(to_room, in_room)
 
             await self._game_loop(connection, session, player, character)
         except Exception as e:

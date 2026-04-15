@@ -2,6 +2,7 @@ import threading
 
 from dataclasses import dataclass, field
 from typing import List
+
 from area.AreaUtil import AreaUtil
 from area.Exit import Exit
 from mobile.Mobile import Mobile
@@ -56,3 +57,21 @@ class Room:
 
     def get_formatted_exits(self):
         return AreaUtil.cardinal_direction(self)
+
+    def add_player_to_room(self, character: Character):
+        with self.lock:
+            self.characters[character.id] = character
+
+    def remove_player_from_room(self, character: Character):
+        with self.lock:
+            if character.id in self.characters:
+                del self.characters[character.id]
+
+    def add_mobile_to_room(self, mobile: Mobile):
+        with self.lock:
+            self.mobiles[mobile.id] = mobile
+
+    def remove_mobile_from_room(self, mobile: Mobile):
+        with self.lock:
+            if mobile.id not in self.mobiles:
+                del self.mobiles[mobile.id]

@@ -15,8 +15,7 @@ from server.session.SessionHandler import SessionHandler
 
 class RoomHandler:
     @inject
-    def __init__(self, message_bus: MessageBus, session_handler: SessionHandler, registry_service: RegistryService,
-                 room_helper: RoomHelper):
+    def __init__(self, message_bus: MessageBus, session_handler: SessionHandler, registry_service: RegistryService, room_helper: RoomHelper):
         self.__name__ = "RoomHandler"
         self.message_bus = message_bus
         self.registry_service = registry_service
@@ -26,21 +25,28 @@ class RoomHandler:
         self.room_helper = room_helper
         self.logger = LoggerFactory.get_logger(__name__)
 
-    async def print_in_room(self, character_id, player_handler, mobile_handler):
-        character = self.character_registry.get(id=character_id)
+    @staticmethod
+    async def print_in_room(context: Context):
+        character = context.character
+        player_handler = context.player_handler()
+        mobile_handler = context.mobile_handler()
+
         await player_handler.print_players_in_room(character)
         await mobile_handler.print_mobiles_in_room(character)
 
-    async def move_mobile(self, character, direction):
-        room = self.room_registry.get(id=character.room_id)
+        context.finish()
+
+    async def move_player(self, character: Character, direction: str):
+        room = self.room_registry.get_or_none(id=character.room_id)
         destination_id = AreaUtil.is_valid_direction(direction, room)
-        if destination_id is not None:
-            destination_room = self.room_registry.get(id=destination_id)
+        destination_room = self.room_registry.get_or_none(id=destination_id)
+        if room is not None and destination_room is not None:
             character.room_id = destination_id
+            room.remove_player_from_room(character)
+            destination_room.add_player_to_room(character)
             await self.print_room(character.id, destination_room)
         else:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(
-                f"You can't go that direction!\r\n"))
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(f"You can't go that direction!\r\n"))
 
     async def print_exits(self, character: Character, room: Room):
         if self.room_helper.can_see_room_vnum(character):
