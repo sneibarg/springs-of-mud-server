@@ -220,4 +220,27 @@ class ItemUtil:
     def update_extra_descr(item):
         if len(item.extra_descr) > 0:
             item.extra_description = ExtraDescriptionData(valid=True, keyword=item.extra_descr[0], description=item.extra_descr[1])
-            
+
+    @staticmethod
+    def container_volume_description(obj: Item):
+        try:
+            cap = max(0, int(obj.value0))
+            cur = max(0, int(obj.value1))
+        except (TypeError, ValueError):
+            cap = 0
+            cur = 0
+
+        if cur <= 0:
+            text = "It is empty.\r\n"
+        else:
+            if cap <= 0:
+                fill = "partly "
+            elif cur < cap / 4:
+                fill = "less than half-"
+            elif cur < (3 * cap) / 4:
+                fill = "about half-"
+            else:
+                fill = "more than half-"
+            color = getattr(obj, "liquid_color", None) or "unknown"
+            text = f"It's {fill}filled with a {color} liquid.\r\n"
+        return text

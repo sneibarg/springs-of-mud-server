@@ -84,27 +84,7 @@ class ItemHandler:
             return
 
         if self._is_drink_container(obj):
-            try:
-                cap = max(0, int(obj.value0))
-                cur = max(0, int(obj.value1))
-            except (TypeError, ValueError):
-                cap = 0
-                cur = 0
-
-            if cur <= 0:
-                text = "It is empty.\r\n"
-            else:
-                if cap <= 0:
-                    fill = "partly "
-                elif cur < cap / 4:
-                    fill = "less than half-"
-                elif cur < (3 * cap) / 4:
-                    fill = "about half-"
-                else:
-                    fill = "more than half-"
-                color = getattr(obj, "liquid_color", None) or "unknown"
-                text = f"It's {fill}filled with a {color} liquid.\r\n"
-
+            text = ItemUtil.container_volume_description(obj)
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
 
         if self._is_container_like(obj):
