@@ -76,19 +76,6 @@ class Character:
     def get_items(self) -> List[Item]:
         return self.loot
 
-    def get_fuzzy_item(self, fuzzy_item, usage, mb):
-        fuzzy_item = fuzzy_item.strip().replace("\r\n", "")
-        self.logger.debug("get_fuzzy_item: fuzzy_item=" + str(fuzzy_item))
-        for item in self.loot:
-            if not isinstance(item, Item):
-                self.logger.debug("get_fuzzy_item: not an Item: " + str(item))
-                continue
-            if item.name.startswith(fuzzy_item) or fuzzy_item == item.name:
-                self.logger.debug("get_fuzzy_item: FOUND: " + str(item))
-                return item
-        asyncio.ensure_future(usage(self, mb))
-        return None
-
     @classmethod
     def from_json(cls, data):
         from server.ServerUtil import ServerUtil

@@ -99,7 +99,7 @@
     "shortcuts": "exam, exami, examin",
     "role": "player",
     "lambdas": [
-      "lambda ctx: ctx.item_handler().print_description(ctx.character.id, ctx.character.get_fuzzy_item(msg, ctx.command.usage, mb)) if ctx.character.get_fuzzy_item(msg, ctx.command.usage, mb) is not None else None"
+      "lambda ctx: ctx.item_handler().look_item_or_extra(ctx.character, ctx)"
     ],
     "message": "",
     "function": [],
