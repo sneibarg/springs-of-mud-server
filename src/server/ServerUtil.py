@@ -19,6 +19,7 @@ from interp.InterpHandler import InterpHandler
 from interp.SocialHandler import SocialHandler
 from interp.SocialService import SocialService
 from object.ItemHandler import ItemHandler
+from object.ObjectHelper import ObjectHelper
 from mobile.MobileHandler import MobileHandler
 from player.PlayerHandler import PlayerHandler
 from game.GameData import GameData
@@ -76,6 +77,7 @@ class ServerUtil:
     def _bind_helpers(injector):
         injector.binder.bind(CommandHelper, scope=singleton)
         injector.binder.bind(RoomHelper, scope=singleton)
+        injector.binder.bind(ObjectHelper, scope=singleton)
 
     @staticmethod
     def _bind_network_services(injector):

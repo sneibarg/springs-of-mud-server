@@ -28,27 +28,27 @@ class Context:
     def set(self, key: str, value: Any):
         self.data[key] = value
 
-    def get_mobile_handler(self):
+    def mobile_handler(self):
         if self.handler_service:
             return self.handler_service.get_handler("mh")
         return None
 
-    def get_room_handler(self):
+    def room_handler(self):
         if self.handler_service:
             return self.handler_service.get_handler("rh")
         return None
 
-    def get_item_handler(self):
+    def item_handler(self):
         if self.handler_service:
             return self.handler_service.get_handler("ih")
         return None
 
-    def get_player_handler(self):
+    def player_handler(self):
         if self.handler_service:
             return self.handler_service.get_handler("ph")
         return None
 
-    def get_social_handler(self):
+    def social_handler(self):
         if self.handler_service:
             return self.handler_service.get_handler("sh")
         return None

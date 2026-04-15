@@ -1,6 +1,7 @@
 from injector import inject
 from game.RegistryService import RegistryService
 from object.Item import Item
+from object.ObjectHelper import ObjectHelper
 from player.Character import Character
 from server.messaging import MessageBus
 from server.protocol import Message, MessageType
@@ -8,9 +9,10 @@ from server.protocol import Message, MessageType
 
 class ItemHandler:
     @inject
-    def __init__(self, message_bus: MessageBus, registry_service: RegistryService):
+    def __init__(self, message_bus: MessageBus, registry_service: RegistryService, object_helper: ObjectHelper):
         self.message_bus = message_bus
         self.registry_service = registry_service
+        self.object_helper = object_helper
         self.object_macros = None
 
     def set_object_macros(self, object_macros):
@@ -114,14 +116,17 @@ class ItemHandler:
 
         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("That is not a container.\r\n"))
 
+    # to-do: match code needs to be re-added.
     async def look_item_or_extra(self, character: Character, player_handler, context: Context):
         token = context.parameters[1] if len(context.parameters) > 1 else ""
         for item in list(character.get_items()) + self._room_items(character):
+            if not self.object_helper.can_see_object(character, item):
+                continue
+
             extra = getattr(item, "extra_description", None)
             if extra and player_handler.look_keyword_matches(token, extra.keyword or ""):
                 if player_handler.look_register_match(character):
-                    await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(
-                        (extra.description or "") + "\r\n"))
+                    await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message((extra.description or "") + "\r\n"))
                     return
 
             if player_handler.look_keyword_matches(token, item.name or ""):

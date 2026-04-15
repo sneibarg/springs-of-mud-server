@@ -191,10 +191,11 @@
     "shortcuts": "l, lo, loo",
     "role": "player",
     "lambdas": [
-      "lambda ctx: ctx.get_player_handler().look(ctx.character, ctx)",
-      "lambda ctx: ctx.get_room_handler().print_in_room(ctx.character.id, ctx.get_mobile_handler())",
-      "lambda ctx: ctx.get_item_handler().look_in_item(ctx.character, ctx.get_player_handler(), ctx)",
-      "lambda ctx: ctx.get_item_handler().look_item_or_extra(ctx.character, ctx.get_player_handler(), ctx)"
+      "lambda ctx: ctx.player_handler().do_look(ctx.character, ctx)",
+      "lambda ctx: ctx.room_handler().print_in_room(ctx.character.id, ctx.mobile_handler())",
+      "lambda ctx: ctx.item_handler().look_in_item(ctx.character, ctx.player_handler(), ctx)",
+      "lambda ctx: ctx.player_handler().look_character_target(ctx.character, ctx)",
+      "lambda ctx: ctx.item_handler().look_item_or_extra(ctx.character, ctx.player_handler(), ctx)"
     ],
     "message": "",
     "function": [],
@@ -203,7 +204,7 @@
     "position": "POS_RESTING",
     "level": 0,
     "log": "LOG_NORMAL",
-    "pipeline": false,
+    "pipeline": true,
     "max_arguments": 0
   },
   {

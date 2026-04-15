@@ -17,3 +17,11 @@ class PlayerUtil:
                 continue
             visible.append(char)
         return visible
+
+    @staticmethod
+    def is_target_playing(target: str, session_handler: SessionHandler) -> bool:
+        for session in session_handler.get_playing_sessions():
+            char: Character = session.character
+            if char.name == target:
+                return True
+        return False
