@@ -36,3 +36,12 @@ class GameMacros:
                     pass
 
         return total
+
+    @staticmethod
+    def convert_flags(flag_value: str) -> int:
+        numeric_value = 0
+        for char in str(flag_value).upper():
+            if char.isalpha() and 'A' <= char <= 'Z':
+                bit_position = ord(char) - ord('A')
+                numeric_value |= (1 << bit_position)
+        return numeric_value

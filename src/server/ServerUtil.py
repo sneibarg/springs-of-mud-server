@@ -248,15 +248,6 @@ class ServerUtil:
         return IntEnum(enum_name, members)
 
     @staticmethod
-    def convert_flags(flag_value: str) -> int:
-        numeric_value = 0
-        for char in str(flag_value).upper():
-            if char.isalpha() and 'A' <= char <= 'Z':
-                bit_position = ord(char) - ord('A')
-                numeric_value |= (1 << bit_position)
-        return numeric_value
-
-    @staticmethod
     def generate_mongo_id() -> str:
         timestamp = int(time.time()).to_bytes(4, 'big')
         machine_id = random.getrandbits(24).to_bytes(3, 'big')

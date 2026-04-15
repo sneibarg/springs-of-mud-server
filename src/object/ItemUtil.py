@@ -1,3 +1,4 @@
+from game.GameMacros import GameMacros
 from object.ExtraDescriptionData import ExtraDescriptionData
 from server.LoggerFactory import LoggerFactory
 from enum import IntEnum
@@ -44,7 +45,7 @@ class ItemUtil:
                 if bitvector_raw.isdigit() or (bitvector_raw.startswith('-') and bitvector_raw[1:].isdigit()):
                     affect_data.bitvector = bitvector_raw
                 else:
-                    affect_data.bitvector = ServerUtil.convert_flags(bitvector_raw)
+                    affect_data.bitvector = GameMacros.convert_flags(bitvector_raw)
 
                 if affect_elements[1] == "A":
                     affect_data.where = AffectWhere.TO_AFFECTS.value
@@ -63,13 +64,12 @@ class ItemUtil:
         Each letter represents a bit: A = 1<<0 = 1, B = 1<<1 = 2, etc.
         Multiple letters are OR'd together: "AN" = (1<<0) | (1<<13) = 1 | 8192 = 8193
         """
-        from server.ServerUtil import ServerUtil
         for flag_field in ['extra_flags', 'wear_flags']:
             flag_value = item_data.get(flag_field, "0")
             if isinstance(flag_value, int) or (isinstance(flag_value, str) and flag_value.lstrip('-').isdigit()):
                 continue
 
-            item_data[flag_field] = str(ServerUtil.convert_flags(flag_value))
+            item_data[flag_field] = str(GameMacros.convert_flags(flag_value))
 
     @staticmethod
     def convert_numeric_to_string(value):
@@ -89,8 +89,7 @@ class ItemUtil:
         if not flag_str or flag_str.lstrip('-').isdigit():
             return flag_str if flag_str else '0'
 
-        from server.ServerUtil import ServerUtil
-        return str(ServerUtil.convert_flags(flag_str))
+        return str(GameMacros.convert_flags(flag_str))
 
     # Matches load_objects() logic from ROM db2.c:341-389
     @staticmethod

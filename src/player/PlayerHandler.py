@@ -68,12 +68,13 @@ class PlayerHandler:
         if not self.command_helper.check_position(character):
             return
 
-        if not self.room_helper.check_blind(character):
+        if self.room_helper.check_blind(character):
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You can't see a thing!\n\r"))
             return
 
-        if not self.character_macros.is_npc(character) \
-                and not self.character_macros.is_set(int(character.character_flags.act), self.PlayerActBits.PLR_HOLYLIGHT.value)\
-                and self.room_helper.is_room_dark(character.room_id):
+        if (not self.character_macros.is_npc(character)
+                and not self.character_macros.has_holy_light(character)
+                and self.room_helper.is_room_dark(character.room_id)):
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("It is pitch black ...\n\r"))
             await context.room_handler().print_in_room(character.id, context.mobile_handler())
             return

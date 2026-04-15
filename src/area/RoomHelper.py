@@ -42,8 +42,8 @@ class RoomHelper:
         if self.character_macros.get_trust(character) < victim.incog_level and character.room_id != victim.room_id:
             return False
 
-        if (not self.character_macros.is_npc(character) and self.character_macros.is_set(int(character.character_flags.act), self.PlayerActBits.PLR_HOLYLIGHT.value))\
-                or (self.character_macros.is_npc(character) and self.character_macros.is_immortal(character)):
+        if ((not self.character_macros.is_npc(character) and self.character_macros.has_holy_light(character))
+                or (self.character_macros.is_npc(character) and self.character_macros.is_immortal(character))):
             return True
 
         if self.character_macros.is_affected(character, self.AffectedBits.AFF_BLIND.value):
@@ -75,10 +75,9 @@ class RoomHelper:
         return True
 
     def check_blind(self, character: Character) -> bool:
-        if not self.character_macros.is_npc(character) and self.character_macros.is_set(int(character.character_flags.act), self.PlayerActBits.PLR_HOLYLIGHT.value):
+        if not self.character_macros.is_npc(character) and self.character_macros.has_holy_light(character):
             return True
-        if self.character_macros.is_affected(character, self.AffectedBits.AFF_BLIND.value):
-            self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You can't see a thing!\n\r"))
+        if self.character_macros.is_blind(character):
             return False
         return True
 

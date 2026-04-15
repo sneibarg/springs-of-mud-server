@@ -49,11 +49,13 @@ class CharacterMacros(GameMacros):
         return self.get_trust(char) >= char.level
 
     def is_affected(self, char: Any, effect) -> bool:
-        from server.ServerUtil import ServerUtil
         if type(char) is Character:
-            return self.is_set(ServerUtil.convert_flags(char.affected_by), effect)
+            return self.is_set(self.convert_flags(char.affected_by), effect)
         else:
-            return self.is_set(ServerUtil.convert_flags(char.mobile_flags.affected_by), effect)
+            return self.is_set(self.convert_flags(char.mobile_flags.affected_by), effect)
+
+    def is_blind(self, character) -> bool:
+        return self.is_set(int(character.character_flags.act), self.AffectedBits.AFF_BLIND.value)
 
     def is_awake(self, char: Any) -> bool:
         return char.character_attributes.position > self.character_constants.positions.POS_SLEEPING.value
@@ -120,3 +122,6 @@ class CharacterMacros(GameMacros):
                  ))):
             return True
         return False
+
+    def has_holy_light(self, character) -> bool:
+        return self.is_set(int(character.character_flags.act), self.PlayerActBits.PLR_HOLYLIGHT.value)
