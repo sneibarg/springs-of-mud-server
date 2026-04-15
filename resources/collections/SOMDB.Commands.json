@@ -23,18 +23,19 @@
     "shortcuts": "sa, '",
     "role": "player",
     "lambdas": [
-      "lambda c, ph, msg: ph.to_player(c.id, \"You say, '\"+msg+\"'\")",
-      "lambda c, cmh, rh, msg: rh.to_room(c, msg, cmh.get_message(\"say\"))"
+      "lambda ctx: ctx.player_handler().to_player(ctx.character.id, \"You say, '\"+ctx.parameters[0]+\"'\")",
+      "lambda ctx: ctx.player_handler().to_room(ctx.character, ctx.command.message)"
     ],
     "message": "%p says '%m'",
     "function": [],
+    "usage": "lambda ctx: ctx.player_handler().to_player(ctx.character.id, \"Say what?\")",
     "enabled": true,
     "skillId": "",
     "position": "POS_RESTING",
     "level": 0,
     "log": "LOG_NORMAL",
     "pipeline": false,
-    "maxArguments": 0
+    "maxArguments": 1
   },
   {
     "_id": { "$oid": "673bf1dbb49d7223c66faa50" },

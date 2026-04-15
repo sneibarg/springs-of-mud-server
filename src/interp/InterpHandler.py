@@ -79,13 +79,17 @@ class InterpHandler:
                 continue
             await self._execute_lambda(func, context)
 
-    async def _handle_lambdas(self, player: Player, character: Character, command: Command, parameters: str):
+    async def _handle_lambdas(self, character: Character, command: Command, parameters: str):
         if not command.lambdas:
             return None
 
         arguments = InterpUtil.build_arguments(command, parameters)
         connection = self.connection_manager.get_connection_by_character(character.id)
-        context = Context(player=player, character=character, handler_service=self.handler_service, conn=connection, parameters=arguments, result=parameters)
+        context = Context(character=character, handler_service=self.handler_service, conn=connection, command=command, parameters=arguments, result=parameters)
+
+        if len(arguments) < command.max_arguments:
+            await self.handle_usage(command, context)
+            return None
 
         if command.pipeline:
             await self._handle_pipeline(command, context)
@@ -94,7 +98,7 @@ class InterpHandler:
 
         return context.result
 
-    async def _call_lambda(self, player: Player, character: Character, command_name: str, command_list: List[Command], parameters: str):
+    async def _call_lambda(self, character: Character, command_name: str, command_list: List[Command], parameters: str):
         command = self.interp_registry.get_or_none(name=command_name)
         if command is None:
             command_json = InterpUtil.find_command_by_name(command_name, command_list)
@@ -102,7 +106,7 @@ class InterpHandler:
                 return await self.message_bus.send_to_character(character.id, self.command_not_found_message)
 
         try:
-            await self._handle_lambdas(player=player, character=character, command=command, parameters=parameters)
+            await self._handle_lambdas(character=character, command=command, parameters=parameters)
         except TypeError as te:
             self.logger.error("TypeError: " + str(te))
             raise
@@ -116,18 +120,19 @@ class InterpHandler:
             await self.message_bus.send_to_character(character.id, self.command_not_found_message)
             return None
 
-        player.usage = self.handle_usage(command)
         self.logger.info(f"CMD: {cmd.name}, PARAMETERS: {parameters}, USAGE: {str(player.usage)}")
-        return await self._call_lambda(player, character, cmd.name, self.interp_registry.all_commands(), parameters)
+        return await self._call_lambda(character, cmd.name, self.interp_registry.all_commands(), parameters)
 
-    def handle_usage(self, cmd: Command):
+    async def handle_usage(self, cmd: Command, context: Context):
         usage = getattr(cmd, "usage", None)
         if isinstance(usage, str) and cmd.usage.strip():
             usage_function = eval(cmd.usage)
             if not callable(usage_function):
                 self.logger.error("NOT_CALLABLE: " + str(usage_function))
                 return None
-            return usage_function
+            if not inspect.iscoroutinefunction(usage_function):
+                self.logger.error("NOT_ASYNC: " + str(usage_function))
+            await usage_function(context)
         return None
 
     async def help_usage(self, character, argument: str = ""):

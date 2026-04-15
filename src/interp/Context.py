@@ -8,13 +8,14 @@ if TYPE_CHECKING:
     from game.HandlerService import HandlerService
     from area.Room import Room
     from server.connection.TelnetConnection import TelnetConnection
+    from interp.Command import Command
 
 
 @dataclass
 class Context:
     """Shared context passed through the lambda pipeline."""
-    player: Player
     character: Any
+    command: Command = None
     handler_service: HandlerService = None
     conn: TelnetConnection = None
     parameters: List[str] = None

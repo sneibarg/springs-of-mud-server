@@ -60,10 +60,17 @@ class PlayerHandler:
         message = self.message_bus.text_to_message(who_line)
         await self.message_bus.send_to_character(character.id, message)
 
-    async def to_player(self, character_id, text):
-        text += "\r\n"
+    async def to_player(self, character_id, msg: str):
+        text = msg + "\r\n"
         message = self.message_bus.text_to_message(text)
         await self.message_bus.send_to_character(character_id, message)
+
+    async def to_room(self, character: Character, msg: str):
+        room = self.room_registry.get(id=character.room_id)
+        text = msg.replace("%p", character.name).replace("%m", msg)
+        message = self.message_bus.text_to_message(text)
+        in_room = self.player_helper.players_in_room(character, room)
+        await self.message_bus.send_to_room(message, in_room)
 
     async def look_target(self, character: Any, context: Context):
         room = self.room_registry.get(id=character.room_id)
