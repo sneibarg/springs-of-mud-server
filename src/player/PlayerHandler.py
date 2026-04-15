@@ -8,6 +8,7 @@ from interp.Context import Context
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from player.PlayerUtil import PlayerUtil
+from player.PlayerHelper import PlayerHelper
 from server.messaging import MessageBus
 from server.session.SessionHandler import SessionHandler
 from server.LoggerFactory import LoggerFactory
@@ -20,6 +21,7 @@ class PlayerHandler:
                  session_handler: SessionHandler,
                  command_helper: CommandHelper,
                  room_helper: RoomHelper,
+                 player_helper: PlayerHelper,
                  character_macros: CharacterMacros):
         self.__name__ = "PlayerHandler"
         self.message_bus = message_bus
@@ -28,9 +30,14 @@ class PlayerHandler:
         self.session_handler = session_handler
         self.command_helper = command_helper
         self.room_helper = room_helper
+        self.player_helper = player_helper
         self.character_macros = character_macros
         self.PlayerActBits = character_macros.enums.get('playerActBits')
         self.logger = LoggerFactory.get_logger(__name__)
+
+    async def print_players_in_room(self, character: Character):
+        message = self.player_helper.get_players_in_room(character)
+        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message))
 
     async def print_visible(self, character):
         who_list = [character] + PlayerUtil.visible(character, self.session_handler)

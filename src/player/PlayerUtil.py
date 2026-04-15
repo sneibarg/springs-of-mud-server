@@ -2,6 +2,7 @@ from area import Room
 from area.RoomHelper import RoomHelper
 from interp.InterpUtil import InterpUtil
 from player.Character import Character
+from player.CharacterMacros import CharacterMacros
 from server.session.SessionHandler import SessionHandler
 from typing import List
 
@@ -30,20 +31,20 @@ class PlayerUtil:
         return False
 
     @staticmethod
-    def get_target(character: Character, victim: str, room: Room, room_helper: RoomHelper):
+    def get_target(character: Character, victim: str, room: Room, character_macros: CharacterMacros, room_helper: RoomHelper):
         if room is None:
             return None
 
-        target = PlayerUtil._get_character_target(character, victim, room, room_helper)
+        target = PlayerUtil._get_character_target(character, victim, room, character_macros, room_helper)
         if target is None:
-            target = PlayerUtil._get_mobile_target(character, victim, room, room_helper)
+            target = PlayerUtil._get_mobile_target(character, victim, room, character_macros, room_helper)
 
         return target
 
     @staticmethod
-    def _get_character_target(character: Character, victim: str, room: Room, room_helper: RoomHelper):
+    def _get_character_target(character: Character, victim: str, room: Room, character_macros: CharacterMacros, room_helper: RoomHelper):
         for char in room.characters.values():
-            if not room_helper.can_see(character, char) or victim != char.name:
+            if not character_macros.can_see(character, char, room_helper) or victim != char.name:
                 continue
 
             if char.room_id is room.id:
@@ -53,9 +54,9 @@ class PlayerUtil:
         return None
 
     @staticmethod
-    def _get_mobile_target(character, victim: str, room: Room, room_helper: RoomHelper):
+    def _get_mobile_target(character, victim: str, room: Room, character_macros: CharacterMacros, room_helper: RoomHelper):
         mob = InterpUtil.find_nth_by_keyword(room.mobiles, victim)  # support for 1.mob_name; 2.mob_name, etc
-        if mob is not None and room_helper.can_see(character, mob):
+        if mob is not None and character_macros.can_see(character, mob, room_helper):
             return mob
         else:
             return None

@@ -18,6 +18,7 @@ from interp.HelpService import HelpService
 from interp.InterpHandler import InterpHandler
 from interp.SocialHandler import SocialHandler
 from interp.SocialService import SocialService
+from mobile.MobileHelper import MobileHelper
 from object.ItemHandler import ItemHandler
 from object.ObjectHelper import ObjectHelper
 from mobile.MobileHandler import MobileHandler
@@ -30,6 +31,7 @@ from mobile.MobileService import MobileService
 from object.ObjectMacros import ObjectMacros
 from player.CharacterConstants import CharacterConstants
 from player.CharacterMacros import CharacterMacros
+from player.PlayerHelper import PlayerHelper
 from player.PlayerService import PlayerService
 from player.CharacterService import CharacterService
 from server.LoggerFactory import LoggerFactory
@@ -78,6 +80,8 @@ class ServerUtil:
         injector.binder.bind(CommandHelper, scope=singleton)
         injector.binder.bind(RoomHelper, scope=singleton)
         injector.binder.bind(ObjectHelper, scope=singleton)
+        injector.binder.bind(MobileHelper, scope=singleton)
+        injector.binder.bind(PlayerHelper, scope=singleton)
 
     @staticmethod
     def _bind_network_services(injector):

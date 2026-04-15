@@ -2,22 +2,30 @@ from datetime import datetime
 from enum import IntEnum
 from typing import Any
 from area import Room
+from area.RoomHelper import RoomHelper
 from game.GameMacros import GameMacros
+from game.RandomNumberGenerator import RandomNumberGenerator
+from game.WeatherHandler import WeatherHandler
 from mobile.Mobile import Mobile
 from player.Character import Character
 from player.CharacterConstants import CharacterConstants
 from server.LoggerFactory import LoggerFactory
 from game.RegistryService import RegistryService
 
+rng = RandomNumberGenerator()
+
 
 class CharacterMacros(GameMacros):
-    def __init__(self, registry_service: RegistryService, character_constants: CharacterConstants, enums: dict[str, IntEnum], attribute_bonuses: dict[str, dict[str, dict[str, int]]]):
+    def __init__(self, registry_service: RegistryService, character_constants: CharacterConstants, enums: dict[str, IntEnum], attribute_bonuses: dict[str, dict[str, dict[str, int]]], weather_handler: WeatherHandler):
         self.__name__ = "CharacterMacros"
         self.registry_service = registry_service
         self.enums = enums
         self.character_constants = character_constants
+        self.weather_handler = weather_handler
         self.RoomFlagsEnum = self.enums.get("roomFlags")
         self.PlayerActBits = self.enums.get("playerActBits")
+        self.AffectedBits = self.enums.get('affectedBy')
+        self.TimeAndWeatherEnum = enums.get('timeAndWeather')
         self.attribute_bonuses = attribute_bonuses
         self.logger = LoggerFactory.get_logger(__name__)
 
@@ -54,7 +62,7 @@ class CharacterMacros(GameMacros):
         else:
             return self.is_set(self.convert_flags(char.mobile_flags.affected_by), effect)
 
-    def is_blind(self, character) -> bool:
+    def is_blind(self, character: Any) -> bool:
         return self.is_set(int(character.character_flags.act), self.AffectedBits.AFF_BLIND.value)
 
     def is_awake(self, char: Any) -> bool:
@@ -68,14 +76,14 @@ class CharacterMacros(GameMacros):
     def is_good(char: Any) -> bool:
         if type(char) is Character:
             return char.character_attributes.alignment >= 350
-        elif type(char) is Mobile:
+        else:
             return char.perm_stat.alignment >= 350
 
     @staticmethod
     def is_evil(char: Any) -> bool:
         if type(char) is Character:
             return char.character_attributes.alignment <= -350
-        elif type(char) is Mobile:
+        else:
             return char.perm_stat.alignment <= -350
 
     def is_neutral(self, char: Any) -> bool:
@@ -113,15 +121,47 @@ class CharacterMacros(GameMacros):
     def act(self, act_format: str, char: Any, arg1: str, arg2: str, act_type: int):
         pass
 
-    def can_see_room_vnum(self, char: Character) -> bool:
-        if (self.character_macros.is_immortal(character) and
-                (self.character_macros.is_npc(character) or
-                 self.character_macros.is_set(
-                     int(character.character_attributes.act),
-                     self.PlayerActBits.PLR_HOLYLIGHT.value
-                 ))):
-            return True
-        return False
-
     def has_holy_light(self, character) -> bool:
         return self.is_set(int(character.character_flags.act), self.PlayerActBits.PLR_HOLYLIGHT.value)
+
+    def can_see(self, character: Any, victim: Any, room_helper: RoomHelper) -> bool:
+        if character == victim:
+            return True
+
+        if self.get_trust(character) < victim.invis_level:
+            return False
+
+        if self.get_trust(character) < victim.incog_level and character.room_id != victim.room_id:
+            return False
+
+        if ((not self.is_npc(character) and self.has_holy_light(character))
+                or (self.is_npc(character) and self.is_immortal(character))):
+            return True
+
+        if self.is_affected(character, self.AffectedBits.AFF_BLIND.value):
+            return False
+
+        if room_helper.is_room_dark(character.room_id) and not self.is_affected(character, self.AffectedBits.AFF_INFRARED.value):
+            return False
+
+        if self.is_affected(victim, self.AffectedBits.AFF_INVISIBLE.value) and not self.is_affected(character, self.AffectedBits.AFF_DETECT_INVIS.value):
+            return False
+
+        # to-do: implement sneak chance
+        #     int chance;
+        #     chance = get_skill(victim, gsn_sneak);
+        #     chance += get_curr_stat(victim, STAT_DEX) * 3 / 2;
+        #     chance -= get_curr_stat(ch, STAT_INT) * 2;
+        #     chance -= ch->level - victim->level * 3 / 2;
+        if self.is_affected(victim, self.AffectedBits.AFF_SNEAK.value) \
+                and not self.is_affected(character, self.AffectedBits.AFF_DETECT_HIDDEN.value)\
+                and victim.fighting is None:
+            pass
+
+        if self.weather_handler.weather_info.sunlight == self.TimeAndWeatherEnum.SUN_SET.value\
+                or self.weather_handler.weather_info.sunlight == self.TimeAndWeatherEnum.SUN_DARK.value:
+            return True
+        chance = 0
+        if rng.number_percent() < chance:
+            return False
+        return True

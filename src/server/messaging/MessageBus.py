@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Any
 from injector import inject
 from area.Area import Area
 from area.Room import Room
@@ -42,8 +42,7 @@ class MessageBus:
             self.logger.warning(f"No active connection found for character {character_id}")
         return False
 
-    async def send_to_room(self, room_id: str, message: Message, exclude_character_ids: Optional[List[str]] = None) -> int:
-        exclude = exclude_character_ids or []
+    async def send_to_room(self, room_id: str, message: Message, in_room: Optional[List[Any]]) -> int:
         count = 0
         sessions = self.session_handler.get_playing_sessions()
 
