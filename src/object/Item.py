@@ -24,7 +24,6 @@ class Item:
     value2: str
     value3: str
     value4: str
-    weight: str
     condition: str
     level: int
     weight: int

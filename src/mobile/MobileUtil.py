@@ -2,6 +2,8 @@ import json
 
 from enum import IntEnum
 from typing import Tuple
+
+from area import Room
 from game.GameMacros import GameMacros
 from mobile.Mobile import Mobile
 from mobile.ArmorClass import ArmorClass
@@ -11,6 +13,7 @@ from game.RandomNumberGenerator import RandomNumberGenerator
 from object.AffectData import AffectWhere, AffectData
 from object.ObjectMacros import ObjectMacros
 from player.CharacterMacros import CharacterMacros
+from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 
 logger = LoggerFactory.get_logger('MobileUtil')
@@ -413,5 +416,16 @@ class MobileUtil:
         return mob
 
     @staticmethod
+    def char_from_room(char: Character | Mobile, room: Room):
+        if type(char) is Character and char.id in room.characters:
+            del room.characters[char.id]
+        if type(char) is Mobile and char.id in room.mobiles:
+            del room.mobiles[char.id]
+
+    @staticmethod
     def char_to_room(char: Character | Mobile, room: Room):
         char.room_id = room.id
+        if type(char) is Character and char.id not in room.characters:
+            room.characters[char.id] = char
+        if type(char) is Mobile and char.id not in room.mobiles:
+            room.mobiles[char.id] = char

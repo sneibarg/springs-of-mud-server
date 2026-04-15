@@ -17,14 +17,15 @@ class CharacterMacros(GameMacros):
         self.enums = enums
         self.character_constants = character_constants
         self.RoomFlagsEnum = self.enums.get("roomFlags")
+        self.PlayerActBits = self.enums.get("playerActBits")
         self.attribute_bonuses = attribute_bonuses
         self.logger = LoggerFactory.get_logger(__name__)
 
-    def _get_trust(self, char: Character) -> int:
+    def get_trust(self, char: Character) -> int:
         if char.trust > 0:
             return char.trust
         if self.is_npc(char) and char.level >= self.character_constants.immortal_levels.get("LEVEL_HERO"):
-            return self.character_constants.immortal_levels.get("LEVEL_HERO") - 1;
+            return self.character_constants.immortal_levels.get("LEVEL_HERO") - 1
         else:
             return char.level
 
@@ -38,13 +39,13 @@ class CharacterMacros(GameMacros):
         return self.is_set(char.act, self.character_constants.act_bits.ACT_IS_NPC)
 
     def is_immortal(self, char: Character) -> bool:
-        return self._get_trust(char) >= self.character_constants.immortal_levels.get("LEVEL_IMMORTAL")
+        return self.get_trust(char) >= self.character_constants.immortal_levels.get("LEVEL_IMMORTAL")
 
     def is_hero(self, char: Character) -> bool:
-        return self._get_trust(char) >= self.character_constants.immortal_levels.get("LEVEL_HERO")
+        return self.get_trust(char) >= self.character_constants.immortal_levels.get("LEVEL_HERO")
 
     def is_trusted(self, char: Character) -> bool:
-        return self._get_trust(char) >= char.level
+        return self.get_trust(char) >= char.level
 
     def is_affected(self, char: Character | Mobile, effect) -> bool:
         from server.ServerUtil import ServerUtil
@@ -108,3 +109,13 @@ class CharacterMacros(GameMacros):
 
     def act(self, act_format: str, char: Any, arg1: str, arg2: str, act_type: int):
         pass
+
+    def can_see_room_vnum(self, char: Character) -> bool:
+        if (self.character_macros.is_immortal(character) and
+                (self.character_macros.is_npc(character) or
+                 self.character_macros.is_set(
+                     int(character.character_attributes.act),
+                     self.PlayerActBits.PLR_HOLYLIGHT.value
+                 ))):
+            return True
+        return False

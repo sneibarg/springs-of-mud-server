@@ -1,164 +1,23 @@
 import inspect
-import re
 
+from typing import List
 from injector import inject, Injector
-from area.RoomHandler import RoomHandler
-from fight.FightHandler import FightHandler
 from game.HandlerService import HandlerService
 from game.RegistryService import RegistryService
 from interp.Command import Command
 from interp.Context import Context
 from interp.HelpEntry import HelpEntry
-from interp.InterpService import InterpService
 from interp.InterpUtil import InterpUtil
-from interp.SocialHandler import SocialHandler
-from mobile.Mobile import Mobile
-from mobile.MobileHandler import MobileHandler
-from object.ItemHandler import ItemHandler
 from player.Character import Character
 from player.Player import Player
-from player.PlayerHandler import PlayerHandler
 from server.LoggerFactory import LoggerFactory
 from server.connection.ConnectionManager import ConnectionManager
 from server.messaging import MessageBus
 
-lambda_mappings = {
-    'p': 'Player',
-    'c': 'Character',
-    'r': 'Room',
-    'rgs': 'RegistryService',
-    'ah': 'AreaHandler',
-    'rh': 'RoomHandler',
-    'ih': 'ItemHandler',
-    'mh': 'MobileHandler',
-    'ch': 'CharacterHandler',
-    'ph': 'PlayerHandler',
-    'cmh': 'InterpHandler',
-    'sh': 'SkillHandler',
-    'eh': 'FightHandler',
-    'cn': 'TelnetConnection',
-    'mb': 'MessageBus',
-    'v': 'Character',  # victim aka target
-    'm': 'Mobile',
-    'i': 'Item',
-    'msg': 'str',
-    'usage': 'lambda'
-}
-
-
-def get_class_obj(class_name):
-    if class_name == "lambda":
-        return None
-
-    class_map = {
-        'InterpService': InterpService,
-        'RegistryService': RegistryService,
-        'HandlerService': HandlerService,
-        'FightHandler': FightHandler,
-        'RoomHandler': RoomHandler,
-        'PlayerHandler': PlayerHandler,
-        'ItemHandler': ItemHandler,
-        'MobileHandler': MobileHandler,
-        'cmh': InterpHandler,
-        'MessageBus': MessageBus,
-        'Mobile': Mobile,
-        'str': str,
-    }
-
-    if class_name in class_map:
-        return class_map[class_name]
-
-    return globals().get(class_name)
-
-
-def parse_args(args):
-    input_args = re.search(r'lambda\s+([^:]+)', args).group(1)
-    if ", " in input_args:
-        input_args = input_args.split(", ")
-    else:
-        input_args = [input_args]
-    return input_args
-
-
-def get_args(lambda_string, player, character, injector, parameters):
-    registry = injector.get(RegistryService)
-    input_args = parse_args(lambda_string)
-    args = []
-    for arg in input_args:
-        if arg == 'msg':
-            if type(parameters) is not str:
-                raise ValueError(f'Input is not a string.')
-            if callable(parameters):
-                raise ValueError(f'Input cannot be callable.')
-            args.append(parameters)
-            continue
-        if arg in lambda_mappings:
-            class_name = lambda_mappings[arg]
-            class_obj = get_class_obj(class_name)
-            obj = None
-            if arg == 'p':
-                obj = player
-            elif arg == 'm':
-                obj = registry.get_mobile_from_registry(class_name)
-            elif arg == 'c':
-                for playing in player.current_characters:
-                    if character.name == playing.name:
-                        obj = playing
-                        break
-            elif arg == 'cn':
-                telnet_connection = injector.get(ConnectionManager).get_connection_by_character(character.id)
-                obj = telnet_connection if telnet_connection else None
-            elif arg == 'r':
-                room = registry.room_registry.get(id=character.room_id)
-                class_obj = type(room)
-                obj = room
-            elif arg in ['eh', 'ch', 'rh', 'rgs', 'mb', 'cnh', 'rh', 'ih', 'ah', 'mh', 'ph', 'sh', 'cmh']:
-                obj = injector.get(class_obj)
-            elif arg == 'usage':
-                obj = player.usage
-                if callable(obj):
-                    args.append(obj)
-                    continue
-
-            if class_obj is not None and not isinstance(obj, class_obj):
-                raise ValueError(f'Input is not a {class_name} object.')
-            args.append(obj)
-        else:
-            raise ValueError(f'Invalid input argument: {arg}')
-    return args
-
-
-async def handle_lambdas(handler: InterpHandler, player: Player, character: Character, command: Command, parameters):
-    if parameters is None:
-        parameters = []
-
-    context = Context(player=player, character=character, parameters=parameters, handler_service=handler.injector.get(HandlerService), result=parameters)
-    if command.lambdas is None:
-        return
-    for lambda_function in command.lambdas:
-        if lambda_function is not None:
-            if not isinstance(lambda_function, str):
-                handler.logger.error(f'Expected string representation of lambda function: {lambda_function}')
-                continue
-
-            lambda_string = str(lambda_function)
-            lambda_function = eval(lambda_function)
-
-            if not callable(lambda_function):
-                handler.logger.error(f'lambda_function is not a callable function: {lambda_function}.')
-                continue
-
-            args = get_args(lambda_string, player, character, handler.injector, parameters)
-            result = lambda_function(*args)
-            if inspect.isawaitable(result):
-                await result
-        else:
-            raise ValueError('Failed to retrieve specified lambda function from REST service')
-
 
 class InterpHandler:
     @inject
-    def __init__(self, injector: Injector, message_bus: MessageBus, registry_service: RegistryService, social_handler: SocialHandler):
+    def __init__(self, injector: Injector, message_bus: MessageBus, registry_service: RegistryService, handler_service: HandlerService):
         self.__name__ = "InterpHandler"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.injector = injector
@@ -166,7 +25,9 @@ class InterpHandler:
         self.registry_service = registry_service
         self.interp_registry = registry_service.interp_registry
         self.social_registry = registry_service.social_registry
-        self.social_handler = social_handler
+        self.handler_service = handler_service
+        self.social_handler = self.handler_service.social_handler
+        self.connection_manager = injector.get(ConnectionManager)
         self.command_not_found_message = self.message_bus.text_to_message("Huh?\r\n")
 
     def get_message(self, cmd):
@@ -176,7 +37,64 @@ class InterpHandler:
             return None
         return command.message
 
-    async def call_lambda(self, player, character, command_name, command_list, parameters):
+    @staticmethod
+    async def _execute_lambda(func, context) -> Context:
+        result = func(context)
+        if inspect.isawaitable(result):
+            context.result = await result
+        else:
+            context.result = result
+        return context
+
+    async def _handle_pipeline(self, command: Command, context: Context):
+        i = 0
+        while i < len(command.lambdas):
+            lambda_str = command.lambdas[i]
+            if not isinstance(lambda_str, str):
+                i += 1
+                continue
+
+            try:
+                func = eval(lambda_str)
+                if not callable(func):
+                    i += 1
+                    continue
+
+                context = await self._execute_lambda(func, context)
+                if context.done:
+                    break
+
+                if context.next_index is not None:
+                    i = context.next_index
+                    context.next_index = None
+                    continue
+            except Exception as e:
+                self.logger.error(f"Pipeline lambda failed at index {i}: {lambda_str} | {e}")
+                raise
+            i += 1
+
+    async def _handle_sequence(self, command: Command, context: Context):
+        for lambda_string in command.lambdas:
+            func = eval(lambda_string)
+            if not callable(func):
+                continue
+            await self._execute_lambda(func, context)
+
+    async def _handle_lambdas(self, player: Player, character: Character, command: Command, parameters: str):
+        if not command.lambdas:
+            return None
+
+        arguments = InterpUtil.build_arguments(command, parameters)
+        context = Context(player=player, character=character, handler_service=self.handler_service, parameters=arguments, result=parameters)
+
+        if command.pipeline:
+            await self._handle_pipeline(command, context)
+        else:
+            await self._handle_sequence(command, context)
+
+        return context.result
+
+    async def _call_lambda(self, player: Player, character: Character, command_name: str, command_list: List[Command], parameters: str):
         command = self.interp_registry.get_or_none(name=command_name)
         if command is None:
             command_json = InterpUtil.find_command_by_name(command_name, command_list)
@@ -184,7 +102,7 @@ class InterpHandler:
                 return await self.message_bus.send_to_character(character.id, self.command_not_found_message)
 
         try:
-            await handle_lambdas(self, player, character, command, parameters)
+            await self._handle_lambdas(self, player=player, character=character, command=command, parameters=parameters)
         except ValueError as ve:
             self.logger.error("ValueError: " + str(ve))
             raise
@@ -201,16 +119,18 @@ class InterpHandler:
             await self.message_bus.send_to_character(character.id, self.command_not_found_message)
             return None
 
+        player.usage = self.handle_usage(command)
+        self.logger.info(f"CMD: {cmd.name}, PARAMETERS: {parameters}, USAGE: {str(player.usage)}")
+        return await self._call_lambda(player, character, cmd.name, self.interp_registry.all_commands(), parameters)
+
+    def handle_usage(self, cmd: Command):
         usage = cmd.usage
         if isinstance(usage, str) and usage.strip():
             usage_function = eval(usage)
             if not callable(usage_function):
                 self.logger.error("NOT_CALLABLE: " + str(usage_function))
-            else:
-                player.usage = usage_function
-
-        self.logger.info(f"CMD: {cmd.name}, PARAMETERS: {parameters}, USAGE: {str(usage)}")
-        return await self.call_lambda(player, character, cmd.name, self.interp_registry.all_commands(), parameters)
+                return None
+        return usage
 
     async def help_usage(self, character, argument: str = ""):
         arg_all = " ".join((argument or "").split()).lower()

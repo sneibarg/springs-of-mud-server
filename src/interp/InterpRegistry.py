@@ -12,5 +12,5 @@ class InterpRegistry(Registry[Command]):
         self.__name__ = "InterpRegistry"
         self.logger = LoggerFactory.get_logger(self.__name__)
 
-    def all_commands(self) -> set[Command]:
-        return self._items
+    def all_commands(self) -> list[Command]:
+        return list(self._items)

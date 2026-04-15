@@ -17,6 +17,7 @@ class Command:
     lambdas: list[str]
     function: list[str]
     pipeline: bool = False
+    max_arguments: int = 0
     usage: Optional[str] = field(default=None)
     log: Optional[str] = field(default=None)
     help: Optional[HelpEntry] = field(default=None)

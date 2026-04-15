@@ -1,25 +1,35 @@
-import re
-
-from typing import Dict, Any
 from injector import inject
+from area.RoomHelper import RoomHelper
+from game.RegistryService import RegistryService
+from interp.CommandHelper import CommandHelper
+from interp.Context import Context
+from interp.InterpUtil import InterpUtil
 from player.Character import Character
-from player.CharacterRegistry import CharacterRegistry
+from player.CharacterMacros import CharacterMacros
 from player.PlayerUtil import PlayerUtil
 from server.messaging import MessageBus
 from server.session.SessionHandler import SessionHandler
 from server.LoggerFactory import LoggerFactory
 
-LOOK_CTX_KEY = "_look_ctx"
-LOOK_IN_ALIASES = {"i", "in", "on"}
-
 
 class PlayerHandler:
     @inject
-    def __init__(self, message_bus: MessageBus, character_registry: CharacterRegistry, session_handler: SessionHandler):
+    def __init__(self, message_bus: MessageBus,
+                 registry_service: RegistryService,
+                 session_handler: SessionHandler,
+                 command_helper: CommandHelper,
+                 room_helper: RoomHelper,
+                 character_macros: CharacterMacros):
         self.__name__ = "PlayerHandler"
         self.message_bus = message_bus
-        self.character_registry = character_registry
+        self.registry_service = registry_service
+        self.character_registry = registry_service.character_registry
+        self.room_registry = registry_service.room_registry
         self.session_handler = session_handler
+        self.command_helper = command_helper
+        self.room_helper = room_helper
+        self.character_macros = character_macros
+        self.PlayerActBits = character_macros.enums.get('playerActBits')
         self.logger = LoggerFactory.get_logger(__name__)
 
     async def print_visible(self, character):
@@ -38,147 +48,23 @@ class PlayerHandler:
         message = self.message_bus.text_to_message(text)
         await self.message_bus.send_to_character(character_id, message)
 
-    def _look_ctx(self, character: Character) -> Dict[str, Any]:
-        if character.context is None:
-            character.context = {}
-        ctx = character.context.get(LOOK_CTX_KEY)
-        if not isinstance(ctx, dict):
-            ctx = {
-                "arg1": "",
-                "arg2": "",
-                "arg3": "",
-                "argument": "",
-                "number": 1,
-                "count": 0,
-                "branch": None,
-                "done": False,
-            }
-            character.context[LOOK_CTX_KEY] = ctx
-        self.logger.debug(f"Look context: {ctx}")
-        return ctx
-
-    async def look_begin(self, character: Character, argument: str = ""):
-        text = " ".join((argument or "").split())
-        parts = text.split(" ", 1)
-        arg1 = parts[0].strip().lower() if parts and parts[0] else ""
-        arg2 = parts[1].strip().lower() if len(parts) > 1 else ""
-
-        number = 1
-        arg3 = arg1
-        match = re.match(r"^(\d+)\.(.+)$", arg1)
-        if match:
-            number = max(1, int(match.group(1)))
-            arg3 = match.group(2).strip().lower()
-
-        character.context[LOOK_CTX_KEY] = {
-            "arg1": arg1,
-            "arg2": arg2,
-            "arg3": arg3,
-            "argument": text,
-            "number": number,
-            "count": 0,
-            "branch": "default" if arg1 in ("", "auto") else None,
-            "done": False,
-        }
-        self.logger.debug(f"Look context: {character.context[LOOK_CTX_KEY]}")
-
-    def look_context(self, character: Character) -> Dict[str, Any]:
-        return self._look_ctx(character)
-
-    def look_done(self, character: Character) -> bool:
-        return bool(self._look_ctx(character).get("done", False))
-
-    def look_mark_done(self, character: Character):
-        self._look_ctx(character)["done"] = True
-
-    def look_register_match(self, character: Character) -> bool:
-        ctx = self._look_ctx(character)
-        ctx["count"] = int(ctx.get("count", 0)) + 1
-        return ctx["count"] == int(ctx.get("number", 1))
-
-    def look_keyword_matches(self, token: str, keyword: str) -> bool:
-        t = (token or "").strip().lower()
-        k = (keyword or "").strip().lower()
-        if not t or not k:
-            return False
-        words = [w for w in k.split() if w]
-        self.logger.debug(f"Looking for keywords: {words}")
-        return any(w == t or w.startswith(t) for w in words)
-
-    def look_is_named_target_query(self, character: Character) -> bool:
-        ctx = self._look_ctx(character)
-        arg1 = ctx.get("arg1", "")
-        if not arg1:
-            return False
-        if arg1 in LOOK_IN_ALIASES:
-            return False
-        return True
-
-    async def look_complete_default(self, character: Character):
-        if self.look_done(character):
-            return
-        ctx = self._look_ctx(character)
-        if ctx.get("branch") == "default":
-            ctx["done"] = True
-
-    async def look_player_target(self, character: Character):
-        if self.look_done(character):
+    async def do_look(self, character: Character, context: Context):
+        if not self.command_helper.check_position(character):
             return
 
-        ctx = self._look_ctx(character)
-        arg1 = ctx.get("arg1", "")
-        if not arg1 or arg1 in LOOK_IN_ALIASES:
+        if not self.room_helper.check_blind(character):
             return
 
-        target = None
-        for session in self.session_handler.get_playing_sessions():
-            cand = session.character
-            if cand.room_id != character.room_id:
-                continue
-            c_name = cand.name.lower()
-            if c_name == arg1 or c_name.startswith(arg1):
-                target = cand
-                break
-
-        if target is None:
+        if not self.character_macros.is_npc(character) \
+                and not self.character_macros.is_set(int(character.character_flags.act), self.PlayerActBits.PLR_HOLYLIGHT.value)\
+                and self.room_helper.is_room_dark(character.room_id):
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("It is pitch black ...\n\r"))
+            await context.get_room_handler().print_in_room(character.id, context.get_mobile_handler())
             return
 
-        header = target.name
-        if target.title:
-            header += f" {target.title}"
-        desc = target.description.strip() if target.description else "You see nothing special."
-        text = f"{header}\r\n{desc}\r\n"
-        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
-        self.look_mark_done(character)
-
-    async def look_finalize_count_message(self, character: Character):
-        if self.look_done(character):
-            return
-
-        ctx = self._look_ctx(character)
-        count = int(ctx.get("count", 0))
-        number = int(ctx.get("number", 1))
-        token = ctx.get("arg3", "that")
-
-        if count > 0 and count != number:
-            if count == 1:
-                text = f"You only see one {token} here.\r\n"
-            else:
-                text = f"You only see {count} of those here.\r\n"
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
-            self.look_mark_done(character)
-
-    async def look_fallback_not_here(self, character: Character):
-        if self.look_done(character):
-            return
-        arg1 = self._look_ctx(character).get("arg1", "")
-        if arg1:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You do not see that here.\r\n"))
-            self.look_mark_done(character)
-
-    async def look_finish(self, character: Character):
-        if character.context and LOOK_CTX_KEY in character.context:
-            with character.lock:
-                del character.context[LOOK_CTX_KEY]
-                self.logger.debug(f"Look context deleted: {character.context}")
-            
+        arg1 = context.parameters[0]
+        arg2 = context.parameters[1]
+        if arg1 == "" or not arg1 == "auto":
+            context.next_index += 1
+        if arg1 == "i" or arg1 == "in" or arg1 == "on":
+            context.next_index += 2

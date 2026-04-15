@@ -28,8 +28,8 @@ class Room:
     mana_rate: int = 0
     clan: int = 0
     extra_description: ExtraDescriptionData = None
-    characters: List[Character] = field(default_factory=list)
-    mobiles: List[Mobile] = field(default_factory=list)
+    characters: dict[str, Character] = field(default_factory=dict)
+    mobiles: dict[str, Mobile] = field(default_factory=dict)
     exits: List[Exit] = field(default_factory=list)
 
     def __post_init__(self):

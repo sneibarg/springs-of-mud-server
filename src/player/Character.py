@@ -45,6 +45,9 @@ class Character:
     armor_class: PCArmorClass
     character_class: CharacterClass
     prompt_format: PromptFormat
+    invis_level: Optional[int] = 0
+    incog_level: Optional[int] = 0
+    fighting: Optional[Any] = None
     context: Dict[str, object] = field(default_factory=dict)
     loot: List[Item] = field(default_factory=list)
     lock: threading.Lock = field(default_factory=threading.Lock)

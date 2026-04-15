@@ -6,12 +6,14 @@ from enum import IntEnum
 from typing import Dict, Any, Iterable
 from injector import singleton, Injector
 
+from area.RoomHelper import RoomHelper
 from area.ShopService import ShopService
 from area.AreaHandler import AreaHandler
 from area.ResetService import ResetService
 from area.RoomHandler import RoomHandler
 from area.SpecialService import SpecialService
 from game.HandlerService import HandlerService
+from interp.CommandHelper import CommandHelper
 from interp.HelpService import HelpService
 from interp.InterpHandler import InterpHandler
 from interp.SocialHandler import SocialHandler
@@ -60,6 +62,7 @@ class ServerUtil:
 
         ServerUtil._bind_network_services(injector)
         ServerUtil._bind_registries(injector)
+        ServerUtil._bind_helpers(injector)
         ServerUtil._bind_handlers(injector)
         ServerUtil._bind_game_data(injector)
         ServerUtil._bind_game_services(injector, service_config)
@@ -68,6 +71,11 @@ class ServerUtil:
         injector.binder.bind(SessionHandler, to=SessionHandler(injector.get(GameData).constants.max['idleTime']), scope=singleton)
 
         return injector
+
+    @staticmethod
+    def _bind_helpers(injector):
+        injector.binder.bind(CommandHelper, scope=singleton)
+        injector.binder.bind(RoomHelper, scope=singleton)
 
     @staticmethod
     def _bind_network_services(injector):
@@ -159,9 +167,7 @@ class ServerUtil:
                                                                  injector.get(GameData).attribute_bonuses), scope=singleton)
         injector.binder.bind(ObjectMacros, to=ObjectMacros(injector.get(GameData).races,
                                                            injector.get(GameData).item_table,
-                                                           injector.get(GameService).enums['itemTypes'],
-                                                           injector.get(GameService).enums['damageTypes'],
-                                                           injector.get(GameService).enums['flagLetters']), scope=singleton)
+                                                           injector.get(GameService).enums), scope=singleton)
 
     @staticmethod
     def load_services(injector) -> None:
@@ -183,7 +189,9 @@ class ServerUtil:
         area_handler = injector.get(AreaHandler)
         weather_handler = injector.get(WeatherHandler)
         update_handler = injector.get(UpdateHandler)
+        item_handler = injector.get(ItemHandler)
 
+        item_handler.set_object_macros(injector.get(ObjectMacros))
         update_handler.set_enums(injector.get(GameService).enums)
         area_handler.set_enums(injector.get(GameService).enums)
         weather_handler.lazy_load(injector.get(GameService).enums, injector.get(GameData).constants)

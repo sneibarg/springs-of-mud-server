@@ -25,15 +25,7 @@ class MobileHandler:
         if lines:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("\r\n".join(lines) + "\r\n"))
 
-    async def look_mobile_target(self, character: Character, player_handler):
-        if player_handler.look_done(character):
-            return
-
-        ctx = player_handler.look_context(character)
-        arg1 = ctx.get("arg1", "")
-        if not arg1 or arg1 in {"i", "in", "on"}:
-            return
-
+    async def look_mobile_target(self, character: Character, player_handler, arg1: str):
         room = self.room_registry.get(id=character.room_id)
         if room is None:
             return
@@ -53,4 +45,3 @@ class MobileHandler:
         desc = (target.description or "").strip() or "You see nothing special."
         text = f"{header}\r\n{desc}\r\n"
         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
-        player_handler.look_mark_done(character)
