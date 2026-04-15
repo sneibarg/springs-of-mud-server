@@ -1,6 +1,5 @@
-import re
-
 from injector import inject
+
 from server.LoggerFactory import LoggerFactory
 from server.messaging.MessageBus import MessageBus
 from player.Character import Character
@@ -14,15 +13,14 @@ class CommandHelper:
         self.logger = LoggerFactory.get_logger(__name__)
         self.message_bus = message_bus
         self.character_macros = character_macros
-        self.constants = character_macros.character_constants
-        self.positions = self.constants.positions
+        self.PositionsEnum = character_macros.PositionsEnum
 
     def check_position(self, character: Character) -> bool:
-        if character.character_attributes.position < self.positions.get('POS_SLEEPING'):
+        if character.character_attributes.position < self.PositionsEnum.POS_SLEEPING.value:
             self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You can't see anything but stars!\n\r"))
             return False
 
-        if character.character_attributes.position == self.positions.get('POS_SLEEPING'):
+        if character.character_attributes.position == self.PositionsEnum.POS_SLEEPING.value:
             self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You can't see anything; you're sleeping!\n\r"))
             return False
         return True

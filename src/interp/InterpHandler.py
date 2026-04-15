@@ -63,7 +63,7 @@ class InterpHandler:
                 if context.done:
                     break
 
-                if context.next_index is not None:
+                if isinstance(context.next_index, int) and context.next_index >= 0:
                     i = context.next_index
                     context.next_index = None
                     continue
@@ -84,7 +84,8 @@ class InterpHandler:
             return None
 
         arguments = InterpUtil.build_arguments(command, parameters)
-        context = Context(player=player, character=character, handler_service=self.handler_service, parameters=arguments, result=parameters)
+        connection = self.connection_manager.get_connection_by_character(character.id)
+        context = Context(player=player, character=character, handler_service=self.handler_service, conn=connection, parameters=arguments, result=parameters)
 
         if command.pipeline:
             await self._handle_pipeline(command, context)
@@ -101,10 +102,7 @@ class InterpHandler:
                 return await self.message_bus.send_to_character(character.id, self.command_not_found_message)
 
         try:
-            await self._handle_lambdas(self, player=player, character=character, command=command, parameters=parameters)
-        except ValueError as ve:
-            self.logger.error("ValueError: " + str(ve))
-            raise
+            await self._handle_lambdas(player=player, character=character, command=command, parameters=parameters)
         except TypeError as te:
             self.logger.error("TypeError: " + str(te))
             raise
@@ -123,13 +121,14 @@ class InterpHandler:
         return await self._call_lambda(player, character, cmd.name, self.interp_registry.all_commands(), parameters)
 
     def handle_usage(self, cmd: Command):
-        usage = cmd.usage
-        if isinstance(usage, str) and usage.strip():
-            usage_function = eval(usage)
+        usage = getattr(cmd, "usage", None)
+        if isinstance(usage, str) and cmd.usage.strip():
+            usage_function = eval(cmd.usage)
             if not callable(usage_function):
                 self.logger.error("NOT_CALLABLE: " + str(usage_function))
                 return None
-        return usage
+            return usage_function
+        return None
 
     async def help_usage(self, character, argument: str = ""):
         arg_all = " ".join((argument or "").split()).lower()

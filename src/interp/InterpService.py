@@ -44,7 +44,6 @@ class InterpService:
         data = response.json()
         try:
             if isinstance(data, list):
-                count = 0
                 for command_data in data:
                     command = Command.from_json(command_data)
                     self._assign_help_to_command(command)
@@ -74,5 +73,5 @@ class InterpService:
     def _build_summary_command(self) -> Command:
         from server.ServerUtil import ServerUtil
         summary_id = ServerUtil.generate_mongo_id()
-        summary_cmd = Command(_id=summary_id, id=summary_id, name='summary', shortcuts="", message="", skill_id="", position="", usage="", role="", enabled=True, lambdas=[], function=[], help=self.help_registry.get(keyword='summary'))
+        summary_cmd = Command(_id=summary_id, id=summary_id, max_arguments=0, level=0, name='summary', shortcuts="", message="", skill_id="", position="", usage="", role="", enabled=True, lambdas=[], function=[], help=self.help_registry.get(keyword='summary'))
         return summary_cmd

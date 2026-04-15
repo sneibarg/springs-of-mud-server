@@ -10,6 +10,9 @@ from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 
 
+if TYPE_CHECKING:
+    from area.RoomHelper import RoomHelper
+
 rng = RandomNumberGenerator()
 
 
@@ -28,6 +31,7 @@ class CharacterMacros(GameMacros):
         self.PlayerActBits = self.enums.get("playerActBits")
         self.AffectedBits = self.enums.get('affectedBy')
         self.TimeAndWeatherEnum = enums.get('timeAndWeather')
+        self.PositionsEnum = enums.get('positions')
         self.attribute_bonuses = attribute_bonuses
         self.logger = LoggerFactory.get_logger(__name__)
 
@@ -63,12 +67,12 @@ class CharacterMacros(GameMacros):
 
     def is_affected(self, char: Any, effect) -> bool:
         if type(char) is Character:
-            return self.is_set(self.convert_flags(char.affected_by), effect)
+            return self.is_set(self.convert_flags(char.character_flags.affected_by), effect)
         else:
             return self.is_set(self.convert_flags(char.mobile_flags.affected_by), effect)
 
     def is_blind(self, character: Any) -> bool:
-        return self.is_set(int(character.character_flags.act), self.AffectedBits.AFF_BLIND.value)
+        return self.is_set(int(self.convert_flags(character.character_flags.act)), self.AffectedBits.AFF_BLIND.value)
 
     def is_awake(self, char: Any) -> bool:
         return char.character_attributes.position > self.character_constants.positions.POS_SLEEPING.value
@@ -127,7 +131,7 @@ class CharacterMacros(GameMacros):
         pass
 
     def has_holy_light(self, character) -> bool:
-        return self.is_set(int(character.character_flags.act), self.PlayerActBits.PLR_HOLYLIGHT.value)
+        return self.is_set(int(self.convert_flags(character.character_flags.act)), self.PlayerActBits.PLR_HOLYLIGHT.value)
 
     def can_see(self, character: Any, victim: Any, room_helper: RoomHelper) -> bool:
         if character == victim:

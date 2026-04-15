@@ -6,6 +6,7 @@ from area.Exit import Exit
 from area.Room import Room
 from area.RoomHelper import RoomHelper
 from game.RegistryService import RegistryService
+from interp.Context import Context
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 from server.messaging import MessageBus
@@ -14,7 +15,8 @@ from server.session.SessionHandler import SessionHandler
 
 class RoomHandler:
     @inject
-    def __init__(self, message_bus: MessageBus, session_handler: SessionHandler, registry_service: RegistryService, room_helper: RoomHelper):
+    def __init__(self, message_bus: MessageBus, session_handler: SessionHandler, registry_service: RegistryService,
+                 room_helper: RoomHelper):
         self.__name__ = "RoomHandler"
         self.message_bus = message_bus
         self.registry_service = registry_service
@@ -27,7 +29,7 @@ class RoomHandler:
     async def print_in_room(self, character_id, player_handler, mobile_handler):
         character = self.character_registry.get(id=character_id)
         await player_handler.print_players_in_room(character)
-        await mobile_handler.print_mobiles_in_room(character_id)
+        await mobile_handler.print_mobiles_in_room(character)
 
     async def move_mobile(self, character, direction):
         room = self.room_registry.get(id=character.room_id)
@@ -37,7 +39,8 @@ class RoomHandler:
             character.room_id = destination_id
             await self.print_room(character.id, destination_room)
         else:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(f"You can't go that direction!\r\n"))
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(
+                f"You can't go that direction!\r\n"))
 
     async def print_exits(self, character: Character, room: Room):
         if self.room_helper.can_see_room_vnum(character):
@@ -61,4 +64,46 @@ class RoomHandler:
         if room is None:
             self.logger.error(f"Attempted to print room to character {character_id} but room is None")
             return
-        await self.message_bus.send_to_character(character_id, self.room_helper.format_room_description(room.name, room.description))
+        await self.message_bus.send_to_character(character_id,
+                                                 self.room_helper.format_room_description(room.name, room.description))
+
+    async def look_direction(self, character: Character, context: Context):
+        token = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip()
+        direction_map = {"n": 0, "north": 0, "e": 1, "east": 1, "s": 2, "south": 2, "w": 3, "west": 3, "u": 4, "up": 4, "d": 5, "down": 5}
+        door = direction_map.get((token or "").strip().lower())
+        if door is None:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You do not see that here.\r\n"))
+            context.finish()
+            return
+
+        room = self.room_registry.get(id=character.room_id)
+        if room is None:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("Nothing special there.\r\n"))
+            context.finish()
+            return
+
+        pexit = None
+        for ex in room.exits:
+            if ex.direction == door:
+                pexit = ex
+                break
+
+        if pexit is None:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("Nothing special there.\r\n"))
+            context.finish()
+            return
+
+        desc = (pexit.description or "").strip()
+        if desc:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(desc + "\r\n"))
+        else:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("Nothing special there.\r\n"))
+
+        keyword = (pexit.keyword or "").strip()
+        if keyword and not keyword.startswith(" "):
+            flags = int(getattr(pexit, "exit_flags", 0) or 0)
+            if flags & 2:  # CLOSED
+                await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(f"The {keyword} is closed.\r\n"))
+            elif flags & 1:  # IS_DOOR
+                await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(f"The {keyword} is open.\r\n"))
+        context.finish()

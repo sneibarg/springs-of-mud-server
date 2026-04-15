@@ -35,11 +35,21 @@ class PlayerHandler:
         self.PlayerActBits = character_macros.enums.get('playerActBits')
         self.logger = LoggerFactory.get_logger(__name__)
 
+    async def do_quit(self, character: Character, context: Context):
+        room = self.room_registry.get(id=character.room_id)
+        in_room = self.player_helper.players_in_room(character, room)
+        message = self.message_bus.text_to_message(f"{character.name} has left the game.\r\n")
+        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(f"Alas, all good things must come to an end.\r\n"))
+        if len(in_room) > 0:
+            await self.message_bus.send_to_room(message, in_room)
+        self.session_handler.remove_session(character.id)
+        await context.disconnect()
+
     async def print_players_in_room(self, character: Character):
         message = self.player_helper.get_players_in_room(character)
         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message))
 
-    async def print_visible(self, character):
+    async def do_who(self, character):
         who_list = [character] + PlayerUtil.visible(character, self.session_handler)
         who_line = ""
         players_found = "Players found: " + str(len(who_list)) + "\r\n"
@@ -60,37 +70,61 @@ class PlayerHandler:
         if room is None:
             return
 
-        arg1 = context.parameters[0] if len(context.parameters) > 0 else ""
-        target = PlayerUtil.get_target(character, arg1, room, self.room_helper)
+        arg1 = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip().lower()
+        if arg1 in ("", "auto", "i", "in", "on"):
+            return
+
+        target = PlayerUtil.get_target(character, arg1, room, self.character_macros, self.room_helper)
         if target is None:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You do not see them here.\r\n"))
+            context.jump_to(4)
             return
 
         header = target.name or "Someone"
         desc = (target.description or "").strip() or "You see nothing special."
         text = f"{header}\r\n{desc}\r\n"
         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+        context.finish()
 
     async def do_look(self, character: Character, context: Context):
+        direction_map = {"n": 0, "north": 0, "e": 1, "east": 1, "s": 2, "south": 2, "w": 3, "west": 3, "u": 4, "up": 4, "d": 5, "down": 5}
         if not self.command_helper.check_position(character):
+            context.finish()
             return
 
-        if self.room_helper.check_blind(character):
+        if not self.room_helper.check_blind(character):
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You can't see a thing!\n\r"))
+            context.finish()
             return
 
+        arg1 = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip().lower()
         if (not self.character_macros.is_npc(character)
                 and not self.character_macros.has_holy_light(character)
                 and self.room_helper.is_room_dark(character.room_id)):
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("It is pitch black ...\n\r"))
-            await context.room_handler().print_in_room(character.id, context.mobile_handler())
+            context.jump_to(1)  # show chars/mobs only
             return
 
-        arg1 = context.parameters[0]
-        arg2 = context.parameters[1]
-        if arg1 == "" or not arg1 == "auto":
-            context.jump_to(context.next_index + 1)
-        if arg1 == "i" or arg1 == "in" or arg1 == "on":
-            context.jump_to(context.next_index + 2)
-        if PlayerUtil.is_target_playing(arg2, self.session_handler):
-            context.jump_to(context.next_index + 3)
+        room = self.room_registry.get(id=character.room_id)
+        if room is None:
+            context.finish()
+            return
+
+        print(f"arg1 is {arg1}")
+        if arg1 == "" or arg1 == "auto":
+            await context.room_handler().print_room(character.id, room)
+            if self.character_macros.is_set(int(self.character_macros.convert_flags(character.character_flags.act)), self.PlayerActBits.PLR_AUTOEXIT.value):
+                await context.room_handler().print_exits(character, room)
+
+            await context.item_handler().look_room_items(character)
+            context.jump_to(1)  # players + mobiles
+            return
+
+        if arg1 in ("i", "in", "on"):
+            context.jump_to(2)
+            return
+
+        if arg1 in direction_map:
+            print(f"Looking in direction {arg1}")
+            context.jump_to(5)
+
+        context.jump_to(3)

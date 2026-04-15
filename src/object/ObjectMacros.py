@@ -1,7 +1,9 @@
 from enum import IntEnum
 from typing import Dict, List
 from game.GameMacros import GameMacros
+from interp.Context import Context
 from object import Item
+from player.Character import Character
 
 
 class ObjectMacros(GameMacros):
@@ -14,6 +16,13 @@ class ObjectMacros(GameMacros):
         self.ContainerState = enums.get('containerState')
         self.ItemFlags = enums.get('itemFlags')
         self.AffectBits = enums.get('affectedBy')
+
+    def is_container_closed(self, item) -> bool:
+        try:
+            flags = int(item.value1)
+            return self.is_set(flags, self.ContainerState.CONT_CLOSED.value)
+        except (TypeError, ValueError):
+            return False
 
     def can_wear(self, obj: Item, part: int) -> bool:
         return self.is_set(int(obj.wear_flags), part)

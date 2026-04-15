@@ -1,7 +1,10 @@
+from enum import IntEnum
+
+from area import Room
 from game.GameMacros import GameMacros
 from object.ExtraDescriptionData import ExtraDescriptionData
+from player.Character import Character
 from server.LoggerFactory import LoggerFactory
-from enum import IntEnum
 from object.Item import Item
 from object.AffectData import AffectData, AffectWhere
 
@@ -29,7 +32,6 @@ class ItemUtil:
 
     @staticmethod
     def update_affect_data(item):
-        from server.ServerUtil import ServerUtil
         for affect in item.affect_data:
             affect_elements = affect.split(",")
             affect_data = AffectData(valid=True, where=-1, type=-1, level=item.level, duration=-1, location=-1, modifier=-1, bitvector=-1)
@@ -243,3 +245,49 @@ class ItemUtil:
             color = getattr(obj, "liquid_color", None) or "unknown"
             text = f"It's {fill}filled with a {color} liquid.\r\n"
         return text
+
+    @staticmethod
+    def items_in_container(obj: Item) -> str:
+        text = f"{obj.name} holds\r\n"
+        contents = obj.contents()
+        if contents:
+            text = text + contents
+        else:
+            text = text + f"\tNothing.\r\n"
+        return text
+
+    @staticmethod
+    def is_drink_container(item) -> bool:
+        t = (item.item_type or "").strip().lower()
+        return ("drink" in t) or ("fountain" in t)
+
+    @staticmethod
+    def is_container_like(item) -> bool:
+        t = (item.item_type or "").strip().lower()
+        return ("container" in t) or ("corpse" in t)
+
+    @staticmethod
+    def find_item(character: Character, room: Room, name: str):
+        wanted = (name or "").strip().lower()
+        if not wanted:
+            return None
+        for item in character.get_items():
+            nm = (item.name or "").lower()
+            if nm == wanted or nm.startswith(wanted):
+                return item
+        for item in room.contents.values():
+            nm = (item.name or "").lower()
+            if nm == wanted or nm.startswith(wanted):
+                return item
+        return None
+
+    @staticmethod
+    def room_items(room: Room) -> list:
+        lines = []
+        for item in room.contents.values():
+            line = (item.long_description or "").strip()
+            if not line:
+                line = item.short_description or item.name
+            if line:
+                lines.append(line)
+        return lines

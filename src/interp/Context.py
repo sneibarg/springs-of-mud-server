@@ -2,10 +2,12 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass
 from typing import Any, Optional, List
 from player.Player import Player
-from area.Room import Room
+
 
 if TYPE_CHECKING:
     from game.HandlerService import HandlerService
+    from area.Room import Room
+    from server.connection.TelnetConnection import TelnetConnection
 
 
 @dataclass
@@ -14,10 +16,12 @@ class Context:
     player: Player
     character: Any
     handler_service: HandlerService = None
+    conn: TelnetConnection = None
     parameters: List[str] = None
     result: Any = None
     done: bool = False
-    next_index: int = 0
+    number: int = 1
+    next_index: Optional[int] = None
     count: Optional[int] = 0  # used for counting items; result of number_argument
     room: Optional[Room] = None
 
@@ -51,3 +55,20 @@ class Context:
 
     def finish(self):
         self.done = True
+
+    def look_register_match(self) -> bool:
+        self.count += 1
+        return self.count == self.number
+
+    async def disconnect(self):
+        await self.conn.close()
+
+    @staticmethod
+    def look_keyword_matches(token: str, keyword: str) -> bool:
+        t = (token or "").strip().lower()
+        k = (keyword or "").strip().lower()
+        if not t or not k:
+            return False
+        words = [w for w in k.split() if w]
+        return any(w == t or w.startswith(t) for w in words)
+

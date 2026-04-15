@@ -32,6 +32,8 @@ class PlayerHelper:
         if room is None:
             return loiterers
         for char in room.characters.values():
+            if char.id == character.id:
+                continue
             if self.character_macros.can_see(character, char, self.room_helper):
                 loiterers.append(char)
         return loiterers

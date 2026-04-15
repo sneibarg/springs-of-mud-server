@@ -21,7 +21,7 @@ class ObjectHelper:
         self.ItemTypes = self.object_macros.ItemTypes
 
     def can_see_object(self, character: Character, obj: Item) -> bool:
-        if not self.character_macros.is_npc(character) and self.character_macros.is_set(int(character.character_flags.act), self.PlayerActBits.PLR_HOLYLIGHT.value):
+        if not self.character_macros.is_npc(character) and self.character_macros.is_set(int(self.character_macros.convert_flags(character.character_flags.act)), self.PlayerActBits.PLR_HOLYLIGHT.value):
             return True
 
         if self.object_macros.is_set(int(obj.extra_flags), self.ItemFlags.ITEM_VIS_DEATH.value):

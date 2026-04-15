@@ -16,12 +16,12 @@ class Command:
     enabled: bool
     lambdas: list[str]
     function: list[str]
+    usage: str
+    level: int
+    max_arguments: int
     pipeline: bool = False
-    max_arguments: int = 0
-    usage: Optional[str] = field(default=None)
     log: Optional[str] = field(default=None)
     help: Optional[HelpEntry] = field(default=None)
-    level: Optional[int] = field(default=None)
 
     def __hash__(self):
         return hash(self.id)
