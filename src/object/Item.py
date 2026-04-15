@@ -24,14 +24,13 @@ class Item:
     value2: str
     value3: str
     value4: str
-    weight: str
     condition: str
     level: int
     weight: int
     cost: int
     affect_data: list
     extra_descr: list
-    contains: Optional[List[Item]] = None
+    contains: list
     enchanted: Optional[bool] = False
     timer: Optional[int] = None
     damage_type: Optional[str] = None
@@ -54,12 +53,20 @@ class Item:
             return self.id == other.id
         return False
 
+    def contents(self) -> str:
+        text = ""
+        if len(self.contains) > 0:
+            for item in self.contains:
+                text = text + "\t" + item.name + "\r\n"
+        return text
+
     @classmethod
     def from_json(cls, data):
         if isinstance(data, str):
             data = json.loads(data)
         from server.ServerUtil import ServerUtil
         data = ServerUtil.camel_to_snake_case(data)
+        data['contains'] = []
         return cls(**data)
 
 

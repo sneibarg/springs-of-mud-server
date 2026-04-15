@@ -2,7 +2,8 @@ import asyncio
 import threading
 
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import Dict, List, Optional, Any
+
 from interp.PromptFormat import PromptFormat
 from object.Item import Item
 from player.CharacterClass import CharacterClass
@@ -10,6 +11,7 @@ from player.PCArmorClass import PCArmorClass
 from player.TemporalMechanics import TemporalMechanics
 from player.CharacterAttributes import CharacterAttributes
 from player.CharacterFlags import CharacterFlags
+from player.Equipped import Equipped
 from server.LoggerFactory import LoggerFactory
 
 
@@ -45,6 +47,10 @@ class Character:
     armor_class: PCArmorClass
     character_class: CharacterClass
     prompt_format: PromptFormat
+    invis_level: Optional[int] = 0
+    incog_level: Optional[int] = 0
+    fighting: Optional[Any] = None
+    equipped: Optional[Equipped] = None
     context: Dict[str, object] = field(default_factory=dict)
     loot: List[Item] = field(default_factory=list)
     lock: threading.Lock = field(default_factory=threading.Lock)
@@ -69,19 +75,6 @@ class Character:
 
     def get_items(self) -> List[Item]:
         return self.loot
-
-    def get_fuzzy_item(self, fuzzy_item, usage, mb):
-        fuzzy_item = fuzzy_item.strip().replace("\r\n", "")
-        self.logger.debug("get_fuzzy_item: fuzzy_item=" + str(fuzzy_item))
-        for item in self.loot:
-            if not isinstance(item, Item):
-                self.logger.debug("get_fuzzy_item: not an Item: " + str(item))
-                continue
-            if item.name.startswith(fuzzy_item) or fuzzy_item == item.name:
-                self.logger.debug("get_fuzzy_item: FOUND: " + str(item))
-                return item
-        asyncio.ensure_future(usage(self, mb))
-        return None
 
     @classmethod
     def from_json(cls, data):

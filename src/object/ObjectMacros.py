@@ -1,16 +1,28 @@
 from enum import IntEnum
 from typing import Dict, List
 from game.GameMacros import GameMacros
+from interp.Context import Context
 from object import Item
+from player.Character import Character
 
 
 class ObjectMacros(GameMacros):
-    def __init__(self, races: dict, item_table: dict, ItemTypes: type[IntEnum], DamageTypes: type[IntEnum], FlagLetters: type[IntEnum]):
+    def __init__(self, races: dict, item_table: dict, enums: dict[str, IntEnum],):
         self.races = races
         self.item_table = item_table
-        self.ItemTypes = ItemTypes
-        self.DamageTypes = DamageTypes
-        self.FlagLetters = FlagLetters
+        self.ItemTypes = enums.get('itemTypes')
+        self.DamageTypes = enums.get('damageTypes')
+        self.FlagLetters = enums.get('flagLetters')
+        self.ContainerState = enums.get('containerState')
+        self.ItemFlags = enums.get('itemFlags')
+        self.AffectBits = enums.get('affectedBy')
+
+    def is_container_closed(self, item) -> bool:
+        try:
+            flags = int(item.value1)
+            return self.is_set(flags, self.ContainerState.CONT_CLOSED.value)
+        except (TypeError, ValueError):
+            return False
 
     def can_wear(self, obj: Item, part: int) -> bool:
         return self.is_set(int(obj.wear_flags), part)

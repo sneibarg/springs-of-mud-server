@@ -92,17 +92,6 @@ class TestPlayer(unittest.TestCase):
         call_args = mock_writer.write.call_args[0][0]
         self.assertIn(b'Hello World', call_args)
 
-    def test_to_room(self):
-        """Test sending message to room"""
-        player = Player.from_json(self.player_data)
-        mock_player_service = Mock()
-
-        player.to_room(mock_player_service, 'test message', '%p says %m')
-
-        mock_player_service.to_room.assert_called_once_with(
-            player, 'test message', '%p says %m'
-        )
-
     def test_player_character_list(self):
         """Test player character list"""
         player = Player.from_json(self.player_data)
@@ -540,103 +529,6 @@ class TestPlayerService(unittest.TestCase):
         result = service.get_in_room(char1)
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].name, 'char2')
-
-    @patch('player.CharacterService.requests.get')
-    def test_to_room_with_pattern(self, mock_get):
-        """Test sending message to room with pattern"""
-
-        mock_get.return_value.json.return_value = []
-        service = PlayerService(
-            self.service_config,
-            self.registry_service,
-        )
-
-        character = Mock()
-        character.name = 'TestChar'
-        character.cloaked = False
-        character.get_name.return_value = 'TestChar'
-        character.get_room_id.return_value = 'room_001'
-
-        other = Mock()
-        other.name = 'OtherChar'
-        other.get_name.return_value = 'OtherChar'
-        other.get_room_id.return_value = 'room_001'
-        mock_writer = Mock()
-        other.get_writer.return_value = mock_writer
-
-        service.registry.character_registry = {
-            'TestChar': character,
-            'OtherChar': other
-        }
-
-        service.to_room(character, 'hello', '%p says %m')
-        mock_writer.write.assert_called_once()
-        call_args = mock_writer.write.call_args[0][0]
-        self.assertIn(b'TestChar says hello', call_args)
-
-    @patch('player.CharacterService.requests.get')
-    def test_to_room_cloaked(self, mock_get):
-        """Test sending message to room while cloaked"""
-
-        mock_get.return_value.json.return_value = []
-        service = PlayerService(
-            self.service_config,
-            self.registry_service,
-        )
-
-        character = Mock()
-        character.name = 'TestChar'
-        character.cloaked = True
-        character.get_name.return_value = 'TestChar'
-        character.get_room_id.return_value = 'room_001'
-
-        other = Mock()
-        other.name = 'OtherChar'
-        other.get_name.return_value = 'OtherChar'
-        other.get_room_id.return_value = 'room_001'
-        mock_writer = Mock()
-        other.get_writer.return_value = mock_writer
-
-        service.registry.character_registry = {
-            'TestChar': character,
-            'OtherChar': other
-        }
-
-        service.to_room(character, 'hello', '%p says %m')
-        mock_writer.write.assert_called_once()
-        call_args = mock_writer.write.call_args[0][0]
-        self.assertIn(b'Someone says hello', call_args)
-
-    @patch('player.CharacterService.requests.get')
-    def test_to_room_no_pattern(self, mock_get):
-        """Test sending message to room without pattern"""
-        mock_get.return_value.json.return_value = []
-        service = PlayerService(
-            self.service_config,
-            self.registry_service,
-        )
-
-        character = Mock()
-        character.name = 'TestChar'
-        character.get_name.return_value = 'TestChar'
-        character.get_room_id.return_value = 'room_001'
-
-        other = Mock()
-        other.name = 'OtherChar'
-        other.get_name.return_value = 'OtherChar'
-        other.get_room_id.return_value = 'room_001'
-        mock_writer = Mock()
-        other.get_writer.return_value = mock_writer
-
-        service.registry.character_registry = {
-            'TestChar': character,
-            'OtherChar': other
-        }
-
-        service.to_room(character, 'hello world', None)
-        mock_writer.write.assert_called_once()
-        call_args = mock_writer.write.call_args[0][0]
-        self.assertEqual(call_args, b'hello world\r\n')
 
     @unittest.skip("Method get_connected_player no longer exists in CharacterService")
     @patch('player.CharacterService.requests.get')

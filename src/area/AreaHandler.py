@@ -92,9 +92,9 @@ class AreaHandler:
             last = False
             return last
         room = self.room_registry.get(vnum=room_vnum)
-        for mob in room.mobiles:
+        for mob_name in room.mobiles:
             template_mob.count += 1
-            if mob.count >= room_max:
+            if room.mobiles[mob_name].count >= room_max:
                 last = False
                 break
         if template_mob.count >= room_max:

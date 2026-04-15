@@ -1,28 +1,55 @@
-import re
-
-from typing import Dict, Any
+from typing import Any
 from injector import inject
+
+from area.RoomHelper import RoomHelper
+from game.RegistryService import RegistryService
+from interp.CommandHelper import CommandHelper
+from interp.Context import Context
 from player.Character import Character
-from player.CharacterRegistry import CharacterRegistry
+from player.CharacterMacros import CharacterMacros
 from player.PlayerUtil import PlayerUtil
+from player.PlayerHelper import PlayerHelper
 from server.messaging import MessageBus
 from server.session.SessionHandler import SessionHandler
 from server.LoggerFactory import LoggerFactory
 
-LOOK_CTX_KEY = "_look_ctx"
-LOOK_IN_ALIASES = {"i", "in", "on"}
-
 
 class PlayerHandler:
     @inject
-    def __init__(self, message_bus: MessageBus, character_registry: CharacterRegistry, session_handler: SessionHandler):
+    def __init__(self, message_bus: MessageBus,
+                 registry_service: RegistryService,
+                 session_handler: SessionHandler,
+                 command_helper: CommandHelper,
+                 room_helper: RoomHelper,
+                 player_helper: PlayerHelper,
+                 character_macros: CharacterMacros):
         self.__name__ = "PlayerHandler"
         self.message_bus = message_bus
-        self.character_registry = character_registry
+        self.character_registry = registry_service.character_registry
+        self.room_registry = registry_service.room_registry
         self.session_handler = session_handler
+        self.command_helper = command_helper
+        self.room_helper = room_helper
+        self.player_helper = player_helper
+        self.character_macros = character_macros
+        self.PlayerActBits = character_macros.enums.get('playerActBits')
         self.logger = LoggerFactory.get_logger(__name__)
 
-    async def print_visible(self, character):
+    async def do_quit(self, character: Character, context: Context):
+        room = self.room_registry.get(id=character.room_id)
+        in_room = self.player_helper.players_in_room(character, room)
+        message = self.message_bus.text_to_message(f"{character.name} has left the game.\r\n")
+        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(f"Alas, all good things must come to an end.\r\n"))
+        if len(in_room) > 0:
+            await self.message_bus.send_to_room(message, in_room)
+        self.session_handler.remove_session(character.id)
+        await context.disconnect()
+
+    async def print_players_in_room(self, character: Character):
+        message = self.player_helper.get_players_in_room(character)
+        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message))
+
+    async def do_who(self, character):
         who_list = [character] + PlayerUtil.visible(character, self.session_handler)
         who_line = ""
         players_found = "Players found: " + str(len(who_list)) + "\r\n"
@@ -33,152 +60,87 @@ class PlayerHandler:
         message = self.message_bus.text_to_message(who_line)
         await self.message_bus.send_to_character(character.id, message)
 
-    async def to_player(self, character_id, text):
-        text += "\r\n"
+    async def to_player(self, character_id, msg: str):
+        text = msg + "\r\n"
         message = self.message_bus.text_to_message(text)
         await self.message_bus.send_to_character(character_id, message)
 
-    def _look_ctx(self, character: Character) -> Dict[str, Any]:
-        if character.context is None:
-            character.context = {}
-        ctx = character.context.get(LOOK_CTX_KEY)
-        if not isinstance(ctx, dict):
-            ctx = {
-                "arg1": "",
-                "arg2": "",
-                "arg3": "",
-                "argument": "",
-                "number": 1,
-                "count": 0,
-                "branch": None,
-                "done": False,
-            }
-            character.context[LOOK_CTX_KEY] = ctx
-        self.logger.debug(f"Look context: {ctx}")
-        return ctx
-
-    async def look_begin(self, character: Character, argument: str = ""):
-        text = " ".join((argument or "").split())
-        parts = text.split(" ", 1)
-        arg1 = parts[0].strip().lower() if parts and parts[0] else ""
-        arg2 = parts[1].strip().lower() if len(parts) > 1 else ""
-
-        number = 1
-        arg3 = arg1
-        match = re.match(r"^(\d+)\.(.+)$", arg1)
-        if match:
-            number = max(1, int(match.group(1)))
-            arg3 = match.group(2).strip().lower()
-
-        character.context[LOOK_CTX_KEY] = {
-            "arg1": arg1,
-            "arg2": arg2,
-            "arg3": arg3,
-            "argument": text,
-            "number": number,
-            "count": 0,
-            "branch": "default" if arg1 in ("", "auto") else None,
-            "done": False,
-        }
-        self.logger.debug(f"Look context: {character.context[LOOK_CTX_KEY]}")
-
-    def look_context(self, character: Character) -> Dict[str, Any]:
-        return self._look_ctx(character)
-
-    def look_done(self, character: Character) -> bool:
-        return bool(self._look_ctx(character).get("done", False))
-
-    def look_mark_done(self, character: Character):
-        self._look_ctx(character)["done"] = True
-
-    def look_register_match(self, character: Character) -> bool:
-        ctx = self._look_ctx(character)
-        ctx["count"] = int(ctx.get("count", 0)) + 1
-        return ctx["count"] == int(ctx.get("number", 1))
-
-    def look_keyword_matches(self, token: str, keyword: str) -> bool:
-        t = (token or "").strip().lower()
-        k = (keyword or "").strip().lower()
-        if not t or not k:
-            return False
-        words = [w for w in k.split() if w]
-        self.logger.debug(f"Looking for keywords: {words}")
-        return any(w == t or w.startswith(t) for w in words)
-
-    def look_is_named_target_query(self, character: Character) -> bool:
-        ctx = self._look_ctx(character)
-        arg1 = ctx.get("arg1", "")
-        if not arg1:
-            return False
-        if arg1 in LOOK_IN_ALIASES:
-            return False
-        return True
-
-    async def look_complete_default(self, character: Character):
-        if self.look_done(character):
-            return
-        ctx = self._look_ctx(character)
-        if ctx.get("branch") == "default":
-            ctx["done"] = True
-
-    async def look_player_target(self, character: Character):
-        if self.look_done(character):
-            return
-
-        ctx = self._look_ctx(character)
-        arg1 = ctx.get("arg1", "")
-        if not arg1 or arg1 in LOOK_IN_ALIASES:
-            return
-
-        target = None
-        for session in self.session_handler.get_playing_sessions():
-            cand = session.character
-            if cand.room_id != character.room_id:
-                continue
-            c_name = cand.name.lower()
-            if c_name == arg1 or c_name.startswith(arg1):
-                target = cand
-                break
-
+    async def to_target(self, context: Context):
+        target = self.character_registry.get_or_none(name=context.parameters[0])
         if target is None:
+            await self.message_bus.send_to_character(context.character.id, self.message_bus.text_to_message("They aren't here.\r\n"))
+            return
+        text = context.parameters[1] + "\r\n"
+        message = self.message_bus.text_to_message(text)
+        await self.message_bus.send_to_character(target.id, message)
+
+    async def to_room(self, character: Character, msg: str):
+        room = self.room_registry.get(id=character.room_id)
+        text = msg.replace("%c", character.name).replace("%m", msg)
+        message = self.message_bus.text_to_message(text)
+        in_room = self.player_helper.players_in_room(character, room)
+        await self.message_bus.send_to_room(message, in_room)
+
+    async def look_target(self, character: Any, context: Context):
+        room = self.room_registry.get(id=character.room_id)
+        if room is None:
             return
 
-        header = target.name
-        if target.title:
-            header += f" {target.title}"
-        desc = target.description.strip() if target.description else "You see nothing special."
+        arg1 = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip().lower()
+        if arg1 in ("", "auto", "i", "in", "on"):
+            return
+
+        target = PlayerUtil.get_target(character, arg1, room, self.character_macros, self.room_helper)
+        if target is None:
+            context.jump_to(4)
+            return
+
+        header = target.name or "Someone"
+        desc = (target.description or "").strip() or "You see nothing special."
         text = f"{header}\r\n{desc}\r\n"
         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
-        self.look_mark_done(character)
+        context.finish()
 
-    async def look_finalize_count_message(self, character: Character):
-        if self.look_done(character):
+    async def do_look(self, character: Character, context: Context):
+        direction_map = {"n": 0, "north": 0, "e": 1, "east": 1, "s": 2, "south": 2, "w": 3, "west": 3, "u": 4, "up": 4, "d": 5, "down": 5}
+        if not self.command_helper.check_position(character):
+            context.finish()
             return
 
-        ctx = self._look_ctx(character)
-        count = int(ctx.get("count", 0))
-        number = int(ctx.get("number", 1))
-        token = ctx.get("arg3", "that")
-
-        if count > 0 and count != number:
-            if count == 1:
-                text = f"You only see one {token} here.\r\n"
-            else:
-                text = f"You only see {count} of those here.\r\n"
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
-            self.look_mark_done(character)
-
-    async def look_fallback_not_here(self, character: Character):
-        if self.look_done(character):
+        if not self.room_helper.check_blind(character):
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You can't see a thing!\n\r"))
+            context.finish()
             return
-        arg1 = self._look_ctx(character).get("arg1", "")
-        if arg1:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You do not see that here.\r\n"))
-            self.look_mark_done(character)
 
-    async def look_finish(self, character: Character):
-        if character.context and LOOK_CTX_KEY in character.context:
-            with character.lock:
-                del character.context[LOOK_CTX_KEY]
-                self.logger.debug(f"Look context deleted: {character.context}")
-            
+        arg1 = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip().lower()
+        if (not self.character_macros.is_npc(character)
+                and not self.character_macros.has_holy_light(character)
+                and self.room_helper.is_room_dark(character.room_id)):
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("It is pitch black ...\n\r"))
+            context.jump_to(1)  # show chars/mobs only
+            return
+
+        room = self.room_registry.get(id=character.room_id)
+        if room is None:
+            context.finish()
+            return
+
+        print(f"arg1 is {arg1}")
+        if arg1 == "" or arg1 == "auto":
+            await context.room_handler().print_room(character.id, room)
+            if self.character_macros.is_set(int(self.character_macros.convert_flags(character.character_flags.act)), self.PlayerActBits.PLR_AUTOEXIT.value):
+                await context.room_handler().print_exits(character, room)
+
+            await context.item_handler().look_room_items(character)
+            context.jump_to(1)  # players + mobiles
+            return
+
+        if arg1 in ("i", "in", "on"):
+            context.jump_to(2)
+            return
+
+        if arg1 in direction_map:
+            print(f"Looking in direction {arg1}")
+            context.jump_to(5)
+
+        context.jump_to(3)

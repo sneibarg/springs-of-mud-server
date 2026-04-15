@@ -2,9 +2,11 @@ import threading
 
 from dataclasses import dataclass, field
 from typing import List
+
 from area.AreaUtil import AreaUtil
 from area.Exit import Exit
 from mobile.Mobile import Mobile
+from object.Item import Item
 from player.Character import Character
 from object.ExtraDescriptionData import ExtraDescriptionData
 
@@ -28,8 +30,9 @@ class Room:
     mana_rate: int = 0
     clan: int = 0
     extra_description: ExtraDescriptionData = None
-    characters: List[Character] = field(default_factory=list)
-    mobiles: List[Mobile] = field(default_factory=list)
+    contents: dict[str, Item] = field(default_factory=dict)
+    characters: dict[str, Character] = field(default_factory=dict)
+    mobiles: dict[str, Mobile] = field(default_factory=dict)
     exits: List[Exit] = field(default_factory=list)
 
     def __post_init__(self):
@@ -54,3 +57,21 @@ class Room:
 
     def get_formatted_exits(self):
         return AreaUtil.cardinal_direction(self)
+
+    def add_player_to_room(self, character: Character):
+        with self.lock:
+            self.characters[character.id] = character
+
+    def remove_player_from_room(self, character: Character):
+        with self.lock:
+            if character.id in self.characters:
+                del self.characters[character.id]
+
+    def add_mobile_to_room(self, mobile: Mobile):
+        with self.lock:
+            self.mobiles[mobile.id] = mobile
+
+    def remove_mobile_from_room(self, mobile: Mobile):
+        with self.lock:
+            if mobile.id not in self.mobiles:
+                del self.mobiles[mobile.id]

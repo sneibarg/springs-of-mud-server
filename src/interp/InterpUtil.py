@@ -1,9 +1,81 @@
 from typing import Optional, Union, Any, List
 from interp.Command import Command
+from server.LoggerFactory import LoggerFactory
+
+logger = LoggerFactory.get_logger("InterpUtil")
 
 
 class InterpUtil:
     pass
+
+    @staticmethod
+    def find_nth_by_keyword(dictionary: dict, argument: str, default=None):
+        n, keyword = InterpUtil.number_argument(argument)
+        for item in dictionary.values():
+            if keyword.lower() in str(getattr(item, 'name', '')).lower():
+                n -= 1
+                if n == 0:
+                    return item
+        return default
+
+    @staticmethod
+    def build_arguments(cmd: Command, arguments: str) -> List[str]:
+        argument_list: List[str] = []
+        remaining = arguments.strip()
+        while len(argument_list) < cmd.max_arguments and remaining:
+            argument, remaining = InterpUtil.one_argument(remaining)
+            if not argument:
+                argument_list.append("")
+                break
+            argument_list.append(argument)
+        return argument_list
+
+    @staticmethod
+    def one_argument(argument: str) -> tuple[str, str]:
+        """Split off the first word from argument, return (first_word, remainder)."""
+        if not argument:
+            return "", ""
+
+        argument = argument.lstrip()
+
+        if not argument:
+            return "", ""
+
+        if argument[0] in ("'", '"'):
+            quote = argument[0]
+            argument = argument[1:]
+            end = argument.find(quote)
+            if end == -1:
+                word = argument
+                rest = ""
+            else:
+                word = argument[:end]
+                rest = argument[end + 1:].lstrip()
+        else:
+            parts = argument.split(maxsplit=1)
+            word = parts[0]
+            rest = parts[1] if len(parts) > 1 else ""
+
+        return word.lower(), rest
+
+    @staticmethod
+    def number_argument(argument: str) -> tuple[int, str]:
+        """Parse 'number.word' format.
+        Returns (number, word). If no dot, returns (1, argument).
+        """
+        if not argument:
+            return 1, ""
+
+        if '.' not in argument:
+            return 1, argument.strip()
+
+        num_str, word = argument.split('.', 1)
+        try:
+            number = int(num_str)
+        except ValueError:
+            number = 1
+
+        return number, word.strip()
 
     @staticmethod
     def shortcut_tokens(shortcuts) -> list[str]:

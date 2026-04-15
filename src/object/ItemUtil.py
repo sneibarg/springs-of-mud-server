@@ -1,6 +1,10 @@
-from object.ExtraDescriptionData import ExtraDescriptionData
-from server.LoggerFactory import LoggerFactory
 from enum import IntEnum
+
+from area import Room
+from game.GameMacros import GameMacros
+from object.ExtraDescriptionData import ExtraDescriptionData
+from player.Character import Character
+from server.LoggerFactory import LoggerFactory
 from object.Item import Item
 from object.AffectData import AffectData, AffectWhere
 
@@ -28,7 +32,6 @@ class ItemUtil:
 
     @staticmethod
     def update_affect_data(item):
-        from server.ServerUtil import ServerUtil
         for affect in item.affect_data:
             affect_elements = affect.split(",")
             affect_data = AffectData(valid=True, where=-1, type=-1, level=item.level, duration=-1, location=-1, modifier=-1, bitvector=-1)
@@ -44,7 +47,7 @@ class ItemUtil:
                 if bitvector_raw.isdigit() or (bitvector_raw.startswith('-') and bitvector_raw[1:].isdigit()):
                     affect_data.bitvector = bitvector_raw
                 else:
-                    affect_data.bitvector = ServerUtil.convert_flags(bitvector_raw)
+                    affect_data.bitvector = GameMacros.convert_flags(bitvector_raw)
 
                 if affect_elements[1] == "A":
                     affect_data.where = AffectWhere.TO_AFFECTS.value
@@ -63,13 +66,12 @@ class ItemUtil:
         Each letter represents a bit: A = 1<<0 = 1, B = 1<<1 = 2, etc.
         Multiple letters are OR'd together: "AN" = (1<<0) | (1<<13) = 1 | 8192 = 8193
         """
-        from server.ServerUtil import ServerUtil
         for flag_field in ['extra_flags', 'wear_flags']:
             flag_value = item_data.get(flag_field, "0")
             if isinstance(flag_value, int) or (isinstance(flag_value, str) and flag_value.lstrip('-').isdigit()):
                 continue
 
-            item_data[flag_field] = str(ServerUtil.convert_flags(flag_value))
+            item_data[flag_field] = str(GameMacros.convert_flags(flag_value))
 
     @staticmethod
     def convert_numeric_to_string(value):
@@ -89,8 +91,7 @@ class ItemUtil:
         if not flag_str or flag_str.lstrip('-').isdigit():
             return flag_str if flag_str else '0'
 
-        from server.ServerUtil import ServerUtil
-        return str(ServerUtil.convert_flags(flag_str))
+        return str(GameMacros.convert_flags(flag_str))
 
     # Matches load_objects() logic from ROM db2.c:341-389
     @staticmethod
@@ -220,4 +221,73 @@ class ItemUtil:
     def update_extra_descr(item):
         if len(item.extra_descr) > 0:
             item.extra_description = ExtraDescriptionData(valid=True, keyword=item.extra_descr[0], description=item.extra_descr[1])
-            
+
+    @staticmethod
+    def container_volume_description(obj: Item):
+        try:
+            cap = max(0, int(obj.value0))
+            cur = max(0, int(obj.value1))
+        except (TypeError, ValueError):
+            cap = 0
+            cur = 0
+
+        if cur <= 0:
+            text = "It is empty.\r\n"
+        else:
+            if cap <= 0:
+                fill = "partly "
+            elif cur < cap / 4:
+                fill = "less than half-"
+            elif cur < (3 * cap) / 4:
+                fill = "about half-"
+            else:
+                fill = "more than half-"
+            color = getattr(obj, "liquid_color", None) or "unknown"
+            text = f"It's {fill}filled with a {color} liquid.\r\n"
+        return text
+
+    @staticmethod
+    def items_in_container(obj: Item) -> str:
+        text = f"{obj.name} holds\r\n"
+        contents = obj.contents()
+        if contents:
+            text = text + contents
+        else:
+            text = text + f"\tNothing.\r\n"
+        return text
+
+    @staticmethod
+    def is_drink_container(item) -> bool:
+        t = (item.item_type or "").strip().lower()
+        return ("drink" in t) or ("fountain" in t)
+
+    @staticmethod
+    def is_container_like(item) -> bool:
+        t = (item.item_type or "").strip().lower()
+        return ("container" in t) or ("corpse" in t)
+
+    @staticmethod
+    def find_item(character: Character, room: Room, name: str):
+        wanted = (name or "").strip().lower()
+        if not wanted:
+            return None
+        for item in character.get_items():
+            nm = (item.name or "").lower()
+            if nm == wanted or nm.startswith(wanted):
+                return item
+        for item in room.contents.values():
+            nm = (item.name or "").lower()
+            if nm == wanted or nm.startswith(wanted):
+                return item
+        return None
+
+    @staticmethod
+    def room_items(room: Room) -> list:
+        lines = []
+        for item in room.contents.values():
+            line = (item.long_description or "").strip()
+            if not line:
+                line = item.short_description or item.name
+            if line:
+                lines.append(line)
+        return lines

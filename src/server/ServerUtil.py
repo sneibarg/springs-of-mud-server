@@ -6,17 +6,21 @@ from enum import IntEnum
 from typing import Dict, Any, Iterable
 from injector import singleton, Injector
 
+from area.RoomHelper import RoomHelper
 from area.ShopService import ShopService
 from area.AreaHandler import AreaHandler
 from area.ResetService import ResetService
 from area.RoomHandler import RoomHandler
 from area.SpecialService import SpecialService
 from game.HandlerService import HandlerService
+from interp.CommandHelper import CommandHelper
 from interp.HelpService import HelpService
 from interp.InterpHandler import InterpHandler
 from interp.SocialHandler import SocialHandler
 from interp.SocialService import SocialService
+from mobile.MobileHelper import MobileHelper
 from object.ItemHandler import ItemHandler
+from object.ObjectHelper import ObjectHelper
 from mobile.MobileHandler import MobileHandler
 from player.PlayerHandler import PlayerHandler
 from game.GameData import GameData
@@ -27,6 +31,7 @@ from mobile.MobileService import MobileService
 from object.ObjectMacros import ObjectMacros
 from player.CharacterConstants import CharacterConstants
 from player.CharacterMacros import CharacterMacros
+from player.PlayerHelper import PlayerHelper
 from player.PlayerService import PlayerService
 from player.CharacterService import CharacterService
 from server.LoggerFactory import LoggerFactory
@@ -60,6 +65,7 @@ class ServerUtil:
 
         ServerUtil._bind_network_services(injector)
         ServerUtil._bind_registries(injector)
+        ServerUtil._bind_helpers(injector)
         ServerUtil._bind_handlers(injector)
         ServerUtil._bind_game_data(injector)
         ServerUtil._bind_game_services(injector, service_config)
@@ -68,6 +74,14 @@ class ServerUtil:
         injector.binder.bind(SessionHandler, to=SessionHandler(injector.get(GameData).constants.max['idleTime']), scope=singleton)
 
         return injector
+
+    @staticmethod
+    def _bind_helpers(injector):
+        injector.binder.bind(CommandHelper, scope=singleton)
+        injector.binder.bind(RoomHelper, scope=singleton)
+        injector.binder.bind(ObjectHelper, scope=singleton)
+        injector.binder.bind(MobileHelper, scope=singleton)
+        injector.binder.bind(PlayerHelper, scope=singleton)
 
     @staticmethod
     def _bind_network_services(injector):
@@ -159,9 +173,7 @@ class ServerUtil:
                                                                  injector.get(GameData).attribute_bonuses), scope=singleton)
         injector.binder.bind(ObjectMacros, to=ObjectMacros(injector.get(GameData).races,
                                                            injector.get(GameData).item_table,
-                                                           injector.get(GameService).enums['itemTypes'],
-                                                           injector.get(GameService).enums['damageTypes'],
-                                                           injector.get(GameService).enums['flagLetters']), scope=singleton)
+                                                           injector.get(GameService).enums), scope=singleton)
 
     @staticmethod
     def load_services(injector) -> None:
@@ -183,10 +195,14 @@ class ServerUtil:
         area_handler = injector.get(AreaHandler)
         weather_handler = injector.get(WeatherHandler)
         update_handler = injector.get(UpdateHandler)
+        item_handler = injector.get(ItemHandler)
+        character_macros = injector.get(CharacterMacros)
 
+        item_handler.set_object_macros(injector.get(ObjectMacros))
         update_handler.set_enums(injector.get(GameService).enums)
         area_handler.set_enums(injector.get(GameService).enums)
         weather_handler.lazy_load(injector.get(GameService).enums, injector.get(GameData).constants)
+        character_macros.lazy_load(weather_handler)
         game_service.set_update_handler(injector.get(UpdateHandler))
 
         service_list = (f"{game_service.__name__}; {player_service.__name__}; {room_service.__name__}; {area_service.__name__}; "
@@ -236,15 +252,6 @@ class ServerUtil:
             members[normalized_name] = member_value
 
         return IntEnum(enum_name, members)
-
-    @staticmethod
-    def convert_flags(flag_value: str) -> int:
-        numeric_value = 0
-        for char in str(flag_value).upper():
-            if char.isalpha() and 'A' <= char <= 'Z':
-                bit_position = ord(char) - ord('A')
-                numeric_value |= (1 << bit_position)
-        return numeric_value
 
     @staticmethod
     def generate_mongo_id() -> str:
