@@ -21,8 +21,8 @@ class CharacterMacros(GameMacros):
         self.attribute_bonuses = attribute_bonuses
         self.logger = LoggerFactory.get_logger(__name__)
 
-    def get_trust(self, char: Character) -> int:
-        if char.trust > 0:
+    def get_trust(self, char: Any) -> int:
+        if type(char) is Character and char.trust > 0:
             return char.trust
         if self.is_npc(char) and char.level >= self.character_constants.immortal_levels.get("LEVEL_HERO"):
             return self.character_constants.immortal_levels.get("LEVEL_HERO") - 1
@@ -35,8 +35,9 @@ class CharacterMacros(GameMacros):
     def is_immortal_sufficient(self, level: int, immortal_name: str) -> bool:
         return level >= self.character_constants.immortal_levels.get(immortal_name)
 
+    # let's deprecate ACT_IS_NPC
     def is_npc(self, char: Any) -> bool:
-        return self.is_set(char.act, self.character_constants.act_bits.ACT_IS_NPC)
+        return True if type(char) is Mobile else False
 
     def is_immortal(self, char: Character) -> bool:
         return self.get_trust(char) >= self.character_constants.immortal_levels.get("LEVEL_IMMORTAL")
@@ -47,7 +48,7 @@ class CharacterMacros(GameMacros):
     def is_trusted(self, char: Character) -> bool:
         return self.get_trust(char) >= char.level
 
-    def is_affected(self, char: Character | Mobile, effect) -> bool:
+    def is_affected(self, char: Any, effect) -> bool:
         from server.ServerUtil import ServerUtil
         if type(char) is Character:
             return self.is_set(ServerUtil.convert_flags(char.affected_by), effect)
@@ -62,32 +63,32 @@ class CharacterMacros(GameMacros):
         return int(17 + (char.played + datetime.now().timestamp() - char.logon) / 72000)
 
     @staticmethod
-    def is_good(char: Character | Mobile) -> bool:
+    def is_good(char: Any) -> bool:
         if type(char) is Character:
             return char.character_attributes.alignment >= 350
-        else:
+        elif type(char) is Mobile:
             return char.perm_stat.alignment >= 350
 
     @staticmethod
-    def is_evil(char: Character | Mobile) -> bool:
+    def is_evil(char: Any) -> bool:
         if type(char) is Character:
             return char.character_attributes.alignment <= -350
-        else:
+        elif type(char) is Mobile:
             return char.perm_stat.alignment <= -350
 
-    def is_neutral(self, char: Character | Mobile) -> bool:
+    def is_neutral(self, char: Any) -> bool:
         return not self.is_good(char) and not self.is_evil(char)
 
     # requires normalization
-    def get_ac(self, char: Character | Mobile, ac: int) -> int:
+    def get_ac(self, char: Any, ac: int) -> int:
         pass
 
     # requires normalization
-    def get_hitroll(self, char: Character | Mobile) -> int:
+    def get_hitroll(self, char: Any) -> int:
         return self.get_attribute_bonus(attr_name="strength", attr_level=str(char.level)).get('tohit')
 
     # requires normalization
-    def get_damroll(self, char: Character | Mobile) -> int:
+    def get_damroll(self, char: Any) -> int:
         return self.get_attribute_bonus(attr_name="strength", attr_level=str(char.level)).get('todam')
 
     def is_outside(self, char: Any) -> bool:

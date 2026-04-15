@@ -22,7 +22,6 @@ class InterpHandler:
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.injector = injector
         self.message_bus = message_bus
-        self.registry_service = registry_service
         self.interp_registry = registry_service.interp_registry
         self.social_registry = registry_service.social_registry
         self.handler_service = handler_service

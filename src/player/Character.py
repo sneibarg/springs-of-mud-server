@@ -10,6 +10,7 @@ from player.PCArmorClass import PCArmorClass
 from player.TemporalMechanics import TemporalMechanics
 from player.CharacterAttributes import CharacterAttributes
 from player.CharacterFlags import CharacterFlags
+from player.Equipped import Equipped
 from server.LoggerFactory import LoggerFactory
 
 
@@ -48,6 +49,7 @@ class Character:
     invis_level: Optional[int] = 0
     incog_level: Optional[int] = 0
     fighting: Optional[Any] = None
+    equipped: Optional[Equipped] = None
     context: Dict[str, object] = field(default_factory=dict)
     loot: List[Item] = field(default_factory=list)
     lock: threading.Lock = field(default_factory=threading.Lock)

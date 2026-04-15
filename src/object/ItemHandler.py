@@ -11,26 +11,26 @@ class ItemHandler:
     @inject
     def __init__(self, message_bus: MessageBus, registry_service: RegistryService, object_helper: ObjectHelper):
         self.message_bus = message_bus
-        self.registry_service = registry_service
+        self.room_registry = registry_service.room_registry
         self.object_helper = object_helper
         self.object_macros = None
 
     def set_object_macros(self, object_macros):
         self.object_macros = object_macros
+        self.ContainerState = object_macros.ContainerState
 
     def _room_items(self, character: Character):
-        room = self.registry_service.room_registry.get(id=character.room_id)
+        room = self.room_registry.get(id=character.room_id)
         if room is None:
             return []
 
         room_id = str(room.id)
         room_vnum = str(room.vnum)
         found = []
-        for item in self.registry_service.item_registry.all_items():
+        for item in self.item_registry.all_items():
             rid = None
             if isinstance(item.room_index_data, dict):
-                rid = item.room_index_data.get("id") or item.room_index_data.get("room_id") or item.room_index_data.get(
-                    "vnum")
+                rid = item.room_index_data.get("id") or item.room_index_data.get("room_id") or item.room_index_data.get("vnum")
             if rid is None:
                 continue
             rid = str(rid)
@@ -86,6 +86,7 @@ class ItemHandler:
         if self._is_drink_container(obj):
             text = ItemUtil.container_volume_description(obj)
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+            return
 
         if self._is_container_like(obj):
             if self._container_closed(obj):
@@ -144,6 +145,6 @@ class ItemHandler:
     def _container_closed(item) -> bool:
         try:
             flags = int(item.value1)
-            return self.is_set(flags, self.object_macros.ContainerState.CONT_CLOSED)
+            return self.is_set(flags, self.ContainerState.CONT_CLOSED.value)
         except (TypeError, ValueError):
             return False

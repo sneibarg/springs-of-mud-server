@@ -11,7 +11,7 @@ class ObjectMacros(GameMacros):
         self.ItemTypes = enums.get('itemTypes')
         self.DamageTypes = enums.get('damageTypes')
         self.FlagLetters = enums.get('flagLetters')
-        self.ContainerState = enums.get('fontainerState')
+        self.ContainerState = enums.get('containerState')
         self.ItemFlags = enums.get('itemFlags')
         self.AffectBits = enums.get('affectedBy')
 

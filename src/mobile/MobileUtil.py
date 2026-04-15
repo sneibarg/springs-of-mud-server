@@ -416,14 +416,14 @@ class MobileUtil:
         return mob
 
     @staticmethod
-    def char_from_room(char: Character | Mobile, room: Room):
+    def char_from_room(char: Any, room: Room):
         if type(char) is Character and char.id in room.characters:
             del room.characters[char.id]
         if type(char) is Mobile and char.id in room.mobiles:
             del room.mobiles[char.id]
 
     @staticmethod
-    def char_to_room(char: Character | Mobile, room: Room):
+    def char_to_room(char: Any, room: Room):
         char.room_id = room.id
         if type(char) is Character and char.id not in room.characters:
             room.characters[char.id] = char

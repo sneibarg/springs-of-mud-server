@@ -1,3 +1,5 @@
+from typing import Any
+
 from injector import inject
 from area.RoomRegistry import RoomRegistry
 from game.RandomNumberGenerator import RandomNumberGenerator
@@ -30,7 +32,7 @@ class RoomHelper:
     def set_weather_service(self, weather_handler):
         self.weather_handler = weather_handler
 
-    def can_see(self, character: Character, victim: Character) -> bool:
+    def can_see(self, character: Any, victim: Any) -> bool:
         if character == victim:
             return True
 

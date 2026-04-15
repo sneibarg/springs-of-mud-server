@@ -5,6 +5,7 @@ from typing import List
 from area.AreaUtil import AreaUtil
 from area.Exit import Exit
 from mobile.Mobile import Mobile
+from object.Item import Item
 from player.Character import Character
 from object.ExtraDescriptionData import ExtraDescriptionData
 
@@ -28,6 +29,7 @@ class Room:
     mana_rate: int = 0
     clan: int = 0
     extra_description: ExtraDescriptionData = None
+    contents: dict[str, Item] = field(default_factory=dict)
     characters: dict[str, Character] = field(default_factory=dict)
     mobiles: dict[str, Mobile] = field(default_factory=dict)
     exits: List[Exit] = field(default_factory=list)

@@ -1,4 +1,6 @@
+from typing import Any
 from injector import inject
+
 from area.RoomHelper import RoomHelper
 from game.RegistryService import RegistryService
 from interp.CommandHelper import CommandHelper
@@ -21,7 +23,6 @@ class PlayerHandler:
                  character_macros: CharacterMacros):
         self.__name__ = "PlayerHandler"
         self.message_bus = message_bus
-        self.registry_service = registry_service
         self.character_registry = registry_service.character_registry
         self.room_registry = registry_service.room_registry
         self.session_handler = session_handler
@@ -47,23 +48,13 @@ class PlayerHandler:
         message = self.message_bus.text_to_message(text)
         await self.message_bus.send_to_character(character_id, message)
 
-    async def look_character_target(self, character: Character, context: Context):
+    async def look_target(self, character: Any, context: Context):
         room = self.room_registry.get(id=character.room_id)
         if room is None:
             return
 
         arg1 = context.parameters[0] if len(context.parameters) > 0 else ""
-        target = None
-        for char in room.characters.values():
-            if not self.room_helper.can_see(character, char) or character.name != char.name:
-                continue
-
-            if char.room_id is room.id:
-                char_name = (char.name or "").lower()
-                if char_name == arg1 or char_name.startswith(arg1):
-                    target = char
-                    break
-
+        target = PlayerUtil.get_target(character, arg1, room, self.room_helper)
         if target is None:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You do not see them here.\r\n"))
             return
@@ -90,8 +81,8 @@ class PlayerHandler:
         arg1 = context.parameters[0]
         arg2 = context.parameters[1]
         if arg1 == "" or not arg1 == "auto":
-            context.next_index += 1
+            context.jump_to(context.next_index + 1)
         if arg1 == "i" or arg1 == "in" or arg1 == "on":
-            context.next_index += 2
+            context.jump_to(context.next_index + 2)
         if PlayerUtil.is_target_playing(arg2, self.session_handler):
-            context.next_index += 3
+            context.jump_to(context.next_index + 3)
