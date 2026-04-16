@@ -497,7 +497,9 @@
     "name": "practice",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_practice(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -708,7 +710,9 @@
     "name": "compare",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_compare(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -777,7 +781,9 @@
     "name": "equipment",
     "shortcuts": "eq, equip, equipm, equipme",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_equipment(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -986,7 +992,9 @@
     "name": "show",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_show(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -1502,7 +1510,9 @@
     "name": "prompt",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_prompt(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,

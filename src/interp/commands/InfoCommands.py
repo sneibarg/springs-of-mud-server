@@ -10,6 +10,7 @@ from interp.commands.InfoUtil import InfoUtil
 from interp.CommandHelper import CommandHelper
 from interp.Context import Context
 from interp.HelpEntry import HelpEntry
+from interp.InterpUtil import InterpUtil
 from object.ItemUtil import ItemUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
@@ -71,6 +72,7 @@ class InfoCommands:
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.interp_registry = registry_service.interp_registry
         self.room_registry = registry_service.room_registry
+        self.skill_registry = registry_service.skill_registry
         self.command_helper = command_helper
         self.room_helper = room_helper
         self.character_macros = character_macros
@@ -376,6 +378,9 @@ class InfoCommands:
         if character.level >= 10:
             lines.append(f"Alignment: {alignment}.")
         lines.append(f"You are {InfoUtil.score_alignment_word(alignment)}.")
+        if self._is_comm_enabled(character, "COMM_SHOW_AFFECTS"):
+            lines.append("")
+            lines.append(self._format_affects(character).rstrip("\r\n"))
         context.finish()
         return "\r\n".join(lines) + "\r\n"
 
@@ -620,22 +625,8 @@ class InfoCommands:
         )
 
     def do_affects(self, character: Character, context: Context) -> str:
-        affected_bits = self.character_macros.AffectedBits
-        if affected_bits is None:
-            context.finish()
-            return "You are not affected by any spells.\r\n"
-
-        raw = int(self.character_macros.convert_flags(getattr(character.character_flags, "affected_by", "") or ""))
-        lines = []
-        for name, member in affected_bits.__members__.items():
-            if self.character_macros.is_set(raw, member.value):
-                pretty = name.replace("AFF_", "").replace("_", " ").lower()
-                lines.append(f"Spell: {pretty}\r\n")
-
         context.finish()
-        if not lines:
-            return "You are not affected by any spells.\r\n"
-        return "You are affected by the following spells:\r\n" + "".join(lines)
+        return self._format_affects(character)
 
     def do_autolist(self, character: Character, context: Context) -> str:
         if self.character_macros.is_npc(character):
@@ -828,6 +819,262 @@ class InfoCommands:
         if count == 1:
             return "There is 1 player online.\r\n"
         return f"There are {count} players online.\r\n"
+
+    def do_show(self, character: Character, context: Context) -> str:
+        text = self._toggle_comm(
+            character,
+            "COMM_SHOW_AFFECTS",
+            "Affects will no longer be shown in score.\r\n",
+            "Affects will now be shown in score.\r\n",
+        )
+        context.finish()
+        return text
+
+    def do_practice(self, character: Character, context: Context) -> str:
+        if self.character_macros.is_npc(character):
+            context.finish()
+            return ""
+
+        raw = (context.result if isinstance(context.result, str) else "").strip().lower()
+        if not raw and context.parameters:
+            raw = " ".join(context.parameters).strip().lower()
+
+        attributes = getattr(character, "character_attributes", None)
+        practices = GenericUtil.to_int(getattr(attributes, "practices", 0), 0) if attributes is not None else 0
+        class_name = str(getattr(getattr(character, "character_class", None), "name", "") or "").strip().lower()
+
+        if not raw:
+            skills = []
+            for skill in sorted(self.skill_registry.all_skills(), key=lambda s: (s.name or "").lower()):
+                lvl = self._skill_value_for_class(getattr(skill, "level_by_class", {}) or {}, class_name, default=99)
+                rating = self._skill_value_for_class(getattr(skill, "rating_by_class", {}) or {}, class_name, default=0)
+                if lvl <= GenericUtil.to_int(getattr(character, "level", 0), 0) and rating > 0 and lvl < 99:
+                    skills.append(skill.name)
+
+            lines = []
+            for i, name in enumerate(skills):
+                lines.append(f"{name:<18}   1%  ")
+                if (i + 1) % 3 == 0:
+                    lines.append("\r\n")
+            if len(skills) % 3 != 0:
+                lines.append("\r\n")
+            lines.append(f"You have {practices} practice sessions left.\r\n")
+            context.finish()
+            return "".join(lines)
+
+        if not self.character_macros.is_awake(character):
+            context.finish()
+            return "In your dreams, or what?\r\n"
+
+        if practices <= 0:
+            context.finish()
+            return "You have no practice sessions left.\r\n"
+
+        room = self.room_registry.get_or_none(id=character.room_id)
+        act_bits = self.character_macros.enums.get("actBits")
+        trainer = None
+        if room is not None and act_bits is not None and hasattr(act_bits, "ACT_PRACTICE"):
+            practice_bit = act_bits.ACT_PRACTICE.value
+            for mob in room.mobiles.values():
+                mob_flags = GenericUtil.to_int(getattr(getattr(mob, "mobile_flags", None), "act", 0), 0)
+                if self.character_macros.is_set(mob_flags, practice_bit):
+                    trainer = mob
+                    break
+
+        if trainer is None:
+            context.finish()
+            return "You can't do that here.\r\n"
+
+        context.finish()
+        return "Practice training is not implemented yet.\r\n"
+
+    def do_prompt(self, character: Character, context: Context) -> str:
+        raw = (context.result if isinstance(context.result, str) else "").strip()
+        if not raw and context.parameters:
+            raw = " ".join(context.parameters).strip()
+
+        if raw == "":
+            text = self._toggle_comm(character, "COMM_PROMPT", "You will no longer see prompts.\r\n", "You will now see prompts.\r\n")
+            context.finish()
+            return text
+
+        if getattr(character, "prompt_format", None) is None:
+            context.finish()
+            return "Prompt settings are unavailable.\r\n"
+
+        if raw.lower() == "all":
+            character.prompt_format.health = True
+            character.prompt_format.max_health = False
+            character.prompt_format.mana = True
+            character.prompt_format.max_mana = False
+            character.prompt_format.movement = True
+            character.prompt_format.max_movement = False
+            character.prompt_format.experience = False
+            character.prompt_format.accumulated_experience = False
+            character.prompt_format.gold = False
+            character.prompt_format.silver = False
+            character.prompt_format.alignment = False
+            character.prompt_format.room_name = False
+            character.prompt_format.exits = False
+            character.prompt_format.room_vnum = False
+            character.prompt_format.area_name = False
+            character.prompt_format.carriage_return = False
+            context.finish()
+            return "Prompt set to <%hhp %mm %vmv> \r\n"
+
+        template = raw.replace("~", "")[:50]
+        tokens = set()
+        for i in range(len(template) - 1):
+            if template[i] == "%":
+                tokens.add("%" + template[i + 1])
+
+        character.prompt_format.health = "%h" in tokens
+        character.prompt_format.max_health = "%H" in tokens
+        character.prompt_format.mana = "%m" in tokens
+        character.prompt_format.max_mana = "%M" in tokens
+        character.prompt_format.movement = "%v" in tokens
+        character.prompt_format.max_movement = "%V" in tokens
+        character.prompt_format.experience = "%x" in tokens
+        character.prompt_format.accumulated_experience = "%X" in tokens
+        character.prompt_format.gold = "%g" in tokens
+        character.prompt_format.silver = "%s" in tokens
+        character.prompt_format.alignment = "%a" in tokens
+        character.prompt_format.room_name = "%r" in tokens
+        character.prompt_format.exits = "%e" in tokens
+        character.prompt_format.room_vnum = "%R" in tokens
+        character.prompt_format.area_name = "%z" in tokens
+        character.prompt_format.carriage_return = "%c" in tokens
+
+        shown = template if "%c" in template else (template + " ")
+        context.finish()
+        return f"Prompt set to {shown}\r\n"
+
+    def do_equipment(self, character: Character, context: Context) -> str:
+        lines = self._target_equipment_lines(character)
+        context.finish()
+        if not lines:
+            return "You are using:\r\nNothing.\r\n"
+        return "You are using:\r\n" + "\r\n".join(lines) + "\r\n"
+
+    def do_compare(self, character: Character, context: Context) -> str:
+        raw = (context.result if isinstance(context.result, str) else "").strip()
+        if raw:
+            arg1, rest = InterpUtil.one_argument(raw)
+            arg2, _ = InterpUtil.one_argument(rest)
+        else:
+            arg1 = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip().lower()
+            arg2 = (context.parameters[1] if context.parameters and len(context.parameters) > 1 else "").strip().lower()
+        if not arg1:
+            context.finish()
+            return "Compare what to what?\r\n"
+
+        obj1 = self._find_owned_item(character, arg1)
+        if obj1 is None:
+            context.finish()
+            return "You do not have that item.\r\n"
+
+        obj2 = self._find_owned_item(character, arg2) if arg2 else self._find_comparable_equipped_item(character, obj1)
+        if obj2 is None:
+            context.finish()
+            return "You aren't wearing anything comparable.\r\n" if not arg2 else "You do not have that item.\r\n"
+
+        t1 = str(getattr(obj1, "item_type", "") or "").strip().lower()
+        t2 = str(getattr(obj2, "item_type", "") or "").strip().lower()
+        if t1 != t2:
+            context.finish()
+            return "You can't compare those items.\r\n"
+
+        v1 = self._compare_value(obj1)
+        v2 = self._compare_value(obj2)
+        if v1 is None or v2 is None:
+            context.finish()
+            return "You can't compare those items.\r\n"
+
+        item_flags = self.character_macros.enums.get("itemFlags")
+        n1 = ItemUtil.format_obj_to_char(obj1, item_flags_enum=item_flags, f_short=True)
+        n2 = ItemUtil.format_obj_to_char(obj2, item_flags_enum=item_flags, f_short=True)
+
+        context.finish()
+        if v1 == v2:
+            return f"{n1} looks about the same as {n2}.\r\n"
+        if v1 > v2:
+            return f"{n1} looks better than {n2}.\r\n"
+        return f"{n1} looks worse than {n2}.\r\n"
+
+    @staticmethod
+    def _owned_items(character: Character) -> list:
+        items = list(getattr(character, "loot", []) or [])
+        equipped = getattr(character, "equipped", None)
+        if equipped is not None:
+            for slot_item in getattr(equipped, "__dict__", {}).values():
+                if slot_item is not None and slot_item not in items:
+                    items.append(slot_item)
+        return items
+
+    def _find_owned_item(self, character: Character, wanted: str):
+        key = (wanted or "").strip().lower()
+        if not key:
+            return None
+        for item in self._owned_items(character):
+            name = (getattr(item, "name", "") or "").lower()
+            if name == key or name.startswith(key):
+                return item
+        return None
+
+    def _find_comparable_equipped_item(self, character: Character, source_item):
+        src_type = str(getattr(source_item, "item_type", "") or "").strip().lower()
+        equipped = getattr(character, "equipped", None)
+        for slot_item in getattr(equipped, "__dict__", {}).values() if equipped is not None else []:
+            if slot_item is None or slot_item == source_item:
+                continue
+            item_type = str(getattr(slot_item, "item_type", "") or "").strip().lower()
+            if item_type == src_type:
+                return slot_item
+        return None
+
+    @staticmethod
+    def _compare_value(item) -> int | None:
+        item_type = str(getattr(item, "item_type", "") or "").strip().lower()
+        if "weapon" in item_type:
+            dam_min = GenericUtil.to_int(getattr(item, "value1", 0), 0)
+            dam_max = GenericUtil.to_int(getattr(item, "value2", 0), 0)
+            return (dam_min + dam_max) // 2
+        if "armor" in item_type:
+            return GenericUtil.to_int(getattr(item, "value0", 0), 0)
+        return None
+
+    def _format_affects(self, character: Character) -> str:
+        affected_bits = self.character_macros.AffectedBits
+        if affected_bits is None:
+            return "You are not affected by any spells.\r\n"
+        raw = int(self.character_macros.convert_flags(getattr(character.character_flags, "affected_by", "") or ""))
+        lines = []
+        for name, member in affected_bits.__members__.items():
+            if self.character_macros.is_set(raw, member.value):
+                pretty = name.replace("AFF_", "").replace("_", " ").lower()
+                lines.append(f"Spell: {pretty}\r\n")
+        if not lines:
+            return "You are not affected by any spells.\r\n"
+        return "You are affected by the following spells:\r\n" + "".join(lines)
+
+    def _is_comm_enabled(self, character: Character, bit_name: str) -> bool:
+        comm_bits = self.character_macros.enums.get("commFlags")
+        if comm_bits is None or not hasattr(comm_bits, bit_name):
+            return False
+        comm = self._get_comm_flags(character)
+        return self.character_macros.is_set(comm, getattr(comm_bits, bit_name).value)
+
+    @staticmethod
+    def _skill_value_for_class(values: dict, class_name: str, default: int = 0) -> int:
+        if not isinstance(values, dict):
+            return default
+        if class_name in values:
+            return GenericUtil.to_int(values.get(class_name), default)
+        class_lower = class_name.lower()
+        for key, value in values.items():
+            if str(key).lower() == class_lower:
+                return GenericUtil.to_int(value, default)
+        return default
 
     def _toggle_player_act(self, character: Character, bit_name: str, off_text: str, on_text: str) -> str:
         if self.character_macros.is_npc(character):

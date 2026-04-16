@@ -235,6 +235,31 @@ class PlayerHandler:
         if text:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
 
+    async def do_show(self, character: Character, context: Context):
+        text = self.info_commands.do_show(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_practice(self, character: Character, context: Context):
+        text = self.info_commands.do_practice(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_prompt(self, character: Character, context: Context):
+        text = self.info_commands.do_prompt(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_equipment(self, character: Character, context: Context):
+        text = self.info_commands.do_equipment(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_compare(self, character: Character, context: Context):
+        text = self.info_commands.do_compare(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
     async def print_players_in_room(self, character: Character):
         message = self.player_helper.get_players_in_room(character)
         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message))
