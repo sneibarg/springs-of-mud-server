@@ -1442,7 +1442,9 @@
     "name": "scroll",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_scroll(c.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -1451,7 +1453,7 @@
     "level": 0,
     "log": "LOG_NORMAL",
     "pipeline": false,
-    "maxArguments": 0
+    "maxArguments": 1
   },
   {
     "_id": { "$oid": "69bc3df3af6857ce485bb9d3" },

@@ -132,8 +132,11 @@ class ConnectionHandler:
                     break
                 session.update_activity()
                 area, room = self._get_area_and_room(character)
-                if message.type == MessageType.GAME and not message.get('text'):
-                    await self.message_bus.send_prompt(character, area, room)
+                if message.type == MessageType.GAME and session.metadata.get("paging_active", False):
+                    await self._continue_paging(connection, session)
+                    if not session.metadata.get("paging_active", False):
+                        area, room = self._get_area_and_room(character)
+                        await self.message_bus.send_prompt(character, area, room)
                     continue
 
                 if message.type == MessageType.GAME:
@@ -185,3 +188,19 @@ class ConnectionHandler:
         self.logger.info(f"Player {player.first_name} {player.last_name} is now playing {character.name}.")
         session.status = SessionStatus.PLAYING
         return player
+
+    @staticmethod
+    async def _continue_paging(connection: TelnetConnection, session: SessionState) -> None:
+        queue = session.metadata.get("paging_queue", []) or []
+        if not queue:
+            session.metadata["paging_active"] = False
+            session.metadata["paging_queue"] = []
+            return
+
+        page = queue.pop(0)
+        suffix = "\r\n[Hit Enter to continue]\r\n" if queue else ""
+        await connection.send_text(page + suffix, MessageType.GAME)
+
+        if not queue:
+            session.metadata["paging_active"] = False
+            session.metadata["paging_queue"] = []

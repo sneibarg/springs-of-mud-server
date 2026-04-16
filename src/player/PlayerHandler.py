@@ -3,6 +3,7 @@ from injector import inject
 
 from area.RoomHelper import RoomHelper
 from game.RegistryService import RegistryService
+from game.GenericUtil import GenericUtil
 from interp.CommandHelper import CommandHelper
 from interp.Context import Context
 from player.Character import Character
@@ -37,6 +38,7 @@ class PlayerHandler:
         ("held", "<held>               "),
         ("floating_nearby", "<floating nearby>    "),
     ]
+
     @inject
     def __init__(self, message_bus: MessageBus,
                  registry_service: RegistryService,
@@ -61,7 +63,8 @@ class PlayerHandler:
         room = self.room_registry.get(id=character.room_id)
         in_room = self.player_helper.players_in_room(character, room)
         message = self.message_bus.text_to_message(f"{character.name} has left the game.\r\n")
-        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(f"Alas, all good things must come to an end.\r\n"))
+        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(
+            f"Alas, all good things must come to an end.\r\n"))
         if len(in_room) > 0:
             await self.message_bus.send_to_room(message, in_room)
         self.session_handler.remove_session(character.id)
@@ -90,7 +93,8 @@ class PlayerHandler:
     async def to_target(self, context: Context):
         target = self.character_registry.get_or_none(name=context.parameters[0])
         if target is None:
-            await self.message_bus.send_to_character(context.character.id, self.message_bus.text_to_message("They aren't here.\r\n"))
+            await self.message_bus.send_to_character(context.character.id,
+                                                     self.message_bus.text_to_message("They aren't here.\r\n"))
             return
         text = context.parameters[1] + "\r\n"
         message = self.message_bus.text_to_message(text)
@@ -203,7 +207,8 @@ class PlayerHandler:
             return
 
         if not self.room_helper.check_blind(character):
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You can't see a thing!\n\r"))
+            await self.message_bus.send_to_character(character.id,
+                                                     self.message_bus.text_to_message("You can't see a thing!\n\r"))
             context.finish()
             return
 
@@ -211,7 +216,8 @@ class PlayerHandler:
         if (not self.character_macros.is_npc(character)
                 and not self.character_macros.has_holy_light(character)
                 and self.room_helper.is_room_dark(character.room_id)):
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("It is pitch black ...\n\r"))
+            await self.message_bus.send_to_character(character.id,
+                                                     self.message_bus.text_to_message("It is pitch black ...\n\r"))
             context.jump_to(1)  # show chars/mobs only
             return
 
@@ -222,7 +228,8 @@ class PlayerHandler:
 
         if arg1 == "" or arg1 == "auto":
             await context.room_handler().print_room(character.id, room)
-            if self.character_macros.is_set(int(self.character_macros.convert_flags(character.character_flags.act)), self.PlayerActBits.PLR_AUTOEXIT.value):
+            if self.character_macros.is_set(int(self.character_macros.convert_flags(character.character_flags.act)),
+                                            self.PlayerActBits.PLR_AUTOEXIT.value):
                 await context.room_handler().print_exits(character, room)
             context.jump_to(1)  # players + mobiles
             return
@@ -233,3 +240,43 @@ class PlayerHandler:
 
         context.jump_to(3)
         return
+
+
+    async def do_scroll(self, character: Character, context: Context):
+        arg = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip()
+        if character.context is None:
+            character.context = {}
+
+        current_lines = GenericUtil.to_int(character.context.get("scroll_lines", 0), 0)
+
+        if arg == "":
+            if current_lines == 0:
+                await self.message_bus.send_to_character(character.id,
+                                                         self.message_bus.text_to_message("You do not page long messages.\r\n"))
+            else:
+                await self.message_bus.send_to_character(character.id,
+                                                         self.message_bus.text_to_message(f"You currently display {current_lines + 2} lines per page.\r\n"))
+            context.finish()
+            return
+
+        if not arg.lstrip("-").isdigit():
+            await self.message_bus.send_to_character(character.id,
+                                                     self.message_bus.text_to_message("You must provide a number.\r\n"))
+            context.finish()
+            return
+
+        lines = GenericUtil.to_int(arg, 0)
+        if lines == 0:
+            character.context["scroll_lines"] = 0
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("Paging disabled.\r\n"))
+            context.finish()
+            return
+
+        if lines < 10 or lines > 100:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You must provide a reasonable number.\r\n"))
+            context.finish()
+            return
+
+        character.context["scroll_lines"] = lines - 2
+        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(f"Scroll set to {lines} lines.\r\n"))
+        context.finish()

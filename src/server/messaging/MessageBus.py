@@ -1,7 +1,9 @@
-from typing import List, Optional, Any
+from typing import List, Optional
 from injector import inject
+
 from area.Area import Area
 from area.Room import Room
+from game.GenericUtil import GenericUtil
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 from server.connection.ConnectionManager import ConnectionManager
@@ -32,6 +34,23 @@ class MessageBus:
         connection = self.connection_manager.get_connection_by_character(character_id)
         if connection and not connection.is_closed():
             try:
+                session = self.session_handler.get_session_by_character(character_id)
+                if (session is not None and message.type == MessageType.GAME
+                        and isinstance(message.data, dict) and not session.metadata.get("paging_active", False)):
+                    text = str(message.data.get("text", "") or "")
+                    scroll_lines = 0
+                    if session.character is not None:
+                        scroll_lines = GenericUtil.to_int(
+                            (session.character.context or {}).get("scroll_lines", 0), 0
+                        )
+
+                    if text and scroll_lines > 0:
+                        pages = self._split_into_pages(text, scroll_lines)
+                        if len(pages) > 1:
+                            session.metadata["paging_active"] = True
+                            session.metadata["paging_queue"] = pages[1:]
+                            message = self.text_to_message(pages[0] + "\r\n[Hit Enter to continue]\r\n")
+
                 await connection.send_message(message)
                 self.logger.debug(f"Successfully sent message to character {character_id}")
                 return True
@@ -58,10 +77,15 @@ class MessageBus:
         return count
 
     async def send_prompt(self, character: Character, area: Area, room: Room) -> bool:
+        session = self.session_handler.get_session_by_character(character.id)
+        if session and session.metadata.get("paging_active", False):
+            return True
+
         connection = self.connection_manager.get_connection_by_character(character.id)
         if connection and isinstance(connection, TelnetConnection):
             try:
-                await connection.send_message(character.prompt_format.render_prompt(SessionStatus.PLAYING, character, room, area))
+                message = character.prompt_format.render_prompt(SessionStatus.PLAYING, character, room, area)
+                await connection.send_message(message)
                 return True
             except Exception as e:
                 self.logger.error(f"Failed to send prompt to character {character.id}: {e}", exc_info=True)
@@ -78,3 +102,12 @@ class MessageBus:
                     count += 1
 
         return count
+
+    @staticmethod
+    def _split_into_pages(text: str, max_lines: int) -> list[str]:
+        if max_lines <= 0:
+            return [text]
+        lines = text.splitlines(keepends=True)
+        if not lines:
+            return [text]
+        return ["".join(lines[i:i + max_lines]) for i in range(0, len(lines), max_lines)]
