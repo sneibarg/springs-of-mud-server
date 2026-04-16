@@ -721,16 +721,19 @@
     "name": "consider",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_consider(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_RESTING",
     "level": 0,
     "log": "LOG_NORMAL",
     "pipeline": false,
-    "maxArguments": 0
+    "maxArguments": 1
   },
   {
     "_id": { "$oid": "69bc3df3af6857ce485bb9a6" },
@@ -767,7 +770,7 @@
   {
     "_id": { "$oid": "69bc3df3af6857ce485bb9a8" },
     "name": "equipment",
-    "shortcuts": "",
+    "shortcuts": "eq, equip, equipm, equipme",
     "role": "player",
     "lambdas": [],
     "message": "",
@@ -916,9 +919,12 @@
     "name": "score",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_score(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_DEAD",
@@ -1012,9 +1018,12 @@
     "name": "time",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_time(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_DEAD",
@@ -1044,9 +1053,12 @@
     "name": "weather",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_weather(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_RESTING",
@@ -1495,16 +1507,19 @@
     "name": "wimpy",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_wimpy(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_DEAD",
     "level": 0,
     "log": "LOG_NORMAL",
     "pipeline": false,
-    "maxArguments": 0
+    "maxArguments": 1
   },
   {
     "_id": { "$oid": "69bc3df3af6857ce485bb9d6" },
@@ -2759,16 +2774,19 @@
     "name": "where",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_where(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_RESTING",
     "level": 0,
     "log": "LOG_NORMAL",
     "pipeline": false,
-    "maxArguments": 0
+    "maxArguments": 1
   },
   {
     "_id": { "$oid": "69bc3df3af6857ce485bba27" },

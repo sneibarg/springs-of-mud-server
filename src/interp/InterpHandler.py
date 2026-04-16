@@ -114,13 +114,13 @@ class InterpHandler:
     async def handle_command(self, player, character, command):
         cmd, parameters = InterpUtil.extract_parameters(self.registry_service.interp_registry, command)
         if cmd is None:
-            social = self.social_registry.get(name=command.lower())
+            social = self.social_registry.get_or_none(name=command.lower())
             if social is not None:
                 return await self.social_handler.handle_social(character, command, social)
             await self.message_bus.send_to_character(character.id, self.command_not_found_message)
             return None
 
-        self.logger.info(f"CMD: {cmd.name}, PARAMETERS: {parameters}, USAGE: {str(player.usage)}")
+        self.logger.debug(f"CMD: {cmd.name}, PARAMETERS: {parameters}, USAGE: {str(player.usage)}")
         return await self._call_lambda(character, cmd.name, self.interp_registry.all_commands(), parameters)
 
     async def handle_usage(self, cmd: Command, context: Context):

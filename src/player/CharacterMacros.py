@@ -4,6 +4,7 @@ from typing import Any, TYPE_CHECKING
 
 from area.Room import Room
 from game.GameMacros import GameMacros
+from game.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
 from mobile.Mobile import Mobile
 from player.Character import Character
@@ -48,7 +49,16 @@ class CharacterMacros(GameMacros):
             return char.level
 
     def get_attribute_bonus(self, attr_name: str, attr_level: str):
-        return self.attribute_bonuses.get(attr_name).get(attr_level)
+        bonus_table = self.attribute_bonuses.get(attr_name, {})
+        if not bonus_table:
+            return {}
+
+        normalized = GenericUtil.to_int(attr_level)
+        normalized = max(0, min(25, normalized))
+        bonus = bonus_table.get(str(normalized))
+        if bonus is not None:
+            return bonus
+        return bonus_table.get(normalized, {})
 
     def is_immortal_sufficient(self, level: int, immortal_name: str) -> bool:
         return level >= self.character_constants.immortal_levels.get(immortal_name)
@@ -102,15 +112,51 @@ class CharacterMacros(GameMacros):
 
     # requires normalization
     def get_ac(self, char: Any, ac: int) -> int:
-        pass
+        armor = getattr(char, "armor_class", None)
+        if armor is None:
+            return 0
+
+        key = ac
+        if isinstance(ac, int):
+            if ac == 0:
+                key = "pierce"
+            elif ac == 1:
+                key = "bash"
+            elif ac == 2:
+                key = "slash"
+            elif ac == 3:
+                key = "exotic"
+            else:
+                key = "pierce"
+
+        if isinstance(key, str):
+            normalized_key = key.lower()
+            if normalized_key in ("pierce", "piercing"):
+                base = getattr(armor, "piercing", getattr(armor, "pierce", 0))
+            elif normalized_key == "bash":
+                base = getattr(armor, "bashing", getattr(armor, "bash", 0))
+            elif normalized_key == "slash":
+                base = getattr(armor, "slashing", getattr(armor, "slash", 0))
+            else:
+                base = getattr(armor, "magic", getattr(armor, "exotic", 0))
+        else:
+            base = 0
+
+        dex_value = 0
+        if hasattr(char, "character_attributes"):
+            dex_value = getattr(char.character_attributes, "dexterity", 0)
+        dex_defensive = self.get_attribute_bonus("dexterity", str(dex_value)).get("defensive", 0)
+        return int(base) + int(dex_defensive)
 
     # requires normalization
     def get_hitroll(self, char: Any) -> int:
-        return self.get_attribute_bonus(attr_name="strength", attr_level=str(char.level)).get('tohit')
+        strength = getattr(getattr(char, "character_attributes", None), "strength", 0)
+        return int(self.get_attribute_bonus(attr_name="strength", attr_level=str(strength)).get('tohit', 0))
 
     # requires normalization
     def get_damroll(self, char: Any) -> int:
-        return self.get_attribute_bonus(attr_name="strength", attr_level=str(char.level)).get('todam')
+        strength = getattr(getattr(char, "character_attributes", None), "strength", 0)
+        return int(self.get_attribute_bonus(attr_name="strength", attr_level=str(strength)).get('todam', 0))
 
     def is_outside(self, char: Any) -> bool:
         room: Room = self.registry_service.room_registry.get(id=char.room_id)

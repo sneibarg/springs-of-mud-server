@@ -49,3 +49,49 @@ class InfoUtil:
             if wear_loc in wanted_locs:
                 return item
         return None
+
+    @staticmethod
+    def score_ac_phrase(ac_value: int, ac_type: str) -> str:
+        if ac_value >= 101:
+            return f"hopelessly vulnerable to {ac_type}"
+        if ac_value >= 80:
+            return f"defenseless against {ac_type}"
+        if ac_value >= 60:
+            return f"barely protected from {ac_type}"
+        if ac_value >= 40:
+            return f"slightly armored against {ac_type}"
+        if ac_value >= 20:
+            return f"somewhat armored against {ac_type}"
+        if ac_value >= 0:
+            return f"armored against {ac_type}"
+        if ac_value >= -20:
+            return f"well-armored against {ac_type}"
+        if ac_value >= -40:
+            return f"very well-armored against {ac_type}"
+        if ac_value >= -60:
+            return f"heavily armored against {ac_type}"
+        if ac_value >= -80:
+            return f"superbly armored against {ac_type}"
+        if ac_value >= -100:
+            return f"almost invulnerable to {ac_type}"
+        return f"divinely armored against {ac_type}"
+
+    @staticmethod
+    def score_alignment_word(alignment: int) -> str:
+        if alignment > 900:
+            return "angelic"
+        if alignment > 700:
+            return "saintly"
+        if alignment > 350:
+            return "good"
+        if alignment > 100:
+            return "kind"
+        if alignment > -100:
+            return "neutral"
+        if alignment > -350:
+            return "mean"
+        if alignment > -700:
+            return "evil"
+        if alignment > -900:
+            return "demonic"
+        return "satanic"

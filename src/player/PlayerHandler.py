@@ -60,6 +60,36 @@ class PlayerHandler:
         text = self.info_commands.do_scroll(character, context)
         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
 
+    async def do_wimpy(self, character: Character, context: Context):
+        text = self.info_commands.do_wimpy(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_score(self, character: Character, context: Context):
+        text = self.info_commands.do_score(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_time(self, character: Character, context: Context):
+        text = self.info_commands.do_time(context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_weather(self, character: Character, context: Context):
+        text = self.info_commands.do_weather(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_where(self, character: Character, context: Context):
+        text = self.info_commands.do_where(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_consider(self, character: Character, context: Context):
+        text = self.info_commands.do_consider(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
     async def print_players_in_room(self, character: Character):
         message = self.player_helper.get_players_in_room(character)
         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message))
