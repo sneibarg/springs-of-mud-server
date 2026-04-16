@@ -36,7 +36,7 @@ class Item:
     affect_data: list
     extra_descr: list
     contains: list
-    count: int = 1
+    count: int = 0
     room_data: dict[str, Room] = field(default_factory=dict)
     enchanted: Optional[bool] = False
     timer: Optional[int] = None

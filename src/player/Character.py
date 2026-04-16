@@ -15,6 +15,7 @@ from server.LoggerFactory import LoggerFactory
 if TYPE_CHECKING:
     from game.Equipped import Equipped
 
+
 @dataclass
 class Character:
     id: str

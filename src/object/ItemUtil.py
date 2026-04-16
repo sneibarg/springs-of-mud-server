@@ -296,6 +296,35 @@ class ItemUtil:
         return lines
 
     @staticmethod
+    def _is_item_flag_set(obj: Item, flag_value: int) -> bool:
+        try:
+            flags = int(getattr(obj, "extra_flags", 0) or 0)
+        except (TypeError, ValueError):
+            try:
+                flags = GameMacros.convert_flags(str(getattr(obj, "extra_flags", "0") or "0"))
+            except Exception:
+                flags = 0
+        return (flags & int(flag_value)) != 0
+
+    @staticmethod
+    def format_obj_to_char(obj: Item, item_flags_enum=None, f_short: bool = True) -> str:
+        if obj is None:
+            return ""
+
+        labels = []
+        if item_flags_enum is not None:
+            if hasattr(item_flags_enum, "ITEM_INVIS") and ItemUtil._is_item_flag_set(obj, item_flags_enum.ITEM_INVIS.value):
+                labels.append("(Invis)")
+            if hasattr(item_flags_enum, "ITEM_GLOW") and ItemUtil._is_item_flag_set(obj, item_flags_enum.ITEM_GLOW.value):
+                labels.append("(Glowing)")
+            if hasattr(item_flags_enum, "ITEM_HUM") and ItemUtil._is_item_flag_set(obj, item_flags_enum.ITEM_HUM.value):
+                labels.append("(Humming)")
+
+        base = (obj.short_description if f_short else obj.long_description) or obj.name or "something"
+        prefix = (" ".join(labels) + " ") if labels else ""
+        return prefix + base
+
+    @staticmethod
     def create_object(pObjIndex: Item):
         from server.ServerUtil import ServerUtil
         if pObjIndex is None:

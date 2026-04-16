@@ -4,7 +4,7 @@ from enum import IntEnum
 from typing import Tuple
 
 from game.GameMacros import GameMacros
-from game.Equipped import Equipped
+from game.Equipped import Equipped, WEAR_LOC_TO_EQUIPPED_SLOT
 from mobile.Mobile import Mobile
 from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice
@@ -21,27 +21,6 @@ rng = RandomNumberGenerator()
 
 class MobileUtil:
     pass
-    WEAR_LOC_TO_EQUIPPED_SLOT = {
-        0: "light",
-        1: "finger1",
-        2: "finger2",
-        3: "neck1",
-        4: "neck2",
-        5: "torso",
-        6: "head",
-        7: "legs",
-        8: "feet",
-        9: "hands",
-        10: "arms",
-        11: "shield",
-        12: "body",
-        13: "waist",
-        14: "wrist1",
-        15: "wrist2",
-        16: "wielded",
-        17: "held",
-        18: "floating_nearby",
-    }
 
     @staticmethod
     def build_mobile(mobile_id: str, races: dict, mobile_data: dict, npc_flag: int, enums: dict[str, type[IntEnum]]) -> tuple[Mobile, int]:
@@ -447,7 +426,7 @@ class MobileUtil:
         if not hasattr(mob, "equipped") or getattr(mob, "equipped", None) is None:
             mob.equipped = Equipped()
 
-        slot = MobileUtil.WEAR_LOC_TO_EQUIPPED_SLOT.get(int(wear_loc))
+        slot = WEAR_LOC_TO_EQUIPPED_SLOT.get(int(wear_loc))
         if slot and hasattr(mob.equipped, slot):
             setattr(mob.equipped, slot, item)
         item.wear_loc = int(wear_loc)

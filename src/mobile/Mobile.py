@@ -52,6 +52,7 @@ class Mobile:
     damage_dice: Optional[Dice] = None
     mobile_flags: Optional[MobileFlags] = None
     equipped: Optional[Equipped] = None
+    inventory: list = field(default_factory=list)
     lock: threading.Lock = field(default_factory=threading.Lock)
 
     def __post_init__(self):

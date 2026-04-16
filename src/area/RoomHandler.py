@@ -49,7 +49,10 @@ class RoomHandler:
         else:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(f"You can't go that direction!\r\n"))
 
-    async def print_exits(self, character: Character, room: Room):
+    async def print_exits(self, character: Character):
+        room = self.room_registry.get(id=character.room_id)
+        if room is None:
+            return
         if self.room_helper.can_see_room_vnum(character):
             lines = [f"Obvious exits from room {room.vnum}:"]
         else:
