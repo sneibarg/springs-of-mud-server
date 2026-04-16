@@ -82,8 +82,8 @@ class Character:
 
     @classmethod
     def from_json(cls, data):
-        from server.ServerUtil import ServerUtil
-        payload = ServerUtil.camel_to_snake_case(data)
+        from game.GenericUtil import GenericUtil
+        payload = GenericUtil.camel_to_snake_case(data)
         prompt_format = payload.get('prompt_format')
         character_class = payload.get('character_class')
         armor_class = payload.get('armor_class')

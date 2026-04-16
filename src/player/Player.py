@@ -38,7 +38,7 @@ class Player:
 
     @classmethod
     def from_json(cls, data):
-        from server.ServerUtil import ServerUtil
-        data = ServerUtil.camel_to_snake_case(data)
+        from game.GenericUtil import GenericUtil
+        data = GenericUtil.camel_to_snake_case(data)
         data['current_characters'] = []
         return cls(**data)

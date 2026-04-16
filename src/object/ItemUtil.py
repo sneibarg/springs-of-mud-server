@@ -3,6 +3,7 @@ from enum import IntEnum
 from area import Room
 from game.GameMacros import GameMacros
 from game.RandomNumberGenerator import RandomNumberGenerator
+from game.GenericUtil import GenericUtil
 from object.ExtraDescriptionData import ExtraDescriptionData
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
@@ -75,15 +76,6 @@ class ItemUtil:
             item_data[flag_field] = str(GameMacros.convert_flags(flag_value))
 
     @staticmethod
-    def convert_numeric_to_string(value):
-        if isinstance(value, int):
-            return str(value)
-        if isinstance(value, str):
-            if value.lstrip('-').isdigit():
-                return value
-        return str(value) if value else '0'
-
-    @staticmethod
     def read_flag(flag_value):
         if isinstance(flag_value, int):
             return str(flag_value)
@@ -99,27 +91,27 @@ class ItemUtil:
     def normalize_value_fields(item_data, ItemTypes: type[IntEnum]):
         item_type = item_data.get("itemType", "").strip().lower()
         if item_type == ItemTypes.ITEM_WEAPON.name:
-            item_data['value1'] = ItemUtil.convert_numeric_to_string(item_data.get('value1', '0'))
-            item_data['value2'] = ItemUtil.convert_numeric_to_string(item_data.get('value2', '0'))
+            item_data['value1'] = GenericUtil.convert_numeric_to_string(item_data.get('value1', '0'))
+            item_data['value2'] = GenericUtil.convert_numeric_to_string(item_data.get('value2', '0'))
             item_data['value4'] = ItemUtil.read_flag(item_data.get('value4', '0'))
         elif item_type == ItemTypes.ITEM_WEAPON.name:
-            item_data['value0'] = ItemUtil.convert_numeric_to_string(item_data.get('value0', '0'))
+            item_data['value0'] = GenericUtil.convert_numeric_to_string(item_data.get('value0', '0'))
             item_data['value1'] = ItemUtil.read_flag(item_data.get('value1', '0'))
-            item_data['value2'] = ItemUtil.convert_numeric_to_string(item_data.get('value2', '0'))
-            item_data['value3'] = ItemUtil.convert_numeric_to_string(item_data.get('value3', '0'))
-            item_data['value4'] = ItemUtil.convert_numeric_to_string(item_data.get('value4', '0'))
+            item_data['value2'] = GenericUtil.convert_numeric_to_string(item_data.get('value2', '0'))
+            item_data['value3'] = GenericUtil.convert_numeric_to_string(item_data.get('value3', '0'))
+            item_data['value4'] = GenericUtil.convert_numeric_to_string(item_data.get('value4', '0'))
         elif item_type in [ItemTypes.ITEM_DRINK_CON.name, ItemTypes.ITEM_FOUNTAIN.name]:
-            item_data['value0'] = ItemUtil.convert_numeric_to_string(item_data.get('value0', '0'))
-            item_data['value1'] = ItemUtil.convert_numeric_to_string(item_data.get('value1', '0'))
-            item_data['value3'] = ItemUtil.convert_numeric_to_string(item_data.get('value3', '0'))
-            item_data['value4'] = ItemUtil.convert_numeric_to_string(item_data.get('value4', '0'))
+            item_data['value0'] = GenericUtil.convert_numeric_to_string(item_data.get('value0', '0'))
+            item_data['value1'] = GenericUtil.convert_numeric_to_string(item_data.get('value1', '0'))
+            item_data['value3'] = GenericUtil.convert_numeric_to_string(item_data.get('value3', '0'))
+            item_data['value4'] = GenericUtil.convert_numeric_to_string(item_data.get('value4', '0'))
         elif item_type in [ItemTypes.ITEM_WAND.name, ItemTypes.ITEM_STAFF.name]:
-            item_data['value0'] = ItemUtil.convert_numeric_to_string(item_data.get('value0', '0'))
-            item_data['value1'] = ItemUtil.convert_numeric_to_string(item_data.get('value1', '0'))
-            item_data['value2'] = ItemUtil.convert_numeric_to_string(item_data.get('value2', '0'))
-            item_data['value4'] = ItemUtil.convert_numeric_to_string(item_data.get('value4', '0'))
+            item_data['value0'] = GenericUtil.convert_numeric_to_string(item_data.get('value0', '0'))
+            item_data['value1'] = GenericUtil.convert_numeric_to_string(item_data.get('value1', '0'))
+            item_data['value2'] = GenericUtil.convert_numeric_to_string(item_data.get('value2', '0'))
+            item_data['value4'] = GenericUtil.convert_numeric_to_string(item_data.get('value4', '0'))
         elif item_type in [ItemTypes.ITEM_POTION.name, ItemTypes.ITEM_PILL.name, ItemTypes.ITEM_SCROLL.name]:
-            item_data['value0'] = ItemUtil.convert_numeric_to_string(item_data.get('value0', '0'))
+            item_data['value0'] = GenericUtil.convert_numeric_to_string(item_data.get('value0', '0'))
         else:
             for i in range(5):
                 value_key = f'value{i}'
@@ -326,7 +318,6 @@ class ItemUtil:
 
     @staticmethod
     def create_object(pObjIndex: Item):
-        from server.ServerUtil import ServerUtil
         if pObjIndex is None:
             logger.error("create_object: NULL pObjIndex.")
             raise ValueError("Cannot create object from None index")
@@ -335,7 +326,7 @@ class ItemUtil:
         affect_data = list(getattr(pObjIndex, "affect_data", []) or [])
         item = Item.from_json(
             {
-                "id": ServerUtil.generate_mongo_id(),
+                "id": GenericUtil.generate_mongo_id(),
                 "area_id": pObjIndex.area_id,
                 "vnum": pObjIndex.vnum,
                 "name": pObjIndex.name,

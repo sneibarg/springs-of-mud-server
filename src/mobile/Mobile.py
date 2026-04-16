@@ -56,8 +56,8 @@ class Mobile:
     lock: threading.Lock = field(default_factory=threading.Lock)
 
     def __post_init__(self):
-        from server.ServerUtil import ServerUtil
-        self.instance_id = ServerUtil.generate_mongo_id()
+        from game.GenericUtil import GenericUtil
+        self.instance_id = GenericUtil.generate_mongo_id()
         if self.lock is None:
             self.lock = threading.Lock()
         self.__name__ = "Mobile-" + str(self.instance_id)

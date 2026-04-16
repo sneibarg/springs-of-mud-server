@@ -77,8 +77,8 @@ class MobileService:
             return None
 
     def _build_mobile(self, raw_mobile, npc_flag, kill_table) -> Optional[Mobile]:
-        from server.ServerUtil import ServerUtil
-        converted_mobile = ServerUtil.camel_to_snake_case(raw_mobile)
+        from game.GenericUtil import GenericUtil
+        converted_mobile = GenericUtil.camel_to_snake_case(raw_mobile)
         converted_mobile['form'] = MobileUtil.convert_form(converted_mobile['race'], converted_mobile['form'], self.object_macros)
         converted_mobile['parts'] = MobileUtil.convert_parts(converted_mobile['race'], converted_mobile['parts'], self.object_macros)
 

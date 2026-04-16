@@ -5,6 +5,7 @@ from typing import Tuple
 
 from game.GameMacros import GameMacros
 from game.Equipped import Equipped, WEAR_LOC_TO_EQUIPPED_SLOT
+from game.GenericUtil import GenericUtil
 from mobile.Mobile import Mobile
 from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice
@@ -29,7 +30,7 @@ class MobileUtil:
         race = races[race_name] or {}
         flag_letters = enums.get("flagLetters")
         flags = MobileUtil.resolve_mobile_flags(mobile_data, race, npc_flag, flag_letters)
-        level = MobileUtil.safe_int(mobile_data.get("level", 0), default=0)
+        level = GenericUtil.to_int(mobile_data.get("level", 0), default=0)
         normalized = MobileUtil.build_normalized_mobile_data(mobile_id, mobile_data, player_name, race_name, level)
 
         mobile = Mobile.from_json(normalized)
@@ -55,15 +56,15 @@ class MobileUtil:
 
     @staticmethod
     def resolve_mobile_flags(mobile_data: dict, race: dict, npc_flag: int, flag_letters: type[IntEnum] | None) -> MobileFlags:
-        raw_act = MobileUtil.safe_int(mobile_data.get("actFlags") or mobile_data.get("act_flags"), 0)
-        raw_aff = MobileUtil.safe_int(mobile_data.get("affectFlags") or mobile_data.get("affect_flags"), 0)
+        raw_act = GenericUtil.to_int(mobile_data.get("actFlags") or mobile_data.get("act_flags"), 0)
+        raw_aff = GenericUtil.to_int(mobile_data.get("affectFlags") or mobile_data.get("affect_flags"), 0)
         combat_raw = MobileUtil.parse_combat_flags(mobile_data.get("combat_flags"))
         raw_off = MobileUtil.resolve_combat_flag(mobile_data, combat_raw, "off_flags", "offFlags", flag_letters)
         raw_imm = MobileUtil.resolve_combat_flag(mobile_data, combat_raw, "imm_flags", "immFlags", flag_letters)
         raw_res = MobileUtil.resolve_combat_flag(mobile_data, combat_raw, "res_flags", "resFlags", flag_letters)
         raw_vuln = MobileUtil.resolve_combat_flag(mobile_data, combat_raw, "vuln_flags", "vulnFlags", flag_letters)
-        raw_form = MobileUtil.safe_int(mobile_data.get("form"), 0)
-        raw_parts = MobileUtil.safe_int(mobile_data.get("parts"), 0)
+        raw_form = GenericUtil.to_int(mobile_data.get("form"), 0)
+        raw_parts = GenericUtil.to_int(mobile_data.get("parts"), 0)
         race_act = MobileUtil.race_flag_value(race, "act", mobile_data.get("race"))
         race_aff = MobileUtil.race_flag_value(race, "aff", mobile_data.get("race"))
         race_off = MobileUtil.race_flag_value(race, "off", mobile_data.get("race"))
@@ -105,7 +106,7 @@ class MobileUtil:
             value = mobile_data.get(snake_key, mobile_data.get(camel_key))
         if isinstance(value, str):
             return GameMacros.parse_flag_string(value, flag_letters)
-        return MobileUtil.safe_int(value, default=0)
+        return GenericUtil.to_int(value, default=0)
 
     @staticmethod
     def increment_kill_table(kill_table: dict[int, int], level: int):
@@ -176,8 +177,8 @@ class MobileUtil:
     def apply_extended_mobile_fields(mobile: Mobile, mobile_data: dict):
         mobile.armor_class = MobileUtil.parse_ac(mobile_data)
         mobile.hit_dice, mobile.mana_dice, mobile.damage_dice = MobileUtil.parse_dice(mobile_data)
-        mobile.hitroll = MobileUtil.safe_int(mobile_data.get("hitroll", 0), default=0)
-        mobile.wealth = MobileUtil.safe_int(mobile_data.get("wealth", mobile_data.get("gold", 0)), default=0)
+        mobile.hitroll = GenericUtil.to_int(mobile_data.get("hitroll", 0), default=0)
+        mobile.wealth = GenericUtil.to_int(mobile_data.get("wealth", mobile_data.get("gold", 0)), default=0)
 
     @staticmethod
     def build_normalized_mobile_data(mobile_id: str, mobile_data: dict, player_name: str, race_name: str, level: int) -> dict:
@@ -195,7 +196,7 @@ class MobileUtil:
             "act_flags": None,  # str(flags["act_flags"]),
             "affect_flags": None,  # str(flags["affect_flags"]),
             "alignment": str(mobile_data.get("alignment", "0") or "0"),
-            "group": str(MobileUtil.safe_int(mobile_data.get("group", 0), default=0)),
+            "group": str(GenericUtil.to_int(mobile_data.get("group", 0), default=0)),
             "act": str(mobile_data.get("act", "") or ""),
             "dam_type": str(mobile_data.get("dam_type", "") or ""),
             "combat_flags": str(mobile_data.get("combat_flags", "") or ""),
@@ -209,15 +210,15 @@ class MobileUtil:
             "flags": str(mobile_data.get("flags", "") or ""),
             "id": mobile_id,
             "level": level,
-            "hit_roll": MobileUtil.safe_int(mobile_data.get("hit_roll", 0), default=0),
+            "hit_roll": GenericUtil.to_int(mobile_data.get("hit_roll", 0), default=0),
             "hit_dice": None,
             "mana_dice": None,
             "damage_dice": None,
             "armor_class": None,
-            "gold": MobileUtil.safe_int(mobile_data.get("gold", 0), default=0),
-            "silver": MobileUtil.safe_int(mobile_data.get("silver", 0), default=0),
-            "pulse_wait": MobileUtil.safe_int(mobile_data.get("pulse_wait", 0), default=0),
-            "pulse_daze": MobileUtil.safe_int(mobile_data.get("pulse_daze", 0), default=0),
+            "gold": GenericUtil.to_int(mobile_data.get("gold", 0), default=0),
+            "silver": GenericUtil.to_int(mobile_data.get("silver", 0), default=0),
+            "pulse_wait": GenericUtil.to_int(mobile_data.get("pulse_wait", 0), default=0),
+            "pulse_daze": GenericUtil.to_int(mobile_data.get("pulse_daze", 0), default=0),
             "mobile_flags": None,
             "lock": mobile_data.get("lock"),
         }
@@ -228,17 +229,10 @@ class MobileUtil:
         return text[:1].upper() + text[1:] if text else ""
 
     @staticmethod
-    def safe_int(value, default=0) -> int:
-        try:
-            return int(value)
-        except (TypeError, ValueError):
-            return default
-
-    @staticmethod
     def apply_flag_removes(flags: MobileFlags, removals: list):
         for removal in removals:
             domain = str(removal.get("domain", "")).lower().strip()
-            vector = MobileUtil.safe_int(removal.get("vector", 0))
+            vector = GenericUtil.to_int(removal.get("vector", 0))
             if domain == "act":
                 flags.act &= ~vector
             elif domain.startswith("aff"):
@@ -318,7 +312,6 @@ class MobileUtil:
 
     @staticmethod
     def create_mobile(pMobIndex: Mobile, enums: dict[str, type[IntEnum]], character_macros: CharacterMacros) -> Mobile:
-        from server.ServerUtil import ServerUtil
         from player.CharacterAttributes import CharacterAttributes
         if pMobIndex is None:
             logger.error("create_mobile: NULL pMobIndex.")
@@ -327,7 +320,7 @@ class MobileUtil:
         mob = Mobile.from_json({
             "area_id": pMobIndex.area_id,
             "vnum": pMobIndex.vnum,
-            "id": ServerUtil.generate_mongo_id(),
+            "id": GenericUtil.generate_mongo_id(),
             "name": pMobIndex.name,
             "short_description": pMobIndex.short_description,
             "long_description": pMobIndex.long_description,
