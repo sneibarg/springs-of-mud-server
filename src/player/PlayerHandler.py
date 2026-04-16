@@ -90,6 +90,151 @@ class PlayerHandler:
         if text:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
 
+    async def do_title(self, character: Character, context: Context):
+        text = self.info_commands.do_title(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_description(self, character: Character, context: Context):
+        text = self.info_commands.do_description(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_report(self, character: Character, context: Context):
+        payload = self.info_commands.do_report(character)
+        await self.message_bus.send_to_character(
+            character.id,
+            self.message_bus.text_to_message(payload["to_char"])
+        )
+        if len(payload["in_room"]) > 0:
+            await self.message_bus.send_to_room(
+                self.message_bus.text_to_message(payload["to_room"]),
+                payload["in_room"]
+            )
+
+    async def do_autolist(self, character: Character, context: Context):
+        text = self.info_commands.do_autolist(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_autoassist(self, character: Character, context: Context):
+        text = self.info_commands.do_autoassist(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_autoexit(self, character: Character, context: Context):
+        text = self.info_commands.do_autoexit(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_autogold(self, character: Character, context: Context):
+        text = self.info_commands.do_autogold(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_autoloot(self, character: Character, context: Context):
+        text = self.info_commands.do_autoloot(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_autosac(self, character: Character, context: Context):
+        text = self.info_commands.do_autosac(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_autosplit(self, character: Character, context: Context):
+        text = self.info_commands.do_autosplit(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_worth(self, character: Character, context: Context):
+        text = self.info_commands.do_worth(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_affects(self, character: Character, context: Context):
+        text = self.info_commands.do_affects(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_brief(self, character: Character, context: Context):
+        text = self.info_commands.do_brief(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_compact(self, character: Character, context: Context):
+        text = self.info_commands.do_compact(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_combine(self, character: Character, context: Context):
+        text = self.info_commands.do_combine(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_noloot(self, character: Character, context: Context):
+        text = self.info_commands.do_noloot(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_nofollow(self, character: Character, context: Context):
+        text = self.info_commands.do_nofollow(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_nosummon(self, character: Character, context: Context):
+        text = self.info_commands.do_nosummon(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_read(self, character: Character, context: Context):
+        payload = self.info_commands.do_read(character, context)
+        if payload.get("look"):
+            text = await self.info_commands.do_look(character, context)
+            if text:
+                await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+            if not context.done:
+                await context.room_handler().print_in_room(context)
+            return
+
+        if payload.get("error"):
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["error"]))
+            return
+
+        context.parameters = [payload["argument"]]
+        await context.item_handler().look_item_or_extra(character, context)
+        if not context.done:
+            context.finish()
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You do not see that here.\r\n"))
+
+    async def do_examine(self, character: Character, context: Context):
+        payload = self.info_commands.do_examine(character, context)
+        if payload.get("error"):
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["error"]))
+            return
+
+        context.parameters = [payload["argument"]]
+        await context.item_handler().look_item_or_extra(character, context)
+        if not context.done:
+            context.finish()
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You do not see that here.\r\n"))
+            return
+
+        if payload.get("look_in"):
+            context.done = False
+            context.parameters = ["in", payload["argument"]]
+            await context.item_handler().look_in_item(character, context)
+
+    async def do_whois(self, character: Character, context: Context):
+        text = self.info_commands.do_whois(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_count(self, character: Character, context: Context):
+        text = self.info_commands.do_count(context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
     async def print_players_in_room(self, character: Character):
         message = self.player_helper.get_players_in_room(character)
         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message))

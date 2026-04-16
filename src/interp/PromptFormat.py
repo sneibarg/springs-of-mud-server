@@ -172,7 +172,15 @@ class PromptFormat:
             parts.append(str(self._call_prompt_lambda(prompt_map["%z"], character, room, area)))
 
     def render_prompt(self, status: SessionStatus, character: Character, room: Room, area: Area) -> Message:
-        parts = [self._tag_afk(status), "<"]
+        carriage_return = bool(getattr(character, "carriage_return", False) or self.carriage_return)
+        comm_letters = getattr(getattr(character, "character_flags", None), "comm", "")
+        comm_raw = self._letters_to_flags(comm_letters)
+        if comm_raw > 0:
+            carriage_return = (comm_raw & 2048) == 0  # COMM_COMPACT
+        parts = [self._tag_afk(status)]
+        if carriage_return:
+            parts.append("\r\n")
+        parts.append("<")
         prompt_map = build_prompt_map()
 
         self._render_health(parts, prompt_map, character, room, area)
@@ -188,8 +196,6 @@ class PromptFormat:
         self._render_area_name(parts, prompt_map, character, room, area)
 
         parts.append(">")
-        if self.carriage_return:
-            parts.append(str(self._call_prompt_lambda(prompt_map["%c"], character, room, area)))
 
         return Message(type=MessageType.GAME, data={'text': "".join(parts)})
 
@@ -226,3 +232,11 @@ class PromptFormat:
             raise ValueError(f"Unsupported two-arg lambda parameters: {names}")
 
         raise ValueError("Unsupported lambda arity")
+
+    @staticmethod
+    def _letters_to_flags(value: str) -> int:
+        total = 0
+        for c in str(value or "").upper():
+            if "A" <= c <= "Z":
+                total |= (1 << (ord(c) - ord("A")))
+        return total

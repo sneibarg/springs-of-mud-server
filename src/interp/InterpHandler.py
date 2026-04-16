@@ -7,7 +7,6 @@ from game.HandlerService import HandlerService
 from game.RegistryService import RegistryService
 from interp.Command import Command
 from interp.Context import Context
-from interp.HelpEntry import HelpEntry
 from interp.InterpUtil import InterpUtil
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
@@ -112,6 +111,9 @@ class InterpHandler:
             raise
 
     async def handle_command(self, player, character, command):
+        if command is None or not str(command).strip():
+            return None
+
         cmd, parameters = InterpUtil.extract_parameters(self.registry_service.interp_registry, command)
         if cmd is None:
             social = self.social_registry.get_or_none(name=command.lower())

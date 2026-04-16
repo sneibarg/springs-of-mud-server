@@ -78,7 +78,19 @@ class RoomHandler:
         if room is None:
             self.logger.error(f"Attempted to print room to character {character_id} but room is None")
             return
-        await self.message_bus.send_to_character(character_id, self.room_helper.format_room_description(room.name, room.description))
+        character = self.character_registry.get_or_none(id=character_id)
+        show_description = True
+        if character is not None:
+            comm_flags = self.room_helper.character_macros.enums.get("commFlags")
+            if comm_flags is not None and hasattr(comm_flags, "COMM_BRIEF"):
+                comm = int(self.room_helper.character_macros.convert_flags(getattr(character.character_flags, "comm", "0") or "0"))
+                if self.room_helper.character_macros.is_set(comm, comm_flags.COMM_BRIEF.value):
+                    show_description = False
+
+        if show_description:
+            await self.message_bus.send_to_character(character_id, self.room_helper.format_room_description(room.name, room.description))
+        else:
+            await self.message_bus.send_to_character(character_id, self.message_bus.text_to_message(f"[{room.name}]\r\n"))
         lines = ItemUtil.room_items(room)
         if lines:
             await self.message_bus.send_to_character(character_id, self.message_bus.text_to_message("\r\n".join(lines) + "\r\n"))

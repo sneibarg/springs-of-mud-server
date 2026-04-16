@@ -535,6 +535,355 @@ class InfoCommands:
         context.finish()
         return msg + "\r\n"
 
+    def do_title(self, character: Character, context: Context) -> str:
+        if self.character_macros.is_npc(character):
+            context.finish()
+            return ""
+
+        argument = (context.result if isinstance(context.result, str) else "").strip()
+        if argument == "":
+            context.finish()
+            return "Change your title to what?\r\n"
+
+        argument = argument.replace("~", "")[:45]
+        if argument and argument[0] not in (".", ",", "!", "?"):
+            character.title = f" {argument}"
+        else:
+            character.title = argument
+
+        context.finish()
+        return "Ok.\r\n"
+
+    def do_description(self, character: Character, context: Context) -> str:
+        argument = (context.result if isinstance(context.result, str) else "").strip()
+        description = (getattr(character, "description", "") or "").replace("~", "")
+
+        if argument:
+            arg = argument.replace("~", "")
+            if arg.startswith("-"):
+                lines = [line for line in description.splitlines() if line.strip() != ""]
+                if not lines:
+                    context.finish()
+                    return "No lines left to remove.\r\n"
+                lines = lines[:-1]
+                character.description = ("\r\n".join(lines) + ("\r\n" if lines else ""))
+                if lines:
+                    context.finish()
+                    return "Your description is:\r\n" + character.description
+                context.finish()
+                return "Description cleared.\r\n"
+
+            if arg.startswith("+"):
+                append_text = arg[1:].lstrip()
+                new_desc = description + append_text + "\r\n"
+            else:
+                new_desc = arg + "\r\n"
+
+            if len(new_desc) >= 1024:
+                context.finish()
+                return "Description too long.\r\n"
+            character.description = new_desc
+
+        final_desc = getattr(character, "description", None)
+        context.finish()
+        if final_desc:
+            return "Your description is:\r\n" + final_desc
+        return "Your description is:\r\n(None).\r\n"
+
+    def do_report(self, character: Character):
+        room = self.room_registry.get_or_none(id=character.room_id)
+        in_room = self.player_helper.players_in_room(character, room) if room is not None else []
+        say_text = (
+            f"I have {character.hit}/{character.max_hit} hp "
+            f"{character.mana}/{character.max_mana} mana "
+            f"{character.movement}/{character.max_movement} mv "
+            f"{character.experience} xp."
+        )
+        return {
+            "in_room": in_room,
+            "to_char": f"You say '{say_text}'\r\n",
+            "to_room": f"{character.name} says '{say_text}'\r\n",
+        }
+
+    def do_worth(self, character: Character, context: Context) -> str:
+        if self.character_macros.is_npc(character):
+            context.finish()
+            return f"You have {character.gold} gold and {character.silver} silver.\r\n"
+
+        exp_to_level = GenericUtil.to_int(getattr(character, "accumulated_experience", 0), 0) - GenericUtil.to_int(character.experience, 0)
+        if exp_to_level < 0:
+            exp_to_level = 0
+        context.finish()
+        return (
+            f"You have {character.gold} gold, {character.silver} silver, and "
+            f"{character.experience} experience ({exp_to_level} exp to level).\r\n"
+        )
+
+    def do_affects(self, character: Character, context: Context) -> str:
+        affected_bits = self.character_macros.AffectedBits
+        if affected_bits is None:
+            context.finish()
+            return "You are not affected by any spells.\r\n"
+
+        raw = int(self.character_macros.convert_flags(getattr(character.character_flags, "affected_by", "") or ""))
+        lines = []
+        for name, member in affected_bits.__members__.items():
+            if self.character_macros.is_set(raw, member.value):
+                pretty = name.replace("AFF_", "").replace("_", " ").lower()
+                lines.append(f"Spell: {pretty}\r\n")
+
+        context.finish()
+        if not lines:
+            return "You are not affected by any spells.\r\n"
+        return "You are affected by the following spells:\r\n" + "".join(lines)
+
+    def do_autolist(self, character: Character, context: Context) -> str:
+        if self.character_macros.is_npc(character):
+            context.finish()
+            return ""
+
+        act_bits = self.PlayerActBits
+        comm_bits = self.character_macros.enums.get("commFlags")
+        act = self._get_act_flags(character)
+        comm = self._get_comm_flags(character)
+
+        def on_off(value: bool) -> str:
+            return "ON" if value else "OFF"
+
+        def act_enabled(name: str) -> bool:
+            if act_bits is None or not hasattr(act_bits, name):
+                return False
+            return self.character_macros.is_set(act, getattr(act_bits, name).value)
+
+        lines = [
+            "   action     status\r\n",
+            "---------------------\r\n",
+            f"autoassist     {on_off(act_enabled('PLR_AUTOASSIST'))}\r\n",
+            f"autoexit       {on_off(act_enabled('PLR_AUTOEXIT'))}\r\n",
+            f"autogold       {on_off(act_enabled('PLR_AUTOGOLD'))}\r\n",
+            f"autoloot       {on_off(act_enabled('PLR_AUTOLOOT'))}\r\n",
+            f"autosac        {on_off(act_enabled('PLR_AUTOSAC'))}\r\n",
+            f"autosplit      {on_off(act_enabled('PLR_AUTOSPLIT'))}\r\n",
+        ]
+        if comm_bits is not None:
+            def comm_enabled(name: str) -> bool:
+                if not hasattr(comm_bits, name):
+                    return False
+                return self.character_macros.is_set(comm, getattr(comm_bits, name).value)
+            lines.extend([
+                f"compact mode   {on_off(comm_enabled('COMM_COMPACT'))}\r\n",
+                f"prompt         {on_off(comm_enabled('COMM_PROMPT'))}\r\n",
+                f"combine items  {on_off(comm_enabled('COMM_COMBINE'))}\r\n",
+            ])
+        if hasattr(act_bits, "PLR_CANLOOT"):
+            if not self.character_macros.is_set(act, getattr(act_bits, "PLR_CANLOOT").value):
+                lines.append("Your corpse is safe from thieves.\r\n")
+            else:
+                lines.append("Your corpse may be looted.\r\n")
+        if hasattr(act_bits, "PLR_NOSUMMON"):
+            if self.character_macros.is_set(act, getattr(act_bits, "PLR_NOSUMMON").value):
+                lines.append("You cannot be summoned.\r\n")
+            else:
+                lines.append("You can be summoned.\r\n")
+        if hasattr(act_bits, "PLR_NOFOLLOW"):
+            if self.character_macros.is_set(act, getattr(act_bits, "PLR_NOFOLLOW").value):
+                lines.append("You do not welcome followers.\r\n")
+            else:
+                lines.append("You accept followers.\r\n")
+
+        context.finish()
+        return "".join(lines)
+
+    def do_autoassist(self, character: Character, context: Context) -> str:
+        text = self._toggle_player_act(character, "PLR_AUTOASSIST", "Autoassist removed.\r\n", "You will now assist when needed.\r\n")
+        context.finish()
+        return text
+
+    def do_autoexit(self, character: Character, context: Context) -> str:
+        text = self._toggle_player_act(character, "PLR_AUTOEXIT", "Exits will no longer be displayed.\r\n", "Exits will now be displayed.\r\n")
+        context.finish()
+        return text
+
+    def do_autogold(self, character: Character, context: Context) -> str:
+        text = self._toggle_player_act(character, "PLR_AUTOGOLD", "Autogold removed.\r\n", "Automatic gold looting set.\r\n")
+        context.finish()
+        return text
+
+    def do_autoloot(self, character: Character, context: Context) -> str:
+        text = self._toggle_player_act(character, "PLR_AUTOLOOT", "Autolooting removed.\r\n", "Automatic corpse looting set.\r\n")
+        context.finish()
+        return text
+
+    def do_autosac(self, character: Character, context: Context) -> str:
+        text = self._toggle_player_act(character, "PLR_AUTOSAC", "Autosacrificing removed.\r\n", "Automatic corpse sacrificing set.\r\n")
+        context.finish()
+        return text
+
+    def do_autosplit(self, character: Character, context: Context) -> str:
+        text = self._toggle_player_act(character, "PLR_AUTOSPLIT", "Autosplitting removed.\r\n", "Automatic gold splitting set.\r\n")
+        context.finish()
+        return text
+
+    def do_brief(self, character: Character, context: Context) -> str:
+        text = self._toggle_comm(character, "COMM_BRIEF", "Full descriptions activated.\r\n", "Short descriptions activated.\r\n")
+        context.finish()
+        return text
+
+    def do_compact(self, character: Character, context: Context) -> str:
+        text = self._toggle_comm(character, "COMM_COMPACT", "Compact mode removed.\r\n", "Compact mode set.\r\n")
+        comm_bits = self.character_macros.enums.get("commFlags")
+        comm = self._get_comm_flags(character)
+        is_compact = (
+            comm_bits is not None
+            and hasattr(comm_bits, "COMM_COMPACT")
+            and self.character_macros.is_set(comm, comm_bits.COMM_COMPACT.value)
+        )
+        character.carriage_return = not is_compact
+        if getattr(character, "prompt_format", None) is not None:
+            character.prompt_format.carriage_return = not is_compact
+        context.finish()
+        return text
+
+    def do_combine(self, character: Character, context: Context) -> str:
+        text = self._toggle_comm(character, "COMM_COMBINE", "Long inventory selected.\r\n", "Combined inventory selected.\r\n")
+        context.finish()
+        return text
+
+    def do_noloot(self, character: Character, context: Context) -> str:
+        text = self._toggle_player_act(
+            character,
+            "PLR_CANLOOT",
+            "Your corpse is now safe from thieves.\r\n",
+            "Your corpse may now be looted.\r\n",
+        )
+        context.finish()
+        return text
+
+    def do_nofollow(self, character: Character, context: Context) -> str:
+        text = self._toggle_player_act(
+            character,
+            "PLR_NOFOLLOW",
+            "You now accept followers.\r\n",
+            "You no longer accept followers.\r\n",
+        )
+        context.finish()
+        return text
+
+    def do_nosummon(self, character: Character, context: Context) -> str:
+        text = self._toggle_player_act(
+            character,
+            "PLR_NOSUMMON",
+            "You are now summonable.\r\n",
+            "You are no longer summonable.\r\n",
+        )
+        context.finish()
+        return text
+
+    def do_read(self, character: Character, context: Context) -> dict:
+        arg = (context.result if isinstance(context.result, str) else "").strip()
+        if not arg and context.parameters:
+            arg = " ".join(context.parameters).strip()
+        if not arg:
+            return {"look": True}
+        return {"argument": arg}
+
+    def do_examine(self, character: Character, context: Context) -> dict:
+        arg = (context.result if isinstance(context.result, str) else "").strip()
+        if not arg and context.parameters:
+            arg = " ".join(context.parameters).strip()
+        if not arg:
+            context.finish()
+            return {"error": "Examine what?\r\n"}
+
+        room = self.room_registry.get_or_none(id=character.room_id)
+        obj = ItemUtil.find_item(character, room, arg) if room is not None else None
+        look_in = bool(obj is not None and (ItemUtil.is_container_like(obj) or ItemUtil.is_drink_container(obj)))
+        return {"argument": arg, "look_in": look_in}
+
+    def do_whois(self, character: Character, context: Context) -> str:
+        arg = (context.result if isinstance(context.result, str) else "").strip().lower()
+        if not arg:
+            context.finish()
+            return self.do_who(character)
+
+        matches = []
+        for c in [character] + PlayerUtil.visible(character, self.session_handler):
+            name = (c.name or "").lower()
+            if name == arg or name.startswith(arg):
+                matches.append(c)
+
+        context.finish()
+        if not matches:
+            return "No one by that name is playing.\r\n"
+
+        lines = [
+            f"[{c.level}    {c.race}    {c.character_class.name}] {c.name} {c.title}\r\n"
+            for c in matches
+        ]
+        return "".join(lines)
+
+    def do_count(self, context: Context) -> str:
+        count = len(self.session_handler.get_playing_sessions())
+        context.finish()
+        if count == 1:
+            return "There is 1 player online.\r\n"
+        return f"There are {count} players online.\r\n"
+
+    def _toggle_player_act(self, character: Character, bit_name: str, off_text: str, on_text: str) -> str:
+        if self.character_macros.is_npc(character):
+            return ""
+        if self.PlayerActBits is None or not hasattr(self.PlayerActBits, bit_name):
+            return ""
+
+        bit_value = getattr(self.PlayerActBits, bit_name).value
+        act = self._get_act_flags(character)
+        if self.character_macros.is_set(act, bit_value):
+            act = self.character_macros.unset_bit(act, bit_value)
+            self._set_act_flags(character, act)
+            return off_text
+
+        act = self.character_macros.set_bit(act, bit_value)
+        self._set_act_flags(character, act)
+        return on_text
+
+    def _get_act_flags(self, character: Character) -> int:
+        return int(self.character_macros.convert_flags(getattr(character.character_flags, "act", "0") or "0"))
+
+    def _set_act_flags(self, character: Character, value: int) -> None:
+        character.character_flags.act = self._flags_to_letters(value)
+
+    def _get_comm_flags(self, character: Character) -> int:
+        return int(self.character_macros.convert_flags(getattr(character.character_flags, "comm", "0") or "0"))
+
+    def _set_comm_flags(self, character: Character, value: int) -> None:
+        character.character_flags.comm = self._flags_to_letters(value)
+
+    def _toggle_comm(self, character: Character, bit_name: str, off_text: str, on_text: str) -> str:
+        comm_bits = self.character_macros.enums.get("commFlags")
+        if comm_bits is None or not hasattr(comm_bits, bit_name):
+            return ""
+
+        bit_value = getattr(comm_bits, bit_name).value
+        comm = self._get_comm_flags(character)
+        if self.character_macros.is_set(comm, bit_value):
+            comm = self.character_macros.unset_bit(comm, bit_value)
+            self._set_comm_flags(character, comm)
+            return off_text
+
+        comm = self.character_macros.set_bit(comm, bit_value)
+        self._set_comm_flags(character, comm)
+        return on_text
+
+    @staticmethod
+    def _flags_to_letters(value: int) -> str:
+        if value <= 0:
+            return ""
+        letters = []
+        for bit in range(26):
+            if value & (1 << bit):
+                letters.append(chr(ord('A') + bit))
+        return "".join(letters)
+
     def _score_position_line(self, attributes: Any) -> str:
         position_value = GenericUtil.to_int(getattr(attributes, "position", 0), 0)
         positions = self.character_macros.PositionsEnum
@@ -563,4 +912,3 @@ class InfoCommands:
         if position_value == pos_fighting:
             return "You are fighting."
         return "You are standing."
-

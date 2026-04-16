@@ -99,7 +99,7 @@
     "shortcuts": "exam, exami, examin",
     "role": "player",
     "lambdas": [
-      "lambda ctx: ctx.item_handler().look_item_or_extra(ctx.character, ctx)"
+      "lambda ctx: ctx.player_handler().do_examine(ctx.character, ctx)"
     ],
     "message": "",
     "function": [],
@@ -108,7 +108,7 @@
     "position": "POS_RESTING",
     "level": 0,
     "log": "LOG_NORMAL",
-    "usage": "lambda ctx: ctx.player_handler.to_player(ctx.character.id, \"You must specify a valid item in your inventory.\")",
+    "usage": "",
     "pipeline": false,
     "maxArguments": 1
   },
@@ -625,9 +625,12 @@
     "name": "affects",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_affects(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_DEAD",
@@ -740,7 +743,9 @@
     "name": "count",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_count(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -839,7 +844,9 @@
     "name": "motd",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: (setattr(ctx, 'result', 'motd') or ctx.player_handler().do_help(ctx.character, ctx))"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -871,7 +878,9 @@
     "name": "read",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_read(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -880,16 +889,19 @@
     "level": 0,
     "log": "LOG_NORMAL",
     "pipeline": false,
-    "maxArguments": 0
+    "maxArguments": 1
   },
   {
     "_id": { "$oid": "69bc3df3af6857ce485bb9af" },
     "name": "report",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_report(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_RESTING",
@@ -903,7 +915,9 @@
     "name": "rules",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: (setattr(ctx, 'result', 'rules') or ctx.player_handler().do_help(ctx.character, ctx))"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -954,7 +968,9 @@
     "name": "socials",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: (setattr(ctx, 'result', 'socials') or ctx.player_handler().do_help(ctx.character, ctx))"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -1002,7 +1018,9 @@
     "name": "story",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: (setattr(ctx, 'result', 'story') or ctx.player_handler().do_help(ctx.character, ctx))"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -1072,7 +1090,9 @@
     "name": "whois",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_whois(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -1081,7 +1101,7 @@
     "level": 0,
     "log": "LOG_NORMAL",
     "pipeline": false,
-    "maxArguments": 0
+    "maxArguments": 1
   },
   {
     "_id": { "$oid": "69bc3df3af6857ce485bb9bb" },
@@ -1104,9 +1124,12 @@
     "name": "worth",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_worth(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_SLEEPING",
@@ -1152,9 +1175,12 @@
     "name": "autolist",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_autolist(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_DEAD",
@@ -1168,9 +1194,12 @@
     "name": "autoassist",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_autoassist(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_DEAD",
@@ -1184,9 +1213,12 @@
     "name": "autoexit",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_autoexit(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_DEAD",
@@ -1200,9 +1232,12 @@
     "name": "autogold",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_autogold(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_DEAD",
@@ -1216,9 +1251,12 @@
     "name": "autoloot",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_autoloot(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_DEAD",
@@ -1232,9 +1270,12 @@
     "name": "autosac",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_autosac(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_DEAD",
@@ -1248,9 +1289,12 @@
     "name": "autosplit",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_autosplit(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_DEAD",
@@ -1264,9 +1308,12 @@
     "name": "brief",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_brief(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_DEAD",
@@ -1280,9 +1327,12 @@
     "name": "combine",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_combine(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_DEAD",
@@ -1296,9 +1346,12 @@
     "name": "compact",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_compact(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_DEAD",
@@ -1312,9 +1365,12 @@
     "name": "description",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_description(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_DEAD",
@@ -1360,7 +1416,9 @@
     "name": "nofollow",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_nofollow(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -1376,7 +1434,9 @@
     "name": "noloot",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_noloot(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -1392,7 +1452,9 @@
     "name": "nosummon",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_nosummon(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -1475,9 +1537,12 @@
     "name": "title",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_title(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_DEAD",
@@ -3705,7 +3770,9 @@
     "name": "imotd",
     "shortcuts": "",
     "role": "immortal",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: (setattr(ctx, 'result', 'imotd') or ctx.player_handler().do_help(ctx.character, ctx))"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
