@@ -29,6 +29,8 @@ class AreaUtil:
             dir_name = "Up"
         elif direction == DirectionEnum.DOWN:
             dir_name = "Down"
+        if vnum is None:
+            return f"{dir_name:{width}}{'- '}{description}"
         return f"{dir_name:{width}}{'- '}{description} ({vnum})"
 
     @staticmethod

@@ -63,8 +63,12 @@ class RoomHandler:
             if destination is None:
                 continue
             destination_room: Room = self.room_registry.get(id=destination)
-            line = AreaUtil.align_exits(direction.direction, destination_room.name, destination_room.vnum, width=6)
-            lines.append(line)
+            if self.room_helper.can_see_room_vnum(character):
+                line = AreaUtil.align_exits(direction.direction, destination_room.name, destination_room.vnum, width=6)
+                lines.append(line)
+            else:
+                line = AreaUtil.align_exits(direction.direction, destination_room.name, None, width=6)
+                lines.append(line)
 
         text = "\n".join(lines) + "\n"
         message = self.message_bus.text_to_message(text)
