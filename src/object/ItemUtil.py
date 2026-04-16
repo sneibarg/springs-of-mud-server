@@ -3,7 +3,6 @@ from enum import IntEnum
 from area import Room
 from game.GameMacros import GameMacros
 from game.RandomNumberGenerator import RandomNumberGenerator
-from object import ObjectMacros
 from object.ExtraDescriptionData import ExtraDescriptionData
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
@@ -297,7 +296,7 @@ class ItemUtil:
         return lines
 
     @staticmethod
-    def create_object(pObjIndex: Item, enums: dict[str, type[IntEnum]] = None, object_macros: ObjectMacros = None):
+    def create_object(pObjIndex: Item):
         from server.ServerUtil import ServerUtil
         if pObjIndex is None:
             logger.error("create_object: NULL pObjIndex.")
@@ -346,3 +345,31 @@ class ItemUtil:
 
         pObjIndex.count = getattr(pObjIndex, "count", 0) + 1
         return item
+
+    @staticmethod
+    def find_world_object_instance(room_registry, target_vnum: str):
+        def _walk(items, in_room: bool):
+            for obj in items:
+                if str(getattr(obj, "vnum", "")) == target_vnum:
+                    return obj, in_room
+                found_obj, found_in_room = _walk(getattr(obj, "contains", []) or [], False)
+                if found_obj is not None:
+                    return found_obj, found_in_room
+            return None, False
+
+        for room_id in room_registry.all_rooms():
+            room = room_registry.get_or_none(id=room_id)
+            if room is None:
+                continue
+            obj, in_room = _walk(room.contents.values(), True)
+            if obj is not None:
+                return obj, in_room
+        return None, False
+
+    @staticmethod
+    def count_obj_list(target_vnum: str, items: list) -> int:
+        count = 0
+        for obj in items or []:
+            if str(getattr(obj, "vnum", "")) == target_vnum:
+                count += 1
+        return count

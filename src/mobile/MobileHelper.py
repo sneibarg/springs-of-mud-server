@@ -24,8 +24,10 @@ class MobileHelper:
         room = self.room_registry.get(id=character.room_id)
         for char_in_room in self.mobiles_in_room(character, room):
             name = (char_in_room.long_description or "").strip()
-            if not name:
-                text = text + f"{char_in_room.short_description or char_in_room.name} is here."
+            if name:
+                text += name + "\r\n"
+            else:
+                text += f"{char_in_room.short_description or char_in_room.name} is here.\r\n"
         return text
 
     def mobiles_in_room(self, character: Character, room: Room) -> List[Mobile]:

@@ -2,6 +2,7 @@ import threading
 
 from dataclasses import dataclass, field
 from typing import Optional
+from game.Equipped import Equipped
 from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice
 from mobile.MobileFlags import MobileFlags
@@ -50,6 +51,7 @@ class Mobile:
     mana_dice: Optional[Dice] = None
     damage_dice: Optional[Dice] = None
     mobile_flags: Optional[MobileFlags] = None
+    equipped: Optional[Equipped] = None
     lock: threading.Lock = field(default_factory=threading.Lock)
 
     def __post_init__(self):

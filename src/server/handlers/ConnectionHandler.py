@@ -20,6 +20,7 @@ from server.LoggerFactory import LoggerFactory
 from player.Player import Player
 from player.Character import Character
 from player.PlayerHelper import PlayerHelper
+from mobile.MobileHelper import MobileHelper
 from game.RegistryService import RegistryService
 
 
@@ -33,7 +34,8 @@ class ConnectionHandler:
                  room_handler: RoomHandler,
                  auth_service: AuthenticationService,
                  command_handler: InterpHandler,
-                 player_helper: PlayerHelper):
+                 player_helper: PlayerHelper,
+                 mobile_helper: MobileHelper):
         self.logger = LoggerFactory.get_logger(__name__)
         self.session_handler = session_handler
         self.connection_manager = connection_manager
@@ -43,6 +45,7 @@ class ConnectionHandler:
         self.auth_service = auth_service
         self.command_handler = command_handler
         self.player_helper = player_helper
+        self.mobile_helper = mobile_helper
 
     async def _receive_initial_message(self, connection: TelnetConnection, session: SessionState) -> tuple[bool, str | None, Character | None] | tuple[bool, None, None]:
         first_msg = await connection.receive_message()
@@ -91,6 +94,9 @@ class ConnectionHandler:
                 if room is not None:
                     room.add_player_to_room(character)
                     await self.room_handler.print_room(character.id, room)
+                    mobiles_text = self.mobile_helper.get_mobiles_in_room(character)
+                    if mobiles_text:
+                        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(mobiles_text))
                     await self.message_bus.send_prompt(character.id, character, area, room)
                     await self.message_bus.send_to_room(to_room, in_room)
 

@@ -15,6 +15,7 @@ class Equipped:
     legs: Optional[Item] = None
     feet: Optional[Item] = None
     hands: Optional[Item] = None
+    arms: Optional[Item] = None
     shield: Optional[Item] = None
     body: Optional[Item] = None
     waist: Optional[Item] = None

@@ -1,5 +1,6 @@
 from injector import inject
 from area.RoomHelper import RoomHelper
+from game.GameMacros import GameMacros
 from object.ObjectMacros import ObjectMacros
 from player.Character import Character
 from object.Item import Item
@@ -24,7 +25,7 @@ class ObjectHelper:
         if not self.character_macros.is_npc(character) and self.character_macros.is_set(int(self.character_macros.convert_flags(character.character_flags.act)), self.PlayerActBits.PLR_HOLYLIGHT.value):
             return True
 
-        if self.object_macros.is_set(int(obj.extra_flags), self.ItemFlags.ITEM_VIS_DEATH.value):
+        if self.object_macros.is_set(GameMacros.convert_flags(obj.extra_flags), self.ItemFlags.ITEM_VIS_DEATH.value):
             return False
 
         if self.character_macros.is_affected(character, self.AffectBits.AFF_BLIND.value) and obj.item_type != self.ItemTypes.ITEM_POTION.value:
@@ -33,10 +34,10 @@ class ObjectHelper:
         if obj.item_type == self.ItemTypes.ITEM_LIGHT.value and int(obj.value2) != 0:
             return True
 
-        if self.object_macros.is_set(int(obj.extra_flags), self.ItemFlags.ITEM_INVIS.value and not self.character_macros.is_affected(character, self.AffectBits.AFF_DETECT_INVIS.value)):
+        if self.object_macros.is_set(GameMacros.convert_flags(obj.extra_flags), self.ItemFlags.ITEM_INVIS.value and not self.character_macros.is_affected(character, self.AffectBits.AFF_DETECT_INVIS.value)):
             return False
 
-        if self.object_macros.is_set(int(obj.extra_flags), self.ItemFlags.ITEM_GLOW.value):
+        if self.object_macros.is_set(GameMacros.convert_flags(obj.extra_flags), self.ItemFlags.ITEM_GLOW.value):
             return True
 
         if self.room_helper.is_room_dark(character.room_id) and not self.character_macros.is_affected(character, self.AffectBits.AFF_DARK_VISION.value):
