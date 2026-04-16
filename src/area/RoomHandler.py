@@ -7,6 +7,7 @@ from area.Room import Room
 from area.RoomHelper import RoomHelper
 from game.RegistryService import RegistryService
 from interp.Context import Context
+from object.ItemUtil import ItemUtil
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 from server.messaging import MessageBus
@@ -48,7 +49,10 @@ class RoomHandler:
         else:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(f"You can't go that direction!\r\n"))
 
-    async def print_exits(self, character: Character, room: Room):
+    async def print_exits(self, character: Character):
+        room = self.room_registry.get(id=character.room_id)
+        if room is None:
+            return
         if self.room_helper.can_see_room_vnum(character):
             lines = [f"Obvious exits from room {room.vnum}:"]
         else:
@@ -59,8 +63,12 @@ class RoomHandler:
             if destination is None:
                 continue
             destination_room: Room = self.room_registry.get(id=destination)
-            line = AreaUtil.align_exits(direction.direction, destination_room.name, destination_room.vnum, width=6)
-            lines.append(line)
+            if self.room_helper.can_see_room_vnum(character):
+                line = AreaUtil.align_exits(direction.direction, destination_room.name, destination_room.vnum, width=6)
+                lines.append(line)
+            else:
+                line = AreaUtil.align_exits(direction.direction, destination_room.name, None, width=6)
+                lines.append(line)
 
         text = "\n".join(lines) + "\n"
         message = self.message_bus.text_to_message(text)
@@ -70,8 +78,10 @@ class RoomHandler:
         if room is None:
             self.logger.error(f"Attempted to print room to character {character_id} but room is None")
             return
-        await self.message_bus.send_to_character(character_id,
-                                                 self.room_helper.format_room_description(room.name, room.description))
+        await self.message_bus.send_to_character(character_id, self.room_helper.format_room_description(room.name, room.description))
+        lines = ItemUtil.room_items(room)
+        if lines:
+            await self.message_bus.send_to_character(character_id, self.message_bus.text_to_message("\r\n".join(lines) + "\r\n"))
 
     async def look_direction(self, character: Character, context: Context):
         token = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip()

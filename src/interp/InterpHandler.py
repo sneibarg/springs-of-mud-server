@@ -86,8 +86,7 @@ class InterpHandler:
         arguments = InterpUtil.build_arguments(command, parameters)
         connection = self.connection_manager.get_connection_by_character(character.id)
         context = Context(character=character, handler_service=self.handler_service, conn=connection, command=command, parameters=arguments, result=parameters)
-        print(f"Context.parameters: {context.parameters}; context.command.max_arguments: {context.command.max_arguments}; len(arguments): {len(arguments)}")
-        if len(arguments) < command.max_arguments and command.usage is not "":
+        if len(arguments) < command.max_arguments and command.usage != "":
             await self.handle_usage(command, context)
             return None
 

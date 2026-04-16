@@ -3,8 +3,8 @@ import json
 from enum import IntEnum
 from typing import Tuple
 
-from area import Room
 from game.GameMacros import GameMacros
+from game.Equipped import Equipped, WEAR_LOC_TO_EQUIPPED_SLOT
 from mobile.Mobile import Mobile
 from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice
@@ -13,7 +13,6 @@ from game.RandomNumberGenerator import RandomNumberGenerator
 from object.AffectData import AffectWhere, AffectData
 from object.ObjectMacros import ObjectMacros
 from player.CharacterMacros import CharacterMacros
-from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 
 logger = LoggerFactory.get_logger('MobileUtil')
@@ -416,16 +415,18 @@ class MobileUtil:
         return mob
 
     @staticmethod
-    def char_from_room(char: Any, room: Room):
-        if type(char) is Character and char.id in room.characters:
-            del room.characters[char.id]
-        if type(char) is Mobile and char.id in room.mobiles:
-            del room.mobiles[char.id]
+    def add_inventory_item(mob: Mobile, item):
+        if not hasattr(mob, "inventory") or getattr(mob, "inventory", None) is None:
+            mob.inventory = []
+        mob.inventory.append(item)
 
     @staticmethod
-    def char_to_room(char: Any, room: Room):
-        char.room_id = room.id
-        if type(char) is Character and char.id not in room.characters:
-            room.characters[char.id] = char
-        if type(char) is Mobile and char.id not in room.mobiles:
-            room.mobiles[char.id] = char
+    def equip_item(mob: Mobile, item, wear_loc: int):
+        MobileUtil.add_inventory_item(mob, item)
+        if not hasattr(mob, "equipped") or getattr(mob, "equipped", None) is None:
+            mob.equipped = Equipped()
+
+        slot = WEAR_LOC_TO_EQUIPPED_SLOT.get(int(wear_loc))
+        if slot and hasattr(mob.equipped, slot):
+            setattr(mob.equipped, slot, item)
+        item.wear_loc = int(wear_loc)

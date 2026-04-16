@@ -29,6 +29,8 @@ class AreaUtil:
             dir_name = "Up"
         elif direction == DirectionEnum.DOWN:
             dir_name = "Down"
+        if vnum is None:
+            return f"{dir_name:{width}}{'- '}{description}"
         return f"{dir_name:{width}}{'- '}{description} ({vnum})"
 
     @staticmethod
@@ -60,3 +62,66 @@ class AreaUtil:
             if destination.direction == DirectionEnum[direction.upper()].value:
                 return destination.to_room_id
         return None
+
+    @staticmethod
+    def get_exit_by_direction(room, direction: int):
+        for exit_obj in room.exits:
+            if int(getattr(exit_obj, "direction", -1)) == int(direction):
+                return exit_obj
+        return None
+
+    @staticmethod
+    def _exit_flag_value(exit_flags_enum, *names: str) -> int:
+        if exit_flags_enum is None:
+            return 0
+        for name in names:
+            member = getattr(exit_flags_enum, name, None)
+            if member is not None:
+                return int(member.value)
+        return 0
+
+    @staticmethod
+    def apply_door_reset(exit_obj, lock_state: int, exit_flags_enum):
+        if exit_obj is None:
+            return
+        is_door = AreaUtil._exit_flag_value(exit_flags_enum, "IS_DOOR", "EX_ISDOOR")
+        closed = AreaUtil._exit_flag_value(exit_flags_enum, "CLOSED", "EX_CLOSED")
+        locked = AreaUtil._exit_flag_value(exit_flags_enum, "LOCKED", "EX_LOCKED")
+        flags = int(getattr(exit_obj, "exit_flags", 0) or 0)
+        if is_door and (flags & is_door) == 0:
+            return
+
+        if lock_state == 0:
+            flags &= ~closed
+            flags &= ~locked
+        elif lock_state == 1:
+            flags |= closed
+            flags &= ~locked
+        elif lock_state == 2:
+            flags |= closed
+            flags |= locked
+        exit_obj.exit_flags = flags
+
+    @staticmethod
+    def randomize_room_exits(room, max_exits: int, rng):
+        if room is None or max_exits <= 1:
+            return
+
+        slots = {i: None for i in range(6)}
+        for exit_obj in room.exits:
+            direction = int(getattr(exit_obj, "direction", -1))
+            if 0 <= direction <= 5:
+                slots[direction] = exit_obj
+
+        upper = min(max_exits, 6)
+        for d0 in range(upper - 1):
+            d1 = rng.number_range(d0, upper - 1)
+            slots[d0], slots[d1] = slots[d1], slots[d0]
+
+        rebuilt = []
+        for direction in range(6):
+            exit_obj = slots[direction]
+            if exit_obj is not None:
+                exit_obj.direction = direction
+                rebuilt.append(exit_obj)
+        room.exits = rebuilt

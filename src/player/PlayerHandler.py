@@ -9,12 +9,34 @@ from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from player.PlayerUtil import PlayerUtil
 from player.PlayerHelper import PlayerHelper
+from object.ItemUtil import ItemUtil
 from server.messaging import MessageBus
 from server.session.SessionHandler import SessionHandler
 from server.LoggerFactory import LoggerFactory
 
 
 class PlayerHandler:
+    EQUIP_SLOT_LABELS = [
+        ("light", "<used as light>      "),
+        ("finger1", "<worn on finger>    "),
+        ("finger2", "<worn on finger>    "),
+        ("neck1", "<worn around neck>   "),
+        ("neck2", "<worn around neck>   "),
+        ("torso", "<worn on torso>      "),
+        ("head", "<worn on head>       "),
+        ("legs", "<worn on legs>       "),
+        ("feet", "<worn on feet>       "),
+        ("hands", "<worn on hands>      "),
+        ("arms", "<worn on arms>       "),
+        ("shield", "<worn as shield>     "),
+        ("body", "<worn about body>     "),
+        ("waist", "<worn about waist>    "),
+        ("wrist1", "<worn around wrist>  "),
+        ("wrist2", "<worn around wrist>  "),
+        ("wielded", "<wielded>            "),
+        ("held", "<held>               "),
+        ("floating_nearby", "<floating nearby>    "),
+    ]
     @inject
     def __init__(self, message_bus: MessageBus,
                  registry_service: RegistryService,
@@ -95,14 +117,87 @@ class PlayerHandler:
             context.jump_to(4)
             return
 
-        header = target.name or "Someone"
-        desc = (target.description or "").strip() or "You see nothing special."
-        text = f"{header}\r\n{desc}\r\n"
+        desc = (getattr(target, "description", "") or "").strip()
+        if not desc:
+            desc = "You see nothing special."
+
+        lines = [desc, self._target_condition_line(target)]
+        equip_lines = self._target_equipment_lines(target)
+        if equip_lines:
+            lines.append("")
+            lines.append(f"{(target.name or 'They')} is using:")
+            lines.extend(equip_lines)
+
+        text = "\r\n".join(lines) + "\r\n"
         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
         context.finish()
 
+    @staticmethod
+    def _target_condition_line(target: Any) -> str:
+        hit = getattr(target, "hit", getattr(target, "health", 0))
+        max_hit = getattr(target, "max_hit", getattr(target, "max_health", 0))
+        try:
+            hit = int(hit)
+            max_hit = int(max_hit)
+        except (TypeError, ValueError):
+            hit, max_hit = 0, 0
+
+        if max_hit > 0:
+            percent = (100 * hit) // max_hit
+        else:
+            percent = -1
+
+        name = (getattr(target, "name", None) or "They")
+        if percent >= 100:
+            return f"{name} is in excellent condition."
+        if percent >= 90:
+            return f"{name} has a few scratches."
+        if percent >= 75:
+            return f"{name} has some small wounds and bruises."
+        if percent >= 50:
+            return f"{name} has quite a few wounds."
+        if percent >= 30:
+            return f"{name} has some big nasty wounds and scratches."
+        if percent >= 15:
+            return f"{name} looks pretty hurt."
+        if percent >= 0:
+            return f"{name} is in awful condition."
+        return f"{name} is bleeding to death."
+
+    def _target_equipment_lines(self, target: Any) -> list[str]:
+        item_flags = self.character_macros.enums.get("itemFlags")
+        lines = []
+
+        equipped = getattr(target, "equipped", None)
+        for slot, label in self.EQUIP_SLOT_LABELS:
+            obj = None
+            if equipped is not None:
+                obj = equipped.get(slot) if isinstance(equipped, dict) else getattr(equipped, slot, None)
+            if obj is None:
+                obj = self._find_inventory_item_for_slot(target, slot)
+                if obj is None:
+                    continue
+            item_text = ItemUtil.format_obj_to_char(obj, item_flags_enum=item_flags, f_short=True)
+            lines.append(f"{label}{item_text}")
+        return lines
+
+    @staticmethod
+    def _find_inventory_item_for_slot(target: Any, slot: str):
+        from game.Equipped import WEAR_LOC_TO_EQUIPPED_SLOT
+        wanted_locs = [loc for loc, slot_name in WEAR_LOC_TO_EQUIPPED_SLOT.items() if slot_name == slot]
+        if not wanted_locs:
+            return None
+        inventory = getattr(target, "inventory", None) or []
+        for item in inventory:
+            try:
+                wear_loc = int(getattr(item, "wear_loc", -1))
+            except (TypeError, ValueError):
+                wear_loc = -1
+            if wear_loc in wanted_locs:
+                return item
+        return None
+
     async def do_look(self, character: Character, context: Context):
-        direction_map = {"n": 0, "north": 0, "e": 1, "east": 1, "s": 2, "south": 2, "w": 3, "west": 3, "u": 4, "up": 4, "d": 5, "down": 5}
         if not self.command_helper.check_position(character):
             context.finish()
             return
@@ -125,13 +220,10 @@ class PlayerHandler:
             context.finish()
             return
 
-        print(f"arg1 is {arg1}")
         if arg1 == "" or arg1 == "auto":
             await context.room_handler().print_room(character.id, room)
             if self.character_macros.is_set(int(self.character_macros.convert_flags(character.character_flags.act)), self.PlayerActBits.PLR_AUTOEXIT.value):
                 await context.room_handler().print_exits(character, room)
-
-            await context.item_handler().look_room_items(character)
             context.jump_to(1)  # players + mobiles
             return
 
@@ -139,8 +231,5 @@ class PlayerHandler:
             context.jump_to(2)
             return
 
-        if arg1 in direction_map:
-            print(f"Looking in direction {arg1}")
-            context.jump_to(5)
-
         context.jump_to(3)
+        return

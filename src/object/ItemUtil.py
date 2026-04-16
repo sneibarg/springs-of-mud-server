@@ -2,13 +2,14 @@ from enum import IntEnum
 
 from area import Room
 from game.GameMacros import GameMacros
+from game.RandomNumberGenerator import RandomNumberGenerator
 from object.ExtraDescriptionData import ExtraDescriptionData
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 from object.Item import Item
 from object.AffectData import AffectData, AffectWhere
 
-
+rng = RandomNumberGenerator()
 logger = LoggerFactory.get_logger('ItemUtil')
 
 
@@ -285,9 +286,119 @@ class ItemUtil:
     def room_items(room: Room) -> list:
         lines = []
         for item in room.contents.values():
-            line = (item.long_description or "").strip()
-            if not line:
+            raw_long = item.long_description or ""
+            line = raw_long.rstrip("\r\n")
+            if not raw_long.strip():
                 line = item.short_description or item.name
             if line:
+                line = f"    {line}"
                 lines.append(line)
         return lines
+
+    @staticmethod
+    def _is_item_flag_set(obj: Item, flag_value: int) -> bool:
+        try:
+            flags = int(getattr(obj, "extra_flags", 0) or 0)
+        except (TypeError, ValueError):
+            try:
+                flags = GameMacros.convert_flags(str(getattr(obj, "extra_flags", "0") or "0"))
+            except Exception:
+                flags = 0
+        return (flags & int(flag_value)) != 0
+
+    @staticmethod
+    def format_obj_to_char(obj: Item, item_flags_enum=None, f_short: bool = True) -> str:
+        if obj is None:
+            return ""
+
+        labels = []
+        if item_flags_enum is not None:
+            if hasattr(item_flags_enum, "ITEM_INVIS") and ItemUtil._is_item_flag_set(obj, item_flags_enum.ITEM_INVIS.value):
+                labels.append("(Invis)")
+            if hasattr(item_flags_enum, "ITEM_GLOW") and ItemUtil._is_item_flag_set(obj, item_flags_enum.ITEM_GLOW.value):
+                labels.append("(Glowing)")
+            if hasattr(item_flags_enum, "ITEM_HUM") and ItemUtil._is_item_flag_set(obj, item_flags_enum.ITEM_HUM.value):
+                labels.append("(Humming)")
+
+        base = (obj.short_description if f_short else obj.long_description) or obj.name or "something"
+        prefix = (" ".join(labels) + " ") if labels else ""
+        return prefix + base
+
+    @staticmethod
+    def create_object(pObjIndex: Item):
+        from server.ServerUtil import ServerUtil
+        if pObjIndex is None:
+            logger.error("create_object: NULL pObjIndex.")
+            raise ValueError("Cannot create object from None index")
+
+        extra_descr = list(getattr(pObjIndex, "extra_descr", []) or [])
+        affect_data = list(getattr(pObjIndex, "affect_data", []) or [])
+        item = Item.from_json(
+            {
+                "id": ServerUtil.generate_mongo_id(),
+                "area_id": pObjIndex.area_id,
+                "vnum": pObjIndex.vnum,
+                "name": pObjIndex.name,
+                "short_description": pObjIndex.short_description,
+                "long_description": pObjIndex.long_description,
+                "item_type": pObjIndex.item_type,
+                "material": pObjIndex.material,
+                "extra_flags": pObjIndex.extra_flags,
+                "wear_flags": pObjIndex.wear_flags,
+                "value0": pObjIndex.value0,
+                "value1": pObjIndex.value1,
+                "value2": pObjIndex.value2,
+                "value3": pObjIndex.value3,
+                "value4": pObjIndex.value4,
+                "weight": pObjIndex.weight,
+                "condition": pObjIndex.condition,
+                "affect_data": affect_data,
+                "extra_descr": extra_descr,
+                "contains": [],
+                "level": pObjIndex.level,
+                "cost": pObjIndex.cost,
+            }
+        )
+        item.enchanted = False
+        ItemUtil.update_extra_descr(item)
+
+        item_type = (item.item_type or "").strip().lower()
+        if "light" in item_type and str(item.value2) == "999":
+            item.value2 = "-1"
+        elif "jukebox" in item_type:
+            item.value0 = "-1"
+            item.value1 = "-1"
+            item.value2 = "-1"
+            item.value3 = "-1"
+            item.value4 = "-1"
+
+        pObjIndex.count = getattr(pObjIndex, "count", 0) + 1
+        return item
+
+    @staticmethod
+    def find_world_object_instance(room_registry, target_vnum: str):
+        def _walk(items, in_room: bool):
+            for obj in items:
+                if str(getattr(obj, "vnum", "")) == target_vnum:
+                    return obj, in_room
+                found_obj, found_in_room = _walk(getattr(obj, "contains", []) or [], False)
+                if found_obj is not None:
+                    return found_obj, found_in_room
+            return None, False
+
+        for room_id in room_registry.all_rooms():
+            room = room_registry.get_or_none(id=room_id)
+            if room is None:
+                continue
+            obj, in_room = _walk(room.contents.values(), True)
+            if obj is not None:
+                return obj, in_room
+        return None, False
+
+    @staticmethod
+    def count_obj_list(target_vnum: str, items: list) -> int:
+        count = 0
+        for obj in items or []:
+            if str(getattr(obj, "vnum", "")) == target_vnum:
+                count += 1
+        return count

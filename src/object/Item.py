@@ -1,10 +1,15 @@
 import json
+import threading
 
-from dataclasses import dataclass
-from typing import Optional, List
+from dataclasses import dataclass, field
+from typing import Optional, List, TYPE_CHECKING
+
 from object.ExtraDescriptionData import ExtraDescriptionData
 from object.AffectData import AffectData
 from server.LoggerFactory import LoggerFactory
+
+if TYPE_CHECKING:
+    from area.Room import Room
 
 
 @dataclass
@@ -31,6 +36,8 @@ class Item:
     affect_data: list
     extra_descr: list
     contains: list
+    count: int = 0
+    room_data: dict[str, Room] = field(default_factory=dict)
     enchanted: Optional[bool] = False
     timer: Optional[int] = None
     damage_type: Optional[str] = None
@@ -39,11 +46,11 @@ class Item:
     liquid_affect_data: Optional[list] = None
     effects: Optional[List[AffectData]] = None
     extra_description: Optional[ExtraDescriptionData] = None
-    room_index_data: Optional[dict] = None
 
     def __post_init__(self):
         self.__name__ = "Item"
         self.logger = LoggerFactory.get_logger(self.__name__)
+        self.lock = threading.Lock()
 
     def __hash__(self):
         return hash(self.id)
@@ -59,6 +66,16 @@ class Item:
             for item in self.contains:
                 text = text + "\t" + item.name + "\r\n"
         return text
+
+    def add_item_to_room(self, room: Room):
+        with self.lock:
+            if self.room_data[room.id] is None:
+                self.room_data[room.id] = room
+
+    def remove_item_from_room(self, room: Room):
+        with self.lock:
+            if room.id in self.room_data:
+                del self.room_data[room.id]
 
     @classmethod
     def from_json(cls, data):

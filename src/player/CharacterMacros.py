@@ -32,6 +32,7 @@ class CharacterMacros(GameMacros):
         self.AffectedBits = self.enums.get('affectedBy')
         self.TimeAndWeatherEnum = enums.get('timeAndWeather')
         self.PositionsEnum = enums.get('positions')
+        self.GameParametersEnum = enums.get('gameParameters')
         self.attribute_bonuses = attribute_bonuses
         self.logger = LoggerFactory.get_logger(__name__)
 
@@ -53,14 +54,15 @@ class CharacterMacros(GameMacros):
         return level >= self.character_constants.immortal_levels.get(immortal_name)
 
     # let's deprecate ACT_IS_NPC
-    def is_npc(self, char: Any) -> bool:
+    @staticmethod
+    def is_npc(char: Any) -> bool:
         return True if type(char) is Mobile else False
 
     def is_immortal(self, char: Character) -> bool:
-        return self.get_trust(char) >= self.character_constants.immortal_levels.get("LEVEL_IMMORTAL")
+        return self.get_trust(char) >= self.GameParametersEnum.LEVEL_IMMORTAL.value
 
     def is_hero(self, char: Character) -> bool:
-        return self.get_trust(char) >= self.character_constants.immortal_levels.get("LEVEL_HERO")
+        return self.get_trust(char) >= self.GameParametersEnum.LEVEL_HERO.value
 
     def is_trusted(self, char: Character) -> bool:
         return self.get_trust(char) >= char.level

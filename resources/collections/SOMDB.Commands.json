@@ -335,7 +335,9 @@
     "name": "exits",
     "shortcuts": "",
     "role": "player",
-    "lambdas": ["lambda c, r, rh: rh.print_exits(c, r)"],
+    "lambdas": [
+      "lambda ctx: ctx.room_handler().print_exits(ctx.character)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,

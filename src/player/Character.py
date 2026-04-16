@@ -1,8 +1,7 @@
-import asyncio
 import threading
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, TYPE_CHECKING
 
 from interp.PromptFormat import PromptFormat
 from object.Item import Item
@@ -11,8 +10,10 @@ from player.PCArmorClass import PCArmorClass
 from player.TemporalMechanics import TemporalMechanics
 from player.CharacterAttributes import CharacterAttributes
 from player.CharacterFlags import CharacterFlags
-from player.Equipped import Equipped
 from server.LoggerFactory import LoggerFactory
+
+if TYPE_CHECKING:
+    from game.Equipped import Equipped
 
 
 @dataclass
