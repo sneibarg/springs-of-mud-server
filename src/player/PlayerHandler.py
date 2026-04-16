@@ -102,7 +102,6 @@ class PlayerHandler:
         context.finish()
 
     async def do_look(self, character: Character, context: Context):
-        direction_map = {"n": 0, "north": 0, "e": 1, "east": 1, "s": 2, "south": 2, "w": 3, "west": 3, "u": 4, "up": 4, "d": 5, "down": 5}
         if not self.command_helper.check_position(character):
             context.finish()
             return
@@ -125,13 +124,10 @@ class PlayerHandler:
             context.finish()
             return
 
-        print(f"arg1 is {arg1}")
         if arg1 == "" or arg1 == "auto":
             await context.room_handler().print_room(character.id, room)
             if self.character_macros.is_set(int(self.character_macros.convert_flags(character.character_flags.act)), self.PlayerActBits.PLR_AUTOEXIT.value):
                 await context.room_handler().print_exits(character, room)
-
-            await context.item_handler().look_room_items(character)
             context.jump_to(1)  # players + mobiles
             return
 
@@ -139,8 +135,5 @@ class PlayerHandler:
             context.jump_to(2)
             return
 
-        if arg1 in direction_map:
-            print(f"Looking in direction {arg1}")
-            context.jump_to(5)
-
         context.jump_to(3)
+        return

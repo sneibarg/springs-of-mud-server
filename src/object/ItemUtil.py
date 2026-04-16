@@ -2,13 +2,15 @@ from enum import IntEnum
 
 from area import Room
 from game.GameMacros import GameMacros
+from game.RandomNumberGenerator import RandomNumberGenerator
+from object import ObjectMacros
 from object.ExtraDescriptionData import ExtraDescriptionData
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 from object.Item import Item
 from object.AffectData import AffectData, AffectWhere
 
-
+rng = RandomNumberGenerator()
 logger = LoggerFactory.get_logger('ItemUtil')
 
 
@@ -285,9 +287,62 @@ class ItemUtil:
     def room_items(room: Room) -> list:
         lines = []
         for item in room.contents.values():
-            line = (item.long_description or "").strip()
-            if not line:
+            raw_long = item.long_description or ""
+            line = raw_long.rstrip("\r\n")
+            if not raw_long.strip():
                 line = item.short_description or item.name
             if line:
+                line = f"    {line}"
                 lines.append(line)
         return lines
+
+    @staticmethod
+    def create_object(pObjIndex: Item, enums: dict[str, type[IntEnum]] = None, object_macros: ObjectMacros = None):
+        from server.ServerUtil import ServerUtil
+        if pObjIndex is None:
+            logger.error("create_object: NULL pObjIndex.")
+            raise ValueError("Cannot create object from None index")
+
+        extra_descr = list(getattr(pObjIndex, "extra_descr", []) or [])
+        affect_data = list(getattr(pObjIndex, "affect_data", []) or [])
+        item = Item.from_json(
+            {
+                "id": ServerUtil.generate_mongo_id(),
+                "area_id": pObjIndex.area_id,
+                "vnum": pObjIndex.vnum,
+                "name": pObjIndex.name,
+                "short_description": pObjIndex.short_description,
+                "long_description": pObjIndex.long_description,
+                "item_type": pObjIndex.item_type,
+                "material": pObjIndex.material,
+                "extra_flags": pObjIndex.extra_flags,
+                "wear_flags": pObjIndex.wear_flags,
+                "value0": pObjIndex.value0,
+                "value1": pObjIndex.value1,
+                "value2": pObjIndex.value2,
+                "value3": pObjIndex.value3,
+                "value4": pObjIndex.value4,
+                "weight": pObjIndex.weight,
+                "condition": pObjIndex.condition,
+                "affect_data": affect_data,
+                "extra_descr": extra_descr,
+                "contains": [],
+                "level": pObjIndex.level,
+                "cost": pObjIndex.cost,
+            }
+        )
+        item.enchanted = False
+        ItemUtil.update_extra_descr(item)
+
+        item_type = (item.item_type or "").strip().lower()
+        if "light" in item_type and str(item.value2) == "999":
+            item.value2 = "-1"
+        elif "jukebox" in item_type:
+            item.value0 = "-1"
+            item.value1 = "-1"
+            item.value2 = "-1"
+            item.value3 = "-1"
+            item.value4 = "-1"
+
+        pObjIndex.count = getattr(pObjIndex, "count", 0) + 1
+        return item

@@ -75,3 +75,12 @@ class Room:
         with self.lock:
             if mobile.id not in self.mobiles:
                 del self.mobiles[mobile.id]
+
+    def add_item_to_room(self, item: Item):
+        with self.lock:
+            self.contents[item.id] = item
+
+    def remove_item_from_room(self, item: Item):
+        with self.lock:
+            if item.id in self.contents:
+                del self.contents[item.id]

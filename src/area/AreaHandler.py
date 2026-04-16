@@ -1,5 +1,6 @@
 from enum import IntEnum
 from injector import inject
+
 from area.Reset import Reset
 from area.Area import Area
 from area.AreaRegistry import AreaRegistry
@@ -7,6 +8,8 @@ from area.RoomRegistry import RoomRegistry
 from mobile.Mobile import Mobile
 from mobile.MobileUtil import MobileUtil
 from mobile.MobileRegistry import MobileRegistry
+from object import Item
+from object.ItemUtil import ItemUtil
 from object.ObjectMacros import ObjectMacros
 from game.RandomNumberGenerator import RandomNumberGenerator
 from object.ItemRegistry import ItemRegistry
@@ -68,7 +71,7 @@ class AreaHandler:
             if reset.command == "M":
                 self._do_mob_reset(last, reset)
             elif reset.command == "O":
-                pass
+                last = self._do_object_reset(reset, area)
             elif reset.command == "P":
                 pass
             elif reset.command == "G":
@@ -79,6 +82,24 @@ class AreaHandler:
                 pass
             elif reset.command == "R":
                 pass
+
+    def _do_object_reset(self, reset: Reset, area: Area):
+        obj_vnum = reset.arg1
+        room_vnum = reset.arg3
+        if obj_vnum is None or obj_vnum == "":
+            return False
+        if room_vnum is None or room_vnum == "":
+            return False
+
+        template_obj: Item = self.item_registry.get(vnum=str(obj_vnum))
+        room = self.room_registry.get(vnum=room_vnum)
+        if template_obj is None:
+            return False
+        if area.number_of_players > 0 or len(room.contents) > 0:
+            return False
+        obj = ItemUtil.create_object(template_obj)
+        room.add_item_to_room(obj)
+        return None
 
     def _do_mob_reset(self, last: bool, reset: Reset):
         mob_vnum = reset.arg1
@@ -100,5 +121,5 @@ class AreaHandler:
         if template_mob.count >= room_max:
             return last
         mob = MobileUtil.create_mobile(template_mob, self.enums, self.character_macros)
-        MobileUtil.char_to_room(mob, room)
+        room.add_mobile_to_room(mob)
         return last

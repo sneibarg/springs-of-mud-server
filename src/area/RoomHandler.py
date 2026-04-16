@@ -7,6 +7,7 @@ from area.Room import Room
 from area.RoomHelper import RoomHelper
 from game.RegistryService import RegistryService
 from interp.Context import Context
+from object.ItemUtil import ItemUtil
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 from server.messaging import MessageBus
@@ -70,8 +71,10 @@ class RoomHandler:
         if room is None:
             self.logger.error(f"Attempted to print room to character {character_id} but room is None")
             return
-        await self.message_bus.send_to_character(character_id,
-                                                 self.room_helper.format_room_description(room.name, room.description))
+        await self.message_bus.send_to_character(character_id, self.room_helper.format_room_description(room.name, room.description))
+        lines = ItemUtil.room_items(room)
+        if lines:
+            await self.message_bus.send_to_character(character_id, self.message_bus.text_to_message("\r\n".join(lines) + "\r\n"))
 
     async def look_direction(self, character: Character, context: Context):
         token = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip()
