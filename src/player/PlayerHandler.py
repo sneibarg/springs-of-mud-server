@@ -44,7 +44,7 @@ class PlayerHandler:
         )
 
     async def do_help(self, character: Character, context: Context):
-        argument = " ".join(context.parameters or [])
+        argument = context.result if isinstance(context.result, str) else " ".join(context.parameters or [])
         await self.message_bus.send_to_character(
             character.id,
             self.message_bus.text_to_message(self.info_commands.do_help(argument))
@@ -90,4 +90,3 @@ class PlayerHandler:
         text = self.info_commands.look_target(character, context)
         if text:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
-

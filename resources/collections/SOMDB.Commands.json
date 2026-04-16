@@ -1445,10 +1445,11 @@
     "shortcuts": "",
     "role": "player",
     "lambdas": [
-      "lambda ctx: ctx.player_handler().do_scroll(c.character, ctx)"
+      "lambda ctx: ctx.player_handler().do_scroll(ctx.character, ctx)"
     ],
     "message": "",
     "function": [],
+    "usage": "",
     "enabled": true,
     "skillId": "",
     "position": "POS_DEAD",

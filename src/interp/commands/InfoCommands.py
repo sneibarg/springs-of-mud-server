@@ -196,17 +196,16 @@ class InfoCommands:
         return None
 
     def do_scroll(self, character: Character, context: Context) -> str:
-        arg = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip()
+        raw_arg = context.result if isinstance(context.result, str) else ""
+        arg = raw_arg.strip() if raw_arg else (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip()
         if character.context is None:
             character.context = {}
 
         current_lines = GenericUtil.to_int(character.context.get("scroll_lines", 0), 0)
 
         if arg == "":
-            if current_lines == 0:
-                text = "You do not page long messages.\r\n"
-            else:
-                text = f"You currently display {current_lines + 2} lines per page.\r\n"
+            display_lines = current_lines + 2 if current_lines > 0 else 0
+            text = f"You currently display {display_lines} lines per page.\r\n"
             context.finish()
             return text
 
