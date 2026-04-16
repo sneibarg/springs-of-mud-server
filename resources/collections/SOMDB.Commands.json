@@ -785,7 +785,9 @@
     "name": "help",
     "shortcuts": "",
     "role": "player",
-    "lambdas": ["lambda c, cmh, msg: cmh.help_usage(c, msg)"],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_help(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
