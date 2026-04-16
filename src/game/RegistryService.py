@@ -4,6 +4,7 @@ from area.ResetRegistry import ResetRegistry
 from area.ShopRegistry import ShopRegistry
 from area.SpecialRegistry import SpecialRegistry
 from interp.InterpRegistry import InterpRegistry
+from interp.SocialRegistry import SocialRegistry
 from player.PlayerRegistry import PlayerRegistry
 from player.CharacterRegistry import CharacterRegistry
 from mobile.MobileRegistry import MobileRegistry
@@ -27,7 +28,7 @@ class RegistryService:
                  reset_registry: ResetRegistry,
                  special_registry: SpecialRegistry,
                  interp_registry: InterpRegistry,
-                 social_registry: InterpRegistry):
+                 social_registry: SocialRegistry):
 
         self.player_registry = player_registry
         self.character_registry = character_registry

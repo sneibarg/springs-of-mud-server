@@ -15,8 +15,8 @@ if TYPE_CHECKING:
 
 def build_prompt_map():
     return {
-        "%h": lambda c: c.health,
-        "%H": lambda c: c.max_health,
+        "%h": lambda c: c.hit,
+        "%H": lambda c: c.max_hit,
         "%m": lambda c: c.mana,
         "%M": lambda c: c.max_mana,
         "%v": lambda c: c.movement,

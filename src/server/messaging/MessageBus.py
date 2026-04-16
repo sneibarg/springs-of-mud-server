@@ -57,14 +57,14 @@ class MessageBus:
 
         return count
 
-    async def send_prompt(self, character_id: str, character: Character, area: Area, room: Room) -> bool:
-        connection = self.connection_manager.get_connection_by_character(character_id)
+    async def send_prompt(self, character: Character, area: Area, room: Room) -> bool:
+        connection = self.connection_manager.get_connection_by_character(character.id)
         if connection and isinstance(connection, TelnetConnection):
             try:
                 await connection.send_message(character.prompt_format.render_prompt(SessionStatus.PLAYING, character, room, area))
                 return True
             except Exception as e:
-                self.logger.error(f"Failed to send prompt to character {character_id}: {e}", exc_info=True)
+                self.logger.error(f"Failed to send prompt to character {character.id}: {e}", exc_info=True)
                 return False
         return False
 

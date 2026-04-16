@@ -22,9 +22,10 @@ class InterpHandler:
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.injector = injector
         self.message_bus = message_bus
-        self.interp_registry = registry_service.interp_registry
-        self.social_registry = registry_service.social_registry
+        self.registry_service = registry_service
         self.handler_service = handler_service
+        self.social_registry = registry_service.social_registry
+        self.interp_registry = registry_service.interp_registry
         self.social_handler = self.handler_service.social_handler
         self.connection_manager = injector.get(ConnectionManager)
         self.command_not_found_message = self.message_bus.text_to_message("Huh?\r\n")
@@ -111,9 +112,9 @@ class InterpHandler:
             raise
 
     async def handle_command(self, player, character, command):
-        cmd, parameters = InterpUtil.extract_parameters(self.interp_registry, command)
+        cmd, parameters = InterpUtil.extract_parameters(self.registry_service.interp_registry, command)
         if cmd is None:
-            social = self.social_registry.get_or_none(name=command.lower())
+            social = self.social_registry.get(name=command.lower())
             if social is not None:
                 return await self.social_handler.handle_social(character, command, social)
             await self.message_bus.send_to_character(character.id, self.command_not_found_message)

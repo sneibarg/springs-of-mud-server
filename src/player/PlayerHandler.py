@@ -134,8 +134,8 @@ class PlayerHandler:
 
     @staticmethod
     def _target_condition_line(target: Any) -> str:
-        hit = getattr(target, "hit", getattr(target, "health", 0))
-        max_hit = getattr(target, "max_hit", getattr(target, "max_health", 0))
+        hit = getattr(target, "hit")
+        max_hit = getattr(target, "max_hit")
         try:
             hit = int(hit)
             max_hit = int(max_hit)

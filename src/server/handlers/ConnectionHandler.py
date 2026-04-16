@@ -90,15 +90,18 @@ class ConnectionHandler:
                 session.metadata["entered_world"] = True
                 area, room = self._get_area_and_room(character)
                 to_room = self.message_bus.text_to_message(f"{character.name} has entered the game.\r\n")
-                in_room = self.player_helper.players_in_room(character, room)
+
                 if room is not None:
+                    players_in_room = self.player_helper.players_in_room(character, room)
                     room.add_player_to_room(character)
                     await self.room_handler.print_room(character.id, room)
+                    players_text = self.player_helper.get_players_in_room(character)
                     mobiles_text = self.mobile_helper.get_mobiles_in_room(character)
                     if mobiles_text:
+                        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(players_text))
                         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(mobiles_text))
-                    await self.message_bus.send_prompt(character.id, character, area, room)
-                    await self.message_bus.send_to_room(to_room, in_room)
+                    await self.message_bus.send_prompt(character, area, room)
+                    await self.message_bus.send_to_room(to_room, players_in_room)
 
             await self._game_loop(connection, session, player, character)
         except Exception as e:
@@ -130,12 +133,12 @@ class ConnectionHandler:
                 session.update_activity()
                 area, room = self._get_area_and_room(character)
                 if message.type == MessageType.GAME and not message.get('text'):
-                    await self.message_bus.send_prompt(character.id, character, area, room)
+                    await self.message_bus.send_prompt(character, area, room)
                     continue
 
                 if message.type == MessageType.GAME:
                     await self.command_handler.handle_command(player, character, message.get('text', ''))
-                    await self.message_bus.send_prompt(character.id, character, area, room)
+                    await self.message_bus.send_prompt(character, area, room)
             except Exception as e:
                 self.logger.error(f"Error in game loop: {e}", exc_info=True)
                 break
@@ -162,8 +165,8 @@ class ConnectionHandler:
         return account
 
     def _get_area_and_room(self, character) -> tuple[Area | None, Room | None]:
-        area = self.registry_service.area_registry.get(id=character.area_id)
-        room = self.registry_service.room_registry.get(id=character.room_id)
+        area = self.registry_service.area_registry.get_or_none(id=character.area_id)
+        room = self.registry_service.room_registry.get_or_none(id=character.room_id)
         return area, room
 
     async def _nanny(self, character, session, connection) -> Optional[Player]:

@@ -7,6 +7,7 @@ from area.RoomRegistry import RoomRegistry
 from mobile.Mobile import Mobile
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
+from player.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
 
 
@@ -23,11 +24,7 @@ class MobileHelper:
         text = ""
         room = self.room_registry.get(id=character.room_id)
         for char_in_room in self.mobiles_in_room(character, room):
-            name = (char_in_room.long_description or "").strip()
-            if name:
-                text += name + "\r\n"
-            else:
-                text += f"{char_in_room.short_description or char_in_room.name} is here.\r\n"
+            text += PlayerUtil.format_visible_character_line(character, char_in_room, self.character_macros)
         return text
 
     def mobiles_in_room(self, character: Character, room: Room) -> List[Mobile]:

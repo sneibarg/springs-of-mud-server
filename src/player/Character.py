@@ -33,9 +33,12 @@ class Character:
     sex: str
     cloaked: bool
     level: int
-    health: int
+    hit: int
+    max_hit: int
     mana: int
+    max_mana: int
     movement: int
+    max_movement: int
     experience: int
     accumulated_experience: int
     gold: int

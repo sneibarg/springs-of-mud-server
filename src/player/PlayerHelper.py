@@ -5,6 +5,7 @@ from area.RoomHelper import RoomHelper
 from area.RoomRegistry import RoomRegistry
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
+from player.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
 
 
@@ -23,8 +24,7 @@ class PlayerHelper:
         for char_in_room in self.players_in_room(character, room):
             if char_in_room.cloaked:
                 continue
-            name = char_in_room.name
-            text = text + f"{name} {char_in_room.title} is here.\r\n"
+            text += PlayerUtil.format_visible_character_line(character, char_in_room, self.character_macros)
         return text
 
     def players_in_room(self, character: Character, room: Room):
