@@ -5,6 +5,7 @@ from game.RegistryService import RegistryService
 from interp.Context import Context
 from interp.commands.InfoCommands import InfoCommands
 from interp.commands.MovementCommands import MovementCommands
+from interp.commands.ObjectCommands import ObjectCommands
 from interp.commands.WizCommands import WizCommands
 from player.Character import Character
 from player.PlayerHelper import PlayerHelper
@@ -19,6 +20,7 @@ class PlayerHandler:
                  player_helper: PlayerHelper,
                  info_commands: InfoCommands,
                  movement_commands: MovementCommands,
+                 object_commands: ObjectCommands,
                  wiz_commands: WizCommands):
         self.__name__ = "PlayerHandler"
         self.message_bus = message_bus
@@ -27,6 +29,7 @@ class PlayerHandler:
         self.player_helper = player_helper
         self.info_commands = info_commands
         self.movement_commands = movement_commands
+        self.object_commands = object_commands
         self.wiz_commands = wiz_commands
         self.logger = LoggerFactory.get_logger(__name__)
 
@@ -394,6 +397,24 @@ class PlayerHandler:
         if to_room is not None:
             await context.room_handler().print_room(character.id, to_room)
             await context.room_handler().print_in_room(context)
+
+    async def do_object_command(self, character: Character, context: Context):
+        payload = self.object_commands.execute(character, context)
+        if payload is None:
+            return
+        if isinstance(payload, str):
+            if payload:
+                await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload))
+            return
+
+        if payload.get("to_char"):
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
+        if payload.get("to_victim") and payload.get("victim") is not None:
+            await self.message_bus.send_to_character(payload["victim"].id, self.message_bus.text_to_message(payload["to_victim"]))
+        if payload.get("to_room"):
+            targets = payload.get("targets", [])
+            if len(targets) > 0:
+                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room"]), targets)
 
     async def print_players_in_room(self, character: Character):
         message = self.player_helper.get_players_in_room(character)

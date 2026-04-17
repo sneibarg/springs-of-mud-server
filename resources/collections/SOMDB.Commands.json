@@ -436,7 +436,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -766,7 +766,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -2504,7 +2504,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -2526,7 +2526,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -2548,7 +2548,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -2570,7 +2570,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -2614,7 +2614,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -2636,7 +2636,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -2680,7 +2680,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -2812,7 +2812,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -2834,7 +2834,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -2856,7 +2856,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -2878,7 +2878,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -2900,7 +2900,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -2966,7 +2966,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -2988,7 +2988,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -3054,7 +3054,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -3076,7 +3076,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
