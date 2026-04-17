@@ -5,6 +5,7 @@ from game.RegistryService import RegistryService
 from interp.Context import Context
 from interp.commands.InfoCommands import InfoCommands
 from interp.commands.MovementCommands import MovementCommands
+from interp.commands.WizCommands import WizCommands
 from player.Character import Character
 from player.PlayerHelper import PlayerHelper
 from server.messaging import MessageBus
@@ -17,7 +18,8 @@ class PlayerHandler:
                  registry_service: RegistryService,
                  player_helper: PlayerHelper,
                  info_commands: InfoCommands,
-                 movement_commands: MovementCommands):
+                 movement_commands: MovementCommands,
+                 wiz_commands: WizCommands):
         self.__name__ = "PlayerHandler"
         self.message_bus = message_bus
         self.character_registry = registry_service.character_registry
@@ -25,6 +27,7 @@ class PlayerHandler:
         self.player_helper = player_helper
         self.info_commands = info_commands
         self.movement_commands = movement_commands
+        self.wiz_commands = wiz_commands
         self.logger = LoggerFactory.get_logger(__name__)
 
     async def do_quit(self, character: Character, context: Context):
@@ -349,6 +352,48 @@ class PlayerHandler:
         text = self.movement_commands.do_train(character, context)
         if text:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_wiz_command(self, character: Character, context: Context):
+        payload = self.wiz_commands.execute(character, context)
+        if payload is None:
+            return
+        if isinstance(payload, str):
+            if payload:
+                await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload))
+            return
+
+        if payload.get("to_char"):
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
+        if payload.get("to_victim") and payload.get("victim") is not None:
+            await self.message_bus.send_to_character(payload["victim"].id, self.message_bus.text_to_message(payload["to_victim"]))
+        if payload.get("room_message"):
+            targets = payload.get("room_targets", [])
+            if len(targets) > 0:
+                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["room_message"]), targets)
+        if payload.get("global_message"):
+            targets = payload.get("global_targets", [])
+            if len(targets) > 0:
+                # Accept either Character objects or character-id strings.
+                if isinstance(targets[0], str):
+                    for target_id in targets:
+                        await self.message_bus.send_to_character(target_id, self.message_bus.text_to_message(payload["global_message"]))
+                else:
+                    await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["global_message"]), targets)
+        if payload.get("broadcast_message"):
+            exclude_ids = payload.get("exclude_character_ids", [])
+            await self.message_bus.broadcast(self.message_bus.text_to_message(payload["broadcast_message"]), exclude_ids)
+        if payload.get("from_room_message"):
+            targets = payload.get("from_room_targets", [])
+            if len(targets) > 0:
+                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["from_room_message"]), targets)
+        if payload.get("to_room_message"):
+            targets = payload.get("to_room_targets", [])
+            if len(targets) > 0:
+                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room_message"]), targets)
+        to_room = payload.get("to_room_obj")
+        if to_room is not None:
+            await context.room_handler().print_room(character.id, to_room)
+            await context.room_handler().print_in_room(context)
 
     async def print_players_in_room(self, character: Character):
         message = self.player_helper.get_players_in_room(character)

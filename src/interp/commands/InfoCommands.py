@@ -94,7 +94,7 @@ class InfoCommands:
     def do_who(self, character: Character) -> str:
         who_list = [character] + PlayerUtil.visible(character, self.session_handler)
         lines = [
-            f"[{c.level}    {c.race}    {c.character_class.name}] {c.name} {c.title}\r\n"
+            f"{self._who_line(character, c)}\r\n"
             for c in who_list
         ]
         lines.append(f"Players found: {len(who_list)}\r\n")
@@ -808,10 +808,25 @@ class InfoCommands:
             return "No one by that name is playing.\r\n"
 
         lines = [
-            f"[{c.level}    {c.race}    {c.character_class.name}] {c.name} {c.title}\r\n"
+            f"{self._who_line(character, c)}\r\n"
             for c in matches
         ]
         return "".join(lines)
+
+    def _who_line(self, viewer: Character, target: Character) -> str:
+        trust = GenericUtil.to_int(self.character_macros.get_trust(viewer), 0)
+        incog_level = GenericUtil.to_int(getattr(target, "incog_level", 0), 0)
+        invis_level = GenericUtil.to_int(getattr(target, "invis_level", 0), 0)
+
+        flags = []
+        if incog_level > 0 and trust >= incog_level:
+            flags.append("(Incog)")
+        if invis_level > 0 and trust >= invis_level:
+            flags.append("(Wizi)")
+
+        flag_text = (" " + " ".join(flags)) if flags else ""
+        class_name = getattr(getattr(target, "character_class", None), "name", "") or ""
+        return f"[{target.level}    {target.race}    {class_name}]{flag_text} {target.name} {target.title}"
 
     def do_count(self, context: Context) -> str:
         count = len(self.session_handler.get_playing_sessions())
