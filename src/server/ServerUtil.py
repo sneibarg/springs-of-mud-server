@@ -10,6 +10,7 @@ from area.SpecialService import SpecialService
 from game.HandlerService import HandlerService
 from interp.CommandHelper import CommandHelper
 from interp.commands.InfoCommands import InfoCommands
+from interp.commands.MovementCommands import MovementCommands
 from interp.HelpService import HelpService
 from interp.InterpHandler import InterpHandler
 from interp.SocialHandler import SocialHandler
@@ -111,6 +112,7 @@ class ServerUtil:
     def _bind_handlers(injector):
         injector.binder.bind(SocialHandler, scope=singleton)
         injector.binder.bind(InfoCommands, scope=singleton)
+        injector.binder.bind(MovementCommands, scope=singleton)
         injector.binder.bind(AreaHandler, scope=singleton)
         injector.binder.bind(RoomHandler, scope=singleton)
         injector.binder.bind(FightHandler, scope=singleton)

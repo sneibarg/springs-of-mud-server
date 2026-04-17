@@ -15,12 +15,12 @@ class CommandHelper:
         self.character_macros = character_macros
         self.PositionsEnum = character_macros.PositionsEnum
 
-    def check_position(self, character: Character) -> bool:
+    async def check_position(self, character: Character) -> bool:
         if character.character_attributes.position < self.PositionsEnum.POS_SLEEPING.value:
-            self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You can't see anything but stars!\n\r"))
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You can't see anything but stars!\n\r"))
             return False
 
         if character.character_attributes.position == self.PositionsEnum.POS_SLEEPING.value:
-            self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You can't see anything; you're sleeping!\n\r"))
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You can't see anything; you're sleeping!\n\r"))
             return False
         return True

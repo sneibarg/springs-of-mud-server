@@ -118,8 +118,7 @@
     "shortcuts": "w, we, wes",
     "role": "player",
     "lambdas": [
-      "lambda ctx: ctx.room_handler().move_player(ctx.character, \"west\")",
-      "lambda ctx: ctx.player_handler().to_room(ctx.character, ctx.command.message)"
+      "lambda ctx: ctx.player_handler().do_west(ctx.character, ctx)"
     ],
     "message": "%c has left the room, heading west.",
     "function": [],
@@ -137,8 +136,7 @@
     "shortcuts": "e, ea, eas",
     "role": "player",
     "lambdas": [
-      "lambda ctx: ctx.room_handler().move_player(ctx.character, \"east\")",
-      "lambda ctx: ctx.player_handler().to_room(ctx.character, ctx.command.message)"
+      "lambda ctx: ctx.player_handler().do_east(ctx.character, ctx)"
     ],
     "message": "%c has left the room, heading east.",
     "function": [ "" ],
@@ -156,8 +154,7 @@
     "shortcuts": "n, nor, nort",
     "role": "player",
     "lambdas": [
-      "lambda ctx: ctx.room_handler().move_player(ctx.character, \"north\")",
-      "lambda ctx: ctx.player_handler().to_room(ctx.character, ctx.command.message)"
+      "lambda ctx: ctx.player_handler().do_north(ctx.character, ctx)"
     ],
     "message": "%c has left the room, heading north.",
     "function": [],
@@ -175,8 +172,7 @@
     "shortcuts": "s, so, sou, sout",
     "role": "player",
     "lambdas": [
-      "lambda ctx: ctx.room_handler().move_player(ctx.character, \"south\")",
-      "lambda ctx: ctx.player_handler().to_room(ctx.character, ctx.command.message)"
+      "lambda ctx: ctx.player_handler().do_south(ctx.character, ctx)"
     ],
     "message": "%c has left the room, heading south.",
     "function": [],
@@ -218,8 +214,7 @@
     "shortcuts": "u",
     "role": "player",
     "lambdas": [
-      "lambda ctx: ctx.room_handler().move_player(ctx.character, \"up\")",
-      "lambda ctx: ctx.player_handler().to_room(ctx.character, ctx.command.message)"
+      "lambda ctx: ctx.player_handler().do_up(ctx.character, ctx)"
     ],
     "message": "",
     "function": [],
@@ -237,8 +232,7 @@
     "shortcuts": "d",
     "role": "player",
     "lambdas": [
-      "lambda ctx: ctx.room_handler().move_player(ctx.character, \"down\")",
-      "lambda ctx: ctx.player_handler().to_room(ctx.character, ctx.command.message)"
+      "lambda ctx: ctx.player_handler().do_down(ctx.character, ctx)"
     ],
     "message": "",
     "function": [],
@@ -515,7 +509,9 @@
     "name": "rest",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_rest(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -531,7 +527,9 @@
     "name": "sit",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_sit(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -563,7 +561,9 @@
     "name": "stand",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_stand(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -579,7 +579,9 @@
     "name": "unlock",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_unlock(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -2097,7 +2099,9 @@
     "name": "lock",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_lock(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -2113,7 +2117,27 @@
     "name": "open",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_open(ctx.character, ctx)"
+    ],
+    "message": "",
+    "function": [],
+    "enabled": true,
+    "skillId": "",
+    "position": "POS_RESTING",
+    "level": 0,
+    "log": "LOG_NORMAL",
+    "pipeline": false,
+    "maxArguments": 0
+  },
+  {
+    "_id": { "$oid": "69c0a1b7af6857ce485bb0c1" },
+    "name": "close",
+    "shortcuts": "clo, clos",
+    "role": "player",
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_close(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -2129,7 +2153,9 @@
     "name": "pick",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_pick(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -2625,7 +2651,9 @@
     "name": "hide",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_hide(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -2673,7 +2701,9 @@
     "name": "recall",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_recall(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -2737,7 +2767,9 @@
     "name": "sleep",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_sleep(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -2753,7 +2785,9 @@
     "name": "sneak",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_sneak(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -2801,7 +2835,9 @@
     "name": "train",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_train(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -2817,7 +2853,9 @@
     "name": "visible",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_visible(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,
@@ -2833,7 +2871,9 @@
     "name": "wake",
     "shortcuts": "",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_wake(ctx.character, ctx)"
+    ],
     "message": "",
     "function": [],
     "enabled": true,

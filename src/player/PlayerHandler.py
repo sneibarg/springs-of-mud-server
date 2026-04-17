@@ -4,6 +4,7 @@ from injector import inject
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from interp.commands.InfoCommands import InfoCommands
+from interp.commands.MovementCommands import MovementCommands
 from player.Character import Character
 from player.PlayerHelper import PlayerHelper
 from server.messaging import MessageBus
@@ -15,13 +16,15 @@ class PlayerHandler:
     def __init__(self, message_bus: MessageBus,
                  registry_service: RegistryService,
                  player_helper: PlayerHelper,
-                 info_commands: InfoCommands):
+                 info_commands: InfoCommands,
+                 movement_commands: MovementCommands):
         self.__name__ = "PlayerHandler"
         self.message_bus = message_bus
         self.character_registry = registry_service.character_registry
         self.room_registry = registry_service.room_registry
         self.player_helper = player_helper
         self.info_commands = info_commands
+        self.movement_commands = movement_commands
         self.logger = LoggerFactory.get_logger(__name__)
 
     async def do_quit(self, character: Character, context: Context):
@@ -260,6 +263,93 @@ class PlayerHandler:
         if text:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
 
+    async def do_north(self, character: Character, context: Context):
+        await self._handle_move_payload(character, context, self.movement_commands.do_north(character, context))
+
+    async def do_east(self, character: Character, context: Context):
+        await self._handle_move_payload(character, context, self.movement_commands.do_east(character, context))
+
+    async def do_south(self, character: Character, context: Context):
+        await self._handle_move_payload(character, context, self.movement_commands.do_south(character, context))
+
+    async def do_west(self, character: Character, context: Context):
+        await self._handle_move_payload(character, context, self.movement_commands.do_west(character, context))
+
+    async def do_up(self, character: Character, context: Context):
+        await self._handle_move_payload(character, context, self.movement_commands.do_up(character, context))
+
+    async def do_down(self, character: Character, context: Context):
+        await self._handle_move_payload(character, context, self.movement_commands.do_down(character, context))
+
+    async def do_open(self, character: Character, context: Context):
+        await self._handle_room_action_payload(character, self.movement_commands.do_open(character, context))
+
+    async def do_close(self, character: Character, context: Context):
+        await self._handle_room_action_payload(character, self.movement_commands.do_close(character, context))
+
+    async def do_lock(self, character: Character, context: Context):
+        await self._handle_room_action_payload(character, self.movement_commands.do_lock(character, context))
+
+    async def do_unlock(self, character: Character, context: Context):
+        await self._handle_room_action_payload(character, self.movement_commands.do_unlock(character, context))
+
+    async def do_pick(self, character: Character, context: Context):
+        await self._handle_room_action_payload(character, self.movement_commands.do_pick(character, context))
+
+    async def do_stand(self, character: Character, context: Context):
+        text = self.movement_commands.do_stand(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_rest(self, character: Character, context: Context):
+        text = self.movement_commands.do_rest(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_sit(self, character: Character, context: Context):
+        text = self.movement_commands.do_sit(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_sleep(self, character: Character, context: Context):
+        text = self.movement_commands.do_sleep(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_wake(self, character: Character, context: Context):
+        payload = self.movement_commands.do_wake(character, context)
+        if payload.get("self_stand"):
+            await self.do_stand(character, context)
+            return
+        if payload.get("to_char"):
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
+        victim = payload.get("victim")
+        if victim is not None and payload.get("to_victim"):
+            await self.message_bus.send_to_character(victim.id, self.message_bus.text_to_message(payload["to_victim"]))
+
+    async def do_sneak(self, character: Character, context: Context):
+        text = self.movement_commands.do_sneak(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_hide(self, character: Character, context: Context):
+        text = self.movement_commands.do_hide(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_visible(self, character: Character, context: Context):
+        text = self.movement_commands.do_visible(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_recall(self, character: Character, context: Context):
+        await self._handle_move_payload(character, context, self.movement_commands.do_recall(character, context))
+
+    async def do_train(self, character: Character, context: Context):
+        text = self.movement_commands.do_train(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
     async def print_players_in_room(self, character: Character):
         message = self.player_helper.get_players_in_room(character)
         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message))
@@ -290,3 +380,34 @@ class PlayerHandler:
         text = self.info_commands.look_target(character, context)
         if text:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def _handle_room_action_payload(self, character: Character, payload: dict):
+        if payload.get("to_char"):
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
+        if payload.get("to_room"):
+            targets = payload.get("targets", [])
+            if len(targets) > 0:
+                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room"]), targets)
+
+    async def _handle_move_payload(self, character: Character, context: Context, payload: dict):
+        if payload.get("to_char"):
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
+        if payload.get("from_room_message"):
+            targets = payload.get("from_room_targets", [])
+            if len(targets) > 0:
+                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["from_room_message"]), targets)
+        if payload.get("to_room_message"):
+            targets = payload.get("to_room_targets", [])
+            if len(targets) > 0:
+                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room_message"]), targets)
+        to_room = payload.get("to_room_obj")
+        if to_room is not None:
+            await context.room_handler().print_room(character.id, to_room)
+            autoexit_bit = None
+            if self.info_commands.PlayerActBits is not None and hasattr(self.info_commands.PlayerActBits, "PLR_AUTOEXIT"):
+                autoexit_bit = self.info_commands.PlayerActBits.PLR_AUTOEXIT.value
+            if autoexit_bit is not None:
+                act = int(self.info_commands.character_macros.convert_flags(getattr(character.character_flags, "act", "") or "0"))
+                if self.info_commands.character_macros.is_set(act, autoexit_bit):
+                    await context.room_handler().print_exits(character)
+            await context.room_handler().print_in_room(context)

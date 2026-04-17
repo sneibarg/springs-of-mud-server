@@ -183,7 +183,7 @@ class InfoCommands:
         return lines
 
     async def do_look(self, character: Character, context: Context) -> str | None:
-        if not self.command_helper.check_position(character):
+        if not await self.command_helper.check_position(character):
             context.finish()
             return None
 
