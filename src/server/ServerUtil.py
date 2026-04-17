@@ -9,6 +9,7 @@ from area.RoomHandler import RoomHandler
 from area.SpecialService import SpecialService
 from game.HandlerService import HandlerService
 from interp.CommandHelper import CommandHelper
+from interp.commands.CommunicationsCommands import CommunicationsCommands
 from interp.commands.InfoCommands import InfoCommands
 from interp.commands.MovementCommands import MovementCommands
 from interp.commands.ObjectCommands import ObjectCommands
@@ -113,6 +114,7 @@ class ServerUtil:
     @staticmethod
     def _bind_handlers(injector):
         injector.binder.bind(SocialHandler, scope=singleton)
+        injector.binder.bind(CommunicationsCommands, scope=singleton)
         injector.binder.bind(InfoCommands, scope=singleton)
         injector.binder.bind(MovementCommands, scope=singleton)
         injector.binder.bind(ObjectCommands, scope=singleton)
