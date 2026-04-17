@@ -1,4 +1,3 @@
-
 from injector import singleton, Injector
 
 from area.RoomHelper import RoomHelper
@@ -9,6 +8,7 @@ from area.RoomHandler import RoomHandler
 from area.SpecialService import SpecialService
 from game.HandlerService import HandlerService
 from interp.CommandHelper import CommandHelper
+from interp.commands.FightCommands import FightCommands
 from interp.commands.CommunicationsCommands import CommunicationsCommands
 from interp.commands.InfoCommands import InfoCommands
 from interp.commands.MovementCommands import MovementCommands
@@ -115,6 +115,7 @@ class ServerUtil:
     def _bind_handlers(injector):
         injector.binder.bind(SocialHandler, scope=singleton)
         injector.binder.bind(CommunicationsCommands, scope=singleton)
+        injector.binder.bind(FightCommands, scope=singleton)
         injector.binder.bind(InfoCommands, scope=singleton)
         injector.binder.bind(MovementCommands, scope=singleton)
         injector.binder.bind(ObjectCommands, scope=singleton)
@@ -141,6 +142,7 @@ class ServerUtil:
         from area.RoomRegistry import RoomRegistry
         from object.ItemRegistry import ItemRegistry
         from skill.SkillRegistry import SkillRegistry
+        from skill.SpellRegistry import SpellRegistry
         from interp.InterpRegistry import InterpRegistry
         from interp.SocialRegistry import SocialRegistry
         from interp.HelpRegistry import HelpRegistry
@@ -155,6 +157,7 @@ class ServerUtil:
         injector.binder.bind(RoomRegistry, scope=singleton)
         injector.binder.bind(ItemRegistry, scope=singleton)
         injector.binder.bind(SkillRegistry, scope=singleton)
+        injector.binder.bind(SpellRegistry, scope=singleton)
         injector.binder.bind(HelpRegistry, scope=singleton)
         injector.binder.bind(InterpRegistry, scope=singleton)
         injector.binder.bind(SocialRegistry, scope=singleton)

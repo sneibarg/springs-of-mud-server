@@ -8,7 +8,7 @@ from object.ExtraDescriptionData import ExtraDescriptionData
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 from object.Item import Item
-from object.AffectData import AffectData, AffectWhere
+from game.AffectData import AffectData, AffectWhere
 
 rng = RandomNumberGenerator()
 logger = LoggerFactory.get_logger('ItemUtil')

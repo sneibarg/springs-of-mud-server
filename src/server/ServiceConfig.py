@@ -13,6 +13,7 @@ class ServiceConfig:
     items_endpoint: str
     mobiles_endpoint: str
     skills_endpoint: str
+    spells_endpoint: str
     shops_endpoint: str
     specials_endpoint: str
     socials_endpoint: str

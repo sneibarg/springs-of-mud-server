@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from typing import Optional, List, TYPE_CHECKING
 
 from object.ExtraDescriptionData import ExtraDescriptionData
-from object.AffectData import AffectData
+from game.AffectData import AffectData
 from server.LoggerFactory import LoggerFactory
 
 if TYPE_CHECKING:

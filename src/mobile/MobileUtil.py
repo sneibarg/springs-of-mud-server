@@ -11,7 +11,7 @@ from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice
 from mobile.MobileFlags import MobileFlags
 from game.RandomNumberGenerator import RandomNumberGenerator
-from object.AffectData import AffectWhere, AffectData
+from game.AffectData import AffectWhere, AffectData
 from object.ObjectMacros import ObjectMacros
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
