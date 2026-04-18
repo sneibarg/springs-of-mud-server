@@ -81,7 +81,7 @@ class MessageBus:
         if session and session.metadata.get("paging_active", False):
             return True
 
-        comm_raw = self._letters_to_flags(getattr(getattr(character, "character_flags", None), "comm", ""))
+        comm_raw = GenericUtil.letters_to_flags(getattr(getattr(character, "character_flags", None), "comm", ""))
         if comm_raw > 0 and (comm_raw & 8192) == 0:  # COMM_PROMPT
             return True
 
@@ -115,11 +115,3 @@ class MessageBus:
         if not lines:
             return [text]
         return ["".join(lines[i:i + max_lines]) for i in range(0, len(lines), max_lines)]
-
-    @staticmethod
-    def _letters_to_flags(value: str) -> int:
-        total = 0
-        for c in str(value or "").upper():
-            if "A" <= c <= "Z":
-                total |= (1 << (ord(c) - ord("A")))
-        return total

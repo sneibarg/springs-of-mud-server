@@ -12,6 +12,7 @@ from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
 from object.ItemRegistry import ItemRegistry
 from skill.SkillRegistry import SkillRegistry
+from skill.SpellRegistry import SpellRegistry
 
 
 class RegistryService:
@@ -24,6 +25,7 @@ class RegistryService:
                  room_registry: RoomRegistry,
                  item_registry: ItemRegistry,
                  skill_registry: SkillRegistry,
+                 spell_registry: SpellRegistry,
                  shop_registry: ShopRegistry,
                  reset_registry: ResetRegistry,
                  special_registry: SpecialRegistry,
@@ -37,6 +39,7 @@ class RegistryService:
         self.room_registry = room_registry
         self.item_registry = item_registry
         self.skill_registry = skill_registry
+        self.spell_registry = spell_registry
         self.shop_registry = shop_registry
         self.reset_registry = reset_registry
         self.special_registry = special_registry

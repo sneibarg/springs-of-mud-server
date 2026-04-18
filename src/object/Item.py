@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from typing import Optional, List, TYPE_CHECKING
 
 from object.ExtraDescriptionData import ExtraDescriptionData
-from game.AffectData import AffectData
+from object.Effect import Effect
 from server.LoggerFactory import LoggerFactory
 
 if TYPE_CHECKING:
@@ -44,7 +44,7 @@ class Item:
     weapon_type: Optional[str] = None
     liquid_color: Optional[str] = None
     liquid_affect_data: Optional[list] = None
-    effects: Optional[List[AffectData]] = None
+    effects: Optional[List[Effect]] = None
     extra_description: Optional[ExtraDescriptionData] = None
 
     def __post_init__(self):

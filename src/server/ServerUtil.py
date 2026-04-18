@@ -20,6 +20,7 @@ from interp.SocialHandler import SocialHandler
 from interp.SocialService import SocialService
 from mobile.MobileHelper import MobileHelper
 from object.ItemHandler import ItemHandler
+from object.EffectHelper import EffectHelper
 from object.ObjectHelper import ObjectHelper
 from mobile.MobileHandler import MobileHandler
 from player.PlayerHandler import PlayerHandler
@@ -36,6 +37,7 @@ from player.PlayerService import PlayerService
 from player.CharacterService import CharacterService
 from server.LoggerFactory import LoggerFactory
 from skill.SkillService import SkillService
+from skill.SpellService import SpellService
 from game.RegistryService import RegistryService
 from fight.FightHandler import FightHandler
 from interp.InterpService import InterpService
@@ -80,6 +82,7 @@ class ServerUtil:
         injector.binder.bind(CommandHelper, scope=singleton)
         injector.binder.bind(RoomHelper, scope=singleton)
         injector.binder.bind(ObjectHelper, scope=singleton)
+        injector.binder.bind(EffectHelper, scope=singleton)
         injector.binder.bind(MobileHelper, scope=singleton)
         injector.binder.bind(PlayerHelper, scope=singleton)
 
@@ -94,6 +97,7 @@ class ServerUtil:
         from skill.SkillRegistry import SkillRegistry
         injector.binder.bind(GameService, scope=singleton)
         injector.binder.bind(SkillService, scope=singleton)
+        injector.binder.bind(SpellService, scope=singleton)
         injector.binder.bind(PlayerService, scope=singleton)
         injector.binder.bind(CharacterService, scope=singleton)
         injector.binder.bind(HelpService, scope=singleton)
@@ -194,6 +198,7 @@ class ServerUtil:
         room_service = injector.get(RoomService)
         area_service = injector.get(AreaService)
         skill_service = injector.get(SkillService)
+        spell_service = injector.get(SpellService)
         item_service = injector.get(ItemService)
         social_service = injector.get(SocialService)
         mobile_service = injector.get(MobileService)
@@ -214,7 +219,7 @@ class ServerUtil:
         game_service.set_update_handler(injector.get(UpdateHandler))
 
         service_list = (f"{game_service.__name__}; {player_service.__name__}; {room_service.__name__}; {area_service.__name__}; "
-                        f"{skill_service.__name__}; {item_service.__name__}\r\n{help_service.__name__}; {mobile_service.__name__}; "
+                        f"{skill_service.__name__}; {spell_service.__name__}; {item_service.__name__}\r\n{help_service.__name__}; {mobile_service.__name__}; "
                         f"{interp_service.__name__}; {social_service.__name__}; {note_service.__name__}; {character_service.__name__} "
                         f"{shop_service.__name__}; {reset_service.__name__}; {special_service.__name__}.")
         logger.info(f"The following services have been started: {service_list}")

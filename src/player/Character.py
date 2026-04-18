@@ -57,6 +57,7 @@ class Character:
     equipped: Optional[Equipped] = None
     context: Dict[str, object] = field(default_factory=dict)
     loot: List[Item] = field(default_factory=list)
+    effects: list = field(default_factory=list)
     lock: threading.Lock = field(default_factory=threading.Lock)
     carriage_return: bool = True
 

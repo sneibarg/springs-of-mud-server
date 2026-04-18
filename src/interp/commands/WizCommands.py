@@ -143,11 +143,11 @@ class WizCommands:
         act = GenericUtil.to_int(self.character_macros.convert_flags(getattr(character.character_flags, "act", "") or "0"), 0)
         if self.character_macros.is_set(act, bit):
             act = self.character_macros.unset_bit(act, bit)
-            character.character_flags.act = self._flags_to_letters(act)
+            character.character_flags.act = GenericUtil.flags_to_letters(act)
             context.finish()
             return {"to_char": "Holy light mode off.\r\n"}
         act = self.character_macros.set_bit(act, bit)
-        character.character_flags.act = self._flags_to_letters(act)
+        character.character_flags.act = GenericUtil.flags_to_letters(act)
         context.finish()
         return {"to_char": "Holy light mode on.\r\n"}
 
@@ -578,11 +578,11 @@ class WizCommands:
         raw = GenericUtil.to_int(self.character_macros.convert_flags(getattr(victim.character_flags, "comm", "") or "0"), 0)
         if self.character_macros.is_set(raw, bit):
             raw = self.character_macros.unset_bit(raw, bit)
-            victim.character_flags.comm = self._flags_to_letters(raw)
+            victim.character_flags.comm = GenericUtil.flags_to_letters(raw)
             context.finish()
             return {"to_char": f"{label} removed.\r\n", "victim": victim, "to_victim": "The gods have restored your privileges.\r\n"}
         raw = self.character_macros.set_bit(raw, bit)
-        victim.character_flags.comm = self._flags_to_letters(raw)
+        victim.character_flags.comm = GenericUtil.flags_to_letters(raw)
         context.finish()
         return {"to_char": f"{label} set.\r\n", "victim": victim, "to_victim": "The gods have revoked your privileges.\r\n"}
 
@@ -673,13 +673,3 @@ class WizCommands:
             if field.startswith("WIZ_"):
                 names.append(field)
         return sorted(names)
-
-    @staticmethod
-    def _flags_to_letters(value: int) -> str:
-        if value <= 0:
-            return ""
-        out = []
-        for bit in range(26):
-            if value & (1 << bit):
-                out.append(chr(ord("A") + bit))
-        return "".join(out)

@@ -6,6 +6,7 @@ from game.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from interp.commands.ObjectUtils import ObjectUtils
+from object.EffectHelper import EffectHelper
 from object.ItemUtil import ItemUtil
 from object.ObjectMacros import ObjectMacros
 from player.Character import Character
@@ -16,7 +17,7 @@ from server.LoggerFactory import LoggerFactory
 
 class ObjectCommands:
     @inject
-    def __init__(self, registry_service: RegistryService, object_macros: ObjectMacros, character_macros: CharacterMacros, player_helper: PlayerHelper):
+    def __init__(self, registry_service: RegistryService, object_macros: ObjectMacros, character_macros: CharacterMacros, player_helper: PlayerHelper, effect_helper: EffectHelper):
         self.__name__ = "ObjectCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -27,6 +28,7 @@ class ObjectCommands:
         self.item_types = object_macros.ItemTypes
         self.item_flags = object_macros.ItemFlags
         self.wear_flags = character_macros.enums.get("wearFlags")
+        self.effect_helper = effect_helper
 
     def execute(self, character: Character, context: Context):
         name = (getattr(context.command, "name", "") or "").strip().lower()
@@ -74,10 +76,10 @@ class ObjectCommands:
             if container is None:
                 context.finish()
                 return {"to_char": "I see no container here.\r\n"}
-            if self._is_container_closed(container):
+            if self.object_macros.is_container_closed(container):
                 context.finish()
                 return {"to_char": "It is closed.\r\n"}
-            target_item = self._find_in_contains(container, arg1)
+            target_item = ObjectUtils.find_in_contains(container, arg1)
         else:
             target_item = ObjectUtils.find_room_item(room, arg1)
 
@@ -85,19 +87,19 @@ class ObjectCommands:
             context.finish()
             return {"to_char": "I see nothing like that here.\r\n"}
 
-        if not self._item_takeable(target_item):
+        if not ObjectUtils.item_takeable(target_item, self.wear_flags):
             context.finish()
             return {"to_char": "You can't take that.\r\n"}
 
         if container is not None:
-            self._remove_from_contains(container, target_item)
+            ObjectUtils.remove_from_contains(container, target_item)
         else:
             room.remove_item_from_room(target_item)
         ObjectUtils.add_to_inventory(character, target_item)
         context.finish()
         return {
-            "to_char": f"You get {self._short(target_item)}.\r\n",
-            "to_room": f"{character.name} gets {self._short(target_item)}.\r\n",
+            "to_char": f"You get {ObjectUtils.short(target_item)}.\r\n",
+            "to_room": f"{character.name} gets {ObjectUtils.short(target_item)}.\r\n",
             "targets": self.player_helper.players_in_room(character, room),
         }
 
@@ -119,10 +121,10 @@ class ObjectCommands:
         if container is None:
             context.finish()
             return {"to_char": "I see no container here.\r\n"}
-        if not self._is_container(container):
+        if not ObjectUtils.is_container(container):
             context.finish()
             return {"to_char": "That's not a container.\r\n"}
-        if self._is_container_closed(container):
+        if self.object_macros.is_container_closed(container):
             context.finish()
             return {"to_char": "It is closed.\r\n"}
         if obj is container:
@@ -130,11 +132,11 @@ class ObjectCommands:
             return {"to_char": "You can't fold it into itself.\r\n"}
 
         ObjectUtils.remove_from_inventory(character, obj)
-        self._add_to_contains(container, obj)
+        ObjectUtils.add_to_contains(container, obj)
         context.finish()
         return {
-            "to_char": f"You put {self._short(obj)} in {self._short(container)}.\r\n",
-            "to_room": f"{character.name} puts {self._short(obj)} in {self._short(container)}.\r\n",
+            "to_char": f"You put {ObjectUtils.short(obj)} in {ObjectUtils.short(container)}.\r\n",
+            "to_room": f"{character.name} puts {ObjectUtils.short(obj)} in {ObjectUtils.short(container)}.\r\n",
             "targets": self.player_helper.players_in_room(character, room),
         }
 
@@ -151,29 +153,30 @@ class ObjectCommands:
         if item is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
-        if self._is_nodrop(item):
+        if ObjectUtils.is_nodrop(item, self.item_flags):
             context.finish()
             return {"to_char": "You can't let go of it.\r\n"}
 
         slot = ObjectUtils.equipped_slot_of(character, item)
         if slot:
+            self.effect_helper.remove_item_effects(character, item)
             ObjectUtils.unequip_item(character, slot)
         ObjectUtils.remove_from_inventory(character, item)
         room.add_item_to_room(item)
         context.finish()
         return {
-            "to_char": f"You drop {self._short(item)}.\r\n",
-            "to_room": f"{character.name} drops {self._short(item)}.\r\n",
+            "to_char": f"You drop {ObjectUtils.short(item)}.\r\n",
+            "to_room": f"{character.name} drops {ObjectUtils.short(item)}.\r\n",
             "targets": self.player_helper.players_in_room(character, room),
         }
 
     def do_junk(self, character: Character, context: Context):
-        return self._destroy_carried(character, context, "Junk what?\r\n")
+        return self.destroy_carried(character, context, "Junk what?\r\n")
 
     def do_sacrifice(self, character: Character, context: Context):
-        return self._destroy_carried(character, context, "Sacrifice what?\r\n", "Mota gives you one silver coin for your sacrifice.\r\n")
+        return self.destroy_carried(character, context, "Sacrifice what?\r\n", "Mota gives you one silver coin for your sacrifice.\r\n")
 
-    def _destroy_carried(self, character: Character, context: Context, empty_msg: str, success_msg: str = "Ok.\r\n"):
+    def destroy_carried(self, character: Character, context: Context, empty_msg: str, success_msg: str = "Ok.\r\n"):
         arg1, _ = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
         if not arg1:
             context.finish()
@@ -182,11 +185,12 @@ class ObjectCommands:
         if item is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
-        if self._is_nodrop(item):
+        if ObjectUtils.is_nodrop(item, self.item_flags):
             context.finish()
             return {"to_char": "You can't let go of it.\r\n"}
         slot = ObjectUtils.equipped_slot_of(character, item)
         if slot:
+            self.effect_helper.remove_item_effects(character, item)
             ObjectUtils.unequip_item(character, slot)
         ObjectUtils.remove_from_inventory(character, item)
         context.finish()
@@ -209,21 +213,22 @@ class ObjectCommands:
         if item is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
-        if self._is_nodrop(item):
+        if ObjectUtils.is_nodrop(item, self.item_flags):
             context.finish()
             return {"to_char": "You can't let go of it.\r\n"}
 
         slot = ObjectUtils.equipped_slot_of(character, item)
         if slot:
+            self.effect_helper.remove_item_effects(character, item)
             ObjectUtils.unequip_item(character, slot)
         ObjectUtils.remove_from_inventory(character, item)
         ObjectUtils.add_to_inventory(victim, item)
         context.finish()
         return {
-            "to_char": f"You give {self._short(item)} to {victim.name}.\r\n",
-            "to_victim": f"{character.name} gives you {self._short(item)}.\r\n",
+            "to_char": f"You give {ObjectUtils.short(item)} to {victim.name}.\r\n",
+            "to_victim": f"{character.name} gives you {ObjectUtils.short(item)}.\r\n",
             "victim": victim,
-            "to_room": f"{character.name} gives {self._short(item)} to {victim.name}.\r\n",
+            "to_room": f"{character.name} gives {ObjectUtils.short(item)} to {victim.name}.\r\n",
             "targets": self.player_helper.players_in_room(character, room),
         }
 
@@ -241,16 +246,17 @@ class ObjectCommands:
             context.finish()
             return {"to_char": "You can't wear that there.\r\n"}
         ObjectUtils.equip_item(character, item, slot)
+        self.effect_helper.apply_item_effects(character, item)
         context.finish()
-        return {"to_char": f"You wear {self._short(item)}.\r\n"}
+        return {"to_char": f"You wear {ObjectUtils.short(item)}.\r\n"}
 
     def do_wield(self, character: Character, context: Context):
-        return self._equip_to_slot(character, context, "wielded", "Wield what?\r\n")
+        return self.equip_to_slot(character, context, "wielded", "Wield what?\r\n")
 
     def do_hold(self, character: Character, context: Context):
-        return self._equip_to_slot(character, context, "held", "Hold what?\r\n")
+        return self.equip_to_slot(character, context, "held", "Hold what?\r\n")
 
-    def _equip_to_slot(self, character: Character, context: Context, slot: str, empty_msg: str):
+    def equip_to_slot(self, character: Character, context: Context, slot: str, empty_msg: str):
         arg1, _ = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
         if not arg1:
             context.finish()
@@ -264,8 +270,9 @@ class ObjectCommands:
             context.finish()
             return {"to_char": "Your hands are full.\r\n"}
         ObjectUtils.equip_item(character, item, slot)
+        self.effect_helper.apply_item_effects(character, item)
         context.finish()
-        return {"to_char": f"You equip {self._short(item)}.\r\n"}
+        return {"to_char": f"You equip {ObjectUtils.short(item)}.\r\n"}
 
     def do_remove(self, character: Character, context: Context):
         arg1, _ = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
@@ -280,17 +287,19 @@ class ObjectCommands:
             if item is None:
                 context.finish()
                 return {"to_char": "You aren't wearing that.\r\n"}
+            self.effect_helper.remove_item_effects(character, item)
             context.finish()
-            return {"to_char": f"You stop using {self._short(item)}.\r\n"}
+            return {"to_char": f"You stop using {ObjectUtils.short(item)}.\r\n"}
 
         for slot, item in equipped.__dict__.items():
             if item is None:
                 continue
             name = (getattr(item, "name", "") or "").lower()
             if name == arg1 or name.startswith(arg1):
+                self.effect_helper.remove_item_effects(character, item)
                 ObjectUtils.unequip_item(character, slot)
                 context.finish()
-                return {"to_char": f"You stop using {self._short(item)}.\r\n"}
+                return {"to_char": f"You stop using {ObjectUtils.short(item)}.\r\n"}
         context.finish()
         return {"to_char": "You aren't wearing that.\r\n"}
 
@@ -329,6 +338,7 @@ class ObjectCommands:
             return {"to_char": "That's not edible.\r\n"}
         slot = ObjectUtils.equipped_slot_of(character, item)
         if slot:
+            self.effect_helper.remove_item_effects(character, item)
             ObjectUtils.unequip_item(character, slot)
         ObjectUtils.remove_from_inventory(character, item)
         context.finish()
@@ -348,7 +358,7 @@ class ObjectCommands:
         src = ObjectUtils.find_container(character, room, src_name) if src_name else None
         if src is None:
             # fallback to first fountain in room
-            src = self._first_fountain(room)
+            src = ObjectUtils.first_fountain(room)
         if src is None:
             context.finish()
             return {"to_char": "There is no source of liquid here.\r\n"}
@@ -383,55 +393,3 @@ class ObjectCommands:
     def do_zap(self, character: Character, context: Context):
         context.finish()
         return {"to_char": "Zap is not implemented yet.\r\n"}
-
-    def _item_takeable(self, item) -> bool:
-        if self.wear_flags is None or not hasattr(self.wear_flags, "ITEM_TAKE"):
-            return True
-        return ObjectUtils.has_flag(getattr(item, "wear_flags", 0), self.wear_flags.ITEM_TAKE.value)
-
-    def _is_nodrop(self, item) -> bool:
-        if self.item_flags is None or not hasattr(self.item_flags, "ITEM_NODROP"):
-            return False
-        return ObjectUtils.has_flag(getattr(item, "extra_flags", 0), self.item_flags.ITEM_NODROP.value)
-
-    def _is_container(self, item) -> bool:
-        t = (getattr(item, "item_type", "") or "").upper()
-        return "ITEM_CONTAINER" in t or "CONTAINER" in t
-
-    def _is_container_closed(self, item) -> bool:
-        return self.object_macros.is_container_closed(item)
-
-    @staticmethod
-    def _short(item) -> str:
-        return getattr(item, "short_description", None) or getattr(item, "name", "it")
-
-    @staticmethod
-    def _add_to_contains(container, obj):
-        if getattr(container, "contains", None) is None:
-            container.contains = []
-        container.contains.append(obj)
-
-    @staticmethod
-    def _remove_from_contains(container, obj):
-        try:
-            container.contains.remove(obj)
-        except Exception:
-            pass
-
-    @staticmethod
-    def _find_in_contains(container, wanted: str):
-        q = (wanted or "").strip().lower()
-        for obj in list(getattr(container, "contains", []) or []):
-            name = (getattr(obj, "name", "") or "").lower()
-            if name == q or name.startswith(q):
-                return obj
-        return None
-
-    @staticmethod
-    def _first_fountain(room):
-        if room is None:
-            return None
-        for item in room.contents.values():
-            if "FOUNTAIN" in ((getattr(item, "item_type", "") or "").upper()):
-                return item
-        return None

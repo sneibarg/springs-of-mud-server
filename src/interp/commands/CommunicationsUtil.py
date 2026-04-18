@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from game.GameMacros import GameMacros
 from game.GenericUtil import GenericUtil
 from interp.InterpUtil import InterpUtil
 
@@ -20,20 +19,7 @@ class CommunicationsUtil:
 
     @staticmethod
     def flags_to_int(raw) -> int:
-        value = GenericUtil.to_int(raw, None)
-        if value is not None:
-            return value
-        return GameMacros.convert_flags(str(raw or "0"))
-
-    @staticmethod
-    def int_to_letters(value: int) -> str:
-        if value <= 0:
-            return ""
-        out = []
-        for bit in range(26):
-            if value & (1 << bit):
-                out.append(chr(ord("A") + bit))
-        return "".join(out)
+        return GenericUtil.flags_to_int(raw)
 
     @staticmethod
     def has_comm(character, comm_flags, name: str) -> bool:
@@ -52,7 +38,7 @@ class CommunicationsUtil:
             raw |= bit
         else:
             raw &= ~bit
-        character.character_flags.comm = CommunicationsUtil.int_to_letters(raw)
+        character.character_flags.comm = GenericUtil.flags_to_letters(raw)
 
     @staticmethod
     def append_tell_buffer(character, line: str):

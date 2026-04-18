@@ -1112,13 +1112,13 @@ class InfoCommands:
         return int(self.character_macros.convert_flags(getattr(character.character_flags, "act", "0") or "0"))
 
     def _set_act_flags(self, character: Character, value: int) -> None:
-        character.character_flags.act = self._flags_to_letters(value)
+        character.character_flags.act = GenericUtil.flags_to_letters(value)
 
     def _get_comm_flags(self, character: Character) -> int:
         return int(self.character_macros.convert_flags(getattr(character.character_flags, "comm", "0") or "0"))
 
     def _set_comm_flags(self, character: Character, value: int) -> None:
-        character.character_flags.comm = self._flags_to_letters(value)
+        character.character_flags.comm = GenericUtil.flags_to_letters(value)
 
     def _toggle_comm(self, character: Character, bit_name: str, off_text: str, on_text: str) -> str:
         comm_bits = self.character_macros.enums.get("commFlags")
@@ -1135,16 +1135,6 @@ class InfoCommands:
         comm = self.character_macros.set_bit(comm, bit_value)
         self._set_comm_flags(character, comm)
         return on_text
-
-    @staticmethod
-    def _flags_to_letters(value: int) -> str:
-        if value <= 0:
-            return ""
-        letters = []
-        for bit in range(26):
-            if value & (1 << bit):
-                letters.append(chr(ord('A') + bit))
-        return "".join(letters)
 
     def _score_position_line(self, attributes: Any) -> str:
         position_value = GenericUtil.to_int(getattr(attributes, "position", 0), 0)

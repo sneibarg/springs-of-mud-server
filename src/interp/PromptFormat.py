@@ -4,6 +4,7 @@ import inspect
 
 from dataclasses import dataclass, asdict
 from typing import Callable, TYPE_CHECKING
+from game.GenericUtil import GenericUtil
 from server.protocol.Message import Message, MessageType
 
 if TYPE_CHECKING:
@@ -174,7 +175,7 @@ class PromptFormat:
     def render_prompt(self, status: SessionStatus, character: Character, room: Room, area: Area) -> Message:
         carriage_return = bool(getattr(character, "carriage_return", False) or self.carriage_return)
         comm_letters = getattr(getattr(character, "character_flags", None), "comm", "")
-        comm_raw = self._letters_to_flags(comm_letters)
+        comm_raw = GenericUtil.letters_to_flags(comm_letters)
         if comm_raw > 0:
             carriage_return = (comm_raw & 2048) == 0  # COMM_COMPACT
         parts = [self._tag_afk(status)]
@@ -232,11 +233,3 @@ class PromptFormat:
             raise ValueError(f"Unsupported two-arg lambda parameters: {names}")
 
         raise ValueError("Unsupported lambda arity")
-
-    @staticmethod
-    def _letters_to_flags(value: str) -> int:
-        total = 0
-        for c in str(value or "").upper():
-            if "A" <= c <= "Z":
-                total |= (1 << (ord(c) - ord("A")))
-        return total

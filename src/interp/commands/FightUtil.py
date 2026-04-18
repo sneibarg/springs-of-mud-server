@@ -37,3 +37,30 @@ class FightUtil:
     @staticmethod
     def min_mana(skill) -> int:
         return max(0, GenericUtil.to_int(getattr(skill, "min_mana", 0), 0))
+
+    @staticmethod
+    def find_spell(spell_registry, spell_name: str):
+        if spell_registry is None:
+            return None
+        want_handler = FightUtil.spell_handler_name(spell_name)
+        for spell in spell_registry.all_spells():
+            handler_id = str(getattr(spell, "handler_id", "") or "").strip().lower()
+            name = str(getattr(spell, "name", "") or "").strip().lower()
+            if handler_id == want_handler or name == spell_name:
+                return spell
+        return None
+
+    @staticmethod
+    def find_spell_skill(skill_registry, character, spell_name: str):
+        want_handler = FightUtil.spell_handler_name(spell_name)
+        best = None
+        for skill in skill_registry.all_skills():
+            handler_id = str(getattr(skill, "handler_id", "") or "").strip().lower()
+            if handler_id in ("", "spell.none"):
+                continue
+            if handler_id == want_handler or str(getattr(skill, "name", "") or "").strip().lower() == spell_name:
+                best = skill
+                req = FightUtil.level_for_class(skill, character)
+                if int(getattr(character, "level", 0)) >= req:
+                    return skill
+        return best

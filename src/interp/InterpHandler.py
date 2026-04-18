@@ -80,7 +80,10 @@ class InterpHandler:
             await self._execute_lambda(func, context)
 
     async def _handle_lambdas(self, character: Character, command: Command, parameters: str):
-        if not command.lambdas:
+        lambdas = getattr(command, "lambdas", None) or []
+        has_executable_lambda = any(isinstance(value, str) and value.strip() for value in lambdas)
+        if not has_executable_lambda:
+            await self.message_bus.send_to_character(character.id, self.command_not_found_message)
             return None
 
         arguments = InterpUtil.build_arguments(command, parameters)

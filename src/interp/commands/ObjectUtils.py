@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from game.Equipped import Equipped
-from game.GameMacros import GameMacros
 from game.GenericUtil import GenericUtil
 from interp.InterpUtil import InterpUtil
 
@@ -38,10 +37,7 @@ class ObjectUtils:
 
     @staticmethod
     def flags_to_int(raw) -> int:
-        value = GenericUtil.to_int(raw, None)
-        if value is not None:
-            return value
-        return GameMacros.convert_flags(str(raw or "0"))
+        return GenericUtil.flags_to_int(raw)
 
     @staticmethod
     def has_flag(raw_flags, bit_value: int) -> bool:
@@ -154,4 +150,56 @@ class ObjectUtils:
             for slot in slots:
                 if getattr(equipped, slot) is None:
                     return slot
+        return None
+
+    @staticmethod
+    def item_takeable(item, wear_flags_enum) -> bool:
+        if wear_flags_enum is None or not hasattr(wear_flags_enum, "ITEM_TAKE"):
+            return True
+        return ObjectUtils.has_flag(getattr(item, "wear_flags", 0), wear_flags_enum.ITEM_TAKE.value)
+
+    @staticmethod
+    def is_nodrop(item, item_flags_enum) -> bool:
+        if item_flags_enum is None or not hasattr(item_flags_enum, "ITEM_NODROP"):
+            return False
+        return ObjectUtils.has_flag(getattr(item, "extra_flags", 0), item_flags_enum.ITEM_NODROP.value)
+
+    @staticmethod
+    def is_container(item) -> bool:
+        item_type = (getattr(item, "item_type", "") or "").upper()
+        return "ITEM_CONTAINER" in item_type or "CONTAINER" in item_type
+
+    @staticmethod
+    def short(item) -> str:
+        return getattr(item, "short_description", None) or getattr(item, "name", "it")
+
+    @staticmethod
+    def add_to_contains(container, obj):
+        if getattr(container, "contains", None) is None:
+            container.contains = []
+        container.contains.append(obj)
+
+    @staticmethod
+    def remove_from_contains(container, obj):
+        try:
+            container.contains.remove(obj)
+        except Exception:
+            pass
+
+    @staticmethod
+    def find_in_contains(container, wanted: str):
+        q = (wanted or "").strip().lower()
+        for obj in list(getattr(container, "contains", []) or []):
+            name = (getattr(obj, "name", "") or "").lower()
+            if name == q or name.startswith(q):
+                return obj
+        return None
+
+    @staticmethod
+    def first_fountain(room):
+        if room is None:
+            return None
+        for item in room.contents.values():
+            if "FOUNTAIN" in ((getattr(item, "item_type", "") or "").upper()):
+                return item
         return None

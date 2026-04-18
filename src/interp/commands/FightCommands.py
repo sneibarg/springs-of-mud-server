@@ -6,6 +6,7 @@ from area.RoomHelper import RoomHelper
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from interp.commands.FightUtil import FightUtil
+from object.EffectHelper import EffectHelper
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from player.PlayerUtil import PlayerUtil
@@ -14,14 +15,16 @@ from server.LoggerFactory import LoggerFactory
 
 class FightCommands:
     @inject
-    def __init__(self, registry_service: RegistryService, character_macros: CharacterMacros, room_helper: RoomHelper):
+    def __init__(self, registry_service: RegistryService, character_macros: CharacterMacros, room_helper: RoomHelper, effect_helper: EffectHelper):
         self.__name__ = "FightCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.room_registry = registry_service.room_registry
         self.skill_registry = registry_service.skill_registry
+        self.spell_registry = getattr(registry_service, "spell_registry", None)
         self.character_macros = character_macros
         self.room_helper = room_helper
+        self.effect_helper = effect_helper
 
     def execute(self, character: Character, context: Context):
         name = (getattr(context.command, "name", "") or "").strip().lower()
@@ -36,12 +39,14 @@ class FightCommands:
             context.finish()
             return {"to_char": "Cast which what where?\r\n"}
 
-        skill = self._find_spell_skill(character, spell_name)
-        if skill is None:
+        spell = FightUtil.find_spell(self.spell_registry, spell_name)
+        skill = FightUtil.find_spell_skill(self.skill_registry, character, spell_name)
+        if spell is None and skill is None:
             context.finish()
             return {"to_char": "You don't know any spells of that name.\r\n"}
 
-        mana_cost = FightUtil.min_mana(skill)
+        meta = spell if spell is not None else skill
+        mana_cost = FightUtil.min_mana(meta)
         if getattr(character, "mana", 0) < mana_cost:
             context.finish()
             return {"to_char": "You don't have enough mana.\r\n"}
@@ -51,7 +56,7 @@ class FightCommands:
             context.finish()
             return {"to_char": "You are nowhere.\r\n"}
 
-        target_type = str(getattr(skill, "target", "") or "").upper()
+        target_type = str(getattr(meta, "target", "") or "").upper()
         victim = None
         if target_type in ("CHAR_OFFENSIVE", "CHAR_DEFENSIVE", "CHAR_SELF", "OBJ_CHAR_OFF", "OBJ_CHAR_DEF"):
             if target_arg:
@@ -64,13 +69,17 @@ class FightCommands:
                 context.finish()
                 return {"to_char": "Cast the spell on whom?\r\n"}
 
+        if spell is not None:
+            self.effect_helper.apply_spell_effects(character, victim, spell)
+
         character.mana -= mana_cost
-        cast_text = f"You cast {skill.name}"
+        spell_label = getattr(meta, "name", spell_name)
+        cast_text = f"You cast {spell_label}"
         if victim is not None and victim is not character:
             cast_text += f" on {victim.name}"
         cast_text += ".\r\n"
 
-        room_text = f"{character.name} casts {skill.name}"
+        room_text = f"{character.name} casts {spell_label}"
         if victim is not None and victim is not character:
             room_text += f" on {victim.name}"
         room_text += ".\r\n"
@@ -81,22 +90,8 @@ class FightCommands:
             "targets": [ch for ch in room.characters.values() if ch.id != character.id],
         }
         if victim is not None and hasattr(victim, "id") and victim.id != character.id:
-            payload["to_victim"] = f"{character.name} casts {skill.name} on you.\r\n"
+            payload["to_victim"] = f"{character.name} casts {spell_label} on you.\r\n"
             payload["victim"] = victim
 
         context.finish()
         return payload
-
-    def _find_spell_skill(self, character: Character, spell_name: str):
-        want_handler = FightUtil.spell_handler_name(spell_name)
-        best = None
-        for skill in self.skill_registry.all_skills():
-            handler_id = str(getattr(skill, "handler_id", "") or "").strip().lower()
-            if handler_id in ("", "spell.none"):
-                continue
-            if handler_id == want_handler or str(getattr(skill, "name", "") or "").strip().lower() == spell_name:
-                best = skill
-                req = FightUtil.level_for_class(skill, character)
-                if int(getattr(character, "level", 0)) >= req:
-                    return skill
-        return best

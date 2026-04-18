@@ -15,7 +15,7 @@
     "msgOff": "You feel less armored.",
     "msgObj": "",
     "functionName": "armor",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -45,7 +45,7 @@
     "msgOff": "!Teleport!",
     "msgObj": "",
     "functionName": "teleport",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -63,7 +63,7 @@
     "msgOff": "You feel less righteous.",
     "msgObj": "$p's holy aura fades.",
     "functionName": "bless",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_OBJECT",
@@ -115,7 +115,7 @@
     "msgOff": "You can see again.",
     "msgObj": "",
     "functionName": "blindness",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -145,7 +145,7 @@
     "msgOff": "!Burning Hands!",
     "msgObj": "",
     "functionName": "burning_hands",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -163,7 +163,7 @@
     "msgOff": "!Call Lightning!",
     "msgObj": "",
     "functionName": "call_lightning",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -181,7 +181,7 @@
     "msgOff": "You feel more self-confident.",
     "msgObj": "",
     "functionName": "charm_person",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -211,7 +211,7 @@
     "msgOff": "You feel less cold.",
     "msgObj": "",
     "functionName": "chill_touch",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -229,7 +229,7 @@
     "msgOff": "!Colour Spray!",
     "msgObj": "",
     "functionName": "colour_spray",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -247,7 +247,7 @@
     "msgOff": "!Control Weather!",
     "msgObj": "",
     "functionName": "control_weather",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -265,7 +265,7 @@
     "msgOff": "!Create Food!",
     "msgObj": "",
     "functionName": "create_food",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -283,7 +283,7 @@
     "msgOff": "!Create Water!",
     "msgObj": "",
     "functionName": "create_water",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -301,7 +301,7 @@
     "msgOff": "!Cure Blindness!",
     "msgObj": "",
     "functionName": "cure_blindness",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -319,7 +319,7 @@
     "msgOff": "!Cure Critical!",
     "msgObj": "",
     "functionName": "cure_critical",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -337,7 +337,7 @@
     "msgOff": "!Cure Light!",
     "msgObj": "",
     "functionName": "cure_light",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -355,7 +355,7 @@
     "msgOff": "The curse wears off.",
     "msgObj": "$p is no longer impure.",
     "functionName": "curse",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_OBJECT",
@@ -407,7 +407,7 @@
     "msgOff": "The red in your vision disappears.",
     "msgObj": "",
     "functionName": "detect_evil",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -437,7 +437,7 @@
     "msgOff": "You no longer see invisible objects.",
     "msgObj": "",
     "functionName": "detect_invis",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -467,7 +467,7 @@
     "msgOff": "The detect magic wears off.",
     "msgObj": "",
     "functionName": "detect_magic",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -497,7 +497,7 @@
     "msgOff": "!Detect Poison!",
     "msgObj": "",
     "functionName": "detect_poison",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -515,7 +515,7 @@
     "msgOff": "!Dispel Evil!",
     "msgObj": "",
     "functionName": "dispel_evil",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -533,7 +533,7 @@
     "msgOff": "!Earthquake!",
     "msgObj": "",
     "functionName": "earthquake",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -551,7 +551,7 @@
     "msgOff": "!Enchant Weapon!",
     "msgObj": "",
     "functionName": "enchant_weapon",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -569,7 +569,7 @@
     "msgOff": "!Energy Drain!",
     "msgObj": "",
     "functionName": "energy_drain",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -587,7 +587,7 @@
     "msgOff": "!Fireball!",
     "msgObj": "",
     "functionName": "fireball",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -605,7 +605,7 @@
     "msgOff": "!Harm!",
     "msgObj": "",
     "functionName": "harm",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -623,7 +623,7 @@
     "msgOff": "!Heal!",
     "msgObj": "",
     "functionName": "heal",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -641,7 +641,7 @@
     "msgOff": "You are no longer invisible.",
     "msgObj": "$p fades into view.",
     "functionName": "invis",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_OBJECT",
@@ -682,7 +682,7 @@
     "msgOff": "!Lightning Bolt!",
     "msgObj": "",
     "functionName": "lightning_bolt",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -700,7 +700,7 @@
     "msgOff": "!Locate Object!",
     "msgObj": "",
     "functionName": "locate_object",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -718,7 +718,7 @@
     "msgOff": "!Magic Missile!",
     "msgObj": "",
     "functionName": "magic_missile",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -736,7 +736,7 @@
     "msgOff": "You feel less sick.",
     "msgObj": "The poison on $p dries up.",
     "functionName": "poison",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_WEAPON",
@@ -766,7 +766,7 @@
     "msgOff": "You feel less protected.",
     "msgObj": "",
     "functionName": "protection_evil",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -796,7 +796,7 @@
     "msgOff": "!Remove Curse!",
     "msgObj": "",
     "functionName": "remove_curse",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -814,7 +814,7 @@
     "msgOff": "The white aura around your body fades.",
     "msgObj": "",
     "functionName": "sanctuary",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -844,7 +844,7 @@
     "msgOff": "You feel less tired.",
     "msgObj": "",
     "functionName": "sleep",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -862,7 +862,7 @@
     "msgOff": "You feel weaker.",
     "msgObj": "",
     "functionName": "giant_strength",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -892,7 +892,7 @@
     "msgOff": "!Summon!",
     "msgObj": "",
     "functionName": "summon",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -910,7 +910,7 @@
     "msgOff": "!Ventriloquate!",
     "msgObj": "",
     "functionName": "ventriloquate",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -928,7 +928,7 @@
     "msgOff": "!Word of Recall!",
     "msgObj": "",
     "functionName": "word_of_recall",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -946,7 +946,7 @@
     "msgOff": "!Cure Poison!",
     "msgObj": "",
     "functionName": "cure_poison",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -964,7 +964,7 @@
     "msgOff": "You feel less aware of your surroundings.",
     "msgObj": "",
     "functionName": "detect_hidden",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -994,7 +994,7 @@
     "msgOff": "!Identify!",
     "msgObj": "",
     "functionName": "identify",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1012,7 +1012,7 @@
     "msgOff": "!Shocking Grasp!",
     "msgObj": "",
     "functionName": "shocking_grasp",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1030,7 +1030,7 @@
     "msgOff": "You slowly float to the ground.",
     "msgObj": "",
     "functionName": "fly",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -1060,7 +1060,7 @@
     "msgOff": "!Continual Light!",
     "msgObj": "",
     "functionName": "continual_light",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1078,7 +1078,7 @@
     "msgOff": "!Know Alignment!",
     "msgObj": "",
     "functionName": "know_alignment",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1096,7 +1096,7 @@
     "msgOff": "!Dispel Magic!",
     "msgObj": "",
     "functionName": "dispel_magic",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1114,7 +1114,7 @@
     "msgOff": "!Cure Serious!",
     "msgObj": "",
     "functionName": "cure_serious",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1132,7 +1132,7 @@
     "msgOff": "!Cause Light!",
     "msgObj": "",
     "functionName": "cause_light",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1150,7 +1150,7 @@
     "msgOff": "!Cause Critical!",
     "msgObj": "",
     "functionName": "cause_critical",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1168,7 +1168,7 @@
     "msgOff": "!Cause Serious!",
     "msgObj": "",
     "functionName": "cause_serious",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1186,7 +1186,7 @@
     "msgOff": "!Flamestrike!",
     "msgObj": "",
     "functionName": "flamestrike",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1204,7 +1204,7 @@
     "msgOff": "Your skin feels soft again.",
     "msgObj": "",
     "functionName": "stone_skin",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -1234,7 +1234,7 @@
     "msgOff": "Your force shield shimmers then fades away.",
     "msgObj": "",
     "functionName": "shield",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -1264,7 +1264,7 @@
     "msgOff": "You feel stronger.",
     "msgObj": "",
     "functionName": "weaken",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -1294,7 +1294,7 @@
     "msgOff": "You are no longer invisible.",
     "msgObj": "",
     "functionName": "mass_invis",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -1324,7 +1324,7 @@
     "msgOff": "!Acid Blast!",
     "msgObj": "",
     "functionName": "acid_blast",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1342,7 +1342,7 @@
     "msgOff": "The pink aura around you fades away.",
     "msgObj": "",
     "functionName": "faerie_fire",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -1372,7 +1372,7 @@
     "msgOff": "!Faerie Fog!",
     "msgObj": "",
     "functionName": "faerie_fog",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1390,7 +1390,7 @@
     "msgOff": "You feel solid again.",
     "msgObj": "",
     "functionName": "pass_door",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -1420,7 +1420,7 @@
     "msgOff": "You no longer see in the dark.",
     "msgObj": "",
     "functionName": "infravision",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -1450,7 +1450,7 @@
     "msgOff": "!Create Spring!",
     "msgObj": "",
     "functionName": "create_spring",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1468,7 +1468,7 @@
     "msgOff": "!Refresh!",
     "msgObj": "",
     "functionName": "refresh",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1486,7 +1486,7 @@
     "msgOff": "Your body feels familiar again.",
     "msgObj": "",
     "functionName": "change_sex",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -1516,7 +1516,7 @@
     "msgOff": "!Gate!",
     "msgObj": "",
     "functionName": "gate",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1534,7 +1534,7 @@
     "msgOff": "!Acid Breath!",
     "msgObj": "",
     "functionName": "acid_breath",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1552,7 +1552,7 @@
     "msgOff": "The smoke leaves your eyes.",
     "msgObj": "",
     "functionName": "fire_breath",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1570,7 +1570,7 @@
     "msgOff": "!Frost Breath!",
     "msgObj": "",
     "functionName": "frost_breath",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1588,7 +1588,7 @@
     "msgOff": "!Gas Breath!",
     "msgObj": "",
     "functionName": "gas_breath",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1606,7 +1606,7 @@
     "msgOff": "!Lightning Breath!",
     "msgObj": "",
     "functionName": "lightning_breath",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1624,7 +1624,7 @@
     "msgOff": "!General Purpose Ammo!",
     "msgObj": "",
     "functionName": "general_purpose",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1642,7 +1642,7 @@
     "msgOff": "!High Explosive Ammo!",
     "msgObj": "",
     "functionName": "high_explosive",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1660,7 +1660,7 @@
     "msgOff": "!Chain Lightning!",
     "msgObj": "",
     "functionName": "chain_lightning",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1678,7 +1678,7 @@
     "msgOff": "!Cure Disease!",
     "msgObj": "",
     "functionName": "cure_disease",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1696,7 +1696,7 @@
     "msgOff": "You feel yourself slow down.",
     "msgObj": "",
     "functionName": "haste",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -1726,7 +1726,7 @@
     "msgOff": "Your sores vanish.",
     "msgObj": "",
     "functionName": "plague",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1744,7 +1744,7 @@
     "msgOff": "Your rage ebbs.",
     "msgObj": "",
     "functionName": "frenzy",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -1796,7 +1796,7 @@
     "msgOff": "!Demonfire!",
     "msgObj": "",
     "functionName": "demonfire",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1814,7 +1814,7 @@
     "msgOff": "!Holy Word!",
     "msgObj": "",
     "functionName": "holy_word",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1832,7 +1832,7 @@
     "msgOff": "!Cancellation!",
     "msgObj": "",
     "functionName": "cancellation",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1850,7 +1850,7 @@
     "msgOff": "!Mass Healing!",
     "msgObj": "",
     "functionName": "mass_healing",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1868,7 +1868,7 @@
     "msgOff": "You have lost your peace of mind.",
     "msgObj": "",
     "functionName": "calm",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -1909,7 +1909,7 @@
     "msgOff": "!Enchant Armor!",
     "msgObj": "",
     "functionName": "enchant_armor",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1927,7 +1927,7 @@
     "msgOff": "!Create Rose!",
     "msgObj": "",
     "functionName": "create_rose",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1945,7 +1945,7 @@
     "msgOff": "!Dispel Good!",
     "msgObj": "",
     "functionName": "dispel_good",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -1963,7 +1963,7 @@
     "msgOff": "The gold in your vision disappears.",
     "msgObj": "",
     "functionName": "detect_good",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -1993,7 +1993,7 @@
     "msgOff": "You feel less protected.",
     "msgObj": "",
     "functionName": "protection_good",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -2023,7 +2023,7 @@
     "msgOff": "You feel yourself speed up.",
     "msgObj": "",
     "functionName": "slow",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_AFFECTS",
@@ -2053,7 +2053,7 @@
     "msgOff": "!Heat Metal!",
     "msgObj": "",
     "functionName": "heat_metal",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -2071,7 +2071,7 @@
     "msgOff": "!Recharge!",
     "msgObj": "",
     "functionName": "recharge",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -2089,7 +2089,7 @@
     "msgOff": "!Ray of Truth!",
     "msgObj": "",
     "functionName": "ray_of_truth",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -2107,7 +2107,7 @@
     "msgOff": "!Portal!",
     "msgObj": "",
     "functionName": "portal",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -2125,7 +2125,7 @@
     "msgOff": "!Nexus!",
     "msgObj": "",
     "functionName": "nexus",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -2143,7 +2143,7 @@
     "msgOff": "!Farsight!",
     "msgObj": "",
     "functionName": "farsight",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -2161,7 +2161,7 @@
     "msgOff": "!Floating disc!",
     "msgObj": "",
     "functionName": "floating_disc",
-    "affects": []
+    "affectData": []
   },
   {
     "_id": {
@@ -2179,7 +2179,7 @@
     "msgOff": "",
     "msgObj": "$p's protective aura fades.",
     "functionName": "fireproof",
-    "affects": [
+    "affectData": [
       {
         "valid": true,
         "where": "TO_OBJECT",

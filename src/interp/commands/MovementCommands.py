@@ -552,7 +552,7 @@ class MovementCommands:
         bit = getattr(self.affected_bits, bit_name).value
         raw = GenericUtil.to_int(self.character_macros.convert_flags(getattr(character.character_flags, "affected_by", "")), 0)
         raw = self.character_macros.set_bit(raw, bit) if enabled else self.character_macros.unset_bit(raw, bit)
-        character.character_flags.affected_by = self._flags_to_letters(raw)
+        character.character_flags.affected_by = GenericUtil.flags_to_letters(raw)
 
     def _position(self, character: Character) -> int:
         attrs = getattr(character, "character_attributes", None)
@@ -601,13 +601,3 @@ class MovementCommands:
         if self.character_macros.PositionsEnum is None or not hasattr(self.character_macros.PositionsEnum, name):
             return -1
         return int(getattr(self.character_macros.PositionsEnum, name).value)
-
-    @staticmethod
-    def _flags_to_letters(value: int) -> str:
-        if value <= 0:
-            return ""
-        out = []
-        for bit in range(26):
-            if value & (1 << bit):
-                out.append(chr(ord("A") + bit))
-        return "".join(out)

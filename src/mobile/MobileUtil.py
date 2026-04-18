@@ -11,7 +11,7 @@ from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice
 from mobile.MobileFlags import MobileFlags
 from game.RandomNumberGenerator import RandomNumberGenerator
-from game.AffectData import AffectWhere, AffectData
+from object.Effect import AffectWhere, Effect
 from object.ObjectMacros import ObjectMacros
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
@@ -307,8 +307,8 @@ class MobileUtil:
             protect_good = MobileUtil._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, -1, apply_types.APPLY_SAVES.value, affect_bits.AFF_PROTECT_GOOD.value)
 
     @staticmethod
-    def _build_affect_data(level: int, aff_type: int, where: int, duration: int, modifier: int, location: int, bitvector: int) -> AffectData:
-        return AffectData(valid=True, level=level, where=where, type=aff_type, duration=duration, modifier=modifier, location=location, bitvector=bitvector)
+    def _build_affect_data(level: int, aff_type: int, where: int, duration: int, modifier: int, location: int, bitvector: int) -> Effect:
+        return Effect(valid=True, level=level, where=where, type=aff_type, duration=duration, modifier=modifier, location=location, bitvector=bitvector)
 
     @staticmethod
     def create_mobile(pMobIndex: Mobile, enums: dict[str, type[IntEnum]], character_macros: CharacterMacros) -> Mobile:

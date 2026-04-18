@@ -1,7 +1,7 @@
 import json
-from dataclasses import dataclass
+
 from enum import Enum
-from typing import Any
+from dataclasses import dataclass
 
 
 class AffectWhere(Enum):
@@ -14,16 +14,17 @@ class AffectWhere(Enum):
 
 
 @dataclass
-class AffectData:
-    valid: bool
-    where: Any
-    type: Any
-    level: Any
-    duration: Any
-    location: Any
-    modifier: Any
-    bitvector: Any
+class Effect:
+    valid: bool = False
+    where: str | int = 0
+    type: str | int = ""
+    level: int = 0
+    duration: int = 0
+    location: str | int = 0
+    modifier: int = 0
+    bitvector: str | int = 0
     apply_to: str = ""
+    source: str = ""
 
     @classmethod
     def from_json(cls, data):
@@ -32,4 +33,3 @@ class AffectData:
         from game.GenericUtil import GenericUtil
         payload = GenericUtil.camel_to_snake_case(data)
         return cls(**payload)
-

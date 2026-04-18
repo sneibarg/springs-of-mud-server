@@ -8,7 +8,7 @@ from object.ExtraDescriptionData import ExtraDescriptionData
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 from object.Item import Item
-from game.AffectData import AffectData, AffectWhere
+from object.Effect import Effect, AffectWhere
 
 rng = RandomNumberGenerator()
 logger = LoggerFactory.get_logger('ItemUtil')
@@ -36,7 +36,7 @@ class ItemUtil:
     def update_affect_data(item):
         for affect in item.affect_data:
             affect_elements = affect.split(",")
-            affect_data = AffectData(valid=True, where=-1, type=-1, level=item.level, duration=-1, location=-1, modifier=-1, bitvector=-1)
+            affect_data = Effect(valid=True, where=-1, type=-1, level=item.level, duration=-1, location=-1, modifier=-1, bitvector=-1)
             if affect_elements[0] == "A":
                 affect_data.where = AffectWhere.TO_OBJECT.value
                 affect_data.location = affect_elements[1]

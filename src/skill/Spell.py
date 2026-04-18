@@ -2,7 +2,7 @@ import json
 
 from dataclasses import dataclass, field
 
-from game.AffectData import AffectData
+from object.Effect import Effect
 
 
 @dataclass
@@ -19,9 +19,18 @@ class Spell:
     noun_damage: str
     msg_off: str
     msg_obj: str
-    source_file: str = ""
+    level_by_class: dict[str, int]
+    rating_by_class: dict[str, int]
     function_name: str = ""
-    affects: list[AffectData] = field(default_factory=list)
+    affect_data: list[Effect] = field(default_factory=list)
+
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        if isinstance(other, Item):
+            return self.id == other.id
+        return False
 
     @classmethod
     def from_json(cls, data) -> Spell:
@@ -29,8 +38,8 @@ class Spell:
             data = json.loads(data)
         from game.GenericUtil import GenericUtil
         payload = GenericUtil.camel_to_snake_case(data)
-        raw_affects = payload.get("affects", []) or []
-        payload["affects"] = [AffectData.from_json(a) for a in raw_affects]
+        raw_affects = payload.get("affect_data", []) or []
+        payload["affect_data"] = [Effect.from_json(a) for a in raw_affects]
         payload["id"] = str(payload.get("id", payload.get("_id", "")))
         return cls(**payload)
 
