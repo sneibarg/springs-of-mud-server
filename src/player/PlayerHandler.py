@@ -45,11 +45,16 @@ class PlayerHandler:
             character.id,
             self.message_bus.text_to_message(payload["to_char"])
         )
-        if len(payload["in_room"]) > 0:
-            await self.message_bus.send_to_room(
-                self.message_bus.text_to_message(payload["to_room"]),
-                payload["in_room"]
-            )
+        room = self.room_registry.get_or_none(id=character.room_id)
+        if room is not None:
+            for viewer in room.characters.values():
+                if viewer.id == character.id:
+                    continue
+                if self.player_helper.character_macros.can_see(viewer, character, self.player_helper.room_helper):
+                    text = payload["to_room"]
+                else:
+                    text = "Someone has left the game.\r\n"
+                await self.message_bus.send_to_character(viewer.id, self.message_bus.text_to_message(text))
         await context.disconnect()
 
     async def do_who(self, character):
@@ -203,7 +208,7 @@ class PlayerHandler:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
 
     async def do_read(self, character: Character, context: Context):
-        payload = self.info_commands.do_read(character, context)
+        payload = self.info_commands.do_read(context)
         if payload.get("look"):
             text = await self.info_commands.do_look(character, context)
             if text:

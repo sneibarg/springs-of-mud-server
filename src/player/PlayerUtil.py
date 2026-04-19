@@ -115,14 +115,32 @@ class PlayerUtil:
         return f"{line[:1].upper() + line[1:]}\r\n"
 
     @staticmethod
-    def visible(character: Character, session_handler: SessionHandler) -> List[Character]:
+    def visible(character: Character, session_handler: SessionHandler, character_macros: CharacterMacros | None = None) -> List[Character]:
+        def _safe_int(value, default=0):
+            try:
+                return int(value)
+            except (TypeError, ValueError):
+                return default
+
         visible = []
+        observer_trust = 0
+        if character_macros is not None:
+            observer_trust = _safe_int(character_macros.get_trust(character), 0)
         for session in session_handler.get_playing_sessions():
             char: Character = session.character
+            if char is None:
+                continue
             if char.id == character.id:
                 continue
             if char.cloaked and character.role == "player":
                 continue
+            if character_macros is not None:
+                invis_level = _safe_int(getattr(char, "invis_level", 0), 0)
+                incog_level = _safe_int(getattr(char, "incog_level", 0), 0)
+                if observer_trust < invis_level:
+                    continue
+                if observer_trust < incog_level:
+                    continue
             visible.append(char)
         return visible
 

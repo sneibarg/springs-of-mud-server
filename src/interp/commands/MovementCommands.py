@@ -28,7 +28,7 @@ class MovementCommands:
         self.sector_types = character_macros.enums.get("sectorTypes")
 
     def move_char(self, character: Character, direction: str, context: Context):
-        blocked = self._movement_position_block_message(character)
+        blocked = self.character_macros.movement_position_block_message(character)
         if blocked:
             context.finish()
             return {"to_char": blocked}
@@ -56,31 +56,32 @@ class MovementCommands:
         ex_closed = MovementUtil.get_exit_flag(self.exit_flags, "EX_CLOSED", "CLOSED")
         ex_nopass = MovementUtil.get_exit_flag(self.exit_flags, "EX_NOPASS", "NOPASS")
         flags = GenericUtil.to_int(getattr(pexit, "exit_flags", 0), 0)
-        pass_door = self._is_affected(character, "AFF_PASS_DOOR")
+        pass_door = self.character_macros.is_affected_by_name(character, self.affected_bits, "AFF_PASS_DOOR")
         if ex_closed and (flags & ex_closed) != 0 and ((not pass_door) or (ex_nopass and (flags & ex_nopass) != 0)):
             keyword = (getattr(pexit, "keyword", "") or "door")
             context.finish()
             return {"to_char": f"The {keyword} is closed.\r\n"}
 
-        if self._is_room_private(to_room):
+        if self.character_macros.is_room_private(to_room, self.room_flags):
             context.finish()
             return {"to_char": "That room is private right now.\r\n"}
 
         if not self.character_macros.is_npc(character):
-            if self._is_air_room(in_room) or self._is_air_room(to_room):
-                if not self._is_affected(character, "AFF_FLYING") and not self.character_macros.is_immortal(character):
+            if self.character_macros.is_air_room(in_room, self.sector_types) or self.character_macros.is_air_room(to_room, self.sector_types):
+                if not self.character_macros.is_affected_by_name(character, self.affected_bits, "AFF_FLYING") and not self.character_macros.is_immortal(character):
                     context.finish()
                     return {"to_char": "You can't fly.\r\n"}
 
-            if self._requires_boat(in_room) or self._requires_boat(to_room):
-                if not self._is_affected(character, "AFF_FLYING") and not self._has_boat(character):
+            if self.character_macros.requires_boat(in_room, self.sector_types) or self.character_macros.requires_boat(to_room, self.sector_types):
+                if not self.character_macros.is_affected_by_name(character, self.affected_bits, "AFF_FLYING") and not self.character_macros.has_boat(character):
                     context.finish()
                     return {"to_char": "You need a boat to go there.\r\n"}
 
             move = (MovementUtil.sector_cost(in_room.sector_type) + MovementUtil.sector_cost(to_room.sector_type)) // 2
-            if self._is_affected(character, "AFF_FLYING") or self._is_affected(character, "AFF_HASTE"):
+            if (self.character_macros.is_affected_by_name(character, self.affected_bits, "AFF_FLYING")
+                    or self.character_macros.is_affected_by_name(character, self.affected_bits, "AFF_HASTE")):
                 move //= 2
-            if self._is_affected(character, "AFF_SLOW"):
+            if self.character_macros.is_affected_by_name(character, self.affected_bits, "AFF_SLOW"):
                 move *= 2
             move = max(1, move)
 
@@ -91,7 +92,7 @@ class MovementCommands:
 
         from_room_targets = self.player_helper.players_in_room(character, in_room)
         leave_msg = None
-        if not self._is_affected(character, "AFF_SNEAK") and GenericUtil.to_int(getattr(character, "invis_level", 0), 0) < 51:
+        if not self.character_macros.is_affected_by_name(character, self.affected_bits,"AFF_SNEAK") and GenericUtil.to_int(getattr(character, "invis_level", 0), 0) < 51:
             leave_msg = f"{character.name} leaves {MovementUtil.DIR_NAME[door]}.\r\n"
 
         in_room.remove_player_from_room(character)
@@ -100,7 +101,7 @@ class MovementCommands:
 
         to_room_targets = self.player_helper.players_in_room(character, to_room)
         arrive_msg = None
-        if not self._is_affected(character, "AFF_SNEAK") and GenericUtil.to_int(getattr(character, "invis_level", 0), 0) < 51:
+        if not self.character_macros.is_affected_by_name(character, self.affected_bits, "AFF_SNEAK") and GenericUtil.to_int(getattr(character, "invis_level", 0), 0) < 51:
             arrive_msg = f"{character.name} has arrived.\r\n"
 
         return {
@@ -155,7 +156,7 @@ class MovementCommands:
             return {"to_char": "It's locked.\r\n"}
 
         ex.exit_flags = flags & ~ex_closed if ex_closed else flags
-        self._mirror_exit_flag(room, ex, clear_mask=ex_closed)
+        self.character_macros.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, set_mask=ex_closed)
         context.finish()
         return {"to_char": "Ok.\r\n", "to_room": f"{character.name} opens the {ex.keyword or 'door'}.\r\n", "targets": self.player_helper.players_in_room(character, room)}
 
@@ -181,7 +182,7 @@ class MovementCommands:
             return {"to_char": "It's already closed.\r\n"}
 
         ex.exit_flags = flags | ex_closed if ex_closed else flags
-        self._mirror_exit_flag(room, ex, set_mask=ex_closed)
+        self.character_macros.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, set_mask=ex_closed)
         context.finish()
         return {"to_char": "Ok.\r\n", "to_room": f"{character.name} closes the {ex.keyword or 'door'}.\r\n", "targets": self.player_helper.players_in_room(character, room)}
 
@@ -219,7 +220,7 @@ class MovementCommands:
             return {"to_char": "It's already locked.\r\n"}
 
         ex.exit_flags = flags | ex_locked if ex_locked else flags
-        self._mirror_exit_flag(room, ex, set_mask=ex_locked)
+        self.character_macros.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, set_mask=ex_locked)
         context.finish()
         return {"to_char": "*Click*\r\n", "to_room": f"{character.name} locks the {ex.keyword or 'door'}.\r\n", "targets": self.player_helper.players_in_room(character, room)}
 
@@ -257,7 +258,7 @@ class MovementCommands:
             return {"to_char": "It's already unlocked.\r\n"}
 
         ex.exit_flags = flags & ~ex_locked if ex_locked else flags
-        self._mirror_exit_flag(room, ex, clear_mask=ex_locked)
+        self.character_macros.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, clear_mask=ex_locked)
         context.finish()
         return {"to_char": "*Click*\r\n", "to_room": f"{character.name} unlocks the {ex.keyword or 'door'}.\r\n", "targets": self.player_helper.players_in_room(character, room)}
 
@@ -292,86 +293,86 @@ class MovementCommands:
             return {"to_char": "You failed.\r\n"}
 
         ex.exit_flags = flags & ~ex_locked if ex_locked else flags
-        self._mirror_exit_flag(room, ex, clear_mask=ex_locked)
+        self.character_macros.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, clear_mask=ex_locked)
         context.finish()
         return {"to_char": "*Click*\r\n", "to_room": f"{character.name} picks the {ex.keyword or 'door'}.\r\n", "targets": self.player_helper.players_in_room(character, room)}
 
     def do_stand(self, character: Character, context: Context) -> str:
-        pos = self._position(character)
-        if pos <= self._pos("POS_STUNNED"):
+        pos = self.character_macros.position_value(character)
+        if pos <= self.character_macros.pos_value("POS_STUNNED"):
             context.finish()
             return "You can't do that right now.\r\n"
-        if pos == self._pos("POS_SLEEPING"):
-            if self._is_affected(character, "AFF_SLEEP"):
+        if pos == self.character_macros.pos_value("POS_SLEEPING"):
+            if self.character_macros.is_affected_by_name(character, self.affected_bits, "AFF_SLEEP"):
                 context.finish()
                 return "You can't wake up!\r\n"
-            self._set_position(character, "POS_STANDING")
+            self.character_macros.set_position(character, "POS_STANDING")
             context.finish()
             return "You wake and stand up.\r\n"
-        if pos in (self._pos("POS_RESTING"), self._pos("POS_SITTING")):
-            self._set_position(character, "POS_STANDING")
+        if pos in (self.character_macros.pos_value("POS_RESTING"), self.character_macros.pos_value("POS_SITTING")):
+            self.character_macros.set_position(character, "POS_STANDING")
             context.finish()
             return "You stand up.\r\n"
-        if pos == self._pos("POS_STANDING"):
+        if pos == self.character_macros.pos_value("POS_STANDING"):
             context.finish()
             return "You are already standing.\r\n"
-        if pos == self._pos("POS_FIGHTING"):
+        if pos == self.character_macros.pos_value("POS_FIGHTING"):
             context.finish()
             return "You are already fighting!\r\n"
         context.finish()
         return ""
 
     def do_rest(self, character: Character, context: Context) -> str:
-        pos = self._position(character)
-        if pos == self._pos("POS_FIGHTING"):
+        pos = self.character_macros.position_value(character)
+        if pos == self.character_macros.pos_value("POS_FIGHTING"):
             context.finish()
             return "You are already fighting!\r\n"
-        if pos == self._pos("POS_SLEEPING"):
-            if self._is_affected(character, "AFF_SLEEP"):
+        if pos == self.character_macros.pos_value("POS_SLEEPING"):
+            if self.character_macros.is_affected_by_name(character, self.affected_bits, "AFF_SLEEP"):
                 context.finish()
                 return "You can't wake up!\r\n"
-            self._set_position(character, "POS_RESTING")
+            self.character_macros.set_position(character, "POS_RESTING")
             context.finish()
             return "You wake up and start resting.\r\n"
-        if pos in (self._pos("POS_STANDING"), self._pos("POS_SITTING")):
-            self._set_position(character, "POS_RESTING")
+        if pos in (self.character_macros.pos_value("POS_STANDING"), self.character_macros.pos_value("POS_SITTING")):
+            self.character_macros.set_position(character, "POS_RESTING")
             context.finish()
             return "You rest.\r\n"
         context.finish()
         return "You are already resting.\r\n"
 
     def do_sit(self, character: Character, context: Context) -> str:
-        pos = self._position(character)
-        if pos == self._pos("POS_FIGHTING"):
+        pos = self.character_macros.position_value(character)
+        if pos == self.character_macros.pos_value("POS_FIGHTING"):
             context.finish()
             return "Maybe you should finish this fight first?\r\n"
-        if pos == self._pos("POS_SLEEPING"):
-            if self._is_affected(character, "AFF_SLEEP"):
+        if pos == self.character_macros.pos_value("POS_SLEEPING"):
+            if self.character_macros.is_affected_by_name(character, self.affected_bits, "AFF_SLEEP"):
                 context.finish()
                 return "You can't wake up!\r\n"
-            self._set_position(character, "POS_SITTING")
+            self.character_macros.set_position(character, "POS_SITTING")
             context.finish()
             return "You wake and sit up.\r\n"
-        if pos == self._pos("POS_RESTING"):
-            self._set_position(character, "POS_SITTING")
+        if pos == self.character_macros.pos_value("POS_RESTING"):
+            self.character_macros.set_position(character, "POS_SITTING")
             context.finish()
             return "You stop resting.\r\n"
-        if pos == self._pos("POS_STANDING"):
-            self._set_position(character, "POS_SITTING")
+        if pos == self.character_macros.pos_value("POS_STANDING"):
+            self.character_macros.set_position(character, "POS_SITTING")
             context.finish()
             return "You sit down.\r\n"
         context.finish()
         return "You are already sitting down.\r\n"
 
     def do_sleep(self, character: Character, context: Context) -> str:
-        pos = self._position(character)
-        if pos == self._pos("POS_SLEEPING"):
+        pos = self.character_macros.position_value(character)
+        if pos == self.character_macros.pos_value("POS_SLEEPING"):
             context.finish()
             return "You are already sleeping.\r\n"
-        if pos == self._pos("POS_FIGHTING"):
+        if pos == self.character_macros.pos_value("POS_FIGHTING"):
             context.finish()
             return "You are already fighting!\r\n"
-        self._set_position(character, "POS_SLEEPING")
+        self.character_macros.set_position(character, "POS_SLEEPING")
         context.finish()
         return "You go to sleep.\r\n"
 
@@ -399,28 +400,28 @@ class MovementCommands:
         if self.character_macros.is_awake(victim):
             context.finish()
             return {"to_char": f"{victim.name} is already awake.\r\n"}
-        if self._is_affected(victim, "AFF_SLEEP"):
+        if self.character_macros.is_affected_by_name(victim, self.affected_bits, "AFF_SLEEP"):
             context.finish()
             return {"to_char": f"You can't wake {victim.name}!\r\n"}
 
-        self._set_position(victim, "POS_STANDING")
+        self.character_macros.set_position(victim, "POS_STANDING")
         context.finish()
         return {"to_char": f"You wake {victim.name}.\r\n", "to_victim": f"{character.name} wakes you.\r\n", "victim": victim}
 
     def do_sneak(self, character: Character, context: Context) -> str:
-        self._set_affected(character, "AFF_SNEAK", True)
+        self.character_macros.set_affected_by_name(character, self.affected_bits, "AFF_SNEAK", True)
         context.finish()
         return "You attempt to move silently.\r\n"
 
     def do_hide(self, character: Character, context: Context) -> str:
-        self._set_affected(character, "AFF_HIDE", True)
+        self.character_macros.set_affected_by_name(character, self.affected_bits, "AFF_HIDE", True)
         context.finish()
         return "You attempt to hide.\r\n"
 
     def do_visible(self, character: Character, context: Context) -> str:
-        self._set_affected(character, "AFF_HIDE", False)
-        self._set_affected(character, "AFF_INVISIBLE", False)
-        self._set_affected(character, "AFF_SNEAK", False)
+        self.character_macros.set_affected_by_name(character, self.affected_bits, "AFF_HIDE", False)
+        self.character_macros.set_affected_by_name(character, self.affected_bits, "AFF_INVISIBLE", False)
+        self.character_macros.set_affected_by_name(character, self.affected_bits, "AFF_SNEAK", False)
         context.finish()
         return "Ok.\r\n"
 
@@ -489,115 +490,3 @@ class MovementCommands:
             return f"You have {trains} training sessions.\r\n"
         context.finish()
         return "Training specialization is not implemented yet.\r\n"
-
-    def _mirror_exit_flag(self, room, ex, set_mask: int = 0, clear_mask: int = 0):
-        to_room = self.room_registry.get_or_none(id=getattr(ex, "to_room_id", None))
-        if to_room is None:
-            return
-        rev = MovementUtil.REV_DIR[int(getattr(ex, "direction", 0))]
-        rev_exit = MovementUtil.find_exit(to_room, rev)
-        if rev_exit is None or getattr(rev_exit, "to_room_id", None) != room.id:
-            return
-        flags = GenericUtil.to_int(getattr(rev_exit, "exit_flags", 0), 0)
-        if clear_mask:
-            flags &= ~clear_mask
-        if set_mask:
-            flags |= set_mask
-        rev_exit.exit_flags = flags
-
-    def _is_room_private(self, room) -> bool:
-        if room is None:
-            return False
-        private = MovementUtil.get_exit_flag(self.room_flags, "ROOM_PRIVATE")
-        solitary = MovementUtil.get_exit_flag(self.room_flags, "ROOM_SOLITARY")
-        flags = GenericUtil.to_int(getattr(room, "room_flags", 0), 0)
-        if private and (flags & private) and len(getattr(room, "characters", {})) >= 2:
-            return True
-        if solitary and (flags & solitary) and len(getattr(room, "characters", {})) >= 1:
-            return True
-        return False
-
-    def _is_air_room(self, room) -> bool:
-        if room is None or self.sector_types is None:
-            return False
-        air = getattr(self.sector_types, "SECT_AIR", None)
-        return air is not None and GenericUtil.to_int(getattr(room, "sector_type", 0), 0) == int(air.value)
-
-    def _requires_boat(self, room) -> bool:
-        if room is None or self.sector_types is None:
-            return False
-        no_swim = getattr(self.sector_types, "SECT_WATER_NOSWIM", None)
-        return no_swim is not None and GenericUtil.to_int(getattr(room, "sector_type", 0), 0) == int(no_swim.value)
-
-    @staticmethod
-    def _has_boat(character: Character) -> bool:
-        for item in list(getattr(character, "loot", []) or []):
-            item_type = str(getattr(item, "item_type", "") or "").lower()
-            if "boat" in item_type:
-                return True
-        return False
-
-    def _is_affected(self, character: Character, bit_name: str) -> bool:
-        if self.affected_bits is None or not hasattr(self.affected_bits, bit_name):
-            return False
-        bit = getattr(self.affected_bits, bit_name).value
-        return self.character_macros.is_set(
-            GenericUtil.to_int(self.character_macros.convert_flags(getattr(character.character_flags, "affected_by", "")), 0),
-            bit,
-        )
-
-    def _set_affected(self, character: Character, bit_name: str, enabled: bool):
-        if self.affected_bits is None or not hasattr(self.affected_bits, bit_name):
-            return
-        bit = getattr(self.affected_bits, bit_name).value
-        raw = GenericUtil.to_int(self.character_macros.convert_flags(getattr(character.character_flags, "affected_by", "")), 0)
-        raw = self.character_macros.set_bit(raw, bit) if enabled else self.character_macros.unset_bit(raw, bit)
-        character.character_flags.affected_by = GenericUtil.flags_to_letters(raw)
-
-    def _position(self, character: Character) -> int:
-        attrs = getattr(character, "character_attributes", None)
-        raw = getattr(attrs, "position", None)
-        if raw is None:
-            raw = getattr(character, "position", None)
-        if isinstance(raw, str):
-            name = raw.strip().upper()
-            if name and not name.startswith("POS_"):
-                name = f"POS_{name}"
-            if self.character_macros.PositionsEnum is not None and hasattr(self.character_macros.PositionsEnum, name):
-                return int(getattr(self.character_macros.PositionsEnum, name).value)
-        standing = self._pos("POS_STANDING")
-        default_pos = standing if standing >= 0 else 0
-        return GenericUtil.to_int(raw, default_pos)
-
-    def _movement_position_block_message(self, character: Character) -> str:
-        pos = self._position(character)
-        if pos == self._pos("POS_DEAD"):
-            return "Lie still; you are DEAD.\r\n"
-        if pos in (self._pos("POS_MORTAL"), self._pos("POS_INCAP")):
-            return "You are hurt far too bad for that.\r\n"
-        if pos == self._pos("POS_STUNNED"):
-            return "You are too stunned to do that.\r\n"
-        if pos == self._pos("POS_SLEEPING"):
-            return "In your dreams, or what?\r\n"
-        if pos == self._pos("POS_RESTING"):
-            return "Nah... You feel too relaxed...\r\n"
-        if pos == self._pos("POS_SITTING"):
-            return "Better stand up first.\r\n"
-        if pos == self._pos("POS_FIGHTING"):
-            return "No way! You are still fighting!\r\n"
-        return ""
-
-    def _set_position(self, character: Character, pos_name: str):
-        if self.character_macros.PositionsEnum is None or not hasattr(self.character_macros.PositionsEnum, pos_name):
-            return
-        value = int(getattr(self.character_macros.PositionsEnum, pos_name).value)
-        attrs = getattr(character, "character_attributes", None)
-        if attrs is not None:
-            attrs.position = value
-        # Keep parity with any legacy paths still reading/writing character.position directly.
-        setattr(character, "position", value)
-
-    def _pos(self, name: str) -> int:
-        if self.character_macros.PositionsEnum is None or not hasattr(self.character_macros.PositionsEnum, name):
-            return -1
-        return int(getattr(self.character_macros.PositionsEnum, name).value)

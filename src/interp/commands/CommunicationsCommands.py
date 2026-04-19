@@ -328,65 +328,10 @@ class CommunicationsCommands:
         return {"to_char": "Split is not implemented yet.\r\n"}
 
     def _channel(self, character: Character, context: Context, off_flag: str, verb: str, on_msg: str, off_msg: str):
-        text = CommunicationsUtil.parse_argument(context.result, context.parameters)
-        if not text:
-            is_off = CommunicationsUtil.has_comm(character, self.comm_flags, off_flag)
-            CommunicationsUtil.set_comm(character, self.comm_flags, off_flag, not is_off)
-            context.finish()
-            return {"to_char": on_msg if is_off else off_msg}
-
-        if CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_QUIET"):
-            context.finish()
-            return {"to_char": "You must turn off quiet mode first.\r\n"}
-        if CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_NOCHANNELS"):
-            context.finish()
-            return {"to_char": "The gods have revoked your channel priviliges.\r\n"}
-
-        CommunicationsUtil.set_comm(character, self.comm_flags, off_flag, False)
-        channel_map = {
-            "gossip": "COMM_NOGOSSIP",
-            "auction": "COMM_NOAUCTION",
-            "music": "COMM_NOMUSIC",
-            "question": "COMM_NOQUESTION",
-            "quote": "COMM_NOQUOTE",
-            "grats": "COMM_NOGRATS",
-        }
-        targets = []
-        for session in self.session_handler.get_playing_sessions():
-            victim = session.character
-            if victim is None or victim.id == character.id:
-                continue
-            if CommunicationsUtil.has_comm(victim, self.comm_flags, "COMM_QUIET"):
-                continue
-            if CommunicationsUtil.has_comm(victim, self.comm_flags, channel_map[verb]):
-                continue
-            targets.append(victim)
-
-        context.finish()
-        return {
-            "to_char": f"You {verb} '{text}'\r\n",
-            "global_message": f"{character.name} {verb}s '{text}'\r\n",
-            "global_targets": targets,
-        }
+        return self.character_macros.channel_payload(character, context, off_flag, verb, on_msg, off_msg, self.comm_flags, self.session_handler, CommunicationsUtil.parse_argument, CommunicationsUtil.has_comm, CommunicationsUtil.set_comm)
 
     def _room_targets(self, character: Character, room):
-        if room is None:
-            return []
-        out = []
-        for ch in room.characters.values():
-            if ch.id != character.id:
-                out.append(ch)
-        return out
+        return self.character_macros.room_targets(character, room)
 
     def _find_playing_character(self, name: str):
-        wanted = (name or "").strip().lower()
-        if not wanted:
-            return None
-        for session in self.session_handler.get_playing_sessions():
-            ch = session.character
-            if ch is None:
-                continue
-            n = (ch.name or "").lower()
-            if n == wanted or n.startswith(wanted):
-                return ch
-        return None
+        return self.character_macros.find_playing_character(name, self.session_handler)

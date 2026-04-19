@@ -6,8 +6,6 @@ from game.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from interp.commands.WizUtil import WizUtil
-from mobile.MobileUtil import MobileUtil
-from object.ItemUtil import ItemUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from player.PlayerHelper import PlayerHelper
@@ -91,7 +89,7 @@ class WizCommands:
 
     def do_wiznet(self, character: Character, context: Context, argument: str):
         flags = GenericUtil.to_int((character.context or {}).get("wiznet_flags", 0), 0)
-        on_bit = self._wiznet_flag("WIZ_ON")
+        on_bit = self.character_macros.enum_bit(self.wiznet_flags, "WIZ_ON")
         arg = (argument or "").strip().lower()
 
         if arg in ("", "on"):
@@ -108,20 +106,20 @@ class WizCommands:
             return {"to_char": "Signing off of Wiznet.\r\n"}
         if arg == "status":
             names = []
-            for bit_name in self._wiznet_names():
-                bit = self._wiznet_flag(bit_name)
+            for bit_name in self.character_macros.enum_names(self.wiznet_flags, "WIZ_"):
+                bit = self.character_macros.enum_bit(self.wiznet_flags, bit_name)
                 if bit and (flags & bit):
                     names.append(bit_name.replace("WIZ_", "").lower())
             off = "off " if on_bit and (flags & on_bit) == 0 else ""
             context.finish()
             return {"to_char": f"Wiznet status:\r\n{off}{' '.join(names)}\r\n"}
         if arg == "show":
-            names = [name.replace("WIZ_", "").lower() for name in self._wiznet_names()]
+            names = [name.replace("WIZ_", "").lower() for name in self.character_macros.enum_names(self.wiznet_flags, "WIZ_")]
             context.finish()
             return {"to_char": "Wiznet options available to you are:\r\n" + " ".join(names) + "\r\n"}
 
         bit_name = f"WIZ_{arg.upper()}"
-        bit = self._wiznet_flag(bit_name)
+        bit = self.character_macros.enum_bit(self.wiznet_flags, bit_name)
         if bit == 0:
             context.finish()
             return {"to_char": "No such option.\r\n"}
@@ -136,7 +134,7 @@ class WizCommands:
         return {"to_char": f"You will now see {arg} on wiznet.\r\n"}
 
     def do_holylight(self, character: Character, context: Context, argument: str):
-        bit = self._player_act_bit("PLR_HOLYLIGHT")
+        bit = self.character_macros.enum_bit(self.player_act_bits, "PLR_HOLYLIGHT")
         if bit == 0:
             context.finish()
             return {"to_char": "This feature is unavailable.\r\n"}
@@ -152,10 +150,17 @@ class WizCommands:
         return {"to_char": "Holy light mode on.\r\n"}
 
     def do_invis(self, character: Character, context: Context, argument: str):
+        if not self.character_macros.is_immortal(character):
+            context.finish()
+            return {"to_char": "Huh?\r\n"}
+
         arg = (argument or "").strip()
         level = GenericUtil.to_int(arg, -1) if arg else -1
         if level < 0:
             level = 0 if GenericUtil.to_int(getattr(character, "invis_level", 0), 0) > 0 else int(getattr(character, "level", 0))
+        max_level = GenericUtil.to_int(self.character_macros.get_trust(character), int(getattr(character, "level", 0)))
+        if level > max_level:
+            level = max_level
         character.invis_level = level
         context.finish()
         if level > 0:
@@ -163,10 +168,17 @@ class WizCommands:
         return {"to_char": "You are now fully visible.\r\n"}
 
     def do_incognito(self, character: Character, context: Context, argument: str):
+        if not self.character_macros.is_immortal(character):
+            context.finish()
+            return {"to_char": "Huh?\r\n"}
+
         arg = (argument or "").strip()
         level = GenericUtil.to_int(arg, -1) if arg else -1
         if level < 0:
             level = 0 if GenericUtil.to_int(getattr(character, "incog_level", 0), 0) > 0 else int(getattr(character, "level", 0))
+        max_level = GenericUtil.to_int(self.character_macros.get_trust(character), int(getattr(character, "level", 0)))
+        if level > max_level:
+            level = max_level
         character.incog_level = level
         context.finish()
         if level > 0:
@@ -236,7 +248,7 @@ class WizCommands:
         if not arg:
             context.finish()
             return {"to_char": "Goto where?\r\n"}
-        room = self._find_location(character, arg)
+        room = self.character_macros.find_location(arg, self.room_registry, self.character_registry, WizUtil.name_matches)
         if room is None:
             context.finish()
             return {"to_char": "No such location.\r\n"}
@@ -274,7 +286,7 @@ class WizCommands:
             context.finish()
             return {"to_char": "They aren't here.\r\n"}
 
-        room = self.room_registry.get_or_none(id=character.room_id) if not destination else self._find_location(character, destination)
+        room = self.room_registry.get_or_none(id=character.room_id) if not destination else self.character_macros.find_location(destination, self.room_registry, self.character_registry, WizUtil.name_matches)
         if room is None:
             context.finish()
             return {"to_char": "No such location.\r\n"}
@@ -357,7 +369,7 @@ class WizCommands:
         arg = (argument or "").strip().lower()
         if arg == "all":
             for victim in self.character_registry.all_characters():
-                self._restore_character(victim)
+                CharacterMacros.restore_character(victim)
             context.finish()
             return {"to_char": "All active players restored.\r\n"}
 
@@ -365,7 +377,7 @@ class WizCommands:
         if victim is None:
             context.finish()
             return {"to_char": "Restore whom?\r\n"}
-        self._restore_character(victim)
+        CharacterMacros.restore_character(victim)
         context.finish()
         return {"to_char": "Ok.\r\n", "victim": victim, "to_victim": "You have been restored.\r\n"}
 
@@ -376,13 +388,13 @@ class WizCommands:
             return {"to_char": "You are nowhere.\r\n"}
         arg = (argument or "").strip()
         if arg:
-            victim = self._find_character_in_room(room, arg)
+            victim = CharacterMacros.find_character_in_room(room, arg, WizUtil.name_matches)
             if victim is not None and victim.id != character.id:
                 room.remove_player_from_room(victim)
                 victim.room_id = ""
                 context.finish()
                 return {"to_char": "Ok.\r\n", "victim": victim, "to_victim": "You are purged!\r\n"}
-            item = self._find_item_in_room(room, arg)
+            item = CharacterMacros.find_item_in_room(room, arg, WizUtil.name_matches)
             if item is not None:
                 room.remove_item_from_room(item)
                 context.finish()
@@ -481,7 +493,7 @@ class WizCommands:
             return {"to_char": f"{target.name} lvl {target.level} hp {target.hit}/{target.max_hit} mana {target.mana}/{target.max_mana} mv {target.movement}/{target.max_movement}\r\n"}
         if kind in ("obj", "object", "o"):
             room = self.room_registry.get_or_none(id=character.room_id)
-            obj = self._find_item_in_room(room, value)
+            obj = CharacterMacros.find_item_in_room(room, value, WizUtil.name_matches)
             if obj is None:
                 context.finish()
                 return {"to_char": "No such object in room.\r\n"}
@@ -502,30 +514,10 @@ class WizCommands:
         return {"to_char": "Load syntax: load mob <vnum> | load obj <vnum>\r\n"}
 
     def _do_mload(self, context: Context, vnum_text: str):
-        vnum = (vnum_text or "").strip()
-        proto = self.mobile_registry.get_or_none(vnum=vnum)
-        if proto is None:
-            context.finish()
-            return {"to_char": "No mobile has that vnum.\r\n"}
-        mob = MobileUtil.create_mobile(proto, self.character_macros.enums, self.character_macros)
-        room = self.room_registry.get_or_none(id=context.character.room_id)
-        if room is not None:
-            room.add_mobile_to_room(mob)
-        context.finish()
-        return {"to_char": "Mobile loaded.\r\n"}
+        return self.character_macros.wiz_do_mload(context, vnum_text, self.mobile_registry, self.room_registry)
 
     def _do_oload(self, context: Context, vnum_text: str):
-        vnum = (vnum_text or "").strip()
-        proto = self.item_registry.get_or_none(vnum=vnum)
-        if proto is None:
-            context.finish()
-            return {"to_char": "No object has that vnum.\r\n"}
-        obj = ItemUtil.create_object(proto)
-        room = self.room_registry.get_or_none(id=context.character.room_id)
-        if room is not None:
-            room.add_item_to_room(obj)
-        context.finish()
-        return {"to_char": "Object loaded.\r\n"}
+        return self.character_macros.wiz_do_oload(context, vnum_text, self.item_registry, self.room_registry)
 
     def do_smote(self, character: Character, context: Context, argument: str):
         text = (argument or "").strip()
@@ -567,109 +559,7 @@ class WizCommands:
         return {"to_char": "You cannot abbreviate the prefix command.\r\n"}
 
     def _toggle_comm_on_target(self, character: Character, context: Context, argument: str, bit_name: str, label: str):
-        victim = self._find_character_world((argument or "").strip())
-        if victim is None:
-            context.finish()
-            return {"to_char": f"{label.lower()} whom?\r\n"}
-        bit = self._comm_flag(bit_name)
-        if bit == 0:
-            context.finish()
-            return {"to_char": "This feature is unavailable.\r\n"}
-        raw = GenericUtil.to_int(self.character_macros.convert_flags(getattr(victim.character_flags, "comm", "") or "0"), 0)
-        if self.character_macros.is_set(raw, bit):
-            raw = self.character_macros.unset_bit(raw, bit)
-            victim.character_flags.comm = GenericUtil.flags_to_letters(raw)
-            context.finish()
-            return {"to_char": f"{label} removed.\r\n", "victim": victim, "to_victim": "The gods have restored your privileges.\r\n"}
-        raw = self.character_macros.set_bit(raw, bit)
-        victim.character_flags.comm = GenericUtil.flags_to_letters(raw)
-        context.finish()
-        return {"to_char": f"{label} set.\r\n", "victim": victim, "to_victim": "The gods have revoked your privileges.\r\n"}
-
-    @staticmethod
-    def _restore_character(victim: Character):
-        victim.hit = int(getattr(victim, "max_hit", 0))
-        victim.mana = int(getattr(victim, "max_mana", 0))
-        victim.movement = int(getattr(victim, "max_movement", 0))
+        return self.character_macros.wiz_toggle_comm_on_target(context, argument, bit_name, label, self.comm_flags, self._find_character_world)
 
     def _find_character_world(self, arg: str):
-        q = (arg or "").strip().lower()
-        if not q:
-            return None
-        if q == "self":
-            return None
-        for ch in self.character_registry.all_characters():
-            if WizUtil.name_matches(q, getattr(ch, "name", "")):
-                return ch
-        return None
-
-    @staticmethod
-    def _find_character_in_room(room, arg: str):
-        if room is None:
-            return None
-        q = (arg or "").strip().lower()
-        for ch in room.characters.values():
-            if WizUtil.name_matches(q, getattr(ch, "name", "")):
-                return ch
-        return None
-
-    @staticmethod
-    def _find_item_in_room(room, arg: str):
-        if room is None:
-            return None
-        q = (arg or "").strip().lower()
-        for item in room.contents.values():
-            if WizUtil.name_matches(q, getattr(item, "name", "")):
-                return item
-        return None
-
-    def _find_location(self, character: Character, arg: str):
-        value = (arg or "").strip()
-        if value.isdigit():
-            room = self.room_registry.get_or_none(vnum=value)
-            if room is not None:
-                return room
-        victim = self._find_character_world(value)
-        if victim is not None:
-            return self.room_registry.get_or_none(id=victim.room_id)
-
-        # Support goto by mobile name (e.g., goto hassan).
-        q = value.lower()
-        for room in self.room_registry.all_rooms():
-            if room is None:
-                continue
-            for mob in room.mobiles.values():
-                mob_name = f"{getattr(mob, 'name', '')} {getattr(mob, 'short_description', '')}".strip()
-                if WizUtil.name_matches(q, mob_name):
-                    return room
-
-        for room in self.room_registry.all_rooms():
-            if room is None:
-                continue
-            if WizUtil.name_matches(value, getattr(room, "name", "")):
-                return room
-        return None
-
-    def _player_act_bit(self, name: str) -> int:
-        if self.player_act_bits is None or not hasattr(self.player_act_bits, name):
-            return 0
-        return int(getattr(self.player_act_bits, name).value)
-
-    def _comm_flag(self, name: str) -> int:
-        if self.comm_flags is None or not hasattr(self.comm_flags, name):
-            return 0
-        return int(getattr(self.comm_flags, name).value)
-
-    def _wiznet_flag(self, name: str) -> int:
-        if self.wiznet_flags is None or not hasattr(self.wiznet_flags, name):
-            return 0
-        return int(getattr(self.wiznet_flags, name).value)
-
-    def _wiznet_names(self) -> list[str]:
-        if self.wiznet_flags is None:
-            return []
-        names = []
-        for field in dir(self.wiznet_flags):
-            if field.startswith("WIZ_"):
-                names.append(field)
-        return sorted(names)
+        return self.character_macros.find_character_world(arg, self.character_registry, WizUtil.name_matches, allow_self=False)

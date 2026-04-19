@@ -19,46 +19,46 @@ from player.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
 from server.session.SessionHandler import SessionHandler
 
+DAY_NAME = [
+    "the Moon", "the Bull", "Deception", "Thunder", "Freedom",
+    "the Great Gods", "the Sun"
+]
+MONTH_NAME = [
+    "Winter", "the Winter Wolf", "the Frost Giant", "the Old Forces",
+    "the Grand Struggle", "the Spring", "Nature", "Futility", "the Dragon",
+    "the Sun", "the Heat", "the Battle", "the Dark Shades", "the Shadows",
+    "the Long Shadows", "the Ancient Darkness", "the Great Evil"
+]
+SKY_LOOK = [
+    "cloudless",
+    "cloudy",
+    "rainy",
+    "lit by flashes of lightning",
+]
+EQUIP_SLOT_LABELS = [
+    ("light", "<used as light>      "),
+    ("finger1", "<worn on finger>    "),
+    ("finger2", "<worn on finger>    "),
+    ("neck1", "<worn around neck>   "),
+    ("neck2", "<worn around neck>   "),
+    ("torso", "<worn on torso>      "),
+    ("head", "<worn on head>       "),
+    ("legs", "<worn on legs>       "),
+    ("feet", "<worn on feet>       "),
+    ("hands", "<worn on hands>      "),
+    ("arms", "<worn on arms>       "),
+    ("shield", "<worn as shield>     "),
+    ("body", "<worn about body>     "),
+    ("waist", "<worn about waist>    "),
+    ("wrist1", "<worn around wrist>  "),
+    ("wrist2", "<worn around wrist>  "),
+    ("wielded", "<wielded>            "),
+    ("held", "<held>               "),
+    ("floating_nearby", "<floating nearby>    "),
+]
+
 
 class InfoCommands:
-    DAY_NAME = [
-        "the Moon", "the Bull", "Deception", "Thunder", "Freedom",
-        "the Great Gods", "the Sun"
-    ]
-    MONTH_NAME = [
-        "Winter", "the Winter Wolf", "the Frost Giant", "the Old Forces",
-        "the Grand Struggle", "the Spring", "Nature", "Futility", "the Dragon",
-        "the Sun", "the Heat", "the Battle", "the Dark Shades", "the Shadows",
-        "the Long Shadows", "the Ancient Darkness", "the Great Evil"
-    ]
-    SKY_LOOK = [
-        "cloudless",
-        "cloudy",
-        "rainy",
-        "lit by flashes of lightning",
-    ]
-    EQUIP_SLOT_LABELS = [
-        ("light", "<used as light>      "),
-        ("finger1", "<worn on finger>    "),
-        ("finger2", "<worn on finger>    "),
-        ("neck1", "<worn around neck>   "),
-        ("neck2", "<worn around neck>   "),
-        ("torso", "<worn on torso>      "),
-        ("head", "<worn on head>       "),
-        ("legs", "<worn on legs>       "),
-        ("feet", "<worn on feet>       "),
-        ("hands", "<worn on hands>      "),
-        ("arms", "<worn on arms>       "),
-        ("shield", "<worn as shield>     "),
-        ("body", "<worn about body>     "),
-        ("waist", "<worn about waist>    "),
-        ("wrist1", "<worn around wrist>  "),
-        ("wrist2", "<worn around wrist>  "),
-        ("wielded", "<wielded>            "),
-        ("held", "<held>               "),
-        ("floating_nearby", "<floating nearby>    "),
-    ]
-
     @inject
     def __init__(self,
                  registry_service: RegistryService,
@@ -92,9 +92,9 @@ class InfoCommands:
         }
 
     def do_who(self, character: Character) -> str:
-        who_list = [character] + PlayerUtil.visible(character, self.session_handler)
+        who_list = [character] + PlayerUtil.visible(character, self.session_handler, self.character_macros)
         lines = [
-            f"{self._who_line(character, c)}\r\n"
+            f"{self.character_macros.who_line(character, c)}\r\n"
             for c in who_list
         ]
         lines.append(f"Players found: {len(who_list)}\r\n")
@@ -104,15 +104,21 @@ class InfoCommands:
         arg_all = " ".join((argument or "").split()).lower()
         if not arg_all:
             arg_all = "summary"
+        q_words = [self.character_macros.normalize_help_token(w) for w in arg_all.split()]
+        q_words = [w for w in q_words if w]
         output_parts = []
         found = False
+        emitted_help_ids: set[str] = set()
         for command in self.interp_registry.all_commands():
             help_entry: HelpEntry = command.help
             if help_entry is None or not help_entry.keyword:
                 continue
+            help_id = str(getattr(help_entry, "id", "") or "")
+            if help_id and help_id in emitted_help_ids:
+                continue
 
-            q_words = arg_all.split()
-            k_words = help_entry.keyword.split()
+            k_words = [self.character_macros.normalize_help_token(w) for w in str(help_entry.keyword).split()]
+            k_words = [w for w in k_words if w]
             if (not q_words or not k_words) or not all(any(k.startswith(q) for k in k_words) for q in q_words):
                 continue
 
@@ -134,6 +140,8 @@ class InfoCommands:
             if text.startswith("."):
                 text = text[1:]
             output_parts.append(text)
+            if help_id:
+                emitted_help_ids.add(help_id)
 
         return "".join(output_parts) if len(output_parts) > 0 else "No help on that word.\n\r"
 
@@ -156,7 +164,7 @@ class InfoCommands:
             desc = "You see nothing special."
 
         lines = [desc, InfoUtil.target_condition_line(target)]
-        equip_lines = self._target_equipment_lines(target)
+        equip_lines = self.character_macros.target_equipment_lines(target)
         if equip_lines:
             lines.append("")
             lines.append(f"{(target.name or 'They')} is using:")
@@ -164,23 +172,6 @@ class InfoCommands:
 
         context.finish()
         return "\r\n".join(lines) + "\r\n"
-
-    def _target_equipment_lines(self, target: Any) -> list[str]:
-        item_flags = self.character_macros.enums.get("itemFlags")
-        lines = []
-
-        equipped = getattr(target, "equipped", None)
-        for slot, label in self.EQUIP_SLOT_LABELS:
-            obj = None
-            if equipped is not None:
-                obj = equipped.get(slot) if isinstance(equipped, dict) else getattr(equipped, slot, None)
-            if obj is None:
-                obj = InfoUtil.find_inventory_item_for_slot(target, slot)
-                if obj is None:
-                    continue
-            item_text = ItemUtil.format_obj_to_char(obj, item_flags_enum=item_flags, f_short=True)
-            lines.append(f"{label}{item_text}")
-        return lines
 
     async def do_look(self, character: Character, context: Context) -> str | None:
         if not await self.command_helper.check_position(character):
@@ -344,7 +335,7 @@ class InfoCommands:
         if hunger == 0:
             lines.append("You are hungry.")
 
-        position_line = self._score_position_line(attributes)
+        position_line = self.character_macros.score_position_line(attributes)
         lines.append(position_line)
 
         ac_pierce = self.character_macros.get_ac(character, 0)
@@ -378,9 +369,9 @@ class InfoCommands:
         if character.level >= 10:
             lines.append(f"Alignment: {alignment}.")
         lines.append(f"You are {InfoUtil.score_alignment_word(alignment)}.")
-        if self._is_comm_enabled(character, "COMM_SHOW_AFFECTS"):
+        if self.character_macros.is_comm_enabled(character, "COMM_SHOW_AFFECTS"):
             lines.append("")
-            lines.append(self._format_affects(character).rstrip("\r\n"))
+            lines.append(self.character_macros.format_affects(character).rstrip("\r\n"))
         context.finish()
         return "\r\n".join(lines) + "\r\n"
 
@@ -407,7 +398,7 @@ class InfoCommands:
         text = (
             f"It is {12 if hour % 12 == 0 else hour % 12} o'clock "
             f"{'pm' if hour >= 12 else 'am'}, "
-            f"Day of {self.DAY_NAME[day % 7]}, {day}{suf} the Month of {self.MONTH_NAME[month]}.\r\n"
+            f"Day of {DAY_NAME[day % 7]}, {day}{suf} the Month of {MONTH_NAME[month]}.\r\n"
             f"ROM started up at {self.server_boot_time}\r\n"
             f"The system time is {datetime.now().ctime()}.\r\n"
         )
@@ -429,12 +420,12 @@ class InfoCommands:
             sky_index = int(sky.value)
         else:
             sky_index = int(sky)
-        if sky_index < 0 or sky_index >= len(self.SKY_LOOK):
+        if sky_index < 0 or sky_index >= len(SKY_LOOK):
             sky_index = 0
 
         breeze = "a warm southerly breeze blows" if int(getattr(weather_info, "change", 0)) >= 0 else "a cold northern gust blows"
         context.finish()
-        return f"The sky is {self.SKY_LOOK[sky_index]} and {breeze}.\r\n"
+        return f"The sky is {SKY_LOOK[sky_index]} and {breeze}.\r\n"
 
     def do_where(self, character: Character, context: Context) -> str:
         arg = (context.result if isinstance(context.result, str) else "").strip().lower()
@@ -626,7 +617,7 @@ class InfoCommands:
 
     def do_affects(self, character: Character, context: Context) -> str:
         context.finish()
-        return self._format_affects(character)
+        return self.character_macros.format_affects(character)
 
     def do_autolist(self, character: Character, context: Context) -> str:
         if self.character_macros.is_npc(character):
@@ -635,8 +626,8 @@ class InfoCommands:
 
         act_bits = self.PlayerActBits
         comm_bits = self.character_macros.enums.get("commFlags")
-        act = self._get_act_flags(character)
-        comm = self._get_comm_flags(character)
+        act = self.character_macros.get_act_flags(character)
+        comm = self.character_macros.get_comm_flags(character)
 
         def on_off(value: bool) -> str:
             return "ON" if value else "OFF"
@@ -686,44 +677,44 @@ class InfoCommands:
         return "".join(lines)
 
     def do_autoassist(self, character: Character, context: Context) -> str:
-        text = self._toggle_player_act(character, "PLR_AUTOASSIST", "Autoassist removed.\r\n", "You will now assist when needed.\r\n")
+        text = self.character_macros.toggle_player_act(character, "PLR_AUTOASSIST", "Autoassist removed.\r\n", "You will now assist when needed.\r\n")
         context.finish()
         return text
 
     def do_autoexit(self, character: Character, context: Context) -> str:
-        text = self._toggle_player_act(character, "PLR_AUTOEXIT", "Exits will no longer be displayed.\r\n", "Exits will now be displayed.\r\n")
+        text = self.character_macros.toggle_player_act(character, "PLR_AUTOEXIT", "Exits will no longer be displayed.\r\n", "Exits will now be displayed.\r\n")
         context.finish()
         return text
 
     def do_autogold(self, character: Character, context: Context) -> str:
-        text = self._toggle_player_act(character, "PLR_AUTOGOLD", "Autogold removed.\r\n", "Automatic gold looting set.\r\n")
+        text = self.character_macros.toggle_player_act(character, "PLR_AUTOGOLD", "Autogold removed.\r\n", "Automatic gold looting set.\r\n")
         context.finish()
         return text
 
     def do_autoloot(self, character: Character, context: Context) -> str:
-        text = self._toggle_player_act(character, "PLR_AUTOLOOT", "Autolooting removed.\r\n", "Automatic corpse looting set.\r\n")
+        text = self.character_macros.toggle_player_act(character, "PLR_AUTOLOOT", "Autolooting removed.\r\n", "Automatic corpse looting set.\r\n")
         context.finish()
         return text
 
     def do_autosac(self, character: Character, context: Context) -> str:
-        text = self._toggle_player_act(character, "PLR_AUTOSAC", "Autosacrificing removed.\r\n", "Automatic corpse sacrificing set.\r\n")
+        text = self.character_macros.toggle_player_act(character, "PLR_AUTOSAC", "Autosacrificing removed.\r\n", "Automatic corpse sacrificing set.\r\n")
         context.finish()
         return text
 
     def do_autosplit(self, character: Character, context: Context) -> str:
-        text = self._toggle_player_act(character, "PLR_AUTOSPLIT", "Autosplitting removed.\r\n", "Automatic gold splitting set.\r\n")
+        text = self.character_macros.toggle_player_act(character, "PLR_AUTOSPLIT", "Autosplitting removed.\r\n", "Automatic gold splitting set.\r\n")
         context.finish()
         return text
 
     def do_brief(self, character: Character, context: Context) -> str:
-        text = self._toggle_comm(character, "COMM_BRIEF", "Full descriptions activated.\r\n", "Short descriptions activated.\r\n")
+        text = self.character_macros.toggle_comm(character, "COMM_BRIEF", "Full descriptions activated.\r\n", "Short descriptions activated.\r\n")
         context.finish()
         return text
 
     def do_compact(self, character: Character, context: Context) -> str:
-        text = self._toggle_comm(character, "COMM_COMPACT", "Compact mode removed.\r\n", "Compact mode set.\r\n")
+        text = self.character_macros.toggle_comm(character, "COMM_COMPACT", "Compact mode removed.\r\n", "Compact mode set.\r\n")
         comm_bits = self.character_macros.enums.get("commFlags")
-        comm = self._get_comm_flags(character)
+        comm = self.character_macros.get_comm_flags(character)
         is_compact = (
             comm_bits is not None
             and hasattr(comm_bits, "COMM_COMPACT")
@@ -736,12 +727,12 @@ class InfoCommands:
         return text
 
     def do_combine(self, character: Character, context: Context) -> str:
-        text = self._toggle_comm(character, "COMM_COMBINE", "Long inventory selected.\r\n", "Combined inventory selected.\r\n")
+        text = self.character_macros.toggle_comm(character, "COMM_COMBINE", "Long inventory selected.\r\n", "Combined inventory selected.\r\n")
         context.finish()
         return text
 
     def do_noloot(self, character: Character, context: Context) -> str:
-        text = self._toggle_player_act(
+        text = self.character_macros.toggle_player_act(
             character,
             "PLR_CANLOOT",
             "Your corpse is now safe from thieves.\r\n",
@@ -751,7 +742,7 @@ class InfoCommands:
         return text
 
     def do_nofollow(self, character: Character, context: Context) -> str:
-        text = self._toggle_player_act(
+        text = self.character_macros.toggle_player_act(
             character,
             "PLR_NOFOLLOW",
             "You now accept followers.\r\n",
@@ -761,7 +752,7 @@ class InfoCommands:
         return text
 
     def do_nosummon(self, character: Character, context: Context) -> str:
-        text = self._toggle_player_act(
+        text = self.character_macros.toggle_player_act(
             character,
             "PLR_NOSUMMON",
             "You are now summonable.\r\n",
@@ -798,7 +789,7 @@ class InfoCommands:
             return self.do_who(character)
 
         matches = []
-        for c in [character] + PlayerUtil.visible(character, self.session_handler):
+        for c in [character] + PlayerUtil.visible(character, self.session_handler, self.character_macros):
             name = (c.name or "").lower()
             if name == arg or name.startswith(arg):
                 matches.append(c)
@@ -808,25 +799,10 @@ class InfoCommands:
             return "No one by that name is playing.\r\n"
 
         lines = [
-            f"{self._who_line(character, c)}\r\n"
+            f"{self.character_macros.who_line(character, c)}\r\n"
             for c in matches
         ]
         return "".join(lines)
-
-    def _who_line(self, viewer: Character, target: Character) -> str:
-        trust = GenericUtil.to_int(self.character_macros.get_trust(viewer), 0)
-        incog_level = GenericUtil.to_int(getattr(target, "incog_level", 0), 0)
-        invis_level = GenericUtil.to_int(getattr(target, "invis_level", 0), 0)
-
-        flags = []
-        if incog_level > 0 and trust >= incog_level:
-            flags.append("(Incog)")
-        if invis_level > 0 and trust >= invis_level:
-            flags.append("(Wizi)")
-
-        flag_text = (" " + " ".join(flags)) if flags else ""
-        class_name = getattr(getattr(target, "character_class", None), "name", "") or ""
-        return f"[{target.level}    {target.race}    {class_name}]{flag_text} {target.name} {target.title}"
 
     def do_count(self, context: Context) -> str:
         count = len(self.session_handler.get_playing_sessions())
@@ -836,7 +812,7 @@ class InfoCommands:
         return f"There are {count} players online.\r\n"
 
     def do_show(self, character: Character, context: Context) -> str:
-        text = self._toggle_comm(
+        text = self.character_macros.toggle_comm(
             character,
             "COMM_SHOW_AFFECTS",
             "Affects will no longer be shown in score.\r\n",
@@ -861,8 +837,8 @@ class InfoCommands:
         if not raw:
             skills = []
             for skill in sorted(self.skill_registry.all_skills(), key=lambda s: (s.name or "").lower()):
-                lvl = self._skill_value_for_class(getattr(skill, "level_by_class", {}) or {}, class_name, default=99)
-                rating = self._skill_value_for_class(getattr(skill, "rating_by_class", {}) or {}, class_name, default=0)
+                lvl = CharacterMacros.skill_value_for_class(getattr(skill, "level_by_class", {}) or {}, class_name, default=99)
+                rating = CharacterMacros.skill_value_for_class(getattr(skill, "rating_by_class", {}) or {}, class_name, default=0)
                 if lvl <= GenericUtil.to_int(getattr(character, "level", 0), 0) and rating > 0 and lvl < 99:
                     skills.append(skill.name)
 
@@ -909,7 +885,7 @@ class InfoCommands:
             raw = " ".join(context.parameters).strip()
 
         if raw == "":
-            text = self._toggle_comm(character, "COMM_PROMPT", "You will no longer see prompts.\r\n", "You will now see prompts.\r\n")
+            text = self.character_macros.toggle_comm(character, "COMM_PROMPT", "You will no longer see prompts.\r\n", "You will now see prompts.\r\n")
             context.finish()
             return text
 
@@ -965,7 +941,7 @@ class InfoCommands:
         return f"Prompt set to {shown}\r\n"
 
     def do_equipment(self, character: Character, context: Context) -> str:
-        lines = self._target_equipment_lines(character)
+        lines = self.character_macros.target_equipment_lines(character)
         context.finish()
         if not lines:
             return "You are using:\r\nNothing.\r\n"
@@ -983,12 +959,12 @@ class InfoCommands:
             context.finish()
             return "Compare what to what?\r\n"
 
-        obj1 = self._find_owned_item(character, arg1)
+        obj1 = self.character_macros.find_owned_item(character, arg1)
         if obj1 is None:
             context.finish()
             return "You do not have that item.\r\n"
 
-        obj2 = self._find_owned_item(character, arg2) if arg2 else self._find_comparable_equipped_item(character, obj1)
+        obj2 = self.character_macros.find_owned_item(character, arg2) if arg2 else self.character_macros.find_comparable_equipped_item(character, obj1)
         if obj2 is None:
             context.finish()
             return "You aren't wearing anything comparable.\r\n" if not arg2 else "You do not have that item.\r\n"
@@ -999,8 +975,8 @@ class InfoCommands:
             context.finish()
             return "You can't compare those items.\r\n"
 
-        v1 = self._compare_value(obj1)
-        v2 = self._compare_value(obj2)
+        v1 = CharacterMacros.compare_value(obj1)
+        v2 = CharacterMacros.compare_value(obj2)
         if v1 is None or v2 is None:
             context.finish()
             return "You can't compare those items.\r\n"
@@ -1015,152 +991,3 @@ class InfoCommands:
         if v1 > v2:
             return f"{n1} looks better than {n2}.\r\n"
         return f"{n1} looks worse than {n2}.\r\n"
-
-    @staticmethod
-    def _owned_items(character: Character) -> list:
-        items = list(getattr(character, "loot", []) or [])
-        equipped = getattr(character, "equipped", None)
-        if equipped is not None:
-            for slot_item in getattr(equipped, "__dict__", {}).values():
-                if slot_item is not None and slot_item not in items:
-                    items.append(slot_item)
-        return items
-
-    def _find_owned_item(self, character: Character, wanted: str):
-        key = (wanted or "").strip().lower()
-        if not key:
-            return None
-        for item in self._owned_items(character):
-            name = (getattr(item, "name", "") or "").lower()
-            if name == key or name.startswith(key):
-                return item
-        return None
-
-    def _find_comparable_equipped_item(self, character: Character, source_item):
-        src_type = str(getattr(source_item, "item_type", "") or "").strip().lower()
-        equipped = getattr(character, "equipped", None)
-        for slot_item in getattr(equipped, "__dict__", {}).values() if equipped is not None else []:
-            if slot_item is None or slot_item == source_item:
-                continue
-            item_type = str(getattr(slot_item, "item_type", "") or "").strip().lower()
-            if item_type == src_type:
-                return slot_item
-        return None
-
-    @staticmethod
-    def _compare_value(item) -> int | None:
-        item_type = str(getattr(item, "item_type", "") or "").strip().lower()
-        if "weapon" in item_type:
-            dam_min = GenericUtil.to_int(getattr(item, "value1", 0), 0)
-            dam_max = GenericUtil.to_int(getattr(item, "value2", 0), 0)
-            return (dam_min + dam_max) // 2
-        if "armor" in item_type:
-            return GenericUtil.to_int(getattr(item, "value0", 0), 0)
-        return None
-
-    def _format_affects(self, character: Character) -> str:
-        affected_bits = self.character_macros.AffectedBits
-        if affected_bits is None:
-            return "You are not affected by any spells.\r\n"
-        raw = int(self.character_macros.convert_flags(getattr(character.character_flags, "affected_by", "") or ""))
-        lines = []
-        for name, member in affected_bits.__members__.items():
-            if self.character_macros.is_set(raw, member.value):
-                pretty = name.replace("AFF_", "").replace("_", " ").lower()
-                lines.append(f"Spell: {pretty}\r\n")
-        if not lines:
-            return "You are not affected by any spells.\r\n"
-        return "You are affected by the following spells:\r\n" + "".join(lines)
-
-    def _is_comm_enabled(self, character: Character, bit_name: str) -> bool:
-        comm_bits = self.character_macros.enums.get("commFlags")
-        if comm_bits is None or not hasattr(comm_bits, bit_name):
-            return False
-        comm = self._get_comm_flags(character)
-        return self.character_macros.is_set(comm, getattr(comm_bits, bit_name).value)
-
-    @staticmethod
-    def _skill_value_for_class(values: dict, class_name: str, default: int = 0) -> int:
-        if not isinstance(values, dict):
-            return default
-        if class_name in values:
-            return GenericUtil.to_int(values.get(class_name), default)
-        class_lower = class_name.lower()
-        for key, value in values.items():
-            if str(key).lower() == class_lower:
-                return GenericUtil.to_int(value, default)
-        return default
-
-    def _toggle_player_act(self, character: Character, bit_name: str, off_text: str, on_text: str) -> str:
-        if self.character_macros.is_npc(character):
-            return ""
-        if self.PlayerActBits is None or not hasattr(self.PlayerActBits, bit_name):
-            return ""
-
-        bit_value = getattr(self.PlayerActBits, bit_name).value
-        act = self._get_act_flags(character)
-        if self.character_macros.is_set(act, bit_value):
-            act = self.character_macros.unset_bit(act, bit_value)
-            self._set_act_flags(character, act)
-            return off_text
-
-        act = self.character_macros.set_bit(act, bit_value)
-        self._set_act_flags(character, act)
-        return on_text
-
-    def _get_act_flags(self, character: Character) -> int:
-        return int(self.character_macros.convert_flags(getattr(character.character_flags, "act", "0") or "0"))
-
-    def _set_act_flags(self, character: Character, value: int) -> None:
-        character.character_flags.act = GenericUtil.flags_to_letters(value)
-
-    def _get_comm_flags(self, character: Character) -> int:
-        return int(self.character_macros.convert_flags(getattr(character.character_flags, "comm", "0") or "0"))
-
-    def _set_comm_flags(self, character: Character, value: int) -> None:
-        character.character_flags.comm = GenericUtil.flags_to_letters(value)
-
-    def _toggle_comm(self, character: Character, bit_name: str, off_text: str, on_text: str) -> str:
-        comm_bits = self.character_macros.enums.get("commFlags")
-        if comm_bits is None or not hasattr(comm_bits, bit_name):
-            return ""
-
-        bit_value = getattr(comm_bits, bit_name).value
-        comm = self._get_comm_flags(character)
-        if self.character_macros.is_set(comm, bit_value):
-            comm = self.character_macros.unset_bit(comm, bit_value)
-            self._set_comm_flags(character, comm)
-            return off_text
-
-        comm = self.character_macros.set_bit(comm, bit_value)
-        self._set_comm_flags(character, comm)
-        return on_text
-
-    def _score_position_line(self, attributes: Any) -> str:
-        position_value = GenericUtil.to_int(getattr(attributes, "position", 0), 0)
-        positions = self.character_macros.PositionsEnum
-        pos_dead = positions.POS_DEAD.value if positions and hasattr(positions, "POS_DEAD") else -1
-        pos_mortal = positions.POS_MORTAL.value if positions and hasattr(positions, "POS_MORTAL") else -1
-        pos_incap = positions.POS_INCAP.value if positions and hasattr(positions, "POS_INCAP") else -1
-        pos_stunned = positions.POS_STUNNED.value if positions and hasattr(positions, "POS_STUNNED") else -1
-        pos_sleeping = positions.POS_SLEEPING.value if positions and hasattr(positions, "POS_SLEEPING") else -1
-        pos_resting = positions.POS_RESTING.value if positions and hasattr(positions, "POS_RESTING") else -1
-        pos_sitting = positions.POS_SITTING.value if positions and hasattr(positions, "POS_SITTING") else -1
-        pos_fighting = positions.POS_FIGHTING.value if positions and hasattr(positions, "POS_FIGHTING") else -1
-        if position_value == pos_dead:
-            return "You are DEAD!!"
-        if position_value == pos_mortal:
-            return "You are mortally wounded."
-        if position_value == pos_incap:
-            return "You are incapacitated."
-        if position_value == pos_stunned:
-            return "You are stunned."
-        if position_value == pos_sleeping:
-            return "You are sleeping."
-        if position_value == pos_resting:
-            return "You are resting."
-        if position_value == pos_sitting:
-            return "You are sitting."
-        if position_value == pos_fighting:
-            return "You are fighting."
-        return "You are standing."
