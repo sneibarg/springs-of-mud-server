@@ -135,7 +135,7 @@
         "MAX_DAMAGE_MESSAGE": 41,
         "MAX_LEVEL": 60,
         "LEVEL_HERO": 51,
-        "LEVEL_IMMORTAL": 52,
+        "LEVEL_IMMORTAL": 55,
         "PULSE_PER_SECOND": 4,
         "PULSE_VIOLENCE": 12,
         "PULSE_MOBILE": 16,

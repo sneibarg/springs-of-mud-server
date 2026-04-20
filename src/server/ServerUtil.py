@@ -28,7 +28,6 @@ from game.NoteHandler import NoteHandler
 from game.NoteService import NoteService
 from mobile.MobileService import MobileService
 from object.ObjectMacros import ObjectMacros
-from player.CharacterConstants import CharacterConstants
 from player.CharacterMacros import CharacterMacros
 from player.PlayerHelper import PlayerHelper
 from player.PlayerService import PlayerService
@@ -145,11 +144,6 @@ class ServerUtil:
     @staticmethod
     def _bind_game_data(injector):
         injector.binder.bind(GameData, to=injector.get(GameService).game_data, scope=singleton)
-        injector.binder.bind(CharacterConstants, to=CharacterConstants(injector.get(GameData).constants,
-                                                                       injector.get(GameService).enums['positions'],
-                                                                       injector.get(GameService).enums['actBits'],
-                                                                       injector.get(GameData).attribute_bonuses),
-                             scope=singleton)
         injector.binder.bind(ObjectMacros, to=ObjectMacros(injector.get(GameData).races,
                                                            injector.get(GameData).item_table,
                                                            injector.get(GameService).enums), scope=singleton)
@@ -177,7 +171,6 @@ class ServerUtil:
         update_handler = injector.get(UpdateHandler)
         item_handler = injector.get(ItemHandler)
         registry_service = injector.get(RegistryService)
-        character_constants = injector.get(CharacterConstants)
         attribute_bonuses = injector.get(GameData).attribute_bonuses
         enums = injector.get(GameService).enums
         communications_commands = injector.get(CommunicationsCommands)
@@ -190,7 +183,6 @@ class ServerUtil:
 
         CharacterMacros.configure(
             registry_provider=lambda: registry_service,
-            character_constants_provider=lambda: character_constants,
             enums_provider=lambda: enums,
             attribute_bonuses_provider=lambda: attribute_bonuses,
             weather_handler_provider=lambda: weather_handler,

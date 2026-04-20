@@ -32,8 +32,8 @@ class PlayerUtil:
         prefixes = []
         if _is_affected(target, "AFF_INVISIBLE"):
             prefixes.append("(Invis)")
-        hero_level = getattr(CharacterMacros.get_character_constants(), "immortal_levels", {}).get("LEVEL_HERO", 51)
-        if GenericUtil.to_int(getattr(target, "invis_level", 0)) >= GenericUtil.to_int(hero_level, 51):
+        GameParameters = CharacterMacros.get_enum("gameParameters")
+        if GenericUtil.to_int(getattr(target, "invis_level", 0)) >= GenericUtil.to_int(GameParameters.HERO.value, 51):
             prefixes.append("(Wizi)")
         if _is_affected(target, "AFF_HIDE"):
             prefixes.append("(Hide)")

@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from enum import IntEnum
 from threading import RLock
-from typing import Any, TYPE_CHECKING, Callable, Optional, Type
+from typing import Any, TYPE_CHECKING, Callable, Optional
 
 from area.Room import Room
 from game.GameMacros import GameMacros
@@ -25,13 +25,11 @@ class CharacterMacros(GameMacros):
     _configured = False
 
     _registry_provider: Optional[Callable[[], Any]] = None
-    _character_constants_provider: Optional[Callable[[], Any]] = None
     _enums_provider: Optional[Callable[[], dict[str, IntEnum]]] = None
     _attribute_bonuses_provider: Optional[Callable[[], dict[str, dict[str, dict[str, int]]]]] = None
     _weather_handler_provider: Optional[Callable[[], Any]] = None
 
     _registry_service = None
-    _character_constants = None
     _enums = None
     _attribute_bonuses = None
     _weather_handler = None
@@ -47,14 +45,12 @@ class CharacterMacros(GameMacros):
         cls,
         *,
         registry_provider: Callable[[], Any],
-        character_constants_provider: Callable[[], Any],
         enums_provider: Callable[[], dict[str, IntEnum]],
         attribute_bonuses_provider: Callable[[], dict[str, dict[str, dict[str, int]]]],
         weather_handler_provider: Optional[Callable[[], Any]] = None,
     ) -> None:
         with cls._lock:
             cls._registry_provider = registry_provider
-            cls._character_constants_provider = character_constants_provider
             cls._enums_provider = enums_provider
             cls._attribute_bonuses_provider = attribute_bonuses_provider
             cls._weather_handler_provider = weather_handler_provider
@@ -65,12 +61,10 @@ class CharacterMacros(GameMacros):
         with cls._lock:
             cls._configured = False
             cls._registry_provider = None
-            cls._character_constants_provider = None
             cls._enums_provider = None
             cls._attribute_bonuses_provider = None
             cls._weather_handler_provider = None
             cls._registry_service = None
-            cls._character_constants = None
             cls._enums = None
             cls._attribute_bonuses = None
             cls._weather_handler = None
@@ -99,15 +93,6 @@ class CharacterMacros(GameMacros):
                 raise RuntimeError("CharacterMacros registry provider not configured.")
             cls._registry_service = cls._registry_provider()
         return cls._registry_service
-
-    @classmethod
-    def _constants(cls):
-        if cls._character_constants is None:
-            cls._require_configured()
-            if cls._character_constants_provider is None:
-                raise RuntimeError("CharacterMacros character_constants provider not configured.")
-            cls._character_constants = cls._character_constants_provider()
-        return cls._character_constants
 
     @classmethod
     def _enums_map(cls):
@@ -163,10 +148,11 @@ class CharacterMacros(GameMacros):
 
     @classmethod
     def get_trust(cls, char: Any) -> int:
+        GameParameters = CharacterMacros.get_enum("gameParameters")
         if type(char) is Character and char.trust > 0:
             return char.trust
-        if cls.is_npc(char) and char.level >= cls._constants().immortal_levels.get("LEVEL_HERO"):
-            return cls._constants().immortal_levels.get("LEVEL_HERO") - 1
+        if cls.is_npc(char) and char.level >= GameParameters.HERO.value:
+            return GameParameters.HERO.value - 1
         return char.level
 
     @classmethod
@@ -180,11 +166,13 @@ class CharacterMacros(GameMacros):
         bonus = bonus_table.get(str(normalized))
         if bonus is not None:
             return bonus
-        return bonus_table.get(normalized, {})
+        return bonus_table.get(normalized,{})
 
     @classmethod
     def is_immortal_sufficient(cls, level: int, immortal_name: str) -> bool:
-        return level >= cls._constants().immortal_levels.get(immortal_name)
+        GameParameters = cls.get_enum("gameParameters")
+        imm_level = GameParameters[immortal_name.upper()]
+        return level >= imm_level.value
 
     @staticmethod
     def is_npc(char: Any) -> bool:
@@ -222,7 +210,8 @@ class CharacterMacros(GameMacros):
 
     @classmethod
     def is_awake(cls, char: Any) -> bool:
-        return char.character_attributes.position > cls._constants().positions.POS_SLEEPING.value
+        positions = cls.get_enum("positions")
+        return char.character_attributes.position > positions.POS_SLEEPING.value
 
     @staticmethod
     def get_age(char: Character) -> int:
@@ -973,7 +962,3 @@ class CharacterMacros(GameMacros):
     @classmethod
     def get_enum(cls, enum_name: str) -> IntEnum:
         return cls._enums_map()[enum_name]
-
-    @classmethod
-    def get_character_constants(cls):
-        return cls._constants()
