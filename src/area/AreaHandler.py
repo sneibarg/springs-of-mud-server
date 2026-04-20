@@ -12,7 +12,6 @@ from mobile.MobileUtil import MobileUtil
 from mobile.MobileRegistry import MobileRegistry
 from object import Item
 from object.ItemUtil import ItemUtil
-from object.ObjectMacros import ObjectMacros
 from game.RandomNumberGenerator import RandomNumberGenerator
 from object.ItemRegistry import ItemRegistry
 from server.messaging import MessageBus
@@ -27,8 +26,7 @@ class AreaHandler:
                  area_registry: AreaRegistry,
                  room_registry: RoomRegistry,
                  item_registry: ItemRegistry,
-                 mobile_registry: MobileRegistry,
-                 object_macros: ObjectMacros):
+                 mobile_registry: MobileRegistry):
         self.__name__ = "AreaHandler"
         self.logger = LoggerFactory.get_logger(__name__)
         self.message_bus = message_bus
@@ -36,7 +34,6 @@ class AreaHandler:
         self.room_registry = room_registry
         self.item_registry = item_registry
         self.mobile_registry = mobile_registry
-        self.object_macros = object_macros
         self.enums = None
         self.WellKnownRoomVnums = None
         self.ExitFlags = None

@@ -317,7 +317,8 @@ class InfoCommands:
             f"You have scored {character.experience} exp, and have {character.gold} gold and {character.silver} silver coins.",
         ])
 
-        hero_level = CharacterMacros.GameParametersEnum.LEVEL_HERO.value if CharacterMacros.GameParametersEnum else 90
+        GameParametersEnum = CharacterMacros.get_enum("gameParameters")
+        hero_level = GameParametersEnum.LEVEL_HERO.value if GameParametersEnum.LEVEL_HERO.value else 51
         if character.level < hero_level:
             next_total = GenericUtil.to_int(getattr(character, "accumulated_experience", 0), 0)
             if next_total > character.experience:

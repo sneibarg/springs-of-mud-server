@@ -10,12 +10,11 @@ from fight.FightHandler import FightHandler
 from game.GameData import GameData
 from area.AreaRegistry import AreaRegistry
 from mobile.MobileRegistry import MobileRegistry
-from object.ObjectMacros import ObjectMacros
 
 
 class MobileService:
     @inject
-    def __init__(self, config: ServiceConfig, area_registry: AreaRegistry, mobile_registry: MobileRegistry, fight_handler: FightHandler, game_data: GameData, object_macros: ObjectMacros):
+    def __init__(self, config: ServiceConfig, area_registry: AreaRegistry, mobile_registry: MobileRegistry, fight_handler: FightHandler, game_data: GameData):
         self.__name__ = "MobileService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.mobile_registry = mobile_registry
@@ -24,7 +23,6 @@ class MobileService:
         self.mobiles_endpoint = config.mobiles_endpoint
         self.area_registry = area_registry
         self.fight_handler = fight_handler
-        self.object_macros = object_macros
         self.kill_table: dict[int, int] = {}
         self.load_mobiles()
 
@@ -78,8 +76,8 @@ class MobileService:
     def _build_mobile(self, raw_mobile, npc_flag, kill_table) -> Optional[Mobile]:
         from game.GenericUtil import GenericUtil
         converted_mobile = GenericUtil.camel_to_snake_case(raw_mobile)
-        converted_mobile['form'] = MobileUtil.convert_form(converted_mobile['race'], converted_mobile['form'], self.object_macros)
-        converted_mobile['parts'] = MobileUtil.convert_parts(converted_mobile['race'], converted_mobile['parts'], self.object_macros)
+        converted_mobile['form'] = MobileUtil.convert_form(converted_mobile['race'], converted_mobile['form'])
+        converted_mobile['parts'] = MobileUtil.convert_parts(converted_mobile['race'], converted_mobile['parts'])
 
         mobile_id = MobileUtil.resolve_mobile_id(converted_mobile, raw_mobile)
         if mobile_id is None:

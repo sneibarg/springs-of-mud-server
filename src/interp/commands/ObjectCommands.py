@@ -17,12 +17,11 @@ from server.LoggerFactory import LoggerFactory
 
 class ObjectCommands:
     @inject
-    def __init__(self, registry_service: RegistryService, object_macros: ObjectMacros, player_helper: PlayerHelper):
+    def __init__(self, registry_service: RegistryService, player_helper: PlayerHelper):
         self.__name__ = "ObjectCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.room_registry = registry_service.room_registry
-        self.object_macros = object_macros
         self.player_helper = player_helper
         self.item_types = None
         self.item_flags = None
@@ -79,7 +78,7 @@ class ObjectCommands:
             if container is None:
                 context.finish()
                 return {"to_char": "I see no container here.\r\n"}
-            if self.object_macros.is_container_closed(container):
+            if ObjectMacros.is_container_closed(container):
                 context.finish()
                 return {"to_char": "It is closed.\r\n"}
             target_item = ObjectUtils.find_in_contains(container, arg1)
@@ -127,7 +126,7 @@ class ObjectCommands:
         if not ObjectUtils.is_container(container):
             context.finish()
             return {"to_char": "That's not a container.\r\n"}
-        if self.object_macros.is_container_closed(container):
+        if ObjectMacros.is_container_closed(container):
             context.finish()
             return {"to_char": "It is closed.\r\n"}
         if obj is container:

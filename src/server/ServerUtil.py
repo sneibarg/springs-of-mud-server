@@ -103,8 +103,7 @@ class ServerUtil:
         injector.binder.bind(ItemService, to=ItemService(service_config,
                                                          injector.get(ItemRegistry),
                                                          injector.get(SkillRegistry),
-                                                         injector.get(GameService).game_data,
-                                                         injector.get(ObjectMacros)), scope=singleton)
+                                                         injector.get(GameService).game_data), scope=singleton)
 
     @staticmethod
     def _bind_handlers(injector):
@@ -144,9 +143,11 @@ class ServerUtil:
     @staticmethod
     def _bind_game_data(injector):
         injector.binder.bind(GameData, to=injector.get(GameService).game_data, scope=singleton)
-        injector.binder.bind(ObjectMacros, to=ObjectMacros(injector.get(GameData).races,
-                                                           injector.get(GameData).item_table,
-                                                           injector.get(GameService).enums), scope=singleton)
+        ObjectMacros.configure(
+            races_provider=lambda: injector.get(GameData).races,
+            item_table_provider=lambda: injector.get(GameData).item_table,
+            enums_provider=lambda: injector.get(GameService).enums,
+        )
 
     @staticmethod
     def lazy_load(injector) -> None:
@@ -187,14 +188,12 @@ class ServerUtil:
             attribute_bonuses_provider=lambda: attribute_bonuses,
             weather_handler_provider=lambda: weather_handler,
         )
-
         wiz_commands.lazy_load()
         movement_commands.lazy_load()
         info_commands.lazy_load()
         command_helper.lazy_load()
         object_commands.lazy_load()
         communications_commands.lazy_load()
-        item_handler.set_object_macros(injector.get(ObjectMacros))
         update_handler.set_enums(injector.get(GameService).enums)
         area_handler.set_enums(injector.get(GameService).enums)
         weather_handler.lazy_load(injector.get(GameData).constants)

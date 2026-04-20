@@ -39,12 +39,12 @@ class MobileUtil:
         return mobile, level
 
     @staticmethod
-    def convert_form(race: str, form: int, object_macros: ObjectMacros):
-        return object_macros.set_bit(form, object_macros.races[race].get(form, 0))
+    def convert_form(race: str, form: int):
+        return ObjectMacros.set_bit(form, ObjectMacros.race_data(race).get(form, 0))
 
     @staticmethod
-    def convert_parts(race: str, parts: int, object_macros: ObjectMacros):
-        return object_macros.set_bit(parts, object_macros.races[race].get(parts, 0))
+    def convert_parts(race: str, parts: int):
+        return ObjectMacros.set_bit(parts, ObjectMacros.race_data(race).get(parts, 0))
 
     @staticmethod
     def resolve_mobile_id(mobile_data: dict, raw_mobile: dict) -> str | None:

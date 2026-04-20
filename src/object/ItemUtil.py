@@ -6,6 +6,7 @@ from game.GameMacros import GameMacros
 from game.RandomNumberGenerator import RandomNumberGenerator
 from game.GenericUtil import GenericUtil
 from object.ExtraDescriptionData import ExtraDescriptionData
+from object.ObjectMacros import ObjectMacros
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
@@ -20,10 +21,12 @@ class ItemUtil:
     pass
 
     @staticmethod
-    def normalize_item_data(object_macros, item_data, liquids, skill_registry) -> Item:
+    def normalize_item_data(item_data, liquids, skill_registry) -> Item:
         ItemUtil.convert_extra_and_wear_flags(item_data)
-        ItemUtil.normalize_value_fields(item_data, object_macros.ItemTypes)
-        ItemUtil.update_item_type(item_data, object_macros.DamageTypes, object_macros.ItemTypes, liquids, skill_registry)
+        item_types = ObjectMacros.get_enum("itemTypes")
+        damage_types = ObjectMacros.get_enum("damageTypes")
+        ItemUtil.normalize_value_fields(item_data, item_types)
+        ItemUtil.update_item_type(item_data, damage_types, item_types, liquids, skill_registry)
         ItemUtil.update_condition(item_data)
 
         item = Item.from_json(item_data)

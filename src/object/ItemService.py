@@ -7,7 +7,6 @@ from game.GameData import GameData
 from object import Item
 from object.ItemRegistry import ItemRegistry
 from object.ItemUtil import ItemUtil
-from object.ObjectMacros import ObjectMacros
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 from skill.SkillRegistry import SkillRegistry
@@ -15,12 +14,11 @@ from skill.SkillRegistry import SkillRegistry
 
 class ItemService:
     @inject
-    def __init__(self, config: ServiceConfig, item_registry: ItemRegistry, skill_registry: SkillRegistry, game_data: GameData, object_macros: ObjectMacros):
+    def __init__(self, config: ServiceConfig, item_registry: ItemRegistry, skill_registry: SkillRegistry, game_data: GameData):
         self.__name__ = "ItemService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.items_endpoint = config.items_endpoint
         self.game_data = game_data
-        self.object_macros = object_macros
         self.enums = self.game_data.enums
         self.item_registry = item_registry
         self.skill_registry = skill_registry
@@ -48,13 +46,13 @@ class ItemService:
             if isinstance(data, list):
                 count = 0
                 for item_data in data:
-                    item = ItemUtil.normalize_item_data(self.object_macros, item_data, liquids, self.skill_registry)
+                    item = ItemUtil.normalize_item_data(item_data, liquids, self.skill_registry)
                     self.item_registry.register(item)
                     count += 1
                 self.logger.info(f"Loaded {count} {description}.")
                 return None
             else:
-                item = ItemUtil.normalize_item_data(self.object_macros, data, liquids, self.skill_registry)
+                item = ItemUtil.normalize_item_data(data, liquids, self.skill_registry)
                 self.item_registry.register(item)
                 self.logger.info(f"Loaded {description}.")
                 return item

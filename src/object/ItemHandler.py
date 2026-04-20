@@ -5,6 +5,7 @@ from game.RegistryService import RegistryService
 from interp.Context import Context
 from interp.InterpUtil import InterpUtil
 from object.ItemUtil import ItemUtil
+from object.ObjectMacros import ObjectMacros
 from player.Character import Character
 from server.messaging import MessageBus
 
@@ -16,12 +17,6 @@ class ItemHandler:
         self.room_registry = registry_service.room_registry
         self.item_registry = registry_service.item_registry
         self.room_helper = room_helper
-        self.object_macros = None
-        self.ContainerState = None
-
-    def set_object_macros(self, object_macros):
-        self.object_macros = object_macros
-        self.ContainerState = object_macros.ContainerState
 
     async def look_room_items(self, character: Character):
         room = self.room_registry.get(id=character.room_id)
@@ -57,7 +52,7 @@ class ItemHandler:
             return
 
         if ItemUtil.is_container_like(obj):
-            if self.object_macros.is_container_closed(obj):
+            if ObjectMacros.is_container_closed(obj):
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("It is closed.\r\n"))
                 context.finish()
                 return
