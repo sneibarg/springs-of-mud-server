@@ -117,6 +117,7 @@ class ServerUtil:
     @staticmethod
     def _bind_registries(injector):
         from game.NoteRegistry import NoteRegistry
+        from fight.CombatRegistry import CombatRegistry
         from player.PlayerRegistry import PlayerRegistry
         from player.CharacterRegistry import CharacterRegistry
         from mobile.MobileRegistry import MobileRegistry
@@ -136,7 +137,7 @@ class ServerUtil:
                                                       MobileRegistry, RoomRegistry, ItemRegistry, SkillRegistry,
                                                       SpellRegistry, HelpRegistry, InterpRegistry, SocialRegistry,
                                                       ShopRegistry, ResetRegistry, SpecialRegistry, RegistryService,
-                                                      AreaRegistry, ])
+                                                      AreaRegistry, CombatRegistry, ])
         logger.info(
             f"The RegistryService has been bound with all injected dependencies: {injector.get(RegistryService)}")
 

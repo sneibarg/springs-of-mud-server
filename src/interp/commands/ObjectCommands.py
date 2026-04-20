@@ -176,7 +176,38 @@ class ObjectCommands:
         return self.destroy_carried(character, context, "Junk what?\r\n")
 
     def do_sacrifice(self, character: Character, context: Context):
-        return self.destroy_carried(character, context, "Sacrifice what?\r\n", "Mota gives you one silver coin for your sacrifice.\r\n")
+        arg1, _ = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
+        room = self.room_registry.get_or_none(id=character.room_id)
+        if not arg1:
+            context.finish()
+            return {"to_char": "Sacrifice what?\r\n"}
+
+        item = ObjectUtils.find_inventory_item(character, arg1)
+        from_room = False
+        if item is None and room is not None:
+            item = ObjectUtils.find_room_item(room, arg1)
+            from_room = item is not None
+
+        if item is None:
+            context.finish()
+            return {"to_char": "You do not have that item.\r\n"}
+        if ObjectUtils.is_nodrop(item, self.item_flags):
+            context.finish()
+            return {"to_char": "You can't let go of it.\r\n"}
+
+        slot = ObjectUtils.equipped_slot_of(character, item)
+        if slot:
+            EffectUtil.remove_item_effects(character, item)
+            ObjectUtils.unequip_item(character, slot)
+
+        if from_room:
+            room.remove_item_from_room(item)
+        else:
+            ObjectUtils.remove_from_inventory(character, item)
+
+        character.silver = int(getattr(character, "silver", 0) or 0) + 1
+        context.finish()
+        return {"to_char": "Mota gives you one silver coin for your sacrifice.\r\n"}
 
     def destroy_carried(self, character: Character, context: Context, empty_msg: str, success_msg: str = "Ok.\r\n"):
         arg1, _ = ObjectUtils.parse_raw_arguments(context.result, context.parameters)

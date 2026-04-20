@@ -34,7 +34,9 @@ class MobileUtil:
         normalized = MobileUtil.build_normalized_mobile_data(mobile_id, mobile_data, player_name, race_name, level)
 
         mobile = Mobile.from_json(normalized)
-        mobile.flags = flags
+        mobile.mobile_flags = flags
+        mobile.form = flags.form
+        mobile.parts = flags.parts
         MobileUtil.apply_extended_mobile_fields(mobile, mobile_data)
         return mobile, level
 
@@ -389,6 +391,8 @@ class MobileUtil:
                     form=pMobIndex.mobile_flags.form,
                     parts=pMobIndex.mobile_flags.parts
                 )
+                mob.form = mob.mobile_flags.form
+                mob.parts = mob.mobile_flags.parts
             mob.start_pos = pMobIndex.start_pos
             mob.default_pos = pMobIndex.default_pos
             mob.perm_stat.position = mob.start_pos

@@ -4,12 +4,16 @@ from enum import IntEnum
 
 from injector import inject
 from area.AreaHandler import AreaHandler
+from fight.CombatRegistry import CombatRegistry
+from fight.FightHandler import FightHandler
 from game.GameMacros import GameMacros
 from game.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
 from mobile.MobileHandler import MobileHandler
 from object.EffectUtil import EffectUtil
+from player.Character import Character
+from player.CharacterMacros import CharacterMacros
 from player.PlayerHelper import PlayerHelper
 from server.messaging.MessageBus import MessageBus
 
@@ -21,17 +25,20 @@ class UpdateHandler:
                  weather_handler: WeatherHandler,
                  area_handler: AreaHandler,
                  mobile_handler: MobileHandler,
+                 fight_handler: FightHandler,
                  message_bus: MessageBus,
                  registry_service: RegistryService):
         self.player_helper = player_helper
         self.weather_handler = weather_handler
         self.area_handler = area_handler
         self.mobile_handler = mobile_handler
+        self.fight_handler = fight_handler
         self.message_bus = message_bus
         self.character_registry = registry_service.character_registry
         self.room_registry = registry_service.room_registry
         self.skill_registry = registry_service.skill_registry
         self.spell_registry = registry_service.spell_registry
+        self.combat_registry: CombatRegistry = registry_service.combat_registry
         self.enums: dict[str, IntEnum] = {}
         self.pulse_area = 0
         self.pulse_mobile = 0
@@ -45,12 +52,18 @@ class UpdateHandler:
         self.WearFlags = None
 
     def set_enums(self, enums: dict[str, IntEnum]):
+        def _macro_enum(enum_name: str):
+            try:
+                return CharacterMacros.get_enum(enum_name)
+            except RuntimeError:
+                return None
+
         self.enums = enums
-        self.GameParametersEnum = enums.get('gameParameters')
-        self.PositionsEnum = enums.get('positions')
-        self.ItemTypes = enums.get('itemTypes')
-        self.WearLocation = enums.get('wearLocation')
-        self.WearFlags = enums.get('wearFlags')
+        self.GameParametersEnum = _macro_enum("gameParameters") or enums.get('gameParameters')
+        self.PositionsEnum = _macro_enum("positions") or enums.get('positions')
+        self.ItemTypes = _macro_enum("itemTypes") or enums.get('itemTypes')
+        self.WearLocation = _macro_enum("wearLocation") or enums.get('wearLocation')
+        self.WearFlags = _macro_enum("wearFlags") or enums.get('wearFlags')
         self.mobile_handler.set_enums(enums)
 
     async def handle_updates(self):
@@ -75,6 +88,105 @@ class UpdateHandler:
             await self.mobile_handler.mobile_update()
         if self.pulse_violence <= 0:
             self.pulse_violence = self.GameParametersEnum.PULSE_VIOLENCE.value
+            self._refresh_combat_registry_from_world()
+            await self._violence_update()
+
+    def _refresh_combat_registry_from_world(self):
+        active_keys: set[tuple[str, str, str]] = set()
+
+        for room in self.room_registry.all_rooms():
+            if room is None:
+                continue
+            for attacker in self._entities_in_room(room):
+                defender = getattr(attacker, "fighting", None)
+                if defender is None:
+                    continue
+                attacker_id = str(getattr(attacker, "id", "") or "")
+                defender_id = str(getattr(defender, "id", "") or "")
+                if not attacker_id or not defender_id:
+                    continue
+                if self._find_entity_in_room(room, defender_id) is None:
+                    continue
+                key = (attacker_id, defender_id, str(room.id))
+                active_keys.add(key)
+                self.combat_registry.upsert(attacker_id, defender_id, room.id)
+
+        self.combat_registry.retain_keys(active_keys)
+
+    async def _violence_update(self):
+        try:
+            positions_enum = CharacterMacros.get_enum("positions")
+        except RuntimeError:
+            positions_enum = self.PositionsEnum
+        if positions_enum is None:
+            return
+
+        for event in list(self.combat_registry.all_events()):
+            room = self.room_registry.get_or_none(id=event.room_id)
+            if room is None:
+                self.combat_registry.remove_by_id(event.id)
+                continue
+
+            attacker = self._find_entity_in_room(room, event.attacker_id)
+            defender = self._find_entity_in_room(room, event.defender_id)
+            if attacker is None or defender is None:
+                self.combat_registry.remove_by_id(event.id)
+                continue
+
+            if not self._is_awake_by_enum(attacker, positions_enum):
+                self.fight_handler.stop_fighting(attacker, both=False)
+                continue
+
+            # ROM fight.c parity: if awake and in same room then multi_hit(), else stop_fighting().
+            if self._find_entity_in_room(room, event.defender_id) is None:
+                self.fight_handler.stop_fighting(attacker, both=False)
+                continue
+
+            self.fight_handler.multi_hit(attacker, defender, dt="TYPE_UNDEFINED")
+            if getattr(attacker, "fighting", None) is not None:
+                self.fight_handler.check_assist(attacker, defender)
+
+    @staticmethod
+    def _entities_in_room(room) -> list:
+        entities = []
+        entities.extend(list(room.characters.values()))
+        entities.extend(list(room.mobiles.values()))
+        return entities
+
+    @staticmethod
+    def _find_entity_in_room(room, entity_id: str):
+        wanted = str(entity_id or "")
+        if not wanted:
+            return None
+        if wanted in room.characters:
+            return room.characters[wanted]
+        if wanted in room.mobiles:
+            return room.mobiles[wanted]
+        return None
+
+    @staticmethod
+    def _entity_position_value(entity, positions_enum) -> int:
+        attrs = getattr(entity, "character_attributes", None)
+        if attrs is not None:
+            return GenericUtil.to_int(getattr(attrs, "position", 0), 0)
+        return GenericUtil.to_int(getattr(entity, "position", getattr(entity, "start_pos", 0)), 0)
+
+    def _is_awake_by_enum(self, entity, positions_enum) -> bool:
+        if not hasattr(positions_enum, "POS_SLEEPING"):
+            return True
+        pos_sleeping_value = int(positions_enum.POS_SLEEPING.value)
+        return self._entity_position_value(entity, positions_enum) > pos_sleeping_value
+
+    @staticmethod
+    def _set_standing_position(entity, positions_enum) -> None:
+        if not hasattr(positions_enum, "POS_STANDING"):
+            return
+        pos_standing_value = int(positions_enum.POS_STANDING.value)
+        attrs = getattr(entity, "character_attributes", None)
+        if attrs is not None:
+            attrs.position = pos_standing_value
+            return
+        setattr(entity, "position", pos_standing_value)
 
     async def char_update(self):
         if self.PositionsEnum is None:
@@ -438,4 +550,3 @@ class UpdateHandler:
     def _format_item_message(message: str, item) -> str:
         item_name = str(getattr(item, "short_description", "") or getattr(item, "name", "something"))
         return str(message or "").replace("$p", item_name)
-

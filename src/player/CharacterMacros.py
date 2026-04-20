@@ -330,10 +330,11 @@ class CharacterMacros(GameMacros):
         return cls.is_set(comm, getattr(comm_bits, bit_name).value)
 
     @classmethod
-    def toggle_player_act(cls, character: Character, player_act_bits, bit_name: str, off_text: str, on_text: str) -> str:
+    def toggle_player_act(cls, character: Character, bit_name: str, off_text: str, on_text: str) -> str:
         if cls.is_npc(character):
             return ""
-        if player_act_bits is None or not hasattr(player_act_bits, bit_name):
+        player_act_bits = cls._player_act_bits()
+        if not hasattr(player_act_bits, bit_name):
             return ""
         bit_value = getattr(player_act_bits, bit_name).value
         act = cls.get_act_flags(character)
@@ -348,8 +349,6 @@ class CharacterMacros(GameMacros):
     @classmethod
     def toggle_comm(cls, character: Character, bit_name: str, off_text: str, on_text: str) -> str:
         comm_bits = cls._comm_flags_enum()
-        if comm_bits is None or not hasattr(comm_bits, bit_name):
-            return ""
         bit_value = getattr(comm_bits, bit_name).value
         comm = cls.get_comm_flags(character)
         if cls.is_set(comm, bit_value):
@@ -363,9 +362,6 @@ class CharacterMacros(GameMacros):
     @classmethod
     def format_affects(cls, character: Character) -> str:
         affected_bits = cls._affected_bits()
-        if affected_bits is None:
-            return "You are not affected by any spells.\r\n"
-
         raw = int(cls.convert_flags(getattr(character.character_flags, "affected_by", "") or ""))
         lines = []
         for name, member in affected_bits.__members__.items():
@@ -823,7 +819,7 @@ class CharacterMacros(GameMacros):
     @classmethod
     def set_position(cls, character: Character, pos_name: str):
         positions = cls._positions_enum()
-        if positions is None or not hasattr(positions, pos_name):
+        if not hasattr(positions, pos_name):
             return
         value = int(getattr(positions, pos_name).value)
         attrs = getattr(character, "character_attributes", None)

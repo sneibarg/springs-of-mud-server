@@ -5,6 +5,13 @@ from game.GenericUtil import GenericUtil
 
 class FightUtil:
     @staticmethod
+    def parse_action_argument(raw_result, parameters) -> str:
+        text = (raw_result if isinstance(raw_result, str) else "").strip()
+        if text:
+            return text
+        return " ".join(parameters or []).strip()
+
+    @staticmethod
     def parse_cast_argument(raw_result, parameters) -> tuple[str, str]:
         text = (raw_result if isinstance(raw_result, str) else "").strip()
         if not text:

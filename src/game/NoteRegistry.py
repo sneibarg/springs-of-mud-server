@@ -6,6 +6,8 @@ from server.LoggerFactory import LoggerFactory
 
 
 class NoteRegistry:
+    lookup_attrs = ('id', 'name')
+
     def __init__(self):
         self.__name__ = "NoteRegistry"
         self.logger = LoggerFactory.get_logger(__name__)

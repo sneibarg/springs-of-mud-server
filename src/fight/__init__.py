@@ -1,3 +1,4 @@
+from .CombatRegistry import CombatRegistry
 from .FightHandler import FightHandler
 
-__all__ = ['FightHandler']
+__all__ = ['CombatRegistry', 'FightHandler']

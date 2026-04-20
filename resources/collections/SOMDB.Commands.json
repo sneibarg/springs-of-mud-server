@@ -522,7 +522,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_fight_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -544,7 +544,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_fight_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -3096,7 +3096,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_fight_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -3118,7 +3118,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_fight_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -3162,7 +3162,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_fight_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -3184,7 +3184,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_fight_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -3206,7 +3206,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_fight_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -3228,7 +3228,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_fight_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -3250,7 +3250,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_fight_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -3272,7 +3272,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_fight_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -3294,7 +3294,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_fight_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -3316,7 +3316,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_fight_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [
@@ -3338,7 +3338,7 @@
         "shortcuts":  "",
         "role":  "player",
         "lambdas":  [
-
+                        "lambda ctx: ctx.player_handler().do_fight_command(ctx.character, ctx)"
                     ],
         "message":  "",
         "function":  [

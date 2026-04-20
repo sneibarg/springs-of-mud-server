@@ -3,6 +3,7 @@ from injector import inject
 from area.ResetRegistry import ResetRegistry
 from area.ShopRegistry import ShopRegistry
 from area.SpecialRegistry import SpecialRegistry
+from fight.CombatRegistry import CombatRegistry
 from interp.InterpRegistry import InterpRegistry
 from interp.SocialRegistry import SocialRegistry
 from player.PlayerRegistry import PlayerRegistry
@@ -30,7 +31,8 @@ class RegistryService:
                  reset_registry: ResetRegistry,
                  special_registry: SpecialRegistry,
                  interp_registry: InterpRegistry,
-                 social_registry: SocialRegistry):
+                 social_registry: SocialRegistry,
+                 combat_registry: CombatRegistry):
 
         self.player_registry = player_registry
         self.character_registry = character_registry
@@ -45,3 +47,4 @@ class RegistryService:
         self.special_registry = special_registry
         self.interp_registry = interp_registry
         self.social_registry = social_registry
+        self.combat_registry = combat_registry
