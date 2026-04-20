@@ -71,7 +71,8 @@ class ServerUtil:
         ServerUtil._bind_game_services(injector, service_config)
 
         injector.binder.bind(ConnectionHandler, scope=singleton)
-        injector.binder.bind(SessionHandler, to=SessionHandler(injector.get(GameData).constants.max['idleTime']), scope=singleton)
+        injector.binder.bind(SessionHandler, to=SessionHandler(injector.get(GameData).constants.max['idleTime']),
+                             scope=singleton)
 
         return injector
 
@@ -83,6 +84,11 @@ class ServerUtil:
         injector.binder.bind(PlayerHelper, scope=singleton)
 
     @staticmethod
+    def _bind_singleton_classes(injector, classes):
+        for clazz in classes:
+            injector.binder.bind(clazz, scope=singleton)
+
+    @staticmethod
     def _bind_network_services(injector):
         injector.binder.bind(MessageBus, scope=singleton)
         injector.binder.bind(ConnectionManager, scope=singleton)
@@ -91,20 +97,10 @@ class ServerUtil:
     def _bind_game_services(injector, service_config):
         from object.ItemRegistry import ItemRegistry
         from skill.SkillRegistry import SkillRegistry
-        injector.binder.bind(GameService, scope=singleton)
-        injector.binder.bind(SkillService, scope=singleton)
-        injector.binder.bind(SpellService, scope=singleton)
-        injector.binder.bind(PlayerService, scope=singleton)
-        injector.binder.bind(CharacterService, scope=singleton)
-        injector.binder.bind(HelpService, scope=singleton)
-        injector.binder.bind(InterpService, scope=singleton)
-        injector.binder.bind(AreaService, scope=singleton)
-        injector.binder.bind(RoomService, scope=singleton)
-        injector.binder.bind(MobileService, scope=singleton)
-        injector.binder.bind(AuthenticationService, scope=singleton)
-        injector.binder.bind(SocialService, scope=singleton)
-        injector.binder.bind(NoteService, scope=singleton)
-        injector.binder.bind(HandlerService, scope=singleton)
+        ServerUtil._bind_singleton_classes(injector, [GameService, SkillService, SpellService, PlayerService,
+                                                      CharacterService, HelpService, InterpService, AreaService,
+                                                      RoomService, MobileService, AuthenticationService,
+                                                      SocialService, NoteService, HandlerService])
         injector.binder.bind(ItemService, to=ItemService(service_config,
                                                          injector.get(ItemRegistry),
                                                          injector.get(SkillRegistry),
@@ -113,23 +109,11 @@ class ServerUtil:
 
     @staticmethod
     def _bind_handlers(injector):
-        injector.binder.bind(SocialHandler, scope=singleton)
-        injector.binder.bind(CommunicationsCommands, scope=singleton)
-        injector.binder.bind(FightCommands, scope=singleton)
-        injector.binder.bind(InfoCommands, scope=singleton)
-        injector.binder.bind(MovementCommands, scope=singleton)
-        injector.binder.bind(ObjectCommands, scope=singleton)
-        injector.binder.bind(WizCommands, scope=singleton)
-        injector.binder.bind(AreaHandler, scope=singleton)
-        injector.binder.bind(RoomHandler, scope=singleton)
-        injector.binder.bind(FightHandler, scope=singleton)
-        injector.binder.bind(ItemHandler, scope=singleton)
-        injector.binder.bind(MobileHandler, scope=singleton)
-        injector.binder.bind(PlayerHandler, scope=singleton)
-        injector.binder.bind(InterpHandler, scope=singleton)
-        injector.binder.bind(NoteHandler, scope=singleton)
-        injector.binder.bind(WeatherHandler, scope=singleton)
-        injector.binder.bind(UpdateHandler, scope=singleton)
+        ServerUtil._bind_singleton_classes(injector,
+                                           [SocialHandler, CommunicationsCommands, FightCommands, InfoCommands,
+                                            MovementCommands, ObjectCommands, WizCommands, AreaHandler,
+                                            RoomHandler, FightHandler, ItemHandler, MobileHandler, PlayerHandler,
+                                            InterpHandler, NoteHandler, WeatherHandler, UpdateHandler])
         logger.info(f"All game handlers have been bound.")
 
     @staticmethod
@@ -150,23 +134,13 @@ class ServerUtil:
         from area.SpecialRegistry import SpecialRegistry
         from area.ResetRegistry import ResetRegistry
 
-        injector.binder.bind(NoteRegistry, scope=singleton)
-        injector.binder.bind(PlayerRegistry, scope=singleton)
-        injector.binder.bind(CharacterRegistry, scope=singleton)
-        injector.binder.bind(MobileRegistry, scope=singleton)
-        injector.binder.bind(RoomRegistry, scope=singleton)
-        injector.binder.bind(ItemRegistry, scope=singleton)
-        injector.binder.bind(SkillRegistry, scope=singleton)
-        injector.binder.bind(SpellRegistry, scope=singleton)
-        injector.binder.bind(HelpRegistry, scope=singleton)
-        injector.binder.bind(InterpRegistry, scope=singleton)
-        injector.binder.bind(SocialRegistry, scope=singleton)
-        injector.binder.bind(ShopRegistry, scope=singleton)
-        injector.binder.bind(ResetRegistry, scope=singleton)
-        injector.binder.bind(SpecialRegistry, scope=singleton)
-        injector.binder.bind(RegistryService, scope=singleton)
-        injector.binder.bind(AreaRegistry, scope=singleton)
-        logger.info(f"The RegistryService has been bound with all injected dependencies: {injector.get(RegistryService)}")
+        ServerUtil._bind_singleton_classes(injector, [NoteRegistry, PlayerRegistry, CharacterRegistry,
+                                                      MobileRegistry, RoomRegistry, ItemRegistry, SkillRegistry,
+                                                      SpellRegistry, HelpRegistry, InterpRegistry, SocialRegistry,
+                                                      ShopRegistry, ResetRegistry, SpecialRegistry, RegistryService,
+                                                      AreaRegistry, ])
+        logger.info(
+            f"The RegistryService has been bound with all injected dependencies: {injector.get(RegistryService)}")
 
     @staticmethod
     def _bind_game_data(injector):
@@ -174,13 +148,14 @@ class ServerUtil:
         injector.binder.bind(CharacterConstants, to=CharacterConstants(injector.get(GameData).constants,
                                                                        injector.get(GameService).enums['positions'],
                                                                        injector.get(GameService).enums['actBits'],
-                                                                       injector.get(GameData).attribute_bonuses), scope=singleton)
+                                                                       injector.get(GameData).attribute_bonuses),
+                             scope=singleton)
         injector.binder.bind(ObjectMacros, to=ObjectMacros(injector.get(GameData).races,
                                                            injector.get(GameData).item_table,
                                                            injector.get(GameService).enums), scope=singleton)
 
     @staticmethod
-    def load_services(injector) -> None:
+    def lazy_load(injector) -> None:
         game_service = injector.get(GameService)
         player_service = injector.get(PlayerService)
         character_service = injector.get(CharacterService)
@@ -234,8 +209,9 @@ class ServerUtil:
         room_helper.lazy_load(weather_handler)
         game_service.set_update_handler(injector.get(UpdateHandler))
 
-        service_list = (f"{game_service.__name__}; {player_service.__name__}; {room_service.__name__}; {area_service.__name__}; "
-                        f"{skill_service.__name__}; {spell_service.__name__}; {item_service.__name__}\r\n{help_service.__name__}; {mobile_service.__name__}; "
-                        f"{interp_service.__name__}; {social_service.__name__}; {note_service.__name__}; {character_service.__name__} "
-                        f"{shop_service.__name__}; {reset_service.__name__}; {special_service.__name__}.")
+        service_list = (
+            f"{game_service.__name__}; {player_service.__name__}; {room_service.__name__}; {area_service.__name__}; "
+            f"{skill_service.__name__}; {spell_service.__name__}; {item_service.__name__}\r\n{help_service.__name__}; {mobile_service.__name__}; "
+            f"{interp_service.__name__}; {social_service.__name__}; {note_service.__name__}; {character_service.__name__} "
+            f"{shop_service.__name__}; {reset_service.__name__}; {special_service.__name__}.")
         logger.info(f"The following services have been started: {service_list}")

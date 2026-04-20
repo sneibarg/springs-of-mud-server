@@ -71,7 +71,7 @@ class MudServer:
         self.player_service = self.injector.get(PlayerService)
         self.connection_handler = self.injector.get(ConnectionHandler)
 
-        ServerUtil.load_services(self.injector)
+        ServerUtil.lazy_load(self.injector)
 
     def _load_player_one(self):
         try:
