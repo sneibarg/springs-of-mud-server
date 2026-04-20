@@ -22,15 +22,17 @@ class CommunicationsCommands:
     ]
 
     @inject
-    def __init__(self, registry_service: RegistryService, character_macros: CharacterMacros, session_handler: SessionHandler):
+    def __init__(self, registry_service: RegistryService, session_handler: SessionHandler):
         self.__name__ = "CommunicationsCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.character_registry = registry_service.character_registry
         self.room_registry = registry_service.room_registry
-        self.character_macros = character_macros
         self.session_handler = session_handler
-        self.comm_flags = character_macros.enums.get("commFlags")
+        self.comm_flags = None
+
+    def lazy_load(self):
+        self.comm_flags = CharacterMacros.get_enum("commFlags")
 
     def execute(self, character: Character, context: Context):
         name = (getattr(context.command, "name", "") or "").strip().lower()
@@ -92,7 +94,7 @@ class CommunicationsCommands:
             f"tells          {'OFF' if CommunicationsUtil.has_comm(character, self.comm_flags, 'COMM_DEAF') else 'ON'}",
             f"quiet mode     {'ON' if CommunicationsUtil.has_comm(character, self.comm_flags, 'COMM_QUIET') else 'OFF'}",
         ]
-        if self.character_macros.is_immortal(character):
+        if CharacterMacros.is_immortal(character):
             lines.insert(8, f"god channel    {'OFF' if CommunicationsUtil.has_comm(character, self.comm_flags, 'COMM_NOWIZ') else 'ON'}")
         if CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_AFK"):
             lines.append("You are AFK.")
@@ -331,10 +333,10 @@ class CommunicationsCommands:
         return {"to_char": "Split is not implemented yet.\r\n"}
 
     def _channel(self, character: Character, context: Context, off_flag: str, verb: str, on_msg: str, off_msg: str):
-        return self.character_macros.channel_payload(character, context, off_flag, verb, on_msg, off_msg, self.comm_flags, self.session_handler, CommunicationsUtil.parse_argument, CommunicationsUtil.has_comm, CommunicationsUtil.set_comm)
+        return CharacterMacros.channel_payload(character, context, off_flag, verb, on_msg, off_msg, self.comm_flags, self.session_handler, CommunicationsUtil.parse_argument, CommunicationsUtil.has_comm, CommunicationsUtil.set_comm)
 
     def _room_targets(self, character: Character, room):
-        return self.character_macros.room_targets(character, room)
+        return CharacterMacros.room_targets(character, room)
 
     def _find_playing_character(self, name: str):
-        return self.character_macros.find_playing_character(name, self.session_handler)
+        return CharacterMacros.find_playing_character(name, self.session_handler)

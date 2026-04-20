@@ -11,12 +11,11 @@ from game.GameData import GameData
 from area.AreaRegistry import AreaRegistry
 from mobile.MobileRegistry import MobileRegistry
 from object.ObjectMacros import ObjectMacros
-from player.CharacterMacros import CharacterMacros
 
 
 class MobileService:
     @inject
-    def __init__(self, config: ServiceConfig, area_registry: AreaRegistry, mobile_registry: MobileRegistry, fight_handler: FightHandler, game_data: GameData, object_macros: ObjectMacros, character_macros: CharacterMacros):
+    def __init__(self, config: ServiceConfig, area_registry: AreaRegistry, mobile_registry: MobileRegistry, fight_handler: FightHandler, game_data: GameData, object_macros: ObjectMacros):
         self.__name__ = "MobileService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.mobile_registry = mobile_registry

@@ -64,7 +64,6 @@ class InfoCommands:
                  registry_service: RegistryService,
                  command_helper: CommandHelper,
                  room_helper: RoomHelper,
-                 character_macros: CharacterMacros,
                  player_helper: PlayerHelper,
                  session_handler: SessionHandler,
                  weather_handler: WeatherHandler):
@@ -75,12 +74,14 @@ class InfoCommands:
         self.skill_registry = registry_service.skill_registry
         self.command_helper = command_helper
         self.room_helper = room_helper
-        self.character_macros = character_macros
         self.player_helper = player_helper
         self.session_handler = session_handler
         self.weather_handler = weather_handler
         self.server_boot_time = datetime.now().ctime()
-        self.PlayerActBits = character_macros.enums.get('playerActBits')
+        self.PlayerActBits = None
+
+    def lazy_load(self):
+        self.PlayerActBits = CharacterMacros.get_enum('playerActBits')
 
     def do_quit(self, character: Character):
         room = self.room_registry.get(id=character.room_id)
@@ -92,9 +93,9 @@ class InfoCommands:
         }
 
     def do_who(self, character: Character) -> str:
-        who_list = [character] + PlayerUtil.visible(character, self.session_handler, self.character_macros)
+        who_list = [character] + PlayerUtil.visible(character, self.session_handler)
         lines = [
-            f"{self.character_macros.who_line(character, c)}\r\n"
+            f"{CharacterMacros.who_line(character, c)}\r\n"
             for c in who_list
         ]
         lines.append(f"Players found: {len(who_list)}\r\n")
@@ -104,7 +105,7 @@ class InfoCommands:
         arg_all = " ".join((argument or "").split()).lower()
         if not arg_all:
             arg_all = "summary"
-        q_words = [self.character_macros.normalize_help_token(w) for w in arg_all.split()]
+        q_words = [CharacterMacros.normalize_help_token(w) for w in arg_all.split()]
         q_words = [w for w in q_words if w]
         output_parts = []
         found = False
@@ -117,7 +118,7 @@ class InfoCommands:
             if help_id and help_id in emitted_help_ids:
                 continue
 
-            k_words = [self.character_macros.normalize_help_token(w) for w in str(help_entry.keyword).split()]
+            k_words = [CharacterMacros.normalize_help_token(w) for w in str(help_entry.keyword).split()]
             k_words = [w for w in k_words if w]
             if (not q_words or not k_words) or not all(any(k.startswith(q) for k in k_words) for q in q_words):
                 continue
@@ -154,7 +155,7 @@ class InfoCommands:
         if arg1 in ("", "auto", "i", "in", "on"):
             return None
 
-        target = PlayerUtil.get_target(character, arg1, room, self.character_macros, self.room_helper)
+        target = PlayerUtil.get_target(character, arg1, room, self.room_helper)
         if target is None:
             context.jump_to(4)
             return None
@@ -164,7 +165,7 @@ class InfoCommands:
             desc = "You see nothing special."
 
         lines = [desc, InfoUtil.target_condition_line(target)]
-        equip_lines = self.character_macros.target_equipment_lines(target, EQUIP_SLOT_LABELS)
+        equip_lines = CharacterMacros.target_equipment_lines(target, EQUIP_SLOT_LABELS)
         if equip_lines:
             lines.append("")
             lines.append(f"{(target.name or 'They')} is using:")
@@ -183,8 +184,8 @@ class InfoCommands:
             return "You can't see a thing!\n\r"
 
         arg1 = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip().lower()
-        if (not self.character_macros.is_npc(character)
-                and not self.character_macros.has_holy_light(character)
+        if (not CharacterMacros.is_npc(character)
+                and not CharacterMacros.has_holy_light(character)
                 and self.room_helper.is_room_dark(character.room_id)):
             context.jump_to(1)  # show chars/mobs only
             return "It is pitch black ...\n\r"
@@ -196,7 +197,7 @@ class InfoCommands:
 
         if arg1 == "" or arg1 == "auto":
             await context.room_handler().print_room(character.id, room)
-            if self.character_macros.is_set(int(self.character_macros.convert_flags(character.character_flags.act)),
+            if CharacterMacros.is_set(int(CharacterMacros.convert_flags(character.character_flags.act)),
                                             self.PlayerActBits.PLR_AUTOEXIT.value):
                 await context.room_handler().print_exits(character, room)
             context.jump_to(1)  # players + mobiles
@@ -242,7 +243,7 @@ class InfoCommands:
         return f"Scroll set to {lines} lines.\r\n"
 
     def do_wimpy(self, character: Character, context: Context) -> str:
-        if self.character_macros.is_npc(character):
+        if CharacterMacros.is_npc(character):
             context.finish()
             return ""
 
@@ -288,7 +289,7 @@ class InfoCommands:
         total_hours = total_seconds // 3600
         age_years = 17 + (total_seconds // 72000)
 
-        trust = self.character_macros.get_trust(character)
+        trust = CharacterMacros.get_trust(character)
         sex_text = str(getattr(character, "sex", "sexless") or "sexless").lower()
         if sex_text not in ("male", "female", "sexless"):
             sex_text = "sexless"
@@ -316,7 +317,7 @@ class InfoCommands:
             f"You have scored {character.experience} exp, and have {character.gold} gold and {character.silver} silver coins.",
         ])
 
-        hero_level = self.character_macros.GameParametersEnum.LEVEL_HERO.value if self.character_macros.GameParametersEnum else 90
+        hero_level = CharacterMacros.GameParametersEnum.LEVEL_HERO.value if CharacterMacros.GameParametersEnum else 90
         if character.level < hero_level:
             next_total = GenericUtil.to_int(getattr(character, "accumulated_experience", 0), 0)
             if next_total > character.experience:
@@ -335,13 +336,13 @@ class InfoCommands:
         if hunger == 0:
             lines.append("You are hungry.")
 
-        position_line = self.character_macros.score_position_line(attributes)
+        position_line = CharacterMacros.score_position_line(attributes)
         lines.append(position_line)
 
-        ac_pierce = self.character_macros.get_ac(character, 0)
-        ac_bash = self.character_macros.get_ac(character, 1)
-        ac_slash = self.character_macros.get_ac(character, 2)
-        ac_magic = self.character_macros.get_ac(character, 3)
+        ac_pierce = CharacterMacros.get_ac(character, 0)
+        ac_bash = CharacterMacros.get_ac(character, 1)
+        ac_slash = CharacterMacros.get_ac(character, 2)
+        ac_magic = CharacterMacros.get_ac(character, 3)
 
         if character.level >= 25:
             lines.append(f"Armor: pierce: {ac_pierce}  bash: {ac_bash}  slash: {ac_slash}  magic: {ac_magic}")
@@ -351,8 +352,8 @@ class InfoCommands:
         lines.append(f"You are {InfoUtil.score_ac_phrase(ac_slash, 'slashing')}.")
         lines.append(f"You are {InfoUtil.score_ac_phrase(ac_magic, 'magic')}.")
 
-        if self.character_macros.is_immortal(character):
-            holy = "on" if self.character_macros.has_holy_light(character) else "off"
+        if CharacterMacros.is_immortal(character):
+            holy = "on" if CharacterMacros.has_holy_light(character) else "off"
             imm_text = f"Holy Light: {holy}"
             if GenericUtil.to_int(getattr(character, "invis_level", 0), 0) > 0:
                 imm_text += f"  Invisible: level {character.invis_level}"
@@ -362,16 +363,16 @@ class InfoCommands:
 
         if character.level >= 15:
             lines.append(
-                f"Hitroll: {self.character_macros.get_hitroll(character)}  Damroll: {self.character_macros.get_damroll(character)}."
+                f"Hitroll: {CharacterMacros.get_hitroll(character)}  Damroll: {CharacterMacros.get_damroll(character)}."
             )
 
         alignment = GenericUtil.to_int(getattr(attributes, "alignment", 0), 0)
         if character.level >= 10:
             lines.append(f"Alignment: {alignment}.")
         lines.append(f"You are {InfoUtil.score_alignment_word(alignment)}.")
-        if self.character_macros.is_comm_enabled(character, "COMM_SHOW_AFFECTS"):
+        if CharacterMacros.is_comm_enabled(character, "COMM_SHOW_AFFECTS"):
             lines.append("")
-            lines.append(self.character_macros.format_affects(character).rstrip("\r\n"))
+            lines.append(CharacterMacros.format_affects(character).rstrip("\r\n"))
         context.finish()
         return "\r\n".join(lines) + "\r\n"
 
@@ -406,7 +407,7 @@ class InfoCommands:
         return text
 
     def do_weather(self, character: Character, context: Context) -> str:
-        if not self.character_macros.is_outside(character):
+        if not CharacterMacros.is_outside(character):
             context.finish()
             return "You can't see the weather indoors.\r\n"
 
@@ -434,7 +435,7 @@ class InfoCommands:
             context.finish()
             return "None\r\n"
 
-        room_flags = self.character_macros.enums.get("roomFlags")
+        room_flags = CharacterMacros.enums.get("roomFlags")
         nowhere_bit = room_flags.ROOM_NOWHERE.value if room_flags and hasattr(room_flags, "ROOM_NOWHERE") else None
 
         if not arg:
@@ -442,7 +443,7 @@ class InfoCommands:
             found = False
             for session in self.session_handler.get_playing_sessions():
                 victim = session.character
-                if victim is None or self.character_macros.is_npc(victim):
+                if victim is None or CharacterMacros.is_npc(victim):
                     continue
                 if victim.id == character.id:
                     continue
@@ -451,9 +452,9 @@ class InfoCommands:
                     continue
                 if room.area_id != my_room.area_id:
                     continue
-                if nowhere_bit is not None and self.character_macros.is_set(int(room.room_flags), nowhere_bit):
+                if nowhere_bit is not None and CharacterMacros.is_set(int(room.room_flags), nowhere_bit):
                     continue
-                if not self.character_macros.can_see(character, victim, self.room_helper):
+                if not CharacterMacros.can_see(character, victim, self.room_helper):
                     continue
                 lines.append(f"{victim.name:<28} {room.name}\r\n")
                 found = True
@@ -471,7 +472,7 @@ class InfoCommands:
             room = self.room_registry.get_or_none(id=victim.room_id)
             if room is None or room.area_id != my_room.area_id:
                 continue
-            if not self.character_macros.can_see(character, victim, self.room_helper):
+            if not CharacterMacros.can_see(character, victim, self.room_helper):
                 continue
             victim_name = (victim.name or "").lower()
             if victim_name == wanted or victim_name.startswith(wanted):
@@ -484,7 +485,7 @@ class InfoCommands:
             for mob in room.mobiles.values():
                 if mob is None:
                     continue
-                if not self.character_macros.can_see(character, mob, self.room_helper):
+                if not CharacterMacros.can_see(character, mob, self.room_helper):
                     continue
                 mob_name = (getattr(mob, "name", "") or "").lower()
                 short_name = (getattr(mob, "short_description", "") or "").lower()
@@ -507,7 +508,7 @@ class InfoCommands:
             context.finish()
             return "They're not here.\r\n"
 
-        victim = PlayerUtil.get_target(character, arg, room, self.character_macros, self.room_helper)
+        victim = PlayerUtil.get_target(character, arg, room, self.room_helper)
         if victim is None:
             context.finish()
             return "They're not here.\r\n"
@@ -532,7 +533,7 @@ class InfoCommands:
         return msg + "\r\n"
 
     def do_title(self, character: Character, context: Context) -> str:
-        if self.character_macros.is_npc(character):
+        if CharacterMacros.is_npc(character):
             context.finish()
             return ""
 
@@ -602,7 +603,7 @@ class InfoCommands:
         }
 
     def do_worth(self, character: Character, context: Context) -> str:
-        if self.character_macros.is_npc(character):
+        if CharacterMacros.is_npc(character):
             context.finish()
             return f"You have {character.gold} gold and {character.silver} silver.\r\n"
 
@@ -617,17 +618,17 @@ class InfoCommands:
 
     def do_affects(self, character: Character, context: Context) -> str:
         context.finish()
-        return self.character_macros.format_affects(character)
+        return CharacterMacros.format_affects(character)
 
     def do_autolist(self, character: Character, context: Context) -> str:
-        if self.character_macros.is_npc(character):
+        if CharacterMacros.is_npc(character):
             context.finish()
             return ""
 
         act_bits = self.PlayerActBits
-        comm_bits = self.character_macros.enums.get("commFlags")
-        act = self.character_macros.get_act_flags(character)
-        comm = self.character_macros.get_comm_flags(character)
+        comm_bits = CharacterMacros.enums.get("commFlags")
+        act = CharacterMacros.get_act_flags(character)
+        comm = CharacterMacros.get_comm_flags(character)
 
         def on_off(value: bool) -> str:
             return "ON" if value else "OFF"
@@ -635,7 +636,7 @@ class InfoCommands:
         def act_enabled(name: str) -> bool:
             if act_bits is None or not hasattr(act_bits, name):
                 return False
-            return self.character_macros.is_set(act, getattr(act_bits, name).value)
+            return CharacterMacros.is_set(act, getattr(act_bits, name).value)
 
         lines = [
             "   action     status\r\n",
@@ -651,24 +652,24 @@ class InfoCommands:
             def comm_enabled(name: str) -> bool:
                 if not hasattr(comm_bits, name):
                     return False
-                return self.character_macros.is_set(comm, getattr(comm_bits, name).value)
+                return CharacterMacros.is_set(comm, getattr(comm_bits, name).value)
             lines.extend([
                 f"compact mode   {on_off(comm_enabled('COMM_COMPACT'))}\r\n",
                 f"prompt         {on_off(comm_enabled('COMM_PROMPT'))}\r\n",
                 f"combine items  {on_off(comm_enabled('COMM_COMBINE'))}\r\n",
             ])
         if hasattr(act_bits, "PLR_CANLOOT"):
-            if not self.character_macros.is_set(act, getattr(act_bits, "PLR_CANLOOT").value):
+            if not CharacterMacros.is_set(act, getattr(act_bits, "PLR_CANLOOT").value):
                 lines.append("Your corpse is safe from thieves.\r\n")
             else:
                 lines.append("Your corpse may be looted.\r\n")
         if hasattr(act_bits, "PLR_NOSUMMON"):
-            if self.character_macros.is_set(act, getattr(act_bits, "PLR_NOSUMMON").value):
+            if CharacterMacros.is_set(act, getattr(act_bits, "PLR_NOSUMMON").value):
                 lines.append("You cannot be summoned.\r\n")
             else:
                 lines.append("You can be summoned.\r\n")
         if hasattr(act_bits, "PLR_NOFOLLOW"):
-            if self.character_macros.is_set(act, getattr(act_bits, "PLR_NOFOLLOW").value):
+            if CharacterMacros.is_set(act, getattr(act_bits, "PLR_NOFOLLOW").value):
                 lines.append("You do not welcome followers.\r\n")
             else:
                 lines.append("You accept followers.\r\n")
@@ -677,48 +678,48 @@ class InfoCommands:
         return "".join(lines)
 
     def do_autoassist(self, character: Character, context: Context) -> str:
-        text = self.character_macros.toggle_player_act(character, "PLR_AUTOASSIST", "Autoassist removed.\r\n", "You will now assist when needed.\r\n")
+        text = CharacterMacros.toggle_player_act(character, "PLR_AUTOASSIST", "Autoassist removed.\r\n", "You will now assist when needed.\r\n")
         context.finish()
         return text
 
     def do_autoexit(self, character: Character, context: Context) -> str:
-        text = self.character_macros.toggle_player_act(character, "PLR_AUTOEXIT", "Exits will no longer be displayed.\r\n", "Exits will now be displayed.\r\n")
+        text = CharacterMacros.toggle_player_act(character, "PLR_AUTOEXIT", "Exits will no longer be displayed.\r\n", "Exits will now be displayed.\r\n")
         context.finish()
         return text
 
     def do_autogold(self, character: Character, context: Context) -> str:
-        text = self.character_macros.toggle_player_act(character, "PLR_AUTOGOLD", "Autogold removed.\r\n", "Automatic gold looting set.\r\n")
+        text = CharacterMacros.toggle_player_act(character, "PLR_AUTOGOLD", "Autogold removed.\r\n", "Automatic gold looting set.\r\n")
         context.finish()
         return text
 
     def do_autoloot(self, character: Character, context: Context) -> str:
-        text = self.character_macros.toggle_player_act(character, "PLR_AUTOLOOT", "Autolooting removed.\r\n", "Automatic corpse looting set.\r\n")
+        text = CharacterMacros.toggle_player_act(character, "PLR_AUTOLOOT", "Autolooting removed.\r\n", "Automatic corpse looting set.\r\n")
         context.finish()
         return text
 
     def do_autosac(self, character: Character, context: Context) -> str:
-        text = self.character_macros.toggle_player_act(character, "PLR_AUTOSAC", "Autosacrificing removed.\r\n", "Automatic corpse sacrificing set.\r\n")
+        text = CharacterMacros.toggle_player_act(character, "PLR_AUTOSAC", "Autosacrificing removed.\r\n", "Automatic corpse sacrificing set.\r\n")
         context.finish()
         return text
 
     def do_autosplit(self, character: Character, context: Context) -> str:
-        text = self.character_macros.toggle_player_act(character, "PLR_AUTOSPLIT", "Autosplitting removed.\r\n", "Automatic gold splitting set.\r\n")
+        text = CharacterMacros.toggle_player_act(character, "PLR_AUTOSPLIT", "Autosplitting removed.\r\n", "Automatic gold splitting set.\r\n")
         context.finish()
         return text
 
     def do_brief(self, character: Character, context: Context) -> str:
-        text = self.character_macros.toggle_comm(character, "COMM_BRIEF", "Full descriptions activated.\r\n", "Short descriptions activated.\r\n")
+        text = CharacterMacros.toggle_comm(character, "COMM_BRIEF", "Full descriptions activated.\r\n", "Short descriptions activated.\r\n")
         context.finish()
         return text
 
     def do_compact(self, character: Character, context: Context) -> str:
-        text = self.character_macros.toggle_comm(character, "COMM_COMPACT", "Compact mode removed.\r\n", "Compact mode set.\r\n")
-        comm_bits = self.character_macros.enums.get("commFlags")
-        comm = self.character_macros.get_comm_flags(character)
+        text = CharacterMacros.toggle_comm(character, "COMM_COMPACT", "Compact mode removed.\r\n", "Compact mode set.\r\n")
+        comm_bits = CharacterMacros.enums.get("commFlags")
+        comm = CharacterMacros.get_comm_flags(character)
         is_compact = (
             comm_bits is not None
             and hasattr(comm_bits, "COMM_COMPACT")
-            and self.character_macros.is_set(comm, comm_bits.COMM_COMPACT.value)
+            and CharacterMacros.is_set(comm, comm_bits.COMM_COMPACT.value)
         )
         character.carriage_return = not is_compact
         if getattr(character, "prompt_format", None) is not None:
@@ -727,12 +728,12 @@ class InfoCommands:
         return text
 
     def do_combine(self, character: Character, context: Context) -> str:
-        text = self.character_macros.toggle_comm(character, "COMM_COMBINE", "Long inventory selected.\r\n", "Combined inventory selected.\r\n")
+        text = CharacterMacros.toggle_comm(character, "COMM_COMBINE", "Long inventory selected.\r\n", "Combined inventory selected.\r\n")
         context.finish()
         return text
 
     def do_noloot(self, character: Character, context: Context) -> str:
-        text = self.character_macros.toggle_player_act(
+        text = CharacterMacros.toggle_player_act(
             character,
             "PLR_CANLOOT",
             "Your corpse is now safe from thieves.\r\n",
@@ -742,7 +743,7 @@ class InfoCommands:
         return text
 
     def do_nofollow(self, character: Character, context: Context) -> str:
-        text = self.character_macros.toggle_player_act(
+        text = CharacterMacros.toggle_player_act(
             character,
             "PLR_NOFOLLOW",
             "You now accept followers.\r\n",
@@ -752,7 +753,7 @@ class InfoCommands:
         return text
 
     def do_nosummon(self, character: Character, context: Context) -> str:
-        text = self.character_macros.toggle_player_act(
+        text = CharacterMacros.toggle_player_act(
             character,
             "PLR_NOSUMMON",
             "You are now summonable.\r\n",
@@ -789,7 +790,7 @@ class InfoCommands:
             return self.do_who(character)
 
         matches = []
-        for c in [character] + PlayerUtil.visible(character, self.session_handler, self.character_macros):
+        for c in [character] + PlayerUtil.visible(character, self.session_handler):
             name = (c.name or "").lower()
             if name == arg or name.startswith(arg):
                 matches.append(c)
@@ -799,7 +800,7 @@ class InfoCommands:
             return "No one by that name is playing.\r\n"
 
         lines = [
-            f"{self.character_macros.who_line(character, c)}\r\n"
+            f"{CharacterMacros.who_line(character, c)}\r\n"
             for c in matches
         ]
         return "".join(lines)
@@ -812,7 +813,7 @@ class InfoCommands:
         return f"There are {count} players online.\r\n"
 
     def do_show(self, character: Character, context: Context) -> str:
-        text = self.character_macros.toggle_comm(
+        text = CharacterMacros.toggle_comm(
             character,
             "COMM_SHOW_AFFECTS",
             "Affects will no longer be shown in score.\r\n",
@@ -822,7 +823,7 @@ class InfoCommands:
         return text
 
     def do_practice(self, character: Character, context: Context) -> str:
-        if self.character_macros.is_npc(character):
+        if CharacterMacros.is_npc(character):
             context.finish()
             return ""
 
@@ -853,7 +854,7 @@ class InfoCommands:
             context.finish()
             return "".join(lines)
 
-        if not self.character_macros.is_awake(character):
+        if not CharacterMacros.is_awake(character):
             context.finish()
             return "In your dreams, or what?\r\n"
 
@@ -862,13 +863,13 @@ class InfoCommands:
             return "You have no practice sessions left.\r\n"
 
         room = self.room_registry.get_or_none(id=character.room_id)
-        act_bits = self.character_macros.enums.get("actBits")
+        act_bits = CharacterMacros.enums.get("actBits")
         trainer = None
         if room is not None and act_bits is not None and hasattr(act_bits, "ACT_PRACTICE"):
             practice_bit = act_bits.ACT_PRACTICE.value
             for mob in room.mobiles.values():
                 mob_flags = GenericUtil.to_int(getattr(getattr(mob, "mobile_flags", None), "act", 0), 0)
-                if self.character_macros.is_set(mob_flags, practice_bit):
+                if CharacterMacros.is_set(mob_flags, practice_bit):
                     trainer = mob
                     break
 
@@ -885,7 +886,7 @@ class InfoCommands:
             raw = " ".join(context.parameters).strip()
 
         if raw == "":
-            text = self.character_macros.toggle_comm(character, "COMM_PROMPT", "You will no longer see prompts.\r\n", "You will now see prompts.\r\n")
+            text = CharacterMacros.toggle_comm(character, "COMM_PROMPT", "You will no longer see prompts.\r\n", "You will now see prompts.\r\n")
             context.finish()
             return text
 
@@ -941,7 +942,7 @@ class InfoCommands:
         return f"Prompt set to {shown}\r\n"
 
     def do_equipment(self, character: Character, context: Context) -> str:
-        lines = self.character_macros.target_equipment_lines(character, EQUIP_SLOT_LABELS)
+        lines = CharacterMacros.target_equipment_lines(character, EQUIP_SLOT_LABELS)
         context.finish()
         if not lines:
             return "You are using:\r\nNothing.\r\n"
@@ -959,12 +960,12 @@ class InfoCommands:
             context.finish()
             return "Compare what to what?\r\n"
 
-        obj1 = self.character_macros.find_owned_item(character, arg1)
+        obj1 = CharacterMacros.find_owned_item(character, arg1)
         if obj1 is None:
             context.finish()
             return "You do not have that item.\r\n"
 
-        obj2 = self.character_macros.find_owned_item(character, arg2) if arg2 else self.character_macros.find_comparable_equipped_item(character, obj1)
+        obj2 = CharacterMacros.find_owned_item(character, arg2) if arg2 else CharacterMacros.find_comparable_equipped_item(character, obj1)
         if obj2 is None:
             context.finish()
             return "You aren't wearing anything comparable.\r\n" if not arg2 else "You do not have that item.\r\n"
@@ -981,7 +982,7 @@ class InfoCommands:
             context.finish()
             return "You can't compare those items.\r\n"
 
-        item_flags = self.character_macros.enums.get("itemFlags")
+        item_flags = CharacterMacros.enums.get("itemFlags")
         n1 = ItemUtil.format_obj_to_char(obj1, item_flags_enum=item_flags, f_short=True)
         n2 = ItemUtil.format_obj_to_char(obj2, item_flags_enum=item_flags, f_short=True)
 

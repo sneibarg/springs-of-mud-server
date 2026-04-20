@@ -9,6 +9,7 @@ from game.RegistryService import RegistryService
 from interp.Context import Context
 from object.ItemUtil import ItemUtil
 from player.Character import Character
+from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
 from server.messaging import MessageBus
 from server.session.SessionHandler import SessionHandler
@@ -81,10 +82,10 @@ class RoomHandler:
         character = self.character_registry.get_or_none(id=character_id)
         show_description = True
         if character is not None:
-            comm_flags = self.room_helper.character_macros.enums.get("commFlags")
+            comm_flags = CharacterMacros.get_enum("commFlags")
             if hasattr(comm_flags, "COMM_BRIEF"):
-                comm = int(self.room_helper.character_macros.convert_flags(getattr(character.character_flags, "comm", "0") or "0"))
-                if self.room_helper.character_macros.is_set(comm, comm_flags.COMM_BRIEF.value):
+                comm = int(CharacterMacros.convert_flags(getattr(character.character_flags, "comm", "0") or "0"))
+                if CharacterMacros.is_set(comm, comm_flags.COMM_BRIEF.value):
                     show_description = False
 
         if show_description:

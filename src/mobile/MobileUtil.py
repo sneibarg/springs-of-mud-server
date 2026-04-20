@@ -293,17 +293,17 @@ class MobileUtil:
 
     #  aff_type needs to be replaced with the result of skill_lookup("haste") etc.
     @staticmethod
-    def _apply_affected_by(mob: Mobile, enums: dict[str, type[IntEnum]], character_macros: CharacterMacros):
+    def _apply_affected_by(mob: Mobile, enums: dict[str, type[IntEnum]]):
         affect_bits = enums.get('affectedBy')
         apply_types = enums.get('applyTypes')
-        if character_macros.is_affected(mob, affect_bits.AFF_SANCTUARY):
+        if CharacterMacros.is_affected(mob, affect_bits.AFF_SANCTUARY):
             sanctuary = MobileUtil._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, 0, apply_types.APPLY_NONE.value, affect_bits.AFF_SANCTUARY.value)
-        if character_macros.is_affected(mob, affect_bits.AFF_HASTE):
+        if CharacterMacros.is_affected(mob, affect_bits.AFF_HASTE):
             modifier = 1 + (mob.level >= 18) + (mob.level >= 25) + (mob.level >= 32)
             haste = MobileUtil._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, modifier, apply_types.APPLY_DEX.value, affect_bits.AFF_HASTE.value)
-        if character_macros.is_affected(mob, affect_bits.AFF_PROTECT_EVIL):
+        if CharacterMacros.is_affected(mob, affect_bits.AFF_PROTECT_EVIL):
             protect_evil = MobileUtil._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, -1, apply_types.APPLY_SAVES.value, affect_bits.AFF_PROTECT_EVIL.value)
-        if character_macros.is_affected(mob, affect_bits.AFF_PROTECT_GOOD):
+        if CharacterMacros.is_affected(mob, affect_bits.AFF_PROTECT_GOOD):
             protect_good = MobileUtil._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, -1, apply_types.APPLY_SAVES.value, affect_bits.AFF_PROTECT_GOOD.value)
 
     @staticmethod
@@ -311,7 +311,7 @@ class MobileUtil:
         return Effect(valid=True, level=level, where=where, type=aff_type, duration=duration, modifier=modifier, location=location, bitvector=bitvector)
 
     @staticmethod
-    def create_mobile(pMobIndex: Mobile, enums: dict[str, type[IntEnum]], character_macros: CharacterMacros) -> Mobile:
+    def create_mobile(pMobIndex: Mobile, enums: dict[str, type[IntEnum]]) -> Mobile:
         from player.CharacterAttributes import CharacterAttributes
         if pMobIndex is None:
             logger.error("create_mobile: NULL pMobIndex.")
@@ -400,7 +400,7 @@ class MobileUtil:
             mob.material = pMobIndex.material
 
             MobileUtil._apply_mob_stat_bonuses(mob, enums)
-            MobileUtil._apply_affected_by(mob, enums, character_macros)
+            MobileUtil._apply_affected_by(mob, enums)
 
         mob.position = mob.start_pos
         pMobIndex.count = getattr(pMobIndex, 'count', 0) + 1

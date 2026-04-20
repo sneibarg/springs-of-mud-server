@@ -11,9 +11,8 @@ from server.LoggerFactory import LoggerFactory
 
 class PlayerHelper:
     @inject
-    def __init__(self, character_macros: CharacterMacros, room_registry: RoomRegistry, room_helper: RoomHelper):
+    def __init__(self, room_registry: RoomRegistry, room_helper: RoomHelper):
         self.__name__ = "PlayerHelper"
-        self.character_macros = character_macros
         self.room_registry = room_registry
         self.room_helper = room_helper
         self.logger = LoggerFactory.get_logger(__name__)
@@ -24,7 +23,7 @@ class PlayerHelper:
         for char_in_room in self.players_in_room(character, room):
             if char_in_room.cloaked:
                 continue
-            text += PlayerUtil.format_visible_character_line(character, char_in_room, self.character_macros)
+            text += PlayerUtil.format_visible_character_line(character, char_in_room)
         return text
 
     def players_in_room(self, character: Character, room: Room):
@@ -34,6 +33,6 @@ class PlayerHelper:
         for char in room.characters.values():
             if char.id == character.id:
                 continue
-            if self.character_macros.can_see(character, char, self.room_helper):
+            if CharacterMacros.can_see(character, char, self.room_helper):
                 loiterers.append(char)
         return loiterers

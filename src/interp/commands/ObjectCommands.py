@@ -6,7 +6,7 @@ from game.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from interp.commands.ObjectUtils import ObjectUtils
-from object.EffectHelper import EffectHelper
+from object.EffectUtil import EffectUtil
 from object.ItemUtil import ItemUtil
 from object.ObjectMacros import ObjectMacros
 from player.Character import Character
@@ -17,18 +17,21 @@ from server.LoggerFactory import LoggerFactory
 
 class ObjectCommands:
     @inject
-    def __init__(self, registry_service: RegistryService, object_macros: ObjectMacros, character_macros: CharacterMacros, player_helper: PlayerHelper, effect_helper: EffectHelper):
+    def __init__(self, registry_service: RegistryService, object_macros: ObjectMacros, player_helper: PlayerHelper):
         self.__name__ = "ObjectCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.room_registry = registry_service.room_registry
         self.object_macros = object_macros
-        self.character_macros = character_macros
         self.player_helper = player_helper
-        self.item_types = object_macros.ItemTypes
-        self.item_flags = object_macros.ItemFlags
-        self.wear_flags = character_macros.enums.get("wearFlags")
-        self.effect_helper = effect_helper
+        self.item_types = None
+        self.item_flags = None
+        self.wear_flags = None
+
+    def lazy_load(self):
+        self.item_types = CharacterMacros.get_enum("itemTypes")
+        self.item_flags = CharacterMacros.get_enum("itemFlags")
+        self.wear_flags = CharacterMacros.get_enum("wearFlags")
 
     def execute(self, character: Character, context: Context):
         name = (getattr(context.command, "name", "") or "").strip().lower()
@@ -159,7 +162,7 @@ class ObjectCommands:
 
         slot = ObjectUtils.equipped_slot_of(character, item)
         if slot:
-            self.effect_helper.remove_item_effects(character, item)
+            EffectUtil.remove_item_effects(character, item)
             ObjectUtils.unequip_item(character, slot)
         ObjectUtils.remove_from_inventory(character, item)
         room.add_item_to_room(item)
@@ -190,7 +193,7 @@ class ObjectCommands:
             return {"to_char": "You can't let go of it.\r\n"}
         slot = ObjectUtils.equipped_slot_of(character, item)
         if slot:
-            self.effect_helper.remove_item_effects(character, item)
+            EffectUtil.remove_item_effects(character, item)
             ObjectUtils.unequip_item(character, slot)
         ObjectUtils.remove_from_inventory(character, item)
         context.finish()
@@ -219,7 +222,7 @@ class ObjectCommands:
 
         slot = ObjectUtils.equipped_slot_of(character, item)
         if slot:
-            self.effect_helper.remove_item_effects(character, item)
+            EffectUtil.remove_item_effects(character, item)
             ObjectUtils.unequip_item(character, slot)
         ObjectUtils.remove_from_inventory(character, item)
         ObjectUtils.add_to_inventory(victim, item)
@@ -246,7 +249,7 @@ class ObjectCommands:
             context.finish()
             return {"to_char": "You can't wear that there.\r\n"}
         ObjectUtils.equip_item(character, item, slot)
-        self.effect_helper.apply_item_effects(character, item)
+        EffectUtil.apply_item_effects(character, item)
         context.finish()
         return {"to_char": f"You wear {ObjectUtils.short(item)}.\r\n"}
 
@@ -270,7 +273,7 @@ class ObjectCommands:
             context.finish()
             return {"to_char": "Your hands are full.\r\n"}
         ObjectUtils.equip_item(character, item, slot)
-        self.effect_helper.apply_item_effects(character, item)
+        EffectUtil.apply_item_effects(character, item)
         context.finish()
         return {"to_char": f"You equip {ObjectUtils.short(item)}.\r\n"}
 
@@ -287,7 +290,7 @@ class ObjectCommands:
             if item is None:
                 context.finish()
                 return {"to_char": "You aren't wearing that.\r\n"}
-            self.effect_helper.remove_item_effects(character, item)
+            EffectUtil.remove_item_effects(character, item)
             context.finish()
             return {"to_char": f"You stop using {ObjectUtils.short(item)}.\r\n"}
 
@@ -296,7 +299,7 @@ class ObjectCommands:
                 continue
             name = (getattr(item, "name", "") or "").lower()
             if name == arg1 or name.startswith(arg1):
-                self.effect_helper.remove_item_effects(character, item)
+                EffectUtil.remove_item_effects(character, item)
                 ObjectUtils.unequip_item(character, slot)
                 context.finish()
                 return {"to_char": f"You stop using {ObjectUtils.short(item)}.\r\n"}
@@ -338,7 +341,7 @@ class ObjectCommands:
             return {"to_char": "That's not edible.\r\n"}
         slot = ObjectUtils.equipped_slot_of(character, item)
         if slot:
-            self.effect_helper.remove_item_effects(character, item)
+            EffectUtil.remove_item_effects(character, item)
             ObjectUtils.unequip_item(character, slot)
         ObjectUtils.remove_from_inventory(character, item)
         context.finish()

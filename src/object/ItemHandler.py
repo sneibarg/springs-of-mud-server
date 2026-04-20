@@ -1,21 +1,21 @@
 from injector import inject
 
+from area.RoomHelper import RoomHelper
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from interp.InterpUtil import InterpUtil
 from object.ItemUtil import ItemUtil
-from object.ObjectHelper import ObjectHelper
 from player.Character import Character
 from server.messaging import MessageBus
 
 
 class ItemHandler:
     @inject
-    def __init__(self, message_bus: MessageBus, registry_service: RegistryService, object_helper: ObjectHelper):
+    def __init__(self, message_bus: MessageBus, registry_service: RegistryService, room_helper: RoomHelper):
         self.message_bus = message_bus
         self.room_registry = registry_service.room_registry
         self.item_registry = registry_service.item_registry
-        self.object_helper = object_helper
+        self.room_helper = room_helper
         self.object_macros = None
         self.ContainerState = None
 
@@ -81,7 +81,7 @@ class ItemHandler:
         token = (arg3 or "").strip().lower()
 
         for item in list(character.get_items()) + list(room.contents.values()):
-            if not self.object_helper.can_see_object(character, item):
+            if not ItemUtil.can_see_object(self.room_helper, character, item):
                 continue
 
             extra = getattr(item, "extra_description", None)

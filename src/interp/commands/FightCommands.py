@@ -6,25 +6,22 @@ from area.RoomHelper import RoomHelper
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from interp.commands.FightUtil import FightUtil
-from object.EffectHelper import EffectHelper
+from object.EffectUtil import EffectUtil
 from player.Character import Character
-from player.CharacterMacros import CharacterMacros
 from player.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
 
 
 class FightCommands:
     @inject
-    def __init__(self, registry_service: RegistryService, character_macros: CharacterMacros, room_helper: RoomHelper, effect_helper: EffectHelper):
+    def __init__(self, registry_service: RegistryService, room_helper: RoomHelper):
         self.__name__ = "FightCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.room_registry = registry_service.room_registry
         self.skill_registry = registry_service.skill_registry
         self.spell_registry = getattr(registry_service, "spell_registry", None)
-        self.character_macros = character_macros
         self.room_helper = room_helper
-        self.effect_helper = effect_helper
 
     def execute(self, character: Character, context: Context):
         name = (getattr(context.command, "name", "") or "").strip().lower()
@@ -60,7 +57,7 @@ class FightCommands:
         victim = None
         if target_type in ("CHAR_OFFENSIVE", "CHAR_DEFENSIVE", "CHAR_SELF", "OBJ_CHAR_OFF", "OBJ_CHAR_DEF"):
             if target_arg:
-                victim = PlayerUtil.get_target(character, target_arg, room, self.character_macros, self.room_helper)
+                victim = PlayerUtil.get_target(character, target_arg, room, self.room_helper)
             elif target_type in ("CHAR_DEFENSIVE", "CHAR_SELF", "OBJ_CHAR_DEF"):
                 victim = character
             else:
@@ -70,7 +67,7 @@ class FightCommands:
                 return {"to_char": "Cast the spell on whom?\r\n"}
 
         if spell is not None:
-            self.effect_helper.apply_spell_effects(character, victim, spell)
+            EffectUtil.apply_spell_effects(character, victim, spell)
 
         character.mana -= mana_cost
         spell_label = getattr(meta, "name", spell_name)

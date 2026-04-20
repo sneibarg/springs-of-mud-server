@@ -20,8 +20,6 @@ from interp.SocialHandler import SocialHandler
 from interp.SocialService import SocialService
 from mobile.MobileHelper import MobileHelper
 from object.ItemHandler import ItemHandler
-from object.EffectHelper import EffectHelper
-from object.ObjectHelper import ObjectHelper
 from mobile.MobileHandler import MobileHandler
 from player.PlayerHandler import PlayerHandler
 from game.GameData import GameData
@@ -81,8 +79,6 @@ class ServerUtil:
     def _bind_helpers(injector):
         injector.binder.bind(CommandHelper, scope=singleton)
         injector.binder.bind(RoomHelper, scope=singleton)
-        injector.binder.bind(ObjectHelper, scope=singleton)
-        injector.binder.bind(EffectHelper, scope=singleton)
         injector.binder.bind(MobileHelper, scope=singleton)
         injector.binder.bind(PlayerHelper, scope=singleton)
 
@@ -179,10 +175,6 @@ class ServerUtil:
                                                                        injector.get(GameService).enums['positions'],
                                                                        injector.get(GameService).enums['actBits'],
                                                                        injector.get(GameData).attribute_bonuses), scope=singleton)
-        injector.binder.bind(CharacterMacros, to=CharacterMacros(injector.get(RegistryService),
-                                                                 injector.get(CharacterConstants),
-                                                                 injector.get(GameService).enums,
-                                                                 injector.get(GameData).attribute_bonuses), scope=singleton)
         injector.binder.bind(ObjectMacros, to=ObjectMacros(injector.get(GameData).races,
                                                            injector.get(GameData).item_table,
                                                            injector.get(GameService).enums), scope=singleton)
@@ -209,13 +201,37 @@ class ServerUtil:
         weather_handler = injector.get(WeatherHandler)
         update_handler = injector.get(UpdateHandler)
         item_handler = injector.get(ItemHandler)
-        character_macros = injector.get(CharacterMacros)
+        registry_service = injector.get(RegistryService)
+        character_constants = injector.get(CharacterConstants)
+        attribute_bonuses = injector.get(GameData).attribute_bonuses
+        enums = injector.get(GameService).enums
+        communications_commands = injector.get(CommunicationsCommands)
+        object_commands = injector.get(ObjectCommands)
+        info_commands = injector.get(InfoCommands)
+        movement_commands = injector.get(MovementCommands)
+        wiz_commands = injector.get(WizCommands)
+        command_helper = injector.get(CommandHelper)
+        room_helper = injector.get(RoomHelper)
 
+        CharacterMacros.configure(
+            registry_provider=lambda: registry_service,
+            character_constants_provider=lambda: character_constants,
+            enums_provider=lambda: enums,
+            attribute_bonuses_provider=lambda: attribute_bonuses,
+            weather_handler_provider=lambda: weather_handler,
+        )
+
+        wiz_commands.lazy_load()
+        movement_commands.lazy_load()
+        info_commands.lazy_load()
+        command_helper.lazy_load()
+        object_commands.lazy_load()
+        communications_commands.lazy_load()
         item_handler.set_object_macros(injector.get(ObjectMacros))
         update_handler.set_enums(injector.get(GameService).enums)
         area_handler.set_enums(injector.get(GameService).enums)
-        weather_handler.lazy_load(injector.get(GameService).enums, injector.get(GameData).constants)
-        character_macros.lazy_load(weather_handler)
+        weather_handler.lazy_load(injector.get(GameData).constants)
+        room_helper.lazy_load(weather_handler)
         game_service.set_update_handler(injector.get(UpdateHandler))
 
         service_list = (f"{game_service.__name__}; {player_service.__name__}; {room_service.__name__}; {area_service.__name__}; "

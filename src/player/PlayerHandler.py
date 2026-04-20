@@ -11,6 +11,7 @@ from interp.commands.ObjectCommands import ObjectCommands
 from interp.commands.WizCommands import WizCommands
 from player.Character import Character
 from player.PlayerHelper import PlayerHelper
+from player.CharacterMacros import CharacterMacros
 from server.messaging import MessageBus
 from server.LoggerFactory import LoggerFactory
 
@@ -50,7 +51,7 @@ class PlayerHandler:
             for viewer in room.characters.values():
                 if viewer.id == character.id:
                     continue
-                if self.player_helper.character_macros.can_see(viewer, character, self.player_helper.room_helper):
+                if CharacterMacros.can_see(viewer, character, self.player_helper.room_helper):
                     text = payload["to_room"]
                 else:
                     text = "Someone has left the game.\r\n"
@@ -525,7 +526,7 @@ class PlayerHandler:
             if self.info_commands.PlayerActBits is not None and hasattr(self.info_commands.PlayerActBits, "PLR_AUTOEXIT"):
                 autoexit_bit = self.info_commands.PlayerActBits.PLR_AUTOEXIT.value
             if autoexit_bit is not None:
-                act = int(self.info_commands.character_macros.convert_flags(getattr(character.character_flags, "act", "") or "0"))
-                if self.info_commands.character_macros.is_set(act, autoexit_bit):
+                act = int(CharacterMacros.convert_flags(getattr(character.character_flags, "act", "") or "0"))
+                if CharacterMacros.is_set(act, autoexit_bit):
                     await context.room_handler().print_exits(character)
             await context.room_handler().print_in_room(context)

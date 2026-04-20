@@ -1,11 +1,13 @@
 from enum import IntEnum
 
 from area import Room
+from area.RoomHelper import RoomHelper
 from game.GameMacros import GameMacros
 from game.RandomNumberGenerator import RandomNumberGenerator
 from game.GenericUtil import GenericUtil
 from object.ExtraDescriptionData import ExtraDescriptionData
 from player.Character import Character
+from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
 from object.Item import Item
 from object.Effect import Effect, AffectWhere
@@ -393,3 +395,32 @@ class ItemUtil:
             if str(getattr(obj, "vnum", "")) == target_vnum:
                 count += 1
         return count
+
+    @staticmethod
+    def can_see_object(room_helper: RoomHelper, character: Character, obj: Item) -> bool:
+        ItemFlags = CharacterMacros.get_enum('itemFlags')
+        ItemTypes = CharacterMacros.get_enum('itemTypes')
+        AffectBits = CharacterMacros.get_enum('affectedBy')
+        PlayerActBits = CharacterMacros.get_enum('playerActBits')
+        if not CharacterMacros.is_npc(character) and CharacterMacros.is_set(int(CharacterMacros.convert_flags(character.character_flags.act)), PlayerActBits.PLR_HOLYLIGHT.value):
+            return True
+
+        if CharacterMacros.is_set(GameMacros.convert_flags(obj.extra_flags), ItemFlags.ITEM_VIS_DEATH.value):
+            return False
+
+        if CharacterMacros.is_affected(character, AffectBits.AFF_BLIND.value) and obj.item_type != ItemTypes.ITEM_POTION.value:
+            return False
+
+        if obj.item_type == ItemTypes.ITEM_LIGHT.value and int(obj.value2) != 0:
+            return True
+
+        if CharacterMacros.is_set(GameMacros.convert_flags(obj.extra_flags), ItemFlags.ITEM_INVIS.value and not CharacterMacros.is_affected(character, AffectBits.AFF_DETECT_INVIS.value)):
+            return False
+
+        if CharacterMacros.is_set(GameMacros.convert_flags(obj.extra_flags), ItemFlags.ITEM_GLOW.value):
+            return True
+
+        if room_helper.is_room_dark(character.room_id) and not CharacterMacros.is_affected(character, AffectBits.AFF_DARK_VISION.value):
+            return False
+
+        return True

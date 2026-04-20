@@ -15,7 +15,6 @@ from object.ItemUtil import ItemUtil
 from object.ObjectMacros import ObjectMacros
 from game.RandomNumberGenerator import RandomNumberGenerator
 from object.ItemRegistry import ItemRegistry
-from player.CharacterMacros import CharacterMacros
 from server.messaging import MessageBus
 from server.LoggerFactory import LoggerFactory
 
@@ -29,8 +28,7 @@ class AreaHandler:
                  room_registry: RoomRegistry,
                  item_registry: ItemRegistry,
                  mobile_registry: MobileRegistry,
-                 object_macros: ObjectMacros,
-                 character_macros: CharacterMacros):
+                 object_macros: ObjectMacros):
         self.__name__ = "AreaHandler"
         self.logger = LoggerFactory.get_logger(__name__)
         self.message_bus = message_bus
@@ -39,7 +37,6 @@ class AreaHandler:
         self.item_registry = item_registry
         self.mobile_registry = mobile_registry
         self.object_macros = object_macros
-        self.character_macros = character_macros
         self.enums = None
         self.WellKnownRoomVnums = None
         self.ExitFlags = None
@@ -123,7 +120,7 @@ class AreaHandler:
                 break
         if template_mob.count >= room_max:
             return last, None
-        mob = MobileUtil.create_mobile(template_mob, self.enums, self.character_macros)
+        mob = MobileUtil.create_mobile(template_mob, self.enums)
         room.add_mobile_to_room(mob)
         return last, mob
 

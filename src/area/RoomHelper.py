@@ -16,26 +16,31 @@ rng = RandomNumberGenerator()
 
 class RoomHelper:
     @inject
-    def __init__(self, message_bus: MessageBus, character_macros: CharacterMacros, room_registry: RoomRegistry):
+    def __init__(self, message_bus: MessageBus, room_registry: RoomRegistry):
         self.__name__ = "RoomHelper"
         self.message_bus = message_bus
-        self.character_macros = character_macros
         self.room_registry = room_registry
-        self.PlayerActBits = character_macros.enums.get('playerActBits')
-        self.AffectedBits = character_macros.enums.get('affectedBy')
-        self.RoomFlags = character_macros.enums.get('roomFlags')
-        self.SectorTypes = character_macros.enums.get('sectorTypes')
-        self.TimeAndWeatherEnum = character_macros.enums.get('timeAndWeather')
+        self.PlayerActBits = None
+        self.AffectedBits = None
+        self.RoomFlags = None
+        self.SectorTypes = None
+        self.TimeAndWeatherEnum = None
         self.logger = LoggerFactory.get_logger(__name__)
         self.weather_handler: WeatherHandler = None
 
-    def set_weather_service(self, weather_handler):
+    def lazy_load(self, weather_handler):
         self.weather_handler = weather_handler
+        self.PlayerActBits = CharacterMacros.get_enum('playerActBits')
+        self.AffectedBits = CharacterMacros.get_enum('affectedBy')
+        self.RoomFlags = CharacterMacros.get_enum('roomFlags')
+        self.SectorTypes = CharacterMacros.get_enum('sectorTypes')
+        self.TimeAndWeatherEnum = CharacterMacros.get_enum('timeAndWeather')
 
-    def check_blind(self, character: Character) -> bool:
-        if not self.character_macros.is_npc(character) and self.character_macros.has_holy_light(character):
+    @staticmethod
+    def check_blind(character: Character) -> bool:
+        if not CharacterMacros.is_npc(character) and CharacterMacros.has_holy_light(character):
             return True
-        if self.character_macros.is_blind(character):
+        if CharacterMacros.is_blind(character):
             return False
         return True
 
@@ -47,7 +52,7 @@ class RoomHelper:
         if room.light > 0:
             return False
 
-        if self.character_macros.is_set(room.room_flags, self.RoomFlags.ROOM_DARK.value):
+        if CharacterMacros.is_set(room.room_flags, self.RoomFlags.ROOM_DARK.value):
             return True
 
         if room.sector_type == self.SectorTypes.SECT_INSIDE.value or room.sector_type == self.SectorTypes.SECT_CITY.value:
@@ -67,7 +72,8 @@ class RoomHelper:
     def format_room_description(self, room_name: str, description: str) -> Message:
         return self.message_bus.text_to_message(f"[{room_name}]\r\n{description}\r\n")
 
-    def can_see_room_vnum(self, char: Any) -> bool:
-        if self.character_macros.is_immortal(char) and (self.character_macros.is_npc(char) or self.character_macros.has_holy_light(char)):
+    @staticmethod
+    def can_see_room_vnum(char: Any) -> bool:
+        if CharacterMacros.is_immortal(char) and (CharacterMacros.is_npc(char) or CharacterMacros.has_holy_light(char)):
             return True
         return False

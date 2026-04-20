@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import random
 from copy import deepcopy
 
 from game.GameMacros import GameMacros
 from game.GenericUtil import GenericUtil
 from object.Effect import Effect
+from player.CharacterMacros import CharacterMacros
 
 
 class _EffectStatics:
@@ -115,12 +117,12 @@ class EffectUtil:
         return default
 
     @staticmethod
-    def affect_modify(entity, effect: Effect, add: bool, enums: dict):
-        where_enum = enums.get("whereAffect")
-        apply_types = enums.get("applyTypes")
-        affected_by = enums.get("affectedBy")
-        item_flags = enums.get("itemFlags")
-        weapon_type = enums.get("weaponType")
+    def affect_modify(entity, effect: Effect, add: bool):
+        where_enum = CharacterMacros.get_enum("whereAffect")
+        apply_types = CharacterMacros.get_enum("applyTypes")
+        affected_by = CharacterMacros.get_enum("affectedBy")
+        item_flags = CharacterMacros.get_enum("itemFlags")
+        weapon_type = CharacterMacros.get_enum("weaponType")
 
         where = EffectUtil.enum_value(where_enum, effect.where, EffectUtil.enum_value(where_enum, "TO_AFFECTS", 0))
         location = EffectUtil.enum_value(apply_types, effect.location, 0)
@@ -159,65 +161,57 @@ class EffectUtil:
         return None
 
     @staticmethod
-    def affect_to_char(character, effect: Effect, enums: dict):
+    def affect_to_char(character, effect: Effect):
         new_effect = EffectUtil.as_effect(effect)
         EffectUtil.ensure_effects(character).append(new_effect)
-        EffectUtil.affect_modify(character, new_effect, True, enums)
+        EffectUtil.affect_modify(character, new_effect, True)
 
     @staticmethod
-    def affect_to_obj(obj, effect: Effect, enums: dict):
+    def affect_to_obj(obj, effect: Effect):
         new_effect = EffectUtil.as_effect(effect)
         EffectUtil.ensure_effects(obj).append(new_effect)
-        EffectUtil.affect_modify(obj, new_effect, True, enums)
+        EffectUtil.affect_modify(obj, new_effect, True)
 
     @staticmethod
-    def affect_check(character, where, vector, enums: dict):
+    def affect_check(character, where, vector):
         if GenericUtil.to_int(vector, 0) == 0:
             return
-        where_enum = enums.get("whereAffect")
+        where_enum = CharacterMacros.get_enum("whereAffect")
         where_value = EffectUtil.enum_value(where_enum, where, -1)
         for effect in EffectUtil.ensure_effects(character):
             if EffectUtil.enum_value(where_enum, effect.where, -1) == where_value and str(effect.bitvector) == str(vector):
-                EffectUtil.affect_modify(character, effect, True, enums)
+                EffectUtil.affect_modify(character, effect, True)
                 return
 
     @staticmethod
-    def affect_remove(character, effect: Effect, enums: dict):
+    def affect_remove(character, effect: Effect):
         effects = EffectUtil.ensure_effects(character)
         if effect not in effects:
             return
         where = effect.where
         vector = effect.bitvector
-        EffectUtil.affect_modify(character, effect, False, enums)
+        EffectUtil.affect_modify(character, effect, False)
         effects.remove(effect)
-        EffectUtil.affect_check(character, where, vector, enums)
+        EffectUtil.affect_check(character, where, vector)
 
     @staticmethod
-    def affect_remove_obj(obj, effect: Effect, enums: dict):
+    def affect_remove_obj(obj, effect: Effect):
         effects = EffectUtil.ensure_effects(obj)
         if effect not in effects:
             return
-        EffectUtil.affect_modify(obj, effect, False, enums)
+        EffectUtil.affect_modify(obj, effect, False)
         effects.remove(effect)
 
     @staticmethod
-    def affect_strip(character, effect_type, enums: dict):
+    def affect_strip(character, effect_type):
         effects = list(EffectUtil.ensure_effects(character))
         want = str(effect_type).strip().lower()
         for effect in effects:
             if str(getattr(effect, "type", "")).strip().lower() == want:
-                EffectUtil.affect_remove(character, effect, enums)
+                EffectUtil.affect_remove(character, effect)
 
     @staticmethod
-    def is_affected(character, effect_type) -> bool:
-        want = str(effect_type).strip().lower()
-        for effect in EffectUtil.ensure_effects(character):
-            if str(getattr(effect, "type", "")).strip().lower() == want:
-                return True
-        return False
-
-    @staticmethod
-    def affect_join(character, effect: Effect, enums: dict):
+    def affect_join(character, effect: Effect):
         new_effect = EffectUtil.as_effect(effect)
         effects = EffectUtil.ensure_effects(character)
         for old in list(effects):
@@ -225,9 +219,9 @@ class EffectUtil:
                 new_effect.level = (GenericUtil.to_int(new_effect.level, 0) + GenericUtil.to_int(old.level, 0)) // 2
                 new_effect.duration = GenericUtil.to_int(new_effect.duration, 0) + GenericUtil.to_int(old.duration, 0)
                 new_effect.modifier = GenericUtil.to_int(new_effect.modifier, 0) + GenericUtil.to_int(old.modifier, 0)
-                EffectUtil.affect_remove(character, old, enums)
+                EffectUtil.affect_remove(character, old)
                 break
-        EffectUtil.affect_to_char(character, new_effect, enums)
+        EffectUtil.affect_to_char(character, new_effect)
 
     @staticmethod
     def effect_from_spell_affect(spell, affect_like, caster_level: int, source: str = "") -> Effect:
@@ -243,3 +237,72 @@ class EffectUtil:
         effect.duration = GenericUtil.to_int(getattr(effect, "duration", 0), 0)
         effect.modifier = GenericUtil.to_int(getattr(effect, "modifier", 0), 0)
         return effect
+
+    @staticmethod
+    def apply_spell_effects(caster, victim, spell):
+        affects = list(getattr(spell, "affects", []) or [])
+        if not affects or victim is None:
+            return
+        source = f"spell:{getattr(spell, 'handler_id', getattr(spell, 'name', ''))}"
+        caster_level = GenericUtil.to_int(getattr(caster, "level", 0), 0)
+        for affect_like in affects:
+            effect = EffectUtil.effect_from_spell_affect(spell, affect_like, caster_level, source=source)
+            EffectUtil.affect_join(victim, effect)
+
+    @staticmethod
+    def apply_item_effects(character, item):
+        effects = list(getattr(item, "effects", []) or [])
+        if not effects:
+            return
+        source = f"item:{getattr(item, 'id', '')}:{id(item)}"
+        for affect_like in effects:
+            effect = EffectUtil.as_effect(affect_like, source=source)
+            EffectUtil.affect_to_char(character, effect)
+
+    @staticmethod
+    def remove_item_effects(character, item):
+        source = f"item:{getattr(item, 'id', '')}:{id(item)}"
+        for effect in list(EffectUtil.ensure_effects(character)):
+            if getattr(effect, "source", "") == source:
+                EffectUtil.affect_remove(character, effect)
+
+    @staticmethod
+    def is_affected(character, effect_type) -> bool:
+        affected_by = CharacterMacros.get_enum("affectedBy")
+        if CharacterMacros.is_affected(character, effect_type):
+            return True
+        if hasattr(affected_by, str(effect_type)):
+            bit = getattr(affected_by, str(effect_type)).value
+            return CharacterMacros.is_affected(character, bit)
+        return False
+
+    @staticmethod
+    def saves_dispel(dis_level: int, spell_level: int, duration: int) -> bool:
+        save = 50 + (GenericUtil.to_int(spell_level, 0) - GenericUtil.to_int(dis_level, 0)) * 5
+        if GenericUtil.to_int(duration, 0) == -1:
+            save += 5
+        save = max(5, min(95, save))
+        return random.randint(1, 100) < save
+
+    @staticmethod
+    def check_dispel(dis_level: int, victim, effect_type) -> bool:
+        removed = False
+        for effect in list(EffectUtil.ensure_effects(victim)):
+            if str(getattr(effect, "type", "")).strip().lower() != str(effect_type).strip().lower():
+                continue
+            if not EffectUtil.saves_dispel(dis_level, GenericUtil.to_int(getattr(effect, "level", 0), 0), GenericUtil.to_int(getattr(effect, "duration", 0), 0)):
+                EffectUtil.affect_remove(victim, effect)
+                removed = True
+            else:
+                effect.level = max(0, GenericUtil.to_int(getattr(effect, "level", 0), 0) - 1)
+        return removed
+
+    @staticmethod
+    def saves_spell(level: int, victim, _dam_type: int = 0) -> bool:
+        victim_level = GenericUtil.to_int(getattr(victim, "level", 0), 0)
+        saving_throw = GenericUtil.to_int(getattr(victim, "saving_throw", 0), 0)
+        save = 50 + (victim_level - GenericUtil.to_int(level, 0)) * 5 - saving_throw * 2
+        if CharacterMacros.is_affected_by_name(victim, CharacterMacros.get_enum("affectedBy"),"AFF_BERSERK"):
+            save += victim_level // 2
+        save = max(5, min(95, save))
+        return random.randint(1, 100) < save
