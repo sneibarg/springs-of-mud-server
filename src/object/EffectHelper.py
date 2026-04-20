@@ -5,7 +5,6 @@ import random
 from injector import inject
 
 from game.GenericUtil import GenericUtil
-from object.Effect import Effect
 from object.EffectUtil import EffectUtil
 from player.CharacterMacros import CharacterMacros
 
@@ -17,20 +16,6 @@ class EffectHelper:
         self.enums = character_macros.enums
         self.affected_by = self.enums.get("affectedBy")
 
-    def effect_from_spell_affect(self, spell, affect_like, caster_level: int, source: str = "") -> Effect:
-        effect = EffectUtil.as_effect(affect_like, source=source)
-        raw_type = str(getattr(effect, "type", "") or "").strip().lower()
-        if raw_type in ("sn", "skill", "spell"):
-            effect.type = str(getattr(spell, "handler_id", "") or getattr(spell, "name", ""))
-        level = getattr(effect, "level", 0)
-        if str(level).strip().lower() == "level":
-            effect.level = int(caster_level)
-        else:
-            effect.level = GenericUtil.to_int(level, int(caster_level))
-        effect.duration = GenericUtil.to_int(getattr(effect, "duration", 0), 0)
-        effect.modifier = GenericUtil.to_int(getattr(effect, "modifier", 0), 0)
-        return effect
-
     def apply_spell_effects(self, caster, victim, spell):
         affects = list(getattr(spell, "affects", []) or [])
         if not affects or victim is None:
@@ -38,7 +23,7 @@ class EffectHelper:
         source = f"spell:{getattr(spell, 'handler_id', getattr(spell, 'name', ''))}"
         caster_level = GenericUtil.to_int(getattr(caster, "level", 0), 0)
         for affect_like in affects:
-            effect = self.effect_from_spell_affect(spell, affect_like, caster_level, source=source)
+            effect = EffectUtil.effect_from_spell_affect(spell, affect_like, caster_level, source=source)
             EffectUtil.affect_join(victim, effect, self.enums)
 
     def apply_item_effects(self, character, item):
@@ -59,7 +44,7 @@ class EffectHelper:
     def is_affected(self, character, effect_type) -> bool:
         if EffectUtil.is_affected(character, effect_type):
             return True
-        if self.affected_by is not None and hasattr(self.affected_by, str(effect_type)):
+        if hasattr(self.affected_by, str(effect_type)):
             bit = getattr(self.affected_by, str(effect_type)).value
             return self.character_macros.is_affected(character, bit)
         return False

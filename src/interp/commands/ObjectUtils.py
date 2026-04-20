@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from game.Equipped import Equipped
+from game.GameMacros import GameMacros
 from game.GenericUtil import GenericUtil
 from interp.InterpUtil import InterpUtil
 
@@ -36,12 +37,8 @@ class ObjectUtils:
         return a1, f"{a2} {rest2}".strip()
 
     @staticmethod
-    def flags_to_int(raw) -> int:
-        return GenericUtil.flags_to_int(raw)
-
-    @staticmethod
     def has_flag(raw_flags, bit_value: int) -> bool:
-        return (ObjectUtils.flags_to_int(raw_flags) & int(bit_value)) != 0
+        return (GameMacros.flags_to_int(raw_flags) & int(bit_value)) != 0
 
     @staticmethod
     def ensure_equipped(character):
@@ -140,7 +137,7 @@ class ObjectUtils:
             slot = forced.strip().lower()
             return slot if hasattr(equipped, slot) and getattr(equipped, slot) is None else None
 
-        flags = ObjectUtils.flags_to_int(getattr(item, "wear_flags", 0))
+        flags = GameMacros.flags_to_int(getattr(item, "wear_flags", 0))
         for flag_name, slots in ObjectUtils.WEAR_SLOT_ORDER.items():
             if wear_flags_enum is None or not hasattr(wear_flags_enum, flag_name):
                 continue

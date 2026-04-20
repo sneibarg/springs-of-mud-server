@@ -19,7 +19,7 @@ class _EffectStatics:
     @staticmethod
     def set_affected_raw(entity, value: int):
         if hasattr(entity, "character_flags") and getattr(entity, "character_flags", None) is not None:
-            entity.character_flags.affected_by = GenericUtil.flags_to_letters(value)
+            entity.character_flags.affected_by = GameMacros.flags_to_letters(value)
             return
         if hasattr(entity, "mobile_flags") and getattr(entity, "mobile_flags", None) is not None:
             entity.mobile_flags.affected_by = int(value)
@@ -140,7 +140,7 @@ class EffectUtil:
             if bit != 0 and hasattr(entity, "extra_flags"):
                 flags = GameMacros.convert_flags(getattr(entity, "extra_flags", "") or "")
                 flags = GameMacros.set_bit(flags, bit) if add else GameMacros.unset_bit(flags, bit)
-                entity.extra_flags = GenericUtil.flags_to_letters(flags)
+                entity.extra_flags = GameMacros.flags_to_letters(flags)
         elif where == EffectUtil.enum_value(where_enum, "TO_WEAPON", -1):
             bit = EffectUtil.enum_value(weapon_type, raw_bit, 0)
             if bit != 0 and hasattr(entity, "value4"):
@@ -228,3 +228,18 @@ class EffectUtil:
                 EffectUtil.affect_remove(character, old, enums)
                 break
         EffectUtil.affect_to_char(character, new_effect, enums)
+
+    @staticmethod
+    def effect_from_spell_affect(spell, affect_like, caster_level: int, source: str = "") -> Effect:
+        effect = EffectUtil.as_effect(affect_like, source=source)
+        raw_type = str(getattr(effect, "type", "") or "").strip().lower()
+        if raw_type in ("sn", "skill", "spell"):
+            effect.type = str(getattr(spell, "handler_id", "") or getattr(spell, "name", ""))
+        level = getattr(effect, "level", 0)
+        if str(level).strip().lower() == "level":
+            effect.level = int(caster_level)
+        else:
+            effect.level = GenericUtil.to_int(level, int(caster_level))
+        effect.duration = GenericUtil.to_int(getattr(effect, "duration", 0), 0)
+        effect.modifier = GenericUtil.to_int(getattr(effect, "modifier", 0), 0)
+        return effect

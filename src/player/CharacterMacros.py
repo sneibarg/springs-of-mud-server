@@ -182,18 +182,18 @@ class CharacterMacros(GameMacros):
 
     @staticmethod
     def set_act_flags(character: Character, value: int) -> None:
-        character.character_flags.act = GenericUtil.flags_to_letters(value)
+        character.character_flags.act = GameMacros.flags_to_letters(value)
 
     def get_comm_flags(self, character: Character) -> int:
         return int(self.convert_flags(getattr(character.character_flags, "comm", "0") or "0"))
 
     @staticmethod
     def set_comm_flags(character: Character, value: int) -> None:
-        character.character_flags.comm = GenericUtil.flags_to_letters(value)
+        character.character_flags.comm = GameMacros.flags_to_letters(value)
 
     def is_comm_enabled(self, character: Character, bit_name: str) -> bool:
         comm_bits = self.enums.get("commFlags")
-        if comm_bits is None or not hasattr(comm_bits, bit_name):
+        if hasattr(comm_bits, bit_name):
             return False
         comm = self.get_comm_flags(character)
         return self.is_set(comm, getattr(comm_bits, bit_name).value)
@@ -215,7 +215,7 @@ class CharacterMacros(GameMacros):
 
     def toggle_comm(self, character: Character, bit_name: str, off_text: str, on_text: str) -> str:
         comm_bits = self.enums.get("commFlags")
-        if comm_bits is None or not hasattr(comm_bits, bit_name):
+        if not hasattr(comm_bits, bit_name):
             return ""
         bit_value = getattr(comm_bits, bit_name).value
         comm = self.get_comm_flags(character)
@@ -228,12 +228,9 @@ class CharacterMacros(GameMacros):
         return on_text
 
     def format_affects(self, character: Character) -> str:
-        affected_bits = self.AffectedBits
-        if affected_bits is None:
-            return "You are not affected by any spells.\r\n"
         raw = int(self.convert_flags(getattr(character.character_flags, "affected_by", "") or ""))
         lines = []
-        for name, member in affected_bits.__members__.items():
+        for name, member in self.AffectedBits.__members__.items():
             if self.is_set(raw, member.value):
                 pretty = name.replace("AFF_", "").replace("_", " ").lower()
                 lines.append(f"Spell: {pretty}\r\n")
@@ -608,10 +605,10 @@ class CharacterMacros(GameMacros):
         bit = getattr(affected_bits, bit_name).value
         raw = GenericUtil.to_int(self.convert_flags(getattr(character.character_flags, "affected_by", "")), 0)
         raw = self.set_bit(raw, bit) if enabled else self.unset_bit(raw, bit)
-        character.character_flags.affected_by = GenericUtil.flags_to_letters(raw)
+        character.character_flags.affected_by = GameMacros.flags_to_letters(raw)
 
     def pos_value(self, name: str) -> int:
-        if self.PositionsEnum is None or not hasattr(self.PositionsEnum, name):
+        if hasattr(self.PositionsEnum, name):
             return -1
         return int(getattr(self.PositionsEnum, name).value)
 
@@ -624,7 +621,7 @@ class CharacterMacros(GameMacros):
             name = raw.strip().upper()
             if name and not name.startswith("POS_"):
                 name = f"POS_{name}"
-            if self.PositionsEnum is not None and hasattr(self.PositionsEnum, name):
+            if hasattr(self.PositionsEnum, name):
                 return int(getattr(self.PositionsEnum, name).value)
         standing = self.pos_value("POS_STANDING")
         default_pos = standing if standing >= 0 else 0
@@ -649,7 +646,7 @@ class CharacterMacros(GameMacros):
         return ""
 
     def set_position(self, character: Character, pos_name: str):
-        if self.PositionsEnum is None or not hasattr(self.PositionsEnum, pos_name):
+        if not hasattr(self.PositionsEnum, pos_name):
             return
         value = int(getattr(self.PositionsEnum, pos_name).value)
         attrs = getattr(character, "character_attributes", None)

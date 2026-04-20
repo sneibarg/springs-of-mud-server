@@ -75,7 +75,6 @@ class MudServer:
 
     def _load_player_one(self):
         try:
-            from server.ServerUtil import ServerUtil
             account_id = self.config['mudserver']['playerone']['accountId']
             return self.player_service.player_registry.get(id=account_id)
         except KeyError as e:

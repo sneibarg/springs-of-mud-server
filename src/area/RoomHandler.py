@@ -82,7 +82,7 @@ class RoomHandler:
         show_description = True
         if character is not None:
             comm_flags = self.room_helper.character_macros.enums.get("commFlags")
-            if comm_flags is not None and hasattr(comm_flags, "COMM_BRIEF"):
+            if hasattr(comm_flags, "COMM_BRIEF"):
                 comm = int(self.room_helper.character_macros.convert_flags(getattr(character.character_flags, "comm", "0") or "0"))
                 if self.room_helper.character_macros.is_set(comm, comm_flags.COMM_BRIEF.value):
                     show_description = False

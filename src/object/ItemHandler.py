@@ -68,7 +68,6 @@ class ItemHandler:
         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("That is not a container.\r\n"))
         context.finish()
 
-    # to-do: match code needs to be re-added.
     async def look_item_or_extra(self, character: Character, context: Context):
         room = self.room_registry.get(id=character.room_id)
         if room is None:

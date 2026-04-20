@@ -23,13 +23,6 @@ class GenericUtil:
         return str(value) if value else '0'
 
     @staticmethod
-    def to_int(value, default: int = 0) -> int:
-        try:
-            return int(value)
-        except (TypeError, ValueError):
-            return default
-
-    @staticmethod
     def to_float(value, default: float = 0.0) -> float:
         try:
             return float(value)
@@ -37,30 +30,11 @@ class GenericUtil:
             return default
 
     @staticmethod
-    def letters_to_flags(value: str) -> int:
-        total = 0
-        for c in str(value or "").upper():
-            if "A" <= c <= "Z":
-                total |= (1 << (ord(c) - ord("A")))
-        return total
-
-    @staticmethod
-    def flags_to_letters(value: int) -> str:
-        if GenericUtil.to_int(value, 0) <= 0:
-            return ""
-        out = []
-        raw = GenericUtil.to_int(value, 0)
-        for bit in range(26):
-            if raw & (1 << bit):
-                out.append(chr(ord("A") + bit))
-        return "".join(out)
-
-    @staticmethod
-    def flags_to_int(raw) -> int:
-        value = GenericUtil.to_int(raw, None)
-        if value is not None:
-            return value
-        return GenericUtil.letters_to_flags(str(raw or "0"))
+    def to_int(value, default: int = 0) -> int:
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return default
 
     @staticmethod
     def camel_to_snake_case(dictionary: Dict[str, Any]) -> Dict[str, Any]:

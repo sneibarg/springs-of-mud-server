@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from injector import inject
 
+from game.GameMacros import GameMacros
 from game.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
@@ -141,11 +142,11 @@ class WizCommands:
         act = GenericUtil.to_int(self.character_macros.convert_flags(getattr(character.character_flags, "act", "") or "0"), 0)
         if self.character_macros.is_set(act, bit):
             act = self.character_macros.unset_bit(act, bit)
-            character.character_flags.act = GenericUtil.flags_to_letters(act)
+            character.character_flags.act = GameMacros.flags_to_letters(act)
             context.finish()
             return {"to_char": "Holy light mode off.\r\n"}
         act = self.character_macros.set_bit(act, bit)
-        character.character_flags.act = GenericUtil.flags_to_letters(act)
+        character.character_flags.act = GameMacros.flags_to_letters(act)
         context.finish()
         return {"to_char": "Holy light mode on.\r\n"}
 
