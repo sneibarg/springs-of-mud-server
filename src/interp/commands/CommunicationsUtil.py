@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from game.GameMacros import GameMacros
-from game.GenericUtil import GenericUtil
 from interp.InterpUtil import InterpUtil
 
 

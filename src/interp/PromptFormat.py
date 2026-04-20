@@ -6,7 +6,6 @@ from dataclasses import dataclass, asdict
 from typing import Callable, TYPE_CHECKING
 
 from game.GameMacros import GameMacros
-from game.GenericUtil import GenericUtil
 from server.protocol.Message import Message, MessageType
 
 if TYPE_CHECKING:
@@ -89,6 +88,49 @@ class PromptFormat:
 
     def to_json(self) -> dict:
         return asdict(self)
+
+    def current_prompt_text(self) -> str:
+        parts: list[str] = []
+
+        if getattr(self, "health", False):
+            parts.append("%h/%H" if getattr(self, "max_health", False) else "%hhp")
+        elif getattr(self, "max_health", False):
+            parts.append("%H")
+
+        if getattr(self, "mana", False):
+            parts.append("%m/%M" if getattr(self, "max_mana", False) else "%mm")
+        elif getattr(self, "max_mana", False):
+            parts.append("%M")
+
+        if getattr(self, "movement", False):
+            parts.append("%v/%V" if getattr(self, "max_movement", False) else "%vmv")
+        elif getattr(self, "max_movement", False):
+            parts.append("%V")
+
+        if getattr(self, "experience", False):
+            parts.append("%x/%X" if getattr(self, "accumulated_experience", False) else "%xxp")
+        elif getattr(self, "accumulated_experience", False):
+            parts.append("%X")
+
+        if getattr(self, "gold", False):
+            parts.append("%g")
+        if getattr(self, "silver", False):
+            parts.append("%s")
+        if getattr(self, "alignment", False):
+            parts.append("%a")
+        if getattr(self, "room_name", False):
+            parts.append("%r")
+        if getattr(self, "exits", False):
+            parts.append("%e")
+        if getattr(self, "room_vnum", False):
+            parts.append("%R")
+        if getattr(self, "area_name", False):
+            parts.append("%z")
+
+        text = "<" + " ".join(parts) + ">"
+        if getattr(self, "carriage_return", False):
+            text += "%c"
+        return text
 
     def _render_health(self, parts: list[str], prompt_map: dict, character: Character, room: Room, area: Area):
         if self.health and not self.max_health:

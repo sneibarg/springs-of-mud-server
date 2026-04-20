@@ -5,6 +5,7 @@ from injector import inject
 
 from game.RegistryService import RegistryService
 from interp.Context import Context
+from interp.PromptFormat import PromptFormat
 from interp.commands.CommunicationsUtil import CommunicationsUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
@@ -104,6 +105,9 @@ class CommunicationsCommands:
             lines.append("You cannot use channels.")
         if CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_NOEMOTE"):
             lines.append("You cannot show emotions.")
+        prompt_text = character.prompt_format.current_prompt_text()
+        if prompt_text:
+            lines.append(f"Your current prompt is: {prompt_text}")
         context.finish()
         return {"to_char": "\r\n".join(lines) + "\r\n"}
 
