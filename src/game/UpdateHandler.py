@@ -22,6 +22,7 @@ class UpdateHandler:
     def set_enums(self, enums: dict[str, IntEnum]):
         self.enums = enums
         self.GameParametersEnum = enums.get('gameParameters')
+        self.mobile_handler.set_enums(enums)
 
     async def handle_updates(self):
         self.pulse_area -= 1
@@ -37,9 +38,10 @@ class UpdateHandler:
             self.pulse_point = self.GameParametersEnum.PULSE_TICK.value
             await self.weather_handler.update()
         if self.pulse_music <= 0:
-            pass
+            self.pulse_music = self.GameParametersEnum.PULSE_MUSIC.value
         if self.pulse_mobile <= 0:
-            pass
+            self.pulse_mobile = self.GameParametersEnum.PULSE_MOBILE.value
+            await self.mobile_handler.mobile_update()
         if self.pulse_violence <= 0:
-            pass
+            self.pulse_violence = self.GameParametersEnum.PULSE_VIOLENCE.value
 

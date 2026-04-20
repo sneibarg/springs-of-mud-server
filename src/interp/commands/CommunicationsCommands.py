@@ -5,7 +5,6 @@ from injector import inject
 
 from game.RegistryService import RegistryService
 from interp.Context import Context
-from interp.PromptFormat import PromptFormat
 from interp.commands.CommunicationsUtil import CommunicationsUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros

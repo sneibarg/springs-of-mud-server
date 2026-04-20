@@ -164,7 +164,7 @@ class InfoCommands:
             desc = "You see nothing special."
 
         lines = [desc, InfoUtil.target_condition_line(target)]
-        equip_lines = self.character_macros.target_equipment_lines(target)
+        equip_lines = self.character_macros.target_equipment_lines(target, EQUIP_SLOT_LABELS)
         if equip_lines:
             lines.append("")
             lines.append(f"{(target.name or 'They')} is using:")
@@ -941,7 +941,7 @@ class InfoCommands:
         return f"Prompt set to {shown}\r\n"
 
     def do_equipment(self, character: Character, context: Context) -> str:
-        lines = self.character_macros.target_equipment_lines(character)
+        lines = self.character_macros.target_equipment_lines(character, EQUIP_SLOT_LABELS)
         context.finish()
         if not lines:
             return "You are using:\r\nNothing.\r\n"

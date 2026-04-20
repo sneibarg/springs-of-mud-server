@@ -278,6 +278,26 @@ class CharacterMacros(GameMacros):
 
         flag_text = (" " + " ".join(flags)) if flags else ""
         class_name = getattr(getattr(target, "character_class", None), "name", "") or ""
+        class_name = class_name[0:3]
+        if target.level == self.GameParametersEnum.MAX_LEVEL.value:
+            class_name = "IMP"
+        elif target.level == self.GameParametersEnum.MAX_LEVEL.value - 1:
+            class_name = "CRE"
+        elif target.level == self.GameParametersEnum.MAX_LEVEL.value - 2:
+            class_name = "SUP"
+        elif target.level == self.GameParametersEnum.MAX_LEVEL.value - 3:
+            class_name = "DEI"
+        elif target.level == self.GameParametersEnum.MAX_LEVEL.value - 4:
+            class_name = "GOD"
+        elif target.level == self.GameParametersEnum.MAX_LEVEL.value - 5:
+            class_name = "IMM"
+        elif target.level == self.GameParametersEnum.MAX_LEVEL.value - 6:
+            class_name = "DEM"
+        elif target.level == self.GameParametersEnum.MAX_LEVEL.value - 7:
+            class_name = "ANG"
+        elif target.level == self.GameParametersEnum.MAX_LEVEL.value - 8:
+            class_name = "AVA"
+
         return f"[{target.level}    {target.race}    {class_name}]{flag_text} {target.name} {target.title}"
 
     @staticmethod
@@ -744,3 +764,29 @@ class CharacterMacros(GameMacros):
         if rng.number_percent() < chance:
             return False
         return True
+
+    def mobile_has_act(self, mob: Any, act_bits, name: str) -> bool:
+        bit = self.enum_bit(act_bits, name)
+        if bit == 0:
+            return False
+        flags = GenericUtil.to_int(getattr(getattr(mob, "mobile_flags", None), "act", 0), 0)
+        return (flags & bit) != 0
+
+    def mobile_is_charmed(self, mob: Any) -> bool:
+        charm = self.enum_bit(self.AffectedBits, "AFF_CHARM")
+        if charm == 0:
+            return False
+        flags = GenericUtil.to_int(getattr(getattr(mob, "mobile_flags", None), "affected_by", 0), 0)
+        return (flags & charm) != 0
+
+    def mobile_is_standing(self, mob: Any) -> bool:
+        standing = self.enum_bit(self.PositionsEnum, "POS_STANDING")
+        current = GenericUtil.to_int(getattr(mob, "position", getattr(mob, "start_pos", standing)), standing)
+        return current == standing
+
+    def item_takeable(self, obj: Any, wear_flags_enum) -> bool:
+        take_bit = self.enum_bit(wear_flags_enum, "ITEM_TAKE")
+        if take_bit == 0:
+            return False
+        wear_flags = GameMacros.flags_to_int(getattr(obj, "wear_flags", 0))
+        return (wear_flags & take_bit) != 0
