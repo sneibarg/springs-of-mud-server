@@ -54,6 +54,8 @@ class Mobile:
     equipped: Optional[Equipped] = None
     inventory: list = field(default_factory=list)
     effects: list = field(default_factory=list)
+    special_name: Optional[str] = None
+    special_function: list[str] = field(default_factory=list)
     lock: threading.Lock = field(default_factory=threading.Lock)
 
     def __post_init__(self):

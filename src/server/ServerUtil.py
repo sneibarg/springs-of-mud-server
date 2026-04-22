@@ -197,6 +197,7 @@ class ServerUtil:
         communications_commands.lazy_load()
         update_handler.set_enums(injector.get(GameService).enums)
         area_handler.set_enums(injector.get(GameService).enums)
+        area_handler.initialize_world()
         weather_handler.lazy_load(injector.get(GameData).constants)
         room_helper.lazy_load(weather_handler)
         game_service.set_update_handler(injector.get(UpdateHandler))

@@ -324,7 +324,7 @@ class CharacterMacros(GameMacros):
     @classmethod
     def is_comm_enabled(cls, character: Character, bit_name: str) -> bool:
         comm_bits = cls._comm_flags_enum()
-        if comm_bits is None or not hasattr(comm_bits, bit_name):
+        if not hasattr(comm_bits, bit_name):
             return False
         comm = cls.get_comm_flags(character)
         return cls.is_set(comm, getattr(comm_bits, bit_name).value)
@@ -394,6 +394,10 @@ class CharacterMacros(GameMacros):
 
             if obj is None:
                 continue
+
+            if isinstance(obj, dict):
+                from object.Item import Item
+                obj = Item.from_json(obj)
 
             item_text = ItemUtil.format_obj_to_char(obj, item_flags_enum=item_flags, f_short=True)
             lines.append(f"{label}{item_text}")
@@ -776,7 +780,7 @@ class CharacterMacros(GameMacros):
     @classmethod
     def pos_value(cls, name: str) -> int:
         positions = cls._positions_enum()
-        if positions is None or not hasattr(positions, name):
+        if not hasattr(positions, name):
             return -1
         return int(getattr(positions, name).value)
 

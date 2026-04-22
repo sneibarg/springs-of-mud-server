@@ -48,13 +48,12 @@ class MovementCommands:
         if in_room is None:
             context.finish()
             return {"to_char": "Alas, you cannot go that way.\r\n"}
-
         pexit = MovementUtil.find_exit(in_room, door)
-        if pexit is None or not getattr(pexit, "to_room_id", None):
+        if pexit is None or not getattr(pexit, "to_room_vnum", None):
             context.finish()
             return {"to_char": "Alas, you cannot go that way.\r\n"}
 
-        to_room = self.room_registry.get_or_none(id=pexit.to_room_id)
+        to_room = self.room_registry.get_or_none(vnum=str(pexit.to_room_vnum))
         if to_room is None:
             context.finish()
             return {"to_char": "Alas, you cannot go that way.\r\n"}
@@ -478,11 +477,12 @@ class MovementCommands:
 
         room = self.room_registry.get_or_none(id=character.room_id)
         trainer_found = False
-        if room is not None and hasattr(self.act_bits, "ACT_TRAIN"):
-            train_bit = self.act_bits.ACT_TRAIN.value
+        if room is not None:
+            train_bit = self.act_bits.ACT_TRAIN.value if self.act_bits is not None and hasattr(self.act_bits, "ACT_TRAIN") else 0
             for mob in room.mobiles.values():
                 mob_flags = GenericUtil.to_int(getattr(getattr(mob, "mobile_flags", None), "act", 0), 0)
-                if CharacterMacros.is_set(mob_flags, train_bit):
+                special_name = str(getattr(mob, "special_name", "") or "").strip().lower()
+                if (train_bit and CharacterMacros.is_set(mob_flags, train_bit)) or special_name == "spec_cast_adept":
                     trainer_found = True
                     break
         if not trainer_found:

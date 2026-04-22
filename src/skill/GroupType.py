@@ -8,6 +8,7 @@ class GroupType:
     name: str
     rating: List[int]
     spells: List[str]
+    skills: List[str]
 
     def __hash__(self):
         return hash(self.id)

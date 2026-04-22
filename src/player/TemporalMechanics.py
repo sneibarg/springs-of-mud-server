@@ -12,9 +12,5 @@ class TemporalMechanics:
 
     @classmethod
     def from_json(cls, data) -> TemporalMechanics:
-        try:
-            data = json.loads(data)
-        except json.JSONDecodeError:
-            raise TypeError(f"TemporalMechanics.from_json expected mapping or JSON string, got {type(data).__name__}")
         from game.GenericUtil import GenericUtil
         return cls(**GenericUtil.camel_to_snake_case(data))

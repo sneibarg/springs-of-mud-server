@@ -11,9 +11,5 @@ class CharacterFlags:
 
     @classmethod
     def from_json(cls, data) -> CharacterFlags:
-        try:
-            data = json.loads(data)
-        except json.JSONDecodeError:
-            raise TypeError(f"CharacterClass.from_json expected mapping or JSON string, got {type(data).__name__}")
         from game.GenericUtil import GenericUtil
         return cls(**GenericUtil.camel_to_snake_case(data))

@@ -61,6 +61,12 @@ class AreaHandler:
                 elif area.number_of_players == 0:
                     area.empty = True
 
+    def initialize_world(self):
+        for area in self.area_registry.all_areas():
+            self._reset_area(area)
+            area.age = 0
+            area.empty = False
+
     def _reset_area(self, area: Area):
         last = True
         mob = None
@@ -118,6 +124,11 @@ class AreaHandler:
         if template_mob.count >= room_max:
             return last, None
         mob = MobileUtil.create_mobile(template_mob, self.enums)
+        for special in getattr(template_mob, "specials", []) or []:
+            if str(getattr(special, "mob_vnum", "") or "") == str(mob.vnum):
+                mob.special_name = str(getattr(special, "name", "") or "")
+                mob.special_function = list(getattr(special, "special_function", []) or [])
+                break
         room.add_mobile_to_room(mob)
         return last, mob
 

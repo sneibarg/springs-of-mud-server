@@ -68,3 +68,8 @@ class AreaService:
         area.specials = self.special_registry.all_specials_by_area_id(area.id)
         area.items = self.item_registry.all_items_by_area_id(area.id)
         area.mobiles = self.mobile_registry.all_mobiles_by_area_id(area.id)
+        specials_by_vnum = {}
+        for special in area.specials:
+            specials_by_vnum.setdefault(str(special.mob_vnum), []).append(special)
+        for mobile in area.mobiles:
+            mobile.specials = list(specials_by_vnum.get(str(getattr(mobile, "vnum", "") or ""), []))

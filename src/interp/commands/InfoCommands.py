@@ -314,15 +314,15 @@ class InfoCommands:
             f"You have {attributes.practices} practices and {attributes.trains} training sessions.",
             f"You are carrying {carry_number}/{max_items} items with weight {carry_weight // 10}/{max_weight // 10} pounds.",
             f"Str: {attributes.strength}({attributes.strength})  Int: {attributes.intelligence}({attributes.intelligence})  Wis: {attributes.wisdom}({attributes.wisdom})  Dex: {attributes.dexterity}({attributes.dexterity})  Con: {attributes.constitution}({attributes.constitution})",
-            f"You have scored {character.experience} exp, and have {character.gold} gold and {character.silver} silver coins.",
+            f"You have scored {attributes.experience} exp, and have {character.gold} gold and {character.silver} silver coins.",
         ])
 
         GameParametersEnum = CharacterMacros.get_enum("gameParameters")
         hero_level = GameParametersEnum.LEVEL_HERO.value if GameParametersEnum.LEVEL_HERO.value else 51
         if character.level < hero_level:
             next_total = GenericUtil.to_int(getattr(character, "accumulated_experience", 0), 0)
-            if next_total > character.experience:
-                lines.append(f"You need {next_total - character.experience} exp to level.")
+            if next_total > character.character_attributes.experience:
+                lines.append(f"You need {next_total - attributes.experience} exp to level.")
 
         lines.append(f"Wimpy set to {attributes.wimpy} hit points.")
 
@@ -866,11 +866,12 @@ class InfoCommands:
         room = self.room_registry.get_or_none(id=character.room_id)
         act_bits = CharacterMacros.enums.get("actBits")
         trainer = None
-        if room is not None and act_bits is not None and hasattr(act_bits, "ACT_PRACTICE"):
-            practice_bit = act_bits.ACT_PRACTICE.value
+        if room is not None:
+            practice_bit = act_bits.ACT_PRACTICE.value if act_bits is not None and hasattr(act_bits, "ACT_PRACTICE") else 0
             for mob in room.mobiles.values():
                 mob_flags = GenericUtil.to_int(getattr(getattr(mob, "mobile_flags", None), "act", 0), 0)
-                if CharacterMacros.is_set(mob_flags, practice_bit):
+                special_name = str(getattr(mob, "special_name", "") or "").strip().lower()
+                if (practice_bit and CharacterMacros.is_set(mob_flags, practice_bit)) or special_name == "spec_cast_adept":
                     trainer = mob
                     break
 

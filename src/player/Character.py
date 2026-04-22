@@ -39,12 +39,13 @@ class Character:
     max_mana: int
     movement: int
     max_movement: int
-    experience: int
-    accumulated_experience: int
     gold: int
     silver: int
     trust: int
-    inventory: List[str]
+    inventory: List[Any]
+    effects: List[Any]
+    skills: List[Any]
+    spells: List[Any]
     character_flags: CharacterFlags
     character_attributes: CharacterAttributes
     temporal_mechanics: TemporalMechanics
@@ -57,7 +58,6 @@ class Character:
     equipped: Optional[Equipped] = None
     context: Dict[str, object] = field(default_factory=dict)
     loot: List[Item] = field(default_factory=list)
-    effects: list = field(default_factory=list)
     lock: threading.Lock = field(default_factory=threading.Lock)
     carriage_return: bool = True
 
@@ -84,6 +84,7 @@ class Character:
     @classmethod
     def from_json(cls, data):
         from game.GenericUtil import GenericUtil
+        from game.Equipped import Equipped
         payload = GenericUtil.camel_to_snake_case(data)
         prompt_format = payload.get('prompt_format')
         character_class = payload.get('character_class')
@@ -91,6 +92,7 @@ class Character:
         temporal_mechanics = payload.get('temporal_mechanics')
         character_attributes = payload.get('character_attributes')
         character_flags = payload.get('character_flags')
+        equipped_data = payload.get('equipped')
 
         payload['character_flags'] = CharacterFlags.from_json(character_flags)
         payload['character_attributes'] = CharacterAttributes.from_json(character_attributes)
@@ -98,6 +100,20 @@ class Character:
         payload['armor_class'] = PCArmorClass.from_json(armor_class)
         payload['prompt_format'] = PromptFormat.from_template(prompt_format)
         payload['character_class'] = CharacterClass.from_json(character_class)
+
+        if isinstance(equipped_data, dict):
+            normalized_equipped = GenericUtil.camel_to_snake_case(equipped_data)
+            equipped = Equipped()
+            for slot, item_data in normalized_equipped.items():
+                if not hasattr(equipped, slot) or item_data is None:
+                    continue
+                if isinstance(item_data, Item):
+                    setattr(equipped, slot, item_data)
+                    continue
+                if isinstance(item_data, (dict, str)):
+                    setattr(equipped, slot, Item.from_json(item_data))
+            payload['equipped'] = equipped
+
         return cls(**payload)
 
 
