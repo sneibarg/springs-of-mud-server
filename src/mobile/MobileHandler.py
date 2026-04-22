@@ -82,22 +82,22 @@ class MobileHandler:
         self.logger.info(f"mobile_update starting with {len(snapshots)} mobile snapshot(s)")
 
         for room, mob in snapshots:
-            self.logger.info(f"mobile_update evaluating {self._actor_label(mob)} from snapshot room {self._room_label(room)}")
+            self.logger.debug(f"mobile_update evaluating {self._actor_label(mob)} from snapshot room {self._room_label(room)}")
             room = self._resolve_room_for_mobile(room, mob)
             if mob is None or room is None or getattr(mob, "id", None) not in room.mobiles:
-                self.logger.info(f"mobile_update skipping snapshot because mob or resolved room is invalid: mob={self._actor_label(mob)}, room={self._room_label(room)}")
+                self.logger.debug(f"mobile_update skipping snapshot because mob or resolved room is invalid: mob={self._actor_label(mob)}, room={self._room_label(room)}")
                 continue
             if CharacterMacros.mobile_is_charmed(mob):
-                self.logger.info(f"mobile_update skipping {self._actor_label(mob)} in {self._room_label(room)} because it is charmed")
+                self.logger.debug(f"mobile_update skipping {self._actor_label(mob)} in {self._room_label(room)} because it is charmed")
                 continue
             if self._skip_in_empty_area(room, mob):
-                self.logger.info(f"mobile_update skipping {self._actor_label(mob)} in {self._room_label(room)} because the area is empty and ACT_UPDATE_ALWAYS is not set")
+                self.logger.debug(f"mobile_update skipping {self._actor_label(mob)} in {self._room_label(room)} because the area is empty and ACT_UPDATE_ALWAYS is not set")
                 continue
 
             self._update_shop_money(mob, shop_keepers)
 
             special_performed = await self.execute_special_function(mob, room)
-            self.logger.info(
+            self.logger.debug(
                 f"mobile_update special execution result for {self._actor_label(mob)} in {self._room_label(room)}: "
                 f"special_name={str(getattr(mob, 'special_name', '') or '')!r}, performed={special_performed}"
             )
@@ -105,19 +105,19 @@ class MobileHandler:
                 continue
 
             if not CharacterMacros.mobile_is_standing(mob):
-                self.logger.info(f"mobile_update skipping generic specials for {self._actor_label(mob)} in {self._room_label(room)} because position is not standing")
+                self.logger.debug(f"mobile_update skipping generic specials for {self._actor_label(mob)} in {self._room_label(room)} because position is not standing")
                 continue
 
-            self.logger.info(f"mobile_update executing generic special spec_scavenge for {self._actor_label(mob)} in {self._room_label(room)}")
+            self.logger.debug(f"mobile_update executing generic special spec_scavenge for {self._actor_label(mob)} in {self._room_label(room)}")
             await self._execute_generic_special(mob, room, "spec_scavenge")
             room = self._resolve_room_for_mobile(room, mob)
             if room is None:
-                self.logger.info(f"mobile_update stopping after spec_scavenge because {self._actor_label(mob)} no longer resolves to a room")
+                self.logger.debug(f"mobile_update stopping after spec_scavenge because {self._actor_label(mob)} no longer resolves to a room")
                 continue
 
-            self.logger.info(f"mobile_update executing generic special spec_wander for {self._actor_label(mob)} in {self._room_label(room)}")
+            self.logger.debug(f"mobile_update executing generic special spec_wander for {self._actor_label(mob)} in {self._room_label(room)}")
             await self._execute_generic_special(mob, room, "spec_wander")
-        self.logger.info("mobile_update completed")
+        self.logger.debug("mobile_update completed")
 
     def _skip_in_empty_area(self, room, mob: Mobile) -> bool:
         area = self.area_registry.get_or_none(id=getattr(room, "area_id", ""))
@@ -145,19 +145,19 @@ class MobileHandler:
     async def execute_special_function(self, mob: Mobile, room) -> bool:
         lambdas = list(getattr(mob, "special_function", []) or [])
         if not lambdas:
-            self.logger.info(
+            self.logger.debug(
                 f"execute_special_function found no bound special lambdas for {self._actor_label(mob)} in {self._room_label(room)} "
                 f"(special_name={str(getattr(mob, 'special_name', '') or '')!r})"
             )
             return False
-        self.logger.info(
+        self.logger.debug(
             f"execute_special_function starting for {self._actor_label(mob)} in {self._room_label(room)} "
             f"with special_name={str(getattr(mob, 'special_name', '') or '')!r} and {len(lambdas)} lambda(s)"
         )
         context = MobileContext(actor=mob, room=room, handler=self, special_name=str(getattr(mob, "special_name", "") or ""))
         await self._execute_lambda_sequence(context, lambdas)
         await self._flush_context_payloads(context)
-        self.logger.info(
+        self.logger.debug(
             f"execute_special_function completed for {self._actor_label(mob)} in {self._room_label(context.room)}: "
             f"performed={context.performed}, done={context.done}"
         )
@@ -166,37 +166,38 @@ class MobileHandler:
     def execute_special_by_name(self, mob: Mobile, special_name: str, room, context: MobileContext | None = None) -> bool:
         lambdas = self._special_library().get(str(special_name or "").strip().lower(), [])
         if not lambdas:
-            self.logger.info(
+            self.logger.debug(
                 f"execute_special_by_name found no library special for name={str(special_name or '')!r} "
                 f"on {self._actor_label(mob)} in {self._room_label(room)}"
             )
             return False
         active_context = context or MobileContext(actor=mob, room=room, handler=self, special_name=str(special_name or ""))
-        self.logger.info(
-            f"execute_special_by_name starting name={str(special_name or '')!r} for {self._actor_label(mob)} "
-            f"in {self._room_label(active_context.room)} with {len(lambdas)} lambda(s)"
-        )
+        if special_name == "spec_wander":
+            self.logger.debug(
+                f"execute_special_by_name commencing={str(special_name or '')!r} for {self._actor_label(mob)} "
+                f"in {self._room_label(active_context.room)} with {len(lambdas)} lambda(s)"
+            )
         for lambda_str in lambdas:
             try:
-                self.logger.info(f"execute_special_by_name evaluating lambda for {self._actor_label(mob)}: {lambda_str}")
+                self.logger.debug(f"execute_special_by_name evaluating lambda for {self._actor_label(mob)}: {lambda_str}")
                 func = eval(lambda_str)
             except Exception:
                 self.logger.error(f"Invalid mobile special lambda: {lambda_str}", exc_info=True)
                 return False
             if not callable(func):
-                self.logger.info(f"execute_special_by_name skipping non-callable lambda result for {self._actor_label(mob)}: {lambda_str}")
+                self.logger.debug(f"execute_special_by_name skipping non-callable lambda result for {self._actor_label(mob)}: {lambda_str}")
                 continue
             result = func(active_context)
             if inspect.isawaitable(result):
                 self.logger.warning(f"Async mobile special lambda is not supported in nested execution: {lambda_str}")
                 continue
-            self.logger.info(
+            self.logger.debug(
                 f"execute_special_by_name lambda result for {self._actor_label(mob)}: "
                 f"result={result!r}, performed={active_context.performed}, done={active_context.done}"
             )
             if active_context.done:
                 break
-        self.logger.info(
+        self.logger.debug(
             f"execute_special_by_name completed name={str(special_name or '')!r} for {self._actor_label(mob)}: "
             f"performed={active_context.performed}, done={active_context.done}"
         )
@@ -205,23 +206,23 @@ class MobileHandler:
     async def _execute_lambda_sequence(self, context: MobileContext, lambdas: list[str]):
         for lambda_str in lambdas:
             try:
-                self.logger.info(
+                self.logger.debug(
                     f"_execute_lambda_sequence evaluating {context.special_name!r} for "
                     f"{self._actor_label(context.actor)} in {self._room_label(context.room)}: {lambda_str}"
                 )
                 func = eval(lambda_str)
                 if not callable(func):
-                    self.logger.info(f"_execute_lambda_sequence skipping non-callable lambda for {self._actor_label(context.actor)}: {lambda_str}")
+                    self.logger.debug(f"_execute_lambda_sequence skipping non-callable lambda for {self._actor_label(context.actor)}: {lambda_str}")
                     continue
                 result = func(context)
                 if inspect.isawaitable(result):
                     await result
-                    self.logger.info(
+                    self.logger.debug(
                         f"_execute_lambda_sequence awaited lambda for {self._actor_label(context.actor)}: "
                         f"performed={context.performed}, done={context.done}"
                     )
                 else:
-                    self.logger.info(
+                    self.logger.debug(
                         f"_execute_lambda_sequence lambda returned for {self._actor_label(context.actor)}: "
                         f"result={result!r}, performed={context.performed}, done={context.done}"
                     )
@@ -230,7 +231,7 @@ class MobileHandler:
                 break
             await self._flush_context_payloads(context)
             if context.done:
-                self.logger.info(
+                self.logger.debug(
                     f"_execute_lambda_sequence stopping early for {self._actor_label(context.actor)} "
                     f"because context.done is set for special {context.special_name!r}"
                 )
@@ -239,7 +240,7 @@ class MobileHandler:
     async def _flush_context_payloads(self, context: MobileContext):
         while context.payloads:
             payload = context.payloads.pop(0)
-            self.logger.info(
+            self.logger.debug(
                 f"_flush_context_payloads delivering payload for {self._actor_label(context.actor)} "
                 f"in {self._room_label(context.room)} with keys={sorted(payload.keys())}"
             )
@@ -247,13 +248,13 @@ class MobileHandler:
 
     async def _execute_generic_special(self, mob: Mobile, room, special_name: str) -> bool:
         context = MobileContext(actor=mob, room=room, handler=self, special_name=str(special_name or ""))
-        self.logger.info(
+        self.logger.debug(
             f"_execute_generic_special starting name={str(special_name or '')!r} for {self._actor_label(mob)} "
             f"in {self._room_label(room)}"
         )
         self.execute_special_by_name(mob, special_name, room, context)
         await self._flush_context_payloads(context)
-        self.logger.info(
+        self.logger.debug(
             f"_execute_generic_special completed name={str(special_name or '')!r} for {self._actor_label(mob)}: "
             f"performed={context.performed}, done={context.done}, room={self._room_label(context.room)}"
         )
@@ -295,7 +296,7 @@ class MobileHandler:
             resolved = MobileContext(actor=mob, room=room, handler=self)
             current_room(resolved)
             if resolved.room is not room:
-                self.logger.info(
+                self.logger.debug(
                     f"_resolve_room_for_mobile changed room for {self._actor_label(mob)} from "
                     f"{self._room_label(room)} to {self._room_label(resolved.room)}"
                 )
@@ -312,6 +313,7 @@ class MobileHandler:
                 lambdas = list(getattr(special, "special_function", []) or [])
                 if name and lambdas and name not in library:
                     library[name] = lambdas
+
             self._special_library_cache = library
             self.logger.info(f"_special_library built cache with {len(library)} special definition(s)")
         return self._special_library_cache

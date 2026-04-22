@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import random
@@ -338,12 +337,12 @@ class MobileApi:
     def devour_first_npc_corpse(self, ctx: MobileContext, room_message: str = "$n savagely devours a corpse.", spill_contents: bool = True):
         actor_label = self._actor_label(ctx)
         room_label = self._room_label(ctx.room)
-        self.logger.info(f"{actor_label}: checking for npc corpse to devour in {room_label}")
+        self.logger.debug(f"{actor_label}: checking for npc corpse to devour in {room_label}")
         for corpse in list(getattr(ctx.room, "contents", {}).values()):
             item_type = str(getattr(corpse, "item_type", "") or "").strip().lower()
             if item_type not in {"npc_corpse", "item_corpse_npc", "corpse_npc"}:
                 continue
-            self.logger.info(
+            self.logger.debug(
                 f"{actor_label}: devouring corpse {getattr(corpse, 'short_description', '') or getattr(corpse, 'name', 'corpse')} "
                 f"[id={getattr(corpse, 'id', '')}] in {room_label}"
             )
@@ -351,14 +350,14 @@ class MobileApi:
                 self._queue_room_message(ctx, MobileMacros.render_act(room_message, ctx.actor) + "\r\n")
             if spill_contents:
                 item_count = len(list(getattr(corpse, "contains", []) or []))
-                self.logger.info(f"{actor_label}: spilling {item_count} corpse item(s) into {room_label}")
+                self.logger.debug(f"{actor_label}: spilling {item_count} corpse item(s) into {room_label}")
                 for item in list(getattr(corpse, "contains", []) or []):
                     ctx.room.add_item_to_room(item)
                 corpse.contains = []
             ctx.room.contents.pop(str(getattr(corpse, "id", "") or ""), None)
-            self.logger.info(f"{actor_label}: corpse devoured and removed from {room_label}")
+            self.logger.debug(f"{actor_label}: corpse devoured and removed from {room_label}")
             return ctx.mark_performed()
-        self.logger.info(f"{actor_label}: no npc corpse available to devour in {room_label}")
+        self.logger.debug(f"{actor_label}: no npc corpse available to devour in {room_label}")
         return False
 
     def follow_time_script(self, ctx: MobileContext, open_hour: int, close_hour: int, open_path: str, close_path: str):
@@ -565,14 +564,14 @@ class MobileApi:
         actor_label = self._actor_label(ctx)
         room_label = self._room_label(ctx.room)
         if not CharacterMacros.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_SCAVENGER"):
-            self.logger.info(f"{actor_label}: scavenge skipped in {room_label} because ACT_SCAVENGER is not set")
+            self.logger.debug(f"{actor_label}: scavenge skipped in {room_label} because ACT_SCAVENGER is not set")
             return False
         if not getattr(ctx.room, "contents", {}):
-            self.logger.info(f"{actor_label}: scavenge skipped in {room_label} because the room has no contents")
+            self.logger.debug(f"{actor_label}: scavenge skipped in {room_label} because the room has no contents")
             return False
         scavenge_roll = ctx.handler.rng.number_bits(6)
         if scavenge_roll != 0:
-            self.logger.info(f"{actor_label}: scavenge skipped in {room_label} because number_bits(6) rolled {scavenge_roll}")
+            self.logger.debug(f"{actor_label}: scavenge skipped in {room_label} because number_bits(6) rolled {scavenge_roll}")
             return False
 
         obj_best = None
@@ -585,10 +584,10 @@ class MobileApi:
                 max_cost = cost
                 obj_best = obj
         if obj_best is None:
-            self.logger.info(f"{actor_label}: scavenge found no takeable item worth taking in {room_label}")
+            self.logger.debug(f"{actor_label}: scavenge found no takeable item worth taking in {room_label}")
             return False
         MobileMacros.give_room_item_to_mobile(ctx.room, ctx.actor, obj_best)
-        self.logger.info(
+        self.logger.debug(
             f"{actor_label}: scavenged {getattr(obj_best, 'short_description', '') or getattr(obj_best, 'name', 'item')} "
             f"[id={getattr(obj_best, 'id', '')}, cost={getattr(obj_best, 'cost', 0)}] in {room_label}"
         )
@@ -598,17 +597,17 @@ class MobileApi:
         actor_label = self._actor_label(ctx)
         room_label = self._room_label(ctx.room)
         if CharacterMacros.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_SENTINEL"):
-            self.logger.info(f"{actor_label}: wander skipped in {room_label} because ACT_SENTINEL is set")
+            self.logger.debug(f"{actor_label}: wander skipped in {room_label} because ACT_SENTINEL is set")
             return False
         wander_roll = ctx.handler.rng.number_bits(3)
         if wander_roll != 0:
-            self.logger.info(f"{actor_label}: wander skipped in {room_label} because number_bits(3) rolled {wander_roll}")
+            self.logger.debug(f"{actor_label}: wander skipped in {room_label} because number_bits(3) rolled {wander_roll}")
             return False
         door = ctx.handler.rng.number_bits(5)
         if door > 5:
-            self.logger.info(f"{actor_label}: wander skipped in {room_label} because chosen door {door} is invalid")
+            self.logger.debug(f"{actor_label}: wander skipped in {room_label} because chosen door {door} is invalid")
             return False
-        self.logger.info(f"{actor_label}: wander selected door {door} from {room_label}")
+        self.logger.debug(f"{actor_label}: wander selected door {door} from {room_label}")
         return self._move_mobile_direction(ctx, door)
 
     def _move_mobile_direction(self, ctx: MobileContext, door: int):
@@ -620,43 +619,43 @@ class MobileApi:
                 pexit = ex
                 break
         if pexit is None:
-            self.logger.info(f"{actor_label}: move blocked from {room_label} because no exit exists for door {door}")
+            self.logger.debug(f"{actor_label}: move blocked from {room_label} because no exit exists for door {door}")
             return False
 
         to_room = MobileMacros.resolve_exit_destination(ctx.handler.room_registry, pexit)
         if to_room is None:
-            self.logger.info(f"{actor_label}: move blocked from {room_label} because door {door} has no destination room")
+            self.logger.debug(f"{actor_label}: move blocked from {room_label} because door {door} has no destination room")
             return False
 
         closed_bit = MobileMacros.enum_bit(ctx.handler.exit_flags, "EX_CLOSED", "CLOSED")
         if closed_bit and (GenericUtil.to_int(getattr(pexit, "exit_flags", 0), 0) & closed_bit) != 0:
-            self.logger.info(f"{actor_label}: move blocked from {room_label} to {self._room_label(to_room)} because door {door} is closed")
+            self.logger.debug(f"{actor_label}: move blocked from {room_label} to {self._room_label(to_room)} because door {door} is closed")
             return False
 
         no_mob_bit = MobileMacros.enum_bit(ctx.handler.room_flags, "ROOM_NO_MOB")
         if no_mob_bit and (GenericUtil.to_int(getattr(to_room, "room_flags", 0), 0) & no_mob_bit) != 0:
-            self.logger.info(f"{actor_label}: move blocked from {room_label} to {self._room_label(to_room)} because ROOM_NO_MOB is set")
+            self.logger.debug(f"{actor_label}: move blocked from {room_label} to {self._room_label(to_room)} because ROOM_NO_MOB is set")
             return False
 
         if CharacterMacros.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_STAY_AREA") and getattr(to_room, "area_id", "") != getattr(ctx.room, "area_id", ""):
-            self.logger.info(f"{actor_label}: move blocked from {room_label} to {self._room_label(to_room)} because ACT_STAY_AREA is set")
+            self.logger.debug(f"{actor_label}: move blocked from {room_label} to {self._room_label(to_room)} because ACT_STAY_AREA is set")
             return False
 
         indoors_bit = MobileMacros.enum_bit(ctx.handler.room_flags, "ROOM_INDOORS")
         to_indoor = indoors_bit and (GenericUtil.to_int(getattr(to_room, "room_flags", 0), 0) & indoors_bit) != 0
         if CharacterMacros.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_OUTDOORS") and to_indoor:
-            self.logger.info(f"{actor_label}: move blocked from {room_label} to {self._room_label(to_room)} because ACT_OUTDOORS forbids indoor rooms")
+            self.logger.debug(f"{actor_label}: move blocked from {room_label} to {self._room_label(to_room)} because ACT_OUTDOORS forbids indoor rooms")
             return False
         if CharacterMacros.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_INDOORS") and not to_indoor:
-            self.logger.info(f"{actor_label}: move blocked from {room_label} to {self._room_label(to_room)} because ACT_INDOORS forbids outdoor rooms")
+            self.logger.debug(f"{actor_label}: move blocked from {room_label} to {self._room_label(to_room)} because ACT_INDOORS forbids outdoor rooms")
             return False
 
         if not MobileMacros.move_mobile(ctx.room, to_room, ctx.actor):
-            self.logger.info(f"{actor_label}: move failed from {room_label} to {self._room_label(to_room)} for door {door}")
+            self.logger.debug(f"{actor_label}: move failed from {room_label} to {self._room_label(to_room)} for door {door}")
             return False
         ctx.room = to_room
         ctx.set_alias("room", to_room)
-        self.logger.info(f"{actor_label}: moved from {room_label} to {self._room_label(to_room)} via door {door}")
+        self.logger.debug(f"{actor_label}: moved from {room_label} to {self._room_label(to_room)} via door {door}")
         return ctx.mark_performed()
 
     def _toggle_gate(self, ctx: MobileContext, close: bool):
