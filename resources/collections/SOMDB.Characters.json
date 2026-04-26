@@ -18,7 +18,7 @@
   "maxMana": 1000,
   "movement": 1000,
   "maxMovement": 1000,
-  "level": 100,
+  "level": 60,
   "gold": 1000000,
   "silver": 1000000,
   "characterFlags": {
@@ -321,64 +321,84 @@
   "effects": [],
   "skills": [
     {
-      "name": "backstab"
+      "name": "backstab",
+      "level": 1
     },
     {
-      "name": "berserk"
+      "name": "berserk",
+      "level": 1
     },
     {
-      "name": "dagger"
+      "name": "dagger",
+      "level": 1
     },
     {
-      "name": "disarm"
+      "name": "disarm",
+      "level": 1
     },
     {
-      "name": "dodge"
+      "name": "dodge",
+      "level": 1
     },
     {
-      "name": "enhanced damage"
+      "name": "enhanced damage",
+      "level": 1
     },
     {
-      "name": "hide"
+      "name": "hide",
+      "level": 1
     },
     {
-      "name": "mace"
+      "name": "mace",
+      "level": 1
     },
     {
-      "name": "peek"
+      "name": "peek",
+      "level": 1
     },
     {
-      "name": "pick lock"
+      "name": "pick lock",
+      "level": 1
     },
     {
-      "name": "recall"
+      "name": "recall",
+      "level": 50
     },
     {
-      "name": "scrolls"
+      "name": "scrolls",
+      "level": 1
     },
     {
-      "name": "second attack"
+      "name": "second attack",
+      "level": 1
     },
     {
-      "name": "sneak"
+      "name": "sneak",
+      "level": 1
     },
     {
-      "name": "staves"
+      "name": "staves",
+      "level": 1
     },
     {
-      "name": "steal"
+      "name": "steal",
+      "level": 1
     },
     {
-      "name": "sword"
+      "name": "sword",
+      "level": 40
     },
     {
-      "name": "third attack"
+      "name": "third attack",
+      "level": 1
     },
     {
-      "name": "trip"
+      "name": "trip",
+      "level": 1
     },
     {
-      "name": "wands"
+      "name": "wands",
+      "level": 1
     }
   ],
   "spells": [],

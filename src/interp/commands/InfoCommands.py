@@ -832,21 +832,17 @@ class InfoCommands:
         if not raw and context.parameters:
             raw = " ".join(context.parameters).strip().lower()
 
+        skills = character.skills
         attributes = getattr(character, "character_attributes", None)
         practices = GenericUtil.to_int(getattr(attributes, "practices", 0), 0) if attributes is not None else 0
         class_name = str(getattr(getattr(character, "character_class", None), "name", "") or "").strip().lower()
 
         if not raw:
-            skills = []
-            for skill in sorted(self.skill_registry.all_skills(), key=lambda s: (s.name or "").lower()):
-                lvl = CharacterMacros.skill_value_for_class(getattr(skill, "level_by_class", {}) or {}, class_name, default=99)
-                rating = CharacterMacros.skill_value_for_class(getattr(skill, "rating_by_class", {}) or {}, class_name, default=0)
-                if lvl <= GenericUtil.to_int(getattr(character, "level", 0), 0) and rating > 0 and lvl < 99:
-                    skills.append(skill.name)
-
             lines = []
-            for i, name in enumerate(skills):
-                lines.append(f"{name:<18}   1%  ")
+            for i, skill in enumerate(skills):
+                name = skill["name"].lower()
+                level = skill["level"]
+                lines.append(f"{name:<18}   {level:>3}%  ")
                 if (i + 1) % 3 == 0:
                     lines.append("\r\n")
             if len(skills) % 3 != 0:
@@ -864,7 +860,7 @@ class InfoCommands:
             return "You have no practice sessions left.\r\n"
 
         room = self.room_registry.get_or_none(id=character.room_id)
-        act_bits = CharacterMacros.enums.get("actBits")
+        act_bits = CharacterMacros.get_enum("actBits")
         trainer = None
         if room is not None:
             practice_bit = act_bits.ACT_PRACTICE.value if act_bits is not None and hasattr(act_bits, "ACT_PRACTICE") else 0

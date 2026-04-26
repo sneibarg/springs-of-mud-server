@@ -1,3 +1,4 @@
+import asyncio
 import random
 
 from enum import IntEnum
@@ -14,8 +15,10 @@ from mobile.MobileHandler import MobileHandler
 from object.EffectUtil import EffectUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
+from player.CharacterService import CharacterService
 from player.PlayerHelper import PlayerHelper
 from server.messaging.MessageBus import MessageBus
+from server.session.SessionHandler import SessionHandler
 
 
 class UpdateHandler:
@@ -27,13 +30,17 @@ class UpdateHandler:
                  mobile_handler: MobileHandler,
                  fight_handler: FightHandler,
                  message_bus: MessageBus,
-                 registry_service: RegistryService):
+                 registry_service: RegistryService,
+                 character_service: CharacterService,
+                 session_handler: SessionHandler):
         self.player_helper = player_helper
         self.weather_handler = weather_handler
         self.area_handler = area_handler
         self.mobile_handler = mobile_handler
         self.fight_handler = fight_handler
         self.message_bus = message_bus
+        self.character_service = character_service
+        self.session_handler = session_handler
         self.character_registry = registry_service.character_registry
         self.room_registry = registry_service.room_registry
         self.skill_registry = registry_service.skill_registry
@@ -45,6 +52,8 @@ class UpdateHandler:
         self.pulse_violence = 0
         self.pulse_point = 0
         self.pulse_music = 0  # maybe we skip migrating music
+        self.save_cycle = 30
+        self.save_number = 0
         self.GameParametersEnum = None
         self.PositionsEnum = None
         self.ItemTypes = None
@@ -192,6 +201,7 @@ class UpdateHandler:
         if self.PositionsEnum is None:
             return
 
+        self._advance_save_counter()
         pos_stunned = self.PositionsEnum.POS_STUNNED.value
         for ch in self.character_registry.all_characters():
             attrs = getattr(ch, "character_attributes", None)
@@ -215,6 +225,8 @@ class UpdateHandler:
                 self._tick_regen(mob)
                 await self._tick_effects(mob)
 
+        await self._autosave_due_characters()
+
     async def obj_update(self):
         if self.ItemTypes is None:
             return
@@ -229,6 +241,43 @@ class UpdateHandler:
             if timer > 0:
                 continue
             await self._expire_world_item(item)
+
+    def _advance_save_counter(self) -> None:
+        self.save_number += 1
+        if self.save_number >= self.save_cycle:
+            self.save_number = 0
+
+    async def _autosave_due_characters(self) -> None:
+        due = [
+            character for character in self._active_player_characters()
+            if self._autosave_bucket(character.id) == self.save_number
+        ]
+        if not due:
+            return
+
+        await asyncio.gather(*[
+            asyncio.to_thread(self.character_service.save_character, character)
+            for character in due
+        ])
+
+    def _active_player_characters(self) -> list[Character]:
+        active: list[Character] = []
+        seen: set[str] = set()
+        for session in self.session_handler.get_playing_sessions():
+            character = getattr(session, "character", None)
+            if not isinstance(character, Character):
+                continue
+            character_id = str(getattr(character, "id", "") or "")
+            if not character_id or character_id in seen:
+                continue
+            seen.add(character_id)
+            active.append(character)
+        return active
+
+    def _autosave_bucket(self, character_id: str) -> int:
+        if self.save_cycle <= 0:
+            return 0
+        return sum(str(character_id).encode("utf-8")) % self.save_cycle
 
     @staticmethod
     def _tick_regen(entity):

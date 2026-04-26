@@ -79,7 +79,7 @@ class MobileHandler:
                 continue
             for mob in list(room.mobiles.values()):
                 snapshots.append((room, mob))
-        self.logger.info(f"mobile_update starting with {len(snapshots)} mobile snapshot(s)")
+        self.logger.debug(f"mobile_update starting with {len(snapshots)} mobile snapshot(s)")
 
         for room, mob in snapshots:
             self.logger.debug(f"mobile_update evaluating {self._actor_label(mob)} from snapshot room {self._room_label(room)}")

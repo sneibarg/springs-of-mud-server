@@ -8,6 +8,7 @@ from interp.Context import Context
 from interp.commands.CommunicationsUtil import CommunicationsUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
+from player.CharacterService import CharacterService
 from server.LoggerFactory import LoggerFactory
 from server.session.SessionHandler import SessionHandler
 
@@ -22,13 +23,17 @@ class CommunicationsCommands:
     ]
 
     @inject
-    def __init__(self, registry_service: RegistryService, session_handler: SessionHandler):
+    def __init__(self,
+                 registry_service: RegistryService,
+                 session_handler: SessionHandler,
+                 character_service: CharacterService):
         self.__name__ = "CommunicationsCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.character_registry = registry_service.character_registry
         self.room_registry = registry_service.room_registry
         self.session_handler = session_handler
+        self.character_service = character_service
         self.comm_flags = None
 
     def lazy_load(self):
@@ -314,7 +319,9 @@ class CommunicationsCommands:
 
     def do_save(self, character: Character, context: Context):
         context.finish()
-        return {"to_char": "Saving complete.\r\n"}
+        if self.character_service.save_character(character):
+            return {"to_char": "Saving complete.\r\n"}
+        return {"to_char": "Save failed.\r\n"}
 
     def do_follow(self, character: Character, context: Context):
         context.finish()

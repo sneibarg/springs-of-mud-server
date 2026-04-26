@@ -37,6 +37,24 @@ class GenericUtil:
             return default
 
     @staticmethod
+    def snake_to_camel_case(dictionary: Dict[str, Any]) -> Dict[str, Any]:
+        if dictionary is None:
+            return {}
+
+        def snake_case_to_camel_case(key: str) -> str:
+            if "_" not in key:
+                return key
+            head, *tail = key.split("_")
+            return head + "".join(part.capitalize() for part in tail)
+
+        camel_case_dict = {}
+        try:
+            camel_case_dict = {snake_case_to_camel_case(key): value for key, value in dictionary.items()}
+        except AttributeError:
+            logger.error(f"Error converting dictionary to snake case: {dictionary}")
+        return camel_case_dict
+
+    @staticmethod
     def camel_to_snake_case(dictionary: Dict[str, Any]) -> Dict[str, Any]:
         if dictionary is None:
             return {}
