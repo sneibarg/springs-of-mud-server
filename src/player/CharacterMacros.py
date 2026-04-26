@@ -27,11 +27,13 @@ class CharacterMacros(GameMacros):
     _registry_provider: Optional[Callable[[], Any]] = None
     _enums_provider: Optional[Callable[[], dict[str, IntEnum]]] = None
     _attribute_bonuses_provider: Optional[Callable[[], dict[str, dict[str, dict[str, int]]]]] = None
+    _pc_races_provider: Optional[Callable[[], dict[str, dict[str, Any]]]] = None
     _weather_handler_provider: Optional[Callable[[], Any]] = None
 
     _registry_service = None
     _enums = None
     _attribute_bonuses = None
+    _pc_races = None
     _weather_handler = None
     _logger = None
 
@@ -47,12 +49,14 @@ class CharacterMacros(GameMacros):
         registry_provider: Callable[[], Any],
         enums_provider: Callable[[], dict[str, IntEnum]],
         attribute_bonuses_provider: Callable[[], dict[str, dict[str, dict[str, int]]]],
+        pc_races_provider: Callable[[], dict[str, dict[str, Any]]],
         weather_handler_provider: Optional[Callable[[], Any]] = None,
     ) -> None:
         with cls._lock:
             cls._registry_provider = registry_provider
             cls._enums_provider = enums_provider
             cls._attribute_bonuses_provider = attribute_bonuses_provider
+            cls._pc_races_provider = pc_races_provider
             cls._weather_handler_provider = weather_handler_provider
             cls._configured = True
 
@@ -63,10 +67,12 @@ class CharacterMacros(GameMacros):
             cls._registry_provider = None
             cls._enums_provider = None
             cls._attribute_bonuses_provider = None
+            cls._pc_races_provider = None
             cls._weather_handler_provider = None
             cls._registry_service = None
             cls._enums = None
             cls._attribute_bonuses = None
+            cls._pc_races = None
             cls._weather_handler = None
             cls._logger = None
 
@@ -111,6 +117,15 @@ class CharacterMacros(GameMacros):
                 raise RuntimeError("CharacterMacros attribute_bonuses provider not configured.")
             cls._attribute_bonuses = cls._attribute_bonuses_provider()
         return cls._attribute_bonuses
+
+    @classmethod
+    def _pc_races_map(cls):
+        if cls._pc_races is None:
+            cls._require_configured()
+            if cls._pc_races_provider is None:
+                raise RuntimeError("CharacterMacros pc_races provider not configured.")
+            cls._pc_races = cls._pc_races_provider()
+        return cls._pc_races
 
     @classmethod
     def _weather(cls):
@@ -442,7 +457,7 @@ class CharacterMacros(GameMacros):
             elif target.level == max_level - 8:
                 class_name = "AVA"
 
-        return f"[{target.level}    {target.race}    {class_name}]{flag_text} {target.name} {target.title}"
+        return f"[{target.level}    {target.race}    {class_name.capitalize()}]{flag_text} {target.name} {target.title}"
 
     @staticmethod
     def owned_items(character: Character) -> list:
@@ -962,3 +977,12 @@ class CharacterMacros(GameMacros):
     @classmethod
     def get_enum(cls, enum_name: str) -> IntEnum:
         return cls._enums_map()[enum_name]
+
+    @classmethod
+    def get_max_train(cls, character: Character, stat_index: int, current_value: int) -> int:
+        race_name = str(getattr(character, "race", "") or "").strip().lower()
+        race_data = cls._pc_races_map().get(race_name, {})
+        max_stats = race_data.get("max_stats", [])
+        if isinstance(max_stats, list) and 0 <= stat_index < len(max_stats):
+            return GenericUtil.to_int(max_stats[stat_index], current_value)
+        return current_value

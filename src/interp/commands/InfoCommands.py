@@ -18,6 +18,7 @@ from player.PlayerHelper import PlayerHelper
 from player.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
 from server.session.SessionHandler import SessionHandler
+from skill.SkillUtil import SkillUtil
 
 DAY_NAME = [
     "the Moon", "the Bull", "Deception", "Thunder", "Freedom",
@@ -823,7 +824,7 @@ class InfoCommands:
         context.finish()
         return text
 
-    def do_practice(self, character: Character, context: Context) -> str:
+    def do_practice(self, character: Character, context: Context) -> str | dict:
         if CharacterMacros.is_npc(character):
             context.finish()
             return ""
@@ -832,20 +833,27 @@ class InfoCommands:
         if not raw and context.parameters:
             raw = " ".join(context.parameters).strip().lower()
 
-        skills = character.skills
+        skills = list(getattr(character, "skills", []) or [])
+        spells = list(getattr(character, "spells", []) or [])
+        practice_entries = skills + spells
         attributes = getattr(character, "character_attributes", None)
         practices = GenericUtil.to_int(getattr(attributes, "practices", 0), 0) if attributes is not None else 0
-        class_name = str(getattr(getattr(character, "character_class", None), "name", "") or "").strip().lower()
 
         if not raw:
             lines = []
-            for i, skill in enumerate(skills):
-                name = skill["name"].lower()
-                level = skill["level"]
+            known_skills = []
+            for skill in practice_entries:
+                name = str(skill.get("name", "") or "").strip()
+                level = GenericUtil.to_int(skill.get("level", 0), 0)
+                if not name or level < 1:
+                    continue
+                known_skills.append((name, level))
+
+            for i, (name, level) in enumerate(known_skills):
                 lines.append(f"{name:<18}   {level:>3}%  ")
                 if (i + 1) % 3 == 0:
                     lines.append("\r\n")
-            if len(skills) % 3 != 0:
+            if len(known_skills) % 3 != 0:
                 lines.append("\r\n")
             lines.append(f"You have {practices} practice sessions left.\r\n")
             context.finish()
@@ -865,9 +873,7 @@ class InfoCommands:
         if room is not None:
             practice_bit = act_bits.ACT_PRACTICE.value if act_bits is not None and hasattr(act_bits, "ACT_PRACTICE") else 0
             for mob in room.mobiles.values():
-                mob_flags = GenericUtil.to_int(getattr(getattr(mob, "mobile_flags", None), "act", 0), 0)
-                special_name = str(getattr(mob, "special_name", "") or "").strip().lower()
-                if (practice_bit and CharacterMacros.is_set(mob_flags, practice_bit)) or special_name == "spec_cast_adept":
+                if SkillUtil.is_practice_trainer(mob, practice_bit):
                     trainer = mob
                     break
 
@@ -875,8 +881,42 @@ class InfoCommands:
             context.finish()
             return "You can't do that here.\r\n"
 
+        practiced_skill = SkillUtil.find_character_skill(practice_entries, raw)
+        learned = GenericUtil.to_int(practiced_skill.get("level", 0), 0) if practiced_skill is not None else 0
+
+        if practiced_skill is None or learned < 1:
+            context.finish()
+            return "You can't practice that.\r\n"
+
+        adept = SkillUtil.practice_adept(character)
+        skill_name = str(practiced_skill.get("name", raw) or raw)
+
+        if learned >= adept:
+            context.finish()
+            return f"You are already learned at {skill_name}.\r\n"
+
+        attributes.practices = max(0, practices - 1)
+        gain = SkillUtil.practice_gain(character, 1)
+        new_level = learned + gain
+        room = self.room_registry.get_or_none(id=character.room_id)
+        targets = CharacterMacros.room_targets(character, room)
+
+        if new_level < adept:
+            practiced_skill["level"] = new_level
+            context.finish()
+            return {
+                "to_char": f"You practice {skill_name}.\r\n",
+                "to_room": f"{character.name} practices {skill_name}.\r\n",
+                "targets": targets,
+            }
+
+        practiced_skill["level"] = adept
         context.finish()
-        return "Practice training is not implemented yet.\r\n"
+        return {
+            "to_char": f"You are now learned at {skill_name}.\r\n",
+            "to_room": f"{character.name} is now learned at {skill_name}.\r\n",
+            "targets": targets,
+        }
 
     def do_prompt(self, character: Character, context: Context) -> str:
         raw = (context.result if isinstance(context.result, str) else "").strip()
@@ -893,22 +933,11 @@ class InfoCommands:
             return "Prompt settings are unavailable.\r\n"
 
         if raw.lower() == "all":
-            character.prompt_format.health = True
-            character.prompt_format.max_health = False
-            character.prompt_format.mana = True
-            character.prompt_format.max_mana = False
-            character.prompt_format.movement = True
-            character.prompt_format.max_movement = False
-            character.prompt_format.experience = False
-            character.prompt_format.accumulated_experience = False
-            character.prompt_format.gold = False
-            character.prompt_format.silver = False
-            character.prompt_format.alignment = False
-            character.prompt_format.room_name = False
-            character.prompt_format.exits = False
-            character.prompt_format.room_vnum = False
-            character.prompt_format.area_name = False
-            character.prompt_format.carriage_return = False
+            for attr, value in vars(character.prompt_format).items():
+                if isinstance(value, bool) and attr == "health" or attr == "mana" or attr == "movement":
+                    setattr(character.prompt_format, attr, True)
+                else:
+                    setattr(character.prompt_format, attr, False)
             context.finish()
             return "Prompt set to <%hhp %mm %vmv> \r\n"
 

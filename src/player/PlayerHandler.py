@@ -262,9 +262,19 @@ class PlayerHandler:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
 
     async def do_practice(self, character: Character, context: Context):
-        text = self.info_commands.do_practice(character, context)
-        if text:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+        payload = self.info_commands.do_practice(character, context)
+        if payload is None:
+            return
+        if isinstance(payload, str):
+            if payload:
+                await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload))
+            return
+        if payload.get("to_char"):
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
+        if payload.get("to_room"):
+            targets = payload.get("targets", [])
+            if len(targets) > 0:
+                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room"]), targets)
 
     async def do_prompt(self, character: Character, context: Context):
         text = self.info_commands.do_prompt(character, context)
@@ -364,9 +374,19 @@ class PlayerHandler:
         await self._handle_move_payload(character, context, self.movement_commands.do_recall(character, context))
 
     async def do_train(self, character: Character, context: Context):
-        text = self.movement_commands.do_train(character, context)
-        if text:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+        payload = self.movement_commands.do_train(character, context)
+        if payload is None:
+            return
+        if isinstance(payload, str):
+            if payload:
+                await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload))
+            return
+        if payload.get("to_char"):
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
+        if payload.get("to_room"):
+            targets = payload.get("targets", [])
+            if len(targets) > 0:
+                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room"]), targets)
 
     async def do_wiz_command(self, character: Character, context: Context):
         payload = self.wiz_commands.execute(character, context)

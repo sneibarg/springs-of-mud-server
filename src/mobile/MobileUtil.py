@@ -427,3 +427,29 @@ class MobileUtil:
         if slot and hasattr(mob.equipped, slot):
             setattr(mob.equipped, slot, item)
         item.wear_loc = int(wear_loc)
+
+    @staticmethod
+    def is_train_trainer(mob, train_bit: int) -> bool:
+        mob_flags = GenericUtil.to_int(getattr(getattr(mob, "mobile_flags", None), "act", 0), 0)
+        if train_bit and CharacterMacros.is_set(mob_flags, train_bit):
+            return True
+
+        special_name = str(getattr(mob, "special_name", "") or "").strip().lower()
+        if special_name == "spec_cast_adept":
+            return True
+
+        description_text = " ".join(
+            [
+                str(getattr(mob, "long_description", "") or "").strip().lower(),
+                str(getattr(mob, "description", "") or "").strip().lower(),
+            ]
+        )
+        trainer_phrases = (
+            "waiting to train you",
+            "ready to train you",
+            "ready to help you train",
+            "help you train",
+            "training young students",
+            "training students",
+        )
+        return any(phrase in description_text for phrase in trainer_phrases)

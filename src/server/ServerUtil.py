@@ -174,6 +174,7 @@ class ServerUtil:
         item_handler = injector.get(ItemHandler)
         registry_service = injector.get(RegistryService)
         attribute_bonuses = injector.get(GameData).attribute_bonuses
+        pc_races = injector.get(GameData).pc_races
         enums = injector.get(GameService).enums
         communications_commands = injector.get(CommunicationsCommands)
         object_commands = injector.get(ObjectCommands)
@@ -187,6 +188,7 @@ class ServerUtil:
             registry_provider=lambda: registry_service,
             enums_provider=lambda: enums,
             attribute_bonuses_provider=lambda: attribute_bonuses,
+            pc_races_provider=lambda: pc_races,
             weather_handler_provider=lambda: weather_handler,
         )
         wiz_commands.lazy_load()

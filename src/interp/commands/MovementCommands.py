@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from injector import inject
 
+from game.GameData import GameData
 from game.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from interp.commands.MovementUtil import MovementUtil
+from mobile.MobileUtil import MobileUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from player.PlayerHelper import PlayerHelper
@@ -14,12 +16,13 @@ from server.LoggerFactory import LoggerFactory
 
 class MovementCommands:
     @inject
-    def __init__(self, registry_service: RegistryService, player_helper: PlayerHelper):
+    def __init__(self, registry_service: RegistryService, player_helper: PlayerHelper, game_data: GameData):
         self.__name__ = "MovementCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.room_registry = registry_service.room_registry
         self.player_helper = player_helper
+        self.game_data = game_data
         self.exit_flags = None
         self.room_flags = None
         self.affected_bits = None
@@ -467,22 +470,55 @@ class MovementCommands:
             "to_room_obj": destination,
         }
 
-    def do_train(self, character: Character, context: Context) -> str:
+    @staticmethod
+    def _format_train_options(character: Character) -> str:
+        attrs = getattr(character, "character_attributes", None)
+        if attrs is None:
+            return "You can train: hp mana.\r\n"
+
+        options = []
+        trainable_stats = (
+            ("str", "strength", 0),
+            ("int", "intelligence", 1),
+            ("wis", "wisdom", 2),
+            ("dex", "dexterity", 3),
+            ("con", "constitution", 4),
+        )
+        for short_name, attr_name, stat_index in trainable_stats:
+            current = GenericUtil.to_int(getattr(attrs, attr_name, 0), 0)
+            max_train = CharacterMacros.get_max_train(character, stat_index, current)
+            if current < max_train:
+                options.append(short_name)
+
+        options.extend(["hp", "mana"])
+        if options:
+            return f"You can train: {' '.join(options)}.\r\n"
+
+        sex = str(getattr(character, "sex", "") or "").strip().lower()
+        if sex in ("2", "female"):
+            ending = "hot babe"
+        elif sex in ("1", "male"):
+            ending = "big stud"
+        else:
+            ending = "wild thing"
+        return f"You have nothing left to train, you {ending}!\r\n"
+
+    def do_train(self, character: Character, context: Context) -> str | dict:
         if CharacterMacros.is_npc(character):
             context.finish()
             return ""
+
         raw = (context.result if isinstance(context.result, str) else "").strip().lower()
         if not raw and context.parameters:
             raw = " ".join(context.parameters).strip().lower()
 
         room = self.room_registry.get_or_none(id=character.room_id)
+        act_bits = self.act_bits or CharacterMacros.get_enum("actBits")
         trainer_found = False
         if room is not None:
-            train_bit = self.act_bits.ACT_TRAIN.value if self.act_bits is not None and hasattr(self.act_bits, "ACT_TRAIN") else 0
+            train_bit = act_bits.ACT_TRAIN.value if act_bits is not None and hasattr(act_bits, "ACT_TRAIN") else 0
             for mob in room.mobiles.values():
-                mob_flags = GenericUtil.to_int(getattr(getattr(mob, "mobile_flags", None), "act", 0), 0)
-                special_name = str(getattr(mob, "special_name", "") or "").strip().lower()
-                if (train_bit and CharacterMacros.is_set(mob_flags, train_bit)) or special_name == "spec_cast_adept":
+                if MobileUtil.is_train_trainer(mob, train_bit):
                     trainer_found = True
                     break
         if not trainer_found:
@@ -493,6 +529,72 @@ class MovementCommands:
         trains = GenericUtil.to_int(getattr(attrs, "trains", 0), 0) if attrs is not None else 0
         if raw == "":
             context.finish()
-            return f"You have {trains} training sessions.\r\n"
+            return f"You have {trains} training sessions.\r\n{self._format_train_options(character)}"
+
+        if attrs is None:
+            context.finish()
+            return "You can't do that.\r\n"
+
+        if raw == "hp":
+            if trains < 1:
+                context.finish()
+                return "You don't have enough training sessions.\r\n"
+            attrs.trains = trains - 1
+            character.max_hit = GenericUtil.to_int(getattr(character, "max_hit", 0), 0) + 10
+            character.hit = GenericUtil.to_int(getattr(character, "hit", 0), 0) + 10
+            context.finish()
+            return {
+                "to_char": "Your durability increases!\r\n",
+                "to_room": f"{character.name}'s durability increases!\r\n",
+                "targets": CharacterMacros.room_targets(character, room),
+            }
+
+        if raw == "mana":
+            if trains < 1:
+                context.finish()
+                return "You don't have enough training sessions.\r\n"
+            attrs.trains = trains - 1
+            character.max_mana = GenericUtil.to_int(getattr(character, "max_mana", 0), 0) + 10
+            character.mana = GenericUtil.to_int(getattr(character, "mana", 0), 0) + 10
+            context.finish()
+            return {
+                "to_char": "Your power increases!\r\n",
+                "to_room": f"{character.name}'s power increases!\r\n",
+                "targets": CharacterMacros.room_targets(character, room),
+            }
+
+        stat_lookup = {
+            "str": ("strength", "strength", 0),
+            "strength": ("strength", "strength", 0),
+            "int": ("intelligence", "intelligence", 1),
+            "intelligence": ("intelligence", "intelligence", 1),
+            "wis": ("wisdom", "wisdom", 2),
+            "wisdom": ("wisdom", "wisdom", 2),
+            "dex": ("dexterity", "dexterity", 3),
+            "dexterity": ("dexterity", "dexterity", 3),
+            "con": ("constitution", "constitution", 4),
+            "constitution": ("constitution", "constitution", 4),
+        }
+        stat_spec = stat_lookup.get(raw)
+        if stat_spec is None:
+            context.finish()
+            return self._format_train_options(character)
+
+        attr_name, output_name, stat_index = stat_spec
+        current = GenericUtil.to_int(getattr(attrs, attr_name, 0), 0)
+        max_train = CharacterMacros.get_max_train(character, stat_index, current)
+        if current >= max_train:
+            context.finish()
+            return f"Your {output_name} is already at maximum.\r\n"
+        if trains < 1:
+            context.finish()
+            return "You don't have enough training sessions.\r\n"
+
+        setattr(attrs, attr_name, current + 1)
+        attrs.trains = trains - 1
         context.finish()
-        return "Training specialization is not implemented yet.\r\n"
+        return {
+            "to_char": f"Your {output_name} increases!\r\n",
+            "to_room": f"{character.name}'s {output_name} increases!\r\n",
+            "targets": CharacterMacros.room_targets(character, room),
+        }
