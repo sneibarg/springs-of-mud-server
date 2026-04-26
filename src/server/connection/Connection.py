@@ -1,3 +1,5 @@
+import asyncio
+import threading
 from abc import ABC, abstractmethod
 from typing import Optional
 from asyncio import StreamReader, StreamWriter
@@ -12,6 +14,11 @@ class Connection(ABC):
         self.reader = reader
         self.writer = writer
         self._closed = False
+        self.owner_thread_id = threading.get_ident()
+        try:
+            self.owner_loop = asyncio.get_running_loop()
+        except RuntimeError:
+            self.owner_loop = None
 
     @abstractmethod
     async def send_message(self, message: Message) -> None:

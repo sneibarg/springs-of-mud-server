@@ -73,6 +73,7 @@ class InfoCommands:
         self.interp_registry = registry_service.interp_registry
         self.room_registry = registry_service.room_registry
         self.skill_registry = registry_service.skill_registry
+        self.spell_registry = getattr(registry_service, "spell_registry", None)
         self.command_helper = command_helper
         self.room_helper = room_helper
         self.player_helper = player_helper
@@ -716,7 +717,7 @@ class InfoCommands:
 
     def do_compact(self, character: Character, context: Context) -> str:
         text = CharacterMacros.toggle_comm(character, "COMM_COMPACT", "Compact mode removed.\r\n", "Compact mode set.\r\n")
-        comm_bits = CharacterMacros.enums.get("commFlags")
+        comm_bits = CharacterMacros.get_enum("commFlags")
         comm = CharacterMacros.get_comm_flags(character)
         is_compact = (
             comm_bits is not None
@@ -845,7 +846,8 @@ class InfoCommands:
             for skill in practice_entries:
                 name = str(skill.get("name", "") or "").strip()
                 level = GenericUtil.to_int(skill.get("level", 0), 0)
-                if not name or level < 1:
+                meta = self._practice_meta(name)
+                if not name or level < 1 or not self._practice_visible(character, meta):
                     continue
                 known_skills.append((name, level))
 
@@ -882,9 +884,15 @@ class InfoCommands:
             return "You can't do that here.\r\n"
 
         practiced_skill = SkillUtil.find_character_skill(practice_entries, raw)
+        practice_meta = self._practice_meta(raw if practiced_skill is None else practiced_skill.get("name", raw))
         learned = GenericUtil.to_int(practiced_skill.get("level", 0), 0) if practiced_skill is not None else 0
 
-        if practiced_skill is None or learned < 1:
+        if practiced_skill is None or learned < 1 or not self._practice_visible(character, practice_meta):
+            context.finish()
+            return "You can't practice that.\r\n"
+
+        rating = self._practice_rating(character, practice_meta)
+        if rating <= 0:
             context.finish()
             return "You can't practice that.\r\n"
 
@@ -896,7 +904,7 @@ class InfoCommands:
             return f"You are already learned at {skill_name}.\r\n"
 
         attributes.practices = max(0, practices - 1)
-        gain = SkillUtil.practice_gain(character, 1)
+        gain = SkillUtil.practice_gain(character, rating)
         new_level = learned + gain
         room = self.room_registry.get_or_none(id=character.room_id)
         targets = CharacterMacros.room_targets(character, room)
@@ -917,6 +925,49 @@ class InfoCommands:
             "to_room": f"{character.name} is now learned at {skill_name}.\r\n",
             "targets": targets,
         }
+
+    def _practice_meta(self, skill_name: str):
+        wanted = str(skill_name or "").strip().lower()
+        if not wanted:
+            return None
+
+        if self.skill_registry is not None:
+            for skill in self.skill_registry.all_skills():
+                if str(getattr(skill, "name", "") or "").strip().lower() == wanted:
+                    return skill
+
+        if self.spell_registry is not None:
+            for spell in self.spell_registry.all_spells():
+                if str(getattr(spell, "name", "") or "").strip().lower() == wanted:
+                    return spell
+
+        return None
+
+    @staticmethod
+    def _practice_class_name(character: Character) -> str:
+        return str(getattr(getattr(character, "character_class", None), "name", "") or "").strip().lower()
+
+    def _practice_visible(self, character: Character, meta) -> bool:
+        if meta is None:
+            return True
+        required_level = self._practice_level_requirement(character, meta)
+        return GenericUtil.to_int(getattr(character, "level", 0), 0) >= required_level
+
+    def _practice_level_requirement(self, character: Character, meta) -> int:
+        class_name = self._practice_class_name(character)
+        level_map = getattr(meta, "level_by_class", {}) or {}
+        if class_name in level_map:
+            return max(0, GenericUtil.to_int(level_map.get(class_name), 99))
+        return max(0, GenericUtil.to_int(level_map.get("mage", 99), 99))
+
+    def _practice_rating(self, character: Character, meta) -> int:
+        if meta is None:
+            return 1
+        class_name = self._practice_class_name(character)
+        rating_map = getattr(meta, "rating_by_class", {}) or {}
+        if class_name in rating_map:
+            return max(0, GenericUtil.to_int(rating_map.get(class_name), 0))
+        return max(0, GenericUtil.to_int(rating_map.get("mage", 0), 0))
 
     def do_prompt(self, character: Character, context: Context) -> str:
         raw = (context.result if isinstance(context.result, str) else "").strip()

@@ -97,8 +97,9 @@ class ConnectionHandler:
                     await self.room_handler.print_room(character.id, room)
                     players_text = self.player_helper.get_players_in_room(character)
                     mobiles_text = self.mobile_helper.get_mobiles_in_room(character)
-                    if mobiles_text:
+                    if players_text:
                         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(players_text))
+                    if mobiles_text:
                         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(mobiles_text))
                     await self.message_bus.send_prompt(character, area, room)
                     for viewer in occupants:

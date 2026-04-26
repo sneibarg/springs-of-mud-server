@@ -491,7 +491,8 @@ class PlayerHandler:
 
     async def print_players_in_room(self, character: Character):
         message = self.player_helper.get_players_in_room(character)
-        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message))
+        if message:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message))
 
     async def to_player(self, character_id, msg: str):
         text = msg + "\r\n"

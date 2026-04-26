@@ -7,6 +7,7 @@ from area.RoomRegistry import RoomRegistry
 from fight.CombatEvent import CombatEvent
 from fight.CombatRegistry import CombatRegistry
 from game.GenericUtil import GenericUtil
+from interp.commands.InfoUtil import InfoUtil
 from mobile.MobileRegistry import MobileRegistry
 from object.BodyForm import BodyForm
 from object.BodyParts import BodyParts
@@ -34,7 +35,11 @@ class FightHandler:
         self.room_registry = room_registry
         self.item_registry = item_registry
         self.mobile_registry = mobile_registry
+        self.PositionsEnum = None
         self.logger.info("Initialized FightHandler instance.")
+
+    def lazy_load(self):
+        self.PositionsEnum = CharacterMacros.get_enum("positions")
 
     def get_combat_event_by_id(self, event_id: str) -> CombatEvent:
         return self.combat_registry.get_or_none(id=event_id)
@@ -60,10 +65,8 @@ class FightHandler:
         if room is None and str(getattr(attacker, "room_id", "")) != str(getattr(victim, "room_id", "")):
             return True, "They aren't here.\r\n"
 
-        # Explicit enum usage for clarity.
-        positions_enum = CharacterMacros.get_enum("positions")
-        if hasattr(positions_enum, "POS_DEAD"):
-            if self._entity_position_value(victim) <= int(positions_enum.POS_DEAD.value):
+        if hasattr(self.PositionsEnum, "POS_DEAD"):
+            if self._entity_position_value(victim) <= int(self.PositionsEnum.POS_DEAD.value):
                 return True, "They are already dead.\r\n"
 
         room_flags = CharacterMacros.get_enum("roomFlags")
@@ -121,22 +124,21 @@ class FightHandler:
         return random.randint(1, 100) <= chance
 
     def update_pos(self, victim) -> None:
-        positions_enum = CharacterMacros.get_enum("positions")
         hit = GenericUtil.to_int(getattr(victim, "hit", 0), 0)
         if hit > 0:
             return
 
-        if hasattr(positions_enum, "POS_DEAD") and hit <= -11:
-            self._set_position(victim, int(positions_enum.POS_DEAD.value))
+        if hasattr(self.PositionsEnum, "POS_DEAD") and hit <= -11:
+            self._set_position(victim, int(self.PositionsEnum.POS_DEAD.value))
             return
-        if hasattr(positions_enum, "POS_MORTAL") and hit <= -6:
-            self._set_position(victim, int(positions_enum.POS_MORTAL.value))
+        if hasattr(self.PositionsEnum, "POS_MORTAL") and hit <= -6:
+            self._set_position(victim, int(self.PositionsEnum.POS_MORTAL.value))
             return
-        if hasattr(positions_enum, "POS_INCAP") and hit <= -3:
-            self._set_position(victim, int(positions_enum.POS_INCAP.value))
+        if hasattr(self.PositionsEnum, "POS_INCAP") and hit <= -3:
+            self._set_position(victim, int(self.PositionsEnum.POS_INCAP.value))
             return
-        if hasattr(positions_enum, "POS_STUNNED"):
-            self._set_position(victim, int(positions_enum.POS_STUNNED.value))
+        if hasattr(self.PositionsEnum, "POS_STUNNED"):
+            self._set_position(victim, int(self.PositionsEnum.POS_STUNNED.value))
 
     @staticmethod
     def _set_position(entity, position_value: int) -> None:
@@ -160,15 +162,24 @@ class FightHandler:
         if combatant is None:
             return
 
-        counterpart = getattr(combatant, "fighting", None)
-        combatant.fighting = None
-        self._set_standing_position(combatant)
-        self.combat_registry.remove_by_combatant(getattr(combatant, "id", ""))
+        participants = [combatant]
+        combatant_id = str(getattr(combatant, "id", "") or "")
+        if both and combatant_id:
+            for event in list(self.combat_registry.get_by_combatant(combatant_id)):
+                room = self.room_registry.get_or_none(id=event.room_id)
+                if room is None:
+                    continue
+                for entity_id in (event.attacker_id, event.defender_id):
+                    entity = self._find_entity_in_room_by_id(room, entity_id)
+                    if entity is None or entity in participants:
+                        continue
+                    if entity is combatant or getattr(entity, "fighting", None) is combatant:
+                        participants.append(entity)
 
-        if both and counterpart is not None and getattr(counterpart, "fighting", None) is combatant:
-            counterpart.fighting = None
-            self._set_standing_position(counterpart)
-            self.combat_registry.remove_by_combatant(getattr(counterpart, "id", ""))
+        for participant in participants:
+            participant.fighting = None
+            self._set_default_combat_position(participant)
+            self.combat_registry.remove_by_combatant(str(getattr(participant, "id", "") or ""))
 
     def dam_message(self, attacker, victim, dam: int, dt: str = "TYPE_HIT", immune: bool = False) -> dict:
         thresholds = [
@@ -200,10 +211,8 @@ class FightHandler:
                 break
 
         punct = "." if dam <= 24 else "!"
-        attacker_name = getattr(attacker, "name", "Someone")
-        victim_name = getattr(victim, "name", "someone")
-        if CharacterMacros.is_npc(victim):
-            victim_name = getattr(victim, "short_description", victim_name)
+        attacker_name = self._combat_target_name(attacker)
+        victim_name = self._combat_target_name(victim)
 
         if dt == "TYPE_HIT":
             if immune:
@@ -228,6 +237,8 @@ class FightHandler:
                 to_victim = f"{attacker_name}'s {noun} {vp} you{punct}\r\n"
                 to_room = f"{attacker_name}'s {noun} {vp} {victim_name}{punct}\r\n"
 
+        to_victim = self._sentence_case(to_victim)
+        to_room = self._sentence_case(to_room)
         return {"to_char": to_char, "to_victim": to_victim, "to_room": to_room}
 
     def raw_kill(self, victim) -> None:
@@ -475,6 +486,19 @@ class FightHandler:
         if victim is None:
             return {"to_char": "", "to_victim": "", "to_room": "", "killed": False}
 
+        if attacker is not None and victim is not attacker:
+            positions_enum = CharacterMacros.get_enum("positions")
+            pos_stunned = int(getattr(positions_enum, "POS_STUNNED").value) if hasattr(positions_enum, "POS_STUNNED") else -1
+
+            if self._entity_position_value(victim) > pos_stunned and getattr(victim, "fighting", None) is None:
+                room = self._find_room_for_entity(victim)
+                if room is not None:
+                    self.set_fighting(victim, attacker, room.id)
+            if self._entity_position_value(victim) > pos_stunned and getattr(attacker, "fighting", None) is None:
+                room = self._find_room_for_entity(attacker) or self._find_room_for_entity(victim)
+                if room is not None:
+                    self.set_fighting(attacker, victim, room.id)
+
         original_hit = GenericUtil.to_int(getattr(victim, "hit", 0), 0)
         applied = max(0, GenericUtil.to_int(dam, 0))
         setattr(victim, "hit", original_hit - applied)
@@ -501,24 +525,69 @@ class FightHandler:
     def one_hit(self, attacker, victim, dt: str = "TYPE_HIT") -> dict:
         if attacker is None or victim is None:
             return {"to_char": "", "to_victim": "", "to_room": "", "killed": False}
+        if victim is attacker:
+            return {"to_char": "", "to_victim": "", "to_room": "", "killed": False}
 
+        positions_enum = CharacterMacros.get_enum("positions")
+        if hasattr(positions_enum, "POS_DEAD"):
+            if self._entity_position_value(victim) <= int(positions_enum.POS_DEAD.value):
+                return {"to_char": "", "to_victim": "", "to_room": "", "killed": False}
+
+        attacker_room = self._find_room_for_entity(attacker)
+        victim_room = self._find_room_for_entity(victim)
+        if attacker_room is None or victim_room is None or str(attacker_room.id) != str(victim_room.id):
+            return {"to_char": "", "to_victim": "", "to_room": "", "killed": False}
+
+        attack_verb = self._attack_verb(attacker, dt)
         if self.check_dodge(attacker, victim) or self.check_parry(attacker, victim) or self.check_shield_block(attacker, victim):
-            return self.damage(attacker, victim, 0, dt=dt)
+            return self.damage(attacker, victim, 0, dt=attack_verb)
 
-        level = GenericUtil.to_int(getattr(attacker, "level", 1), 1)
-        strength = GenericUtil.to_int(getattr(getattr(attacker, "character_attributes", None), "strength", 10), 10)
-        base = max(1, level // 2)
-        bonus = max(0, (strength - 10) // 2)
-        dam = random.randint(base, base + 4 + bonus)
-        return self.damage(attacker, victim, dam, dt=dt)
+        dam = self._attack_damage(attacker)
+        return self.damage(attacker, victim, dam, dt=attack_verb)
 
     def mob_hit(self, attacker, victim, dt: str = "TYPE_HIT") -> dict:
-        return self.one_hit(attacker, victim, dt=dt)
+        payload = self.one_hit(attacker, victim, dt=dt)
+
+        if getattr(attacker, "fighting", None) is not victim:
+            return payload
+
+        room = self._find_room_for_entity(attacker)
+        if room is not None and self._mob_has_off(attacker, "OFF_AREA_ATTACK"):
+            for entity in self._entities_in_room(room):
+                if entity is victim:
+                    continue
+                if getattr(entity, "fighting", None) is attacker:
+                    payload = self._merge_attack_payloads(payload, self.one_hit(attacker, entity, dt=dt))
+
+        if self._entity_has_affect(attacker, "AFF_HASTE") or (
+            self._mob_has_off(attacker, "OFF_FAST") and not self._entity_has_affect(attacker, "AFF_SLOW")
+        ):
+            payload = self._merge_attack_payloads(payload, self.one_hit(attacker, victim, dt=dt))
+
+        if getattr(attacker, "fighting", None) is not victim or self._is_backstab_attack(dt):
+            return payload
+
+        chance = self._skill_percent(attacker, "second attack") // 2
+        if self._entity_has_affect(attacker, "AFF_SLOW") and not self._mob_has_off(attacker, "OFF_FAST"):
+            chance //= 2
+        if random.randint(1, 100) < max(0, chance):
+            payload = self._merge_attack_payloads(payload, self.one_hit(attacker, victim, dt=dt))
+            if getattr(attacker, "fighting", None) is not victim:
+                return payload
+
+        chance = self._skill_percent(attacker, "third attack") // 4
+        if self._entity_has_affect(attacker, "AFF_SLOW") and not self._mob_has_off(attacker, "OFF_FAST"):
+            chance = 0
+        if random.randint(1, 100) < max(0, chance):
+            payload = self._merge_attack_payloads(payload, self.one_hit(attacker, victim, dt=dt))
+
+        return payload
 
     def multi_hit(self, attacker, victim, dt: str = "TYPE_HIT") -> dict:
         if attacker is None or victim is None:
             return {"to_char": "", "to_victim": "", "to_room": "", "killed": False}
 
+        self._decrement_combat_timers(attacker)
         positions_enum = CharacterMacros.get_enum("positions")
         if hasattr(positions_enum, "POS_RESTING"):
             if self._entity_position_value(attacker) < int(positions_enum.POS_RESTING.value):
@@ -526,11 +595,78 @@ class FightHandler:
 
         if CharacterMacros.is_npc(attacker):
             return self.mob_hit(attacker, victim, dt=dt)
-        return self.one_hit(attacker, victim, dt=dt)
+
+        payload = self.one_hit(attacker, victim, dt=dt)
+        if getattr(attacker, "fighting", None) is not victim:
+            return payload
+
+        if self._entity_has_affect(attacker, "AFF_HASTE"):
+            payload = self._merge_attack_payloads(payload, self.one_hit(attacker, victim, dt=dt))
+
+        if getattr(attacker, "fighting", None) is not victim or self._is_backstab_attack(dt):
+            return payload
+
+        chance = self._skill_percent(attacker, "second attack") // 2
+        if self._entity_has_affect(attacker, "AFF_SLOW"):
+            chance //= 2
+        if random.randint(1, 100) < max(0, chance):
+            payload = self._merge_attack_payloads(payload, self.one_hit(attacker, victim, dt=dt))
+            if getattr(attacker, "fighting", None) is not victim:
+                return payload
+
+        chance = self._skill_percent(attacker, "third attack") // 4
+        if self._entity_has_affect(attacker, "AFF_SLOW"):
+            chance = 0
+        if random.randint(1, 100) < max(0, chance):
+            payload = self._merge_attack_payloads(payload, self.one_hit(attacker, victim, dt=dt))
+
+        return payload
 
     def check_assist(self, attacker, victim) -> None:
         # Placeholder for ROM assist logic migration.
         return
+
+    def build_round_payload(self, attacker, victim, room, result: dict, pre_corpse_ids=None) -> dict:
+        attacker_id = str(getattr(attacker, "id", "") or "")
+        victim_id = str(getattr(victim, "id", "") or "")
+        payload = {
+            "to_char": result.get("to_char", ""),
+            "to_room": result.get("to_room", ""),
+            "targets": [ch for ch in room.characters.values() if ch.id not in (attacker_id, victim_id)],
+        }
+
+        if not CharacterMacros.is_npc(victim):
+            payload["victim"] = victim
+            payload["to_victim"] = result.get("to_victim", "")
+
+        if not result.get("killed"):
+            if not CharacterMacros.is_npc(attacker) and CharacterMacros.is_npc(victim):
+                payload["to_char"] = self._append_condition_line(payload["to_char"], victim)
+            elif CharacterMacros.is_npc(attacker) and not CharacterMacros.is_npc(victim):
+                payload["to_victim"] = self._append_condition_line(payload.get("to_victim", ""), attacker)
+
+        if not result.get("killed"):
+            return payload
+
+        if not CharacterMacros.is_npc(attacker):
+            victim_name = self._combat_target_name(victim)
+            payload["to_char"] = (payload["to_char"] or "") + f"{victim_name} is DEAD!!\r\n"
+            xp_gain = int(result.get("xp_gain", 0) or 0)
+            payload["to_char"] = (payload["to_char"] or "") + f"You receive {xp_gain} experience points.\r\n"
+            payload["to_char"] = (payload["to_char"] or "") + f"You hear {victim_name}'s death cry.\r\n"
+
+            corpse = self._find_latest_corpse(room, victim, pre_corpse_ids)
+            if corpse is not None and self._player_act_enabled(attacker, "PLR_AUTOLOOT"):
+                for item in list(getattr(corpse, "contains", []) or []):
+                    attacker.loot.append(item)
+                corpse.contains = []
+
+            if corpse is not None and self._player_act_enabled(attacker, "PLR_AUTOSAC"):
+                room.contents.pop(getattr(corpse, "id", ""), None)
+                attacker.silver = int(getattr(attacker, "silver", 0) or 0) + 1
+                payload["to_char"] = (payload["to_char"] or "") + "Mota gives you one silver coin for your sacrifice.\r\n"
+
+        return payload
 
     def _find_room_for_entity(self, entity):
         entity_id = str(getattr(entity, "id", "") or "")
@@ -690,6 +826,208 @@ class FightHandler:
         return False
 
     @staticmethod
+    def _find_entity_in_room_by_id(room, entity_id: str):
+        wanted = str(entity_id or "")
+        if not wanted:
+            return None
+        if wanted in getattr(room, "characters", {}):
+            return room.characters[wanted]
+        if wanted in getattr(room, "mobiles", {}):
+            return room.mobiles[wanted]
+        return None
+
+    @staticmethod
+    def _player_act_enabled(character, flag_name: str) -> bool:
+        if CharacterMacros.is_npc(character):
+            return False
+        player_bits = CharacterMacros.get_enum("playerActBits")
+        bit = CharacterMacros.enum_bit(player_bits, flag_name)
+        if bit <= 0:
+            return False
+        return CharacterMacros.is_set(CharacterMacros.get_act_flags(character), bit)
+
+    @staticmethod
+    def _find_latest_corpse(room, victim, pre_corpse_ids=None):
+        if room is None:
+            return None
+
+        pre_corpse_ids = set(pre_corpse_ids or set())
+        victim_name = FightHandler._combat_target_name(victim).lower()
+        for item in reversed(list(room.contents.values())):
+            item_type = str(getattr(item, "item_type", "") or "").lower()
+            if "corpse" not in item_type:
+                continue
+            item_id = str(getattr(item, "id", "") or "")
+            if item_id and item_id in pre_corpse_ids:
+                continue
+            short_desc = str(getattr(item, "short_description", "") or "").lower()
+            if victim_name and victim_name in short_desc:
+                return item
+        return None
+
+    @staticmethod
+    def _combat_target_name(target) -> str:
+        if target is None:
+            return "someone"
+        if CharacterMacros.is_npc(target):
+            return str(getattr(target, "short_description", "") or getattr(target, "name", "someone"))
+        return str(getattr(target, "name", "someone"))
+
+    @staticmethod
+    def _sentence_case(text: str) -> str:
+        raw = str(text or "")
+        if not raw:
+            return raw
+        return raw[:1].upper() + raw[1:]
+
+    @staticmethod
+    def _append_condition_line(text: str, target) -> str:
+        base = str(text or "")
+        condition = InfoUtil.target_condition_line(target)
+        if not condition:
+            return base
+        if base and not base.endswith("\r\n"):
+            base += "\r\n"
+        return base + condition + "\r\n"
+
+    @staticmethod
+    def _merge_attack_payloads(base: dict, extra: dict) -> dict:
+        if not base:
+            return dict(extra or {})
+        if not extra:
+            return base
+
+        merged = dict(base)
+        for key in ("to_char", "to_victim", "to_room"):
+            left = str(merged.get(key, "") or "")
+            right = str(extra.get(key, "") or "")
+            merged[key] = left + right
+        merged["killed"] = bool(merged.get("killed")) or bool(extra.get("killed"))
+        merged["xp_gain"] = GenericUtil.to_int(merged.get("xp_gain", 0), 0) + GenericUtil.to_int(extra.get("xp_gain", 0), 0)
+        return merged
+
+    @staticmethod
+    def _is_backstab_attack(dt: str) -> bool:
+        text = str(dt or "").strip().lower()
+        return text == "backstab" or text == "gsn_backstab"
+
+    @staticmethod
+    def _entities_in_room(room) -> list:
+        entities = []
+        entities.extend(list(getattr(room, "characters", {}).values()))
+        entities.extend(list(getattr(room, "mobiles", {}).values()))
+        return entities
+
+    @staticmethod
+    def _decrement_combat_timers(entity) -> None:
+        if CharacterMacros.is_npc(entity):
+            if hasattr(entity, "pulse_wait"):
+                entity.pulse_wait = max(0, GenericUtil.to_int(getattr(entity, "pulse_wait", 0), 0) - 12)
+            if hasattr(entity, "pulse_daze"):
+                entity.pulse_daze = max(0, GenericUtil.to_int(getattr(entity, "pulse_daze", 0), 0) - 12)
+            return
+
+        temporal = getattr(entity, "temporal_mechanics", None)
+        if temporal is None:
+            return
+        temporal.pulse_wait = max(0, GenericUtil.to_int(getattr(temporal, "pulse_wait", 0), 0) - 12)
+        temporal.pulse_daze = max(0, GenericUtil.to_int(getattr(temporal, "pulse_daze", 0), 0) - 12)
+
+    @staticmethod
+    def _entity_has_affect(entity, affect_name: str) -> bool:
+        try:
+            affect_bits = CharacterMacros.get_enum("affectedBy")
+        except RuntimeError:
+            return False
+        bit = CharacterMacros.enum_bit(affect_bits, affect_name)
+        if bit <= 0:
+            return False
+        return CharacterMacros.is_affected(entity, bit)
+
+    @staticmethod
+    def _mob_has_off(entity, off_name: str) -> bool:
+        try:
+            off_bits = CharacterMacros.get_enum("offenseTypes")
+        except RuntimeError:
+            return False
+        bit = CharacterMacros.enum_bit(off_bits, off_name)
+        if bit <= 0:
+            return False
+        flags = GenericUtil.to_int(getattr(getattr(entity, "mobile_flags", None), "off", 0), 0)
+        return CharacterMacros.is_set(flags, bit)
+
+    def _skill_percent(self, entity, skill_name: str) -> int:
+        wanted = str(skill_name or "").strip().lower()
+        if not wanted:
+            return 0
+
+        if not CharacterMacros.is_npc(entity):
+            for skill in list(getattr(entity, "skills", []) or []):
+                name = str(skill.get("name", "") or "").strip().lower()
+                if name == wanted:
+                    return max(0, min(100, GenericUtil.to_int(skill.get("level", 0), 0)))
+            return 0
+
+        level = max(0, GenericUtil.to_int(getattr(entity, "level", 0), 0))
+        act_bits = CharacterMacros.get_enum("actBits")
+        if wanted == "second attack":
+            is_warrior = self._mob_has_act(entity, act_bits, "ACT_WARRIOR")
+            is_thief = self._mob_has_act(entity, act_bits, "ACT_THIEF")
+            return max(0, min(100, 10 + 3 * level)) if (is_warrior or is_thief) else 0
+        if wanted == "third attack":
+            return max(0, min(100, 4 * level - 40)) if self._mob_has_act(entity, act_bits, "ACT_WARRIOR") else 0
+        return 0
+
+    @staticmethod
+    def _mob_has_act(entity, act_bits, act_name: str) -> bool:
+        bit = CharacterMacros.enum_bit(act_bits, act_name)
+        if bit <= 0:
+            return False
+        flags = GenericUtil.to_int(getattr(getattr(entity, "mobile_flags", None), "act", 0), 0)
+        return CharacterMacros.is_set(flags, bit)
+
+    @staticmethod
+    def _wielded_weapon(attacker):
+        equipped = getattr(attacker, "equipped", None)
+        weapon = getattr(equipped, "wielded", None) if equipped is not None else None
+        if weapon is None:
+            return None
+        item_type = str(getattr(weapon, "item_type", "") or "").strip().lower()
+        return weapon if item_type == "weapon" else None
+
+    def _attack_verb(self, attacker, dt: str) -> str:
+        raw_dt = str(dt or "").strip()
+        if raw_dt and raw_dt not in ("TYPE_HIT", "TYPE_UNDEFINED"):
+            return raw_dt
+
+        weapon = self._wielded_weapon(attacker)
+        if weapon is not None:
+            verb = str(getattr(weapon, "value3", "") or "").strip().lower()
+            if verb and verb != "0":
+                return verb
+
+        dam_type = str(getattr(attacker, "dam_type", "") or "").strip().lower()
+        if dam_type and dam_type not in ("none", "0"):
+            return dam_type
+        return "punch"
+
+    def _attack_damage(self, attacker) -> int:
+        weapon = self._wielded_weapon(attacker)
+        if weapon is not None:
+            dice_count = max(1, GenericUtil.to_int(getattr(weapon, "value1", 1), 1))
+            dice_size = max(1, GenericUtil.to_int(getattr(weapon, "value2", 1), 1))
+            dam = sum(random.randint(1, dice_size) for _ in range(dice_count))
+            strength = GenericUtil.to_int(getattr(getattr(attacker, "character_attributes", None), "strength", 10), 10)
+            bonus = max(0, (strength - 10) // 4)
+            return max(1, dam + bonus)
+
+        level = GenericUtil.to_int(getattr(attacker, "level", 1), 1)
+        strength = GenericUtil.to_int(getattr(getattr(attacker, "character_attributes", None), "strength", 10), 10)
+        base = max(1, level // 2)
+        bonus = max(0, (strength - 10) // 2)
+        return random.randint(base, base + 4 + bonus)
+
+    @staticmethod
     def _set_fighting_position(entity) -> None:
         positions_enum = CharacterMacros.get_enum("positions")
         if not hasattr(positions_enum, "POS_FIGHTING"):
@@ -701,14 +1039,12 @@ class FightHandler:
             return
         setattr(entity, "position", fight_pos)
 
-    @staticmethod
-    def _set_standing_position(entity) -> None:
+    def _set_default_combat_position(self, entity) -> None:
         positions_enum = CharacterMacros.get_enum("positions")
-        if not hasattr(positions_enum, "POS_STANDING"):
-            return
-        stand_pos = int(positions_enum.POS_STANDING.value)
-        attrs = getattr(entity, "character_attributes", None)
-        if attrs is not None:
-            attrs.position = stand_pos
-            return
-        setattr(entity, "position", stand_pos)
+        stand_pos = int(getattr(positions_enum, "POS_STANDING").value) if hasattr(positions_enum, "POS_STANDING") else 0
+        if CharacterMacros.is_npc(entity):
+            default_pos = GenericUtil.to_int(getattr(entity, "default_pos", stand_pos), stand_pos)
+            self._set_position(entity, default_pos)
+        else:
+            self._set_position(entity, stand_pos)
+        self.update_pos(entity)

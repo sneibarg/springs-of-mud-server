@@ -65,7 +65,8 @@ class MobileHandler:
 
     async def print_mobiles_in_room(self, character: Character):
         message = self.mobile_helper.get_mobiles_in_room(character)
-        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message))
+        if message:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message))
 
     async def mobile_update(self):
         if self.act_bits is None:

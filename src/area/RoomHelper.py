@@ -70,7 +70,8 @@ class RoomHelper:
         return self.room_registry.get(id=room_id)
 
     def format_room_description(self, room_name: str, description: str) -> Message:
-        return self.message_bus.text_to_message(f"[{room_name}]\r\n{description}\r\n")
+        body = str(description or "").strip()
+        return self.message_bus.text_to_message(f"{room_name}\r\n{body}")
 
     @staticmethod
     def can_see_room_vnum(char: Any) -> bool:

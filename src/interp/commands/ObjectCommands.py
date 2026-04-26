@@ -78,15 +78,24 @@ class ObjectCommands:
             if container is None:
                 context.finish()
                 return {"to_char": "I see no container here.\r\n"}
+            if not ItemUtil.is_container_like(container):
+                context.finish()
+                return {"to_char": "That's not a container.\r\n"}
             if ObjectMacros.is_container_closed(container):
                 context.finish()
                 return {"to_char": "It is closed.\r\n"}
+            if arg1 == "all" or arg1.startswith("all."):
+                payload = self._get_all_from_container(character, room, container, arg1)
+                context.finish()
+                return payload
             target_item = ObjectUtils.find_in_contains(container, arg1)
         else:
             target_item = ObjectUtils.find_room_item(room, arg1)
 
         if target_item is None:
             context.finish()
+            if container is not None:
+                return {"to_char": f"I see nothing like that in {ObjectUtils.short(container)}.\r\n"}
             return {"to_char": "I see nothing like that here.\r\n"}
 
         if not ObjectUtils.item_takeable(target_item, self.wear_flags):
@@ -102,6 +111,33 @@ class ObjectCommands:
         return {
             "to_char": f"You get {ObjectUtils.short(target_item)}.\r\n",
             "to_room": f"{character.name} gets {ObjectUtils.short(target_item)}.\r\n",
+            "targets": self.player_helper.players_in_room(character, room),
+        }
+
+    def _get_all_from_container(self, character: Character, room, container, arg1: str):
+        wanted = ""
+        if arg1.startswith("all."):
+            wanted = arg1[4:].strip().lower()
+
+        picked = []
+        for obj in list(getattr(container, "contains", []) or []):
+            name = str(getattr(obj, "name", "") or "").strip().lower()
+            if wanted and wanted not in name.split() and not name.startswith(wanted):
+                continue
+            if not ObjectUtils.item_takeable(obj, self.wear_flags):
+                continue
+            ObjectUtils.remove_from_contains(container, obj)
+            ObjectUtils.add_to_inventory(character, obj)
+            picked.append(obj)
+
+        if not picked:
+            if wanted:
+                return {"to_char": f"I see nothing like that in {ObjectUtils.short(container)}.\r\n"}
+            return {"to_char": f"I see nothing in {ObjectUtils.short(container)}.\r\n"}
+
+        return {
+            "to_char": "".join(f"You get {ObjectUtils.short(obj)} from {ObjectUtils.short(container)}.\r\n" for obj in picked),
+            "to_room": "".join(f"{character.name} gets {ObjectUtils.short(obj)} from {ObjectUtils.short(container)}.\r\n" for obj in picked),
             "targets": self.player_helper.players_in_room(character, room),
         }
 
@@ -151,6 +187,10 @@ class ObjectCommands:
         if room is None:
             context.finish()
             return {"to_char": "You are nowhere.\r\n"}
+        if arg1 == "all" or arg1.startswith("all."):
+            payload = self._drop_all(character, room, arg1)
+            context.finish()
+            return payload
         item = ObjectUtils.find_inventory_item(character, arg1)
         if item is None:
             context.finish()
@@ -159,18 +199,63 @@ class ObjectCommands:
             context.finish()
             return {"to_char": "You can't let go of it.\r\n"}
 
+        payload = self._drop_one(character, room, item)
+        context.finish()
+        return payload
+
+    def _drop_all(self, character: Character, room, arg1: str):
+        wanted = arg1[4:].strip().lower() if arg1.startswith("all.") else ""
+        dropped = []
+        room_lines = []
+        char_lines = []
+
+        for item in list(getattr(character, "loot", []) or []):
+            if ObjectUtils.equipped_slot_of(character, item):
+                continue
+            if ObjectUtils.is_nodrop(item, self.item_flags):
+                continue
+            name = str(getattr(item, "name", "") or "").strip().lower()
+            if wanted and wanted not in name.split() and not name.startswith(wanted):
+                continue
+            payload = self._drop_one(character, room, item)
+            dropped.append(item)
+            char_lines.append(payload.get("to_char", ""))
+            room_lines.append(payload.get("to_room", ""))
+
+        if not dropped:
+            if wanted:
+                return {"to_char": f"You are not carrying any {wanted}.\r\n"}
+            return {"to_char": "You are not carrying anything.\r\n"}
+
+        return {
+            "to_char": "".join(char_lines),
+            "to_room": "".join(room_lines),
+            "targets": self.player_helper.players_in_room(character, room),
+        }
+
+    def _drop_one(self, character: Character, room, item):
         slot = ObjectUtils.equipped_slot_of(character, item)
         if slot:
             EffectUtil.remove_item_effects(character, item)
             ObjectUtils.unequip_item(character, slot)
         ObjectUtils.remove_from_inventory(character, item)
+
+        if self._melts_on_drop(item):
+            return {
+                "to_char": f"You drop {ObjectUtils.short(item)}.\r\n{ObjectUtils.short(item)} dissolves into smoke.\r\n",
+                "to_room": f"{character.name} drops {ObjectUtils.short(item)}.\r\n{ObjectUtils.short(item)} dissolves into smoke.\r\n",
+            }
+
         room.add_item_to_room(item)
-        context.finish()
         return {
             "to_char": f"You drop {ObjectUtils.short(item)}.\r\n",
             "to_room": f"{character.name} drops {ObjectUtils.short(item)}.\r\n",
-            "targets": self.player_helper.players_in_room(character, room),
         }
+
+    def _melts_on_drop(self, item) -> bool:
+        if self.item_flags is None or not hasattr(self.item_flags, "ITEM_MELT_DROP"):
+            return False
+        return ObjectUtils.has_flag(getattr(item, "extra_flags", 0), self.item_flags.ITEM_MELT_DROP.value)
 
     def do_junk(self, character: Character, context: Context):
         return self.destroy_carried(character, context, "Junk what?\r\n")

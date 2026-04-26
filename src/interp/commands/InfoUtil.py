@@ -17,7 +17,11 @@ class InfoUtil:
         else:
             percent = -1
 
-        name = (getattr(target, "name", None) or "They")
+        name = (
+            getattr(target, "short_description", None)
+            or getattr(target, "name", None)
+            or "They"
+        )
         if percent >= 100:
             return f"{name} is in excellent condition."
         if percent >= 90:

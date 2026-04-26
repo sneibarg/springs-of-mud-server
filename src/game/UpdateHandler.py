@@ -42,6 +42,7 @@ class UpdateHandler:
         self.character_service = character_service
         self.session_handler = session_handler
         self.character_registry = registry_service.character_registry
+        self.area_registry = registry_service.area_registry
         self.room_registry = registry_service.room_registry
         self.skill_registry = registry_service.skill_registry
         self.spell_registry = registry_service.spell_registry
@@ -130,7 +131,15 @@ class UpdateHandler:
         if positions_enum is None:
             return
 
-        for event in list(self.combat_registry.all_events()):
+        prompted_characters: dict[str, Character] = {}
+        events = list(self.combat_registry.all_events())
+        decorated_events = []
+        for index, event in enumerate(events):
+            room = self.room_registry.get_or_none(id=event.room_id)
+            attacker = self._find_entity_in_room(room, event.attacker_id) if room is not None else None
+            decorated_events.append((0 if (attacker is not None and CharacterMacros.is_npc(attacker)) else 1, index, event))
+
+        for _, _, event in sorted(decorated_events, key=lambda item: (item[0], item[1])):
             room = self.room_registry.get_or_none(id=event.room_id)
             if room is None:
                 self.combat_registry.remove_by_id(event.id)
@@ -142,7 +151,7 @@ class UpdateHandler:
                 self.combat_registry.remove_by_id(event.id)
                 continue
 
-            if not self._is_awake_by_enum(attacker, positions_enum):
+            if not CharacterMacros.is_awake(attacker):
                 self.fight_handler.stop_fighting(attacker, both=False)
                 continue
 
@@ -151,9 +160,35 @@ class UpdateHandler:
                 self.fight_handler.stop_fighting(attacker, both=False)
                 continue
 
-            self.fight_handler.multi_hit(attacker, defender, dt="TYPE_UNDEFINED")
+            result = self.fight_handler.multi_hit(attacker, defender, dt="TYPE_UNDEFINED")
+            payload = self.fight_handler.build_round_payload(attacker, defender, room, result)
+            prompted = await self._emit_combat_payload(attacker, payload)
+            prompted_characters.update({character.id: character for character in prompted})
             if getattr(attacker, "fighting", None) is not None:
                 self.fight_handler.check_assist(attacker, defender)
+
+        for character in prompted_characters.values():
+            room = self.room_registry.get_or_none(id=character.room_id)
+            area = self.area_registry.get_or_none(id=getattr(room, "area_id", getattr(character, "area_id", ""))) if room is not None else self.area_registry.get_or_none(id=character.area_id)
+            if room is not None and area is not None:
+                await self.message_bus.send_prompt(character, area, room)
+
+    async def _emit_combat_payload(self, attacker, payload: dict) -> list[Character]:
+        prompted: list[Character] = []
+        if not isinstance(payload, dict):
+            return prompted
+
+        if payload.get("to_char") and not CharacterMacros.is_npc(attacker):
+            await self.message_bus.send_to_character(attacker.id, self.message_bus.text_to_message(payload["to_char"]))
+            prompted.append(attacker)
+        if payload.get("to_victim") and payload.get("victim") is not None and not CharacterMacros.is_npc(payload["victim"]):
+            await self.message_bus.send_to_character(payload["victim"].id, self.message_bus.text_to_message(payload["to_victim"]))
+            prompted.append(payload["victim"])
+        if payload.get("to_room"):
+            targets = payload.get("targets", [])
+            if len(targets) > 0:
+                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room"]), targets)
+        return prompted
 
     @staticmethod
     def _entities_in_room(room) -> list:
@@ -172,30 +207,6 @@ class UpdateHandler:
         if wanted in room.mobiles:
             return room.mobiles[wanted]
         return None
-
-    @staticmethod
-    def _entity_position_value(entity, positions_enum) -> int:
-        attrs = getattr(entity, "character_attributes", None)
-        if attrs is not None:
-            return GenericUtil.to_int(getattr(attrs, "position", 0), 0)
-        return GenericUtil.to_int(getattr(entity, "position", getattr(entity, "start_pos", 0)), 0)
-
-    def _is_awake_by_enum(self, entity, positions_enum) -> bool:
-        if not hasattr(positions_enum, "POS_SLEEPING"):
-            return True
-        pos_sleeping_value = int(positions_enum.POS_SLEEPING.value)
-        return self._entity_position_value(entity, positions_enum) > pos_sleeping_value
-
-    @staticmethod
-    def _set_standing_position(entity, positions_enum) -> None:
-        if not hasattr(positions_enum, "POS_STANDING"):
-            return
-        pos_standing_value = int(positions_enum.POS_STANDING.value)
-        attrs = getattr(entity, "character_attributes", None)
-        if attrs is not None:
-            attrs.position = pos_standing_value
-            return
-        setattr(entity, "position", pos_standing_value)
 
     async def char_update(self):
         if self.PositionsEnum is None:

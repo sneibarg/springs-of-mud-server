@@ -87,6 +87,10 @@ class FightCommands:
             return {"to_char": safe_msg or "You cannot attack them.\r\n"}
 
         current_fighting = getattr(character, "fighting", None)
+        if current_fighting is victim:
+            victim_name = self.fight_handler._combat_target_name(victim)
+            context.finish()
+            return {"to_char": f"You are already fighting {victim_name}.\r\n"}
         if current_fighting is not None and current_fighting is not victim:
             context.finish()
             return {"to_char": "You do the best you can!\r\n"}
@@ -102,69 +106,8 @@ class FightCommands:
             if "corpse" in str(getattr(item, "item_type", "") or "").lower()
         }
         result = self.fight_handler.multi_hit(character, victim, dt="TYPE_UNDEFINED")
-        targets = [ch for ch in room.characters.values() if ch.id not in (character.id, getattr(victim, "id", ""))]
-
         context.finish()
-        payload = {
-            "to_char": result.get("to_char", ""),
-            "to_room": result.get("to_room", ""),
-            "targets": targets,
-        }
-        if not CharacterMacros.is_npc(victim):
-            payload["victim"] = victim
-            payload["to_victim"] = result.get("to_victim", "")
-        if result.get("killed"):
-            payload["to_char"] = (payload["to_char"] or "") + f"{getattr(victim, 'name', 'They')} is DEAD!!\r\n"
-            xp_gain = int(result.get("xp_gain", 0) or 0)
-            payload["to_char"] = (payload["to_char"] or "") + f"You receive {xp_gain} experience points.\r\n"
-
-            death_name = getattr(victim, "short_description", None) if CharacterMacros.is_npc(victim) else getattr(victim, "name", "someone")
-            death_name = str(death_name or "someone")
-            payload["to_char"] = (payload["to_char"] or "") + f"You hear {death_name}'s death cry.\r\n"
-
-            corpse = self._find_latest_corpse(room, victim, pre_corpse_ids)
-            if corpse is not None and self._player_act_enabled(character, "PLR_AUTOLOOT"):
-                for item in list(getattr(corpse, "contains", []) or []):
-                    character.loot.append(item)
-                corpse.contains = []
-
-            if corpse is not None and self._player_act_enabled(character, "PLR_AUTOSAC"):
-                room.contents.pop(getattr(corpse, "id", ""), None)
-                character.silver = int(getattr(character, "silver", 0) or 0) + 1
-                payload["to_char"] = (payload["to_char"] or "") + "Mota gives you one silver coin for your sacrifice.\r\n"
-        return payload
-
-    @staticmethod
-    def _player_act_enabled(character: Character, flag_name: str) -> bool:
-        if CharacterMacros.is_npc(character):
-            return False
-        player_bits = CharacterMacros.get_enum("playerActBits")
-        bit = CharacterMacros.enum_bit(player_bits, flag_name)
-        if bit <= 0:
-            return False
-        return CharacterMacros.is_set(CharacterMacros.get_act_flags(character), bit)
-
-    @staticmethod
-    def _find_latest_corpse(room, victim, pre_corpse_ids=None):
-        if room is None:
-            return None
-
-        pre_corpse_ids = set(pre_corpse_ids or set())
-        victim_name = getattr(victim, "short_description", None) if CharacterMacros.is_npc(victim) else getattr(victim, "name", None)
-        victim_name = str(victim_name or "").lower()
-        for item in reversed(list(room.contents.values())):
-            item_type = str(getattr(item, "item_type", "") or "").lower()
-            if "corpse" not in item_type:
-                continue
-            item_id = str(getattr(item, "id", "") or "")
-            if item_id and item_id in pre_corpse_ids:
-                continue
-            short_desc = str(getattr(item, "short_description", "") or "").lower()
-            if victim_name and victim_name in short_desc:
-                return item
-            if not victim_name:
-                return item
-        return None
+        return self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
 
     def do_cast(self, character: Character, context: Context):
         spell_name, target_arg = FightUtil.parse_cast_argument(context.result, context.parameters)

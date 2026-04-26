@@ -226,7 +226,7 @@ class CharacterMacros(GameMacros):
     @classmethod
     def is_awake(cls, char: Any) -> bool:
         positions = cls.get_enum("positions")
-        return char.character_attributes.position > positions.POS_SLEEPING.value
+        return cls.position_value(char) > positions.POS_SLEEPING.value
 
     @staticmethod
     def get_age(char: Character) -> int:

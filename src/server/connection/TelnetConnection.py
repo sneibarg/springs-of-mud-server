@@ -1,3 +1,5 @@
+import asyncio
+
 from typing import Optional
 from asyncio import StreamReader, StreamWriter
 from server.connection.Connection import Connection
@@ -18,6 +20,15 @@ class TelnetConnection(Connection):
             self.logger.warn("Connection closed - cannot send message.")
             return
 
+        current_loop = self._current_loop()
+        if self.owner_loop is not None and current_loop is not self.owner_loop:
+            future = asyncio.run_coroutine_threadsafe(self._send_message_local(message), self.owner_loop)
+            await asyncio.wrap_future(future)
+            return
+
+        await self._send_message_local(message)
+
+    async def _send_message_local(self, message: Message) -> None:
         try:
             data = self.protocol.encode_message(message)
             self.writer.write(data)
@@ -53,6 +64,15 @@ class TelnetConnection(Connection):
         if self._closed:
             return
 
+        current_loop = self._current_loop()
+        if self.owner_loop is not None and current_loop is not self.owner_loop:
+            future = asyncio.run_coroutine_threadsafe(self._close_local(), self.owner_loop)
+            await asyncio.wrap_future(future)
+            return
+
+        await self._close_local()
+
+    async def _close_local(self) -> None:
         self._closed = True
         try:
             if not self.writer.is_closing():
@@ -68,3 +88,10 @@ class TelnetConnection(Connection):
     async def send_text(self, text: str, message_type: MessageType = MessageType.GAME) -> None:
         message = Message(type=message_type, data={'text': text})
         await self.send_message(message)
+
+    @staticmethod
+    def _current_loop():
+        try:
+            return asyncio.get_running_loop()
+        except RuntimeError:
+            return None

@@ -172,6 +172,7 @@ class ServerUtil:
         weather_handler = injector.get(WeatherHandler)
         update_handler = injector.get(UpdateHandler)
         item_handler = injector.get(ItemHandler)
+        fight_handler = injector.get(FightHandler)
         registry_service = injector.get(RegistryService)
         attribute_bonuses = injector.get(GameData).attribute_bonuses
         pc_races = injector.get(GameData).pc_races
@@ -191,6 +192,8 @@ class ServerUtil:
             pc_races_provider=lambda: pc_races,
             weather_handler_provider=lambda: weather_handler,
         )
+
+        fight_handler.lazy_load()
         wiz_commands.lazy_load()
         movement_commands.lazy_load()
         info_commands.lazy_load()

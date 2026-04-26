@@ -53,6 +53,7 @@ class MessageBus:
                             message = self.text_to_message(pages[0] + "\r\n[Hit Enter to continue]\r\n")
 
                 await connection.send_message(message)
+                self._record_message_spacing(session, message)
                 self.logger.debug(f"Successfully sent message to character {character_id}")
                 return True
             except Exception as e:
@@ -90,7 +91,11 @@ class MessageBus:
         if connection and isinstance(connection, TelnetConnection):
             try:
                 message = character.prompt_format.render_prompt(SessionStatus.PLAYING, character, room, area)
+                if isinstance(message.data, dict):
+                    text = str(message.data.get("text", "") or "")
+                    message.data["text"] = "\r\n" + text.lstrip("\r\n")
                 await connection.send_message(message)
+                self._record_message_spacing(session, message)
                 return True
             except Exception as e:
                 self.logger.error(f"Failed to send prompt to character {character.id}: {e}", exc_info=True)
@@ -116,3 +121,37 @@ class MessageBus:
         if not lines:
             return [text]
         return ["".join(lines[i:i + max_lines]) for i in range(0, len(lines), max_lines)]
+
+    @staticmethod
+    def _record_message_spacing(session, message: Message) -> None:
+        if session is None:
+            return
+        session.metadata["last_trailing_breaks"] = MessageBus._message_trailing_breaks(message)
+
+    @staticmethod
+    def _last_trailing_breaks(session) -> int:
+        if session is None:
+            return 0
+        return GenericUtil.to_int(session.metadata.get("last_trailing_breaks", 0), 0)
+
+    @staticmethod
+    def _message_trailing_breaks(message: Message) -> int:
+        text = ""
+        if isinstance(getattr(message, "data", None), dict):
+            text = str(message.data.get("text", "") or "")
+        if not text.endswith("\r\n"):
+            text += "\r\n"
+
+        count = 0
+        idx = len(text)
+        while idx > 0:
+            if text[max(0, idx - 2):idx] == "\r\n":
+                count += 1
+                idx -= 2
+                continue
+            if text[idx - 1] in ("\r", "\n"):
+                count += 1
+                idx -= 1
+                continue
+            break
+        return count
