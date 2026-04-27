@@ -157,7 +157,7 @@ class FightCommands:
             self.spell_api.queue_cast_announcement(spell_context)
             self.spell_api.start_offensive_combat(spell_context)
         context.finish()
-        return self.spell_api.merge_player_payloads(spell_context)
+        return {"payloads": spell_context.payloads}
 
     def _resolve_spell_target(self, character: Character, room, spell, target_arg: str):
         target_type = str(getattr(spell, "target", "") or "").upper()

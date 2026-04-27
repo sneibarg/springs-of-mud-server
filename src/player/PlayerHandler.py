@@ -443,15 +443,7 @@ class PlayerHandler:
             if payload:
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload))
             return
-
-        if payload.get("to_char"):
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
-        if payload.get("to_victim") and payload.get("victim") is not None:
-            await self.message_bus.send_to_character(payload["victim"].id, self.message_bus.text_to_message(payload["to_victim"]))
-        if payload.get("to_room"):
-            targets = payload.get("targets", [])
-            if len(targets) > 0:
-                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room"]), targets)
+        await self._emit_standard_payload(character, payload)
 
     async def do_communications_command(self, character: Character, context: Context):
         payload = self.communications_commands.execute(character, context)
@@ -461,14 +453,7 @@ class PlayerHandler:
             if payload:
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload))
             return
-        if payload.get("to_char"):
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
-        if payload.get("to_victim") and payload.get("victim") is not None:
-            await self.message_bus.send_to_character(payload["victim"].id, self.message_bus.text_to_message(payload["to_victim"]))
-        if payload.get("to_room"):
-            targets = payload.get("targets", [])
-            if len(targets) > 0:
-                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room"]), targets)
+        await self._emit_standard_payload(character, payload)
         if payload.get("global_message"):
             targets = payload.get("global_targets", [])
             if len(targets) > 0:
@@ -485,14 +470,10 @@ class PlayerHandler:
             if payload:
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload))
             return
-        if payload.get("to_char"):
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
-        if payload.get("to_victim") and payload.get("victim") is not None:
-            await self.message_bus.send_to_character(payload["victim"].id, self.message_bus.text_to_message(payload["to_victim"]))
-        if payload.get("to_room"):
-            targets = payload.get("targets", [])
-            if len(targets) > 0:
-                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room"]), targets)
+        if payload.get("payloads"):
+            await self._emit_standard_payloads(character, payload.get("payloads", []), context=context)
+            return
+        await self._emit_standard_payload(character, payload, context=context)
 
     async def print_players_in_room(self, character: Character):
         message = self.player_helper.get_players_in_room(character)
@@ -527,12 +508,51 @@ class PlayerHandler:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
 
     async def _handle_room_action_payload(self, character: Character, payload: dict):
+        await self._emit_standard_payload(character, payload)
+
+    async def _emit_standard_payload(self, character: Character, payload: dict, context: Context | None = None):
         if payload.get("to_char"):
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
+        if payload.get("to_victim") and payload.get("victim") is not None:
+            await self.message_bus.send_to_character(payload["victim"].id, self.message_bus.text_to_message(payload["to_victim"]))
         if payload.get("to_room"):
             targets = payload.get("targets", [])
             if len(targets) > 0:
                 await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room"]), targets)
+        if context is not None:
+            if payload.get("from_room_message"):
+                targets = payload.get("from_room_targets", [])
+                if len(targets) > 0:
+                    await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["from_room_message"]), targets)
+            if payload.get("to_room_message"):
+                targets = payload.get("to_room_targets", [])
+                if len(targets) > 0:
+                    await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room_message"]), targets)
+            to_room = payload.get("to_room_obj")
+            if to_room is not None:
+                viewer = payload.get("view_character", character)
+                await self._show_room_to_character(viewer, to_room, context)
+                if viewer is character:
+                    for attacker, fight_payload in payload.get("aggressive_rounds", []):
+                        await self.fight_handler.emit_round_payload(attacker, fight_payload)
+
+    async def _emit_standard_payloads(self, character: Character, payloads: list[dict], context: Context | None = None):
+        for payload in payloads:
+            await self._emit_standard_payload(character, payload, context=context)
+
+    async def _show_room_to_character(self, viewer: Character, room, context: Context):
+        if viewer is None or CharacterMacros.is_npc(viewer):
+            return
+        await context.room_handler().print_room(viewer.id, room)
+        autoexit_bit = None
+        if self.info_commands.PlayerActBits is not None and hasattr(self.info_commands.PlayerActBits, "PLR_AUTOEXIT"):
+            autoexit_bit = self.info_commands.PlayerActBits.PLR_AUTOEXIT.value
+        if autoexit_bit is not None:
+            act = int(CharacterMacros.convert_flags(getattr(viewer.character_flags, "act", "") or "0"))
+            if CharacterMacros.is_set(act, autoexit_bit):
+                await context.room_handler().print_exits(viewer)
+        await self.print_players_in_room(viewer)
+        await context.mobile_handler().print_mobiles_in_room(viewer)
 
     async def _handle_move_payload(self, character: Character, context: Context, payload: dict):
         if payload.get("to_char"):
@@ -547,14 +567,6 @@ class PlayerHandler:
                 await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room_message"]), targets)
         to_room = payload.get("to_room_obj")
         if to_room is not None:
-            await context.room_handler().print_room(character.id, to_room)
-            autoexit_bit = None
-            if self.info_commands.PlayerActBits is not None and hasattr(self.info_commands.PlayerActBits, "PLR_AUTOEXIT"):
-                autoexit_bit = self.info_commands.PlayerActBits.PLR_AUTOEXIT.value
-            if autoexit_bit is not None:
-                act = int(CharacterMacros.convert_flags(getattr(character.character_flags, "act", "") or "0"))
-                if CharacterMacros.is_set(act, autoexit_bit):
-                    await context.room_handler().print_exits(character)
-            await context.room_handler().print_in_room(context)
+            await self._show_room_to_character(character, to_room, context)
             for attacker, fight_payload in payload.get("aggressive_rounds", []):
                 await self.fight_handler.emit_round_payload(attacker, fight_payload)

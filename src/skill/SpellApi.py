@@ -5,6 +5,7 @@ import random
 
 from typing import Any
 
+from game.GameMacros import GameMacros
 from game.GenericUtil import GenericUtil
 from interp.commands.FightUtil import FightUtil
 from interp.commands.ObjectUtils import ObjectUtils
@@ -84,23 +85,6 @@ class SpellApi:
             return self.apply_affect_data(ctx)
         return ctx.mark_performed()
 
-    @staticmethod
-    def merge_player_payloads(ctx: SpellContext) -> dict:
-        payload = {"to_char": "", "to_room": "", "targets": [], "victim": None, "to_victim": ""}
-        seen_targets = set()
-        for entry in ctx.payloads:
-            payload["to_char"] += str(entry.get("to_char", "") or "")
-            payload["to_room"] += str(entry.get("to_room", "") or "")
-            for target in entry.get("targets", []) or []:
-                target_id = str(getattr(target, "id", "") or "")
-                if target_id and target_id not in seen_targets:
-                    seen_targets.add(target_id)
-                    payload["targets"].append(target)
-            if payload["victim"] is None and entry.get("victim") is not None and entry.get("to_victim"):
-                payload["victim"] = entry["victim"]
-                payload["to_victim"] = str(entry.get("to_victim", "") or "")
-        return payload
-
     def queue_cast_announcement(self, ctx: SpellContext):
         spell_label = str(getattr(ctx.spell, "name", "spell") or "spell")
         victim = ctx.victim
@@ -110,9 +94,8 @@ class SpellApi:
             to_room=f"{self._entity_name(ctx.actor)} casts {spell_label}" + (f" on {self._entity_name(victim)}" if victim is not None and victim is not ctx.actor else "") + ".\r\n",
             to_victim=f"{self._entity_name(ctx.actor)} casts {spell_label} on you.\r\n" if victim is not None and victim is not ctx.actor else "",
             victim=victim,
+            prepend=True,
         )
-        if ctx.payloads:
-            ctx.payloads.insert(0, ctx.payloads.pop())
 
     def start_offensive_combat(self, ctx: SpellContext):
         victim = ctx.victim
@@ -136,6 +119,7 @@ class SpellApi:
         victim: Any = None,
         include_actor_in_room: bool = False,
         include_victim_in_room: bool = False,
+        prepend: bool = False,
     ) -> bool:
         target = ctx.resolve(victim) if victim is not None else ctx.victim
         payload: dict[str, Any] = {}
@@ -155,20 +139,31 @@ class SpellApi:
                 payload["to_room"] = str(to_room)
                 payload["targets"] = targets
         if payload:
-            ctx.queue_payload(payload)
+            if prepend:
+                ctx.payloads.insert(0, payload)
+            else:
+                ctx.queue_payload(payload)
         return True
 
     def stop_if_affected(self, ctx: SpellContext, effect_name: str, message: str = "", target: Any = None):
         victim = ctx.resolve(target) if target is not None else ctx.target
         if victim is None or not self._effect_active(victim, effect_name):
             return False
-        return ctx.fail(message) if message else ctx.stop()
+        if message:
+            ctx.fail(message)
+        else:
+            ctx.stop()
+        return True
 
     def stop_if_saved(self, ctx: SpellContext, level_adjust: int = 0, target: Any = None, message: str = ""):
         victim = ctx.resolve(target) if target is not None else ctx.victim
         if victim is None or not EffectUtil.saves_spell(ctx.level + int(level_adjust), victim, 0):
             return False
-        return ctx.fail(message) if message else ctx.stop()
+        if message:
+            ctx.fail(message)
+        else:
+            ctx.stop()
+        return True
 
     def apply_affect_data(self, ctx: SpellContext, target: Any = None):
         victim = ctx.resolve(target) if target is not None else ctx.target
@@ -341,37 +336,105 @@ class SpellApi:
 
     def teleport_target(self, ctx: SpellContext, target: Any = None):
         victim = ctx.resolve(target) if target is not None else ctx.victim or ctx.actor
+        current = self._find_room_for_entity(victim)
         room = self._find_random_room(ctx)
-        if victim is None or room is None:
+        if victim is None or room is None or current is None or self._room_flag(current, "ROOM_NO_RECALL"):
             return ctx.fail("You failed.\r\n")
-        return self._move_character(ctx, victim, room, notify_victim=victim is not ctx.actor, line="You have been teleported!\r\n")
+        if victim is not ctx.actor:
+            if self._mob_has_imm(victim, "IMM_SUMMON") or getattr(victim, "fighting", None) is not None:
+                return ctx.fail("You failed.\r\n")
+            if EffectUtil.saves_spell(ctx.level - 5, victim, 0):
+                return ctx.fail("You failed.\r\n")
+        return self._move_character(
+            ctx,
+            victim,
+            room,
+            notify_victim=victim is not ctx.actor,
+            line="You have been teleported!\r\n",
+            from_room_line=f"{self._entity_name(victim)} vanishes!\r\n",
+            to_room_line=f"{self._entity_name(victim)} slowly fades into existence.\r\n",
+        )
 
     def summon_target(self, ctx: SpellContext):
         victim = self._find_world_character(ctx, ctx.target_name)
-        if victim is None or victim is ctx.actor or ctx.room is None:
+        current = self._find_room_for_entity(victim)
+        if victim is None or victim is ctx.actor or ctx.room is None or current is None:
             return ctx.fail("You failed.\r\n")
-        return self._move_character(ctx, victim, ctx.room, notify_victim=True, line=f"{self._entity_name(ctx.actor)} has summoned you!\r\n")
+        if (
+            self._room_flag(ctx.room, "ROOM_SAFE")
+            or self._room_flag(current, "ROOM_SAFE")
+            or self._room_flag(current, "ROOM_PRIVATE")
+            or self._room_flag(current, "ROOM_SOLITARY")
+            or self._room_flag(current, "ROOM_NO_RECALL")
+            or getattr(victim, "fighting", None) is not None
+            or self._mob_has_act(victim, "ACT_AGGRESSIVE")
+            or self._mob_has_imm(victim, "IMM_SUMMON")
+            or self._player_has_act(victim, "PLR_NOSUMMON")
+            or (CharacterMacros.is_npc(victim) and EffectUtil.saves_spell(ctx.level, victim, 0))
+        ):
+            return ctx.fail("You failed.\r\n")
+        return self._move_character(
+            ctx,
+            victim,
+            ctx.room,
+            notify_victim=True,
+            line=f"{self._entity_name(ctx.actor)} has summoned you!\r\n",
+            from_room_line=f"{self._entity_name(victim)} disappears suddenly.\r\n",
+            to_room_line=f"{self._entity_name(victim)} arrives suddenly.\r\n",
+        )
 
     def word_of_recall(self, ctx: SpellContext, target: Any = None):
         victim = ctx.resolve(target) if target is not None else ctx.victim or ctx.actor
+        current = self._find_room_for_entity(victim)
         room_registry = self._room_registry(ctx)
         temple = room_registry.get_or_none(vnum="3001") if room_registry is not None else None
-        if victim is None or CharacterMacros.is_npc(victim) or temple is None:
+        if victim is None or CharacterMacros.is_npc(victim) or temple is None or current is None:
             return ctx.fail("You are completely lost.\r\n")
+        if current.id == temple.id:
+            return False
+        if self._room_flag(current, "ROOM_NO_RECALL") or self._effect_active(victim, "spell.curse") or self._effect_active(victim, "AFF_CURSE"):
+            return ctx.fail("Spell failed.\r\n")
         if getattr(victim, "fighting", None) is not None:
             self._fight_handler(ctx).stop_fighting(victim, both=True)
         if hasattr(victim, "move"):
             victim.move = max(0, GenericUtil.to_int(getattr(victim, "move", 0), 0) // 2)
         if hasattr(victim, "movement"):
             victim.movement = max(0, GenericUtil.to_int(getattr(victim, "movement", 0), 0) // 2)
-        return self._move_character(ctx, victim, temple)
+        return self._move_character(
+            ctx,
+            victim,
+            temple,
+            from_room_line=f"{self._entity_name(victim)} disappears.\r\n",
+            to_room_line=f"{self._entity_name(victim)} appears in the room.\r\n",
+        )
 
     def gate(self, ctx: SpellContext):
         victim = self._find_world_character(ctx, ctx.target_name)
         room = self._find_room_for_entity(victim)
-        if victim is None or victim is ctx.actor or room is None:
+        if (
+            victim is None
+            or victim is ctx.actor
+            or room is None
+            or ctx.room is None
+            or self._room_flag(room, "ROOM_SAFE")
+            or self._room_flag(room, "ROOM_PRIVATE")
+            or self._room_flag(room, "ROOM_SOLITARY")
+            or self._room_flag(room, "ROOM_NO_RECALL")
+            or self._room_flag(ctx.room, "ROOM_NO_RECALL")
+            or GenericUtil.to_int(getattr(victim, "level", 0), 0) >= ctx.level + 3
+            or self._mob_has_imm(victim, "IMM_SUMMON")
+            or (CharacterMacros.is_npc(victim) and EffectUtil.saves_spell(ctx.level, victim, 0))
+        ):
             return ctx.fail("You failed.\r\n")
-        return self._move_character(ctx, ctx.actor, room)
+        return self._move_character(
+            ctx,
+            ctx.actor,
+            room,
+            notify_victim=True,
+            line="You step through a gate and vanish.\r\n",
+            from_room_line=f"{self._entity_name(ctx.actor)} steps through a gate and vanishes.\r\n",
+            to_room_line=f"{self._entity_name(ctx.actor)} has arrived through a gate.\r\n",
+        )
 
     def portal(self, ctx: SpellContext):
         return self._spawn_portal(ctx, two_way=False)
@@ -444,25 +507,50 @@ class SpellApi:
         room = ctx.room or self._find_room_for_entity(ctx.actor)
         if room is None:
             return False
+        affected = False
         for entity in self._room_entities(room):
-            if getattr(entity, "fighting", None) is None:
-                EffectUtil.apply_spell_effects(ctx.actor, entity, ctx.spell)
-        return ctx.mark_performed()
+            if getattr(entity, "fighting", None) is not None or not self._same_side(ctx.actor, entity) or self._effect_active(entity, "AFF_INVISIBLE") or self._effect_active(entity, "spell.invis"):
+                continue
+            EffectUtil.apply_spell_effects(ctx.actor, entity, ctx.spell)
+            affected = True
+        return ctx.mark_performed() if affected else False
 
     def mass_healing(self, ctx: SpellContext):
         room = ctx.room or self._find_room_for_entity(ctx.actor)
         if room is None:
             return False
+        affected = False
         for entity in self._room_entities(room):
+            if not self._same_side(ctx.actor, entity):
+                continue
             self.heal_expr(ctx, "100", target=entity)
-            self.remove_effects(ctx, "spell.blindness", "spell.poison", "spell.plague", target=entity)
-        return ctx.mark_performed()
+            self.restore_move_expr(ctx, "level", target=entity)
+            affected = True
+        return ctx.mark_performed() if affected else False
 
     def calm(self, ctx: SpellContext):
         room = ctx.room or self._find_room_for_entity(ctx.actor)
         if room is None:
             return False
-        for entity in self._room_entities(room):
+        fighters = self._room_combatants(room)
+        if not fighters:
+            return False
+        for entity in fighters:
+            if (CharacterMacros.is_npc(entity) and (self._mob_has_imm(entity, "IMM_MAGIC") or self._mob_has_act(entity, "ACT_UNDEAD"))) or self._effect_active(entity, "AFF_CALM") or self._effect_active(entity, "AFF_BERSERK") or self._effect_active(entity, "spell.frenzy"):
+                return False
+
+        count = len(fighters)
+        high_level = max(GenericUtil.to_int(getattr(entity, "level", 0), 0) for entity in fighters)
+        mlevel = 0
+        for entity in fighters:
+            entity_level = GenericUtil.to_int(getattr(entity, "level", 0), 0)
+            mlevel += entity_level if CharacterMacros.is_npc(entity) else entity_level // 2
+        chance = max(0, 4 * ctx.level - high_level + 2 * count)
+        if random.randint(0, chance) < mlevel:
+            return False
+
+        for entity in fighters:
+            self.send(ctx, to_victim="A wave of calm passes over you.\r\n", victim=entity)
             if getattr(entity, "fighting", None) is not None:
                 self._fight_handler(ctx).stop_fighting(entity, both=False)
             EffectUtil.apply_spell_effects(ctx.actor, entity, ctx.spell)
@@ -491,11 +579,13 @@ class SpellApi:
                 continue
             target_alignment = self._alignment(victim)
             if actor_alignment > 0 and target_alignment < 0:
+                if self._fight_handler(ctx).is_safe_spell(ctx.actor, victim, area=True):
+                    continue
                 self.damage_expr(ctx, "dice(level, 4) + 50", "DAM_HOLY", save_half=False, target=victim, dt="divine wrath")
-                self.apply_affect_data(ctx, target=victim)
             elif actor_alignment < 0 and target_alignment > 0:
+                if self._fight_handler(ctx).is_safe_spell(ctx.actor, victim, area=True):
+                    continue
                 self.damage_expr(ctx, "dice(level, 4) + 50", "DAM_NEGATIVE", save_half=False, target=victim, dt="divine wrath")
-                self.apply_affect_data(ctx, target=victim)
             else:
                 self.heal_expr(ctx, "50", target=victim)
         return ctx.mark_performed()
@@ -565,8 +655,19 @@ class SpellApi:
 
     def remove_curse(self, ctx: SpellContext):
         if ctx.obj is not None:
+            return self._remove_curse_item(ctx, ctx.obj)
+        victim = ctx.victim or ctx.actor
+        if victim is None:
+            return False
+        removed = self.dispel_effects(ctx, "spell.curse", target=victim)
+        for item in self._owned_items(victim):
+            removed = self._remove_curse_item(ctx, item, owner=victim, quiet=True) or removed
+        if removed:
+            if victim is not ctx.actor:
+                self.send(ctx, to_victim="You feel better.\r\n", victim=victim)
+                self.send(ctx, to_room=f"{self._entity_name(victim)} looks more relaxed.\r\n", victim=victim, include_victim_in_room=True)
             return ctx.mark_performed()
-        return self.dispel_effects(ctx, "spell.curse")
+        return False
 
     def poison(self, ctx: SpellContext):
         if ctx.obj is not None:
@@ -736,10 +837,22 @@ class SpellApi:
                 return target
         return None
 
-    def _move_character(self, ctx: SpellContext, victim, room, notify_victim: bool = False, line: str = ""):
+    def _move_character(
+        self,
+        ctx: SpellContext,
+        victim,
+        room,
+        notify_victim: bool = False,
+        line: str = "",
+        from_room_line: str = "",
+        to_room_line: str = "",
+    ):
         current = self._find_room_for_entity(victim)
-        if current is None or room is None:
+        if current is None or room is None or str(getattr(current, "id", "")) == str(getattr(room, "id", "")):
             return False
+        exclude_ids = {str(getattr(victim, "id", "") or "")}
+        if from_room_line:
+            self._queue_room_text(ctx, current, from_room_line, exclude_ids=exclude_ids)
         if CharacterMacros.is_npc(victim):
             current.mobiles.pop(str(getattr(victim, "id", "")), None)
             room.add_mobile_to_room(victim)
@@ -750,6 +863,13 @@ class SpellApi:
         victim.area_id = getattr(room, "area_id", getattr(victim, "area_id", ""))
         if notify_victim and line:
             self.send(ctx, to_victim=line, victim=victim)
+        if to_room_line:
+            self._queue_room_text(ctx, room, to_room_line, exclude_ids=exclude_ids)
+        if not CharacterMacros.is_npc(victim):
+            payload = {"view_character": victim, "to_room_obj": room}
+            if victim is ctx.actor:
+                payload["aggressive_rounds"] = self._fight_handler(ctx).aggressive_entry_rounds(victim, room)
+            ctx.queue_payload(payload)
         return ctx.mark_performed()
 
     def _spawn_portal(self, ctx: SpellContext, two_way: bool):
@@ -843,6 +963,104 @@ class SpellApi:
         flags = CharacterMacros.get_enum("roomFlags")
         bit = CharacterMacros.enum_bit(flags, flag_name)
         return bit > 0 and CharacterMacros.is_set(GenericUtil.to_int(getattr(room, "room_flags", 0), 0), bit)
+
+    def _queue_room_text(self, ctx: SpellContext, room, text: str, exclude_ids: set[str] | None = None):
+        if room is None or not text:
+            return False
+        targets = self._room_players(room, exclude_ids=exclude_ids)
+        if not targets:
+            return False
+        ctx.queue_payload({"to_room": text, "targets": targets})
+        return True
+
+    @staticmethod
+    def _same_side(actor, entity) -> bool:
+        return CharacterMacros.is_npc(actor) == CharacterMacros.is_npc(entity)
+
+    @staticmethod
+    def _room_combatants(room) -> list[Any]:
+        fighting_pos = CharacterMacros.pos_value("POS_FIGHTING")
+        fighters = []
+        for entity in SpellApi._room_entities(room):
+            position = GenericUtil.to_int(getattr(entity, "position", getattr(getattr(entity, "character_attributes", None), "position", 0)), 0)
+            if getattr(entity, "fighting", None) is not None or position == fighting_pos:
+                fighters.append(entity)
+        return fighters
+
+    @staticmethod
+    def _owned_items(owner) -> list[Any]:
+        items = list(getattr(owner, "loot", []) or [])
+        equipped = getattr(owner, "equipped", None)
+        if equipped is not None:
+            for item in getattr(equipped, "__dict__", {}).values():
+                if item is not None and item not in items:
+                    items.append(item)
+        return items
+
+    def _remove_curse_item(self, ctx: SpellContext, item, owner: Any = None, quiet: bool = False) -> bool:
+        item_flags = CharacterMacros.get_enum("itemFlags")
+        nodrop = getattr(item_flags, "ITEM_NODROP", None)
+        noremove = getattr(item_flags, "ITEM_NOREMOVE", None)
+        nouncurse = getattr(item_flags, "ITEM_NOUNCURSE", None)
+        raw_flags = GameMacros.flags_to_int(getattr(item, "extra_flags", 0))
+        cursed = (nodrop is not None and GameMacros.is_set(raw_flags, nodrop.value)) or (noremove is not None and GameMacros.is_set(raw_flags, noremove.value))
+        if not cursed:
+            if quiet:
+                return False
+            return ctx.fail(f"There doesn't seem to be a curse on {ObjectUtils.short(item)}.\r\n")
+        if nouncurse is not None and GameMacros.is_set(raw_flags, nouncurse.value):
+            if quiet:
+                return False
+            return ctx.fail(f"The curse on {ObjectUtils.short(item)} is beyond your power.\r\n")
+        if EffectUtil.saves_dispel(ctx.level + 2, GenericUtil.to_int(getattr(item, "level", 0), 0), 0):
+            if quiet:
+                return False
+            return ctx.fail(f"The curse on {ObjectUtils.short(item)} is beyond your power.\r\n")
+        if nodrop is not None:
+            raw_flags = GameMacros.unset_bit(raw_flags, nodrop.value)
+        if noremove is not None:
+            raw_flags = GameMacros.unset_bit(raw_flags, noremove.value)
+        item.extra_flags = GameMacros.flags_to_letters(raw_flags)
+        if quiet:
+            return True
+        if owner is not None and owner is not ctx.actor:
+            self.send(ctx, to_victim=f"Your {ObjectUtils.short(item)} glows blue.\r\n", victim=owner)
+            self.send(ctx, to_room=f"{self._entity_name(owner)}'s {ObjectUtils.short(item)} glows blue.\r\n", victim=owner)
+        else:
+            self.send(ctx, to_char=f"{ObjectUtils.short(item)} glows blue.\r\n")
+            self.send(ctx, to_room=f"{ObjectUtils.short(item)} glows blue.\r\n")
+        return ctx.mark_performed()
+
+    @staticmethod
+    def _mob_has_act(entity, flag_name: str) -> bool:
+        if entity is None or not CharacterMacros.is_npc(entity):
+            return False
+        act_bits = CharacterMacros.get_enum("actBits")
+        bit = CharacterMacros.enum_bit(act_bits, flag_name)
+        if bit <= 0:
+            return False
+        flags = GenericUtil.to_int(getattr(getattr(entity, "mobile_flags", None), "act", 0), 0)
+        return CharacterMacros.is_set(flags, bit)
+
+    @staticmethod
+    def _mob_has_imm(entity, flag_name: str) -> bool:
+        if entity is None or not CharacterMacros.is_npc(entity):
+            return False
+        flag_letters = CharacterMacros.get_enum("flagLetters")
+        if not hasattr(flag_letters, flag_name):
+            return False
+        flags = GenericUtil.to_int(getattr(getattr(entity, "mobile_flags", None), "imm", 0), 0)
+        return CharacterMacros.is_set(flags, getattr(flag_letters, flag_name).value)
+
+    @staticmethod
+    def _player_has_act(entity, flag_name: str) -> bool:
+        if entity is None or CharacterMacros.is_npc(entity):
+            return False
+        act_bits = CharacterMacros.get_enum("playerActBits")
+        if not hasattr(act_bits, flag_name):
+            return False
+        flags = GenericUtil.to_int(CharacterMacros.convert_flags(getattr(getattr(entity, "character_flags", None), "act", "") or "0"), 0)
+        return CharacterMacros.is_set(flags, getattr(act_bits, flag_name).value)
 
     @staticmethod
     def _room_helper(ctx_or_entity):
