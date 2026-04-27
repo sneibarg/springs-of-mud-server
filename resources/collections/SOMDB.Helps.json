@@ -1,6 +1,6 @@
 [{
   "_id": {
-    "$oid": "69d954064251a61d7bf6b595"
+    "$oid": "69eed1bcd233b3bde57876bf"
   },
   "keyword": "QMCONFIG",
   "level": 0,
@@ -9,7 +9,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954066a67a3e5c12e3158"
+    "$oid": "69eed1bc577d99e475eb4982"
   },
   "keyword": "COLOUR COLOR ANSI",
   "level": 0,
@@ -18,7 +18,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406c3b9d2f349d84ee1"
+    "$oid": "69eed1bcda5cbcb0dfc9bb5a"
   },
   "keyword": "COLOUR2 COLOR2 ANSI2",
   "level": 0,
@@ -27,7 +27,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406cec260ec4dfe039a"
+    "$oid": "69eed1bc5ded077f047dba1f"
   },
   "keyword": "DIKU",
   "level": -1,
@@ -36,7 +36,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406fef5d744fce04394"
+    "$oid": "69eed1bc991e78e62107af38"
   },
   "keyword": "GOLD SILVER MONEY",
   "level": -1,
@@ -45,7 +45,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406c041a357e2f1ba4f"
+    "$oid": "69eed1bc4953c1e13d463256"
   },
   "keyword": "BRIEF COMPACT",
   "level": 0,
@@ -54,7 +54,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406c07f988135f5da47"
+    "$oid": "69eed1bcf975e1da130618eb"
   },
   "keyword": "DEAF",
   "level": -1,
@@ -63,7 +63,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406e4728bbcf12e742a"
+    "$oid": "69eed1bc89b51be075966b7e"
   },
   "keyword": "AFK",
   "level": -1,
@@ -72,7 +72,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406d23b9dea049c222a"
+    "$oid": "69eed1bce59ca023edb232a4"
   },
   "keyword": "PROMPT",
   "level": -1,
@@ -81,7 +81,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954063adfdccf8c356492"
+    "$oid": "69eed1bcf03b5664a6be3431"
   },
   "keyword": "SUMMARY",
   "level": -1,
@@ -90,7 +90,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540658105e456b7e04ec"
+    "$oid": "69eed1bc964bde00d1365623"
   },
   "keyword": "DEATH",
   "level": 0,
@@ -99,7 +99,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406b1760e7f0266ad7b"
+    "$oid": "69eed1bcfe711e9bfff66db7"
   },
   "keyword": "EXPERIENCE LEVEL XP",
   "level": 0,
@@ -108,7 +108,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406839afd86b8d2aca0"
+    "$oid": "69eed1bc7449c150bb86fff6"
   },
   "keyword": "PET PETS",
   "level": 0,
@@ -117,7 +117,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406d60962c266472a73"
+    "$oid": "69eed1bc1fe2daca0153b541"
   },
   "keyword": "TICK",
   "level": 0,
@@ -126,7 +126,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954061a046f66140bbf3a"
+    "$oid": "69eed1bc34906aa1b66fe93f"
   },
   "keyword": "!",
   "level": 0,
@@ -135,7 +135,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406bec391a8d4457a2a"
+    "$oid": "69eed1bcf13ef82c88da2644"
   },
   "keyword": "NORTH SOUTH EAST WEST UP DOWN",
   "level": 0,
@@ -144,7 +144,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406fd824f3f5380a6df"
+    "$oid": "69eed1bc74f9eea622d67d01"
   },
   "keyword": "CAST",
   "level": 0,
@@ -153,7 +153,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406d085a6b54fe42940"
+    "$oid": "69eed1bc5047d72881cffab5"
   },
   "keyword": "EXITS",
   "level": 0,
@@ -162,7 +162,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540636dd1e1ebd0e7054"
+    "$oid": "69eed1bc3a9a3719a30593d0"
   },
   "keyword": "DROP GET GIVE PUT TAKE",
   "level": 0,
@@ -171,7 +171,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954062e149077aba2f106"
+    "$oid": "69eed1bcfc15547383565ecb"
   },
   "keyword": "EQUIPMENT INVENTORY",
   "level": 0,
@@ -180,7 +180,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406737d074122daa3f0"
+    "$oid": "69eed1bc4e4b27c2dd26396b"
   },
   "keyword": "COMPARE",
   "level": 0,
@@ -189,7 +189,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540697e99d2cce245ce0"
+    "$oid": "69eed1bc4f57c1b622a50c20"
   },
   "keyword": "FLEE",
   "level": 0,
@@ -198,7 +198,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406ded997cec64c2661"
+    "$oid": "69eed1bc6f50631a6ef55905"
   },
   "keyword": "EXAMINE LOOK",
   "level": 0,
@@ -207,7 +207,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406f407a718988bc318"
+    "$oid": "69eed1bc4d8422793a718acc"
   },
   "keyword": "ORDER",
   "level": 0,
@@ -216,7 +216,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540631073036c95d3ca2"
+    "$oid": "69eed1bc4daf05542cfc6b2e"
   },
   "keyword": "REST SLEEP STAND WAKE",
   "level": 0,
@@ -225,7 +225,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954064b33dc0b0bf40c64"
+    "$oid": "69eed1bc207850f5c2de0338"
   },
   "keyword": "GTELL ; REPLY SAY TELL",
   "level": 0,
@@ -234,7 +234,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954069713056b60e80812"
+    "$oid": "69eed1bc1dc45f5188e400ae"
   },
   "keyword": "NOTE 'NOTE WRITE' 'NOTE READ' BOARD 'NOTE SYSTEM' BOARDS",
   "level": 0,
@@ -243,7 +243,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540639d12e962baff560"
+    "$oid": "69eed1bc8ebdac2c451db021"
   },
   "keyword": "GOSSIP CGOSSIP . SHOUT YELL",
   "level": 0,
@@ -252,7 +252,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954065811a5da619e77bb"
+    "$oid": "69eed1bc6080ee2c6ba6e225"
   },
   "keyword": "EMOTE PMOTE POSE SOCIAL",
   "level": 0,
@@ -261,7 +261,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954066b37687c00b80687"
+    "$oid": "69eed1bc8949330b5102e549"
   },
   "keyword": "SMOTE",
   "level": 52,
@@ -270,7 +270,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406df47a25b0b7566d1"
+    "$oid": "69eed1bc12fa0b48c8ad2945"
   },
   "keyword": "HOLD REMOVE WEAR WIELD",
   "level": 0,
@@ -279,7 +279,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406cd08995bceee38e4"
+    "$oid": "69eed1bc11cedeff5833ee15"
   },
   "keyword": "BUG TYPO",
   "level": 0,
@@ -288,7 +288,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954067eaca42f2434c292"
+    "$oid": "69eed1bcb38665a58482ab14"
   },
   "keyword": "CREDITS",
   "level": 0,
@@ -297,7 +297,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540614c9345152bc230a"
+    "$oid": "69eed1bc61c6775b335e06b3"
   },
   "keyword": "AREAS COMMANDS REPORT SCORE TIME",
   "level": 0,
@@ -306,7 +306,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540628cd5d54a0d2c034"
+    "$oid": "69eed1bca12249c501b0862f"
   },
   "keyword": "WHO",
   "level": -1,
@@ -315,7 +315,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954060e1243a426b0a258"
+    "$oid": "69eed1bc7fb490711d9f8f49"
   },
   "keyword": "WHOIS",
   "level": -1,
@@ -324,7 +324,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540644dcabb064beffbb"
+    "$oid": "69eed1bc7c04edc51646edba"
   },
   "keyword": "WHERE",
   "level": 0,
@@ -333,7 +333,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406571093efcae100ab"
+    "$oid": "69eed1bcab56037ea76737d5"
   },
   "keyword": "HELP",
   "level": 0,
@@ -342,7 +342,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406823a36f7ca926480"
+    "$oid": "69eed1bc809a13409fb025f7"
   },
   "keyword": "DESCRIPTION DESC",
   "level": 0,
@@ -351,7 +351,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954065dd1cf7b23e966bb"
+    "$oid": "69eed1bcb025ad61f46fb688"
   },
   "keyword": "PASSWORD",
   "level": 0,
@@ -360,7 +360,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406ccec09011e68559b"
+    "$oid": "69eed1bc127ed860a8853b6b"
   },
   "keyword": "TITLE",
   "level": 0,
@@ -369,7 +369,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406ad0cac49207f2ed2"
+    "$oid": "69eed1bcaf90cc2a82cd11ab"
   },
   "keyword": "WIMPY",
   "level": 0,
@@ -378,7 +378,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406f150ecd78c86a9d4"
+    "$oid": "69eed1bc6c2a8b0cc2ce8ee9"
   },
   "keyword": "OPEN CLOSE LOCK UNLOCK PICK",
   "level": 0,
@@ -387,7 +387,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406b0ed4cd82548242c"
+    "$oid": "69eed1bcc1e66727f6174deb"
   },
   "keyword": "DRINK EAT FILL POUR",
   "level": 0,
@@ -396,7 +396,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406267a1efd13302062"
+    "$oid": "69eed1bcb74434998b89d1e6"
   },
   "keyword": "BUY LIST SELL VALUE",
   "level": 0,
@@ -405,7 +405,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540622d83535184c95cf"
+    "$oid": "69eed1bc72b84eb06c8b8252"
   },
   "keyword": "SACRIFICE",
   "level": 0,
@@ -414,7 +414,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540692bb7452de967bb9"
+    "$oid": "69eed1bc06adf84202122ba2"
   },
   "keyword": "SCROLL",
   "level": 0,
@@ -423,7 +423,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406d224335a76917e8a"
+    "$oid": "69eed1bc0c3aa73407d2c623"
   },
   "keyword": "BRANDISH QUAFF RECITE ZAP",
   "level": 0,
@@ -432,7 +432,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954065f6e2112d3c6c625"
+    "$oid": "69eed1bca0c68b6bc0781ac7"
   },
   "keyword": "CONSIDER",
   "level": 0,
@@ -441,7 +441,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954067298cc261ff54ff1"
+    "$oid": "69eed1bc77d6c498de625019"
   },
   "keyword": "FOLLOW GROUP",
   "level": 0,
@@ -450,7 +450,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406305f6d43dda4dfa9"
+    "$oid": "69eed1bc5f57f6c2271710a3"
   },
   "keyword": "VISIBLE",
   "level": 0,
@@ -459,7 +459,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540690fe25f4fd756fe6"
+    "$oid": "69eed1bcfbff6e7c7a50e5cc"
   },
   "keyword": "QUIT RENT SAVE",
   "level": 0,
@@ -468,7 +468,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406d7a050b3615d4254"
+    "$oid": "69eed1bccfc173079d996169"
   },
   "keyword": "RECALL /",
   "level": 0,
@@ -477,7 +477,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540602c332d5097f72c4"
+    "$oid": "69eed1bc17678fc99c60162c"
   },
   "keyword": "SPLIT",
   "level": -1,
@@ -486,7 +486,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954062b4288e4c0752779"
+    "$oid": "69eed1bc39f1b099396cbaec"
   },
   "keyword": "STEAL",
   "level": 0,
@@ -495,7 +495,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406bcc2423b811e2f43"
+    "$oid": "69eed1bced384456a86f8cc2"
   },
   "keyword": "PRACTICE",
   "level": 0,
@@ -504,7 +504,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954066380569e623a685e"
+    "$oid": "69eed1bccead7baa4723541f"
   },
   "keyword": "TRAIN",
   "level": 0,
@@ -513,7 +513,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540642057185f702c5fb"
+    "$oid": "69eed1bc5df2d7caf6b37d12"
   },
   "keyword": "ADVANCE",
   "level": 60,
@@ -522,7 +522,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406ba4dec8356289f9a"
+    "$oid": "69eed1bc8f17066992badc7d"
   },
   "keyword": "TRUST",
   "level": 60,
@@ -531,7 +531,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954069a505e55998e9dcc"
+    "$oid": "69eed1bcb831c95033c3dbdc"
   },
   "keyword": "ALLOW BAN PERMBAN",
   "level": 58,
@@ -540,7 +540,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406fa5350d87cc6c4d7"
+    "$oid": "69eed1bc30294d374faa90f1"
   },
   "keyword": "REBOOT SHUTDOWN",
   "level": 59,
@@ -549,7 +549,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406f0e841936ab4dc28"
+    "$oid": "69eed1bc948c62dd8cb3ee56"
   },
   "keyword": "WIZLOCK NEWLOCK",
   "level": 56,
@@ -558,7 +558,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954067875278b03a952c7"
+    "$oid": "69eed1bcc45b8e44be3c148a"
   },
   "keyword": "DENY",
   "level": 59,
@@ -567,7 +567,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406d3fb02526f11cce2"
+    "$oid": "69eed1bce357ea3fb09d4f01"
   },
   "keyword": "DISCONNECT",
   "level": 57,
@@ -576,7 +576,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406d9420698cee08ba3"
+    "$oid": "69eed1bc7c1607bb6b3b1ac1"
   },
   "keyword": "FREEZE",
   "level": 57,
@@ -585,7 +585,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540628dfebf80d5f8593"
+    "$oid": "69eed1bcc19498921338f58c"
   },
   "keyword": "FORCE",
   "level": 53,
@@ -594,7 +594,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406f16e125e3270c4aa"
+    "$oid": "69eed1bce12eeb99aa21f01f"
   },
   "keyword": "SOCKETS",
   "level": 56,
@@ -603,7 +603,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406f16d03f9ae7ce3c3"
+    "$oid": "69eed1bcbb9e4323fb2b5976"
   },
   "keyword": "LOAD",
   "level": 56,
@@ -612,7 +612,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406a108e3827f8487e7"
+    "$oid": "69eed1bcd5670cc3097f411e"
   },
   "keyword": "SET",
   "level": 58,
@@ -621,7 +621,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406171a25e190e12d7c"
+    "$oid": "69eed1bc578e071e7d358589"
   },
   "keyword": "STRING",
   "level": 55,
@@ -630,7 +630,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954061b6fbee92fc8ebfe"
+    "$oid": "69eed1bc6b424725e62aa979"
   },
   "keyword": "NOCHANNEL NOEMOTE NOSHOUT NOTELL",
   "level": 55,
@@ -639,7 +639,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406949ef33d6e6a7529"
+    "$oid": "69eed1bcf35dfbe1c7b873dc"
   },
   "keyword": "PARDON",
   "level": 57,
@@ -648,7 +648,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406da2e478471261da5"
+    "$oid": "69eed1bcb2146bb2d1942bf6"
   },
   "keyword": "PURGE",
   "level": 56,
@@ -657,7 +657,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540630ec64b4a2b3e058"
+    "$oid": "69eed1bc0283e0c2cc746a4a"
   },
   "keyword": "RESTORE",
   "level": 56,
@@ -666,7 +666,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406927499e15bfcdbb9"
+    "$oid": "69eed1bcbdb8556fc01bae86"
   },
   "keyword": "SLAY",
   "level": 57,
@@ -675,7 +675,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406fa1e1a8abf9c939a"
+    "$oid": "69eed1bc3156742c9c647d75"
   },
   "keyword": "TRANSFER TELEPORT",
   "level": 55,
@@ -684,7 +684,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406aca32be65ab7626e"
+    "$oid": "69eed1bcb42d618456ad7018"
   },
   "keyword": "AT",
   "level": 54,
@@ -693,7 +693,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954068da40bcada7d29a6"
+    "$oid": "69eed1bc06d0f09721fa27da"
   },
   "keyword": "ECHO GECHO PECHO",
   "level": 54,
@@ -702,7 +702,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540653a89df9a52263ac"
+    "$oid": "69eed1bccc7bcf4f105881aa"
   },
   "keyword": "GOTO",
   "level": 52,
@@ -711,7 +711,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954062aa8ceeba829025b"
+    "$oid": "69eed1bcd3d557304a87d933"
   },
   "keyword": "HOLYLIGHT INVIS WIZINVIS",
   "level": 52,
@@ -720,7 +720,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954063270e49cae557f0a"
+    "$oid": "69eed1bcc42a8e7730ad4f4d"
   },
   "keyword": "INCOGNITO",
   "level": 52,
@@ -729,7 +729,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406c75e75020c783c0f"
+    "$oid": "69eed1bc0be435f9892cb0c6"
   },
   "keyword": "memory\n\nMemory reports the size of your mud.\n\nThe 'Mobs' and 'Objs' lines report the number of types of mobiles and objects,\nnot the number of instances currently in the game.\n\nThe 'Strings' line shows memory used by area-file strings.  These strings have\na maximum limit, which is also shown.\n\nThe 'Perms' line shows permanently allocated memory blocks.  There is no limit\non the number and size of these blocks.",
   "level": 0,
@@ -738,7 +738,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406f5f51be7b729642b"
+    "$oid": "69eed1bcf27c9ca6ccf80bc3"
   },
   "keyword": "vnum <name>\n\tvnum <obj or mob> <name>\n\tvnum skill <name>\n\nVnum finds all objects and mobiles with a particular name, and prints out\nthe results.  Use vnum obj or vnum mob to limit the search.  This vnum is\nvery useful for loading. Vnum skill returns the skill number (for set) and\nthe slot number (for making new zones) of a skill name.\n(see also load)",
   "level": 0,
@@ -747,7 +747,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406bb5a13ee9f303a5f"
+    "$oid": "69eed1bc5bde97fed0e0be55"
   },
   "keyword": "stat <name>\n\tstat mob  <name>\n\tstat obj  <name>\n\tstat room <number>\n\nThe stat command gives you detailed information on an object, mobile, or room\nwithin the game.  Without a class argument, the command will return a object\n(if found), a mobile (if no object exists, but a mobile does), or a room \n(if a number is  given).  Stat room with no argument stats the room you are\nstanding in.  Stat can be used to find room vnums for goto.\n(see also goto, transfer)",
   "level": 0,
@@ -756,7 +756,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406bbb8c785f48738de"
+    "$oid": "69eed1bcd0d5f7720909e79a"
   },
   "keyword": "mwhere <name>\n\nMwhere shows you the locations of all mobiles with a particular name.",
   "level": 0,
@@ -765,7 +765,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954065b71bfd418b1a43d"
+    "$oid": "69eed1bc93a2d6848e11ad31"
   },
   "keyword": "peace\n\nPeace causes all characters in a room to stop fighting. It also strips the\nAGGRESSIVE bit from mobiles.",
   "level": 0,
@@ -774,7 +774,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954060ebbf9b1df350716"
+    "$oid": "69eed1bc419a8c3738bbb840"
   },
   "keyword": "poofin  <message>\nSyntax: pooffout <message>\n\nThe standard messages for goto are 'arrives in a swirling mist' and\n'leaves in a swirling mist'.  You can replace these messages with messages of\nyour own choosing using the poofin and poofout commands.  These messages\nmust include your name somewhere in the string.\n\nPoofin and poofout only show to characters who can see you.\n(see also goto)",
   "level": 0,
@@ -783,7 +783,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954067ee3909d96448266"
+    "$oid": "69eed1bcfc70155e89d90fac"
   },
   "keyword": "protect <character>\n\nProtect is used to protect a character from unwanted snooping.  Removing \nprotected status from a character WILL be seen by that character.",
   "level": 0,
@@ -792,7 +792,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954064d8335fe1917320b"
+    "$oid": "69eed1bcdef983d28fd3d081"
   },
   "keyword": "log   <character>\n\tlog   all\n\tsnoop <character>\n\nLog <character> causes all of a character's commands to be logged into\nthe server's log file.  Like Freeze, it is a permanent character toggle.\nLogs may only be used by creators and implementors, and should be accompanied\nby mail to the implementors.\n\nCertain commands (Password) are protected against log.  Conversely, certain\ncommands (especially immortal commands) are always logged.\n\nLog all logs all character commands.  It is a server-wide toggle; it does not\npersist across reboots. Please do not use this unless you tell the imps.\n\nSnoop shows you a copy of all the input and output going to a character.\nThe character must have an open channel.  You may snoop more than one\ncharacter at a time. Try to respect privacy.\n\nSnoop yourself to cancel all outstanding snoops.",
   "level": 0,
@@ -801,7 +801,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406c39acc4ce927d79e"
+    "$oid": "69eed1bc33654e76760ab276"
   },
   "keyword": "switch <character>\n\treturn\n\nSwitch switches you into the body of another character (who must not\nalready have a descriptor, e.g. you can't switch into a PC). You also cannot\nswitch into link-dead PCs.\n\nReturn returns you to your original body.",
   "level": 0,
@@ -810,7 +810,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954069b89f01ec122aa59"
+    "$oid": "69eed1bc8c3a75bcba9618e7"
   },
   "keyword": "immtalk <message>\n\timmtalk\n\nImmtalk sends a message to all immortals.  : is a synonym for immtalk.\nUsing this command with no argument turns off the immortal channel (or\nturns it back on).",
   "level": 0,
@@ -819,7 +819,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406edb15653c48de191"
+    "$oid": "69eed1bcfdd7cfb36d308b34"
   },
   "keyword": "wiznet \n\twiznet show\n\twiznet status\n\twiznet <field>\n\nWiznet is sort of an immortal news service, to show important events to\nthe wiznetted immoral.  Wiznet by itself turns wiznet on and off, \nwiznet show lists all settable flags (they are not detailed here), \nwiznet status shows your current wiznet settings, and wiznet <field> toggles\na field on and off.  The events should be self-explanatory, if they are not,\nfiddle with them a while.  More events are available at higher levels.",
   "level": 0,
@@ -828,7 +828,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406d64841a7800c609a"
+    "$oid": "69eed1bce5f90ad8183f5334"
   },
   "keyword": "wizhelp\n\nWizhelp provides a list of all the immortal commands.",
   "level": 0,
@@ -837,7 +837,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954066e9a8d0e50514f06"
+    "$oid": "69eed1bc79d1b589597bb688"
   },
   "keyword": "cast armor <character>\n\nThis spell decreases (improves) the armor class of the target character\nby 20 points.",
   "level": 0,
@@ -846,7 +846,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954060e0b4fa509875b6a"
+    "$oid": "69eed1bc3dfc7a728ffdcbcc"
   },
   "keyword": "cast bless <character>\nSyntax: cast bless <object>\n\nThis spell improves the to-hit roll and saving throw versus spell of the\ntarget character by 1 for every 8 levels of the caster. It may also be\ncast on an object to temporarily bless it (blessed weapons, for example,\nare more effective against demonic beings).",
   "level": 0,
@@ -855,7 +855,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406f210c568042aea55"
+    "$oid": "69eed1bcf3bcb856397c10c8"
   },
   "keyword": "cast blindness <victim>\n\nThis spell renders the target character blind.",
   "level": 0,
@@ -864,7 +864,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954068d969afaa341e86d"
+    "$oid": "69eed1bc33838e460586a390"
   },
   "keyword": "cast 'acid blast'     <victim>\nSyntax: cast 'burning hands'  <victim>\nSyntax: cast 'colour spray'   <victim>\nSyntax: cast 'fireball'       <victim>\nSyntax: cast 'lightning bolt' <victim>\nSyntax: cast 'magic missile'  <victim>\nSyntax: cast 'shocking grasp' <victim>\n\nThese spells inflict damage on the victim.  The higher-level spells do\nmore damage.",
   "level": 0,
@@ -873,7 +873,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406c2a67d419205a1f7"
+    "$oid": "69eed1bccc8ed3107719c19a"
   },
   "keyword": "cast 'call lightning'\n\nThis spell works only out of doors, and only when the weather is bad.\nIt calls down lightning bolts from Mota.",
   "level": 0,
@@ -882,7 +882,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406fdbb0364f0e53a7f"
+    "$oid": "69eed1bc93ed82ff145aaf35"
   },
   "keyword": "cast 'cause light'    <victim>\nSyntax: cast 'cause serious'  <victim>\nSyntax: cast 'cause critical' <victim>\nSyntax: cast harm             <victim>\n\nThese spells inflict damage on the victim.  The higher-level spells do\nmore damage.",
   "level": 0,
@@ -891,7 +891,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954060b89b27fef70e235"
+    "$oid": "69eed1bc6164a9c4f606e2ee"
   },
   "keyword": "cast 'change sex' <victim>\n\nThis spell changes the sex of the victim (temporarily).",
   "level": 0,
@@ -900,7 +900,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954065118ae9e438b288c"
+    "$oid": "69eed1bce848739c4756bc73"
   },
   "keyword": "cast 'charm person' <victim>\n\nThis spell, if successful, causes the victim to follow you and to take orders\nfrom you.  Use ORDER to order your charmed followers.\n\nYou are responsible for the actions of your followers.  Conversely, other\npeople who attack your followers will be penalized as if they attacked you.",
   "level": 0,
@@ -909,7 +909,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406d461d7792b3f839a"
+    "$oid": "69eed1bc63c048a61f4c8daf"
   },
   "keyword": "cast 'chill touch' <victim>\n\nThis spell inflicts damage on the victim and also reduces the victim's\nstrength by one.",
   "level": 0,
@@ -918,7 +918,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954068a9789f60f43f71b"
+    "$oid": "69eed1bc47b7ce777aa00ab1"
   },
   "keyword": "cast 'continual light'\nSyntax: cast 'continual light' <object>\n\nThis spell creates a ball of light, which you can hold as a light source.\nThe ball of light will last indefinitely. It may also be used on an object\nto give it an enchanted glow.",
   "level": 0,
@@ -927,7 +927,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954063de59b726b8f8ffb"
+    "$oid": "69eed1bcbcd4e1c6f0c4e4e0"
   },
   "keyword": "cast 'control weather' better\nSyntax: cast 'control weather' worse\n\nThis spell makes the weather either better or worse.",
   "level": 0,
@@ -936,7 +936,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406daee79e1281efcfd"
+    "$oid": "69eed1bcec282ca8dd9e59ef"
   },
   "keyword": "cast 'create food'\n\nThis spell creates a Magic Mushroom, which you or anyone else can eat.",
   "level": 0,
@@ -945,7 +945,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954066d8c85c7db506fa5"
+    "$oid": "69eed1bc50a1bbd5070c44cc"
   },
   "keyword": "cast 'create spring'\n\nThis spell brings forth a magical spring from the ground, which has the\nsame properties as a fountain.",
   "level": 0,
@@ -954,7 +954,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954060dd70e507dc65476"
+    "$oid": "69eed1bcf3489c84da5fbc6e"
   },
   "keyword": "cast 'create water' <drink-container>\n\nThis spell replenishes a drink container with water.",
   "level": 0,
@@ -963,7 +963,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954061f03da7aba77296c"
+    "$oid": "69eed1bc697081c07e72da92"
   },
   "keyword": "cast 'cure blindness' <character>\n\nThis spell cures blindness in one so unfortunate.",
   "level": 0,
@@ -972,7 +972,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954069cb2e8d355e1a550"
+    "$oid": "69eed1bc1680d4662c4930c9"
   },
   "keyword": "cast 'cure poison' <character>\n\nThis spell cures poison in one so unfortunate.",
   "level": 0,
@@ -981,7 +981,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406992e3fd12b1c618e"
+    "$oid": "69eed1bc8885cf1ed23f8ee3"
   },
   "keyword": "cast 'cure light'    <character>\nSyntax: cast 'cure serious'  <character>\nSyntax: cast 'cure critical' <character>\nSyntax: cast 'heal'          <character>\n\nThese spells cure damage on the target character.  The higher-level spells\nheal more damage.\n\n(see 'help healer' for details on the heal command)",
   "level": 0,
@@ -990,7 +990,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954066b5557b720e5d3e6"
+    "$oid": "69eed1bc86db87fd5f71ebd9"
   },
   "keyword": "cast 'curse' <character>\n\nThis spell reduces the character's to-hit roll and save versus spells.\nIt also renders the character unclean in the eyes of Mota and\nunable to RECALL. Curse may be used to fill equipment with evil power,\nallowing (for example) weapons to do more damage to particularly holy\nopponents.",
   "level": 0,
@@ -999,7 +999,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406e2ea4ebc762f7f25"
+    "$oid": "69eed1bccfd86e7c69052daa"
   },
   "keyword": "cast 'detect evil'\n\nThis spell enables the caster to detect evil characters, which will\nreveal a characteristic red aura.",
   "level": 0,
@@ -1008,7 +1008,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954063887dea89a14d384"
+    "$oid": "69eed1bc191a0a3ddae563f1"
   },
   "keyword": "cast 'detect hidden'\n\nThis spell enables the caster to detect hidden creatures.",
   "level": 0,
@@ -1017,7 +1017,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954067a0d376e7e81e53d"
+    "$oid": "69eed1bc478963c71d6ecc02"
   },
   "keyword": "cast 'detect invis'\n\nThis spell enables the caster to detect invisible objects and characters.",
   "level": 0,
@@ -1026,7 +1026,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406310d97514aa4a2c9"
+    "$oid": "69eed1bcd9024da92fe7a203"
   },
   "keyword": "cast 'detect magic'\n\nThis spell enables the caster to detect magical objects.",
   "level": 0,
@@ -1035,7 +1035,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954069f010fa2a2e2bfd6"
+    "$oid": "69eed1bc113270a3a0c1abfe"
   },
   "keyword": "cast 'detect poison' <object>\n\nThis spell detects the presence of poison in food or drink.",
   "level": 0,
@@ -1044,7 +1044,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954064b9c0bdc698305c8"
+    "$oid": "69eed1bcbb38a90546c1c831"
   },
   "keyword": "cast 'dispel evil' <victim>\n\nThis spell invokes the wrath of Mota on an evil victim. It can be very\ndangerous for casters who are not pure of heart.",
   "level": 0,
@@ -1053,7 +1053,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406d2837be367905d3a"
+    "$oid": "69eed1bc017dc1d1a5425c1b"
   },
   "keyword": "cast 'dispel magic' <character>\n        cast 'cancellation' <characte>\n \nBoth of these spells remove magical effects from the target.  Dispel magic\nhas a reduced chance of working, and is considering an attack spell.\nCancellation can only be used on allies, but is much more effective and does\nnot provoke attack.  Unfortunately, the spells do not discriminate between\nharmful and benign spells.\n \nThe chance of dispelling is based on the level of the spell. Permanent spells\n(such as mobile sanctuary) are much harder to remove.  Not all spells may\nbe dispelled, notable examples are poison and plague.",
   "level": 0,
@@ -1062,7 +1062,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406b159687370a10b4b"
+    "$oid": "69eed1bc4d4eb56345650ad0"
   },
   "keyword": "cast 'earthquake'\n\nThis spell inflicts damage on every enemy character in the room.\nBeware that other characters who are not yet fighting may attack\nyou as a result!",
   "level": 0,
@@ -1071,7 +1071,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406c55e888f64c053f2"
+    "$oid": "69eed1bc195f22ae5e7bb52c"
   },
   "keyword": "cast 'enchant weapon' <weapon>\n\nThis spell magically enchants a weapon, increasing its to-hit and to-dam\nbonuses by one or two points.  Multiple enchants may be cast, but as the\nweapon grows more and more powerful, it is more likely to be drained or\ndestroyed by the magic.  Also, every successful enchant increases the level\nof the weapon by one...and there is no turning back.",
   "level": 0,
@@ -1080,7 +1080,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406990b8e2b0af17651"
+    "$oid": "69eed1bc91e33f879d98bbe1"
   },
   "keyword": "enchant armor spell imbues armor with powerful protective magics. It is\nnot nearly as reliable as enchant weapon, being far more prone to destructive\neffects.  Each succesful enchant increases the plus of the armor by 1 or 2\npoints, and raises its level by one.",
   "level": 0,
@@ -1089,7 +1089,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954063f615e390a7862e1"
+    "$oid": "69eed1bc6fd3c735efd45012"
   },
   "keyword": "cast 'energy drain' <victim>\n\nThis spell saps the experience points, mana, and movement points of its\ntarget.",
   "level": 0,
@@ -1098,7 +1098,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540605fa0e242bedf297"
+    "$oid": "69eed1bcfa37519cbfda073a"
   },
   "keyword": "cast 'faerie fire' <victim>\n\nThis spell increases (makes worse) the armor class of its victim.  For each\nlevel of the caster, the victim's armor class is increased by two points.",
   "level": 0,
@@ -1107,7 +1107,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954064ee1ec66a8e696be"
+    "$oid": "69eed1bc0d521b245fece154"
   },
   "keyword": "cast 'faerie fog'\n\nThis spell reveals all manner of invisible, hidden, and sneaking creatures in\nthe same room as you.",
   "level": 0,
@@ -1116,7 +1116,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540661b2ac18c1cd9e1e"
+    "$oid": "69eed1bcf7c06c67ab24a11e"
   },
   "keyword": "cast 'flamestrike' <victim>\n\nThis spell inflicts damage on the victim.",
   "level": 0,
@@ -1125,7 +1125,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406619ac09cce837b77"
+    "$oid": "69eed1bc4b4ca4bc35f47854"
   },
   "keyword": "cast 'fly' <character>\n\nThis spell enables the target character to fly.",
   "level": 0,
@@ -1134,7 +1134,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540632fa2012452d4c90"
+    "$oid": "69eed1bc40c0fbd3eaf3d58e"
   },
   "keyword": "cast identify <object>\n\nThis spell reveals information about the object.",
   "level": 0,
@@ -1143,7 +1143,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954062ff146bb62657ef0"
+    "$oid": "69eed1bc6ae9582b08ae7ae7"
   },
   "keyword": "cast infravision <character>\n\nThis spell enables the target character to see warm-blooded creatures even\nwhile in the dark, and exits of a room as well.",
   "level": 0,
@@ -1152,7 +1152,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406651b92990b8245ff"
+    "$oid": "69eed1bcf8db583301e00842"
   },
   "keyword": "'KNOW ALIGNMENT'",
   "level": 0,
@@ -1161,7 +1161,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954064ad8facb62461ec8"
+    "$oid": "69eed1bcdd50ea8b147c2139"
   },
   "keyword": "'LOCATE OBJECT'",
   "level": 0,
@@ -1170,7 +1170,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540631773c343768be1e"
+    "$oid": "69eed1bcd19b5800ced88df3"
   },
   "keyword": "'PASS DOOR'",
   "level": 0,
@@ -1179,7 +1179,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954061de1041368372dbc"
+    "$oid": "69eed1bc5e83d6a2a0342db9"
   },
   "keyword": "POISON",
   "level": 0,
@@ -1188,7 +1188,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406bd72de30cd5ac1b7"
+    "$oid": "69eed1bca6719e25e35aaf60"
   },
   "keyword": "SANCTUARY",
   "level": 0,
@@ -1197,7 +1197,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540691bcf4a7f3805460"
+    "$oid": "69eed1bc2d7ee1bf6acef81c"
   },
   "keyword": "REFRESH",
   "level": 0,
@@ -1206,7 +1206,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540687e59a1bd472b4ab"
+    "$oid": "69eed1bc95376b3b4b24bbb7"
   },
   "keyword": "'REMOVE CURSE'",
   "level": 0,
@@ -1215,7 +1215,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406bdecedb14588768e"
+    "$oid": "69eed1bc976c5ec59a913cdb"
   },
   "keyword": "SHIELD 'STONE SKIN'",
   "level": 0,
@@ -1224,7 +1224,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406a03d28768ddab5c9"
+    "$oid": "69eed1bc080ca6e04830cac0"
   },
   "keyword": "SLEEP",
   "level": 0,
@@ -1233,7 +1233,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406d2460c6601f6762f"
+    "$oid": "69eed1bc8f7119470eaff1f8"
   },
   "keyword": "SUMMON",
   "level": 0,
@@ -1242,7 +1242,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406ece1586de48afd1e"
+    "$oid": "69eed1bc96334537f681c99b"
   },
   "keyword": "TELEPORT",
   "level": 0,
@@ -1251,7 +1251,7 @@
 },
 {
   "_id": {
-    "$oid": "69d9540671a16ca6710a8249"
+    "$oid": "69eed1bc94f64bf714bc82f2"
   },
   "keyword": "VENTRILOQUATE",
   "level": 0,
@@ -1260,7 +1260,7 @@
 },
 {
   "_id": {
-    "$oid": "69d954064005b60c408b68d7"
+    "$oid": "69eed1bc5a2d480197a49943"
   },
   "keyword": "WEAKEN",
   "level": 0,
@@ -1269,7 +1269,7 @@
 },
 {
   "_id": {
-    "$oid": "69d95406861597f863ae43ae"
+    "$oid": "69eed1bc32ff371dc6a9945a"
   },
   "keyword": "'WORD OF RECALL'",
   "level": 0,
@@ -1278,10 +1278,235 @@
 },
 {
   "_id": {
-    "$oid": "69d95406fb9bafed07cb9d90"
+    "$oid": "69eed1bc6827da82d75cd46d"
   },
   "keyword": "'ACID BREATH' 'FIRE BREATH' 'FROST BREATH' 'GAS BREATH' 'LIGHTNING BREATH'",
   "level": 0,
   "text": "Syntax: cast 'acid breath'      <victim>\nSyntax: cast 'fire breath'      <victim>\nSyntax: cast 'frost breath'     <victim>\nSyntax: cast 'gas breath'\nSyntax: cast 'lightning breath' <victim>\n\nThese spells are for the use of dragons.  Acid, fire, frost, and lightning\ndamage one victim, whereas gas damages every PC in the room.  Fire and\nfrost can break objects, and acid can damage armor.\n\nHigh level mages may learn and cast these spells as well.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd44e00e8dca0060b7"
+  },
+  "keyword": "NEWBIE INFO",
+  "level": -1,
+  "text": "Ah! Another mortal, seeking adventure.  You should go through mudschool first,\nto gain experience to face the trials outside.  Be sure to practice a weapon\nin the guild room, or your stay with us shall be very short indeed.  Type\n'equipment' to see what your are wielding, 'spells' to see your spells,\n'skills' to see your skills, and 'commands' for a list of commands. Help is\navailable on most commands and abilities.\n\nPlease type 'help rules' to see the Rules of ROM.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bdf69fabb08f1a1691"
+  },
+  "keyword": "LAG",
+  "level": -1,
+  "text": "Twas dial-up, and the failing mudders did toil and struggle in the fray\nAll checksummed were the compressed files\nAnd the man pages, outdate\nBeware the Internet my son,\nThe noise that hangs, the lag that kills\nBeware the Usenet news, and shun the frivolous mud with frills\nSo took his his mudding client in hand\nLongtime the virtual foe he sought\nSo rested he by the T1s three and paused a while in swap\nAnd as in disk-drive swap he stayed,\nThe Internet, with lags of fame\nCame packetwise through the T1 line\nAnd error-checked as it came\nOne two one two and through and through, the mudding client went kill -9\nHe left it dead and with it's core he went a tracing back\nAnd hath thou slain the Internet?\nCome to my arms my disk-based bot!\nOh lag-free day, callooh callay, he chortled in his joy\nTwas dial-up, and the failing mudders did toil and struggle in the fray\nAll checksummed were the compressed files\nAnd the man pages, outdate.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd10fc61474f456829"
+  },
+  "keyword": "WIZLIST",
+  "level": -1,
+  "text": ".\n        ________            *********************           ________\n      /+_+_+_+_+_\\          ** The Gods of ROM **         /+_+_+_+_+_\\\n      \\__________/          *********************         \\__________/\n        |::XXXX|                                            |::XXXX|\n        |X::XXX|              Implementors [60]             |X::XXX|\n        |XX::XX|              *****************             |XX::XX|\n        |XXX::X|     \t\t\t\t            |XXX::X|\n        |XXXX::|                                            |XXXX::|\n        |::XXXX|                                            |::XXXX|\n        |X::XXX|                Creators [59]               |X::XXX|\n        |XX::XX|                *************               |XX::XX|\n        |XXXX::|         \t\t\t            |XXXX::|\n        |::XXXX|                                            |::XXXX|\n/<<>>\\/<<>>\\/<<>>\\/<<>>\\                            /<<>>\\/<<>>\\/<<>>\\/<<>>\\\n\\<<>>/\\<<>>/\\<<>>/\\<<>>/      Supremacies [58]      \\<<>>/\\<<>>/\\<<>>/\\<<>>/\n       |.  /  . |             ****************             |.  /  . |\n       | .//\\.  |            \t\t                   | .//\\.  |\n       |.  /  . |            \t\t                   |.  /  . |\n       | .//\\.  |                                          | .//\\.  |\n       |.  /  . |               Deities [57]               |.  /  . |\n       | .//\\.  |               ************               | .//\\.  |\n       |.  /  . |           \t\t      \t           |.  /  . |\n       | .//\\.  |                                          | .//\\.  |\n       | .//\\.  |                Gods [56]                 | .//\\.  |\n       |.  /  . |                *********                 |.  /  . |\n       | .//\\.  |              \t                           | .//\\.  |\n       | .//\\.  |                                          | .//\\.  |\n       |.  /\\ . |              Immortals [55]              |.  /  . |\n       | .//\\.  |              **************              | .//\\.  |\n       |.  /  . |              \t\t                   |.  /  . |\n       | .//\\.  |                                          | .//\\.  |\n       |.  /  . |               DemiGods [54]              |.  /  . |\n       | .//\\.  |               *************              | .//\\.  |\n       |.  /\\ . |                  \t  \t           |.  /  . |\n       |.  /  . |                                          |.  /  . |\n       | .//\\.  |               Angels [53]                | .//\\.  |\n       |.  /  . |               ***********                |.  /  . |\n       |.  /  . |             \t   \t                   |.  /  . |\n       | .//\\.  |             \t\t                   | .//\\.  |\n       | .//\\.  |                                          | .//\\.  |\n       |.  /  . |               Avatars [52]               |.  /  . |\n       | .//\\.  |               ************               | .//\\.  |\n       |.  /  . |                 \t                   |.  /  . |\n       |.  /  . |                  \t                   |.  /  . |\n        \\ //\\. /                                            \\ //\\. /\n         \\ /. /                                              \\ /. /\n          \\ //                                                \\ //\n           \\/                                                  \\/\n-By Liralen",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bdbf0a670e1d387023"
+  },
+  "keyword": "ROM",
+  "level": -1,
+  "text": "ROM started in early February 1993, using Merc 1.0 code. In July of 1993,  \nROM II was started, eventually replacing the original ROM.  ROM was up for\na little over a year, after which the code (version 2.3) was released,\nand various other ROM muds were started, including Rivers of Mud under\na new management (Zump's ROM), at rom.org 9000.\n\nAlander's current project is Athen, the sequel to the ROM code. It can\nbe found on Rehobaom's Legacy, at hypercube.org 9000.\n\nThe following people contributed to the ROM flavor of the merc base code:\n\nSocials --\n    Kelsey and Liralen\n\nNew, Improved Valhalla --\n    Liralen\n\nPuff's new special proc and improved poofin/poofout code --\n    Seth\n\nMaps and map shop --\n    Ezra, Regnan (Olympus)\n\nNirvana zone --\n    Forstall (mobiles rewritten by Alander)\n\nMob Factory --\n    Pinkfloyd (originally written for ROM, mobiles rewritten by Alander)\n\nGeographically correct Midgaard (tm) --\n    Alander\n\nIdeas and playtesting --\n    Thousands of dedicated mudders around the world\n\nThe New Thalos area was donated by Onivel of Jedi, who was also the originator\nof the ASCII flags used in the zone files\n\nBeta testing --\n    Ken Blosser, Doug Araya, and Sherene Neil all helped with bugs reports\n    and suggestions, saving a lot of headaches\n\nBug reports --\n    Thanks to Shad Muegge, Jerome Despret, Phoenix, Will Hongach,\n    Erwin S. Andreasen, Adam Debus and especially Gary Turkington\n    (author of the ROM FAQ) for help spotting bugs\n\nROM 2.4 was developed during my time with Moosehead mud, and the release\nshares many of the features I wrote while I was there.  Additional code\nwas written by Seth Scott (the new poofin/poofout), and many contributions\nand ideas from the Merc list were used.  Portions of Rusty's work on\nMoosehead also remain.\n\nThe new features of 2.4 were largely produced in bull sessions with\nGabrielle Taylor and Brian Moore, without whom this release wouldn't\nhave happened.  In particular, the new privacy code, furniture, and\nwiznet are the results of Gabrielle's ideas.\n\nChanges to the standard diku mob and object format, as well as the changes\nto Merc 2.1 source code, were done by Alander over many a late night of\nhair-pulling. Hope you enjoy it.\n\n(my apologies if anyone was forgotten in this list)",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd31d1d3e34405d05c"
+  },
+  "keyword": "IMMORTAL IMMORT GOD WIZARD WIZ",
+  "level": -1,
+  "text": "'Immortal' (often, simply, 'immort') refers to players who have reached\nthe highest attainable levels in the game.  Here, anyone of level 52\nor higher is an 'immortal.'  Immortals are capable of exceeding the\nusual game rules, in more drastic and pervasive ways as levels increase;\nexamples range from teleportation and invisibility to mortal sight to\ncreation of objects, removal of a player's privileges (channels,\nability to move, or even ability to log in), and ability to promote\nplayers to immortality.\n\nSince immortals can wreak havoc with game balance, they are (ideally)\na carefully-chosen and policed group.  An absolute rule of immortal\nbehavior is that no immortal can aid or assist any player without\nexplicit permission from the higher ranks; in other words, please\ndon't ask an immortal to help you kill a mob, gather EQ, etc, or\nyou'll likely be either politely or rudely refused, or referred to\nthis file.\n\nThe duties of immortals, and even the very reasons for their existence,\nare topics of continual and heated debate in various MUD forums, and are\nfraught with misconceptions, poor examples, and outrageous hypocrisies. :)",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd543f51da6c030f4d"
+  },
+  "keyword": "SOCIALS",
+  "level": -1,
+  "text": "This is a complete list of socials for this MUD:\nCompiled originally by: Sara\naccuse       adjust      air          apologize     applaud     babble\nbark         bcatch      beckon       beer          bearhug     beg\nbird         bkiss       bleed        blink         blush       boast\nboggle       bonk        bounce       bow           brb         burp\ncackle       caress      charge       cheer         chuckle     clap\nclaw         collapse    comfort      comb          cough       cover\ncower        cringe      criticize    cry           cuddle      curse\ncurtsey      dance       daydream     drool         duck        embrace\nexplode      eyebrow     faint        fart          flare       flash\nflex         flinch      flip         flirt         flutter     fondle\nfrench       frown       fume         gasp          giggle      glare\ngoose        grimace     grin         groan         grope       grovel\ngrowl        grumble     hand         head          hiccup      highfive\nhop          howl        hug          hush          ignore      innocent\ninsane       judge       kiss         knee          laugh       lick\nlove         lust        massage      meditate      moan        moon\nmosh         mutter      nibble       nod           nudge       nuzzle\npant         passout     pat          peck          pie         pinch\npissed       plead       point        poke          ponder      pout\npray         propose     puke         punch         purr        ramble\nraspberry    rofl        roll         rub           ruffle      run\nscratch      scream      serenade     shake         shiver      shrug\nsigh         sing        slap         slobber       smile       smirk\nsnap         snarl       sneeze       snicker       sniff       snore\nsnort        snowball    snuggle      sob           spam        spank\nspit         squeal      squeeze      squirm        stare       stretch\nstrip        stroke      strut        sulk          swoon       tackle\ntease        thank       threaten     tickle        tip         tongue\ntwiddle      type        undress      view          wave        whine\nwhistle      wiggle      wince        wink          wonder      worry\nworship      yawn        yeehaw       yodel         rose\tlaces\ntank\t     starve\t aargh\t      homework\t    puff\tdiffer\nyae\t     lightbulb   voodoo       ogg\t    confused\tbeam\nbite\t     discodance  scuff        whap\t    lag\t\tchortle\nzerbert      twitch",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd3eef2efbcf53eae8"
+  },
+  "keyword": "MERC",
+  "level": -1,
+  "text": "This mud is based on Merc 2.1, created by Furey, Hatchet, and Kahn.  \nMerc 2.1 is available as Merc_21.tar.gz from ftp.tcp.com and \nftp.math.okstate.edu.\nE-mail to 'majordomo@webnexus.com' to join the merc mailing list.\n\nThanks to ...\n  ... Diku Mud for starting it all.\n  ... The Free Software Foundation and DJ Delorie for kick-ass tools.\n  ... Copper Mud and Alfa Mud for releasing their code and worlds.\n  ... Aod of Generic for ... well, everything.  You're a hoopy frood, Aod.\n  ... Alander for many ideas and contributions.\n  ... John Brothers of Silly for permission to use Silly code and worlds.\n  ... Zrin for administering the mailing list.\n  ... Abaddon for proofreading our comm.c.\n  ... Hind, Quin, Vic, Diavolo, Oleg, Trienne, and others for porting help.\n  ... Diavolo, Grodyn, Morgenes, and others for code and bug fixes.\n  ... Raff, Doctor, VampLestat, Nirrad, Tyrst, PinkF, Chris, Glop for worlds.\n  ... the players and imps of Mud Dome, Final Mud, Mud Lite, Vego Mud, Rivers\n      of Mud, Ruhr Mud, and Mystic Realms for bug reports, ideas, new code,\n      and hours of enjoyment.\n\nAlso see \"help ROM\" for information about the Rivers of Mud code base.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd9e02b03645457519"
+  },
+  "keyword": "MAP MAPS",
+  "level": -1,
+  "text": "Thanks to Ezra for drawing the originals of several maps on ROM.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd8665a482b2bb053c"
+  },
+  "keyword": "GREETING",
+  "level": -1,
+  "text": ".\nTHIS IS A MUD BASED ON.....\n\n                                ROM Version 2.4 beta\n\n               Original DikuMUD by Hans Staerfeldt, Katja Nyboe,\n               Tom Madsen, Michael Seifert, and Sebastian Hammer\n               Based on MERC 2.1 code by Hatchet, Furey, and Kahn\n               ROM 2.4 copyright (c) 1993-1998 Russ Taylor\n\nBy what name do you wish to be known?",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd35f1b4c2f16e74ed"
+  },
+  "keyword": "MOTD~ \n* You are responsible for knowing the rules (type 'rules').  Ignorance of \n  the rules is no excuse.\n* Important commands: help, commands, news, notes\n* Use the delete command to erase unwanted characters\n  \n[Hit Return to continue]\n~ \n \n52 IMOTD",
+  "level": -1,
+  "text": "Welcome Immortal!\n\nYou are responsible for following the laws of immortal behavior. These can\nbe found by typing 'help laws' or 'help commandments'.\n\n* Excessive loading is not allowed, and is grounds for deletion.\n\n* Asking for promotion is grounds for instant deletion.\n\n* Type 'help jobs' to get some idea of what you should be doing.\n\n [Hit Return to continue]",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd30b3bf73a1224d22"
+  },
+  "keyword": "JOBS",
+  "level": 52,
+  "text": "This is a partial list of what a god of any given level should be doing. It is\nnot complete yet.\n\nAngels:(52-54)\nAngels and higher level gods may not assist mortals directly in any way.  \nAn Angel's main job is to help with quests (via switch), or possibly run\nsmall quest of their own -- but the rewards should be minimal.\n\nDeities:(55-56)\nDeities have two main roles: reimbursement and quest running.  Be skeptical\non reimburses, don't just hand out every piece of gear.  I suggest limiting\nreimbursements to 10 items at a time, and make sure that you do not load things\nat too high a level (new format items have hard-coded levels, so are not a\nproblem).  vnum and stat are useful for this.  You can draft Angels to help you\nrun a quest, and please note that quests should NOT have huge rewards -- the\nmain point should be to have fun.  Deities have no business trying to enforce\nrules -- the most you should do to a player is a NOCHANNEL or similar light\npunishment.\n\nGods:(57-59)\nGods can run quests just like Deities, and it's nice to do reimbursements too.\nHowever, the main role of a God is keeping the peace.  Gods can enforce (but\nnot create rules), using the various NOTELL-class commands, as well as deny,\npurge, freeze, and ban (but be careful with these commands!)  Gods are expected\nto help make the mud run more smoothly, power trips are strictly verbotten.\n\nNot fufilling the roles of your office can result in demotion or deletion.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd7ec4c3ae571ccd1f"
+  },
+  "keyword": "PKILL PKILLING PKILLER 'PLAYER KILLING' PSTEAL PSTEALING 'PLAYER STEALING'",
+  "level": -1,
+  "text": "Player killing and player stealing are allowed to all clan members \n(including loners), provided the victim is is within 8 levels of the\ncharacter and is also in a clan.  This will flag you as a \"killer\" or\n\"thief\", allowing any character to attack, and also provoking action\nfrom the city guard.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd66681c6b603a1b74"
+  },
+  "keyword": "COMMANDMENTS LAWS 'GOD RULES' GODS",
+  "level": 52,
+  "text": ".\n                         **********************\n                         ** The Rules of ROM **\n                         **********************\n \n1)  Do not kill mortals, do not kill mortals, do not kill mortals.\n    This includes transferring/summoning them to aggressive mobs.\n \n2)  Do not cheat for ANY mortal in ANY way, especially your own. \n    Unless of course you LIKE deletion. Yes this includes tanking,\n    healing/restoring, casting protection spells <armor, sanct>,    \n    and softening up or altering mobs.\n \n3)  Do not transfer or summon mobs to mortals or mortals to mobs.\n    They have legs, if they want to kill a mob, they can easilly\n    go there themselves.\n \n4)  DO NOT kill the shopkeepers for any reason at ALL.\n \n5)  DO NOT use reboot.  <--- Note, simple English.\n \n6)  Do not give out free equipment.  You don't need to win brownie\n    points with the mortals.  Quest are fine but handing out items\n    isn't.\n \n7)  A note on quests: Quests are a good thing, more or less, BUT \n    do not give out overly extravagant prizes.  Exercise some \n    common sense here folks.  Do not load items more than 4 levels\n    below their normal level (i.e. no level 5 ogre gauntlets).\n \n8)  Do not undermine the authority of a higher level god.  If you \n    see that someone has been frozen or nochannelled do not restore\n    their priveleges.  They are being punished for a reason.\n \n9)  Do not try to overrule each other.  \n \n10) Trusted mortals:  Do not use your god powers to help your mortal\n    character.  If you do, your trust will be taken away.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd44bcfb3d946c9e1f"
+  },
+  "keyword": "RULES",
+  "level": -1,
+  "text": "These are the rules of ROM.  For other matters, use common sense.\n\n* Limited player stealing or player killing.\n\n* Your presence here is a privilege not a right. Obey any orders from gods, and\n  you will be fine.  Deletion does not require a reason, appeals are to be sent\n  to the implementors.\n \n* Sitting around idle with a client is hazardous to your health. If we catch\n  you doing it, you will lose half your playing time.\n\n* No multiple logins, multiple playing, or helping your own characters with \n  other characters you own -- by any arrangment.\n \n* No kill stealing.  This means you cannot attack a mob someone else is \n  fighting, unless they ask you to. Also avoid attacking fleeing mobs.\n\n* Cheating will not be tolerated.  This includes accepting favors from gods\n  and exploiting bugs. If you find a bug, report it, then do not use it.\n\n* Changes to these rules are at the discretion of the immortals, and may be\ndone without warning, notice, or even evidence of sanity. Walk softly,\nand carry a black stick.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd3f85dab48fa90f2e"
+  },
+  "keyword": "SUICIDE DELETE",
+  "level": 0,
+  "text": "Use the delete command to erase unwanted characters, so the name will be\navailable for use.  This command must be typed twice to delete a character,\nand you cannot be forced to delete.  Typing delete with an argument will\nreturn your character to 'safe' status if you change your mind after the\nfirst delete.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd2fd9fdd3067db25b"
+  },
+  "keyword": "HEALER",
+  "level": 0,
+  "text": "The healer decided to grab a quick buck, and now charges for his heals.  Some\nservices are still free to players of level 10 or below, however.  To see\na full listing of the healer's services, type 'heal' at his residence. To\nreceive healing, bring plenty of money, and type 'heal <spell>'.\n~ \n\n\n-1 GAIN",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd3983e04b0082d2a3"
+  },
+  "keyword": "gain command is used to learn new skills, once the proper trainer has \nbeen found. (Check New Thalos) The following options can be used with gain:\n\ngain list:    list all groups and skills that can be learned\ngain points:  lower your creation points by 1 (costs two sessions)\ngain <name>:  add a skill or skill group, at the listed cost\ngain convert: turns 10 practices into one training session\n\nGain uses training sessions, not practices. (see 'help train')\nGained skills and groups do NOT increase your experience per level or total\nnumber of creation points.",
+  "level": 0,
+  "text": "52 CLONE",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd983f68161ca599f2"
+  },
+  "keyword": "clone obj <object>\n  clone mob <mobile>\n  clone <name>\n\nThe clone command duplicates an object or mobile.  The level of item or mobile\nthat may be cloned depends on your level.  The target object or mob must be in\nthe same room as you, or in your posession.  Strung and set information is\npreserved by clone, as well as any spell effects and container contents or\nmobile inventory, except for items which are too high for you to clone.  \nStrung extended descriptions on objects are not kept, however.",
+  "level": 0,
+  "text": "0 SKILLS SPELLS",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd4db4804cb1e41ee2"
+  },
+  "keyword": "skills and spells commands are used to display your character's list\nof available skills (or spells, as the case may be).  They are listed in\norder of level, with mana cost (for spells) or percentage (for skills)\nlisted where applicable.",
+  "level": 0,
+  "text": "0 OUTFIT",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd61817cef7706d2fb"
+  },
+  "keyword": "outfit command, usable by levels 5 and below, equips your character with\na new set of sub issue gear (banner, weapon, helmet, shield, and vest), \ncourtesy of the Mayor's warehouses.  Only empty equipment slots are affected.",
+  "level": 0,
+  "text": "0 AUTO AUTOLIST AUTOLOOT AUTOGOLD AUTOSAC AUTOEXIT AUTOASSIST AUTOSPLIT AUTOALL",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd3b41be584fffd786"
+  },
+  "keyword": "uses various automatic actions to ease the boredom of always splitting\ngold and sacrificing corpses.  The commands are as follows:\n\nautolist  : list all automatic actions\nautoloot  : take all equipment from dead mobiles\nautogold  : take all gold from dead mobiles\nautosac\t  : sacrifice dead monsters (if autoloot is on, only empty corpes)\nautoexit  : display room exits upon entering a room\nautosplit : split up spoils from combat among your group members\nautoassit : makes you help group members in combat\nautoall   : turns all autos on or off at once\n\nTyping a command sets the action , typing it again removes it. Use\nautoall on|off to save yourself some keystrokes.\n~ \n-1 CLAN",
+  "level": 0,
+  "text": "A Clan is a collection of players, united to  follow and further\na common cause.   Each clan has rules and  regulations, to find out\nmore about clans and their 'beliefs' type \"help <clan name>\".  Only\nClan  members can kill or steal from other players.  To join a Clan\nyou  must be level 5 or above and level 25 or below.   Speak to the\nClan Leader about joining.  If you go Loner before level 25 you may \njoin a Clan later.\n   Joining  a  Clan is a dangerous step.   Many adventurers live to \nkill and torture others and chances are that your paths will cross.\nRemember, attacking or killing fellow clan members *IS* illegal except to \nmutiny your Clan leader.\n   Existing  Clans may buy  special rooms and  mobiles by acquiring \ndiamonds as payment.   To see room prices, type \"help prices\".  New\nClans  may be formed by  petitioning the immortals.   Please  remember that \ntheir word is final on all matters not covered by this help.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd88d91d70ff520938"
+  },
+  "keyword": "PRICES PRICE",
+  "level": -1,
+  "text": "New Clan Hall Rooms cost 50 diamonds.\nBoosting the mana or healing gains for a room costs 250 diamonds.\nBoth in the same room costs double.\nMaking the Healer or Store prices lower costs 1,000 diamonds.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd003444d51af4dec6"
+  },
+  "keyword": "COUNT",
+  "level": -1,
+  "text": "The count command displays the number of people (that you can see) logged\ninto the mud.  It also displays the highest number observed that day, if\nit is higher.\n~ \n \n-1 GATE",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd0d5d3e80d57a70d8"
+  },
+  "keyword": "gate spell is a powerful transportation magic that opens up a portal \nbetween your character and another person or creature somewhere else in the\nworld.  This portal will transport you and any pet you might have, but not\nother members of your group.  Monsters recieve a save against gate, and\nmonster or players more than 3 levels higher than you can not be gated to at \nall.  God rooms, private rooms, and no recall rooms cannot be gated to, and\nno recall rooms cannot be gated out of.  Finally, any god or hero is also \nimmune to gate, as well as in player who has no summon set.  Clan members \nmay not be gated to except by their fellow Clan members.",
+  "level": 0,
+  "text": "-1 AFFECTS AFFECT",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1bd15fdcafb4bd68d60"
+  },
+  "keyword": "command is used to show all the spells affecting your character. At\nlow levels, only the spell name will be displayed, at higher levels the\neffects and duration of the spell will also be shown.  Spell effects\nare no longer shown on score (this can be changed by using 'show' command).",
+  "level": 0,
+  "text": "0 $",
   "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
 }]

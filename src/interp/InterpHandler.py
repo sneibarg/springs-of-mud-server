@@ -7,7 +7,6 @@ from game.HandlerService import HandlerService
 from game.RegistryService import RegistryService
 from interp.Command import Command
 from interp.Context import Context
-from interp.HelpEntry import HelpEntry
 from interp.InterpUtil import InterpUtil
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
@@ -22,9 +21,10 @@ class InterpHandler:
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.injector = injector
         self.message_bus = message_bus
-        self.interp_registry = registry_service.interp_registry
-        self.social_registry = registry_service.social_registry
+        self.registry_service = registry_service
         self.handler_service = handler_service
+        self.social_registry = registry_service.social_registry
+        self.interp_registry = registry_service.interp_registry
         self.social_handler = self.handler_service.social_handler
         self.connection_manager = injector.get(ConnectionManager)
         self.command_not_found_message = self.message_bus.text_to_message("Huh?\r\n")
@@ -80,7 +80,10 @@ class InterpHandler:
             await self._execute_lambda(func, context)
 
     async def _handle_lambdas(self, character: Character, command: Command, parameters: str):
-        if not command.lambdas:
+        lambdas = getattr(command, "lambdas", None) or []
+        has_executable_lambda = any(isinstance(value, str) and value.strip() for value in lambdas)
+        if not has_executable_lambda:
+            await self.message_bus.send_to_character(character.id, self.command_not_found_message)
             return None
 
         arguments = InterpUtil.build_arguments(command, parameters)
@@ -111,7 +114,10 @@ class InterpHandler:
             raise
 
     async def handle_command(self, player, character, command):
-        cmd, parameters = InterpUtil.extract_parameters(self.interp_registry, command)
+        if command is None or not str(command).strip():
+            return None
+
+        cmd, parameters = InterpUtil.extract_parameters(self.registry_service.interp_registry, command)
         if cmd is None:
             social = self.social_registry.get_or_none(name=command.lower())
             if social is not None:
@@ -119,7 +125,7 @@ class InterpHandler:
             await self.message_bus.send_to_character(character.id, self.command_not_found_message)
             return None
 
-        self.logger.info(f"CMD: {cmd.name}, PARAMETERS: {parameters}, USAGE: {str(player.usage)}")
+        self.logger.debug(f"CMD: {cmd.name}, PARAMETERS: {parameters}, USAGE: {str(player.usage)}")
         return await self._call_lambda(character, cmd.name, self.interp_registry.all_commands(), parameters)
 
     async def handle_usage(self, cmd: Command, context: Context):
@@ -133,41 +139,3 @@ class InterpHandler:
                 self.logger.error("NOT_ASYNC: " + str(usage_function))
             await usage_function(context)
         return None
-
-    async def help_usage(self, character, argument: str = ""):
-        arg_all = " ".join((argument or "").split()).lower()
-        if not arg_all:
-            arg_all = "summary"
-        output_parts = []
-        found = False
-        for command in self.interp_registry.all_commands():
-            help_entry: HelpEntry = command.help
-            if help_entry is None or not help_entry.keyword:
-                continue
-
-            q_words = arg_all.split()
-            k_words = help_entry.keyword.split()
-            if (not q_words or not k_words) or not all(any(k.startswith(q) for k in k_words) for q in q_words):
-                continue
-
-            level_raw = getattr(help_entry, "level", 0)
-            try:
-                level = int(level_raw)
-            except (TypeError, ValueError):
-                level = 0
-
-            if found:
-                output_parts.append("\n\r============================================================\n\r\n\r")
-            found = True
-
-            if level >= 0 and arg_all != "imotd":
-                output_parts.append(str(getattr(help_entry, "keyword", "")))
-                output_parts.append("\n\r")
-
-            text = str(getattr(help_entry, "text", "") or "")
-            if text.startswith("."):
-                text = text[1:]
-            output_parts.append(text)
-
-        message_text = "".join(output_parts) if len(output_parts) > 0 else "No help on that word.\n\r"
-        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message_text))

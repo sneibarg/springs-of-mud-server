@@ -23,6 +23,12 @@ class SessionHandler:
                 return session
         return None
 
+    def get_session_by_character(self, character_id: str) -> Optional[SessionState]:
+        for session in self._sessions.values():
+            if session.character and session.character.id == character_id:
+                return session
+        return None
+
     def remove_session(self, session_id: str) -> None:
         if session_id in self._sessions:
             session = self._sessions[session_id]

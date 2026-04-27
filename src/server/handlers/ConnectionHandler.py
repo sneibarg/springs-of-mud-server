@@ -9,6 +9,7 @@ from area.RoomHandler import RoomHandler
 from area.Area import Area
 from area.Room import Room
 from interp.InterpHandler import InterpHandler
+from player.CharacterMacros import CharacterMacros
 from server.connection.TelnetConnection import TelnetConnection
 from server.connection.ConnectionManager import ConnectionManager
 from server.session.SessionHandler import SessionHandler
@@ -22,6 +23,7 @@ from player.Character import Character
 from player.PlayerHelper import PlayerHelper
 from mobile.MobileHelper import MobileHelper
 from game.RegistryService import RegistryService
+from fight.FightHandler import FightHandler
 
 
 class ConnectionHandler:
@@ -35,7 +37,8 @@ class ConnectionHandler:
                  auth_service: AuthenticationService,
                  command_handler: InterpHandler,
                  player_helper: PlayerHelper,
-                 mobile_helper: MobileHelper):
+                 mobile_helper: MobileHelper,
+                 fight_handler: FightHandler):
         self.logger = LoggerFactory.get_logger(__name__)
         self.session_handler = session_handler
         self.connection_manager = connection_manager
@@ -46,6 +49,7 @@ class ConnectionHandler:
         self.command_handler = command_handler
         self.player_helper = player_helper
         self.mobile_helper = mobile_helper
+        self.fight_handler = fight_handler
 
     async def _receive_initial_message(self, connection: TelnetConnection, session: SessionState) -> tuple[bool, str | None, Character | None] | tuple[bool, None, None]:
         first_msg = await connection.receive_message()
@@ -89,16 +93,28 @@ class ConnectionHandler:
             if not session.metadata.get("entered_world", False):
                 session.metadata["entered_world"] = True
                 area, room = self._get_area_and_room(character)
-                to_room = self.message_bus.text_to_message(f"{character.name} has entered the game.\r\n")
-                in_room = self.player_helper.players_in_room(character, room)
+
                 if room is not None:
+                    occupants = list(room.characters.values())
                     room.add_player_to_room(character)
                     await self.room_handler.print_room(character.id, room)
+                    players_text = self.player_helper.get_players_in_room(character)
                     mobiles_text = self.mobile_helper.get_mobiles_in_room(character)
+                    if players_text:
+                        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(players_text))
                     if mobiles_text:
                         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(mobiles_text))
-                    await self.message_bus.send_prompt(character.id, character, area, room)
-                    await self.message_bus.send_to_room(to_room, in_room)
+                    for attacker, payload in self.fight_handler.aggressive_entry_rounds(character, room):
+                        await self.fight_handler.emit_round_payload(attacker, payload)
+                    await self.message_bus.send_prompt(character, area, room)
+                    for viewer in occupants:
+                        if viewer.id == character.id:
+                            continue
+                        if CharacterMacros.can_see(viewer, character, self.player_helper.room_helper):
+                            text = f"{character.name} has entered the game.\r\n"
+                        else:
+                            text = "Someone has entered the game.\r\n"
+                        await self.message_bus.send_to_character(viewer.id, self.message_bus.text_to_message(text))
 
             await self._game_loop(connection, session, player, character)
         except Exception as e:
@@ -129,13 +145,16 @@ class ConnectionHandler:
                     break
                 session.update_activity()
                 area, room = self._get_area_and_room(character)
-                if message.type == MessageType.GAME and not message.get('text'):
-                    await self.message_bus.send_prompt(character.id, character, area, room)
+                if message.type == MessageType.GAME and session.metadata.get("paging_active", False):
+                    await self._continue_paging(connection, session)
+                    if not session.metadata.get("paging_active", False):
+                        area, room = self._get_area_and_room(character)
+                        await self.message_bus.send_prompt(character, area, room)
                     continue
 
                 if message.type == MessageType.GAME:
                     await self.command_handler.handle_command(player, character, message.get('text', ''))
-                    await self.message_bus.send_prompt(character.id, character, area, room)
+                    await self.message_bus.send_prompt(character, area, room)
             except Exception as e:
                 self.logger.error(f"Error in game loop: {e}", exc_info=True)
                 break
@@ -162,8 +181,8 @@ class ConnectionHandler:
         return account
 
     def _get_area_and_room(self, character) -> tuple[Area | None, Room | None]:
-        area = self.registry_service.area_registry.get(id=character.area_id)
-        room = self.registry_service.room_registry.get(id=character.room_id)
+        area = self.registry_service.area_registry.get_or_none(id=character.area_id)
+        room = self.registry_service.room_registry.get_or_none(id=character.room_id)
         return area, room
 
     async def _nanny(self, character, session, connection) -> Optional[Player]:
@@ -182,3 +201,19 @@ class ConnectionHandler:
         self.logger.info(f"Player {player.first_name} {player.last_name} is now playing {character.name}.")
         session.status = SessionStatus.PLAYING
         return player
+
+    @staticmethod
+    async def _continue_paging(connection: TelnetConnection, session: SessionState) -> None:
+        queue = session.metadata.get("paging_queue", []) or []
+        if not queue:
+            session.metadata["paging_active"] = False
+            session.metadata["paging_queue"] = []
+            return
+
+        page = queue.pop(0)
+        suffix = "\r\n[Hit Enter to continue]\r\n" if queue else ""
+        await connection.send_text(page + suffix, MessageType.GAME)
+
+        if not queue:
+            session.metadata["paging_active"] = False
+            session.metadata["paging_queue"] = []

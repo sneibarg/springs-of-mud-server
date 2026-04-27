@@ -22,6 +22,7 @@ mudserver:
       mobiles_endpoint: "/mobiles"
       items_endpoint: "/items"
       skills_endpoint: "/skills"
+      spells_endpoint: "/spells"
       socials_endpoint: "/socials"
       helps_endpoint: "/helps"
       notes_endpoint: "/notes"

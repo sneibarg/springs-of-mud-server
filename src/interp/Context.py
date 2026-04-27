@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
 from dataclasses import dataclass
 from typing import Any, Optional, List
-from player.Player import Player
 
 
 if TYPE_CHECKING:

@@ -4,7 +4,7 @@ from server.LoggerFactory import LoggerFactory
 
 
 class RoomRegistry(Registry[Room]):
-    lookup_attrs = ('id', 'vnum')
+    lookup_attrs = ('vnum', 'id')
 
     def __init__(self):
         super().__init__()

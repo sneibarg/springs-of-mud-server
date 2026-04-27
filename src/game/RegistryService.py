@@ -3,7 +3,9 @@ from injector import inject
 from area.ResetRegistry import ResetRegistry
 from area.ShopRegistry import ShopRegistry
 from area.SpecialRegistry import SpecialRegistry
+from fight.CombatRegistry import CombatRegistry
 from interp.InterpRegistry import InterpRegistry
+from interp.SocialRegistry import SocialRegistry
 from player.PlayerRegistry import PlayerRegistry
 from player.CharacterRegistry import CharacterRegistry
 from mobile.MobileRegistry import MobileRegistry
@@ -11,6 +13,7 @@ from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
 from object.ItemRegistry import ItemRegistry
 from skill.SkillRegistry import SkillRegistry
+from skill.SpellRegistry import SpellRegistry
 
 
 class RegistryService:
@@ -23,11 +26,13 @@ class RegistryService:
                  room_registry: RoomRegistry,
                  item_registry: ItemRegistry,
                  skill_registry: SkillRegistry,
+                 spell_registry: SpellRegistry,
                  shop_registry: ShopRegistry,
                  reset_registry: ResetRegistry,
                  special_registry: SpecialRegistry,
                  interp_registry: InterpRegistry,
-                 social_registry: InterpRegistry):
+                 social_registry: SocialRegistry,
+                 combat_registry: CombatRegistry):
 
         self.player_registry = player_registry
         self.character_registry = character_registry
@@ -36,8 +41,10 @@ class RegistryService:
         self.room_registry = room_registry
         self.item_registry = item_registry
         self.skill_registry = skill_registry
+        self.spell_registry = spell_registry
         self.shop_registry = shop_registry
         self.reset_registry = reset_registry
         self.special_registry = special_registry
         self.interp_registry = interp_registry
         self.social_registry = social_registry
+        self.combat_registry = combat_registry

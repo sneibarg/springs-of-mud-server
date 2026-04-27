@@ -44,8 +44,8 @@
   "maxInt": 20,
   "wis": 13,
   "maxWis": 18,
-  "dex": 21,
-  "maxDex": 14,
+  "dex": 14,
+  "maxDex": 21,
   "con": 15,
   "maxCon": 21
 },

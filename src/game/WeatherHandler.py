@@ -31,20 +31,19 @@ class TimeInfo:
 
 class WeatherHandler:
     @inject
-    def __init__(self, message_bus: MessageBus, character_registry: CharacterRegistry, character_macros: CharacterMacros):
+    def __init__(self, message_bus: MessageBus, character_registry: CharacterRegistry):
         self.__name__ = "WeatherHandler"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.message_bus = message_bus
         self.character_registry = character_registry
-        self.character_macros = character_macros
         self.weather_info = None
         self.time_info = None
         self.constants = None
         self.session_handler = None
         self.TimeAndWeatherEnum = None
 
-    def lazy_load(self, enums: dict[str, IntEnum], constants: Constants):
-        self.TimeAndWeatherEnum = enums.get('timeAndWeather')
+    def lazy_load(self, constants: Constants):
+        self.TimeAndWeatherEnum = CharacterMacros.get_enum('timeAndWeather')
         self.constants = constants
         self.weather_info = WeatherInfo(mmhg=1000, change=0, sky=self.TimeAndWeatherEnum.SKY_CLOUDLESS, sunlight=self.TimeAndWeatherEnum.SUN_LIGHT)
         self.time_info = TimeInfo(hour=0, day=1, month=1, year=1)
@@ -75,7 +74,7 @@ class WeatherHandler:
     def _indoors(self) -> list:
         indoors = []
         for character in self.character_registry.all_characters():
-            if not self._is_player_outdoors(character.id) and self.character_macros.is_awake(character):
+            if not self._is_player_outdoors(character.id) and CharacterMacros.is_awake(character):
                 indoors.append(character.id)
         return indoors
 
@@ -83,7 +82,7 @@ class WeatherHandler:
         character = self.character_registry.get(id=character_id)
         self.logger.debug(f"Checking if player {character_id} is outdoors: {character}")
         if character:
-            return self.character_macros.is_outside(char=character)
+            return CharacterMacros.is_outside(char=character)
         return False
 
     def _time_change(self):

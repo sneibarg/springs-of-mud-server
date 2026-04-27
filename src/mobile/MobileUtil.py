@@ -5,12 +5,13 @@ from typing import Tuple
 
 from game.GameMacros import GameMacros
 from game.Equipped import Equipped, WEAR_LOC_TO_EQUIPPED_SLOT
+from game.GenericUtil import GenericUtil
 from mobile.Mobile import Mobile
 from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice
 from mobile.MobileFlags import MobileFlags
 from game.RandomNumberGenerator import RandomNumberGenerator
-from object.AffectData import AffectWhere, AffectData
+from object.Effect import AffectWhere, Effect
 from object.ObjectMacros import ObjectMacros
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
@@ -29,21 +30,23 @@ class MobileUtil:
         race = races[race_name] or {}
         flag_letters = enums.get("flagLetters")
         flags = MobileUtil.resolve_mobile_flags(mobile_data, race, npc_flag, flag_letters)
-        level = MobileUtil.safe_int(mobile_data.get("level", 0), default=0)
+        level = GenericUtil.to_int(mobile_data.get("level", 0), default=0)
         normalized = MobileUtil.build_normalized_mobile_data(mobile_id, mobile_data, player_name, race_name, level)
 
         mobile = Mobile.from_json(normalized)
-        mobile.flags = flags
+        mobile.mobile_flags = flags
+        mobile.form = flags.form
+        mobile.parts = flags.parts
         MobileUtil.apply_extended_mobile_fields(mobile, mobile_data)
         return mobile, level
 
     @staticmethod
-    def convert_form(race: str, form: int, object_macros: ObjectMacros):
-        return object_macros.set_bit(form, object_macros.races[race].get(form, 0))
+    def convert_form(race: str, form: int):
+        return ObjectMacros.set_bit(form, ObjectMacros.race_data(race).get(form, 0))
 
     @staticmethod
-    def convert_parts(race: str, parts: int, object_macros: ObjectMacros):
-        return object_macros.set_bit(parts, object_macros.races[race].get(parts, 0))
+    def convert_parts(race: str, parts: int):
+        return ObjectMacros.set_bit(parts, ObjectMacros.race_data(race).get(parts, 0))
 
     @staticmethod
     def resolve_mobile_id(mobile_data: dict, raw_mobile: dict) -> str | None:
@@ -55,15 +58,15 @@ class MobileUtil:
 
     @staticmethod
     def resolve_mobile_flags(mobile_data: dict, race: dict, npc_flag: int, flag_letters: type[IntEnum] | None) -> MobileFlags:
-        raw_act = MobileUtil.safe_int(mobile_data.get("actFlags") or mobile_data.get("act_flags"), 0)
-        raw_aff = MobileUtil.safe_int(mobile_data.get("affectFlags") or mobile_data.get("affect_flags"), 0)
+        raw_act = GenericUtil.to_int(mobile_data.get("actFlags") or mobile_data.get("act_flags"), 0)
+        raw_aff = GenericUtil.to_int(mobile_data.get("affectFlags") or mobile_data.get("affect_flags"), 0)
         combat_raw = MobileUtil.parse_combat_flags(mobile_data.get("combat_flags"))
         raw_off = MobileUtil.resolve_combat_flag(mobile_data, combat_raw, "off_flags", "offFlags", flag_letters)
         raw_imm = MobileUtil.resolve_combat_flag(mobile_data, combat_raw, "imm_flags", "immFlags", flag_letters)
         raw_res = MobileUtil.resolve_combat_flag(mobile_data, combat_raw, "res_flags", "resFlags", flag_letters)
         raw_vuln = MobileUtil.resolve_combat_flag(mobile_data, combat_raw, "vuln_flags", "vulnFlags", flag_letters)
-        raw_form = MobileUtil.safe_int(mobile_data.get("form"), 0)
-        raw_parts = MobileUtil.safe_int(mobile_data.get("parts"), 0)
+        raw_form = GenericUtil.to_int(mobile_data.get("form"), 0)
+        raw_parts = GenericUtil.to_int(mobile_data.get("parts"), 0)
         race_act = MobileUtil.race_flag_value(race, "act", mobile_data.get("race"))
         race_aff = MobileUtil.race_flag_value(race, "aff", mobile_data.get("race"))
         race_off = MobileUtil.race_flag_value(race, "off", mobile_data.get("race"))
@@ -105,7 +108,7 @@ class MobileUtil:
             value = mobile_data.get(snake_key, mobile_data.get(camel_key))
         if isinstance(value, str):
             return GameMacros.parse_flag_string(value, flag_letters)
-        return MobileUtil.safe_int(value, default=0)
+        return GenericUtil.to_int(value, default=0)
 
     @staticmethod
     def increment_kill_table(kill_table: dict[int, int], level: int):
@@ -176,8 +179,8 @@ class MobileUtil:
     def apply_extended_mobile_fields(mobile: Mobile, mobile_data: dict):
         mobile.armor_class = MobileUtil.parse_ac(mobile_data)
         mobile.hit_dice, mobile.mana_dice, mobile.damage_dice = MobileUtil.parse_dice(mobile_data)
-        mobile.hitroll = MobileUtil.safe_int(mobile_data.get("hitroll", 0), default=0)
-        mobile.wealth = MobileUtil.safe_int(mobile_data.get("wealth", mobile_data.get("gold", 0)), default=0)
+        mobile.hitroll = GenericUtil.to_int(mobile_data.get("hitroll", 0), default=0)
+        mobile.wealth = GenericUtil.to_int(mobile_data.get("wealth", mobile_data.get("gold", 0)), default=0)
 
     @staticmethod
     def build_normalized_mobile_data(mobile_id: str, mobile_data: dict, player_name: str, race_name: str, level: int) -> dict:
@@ -195,7 +198,7 @@ class MobileUtil:
             "act_flags": None,  # str(flags["act_flags"]),
             "affect_flags": None,  # str(flags["affect_flags"]),
             "alignment": str(mobile_data.get("alignment", "0") or "0"),
-            "group": str(MobileUtil.safe_int(mobile_data.get("group", 0), default=0)),
+            "group": str(GenericUtil.to_int(mobile_data.get("group", 0), default=0)),
             "act": str(mobile_data.get("act", "") or ""),
             "dam_type": str(mobile_data.get("dam_type", "") or ""),
             "combat_flags": str(mobile_data.get("combat_flags", "") or ""),
@@ -209,15 +212,15 @@ class MobileUtil:
             "flags": str(mobile_data.get("flags", "") or ""),
             "id": mobile_id,
             "level": level,
-            "hit_roll": MobileUtil.safe_int(mobile_data.get("hit_roll", 0), default=0),
+            "hit_roll": GenericUtil.to_int(mobile_data.get("hit_roll", 0), default=0),
             "hit_dice": None,
             "mana_dice": None,
             "damage_dice": None,
             "armor_class": None,
-            "gold": MobileUtil.safe_int(mobile_data.get("gold", 0), default=0),
-            "silver": MobileUtil.safe_int(mobile_data.get("silver", 0), default=0),
-            "pulse_wait": MobileUtil.safe_int(mobile_data.get("pulse_wait", 0), default=0),
-            "pulse_daze": MobileUtil.safe_int(mobile_data.get("pulse_daze", 0), default=0),
+            "gold": GenericUtil.to_int(mobile_data.get("gold", 0), default=0),
+            "silver": GenericUtil.to_int(mobile_data.get("silver", 0), default=0),
+            "pulse_wait": GenericUtil.to_int(mobile_data.get("pulse_wait", 0), default=0),
+            "pulse_daze": GenericUtil.to_int(mobile_data.get("pulse_daze", 0), default=0),
             "mobile_flags": None,
             "lock": mobile_data.get("lock"),
         }
@@ -228,17 +231,10 @@ class MobileUtil:
         return text[:1].upper() + text[1:] if text else ""
 
     @staticmethod
-    def safe_int(value, default=0) -> int:
-        try:
-            return int(value)
-        except (TypeError, ValueError):
-            return default
-
-    @staticmethod
     def apply_flag_removes(flags: MobileFlags, removals: list):
         for removal in removals:
             domain = str(removal.get("domain", "")).lower().strip()
-            vector = MobileUtil.safe_int(removal.get("vector", 0))
+            vector = GenericUtil.to_int(removal.get("vector", 0))
             if domain == "act":
                 flags.act &= ~vector
             elif domain.startswith("aff"):
@@ -299,26 +295,25 @@ class MobileUtil:
 
     #  aff_type needs to be replaced with the result of skill_lookup("haste") etc.
     @staticmethod
-    def _apply_affected_by(mob: Mobile, enums: dict[str, type[IntEnum]], character_macros: CharacterMacros):
+    def _apply_affected_by(mob: Mobile, enums: dict[str, type[IntEnum]]):
         affect_bits = enums.get('affectedBy')
         apply_types = enums.get('applyTypes')
-        if character_macros.is_affected(mob, affect_bits.AFF_SANCTUARY):
+        if CharacterMacros.is_affected(mob, affect_bits.AFF_SANCTUARY):
             sanctuary = MobileUtil._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, 0, apply_types.APPLY_NONE.value, affect_bits.AFF_SANCTUARY.value)
-        if character_macros.is_affected(mob, affect_bits.AFF_HASTE):
+        if CharacterMacros.is_affected(mob, affect_bits.AFF_HASTE):
             modifier = 1 + (mob.level >= 18) + (mob.level >= 25) + (mob.level >= 32)
             haste = MobileUtil._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, modifier, apply_types.APPLY_DEX.value, affect_bits.AFF_HASTE.value)
-        if character_macros.is_affected(mob, affect_bits.AFF_PROTECT_EVIL):
+        if CharacterMacros.is_affected(mob, affect_bits.AFF_PROTECT_EVIL):
             protect_evil = MobileUtil._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, -1, apply_types.APPLY_SAVES.value, affect_bits.AFF_PROTECT_EVIL.value)
-        if character_macros.is_affected(mob, affect_bits.AFF_PROTECT_GOOD):
+        if CharacterMacros.is_affected(mob, affect_bits.AFF_PROTECT_GOOD):
             protect_good = MobileUtil._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, -1, apply_types.APPLY_SAVES.value, affect_bits.AFF_PROTECT_GOOD.value)
 
     @staticmethod
-    def _build_affect_data(level: int, aff_type: int, where: int, duration: int, modifier: int, location: int, bitvector: int) -> AffectData:
-        return AffectData(valid=True, level=level, where=where, type=aff_type, duration=duration, modifier=modifier, location=location, bitvector=bitvector)
+    def _build_affect_data(level: int, aff_type: int, where: int, duration: int, modifier: int, location: int, bitvector: int) -> Effect:
+        return Effect(valid=True, level=level, where=where, type=aff_type, duration=duration, modifier=modifier, location=location, bitvector=bitvector)
 
     @staticmethod
-    def create_mobile(pMobIndex: Mobile, enums: dict[str, type[IntEnum]], character_macros: CharacterMacros) -> Mobile:
-        from server.ServerUtil import ServerUtil
+    def create_mobile(pMobIndex: Mobile, enums: dict[str, type[IntEnum]]) -> Mobile:
         from player.CharacterAttributes import CharacterAttributes
         if pMobIndex is None:
             logger.error("create_mobile: NULL pMobIndex.")
@@ -327,7 +322,7 @@ class MobileUtil:
         mob = Mobile.from_json({
             "area_id": pMobIndex.area_id,
             "vnum": pMobIndex.vnum,
-            "id": ServerUtil.generate_mongo_id(),
+            "id": GenericUtil.generate_mongo_id(),
             "name": pMobIndex.name,
             "short_description": pMobIndex.short_description,
             "long_description": pMobIndex.long_description,
@@ -396,6 +391,8 @@ class MobileUtil:
                     form=pMobIndex.mobile_flags.form,
                     parts=pMobIndex.mobile_flags.parts
                 )
+                mob.form = mob.mobile_flags.form
+                mob.parts = mob.mobile_flags.parts
             mob.start_pos = pMobIndex.start_pos
             mob.default_pos = pMobIndex.default_pos
             mob.perm_stat.position = mob.start_pos
@@ -407,7 +404,7 @@ class MobileUtil:
             mob.material = pMobIndex.material
 
             MobileUtil._apply_mob_stat_bonuses(mob, enums)
-            MobileUtil._apply_affected_by(mob, enums, character_macros)
+            MobileUtil._apply_affected_by(mob, enums)
 
         mob.position = mob.start_pos
         pMobIndex.count = getattr(pMobIndex, 'count', 0) + 1
@@ -430,3 +427,29 @@ class MobileUtil:
         if slot and hasattr(mob.equipped, slot):
             setattr(mob.equipped, slot, item)
         item.wear_loc = int(wear_loc)
+
+    @staticmethod
+    def is_train_trainer(mob, train_bit: int) -> bool:
+        mob_flags = GenericUtil.to_int(getattr(getattr(mob, "mobile_flags", None), "act", 0), 0)
+        if train_bit and CharacterMacros.is_set(mob_flags, train_bit):
+            return True
+
+        special_name = str(getattr(mob, "special_name", "") or "").strip().lower()
+        if special_name == "spec_cast_adept":
+            return True
+
+        description_text = " ".join(
+            [
+                str(getattr(mob, "long_description", "") or "").strip().lower(),
+                str(getattr(mob, "description", "") or "").strip().lower(),
+            ]
+        )
+        trainer_phrases = (
+            "waiting to train you",
+            "ready to train you",
+            "ready to help you train",
+            "help you train",
+            "training young students",
+            "training students",
+        )
+        return any(phrase in description_text for phrase in trainer_phrases)

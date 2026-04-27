@@ -1,27 +1,22 @@
 from injector import inject
 
+from area.RoomHelper import RoomHelper
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from interp.InterpUtil import InterpUtil
 from object.ItemUtil import ItemUtil
-from object.ObjectHelper import ObjectHelper
+from object.ObjectMacros import ObjectMacros
 from player.Character import Character
 from server.messaging import MessageBus
 
 
 class ItemHandler:
     @inject
-    def __init__(self, message_bus: MessageBus, registry_service: RegistryService, object_helper: ObjectHelper):
+    def __init__(self, message_bus: MessageBus, registry_service: RegistryService, room_helper: RoomHelper):
         self.message_bus = message_bus
         self.room_registry = registry_service.room_registry
         self.item_registry = registry_service.item_registry
-        self.object_helper = object_helper
-        self.object_macros = None
-        self.ContainerState = None
-
-    def set_object_macros(self, object_macros):
-        self.object_macros = object_macros
-        self.ContainerState = object_macros.ContainerState
+        self.room_helper = room_helper
 
     async def look_room_items(self, character: Character):
         room = self.room_registry.get(id=character.room_id)
@@ -57,7 +52,7 @@ class ItemHandler:
             return
 
         if ItemUtil.is_container_like(obj):
-            if self.object_macros.is_container_closed(obj):
+            if ObjectMacros.is_container_closed(obj):
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("It is closed.\r\n"))
                 context.finish()
                 return
@@ -68,7 +63,6 @@ class ItemHandler:
         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("That is not a container.\r\n"))
         context.finish()
 
-    # to-do: match code needs to be re-added.
     async def look_item_or_extra(self, character: Character, context: Context):
         room = self.room_registry.get(id=character.room_id)
         if room is None:
@@ -82,7 +76,7 @@ class ItemHandler:
         token = (arg3 or "").strip().lower()
 
         for item in list(character.get_items()) + list(room.contents.values()):
-            if not self.object_helper.can_see_object(character, item):
+            if not ItemUtil.can_see_object(self.room_helper, character, item):
                 continue
 
             extra = getattr(item, "extra_description", None)

@@ -4,6 +4,8 @@ import inspect
 
 from dataclasses import dataclass, asdict
 from typing import Callable, TYPE_CHECKING
+
+from game.GameMacros import GameMacros
 from server.protocol.Message import Message, MessageType
 
 if TYPE_CHECKING:
@@ -15,8 +17,8 @@ if TYPE_CHECKING:
 
 def build_prompt_map():
     return {
-        "%h": lambda c: c.health,
-        "%H": lambda c: c.max_health,
+        "%h": lambda c: c.hit,
+        "%H": lambda c: c.max_hit,
         "%m": lambda c: c.mana,
         "%M": lambda c: c.max_mana,
         "%v": lambda c: c.movement,
@@ -86,6 +88,49 @@ class PromptFormat:
 
     def to_json(self) -> dict:
         return asdict(self)
+
+    def current_prompt_text(self) -> str:
+        parts: list[str] = []
+
+        if getattr(self, "health", False):
+            parts.append("%h/%H" if getattr(self, "max_health", False) else "%hhp")
+        elif getattr(self, "max_health", False):
+            parts.append("%H")
+
+        if getattr(self, "mana", False):
+            parts.append("%m/%M" if getattr(self, "max_mana", False) else "%mm")
+        elif getattr(self, "max_mana", False):
+            parts.append("%M")
+
+        if getattr(self, "movement", False):
+            parts.append("%v/%V" if getattr(self, "max_movement", False) else "%vmv")
+        elif getattr(self, "max_movement", False):
+            parts.append("%V")
+
+        if getattr(self, "experience", False):
+            parts.append("%x/%X" if getattr(self, "accumulated_experience", False) else "%xxp")
+        elif getattr(self, "accumulated_experience", False):
+            parts.append("%X")
+
+        if getattr(self, "gold", False):
+            parts.append("%g")
+        if getattr(self, "silver", False):
+            parts.append("%s")
+        if getattr(self, "alignment", False):
+            parts.append("%a")
+        if getattr(self, "room_name", False):
+            parts.append("%r")
+        if getattr(self, "exits", False):
+            parts.append("%e")
+        if getattr(self, "room_vnum", False):
+            parts.append("%R")
+        if getattr(self, "area_name", False):
+            parts.append("%z")
+
+        text = "<" + " ".join(parts) + ">"
+        if getattr(self, "carriage_return", False):
+            text += "%c"
+        return text
 
     def _render_health(self, parts: list[str], prompt_map: dict, character: Character, room: Room, area: Area):
         if self.health and not self.max_health:
@@ -172,7 +217,15 @@ class PromptFormat:
             parts.append(str(self._call_prompt_lambda(prompt_map["%z"], character, room, area)))
 
     def render_prompt(self, status: SessionStatus, character: Character, room: Room, area: Area) -> Message:
-        parts = [self._tag_afk(status), "<"]
+        carriage_return = bool(getattr(character, "carriage_return", False) or self.carriage_return)
+        comm_letters = getattr(getattr(character, "character_flags", None), "comm", "")
+        comm_raw = GameMacros.letters_to_flags(comm_letters)
+        if comm_raw > 0:
+            carriage_return = (comm_raw & 2048) == 0  # COMM_COMPACT
+        parts = [self._tag_afk(status)]
+        if carriage_return:
+            parts.append("\r\n")
+        parts.append("<")
         prompt_map = build_prompt_map()
 
         self._render_health(parts, prompt_map, character, room, area)
@@ -188,8 +241,6 @@ class PromptFormat:
         self._render_area_name(parts, prompt_map, character, room, area)
 
         parts.append(">")
-        if self.carriage_return:
-            parts.append(str(self._call_prompt_lambda(prompt_map["%c"], character, room, area)))
 
         return Message(type=MessageType.GAME, data={'text': "".join(parts)})
 

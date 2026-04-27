@@ -37,11 +37,11 @@ class RoomService:
         try:
             response = requests.get(url, timeout=10)
             response.raise_for_status()
-            from server.ServerUtil import ServerUtil
+            from game.GenericUtil import GenericUtil
             data = response.json()
             if isinstance(data, list):
                 for room_data in data:
-                    room_data = ServerUtil.camel_to_snake_case(room_data)
+                    room_data = GenericUtil.camel_to_snake_case(room_data)
                     room = Room.from_json(room_data)
                     room.exits = self._load_exits(room_data)
                     room.extra_description = self._load_extra_description(room_data)

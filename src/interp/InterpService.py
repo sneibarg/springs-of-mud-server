@@ -20,7 +20,9 @@ class InterpService:
         self.commands_endpoint = config.commands_endpoint
         self.interp_registry = interp_registry
         self.help_registry = help_registry
-        self.help_keyword_list = [help_entry.keyword.lower() for help_entry in self.help_registry.all_helps()]
+        self._help_exact_by_keyword: dict[str, Any] = {}
+        self._help_token_index: dict[str, Any] = {}
+        self._build_help_indexes()
         self.load_commands()
 
     def reload_commands(self) -> None:
@@ -31,6 +33,7 @@ class InterpService:
 
     def load_commands(self):
         self.interp_registry.reset()
+        self._build_help_indexes()
         self._fetch_and_register(self.commands_endpoint, "all commands")
         self.interp_registry.register(self._build_summary_command())
 
@@ -62,16 +65,40 @@ class InterpService:
             self.logger.error(f"Unexpected error processing {description}: {e}", exc_info=True)
             return 0
 
-    def _assign_help_to_command(self, command: Command) -> None:
+    def _build_help_indexes(self) -> None:
+        self._help_exact_by_keyword = {}
+        self._help_token_index = {}
         for help_entry in self.help_registry.all_helps():
-            if command.name.lower() in self.help_keyword_list:
-                command.help = self.help_registry.get(keyword=command.name.lower())
+            keyword = str(getattr(help_entry, "keyword", "") or "").strip().lower()
+            if not keyword:
                 continue
-            if command.name.lower() in help_entry.keyword.lower():
-                command.help= help_entry
+            self._help_exact_by_keyword[keyword] = help_entry
+            for token in keyword.split():
+                normalized = self._normalize_help_token(token)
+                if normalized and normalized not in self._help_token_index:
+                    self._help_token_index[normalized] = help_entry
+
+    def _assign_help_to_command(self, command: Command) -> None:
+        command.help = None
+        command_name = str(getattr(command, "name", "") or "").strip().lower()
+        if not command_name:
+            return
+        exact = self._help_exact_by_keyword.get(command_name)
+        if exact is not None:
+            command.help = exact
+            return
+        token_match = self._help_token_index.get(command_name)
+        if token_match is not None:
+            command.help = token_match
+
+    @staticmethod
+    def _normalize_help_token(value: str) -> str:
+        token = str(value or "").strip().lower()
+        token = token.strip("~`'\".,;:!?()[]{}<>")
+        return token
 
     def _build_summary_command(self) -> Command:
-        from server.ServerUtil import ServerUtil
-        summary_id = ServerUtil.generate_mongo_id()
+        from game.GenericUtil import GenericUtil
+        summary_id = GenericUtil.generate_mongo_id()
         summary_cmd = Command(_id=summary_id, id=summary_id, max_arguments=0, level=0, name='summary', shortcuts="", message="", skill_id="", position="", usage="", role="", enabled=True, lambdas=[], function=[], help=self.help_registry.get(keyword='summary'))
         return summary_cmd

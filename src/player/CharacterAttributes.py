@@ -17,15 +17,16 @@ class CharacterAttributes:
     wimpy: int
     trains: int
     practices: int
+    points: int
+    experience: int
+    accumulated_experience: int
+    experience_per_level: int
 
     @classmethod
     def from_json(cls, data) -> CharacterAttributes:
-        try:
-            data = json.loads(data)
-        except json.JSONDecodeError:
-            raise TypeError(f"CharacterClass.from_json expected mapping or JSON string, got {type(data).__name__}")
-        return cls(**data)
+        from game.GenericUtil import GenericUtil
+        return cls(**GenericUtil.camel_to_snake_case(data))
 
     @classmethod
     def default(cls) -> CharacterAttributes:
-        return cls(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        return cls(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)

@@ -8,6 +8,7 @@ class GroupType:
     name: str
     rating: List[int]
     spells: List[str]
+    skills: List[str]
 
     def __hash__(self):
         return hash(self.id)
@@ -19,7 +20,7 @@ class GroupType:
 
     @classmethod
     def from_json(cls, data):
-        from server.ServerUtil import ServerUtil
-        data = ServerUtil.camel_to_snake_case(data)
-        data['id'] = ServerUtil.generate_mongo_id()
+        from game.GenericUtil import GenericUtil
+        data = GenericUtil.camel_to_snake_case(data)
+        data['id'] = GenericUtil.generate_mongo_id()
         return cls(**data)

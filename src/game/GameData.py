@@ -42,6 +42,7 @@ class GameData:
             constants=Constants.from_dict(doc.get("constants", {})),
             enums=dict(doc.get("enums", {})),
             flags=dict(doc.get("flags", {})),
+            attribute_bonuses=dict(doc.get("attributeBonuses", doc.get("attribute_bonuses", {}))),
 
             classes=dict(doc.get("classes", {})),
             races=dict(doc.get("races", {})),

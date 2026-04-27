@@ -1,9 +1,3 @@
-import random
-import re
-import time
-
-from enum import IntEnum
-from typing import Dict, Any, Iterable
 from injector import singleton, Injector
 
 from area.RoomHelper import RoomHelper
@@ -14,13 +8,18 @@ from area.RoomHandler import RoomHandler
 from area.SpecialService import SpecialService
 from game.HandlerService import HandlerService
 from interp.CommandHelper import CommandHelper
+from interp.commands.FightCommands import FightCommands
+from interp.commands.CommunicationsCommands import CommunicationsCommands
+from interp.commands.InfoCommands import InfoCommands
+from interp.commands.MovementCommands import MovementCommands
+from interp.commands.ObjectCommands import ObjectCommands
+from interp.commands.WizCommands import WizCommands
 from interp.HelpService import HelpService
 from interp.InterpHandler import InterpHandler
 from interp.SocialHandler import SocialHandler
 from interp.SocialService import SocialService
 from mobile.MobileHelper import MobileHelper
 from object.ItemHandler import ItemHandler
-from object.ObjectHelper import ObjectHelper
 from mobile.MobileHandler import MobileHandler
 from player.PlayerHandler import PlayerHandler
 from game.GameData import GameData
@@ -29,13 +28,13 @@ from game.NoteHandler import NoteHandler
 from game.NoteService import NoteService
 from mobile.MobileService import MobileService
 from object.ObjectMacros import ObjectMacros
-from player.CharacterConstants import CharacterConstants
 from player.CharacterMacros import CharacterMacros
 from player.PlayerHelper import PlayerHelper
 from player.PlayerService import PlayerService
 from player.CharacterService import CharacterService
 from server.LoggerFactory import LoggerFactory
 from skill.SkillService import SkillService
+from skill.SpellService import SpellService
 from game.RegistryService import RegistryService
 from fight.FightHandler import FightHandler
 from interp.InterpService import InterpService
@@ -71,7 +70,8 @@ class ServerUtil:
         ServerUtil._bind_game_services(injector, service_config)
 
         injector.binder.bind(ConnectionHandler, scope=singleton)
-        injector.binder.bind(SessionHandler, to=SessionHandler(injector.get(GameData).constants.max['idleTime']), scope=singleton)
+        injector.binder.bind(SessionHandler, to=SessionHandler(injector.get(GameData).constants.max['idleTime']),
+                             scope=singleton)
 
         return injector
 
@@ -79,9 +79,13 @@ class ServerUtil:
     def _bind_helpers(injector):
         injector.binder.bind(CommandHelper, scope=singleton)
         injector.binder.bind(RoomHelper, scope=singleton)
-        injector.binder.bind(ObjectHelper, scope=singleton)
         injector.binder.bind(MobileHelper, scope=singleton)
         injector.binder.bind(PlayerHelper, scope=singleton)
+
+    @staticmethod
+    def _bind_singleton_classes(injector, classes):
+        for clazz in classes:
+            injector.binder.bind(clazz, scope=singleton)
 
     @staticmethod
     def _bind_network_services(injector):
@@ -92,43 +96,28 @@ class ServerUtil:
     def _bind_game_services(injector, service_config):
         from object.ItemRegistry import ItemRegistry
         from skill.SkillRegistry import SkillRegistry
-        injector.binder.bind(GameService, scope=singleton)
-        injector.binder.bind(SkillService, scope=singleton)
-        injector.binder.bind(PlayerService, scope=singleton)
-        injector.binder.bind(CharacterService, scope=singleton)
-        injector.binder.bind(HelpService, scope=singleton)
-        injector.binder.bind(InterpService, scope=singleton)
-        injector.binder.bind(AreaService, scope=singleton)
-        injector.binder.bind(RoomService, scope=singleton)
-        injector.binder.bind(MobileService, scope=singleton)
-        injector.binder.bind(AuthenticationService, scope=singleton)
-        injector.binder.bind(SocialService, scope=singleton)
-        injector.binder.bind(NoteService, scope=singleton)
-        injector.binder.bind(HandlerService, scope=singleton)
+        ServerUtil._bind_singleton_classes(injector, [GameService, SkillService, SpellService, PlayerService,
+                                                      CharacterService, HelpService, InterpService, AreaService,
+                                                      RoomService, MobileService, AuthenticationService,
+                                                      SocialService, NoteService, HandlerService])
         injector.binder.bind(ItemService, to=ItemService(service_config,
                                                          injector.get(ItemRegistry),
                                                          injector.get(SkillRegistry),
-                                                         injector.get(GameService).game_data,
-                                                         injector.get(ObjectMacros)), scope=singleton)
+                                                         injector.get(GameService).game_data), scope=singleton)
 
     @staticmethod
     def _bind_handlers(injector):
-        injector.binder.bind(SocialHandler, scope=singleton)
-        injector.binder.bind(AreaHandler, scope=singleton)
-        injector.binder.bind(RoomHandler, scope=singleton)
-        injector.binder.bind(FightHandler, scope=singleton)
-        injector.binder.bind(ItemHandler, scope=singleton)
-        injector.binder.bind(MobileHandler, scope=singleton)
-        injector.binder.bind(PlayerHandler, scope=singleton)
-        injector.binder.bind(InterpHandler, scope=singleton)
-        injector.binder.bind(NoteHandler, scope=singleton)
-        injector.binder.bind(WeatherHandler, scope=singleton)
-        injector.binder.bind(UpdateHandler, scope=singleton)
+        ServerUtil._bind_singleton_classes(injector,
+                                           [SocialHandler, CommunicationsCommands, FightCommands, InfoCommands,
+                                            MovementCommands, ObjectCommands, WizCommands, AreaHandler,
+                                            RoomHandler, FightHandler, ItemHandler, MobileHandler, PlayerHandler,
+                                            InterpHandler, NoteHandler, WeatherHandler, UpdateHandler])
         logger.info(f"All game handlers have been bound.")
 
     @staticmethod
     def _bind_registries(injector):
         from game.NoteRegistry import NoteRegistry
+        from fight.CombatRegistry import CombatRegistry
         from player.PlayerRegistry import PlayerRegistry
         from player.CharacterRegistry import CharacterRegistry
         from mobile.MobileRegistry import MobileRegistry
@@ -136,6 +125,7 @@ class ServerUtil:
         from area.RoomRegistry import RoomRegistry
         from object.ItemRegistry import ItemRegistry
         from skill.SkillRegistry import SkillRegistry
+        from skill.SpellRegistry import SpellRegistry
         from interp.InterpRegistry import InterpRegistry
         from interp.SocialRegistry import SocialRegistry
         from interp.HelpRegistry import HelpRegistry
@@ -143,40 +133,25 @@ class ServerUtil:
         from area.SpecialRegistry import SpecialRegistry
         from area.ResetRegistry import ResetRegistry
 
-        injector.binder.bind(NoteRegistry, scope=singleton)
-        injector.binder.bind(PlayerRegistry, scope=singleton)
-        injector.binder.bind(CharacterRegistry, scope=singleton)
-        injector.binder.bind(MobileRegistry, scope=singleton)
-        injector.binder.bind(RoomRegistry, scope=singleton)
-        injector.binder.bind(ItemRegistry, scope=singleton)
-        injector.binder.bind(SkillRegistry, scope=singleton)
-        injector.binder.bind(HelpRegistry, scope=singleton)
-        injector.binder.bind(InterpRegistry, scope=singleton)
-        injector.binder.bind(SocialRegistry, scope=singleton)
-        injector.binder.bind(ShopRegistry, scope=singleton)
-        injector.binder.bind(ResetRegistry, scope=singleton)
-        injector.binder.bind(SpecialRegistry, scope=singleton)
-        injector.binder.bind(RegistryService, scope=singleton)
-        injector.binder.bind(AreaRegistry, scope=singleton)
-        logger.info(f"The RegistryService has been bound with all injected dependencies: {injector.get(RegistryService)}")
+        ServerUtil._bind_singleton_classes(injector, [NoteRegistry, PlayerRegistry, CharacterRegistry,
+                                                      MobileRegistry, RoomRegistry, ItemRegistry, SkillRegistry,
+                                                      SpellRegistry, HelpRegistry, InterpRegistry, SocialRegistry,
+                                                      ShopRegistry, ResetRegistry, SpecialRegistry, RegistryService,
+                                                      AreaRegistry, CombatRegistry, ])
+        logger.info(
+            f"The RegistryService has been bound with all injected dependencies: {injector.get(RegistryService)}")
 
     @staticmethod
     def _bind_game_data(injector):
         injector.binder.bind(GameData, to=injector.get(GameService).game_data, scope=singleton)
-        injector.binder.bind(CharacterConstants, to=CharacterConstants(injector.get(GameData).constants,
-                                                                       injector.get(GameService).enums['positions'],
-                                                                       injector.get(GameService).enums['actBits'],
-                                                                       injector.get(GameData).attribute_bonuses), scope=singleton)
-        injector.binder.bind(CharacterMacros, to=CharacterMacros(injector.get(RegistryService),
-                                                                 injector.get(CharacterConstants),
-                                                                 injector.get(GameService).enums,
-                                                                 injector.get(GameData).attribute_bonuses), scope=singleton)
-        injector.binder.bind(ObjectMacros, to=ObjectMacros(injector.get(GameData).races,
-                                                           injector.get(GameData).item_table,
-                                                           injector.get(GameService).enums), scope=singleton)
+        ObjectMacros.configure(
+            races_provider=lambda: injector.get(GameData).races,
+            item_table_provider=lambda: injector.get(GameData).item_table,
+            enums_provider=lambda: injector.get(GameService).enums,
+        )
 
     @staticmethod
-    def load_services(injector) -> None:
+    def lazy_load(injector) -> None:
         game_service = injector.get(GameService)
         player_service = injector.get(PlayerService)
         character_service = injector.get(CharacterService)
@@ -186,6 +161,7 @@ class ServerUtil:
         room_service = injector.get(RoomService)
         area_service = injector.get(AreaService)
         skill_service = injector.get(SkillService)
+        spell_service = injector.get(SpellService)
         item_service = injector.get(ItemService)
         social_service = injector.get(SocialService)
         mobile_service = injector.get(MobileService)
@@ -196,67 +172,46 @@ class ServerUtil:
         weather_handler = injector.get(WeatherHandler)
         update_handler = injector.get(UpdateHandler)
         item_handler = injector.get(ItemHandler)
-        character_macros = injector.get(CharacterMacros)
+        fight_handler = injector.get(FightHandler)
+        mobile_handler = injector.get(MobileHandler)
+        registry_service = injector.get(RegistryService)
+        attribute_bonuses = injector.get(GameData).attribute_bonuses
+        pc_races = injector.get(GameData).pc_races
+        enums = injector.get(GameService).enums
+        communications_commands = injector.get(CommunicationsCommands)
+        object_commands = injector.get(ObjectCommands)
+        info_commands = injector.get(InfoCommands)
+        movement_commands = injector.get(MovementCommands)
+        wiz_commands = injector.get(WizCommands)
+        command_helper = injector.get(CommandHelper)
+        room_helper = injector.get(RoomHelper)
 
-        item_handler.set_object_macros(injector.get(ObjectMacros))
+        CharacterMacros.configure(
+            registry_provider=lambda: registry_service,
+            enums_provider=lambda: enums,
+            attribute_bonuses_provider=lambda: attribute_bonuses,
+            pc_races_provider=lambda: pc_races,
+            weather_handler_provider=lambda: weather_handler,
+        )
+
+        fight_handler.lazy_load()
+        fight_handler.set_mobile_handler(mobile_handler)
+        wiz_commands.lazy_load()
+        movement_commands.lazy_load()
+        info_commands.lazy_load()
+        command_helper.lazy_load()
+        object_commands.lazy_load()
+        communications_commands.lazy_load()
         update_handler.set_enums(injector.get(GameService).enums)
         area_handler.set_enums(injector.get(GameService).enums)
-        weather_handler.lazy_load(injector.get(GameService).enums, injector.get(GameData).constants)
-        character_macros.lazy_load(weather_handler)
+        area_handler.initialize_world()
+        weather_handler.lazy_load(injector.get(GameData).constants)
+        room_helper.lazy_load(weather_handler)
         game_service.set_update_handler(injector.get(UpdateHandler))
 
-        service_list = (f"{game_service.__name__}; {player_service.__name__}; {room_service.__name__}; {area_service.__name__}; "
-                        f"{skill_service.__name__}; {item_service.__name__}\r\n{help_service.__name__}; {mobile_service.__name__}; "
-                        f"{interp_service.__name__}; {social_service.__name__}; {note_service.__name__}; {character_service.__name__} "
-                        f"{shop_service.__name__}; {reset_service.__name__}; {special_service.__name__}.")
+        service_list = (
+            f"{game_service.__name__}; {player_service.__name__}; {room_service.__name__}; {area_service.__name__}; "
+            f"{skill_service.__name__}; {spell_service.__name__}; {item_service.__name__}\r\n{help_service.__name__}; {mobile_service.__name__}; "
+            f"{interp_service.__name__}; {social_service.__name__}; {note_service.__name__}; {character_service.__name__} "
+            f"{shop_service.__name__}; {reset_service.__name__}; {special_service.__name__}.")
         logger.info(f"The following services have been started: {service_list}")
-
-    @staticmethod
-    def camel_to_snake_case(dictionary: Dict[str, Any]) -> Dict[str, Any]:
-        if dictionary is None:
-            return {}
-
-        def camel_case_to_snake_case(string: str) -> str:
-            s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', string)
-            return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
-
-        snake_case_dict = {}
-        try:
-            snake_case_dict = {camel_case_to_snake_case(key): value for key, value in dictionary.items()}
-        except AttributeError:
-            logger.error(f"Error converting dictionary to snake case: {dictionary}")
-        return snake_case_dict
-
-    @staticmethod
-    def build_int_enum(enum_name: str, enum_fields: dict[str, int] | list[str] | tuple[str, ...] | None) -> type[IntEnum]:
-        if isinstance(enum_fields, dict):
-            items: Iterable[tuple[str, int]] = (
-                (str(member_name), int(member_value))
-                for member_name, member_value in enum_fields.items()
-            )
-        elif isinstance(enum_fields, (list, tuple)):
-            items = (
-                (str(member_name), index)
-                for index, member_name in enumerate(enum_fields)
-            )
-        else:
-            raise TypeError(
-                f"enum_fields for '{enum_name}' must be dict/list/tuple, got {type(enum_fields).__name__}"
-            )
-
-        members = {}
-        for member_name, member_value in items:
-            normalized_name = member_name.strip().upper()
-            if not normalized_name:
-                raise ValueError(f"Enum '{enum_name}' contains an empty member name")
-            members[normalized_name] = member_value
-
-        return IntEnum(enum_name, members)
-
-    @staticmethod
-    def generate_mongo_id() -> str:
-        timestamp = int(time.time()).to_bytes(4, 'big')
-        machine_id = random.getrandbits(24).to_bytes(3, 'big')
-        process_id = random.getrandbits(16).to_bytes(2, 'big')
-        counter = random.getrandbits(24).to_bytes(3, 'big')
-        return (timestamp + machine_id + process_id + counter).hex()

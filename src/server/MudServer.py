@@ -71,11 +71,10 @@ class MudServer:
         self.player_service = self.injector.get(PlayerService)
         self.connection_handler = self.injector.get(ConnectionHandler)
 
-        ServerUtil.load_services(self.injector)
+        ServerUtil.lazy_load(self.injector)
 
     def _load_player_one(self):
         try:
-            from server.ServerUtil import ServerUtil
             account_id = self.config['mudserver']['playerone']['accountId']
             return self.player_service.player_registry.get(id=account_id)
         except KeyError as e:
@@ -99,6 +98,7 @@ class MudServer:
             items_endpoint=self._construct_service_endpoint('items_endpoint'),
             mobiles_endpoint=self._construct_service_endpoint('mobiles_endpoint'),
             skills_endpoint=self._construct_service_endpoint('skills_endpoint'),
+            spells_endpoint=self._construct_service_endpoint('spells_endpoint'),
             socials_endpoint=self._construct_service_endpoint('socials_endpoint'),
             helps_endpoint=self._construct_service_endpoint('helps_endpoint'),
             shops_endpoint=self._construct_service_endpoint('shops_endpoint'),

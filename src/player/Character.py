@@ -33,15 +33,19 @@ class Character:
     sex: str
     cloaked: bool
     level: int
-    health: int
+    hit: int
+    max_hit: int
     mana: int
+    max_mana: int
     movement: int
-    experience: int
-    accumulated_experience: int
+    max_movement: int
     gold: int
     silver: int
     trust: int
-    inventory: List[str]
+    inventory: List[Any]
+    effects: List[Any]
+    skills: List[Any]
+    spells: List[Any]
     character_flags: CharacterFlags
     character_attributes: CharacterAttributes
     temporal_mechanics: TemporalMechanics
@@ -77,16 +81,51 @@ class Character:
     def get_items(self) -> List[Item]:
         return self.loot
 
+    @property
+    def experience(self) -> int:
+        attrs = getattr(self, "character_attributes", None)
+        return 0 if attrs is None else getattr(attrs, "experience", 0)
+
+    @experience.setter
+    def experience(self, value: int) -> None:
+        attrs = getattr(self, "character_attributes", None)
+        if attrs is not None:
+            attrs.experience = value
+
+    @property
+    def accumulated_experience(self) -> int:
+        attrs = getattr(self, "character_attributes", None)
+        return 0 if attrs is None else getattr(attrs, "accumulated_experience", 0)
+
+    @accumulated_experience.setter
+    def accumulated_experience(self, value: int) -> None:
+        attrs = getattr(self, "character_attributes", None)
+        if attrs is not None:
+            attrs.accumulated_experience = value
+
+    @property
+    def experience_per_level(self) -> int:
+        attrs = getattr(self, "character_attributes", None)
+        return 0 if attrs is None else getattr(attrs, "experience_per_level", 0)
+
+    @experience_per_level.setter
+    def experience_per_level(self, value: int) -> None:
+        attrs = getattr(self, "character_attributes", None)
+        if attrs is not None:
+            attrs.experience_per_level = value
+
     @classmethod
     def from_json(cls, data):
-        from server.ServerUtil import ServerUtil
-        payload = ServerUtil.camel_to_snake_case(data)
+        from game.GenericUtil import GenericUtil
+        from game.Equipped import Equipped
+        payload = GenericUtil.camel_to_snake_case(data)
         prompt_format = payload.get('prompt_format')
         character_class = payload.get('character_class')
         armor_class = payload.get('armor_class')
         temporal_mechanics = payload.get('temporal_mechanics')
         character_attributes = payload.get('character_attributes')
         character_flags = payload.get('character_flags')
+        equipped_data = payload.get('equipped')
 
         payload['character_flags'] = CharacterFlags.from_json(character_flags)
         payload['character_attributes'] = CharacterAttributes.from_json(character_attributes)
@@ -94,6 +133,20 @@ class Character:
         payload['armor_class'] = PCArmorClass.from_json(armor_class)
         payload['prompt_format'] = PromptFormat.from_template(prompt_format)
         payload['character_class'] = CharacterClass.from_json(character_class)
+
+        if isinstance(equipped_data, dict):
+            normalized_equipped = GenericUtil.camel_to_snake_case(equipped_data)
+            equipped = Equipped()
+            for slot, item_data in normalized_equipped.items():
+                if not hasattr(equipped, slot) or item_data is None:
+                    continue
+                if isinstance(item_data, Item):
+                    setattr(equipped, slot, item_data)
+                    continue
+                if isinstance(item_data, (dict, str)):
+                    setattr(equipped, slot, Item.from_json(item_data))
+            payload['equipped'] = equipped
+
         return cls(**payload)
 
 

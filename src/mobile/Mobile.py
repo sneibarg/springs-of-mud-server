@@ -43,6 +43,7 @@ class Mobile:
     silver: int
     combat_flags: str
     count: int = 0
+    killed: int = 0
     invis_level: Optional[int] = 0
     incog_level: Optional[int] = 0
     perm_stat: Optional[CharacterAttributes] = None
@@ -53,11 +54,14 @@ class Mobile:
     mobile_flags: Optional[MobileFlags] = None
     equipped: Optional[Equipped] = None
     inventory: list = field(default_factory=list)
+    effects: list = field(default_factory=list)
+    special_name: Optional[str] = None
+    special_function: list[str] = field(default_factory=list)
     lock: threading.Lock = field(default_factory=threading.Lock)
 
     def __post_init__(self):
-        from server.ServerUtil import ServerUtil
-        self.instance_id = ServerUtil.generate_mongo_id()
+        from game.GenericUtil import GenericUtil
+        self.instance_id = GenericUtil.generate_mongo_id()
         if self.lock is None:
             self.lock = threading.Lock()
         self.__name__ = "Mobile-" + str(self.instance_id)

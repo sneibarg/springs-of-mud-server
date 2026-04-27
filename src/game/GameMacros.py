@@ -1,5 +1,7 @@
 from enum import IntEnum
 
+from game.GenericUtil import GenericUtil
+
 
 class GameMacros:
     @staticmethod
@@ -39,9 +41,30 @@ class GameMacros:
 
     @staticmethod
     def convert_flags(flag_value: str) -> int:
-        numeric_value = 0
-        for char in str(flag_value).upper():
-            if char.isalpha() and 'A' <= char <= 'Z':
-                bit_position = ord(char) - ord('A')
-                numeric_value |= (1 << bit_position)
-        return numeric_value
+        return GameMacros.letters_to_flags(str(flag_value or ""))
+
+    @staticmethod
+    def letters_to_flags(value: str) -> int:
+        total = 0
+        for c in str(value or "").upper():
+            if "A" <= c <= "Z":
+                total |= (1 << (ord(c) - ord("A")))
+        return total
+
+    @staticmethod
+    def flags_to_letters(value: int) -> str:
+        if GenericUtil.to_int(value, 0) <= 0:
+            return ""
+        out = []
+        raw = GenericUtil.to_int(value, 0)
+        for bit in range(26):
+            if raw & (1 << bit):
+                out.append(chr(ord("A") + bit))
+        return "".join(out)
+
+    @staticmethod
+    def flags_to_int(raw) -> int:
+        value = GenericUtil.to_int(raw, None)
+        if value is not None:
+            return value
+        return GameMacros.letters_to_flags(str(raw or "0"))

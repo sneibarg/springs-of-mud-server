@@ -6,15 +6,14 @@ from area.Reset import Reset
 from area.Area import Area
 from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
+from game.GenericUtil import GenericUtil
 from mobile.Mobile import Mobile
 from mobile.MobileUtil import MobileUtil
 from mobile.MobileRegistry import MobileRegistry
 from object import Item
 from object.ItemUtil import ItemUtil
-from object.ObjectMacros import ObjectMacros
 from game.RandomNumberGenerator import RandomNumberGenerator
 from object.ItemRegistry import ItemRegistry
-from player.CharacterMacros import CharacterMacros
 from server.messaging import MessageBus
 from server.LoggerFactory import LoggerFactory
 
@@ -27,9 +26,7 @@ class AreaHandler:
                  area_registry: AreaRegistry,
                  room_registry: RoomRegistry,
                  item_registry: ItemRegistry,
-                 mobile_registry: MobileRegistry,
-                 object_macros: ObjectMacros,
-                 character_macros: CharacterMacros):
+                 mobile_registry: MobileRegistry):
         self.__name__ = "AreaHandler"
         self.logger = LoggerFactory.get_logger(__name__)
         self.message_bus = message_bus
@@ -37,8 +34,6 @@ class AreaHandler:
         self.room_registry = room_registry
         self.item_registry = item_registry
         self.mobile_registry = mobile_registry
-        self.object_macros = object_macros
-        self.character_macros = character_macros
         self.enums = None
         self.WellKnownRoomVnums = None
         self.ExitFlags = None
@@ -65,6 +60,12 @@ class AreaHandler:
                     area.age = 13  # 15 - 2 → ~2 minute grace period before it can reset again
                 elif area.number_of_players == 0:
                     area.empty = True
+
+    def initialize_world(self):
+        for area in self.area_registry.all_areas():
+            self._reset_area(area)
+            area.age = 0
+            area.empty = False
 
     def _reset_area(self, area: Area):
         last = True
@@ -122,22 +123,20 @@ class AreaHandler:
                 break
         if template_mob.count >= room_max:
             return last, None
-        mob = MobileUtil.create_mobile(template_mob, self.enums, self.character_macros)
+        mob = MobileUtil.create_mobile(template_mob, self.enums)
+        for special in getattr(template_mob, "specials", []) or []:
+            if str(getattr(special, "mob_vnum", "") or "") == str(mob.vnum):
+                mob.special_name = str(getattr(special, "name", "") or "")
+                mob.special_function = list(getattr(special, "special_function", []) or [])
+                break
         room.add_mobile_to_room(mob)
         return last, mob
-
-    @staticmethod
-    def _to_int(value, default: int = 0) -> int:
-        try:
-            return int(value)
-        except (TypeError, ValueError):
-            return default
 
     def _do_put_reset(self, last: bool, reset: Reset, area: Area) -> bool:
         obj_vnum = str(reset.arg1 or "")
         target_vnum = str(reset.arg3 or "")
-        max_in_target = self._to_int(reset.arg4, 0)
-        arg2 = self._to_int(reset.arg2, 0)
+        max_in_target = GenericUtil.to_int(reset.arg4, 0)
+        arg2 = GenericUtil.to_int(reset.arg2, 0)
 
         if not obj_vnum or not target_vnum:
             return False
@@ -192,7 +191,7 @@ class AreaHandler:
         if mob is None:
             return False
 
-        arg2 = self._to_int(reset.arg2, 0)
+        arg2 = GenericUtil.to_int(reset.arg2, 0)
         if arg2 > 50:
             limit = 6
         elif arg2 == -1:
@@ -204,7 +203,7 @@ class AreaHandler:
             return last
 
         obj = ItemUtil.create_object(template_obj)
-        wear_loc = self._to_int(reset.arg3, -1)
+        wear_loc = GenericUtil.to_int(reset.arg3, -1)
         if wear_loc >= 0:
             MobileUtil.equip_item(mob, obj, wear_loc)
         else:
@@ -213,8 +212,8 @@ class AreaHandler:
 
     def _do_door_reset(self, last: bool, reset: Reset) -> bool:
         room_vnum = str(reset.arg1 or "")
-        direction = self._to_int(reset.arg2, -1)
-        lock_state = self._to_int(reset.arg3, 0)
+        direction = GenericUtil.to_int(reset.arg2, -1)
+        lock_state = GenericUtil.to_int(reset.arg3, 0)
         room = self.room_registry.get_or_none(vnum=room_vnum)
         if room is None:
             return last
@@ -226,7 +225,7 @@ class AreaHandler:
 
     def _do_randomize_reset(self, reset: Reset):
         room_vnum = str(reset.arg1 or "")
-        max_exits = self._to_int(reset.arg2, 0)
+        max_exits = GenericUtil.to_int(reset.arg2, 0)
         room = self.room_registry.get_or_none(vnum=room_vnum)
         if room is None:
             return
