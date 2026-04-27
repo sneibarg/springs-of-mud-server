@@ -53,6 +53,10 @@ class SpellContext:
         self.performed = True
         return True
 
+    def stop(self) -> bool:
+        self.finish()
+        return False
+
     def queue_payload(self, payload: Optional[dict]):
         if payload:
             self.payloads.append(payload)
@@ -87,6 +91,18 @@ class SpellContext:
             return self.aliases[alias_or_value]
         return alias_or_value
 
+    @property
+    def victim(self):
+        return self.target if self.is_character_target() else None
+
+    @property
+    def obj(self):
+        return self.target if self.is_object_target() else None
+
+    @property
+    def is_player_source(self) -> bool:
+        return self.source == "player" and not CharacterMacros.is_npc(self.actor)
+
     def is_character_target(self) -> bool:
         target = self.target
         return target is not None and not self.is_object_target()
@@ -94,4 +110,3 @@ class SpellContext:
     def is_object_target(self) -> bool:
         target = self.target
         return target is not None and hasattr(target, "item_type")
-

@@ -29,7 +29,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_armor()"
+      "lambda ctx: ctx.stop_if_affected('spell.armor', 'You are already armored.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -50,7 +51,7 @@
     "functionName": "teleport",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_teleport()"
+      "lambda ctx: ctx.teleport_target()"
     ]
   },
   {
@@ -105,7 +106,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_bless()"
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -138,7 +139,9 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_blindness()"
+      "lambda ctx: ctx.stop_if_affected('AFF_BLIND')",
+      "lambda ctx: ctx.stop_if_saved()",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -159,7 +162,7 @@
     "functionName": "burning_hands",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_burning_hands()"
+      "lambda ctx: ctx.damage_expr('dice(level, 7)', 'DAM_FIRE')"
     ]
   },
   {
@@ -180,7 +183,7 @@
     "functionName": "call_lightning",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_call_lightning()"
+      "lambda ctx: ctx.call_lightning()"
     ]
   },
   {
@@ -213,7 +216,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_charm_person()"
+      "lambda ctx: ctx.charm_person()"
     ]
   },
   {
@@ -234,7 +237,7 @@
     "functionName": "chill_touch",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_chill_touch()"
+      "lambda ctx: ctx.chill_touch()"
     ]
   },
   {
@@ -255,7 +258,7 @@
     "functionName": "colour_spray",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_colour_spray()"
+      "lambda ctx: ctx.damage_expr('dice(level, 6)', 'DAM_LIGHT')"
     ]
   },
   {
@@ -276,7 +279,7 @@
     "functionName": "control_weather",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_control_weather()"
+      "lambda ctx: ctx.control_weather()"
     ]
   },
   {
@@ -297,7 +300,7 @@
     "functionName": "create_food",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_create_food()"
+      "lambda ctx: ctx.create_object('20')"
     ]
   },
   {
@@ -318,7 +321,7 @@
     "functionName": "create_water",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_create_water()"
+      "lambda ctx: ctx.create_water()"
     ]
   },
   {
@@ -339,7 +342,7 @@
     "functionName": "cure_blindness",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_cure_blindness()"
+      "lambda ctx: ctx.remove_effects('spell.blindness')"
     ]
   },
   {
@@ -360,7 +363,7 @@
     "functionName": "cure_critical",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_cure_critical()"
+      "lambda ctx: ctx.heal_expr('dice(3, 8) + level - 6')"
     ]
   },
   {
@@ -381,7 +384,7 @@
     "functionName": "cure_light",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_cure_light()"
+      "lambda ctx: ctx.heal_expr('dice(1, 8) + level // 3')"
     ]
   },
   {
@@ -436,7 +439,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_curse()"
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -469,7 +472,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_detect_evil()"
+      "lambda ctx: ctx.stop_if_affected('spell.detect_evil', 'You can already sense evil.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -502,7 +506,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_detect_invis()"
+      "lambda ctx: ctx.stop_if_affected('spell.detect_invis', 'You can already see invisible things.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -535,7 +540,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_detect_magic()"
+      "lambda ctx: ctx.stop_if_affected('spell.detect_magic', 'You can already sense magic.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -556,7 +562,7 @@
     "functionName": "detect_poison",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_detect_poison()"
+      "lambda ctx: ctx.detect_poison()"
     ]
   },
   {
@@ -577,7 +583,7 @@
     "functionName": "dispel_evil",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_dispel_evil()"
+      "lambda ctx: ctx.damage_expr('dice(level, 4)', 'DAM_HOLY')"
     ]
   },
   {
@@ -598,7 +604,7 @@
     "functionName": "earthquake",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_earthquake()"
+      "lambda ctx: ctx.damage_room_expr('level + dice(2, 8)', 'DAM_BASH')"
     ]
   },
   {
@@ -619,7 +625,7 @@
     "functionName": "enchant_weapon",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_enchant_weapon()"
+      "lambda ctx: ctx.enchant_weapon()"
     ]
   },
   {
@@ -640,7 +646,7 @@
     "functionName": "energy_drain",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_energy_drain()"
+      "lambda ctx: ctx.energy_drain()"
     ]
   },
   {
@@ -661,7 +667,7 @@
     "functionName": "fireball",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_fireball()"
+      "lambda ctx: ctx.damage_expr('dice(level, 10)', 'DAM_FIRE')"
     ]
   },
   {
@@ -682,7 +688,7 @@
     "functionName": "harm",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_harm()"
+      "lambda ctx: ctx.harm()"
     ]
   },
   {
@@ -703,7 +709,7 @@
     "functionName": "heal",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_heal()"
+      "lambda ctx: ctx.heal_expr('100')"
     ]
   },
   {
@@ -747,7 +753,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_invis()"
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -768,7 +774,7 @@
     "functionName": "lightning_bolt",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_lightning_bolt()"
+      "lambda ctx: ctx.damage_expr('dice(level, 7)', 'DAM_LIGHTNING')"
     ]
   },
   {
@@ -789,7 +795,7 @@
     "functionName": "locate_object",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_locate_object()"
+      "lambda ctx: ctx.locate_object()"
     ]
   },
   {
@@ -810,7 +816,7 @@
     "functionName": "magic_missile",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_magic_missile()"
+      "lambda ctx: ctx.damage_expr('dice(level, 4)', 'DAM_ENERGY')"
     ]
   },
   {
@@ -843,7 +849,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_poison()"
+      "lambda ctx: ctx.poison()"
     ]
   },
   {
@@ -876,7 +882,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_protection_evil()"
+      "lambda ctx: ctx.stop_if_affected('spell.protection_evil', 'You are already protected from evil.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -897,7 +904,7 @@
     "functionName": "remove_curse",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_remove_curse()"
+      "lambda ctx: ctx.remove_curse()"
     ]
   },
   {
@@ -930,7 +937,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_sanctuary()"
+      "lambda ctx: ctx.stop_if_affected('spell.sanctuary', 'You are already in sanctuary.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -951,7 +959,7 @@
     "functionName": "sleep",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_sleep()"
+      "lambda ctx: ctx.sleep()"
     ]
   },
   {
@@ -984,7 +992,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_giant_strength()"
+      "lambda ctx: ctx.stop_if_affected('spell.giant_strength', 'You are already as strong as a giant.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -1005,7 +1014,7 @@
     "functionName": "summon",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_summon()"
+      "lambda ctx: ctx.summon_target()"
     ]
   },
   {
@@ -1026,7 +1035,7 @@
     "functionName": "ventriloquate",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_ventriloquate()"
+      "lambda ctx: ctx.ventriloquate()"
     ]
   },
   {
@@ -1047,7 +1056,7 @@
     "functionName": "word_of_recall",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_word_of_recall()"
+      "lambda ctx: ctx.word_of_recall()"
     ]
   },
   {
@@ -1068,7 +1077,7 @@
     "functionName": "cure_poison",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_cure_poison()"
+      "lambda ctx: ctx.remove_effects('spell.poison')"
     ]
   },
   {
@@ -1101,7 +1110,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_detect_hidden()"
+      "lambda ctx: ctx.stop_if_affected('spell.detect_hidden', 'You can already see hidden things.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -1122,7 +1132,7 @@
     "functionName": "identify",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_identify()"
+      "lambda ctx: ctx.identify()"
     ]
   },
   {
@@ -1143,7 +1153,7 @@
     "functionName": "shocking_grasp",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_shocking_grasp()"
+      "lambda ctx: ctx.damage_expr('dice(level, 5)', 'DAM_LIGHTNING')"
     ]
   },
   {
@@ -1176,7 +1186,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_fly()"
+      "lambda ctx: ctx.stop_if_affected('spell.fly', 'You are already airborne.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -1197,7 +1208,7 @@
     "functionName": "continual_light",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_continual_light()"
+      "lambda ctx: ctx.create_object('21')"
     ]
   },
   {
@@ -1218,7 +1229,7 @@
     "functionName": "know_alignment",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_know_alignment()"
+      "lambda ctx: ctx.know_alignment()"
     ]
   },
   {
@@ -1239,7 +1250,7 @@
     "functionName": "dispel_magic",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_dispel_magic()"
+      "lambda ctx: ctx.dispel_magic()"
     ]
   },
   {
@@ -1260,7 +1271,7 @@
     "functionName": "cure_serious",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_cure_serious()"
+      "lambda ctx: ctx.heal_expr('dice(2, 8) + level // 2')"
     ]
   },
   {
@@ -1281,7 +1292,7 @@
     "functionName": "cause_light",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_cause_light()"
+      "lambda ctx: ctx.damage_expr('dice(1, 8) + level // 3', 'DAM_HARM')"
     ]
   },
   {
@@ -1302,7 +1313,7 @@
     "functionName": "cause_critical",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_cause_critical()"
+      "lambda ctx: ctx.damage_expr('dice(3, 8) + level - 6', 'DAM_HARM')"
     ]
   },
   {
@@ -1323,7 +1334,7 @@
     "functionName": "cause_serious",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_cause_serious()"
+      "lambda ctx: ctx.damage_expr('dice(2, 8) + level // 2', 'DAM_HARM')"
     ]
   },
   {
@@ -1344,7 +1355,7 @@
     "functionName": "flamestrike",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_flamestrike()"
+      "lambda ctx: ctx.damage_expr('dice(6, 8) + level', 'DAM_FIRE')"
     ]
   },
   {
@@ -1377,7 +1388,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_stone_skin()"
+      "lambda ctx: ctx.stop_if_affected('spell.stone_skin', 'Your skin is already as hard as a rock.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -1410,7 +1422,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_shield()"
+      "lambda ctx: ctx.stop_if_affected('spell.shield', 'You are already shielded from harm.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -1443,7 +1456,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_weaken()"
+      "lambda ctx: ctx.stop_if_saved()",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -1476,7 +1490,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_mass_invis()"
+      "lambda ctx: ctx.mass_invis()"
     ]
   },
   {
@@ -1497,7 +1511,7 @@
     "functionName": "acid_blast",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_acid_blast()"
+      "lambda ctx: ctx.damage_expr('dice(level, 12)', 'DAM_ACID')"
     ]
   },
   {
@@ -1530,7 +1544,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_faerie_fire()"
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -1551,7 +1565,7 @@
     "functionName": "faerie_fog",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_faerie_fog()"
+      "lambda ctx: ctx.faerie_fog()"
     ]
   },
   {
@@ -1584,7 +1598,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_pass_door()"
+      "lambda ctx: ctx.stop_if_affected('spell.pass_door', 'You are already out of phase.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -1617,7 +1632,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_infravision()"
+      "lambda ctx: ctx.stop_if_affected('spell.infravision', 'You can already see in the dark.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -1638,7 +1654,7 @@
     "functionName": "create_spring",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_create_spring()"
+      "lambda ctx: ctx.create_object('22')"
     ]
   },
   {
@@ -1659,7 +1675,7 @@
     "functionName": "refresh",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_refresh()"
+      "lambda ctx: ctx.restore_move_expr('level')"
     ]
   },
   {
@@ -1692,7 +1708,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_change_sex()"
+      "lambda ctx: ctx.change_sex()"
     ]
   },
   {
@@ -1713,7 +1729,7 @@
     "functionName": "gate",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_gate()"
+      "lambda ctx: ctx.gate()"
     ]
   },
   {
@@ -1734,7 +1750,7 @@
     "functionName": "acid_breath",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_acid_breath()"
+      "lambda ctx: ctx.damage_expr('dice(level, 16)', 'DAM_ACID')"
     ]
   },
   {
@@ -1755,7 +1771,7 @@
     "functionName": "fire_breath",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_fire_breath()"
+      "lambda ctx: ctx.damage_room_expr('dice(level, 20)', 'DAM_FIRE')"
     ]
   },
   {
@@ -1776,7 +1792,7 @@
     "functionName": "frost_breath",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_frost_breath()"
+      "lambda ctx: ctx.damage_room_expr('dice(level, 16)', 'DAM_COLD')"
     ]
   },
   {
@@ -1797,7 +1813,7 @@
     "functionName": "gas_breath",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_gas_breath()"
+      "lambda ctx: ctx.damage_room_expr('dice(level, 12)', 'DAM_POISON')"
     ]
   },
   {
@@ -1818,7 +1834,7 @@
     "functionName": "lightning_breath",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_lightning_breath()"
+      "lambda ctx: ctx.damage_expr('dice(level, 20)', 'DAM_LIGHTNING')"
     ]
   },
   {
@@ -1839,7 +1855,7 @@
     "functionName": "general_purpose",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_general_purpose()"
+      "lambda ctx: ctx.damage_expr('number_range(25, 100)', 'DAM_PIERCE')"
     ]
   },
   {
@@ -1860,7 +1876,7 @@
     "functionName": "high_explosive",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_high_explosive()"
+      "lambda ctx: ctx.damage_expr('number_range(30, 120)', 'DAM_PIERCE')"
     ]
   },
   {
@@ -1881,7 +1897,7 @@
     "functionName": "chain_lightning",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_chain_lightning()"
+      "lambda ctx: ctx.chain_lightning()"
     ]
   },
   {
@@ -1902,7 +1918,7 @@
     "functionName": "cure_disease",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_cure_disease()"
+      "lambda ctx: ctx.remove_effects('spell.plague')"
     ]
   },
   {
@@ -1935,7 +1951,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_haste()"
+      "lambda ctx: ctx.stop_if_affected('spell.haste', \"You can't move any faster!\\\\r\\\\n\")",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -1956,7 +1973,7 @@
     "functionName": "plague",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_plague()"
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -2011,7 +2028,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_frenzy()"
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -2032,7 +2049,7 @@
     "functionName": "demonfire",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_demonfire()"
+      "lambda ctx: ctx.damage_expr('dice(level, 4) + 20', 'DAM_NEGATIVE')"
     ]
   },
   {
@@ -2053,7 +2070,7 @@
     "functionName": "holy_word",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_holy_word()"
+      "lambda ctx: ctx.holy_word()"
     ]
   },
   {
@@ -2074,7 +2091,7 @@
     "functionName": "cancellation",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_cancellation()"
+      "lambda ctx: ctx.cancellation()"
     ]
   },
   {
@@ -2095,7 +2112,7 @@
     "functionName": "mass_healing",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_mass_healing()"
+      "lambda ctx: ctx.mass_healing()"
     ]
   },
   {
@@ -2139,7 +2156,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_calm()"
+      "lambda ctx: ctx.calm()"
     ]
   },
   {
@@ -2160,7 +2177,7 @@
     "functionName": "enchant_armor",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_enchant_armor()"
+      "lambda ctx: ctx.enchant_armor()"
     ]
   },
   {
@@ -2181,7 +2198,7 @@
     "functionName": "create_rose",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_create_rose()"
+      "lambda ctx: ctx.create_object('1001')"
     ]
   },
   {
@@ -2202,7 +2219,7 @@
     "functionName": "dispel_good",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_dispel_good()"
+      "lambda ctx: ctx.damage_expr('dice(level, 4)', 'DAM_NEGATIVE')"
     ]
   },
   {
@@ -2235,7 +2252,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_detect_good()"
+      "lambda ctx: ctx.stop_if_affected('spell.detect_good', 'You can already sense good.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -2268,7 +2286,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_protection_good()"
+      "lambda ctx: ctx.stop_if_affected('spell.protection_good', 'You are already protected from good.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -2301,7 +2320,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_slow()"
+      "lambda ctx: ctx.slow()"
     ]
   },
   {
@@ -2322,7 +2341,7 @@
     "functionName": "heat_metal",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_heat_metal()"
+      "lambda ctx: ctx.heat_metal()"
     ]
   },
   {
@@ -2343,7 +2362,7 @@
     "functionName": "recharge",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_recharge()"
+      "lambda ctx: ctx.recharge()"
     ]
   },
   {
@@ -2364,7 +2383,7 @@
     "functionName": "ray_of_truth",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_ray_of_truth()"
+      "lambda ctx: ctx.ray_of_truth()"
     ]
   },
   {
@@ -2385,7 +2404,7 @@
     "functionName": "portal",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_portal()"
+      "lambda ctx: ctx.portal()"
     ]
   },
   {
@@ -2406,7 +2425,7 @@
     "functionName": "nexus",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_nexus()"
+      "lambda ctx: ctx.nexus()"
     ]
   },
   {
@@ -2427,7 +2446,7 @@
     "functionName": "farsight",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_farsight()"
+      "lambda ctx: ctx.farsight()"
     ]
   },
   {
@@ -2448,7 +2467,7 @@
     "functionName": "floating_disc",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.spell_floating_disc()"
+      "lambda ctx: ctx.create_object('23')"
     ]
   },
   {
@@ -2481,7 +2500,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.spell_fireproof()"
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   }
 ]

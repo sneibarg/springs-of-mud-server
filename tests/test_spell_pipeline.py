@@ -85,3 +85,9 @@ class TestSpellPipeline(unittest.TestCase):
         spells = json.loads(Path("resources/collections/SOMDB.Spells.json").read_text())
         self.assertTrue(spells)
         self.assertTrue(all(isinstance(spell.get("lambdas"), list) and spell["lambdas"] for spell in spells))
+
+    def test_spell_collection_uses_composable_api_calls(self):
+        spells = json.loads(Path("resources/collections/SOMDB.Spells.json").read_text())
+        lambdas = [entry for spell in spells for entry in spell.get("lambdas", [])]
+        self.assertTrue(all("ctx.spell_" not in entry for entry in lambdas))
+        self.assertTrue(any("ctx.apply_affect_data(" in entry for entry in lambdas))

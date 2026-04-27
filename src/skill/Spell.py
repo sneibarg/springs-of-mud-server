@@ -2,6 +2,7 @@ import json
 
 from dataclasses import dataclass, field
 
+from object.Item import Item
 from object.Effect import Effect
 
 
