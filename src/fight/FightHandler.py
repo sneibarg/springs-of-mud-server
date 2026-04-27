@@ -3,16 +3,20 @@ import random
 from typing import List
 from injector import inject
 
+from area.RoomHelper import RoomHelper
+from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
 from fight.CombatEvent import CombatEvent
 from fight.CombatRegistry import CombatRegistry
 from game.GenericUtil import GenericUtil
+from game.RandomNumberGenerator import RandomNumberGenerator
 from interp.commands.InfoUtil import InfoUtil
 from mobile.MobileRegistry import MobileRegistry
 from object.BodyForm import BodyForm
 from object.BodyParts import BodyParts
 from object.ItemRegistry import ItemRegistry
 from object.ItemUtil import ItemUtil
+from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
 from server.messaging.MessageBus import MessageBus
@@ -24,7 +28,9 @@ class FightHandler:
         self,
         message_bus: MessageBus,
         combat_registry: CombatRegistry,
+        area_registry: AreaRegistry,
         room_registry: RoomRegistry,
+        room_helper: RoomHelper,
         item_registry: ItemRegistry,
         mobile_registry: MobileRegistry,
     ):
@@ -32,9 +38,12 @@ class FightHandler:
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.message_bus = message_bus
         self.combat_registry = combat_registry
+        self.area_registry = area_registry
         self.room_registry = room_registry
+        self.room_helper = room_helper
         self.item_registry = item_registry
         self.mobile_registry = mobile_registry
+        self.rng = RandomNumberGenerator()
         self.PositionsEnum = None
         self.logger.info("Initialized FightHandler instance.")
 
@@ -163,6 +172,9 @@ class FightHandler:
             return
 
         participants = [combatant]
+        opponent = getattr(combatant, "fighting", None)
+        if both and opponent is not None and opponent not in participants:
+            participants.append(opponent)
         combatant_id = str(getattr(combatant, "id", "") or "")
         if both and combatant_id:
             for event in list(self.combat_registry.get_by_combatant(combatant_id)):
@@ -180,6 +192,83 @@ class FightHandler:
             participant.fighting = None
             self._set_default_combat_position(participant)
             self.combat_registry.remove_by_combatant(str(getattr(participant, "id", "") or ""))
+
+    def aggressive_entry_rounds(self, character, room=None) -> list[tuple[object, dict]]:
+        room = room or self._find_room_for_entity(character)
+        if character is None or room is None or CharacterMacros.is_npc(character) or CharacterMacros.is_immortal(character):
+            return []
+
+        area = self.area_registry.get_or_none(id=getattr(room, "area_id", ""))
+        if area is not None and bool(getattr(area, "empty", False)):
+            return []
+
+        rounds: list[tuple[object, dict]] = []
+        for aggressor in list(getattr(room, "mobiles", {}).values()):
+            if aggressor is None or not self._should_aggress(aggressor, character, room):
+                continue
+
+            victim = self._select_aggressive_victim(aggressor, room)
+            if victim is None:
+                continue
+
+            pre_corpse_ids = {
+                str(getattr(item, "id", "") or "")
+                for item in room.contents.values()
+                if "corpse" in str(getattr(item, "item_type", "") or "").lower()
+            }
+            result = self.multi_hit(aggressor, victim, dt="TYPE_UNDEFINED")
+            payload = self.build_round_payload(aggressor, victim, room, result, pre_corpse_ids)
+            rounds.append((aggressor, payload))
+
+        return rounds
+
+    def aggressive_room_rounds(self, room) -> list[tuple[object, dict]]:
+        if room is None:
+            return []
+
+        area = self.area_registry.get_or_none(id=getattr(room, "area_id", ""))
+        if area is not None and bool(getattr(area, "empty", False)):
+            return []
+
+        rounds: list[tuple[object, dict]] = []
+        for witness in room.characters.values():
+            for aggressor in list(getattr(room, "mobiles", {}).values()):
+                if aggressor is None:
+                    continue
+                if not self._should_aggress(aggressor, witness, room):
+                    continue
+
+                victim = self._select_aggressive_victim(aggressor, room)
+                print(f"aggressor: {aggressor} victim: {victim}")
+                if victim is None:
+                    continue
+
+                pre_corpse_ids = {
+                    str(getattr(item, "id", "") or "")
+                    for item in room.contents.values()
+                    if "corpse" in str(getattr(item, "item_type", "") or "").lower()
+                }
+                result = self.multi_hit(aggressor, victim, dt="TYPE_UNDEFINED")
+                payload = self.build_round_payload(aggressor, victim, room, result, pre_corpse_ids)
+                rounds.append((aggressor, payload))
+        return rounds
+
+    async def emit_round_payload(self, attacker, payload: dict) -> list:
+        prompted: list = []
+        if not isinstance(payload, dict):
+            return prompted
+
+        if payload.get("to_char") and not CharacterMacros.is_npc(attacker):
+            await self.message_bus.send_to_character(attacker.id, self.message_bus.text_to_message(payload["to_char"]))
+            prompted.append(attacker)
+        if payload.get("to_victim") and payload.get("victim") is not None and not CharacterMacros.is_npc(payload["victim"]):
+            await self.message_bus.send_to_character(payload["victim"].id, self.message_bus.text_to_message(payload["to_victim"]))
+            prompted.append(payload["victim"])
+        if payload.get("to_room"):
+            targets = payload.get("targets", [])
+            if len(targets) > 0:
+                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room"]), targets)
+        return prompted
 
     def dam_message(self, attacker, victim, dam: int, dt: str = "TYPE_HIT", immune: bool = False) -> dict:
         thresholds = [
@@ -514,7 +603,7 @@ class FightHandler:
                 if attacker is not None and not CharacterMacros.is_npc(attacker) and CharacterMacros.is_npc(victim):
                     attacker_level = max(1, GenericUtil.to_int(getattr(attacker, "level", 1), 1))
                     xp_gain = self.xp_compute(attacker, victim, attacker_level)
-                    attacker.experience = GenericUtil.to_int(getattr(attacker, "experience", 0), 0) + xp_gain
+                    self._award_experience(attacker, xp_gain)
                 self.raw_kill(victim)
 
         msg = self.dam_message(attacker, victim, applied, dt=dt, immune=False)
@@ -986,6 +1075,60 @@ class FightHandler:
         flags = GenericUtil.to_int(getattr(getattr(entity, "mobile_flags", None), "act", 0), 0)
         return CharacterMacros.is_set(flags, bit)
 
+    def _should_aggress(self, aggressor, witness, room) -> bool:
+        if aggressor is None or witness is None or room is None:
+            return False
+        if not CharacterMacros.is_npc(aggressor):
+            return False
+
+        act_bits = CharacterMacros.get_enum("actBits")
+        room_flags = CharacterMacros.get_enum("roomFlags")
+        mob_act = GenericUtil.to_int(getattr(getattr(aggressor, "mobile_flags", None), "act", 0), 0)
+        room_bits = GenericUtil.to_int(getattr(room, "room_flags", 0), 0)
+
+        if not self._mob_has_act(aggressor, act_bits, "ACT_AGGRESSIVE"):
+            return False
+        if CharacterMacros.enum_bit(room_flags, "ROOM_SAFE") and CharacterMacros.is_set(room_bits, CharacterMacros.enum_bit(room_flags, "ROOM_SAFE")):
+            return False
+        if self._entity_has_affect(aggressor, "AFF_CALM"):
+            return False
+        if getattr(aggressor, "fighting", None) is not None:
+            return False
+        if CharacterMacros.mobile_is_charmed(aggressor):
+            return False
+        if not CharacterMacros.is_awake(aggressor):
+            return False
+        if self._mob_has_act(aggressor, act_bits, "ACT_WIMPY") and CharacterMacros.is_awake(witness):
+            return False
+        if not CharacterMacros.can_see(aggressor, witness, self.room_helper):
+            return False
+        if self.rng.number_bits(1) == 0:
+            return False
+        return True
+
+    def _select_aggressive_victim(self, aggressor, room):
+        if aggressor is None or room is None:
+            return None
+
+        act_bits = CharacterMacros.get_enum("actBits")
+        victim = None
+        count = 0
+        for candidate in list(getattr(room, "characters", {}).values()):
+            if CharacterMacros.is_npc(candidate):
+                continue
+            if CharacterMacros.is_immortal(candidate):
+                continue
+            if GenericUtil.to_int(getattr(aggressor, "level", 0), 0) < GenericUtil.to_int(getattr(candidate, "level", 0), 0) - 5:
+                continue
+            if self._mob_has_act(aggressor, act_bits, "ACT_WIMPY") and CharacterMacros.is_awake(candidate):
+                continue
+            if not CharacterMacros.can_see(aggressor, candidate, self.room_helper):
+                continue
+            if self.rng.number_range(0, count) == 0:
+                victim = candidate
+            count += 1
+        return victim
+
     @staticmethod
     def _wielded_weapon(attacker):
         equipped = getattr(attacker, "equipped", None)
@@ -1048,3 +1191,23 @@ class FightHandler:
         else:
             self._set_position(entity, stand_pos)
         self.update_pos(entity)
+
+    @staticmethod
+    def _award_experience(character, xp_gain: int) -> None:
+        if character is None:
+            return
+
+        xp_gain = max(0, GenericUtil.to_int(xp_gain, 0))
+        attrs = getattr(character, "character_attributes", None)
+        if attrs is None or xp_gain <= 0:
+            return
+
+        current_xp = GenericUtil.to_int(getattr(attrs, "experience", 0), 0) + xp_gain
+        accumulated_xp = GenericUtil.to_int(getattr(attrs, "accumulated_experience", 0), 0) + xp_gain
+        xp_per_level = GenericUtil.to_int(getattr(attrs, "experience_per_level", 0), 0)
+
+        if xp_per_level > 0 and current_xp >= xp_per_level:
+            current_xp %= xp_per_level
+
+        attrs.experience = current_xp
+        attrs.accumulated_experience = accumulated_xp

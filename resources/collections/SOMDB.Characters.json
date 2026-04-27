@@ -3,8 +3,8 @@
     "$oid": "697e4a9edf39f7359b41cbfe"
   },
   "accountId": "62d2ff6699c3578abe7941c9",
-  "roomId": "69e05b1b107f62ff7336b209",
-  "areaId": "69e05b1b49221bb8eccfbfe8",
+  "roomId": "69eed198334481660fc862ce",
+  "areaId": "69eed19c402e68556a29f838",
   "name": "Fizban",
   "title": "the Fabulous",
   "race": "Human",
@@ -130,8 +130,8 @@
   "description": "",
   "race": "Dwarf",
   "sex": "male",
-  "roomId": "69e05b1b107f62ff7336b209",
-  "areaId": "69e05b1b49221bb8eccfbfe8",
+  "roomId": "69eed1987ddf6bfdb82a1431",
+  "areaId": "69eed1a20b7c6714fa49a23f",
   "guild": "",
   "role": "player",
   "equipped": {

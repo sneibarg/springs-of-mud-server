@@ -23,6 +23,7 @@ from player.Character import Character
 from player.PlayerHelper import PlayerHelper
 from mobile.MobileHelper import MobileHelper
 from game.RegistryService import RegistryService
+from fight.FightHandler import FightHandler
 
 
 class ConnectionHandler:
@@ -36,7 +37,8 @@ class ConnectionHandler:
                  auth_service: AuthenticationService,
                  command_handler: InterpHandler,
                  player_helper: PlayerHelper,
-                 mobile_helper: MobileHelper):
+                 mobile_helper: MobileHelper,
+                 fight_handler: FightHandler):
         self.logger = LoggerFactory.get_logger(__name__)
         self.session_handler = session_handler
         self.connection_manager = connection_manager
@@ -47,6 +49,7 @@ class ConnectionHandler:
         self.command_handler = command_handler
         self.player_helper = player_helper
         self.mobile_helper = mobile_helper
+        self.fight_handler = fight_handler
 
     async def _receive_initial_message(self, connection: TelnetConnection, session: SessionState) -> tuple[bool, str | None, Character | None] | tuple[bool, None, None]:
         first_msg = await connection.receive_message()
@@ -101,6 +104,8 @@ class ConnectionHandler:
                         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(players_text))
                     if mobiles_text:
                         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(mobiles_text))
+                    for attacker, payload in self.fight_handler.aggressive_entry_rounds(character, room):
+                        await self.fight_handler.emit_round_payload(attacker, payload)
                     await self.message_bus.send_prompt(character, area, room)
                     for viewer in occupants:
                         if viewer.id == character.id:

@@ -81,6 +81,39 @@ class Character:
     def get_items(self) -> List[Item]:
         return self.loot
 
+    @property
+    def experience(self) -> int:
+        attrs = getattr(self, "character_attributes", None)
+        return 0 if attrs is None else getattr(attrs, "experience", 0)
+
+    @experience.setter
+    def experience(self, value: int) -> None:
+        attrs = getattr(self, "character_attributes", None)
+        if attrs is not None:
+            attrs.experience = value
+
+    @property
+    def accumulated_experience(self) -> int:
+        attrs = getattr(self, "character_attributes", None)
+        return 0 if attrs is None else getattr(attrs, "accumulated_experience", 0)
+
+    @accumulated_experience.setter
+    def accumulated_experience(self, value: int) -> None:
+        attrs = getattr(self, "character_attributes", None)
+        if attrs is not None:
+            attrs.accumulated_experience = value
+
+    @property
+    def experience_per_level(self) -> int:
+        attrs = getattr(self, "character_attributes", None)
+        return 0 if attrs is None else getattr(attrs, "experience_per_level", 0)
+
+    @experience_per_level.setter
+    def experience_per_level(self, value: int) -> None:
+        attrs = getattr(self, "character_attributes", None)
+        if attrs is not None:
+            attrs.experience_per_level = value
+
     @classmethod
     def from_json(cls, data):
         from game.GenericUtil import GenericUtil

@@ -922,7 +922,7 @@ class CharacterMacros(GameMacros):
         if cls.is_affected(character, affected_bits.AFF_BLIND.value):
             return False
 
-        if room_helper.is_room_dark(character.room_id) and not cls.is_affected(character, affected_bits.AFF_INFRARED.value):
+        if type(character) is Character and room_helper.is_room_dark(character.room_id) and not cls.is_affected(character, affected_bits.AFF_INFRARED.value):
             return False
 
         if cls.is_affected(victim, affected_bits.AFF_INVISIBLE.value) and not cls.is_affected(character, affected_bits.AFF_DETECT_INVIS.value):

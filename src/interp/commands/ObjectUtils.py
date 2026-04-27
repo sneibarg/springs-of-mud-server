@@ -103,7 +103,8 @@ class ObjectUtils:
     def add_to_inventory(character, item):
         if getattr(character, "loot", None) is None:
             character.loot = []
-        character.loot.append(item)
+        if item not in character.loot:
+            character.loot.append(item)
 
     @staticmethod
     def equipped_slot_of(character, item):
@@ -118,6 +119,7 @@ class ObjectUtils:
     @staticmethod
     def equip_item(character, item, slot_name: str):
         equipped = ObjectUtils.ensure_equipped(character)
+        ObjectUtils.remove_from_inventory(character, item)
         setattr(equipped, slot_name, item)
         return slot_name
 
@@ -128,6 +130,8 @@ class ObjectUtils:
             return None
         item = getattr(equipped, slot_name)
         setattr(equipped, slot_name, None)
+        if item is not None:
+            ObjectUtils.add_to_inventory(character, item)
         return item
 
     @staticmethod

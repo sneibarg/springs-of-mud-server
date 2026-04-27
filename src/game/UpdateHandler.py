@@ -100,6 +100,7 @@ class UpdateHandler:
             self.pulse_violence = self.GameParametersEnum.PULSE_VIOLENCE.value
             self._refresh_combat_registry_from_world()
             await self._violence_update()
+        await self._aggr_update()
 
     def _refresh_combat_registry_from_world(self):
         active_keys: set[tuple[str, str, str]] = set()
@@ -114,8 +115,10 @@ class UpdateHandler:
                 attacker_id = str(getattr(attacker, "id", "") or "")
                 defender_id = str(getattr(defender, "id", "") or "")
                 if not attacker_id or not defender_id:
+                    self.fight_handler.stop_fighting(attacker, both=False)
                     continue
                 if self._find_entity_in_room(room, defender_id) is None:
+                    self.fight_handler.stop_fighting(attacker, both=False)
                     continue
                 key = (attacker_id, defender_id, str(room.id))
                 active_keys.add(key)
@@ -189,6 +192,22 @@ class UpdateHandler:
             if len(targets) > 0:
                 await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room"]), targets)
         return prompted
+
+    async def _aggr_update(self):
+        prompted_characters: dict[str, Character] = {}
+        for room in self.room_registry.all_rooms():
+            if room is None:
+                continue
+
+            for attacker, payload in self.fight_handler.aggressive_room_rounds(room):
+                prompted = await self.fight_handler.emit_round_payload(attacker, payload)
+                prompted_characters.update({victim.id: victim for victim in prompted})
+
+        for character in prompted_characters.values():
+            room = self.room_registry.get_or_none(id=character.room_id)
+            area = self.area_registry.get_or_none(id=getattr(room, "area_id", getattr(character, "area_id", ""))) if room is not None else self.area_registry.get_or_none(id=character.area_id)
+            if room is not None and area is not None:
+                await self.message_bus.send_prompt(character, area, room)
 
     @staticmethod
     def _entities_in_room(room) -> list:

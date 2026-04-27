@@ -1,6 +1,7 @@
 from typing import Any
 from injector import inject
 
+from fight.FightHandler import FightHandler
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from interp.commands.InfoCommands import InfoCommands
@@ -21,6 +22,7 @@ class PlayerHandler:
     def __init__(self, message_bus: MessageBus,
                  registry_service: RegistryService,
                  player_helper: PlayerHelper,
+                 fight_handler: FightHandler,
                  communications_commands: CommunicationsCommands,
                  fight_commands: FightCommands,
                  info_commands: InfoCommands,
@@ -31,6 +33,7 @@ class PlayerHandler:
         self.message_bus = message_bus
         self.character_registry = registry_service.character_registry
         self.room_registry = registry_service.room_registry
+        self.fight_handler = fight_handler
         self.player_helper = player_helper
         self.communications_commands = communications_commands
         self.fight_commands = fight_commands
@@ -429,6 +432,8 @@ class PlayerHandler:
         if to_room is not None:
             await context.room_handler().print_room(character.id, to_room)
             await context.room_handler().print_in_room(context)
+            for attacker, fight_payload in payload.get("aggressive_rounds", []):
+                await self.fight_handler.emit_round_payload(attacker, fight_payload)
 
     async def do_object_command(self, character: Character, context: Context):
         payload = self.object_commands.execute(character, context)
@@ -551,3 +556,5 @@ class PlayerHandler:
                 if CharacterMacros.is_set(act, autoexit_bit):
                     await context.room_handler().print_exits(character)
             await context.room_handler().print_in_room(context)
+            for attacker, fight_payload in payload.get("aggressive_rounds", []):
+                await self.fight_handler.emit_round_payload(attacker, fight_payload)

@@ -7,6 +7,7 @@ from game.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from interp.commands.MovementUtil import MovementUtil
+from fight.FightHandler import FightHandler
 from mobile.MobileUtil import MobileUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
@@ -16,13 +17,14 @@ from server.LoggerFactory import LoggerFactory
 
 class MovementCommands:
     @inject
-    def __init__(self, registry_service: RegistryService, player_helper: PlayerHelper, game_data: GameData):
+    def __init__(self, registry_service: RegistryService, player_helper: PlayerHelper, game_data: GameData, fight_handler: FightHandler):
         self.__name__ = "MovementCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.room_registry = registry_service.room_registry
         self.player_helper = player_helper
         self.game_data = game_data
+        self.fight_handler = fight_handler
         self.exit_flags = None
         self.room_flags = None
         self.affected_bits = None
@@ -100,7 +102,8 @@ class MovementCommands:
 
         from_room_targets = self.player_helper.players_in_room(character, in_room)
         leave_msg = None
-        if not CharacterMacros.is_affected_by_name(character, self.affected_bits,"AFF_SNEAK") and GenericUtil.to_int(getattr(character, "invis_level", 0), 0) < 51:
+        if (not CharacterMacros.is_affected_by_name(character, self.affected_bits,"AFF_SNEAK")
+                and GenericUtil.to_int(getattr(character, "invis_level", 0), 0) < 51):
             leave_msg = f"{character.name} leaves {MovementUtil.DIR_NAME[door]}.\r\n"
 
         in_room.remove_player_from_room(character)
@@ -109,7 +112,8 @@ class MovementCommands:
 
         to_room_targets = self.player_helper.players_in_room(character, to_room)
         arrive_msg = None
-        if not CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_SNEAK") and GenericUtil.to_int(getattr(character, "invis_level", 0), 0) < 51:
+        if (not CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_SNEAK")
+                and GenericUtil.to_int(getattr(character, "invis_level", 0), 0) < 51):
             arrive_msg = f"{character.name} has arrived.\r\n"
 
         return {
@@ -118,6 +122,7 @@ class MovementCommands:
             "to_room_targets": to_room_targets,
             "to_room_message": arrive_msg,
             "to_room_obj": to_room,
+            "aggressive_rounds": self.fight_handler.aggressive_entry_rounds(character, to_room),
         }
 
     def do_north(self, character: Character, context: Context):
@@ -436,18 +441,13 @@ class MovementCommands:
     def do_recall(self, character: Character, context: Context):
         room_flags = self.room_flags
         temple_vnum = "3001"
-        destination = None
-        for room in self.room_registry.all_rooms():
-            r = self.room_registry.get_or_none(id=room)
-            if r is not None and str(getattr(r, "vnum", "")) == temple_vnum:
-                destination = r
-                break
-        if destination is None:
+        temple_room = self.room_registry.get_or_none(vnum=temple_vnum)
+        if temple_room is None:
             context.finish()
             return {"to_char": "You are completely lost.\r\n"}
 
         current = self.room_registry.get_or_none(id=character.room_id)
-        if current is None or current.id == destination.id:
+        if current is None or current.id == temple_room.id:
             context.finish()
             return {"to_char": ""}
 
@@ -458,16 +458,17 @@ class MovementCommands:
 
         from_targets = self.player_helper.players_in_room(character, current)
         current.remove_player_from_room(character)
-        destination.add_player_to_room(character)
-        character.room_id = destination.id
+        temple_room.add_player_to_room(character)
+        character.room_id = temple_room.id
         character.movement = max(0, GenericUtil.to_int(getattr(character, "movement", 0), 0) // 2)
-        to_targets = self.player_helper.players_in_room(character, destination)
+        to_targets = self.player_helper.players_in_room(character, temple_room)
         return {
             "from_room_targets": from_targets,
             "from_room_message": f"{character.name} disappears.\r\n",
             "to_room_targets": to_targets,
             "to_room_message": f"{character.name} appears in the room.\r\n",
-            "to_room_obj": destination,
+            "to_room_obj": temple_room,
+            "aggressive_rounds": self.fight_handler.aggressive_entry_rounds(character, temple_room),
         }
 
     @staticmethod

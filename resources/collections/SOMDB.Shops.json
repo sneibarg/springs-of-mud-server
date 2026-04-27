@@ -1,8 +1,8 @@
 [{
   "_id": {
-    "$oid": "69e05b1a177379040a676129"
+    "$oid": "69eed19b3b0152e1b0bfcf2b"
   },
-  "areaId": "69e05b1a8b7df98439de2159",
+  "areaId": "69eed19bd1136f861d212410",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -17,9 +17,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1a1e329ea3871e4c88"
+    "$oid": "69eed19bd104dc3db42a884a"
   },
-  "areaId": "69e05b1a51f91b109a273254",
+  "areaId": "69eed19b695dc5ad6069a2c4",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -34,9 +34,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1a982e3670277e6a83"
+    "$oid": "69eed19bfc572005c1d8b22e"
   },
-  "areaId": "69e05b1aa0180bc665448077",
+  "areaId": "69eed19bc906794ae5ff7419",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -51,9 +51,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1a36a3061314ba716c"
+    "$oid": "69eed19c5c9feec2f83b83bd"
   },
-  "areaId": "69e05b1ae2e657f385ec61df",
+  "areaId": "69eed19cb80e273102e1c3ab",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -68,9 +68,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1ac8bdc5e9f8a1cdb6"
+    "$oid": "69eed19c7dbd3f803751fe89"
   },
-  "areaId": "69e05b1a72091801c9987d16",
+  "areaId": "69eed19c371f22d22dc46dc7",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -85,9 +85,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1b75d27660f031c220"
+    "$oid": "69eed19ecbcca5bbb5bb87c9"
   },
-  "areaId": "69e05b1b056a0873676675eb",
+  "areaId": "69eed19e385d69b0a7b7b284",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -102,9 +102,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1b1c6f45ed70ee0b5e"
+    "$oid": "69eed19c9bcb00444006802b"
   },
-  "areaId": "69e05b1bc0862e05d6bc414a",
+  "areaId": "69eed19c8dd858b31c135c08",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -119,9 +119,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1a45cd491ee7ed1c53"
+    "$oid": "69eed19cd18ea59884398864"
   },
-  "areaId": "69e05b1ac4b1fd7fb88db69d",
+  "areaId": "69eed19cd6bffaf3b79ebf73",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -136,9 +136,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1a1ba1ccf02f6ebf2d"
+    "$oid": "69eed19c93725c875eff8799"
   },
-  "areaId": "69e05b1a0e8bc9901c38640a",
+  "areaId": "69eed19cd730ea3d249e5560",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -153,9 +153,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1af0c2c73e8147f3df"
+    "$oid": "69eed19cbbc28cbddad89e17"
   },
-  "areaId": "69e05b1a400bd8d5e6158d94",
+  "areaId": "69eed19c2df6fe9d0e222bac",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -170,9 +170,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1a27dd20f56db375ad"
+    "$oid": "69eed19be7384242943bae2a"
   },
-  "areaId": "69e05b1a57b403300b42afbe",
+  "areaId": "69eed19b4a89150eff00b711",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -187,9 +187,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1bc5182213281eda33"
+    "$oid": "69eed1a06ebbbbc8fd92e32c"
   },
-  "areaId": "69e05b1b8439d9f3499bc42d",
+  "areaId": "69eed1a062f19586c1f8dd2c",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -204,9 +204,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1ca8086dd56110213d"
+    "$oid": "69eed19c7bb5e206a10e4473"
   },
-  "areaId": "69e05b1ce7646e3b503a5022",
+  "areaId": "69eed19c8857fcb90952343b",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -221,9 +221,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1b73498d98ee0d3898"
+    "$oid": "69eed19b1d78ccf152dfbb21"
   },
-  "areaId": "69e05b1b5a51ea03302c615d",
+  "areaId": "69eed19b5095d873bffb4d25",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -238,9 +238,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1ab16e97d62a5367b8"
+    "$oid": "69eed19c33f3a36226144d6b"
   },
-  "areaId": "69e05b1a8363b8bf14e93ec5",
+  "areaId": "69eed19cb8e293b36ac5f3c9",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -255,9 +255,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1b30b9c302a4f63b4a"
+    "$oid": "69eed19bf5c83eb3784163b9"
   },
-  "areaId": "69e05b1ba81c8b1c9f3203b4",
+  "areaId": "69eed19b6f6e98e919299741",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -272,9 +272,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1be22f7d54464e33b5"
+    "$oid": "69eed1a15c9793cc1bae8065"
   },
-  "areaId": "69e05b1b8447db42d5afe53b",
+  "areaId": "69eed1a1a077e0985ad54631",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -289,9 +289,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1af93869a569c6d5b2"
+    "$oid": "69eed19b9cf51625b06d0129"
   },
-  "areaId": "69e05b1a028fe7bb66f95a5d",
+  "areaId": "69eed19b08af38aee978e619",
   "keeper": 6503,
   "buyType0": 0,
   "buyType1": 0,
@@ -307,9 +307,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1ab48404786af46e0d"
+    "$oid": "69eed19b73f617bd797c2983"
   },
-  "areaId": "69e05b1a18b16b576325f021",
+  "areaId": "69eed19b7f2098fdd326d188",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -324,9 +324,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1dc9b1b3dcbf366487"
+    "$oid": "69eed19b17d5d68f0385eb1a"
   },
-  "areaId": "69e05b1dd18448cbe41f914c",
+  "areaId": "69eed19b7f4f7bcfe59921b8",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -341,9 +341,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1a05ea2f36927ad996"
+    "$oid": "69eed19c85d4f31b531ed6db"
   },
-  "areaId": "69e05b1a4da06f47e925dc28",
+  "areaId": "69eed19ca712b9cf8be79df9",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -358,9 +358,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1a39a0cfafab0f3b84"
+    "$oid": "69eed19c30f0523308bdcd23"
   },
-  "areaId": "69e05b1a09ff42af4a682f5e",
+  "areaId": "69eed19c1c3e0089b76bcfcf",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -375,9 +375,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1a896b99444699a995"
+    "$oid": "69eed19c436d01af5f857bd3"
   },
-  "areaId": "69e05b1a12331521f85e36c4",
+  "areaId": "69eed19ceaf6738fb089acd8",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -392,95 +392,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1aeebc2880e8c7fd4a"
+    "$oid": "69eed19b377bafb9793ef61b"
   },
-  "areaId": "69e05b1a0b5e6b1b1a999823",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69e05b1ac6b1806667d7effe"
-  },
-  "areaId": "69e05b1a9d61e1e456fc72f6",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69e05b1d43e6e621941c36a3"
-  },
-  "areaId": "69e05b1d74f54e1d7385f2c8",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69e05b1c46f017fa77c41cad"
-  },
-  "areaId": "69e05b1c17f1fb76897bc794",
-  "keeper": 306,
-  "buyType0": 1,
-  "buyType1": 10,
-  "buyType2": 11,
-  "buyType3": 19,
-  "buyType4": 0,
-  "profitBuy": 120,
-  "profitSell": 60,
-  "openHour": 0,
-  "closeHour": 23,
-  "comment": "Luxan",
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69e05b1a78b97d69005ece27"
-  },
-  "areaId": "69e05b1af698fc9f57059428",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69e05b1a28213b6022e42061"
-  },
-  "areaId": "69e05b1ae62c7d025e9db803",
+  "areaId": "69eed19b298440fca78d6422",
   "keeper": 9238,
   "buyType0": 0,
   "buyType1": 0,
@@ -496,9 +410,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1a329ae22927088a99"
+    "$oid": "69eed19bc8b71b43b9bda097"
   },
-  "areaId": "69e05b1af349348fd16daaec",
+  "areaId": "69eed19bf157cd4be4682c69",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -513,9 +427,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1a5ca80dbafe4f9c89"
+    "$oid": "69eed1a15850847fefd7c14d"
   },
-  "areaId": "69e05b1a067ce4b1f950efe0",
+  "areaId": "69eed1a1cd33b95e290dc9bf",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -530,9 +444,112 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1c276be073bee03a56"
+    "$oid": "69eed19cb760f21321320ba0"
   },
-  "areaId": "69e05b1cfb1bd42f1d4295ff",
+  "areaId": "69eed19c1972a6eeda7de104",
+  "keeper": 0,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 0,
+  "profitSell": 0,
+  "openHour": 0,
+  "closeHour": 0,
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed19c9a7adae019011e9b"
+  },
+  "areaId": "69eed19c7a4f8bf205bcebc0",
+  "keeper": 0,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 0,
+  "profitSell": 0,
+  "openHour": 0,
+  "closeHour": 0,
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed19c6b7e74c7141dd5e3"
+  },
+  "areaId": "69eed19c1f1e48a5e1f9034c",
+  "keeper": 0,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 0,
+  "profitSell": 0,
+  "openHour": 0,
+  "closeHour": 0,
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1a040992276596b6f89"
+  },
+  "areaId": "69eed1a0e1f1c8d99c7ddd5b",
+  "keeper": 306,
+  "buyType0": 1,
+  "buyType1": 10,
+  "buyType2": 11,
+  "buyType3": 19,
+  "buyType4": 0,
+  "profitBuy": 120,
+  "profitSell": 60,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "Luxan",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed19cecbade084a441f83"
+  },
+  "areaId": "69eed19cd3542ef8ddbfd979",
+  "keeper": 0,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 0,
+  "profitSell": 0,
+  "openHour": 0,
+  "closeHour": 0,
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1a535392438fc3047b1"
+  },
+  "areaId": "69eed1a57b65a0b17c8d8233",
+  "keeper": 0,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 0,
+  "profitSell": 0,
+  "openHour": 0,
+  "closeHour": 0,
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed19fcce0611baf93e480"
+  },
+  "areaId": "69eed19f27ab69c92230013e",
   "keeper": 915,
   "buyType0": 1,
   "buyType1": 8,
@@ -548,9 +565,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1ba37e1824cc08d3d9"
+    "$oid": "69eed19c06f57c2f2d8413e5"
   },
-  "areaId": "69e05b1b06dcde012fa430bc",
+  "areaId": "69eed19cc9cf03f87ba5c39b",
   "keeper": 5310,
   "buyType0": 0,
   "buyType1": 0,
@@ -566,9 +583,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1d51d958553af4c30a"
+    "$oid": "69eed1a4dd43c3c483003f0d"
   },
-  "areaId": "69e05b1dfe164768b1c02e23",
+  "areaId": "69eed1a463e6fd5316564c95",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -583,9 +600,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1b7bda1bf114206198"
+    "$oid": "69eed1a1fd8cac99d1b286df"
   },
-  "areaId": "69e05b1bd9a8df33b2f9ed56",
+  "areaId": "69eed1a13788e71b8b83162f",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -600,43 +617,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b208c72c6b46fba865b"
+    "$oid": "69eed1a239fea46ffac7fcf2"
   },
-  "areaId": "69e05b204fcc425a55f97852",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69e05b2094569265a2e8ad94"
-  },
-  "areaId": "69e05b20ca2f5f260900dcac",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69e05b1e28f549c584b90ae1"
-  },
-  "areaId": "69e05b1ead94e02fe6cb00cc",
+  "areaId": "69eed1a20b7c6714fa49a23f",
   "keeper": 3717,
   "buyType0": 1,
   "buyType1": 15,
@@ -652,27 +635,26 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1b7a380ba3a2750484"
+    "$oid": "69eed19ce31d31b4d0c98d2b"
   },
-  "areaId": "69e05b1bbf09ef31ffaaf5be",
-  "keeper": 604,
-  "buyType0": 5,
-  "buyType1": 9,
-  "buyType2": 15,
+  "areaId": "69eed19cc5b0d9078a034a72",
+  "keeper": 0,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
   "buyType3": 0,
   "buyType4": 0,
-  "profitBuy": 120,
-  "profitSell": 80,
+  "profitBuy": 0,
+  "profitSell": 0,
   "openHour": 0,
-  "closeHour": 23,
-  "comment": "Jim the Blacksmith",
+  "closeHour": 0,
   "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
 },
 {
   "_id": {
-    "$oid": "69e05b209f3434bb39c89430"
+    "$oid": "69eed1a4925abdaafba42f82"
   },
-  "areaId": "69e05b203e9fe765e945ade2",
+  "areaId": "69eed1a4d358eb2c97fcc630",
   "keeper": 1113,
   "buyType0": 17,
   "buyType1": 0,
@@ -688,9 +670,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b20a4cb3a4be104696a"
+    "$oid": "69eed19c60e8f09018356fb2"
   },
-  "areaId": "69e05b207c2448c144987cee",
+  "areaId": "69eed19c1ed601b0ce8373ac",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -705,9 +687,27 @@
 },
 {
   "_id": {
-    "$oid": "69e05b2037766e870d4f699d"
+    "$oid": "69eed19e8f0b0077ff4de2fc"
   },
-  "areaId": "69e05b20eeef7070c07140cf",
+  "areaId": "69eed19ec9a912a9aec6ec10",
+  "keeper": 604,
+  "buyType0": 5,
+  "buyType1": 9,
+  "buyType2": 15,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 120,
+  "profitSell": 80,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "Jim the Blacksmith",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1a420641dcef4259a9f"
+  },
+  "areaId": "69eed1a42cef2d37cdf67529",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -722,9 +722,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b208987058da968ac1e"
+    "$oid": "69eed1a6cc3be95edea7268e"
   },
-  "areaId": "69e05b20e4197e0c46db182a",
+  "areaId": "69eed1a614cbee898063c394",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -739,9 +739,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1b25683fc3e0295f3c"
+    "$oid": "69eed1a6dd188bd340996fd6"
   },
-  "areaId": "69e05b1b9738fe5dde8688e5",
+  "areaId": "69eed1a69d2a573dda16f36e",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -756,9 +756,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1f3e6411d26e1fbdb1"
+    "$oid": "69eed1a32a6dcb24ffd17edd"
   },
-  "areaId": "69e05b1f218ade5368e245fd",
+  "areaId": "69eed1a39c9520c302bbe817",
   "keeper": 0,
   "buyType0": 0,
   "buyType1": 0,
@@ -773,9 +773,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1a4f5a047c9e545af2"
+    "$oid": "69eed19ceaeec11c4221db23"
   },
-  "areaId": "69e05b1ad6c5baeade920ea4",
+  "areaId": "69eed19cd5a3aaffb7619bb5",
   "keeper": 1305,
   "buyType0": 17,
   "buyType1": 19,
@@ -791,9 +791,27 @@
 },
 {
   "_id": {
-    "$oid": "69e05b20c257f0b7dbf04a8b"
+    "$oid": "69eed19c002ca6fa95dafd3a"
   },
-  "areaId": "69e05b20fa8397a53aefeb6e",
+  "areaId": "69eed19c402e68556a29f838",
+  "keeper": 3000,
+  "buyType0": 2,
+  "buyType1": 3,
+  "buyType2": 4,
+  "buyType3": 10,
+  "buyType4": 0,
+  "profitBuy": 105,
+  "profitSell": 15,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the wizard",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69eed1a5c7616bd2b7d0dca8"
+  },
+  "areaId": "69eed1a577c921afc7f2f48a",
   "keeper": 10451,
   "buyType0": 0,
   "buyType1": 0,
@@ -809,9 +827,9 @@
 },
 {
   "_id": {
-    "$oid": "69e05b1b87b2b5a5bbf2a10d"
+    "$oid": "69eed19c0d18c85dd183b796"
   },
-  "areaId": "69e05b1b438f050203a699a0",
+  "areaId": "69eed19ccfa29b0b50659171",
   "keeper": 9505,
   "buyType0": 0,
   "buyType1": 0,
@@ -823,23 +841,5 @@
   "openHour": 0,
   "closeHour": 23,
   "comment": "the withered mage/bartender",
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69e05b1b8af4e7348d4f12e7"
-  },
-  "areaId": "69e05b1b49221bb8eccfbfe8",
-  "keeper": 3000,
-  "buyType0": 2,
-  "buyType1": 3,
-  "buyType2": 4,
-  "buyType3": 10,
-  "buyType4": 0,
-  "profitBuy": 105,
-  "profitSell": 15,
-  "openHour": 0,
-  "closeHour": 23,
-  "comment": "the wizard",
   "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
 }]

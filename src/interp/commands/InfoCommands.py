@@ -316,7 +316,8 @@ class InfoCommands:
             f"You have {attributes.practices} practices and {attributes.trains} training sessions.",
             f"You are carrying {carry_number}/{max_items} items with weight {carry_weight // 10}/{max_weight // 10} pounds.",
             f"Str: {attributes.strength}({attributes.strength})  Int: {attributes.intelligence}({attributes.intelligence})  Wis: {attributes.wisdom}({attributes.wisdom})  Dex: {attributes.dexterity}({attributes.dexterity})  Con: {attributes.constitution}({attributes.constitution})",
-            f"You have scored {attributes.experience} exp, and have {character.gold} gold and {character.silver} silver coins.",
+            f"You have scored {attributes.accumulated_experience} exp, and have {character.gold} gold and {character.silver} silver coins.",
+            f"You need {attributes.experience_per_level - attributes.experience} exp to level."
         ])
 
         GameParametersEnum = CharacterMacros.get_enum("gameParameters")
@@ -438,7 +439,7 @@ class InfoCommands:
             context.finish()
             return "None\r\n"
 
-        room_flags = CharacterMacros.enums.get("roomFlags")
+        room_flags = CharacterMacros.get_enum("roomFlags")
         nowhere_bit = room_flags.ROOM_NOWHERE.value if room_flags and hasattr(room_flags, "ROOM_NOWHERE") else None
 
         if not arg:
@@ -629,7 +630,7 @@ class InfoCommands:
             return ""
 
         act_bits = self.PlayerActBits
-        comm_bits = CharacterMacros.enums.get("commFlags")
+        comm_bits = CharacterMacros.get_enum("commFlags")
         act = CharacterMacros.get_act_flags(character)
         comm = CharacterMacros.get_comm_flags(character)
 
@@ -1060,7 +1061,7 @@ class InfoCommands:
             context.finish()
             return "You can't compare those items.\r\n"
 
-        item_flags = CharacterMacros.enums.get("itemFlags")
+        item_flags = CharacterMacros.get_enum("itemFlags")
         n1 = ItemUtil.format_obj_to_char(obj1, item_flags_enum=item_flags, f_short=True)
         n2 = ItemUtil.format_obj_to_char(obj2, item_flags_enum=item_flags, f_short=True)
 
