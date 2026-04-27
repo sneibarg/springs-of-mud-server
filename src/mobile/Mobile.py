@@ -43,6 +43,7 @@ class Mobile:
     silver: int
     combat_flags: str
     count: int = 0
+    killed: int = 0
     invis_level: Optional[int] = 0
     incog_level: Optional[int] = 0
     perm_stat: Optional[CharacterAttributes] = None

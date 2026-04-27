@@ -352,30 +352,33 @@ class ObjectCommands:
 
     def do_wear(self, character: Character, context: Context):
         arg1, rem = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
+        room = self.room_registry.get_or_none(id=character.room_id)
         if not arg1:
             context.finish()
-            return {"to_char": "Wear what?\r\n"}
+            return {"to_char": "Wear, wield, or hold what?\r\n"}
+        if arg1 == "all":
+            payload = self._wear_all(character, room)
+            context.finish()
+            return payload
         item = ObjectUtils.find_inventory_item(character, arg1)
         if item is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
-        slot = ObjectUtils.find_wear_slot(character, item, self.wear_flags, forced=rem.split()[0] if rem else "")
-        if slot is None:
-            context.finish()
-            return {"to_char": "You can't wear that there.\r\n"}
-        ObjectUtils.equip_item(character, item, slot)
-        EffectUtil.apply_item_effects(character, item)
+        forced_slot = rem.split()[0] if rem else ""
+        invalid_msg = "You can't wear that there.\r\n" if forced_slot else "You can't wear, wield, or hold that.\r\n"
+        payload = self._wear_item(character, item, room, replace=True, forced_slot=forced_slot, invalid_msg=invalid_msg)
         context.finish()
-        return {"to_char": f"You wear {ObjectUtils.short(item)}.\r\n"}
+        return payload
 
     def do_wield(self, character: Character, context: Context):
-        return self.equip_to_slot(character, context, "wielded", "Wield what?\r\n")
+        return self.equip_to_slot(character, context, "wielded", "Wield what?\r\n", "You can't wield that.\r\n")
 
     def do_hold(self, character: Character, context: Context):
-        return self.equip_to_slot(character, context, "held", "Hold what?\r\n")
+        return self.equip_to_slot(character, context, "held", "Hold what?\r\n", "You can't hold that.\r\n")
 
-    def equip_to_slot(self, character: Character, context: Context, slot: str, empty_msg: str):
+    def equip_to_slot(self, character: Character, context: Context, slot: str, empty_msg: str, invalid_msg: str):
         arg1, _ = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
+        room = self.room_registry.get_or_none(id=character.room_id)
         if not arg1:
             context.finish()
             return {"to_char": empty_msg}
@@ -383,14 +386,9 @@ class ObjectCommands:
         if item is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
-        equipped = ObjectUtils.ensure_equipped(character)
-        if getattr(equipped, slot, None) is not None:
-            context.finish()
-            return {"to_char": "Your hands are full.\r\n"}
-        ObjectUtils.equip_item(character, item, slot)
-        EffectUtil.apply_item_effects(character, item)
+        payload = self._wear_item(character, item, room, replace=True, preferred_slot=slot, invalid_msg=invalid_msg)
         context.finish()
-        return {"to_char": f"You equip {ObjectUtils.short(item)}.\r\n"}
+        return payload
 
     def do_remove(self, character: Character, context: Context):
         arg1, _ = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
@@ -420,6 +418,301 @@ class ObjectCommands:
                 return {"to_char": f"You stop using {ObjectUtils.short(item)}.\r\n"}
         context.finish()
         return {"to_char": "You aren't wearing that.\r\n"}
+
+    def _wear_all(self, character: Character, room):
+        char_lines = []
+        room_lines = []
+
+        for item in list(getattr(character, "loot", []) or []):
+            payload = self._wear_item(character, item, room, replace=False)
+            if not isinstance(payload, dict):
+                continue
+            if payload.get("to_char"):
+                char_lines.append(payload["to_char"])
+            if payload.get("to_room"):
+                room_lines.append(payload["to_room"])
+
+        result = {"to_char": "".join(char_lines)}
+        if room_lines and room is not None:
+            result["to_room"] = "".join(room_lines)
+            result["targets"] = self.player_helper.players_in_room(character, room)
+        return result
+
+    def _wear_item(
+        self,
+        character: Character,
+        item,
+        room,
+        *,
+        replace: bool,
+        preferred_slot: str = "",
+        forced_slot: str = "",
+        invalid_msg: str = "You can't wear, wield, or hold that.\r\n",
+    ) -> dict:
+        level = GenericUtil.to_int(getattr(character, "level", 0), 0)
+        item_level = GenericUtil.to_int(getattr(item, "level", 0), 0)
+        if level < item_level:
+            return self._build_wear_payload(
+                character,
+                room,
+                to_char=f"You must be level {item_level} to use this object.\r\n",
+                to_room=f"{character.name} tries to use {ObjectUtils.short(item)}, but is too inexperienced.\r\n",
+            )
+
+        slot_groups = self._wear_slot_groups_for_item(item, preferred_slot=preferred_slot, forced_slot=forced_slot)
+        if not slot_groups:
+            return {"to_char": invalid_msg if replace else ""}
+
+        char_lines = []
+        room_lines = []
+        slots = slot_groups[0]
+        selected_slot, removed_payload = self._resolve_wear_slot(character, slots, replace)
+        if removed_payload:
+            if removed_payload.get("to_char"):
+                char_lines.append(removed_payload["to_char"])
+            if removed_payload.get("to_room"):
+                room_lines.append(removed_payload["to_room"])
+        if selected_slot is None:
+            return self._build_wear_payload(character, room, "".join(char_lines), "".join(room_lines) if room_lines else "")
+
+        if selected_slot == "shield":
+            weapon = getattr(getattr(character, "equipped", None), "wielded", None)
+            if weapon is not None and self._character_size(character) < self._large_size_value() and self._is_two_handed_weapon(weapon):
+                char_lines.append("Your hands are tied up with your weapon!\r\n")
+                return self._build_wear_payload(character, room, "".join(char_lines), "".join(room_lines))
+
+        if selected_slot == "wielded":
+            if self._weapon_too_heavy(character, item):
+                char_lines.append("It is too heavy for you to wield.\r\n")
+                return self._build_wear_payload(character, room, "".join(char_lines), "".join(room_lines))
+            shield = getattr(getattr(character, "equipped", None), "shield", None)
+            if shield is not None and self._character_size(character) < self._large_size_value() and self._is_two_handed_weapon(item):
+                char_lines.append("You need two hands free for that weapon.\r\n")
+                return self._build_wear_payload(character, room, "".join(char_lines), "".join(room_lines))
+
+        ObjectUtils.equip_item(character, item, selected_slot)
+        EffectUtil.apply_item_effects(character, item)
+        equip_payload = self._slot_wear_payload(character, room, item, selected_slot)
+        char_lines.append(equip_payload.get("to_char", ""))
+        room_lines.append(equip_payload.get("to_room", ""))
+        if selected_slot == "wielded":
+            skill_feedback = self._weapon_skill_feedback(character, item)
+            if skill_feedback:
+                char_lines.append(skill_feedback)
+        return self._build_wear_payload(character, room, "".join(char_lines), "".join(room_lines))
+
+    def _resolve_wear_slot(self, character: Character, slots: tuple[str, ...], replace: bool) -> tuple[str | None, dict]:
+        equipped = ObjectUtils.ensure_equipped(character)
+        for slot in slots:
+            if getattr(equipped, slot, None) is None:
+                return slot, {}
+
+        combined_payload = {"to_char": "", "to_room": ""}
+        if not replace:
+            return None, combined_payload
+
+        for slot in slots:
+            removed, payload = self._remove_equipped_item(character, slot, replace=True)
+            combined_payload["to_char"] += payload.get("to_char", "")
+            combined_payload["to_room"] += payload.get("to_room", "")
+            if removed:
+                return slot, combined_payload
+
+        return None, combined_payload
+
+    def _remove_equipped_item(self, character: Character, slot: str, replace: bool) -> tuple[bool, dict]:
+        equipped = getattr(character, "equipped", None)
+        if equipped is None or not hasattr(equipped, slot):
+            return True, {"to_char": "", "to_room": ""}
+
+        item = getattr(equipped, slot)
+        if item is None:
+            return True, {"to_char": "", "to_room": ""}
+        if not replace:
+            return False, {"to_char": "", "to_room": ""}
+        if self.item_flags is not None and hasattr(self.item_flags, "ITEM_NOREMOVE"):
+            if ObjectUtils.has_flag(getattr(item, "extra_flags", 0), self.item_flags.ITEM_NOREMOVE.value):
+                return False, {"to_char": f"You can't remove {ObjectUtils.short(item)}.\r\n", "to_room": ""}
+
+        EffectUtil.remove_item_effects(character, item)
+        ObjectUtils.unequip_item(character, slot)
+        return True, {
+            "to_char": f"You stop using {ObjectUtils.short(item)}.\r\n",
+            "to_room": f"{character.name} stops using {ObjectUtils.short(item)}.\r\n",
+        }
+
+    def _wear_slot_groups_for_item(self, item, *, preferred_slot: str = "", forced_slot: str = "") -> list[tuple[str, ...]]:
+        equipped = ("light",) if self._is_light_item(item) else None
+        groups: list[tuple[str, ...]] = []
+        requested = (forced_slot or preferred_slot or "").strip().lower()
+
+        if equipped is not None:
+            groups.append(equipped)
+
+        flags = ObjectMacros.flags_to_int(getattr(item, "wear_flags", 0))
+        for flag_name, slots in ObjectUtils.WEAR_SLOT_ORDER.items():
+            if self.wear_flags is None or not hasattr(self.wear_flags, flag_name):
+                continue
+            if (flags & getattr(self.wear_flags, flag_name).value) == 0:
+                continue
+            groups.append(tuple(slots))
+
+        if not requested:
+            return groups
+
+        if requested in ("hold", "held") and self._is_light_item(item):
+            requested = "light"
+        slot_groups = [slots for slots in groups if requested in slots]
+        return slot_groups
+
+    @staticmethod
+    def _is_light_item(item) -> bool:
+        return str(getattr(item, "item_type", "") or "").strip().lower() == "light"
+
+    @staticmethod
+    def _build_wear_payload(character: Character, room, to_char: str, to_room: str = "") -> dict:
+        payload = {"to_char": to_char}
+        if room is not None and to_room:
+            payload["to_room"] = to_room
+            payload["targets"] = [target for target in room.characters.values() if getattr(target, "id", None) != getattr(character, "id", None)]
+        return payload
+
+    def _slot_wear_payload(self, character: Character, room, item, slot: str) -> dict:
+        short = ObjectUtils.short(item)
+        templates = {
+            "light": (f"You light {short} and hold it.\r\n", f"{character.name} lights {short} and holds it.\r\n"),
+            "finger1": (f"You wear {short} on your left finger.\r\n", f"{character.name} wears {short} on their left finger.\r\n"),
+            "finger2": (f"You wear {short} on your right finger.\r\n", f"{character.name} wears {short} on their right finger.\r\n"),
+            "neck1": (f"You wear {short} around your neck.\r\n", f"{character.name} wears {short} around their neck.\r\n"),
+            "neck2": (f"You wear {short} around your neck.\r\n", f"{character.name} wears {short} around their neck.\r\n"),
+            "torso": (f"You wear {short} on your torso.\r\n", f"{character.name} wears {short} on their torso.\r\n"),
+            "head": (f"You wear {short} on your head.\r\n", f"{character.name} wears {short} on their head.\r\n"),
+            "legs": (f"You wear {short} on your legs.\r\n", f"{character.name} wears {short} on their legs.\r\n"),
+            "feet": (f"You wear {short} on your feet.\r\n", f"{character.name} wears {short} on their feet.\r\n"),
+            "hands": (f"You wear {short} on your hands.\r\n", f"{character.name} wears {short} on their hands.\r\n"),
+            "arms": (f"You wear {short} on your arms.\r\n", f"{character.name} wears {short} on their arms.\r\n"),
+            "body": (f"You wear {short} about your torso.\r\n", f"{character.name} wears {short} about their torso.\r\n"),
+            "waist": (f"You wear {short} about your waist.\r\n", f"{character.name} wears {short} about their waist.\r\n"),
+            "wrist1": (f"You wear {short} around your left wrist.\r\n", f"{character.name} wears {short} around their left wrist.\r\n"),
+            "wrist2": (f"You wear {short} around your right wrist.\r\n", f"{character.name} wears {short} around their right wrist.\r\n"),
+            "shield": (f"You wear {short} as a shield.\r\n", f"{character.name} wears {short} as a shield.\r\n"),
+            "wielded": (f"You wield {short}.\r\n", f"{character.name} wields {short}.\r\n"),
+            "held": (f"You hold {short} in your hand.\r\n", f"{character.name} holds {short} in their hand.\r\n"),
+            "floating_nearby": (f"You release {short} and it floats next to you.\r\n", f"{character.name} releases {short} and it floats next to them.\r\n"),
+        }
+        to_char, to_room = templates.get(slot, (f"You wear {short}.\r\n", f"{character.name} wears {short}.\r\n"))
+        return self._build_wear_payload(character, room, to_char, to_room)
+
+    def _weapon_too_heavy(self, character: Character, item) -> bool:
+        if CharacterMacros.is_npc(character):
+            return False
+        strength = max(0, GenericUtil.to_int(getattr(getattr(character, "character_attributes", None), "strength", 0), 0))
+        try:
+            strength_bonus = CharacterMacros._attribute_bonus_map().get("strength", {})
+        except RuntimeError:
+            strength_bonus = {}
+        wield_limit = GenericUtil.to_int(strength_bonus.get(str(strength), {}).get("wield", 0), 0) * 10
+        return wield_limit > 0 and GenericUtil.to_int(getattr(item, "weight", 0), 0) > wield_limit
+
+    def _character_size(self, character: Character) -> int:
+        direct_size = GenericUtil.to_int(getattr(character, "size", None), None)
+        if direct_size is not None:
+            return direct_size
+
+        race_name = str(getattr(character, "race", "") or "").strip().lower()
+        try:
+            race_data = CharacterMacros._pc_races_map().get(race_name, {})
+        except RuntimeError:
+            race_data = {}
+        raw_size = race_data.get("size")
+        try:
+            size_enum = CharacterMacros.get_enum("size")
+        except RuntimeError:
+            size_enum = None
+        if isinstance(raw_size, str) and size_enum is not None and hasattr(size_enum, raw_size):
+            return int(getattr(size_enum, raw_size).value)
+        size_value = GenericUtil.to_int(raw_size, None)
+        if size_value is not None:
+            return size_value
+        return self._large_size_value() - 1
+
+    @staticmethod
+    def _large_size_value() -> int:
+        try:
+            size_enum = CharacterMacros.get_enum("size")
+        except RuntimeError:
+            size_enum = None
+        if size_enum is not None and hasattr(size_enum, "SIZE_LARGE"):
+            return int(size_enum.SIZE_LARGE.value)
+        return 3
+
+    @staticmethod
+    def _is_two_handed_weapon(item) -> bool:
+        try:
+            weapon_flags = CharacterMacros.get_enum("weaponType")
+        except RuntimeError:
+            weapon_flags = None
+        if weapon_flags is None or not hasattr(weapon_flags, "WEAPON_TWO_HANDS"):
+            return False
+        return ObjectUtils.has_flag(getattr(item, "value4", 0), weapon_flags.WEAPON_TWO_HANDS.value)
+
+    @staticmethod
+    def _weapon_skill_feedback(character: Character, item) -> str:
+        if CharacterMacros.is_npc(character):
+            return ""
+
+        try:
+            weapon_class = CharacterMacros.get_enum("weaponClass")
+        except RuntimeError:
+            weapon_class = None
+        if weapon_class is None:
+            return ""
+
+        skill_map = {
+            getattr(weapon_class, "WEAPON_SWORD", None): "sword",
+            getattr(weapon_class, "WEAPON_DAGGER", None): "dagger",
+            getattr(weapon_class, "WEAPON_SPEAR", None): "spear",
+            getattr(weapon_class, "WEAPON_MACE", None): "mace",
+            getattr(weapon_class, "WEAPON_AXE", None): "axe",
+            getattr(weapon_class, "WEAPON_FLAIL", None): "flail",
+            getattr(weapon_class, "WEAPON_WHIP", None): "whip",
+            getattr(weapon_class, "WEAPON_POLEARM", None): "polearm",
+        }
+        class_value = GenericUtil.to_int(getattr(item, "value0", 0), 0)
+        skill_name = ""
+        for enum_member, name in skill_map.items():
+            if enum_member is not None and class_value == int(enum_member.value):
+                skill_name = name
+                break
+        if not skill_name:
+            return ""
+
+        skill = 0
+        for entry in list(getattr(character, "skills", []) or []):
+            if isinstance(entry, dict):
+                entry_name = str(entry.get("name", "")).strip().lower()
+                entry_level = entry.get("level", 0)
+            else:
+                entry_name = str(getattr(entry, "name", "")).strip().lower()
+                entry_level = getattr(entry, "level", 0)
+            if entry_name == skill_name:
+                skill = max(0, min(100, GenericUtil.to_int(entry_level, 0)))
+                break
+
+        short = ObjectUtils.short(item)
+        if skill >= 100:
+            return f"{short} feels like a part of you!\r\n"
+        if skill > 85:
+            return f"You feel quite confident with {short}.\r\n"
+        if skill > 70:
+            return f"You are skilled with {short}.\r\n"
+        if skill > 50:
+            return f"Your skill with {short} is adequate.\r\n"
+        if skill > 25:
+            return f"{short} feels a little clumsy in your hands.\r\n"
+        if skill > 1:
+            return f"You fumble and almost drop {short}.\r\n"
+        return f"You don't even know which end is up on {short}.\r\n"
 
     def do_drink(self, character: Character, context: Context):
         arg1, _ = ObjectUtils.parse_raw_arguments(context.result, context.parameters)

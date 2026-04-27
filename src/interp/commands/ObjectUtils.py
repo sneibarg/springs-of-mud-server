@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from game.Equipped import Equipped
+from game.Equipped import Equipped, WEAR_LOC_TO_EQUIPPED_SLOT
 from game.GameMacros import GameMacros
 from game.GenericUtil import GenericUtil
 from interp.InterpUtil import InterpUtil
 
 
 class ObjectUtils:
+    EQUIPPED_SLOT_TO_WEAR_LOC = {slot: wear_loc for wear_loc, slot in WEAR_LOC_TO_EQUIPPED_SLOT.items()}
     WEAR_SLOT_ORDER = {
         "ITEM_WEAR_FINGER": ("finger1", "finger2"),
         "ITEM_WEAR_NECK": ("neck1", "neck2"),
@@ -121,6 +122,8 @@ class ObjectUtils:
         equipped = ObjectUtils.ensure_equipped(character)
         ObjectUtils.remove_from_inventory(character, item)
         setattr(equipped, slot_name, item)
+        setattr(item, "wear_location", slot_name)
+        setattr(item, "wear_loc", ObjectUtils.EQUIPPED_SLOT_TO_WEAR_LOC.get(slot_name, -1))
         return slot_name
 
     @staticmethod
@@ -131,6 +134,8 @@ class ObjectUtils:
         item = getattr(equipped, slot_name)
         setattr(equipped, slot_name, None)
         if item is not None:
+            setattr(item, "wear_location", "")
+            setattr(item, "wear_loc", -1)
             ObjectUtils.add_to_inventory(character, item)
         return item
 

@@ -11,12 +11,14 @@ from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
 from fight.FightHandler import FightHandler
 from mobile.Mobile import Mobile
+from mobile.KillTable import KillTable
 from mobile.MobileApi import MobileApi, MobileContext
 from mobile.MobileHelper import MobileHelper
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
 from server.messaging import MessageBus
+from skill.SpellApi import SpellApi
 
 
 class MobileHandler:
@@ -47,6 +49,7 @@ class MobileHandler:
         self.logger = LoggerFactory.get_logger(__name__)
         self.rng = RandomNumberGenerator()
         self.mobile_api = MobileApi()
+        self.spell_api = SpellApi()
         self.act_bits = None
         self.affected_bits = None
         self.positions = None
@@ -54,6 +57,7 @@ class MobileHandler:
         self.exit_flags = None
         self.wear_flags = None
         self._special_library_cache = None
+        self.kill_table: dict[int, KillTable] = {}
 
     def set_enums(self, enums: dict):
         self.act_bits = CharacterMacros.get_enum("actBits")
@@ -62,6 +66,24 @@ class MobileHandler:
         self.room_flags = CharacterMacros.get_enum("roomFlags")
         self.exit_flags = CharacterMacros.get_enum("exitFlags")
         self.wear_flags = CharacterMacros.get_enum("wearFlags")
+        self.rebuild_kill_table()
+
+    def rebuild_kill_table(self) -> None:
+        kill_table: dict[int, KillTable] = {}
+        for mob in list(self.registry_service.mobile_registry.all_mobiles() or []):
+            level = max(0, min(GenericUtil.to_int(getattr(mob, "level", 0), 0), 100))
+            entry = kill_table.setdefault(level, KillTable())
+            entry.number += 1
+        self.kill_table = kill_table
+
+    def record_mobile_kill(self, mob) -> None:
+        if mob is None:
+            return
+        if not self.kill_table:
+            self.rebuild_kill_table()
+        level = max(0, min(GenericUtil.to_int(getattr(mob, "level", 0), 0), 100))
+        entry = self.kill_table.setdefault(level, KillTable())
+        entry.killed += 1
 
     async def print_mobiles_in_room(self, character: Character):
         message = self.mobile_helper.get_mobiles_in_room(character)

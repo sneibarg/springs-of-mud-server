@@ -26,6 +26,8 @@ if "injector" not in sys.modules:
 from fight.FightHandler import FightHandler
 from game.Equipped import Equipped
 from game.UpdateHandler import UpdateHandler
+from mobile.KillTable import KillTable
+from mobile.MobileHandler import MobileHandler
 from interp.commands.ObjectUtils import ObjectUtils
 
 
@@ -172,3 +174,65 @@ class TestCombatInventoryRegressions(TestCase):
         self.assertEqual(55, attacker.character_attributes.experience)
         self.assertEqual(5075, attacker.character_attributes.accumulated_experience)
         raw_kill.assert_called_once_with(victim)
+
+    def test_mobile_handler_rebuilds_kill_table_with_number_counts(self):
+        registry_service = Mock()
+        registry_service.mobile_registry.all_mobiles.return_value = [
+            SimpleNamespace(level=5),
+            SimpleNamespace(level=5),
+            SimpleNamespace(level=7),
+        ]
+        handler = MobileHandler(
+            message_bus=Mock(),
+            registry_service=registry_service,
+            area_registry=Mock(),
+            room_registry=Mock(),
+            shop_registry=Mock(),
+            room_helper=Mock(),
+            mobile_helper=Mock(),
+            fight_handler=Mock(),
+            weather_handler=Mock(),
+        )
+
+        handler.rebuild_kill_table()
+
+        self.assertEqual(2, handler.kill_table[5].number)
+        self.assertEqual(0, handler.kill_table[5].killed)
+        self.assertEqual(1, handler.kill_table[7].number)
+
+    def test_raw_kill_updates_mobile_template_and_handler_kill_table(self):
+        combat_registry = Mock()
+        combat_registry.get_by_combatant.return_value = []
+        room_registry = Mock()
+        room = SimpleNamespace(id="room1", characters={}, mobiles={}, contents={})
+        room_registry.get_or_none.return_value = room
+        room_registry.all_rooms.return_value = [room]
+        handler = self._build_fight_handler(combat_registry=combat_registry, room_registry=room_registry)
+        handler.mobile_handler = SimpleNamespace(record_mobile_kill=Mock())
+
+        proto = SimpleNamespace(vnum="1000", count=3, killed=4)
+        handler.mobile_registry.get_or_none.return_value = proto
+
+        victim = SimpleNamespace(
+            id="mob1",
+            vnum="1000",
+            room_id="room1",
+            level=5,
+            short_description="the monster",
+            name="monster",
+            mobile_flags=SimpleNamespace(act=0, form=0, parts=0),
+            inventory=[],
+            equipped=None,
+            fighting=None,
+        )
+        room.mobiles = {"mob1": victim}
+
+        with patch("fight.FightHandler.CharacterMacros.is_npc", return_value=True), \
+             patch.object(handler, "death_cry"), \
+             patch.object(handler, "make_corpse"), \
+             patch("fight.FightHandler.CharacterMacros.get_enum", return_value=SimpleNamespace()):
+            handler.raw_kill(victim)
+
+        self.assertEqual(2, proto.count)
+        self.assertEqual(5, proto.killed)
+        handler.mobile_handler.record_mobile_kill.assert_called_once_with(victim)

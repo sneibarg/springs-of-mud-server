@@ -14,6 +14,7 @@ from interp.commands.InfoUtil import InfoUtil
 from mobile.MobileRegistry import MobileRegistry
 from object.BodyForm import BodyForm
 from object.BodyParts import BodyParts
+from object.EffectUtil import EffectUtil
 from object.ItemRegistry import ItemRegistry
 from object.ItemUtil import ItemUtil
 from player.Character import Character
@@ -45,10 +46,14 @@ class FightHandler:
         self.mobile_registry = mobile_registry
         self.rng = RandomNumberGenerator()
         self.PositionsEnum = None
+        self.mobile_handler = None
         self.logger.info("Initialized FightHandler instance.")
 
     def lazy_load(self):
         self.PositionsEnum = CharacterMacros.get_enum("positions")
+
+    def set_mobile_handler(self, mobile_handler) -> None:
+        self.mobile_handler = mobile_handler
 
     def get_combat_event_by_id(self, event_id: str) -> CombatEvent:
         return self.combat_registry.get_or_none(id=event_id)
@@ -239,7 +244,6 @@ class FightHandler:
                     continue
 
                 victim = self._select_aggressive_victim(aggressor, room)
-                print(f"aggressor: {aggressor} victim: {victim}")
                 if victim is None:
                     continue
 
@@ -337,10 +341,6 @@ class FightHandler:
         room = self._find_room_for_entity(victim)
         self.stop_fighting(victim, both=True)
 
-        positions_enum = CharacterMacros.get_enum("positions")
-        if positions_enum is not None and hasattr(positions_enum, "POS_DEAD"):
-            self._set_position(victim, int(positions_enum.POS_DEAD.value))
-
         if room is not None:
             self.death_cry(victim, room)
             self.make_corpse(victim, room)
@@ -352,6 +352,12 @@ class FightHandler:
             proto = self.mobile_registry.get_or_none(vnum=str(getattr(victim, "vnum", "") or ""))
             if proto is not None:
                 proto.count = max(0, GenericUtil.to_int(getattr(proto, "count", 0), 0) - 1)
+                proto.killed = GenericUtil.to_int(getattr(proto, "killed", 0), 0) + 1
+            if self.mobile_handler is not None:
+                self.mobile_handler.record_mobile_kill(victim)
+            return
+
+        self._restore_player_after_death(victim, room)
 
     def death_cry(self, victim, room) -> None:
         if victim is None or room is None:
@@ -1211,3 +1217,30 @@ class FightHandler:
 
         attrs.experience = current_xp
         attrs.accumulated_experience = accumulated_xp
+
+    def _restore_player_after_death(self, victim, room) -> None:
+        temple_room = self.room_registry.get_or_none(vnum="3001")
+        if room is not None:
+            room.characters.pop(str(getattr(victim, "id", "") or ""), None)
+
+        for effect in list(EffectUtil.ensure_effects(victim)):
+            EffectUtil.affect_remove(victim, effect)
+
+        armor = getattr(victim, "armor_class", None)
+        for field_name in ("piercing", "bashing", "slashing", "magic"):
+            if armor is not None and hasattr(armor, field_name):
+                setattr(armor, field_name, 100)
+
+        positions_enum = CharacterMacros.get_enum("positions")
+        if positions_enum is not None and hasattr(positions_enum, "POS_RESTING"):
+            self._set_position(victim, int(positions_enum.POS_RESTING.value))
+
+        victim.hit = max(1, GenericUtil.to_int(getattr(victim, "hit", 0), 0))
+        victim.mana = max(1, GenericUtil.to_int(getattr(victim, "mana", 0), 0))
+        victim.movement = max(1, GenericUtil.to_int(getattr(victim, "movement", 0), 0))
+
+        destination_room = temple_room or room
+        if destination_room is not None:
+            destination_room.add_player_to_room(victim)
+            victim.room_id = destination_room.id
+            victim.area_id = getattr(destination_room, "area_id", getattr(victim, "area_id", ""))

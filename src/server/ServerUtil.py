@@ -173,6 +173,7 @@ class ServerUtil:
         update_handler = injector.get(UpdateHandler)
         item_handler = injector.get(ItemHandler)
         fight_handler = injector.get(FightHandler)
+        mobile_handler = injector.get(MobileHandler)
         registry_service = injector.get(RegistryService)
         attribute_bonuses = injector.get(GameData).attribute_bonuses
         pc_races = injector.get(GameData).pc_races
@@ -194,6 +195,7 @@ class ServerUtil:
         )
 
         fight_handler.lazy_load()
+        fight_handler.set_mobile_handler(mobile_handler)
         wiz_commands.lazy_load()
         movement_commands.lazy_load()
         info_commands.lazy_load()

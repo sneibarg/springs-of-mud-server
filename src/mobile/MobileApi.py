@@ -12,6 +12,7 @@ from mobile.MobileMacros import MobileMacros
 from object.EffectUtil import EffectUtil
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
+from skill.SpellContext import SpellContext
 
 
 class MobileApi:
@@ -132,27 +133,43 @@ class MobileApi:
 
         target_value = ctx.resolve(target)
         if target_value == "room":
-            targets = []
-            for entity in MobileMacros.room_entities(ctx.room):
-                if entity is ctx.actor:
-                    continue
-                if ctx.handler.fight_handler.is_safe_spell(ctx.actor, entity, area=True):
-                    continue
-                targets.append(entity)
-            if not targets:
+            spell_context = SpellContext(
+                actor=ctx.actor,
+                spell=meta,
+                handler=ctx.handler,
+                room=ctx.room,
+                target=None,
+                target_name="room",
+                target_kind="room",
+                source="mobile",
+            )
+            ctx.handler.spell_api.execute_lambdas(spell_context)
+            if not spell_context.performed:
                 return False
-            for entity in targets:
-                if spell is not None:
-                    EffectUtil.apply_spell_effects(ctx.actor, entity, spell)
-                self._queue_spell_payload(ctx, meta, entity, area=True)
+            self._queue_spell_payload(ctx, meta, None, area=True)
+            for payload in spell_context.payloads:
+                ctx.queue_payload(payload)
             return ctx.mark_performed()
 
         victim = target_value
         if victim is None:
             return False
-        if spell is not None:
-            EffectUtil.apply_spell_effects(ctx.actor, victim, spell)
-        self._queue_spell_payload(ctx, meta, victim, area=False)
+        spell_context = SpellContext(
+            actor=ctx.actor,
+            spell=meta,
+            handler=ctx.handler,
+            room=ctx.room,
+            target=victim,
+            target_name=str(getattr(victim, "name", getattr(victim, "short_description", "")) or ""),
+            target_kind="obj" if hasattr(victim, "item_type") else "char",
+            source="mobile",
+        )
+        ctx.handler.spell_api.execute_lambdas(spell_context)
+        if not spell_context.performed:
+            return False
+        self._queue_spell_payload(ctx, meta, victim if not hasattr(victim, "item_type") else None, area=False)
+        for payload in spell_context.payloads:
+            ctx.queue_payload(payload)
         return ctx.mark_performed()
 
     def cast_weighted_support_spell(self, ctx: MobileContext, target_alias: str, weighted_spells: list[tuple[str, int, str]], miss_weight: int = 0):

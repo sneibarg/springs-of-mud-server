@@ -5,18 +5,21 @@ from injector import inject
 from area.RoomHelper import RoomHelper
 from fight.FightHandler import FightHandler
 from game.RegistryService import RegistryService
+from game.WeatherHandler import WeatherHandler
 from interp.Context import Context
 from interp.commands.FightUtil import FightUtil
-from object.EffectUtil import EffectUtil
+from interp.commands.ObjectUtils import ObjectUtils
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from player.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
+from skill.SpellApi import SpellApi
+from skill.SpellContext import SpellContext
 
 
 class FightCommands:
     @inject
-    def __init__(self, registry_service: RegistryService, room_helper: RoomHelper, fight_handler: FightHandler):
+    def __init__(self, registry_service: RegistryService, room_helper: RoomHelper, fight_handler: FightHandler, weather_handler: WeatherHandler = None):
         self.__name__ = "FightCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -25,6 +28,8 @@ class FightCommands:
         self.spell_registry = getattr(registry_service, "spell_registry", None)
         self.room_helper = room_helper
         self.fight_handler = fight_handler
+        self.weather_handler = weather_handler
+        self.spell_api = SpellApi()
 
     def execute(self, character: Character, context: Context):
         name = (getattr(context.command, "name", "") or "").strip().lower()
@@ -116,13 +121,11 @@ class FightCommands:
             return {"to_char": "Cast which what where?\r\n"}
 
         spell = FightUtil.find_spell(self.spell_registry, spell_name)
-        skill = FightUtil.find_spell_skill(self.skill_registry, character, spell_name)
-        if spell is None and skill is None:
+        if spell is None:
             context.finish()
             return {"to_char": "You don't know any spells of that name.\r\n"}
 
-        meta = spell if spell is not None else skill
-        mana_cost = FightUtil.min_mana(meta)
+        mana_cost = FightUtil.min_mana(spell)
         if getattr(character, "mana", 0) < mana_cost:
             context.finish()
             return {"to_char": "You don't have enough mana.\r\n"}
@@ -132,42 +135,89 @@ class FightCommands:
             context.finish()
             return {"to_char": "You are nowhere.\r\n"}
 
-        target_type = str(getattr(meta, "target", "") or "").upper()
-        victim = None
-        if target_type in ("CHAR_OFFENSIVE", "CHAR_DEFENSIVE", "CHAR_SELF", "OBJ_CHAR_OFF", "OBJ_CHAR_DEF"):
-            if target_arg:
-                victim = PlayerUtil.get_target(character, target_arg, room, self.room_helper)
-            elif target_type in ("CHAR_DEFENSIVE", "CHAR_SELF", "OBJ_CHAR_DEF"):
-                victim = character
-            else:
-                victim = getattr(character, "fighting", None)
-            if victim is None:
-                context.finish()
-                return {"to_char": "Cast the spell on whom?\r\n"}
+        target, target_kind, error = self._resolve_spell_target(character, room, spell, target_arg)
+        if error:
+            context.finish()
+            return {"to_char": error}
 
-        if spell is not None:
-            EffectUtil.apply_spell_effects(character, victim, spell)
-
-        character.mana -= mana_cost
-        spell_label = getattr(meta, "name", spell_name)
-        cast_text = f"You cast {spell_label}"
-        if victim is not None and victim is not character:
-            cast_text += f" on {victim.name}"
-        cast_text += ".\r\n"
-
-        room_text = f"{character.name} casts {spell_label}"
-        if victim is not None and victim is not character:
-            room_text += f" on {victim.name}"
-        room_text += ".\r\n"
-
-        payload = {
-            "to_char": cast_text,
-            "to_room": room_text,
-            "targets": [ch for ch in room.characters.values() if ch.id != character.id],
-        }
-        if victim is not None and hasattr(victim, "id") and victim.id != character.id:
-            payload["to_victim"] = f"{character.name} casts {spell_label} on you.\r\n"
-            payload["victim"] = victim
-
+        spell_context = SpellContext(
+            actor=character,
+            spell=spell,
+            handler=self,
+            room=room,
+            target=target,
+            target_name=target_arg,
+            target_kind=target_kind,
+            source="player",
+            command_context=context,
+        )
+        self.spell_api.execute_lambdas(spell_context)
+        if spell_context.performed:
+            character.mana -= mana_cost
+            self.spell_api.queue_cast_announcement(spell_context)
+            self.spell_api.start_offensive_combat(spell_context)
         context.finish()
-        return payload
+        return self.spell_api.merge_player_payloads(spell_context)
+
+    def _resolve_spell_target(self, character: Character, room, spell, target_arg: str):
+        target_type = str(getattr(spell, "target", "") or "").upper()
+        argument = str(target_arg or "").strip()
+
+        if target_type == "IGNORE":
+            return None, "ignore", ""
+
+        if target_type == "CHAR_SELF":
+            if argument and argument.lower() not in {"self", str(getattr(character, "name", "")).lower()}:
+                return None, "", "You cannot cast this spell on another.\r\n"
+            return character, "char", ""
+
+        if target_type == "CHAR_DEFENSIVE":
+            victim = PlayerUtil.get_target(character, argument, room, self.room_helper) if argument else character
+            return (victim, "char", "") if victim is not None else (None, "", "Cast the spell on whom?\r\n")
+
+        if target_type == "CHAR_OFFENSIVE":
+            victim = PlayerUtil.get_target(character, argument, room, self.room_helper) if argument else getattr(character, "fighting", None)
+            if victim is None:
+                return None, "", "Cast the spell on whom?\r\n"
+            safe, safe_msg = self.fight_handler.is_safe(character, victim, room=room)
+            if safe and victim is not character:
+                return None, "", safe_msg or "Not on that target.\r\n"
+            return victim, "char", ""
+
+        if target_type == "OBJ_INV":
+            if not argument:
+                return None, "", "What should the spell be cast upon?\r\n"
+            obj = ObjectUtils.find_inventory_item(character, argument)
+            if obj is None:
+                return None, "", "You are not carrying that.\r\n"
+            return obj, "obj", ""
+
+        if target_type == "OBJ_CHAR_DEF":
+            if not argument:
+                return character, "char", ""
+            victim = PlayerUtil.get_target(character, argument, room, self.room_helper)
+            if victim is not None:
+                return victim, "char", ""
+            obj = ObjectUtils.find_inventory_item(character, argument)
+            if obj is None:
+                return None, "", "You don't see that here.\r\n"
+            return obj, "obj", ""
+
+        if target_type == "OBJ_CHAR_OFF":
+            if not argument:
+                victim = getattr(character, "fighting", None)
+                if victim is None:
+                    return None, "", "Cast the spell on whom or what?\r\n"
+                return victim, "char", ""
+            victim = PlayerUtil.get_target(character, argument, room, self.room_helper)
+            if victim is not None:
+                safe, safe_msg = self.fight_handler.is_safe(character, victim, room=room)
+                if safe and victim is not character:
+                    return None, "", safe_msg or "Not on that target.\r\n"
+                return victim, "char", ""
+            obj = ObjectUtils.find_room_item(room, argument) or ObjectUtils.find_inventory_item(character, argument)
+            if obj is None:
+                return None, "", "You don't see that here.\r\n"
+            return obj, "obj", ""
+
+        return None, "", "You can't cast that right now.\r\n"

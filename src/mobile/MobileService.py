@@ -23,7 +23,6 @@ class MobileService:
         self.mobiles_endpoint = config.mobiles_endpoint
         self.area_registry = area_registry
         self.fight_handler = fight_handler
-        self.kill_table: dict[int, int] = {}
         self.load_mobiles()
 
     def reload_mobiles(self) -> None:
@@ -40,7 +39,6 @@ class MobileService:
         return self._fetch_and_register(url, f"social '{mobile_name}'")
 
     def _fetch_and_register(self, url: str, description: str) -> Optional[Mobile]:
-        kill_table: dict[int, int] = {}
         npc_flag = MobileUtil.resolve_npc_flag(self.game_data)
         try:
             response = requests.get(url, timeout=10)
@@ -49,17 +47,16 @@ class MobileService:
             if isinstance(data, list):
                 count = 0
                 for raw_mobile in data:
-                    mobile = self._build_mobile(raw_mobile, npc_flag, kill_table)
+                    mobile = self._build_mobile(raw_mobile, npc_flag)
                     if mobile is None:
                         self.logger.error(f"Failed to build mobile for {raw_mobile}")
                         continue
                     self.mobile_registry.register(mobile)
                     count += 1
-                self.kill_table = kill_table
                 self.logger.info(f"Loaded {count} {description}.")
                 return None
             else:
-                mobile = self._build_mobile(data, npc_flag, kill_table)
+                mobile = self._build_mobile(data, npc_flag)
                 if mobile is None:
                     return None
                 self.mobile_registry.register(mobile)
@@ -73,7 +70,7 @@ class MobileService:
             self.logger.error(f"Unexpected error processing {description}: {e}", exc_info=True)
             return None
 
-    def _build_mobile(self, raw_mobile, npc_flag, kill_table) -> Optional[Mobile]:
+    def _build_mobile(self, raw_mobile, npc_flag) -> Optional[Mobile]:
         from game.GenericUtil import GenericUtil
         converted_mobile = GenericUtil.camel_to_snake_case(raw_mobile)
         converted_mobile['form'] = MobileUtil.convert_form(converted_mobile['race'], converted_mobile['form'])
@@ -83,6 +80,5 @@ class MobileService:
         if mobile_id is None:
             return None
 
-        mobile, level = MobileUtil.build_mobile(mobile_id, self.game_data.races, converted_mobile, npc_flag, self.enums)
-        MobileUtil.increment_kill_table(kill_table, level)
+        mobile, _ = MobileUtil.build_mobile(mobile_id, self.game_data.races, converted_mobile, npc_flag, self.enums)
         return mobile

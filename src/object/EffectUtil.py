@@ -77,6 +77,56 @@ class _EffectStatics:
 
 class EffectUtil:
     @staticmethod
+    def _expr_env(level: int, target=None, caster=None) -> dict:
+        def dice(number, size):
+            count = max(0, GenericUtil.to_int(number, 0))
+            sides = max(1, GenericUtil.to_int(size, 1))
+            return sum(random.randint(1, sides) for _ in range(count))
+
+        def number_range(low, high):
+            lo = GenericUtil.to_int(low, 0)
+            hi = GenericUtil.to_int(high, lo)
+            if hi < lo:
+                lo, hi = hi, lo
+            return random.randint(lo, hi)
+
+        def number_fuzzy(value):
+            base = GenericUtil.to_int(value, 0)
+            return max(1, base + random.randint(-1, 1))
+
+        return {
+            "level": GenericUtil.to_int(level, 0),
+            "victim": target,
+            "target": target,
+            "caster": caster,
+            "actor": caster,
+            "dice": dice,
+            "number_range": number_range,
+            "number_fuzzy": number_fuzzy,
+            "UMAX": lambda a, b: max(GenericUtil.to_int(a, 0), GenericUtil.to_int(b, 0)),
+            "UMIN": lambda a, b: min(GenericUtil.to_int(a, 0), GenericUtil.to_int(b, 0)),
+            "abs": abs,
+            "max": max,
+            "min": min,
+            "int": int,
+        }
+
+    @staticmethod
+    def _eval_expr(value, level: int, default: int = 0, target=None, caster=None) -> int:
+        if value is None:
+            return default
+        converted = GenericUtil.to_int(value, None)
+        if converted is not None:
+            return converted
+        expr = str(value or "").strip()
+        if not expr:
+            return default
+        try:
+            return int(eval(expr, {"__builtins__": {}}, EffectUtil._expr_env(level, target=target, caster=caster)))
+        except Exception:
+            return default
+
+    @staticmethod
     def ensure_effects(entity) -> list[Effect]:
         effects = getattr(entity, "effects", None)
         if effects is None:
@@ -229,25 +279,27 @@ class EffectUtil:
         raw_type = str(getattr(effect, "type", "") or "").strip().lower()
         if raw_type in ("sn", "skill", "spell"):
             effect.type = str(getattr(spell, "handler_id", "") or getattr(spell, "name", ""))
-        level = getattr(effect, "level", 0)
-        if str(level).strip().lower() == "level":
-            effect.level = int(caster_level)
-        else:
-            effect.level = GenericUtil.to_int(level, int(caster_level))
-        effect.duration = GenericUtil.to_int(getattr(effect, "duration", 0), 0)
-        effect.modifier = GenericUtil.to_int(getattr(effect, "modifier", 0), 0)
+        effect.level = EffectUtil._eval_expr(getattr(effect, "level", 0), caster_level, int(caster_level))
+        effect.duration = EffectUtil._eval_expr(getattr(effect, "duration", 0), caster_level, 0)
+        effect.modifier = EffectUtil._eval_expr(getattr(effect, "modifier", 0), caster_level, 0)
         return effect
 
     @staticmethod
     def apply_spell_effects(caster, victim, spell):
-        affects = list(getattr(spell, "affects", []) or [])
+        affects = list(getattr(spell, "affect_data", []) or getattr(spell, "affects", []) or [])
         if not affects or victim is None:
             return
         source = f"spell:{getattr(spell, 'handler_id', getattr(spell, 'name', ''))}"
         caster_level = GenericUtil.to_int(getattr(caster, "level", 0), 0)
         for affect_like in affects:
             effect = EffectUtil.effect_from_spell_affect(spell, affect_like, caster_level, source=source)
-            EffectUtil.affect_join(victim, effect)
+            apply_to = str(getattr(effect, "apply_to", "") or "").strip().lower()
+            where = str(getattr(effect, "where", "") or "").strip().upper()
+            wants_object = apply_to == "object" or where in ("TO_OBJECT", "TO_WEAPON")
+            if wants_object and hasattr(victim, "item_type"):
+                EffectUtil.affect_to_obj(victim, effect)
+            elif not hasattr(victim, "item_type"):
+                EffectUtil.affect_join(victim, effect)
 
     @staticmethod
     def apply_item_effects(character, item):

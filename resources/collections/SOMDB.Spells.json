@@ -27,6 +27,9 @@
         "bitvector": "0",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_armor()"
     ]
   },
   {
@@ -45,7 +48,10 @@
     "msgOff": "!Teleport!",
     "msgObj": "",
     "functionName": "teleport",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_teleport()"
+    ]
   },
   {
     "_id": {
@@ -97,6 +103,9 @@
         "bitvector": "0",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_bless()"
     ]
   },
   {
@@ -127,6 +136,9 @@
         "bitvector": "AFF_BLIND",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_blindness()"
     ]
   },
   {
@@ -145,7 +157,10 @@
     "msgOff": "!Burning Hands!",
     "msgObj": "",
     "functionName": "burning_hands",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_burning_hands()"
+    ]
   },
   {
     "_id": {
@@ -163,7 +178,10 @@
     "msgOff": "!Call Lightning!",
     "msgObj": "",
     "functionName": "call_lightning",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_call_lightning()"
+    ]
   },
   {
     "_id": {
@@ -193,6 +211,9 @@
         "bitvector": "AFF_CHARM",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_charm_person()"
     ]
   },
   {
@@ -211,7 +232,10 @@
     "msgOff": "You feel less cold.",
     "msgObj": "",
     "functionName": "chill_touch",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_chill_touch()"
+    ]
   },
   {
     "_id": {
@@ -229,7 +253,10 @@
     "msgOff": "!Colour Spray!",
     "msgObj": "",
     "functionName": "colour_spray",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_colour_spray()"
+    ]
   },
   {
     "_id": {
@@ -247,7 +274,10 @@
     "msgOff": "!Control Weather!",
     "msgObj": "",
     "functionName": "control_weather",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_control_weather()"
+    ]
   },
   {
     "_id": {
@@ -265,7 +295,10 @@
     "msgOff": "!Create Food!",
     "msgObj": "",
     "functionName": "create_food",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_create_food()"
+    ]
   },
   {
     "_id": {
@@ -283,7 +316,10 @@
     "msgOff": "!Create Water!",
     "msgObj": "",
     "functionName": "create_water",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_create_water()"
+    ]
   },
   {
     "_id": {
@@ -301,7 +337,10 @@
     "msgOff": "!Cure Blindness!",
     "msgObj": "",
     "functionName": "cure_blindness",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_cure_blindness()"
+    ]
   },
   {
     "_id": {
@@ -319,7 +358,10 @@
     "msgOff": "!Cure Critical!",
     "msgObj": "",
     "functionName": "cure_critical",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_cure_critical()"
+    ]
   },
   {
     "_id": {
@@ -337,7 +379,10 @@
     "msgOff": "!Cure Light!",
     "msgObj": "",
     "functionName": "cure_light",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_cure_light()"
+    ]
   },
   {
     "_id": {
@@ -389,6 +434,9 @@
         "bitvector": "AFF_CURSE",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_curse()"
     ]
   },
   {
@@ -419,6 +467,9 @@
         "bitvector": "AFF_DETECT_EVIL",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_detect_evil()"
     ]
   },
   {
@@ -449,6 +500,9 @@
         "bitvector": "AFF_DETECT_INVIS",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_detect_invis()"
     ]
   },
   {
@@ -479,6 +533,9 @@
         "bitvector": "AFF_DETECT_MAGIC",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_detect_magic()"
     ]
   },
   {
@@ -497,7 +554,10 @@
     "msgOff": "!Detect Poison!",
     "msgObj": "",
     "functionName": "detect_poison",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_detect_poison()"
+    ]
   },
   {
     "_id": {
@@ -515,7 +575,10 @@
     "msgOff": "!Dispel Evil!",
     "msgObj": "",
     "functionName": "dispel_evil",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_dispel_evil()"
+    ]
   },
   {
     "_id": {
@@ -533,7 +596,10 @@
     "msgOff": "!Earthquake!",
     "msgObj": "",
     "functionName": "earthquake",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_earthquake()"
+    ]
   },
   {
     "_id": {
@@ -551,7 +617,10 @@
     "msgOff": "!Enchant Weapon!",
     "msgObj": "",
     "functionName": "enchant_weapon",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_enchant_weapon()"
+    ]
   },
   {
     "_id": {
@@ -569,7 +638,10 @@
     "msgOff": "!Energy Drain!",
     "msgObj": "",
     "functionName": "energy_drain",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_energy_drain()"
+    ]
   },
   {
     "_id": {
@@ -587,7 +659,10 @@
     "msgOff": "!Fireball!",
     "msgObj": "",
     "functionName": "fireball",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_fireball()"
+    ]
   },
   {
     "_id": {
@@ -605,7 +680,10 @@
     "msgOff": "!Harm!",
     "msgObj": "",
     "functionName": "harm",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_harm()"
+    ]
   },
   {
     "_id": {
@@ -623,7 +701,10 @@
     "msgOff": "!Heal!",
     "msgObj": "",
     "functionName": "heal",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_heal()"
+    ]
   },
   {
     "_id": {
@@ -664,6 +745,9 @@
         "bitvector": "AFF_INVISIBLE",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_invis()"
     ]
   },
   {
@@ -682,7 +766,10 @@
     "msgOff": "!Lightning Bolt!",
     "msgObj": "",
     "functionName": "lightning_bolt",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_lightning_bolt()"
+    ]
   },
   {
     "_id": {
@@ -700,7 +787,10 @@
     "msgOff": "!Locate Object!",
     "msgObj": "",
     "functionName": "locate_object",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_locate_object()"
+    ]
   },
   {
     "_id": {
@@ -718,7 +808,10 @@
     "msgOff": "!Magic Missile!",
     "msgObj": "",
     "functionName": "magic_missile",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_magic_missile()"
+    ]
   },
   {
     "_id": {
@@ -748,6 +841,9 @@
         "bitvector": "WEAPON_POISON",
         "applyTo": "object"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_poison()"
     ]
   },
   {
@@ -778,6 +874,9 @@
         "bitvector": "AFF_PROTECT_EVIL",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_protection_evil()"
     ]
   },
   {
@@ -796,7 +895,10 @@
     "msgOff": "!Remove Curse!",
     "msgObj": "",
     "functionName": "remove_curse",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_remove_curse()"
+    ]
   },
   {
     "_id": {
@@ -826,6 +928,9 @@
         "bitvector": "AFF_SANCTUARY",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_sanctuary()"
     ]
   },
   {
@@ -844,7 +949,10 @@
     "msgOff": "You feel less tired.",
     "msgObj": "",
     "functionName": "sleep",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_sleep()"
+    ]
   },
   {
     "_id": {
@@ -874,6 +982,9 @@
         "bitvector": "0",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_giant_strength()"
     ]
   },
   {
@@ -892,7 +1003,10 @@
     "msgOff": "!Summon!",
     "msgObj": "",
     "functionName": "summon",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_summon()"
+    ]
   },
   {
     "_id": {
@@ -910,7 +1024,10 @@
     "msgOff": "!Ventriloquate!",
     "msgObj": "",
     "functionName": "ventriloquate",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_ventriloquate()"
+    ]
   },
   {
     "_id": {
@@ -928,7 +1045,10 @@
     "msgOff": "!Word of Recall!",
     "msgObj": "",
     "functionName": "word_of_recall",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_word_of_recall()"
+    ]
   },
   {
     "_id": {
@@ -946,7 +1066,10 @@
     "msgOff": "!Cure Poison!",
     "msgObj": "",
     "functionName": "cure_poison",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_cure_poison()"
+    ]
   },
   {
     "_id": {
@@ -976,6 +1099,9 @@
         "bitvector": "AFF_DETECT_HIDDEN",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_detect_hidden()"
     ]
   },
   {
@@ -994,7 +1120,10 @@
     "msgOff": "!Identify!",
     "msgObj": "",
     "functionName": "identify",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_identify()"
+    ]
   },
   {
     "_id": {
@@ -1012,7 +1141,10 @@
     "msgOff": "!Shocking Grasp!",
     "msgObj": "",
     "functionName": "shocking_grasp",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_shocking_grasp()"
+    ]
   },
   {
     "_id": {
@@ -1042,6 +1174,9 @@
         "bitvector": "AFF_FLYING",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_fly()"
     ]
   },
   {
@@ -1060,7 +1195,10 @@
     "msgOff": "!Continual Light!",
     "msgObj": "",
     "functionName": "continual_light",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_continual_light()"
+    ]
   },
   {
     "_id": {
@@ -1078,7 +1216,10 @@
     "msgOff": "!Know Alignment!",
     "msgObj": "",
     "functionName": "know_alignment",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_know_alignment()"
+    ]
   },
   {
     "_id": {
@@ -1096,7 +1237,10 @@
     "msgOff": "!Dispel Magic!",
     "msgObj": "",
     "functionName": "dispel_magic",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_dispel_magic()"
+    ]
   },
   {
     "_id": {
@@ -1114,7 +1258,10 @@
     "msgOff": "!Cure Serious!",
     "msgObj": "",
     "functionName": "cure_serious",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_cure_serious()"
+    ]
   },
   {
     "_id": {
@@ -1132,7 +1279,10 @@
     "msgOff": "!Cause Light!",
     "msgObj": "",
     "functionName": "cause_light",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_cause_light()"
+    ]
   },
   {
     "_id": {
@@ -1150,7 +1300,10 @@
     "msgOff": "!Cause Critical!",
     "msgObj": "",
     "functionName": "cause_critical",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_cause_critical()"
+    ]
   },
   {
     "_id": {
@@ -1168,7 +1321,10 @@
     "msgOff": "!Cause Serious!",
     "msgObj": "",
     "functionName": "cause_serious",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_cause_serious()"
+    ]
   },
   {
     "_id": {
@@ -1186,7 +1342,10 @@
     "msgOff": "!Flamestrike!",
     "msgObj": "",
     "functionName": "flamestrike",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_flamestrike()"
+    ]
   },
   {
     "_id": {
@@ -1216,6 +1375,9 @@
         "bitvector": "0",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_stone_skin()"
     ]
   },
   {
@@ -1246,6 +1408,9 @@
         "bitvector": "0",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_shield()"
     ]
   },
   {
@@ -1276,6 +1441,9 @@
         "bitvector": "AFF_WEAKEN",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_weaken()"
     ]
   },
   {
@@ -1306,6 +1474,9 @@
         "bitvector": "AFF_INVISIBLE",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_mass_invis()"
     ]
   },
   {
@@ -1324,7 +1495,10 @@
     "msgOff": "!Acid Blast!",
     "msgObj": "",
     "functionName": "acid_blast",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_acid_blast()"
+    ]
   },
   {
     "_id": {
@@ -1354,6 +1528,9 @@
         "bitvector": "AFF_FAERIE_FIRE",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_faerie_fire()"
     ]
   },
   {
@@ -1372,7 +1549,10 @@
     "msgOff": "!Faerie Fog!",
     "msgObj": "",
     "functionName": "faerie_fog",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_faerie_fog()"
+    ]
   },
   {
     "_id": {
@@ -1402,6 +1582,9 @@
         "bitvector": "AFF_PASS_DOOR",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_pass_door()"
     ]
   },
   {
@@ -1432,6 +1615,9 @@
         "bitvector": "AFF_INFRARED",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_infravision()"
     ]
   },
   {
@@ -1450,7 +1636,10 @@
     "msgOff": "!Create Spring!",
     "msgObj": "",
     "functionName": "create_spring",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_create_spring()"
+    ]
   },
   {
     "_id": {
@@ -1468,7 +1657,10 @@
     "msgOff": "!Refresh!",
     "msgObj": "",
     "functionName": "refresh",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_refresh()"
+    ]
   },
   {
     "_id": {
@@ -1498,6 +1690,9 @@
         "bitvector": "0",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_change_sex()"
     ]
   },
   {
@@ -1516,7 +1711,10 @@
     "msgOff": "!Gate!",
     "msgObj": "",
     "functionName": "gate",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_gate()"
+    ]
   },
   {
     "_id": {
@@ -1534,7 +1732,10 @@
     "msgOff": "!Acid Breath!",
     "msgObj": "",
     "functionName": "acid_breath",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_acid_breath()"
+    ]
   },
   {
     "_id": {
@@ -1552,7 +1753,10 @@
     "msgOff": "The smoke leaves your eyes.",
     "msgObj": "",
     "functionName": "fire_breath",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_fire_breath()"
+    ]
   },
   {
     "_id": {
@@ -1570,7 +1774,10 @@
     "msgOff": "!Frost Breath!",
     "msgObj": "",
     "functionName": "frost_breath",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_frost_breath()"
+    ]
   },
   {
     "_id": {
@@ -1588,7 +1795,10 @@
     "msgOff": "!Gas Breath!",
     "msgObj": "",
     "functionName": "gas_breath",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_gas_breath()"
+    ]
   },
   {
     "_id": {
@@ -1606,7 +1816,10 @@
     "msgOff": "!Lightning Breath!",
     "msgObj": "",
     "functionName": "lightning_breath",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_lightning_breath()"
+    ]
   },
   {
     "_id": {
@@ -1624,7 +1837,10 @@
     "msgOff": "!General Purpose Ammo!",
     "msgObj": "",
     "functionName": "general_purpose",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_general_purpose()"
+    ]
   },
   {
     "_id": {
@@ -1642,7 +1858,10 @@
     "msgOff": "!High Explosive Ammo!",
     "msgObj": "",
     "functionName": "high_explosive",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_high_explosive()"
+    ]
   },
   {
     "_id": {
@@ -1660,7 +1879,10 @@
     "msgOff": "!Chain Lightning!",
     "msgObj": "",
     "functionName": "chain_lightning",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_chain_lightning()"
+    ]
   },
   {
     "_id": {
@@ -1678,7 +1900,10 @@
     "msgOff": "!Cure Disease!",
     "msgObj": "",
     "functionName": "cure_disease",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_cure_disease()"
+    ]
   },
   {
     "_id": {
@@ -1708,6 +1933,9 @@
         "bitvector": "AFF_HASTE",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_haste()"
     ]
   },
   {
@@ -1726,7 +1954,10 @@
     "msgOff": "Your sores vanish.",
     "msgObj": "",
     "functionName": "plague",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_plague()"
+    ]
   },
   {
     "_id": {
@@ -1778,6 +2009,9 @@
         "bitvector": "0",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_frenzy()"
     ]
   },
   {
@@ -1796,7 +2030,10 @@
     "msgOff": "!Demonfire!",
     "msgObj": "",
     "functionName": "demonfire",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_demonfire()"
+    ]
   },
   {
     "_id": {
@@ -1814,7 +2051,10 @@
     "msgOff": "!Holy Word!",
     "msgObj": "",
     "functionName": "holy_word",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_holy_word()"
+    ]
   },
   {
     "_id": {
@@ -1832,7 +2072,10 @@
     "msgOff": "!Cancellation!",
     "msgObj": "",
     "functionName": "cancellation",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_cancellation()"
+    ]
   },
   {
     "_id": {
@@ -1850,7 +2093,10 @@
     "msgOff": "!Mass Healing!",
     "msgObj": "",
     "functionName": "mass_healing",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_mass_healing()"
+    ]
   },
   {
     "_id": {
@@ -1891,6 +2137,9 @@
         "bitvector": "AFF_CALM",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_calm()"
     ]
   },
   {
@@ -1909,7 +2158,10 @@
     "msgOff": "!Enchant Armor!",
     "msgObj": "",
     "functionName": "enchant_armor",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_enchant_armor()"
+    ]
   },
   {
     "_id": {
@@ -1927,7 +2179,10 @@
     "msgOff": "!Create Rose!",
     "msgObj": "",
     "functionName": "create_rose",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_create_rose()"
+    ]
   },
   {
     "_id": {
@@ -1945,7 +2200,10 @@
     "msgOff": "!Dispel Good!",
     "msgObj": "",
     "functionName": "dispel_good",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_dispel_good()"
+    ]
   },
   {
     "_id": {
@@ -1975,6 +2233,9 @@
         "bitvector": "AFF_DETECT_GOOD",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_detect_good()"
     ]
   },
   {
@@ -2005,6 +2266,9 @@
         "bitvector": "AFF_PROTECT_GOOD",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_protection_good()"
     ]
   },
   {
@@ -2035,6 +2299,9 @@
         "bitvector": "AFF_SLOW",
         "applyTo": "char"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_slow()"
     ]
   },
   {
@@ -2053,7 +2320,10 @@
     "msgOff": "!Heat Metal!",
     "msgObj": "",
     "functionName": "heat_metal",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_heat_metal()"
+    ]
   },
   {
     "_id": {
@@ -2071,7 +2341,10 @@
     "msgOff": "!Recharge!",
     "msgObj": "",
     "functionName": "recharge",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_recharge()"
+    ]
   },
   {
     "_id": {
@@ -2089,7 +2362,10 @@
     "msgOff": "!Ray of Truth!",
     "msgObj": "",
     "functionName": "ray_of_truth",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_ray_of_truth()"
+    ]
   },
   {
     "_id": {
@@ -2107,7 +2383,10 @@
     "msgOff": "!Portal!",
     "msgObj": "",
     "functionName": "portal",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_portal()"
+    ]
   },
   {
     "_id": {
@@ -2125,7 +2404,10 @@
     "msgOff": "!Nexus!",
     "msgObj": "",
     "functionName": "nexus",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_nexus()"
+    ]
   },
   {
     "_id": {
@@ -2143,7 +2425,10 @@
     "msgOff": "!Farsight!",
     "msgObj": "",
     "functionName": "farsight",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_farsight()"
+    ]
   },
   {
     "_id": {
@@ -2161,7 +2446,10 @@
     "msgOff": "!Floating disc!",
     "msgObj": "",
     "functionName": "floating_disc",
-    "affectData": []
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.spell_floating_disc()"
+    ]
   },
   {
     "_id": {
@@ -2191,6 +2479,9 @@
         "bitvector": "ITEM_BURN_PROOF",
         "applyTo": "object"
       }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.spell_fireproof()"
     ]
   }
 ]

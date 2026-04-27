@@ -59,15 +59,17 @@ class FightUtil:
 
     @staticmethod
     def find_spell_skill(skill_registry, character, spell_name: str):
-        want_handler = FightUtil.spell_handler_name(spell_name)
-        best = None
-        for skill in skill_registry.all_skills():
-            handler_id = str(getattr(skill, "handler_id", "") or "").strip().lower()
-            if handler_id in ("", "spell.none"):
-                continue
-            if handler_id == want_handler or str(getattr(skill, "name", "") or "").strip().lower() == spell_name:
-                best = skill
-                req = FightUtil.level_for_class(skill, character)
-                if int(getattr(character, "level", 0)) >= req:
-                    return skill
-        return best
+        wanted = str(spell_name or "").strip().lower()
+        for skill in list(getattr(character, "spells", []) or []):
+            name = str(getattr(skill, "name", skill.get("name", "") if isinstance(skill, dict) else "") or "").strip().lower()
+            if name == wanted:
+                return skill
+        if skill_registry is None:
+            return None
+        all_skills = getattr(skill_registry, "all_skills", None)
+        if not callable(all_skills):
+            return None
+        for skill in all_skills():
+            if str(getattr(skill, "name", "") or "").strip().lower() == wanted:
+                return skill
+        return None
