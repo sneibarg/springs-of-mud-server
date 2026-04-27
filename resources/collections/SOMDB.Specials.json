@@ -1,1043 +1,923 @@
-[{
-  "_id": {
-    "$oid": "69eed19b555a29001e8da40b"
-  },
-  "areaId": "69eed19bd1136f861d212410",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19bff0f1bfb8259148e"
-  },
-  "areaId": "69eed19b695dc5ad6069a2c4",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b6766eaced453e902"
-  },
-  "areaId": "69eed19bd1136f861d212410",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19bae3e80e74ec5cf1d"
-  },
-  "areaId": "69eed19b695dc5ad6069a2c4",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19be6fd0357cfd2a082"
-  },
-  "areaId": "69eed19bc906794ae5ff7419",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b19402eb5ccca7594"
-  },
-  "areaId": "69eed19bd1136f861d212410",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19bc43c1df8c4de6b91"
-  },
-  "areaId": "69eed19b695dc5ad6069a2c4",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b829cefbe2f815d9a"
-  },
-  "areaId": "69eed19bc906794ae5ff7419",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b3d7d0c7ad69a52ad"
-  },
-  "areaId": "69eed19bc906794ae5ff7419",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c713145c4807a91a7"
-  },
-  "areaId": "69eed19cb80e273102e1c3ab",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19cff8d55fee82bf6cc"
-  },
-  "areaId": "69eed19cb80e273102e1c3ab",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19cf677281715780cbc"
-  },
-  "areaId": "69eed19c371f22d22dc46dc7",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c1a8a9c13678d163a"
-  },
-  "areaId": "69eed19cb80e273102e1c3ab",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c22d794562eb807ef"
-  },
-  "areaId": "69eed19c371f22d22dc46dc7",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19ce65832c174dc5a4f"
-  },
-  "areaId": "69eed19c371f22d22dc46dc7",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19ea0bb6862a870a261"
-  },
-  "areaId": "69eed19e385d69b0a7b7b284",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19e679f15039eaec102"
-  },
-  "areaId": "69eed19e385d69b0a7b7b284",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19edc5efafffd14eb83"
-  },
-  "areaId": "69eed19e385d69b0a7b7b284",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c66604f76e8d5a927"
-  },
-  "areaId": "69eed19c8dd858b31c135c08",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c18a20e7168c57dd9"
-  },
-  "areaId": "69eed19c8dd858b31c135c08",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19cbfded190e37012e1"
-  },
-  "areaId": "69eed19c8dd858b31c135c08",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19ccb4b16d204975f12"
-  },
-  "areaId": "69eed19cd730ea3d249e5560",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c5bf57f48cb517ffe"
-  },
-  "areaId": "69eed19c2df6fe9d0e222bac",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c656c36cbcdb27eeb"
-  },
-  "areaId": "69eed19cd730ea3d249e5560",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c5205738ab65345c9"
-  },
-  "areaId": "69eed19c2df6fe9d0e222bac",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c06c19d4279daf947"
-  },
-  "areaId": "69eed19cd6bffaf3b79ebf73",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c4d9f118ecfd834a1"
-  },
-  "areaId": "69eed19cd730ea3d249e5560",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19cfcdfc5218b72e23e"
-  },
-  "areaId": "69eed19c2df6fe9d0e222bac",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19ce548fd0d2306e50e"
-  },
-  "areaId": "69eed19cd6bffaf3b79ebf73",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c8cc05c292ddfd81d"
-  },
-  "areaId": "69eed19cd6bffaf3b79ebf73",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a05a21c883fcab95a5"
-  },
-  "areaId": "69eed1a062f19586c1f8dd2c",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a085673856bbe0e3ce"
-  },
-  "areaId": "69eed1a062f19586c1f8dd2c",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19bcd9cb3da41c0047e"
-  },
-  "areaId": "69eed19b4a89150eff00b711",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a0b3fcf813d6d6021e"
-  },
-  "areaId": "69eed1a062f19586c1f8dd2c",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a0d3e970c22a600daf"
-  },
-  "areaId": "69eed1a062f19586c1f8dd2c",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19bf8338ba39075ba96"
-  },
-  "areaId": "69eed19b4a89150eff00b711",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a02d60a5784e73f10f"
-  },
-  "areaId": "69eed1a062f19586c1f8dd2c",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b335bdb415ea4dba9"
-  },
-  "areaId": "69eed19b4a89150eff00b711",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b00903505741a52d1"
-  },
-  "areaId": "69eed19b5095d873bffb4d25",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c1bd65df336f301f0"
-  },
-  "areaId": "69eed19c8857fcb90952343b",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19bb21c57f78de52553"
-  },
-  "areaId": "69eed19b5095d873bffb4d25",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c4f1c3c22529655ee"
-  },
-  "areaId": "69eed19c8857fcb90952343b",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19bff83308c24d03855"
-  },
-  "areaId": "69eed19b5095d873bffb4d25",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c345ca210c1432c10"
-  },
-  "areaId": "69eed19c8857fcb90952343b",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c6ae165f03974ca65"
-  },
-  "areaId": "69eed19cb8e293b36ac5f3c9",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c28b9bd4f477fd28c"
-  },
-  "areaId": "69eed19cb8e293b36ac5f3c9",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19cc7fabd678d78c1d0"
-  },
-  "areaId": "69eed19cb8e293b36ac5f3c9",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a1c483ea27c2558613"
-  },
-  "areaId": "69eed1a1a077e0985ad54631",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a13dba3e58b9add1c8"
-  },
-  "areaId": "69eed1a1a077e0985ad54631",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a1e51e7d6affc4f85e"
-  },
-  "areaId": "69eed1a1a077e0985ad54631",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b1a36e40b103d3dba"
-  },
-  "areaId": "69eed19b08af38aee978e619",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b4a4c8c55c765b370"
-  },
-  "areaId": "69eed19b08af38aee978e619",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19bb7a718ffe7c42695"
-  },
-  "areaId": "69eed19b08af38aee978e619",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b9df5ebfa9e607476"
-  },
-  "areaId": "69eed19b6f6e98e919299741",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b87dc4453e8b080b3"
-  },
-  "areaId": "69eed19b6f6e98e919299741",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b05d24e13f31e8fce"
-  },
-  "areaId": "69eed19b6f6e98e919299741",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19cb925f15f4103011d"
-  },
-  "areaId": "69eed19ca712b9cf8be79df9",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c780a74c736a152a4"
-  },
-  "areaId": "69eed19ca712b9cf8be79df9",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c2527902283dfb34a"
-  },
-  "areaId": "69eed19ca712b9cf8be79df9",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b85a5b733645bc9de"
-  },
-  "areaId": "69eed19b7f2098fdd326d188",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19bc43537f7a01860e9"
-  },
-  "areaId": "69eed19b7f4f7bcfe59921b8",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c699fea4f1f4023ca"
-  },
-  "areaId": "69eed19c1c3e0089b76bcfcf",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b95052f1b100a0a0f"
-  },
-  "areaId": "69eed19b7f2098fdd326d188",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b19b8ae629b4cad7f"
-  },
-  "areaId": "69eed19b7f4f7bcfe59921b8",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c91cddc662c2d2844"
-  },
-  "areaId": "69eed19c1c3e0089b76bcfcf",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19be6f9b9162a5b72fe"
-  },
-  "areaId": "69eed19b7f2098fdd326d188",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b4f5a578f00464ddc"
-  },
-  "areaId": "69eed19b7f4f7bcfe59921b8",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19caada8e4a0b7c35cd"
-  },
-  "areaId": "69eed19c1c3e0089b76bcfcf",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c85c8d4e2f8e83329"
-  },
-  "areaId": "69eed19ceaf6738fb089acd8",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19cacde4d07cb737205"
-  },
-  "areaId": "69eed19ceaf6738fb089acd8",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c51df09d9154b544b"
-  },
-  "areaId": "69eed19ceaf6738fb089acd8",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a1e85e972681a0dcc6"
-  },
-  "areaId": "69eed1a1cd33b95e290dc9bf",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a15c4a621e899f0296"
-  },
-  "areaId": "69eed1a1cd33b95e290dc9bf",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a1fee68e06451f1d9d"
-  },
-  "areaId": "69eed1a1cd33b95e290dc9bf",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c3d88e36c3514c343"
-  },
-  "areaId": "69eed19c1972a6eeda7de104",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c639b8ed38e44c45e"
-  },
-  "areaId": "69eed19c1972a6eeda7de104",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c756b6887000490e9"
-  },
-  "areaId": "69eed19c1972a6eeda7de104",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19bd152119cff8907d3"
-  },
-  "areaId": "69eed19bf157cd4be4682c69",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b62dd2f2b8a09f286"
-  },
-  "areaId": "69eed19bf157cd4be4682c69",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b6ed97ade74d1edcb"
-  },
-  "areaId": "69eed19bf157cd4be4682c69",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c83da3c54446e8cc2"
-  },
-  "areaId": "69eed19c7a4f8bf205bcebc0",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c096d1428e5b4bdad"
-  },
-  "areaId": "69eed19c7a4f8bf205bcebc0",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c78cd099944184875"
-  },
-  "areaId": "69eed19c7a4f8bf205bcebc0",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b0ac7022a1c7063ca"
-  },
-  "areaId": "69eed19b298440fca78d6422",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b5589104240834d8b"
-  },
-  "areaId": "69eed19b298440fca78d6422",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b0583e941e7c79e60"
-  },
-  "areaId": "69eed19b298440fca78d6422",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a02b0f7da97cff8ac4"
-  },
-  "areaId": "69eed1a0e1f1c8d99c7ddd5b",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a0d578e69f39678306"
-  },
-  "areaId": "69eed1a0e1f1c8d99c7ddd5b",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a02ca013786850457f"
-  },
-  "areaId": "69eed1a0e1f1c8d99c7ddd5b",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19cd0a0be414e15c09d"
-  },
-  "areaId": "69eed19c1f1e48a5e1f9034c",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c2867fdebf4db54ec"
-  },
-  "areaId": "69eed19c1f1e48a5e1f9034c",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c821b9dbd3cfe3bea"
-  },
-  "areaId": "69eed19c1f1e48a5e1f9034c",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c2a7b075edb0c9f3f"
-  },
-  "areaId": "69eed19cd3542ef8ddbfd979",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19cac052e85603a47ad"
-  },
-  "areaId": "69eed19cd3542ef8ddbfd979",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c4f6fc3e66df8dab4"
-  },
-  "areaId": "69eed19cd3542ef8ddbfd979",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a5779fb7ac716c4cf0"
-  },
-  "areaId": "69eed1a57b65a0b17c8d8233",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a592405ec0330471dd"
-  },
-  "areaId": "69eed1a57b65a0b17c8d8233",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a586a7b409b123ba40"
-  },
-  "areaId": "69eed1a57b65a0b17c8d8233",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19ff1c4347800ef1660"
-  },
-  "areaId": "69eed19f27ab69c92230013e",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19f30b1520b4a4d778b"
-  },
-  "areaId": "69eed19f27ab69c92230013e",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19f5342c98e857aa76f"
-  },
-  "areaId": "69eed19f27ab69c92230013e",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c711cf0003f62212e"
-  },
-  "areaId": "69eed19cc9cf03f87ba5c39b",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c4156ab9866b983bb"
-  },
-  "areaId": "69eed19cc9cf03f87ba5c39b",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19cec62a1e86ff2cd8a"
-  },
-  "areaId": "69eed19cc9cf03f87ba5c39b",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a4d714f2dda02c3541"
-  },
-  "areaId": "69eed1a463e6fd5316564c95",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a4af7958c2fd0d821e"
-  },
-  "areaId": "69eed1a463e6fd5316564c95",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a406a7ee4b143e94dd"
-  },
-  "areaId": "69eed1a463e6fd5316564c95",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a16566d27b77b525d9"
-  },
-  "areaId": "69eed1a13788e71b8b83162f",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a186170fb85c8eb97e"
-  },
-  "areaId": "69eed1a13788e71b8b83162f",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a1c374fba45cbbb0d3"
-  },
-  "areaId": "69eed1a13788e71b8b83162f",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a2e7c8b733c0633625"
-  },
-  "areaId": "69eed1a20b7c6714fa49a23f",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a2359fbbddcd8454f1"
-  },
-  "areaId": "69eed1a20b7c6714fa49a23f",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a23410af6a311691ea"
-  },
-  "areaId": "69eed1a20b7c6714fa49a23f",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19cb3709eed23afd5ef"
-  },
-  "areaId": "69eed19cc5b0d9078a034a72",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c9f4b909c0060c4f4"
-  },
-  "areaId": "69eed19cc5b0d9078a034a72",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19cd5b76b60463ef572"
-  },
-  "areaId": "69eed19cc5b0d9078a034a72",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a45494192e648c25de"
-  },
-  "areaId": "69eed1a4d358eb2c97fcc630",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a407f0a771fbe5a94a"
-  },
-  "areaId": "69eed1a4d358eb2c97fcc630",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a45bb3c8967144c16d"
-  },
-  "areaId": "69eed1a4d358eb2c97fcc630",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19ca916b4ccb6099cd1"
-  },
-  "areaId": "69eed19c1ed601b0ce8373ac",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19ca4acd7f5ad903284"
-  },
-  "areaId": "69eed19c1ed601b0ce8373ac",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c70582805fcabd160"
-  },
-  "areaId": "69eed19c1ed601b0ce8373ac",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a41c5bdd26c7fb9c08"
-  },
-  "areaId": "69eed1a42cef2d37cdf67529",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a4dbb446b3baa9278e"
-  },
-  "areaId": "69eed1a42cef2d37cdf67529",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a4a2a115d2ce22e17d"
-  },
-  "areaId": "69eed1a42cef2d37cdf67529",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19e721555ca061254ce"
-  },
-  "areaId": "69eed19ec9a912a9aec6ec10",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19e37ee474a02049b6f"
-  },
-  "areaId": "69eed19ec9a912a9aec6ec10",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19e878f0d4f440924c9"
-  },
-  "areaId": "69eed19ec9a912a9aec6ec10",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a686433596e0e3290c"
-  },
-  "areaId": "69eed1a614cbee898063c394",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a61d3d7a5a133f6cf9"
-  },
-  "areaId": "69eed1a614cbee898063c394",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a63ecfd97e58db68ee"
-  },
-  "areaId": "69eed1a614cbee898063c394",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a6b07bb15ff645e242"
-  },
-  "areaId": "69eed1a69d2a573dda16f36e",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a6f7cb15d83f753594"
-  },
-  "areaId": "69eed1a69d2a573dda16f36e",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a64d8b5e7f1b6e3e2c"
-  },
-  "areaId": "69eed1a69d2a573dda16f36e",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a37e23cd0b7ea5509e"
-  },
-  "areaId": "69eed1a39c9520c302bbe817",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a34db96e035f2cf8b2"
-  },
-  "areaId": "69eed1a39c9520c302bbe817",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a3986b796f8a80d80b"
-  },
-  "areaId": "69eed1a39c9520c302bbe817",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c945651bb5c2d75eb"
-  },
-  "areaId": "69eed19cd5a3aaffb7619bb5",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c4e8eedaf310616ed"
-  },
-  "areaId": "69eed19cd5a3aaffb7619bb5",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c3057e4a38f2ade8f"
-  },
-  "areaId": "69eed19cd5a3aaffb7619bb5",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19ce61f4ed7eb7037a0"
-  },
-  "areaId": "69eed19c402e68556a29f838",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c22614e18bcb53403"
-  },
-  "areaId": "69eed19c402e68556a29f838",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19cab92eacf6439be83"
-  },
-  "areaId": "69eed19c402e68556a29f838",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a5b55fc63549943451"
-  },
-  "areaId": "69eed1a577c921afc7f2f48a",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a58a9856ae88a42968"
-  },
-  "areaId": "69eed1a577c921afc7f2f48a",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a5bdc4456df2dee5d4"
-  },
-  "areaId": "69eed1a577c921afc7f2f48a",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c53bc5e1536057eaa"
-  },
-  "areaId": "69eed19ccfa29b0b50659171",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c4c47c049d5479cfa"
-  },
-  "areaId": "69eed19ccfa29b0b50659171",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19ca259722b3e4347ec"
-  },
-  "areaId": "69eed19ccfa29b0b50659171",
-  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-}]
+[
+  {
+    "_id": {
+      "$oid": "69e05b1aef2ce4765e3baa6d"
+    },
+    "areaId": "69eed19bd1136f861d212410",
+    "mobVnum": "6600",
+    "name": "spec_thief",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('standing')",
+      "lambda ctx: ctx.pickpocket_room_player(discovery_bits=5, immortal_level='LEVEL_IMMORTAL', require_visibility=True, awake_discovery_check=True, gold_cap='actor.level * actor.level * 10', silver_cap='actor.level * actor.level * 25')"
+    ],
+    "comment": "the dwarven youth",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a30798c193e0064c1"
+    },
+    "areaId": "69eed19bd1136f861d212410",
+    "mobVnum": "6604",
+    "name": "spec_thief",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('standing')",
+      "lambda ctx: ctx.pickpocket_room_player(discovery_bits=5, immortal_level='LEVEL_IMMORTAL', require_visibility=True, awake_discovery_check=True, gold_cap='actor.level * actor.level * 10', silver_cap='actor.level * actor.level * 25')"
+    ],
+    "comment": "the ugly bear",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1aa02941e164e7558f"
+    },
+    "areaId": "69eed19bd1136f861d212410",
+    "mobVnum": "6606",
+    "name": "spec_cast_cleric",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
+      "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('blindness', 0, 1), ('cause serious', 3, 1), ('earthquake', 7, 1), ('cause critical', 9, 1), ('dispel evil', 10, 1), ('curse', 12, 1), ('change sex', 12, 1), ('flamestrike', 13, 1), ('harm', 15, 3), ('plague', 15, 1), ('dispel magic', 16, 4)])"
+    ],
+    "comment": "the nanny",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a4e21895ea10131b7"
+    },
+    "areaId": "69eed19bd1136f861d212410",
+    "mobVnum": "6608",
+    "name": "spec_thief",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('standing')",
+      "lambda ctx: ctx.pickpocket_room_player(discovery_bits=5, immortal_level='LEVEL_IMMORTAL', require_visibility=True, awake_discovery_check=True, gold_cap='actor.level * actor.level * 10', silver_cap='actor.level * actor.level * 25')"
+    ],
+    "comment": "the spoiled brat",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a6183e03066e57c90"
+    },
+    "areaId": "69eed19bd1136f861d212410",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a61a3cf70d952d8fb"
+    },
+    "areaId": "69eed19bd1136f861d212410",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1aafedf87de028e0bf"
+    },
+    "areaId": "69eed19bc906794ae5ff7419",
+    "mobVnum": "1000",
+    "name": "spec_cast_mage",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
+      "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('blindness', 0, 1), ('chill touch', 3, 1), ('weaken', 7, 1), ('teleport', 8, 1), ('colour spray', 11, 1), ('change sex', 12, 1), ('energy drain', 13, 1), ('fireball', 15, 3), ('plague', 20, 1), ('acid blast', 20, 5)])"
+    ],
+    "comment": "A fairy dragon",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a43468ed3505a41c7"
+    },
+    "areaId": "69eed19bd1136f861d212410",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1add9d5d4e9e669758"
+    },
+    "areaId": "69eed19bc906794ae5ff7419",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1ac265f0041c1523d8"
+    },
+    "areaId": "69eed19bc906794ae5ff7419",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a17522f930339467c"
+    },
+    "areaId": "69eed19b08af38aee978e619",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1ab5b543ddb4782b4a"
+    },
+    "areaId": "69eed19bc906794ae5ff7419",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a5e44147cfe6c6fd5"
+    },
+    "areaId": "69eed19b08af38aee978e619",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a3f917e9a7af62b61"
+    },
+    "areaId": "69eed19b08af38aee978e619",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a14cbd37fd52714b0"
+    },
+    "areaId": "69eed19b7f4f7bcfe59921b8",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a896f4d3ad75f6846"
+    },
+    "areaId": "69eed19b7f4f7bcfe59921b8",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1aaea7801313334340"
+    },
+    "areaId": "69eed19b7f4f7bcfe59921b8",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a2dcebfe95474b065"
+    },
+    "areaId": "69eed19b298440fca78d6422",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a55c738400ed731eb"
+    },
+    "areaId": "69eed19b298440fca78d6422",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1afa455b9f776d37c8"
+    },
+    "areaId": "69eed19b298440fca78d6422",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1bb409f27e354770cf"
+    },
+    "areaId": "69eed19bf157cd4be4682c69",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1be49c1dc8a37d1e70"
+    },
+    "areaId": "69eed19bf157cd4be4682c69",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1b0ae1369097447511"
+    },
+    "areaId": "69eed19bf157cd4be4682c69",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1b553950e83a5f2842"
+    },
+    "areaId": "69eed19cd730ea3d249e5560",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1af8a93fcad42930f0"
+    },
+    "areaId": "69eed19cd730ea3d249e5560",
+    "mobVnum": "3601",
+    "name": "spec_cast_undead",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
+      "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    ],
+    "comment": "the rotting zombie",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1b154a9be7adf0d6c4"
+    },
+    "areaId": "69eed19cd730ea3d249e5560",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a640fb871bc77037c"
+    },
+    "areaId": "69eed19cd730ea3d249e5560",
+    "mobVnum": "3602",
+    "name": "spec_cast_undead",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
+      "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    ],
+    "comment": "the ghastly ghoul",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1bb8142771c717e229"
+    },
+    "areaId": "69eed19cd730ea3d249e5560",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1aae8a76fe3d9acf6e"
+    },
+    "areaId": "69eed19cd730ea3d249e5560",
+    "mobVnum": "3603",
+    "name": "spec_cast_undead",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
+      "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    ],
+    "comment": "a dusty skeleton",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a6bf8d0c76cc7a2e6"
+    },
+    "areaId": "69eed19cd730ea3d249e5560",
+    "mobVnum": "3604",
+    "name": "spec_cast_undead",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
+      "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    ],
+    "comment": "a dusty skeleton",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1ab7d8b9971479e970"
+    },
+    "areaId": "69eed19cd730ea3d249e5560",
+    "mobVnum": "3605",
+    "name": "spec_cast_undead",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
+      "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    ],
+    "comment": "the rotting zombie",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1ad4518967f13d64af"
+    },
+    "areaId": "69eed19cd730ea3d249e5560",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1acb1dd1893c98314e"
+    },
+    "areaId": "69eed19cd6bffaf3b79ebf73",
+    "mobVnum": "8900",
+    "name": "spec_cast_cleric",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
+      "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('blindness', 0, 1), ('cause serious', 3, 1), ('earthquake', 7, 1), ('cause critical', 9, 1), ('dispel evil', 10, 1), ('curse', 12, 1), ('change sex', 12, 1), ('flamestrike', 13, 1), ('harm', 15, 3), ('plague', 15, 1), ('dispel magic', 16, 4)])"
+    ],
+    "comment": "The Hierophant",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a0388739cddc942ff"
+    },
+    "areaId": "69eed19cd730ea3d249e5560",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1aee831448404e3d16"
+    },
+    "areaId": "69eed19cd6bffaf3b79ebf73",
+    "mobVnum": "8901",
+    "name": "spec_cast_cleric",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
+      "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('blindness', 0, 1), ('cause serious', 3, 1), ('earthquake', 7, 1), ('cause critical', 9, 1), ('dispel evil', 10, 1), ('curse', 12, 1), ('change sex', 12, 1), ('flamestrike', 13, 1), ('harm', 15, 3), ('plague', 15, 1), ('dispel magic', 16, 4)])"
+    ],
+    "comment": "The Hierophant",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a718b7e46eb5dfddf"
+    },
+    "areaId": "69eed19cd730ea3d249e5560",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a4f633e7996d10a53"
+    },
+    "areaId": "69eed19c1972a6eeda7de104",
+    "mobVnum": "6302",
+    "name": "spec_breath_gas",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.cast_spell('gas breath', target='room')"
+    ],
+    "comment": "Yevaud",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1aca57956137732e28"
+    },
+    "areaId": "69eed19cd6bffaf3b79ebf73",
+    "mobVnum": "8902",
+    "name": "spec_cast_cleric",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
+      "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('blindness', 0, 1), ('cause serious', 3, 1), ('earthquake', 7, 1), ('cause critical', 9, 1), ('dispel evil', 10, 1), ('curse', 12, 1), ('change sex', 12, 1), ('flamestrike', 13, 1), ('harm', 15, 3), ('plague', 15, 1), ('dispel magic', 16, 4)])"
+    ],
+    "comment": "an elder druid",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a48a6e59aa0135643"
+    },
+    "areaId": "69eed19c1972a6eeda7de104",
+    "mobVnum": "6314",
+    "name": "spec_breath_gas",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.cast_spell('gas breath', target='room')"
+    ],
+    "comment": "Arachnos",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a9fbfef8e3abdea53"
+    },
+    "areaId": "69eed19cd6bffaf3b79ebf73",
+    "mobVnum": "8903",
+    "name": "spec_cast_cleric",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
+      "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('blindness', 0, 1), ('cause serious', 3, 1), ('earthquake', 7, 1), ('cause critical', 9, 1), ('dispel evil', 10, 1), ('curse', 12, 1), ('change sex', 12, 1), ('flamestrike', 13, 1), ('harm', 15, 3), ('plague', 15, 1), ('dispel magic', 16, 4)])"
+    ],
+    "comment": "an elder druidess",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a702a52d487873d2e"
+    },
+    "areaId": "69eed19c1972a6eeda7de104",
+    "mobVnum": "6316",
+    "name": "spec_breath_gas",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.cast_spell('gas breath', target='room')"
+    ],
+    "comment": "the young dragon wormkin",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a04ac71dec55a8c6c"
+    },
+    "areaId": "69eed19b5095d873bffb4d25",
+    "mobVnum": "5103",
+    "name": "spec_cast_mage",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
+      "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('blindness', 0, 1), ('chill touch', 3, 1), ('weaken', 7, 1), ('teleport', 8, 1), ('colour spray', 11, 1), ('change sex', 12, 1), ('energy drain', 13, 1), ('fireball', 15, 3), ('plague', 20, 1), ('acid blast', 20, 5)])"
+    ],
+    "comment": "the drow mage noble",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1aee6ed06b26c538ea"
+    },
+    "areaId": "69eed19cd6bffaf3b79ebf73",
+    "mobVnum": "8908",
+    "name": "spec_poison",
+    "specialFunction": [
+      "lambda ctx: ctx.poison_bite(chance_percent='2 * actor.level', messages=('You bite $N!', '$n bites $N!', '$n bites you!'))"
+    ],
+    "comment": "a harmless snake",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1a3fb91181b7b5a19f"
+    },
+    "areaId": "69eed19c1972a6eeda7de104",
+    "mobVnum": "6317",
+    "name": "spec_breath_gas",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.cast_spell('gas breath', target='room')"
+    ],
+    "comment": "the medium dragon wormkin",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1bac806a4c5c525acf"
+    },
+    "areaId": "69eed19c2df6fe9d0e222bac",
+    "mobVnum": "8309",
+    "name": "spec_poison",
+    "specialFunction": [
+      "lambda ctx: ctx.poison_bite(chance_percent='2 * actor.level', messages=('You bite $N!', '$n bites $N!', '$n bites you!'))"
+    ],
+    "comment": "the giant hornet",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1b5558da63a0012d27"
+    },
+    "areaId": "69eed19c402e68556a29f838",
+    "mobVnum": "3061",
+    "name": "spec_janitor",
+    "specialFunction": [
+      "lambda ctx: ctx.require_awake()",
+      "lambda ctx: ctx.select_room_item(alias='trash', where=\"candidate.can_take and candidate.can_loot and (candidate.item_type in ['ITEM_DRINK_CON', 'ITEM_TRASH'] or candidate.cost < 10)\")",
+      "lambda ctx: ctx.pick_up_selected_item('trash', room_message='$n picks up some trash.')"
+    ],
+    "comment": "the janitor",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1bea40d65822622401"
+    },
+    "areaId": "69eed19ccfa29b0b50659171",
+    "mobVnum": "9541",
+    "name": "spec_cast_cleric",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
+      "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('blindness', 0, 1), ('cause serious', 3, 1), ('earthquake', 7, 1), ('cause critical', 9, 1), ('dispel evil', 10, 1), ('curse', 12, 1), ('change sex', 12, 1), ('flamestrike', 13, 1), ('harm', 15, 3), ('plague', 15, 1), ('dispel magic', 16, 4)])"
+    ],
+    "comment": "Curley GreenLeaf",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b206599f7276c4f820c"
+    },
+    "areaId": "",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1bf38010fd7e61e8b8"
+    },
+    "areaId": "69eed19c402e68556a29f838",
+    "mobVnum": "3062",
+    "name": "spec_fido",
+    "specialFunction": [
+      "lambda ctx: ctx.require_awake()",
+      "lambda ctx: ctx.devour_first_npc_corpse(spill_contents=True, room_message='$n savagely devours a corpse.')"
+    ],
+    "comment": "the beastly fido",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1b1b7fcf8995b5c654"
+    },
+    "areaId": "69eed19ccfa29b0b50659171",
+    "mobVnum": "9542",
+    "name": "spec_cast_cleric",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
+      "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('blindness', 0, 1), ('cause serious', 3, 1), ('earthquake', 7, 1), ('cause critical', 9, 1), ('dispel evil', 10, 1), ('curse', 12, 1), ('change sex', 12, 1), ('flamestrike', 13, 1), ('harm', 15, 3), ('plague', 15, 1), ('dispel magic', 16, 4)])"
+    ],
+    "comment": "the wandering prophet",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1b54a1c56b47bc1c91"
+    },
+    "areaId": "69eed19c402e68556a29f838",
+    "mobVnum": "3067",
+    "name": "spec_guard",
+    "specialFunction": [
+      "lambda ctx: ctx.require_awake()",
+      "lambda ctx: ctx.require_not_fighting()",
+      "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
+      "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+      "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
+      "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    ],
+    "comment": "the cityguard",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1b2ef4836144d57005"
+    },
+    "areaId": "69eed19ccfa29b0b50659171",
+    "mobVnum": "9544",
+    "name": "spec_fido",
+    "specialFunction": [
+      "lambda ctx: ctx.require_awake()",
+      "lambda ctx: ctx.devour_first_npc_corpse(spill_contents=True, room_message='$n savagely devours a corpse.')"
+    ],
+    "comment": "the vulture",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1b2a5856b2c024f811"
+    },
+    "areaId": "69eed19c402e68556a29f838",
+    "mobVnum": "3068",
+    "name": "spec_guard",
+    "specialFunction": [
+      "lambda ctx: ctx.require_awake()",
+      "lambda ctx: ctx.require_not_fighting()",
+      "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
+      "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+      "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
+      "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    ],
+    "comment": "the cityguard",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1bb2a9683d39fb31e1"
+    },
+    "areaId": "69eed19ccfa29b0b50659171",
+    "mobVnum": "9548",
+    "name": "spec_cast_mage",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
+      "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('blindness', 0, 1), ('chill touch', 3, 1), ('weaken', 7, 1), ('teleport', 8, 1), ('colour spray', 11, 1), ('change sex', 12, 1), ('energy drain', 13, 1), ('fireball', 15, 3), ('plague', 20, 1), ('acid blast', 20, 5)])"
+    ],
+    "comment": "the lamia",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1b9687a5d11d104d65"
+    },
+    "areaId": "69eed19c402e68556a29f838",
+    "mobVnum": "3069",
+    "name": "spec_guard",
+    "specialFunction": [
+      "lambda ctx: ctx.require_awake()",
+      "lambda ctx: ctx.require_not_fighting()",
+      "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
+      "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+      "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
+      "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    ],
+    "comment": "the cityguard",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1b3d96d8d6f7cd32b4"
+    },
+    "areaId": "69eed19ccfa29b0b50659171",
+    "mobVnum": "9555",
+    "name": "spec_cast_cleric",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
+      "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('blindness', 0, 1), ('cause serious', 3, 1), ('earthquake', 7, 1), ('cause critical', 9, 1), ('dispel evil', 10, 1), ('curse', 12, 1), ('change sex', 12, 1), ('flamestrike', 13, 1), ('harm', 15, 3), ('plague', 15, 1), ('dispel magic', 16, 4)])"
+    ],
+    "comment": "Allah",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1bc33717698eb2414e"
+    },
+    "areaId": "69eed19c402e68556a29f838",
+    "mobVnum": "3100",
+    "name": "spec_cast_cleric",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
+      "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('blindness', 0, 1), ('cause serious', 3, 1), ('earthquake', 7, 1), ('cause critical', 9, 1), ('dispel evil', 10, 1), ('curse', 12, 1), ('change sex', 12, 1), ('flamestrike', 13, 1), ('harm', 15, 3), ('plague', 15, 1), ('dispel magic', 16, 4)])"
+    ],
+    "comment": "the maid",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1bc41a311aac119167"
+    },
+    "areaId": "69eed19ccfa29b0b50659171",
+    "mobVnum": "9561",
+    "name": "spec_guard",
+    "specialFunction": [
+      "lambda ctx: ctx.require_awake()",
+      "lambda ctx: ctx.require_not_fighting()",
+      "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
+      "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+      "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
+      "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    ],
+    "comment": "the sultan's guard",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1b2603170011ef22a8"
+    },
+    "areaId": "69eed19c402e68556a29f838",
+    "mobVnum": "3120",
+    "name": "spec_cast_cleric",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
+      "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('blindness', 0, 1), ('cause serious', 3, 1), ('earthquake', 7, 1), ('cause critical', 9, 1), ('dispel evil', 10, 1), ('curse', 12, 1), ('change sex', 12, 1), ('flamestrike', 13, 1), ('harm', 15, 3), ('plague', 15, 1), ('dispel magic', 16, 4)])"
+    ],
+    "comment": "the sexton",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1bbec27a9c0347f8dd"
+    },
+    "areaId": "69eed19ccfa29b0b50659171",
+    "mobVnum": "9562",
+    "name": "spec_guard",
+    "specialFunction": [
+      "lambda ctx: ctx.require_awake()",
+      "lambda ctx: ctx.require_not_fighting()",
+      "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
+      "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+      "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
+      "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    ],
+    "comment": "the sultans guard",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1b0424c7d53c7d6c2e"
+    },
+    "areaId": "69eed19c402e68556a29f838",
+    "mobVnum": "3143",
+    "name": "spec_mayor",
+    "specialFunction": [
+      "lambda ctx: ctx.when_fighting_delegate('spec_cast_mage')",
+      "lambda ctx: ctx.follow_time_script(open_hour=6, close_hour=20, open_path='W3a3003b33000c111d0d111Oe333333Oe22c222112212111a1S.', close_path='W3a3003b33000c111d0d111CE333333CE22c222112212111a1S.')"
+    ],
+    "comment": "the mayor",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1b6448980ed7cfa774"
+    },
+    "areaId": "69eed19ccfa29b0b50659171",
+    "mobVnum": "9570",
+    "name": "spec_breath_frost",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.cast_dragon_breath('frost breath')"
+    ],
+    "comment": "the cryohydra",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1b276fc283ce59f7d4"
+    },
+    "areaId": "69eed19c402e68556a29f838",
+    "mobVnum": "3163",
+    "name": "spec_nasty",
+    "specialFunction": [
+      "lambda ctx: ctx.require_awake()",
+      "lambda ctx: ctx.nasty_opening_attack(level_window=(1, 9), skills=['backstab', 'murder'])",
+      "lambda ctx: ctx.nasty_combat_turn(coin_purse_fraction=0.10, flee_weight=1, purse_weight=1, idle_weight=2)"
+    ],
+    "comment": "the thief",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1bcce3a7aab5f305eb"
+    },
+    "areaId": "69eed19c402e68556a29f838",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1bd762641b64b737ce"
+    },
+    "areaId": "69eed19ccfa29b0b50659171",
+    "mobVnum": "9574",
+    "name": "spec_breath_lightning",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.cast_dragon_breath('lightning breath')"
+    ],
+    "comment": "the behir",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1bd256bbd625a2fdbd"
+    },
+    "areaId": "69eed19c402e68556a29f838",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1be31bd6d380c25931"
+    },
+    "areaId": "69eed19ccfa29b0b50659171",
+    "mobVnum": "9575",
+    "name": "spec_breath_fire",
+    "specialFunction": [
+      "lambda ctx: ctx.require_position('fighting')",
+      "lambda ctx: ctx.cast_dragon_breath('fire breath')"
+    ],
+    "comment": "the chimera",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1ba64860293fa2ce99"
+    },
+    "areaId": "69eed19c402e68556a29f838",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1b93ba0dcf3e1e742a"
+    },
+    "areaId": "69eed19ccfa29b0b50659171",
+    "mobVnum": "9577",
+    "name": "spec_poison",
+    "specialFunction": [
+      "lambda ctx: ctx.poison_bite(chance_percent='2 * actor.level', messages=('You bite $N!', '$n bites $N!', '$n bites you!'))"
+    ],
+    "comment": "the giant hornet",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1bbe759d9d18f7d629"
+    },
+    "areaId": "69eed19ccfa29b0b50659171",
+    "mobVnum": "9582",
+    "name": "spec_guard",
+    "specialFunction": [
+      "lambda ctx: ctx.require_awake()",
+      "lambda ctx: ctx.require_not_fighting()",
+      "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
+      "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+      "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
+      "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    ],
+    "comment": "The Royal Guard",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1b2e057eba388453f0"
+    },
+    "areaId": "69eed19ccfa29b0b50659171",
+    "mobVnum": "9592",
+    "name": "spec_guard",
+    "specialFunction": [
+      "lambda ctx: ctx.require_awake()",
+      "lambda ctx: ctx.require_not_fighting()",
+      "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
+      "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+      "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
+      "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    ],
+    "comment": "the bodyguard",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1b590d291dbbddedad"
+    },
+    "areaId": "69eed19ccfa29b0b50659171",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1bb64e28cd675911f8"
+    },
+    "areaId": "69eed19ccfa29b0b50659171",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69e05b1ba19bdad19da9f15b"
+    },
+    "areaId": "69eed19ccfa29b0b50659171",
+    "specialFunction": [],
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69f11c8e0000000000000001"
+    },
+    "areaId": "",
+    "mobVnum": "",
+    "name": "spec_scavenge",
+    "specialFunction": [
+      "lambda ctx: ctx.scavenge()"
+    ],
+    "comment": "library special for generic mobile scavenging",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  },
+  {
+    "_id": {
+      "$oid": "69f11c8e0000000000000002"
+    },
+    "areaId": "",
+    "mobVnum": "",
+    "name": "spec_wander",
+    "specialFunction": [
+      "lambda ctx: ctx.wander()"
+    ],
+    "comment": "library special for generic mobile wandering",
+    "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+  }
+]
