@@ -47,11 +47,13 @@ class FightHandler:
         self.mobile_registry = mobile_registry
         self.rng = RandomNumberGenerator()
         self.PositionsEnum = None
+        self.WellKnownObjectVnums = None
         self.mobile_handler = None
         self.logger.info("Initialized FightHandler instance.")
 
     def lazy_load(self):
         self.PositionsEnum = CharacterMacros.get_enum("positions")
+        self.WellKnownObjectVnums = CharacterMacros.get_enum("wellKnownObjectVnums")
 
     def set_mobile_handler(self, mobile_handler) -> None:
         self.mobile_handler = mobile_handler
@@ -363,23 +365,22 @@ class FightHandler:
         if victim is None or room is None:
             return
 
-        well_known = CharacterMacros.get_enum("wellKnownObjectVnums")
         parts = self._entity_parts(victim)
         roll = random.randint(0, 15)
         body_part_vnum = None
 
         if roll == 2 and CharacterMacros.is_set(parts, int(BodyParts.PART_GUTS.value)):
-            body_part_vnum = getattr(well_known, "OBJ_VNUM_GUTS", None)
+            body_part_vnum = getattr(self.WellKnownObjectVnums, "OBJ_VNUM_GUTS", None)
         elif roll == 3 and CharacterMacros.is_set(parts, int(BodyParts.PART_HEAD.value)):
-            body_part_vnum = getattr(well_known, "OBJ_VNUM_SEVERED_HEAD", None)
+            body_part_vnum = getattr(self.WellKnownObjectVnums, "OBJ_VNUM_SEVERED_HEAD", None)
         elif roll == 4 and CharacterMacros.is_set(parts, int(BodyParts.PART_HEART.value)):
-            body_part_vnum = getattr(well_known, "OBJ_VNUM_TORN_HEART", None)
+            body_part_vnum = getattr(self.WellKnownObjectVnums, "OBJ_VNUM_TORN_HEART", None)
         elif roll == 5 and CharacterMacros.is_set(parts, int(BodyParts.PART_ARMS.value)):
-            body_part_vnum = getattr(well_known, "OBJ_VNUM_SLICED_ARM", None)
+            body_part_vnum = getattr(self.WellKnownObjectVnums, "OBJ_VNUM_SLICED_ARM", None)
         elif roll == 6 and CharacterMacros.is_set(parts, int(BodyParts.PART_LEGS.value)):
-            body_part_vnum = getattr(well_known, "OBJ_VNUM_SLICED_LEG", None)
+            body_part_vnum = getattr(self.WellKnownObjectVnums, "OBJ_VNUM_SLICED_LEG", None)
         elif roll == 7 and CharacterMacros.is_set(parts, int(BodyParts.PART_BRAINS.value)):
-            body_part_vnum = getattr(well_known, "OBJ_VNUM_BRAINS", None)
+            body_part_vnum = getattr(self.WellKnownObjectVnums, "OBJ_VNUM_BRAINS", None)
 
         if body_part_vnum is None:
             return
@@ -409,12 +410,20 @@ class FightHandler:
         if victim is None or room is None:
             return
 
-        well_known = CharacterMacros.get_enum("wellKnownObjectVnums")
+        money = None
         if CharacterMacros.is_npc(victim):
-            corpse_vnum_member = getattr(well_known, "OBJ_VNUM_CORPSE_NPC", None)
+            corpse_vnum_member = getattr(self.WellKnownObjectVnums, "OBJ_VNUM_CORPSE_NPC", None)
             timer_min, timer_max = 3, 6
+            if victim.gold > 0:
+                money = ItemUtil.create_money(victim.gold, victim.silver, self.item_registry, self.WellKnownObjectVnums)
+                victim.gold = 0
+                victim.silver = 0
         else:
-            corpse_vnum_member = getattr(well_known, "OBJ_VNUM_CORPSE_PC", None)
+            corpse_vnum_member = getattr(self.WellKnownObjectVnums, "OBJ_VNUM_CORPSE_PC", None)
+            if victim.gold > 1 or victim.silver > 1:
+                money = ItemUtil.create_money(victim.gold, victim.silver, self.item_registry, self.WellKnownObjectVnums)
+                victim.gold -= victim.gold / 2
+                victim.silver -= victim.silver / 2
             timer_min, timer_max = 25, 40
 
         if corpse_vnum_member is None:
@@ -440,6 +449,8 @@ class FightHandler:
             else:
                 corpse.contains.append(item)
 
+        if money is not None:
+            corpse.contains.append(money)
         room.add_item_to_room(corpse)
 
     def xp_compute(self, gch, victim, total_levels: int) -> int:

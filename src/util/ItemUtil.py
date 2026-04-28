@@ -1,9 +1,11 @@
 from enum import IntEnum
+from typing import Tuple, Any
 
-from area import Room
+from area.Room import Room
 from area.RoomHelper import RoomHelper
 from game.GameMacros import GameMacros
 from game.RandomNumberGenerator import RandomNumberGenerator
+from object.ItemRegistry import ItemRegistry
 from util.GenericUtil import GenericUtil
 from object.ExtraDescriptionData import ExtraDescriptionData
 from object.ObjectMacros import ObjectMacros
@@ -19,6 +21,37 @@ logger = LoggerFactory.get_logger('ItemUtil')
 
 class ItemUtil:
     pass
+
+    @staticmethod
+    def create_money(gold: int, silver: int, item_registry: ItemRegistry, WellKnownObjEnums: IntEnum) -> Item:
+        if gold < 0 or silver < 0 or (gold == 0 and silver == 0):
+            gold = max(1, gold)
+            silver = max(1, silver)
+
+        if gold == 0 and silver == 1:
+            money = ItemUtil.create_object(item_registry.get(vnum=WellKnownObjEnums.OBJ_VNUM_SILVER_ONE.value))
+        elif gold == 1 and silver == 0:
+            money = ItemUtil.create_object(item_registry.get(vnum=WellKnownObjEnums.OBJ_VNUM_GOLD_ONE.value))
+        elif silver == 0:
+            money = ItemUtil.create_object(item_registry.get(vnum=WellKnownObjEnums.OBJ_VNUM_GOLD_SOME.value))
+            money.value1 = str(gold)
+            money.cost = gold
+            money.short_description = money.short_description.replace("%d", str(gold))
+            money.weight = gold / 5
+        elif gold == 0:
+            money = ItemUtil.create_object(item_registry.get(vnum=WellKnownObjEnums.OBJ_VNUM_SILVER_SOME.value))
+            money.value0 = str(silver)
+            money.cost = silver
+            money.short_description = money.short_description.replace("%d", str(silver))
+            money.weight = silver / 20
+        else:
+            money = ItemUtil.create_object(item_registry.get(vnum=WellKnownObjEnums.OBJ_VNUM_COINS.value))
+            money.value0 = str(gold)
+            money.value1 = str(silver)
+            money.cost = 100 * gold + silver
+            money.weight = gold / 5 + silver / 20
+            money.short_description = money.short_description % (silver, gold)
+        return money
 
     @staticmethod
     def normalize_item_data(item_data, liquids, skill_registry) -> Item:

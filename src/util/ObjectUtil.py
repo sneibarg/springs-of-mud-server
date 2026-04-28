@@ -198,7 +198,7 @@ class ObjectUtils:
         silver = max(1, GenericUtil.to_int(getattr(item, "level", 1), 0) * 3)
         if not ObjectUtils.is_corpse(item):
             silver = min(silver, max(0, GenericUtil.to_int(getattr(item, "cost", 0), 0)))
-        return silver
+        return max(3, silver)
 
     @staticmethod
     def sacrifice_reward_message(silver: int) -> str:
