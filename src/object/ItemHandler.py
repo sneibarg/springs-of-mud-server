@@ -3,8 +3,8 @@ from injector import inject
 from area.RoomHelper import RoomHelper
 from game.RegistryService import RegistryService
 from interp.Context import Context
-from interp.InterpUtil import InterpUtil
-from object.ItemUtil import ItemUtil
+from util.InterpUtil import InterpUtil
+from util.ItemUtil import ItemUtil
 from object.ObjectMacros import ObjectMacros
 from player.Character import Character
 from server.messaging import MessageBus

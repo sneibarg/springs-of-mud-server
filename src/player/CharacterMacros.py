@@ -7,7 +7,7 @@ from typing import Any, TYPE_CHECKING, Callable, Optional
 
 from area.Room import Room
 from game.GameMacros import GameMacros
-from game.GenericUtil import GenericUtil
+from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
 from mobile.Mobile import Mobile
 from player.Character import Character
@@ -28,12 +28,14 @@ class CharacterMacros(GameMacros):
     _enums_provider: Optional[Callable[[], dict[str, IntEnum]]] = None
     _attribute_bonuses_provider: Optional[Callable[[], dict[str, dict[str, dict[str, int]]]]] = None
     _pc_races_provider: Optional[Callable[[], dict[str, dict[str, Any]]]] = None
+    _titles_provider: Optional[Callable[[], dict[str, dict[str, Any]]]] = None
     _weather_handler_provider: Optional[Callable[[], Any]] = None
 
     _registry_service = None
     _enums = None
     _attribute_bonuses = None
     _pc_races = None
+    _titles = None
     _weather_handler = None
     _logger = None
 
@@ -50,6 +52,7 @@ class CharacterMacros(GameMacros):
         enums_provider: Callable[[], dict[str, IntEnum]],
         attribute_bonuses_provider: Callable[[], dict[str, dict[str, dict[str, int]]]],
         pc_races_provider: Callable[[], dict[str, dict[str, Any]]],
+        titles_provider: Optional[Callable[[], dict[str, dict[str, Any]]]] = None,
         weather_handler_provider: Optional[Callable[[], Any]] = None,
     ) -> None:
         with cls._lock:
@@ -57,6 +60,7 @@ class CharacterMacros(GameMacros):
             cls._enums_provider = enums_provider
             cls._attribute_bonuses_provider = attribute_bonuses_provider
             cls._pc_races_provider = pc_races_provider
+            cls._titles_provider = titles_provider
             cls._weather_handler_provider = weather_handler_provider
             cls._configured = True
 
@@ -68,11 +72,13 @@ class CharacterMacros(GameMacros):
             cls._enums_provider = None
             cls._attribute_bonuses_provider = None
             cls._pc_races_provider = None
+            cls._titles_provider = None
             cls._weather_handler_provider = None
             cls._registry_service = None
             cls._enums = None
             cls._attribute_bonuses = None
             cls._pc_races = None
+            cls._titles = None
             cls._weather_handler = None
             cls._logger = None
 
@@ -126,6 +132,15 @@ class CharacterMacros(GameMacros):
                 raise RuntimeError("CharacterMacros pc_races provider not configured.")
             cls._pc_races = cls._pc_races_provider()
         return cls._pc_races
+
+    @classmethod
+    def _titles_map(cls):
+        if cls._titles is None:
+            cls._require_configured()
+            if cls._titles_provider is None:
+                raise RuntimeError("CharacterMacros titles provider not configured.")
+            cls._titles = cls._titles_provider()
+        return cls._titles
 
     @classmethod
     def _weather(cls):
@@ -389,7 +404,7 @@ class CharacterMacros(GameMacros):
 
     @classmethod
     def target_equipment_lines(cls, target: Any, equip_slot_labels: list[tuple[str, str]]) -> list[str]:
-        from object.ItemUtil import ItemUtil
+        from util.ItemUtil import ItemUtil
 
         item_flags = cls._enums_map().get("itemFlags")
         lines: list[str] = []
@@ -521,6 +536,29 @@ class CharacterMacros(GameMacros):
             if str(key).lower() == class_lower:
                 return GenericUtil.to_int(value, default)
         return default
+
+    @classmethod
+    def title_for_level(cls, character: Character, level: int | None = None) -> str:
+        try:
+            titles = cls._titles_map()
+        except Exception:
+            return str(getattr(character, "title", "") or "")
+
+        class_name = str(getattr(getattr(character, "character_class", None), "name", "") or "").strip().lower()
+        if not class_name:
+            return str(getattr(character, "title", "") or "")
+
+        class_titles = titles.get(class_name, {})
+        title_row = class_titles.get(str(GenericUtil.to_int(level if level is not None else getattr(character, "level", 0), 0)), {})
+        if not isinstance(title_row, dict):
+            return str(getattr(character, "title", "") or "")
+
+        sex = str(getattr(character, "sex", "") or "").strip().lower()
+        sex_key = "female" if sex in ("2", "f", "female") else "male"
+        title = str(title_row.get(sex_key, title_row.get("male", title_row.get("female", ""))) or "").strip()
+        if not title:
+            return str(getattr(character, "title", "") or "")
+        return f"the {title}"
 
     @classmethod
     def score_position_line(cls, attributes: Any) -> str:
@@ -733,7 +771,7 @@ class CharacterMacros(GameMacros):
 
     @classmethod
     def wiz_do_mload(cls, context: Any, vnum_text: str, mobile_registry, room_registry):
-        from mobile.MobileUtil import MobileUtil
+        from util.MobileUtil import MobileUtil
 
         vnum = (vnum_text or "").strip()
         proto = mobile_registry.get_or_none(vnum=vnum)
@@ -750,7 +788,7 @@ class CharacterMacros(GameMacros):
 
     @staticmethod
     def wiz_do_oload(context: Any, vnum_text: str, item_registry, room_registry):
-        from object.ItemUtil import ItemUtil
+        from util.ItemUtil import ItemUtil
 
         vnum = (vnum_text or "").strip()
         proto = item_registry.get_or_none(vnum=vnum)
@@ -980,6 +1018,19 @@ class CharacterMacros(GameMacros):
 
     @classmethod
     def get_max_train(cls, character: Character, stat_index: int, current_value: int) -> int:
+        race_obj = getattr(character, "character_race", None)
+        race_fields = (
+            "max_strength",
+            "max_intelligence",
+            "max_wisdom",
+            "max_dexterity",
+            "max_constitution",
+        )
+        if race_obj is not None and 0 <= stat_index < len(race_fields):
+            value = GenericUtil.to_int(getattr(race_obj, race_fields[stat_index], 0), 0)
+            if value > 0:
+                return value
+
         race_name = str(getattr(character, "race", "") or "").strip().lower()
         race_data = cls._pc_races_map().get(race_name, {})
         max_stats = race_data.get("max_stats", [])

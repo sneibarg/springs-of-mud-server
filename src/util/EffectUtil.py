@@ -4,7 +4,7 @@ import random
 from copy import deepcopy
 
 from game.GameMacros import GameMacros
-from game.GenericUtil import GenericUtil
+from util.GenericUtil import GenericUtil
 from object.Effect import Effect
 from player.CharacterMacros import CharacterMacros
 

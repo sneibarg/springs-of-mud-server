@@ -38,7 +38,7 @@ class Spell:
     def from_json(cls, data) -> Spell:
         if isinstance(data, str):
             data = json.loads(data)
-        from game.GenericUtil import GenericUtil
+        from util.GenericUtil import GenericUtil
         payload = GenericUtil.camel_to_snake_case(data)
         payload["id"] = cls._extract_id(data, payload)
         raw_affects = payload.get("affect_data", []) or []

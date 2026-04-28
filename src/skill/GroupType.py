@@ -20,7 +20,7 @@ class GroupType:
 
     @classmethod
     def from_json(cls, data):
-        from game.GenericUtil import GenericUtil
+        from util.GenericUtil import GenericUtil
         data = GenericUtil.camel_to_snake_case(data)
         data['id'] = GenericUtil.generate_mongo_id()
         return cls(**data)

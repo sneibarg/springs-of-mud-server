@@ -1,8 +1,4 @@
-import ast
-import json
-
 from dataclasses import dataclass
-from collections.abc import Mapping
 
 
 @dataclass
@@ -22,5 +18,5 @@ class CharacterClass:
 
     @classmethod
     def from_json(cls, data):
-        from game.GenericUtil import GenericUtil
+        from util.GenericUtil import GenericUtil
         return cls(**GenericUtil.camel_to_snake_case(data))

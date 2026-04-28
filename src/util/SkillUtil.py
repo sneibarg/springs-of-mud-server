@@ -1,4 +1,4 @@
-from game.GenericUtil import GenericUtil
+from util.GenericUtil import GenericUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 

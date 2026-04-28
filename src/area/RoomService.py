@@ -37,7 +37,7 @@ class RoomService:
         try:
             response = requests.get(url, timeout=10)
             response.raise_for_status()
-            from game.GenericUtil import GenericUtil
+            from util.GenericUtil import GenericUtil
             data = response.json()
             if isinstance(data, list):
                 for room_data in data:

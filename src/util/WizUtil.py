@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from interp.InterpUtil import InterpUtil
+from util.InterpUtil import InterpUtil
 
 
 class WizUtil:

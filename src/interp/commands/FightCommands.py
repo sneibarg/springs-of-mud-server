@@ -7,11 +7,11 @@ from fight.FightHandler import FightHandler
 from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
 from interp.Context import Context
-from fight.FightUtil import FightUtil
-from object.ObjectUtil import ObjectUtils
+from util.FightUtil import FightUtil
+from util.ObjectUtil import ObjectUtils
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
-from player.PlayerUtil import PlayerUtil
+from util.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
 from skill.SpellApi import SpellApi
 from skill.SpellContext import SpellContext

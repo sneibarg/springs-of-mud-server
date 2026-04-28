@@ -1,5 +1,3 @@
-import json
-
 from dataclasses import dataclass
 
 
@@ -12,5 +10,5 @@ class TemporalMechanics:
 
     @classmethod
     def from_json(cls, data) -> TemporalMechanics:
-        from game.GenericUtil import GenericUtil
+        from util.GenericUtil import GenericUtil
         return cls(**GenericUtil.camel_to_snake_case(data))

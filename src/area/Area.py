@@ -57,7 +57,7 @@ class Area:
 
     @classmethod
     def from_json(cls, data):
-        from game.GenericUtil import GenericUtil
+        from util.GenericUtil import GenericUtil
         data = GenericUtil.camel_to_snake_case(data)
         if data['suggested_level_range'] == "All":
             data['suggested_level_range'] = "1 50"

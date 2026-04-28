@@ -30,6 +30,6 @@ class Effect:
     def from_json(cls, data):
         if isinstance(data, str):
             data = json.loads(data)
-        from game.GenericUtil import GenericUtil
+        from util.GenericUtil import GenericUtil
         payload = GenericUtil.camel_to_snake_case(data)
         return cls(**payload)

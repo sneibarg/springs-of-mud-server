@@ -7,7 +7,7 @@ from area.RoomRegistry import RoomRegistry
 from mobile.Mobile import Mobile
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
-from player.PlayerUtil import PlayerUtil
+from util.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
 
 

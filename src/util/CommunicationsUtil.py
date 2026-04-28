@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from game.GameMacros import GameMacros
-from interp.InterpUtil import InterpUtil
+from util.InterpUtil import InterpUtil
 
 
 class CommunicationsUtil:

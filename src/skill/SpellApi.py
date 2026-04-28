@@ -6,14 +6,14 @@ import random
 from typing import Any
 
 from game.GameMacros import GameMacros
-from game.GenericUtil import GenericUtil
-from fight.FightUtil import FightUtil
-from object.ObjectUtil import ObjectUtils
+from util.GenericUtil import GenericUtil
+from util.FightUtil import FightUtil
+from util.ObjectUtil import ObjectUtils
 from object.Effect import Effect
-from object.EffectUtil import EffectUtil
-from object.ItemUtil import ItemUtil
+from util.EffectUtil import EffectUtil
+from util.ItemUtil import ItemUtil
 from player.CharacterMacros import CharacterMacros
-from player.PlayerUtil import PlayerUtil
+from util.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
 from skill.SpellContext import SpellContext
 from skill.SpellSpeech import SpellSpeech

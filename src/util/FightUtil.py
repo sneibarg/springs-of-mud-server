@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from game.GenericUtil import GenericUtil
+from util.GenericUtil import GenericUtil
 
 
 class FightUtil:

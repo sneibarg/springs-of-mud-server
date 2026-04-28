@@ -5,7 +5,7 @@ from typing import Tuple
 
 from game.GameMacros import GameMacros
 from game.Equipped import Equipped, WEAR_LOC_TO_EQUIPPED_SLOT
-from game.GenericUtil import GenericUtil
+from util.GenericUtil import GenericUtil
 from mobile.Mobile import Mobile
 from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice

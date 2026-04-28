@@ -81,7 +81,7 @@ class Item:
     def from_json(cls, data):
         if isinstance(data, str):
             data = json.loads(data)
-        from game.GenericUtil import GenericUtil
+        from util.GenericUtil import GenericUtil
         data = GenericUtil.camel_to_snake_case(data)
         data['contains'] = []
         return cls(**data)

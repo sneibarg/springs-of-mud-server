@@ -27,7 +27,8 @@ from fight.FightHandler import FightHandler
 from game.Equipped import Equipped
 from game.UpdateHandler import UpdateHandler
 from mobile.MobileHandler import MobileHandler
-from object.ObjectUtil import ObjectUtils
+from util.ObjectUtil import ObjectUtils
+from player.CharacterAdvancement import CharacterAdvancement
 
 
 class TestCombatInventoryRegressions(TestCase):
@@ -165,13 +166,16 @@ class TestCombatInventoryRegressions(TestCase):
         with patch("fight.FightHandler.CharacterMacros.get_enum", return_value=positions), \
              patch("fight.FightHandler.CharacterMacros.is_npc", side_effect=lambda entity: entity is victim), \
              patch.object(handler, "xp_compute", return_value=75), \
+             patch("fight.FightHandler.CharacterAdvancement.gain_experience", wraps=CharacterAdvancement.gain_experience), \
              patch.object(handler, "raw_kill") as raw_kill:
             result = handler.damage(attacker, victim, 20)
 
         self.assertTrue(result["killed"])
         self.assertEqual(75, result["xp_gain"])
+        self.assertEqual(11, attacker.level)
         self.assertEqual(55, attacker.character_attributes.experience)
         self.assertEqual(5075, attacker.character_attributes.accumulated_experience)
+        self.assertIn("You raise a level!!\r\n", result["level_up_messages"])
         raw_kill.assert_called_once_with(victim)
 
     def test_mobile_handler_rebuilds_kill_table_with_number_counts(self):

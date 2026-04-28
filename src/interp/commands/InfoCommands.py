@@ -4,21 +4,21 @@ from injector import inject
 
 from area.RoomHelper import RoomHelper
 from game.RegistryService import RegistryService
-from game.GenericUtil import GenericUtil
+from util.GenericUtil import GenericUtil
 from game.WeatherHandler import WeatherHandler
-from interp.commands.InfoUtil import InfoUtil
+from util.InfoUtil import InfoUtil
 from interp.CommandHelper import CommandHelper
 from interp.Context import Context
 from interp.HelpEntry import HelpEntry
-from interp.InterpUtil import InterpUtil
-from object.ItemUtil import ItemUtil
+from util.InterpUtil import InterpUtil
+from util.ItemUtil import ItemUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from player.PlayerHelper import PlayerHelper
-from player.PlayerUtil import PlayerUtil
+from util.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
 from server.session.SessionHandler import SessionHandler
-from skill.SkillUtil import SkillUtil
+from util.SkillUtil import SkillUtil
 
 DAY_NAME = [
     "the Moon", "the Bull", "Deception", "Thunder", "Freedom",
@@ -62,12 +62,8 @@ EQUIP_SLOT_LABELS = [
 class InfoCommands:
     @inject
     def __init__(self,
-                 registry_service: RegistryService,
-                 command_helper: CommandHelper,
-                 room_helper: RoomHelper,
-                 player_helper: PlayerHelper,
-                 session_handler: SessionHandler,
-                 weather_handler: WeatherHandler):
+                 registry_service: RegistryService, command_helper: CommandHelper, room_helper: RoomHelper,
+                 player_helper: PlayerHelper,session_handler: SessionHandler, weather_handler: WeatherHandler):
         self.__name__ = "InfoCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.interp_registry = registry_service.interp_registry
@@ -283,6 +279,7 @@ class InfoCommands:
             context.finish()
             return ""
 
+        character_race = getattr(character, "character_race", None)
         temporal = getattr(character, "temporal_mechanics", None)
         played = GenericUtil.to_int(getattr(temporal, "played", 0), 0)
         logon = GenericUtil.to_int(getattr(temporal, "logon", 0), 0)
@@ -315,7 +312,7 @@ class InfoCommands:
             f"You have {character.hit}/{character.max_hit} hit, {character.mana}/{character.max_mana} mana, {character.movement}/{character.max_movement} movement.",
             f"You have {attributes.practices} practices and {attributes.trains} training sessions.",
             f"You are carrying {carry_number}/{max_items} items with weight {carry_weight // 10}/{max_weight // 10} pounds.",
-            f"Str: {attributes.strength}({attributes.strength})  Int: {attributes.intelligence}({attributes.intelligence})  Wis: {attributes.wisdom}({attributes.wisdom})  Dex: {attributes.dexterity}({attributes.dexterity})  Con: {attributes.constitution}({attributes.constitution})",
+            f"Str: {attributes.strength}({character_race.max_strength})  Int: {attributes.intelligence}({character_race.max_intelligence})  Wis: {attributes.wisdom}({character_race.max_wisdom})  Dex: {attributes.dexterity}({character_race.max_dexterity})  Con: {attributes.constitution}({character_race.max_constitution})",
             f"You have scored {attributes.accumulated_experience} exp, and have {character.gold} gold and {character.silver} silver coins.",
             f"You need {attributes.experience_per_level - attributes.experience} exp to level."
         ])

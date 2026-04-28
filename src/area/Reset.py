@@ -27,6 +27,6 @@ class Reset:
 
     @classmethod
     def from_json(cls, data):
-        from game.GenericUtil import GenericUtil
+        from util.GenericUtil import GenericUtil
         data = GenericUtil.camel_to_snake_case(data)
         return cls(**data)

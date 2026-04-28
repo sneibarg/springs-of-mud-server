@@ -5,8 +5,8 @@ import random
 from types import SimpleNamespace
 from typing import Any, Optional
 
-from game.GenericUtil import GenericUtil
-from fight.FightUtil import FightUtil
+from util.GenericUtil import GenericUtil
+from util.FightUtil import FightUtil
 from mobile.MobileContext import MobileContext
 from mobile.MobileMacros import MobileMacros
 from player.CharacterMacros import CharacterMacros

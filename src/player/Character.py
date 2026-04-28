@@ -6,7 +6,8 @@ from typing import Dict, List, Optional, Any, TYPE_CHECKING
 from interp.PromptFormat import PromptFormat
 from object.Item import Item
 from player.CharacterClass import CharacterClass
-from player.PCArmorClass import PCArmorClass
+from player.CharacterArmorClass import PCArmorClass
+from player.CharacterRace import CharacterRace
 from player.TemporalMechanics import TemporalMechanics
 from player.CharacterAttributes import CharacterAttributes
 from player.CharacterFlags import CharacterFlags
@@ -24,7 +25,6 @@ class Character:
     description: str
     cloaked: bool
     guild: str
-    race: str
     name: str
     area_id: str
     room_id: str
@@ -52,6 +52,7 @@ class Character:
     armor_class: PCArmorClass
     character_class: CharacterClass
     prompt_format: PromptFormat
+    character_race: CharacterRace | None = None
     invis_level: Optional[int] = 0
     incog_level: Optional[int] = 0
     fighting: Optional[Any] = None
@@ -80,6 +81,16 @@ class Character:
 
     def get_items(self) -> List[Item]:
         return self.loot
+
+    @property
+    def race(self) -> str:
+        if self.character_race is None:
+            return ""
+        return str(getattr(self.character_race, "who_name", "") or "")
+
+    @race.setter
+    def race(self, value: str) -> None:
+        self.character_race = CharacterRace.from_name(value)
 
     @property
     def experience(self) -> int:
@@ -116,7 +127,7 @@ class Character:
 
     @classmethod
     def from_json(cls, data):
-        from game.GenericUtil import GenericUtil
+        from util.GenericUtil import GenericUtil
         from game.Equipped import Equipped
         payload = GenericUtil.camel_to_snake_case(data)
         prompt_format = payload.get('prompt_format')
@@ -125,6 +136,7 @@ class Character:
         temporal_mechanics = payload.get('temporal_mechanics')
         character_attributes = payload.get('character_attributes')
         character_flags = payload.get('character_flags')
+        character_race = payload.get('character_race', payload.get('race'))
         equipped_data = payload.get('equipped')
 
         payload['character_flags'] = CharacterFlags.from_json(character_flags)
@@ -133,6 +145,8 @@ class Character:
         payload['armor_class'] = PCArmorClass.from_json(armor_class)
         payload['prompt_format'] = PromptFormat.from_template(prompt_format)
         payload['character_class'] = CharacterClass.from_json(character_class)
+        payload['character_race'] = CharacterRace.from_json(character_race, character_class=payload['character_class'])
+        payload.pop('race', None)
 
         if isinstance(equipped_data, dict):
             normalized_equipped = GenericUtil.camel_to_snake_case(equipped_data)

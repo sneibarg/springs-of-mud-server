@@ -6,7 +6,7 @@ from injector import inject
 from game.GameData import GameData
 from object import Item
 from object.ItemRegistry import ItemRegistry
-from object.ItemUtil import ItemUtil
+from util.ItemUtil import ItemUtil
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 from skill.SkillRegistry import SkillRegistry

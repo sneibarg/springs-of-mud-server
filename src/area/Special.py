@@ -26,7 +26,7 @@ class Special:
 
     @classmethod
     def from_json(cls, data):
-        from game.GenericUtil import GenericUtil
+        from util.GenericUtil import GenericUtil
         normalized = GenericUtil.camel_to_snake_case(data)
         normalized["id"] = cls._extract_id(data, normalized)
         normalized["area_id"] = str(normalized.get("area_id", "") or "")

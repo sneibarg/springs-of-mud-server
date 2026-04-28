@@ -3,8 +3,8 @@ from typing import Any
 
 from area import Room
 from area.RoomHelper import RoomHelper
-from game.GenericUtil import GenericUtil
-from interp.InterpUtil import InterpUtil
+from util.GenericUtil import GenericUtil
+from util.InterpUtil import InterpUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from server.session.SessionHandler import SessionHandler

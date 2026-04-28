@@ -3,12 +3,12 @@ from __future__ import annotations
 from injector import inject
 
 from game.GameData import GameData
-from game.GenericUtil import GenericUtil
+from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
-from interp.commands.MovementUtil import MovementUtil
+from util.MovementUtil import MovementUtil
 from fight.FightHandler import FightHandler
-from mobile.MobileUtil import MobileUtil
+from util.MobileUtil import MobileUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from player.PlayerHelper import PlayerHelper
@@ -477,7 +477,6 @@ class MovementCommands:
         if attrs is None:
             return "You can train: hp mana.\r\n"
 
-        options = []
         trainable_stats = (
             ("str", "strength", 0),
             ("int", "intelligence", 1),
@@ -485,11 +484,12 @@ class MovementCommands:
             ("dex", "dexterity", 3),
             ("con", "constitution", 4),
         )
-        for short_name, attr_name, stat_index in trainable_stats:
-            current = GenericUtil.to_int(getattr(attrs, attr_name, 0), 0)
-            max_train = CharacterMacros.get_max_train(character, stat_index, current)
-            if current < max_train:
-                options.append(short_name)
+        options = [
+            short_name
+            for short_name, attr_name, stat_index in trainable_stats
+            if (current := GenericUtil.to_int(getattr(attrs, attr_name, 0), 0))
+            < CharacterMacros.get_max_train(character, stat_index, current)
+        ]
 
         options.extend(["hp", "mana"])
         if options:

@@ -1,13 +1,13 @@
 from typing import List
 from injector import inject
 
-from area.AreaUtil import AreaUtil
+from util.AreaUtil import AreaUtil
 from area.Exit import Exit
 from area.Room import Room
 from area.RoomHelper import RoomHelper
 from game.RegistryService import RegistryService
 from interp.Context import Context
-from object.ItemUtil import ItemUtil
+from util.ItemUtil import ItemUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory

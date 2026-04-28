@@ -65,7 +65,7 @@ class MudServer:
 
     def _start_services(self):
         from player.PlayerService import PlayerService
-        from server.ServerUtil import ServerUtil
+        from util.ServerUtil import ServerUtil
 
         self.injector = ServerUtil.bind_dependencies(self.service_config)
         self.player_service = self.injector.get(PlayerService)

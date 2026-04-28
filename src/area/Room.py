@@ -3,7 +3,7 @@ import threading
 from dataclasses import dataclass, field
 from typing import List
 
-from area.AreaUtil import AreaUtil
+from util.AreaUtil import AreaUtil
 from area.Exit import Exit
 from mobile.Mobile import Mobile
 from object.Item import Item

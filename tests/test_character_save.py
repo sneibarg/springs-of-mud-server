@@ -19,7 +19,23 @@ def build_character_data(character_id: str = "char_001") -> dict:
         "description": "A test character.",
         "cloaked": False,
         "guild": "",
-        "race": "Human",
+        "characterRace": {
+            "whoName": "Human",
+            "points": 0,
+            "classMult": 100,
+            "skills": [""],
+            "strength": 13,
+            "maxStrength": 18,
+            "intelligence": 13,
+            "maxIntelligence": 18,
+            "wisdom": 13,
+            "maxWisdom": 18,
+            "dexterity": 13,
+            "maxDexterity": 18,
+            "constitution": 13,
+            "maxConstitution": 18,
+            "size": "SIZE_MEDIUM",
+        },
         "name": "Tester",
         "areaId": "area_001",
         "roomId": "room_001",
@@ -111,6 +127,32 @@ def build_character_data(character_id: str = "char_001") -> dict:
 
 
 class TestCharacterSave(unittest.TestCase):
+    def test_character_from_json_reads_character_race_map(self):
+        character = Character.from_json(build_character_data("char_001"))
+
+        self.assertEqual("Human", character.race)
+        self.assertEqual("Human", character.character_race.who_name)
+        self.assertEqual(18, character.character_race.max_strength)
+        self.assertEqual(100, character.character_race.class_mult)
+
+    def test_character_from_json_translates_rom_style_character_race(self):
+        payload = build_character_data("char_001")
+        payload["characterRace"] = {
+            "whoName": "Human",
+            "points": 0,
+            "classMult": [100, 100, 100, 100],
+            "skills": [""],
+            "stats": [13, 13, 13, 13, 13],
+            "maxStats": [18, 18, 18, 18, 18],
+            "size": "SIZE_MEDIUM",
+        }
+
+        character = Character.from_json(payload)
+
+        self.assertEqual(100, character.character_race.class_mult)
+        self.assertEqual(13, character.character_race.strength)
+        self.assertEqual(18, character.character_race.max_constitution)
+
     @patch("player.CharacterService.requests.put")
     @patch("player.CharacterService.requests.get")
     def test_character_service_save_character_puts_payload_with_id(self, mock_get, mock_put):
@@ -146,6 +188,9 @@ class TestCharacterSave(unittest.TestCase):
         payload = mock_put.call_args.kwargs["json"]
         self.assertEqual("char_001", payload["id"])
         self.assertEqual("acct_001", payload["accountId"])
+        self.assertEqual("Human", payload["characterRace"]["whoName"])
+        self.assertEqual(100, payload["characterRace"]["classMult"])
+        self.assertEqual(18, payload["characterRace"]["maxStrength"])
         self.assertEqual(True, payload["promptFormat"]["hp"])
         self.assertEqual(True, payload["promptFormat"]["max_hp"])
 

@@ -4,7 +4,7 @@ from area import Room
 from area.RoomHelper import RoomHelper
 from game.GameMacros import GameMacros
 from game.RandomNumberGenerator import RandomNumberGenerator
-from game.GenericUtil import GenericUtil
+from util.GenericUtil import GenericUtil
 from object.ExtraDescriptionData import ExtraDescriptionData
 from object.ObjectMacros import ObjectMacros
 from player.Character import Character

@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from injector import inject
 
-from game.GenericUtil import GenericUtil
+from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
-from object.ObjectUtil import ObjectUtils
-from object.EffectUtil import EffectUtil
-from object.ItemUtil import ItemUtil
+from util.ObjectUtil import ObjectUtils
+from util.EffectUtil import EffectUtil
+from util.ItemUtil import ItemUtil
 from object.ObjectMacros import ObjectMacros
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros

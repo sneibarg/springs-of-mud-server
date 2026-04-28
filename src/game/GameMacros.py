@@ -1,6 +1,6 @@
 from enum import IntEnum
 
-from game.GenericUtil import GenericUtil
+from util.GenericUtil import GenericUtil
 
 
 class GameMacros:

@@ -8,11 +8,11 @@ from area.AreaHandler import AreaHandler
 from fight.CombatRegistry import CombatRegistry
 from fight.FightHandler import FightHandler
 from game.GameMacros import GameMacros
-from game.GenericUtil import GenericUtil
+from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
 from mobile.MobileHandler import MobileHandler
-from object.EffectUtil import EffectUtil
+from util.EffectUtil import EffectUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from player.CharacterService import CharacterService

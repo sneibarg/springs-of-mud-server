@@ -46,7 +46,7 @@ class GameService:
             raise RuntimeError(f"Failed to load game data: {e}")
 
     def _load_enums(self):
-        from game.GenericUtil import GenericUtil
+        from util.GenericUtil import GenericUtil
         for enum_name in self.game_data.enums:
             member_map = self.game_data.enums.get(enum_name)
             self.enums[enum_name] = GenericUtil.build_int_enum(enum_name, member_map)

@@ -3,10 +3,10 @@ from __future__ import annotations
 from injector import inject
 
 from game.GameMacros import GameMacros
-from game.GenericUtil import GenericUtil
+from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
-from interp.commands.WizUtil import WizUtil
+from util.WizUtil import WizUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from player.PlayerHelper import PlayerHelper

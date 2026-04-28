@@ -33,7 +33,7 @@ class Command:
 
     @classmethod
     def from_json(cls, data):
-        from game.GenericUtil import GenericUtil
+        from util.GenericUtil import GenericUtil
         data['id'] = GenericUtil.generate_mongo_id()
         data['_id'] = GenericUtil.generate_mongo_id()
         data = GenericUtil.camel_to_snake_case(data)

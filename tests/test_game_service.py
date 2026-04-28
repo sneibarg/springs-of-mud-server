@@ -80,6 +80,8 @@ class TestGameService(unittest.IsolatedAsyncioTestCase):
             "pcRaces": {},
             "skills": {},
             "groups": {},
+            "titles": {"mage": {"1": {"male": "Apprentice of Magic", "female": "Apprentice of Magic"}}},
+            "itemTable": {"container": 1},
             "weapons": {},
             "attacks": {},
             "liquids": {},
@@ -131,6 +133,8 @@ class TestGameService(unittest.IsolatedAsyncioTestCase):
         self.assertIsInstance(service.game_data, GameData)
         self.assertEqual(service.game_data.id, "test-game")
         self.assertEqual(service.game_data.constants.pulses["perSecond"], 4)
+        self.assertIn("mage", service.game_data.titles)
+        self.assertIn("container", service.game_data.item_table)
 
     @patch("game.GameService.LoggerFactory.get_logger")
     @patch("game.GameService.requests.get")

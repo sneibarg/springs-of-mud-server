@@ -8,16 +8,16 @@ from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
 from fight.CombatEvent import CombatEvent
 from fight.CombatRegistry import CombatRegistry
-from game.GenericUtil import GenericUtil
+from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
-from interp.commands.InfoUtil import InfoUtil
+from util.InfoUtil import InfoUtil
 from mobile.MobileRegistry import MobileRegistry
 from object.BodyForm import BodyForm
 from object.BodyParts import BodyParts
-from object.EffectUtil import EffectUtil
+from util.EffectUtil import EffectUtil
 from object.ItemRegistry import ItemRegistry
-from object.ItemUtil import ItemUtil
-from player.Character import Character
+from util.ItemUtil import ItemUtil
+from player.CharacterAdvancement import CharacterAdvancement
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
 from server.messaging.MessageBus import MessageBus
@@ -601,6 +601,7 @@ class FightHandler:
 
         killed = False
         xp_gain = 0
+        advancement = None
         positions_enum = CharacterMacros.get_enum("positions")
         if hasattr(positions_enum, "POS_DEAD"):
             if self._entity_position_value(victim) <= int(positions_enum.POS_DEAD.value):
@@ -609,12 +610,13 @@ class FightHandler:
                 if attacker is not None and not CharacterMacros.is_npc(attacker) and CharacterMacros.is_npc(victim):
                     attacker_level = max(1, GenericUtil.to_int(getattr(attacker, "level", 1), 1))
                     xp_gain = self.xp_compute(attacker, victim, attacker_level)
-                    self._award_experience(attacker, xp_gain)
+                    advancement = CharacterAdvancement.gain_experience(attacker, xp_gain)
                 self.raw_kill(victim)
 
         msg = self.dam_message(attacker, victim, applied, dt=dt, immune=False)
         msg["killed"] = killed
         msg["xp_gain"] = xp_gain if killed else 0
+        msg["level_up_messages"] = advancement.level_up_messages if advancement is not None else ""
         return msg
 
     def one_hit(self, attacker, victim, dt: str = "TYPE_HIT") -> dict:
@@ -748,6 +750,7 @@ class FightHandler:
             payload["to_char"] = (payload["to_char"] or "") + f"{victim_name} is DEAD!!\r\n"
             xp_gain = int(result.get("xp_gain", 0) or 0)
             payload["to_char"] = (payload["to_char"] or "") + f"You receive {xp_gain} experience points.\r\n"
+            payload["to_char"] = (payload["to_char"] or "") + str(result.get("level_up_messages", "") or "")
             payload["to_char"] = (payload["to_char"] or "") + f"You hear {victim_name}'s death cry.\r\n"
 
             corpse = self._find_latest_corpse(room, victim, pre_corpse_ids)
@@ -1197,26 +1200,6 @@ class FightHandler:
         else:
             self._set_position(entity, stand_pos)
         self.update_pos(entity)
-
-    @staticmethod
-    def _award_experience(character, xp_gain: int) -> None:
-        if character is None:
-            return
-
-        xp_gain = max(0, GenericUtil.to_int(xp_gain, 0))
-        attrs = getattr(character, "character_attributes", None)
-        if attrs is None or xp_gain <= 0:
-            return
-
-        current_xp = GenericUtil.to_int(getattr(attrs, "experience", 0), 0) + xp_gain
-        accumulated_xp = GenericUtil.to_int(getattr(attrs, "accumulated_experience", 0), 0) + xp_gain
-        xp_per_level = GenericUtil.to_int(getattr(attrs, "experience_per_level", 0), 0)
-
-        if xp_per_level > 0 and current_xp >= xp_per_level:
-            current_xp %= xp_per_level
-
-        attrs.experience = current_xp
-        attrs.accumulated_experience = accumulated_xp
 
     def _restore_player_after_death(self, victim, room) -> None:
         temple_room = self.room_registry.get_or_none(vnum="3001")

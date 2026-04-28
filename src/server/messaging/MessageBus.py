@@ -4,7 +4,7 @@ from injector import inject
 from area.Area import Area
 from area.Room import Room
 from game.GameMacros import GameMacros
-from game.GenericUtil import GenericUtil
+from util.GenericUtil import GenericUtil
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 from server.connection.ConnectionManager import ConnectionManager

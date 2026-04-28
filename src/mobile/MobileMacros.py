@@ -2,8 +2,8 @@ import random
 
 from typing import Any
 
-from game.GenericUtil import GenericUtil
-from mobile.MobileUtil import MobileUtil
+from util.GenericUtil import GenericUtil
+from util.MobileUtil import MobileUtil
 from player.CharacterMacros import CharacterMacros
 
 

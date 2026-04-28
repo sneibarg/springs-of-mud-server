@@ -3,7 +3,7 @@ import requests
 from typing import Optional
 from injector import inject
 from mobile.Mobile import Mobile
-from mobile.MobileUtil import MobileUtil
+from util.MobileUtil import MobileUtil
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 from fight.FightHandler import FightHandler
@@ -71,7 +71,7 @@ class MobileService:
             return None
 
     def _build_mobile(self, raw_mobile, npc_flag) -> Optional[Mobile]:
-        from game.GenericUtil import GenericUtil
+        from util.GenericUtil import GenericUtil
         converted_mobile = GenericUtil.camel_to_snake_case(raw_mobile)
         converted_mobile['form'] = MobileUtil.convert_form(converted_mobile['race'], converted_mobile['form'])
         converted_mobile['parts'] = MobileUtil.convert_parts(converted_mobile['race'], converted_mobile['parts'])

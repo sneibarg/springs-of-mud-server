@@ -7,7 +7,7 @@ from game.HandlerService import HandlerService
 from game.RegistryService import RegistryService
 from interp.Command import Command
 from interp.Context import Context
-from interp.InterpUtil import InterpUtil
+from util.InterpUtil import InterpUtil
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 from server.connection.ConnectionManager import ConnectionManager

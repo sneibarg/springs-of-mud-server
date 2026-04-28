@@ -1,5 +1,3 @@
-import json
-
 from dataclasses import dataclass
 
 
@@ -11,5 +9,5 @@ class CharacterFlags:
 
     @classmethod
     def from_json(cls, data) -> CharacterFlags:
-        from game.GenericUtil import GenericUtil
+        from util.GenericUtil import GenericUtil
         return cls(**GenericUtil.camel_to_snake_case(data))

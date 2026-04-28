@@ -191,6 +191,7 @@ class ServerUtil:
             enums_provider=lambda: enums,
             attribute_bonuses_provider=lambda: attribute_bonuses,
             pc_races_provider=lambda: pc_races,
+            titles_provider=lambda: injector.get(GameData).titles,
             weather_handler_provider=lambda: weather_handler,
         )
 

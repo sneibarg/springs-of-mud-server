@@ -5,7 +5,7 @@ from area.AreaRegistry import AreaRegistry
 from area.RoomHelper import RoomHelper
 from area.RoomRegistry import RoomRegistry
 from area.ShopRegistry import ShopRegistry
-from game.GenericUtil import GenericUtil
+from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
 from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
