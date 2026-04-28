@@ -7,8 +7,8 @@ from typing import Any
 
 from game.GameMacros import GameMacros
 from game.GenericUtil import GenericUtil
-from interp.commands.FightUtil import FightUtil
-from interp.commands.ObjectUtils import ObjectUtils
+from fight.FightUtil import FightUtil
+from object.ObjectUtil import ObjectUtils
 from object.Effect import Effect
 from object.EffectUtil import EffectUtil
 from object.ItemUtil import ItemUtil
@@ -16,6 +16,7 @@ from player.CharacterMacros import CharacterMacros
 from player.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
 from skill.SpellContext import SpellContext
+from skill.SpellSpeech import SpellSpeech
 
 
 class SpellApi:
@@ -87,15 +88,39 @@ class SpellApi:
 
     def queue_cast_announcement(self, ctx: SpellContext):
         spell_label = str(getattr(ctx.spell, "name", "spell") or "spell")
+        if spell_label.strip().lower() == "ventriloquate":
+            return False
         victim = ctx.victim
-        self.send(
-            ctx,
-            to_char=f"You cast {spell_label}" + (f" on {self._entity_name(victim)}" if victim is not None and victim is not ctx.actor else "") + ".\r\n",
-            to_room=f"{self._entity_name(ctx.actor)} casts {spell_label}" + (f" on {self._entity_name(victim)}" if victim is not None and victim is not ctx.actor else "") + ".\r\n",
-            to_victim=f"{self._entity_name(ctx.actor)} casts {spell_label} on you.\r\n" if victim is not None and victim is not ctx.actor else "",
-            victim=victim,
-            prepend=True,
-        )
+        actor_name = self._entity_name(ctx.actor)
+        self.send(ctx, to_char=f"You cast {spell_label}" + (f" on {self._entity_name(victim)}" if victim is not None and victim is not ctx.actor else "") + ".\r\n", prepend=True)
+
+        visible_spell = SpellSpeech.utterance(spell_label, actor_name, translated=False)
+        obscure_spell = SpellSpeech.utterance(spell_label, actor_name, translated=True)
+
+        if victim is not None and victim is not ctx.actor and not CharacterMacros.is_npc(victim):
+            self.send(
+                ctx,
+                to_victim=visible_spell if self._same_class(ctx.actor, victim) else obscure_spell,
+                victim=victim,
+                prepend=True,
+            )
+
+        same_class_targets: list[Any] = []
+        other_targets: list[Any] = []
+        exclude_ids = {str(getattr(ctx.actor, "id", "") or "")}
+        if victim is not None:
+            exclude_ids.add(str(getattr(victim, "id", "") or ""))
+        for player in self._room_players(ctx.room, exclude_ids=exclude_ids):
+            if self._same_class(ctx.actor, player):
+                same_class_targets.append(player)
+            else:
+                other_targets.append(player)
+
+        if same_class_targets:
+            ctx.payloads.insert(0, {"to_room": visible_spell, "targets": same_class_targets})
+        if other_targets:
+            ctx.payloads.insert(0, {"to_room": obscure_spell, "targets": other_targets})
+        return True
 
     def start_offensive_combat(self, ctx: SpellContext):
         victim = ctx.victim
@@ -110,17 +135,8 @@ class SpellApi:
         if getattr(victim, "fighting", None) is None:
             self._fight_handler(ctx).set_fighting(victim, ctx.actor, room.id)
 
-    def send(
-        self,
-        ctx: SpellContext,
-        to_char: str = "",
-        to_room: str = "",
-        to_victim: str = "",
-        victim: Any = None,
-        include_actor_in_room: bool = False,
-        include_victim_in_room: bool = False,
-        prepend: bool = False,
-    ) -> bool:
+    def send(self, ctx: SpellContext, to_char: str = "", to_room: str = "",to_victim: str = "", victim: Any = None,
+             include_actor_in_room: bool = False, include_victim_in_room: bool = False, prepend: bool = False) -> bool:
         target = ctx.resolve(victim) if victim is not None else ctx.victim
         payload: dict[str, Any] = {}
         if to_char and ctx.is_player_source:
@@ -976,6 +992,14 @@ class SpellApi:
     @staticmethod
     def _same_side(actor, entity) -> bool:
         return CharacterMacros.is_npc(actor) == CharacterMacros.is_npc(entity)
+
+    @staticmethod
+    def _same_class(actor, entity) -> bool:
+        if actor is None or entity is None or CharacterMacros.is_npc(entity):
+            return False
+        actor_class = str(getattr(getattr(actor, "character_class", None), "name", "") or "").strip().lower()
+        entity_class = str(getattr(getattr(entity, "character_class", None), "name", "") or "").strip().lower()
+        return bool(actor_class) and actor_class == entity_class
 
     @staticmethod
     def _room_combatants(room) -> list[Any]:

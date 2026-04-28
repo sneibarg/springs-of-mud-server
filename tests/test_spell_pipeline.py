@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 
 from interp.commands.FightCommands import FightCommands
 from skill.Spell import Spell
+from skill.SpellSpeech import SpellSpeech
 
 
 class TestSpellPipeline(unittest.TestCase):
@@ -61,8 +62,18 @@ class TestSpellPipeline(unittest.TestCase):
         )
         registry_service.spell_registry.all_spells.return_value = [spell]
 
-        character = SimpleNamespace(id="char1", name="Tester", room_id="room1", mana=12, fighting=None, level=10)
-        room = SimpleNamespace(id="room1", characters={"char1": character}, mobiles={}, contents={})
+        character = SimpleNamespace(
+            id="char1",
+            name="Tester",
+            room_id="room1",
+            mana=12,
+            fighting=None,
+            level=10,
+            character_class=SimpleNamespace(name="mage"),
+        )
+        same_class = SimpleNamespace(id="char2", name="MagePeer", character_class=SimpleNamespace(name="mage"))
+        other_class = SimpleNamespace(id="char3", name="ClericPeer", character_class=SimpleNamespace(name="cleric"))
+        room = SimpleNamespace(id="room1", characters={"char1": character, "char2": same_class, "char3": other_class}, mobiles={}, contents={})
         registry_service.room_registry.get_or_none.return_value = room
 
         commands = FightCommands(
@@ -77,9 +88,18 @@ class TestSpellPipeline(unittest.TestCase):
             payload = commands.do_cast(character, context)
 
         self.assertEqual(7, character.mana)
-        self.assertIn("You cast unit spell.\r\n", payload["to_char"])
-        self.assertIn("Tester casts unit spell.\r\n", payload["to_room"])
+        payloads = payload["payloads"]
+        self.assertEqual("You cast unit spell.\r\n", next(entry["to_char"] for entry in payloads if entry.get("to_char")))
+        room_payloads = [entry for entry in payloads if entry.get("to_room")]
+        visible_payload = next(entry for entry in room_payloads if entry["targets"] == [same_class])
+        obscure_payload = next(entry for entry in room_payloads if entry["targets"] == [other_class])
+        self.assertEqual("Tester utters the words, 'unit spell'.\r\n", visible_payload["to_room"])
+        self.assertEqual("Tester utters the words, 'jiuh gszrr'.\r\n", obscure_payload["to_room"])
         context.finish.assert_called_once()
+
+    def test_spell_speech_translates_rom_syllables(self):
+        self.assertEqual("jiuh gszrr", SpellSpeech.translate_spell_name("unit spell"))
+        self.assertEqual("oculocandushi a qruh", SpellSpeech.translate_spell_name("detect a trap"))
 
     def test_spell_collection_entries_define_lambdas(self):
         spells = json.loads(Path("resources/collections/SOMDB.Spells.json").read_text())

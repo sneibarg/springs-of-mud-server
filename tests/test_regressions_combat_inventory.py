@@ -26,9 +26,8 @@ if "injector" not in sys.modules:
 from fight.FightHandler import FightHandler
 from game.Equipped import Equipped
 from game.UpdateHandler import UpdateHandler
-from mobile.KillTable import KillTable
 from mobile.MobileHandler import MobileHandler
-from interp.commands.ObjectUtils import ObjectUtils
+from object.ObjectUtil import ObjectUtils
 
 
 class TestCombatInventoryRegressions(TestCase):

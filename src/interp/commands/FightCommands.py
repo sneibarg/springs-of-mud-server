@@ -7,8 +7,8 @@ from fight.FightHandler import FightHandler
 from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
 from interp.Context import Context
-from interp.commands.FightUtil import FightUtil
-from interp.commands.ObjectUtils import ObjectUtils
+from fight.FightUtil import FightUtil
+from object.ObjectUtil import ObjectUtils
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from player.PlayerUtil import PlayerUtil
