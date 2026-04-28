@@ -236,6 +236,6 @@ class TestCombatInventoryRegressions(TestCase):
              patch("fight.FightHandler.CharacterMacros.get_enum", return_value=SimpleNamespace()):
             handler.raw_kill(victim)
 
-        self.assertEqual(2, proto.count)
+        self.assertEqual(3, proto.count)
         self.assertEqual(5, proto.killed)
         handler.mobile_handler.record_mobile_kill.assert_called_once_with(victim)

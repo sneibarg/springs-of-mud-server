@@ -17,6 +17,7 @@ from object.BodyParts import BodyParts
 from util.EffectUtil import EffectUtil
 from object.ItemRegistry import ItemRegistry
 from util.ItemUtil import ItemUtil
+from util.ObjectUtil import ObjectUtils
 from player.CharacterAdvancement import CharacterAdvancement
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
@@ -351,7 +352,6 @@ class FightHandler:
 
             proto = self.mobile_registry.get_or_none(vnum=str(getattr(victim, "vnum", "") or ""))
             if proto is not None:
-                proto.count = max(0, GenericUtil.to_int(getattr(proto, "count", 0), 0) - 1)
                 proto.killed = GenericUtil.to_int(getattr(proto, "killed", 0), 0) + 1
             if self.mobile_handler is not None:
                 self.mobile_handler.record_mobile_kill(victim)
@@ -755,14 +755,14 @@ class FightHandler:
 
             corpse = self._find_latest_corpse(room, victim, pre_corpse_ids)
             if corpse is not None and self._player_act_enabled(attacker, "PLR_AUTOLOOT"):
-                for item in list(getattr(corpse, "contains", []) or []):
-                    attacker.loot.append(item)
-                corpse.contains = []
+                self._autoloot_corpse(attacker, corpse)
 
             if corpse is not None and self._player_act_enabled(attacker, "PLR_AUTOSAC"):
-                room.contents.pop(getattr(corpse, "id", ""), None)
-                attacker.silver = int(getattr(attacker, "silver", 0) or 0) + 1
-                payload["to_char"] = (payload["to_char"] or "") + "Mota gives you one silver coin for your sacrifice.\r\n"
+                if not (self._player_act_enabled(attacker, "PLR_AUTOLOOT") and list(getattr(corpse, "contains", []) or [])):
+                    sacrifice = self._autosacrifice_corpse(attacker, corpse, room)
+                    if sacrifice is not None:
+                        payload["to_char"] = (payload["to_char"] or "") + sacrifice.get("to_char", "")
+                        payload["to_room"] = (payload["to_room"] or "") + sacrifice.get("to_room", "")
 
         return payload
 
@@ -1003,6 +1003,44 @@ class FightHandler:
         merged["killed"] = bool(merged.get("killed")) or bool(extra.get("killed"))
         merged["xp_gain"] = GenericUtil.to_int(merged.get("xp_gain", 0), 0) + GenericUtil.to_int(extra.get("xp_gain", 0), 0)
         return merged
+
+    @staticmethod
+    def _autoloot_corpse(character, corpse) -> None:
+        try:
+            wear_flags = CharacterMacros.get_enum("wearFlags")
+        except RuntimeError:
+            wear_flags = None
+
+        remaining = []
+        for item in list(getattr(corpse, "contains", []) or []):
+            if ObjectUtils.item_takeable(item, wear_flags):
+                ObjectUtils.add_to_inventory(character, item)
+            else:
+                remaining.append(item)
+        corpse.contains = remaining
+
+    @staticmethod
+    def _autosacrifice_corpse(attacker, corpse, room) -> dict | None:
+        if room is None or corpse is None or not ObjectUtils.is_npc_corpse(corpse):
+            return None
+
+        try:
+            wear_flags = CharacterMacros.get_enum("wearFlags")
+            item_flags = CharacterMacros.get_enum("itemFlags")
+        except RuntimeError:
+            wear_flags = None
+            item_flags = None
+
+        if not ObjectUtils.item_takeable(corpse, wear_flags) or ObjectUtils.is_nosac(corpse, item_flags):
+            return None
+
+        room.remove_item_from_room(corpse)
+        silver = ObjectUtils.sacrifice_silver_value(corpse)
+        attacker.silver = int(getattr(attacker, "silver", 0) or 0) + silver
+        return {
+            "to_char": ObjectUtils.sacrifice_reward_message(silver),
+            "to_room": f"{attacker.name} sacrifices {ObjectUtils.short(corpse)} to Mota.\r\n",
+        }
 
     @staticmethod
     def _is_backstab_attack(dt: str) -> bool:

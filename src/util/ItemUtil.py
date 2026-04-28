@@ -368,7 +368,6 @@ class ItemUtil:
             item.value3 = "-1"
             item.value4 = "-1"
 
-        pObjIndex.count = getattr(pObjIndex, "count", 0) + 1
         return item
 
     @staticmethod

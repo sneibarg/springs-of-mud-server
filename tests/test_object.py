@@ -146,6 +146,29 @@ class TestItem(unittest.TestCase):
         self.assertIsNotNone(item.logger)
         self.assertEqual(item.__name__, 'Item')
 
+    def test_from_json_normalizes_legacy_extra_descr_into_extra_description(self):
+        payload = dict(self.item_data)
+        payload["extra_descr"] = ["sword blade", "A maker's mark is etched into the blade."]
+
+        item = Item.from_json(json.dumps(payload))
+
+        self.assertIsNotNone(item.extra_description)
+        self.assertEqual("sword blade", item.extra_description.keyword)
+        self.assertEqual("A maker's mark is etched into the blade.", item.extra_description.description)
+
+    def test_from_json_normalizes_structured_extra_description(self):
+        payload = dict(self.item_data)
+        payload["extraDescription"] = {
+            "valid": True,
+            "keyword": "sword blade",
+            "description": "A maker's mark is etched into the blade.",
+        }
+
+        item = Item.from_json(json.dumps(payload))
+
+        self.assertIsNotNone(item.extra_description)
+        self.assertEqual("sword blade", item.extra_description.keyword)
+
 
 class TestItemService(unittest.TestCase):
     """Test ItemService"""

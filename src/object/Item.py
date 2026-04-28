@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import threading
 
@@ -84,7 +86,27 @@ class Item:
         from util.GenericUtil import GenericUtil
         data = GenericUtil.camel_to_snake_case(data)
         data['contains'] = []
+        data['extra_description'] = cls._normalize_extra_description(
+            data.get('extra_description'),
+            data.get('extra_descr'),
+        )
         return cls(**data)
+
+    @staticmethod
+    def _normalize_extra_description(extra_description, extra_descr):
+        if extra_description:
+            try:
+                return ExtraDescriptionData.from_json(extra_description)
+            except (TypeError, ValueError):
+                return None
+
+        if isinstance(extra_descr, list) and len(extra_descr) >= 2:
+            keyword = str(extra_descr[0] or "").strip()
+            description = str(extra_descr[1] or "")
+            if keyword or description:
+                return ExtraDescriptionData(valid=True, keyword=keyword, description=description)
+
+        return None
 
 
 

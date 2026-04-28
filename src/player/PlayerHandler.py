@@ -462,8 +462,52 @@ class PlayerHandler:
             exclude_ids = payload.get("exclude_character_ids", [])
             await self.message_bus.broadcast(self.message_bus.text_to_message(payload["broadcast_message"]), exclude_ids)
 
+    async def do_hit(self, character: Character, context: Context):
+        await self._handle_fight_payload(character, context, self.fight_commands.do_kill(character, context))
+
+    async def do_kill(self, character: Character, context: Context):
+        await self._handle_fight_payload(character, context, self.fight_commands.do_kill(character, context))
+
+    async def do_cast(self, character: Character, context: Context):
+        await self._handle_fight_payload(character, context, self.fight_commands.do_cast(character, context))
+
+    async def do_backstab(self, character: Character, context: Context):
+        await self._handle_fight_payload(character, context, self.fight_commands.do_backstab(character, context))
+
+    async def do_bash(self, character: Character, context: Context):
+        await self._handle_fight_payload(character, context, self.fight_commands.do_bash(character, context))
+
+    async def do_berserk(self, character: Character, context: Context):
+        await self._handle_fight_payload(character, context, self.fight_commands.do_berserk(character, context))
+
+    async def do_dirt(self, character: Character, context: Context):
+        await self._handle_fight_payload(character, context, self.fight_commands.do_dirt(character, context))
+
+    async def do_disarm(self, character: Character, context: Context):
+        await self._handle_fight_payload(character, context, self.fight_commands.do_disarm(character, context))
+
+    async def do_flee(self, character: Character, context: Context):
+        await self._handle_fight_payload(character, context, self.fight_commands.do_flee(character, context))
+
+    async def do_kick(self, character: Character, context: Context):
+        await self._handle_fight_payload(character, context, self.fight_commands.do_kick(character, context))
+
+    async def do_murde(self, character: Character, context: Context):
+        await self._handle_fight_payload(character, context, self.fight_commands.do_murde(character, context))
+
+    async def do_murder(self, character: Character, context: Context):
+        await self._handle_fight_payload(character, context, self.fight_commands.do_murder(character, context))
+
+    async def do_rescue(self, character: Character, context: Context):
+        await self._handle_fight_payload(character, context, self.fight_commands.do_rescue(character, context))
+
+    async def do_trip(self, character: Character, context: Context):
+        await self._handle_fight_payload(character, context, self.fight_commands.do_trip(character, context))
+
     async def do_fight_command(self, character: Character, context: Context):
-        payload = self.fight_commands.execute(character, context)
+        await self._handle_fight_payload(character, context, self.fight_commands.execute(character, context))
+
+    async def _handle_fight_payload(self, character: Character, context: Context, payload):
         if payload is None:
             return
         if isinstance(payload, str):

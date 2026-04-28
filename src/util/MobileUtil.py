@@ -407,8 +407,6 @@ class MobileUtil:
             MobileUtil._apply_affected_by(mob, enums)
 
         mob.position = mob.start_pos
-        pMobIndex.count = getattr(pMobIndex, 'count', 0) + 1
-
         return mob
 
     @staticmethod

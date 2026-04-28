@@ -80,9 +80,14 @@ class ItemHandler:
                 continue
 
             extra = getattr(item, "extra_description", None)
-            if extra and context.look_keyword_matches(token, extra.keyword or ""):
+            extra_keyword = getattr(extra, "keyword", None) if extra is not None else None
+            extra_description = getattr(extra, "description", None) if extra is not None else None
+            if isinstance(extra, dict):
+                extra_keyword = extra.get("keyword")
+                extra_description = extra.get("description")
+            if extra and context.look_keyword_matches(token, extra_keyword or ""):
                 if context.look_register_match():
-                    await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message((extra.description or "") + "\r\n"))
+                    await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message((extra_description or "") + "\r\n"))
                     context.finish()
                     return
 

@@ -317,15 +317,7 @@ class InfoCommands:
             f"You need {attributes.experience_per_level - attributes.experience} exp to level."
         ])
 
-        GameParametersEnum = CharacterMacros.get_enum("gameParameters")
-        hero_level = GameParametersEnum.LEVEL_HERO.value if GameParametersEnum.LEVEL_HERO.value else 51
-        if character.level < hero_level:
-            next_total = GenericUtil.to_int(getattr(character, "accumulated_experience", 0), 0)
-            if next_total > character.character_attributes.experience:
-                lines.append(f"You need {next_total - attributes.experience} exp to level.")
-
         lines.append(f"Wimpy set to {attributes.wimpy} hit points.")
-
         char_context = character.context if isinstance(character.context, dict) else {}
         drunk = GenericUtil.to_int(getattr(character, "drunk", char_context.get("drunk", 0)), 0)
         thirst = GenericUtil.to_int(getattr(character, "thirst", char_context.get("thirst", 1)), 1)

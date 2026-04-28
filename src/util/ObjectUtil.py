@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from game.Equipped import Equipped, WEAR_LOC_TO_EQUIPPED_SLOT
 from game.GameMacros import GameMacros
+from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
 
 
@@ -168,6 +169,42 @@ class ObjectUtils:
         if item_flags_enum is None or not hasattr(item_flags_enum, "ITEM_NODROP"):
             return False
         return ObjectUtils.has_flag(getattr(item, "extra_flags", 0), item_flags_enum.ITEM_NODROP.value)
+
+    @staticmethod
+    def is_nosac(item, item_flags_enum) -> bool:
+        if item_flags_enum is None or not hasattr(item_flags_enum, "ITEM_NO_SAC"):
+            return False
+        return ObjectUtils.has_flag(getattr(item, "extra_flags", 0), item_flags_enum.ITEM_NO_SAC.value)
+
+    @staticmethod
+    def item_type_name(item) -> str:
+        return str(getattr(item, "item_type", "") or "").strip().upper()
+
+    @staticmethod
+    def is_pc_corpse(item) -> bool:
+        return ObjectUtils.item_type_name(item) == "ITEM_CORPSE_PC"
+
+    @staticmethod
+    def is_npc_corpse(item) -> bool:
+        return ObjectUtils.item_type_name(item) == "ITEM_CORPSE_NPC"
+
+    @staticmethod
+    def is_corpse(item) -> bool:
+        item_type = ObjectUtils.item_type_name(item)
+        return item_type in {"ITEM_CORPSE_NPC", "ITEM_CORPSE_PC"}
+
+    @staticmethod
+    def sacrifice_silver_value(item) -> int:
+        silver = max(1, GenericUtil.to_int(getattr(item, "level", 1), 0) * 3)
+        if not ObjectUtils.is_corpse(item):
+            silver = min(silver, max(0, GenericUtil.to_int(getattr(item, "cost", 0), 0)))
+        return silver
+
+    @staticmethod
+    def sacrifice_reward_message(silver: int) -> str:
+        if GenericUtil.to_int(silver, 0) == 1:
+            return "Mota gives you one silver coin for your sacrifice.\r\n"
+        return f"Mota gives you {GenericUtil.to_int(silver, 0)} silver coins for your sacrifice.\r\n"
 
     @staticmethod
     def is_container(item) -> bool:

@@ -263,36 +263,40 @@ class ObjectCommands:
     def do_sacrifice(self, character: Character, context: Context):
         arg1, _ = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
         room = self.room_registry.get_or_none(id=character.room_id)
-        if not arg1:
+        if not arg1 or arg1.lower() == str(getattr(character, "name", "") or "").strip().lower():
             context.finish()
-            return {"to_char": "Sacrifice what?\r\n"}
+            return {
+                "to_char": "Mota appreciates your offer and may accept it later.\r\n",
+                "to_room": f"{character.name} offers themselves to Mota, who graciously declines.\r\n",
+                "targets": self.player_helper.players_in_room(character, room),
+            }
 
-        item = ObjectUtils.find_inventory_item(character, arg1)
-        from_room = False
-        if item is None and room is not None:
-            item = ObjectUtils.find_room_item(room, arg1)
-            from_room = item is not None
-
+        item = ObjectUtils.find_room_item(room, arg1) if room is not None else None
         if item is None:
             context.finish()
-            return {"to_char": "You do not have that item.\r\n"}
-        if ObjectUtils.is_nodrop(item, self.item_flags):
+            return {"to_char": "You can't find it.\r\n"}
+        if ObjectUtils.is_pc_corpse(item) and list(getattr(item, "contains", []) or []):
             context.finish()
-            return {"to_char": "You can't let go of it.\r\n"}
+            return {"to_char": "Mota wouldn't like that.\r\n"}
+        if not ObjectUtils.item_takeable(item, self.wear_flags) or ObjectUtils.is_nosac(item, self.item_flags):
+            context.finish()
+            return {"to_char": f"{ObjectUtils.short(item)} is not an acceptable sacrifice.\r\n"}
 
-        slot = ObjectUtils.equipped_slot_of(character, item)
-        if slot:
-            EffectUtil.remove_item_effects(character, item)
-            ObjectUtils.unequip_item(character, slot)
+        for occupant in list(getattr(room, "characters", {}).values()) + list(getattr(room, "mobiles", {}).values()) if room is not None else []:
+            if getattr(occupant, "on", None) is item:
+                name = getattr(occupant, "short_description", None) or getattr(occupant, "name", "Someone")
+                context.finish()
+                return {"to_char": f"{name} appears to be using {ObjectUtils.short(item)}.\r\n"}
 
-        if from_room:
-            room.remove_item_from_room(item)
-        else:
-            ObjectUtils.remove_from_inventory(character, item)
-
-        character.silver = int(getattr(character, "silver", 0) or 0) + 1
+        silver = ObjectUtils.sacrifice_silver_value(item)
+        room.remove_item_from_room(item)
+        character.silver = int(getattr(character, "silver", 0) or 0) + silver
         context.finish()
-        return {"to_char": "Mota gives you one silver coin for your sacrifice.\r\n"}
+        return {
+            "to_char": ObjectUtils.sacrifice_reward_message(silver),
+            "to_room": f"{character.name} sacrifices {ObjectUtils.short(item)} to Mota.\r\n",
+            "targets": self.player_helper.players_in_room(character, room),
+        }
 
     def destroy_carried(self, character: Character, context: Context, empty_msg: str, success_msg: str = "Ok.\r\n"):
         arg1, _ = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
