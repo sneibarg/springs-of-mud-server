@@ -257,7 +257,7 @@ class TestFightControl(unittest.TestCase):
         attacker = SimpleNamespace(
             fighting=None,
             skills=[{"name": "second attack", "level": 100}],
-            temporal_mechanics=SimpleNamespace(pulse_wait=0, pulse_daze=0),
+            stats_flags=SimpleNamespace(pulse_wait=0, pulse_daze=0),
             character_attributes=SimpleNamespace(position=8),
         )
         victim = SimpleNamespace(id="mob1")

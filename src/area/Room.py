@@ -1,7 +1,7 @@
 import threading
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Any
 
 from util.AreaUtil import AreaUtil
 from area.Exit import Exit
@@ -84,3 +84,17 @@ class Room:
         with self.lock:
             if item.id in self.contents:
                 del self.contents[item.id]
+
+    def players_in_room(self) -> List[Character]:
+        with self.lock:
+            return list(self.characters.values())
+
+    def mobiles_in_room(self) -> List[Mobile]:
+        with self.lock:
+            return list(self.mobiles.values())
+
+    def people(self) -> List[Any]:
+        with self.lock:
+            chars = [self.characters.items()]
+            mobs = [self.mobiles.items()]
+            return chars + mobs

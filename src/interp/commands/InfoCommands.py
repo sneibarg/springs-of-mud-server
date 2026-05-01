@@ -85,7 +85,7 @@ class InfoCommands:
         room = self.room_registry.get(id=character.room_id)
         in_room = self.player_helper.players_in_room(character, room)
         return {
-            "in_room": in_room,
+            "people": in_room,
             "to_char": "Alas, all good things must come to an end.\r\n",
             "to_room": f"{character.name} has left the game.\r\n",
         }
@@ -195,7 +195,7 @@ class InfoCommands:
 
         if arg1 == "" or arg1 == "auto":
             await context.room_handler().print_room(character.id, room)
-            if CharacterMacros.is_set(int(CharacterMacros.convert_flags(character.character_flags.act)),
+            if CharacterMacros.is_set(int(CharacterMacros.convert_flags(character.status_flags.act)),
                                             self.PlayerActBits.PLR_AUTOEXIT.value):
                 await context.room_handler().print_exits(character, room)
             context.jump_to(1)  # players + mobiles
@@ -280,9 +280,9 @@ class InfoCommands:
             return ""
 
         character_race = getattr(character, "character_race", None)
-        temporal = getattr(character, "temporal_mechanics", None)
-        played = GenericUtil.to_int(getattr(temporal, "played", 0), 0)
-        logon = GenericUtil.to_int(getattr(temporal, "logon", 0), 0)
+        status_flags = getattr(character, "status_flags", None)
+        played = GenericUtil.to_int(getattr(status_flags, "played", 0), 0)
+        logon = GenericUtil.to_int(getattr(status_flags, "logon", 0), 0)
         elapsed = int(datetime.now().timestamp()) - logon if logon > 0 else 0
         total_seconds = max(played + elapsed, 0)
         total_hours = total_seconds // 3600
@@ -348,10 +348,10 @@ class InfoCommands:
         if CharacterMacros.is_immortal(character):
             holy = "on" if CharacterMacros.has_holy_light(character) else "off"
             imm_text = f"Holy Light: {holy}"
-            if GenericUtil.to_int(getattr(character, "invis_level", 0), 0) > 0:
-                imm_text += f"  Invisible: level {character.invis_level}"
-            if GenericUtil.to_int(getattr(character, "incog_level", 0), 0) > 0:
-                imm_text += f"  Incognito: level {character.incog_level}"
+            if GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0) > 0:
+                imm_text += f"  Invisible: level {character.status_flags.invis_level}"
+            if GenericUtil.to_int(getattr(character.status_flags, "incog_level", 0), 0) > 0:
+                imm_text += f"  Incognito: level {character.status_flags.incog_level}"
             lines.append(imm_text)
 
         if character.level >= 15:
@@ -590,7 +590,7 @@ class InfoCommands:
             f"{character.experience} xp."
         )
         return {
-            "in_room": in_room,
+            "people": in_room,
             "to_char": f"You say '{say_text}'\r\n",
             "to_room": f"{character.name} says '{say_text}'\r\n",
         }

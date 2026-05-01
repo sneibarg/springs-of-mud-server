@@ -3,8 +3,8 @@
     "$oid": "697e4a9edf39f7359b41cbfe"
   },
   "accountId": "62d2ff6699c3578abe7941c9",
-  "roomId": "69eed198334481660fc862ce",
-  "areaId": "69eed19c402e68556a29f838",
+  "roomId": "69f4d0cb0ce695cd67b76c67",
+  "areaId": "69f4d0cf152a45324fe53bc4",
   "name": "Fizban",
   "title": "the Fabulous",
   "characterRace": {
@@ -38,9 +38,23 @@
   "gold": 1000000,
   "silver": 1000000,
   "characterFlags": {
-    "act": "GQRT",
-    "comm": "NOP",
-    "affectedBy": ""
+    "autoAssist": false,
+    "autoExit": false,
+    "autoLoot": false,
+    "autoSacrifice": false,
+    "autoGold": false,
+    "autoSplit": false,
+    "holyLight": false,
+    "canLoot": false,
+    "noSummon": false,
+    "noFollow": false,
+    "color": false,
+    "permit": false,
+    "log": false,
+    "deny": false,
+    "freeze": false,
+    "thief": false,
+    "killer": false
   },
   "armorClass": {
     "piercing": 100,
@@ -66,7 +80,18 @@
     "accumulated_experience": 0,
     "experience_per_level": 1000
   },
-  "temporalMechanics": {
+  "statusFlags": {
+    "act": 0,
+    "comm": 0,
+    "affectedBy": 0,
+    "off": 0,
+    "imm": 0,
+    "res": 0,
+    "vuln": 0,
+    "form": 0,
+    "parts": 0,
+    "invisLevel": 0,
+    "incogLevel": 0,
     "played": 0,
     "logon": 0,
     "pulseWait": 0,
@@ -162,8 +187,8 @@
     "size": "SIZE_MEDIUM"
   },
   "sex": "male",
-  "roomId": "69eed1987ddf6bfdb82a1431",
-  "areaId": "69eed1a20b7c6714fa49a23f",
+  "roomId": "69f4d0cb0ce695cd67b76c67",
+  "areaId": "69f4d0cf152a45324fe53bc4",
   "guild": "",
   "role": "player",
   "equipped": {
@@ -314,9 +339,23 @@
     "defaultGroup": "thief default"
   },
   "characterFlags": {
-    "act": "",
-    "comm": "",
-    "affectedBy": ""
+    "autoAssist": false,
+    "autoExit": false,
+    "autoLoot": false,
+    "autoSacrifice": false,
+    "autoGold": false,
+    "autoSplit": false,
+    "holyLight": false,
+    "canLoot": false,
+    "noSummon": false,
+    "noFollow": false,
+    "color": false,
+    "permit": false,
+    "log": false,
+    "deny": false,
+    "freeze": false,
+    "thief": false,
+    "killer": false
   },
   "armorClass": {
     "piercing": 100,
@@ -342,7 +381,18 @@
     "accumulatedExperience": 2718,
     "experiencePerLevel": 2875
   },
-  "temporalMechanics": {
+  "statusFlags": {
+    "act": 0,
+    "comm": 0,
+    "affectedBy": 0,
+    "off": 0,
+    "imm": 0,
+    "res": 0,
+    "vuln": 0,
+    "form": 0,
+    "parts": 0,
+    "invisLevel": 0,
+    "incogLevel": 0,
     "played": 0,
     "logon": 0,
     "pulseWait": 0,
@@ -445,7 +495,5 @@
   "gold": 0,
   "silver": 0,
   "trust": 0,
-  "invisLevel": 0,
-  "incogLevel": 0,
   "_class": "org.springy.som.modulith.domain.character.internal.CharacterDocument"
 }]

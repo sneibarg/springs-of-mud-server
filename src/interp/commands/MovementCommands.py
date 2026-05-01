@@ -83,7 +83,7 @@ class MovementCommands:
                     return {"to_char": "You can't fly.\r\n"}
 
             if CharacterMacros.requires_boat(in_room, self.sector_types) or CharacterMacros.requires_boat(to_room, self.sector_types):
-                if not CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_FLYING") and not CharacterMacros.has_boat(character):
+                if not CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_FLYING") and not character.has_boat():
                     context.finish()
                     return {"to_char": "You need a boat to go there.\r\n"}
 
@@ -103,7 +103,7 @@ class MovementCommands:
         from_room_targets = self.player_helper.players_in_room(character, in_room)
         leave_msg = None
         if (not CharacterMacros.is_affected_by_name(character, self.affected_bits,"AFF_SNEAK")
-                and GenericUtil.to_int(getattr(character, "invis_level", 0), 0) < 51):
+                and GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0) < 51):
             leave_msg = f"{character.name} leaves {MovementUtil.DIR_NAME[door]}.\r\n"
 
         in_room.remove_player_from_room(character)
@@ -113,7 +113,7 @@ class MovementCommands:
         to_room_targets = self.player_helper.players_in_room(character, to_room)
         arrive_msg = None
         if (not CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_SNEAK")
-                and GenericUtil.to_int(getattr(character, "invis_level", 0), 0) < 51):
+                and GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0) < 51):
             arrive_msg = f"{character.name} has arrived.\r\n"
 
         return {

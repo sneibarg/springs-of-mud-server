@@ -1063,7 +1063,7 @@ class SpellApi:
         bit = CharacterMacros.enum_bit(act_bits, flag_name)
         if bit <= 0:
             return False
-        flags = GenericUtil.to_int(getattr(getattr(entity, "mobile_flags", None), "act", 0), 0)
+        flags = GenericUtil.to_int(getattr(getattr(entity, "status_flags", None), "act", 0), 0)
         return CharacterMacros.is_set(flags, bit)
 
     @staticmethod
@@ -1073,7 +1073,7 @@ class SpellApi:
         flag_letters = CharacterMacros.get_enum("flagLetters")
         if not hasattr(flag_letters, flag_name):
             return False
-        flags = GenericUtil.to_int(getattr(getattr(entity, "mobile_flags", None), "imm", 0), 0)
+        flags = GenericUtil.to_int(getattr(getattr(entity, "status_flags", None), "imm", 0), 0)
         return CharacterMacros.is_set(flags, getattr(flag_letters, flag_name).value)
 
     @staticmethod
@@ -1083,7 +1083,7 @@ class SpellApi:
         act_bits = CharacterMacros.get_enum("playerActBits")
         if not hasattr(act_bits, flag_name):
             return False
-        flags = GenericUtil.to_int(CharacterMacros.convert_flags(getattr(getattr(entity, "character_flags", None), "act", "") or "0"), 0)
+        flags = GenericUtil.to_int(CharacterMacros.convert_flags(getattr(getattr(entity, "status_flags", None), "act", "") or "0"), 0)
         return CharacterMacros.is_set(flags, getattr(act_bits, flag_name).value)
 
     @staticmethod

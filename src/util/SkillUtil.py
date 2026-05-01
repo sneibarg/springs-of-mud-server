@@ -8,7 +8,7 @@ class SkillUtil:
 
     @staticmethod
     def is_practice_trainer(mob, practice_bit: int) -> bool:
-        mob_flags = GenericUtil.to_int(getattr(getattr(mob, "mobile_flags", None), "act", 0), 0)
+        mob_flags = GenericUtil.to_int(getattr(getattr(mob, "status_flags", None), "act", 0), 0)
         if practice_bit and CharacterMacros.is_set(mob_flags, practice_bit):
             return True
 

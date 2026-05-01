@@ -8,6 +8,7 @@ from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
 from fight.CombatEvent import CombatEvent
 from fight.CombatRegistry import CombatRegistry
+from mobile import Mobile
 from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
 from util.InfoUtil import InfoUtil
@@ -48,12 +49,17 @@ class FightHandler:
         self.rng = RandomNumberGenerator()
         self.PositionsEnum = None
         self.WellKnownObjectVnums = None
+        self.OffenseTypes = None
+        self.AffectBits = None
         self.mobile_handler = None
         self.logger.info("Initialized FightHandler instance.")
 
     def lazy_load(self):
         self.PositionsEnum = CharacterMacros.get_enum("positions")
         self.WellKnownObjectVnums = CharacterMacros.get_enum("wellKnownObjectVnums")
+        self.OffenseTypes = CharacterMacros.get_enum("offenseTypes")
+        self.AffectBits = CharacterMacros.get_enum("affectedBy")
+        self.logger.info("Loaded FightHandler enums.")
 
     def set_mobile_handler(self, mobile_handler) -> None:
         self.mobile_handler = mobile_handler
@@ -93,7 +99,7 @@ class FightHandler:
 
         if CharacterMacros.is_npc(victim):
             act_bits = CharacterMacros.get_enum("actBits")
-            mob_act = GenericUtil.to_int(getattr(getattr(victim, "mobile_flags", None), "act", 0), 0)
+            mob_act = GenericUtil.to_int(getattr(getattr(victim, "status_flags", None), "act", 0), 0)
             protected_bits = ("ACT_TRAIN", "ACT_PRACTICE", "ACT_IS_HEALER", "ACT_IS_CHANGER")
             for bit_name in protected_bits:
                 bit = CharacterMacros.enum_bit(act_bits, bit_name)
@@ -488,7 +494,7 @@ class FightHandler:
 
         act_bits = CharacterMacros.get_enum("actBits")
         no_align_bit = CharacterMacros.enum_bit(act_bits, "ACT_NOALIGN")
-        victim_act = GenericUtil.to_int(getattr(getattr(victim, "mobile_flags", None), "act", 0), 0)
+        victim_act = GenericUtil.to_int(getattr(getattr(victim, "status_flags", None), "act", 0), 0)
         no_align = no_align_bit > 0 and CharacterMacros.is_set(victim_act, no_align_bit)
 
         if not no_align:
@@ -730,8 +736,27 @@ class FightHandler:
 
         return payload
 
+    # TO-DO
     def check_assist(self, attacker, victim) -> None:
-        # Placeholder for ROM assist logic migration.
+        room = self.room_registry.get(id=attacker.room_id)
+        for char in room.people():
+            if (not CharacterMacros.is_npc(attacker) and
+                    CharacterMacros.is_npc(char) and
+                    CharacterMacros.mobile_will_assist(char) and
+                    char.level + 6 > victim.level):
+                # questionable TO-DO: do_function->do_emote
+                self.message_bus.send_to_room(self.message_bus.text_to_message(f"{char.name} screams and attacks!"), room.players_in_room())
+                self.multi_hit(char, victim, dt="TYPE_UNDEFINED")
+                continue
+            if (not CharacterMacros.is_npc(attacker) or
+                    CharacterMacros.is_affected(attacker, self.AffectBits.AFF_CHARM.value)):
+
+                if ((not CharacterMacros.is_npc(char) and CharacterMacros.player_auto_assist(char)) or
+                    CharacterMacros.is_affected(char, self.AffectBits.AFF_CHARM.value)) and \
+                        CharacterMacros.is_same_group(attacker, char) and \
+                        not self.is_safe(char, victim):
+                    self.multi_hit(char, victim, dt="TYPE_UNDEFINED")
+                continue
         return
 
     def build_round_payload(self, attacker, victim, room, result: dict, pre_corpse_ids=None) -> dict:
@@ -821,7 +846,7 @@ class FightHandler:
 
     def _entity_form(self, entity) -> int:
         if CharacterMacros.is_npc(entity):
-            form = getattr(getattr(entity, "mobile_flags", None), "form", None)
+            form = getattr(getattr(entity, "status_flags", None), "form", None)
             if form is None:
                 form = getattr(entity, "form", 0)
             return GenericUtil.to_int(form, 0)
@@ -835,7 +860,7 @@ class FightHandler:
 
     def _entity_parts(self, entity) -> int:
         if CharacterMacros.is_npc(entity):
-            parts = getattr(getattr(entity, "mobile_flags", None), "parts", None)
+            parts = getattr(getattr(entity, "status_flags", None), "parts", None)
             if parts is None:
                 parts = getattr(entity, "parts", 0)
             return GenericUtil.to_int(parts, 0)
@@ -1074,11 +1099,11 @@ class FightHandler:
                 entity.pulse_daze = max(0, GenericUtil.to_int(getattr(entity, "pulse_daze", 0), 0) - 12)
             return
 
-        temporal = getattr(entity, "temporal_mechanics", None)
-        if temporal is None:
+        status_flags = getattr(entity, "status_flags", None)
+        if status_flags is None:
             return
-        temporal.pulse_wait = max(0, GenericUtil.to_int(getattr(temporal, "pulse_wait", 0), 0) - 12)
-        temporal.pulse_daze = max(0, GenericUtil.to_int(getattr(temporal, "pulse_daze", 0), 0) - 12)
+        status_flags.pulse_wait = max(0, GenericUtil.to_int(getattr(status_flags, "pulse_wait", 0), 0) - 12)
+        status_flags.pulse_daze = max(0, GenericUtil.to_int(getattr(status_flags, "pulse_daze", 0), 0) - 12)
 
     @staticmethod
     def _entity_has_affect(entity, affect_name: str) -> bool:
@@ -1100,7 +1125,7 @@ class FightHandler:
         bit = CharacterMacros.enum_bit(off_bits, off_name)
         if bit <= 0:
             return False
-        flags = GenericUtil.to_int(getattr(getattr(entity, "mobile_flags", None), "off", 0), 0)
+        flags = GenericUtil.to_int(getattr(getattr(entity, "status_flags", None), "off", 0), 0)
         return CharacterMacros.is_set(flags, bit)
 
     def _skill_percent(self, entity, skill_name: str) -> int:
@@ -1130,7 +1155,7 @@ class FightHandler:
         bit = CharacterMacros.enum_bit(act_bits, act_name)
         if bit <= 0:
             return False
-        flags = GenericUtil.to_int(getattr(getattr(entity, "mobile_flags", None), "act", 0), 0)
+        flags = GenericUtil.to_int(getattr(getattr(entity, "status_flags", None), "act", 0), 0)
         return CharacterMacros.is_set(flags, bit)
 
     def _should_aggress(self, aggressor, witness, room) -> bool:
@@ -1141,7 +1166,7 @@ class FightHandler:
 
         act_bits = CharacterMacros.get_enum("actBits")
         room_flags = CharacterMacros.get_enum("roomFlags")
-        mob_act = GenericUtil.to_int(getattr(getattr(aggressor, "mobile_flags", None), "act", 0), 0)
+        mob_act = GenericUtil.to_int(getattr(getattr(aggressor, "status_flags", None), "act", 0), 0)
         room_bits = GenericUtil.to_int(getattr(room, "room_flags", 0), 0)
 
         if not self._mob_has_act(aggressor, act_bits, "ACT_AGGRESSIVE"):

@@ -21,7 +21,7 @@ class PlayerUtil:
         def _has_player_act_bit(char, bit_name: str) -> bool:
             if CharacterMacros.is_npc(char) or not hasattr(player_act_bits, bit_name):
                 return False
-            act_value = GenericUtil.to_int(CharacterMacros.convert_flags(getattr(char.character_flags, "act", "0")))
+            act_value = GenericUtil.to_int(CharacterMacros.convert_flags(getattr(char.status_flags, "act", "0")))
             return CharacterMacros.is_set(act_value, getattr(player_act_bits, bit_name).value)
 
         def _is_affected(char, bit_name: str) -> bool:
@@ -33,7 +33,7 @@ class PlayerUtil:
         if _is_affected(target, "AFF_INVISIBLE"):
             prefixes.append("(Invis)")
         GameParameters = CharacterMacros.get_enum("gameParameters")
-        if GenericUtil.to_int(getattr(target, "invis_level", 0)) >= GenericUtil.to_int(GameParameters.HERO.value, 51):
+        if GenericUtil.to_int(getattr(target.status_flags, "invis_level", 0)) >= GenericUtil.to_int(GameParameters.HERO.value, 51):
             prefixes.append("(Wizi)")
         if _is_affected(target, "AFF_HIDE"):
             prefixes.append("(Hide)")
@@ -124,8 +124,8 @@ class PlayerUtil:
             if char.cloaked and character.role == "player":
                 continue
 
-            invis_level = GenericUtil.to_int(getattr(char, "invis_level", 0))
-            incog_level = GenericUtil.to_int(getattr(char, "incog_level", 0))
+            invis_level = GenericUtil.to_int(getattr(char.status_flags, "invis_level", 0))
+            incog_level = GenericUtil.to_int(getattr(char.status_flags, "incog_level", 0))
             if observer_trust < invis_level:
                 continue
             if observer_trust < incog_level:

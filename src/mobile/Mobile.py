@@ -1,10 +1,11 @@
 import threading
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Any
 from game.Equipped import Equipped
 from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice
+from game.StatusFlags import StatusFlags
 from mobile.MobileFlags import MobileFlags
 from player.CharacterAttributes import CharacterAttributes
 from server.LoggerFactory import LoggerFactory
@@ -12,6 +13,7 @@ from server.LoggerFactory import LoggerFactory
 
 @dataclass
 class Mobile:
+    id: str
     area_id: str
     vnum: str
     name: str
@@ -19,40 +21,31 @@ class Mobile:
     long_description: str
     description: str
     race: str
-    act_flags: str
-    affect_flags: str
+    flags: str
     alignment: str
     group: str
     dam_type: str
     start_pos: str
     default_pos: str
     sex: str
-    form: int
-    parts: int
     size: str
     material: str
-    act: str
-    flags: str
-    id: str
-    act: str
     level: int
     hit_roll: int
-    pulse_wait: int
-    pulse_daze: int
     gold: int
     silver: int
-    combat_flags: str
     count: int = 0
     killed: int = 0
-    invis_level: Optional[int] = 0
-    incog_level: Optional[int] = 0
+    fighting: Optional[bool] = False
     perm_stat: Optional[CharacterAttributes] = None
     armor_class: Optional[ArmorClass] = None
     hit_dice: Optional[Dice] = None
     mana_dice: Optional[Dice] = None
     damage_dice: Optional[Dice] = None
-    mobile_flags: Optional[MobileFlags] = None
+    status_flags: Optional[StatusFlags] = None
+    extra_flags: Optional[MobileFlags] = None
     equipped: Optional[Equipped] = None
+    leader: Optional[Any] = None
     inventory: list = field(default_factory=list)
     effects: list = field(default_factory=list)
     special_name: Optional[str] = None
@@ -78,7 +71,6 @@ class Mobile:
     @classmethod
     def from_json(cls, data):
         data.setdefault('lock', None)
-        data['combat_flags'] = str(data.get('combat_flags', '') or '')
-        if 'mobile_flags' not in data:
-            data['mobile_flags'] = MobileFlags.default()
+        if 'status_flags' not in data:
+            data['status_flags'] = StatusFlags.default()
         return cls(**data)

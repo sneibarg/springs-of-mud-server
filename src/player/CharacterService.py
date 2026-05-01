@@ -124,14 +124,11 @@ class CharacterService:
             "effects": cls._serialize_value(getattr(character, "effects", [])),
             "skills": cls._serialize_value(getattr(character, "skills", [])),
             "spells": cls._serialize_value(getattr(character, "spells", [])),
-            "characterFlags": cls._serialize_value(getattr(character, "character_flags", None)),
+            "statusFlags": cls._serialize_value(getattr(character, "status_flags", None)),
             "characterAttributes": cls._serialize_value(getattr(character, "character_attributes", None)),
-            "temporalMechanics": cls._serialize_value(getattr(character, "temporal_mechanics", None)),
             "armorClass": cls._serialize_value(getattr(character, "armor_class", None)),
             "characterClass": cls._serialize_value(getattr(character, "character_class", None)),
             "promptFormat": cls._serialize_prompt_format(getattr(character, "prompt_format", None)),
-            "invisLevel": getattr(character, "invis_level", 0),
-            "incogLevel": getattr(character, "incog_level", 0),
             "equipped": cls._serialize_value(getattr(character, "equipped", None)),
         }
 

@@ -47,20 +47,23 @@ class MobileApi:
             return False
         return True
 
-    def require_not_fighting(self, ctx: MobileContext):
+    @staticmethod
+    def require_not_fighting(ctx: MobileContext):
         if getattr(ctx.actor, "fighting", None) is not None:
             ctx.finish()
             return False
         return True
 
-    def require_in_room(self, ctx: MobileContext):
+    @staticmethod
+    def require_in_room(ctx: MobileContext):
         ctx.room = MobileMacros.resolve_room(ctx.handler.room_registry, ctx.actor)
         if ctx.room is None:
             ctx.finish()
             return False
         return True
 
-    def require_position(self, ctx: MobileContext, pos_name: str):
+    @staticmethod
+    def require_position(ctx: MobileContext, pos_name: str):
         wanted = str(pos_name or "").strip().upper()
         if wanted and not wanted.startswith("POS_"):
             wanted = f"POS_{wanted}"
@@ -69,7 +72,8 @@ class MobileApi:
             return False
         return True
 
-    def require_not_affected(self, ctx: MobileContext, affect_name: str):
+    @staticmethod
+    def require_not_affected(ctx: MobileContext, affect_name: str):
         affected = CharacterMacros.get_enum("affectedBy")
         bit = MobileMacros.enum_bit(affected, str(affect_name or "").strip().upper())
         if bit and CharacterMacros.is_affected(ctx.actor, bit):
@@ -77,20 +81,23 @@ class MobileApi:
             return False
         return True
 
-    def dispatch_weighted_special(self, ctx: MobileContext, weighted: list[tuple[str, int]]):
+    @staticmethod
+    def dispatch_weighted_special(ctx: MobileContext, weighted: list[tuple[str, int]]):
         chosen = MobileMacros.choose_weighted(weighted)
         if not chosen:
             return False
         return ctx.handler.execute_special_by_name(ctx.actor, chosen, ctx.room, ctx)
 
-    def when_fighting_delegate(self, ctx: MobileContext, special_name: str):
+    @staticmethod
+    def when_fighting_delegate(ctx: MobileContext, special_name: str):
         if getattr(ctx.actor, "fighting", None) is None:
             return False
         return ctx.handler.execute_special_by_name(ctx.actor, special_name, ctx.room, ctx)
 
-    def select_visible_room_player(self, ctx: MobileContext, alias: str, exclude_self: bool = True, max_level: Optional[int] = None, chance_bits: int = 0):
+    @staticmethod
+    def select_visible_room_player(ctx: MobileContext, alias: str, exclude_self: bool = True, max_level: Optional[int] = None, chance_bits: int = 0):
         target = None
-        for player in MobileMacros.room_players(ctx.room):
+        for player in ctx.room.player_in_room().values():
             if exclude_self and player is ctx.actor:
                 continue
             if max_level is not None and GenericUtil.to_int(getattr(player, "level", 0), 0) > GenericUtil.to_int(max_level, 0):
@@ -104,9 +111,10 @@ class MobileApi:
         ctx.set_alias(alias, target)
         return target
 
-    def select_room_combat_victim(self, ctx: MobileContext, alias: str, chance_bits: int = 0):
+    @staticmethod
+    def select_room_combat_victim(ctx: MobileContext, alias: str, chance_bits: int = 0):
         target = None
-        for entity in MobileMacros.room_entities(ctx.room):
+        for entity in ctx.room.in_room().values():
             if getattr(entity, "fighting", None) is ctx.actor:
                 if chance_bits > 0 and ctx.handler.rng.number_bits(GenericUtil.to_int(chance_bits, 0)) != 0:
                     continue
@@ -202,14 +210,15 @@ class MobileApi:
             return False
         return self.cast_spell(ctx, chosen, target=victim)
 
-    def select_room_criminal(self, ctx: MobileContext, alias: str, crime_alias: str, priorities: list[str], visible_only: bool = True):
+    @staticmethod
+    def select_room_criminal(ctx: MobileContext, alias: str, crime_alias: str, priorities: list[str], visible_only: bool = True):
         player_bits = CharacterMacros.get_enum("playerActBits")
         victim = None
         crime = ""
-        for player in MobileMacros.room_players(ctx.room):
+        for player in ctx.room.players_in_room().values():
             if visible_only and not CharacterMacros.can_see(ctx.actor, player, ctx.handler.room_helper):
                 continue
-            act_flags = GenericUtil.to_int(CharacterMacros.convert_flags(getattr(getattr(player, "character_flags", None), "act", "") or ""), 0)
+            act_flags = GenericUtil.to_int(CharacterMacros.convert_flags(getattr(getattr(player, "status_flags", None), "act", "") or ""), 0)
             for flag_name in priorities:
                 bit = MobileMacros.enum_bit(player_bits, flag_name)
                 if bit and CharacterMacros.is_set(act_flags, bit):
@@ -222,7 +231,8 @@ class MobileApi:
         ctx.set_alias(crime_alias, crime)
         return victim
 
-    def yell(self, ctx: MobileContext, text: str, allow_noshout_override: bool = False):
+    @staticmethod
+    def yell(ctx: MobileContext, text: str, allow_noshout_override: bool = False):
         victim = ctx.get_alias("victim")
         crime = ctx.get_alias("crime", "")
         if victim is None and "{victim" in str(text):
@@ -231,7 +241,8 @@ class MobileApi:
         ctx.queue_payload({"area_message": f"{formatted}\r\n", "area_id": getattr(ctx.actor, "area_id", "")})
         return ctx.mark_performed()
 
-    def multi_hit(self, ctx: MobileContext, victim_alias: str):
+    @staticmethod
+    def multi_hit(ctx: MobileContext, victim_alias: str):
         victim = ctx.resolve(victim_alias)
         if victim is None or ctx.room is None:
             return False
@@ -245,7 +256,7 @@ class MobileApi:
         result = ctx.handler.fight_handler.multi_hit(ctx.actor, victim, dt="TYPE_UNDEFINED")
         payload = {
             "to_room": result.get("to_room", ""),
-            "targets": [player for player in MobileMacros.room_players(ctx.room) if str(getattr(player, "id", "")) != str(getattr(victim, "id", ""))],
+            "targets": [player for player in ctx.room.players_in_room().values() if str(getattr(player, "id", "")) != str(getattr(victim, "id", ""))],
         }
         if not CharacterMacros.is_npc(victim):
             payload["victim"] = victim
@@ -253,20 +264,22 @@ class MobileApi:
         ctx.queue_payload(payload)
         return ctx.mark_performed()
 
-    def when_selected(self, ctx: MobileContext, alias: str, *expressions: str):
+    @staticmethod
+    def when_selected(ctx: MobileContext, alias: str, *expressions: str):
         if ctx.resolve(alias) is None:
             return False
         for expression in expressions:
             ctx.exec_expr(expression)
         return True
 
-    def select_most_evil_fighter(self, ctx: MobileContext, alias: str, minimum_alignment: int = 300, exclude_target: str = ""):
+    @staticmethod
+    def select_most_evil_fighter(ctx: MobileContext, alias: str, minimum_alignment: int = 300, exclude_target: str = ""):
         threshold = GenericUtil.to_int(minimum_alignment, 300)
         if threshold < 0:
             threshold = abs(threshold)
         best = None
         max_evil = threshold
-        for entity in MobileMacros.room_entities(ctx.room):
+        for entity in ctx.room.in_room().values():
             if exclude_target == "self" and entity is ctx.actor:
                 continue
             if getattr(entity, "fighting", None) is None or getattr(entity, "fighting", None) is ctx.actor:
@@ -286,7 +299,8 @@ class MobileApi:
             self._queue_room_message(ctx, f"{room_message}\r\n")
         return self.multi_hit(ctx, alias)
 
-    def select_room_npc_by_group(self, ctx: MobileContext, alias: str, group_vnum: str, exclude_vnum: str = "", where: str = "", randomize: bool = False):
+    @staticmethod
+    def select_room_npc_by_group(ctx: MobileContext, alias: str, group_vnum: str, exclude_vnum: str = "", where: str = "", randomize: bool = False):
         excluded = str(exclude_vnum or "").strip().upper()
         if excluded == "MOB_VNUM_PATROLMAN":
             for mob in list(getattr(ctx.room, "mobiles", {}).values()):
@@ -313,6 +327,7 @@ class MobileApi:
                 break
         ctx.set_alias(alias, selected)
         return selected
+
     def say_random(self, ctx: MobileContext, messages: list[str], target: Any = None, allow_none: bool = False):
         if not messages:
             return False
@@ -323,7 +338,8 @@ class MobileApi:
         self._queue_room_message(ctx, MobileMacros.render_act(selected, ctx.actor, target_value) + "\r\n")
         return ctx.mark_performed()
 
-    def select_room_item(self, ctx: MobileContext, alias: str, where: str = ""):
+    @staticmethod
+    def select_room_item(ctx: MobileContext, alias: str, where: str = ""):
         chosen = None
         for obj in list(getattr(ctx.room, "contents", {}).values()):
             proxy = SimpleNamespace(
@@ -459,7 +475,7 @@ class MobileApi:
         game_parameters = CharacterMacros.get_enum("gameParameters")
         imm_name = str(immortal_level or "").strip().upper()
         imm_value = int(getattr(getattr(game_parameters, imm_name, None), "value", 100))
-        for victim in MobileMacros.room_players(ctx.room):
+        for victim in ctx.room.players_in_room().values():
             if GenericUtil.to_int(getattr(victim, "level", 0), 0) >= imm_value:
                 continue
             if ctx.handler.rng.number_bits(GenericUtil.to_int(discovery_bits, 0)) != 0:
@@ -497,7 +513,7 @@ class MobileApi:
         if CharacterMacros.position_value(ctx.actor) == CharacterMacros.pos_value("POS_FIGHTING"):
             return False
         minimum, maximum = level_window
-        for victim in MobileMacros.room_players(ctx.room):
+        for victim in ctx.room.players_in_room().values():
             delta = GenericUtil.to_int(getattr(victim, "level", 0), 0) - GenericUtil.to_int(getattr(ctx.actor, "level", 0), 0)
             if delta < GenericUtil.to_int(minimum, 0) or delta > GenericUtil.to_int(maximum, 0):
                 continue
@@ -523,10 +539,11 @@ class MobileApi:
             return ctx.mark_performed()
         return False
 
-    def select_room_fight_intervention_target(self, ctx: MobileContext, alias: str, exclude_self: bool = True, choose: str = "", randomize: bool = False):
+    @staticmethod
+    def select_room_fight_intervention_target(ctx: MobileContext, alias: str, exclude_self: bool = True, choose: str = "", randomize: bool = False):
         victim = None
         count = 0
-        for entity in MobileMacros.room_entities(ctx.room):
+        for entity in ctx.room.in_room().values():
             if exclude_self and entity is ctx.actor:
                 continue
             defender = getattr(entity, "fighting", None)
@@ -545,7 +562,8 @@ class MobileApi:
         ctx.set_alias(alias, victim)
         return victim
 
-    def reject_if(self, ctx: MobileContext, expression: str):
+    @staticmethod
+    def reject_if(ctx: MobileContext, expression: str):
         if ctx.eval_bool(expression):
             ctx.finish()
             return True
@@ -674,7 +692,8 @@ class MobileApi:
         self.logger.debug(f"{actor_label}: moved from {room_label} to {self._room_label(to_room)} via door {door}")
         return ctx.mark_performed()
 
-    def _toggle_gate(self, ctx: MobileContext, close: bool):
+    @staticmethod
+    def _toggle_gate(ctx: MobileContext, close: bool):
         changed = False
         closed_bit = MobileMacros.enum_bit(ctx.handler.exit_flags, "EX_CLOSED", "CLOSED")
         if not closed_bit:
@@ -692,13 +711,15 @@ class MobileApi:
             changed = True
         return changed
 
-    def _queue_room_message(self, ctx: MobileContext, text: str, exclude_ids: Optional[set[str]] = None):
+    @staticmethod
+    def _queue_room_message(ctx: MobileContext, text: str, exclude_ids: Optional[set[str]] = None):
         targets = ctx.room_players(exclude_ids=exclude_ids)
         if not targets:
             return
         ctx.queue_payload({"room_message": text, "room_targets": targets})
 
-    def _queue_spell_payload(self, ctx: MobileContext, meta, victim, area: bool):
+    @staticmethod
+    def _queue_spell_payload(ctx: MobileContext, meta, victim, area: bool):
         spell_label = getattr(meta, "name", "spell")
         actor_name = MobileMacros.render_mobile_name(ctx.actor)
         payload = {

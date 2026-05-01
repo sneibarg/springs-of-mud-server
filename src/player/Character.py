@@ -1,16 +1,18 @@
 import threading
 
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Dict, List, Optional, Any, TYPE_CHECKING
 
 from interp.PromptFormat import PromptFormat
+from game.StatusFlags import StatusFlags
 from object.Item import Item
+from player import ArmorClass
 from player.CharacterClass import CharacterClass
-from player.CharacterArmorClass import PCArmorClass
-from player.CharacterRace import CharacterRace
-from player.TemporalMechanics import TemporalMechanics
-from player.CharacterAttributes import CharacterAttributes
+from player.ArmorClass import ArmorClass
 from player.CharacterFlags import CharacterFlags
+from player.CharacterRace import CharacterRace
+from player.CharacterAttributes import CharacterAttributes
 from server.LoggerFactory import LoggerFactory
 
 if TYPE_CHECKING:
@@ -46,15 +48,14 @@ class Character:
     effects: List[Any]
     skills: List[Any]
     spells: List[Any]
+    status_flags: StatusFlags
     character_flags: CharacterFlags
     character_attributes: CharacterAttributes
-    temporal_mechanics: TemporalMechanics
-    armor_class: PCArmorClass
+    armor_class: ArmorClass
     character_class: CharacterClass
     prompt_format: PromptFormat
     character_race: CharacterRace | None = None
-    invis_level: Optional[int] = 0
-    incog_level: Optional[int] = 0
+    leader: Optional[Any] = None
     fighting: Optional[Any] = None
     equipped: Optional[Equipped] = None
     context: Dict[str, object] = field(default_factory=dict)
@@ -133,16 +134,14 @@ class Character:
         prompt_format = payload.get('prompt_format')
         character_class = payload.get('character_class')
         armor_class = payload.get('armor_class')
-        temporal_mechanics = payload.get('temporal_mechanics')
         character_attributes = payload.get('character_attributes')
-        character_flags = payload.get('character_flags')
+        status_flags = payload.get('status_flags')
         character_race = payload.get('character_race', payload.get('race'))
         equipped_data = payload.get('equipped')
 
-        payload['character_flags'] = CharacterFlags.from_json(character_flags)
+        payload['status_flags'] = StatusFlags.from_json(status_flags)
         payload['character_attributes'] = CharacterAttributes.from_json(character_attributes)
-        payload['temporal_mechanics'] = TemporalMechanics.from_json(temporal_mechanics)
-        payload['armor_class'] = PCArmorClass.from_json(armor_class)
+        payload['armor_class'] = ArmorClass.from_json(armor_class)
         payload['prompt_format'] = PromptFormat.from_template(prompt_format)
         payload['character_class'] = CharacterClass.from_json(character_class)
         payload['character_race'] = CharacterRace.from_json(character_race, character_class=payload['character_class'])
@@ -160,8 +159,14 @@ class Character:
                 if isinstance(item_data, (dict, str)):
                     setattr(equipped, slot, Item.from_json(item_data))
             payload['equipped'] = equipped
-
         return cls(**payload)
 
+    def get_age(self) -> int:
+        return int(17 + (self.status_flags.played + datetime.now().timestamp() - self.status_flags.logon) / 72000)
 
-
+    def has_boat(self) -> bool:
+        for item in list(getattr(self, "loot", []) or []):
+            item_type = str(getattr(item, "item_type", "") or "").lower()
+            if "boat" in item_type:
+                return True
+        return False

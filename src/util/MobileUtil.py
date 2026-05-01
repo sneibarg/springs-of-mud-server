@@ -9,7 +9,7 @@ from util.GenericUtil import GenericUtil
 from mobile.Mobile import Mobile
 from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice
-from mobile.MobileFlags import MobileFlags
+from game.StatusFlags import StatusFlags
 from game.RandomNumberGenerator import RandomNumberGenerator
 from object.Effect import AffectWhere, Effect
 from object.ObjectMacros import ObjectMacros
@@ -34,7 +34,7 @@ class MobileUtil:
         normalized = MobileUtil.build_normalized_mobile_data(mobile_id, mobile_data, player_name, race_name, level)
 
         mobile = Mobile.from_json(normalized)
-        mobile.mobile_flags = flags
+        mobile.status_flags = flags
         mobile.form = flags.form
         mobile.parts = flags.parts
         MobileUtil.apply_extended_mobile_fields(mobile, mobile_data)
@@ -57,7 +57,7 @@ class MobileUtil:
         return None
 
     @staticmethod
-    def resolve_mobile_flags(mobile_data: dict, race: dict, npc_flag: int, flag_letters: type[IntEnum] | None) -> MobileFlags:
+    def resolve_mobile_flags(mobile_data: dict, race: dict, npc_flag: int, flag_letters: type[IntEnum] | None) -> StatusFlags:
         raw_act = GenericUtil.to_int(mobile_data.get("actFlags") or mobile_data.get("act_flags"), 0)
         raw_aff = GenericUtil.to_int(mobile_data.get("affectFlags") or mobile_data.get("affect_flags"), 0)
         combat_raw = MobileUtil.parse_combat_flags(mobile_data.get("combat_flags"))
@@ -75,8 +75,24 @@ class MobileUtil:
         race_vuln = MobileUtil.race_flag_value(race, "vuln", mobile_data.get("race"))
         race_form = MobileUtil.race_flag_value(race, "form", mobile_data.get("race"))
         race_parts = MobileUtil.race_flag_value(race, "parts", mobile_data.get("race"))
-        mobile_flags = MobileFlags(
+        # act: int
+        # comm: int
+        # affected_by: int
+        # off: int
+        # imm: int
+        # res: int
+        # vuln: int
+        # form: int
+        # parts: int
+        # invis_level: int
+        # incog_level: int
+        # played: int
+        # logon: int
+        # pulse_wait: int
+        # pulse_daze: int
+        mobile_flags = StatusFlags(
             act=raw_act | npc_flag | race_act,
+            comm=0,
             affected_by=raw_aff | race_aff,
             off=raw_off | race_off,
             imm=raw_imm | race_imm,
@@ -84,6 +100,12 @@ class MobileUtil:
             vuln=raw_vuln | race_vuln,
             form=raw_form | race_form,
             parts=raw_parts | race_parts,
+            invis_level=0,
+            incog_level=0,
+            played=0,
+            logon=0,
+            pulse_wait=GenericUtil.to_int(mobile_data.get("pulse_wait"), 0),
+            pulse_daze=GenericUtil.to_int(mobile_data.get("pulse_daze"), 0),
         )
         MobileUtil.apply_flag_removes(mobile_flags, mobile_data.get("flag_removes",[]))  # this always defaults to [] - there are no flag removal entries in ROM2.4.
         return mobile_flags
@@ -195,18 +217,12 @@ class MobileUtil:
             "long_description": MobileUtil.capitalize_first(mobile_data.get("long_description", "")),
             "description": MobileUtil.capitalize_first(mobile_data.get("description", "")),
             "race": race_name,
-            "act_flags": None,  # str(flags["act_flags"]),
-            "affect_flags": None,  # str(flags["affect_flags"]),
             "alignment": str(mobile_data.get("alignment", "0") or "0"),
             "group": str(GenericUtil.to_int(mobile_data.get("group", 0), default=0)),
-            "act": str(mobile_data.get("act", "") or ""),
             "dam_type": str(mobile_data.get("dam_type", "") or ""),
-            "combat_flags": str(mobile_data.get("combat_flags", "") or ""),
             "start_pos": str(start_pos),
             "default_pos": str(default_pos),
             "sex": str(sex_value),
-            "form": None,
-            "parts": None,
             "size": str(mobile_data.get("size", "") or ""),
             "material": str(mobile_data.get("material", "") or ""),
             "flags": str(mobile_data.get("flags", "") or ""),
@@ -219,9 +235,7 @@ class MobileUtil:
             "armor_class": None,
             "gold": GenericUtil.to_int(mobile_data.get("gold", 0), default=0),
             "silver": GenericUtil.to_int(mobile_data.get("silver", 0), default=0),
-            "pulse_wait": GenericUtil.to_int(mobile_data.get("pulse_wait", 0), default=0),
-            "pulse_daze": GenericUtil.to_int(mobile_data.get("pulse_daze", 0), default=0),
-            "mobile_flags": None,
+            "status_flags": mobile_data.get("status_flags", {}),
             "lock": mobile_data.get("lock"),
         }
 
@@ -231,7 +245,7 @@ class MobileUtil:
         return text[:1].upper() + text[1:] if text else ""
 
     @staticmethod
-    def apply_flag_removes(flags: MobileFlags, removals: list):
+    def apply_flag_removes(flags: StatusFlags, removals: list):
         for removal in removals:
             domain = str(removal.get("domain", "")).lower().strip()
             vector = GenericUtil.to_int(removal.get("vector", 0))
@@ -268,24 +282,24 @@ class MobileUtil:
         mob.perm_stat.dexterity = min(25, 11 + mob.level // 4)
         mob.perm_stat.constitution = min(25, 11 + mob.level // 4)
 
-        if GameMacros.is_set(mob.mobile_flags.act, act_bits.ACT_WARRIOR.value):
+        if GameMacros.is_set(mob.status_flags.act, act_bits.ACT_WARRIOR.value):
             mob.perm_stat.strength += 3
             mob.perm_stat.intelligence -= 1
             mob.perm_stat.constitution += 2
-        elif GameMacros.is_set(mob.mobile_flags.act, act_bits.ACT_THIEF.value):
+        elif GameMacros.is_set(mob.status_flags.act, act_bits.ACT_THIEF.value):
             mob.perm_stat.dexterity += 3
             mob.perm_stat.intelligence += 1
             mob.perm_stat.wisdom -= 1
-        elif GameMacros.is_set(mob.mobile_flags.act, act_bits.ACT_CLERIC.value):
+        elif GameMacros.is_set(mob.status_flags.act, act_bits.ACT_CLERIC.value):
             mob.perm_stat.wisdom += 3
             mob.perm_stat.dexterity -= 1
             mob.perm_stat.strength += 1
-        elif GameMacros.is_set(mob.mobile_flags.act, act_bits.ACT_MAGE.value):
+        elif GameMacros.is_set(mob.status_flags.act, act_bits.ACT_MAGE.value):
             mob.perm_stat.intelligence += 3
             mob.perm_stat.strength -= 1
             mob.perm_stat.dexterity += 1
 
-        if GameMacros.is_set(mob.mobile_flags.off, off_bits.OFF_FAST.value):
+        if GameMacros.is_set(mob.status_flags.off, off_bits.OFF_FAST.value):
             mob.perm_stat.dexterity += 2
 
         size_key = "SIZE_" + mob.size.upper()
@@ -328,16 +342,12 @@ class MobileUtil:
             "long_description": pMobIndex.long_description,
             "description": pMobIndex.description,
             "race": pMobIndex.race,
-            "act_flags": pMobIndex.act_flags,
-            "affect_flags": pMobIndex.affect_flags,
             "alignment": pMobIndex.alignment,
             "group": pMobIndex.group,
             "dam_type": pMobIndex.dam_type,
             "start_pos": pMobIndex.start_pos,
             "default_pos": pMobIndex.default_pos,
             "sex": pMobIndex.sex,
-            "form": pMobIndex.form,
-            "parts": pMobIndex.parts,
             "size": pMobIndex.size,
             "material": pMobIndex.material,
             "level": pMobIndex.level,
@@ -345,9 +355,7 @@ class MobileUtil:
             "gold": 0,
             "silver": 0,
             "flags": None,
-            "act": None,
-            "pulse_wait": 0,
-            "pulse_daze": 0,
+            "status_flags": pMobIndex.status_flags,
             "perm_stat": CharacterAttributes.default()
         })
 
@@ -360,8 +368,6 @@ class MobileUtil:
             mob.silver = 0
 
         if True:
-            mob.act = pMobIndex.act_flags
-            mob.affect_flags = pMobIndex.affect_flags
             mob.alignment = pMobIndex.alignment
             mob.level = pMobIndex.level
             mob.hit_roll = pMobIndex.hit_roll
@@ -380,19 +386,24 @@ class MobileUtil:
                 mob.dam_type = MobileUtil._random_dam_type()
 
             mob.armor_class = pMobIndex.armor_class
-            if pMobIndex.mobile_flags is not None:
-                mob.mobile_flags = MobileFlags(
-                    act=pMobIndex.mobile_flags.act,
-                    affected_by=pMobIndex.mobile_flags.affected_by,
-                    off=pMobIndex.mobile_flags.off,
-                    imm=pMobIndex.mobile_flags.imm,
-                    res=pMobIndex.mobile_flags.res,
-                    vuln=pMobIndex.mobile_flags.vuln,
-                    form=pMobIndex.mobile_flags.form,
-                    parts=pMobIndex.mobile_flags.parts
+            if pMobIndex.status_flags is not None:
+                mob.status_flags = StatusFlags(
+                    act=pMobIndex.status_flags.act,
+                    comm=pMobIndex.status_flags.comm,
+                    affected_by=pMobIndex.status_flags.affected_by,
+                    off=pMobIndex.status_flags.off,
+                    imm=pMobIndex.status_flags.imm,
+                    res=pMobIndex.status_flags.res,
+                    vuln=pMobIndex.status_flags.vuln,
+                    form=pMobIndex.status_flags.form,
+                    parts=pMobIndex.status_flags.parts,
+                    invis_level=pMobIndex.status_flags.invis_level,
+                    incog_level=pMobIndex.status_flags.incog_level,
+                    played=pMobIndex.status_flags.played,
+                    logon=pMobIndex.status_flags.logon,
+                    pulse_wait=pMobIndex.status_flags.pulse_wait,
+                    pulse_daze=pMobIndex.status_flags.pulse_daze
                 )
-                mob.form = mob.mobile_flags.form
-                mob.parts = mob.mobile_flags.parts
             mob.start_pos = pMobIndex.start_pos
             mob.default_pos = pMobIndex.default_pos
             mob.perm_stat.position = mob.start_pos
@@ -428,7 +439,7 @@ class MobileUtil:
 
     @staticmethod
     def is_train_trainer(mob, train_bit: int) -> bool:
-        mob_flags = GenericUtil.to_int(getattr(getattr(mob, "mobile_flags", None), "act", 0), 0)
+        mob_flags = GenericUtil.to_int(getattr(getattr(mob, "status_flags", None), "act", 0), 0)
         if train_bit and CharacterMacros.is_set(mob_flags, train_bit):
             return True
 

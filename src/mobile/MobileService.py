@@ -73,8 +73,6 @@ class MobileService:
     def _build_mobile(self, raw_mobile, npc_flag) -> Optional[Mobile]:
         from util.GenericUtil import GenericUtil
         converted_mobile = GenericUtil.camel_to_snake_case(raw_mobile)
-        converted_mobile['form'] = MobileUtil.convert_form(converted_mobile['race'], converted_mobile['form'])
-        converted_mobile['parts'] = MobileUtil.convert_parts(converted_mobile['race'], converted_mobile['parts'])
 
         mobile_id = MobileUtil.resolve_mobile_id(converted_mobile, raw_mobile)
         if mobile_id is None:

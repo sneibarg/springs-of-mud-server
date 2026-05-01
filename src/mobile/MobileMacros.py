@@ -12,21 +12,6 @@ class MobileMacros:
         raise RuntimeError("MobileMacros may not be instantiated. Use MobileMacros.<method>(...).")
 
     @staticmethod
-    def room_entities(room) -> list[Any]:
-        if room is None:
-            return []
-        entities = []
-        entities.extend(list(getattr(room, "characters", {}).values()))
-        entities.extend(list(getattr(room, "mobiles", {}).values()))
-        return entities
-
-    @staticmethod
-    def room_players(room) -> list[Any]:
-        if room is None:
-            return []
-        return list(getattr(room, "characters", {}).values())
-
-    @staticmethod
     def choose_weighted(weighted: list[tuple[Any, int]]) -> Any:
         choices = [(value, max(0, GenericUtil.to_int(weight, 0))) for value, weight in weighted]
         total = sum(weight for _, weight in choices)

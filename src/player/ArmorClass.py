@@ -1,17 +1,13 @@
-import ast
-import json
-
 from dataclasses import dataclass
-from typing import Mapping
 
 
 @dataclass
-class PCArmorClass:
+class ArmorClass:
     piercing: int
     bashing: int
     slashing: int
     magic: int
 
     @classmethod
-    def from_json(cls, data) -> PCArmorClass:
+    def from_json(cls, data) -> ArmorClass:
         return cls(**data)

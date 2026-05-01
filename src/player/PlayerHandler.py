@@ -130,10 +130,10 @@ class PlayerHandler:
             character.id,
             self.message_bus.text_to_message(payload["to_char"])
         )
-        if len(payload["in_room"]) > 0:
+        if len(payload["people"]) > 0:
             await self.message_bus.send_to_room(
                 self.message_bus.text_to_message(payload["to_room"]),
-                payload["in_room"]
+                payload["people"]
             )
 
     async def do_autolist(self, character: Character, context: Context):
@@ -592,7 +592,7 @@ class PlayerHandler:
         if self.info_commands.PlayerActBits is not None and hasattr(self.info_commands.PlayerActBits, "PLR_AUTOEXIT"):
             autoexit_bit = self.info_commands.PlayerActBits.PLR_AUTOEXIT.value
         if autoexit_bit is not None:
-            act = int(CharacterMacros.convert_flags(getattr(viewer.character_flags, "act", "") or "0"))
+            act = int(CharacterMacros.convert_flags(getattr(viewer.status_flags, "act", "") or "0"))
             if CharacterMacros.is_set(act, autoexit_bit):
                 await context.room_handler().print_exits(viewer)
         await self.print_players_in_room(viewer)

@@ -12,19 +12,19 @@ from player.CharacterMacros import CharacterMacros
 class _EffectStatics:
     @staticmethod
     def get_affected_raw(entity) -> int:
-        if hasattr(entity, "character_flags") and getattr(entity, "character_flags", None) is not None:
-            return GameMacros.convert_flags(getattr(entity.character_flags, "affected_by", "") or "")
-        if hasattr(entity, "mobile_flags") and getattr(entity, "mobile_flags", None) is not None:
-            return GenericUtil.to_int(getattr(entity.mobile_flags, "affected_by", 0), 0)
+        if hasattr(entity, "status_flags") and getattr(entity, "status_flags", None) is not None:
+            return GameMacros.convert_flags(getattr(entity.status_flags, "affected_by", "") or "")
+        if hasattr(entity, "status_flags") and getattr(entity, "status_flags", None) is not None:
+            return GenericUtil.to_int(getattr(entity.status_flags, "affected_by", 0), 0)
         return 0
 
     @staticmethod
     def set_affected_raw(entity, value: int):
-        if hasattr(entity, "character_flags") and getattr(entity, "character_flags", None) is not None:
-            entity.character_flags.affected_by = GameMacros.flags_to_letters(value)
+        if hasattr(entity, "status_flags") and getattr(entity, "status_flags", None) is not None:
+            entity.status_flags.affected_by = GameMacros.flags_to_letters(value)
             return
-        if hasattr(entity, "mobile_flags") and getattr(entity, "mobile_flags", None) is not None:
-            entity.mobile_flags.affected_by = int(value)
+        if hasattr(entity, "status_flags") and getattr(entity, "status_flags", None) is not None:
+            entity.status_flags.affected_by = int(value)
 
     @staticmethod
     def apply_stat_modifier(entity, location: int, modifier: int, apply_types):

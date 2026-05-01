@@ -824,33 +824,31 @@ class FightCommands:
 
     @staticmethod
     def _current_wait(entity) -> int:
-        temporal = getattr(entity, "temporal_mechanics", None)
-        if temporal is not None:
-            return GenericUtil.to_int(getattr(temporal, "pulse_wait", 0), 0)
-        return GenericUtil.to_int(getattr(entity, "pulse_wait", 0), 0)
+        status_flags = getattr(entity, "status_flags", None)
+        if status_flags is not None:
+            return GenericUtil.to_int(getattr(status_flags, "pulse_wait", 0), 0)
+        return 0
 
     @staticmethod
     def _current_daze(entity) -> int:
-        temporal = getattr(entity, "temporal_mechanics", None)
-        if temporal is not None:
-            return GenericUtil.to_int(getattr(temporal, "pulse_daze", 0), 0)
-        return GenericUtil.to_int(getattr(entity, "pulse_daze", 0), 0)
+        status_flags = getattr(entity, "status_flags", None)
+        if status_flags is not None:
+            return GenericUtil.to_int(getattr(status_flags, "pulse_daze", 0), 0)
+        return 0
 
     def _set_wait(self, entity, pulses: int) -> None:
         amount = max(self._current_wait(entity), GenericUtil.to_int(pulses, 0))
-        temporal = getattr(entity, "temporal_mechanics", None)
-        if temporal is not None:
-            temporal.pulse_wait = amount
+        status_flags = getattr(entity, "status_flags", None)
+        if status_flags is not None:
+            status_flags.pulse_wait = amount
             return
-        setattr(entity, "pulse_wait", amount)
 
     def _set_daze(self, entity, pulses: int) -> None:
         amount = max(self._current_daze(entity), GenericUtil.to_int(pulses, 0))
-        temporal = getattr(entity, "temporal_mechanics", None)
-        if temporal is not None:
-            temporal.pulse_daze = amount
+        status_flags = getattr(entity, "status_flags", None)
+        if status_flags is not None:
+            status_flags.pulse_daze = amount
             return
-        setattr(entity, "pulse_daze", amount)
 
     def _kill_steal_blocked(self, character, victim) -> bool:
         current = getattr(victim, "fighting", None)
@@ -919,7 +917,7 @@ class FightCommands:
         if not CharacterMacros.is_npc(character):
             if (CharacterMacros.is_air_room(room, CharacterMacros.get_enum("sectorTypes")) or CharacterMacros.is_air_room(to_room, CharacterMacros.get_enum("sectorTypes"))) and not self._affected(character, "AFF_FLYING") and not CharacterMacros.is_immortal(character):
                 return None
-            if (CharacterMacros.requires_boat(room, CharacterMacros.get_enum("sectorTypes")) or CharacterMacros.requires_boat(to_room, CharacterMacros.get_enum("sectorTypes"))) and not self._affected(character, "AFF_FLYING") and not CharacterMacros.has_boat(character):
+            if (CharacterMacros.requires_boat(room, CharacterMacros.get_enum("sectorTypes")) or CharacterMacros.requires_boat(to_room, CharacterMacros.get_enum("sectorTypes"))) and not self._affected(character, "AFF_FLYING") and not character.has_boat():
                 return None
             if GenericUtil.to_int(getattr(character, "movement", 0), 0) < self._movement_cost(character, room, to_room):
                 return None

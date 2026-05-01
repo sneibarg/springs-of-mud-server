@@ -218,7 +218,7 @@ class PromptFormat:
 
     def render_prompt(self, status: SessionStatus, character: Character, room: Room, area: Area) -> Message:
         carriage_return = bool(getattr(character, "carriage_return", False) or self.carriage_return)
-        comm_letters = getattr(getattr(character, "character_flags", None), "comm", "")
+        comm_letters = getattr(getattr(character, "status_flags", None), "comm", "")
         comm_raw = GameMacros.letters_to_flags(comm_letters)
         if comm_raw > 0:
             carriage_return = (comm_raw & 2048) == 0  # COMM_COMPACT

@@ -165,6 +165,10 @@ class CharacterMacros(GameMacros):
         return cls._enums_map().get("timeAndWeather")
 
     @classmethod
+    def _offense_types_enum(cls):
+        return cls._enums_map().get("offenseTypes")
+
+    @classmethod
     def _positions_enum(cls):
         return cls._enums_map().get("positions")
 
@@ -225,8 +229,8 @@ class CharacterMacros(GameMacros):
     @classmethod
     def is_affected(cls, char: Any, effect) -> bool:
         if type(char) is Character:
-            return cls.is_set(cls.convert_flags(char.character_flags.affected_by), effect)
-        return cls.is_set(cls.convert_flags(char.mobile_flags.affected_by), effect)
+            return cls.is_set(cls.convert_flags(char.status_flags.affected_by), effect)
+        return cls.is_set(cls.convert_flags(char.status_flags.affected_by), effect)
 
     @classmethod
     def is_blind(cls, character: Any) -> bool:
@@ -234,7 +238,7 @@ class CharacterMacros(GameMacros):
         if not hasattr(affected_bits, "AFF_BLIND"):
             return False
         return cls.is_set(
-            int(cls.convert_flags(getattr(character.character_flags, "affected_by", "0") or "0")),
+            int(cls.convert_flags(getattr(character.status_flags, "affected_by", "0") or "0")),
             affected_bits.AFF_BLIND.value,
         )
 
@@ -242,10 +246,6 @@ class CharacterMacros(GameMacros):
     def is_awake(cls, char: Any) -> bool:
         positions = cls.get_enum("positions")
         return cls.position_value(char) > positions.POS_SLEEPING.value
-
-    @staticmethod
-    def get_age(char: Character) -> int:
-        return int(17 + (char.played + datetime.now().timestamp() - char.logon) / 72000)
 
     @staticmethod
     def is_good(char: Any) -> bool:
@@ -324,11 +324,11 @@ class CharacterMacros(GameMacros):
 
     @staticmethod
     def wait_state(char: Character, npulse: int) -> int:
-        return max(char.temporal_mechanics.pulse_wait, npulse)
+        return max(char.status_flags.pulse_wait, npulse)
 
     @staticmethod
     def daze_state(char: Character, npulse: int) -> int:
-        return max(char.temporal_mechanics.pulse_daze, npulse)
+        return max(char.status_flags.pulse_daze, npulse)
 
     @staticmethod
     def normalize_help_token(value: str) -> str:
@@ -337,19 +337,19 @@ class CharacterMacros(GameMacros):
 
     @classmethod
     def get_act_flags(cls, character: Character) -> int:
-        return int(cls.convert_flags(getattr(character.character_flags, "act", "0") or "0"))
+        return int(cls.convert_flags(getattr(character.status_flags, "act", "0") or "0"))
 
     @staticmethod
     def set_act_flags(character: Character, value: int) -> None:
-        character.character_flags.act = GameMacros.flags_to_letters(value)
+        character.status_flags.act = GameMacros.flags_to_letters(value)
 
     @classmethod
     def get_comm_flags(cls, character: Character) -> int:
-        return int(cls.convert_flags(getattr(character.character_flags, "comm", "0") or "0"))
+        return int(cls.convert_flags(getattr(character.status_flags, "comm", "0") or "0"))
 
     @staticmethod
     def set_comm_flags(character: Character, value: int) -> None:
-        character.character_flags.comm = GameMacros.flags_to_letters(value)
+        character.status_flags.comm = GameMacros.flags_to_letters(value)
 
     @classmethod
     def is_comm_enabled(cls, character: Character, bit_name: str) -> bool:
@@ -392,7 +392,7 @@ class CharacterMacros(GameMacros):
     @classmethod
     def format_affects(cls, character: Character) -> str:
         affected_bits = cls._affected_bits()
-        raw = int(cls.convert_flags(getattr(character.character_flags, "affected_by", "") or ""))
+        raw = int(cls.convert_flags(getattr(character.status_flags, "affected_by", "") or ""))
         lines = []
         for name, member in affected_bits.__members__.items():
             if cls.is_set(raw, member.value):
@@ -437,8 +437,8 @@ class CharacterMacros(GameMacros):
     @classmethod
     def who_line(cls, viewer: Character, target: Character) -> str:
         trust = GenericUtil.to_int(cls.get_trust(viewer), 0)
-        incog_level = GenericUtil.to_int(getattr(target, "incog_level", 0), 0)
-        invis_level = GenericUtil.to_int(getattr(target, "invis_level", 0), 0)
+        incog_level = GenericUtil.to_int(getattr(target.status_flags, "incog_level", 0), 0)
+        invis_level = GenericUtil.to_int(getattr(target.status_flags, "invis_level", 0), 0)
 
         flags = []
         if 0 < incog_level <= trust:
@@ -704,7 +704,7 @@ class CharacterMacros(GameMacros):
             context.finish()
             return {"to_char": "This feature is unavailable.\r\n"}
 
-        raw = GenericUtil.to_int(cls.convert_flags(getattr(victim.character_flags, "comm", "") or "0"), 0)
+        raw = GenericUtil.to_int(cls.convert_flags(getattr(victim.status_flags, "comm", "") or "0"), 0)
         if cls.is_set(raw, bit):
             raw = cls.unset_bit(raw, bit)
             cls.set_comm_flags(victim, raw)
@@ -803,21 +803,13 @@ class CharacterMacros(GameMacros):
         context.finish()
         return {"to_char": "Object loaded.\r\n"}
 
-    @staticmethod
-    def has_boat(character: Character) -> bool:
-        for item in list(getattr(character, "loot", []) or []):
-            item_type = str(getattr(item, "item_type", "") or "").lower()
-            if "boat" in item_type:
-                return True
-        return False
-
     @classmethod
     def is_affected_by_name(cls, character: Character, affected_bits, bit_name: str) -> bool:
         if affected_bits is None or not hasattr(affected_bits, bit_name):
             return False
         bit = getattr(affected_bits, bit_name).value
         return cls.is_set(
-            GenericUtil.to_int(cls.convert_flags(getattr(character.character_flags, "affected_by", "")), 0),
+            GenericUtil.to_int(cls.convert_flags(getattr(character.status_flags, "affected_by", "")), 0),
             bit,
         )
 
@@ -826,9 +818,9 @@ class CharacterMacros(GameMacros):
         if affected_bits is None or not hasattr(affected_bits, bit_name):
             return
         bit = getattr(affected_bits, bit_name).value
-        raw = GenericUtil.to_int(cls.convert_flags(getattr(character.character_flags, "affected_by", "")), 0)
+        raw = GenericUtil.to_int(cls.convert_flags(getattr(character.status_flags, "affected_by", "")), 0)
         raw = cls.set_bit(raw, bit) if enabled else cls.unset_bit(raw, bit)
-        character.character_flags.affected_by = GameMacros.flags_to_letters(raw)
+        character.status_flags.affected_by = GameMacros.flags_to_letters(raw)
 
     @classmethod
     def pos_value(cls, name: str) -> int:
@@ -937,7 +929,7 @@ class CharacterMacros(GameMacros):
         if not hasattr(player_bits, "PLR_HOLYLIGHT"):
             return False
         return cls.is_set(
-            int(cls.convert_flags(character.character_flags.act)),
+            int(cls.convert_flags(character.status_flags.act)),
             player_bits.PLR_HOLYLIGHT.value,
         )
 
@@ -946,10 +938,10 @@ class CharacterMacros(GameMacros):
         if character == victim:
             return True
 
-        if cls.get_trust(character) < victim.invis_level:
+        if cls.get_trust(character) < victim.status_flags.invis_level:
             return False
 
-        if cls.get_trust(character) < victim.incog_level and character.room_id != victim.room_id:
+        if cls.get_trust(character) < victim.status_flags.incog_level and character.room_id != victim.room_id:
             return False
 
         if ((not cls.is_npc(character) and cls.has_holy_light(character))
@@ -987,7 +979,7 @@ class CharacterMacros(GameMacros):
         bit = cls.enum_bit(act_bits, name)
         if bit == 0:
             return False
-        flags = GenericUtil.to_int(getattr(getattr(mob, "mobile_flags", None), "act", 0), 0)
+        flags = GenericUtil.to_int(getattr(getattr(mob, "status_flags", None), "act", 0), 0)
         return (flags & bit) != 0
 
     @classmethod
@@ -995,7 +987,7 @@ class CharacterMacros(GameMacros):
         charm = cls.enum_bit(cls._affected_bits(), "AFF_CHARM")
         if charm == 0:
             return False
-        flags = GenericUtil.to_int(getattr(getattr(mob, "mobile_flags", None), "affected_by", 0), 0)
+        flags = GenericUtil.to_int(getattr(getattr(mob, "status_flags", None), "affected_by", 0), 0)
         return (flags & charm) != 0
 
     @classmethod
@@ -1037,3 +1029,43 @@ class CharacterMacros(GameMacros):
         if isinstance(max_stats, list) and 0 <= stat_index < len(max_stats):
             return GenericUtil.to_int(max_stats[stat_index], current_value)
         return current_value
+
+    @classmethod
+    def mobile_will_assist(cls, char: Mobile) -> bool:
+        if type(char) is not Mobile:
+            return False
+        OffenseTypes = cls._offense_types_enum()
+        return cls.is_set(OffenseTypes.ASSIST_PLAYERS.value, char.status_flags.off)
+
+    @classmethod
+    def player_auto_assist(cls, char: Mobile) -> bool:
+        if type(char) is not Mobile:
+            return False
+        PlayerActBits = cls._player_act_bits()
+        return cls.is_set(PlayerActBits.PLR_AUTOASSIST.value, char.status_flags.off)
+
+    @classmethod
+    def will_npc_assist(self, rch: Mobile, ch: Character) -> bool | str | Any | Any:
+        if not CharacterMacros.is_npc(rch):
+            return False
+
+        OffenseTypes = self._offense_types_enum()
+        off = rch.status_flags.off
+        return (
+                CharacterMacros.is_set(off, OffenseTypes.ASSIST_ALL.value) or
+                (rch.group and rch.group == ch.group) or
+                (rch.race == ch.race and CharacterMacros.is_set(off, OffenseTypes.ASSIST_RACE.value)) or
+                (CharacterMacros.is_set(off, OffenseTypes.ASSIST_ALIGN.value) and
+                 CharacterMacros.same_alignment(rch, ch)) or
+                (rch.vnum == ch.vnum and CharacterMacros.is_set(off, OffenseTypes.ASSIST_VNUM.value))
+        )
+
+    @classmethod
+    def is_same_group(cls, ach: Any, bch: Any) -> bool:
+        if ach is None or bch is None:
+            return False
+        if ach.leader is not None:
+            ach = ach.leader
+        if bch.leader is not None:
+            bch = bch.leader
+        return ach == bch
