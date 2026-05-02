@@ -68,3 +68,19 @@ class GameMacros:
         if value is not None:
             return value
         return GameMacros.letters_to_flags(str(raw or "0"))
+
+    @staticmethod
+    def enum_bit(enum_obj, name: str) -> int:
+        if enum_obj is None or not hasattr(enum_obj, name):
+            return 0
+        return int(getattr(enum_obj, name).value)
+
+    @staticmethod
+    def enum_names(enum_obj, prefix: str) -> list[str]:
+        if enum_obj is None:
+            return []
+        names = []
+        for field in dir(enum_obj):
+            if field.startswith(prefix):
+                names.append(field)
+        return sorted(names)

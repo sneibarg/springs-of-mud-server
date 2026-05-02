@@ -72,17 +72,17 @@ class MovementCommands:
             context.finish()
             return {"to_char": f"The {keyword} is closed.\r\n"}
 
-        if CharacterMacros.is_room_private(to_room, self.room_flags):
+        if to_room.is_room_private(self.room_flags):
             context.finish()
             return {"to_char": "That room is private right now.\r\n"}
 
         if not CharacterMacros.is_npc(character):
-            if CharacterMacros.is_air_room(in_room, self.sector_types) or CharacterMacros.is_air_room(to_room, self.sector_types):
+            if in_room.is_air_room(self.sector_types) or to_room.is_air_room(self.sector_types):
                 if not CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_FLYING") and not CharacterMacros.is_immortal(character):
                     context.finish()
                     return {"to_char": "You can't fly.\r\n"}
 
-            if CharacterMacros.requires_boat(in_room, self.sector_types) or CharacterMacros.requires_boat(to_room, self.sector_types):
+            if in_room.requires_boat(self.sector_types) or to_room.requires_boat(self.sector_types):
                 if not CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_FLYING") and not character.has_boat():
                     context.finish()
                     return {"to_char": "You need a boat to go there.\r\n"}
@@ -547,7 +547,7 @@ class MovementCommands:
             return {
                 "to_char": "Your durability increases!\r\n",
                 "to_room": f"{character.name}'s durability increases!\r\n",
-                "targets": CharacterMacros.room_targets(character, room),
+                "targets": room.player_targets(character),
             }
 
         if raw == "mana":
@@ -561,7 +561,7 @@ class MovementCommands:
             return {
                 "to_char": "Your power increases!\r\n",
                 "to_room": f"{character.name}'s power increases!\r\n",
-                "targets": CharacterMacros.room_targets(character, room),
+                "targets": room.player_targets(character),
             }
 
         stat_lookup = {
@@ -597,5 +597,5 @@ class MovementCommands:
         return {
             "to_char": f"Your {output_name} increases!\r\n",
             "to_room": f"{character.name}'s {output_name} increases!\r\n",
-            "targets": CharacterMacros.room_targets(character, room),
+            "targets": room.player_targets(character),
         }

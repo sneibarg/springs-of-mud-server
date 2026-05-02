@@ -395,13 +395,13 @@ class WizCommands:
             return {"to_char": "You are nowhere.\r\n"}
         arg = (argument or "").strip()
         if arg:
-            victim = CharacterMacros.find_character_in_room(room, arg, WizUtil.name_matches)
+            victim = room.find_character_in_room(arg, WizUtil.name_matches)
             if victim is not None and victim.id != character.id:
                 room.remove_player_from_room(victim)
                 victim.room_id = ""
                 context.finish()
                 return {"to_char": "Ok.\r\n", "victim": victim, "to_victim": "You are purged!\r\n"}
-            item = CharacterMacros.find_item_in_room(room, arg, WizUtil.name_matches)
+            item = room.find_item_in_room(arg, WizUtil.name_matches)
             if item is not None:
                 room.remove_item_from_room(item)
                 context.finish()

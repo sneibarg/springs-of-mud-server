@@ -139,7 +139,7 @@ class CharacterAdvancement:
             params = CharacterMacros.get_enum("gameParameters")
         except Exception:
             params = None
-        if params is not None and hasattr(params, "LEVEL_HERO"):
+        if hasattr(params, "LEVEL_HERO"):
             return GenericUtil.to_int(getattr(params.LEVEL_HERO, "value", 51), 51)
         return 51
 

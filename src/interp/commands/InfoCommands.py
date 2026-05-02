@@ -897,7 +897,7 @@ class InfoCommands:
         gain = SkillUtil.practice_gain(character, rating)
         new_level = learned + gain
         room = self.room_registry.get_or_none(id=character.room_id)
-        targets = CharacterMacros.room_targets(character, room)
+        targets = room.player_targets(character)
 
         if new_level < adept:
             practiced_skill["level"] = new_level

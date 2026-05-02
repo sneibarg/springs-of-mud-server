@@ -9,6 +9,7 @@ from mobile.Mobile import Mobile
 from object.Item import Item
 from player.Character import Character
 from object.ExtraDescriptionData import ExtraDescriptionData
+from util.GenericUtil import GenericUtil
 
 
 @dataclass
@@ -98,3 +99,42 @@ class Room:
             chars = [self.characters.items()]
             mobs = [self.mobiles.items()]
             return chars + mobs
+
+    def player_targets(self, character: Character) -> List[Character]:
+        return [ch for ch in self.characters.values() if ch.id != character.id]
+
+    def find_character_in_room(self, arg: str, name_matches_fn):
+        q = (arg or "").strip().lower()
+        for ch in self.characters.values():
+            if name_matches_fn(q, getattr(ch, "name", "")):
+                return ch
+        return None
+
+    def find_item_in_room(self, arg: str, name_matches_fn):
+        q = (arg or "").strip().lower()
+        for item in self.contents.values():
+            if name_matches_fn(q, getattr(item, "name", "")):
+                return item
+        return None
+
+    def is_room_private(self, room_flags) -> bool:
+        private = GenericUtil.to_int(getattr(getattr(room_flags, "ROOM_PRIVATE", None), "value", 0), 0)
+        solitary = GenericUtil.to_int(getattr(getattr(room_flags, "ROOM_SOLITARY", None), "value", 0), 0)
+        flags = GenericUtil.to_int(getattr(self, "room_flags", 0), 0)
+        if private and (flags & private) and len(getattr(self, "characters", {})) >= 2:
+            return True
+        if solitary and (flags & solitary) and len(getattr(self, "characters", {})) >= 1:
+            return True
+        return False
+
+    def is_air_room(self, sector_types) -> bool:
+        if sector_types is None:
+            return False
+        air = getattr(sector_types, "SECT_AIR", None)
+        return air is not None and GenericUtil.to_int(getattr(self, "sector_type", 0), 0) == int(air.value)
+
+    def requires_boat(self, sector_types) -> bool:
+        if sector_types is None:
+            return False
+        no_swim = getattr(sector_types, "SECT_WATER_NOSWIM", None)
+        return no_swim is not None and GenericUtil.to_int(getattr(self, "sector_type", 0), 0) == int(no_swim.value)

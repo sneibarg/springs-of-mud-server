@@ -72,21 +72,6 @@ class ObjectUtils:
         return None
 
     @staticmethod
-    def find_character_in_room(room, actor, wanted: str):
-        if room is None:
-            return None
-        q = (wanted or "").strip().lower()
-        if not q:
-            return None
-        for ch in room.characters.values():
-            if ch.id == actor.id:
-                continue
-            name = (getattr(ch, "name", "") or "").lower()
-            if name == q or name.startswith(q):
-                return ch
-        return None
-
-    @staticmethod
     def find_container(character, room, wanted: str):
         return ObjectUtils.find_inventory_item(character, wanted) or ObjectUtils.find_room_item(room, wanted)
 

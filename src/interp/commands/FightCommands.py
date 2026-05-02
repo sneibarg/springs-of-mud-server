@@ -321,7 +321,7 @@ class FightCommands:
             return {
                 "to_char": "Your pulse races as you are consumed by rage!\r\n",
                 "to_room": f"{character.name} gets a wild look in their eyes.\r\n",
-                "targets": CharacterMacros.room_targets(character, room),
+                "targets": room.player_targets(character),
             }
 
         self._set_wait(character, self._skill_beats(skill, 12) * 3)
@@ -458,7 +458,7 @@ class FightCommands:
         if not CharacterMacros.is_npc(character):
             character.movement = max(0, GenericUtil.to_int(getattr(character, "movement", 0), 0) - move_cost)
 
-        from_targets = CharacterMacros.room_targets(character, was_in)
+        from_targets = was_in.player_targets(character)
         if CharacterMacros.is_npc(character):
             was_in.remove_mobile_from_room(character)
             to_room.add_mobile_to_room(character)
@@ -479,7 +479,7 @@ class FightCommands:
             "to_char": f"You flee from combat!\r\n{exp_text}",
             "from_room_message": f"{character.name} has fled!\r\n",
             "from_room_targets": from_targets,
-            "to_room_targets": CharacterMacros.room_targets(character, to_room),
+            "to_room_targets": to_room.player_targets(character),
             "to_room_message": f"{character.name} has arrived.\r\n",
             "to_room_obj": to_room,
             "aggressive_rounds": self.fight_handler.aggressive_entry_rounds(character, to_room),
@@ -595,7 +595,7 @@ class FightCommands:
         if victim is character:
             self._set_wait(character, self._skill_beats(skill, 12) * 2)
             context.finish()
-            return {"to_char": "You fall flat on your face!\r\n", "to_room": f"{character.name} trips over their own feet!\r\n", "targets": CharacterMacros.room_targets(character, room)}
+            return {"to_char": "You fall flat on your face!\r\n", "to_room": f"{character.name} trips over their own feet!\r\n", "targets": room.player_targets(character)}
 
         chance = self._combat_skill_chance(character, victim, "trip", primary_stat="dexterity", defend_stat="dexterity", level_scale=2)
         self._set_wait(character, self._skill_beats(skill, 12))
@@ -912,12 +912,12 @@ class FightCommands:
         to_room = self.room_registry.get_or_none(vnum=str(getattr(ex, "to_room_vnum", "")))
         if to_room is None:
             return None
-        if CharacterMacros.is_room_private(to_room, room_flags):
+        if to_room.is_room_private(room_flags):
             return None
         if not CharacterMacros.is_npc(character):
-            if (CharacterMacros.is_air_room(room, CharacterMacros.get_enum("sectorTypes")) or CharacterMacros.is_air_room(to_room, CharacterMacros.get_enum("sectorTypes"))) and not self._affected(character, "AFF_FLYING") and not CharacterMacros.is_immortal(character):
+            if (room.is_air_room(CharacterMacros.get_enum("sectorTypes")) or to_room.is_air_room(CharacterMacros.get_enum("sectorTypes"))) and not self._affected(character, "AFF_FLYING") and not CharacterMacros.is_immortal(character):
                 return None
-            if (CharacterMacros.requires_boat(room, CharacterMacros.get_enum("sectorTypes")) or CharacterMacros.requires_boat(to_room, CharacterMacros.get_enum("sectorTypes"))) and not self._affected(character, "AFF_FLYING") and not character.has_boat():
+            if (room.requires_boat(CharacterMacros.get_enum("sectorTypes")) or to_room.requires_boat(CharacterMacros.get_enum("sectorTypes"))) and not self._affected(character, "AFF_FLYING") and not character.has_boat():
                 return None
             if GenericUtil.to_int(getattr(character, "movement", 0), 0) < self._movement_cost(character, room, to_room):
                 return None

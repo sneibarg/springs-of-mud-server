@@ -202,12 +202,6 @@ class CharacterMacros(GameMacros):
             return bonus
         return bonus_table.get(normalized,{})
 
-    @classmethod
-    def is_immortal_sufficient(cls, level: int, immortal_name: str) -> bool:
-        GameParameters = cls.get_enum("gameParameters")
-        imm_level = GameParameters[immortal_name.upper()]
-        return level >= imm_level.value
-
     @staticmethod
     def is_npc(char: Any) -> bool:
         return type(char) is Mobile
@@ -218,18 +212,11 @@ class CharacterMacros(GameMacros):
         return params is not None and cls.get_trust(char) >= params.LEVEL_IMMORTAL.value
 
     @classmethod
-    def is_hero(cls, char: Character) -> bool:
-        params = cls._game_parameters_enum()
-        return params is not None and cls.get_trust(char) >= params.LEVEL_HERO.value
-
-    @classmethod
     def is_trusted(cls, char: Character) -> bool:
         return cls.get_trust(char) >= char.level
 
     @classmethod
     def is_affected(cls, char: Any, effect) -> bool:
-        if type(char) is Character:
-            return cls.is_set(cls.convert_flags(char.status_flags.affected_by), effect)
         return cls.is_set(cls.convert_flags(char.status_flags.affected_by), effect)
 
     @classmethod
@@ -591,12 +578,6 @@ class CharacterMacros(GameMacros):
         return "You are standing."
 
     @staticmethod
-    def room_targets(character: Character, room):
-        if room is None:
-            return []
-        return [ch for ch in room.characters.values() if ch.id != character.id]
-
-    @staticmethod
     def find_playing_character(name: str, session_handler):
         wanted = (name or "").strip().lower()
         if not wanted:
@@ -615,26 +596,6 @@ class CharacterMacros(GameMacros):
         victim.hit = int(getattr(victim, "max_hit", 0))
         victim.mana = int(getattr(victim, "max_mana", 0))
         victim.movement = int(getattr(victim, "max_movement", 0))
-
-    @staticmethod
-    def find_character_in_room(room, arg: str, name_matches_fn):
-        if room is None:
-            return None
-        q = (arg or "").strip().lower()
-        for ch in room.characters.values():
-            if name_matches_fn(q, getattr(ch, "name", "")):
-                return ch
-        return None
-
-    @staticmethod
-    def find_item_in_room(room, arg: str, name_matches_fn):
-        if room is None:
-            return None
-        q = (arg or "").strip().lower()
-        for item in room.contents.values():
-            if name_matches_fn(q, getattr(item, "name", "")):
-                return item
-        return None
 
     @staticmethod
     def find_character_world(arg: str, character_registry, name_matches_fn, allow_self: bool = False):
@@ -675,22 +636,6 @@ class CharacterMacros(GameMacros):
             if name_matches_fn(value, getattr(room, "name", "")):
                 return room
         return None
-
-    @staticmethod
-    def enum_bit(enum_obj, name: str) -> int:
-        if enum_obj is None or not hasattr(enum_obj, name):
-            return 0
-        return int(getattr(enum_obj, name).value)
-
-    @staticmethod
-    def enum_names(enum_obj, prefix: str) -> list[str]:
-        if enum_obj is None:
-            return []
-        names = []
-        for field in dir(enum_obj):
-            if field.startswith(prefix):
-                names.append(field)
-        return sorted(names)
 
     @classmethod
     def wiz_toggle_comm_on_target(cls, context: Any, argument: str, bit_name: str, label: str, comm_flags, find_character_world_fn):
@@ -740,7 +685,7 @@ class CharacterMacros(GameMacros):
             return {"to_char": "You must turn off quiet mode first.\r\n"}
         if has_comm_fn(character, comm_flags, "COMM_NOCHANNELS"):
             context.finish()
-            return {"to_char": "The gods have revoked your channel priviliges.\r\n"}
+            return {"to_char": "The gods have revoked your channel privileges.\r\n"}
 
         set_comm_fn(character, comm_flags, off_flag, False)
         channel_map = {
@@ -840,7 +785,7 @@ class CharacterMacros(GameMacros):
             if name and not name.startswith("POS_"):
                 name = f"POS_{name}"
             positions = cls._positions_enum()
-            if positions is not None and hasattr(positions, name):
+            if hasattr(positions, name):
                 return int(getattr(positions, name).value)
         standing = cls.pos_value("POS_STANDING")
         default_pos = standing if standing >= 0 else 0
@@ -877,33 +822,6 @@ class CharacterMacros(GameMacros):
         setattr(character, "position", value)
 
     @staticmethod
-    def is_room_private(room, room_flags) -> bool:
-        if room is None:
-            return False
-        private = GenericUtil.to_int(getattr(getattr(room_flags, "ROOM_PRIVATE", None), "value", 0), 0)
-        solitary = GenericUtil.to_int(getattr(getattr(room_flags, "ROOM_SOLITARY", None), "value", 0), 0)
-        flags = GenericUtil.to_int(getattr(room, "room_flags", 0), 0)
-        if private and (flags & private) and len(getattr(room, "characters", {})) >= 2:
-            return True
-        if solitary and (flags & solitary) and len(getattr(room, "characters", {})) >= 1:
-            return True
-        return False
-
-    @staticmethod
-    def is_air_room(room, sector_types) -> bool:
-        if room is None or sector_types is None:
-            return False
-        air = getattr(sector_types, "SECT_AIR", None)
-        return air is not None and GenericUtil.to_int(getattr(room, "sector_type", 0), 0) == int(air.value)
-
-    @staticmethod
-    def requires_boat(room, sector_types) -> bool:
-        if room is None or sector_types is None:
-            return False
-        no_swim = getattr(sector_types, "SECT_WATER_NOSWIM", None)
-        return no_swim is not None and GenericUtil.to_int(getattr(room, "sector_type", 0), 0) == int(no_swim.value)
-
-    @staticmethod
     def mirror_exit_flag(room_registry, room, ex, rev_dir_map, find_exit_fn, set_mask: int = 0, clear_mask: int = 0):
         to_room = room_registry.get_or_none(id=getattr(ex, "to_room_id", None))
         if to_room is None:
@@ -918,10 +836,6 @@ class CharacterMacros(GameMacros):
         if set_mask:
             flags |= set_mask
         rev_exit.exit_flags = flags
-
-    @classmethod
-    def act(cls, act_format: str, char: Any, arg1: str, arg2: str, act_type: int):
-        pass
 
     @classmethod
     def has_holy_light(cls, character) -> bool:

@@ -327,7 +327,7 @@ class ObjectCommands:
         if room is None:
             context.finish()
             return {"to_char": "They aren't here.\r\n"}
-        victim = ObjectUtils.find_character_in_room(room, character, rem.split()[0])
+        victim = room.find_character_in_room(character, rem.split()[0])
         if victim is None:
             context.finish()
             return {"to_char": "They aren't here.\r\n"}

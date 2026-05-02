@@ -153,7 +153,7 @@ class CommunicationsCommands:
         return {
             "to_char": f"You say '{text}'\r\n",
             "to_room": f"{character.name} says '{text}'\r\n",
-            "targets": self._room_targets(character, room),
+            "targets": room.player_targets(character),
         }
 
     def do_emote(self, character: Character, context: Context):
@@ -341,9 +341,6 @@ class CommunicationsCommands:
 
     def _channel(self, character: Character, context: Context, off_flag: str, verb: str, on_msg: str, off_msg: str):
         return CharacterMacros.channel_payload(character, context, off_flag, verb, on_msg, off_msg, self.comm_flags, self.session_handler, CommunicationsUtil.parse_argument, CommunicationsUtil.has_comm, CommunicationsUtil.set_comm)
-
-    def _room_targets(self, character: Character, room):
-        return CharacterMacros.room_targets(character, room)
 
     def _find_playing_character(self, name: str):
         return CharacterMacros.find_playing_character(name, self.session_handler)
