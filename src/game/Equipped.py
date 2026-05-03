@@ -73,6 +73,12 @@ class Equipped:
     def format_equipped(self) -> str:
         return "\n".join(f"{slot}: {item.name}" for slot, item in self.__dict__.items() if item)
 
+    def slot_of(self, item) -> Optional[str]:
+        for slot, equipped_item in self.__dict__.items():
+            if equipped_item is item:
+                return slot
+        return None
+
     @staticmethod
     def ensure_on(character):
         if getattr(character, "equipped", None) is None:
@@ -81,6 +87,9 @@ class Equipped:
 
     @staticmethod
     def add_to_inventory(character, item) -> None:
+        if hasattr(character, "add_item"):
+            character.add_item(item)
+            return
         if getattr(character, "loot", None) is None:
             character.loot = []
         if item not in character.loot:
@@ -88,6 +97,9 @@ class Equipped:
 
     @staticmethod
     def remove_from_inventory(character, item) -> None:
+        if hasattr(character, "remove_item"):
+            character.remove_item(item)
+            return
         loot = getattr(character, "loot", None)
         if loot is None:
             return

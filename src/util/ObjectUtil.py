@@ -26,10 +26,14 @@ class ObjectUtils:
 
     @staticmethod
     def ensure_equipped(character):
+        if hasattr(character, "ensure_equipped"):
+            return character.ensure_equipped()
         return Equipped.ensure_on(character)
 
     @staticmethod
     def find_inventory_item(character, wanted: str):
+        if hasattr(character, "find_inventory_item"):
+            return character.find_inventory_item(wanted)
         q = (wanted or "").strip().lower()
         if not q:
             return None
@@ -58,6 +62,9 @@ class ObjectUtils:
 
     @staticmethod
     def remove_from_inventory(character, item):
+        if hasattr(character, "remove_item"):
+            character.remove_item(item)
+            return
         loot = getattr(character, "loot", None)
         if loot is None:
             return
@@ -68,6 +75,9 @@ class ObjectUtils:
 
     @staticmethod
     def add_to_inventory(character, item):
+        if hasattr(character, "add_item"):
+            character.add_item(item)
+            return
         if getattr(character, "loot", None) is None:
             character.loot = []
         if item not in character.loot:
@@ -75,6 +85,8 @@ class ObjectUtils:
 
     @staticmethod
     def equipped_slot_of(character, item):
+        if hasattr(character, "equipped_slot_of"):
+            return character.equipped_slot_of(item)
         equipped = getattr(character, "equipped", None)
         if equipped is None:
             return None
@@ -85,10 +97,14 @@ class ObjectUtils:
 
     @staticmethod
     def equip_item(character, item, slot_name: str):
+        if hasattr(character, "equip_item"):
+            return character.equip_item(item, slot_name)
         return Equipped.equip_item(character, item, slot_name)
 
     @staticmethod
     def unequip_item(character, slot_name: str):
+        if hasattr(character, "unequip_item"):
+            return character.unequip_item(slot_name)
         return Equipped.unequip_item(character, slot_name)
 
     @staticmethod
@@ -165,16 +181,25 @@ class ObjectUtils:
 
     @staticmethod
     def short(item) -> str:
+        short_fn = getattr(item, "short", None)
+        if callable(short_fn):
+            return short_fn()
         return getattr(item, "short_description", None) or getattr(item, "name", "it")
 
     @staticmethod
     def add_to_contains(container, obj):
+        if hasattr(container, "add_contained_item"):
+            container.add_contained_item(obj)
+            return
         if getattr(container, "contains", None) is None:
             container.contains = []
         container.contains.append(obj)
 
     @staticmethod
     def remove_from_contains(container, obj):
+        if hasattr(container, "remove_contained_item"):
+            container.remove_contained_item(obj)
+            return
         try:
             container.contains.remove(obj)
         except Exception:
@@ -182,6 +207,8 @@ class ObjectUtils:
 
     @staticmethod
     def find_in_contains(container, wanted: str):
+        if hasattr(container, "find_contained_item"):
+            return container.find_contained_item(wanted)
         q = (wanted or "").strip().lower()
         for obj in list(getattr(container, "contains", []) or []):
             name = (getattr(obj, "name", "") or "").lower()

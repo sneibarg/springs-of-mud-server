@@ -867,7 +867,7 @@ class FightCommands:
 
         if not CharacterMacros.is_npc(victim):
             EffectUtil.remove_item_effects(victim, obj)
-        ObjectUtils.unequip_item(victim, "wielded")
+        victim.unequip_item("wielded")
 
         keep_inventory = False
         if hasattr(item_flags, "ITEM_NODROP") and ObjectUtils.has_flag(getattr(obj, "extra_flags", 0), item_flags.ITEM_NODROP.value):
@@ -876,7 +876,7 @@ class FightCommands:
             keep_inventory = True
 
         if not keep_inventory:
-            ObjectUtils.remove_from_inventory(victim, obj)
+            victim.remove_item(obj)
             room.add_item_to_room(obj)
 
         return {

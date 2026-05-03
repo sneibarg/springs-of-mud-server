@@ -2,7 +2,7 @@ import sys
 import os
 import unittest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..', 'src'))
 
 from unittest.mock import Mock, patch
 from update import WeatherService, WeatherInfo, TimeInfo

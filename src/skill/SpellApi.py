@@ -292,8 +292,8 @@ class SpellApi:
         if prototype is None:
             return False
         item = ItemUtil.create_object(prototype)
-        if destination == "inventory" and hasattr(ctx.actor, "loot"):
-            ObjectUtils.add_to_inventory(ctx.actor, item)
+        if destination == "inventory" and hasattr(ctx.actor, "add_item"):
+            ctx.actor.add_item(item)
         elif ctx.room is not None:
             ctx.room.add_item_to_room(item)
         ctx.set_alias("created_item", item)

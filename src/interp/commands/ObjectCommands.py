@@ -90,7 +90,7 @@ class ObjectCommands:
                 payload = self._get_all_from_container(character, room, container, arg1)
                 context.finish()
                 return payload
-            target_item = ObjectUtils.find_in_contains(container, arg1)
+            target_item = container.find_contained_item(arg1)
         else:
             target_item = ObjectUtils.find_room_item(room, arg1)
 
@@ -105,10 +105,10 @@ class ObjectCommands:
             return {"to_char": "You can't take that.\r\n"}
 
         if container is not None:
-            ObjectUtils.remove_from_contains(container, target_item)
+            container.remove_contained_item(target_item)
         else:
             room.remove_item_from_room(target_item)
-        ObjectUtils.add_to_inventory(character, target_item)
+        character.add_item(target_item)
         context.finish()
         return {
             "to_char": f"You get {ObjectUtils.short(target_item)}.\r\n",
@@ -128,8 +128,8 @@ class ObjectCommands:
                 continue
             if not ObjectUtils.item_takeable(obj, self.wear_flags):
                 continue
-            ObjectUtils.remove_from_contains(container, obj)
-            ObjectUtils.add_to_inventory(character, obj)
+            container.remove_contained_item(obj)
+            character.add_item(obj)
             picked.append(obj)
 
         if not picked:
@@ -153,7 +153,7 @@ class ObjectCommands:
             context.finish()
             return {"to_char": "You are nowhere.\r\n"}
 
-        obj = ObjectUtils.find_inventory_item(character, arg1)
+        obj = character.find_inventory_item(arg1)
         if obj is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
@@ -171,8 +171,8 @@ class ObjectCommands:
             context.finish()
             return {"to_char": "You can't fold it into itself.\r\n"}
 
-        ObjectUtils.remove_from_inventory(character, obj)
-        ObjectUtils.add_to_contains(container, obj)
+        character.remove_item(obj)
+        container.add_contained_item(obj)
         context.finish()
         return {
             "to_char": f"You put {ObjectUtils.short(obj)} in {ObjectUtils.short(container)}.\r\n",
@@ -193,7 +193,7 @@ class ObjectCommands:
             payload = self._drop_all(character, room, arg1)
             context.finish()
             return payload
-        item = ObjectUtils.find_inventory_item(character, arg1)
+        item = character.find_inventory_item(arg1)
         if item is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
@@ -212,7 +212,7 @@ class ObjectCommands:
         char_lines = []
 
         for item in list(getattr(character, "loot", []) or []):
-            if ObjectUtils.equipped_slot_of(character, item):
+            if character.equipped_slot_of(item):
                 continue
             if ObjectUtils.is_nodrop(item, self.item_flags):
                 continue
@@ -236,11 +236,11 @@ class ObjectCommands:
         }
 
     def _drop_one(self, character: Character, room, item):
-        slot = ObjectUtils.equipped_slot_of(character, item)
+        slot = character.equipped_slot_of(item)
         if slot:
             EffectUtil.remove_item_effects(character, item)
-            ObjectUtils.unequip_item(character, slot)
-        ObjectUtils.remove_from_inventory(character, item)
+            character.unequip_item(slot)
+        character.remove_item(item)
 
         if self._melts_on_drop(item):
             return {
@@ -305,18 +305,18 @@ class ObjectCommands:
         if not arg1:
             context.finish()
             return {"to_char": empty_msg}
-        item = ObjectUtils.find_inventory_item(character, arg1)
+        item = character.find_inventory_item(arg1)
         if item is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
         if ObjectUtils.is_nodrop(item, self.item_flags):
             context.finish()
             return {"to_char": "You can't let go of it.\r\n"}
-        slot = ObjectUtils.equipped_slot_of(character, item)
+        slot = character.equipped_slot_of(item)
         if slot:
             EffectUtil.remove_item_effects(character, item)
-            ObjectUtils.unequip_item(character, slot)
-        ObjectUtils.remove_from_inventory(character, item)
+            character.unequip_item(slot)
+        character.remove_item(item)
         context.finish()
         return {"to_char": success_msg}
 
@@ -329,11 +329,11 @@ class ObjectCommands:
         if room is None:
             context.finish()
             return {"to_char": "They aren't here.\r\n"}
-        victim = room.find_character_in_room(character, rem.split()[0])
+        victim = room.find_character_in_room(rem.split()[0], Context.look_keyword_matches)
         if victim is None:
             context.finish()
             return {"to_char": "They aren't here.\r\n"}
-        item = ObjectUtils.find_inventory_item(character, arg1)
+        item = character.find_inventory_item(arg1)
         if item is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
@@ -341,12 +341,12 @@ class ObjectCommands:
             context.finish()
             return {"to_char": "You can't let go of it.\r\n"}
 
-        slot = ObjectUtils.equipped_slot_of(character, item)
+        slot = character.equipped_slot_of(item)
         if slot:
             EffectUtil.remove_item_effects(character, item)
-            ObjectUtils.unequip_item(character, slot)
-        ObjectUtils.remove_from_inventory(character, item)
-        ObjectUtils.add_to_inventory(victim, item)
+            character.unequip_item(slot)
+        character.remove_item(item)
+        victim.add_item(item)
         context.finish()
         return {
             "to_char": f"You give {ObjectUtils.short(item)} to {victim.name}.\r\n",
@@ -366,7 +366,7 @@ class ObjectCommands:
             payload = self._wear_all(character, room)
             context.finish()
             return payload
-        item = ObjectUtils.find_inventory_item(character, arg1)
+        item = character.find_inventory_item(arg1)
         if item is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
@@ -388,7 +388,7 @@ class ObjectCommands:
         if not arg1:
             context.finish()
             return {"to_char": empty_msg}
-        item = ObjectUtils.find_inventory_item(character, arg1)
+        item = character.find_inventory_item(arg1)
         if item is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
@@ -401,11 +401,11 @@ class ObjectCommands:
         if not arg1:
             context.finish()
             return {"to_char": "Remove what?\r\n"}
-        equipped = ObjectUtils.ensure_equipped(character)
+        equipped = character.ensure_equipped()
 
         # Match by slot name first, then item name.
         if hasattr(equipped, arg1):
-            item = ObjectUtils.unequip_item(character, arg1)
+            item = character.unequip_item(arg1)
             if item is None:
                 context.finish()
                 return {"to_char": "You aren't wearing that.\r\n"}
@@ -419,7 +419,7 @@ class ObjectCommands:
             name = (getattr(item, "name", "") or "").lower()
             if name == arg1 or name.startswith(arg1):
                 EffectUtil.remove_item_effects(character, item)
-                ObjectUtils.unequip_item(character, slot)
+                character.unequip_item(slot)
                 context.finish()
                 return {"to_char": f"You stop using {ObjectUtils.short(item)}.\r\n"}
         context.finish()
@@ -453,7 +453,7 @@ class ObjectCommands:
                                                to_char=f"You must be level {item_level} to use this object.\r\n",
                                                to_room=f"{character.name} tries to use {ObjectUtils.short(item)}, but is too inexperienced.\r\n")
 
-        equipped = ObjectUtils.ensure_equipped(character)
+        equipped = character.ensure_equipped()
         slot_groups = equipped.wear_slot_groups_for_item(item, self.wear_flags, preferred_slot=preferred_slot, forced_slot=forced_slot)
         if not slot_groups:
             return {"to_char": invalid_msg if replace else ""}
@@ -476,16 +476,17 @@ class ObjectCommands:
                 char_lines.append("Your hands are tied up with your weapon!\r\n")
                 return Equipped.build_wear_payload(character, room, "".join(char_lines), "".join(room_lines))
 
-        if selected_slot == "wielded" and not item.weapon_too_heavy(character):
+        if selected_slot == "wielded":
+            if item.weapon_too_heavy(character):
+                char_lines.append("It is too heavy for you to wield.\r\n")
+                return Equipped.build_wear_payload(character, room, "".join(char_lines), "".join(room_lines))
+
             shield = getattr(getattr(character, "equipped", None), "shield", None)
             if shield is not None and self._character_size(character) < self._large_size_value() and item.is_two_handed_weapon():
                 char_lines.append("You need two hands free for that weapon.\r\n")
                 return Equipped.build_wear_payload(character, room, "".join(char_lines), "".join(room_lines))
-        else:
-            char_lines.append("It is too heavy for you to wield.\r\n")
-            return Equipped.build_wear_payload(character, room, "".join(char_lines), "".join(room_lines))
 
-        ObjectUtils.equip_item(character, item, selected_slot)
+        character.equip_item(item, selected_slot)
         EffectUtil.apply_item_effects(character, item)
         equip_payload = equipped.slot_wear_payload(character, room, item, selected_slot)
         char_lines.append(equip_payload.get("to_char", ""))
@@ -504,7 +505,7 @@ class ObjectCommands:
     @staticmethod
     def _remove_worn_item(character: Character, slot: str, item) -> None:
         EffectUtil.remove_item_effects(character, item)
-        ObjectUtils.unequip_item(character, slot)
+        character.unequip_item(slot)
 
     def _character_size(self, character: Character) -> int:
         direct_size = GenericUtil.to_int(getattr(character, "size", None), None)
@@ -599,7 +600,7 @@ class ObjectCommands:
     def do_drink(self, character: Character, context: Context):
         arg1, _ = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
         room = self.room_registry.get_or_none(id=character.room_id)
-        item = ObjectUtils.find_inventory_item(character, arg1) if arg1 else None
+        item = character.find_inventory_item(arg1) if arg1 else None
         if item is None:
             item = ObjectUtils.find_room_item(room, arg1) if arg1 else None
         if item is None:
@@ -621,7 +622,7 @@ class ObjectCommands:
         if not arg1:
             context.finish()
             return {"to_char": "Eat what?\r\n"}
-        item = ObjectUtils.find_inventory_item(character, arg1)
+        item = character.find_inventory_item(arg1)
         if item is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
@@ -629,11 +630,11 @@ class ObjectCommands:
         if "FOOD" not in item_type and "PILL" not in item_type:
             context.finish()
             return {"to_char": "That's not edible.\r\n"}
-        slot = ObjectUtils.equipped_slot_of(character, item)
+        slot = character.equipped_slot_of(item)
         if slot:
             EffectUtil.remove_item_effects(character, item)
-            ObjectUtils.unequip_item(character, slot)
-        ObjectUtils.remove_from_inventory(character, item)
+            character.unequip_item(slot)
+        character.remove_item(item)
         context.finish()
         return {"to_char": "You eat it.\r\n"}
 
@@ -643,7 +644,7 @@ class ObjectCommands:
         if not arg1:
             context.finish()
             return {"to_char": "Fill what?\r\n"}
-        dest = ObjectUtils.find_inventory_item(character, arg1)
+        dest = character.find_inventory_item(arg1)
         if dest is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}

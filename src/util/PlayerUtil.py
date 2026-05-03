@@ -146,6 +146,9 @@ class PlayerUtil:
         if room is None:
             return None
 
+        if hasattr(room, "find_visible_target"):
+            return room.find_visible_target(character, victim, room_helper)
+
         if (victim or "").strip().lower() == "self":
             return character
 

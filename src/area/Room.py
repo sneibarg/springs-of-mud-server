@@ -14,6 +14,21 @@ from util.GenericUtil import GenericUtil
 
 @dataclass
 class Room:
+    DIRECTION_ALIASES = {
+        "n": 0,
+        "north": 0,
+        "e": 1,
+        "east": 1,
+        "s": 2,
+        "south": 2,
+        "w": 3,
+        "west": 3,
+        "u": 4,
+        "up": 4,
+        "d": 5,
+        "down": 5,
+    }
+
     id: str = ""
     area_id: str = ""
     vnum: str = ""
@@ -59,6 +74,37 @@ class Room:
     def get_formatted_exits(self):
         return AreaUtil.cardinal_direction(self)
 
+    @classmethod
+    def direction_index(cls, direction_name: str) -> int:
+        return cls.DIRECTION_ALIASES.get((direction_name or "").strip().lower(), -1)
+
+    def get_exit(self, direction: int):
+        for ex in self.exits:
+            if int(getattr(ex, "direction", -1)) == int(direction):
+                return ex
+        return None
+
+    def destination_id_for_direction(self, direction_name: str):
+        direction = self.direction_index(direction_name)
+        if direction < 0:
+            return None
+        exit_obj = self.get_exit(direction)
+        return None if exit_obj is None else getattr(exit_obj, "to_room_id", None)
+
+    def find_door(self, arg: str) -> int:
+        direction = self.direction_index(arg)
+        if direction >= 0:
+            return direction if self.get_exit(direction) is not None else -1
+
+        wanted = (arg or "").strip().lower()
+        if not wanted:
+            return -1
+        for ex in self.exits:
+            keyword = (getattr(ex, "keyword", "") or "").lower()
+            if wanted == keyword or wanted in keyword.split():
+                return int(getattr(ex, "direction", -1))
+        return -1
+
     def add_player_to_room(self, character: Character):
         with self.lock:
             self.characters[character.id] = character
@@ -74,7 +120,7 @@ class Room:
 
     def remove_mobile_from_room(self, mobile: Mobile):
         with self.lock:
-            if mobile.id not in self.mobiles:
+            if mobile.id in self.mobiles:
                 del self.mobiles[mobile.id]
 
     def add_item_to_room(self, item: Item):
@@ -127,6 +173,44 @@ class Room:
             if name_matches_fn(q, getattr(item, "name", "")):
                 return item
         return None
+
+    def find_visible_character(self, observer, wanted: str, room_helper):
+        from player.CharacterMacros import CharacterMacros
+
+        query = (wanted or "").strip().lower()
+        if not query:
+            return None
+
+        for char in self.characters.values():
+            if not CharacterMacros.can_see(observer, char, room_helper):
+                continue
+            if getattr(char, "room_id", None) != self.id:
+                continue
+            name = (getattr(char, "name", "") or "").strip().lower()
+            if name == query or name.startswith(query):
+                return char
+        return None
+
+    def find_visible_mobile(self, observer, wanted: str, room_helper):
+        from player.CharacterMacros import CharacterMacros
+        from util.InterpUtil import InterpUtil
+
+        mob = InterpUtil.find_nth_by_keyword(self.mobiles, wanted)
+        if mob is not None and CharacterMacros.can_see(observer, mob, room_helper):
+            return mob
+        return None
+
+    def find_visible_target(self, observer, wanted: str, room_helper):
+        query = (wanted or "").strip().lower()
+        if not query:
+            return None
+        if query == "self":
+            return observer
+
+        target = self.find_visible_character(observer, query, room_helper)
+        if target is not None:
+            return target
+        return self.find_visible_mobile(observer, query, room_helper)
 
     def is_room_private(self, room_flags) -> bool:
         private = GenericUtil.to_int(getattr(getattr(room_flags, "ROOM_PRIVATE", None), "value", 0), 0)

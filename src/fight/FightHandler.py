@@ -1003,7 +1003,7 @@ class FightHandler:
         remaining = []
         for item in list(getattr(corpse, "contains", []) or []):
             if ObjectUtils.item_takeable(item, wear_flags):
-                ObjectUtils.add_to_inventory(character, item)
+                character.add_item(item)
             else:
                 remaining.append(item)
         corpse.contains = remaining

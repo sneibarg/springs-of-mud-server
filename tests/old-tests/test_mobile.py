@@ -142,7 +142,7 @@ class TestMobileService(unittest.TestCase):
         self.mock_event_handler = Mock(spec=FightHandler)
 
         # Load real mobile data
-        json_path = os.path.join(os.path.dirname(__file__), '..', 'resources', 'collections', 'SOMDB.Mobiles.json')
+        json_path = os.path.join(os.path.dirname(__file__), '../..', 'resources', 'collections', 'SOMDB.Mobiles.json')
         with open(json_path, 'r') as f:
             self.mobile_json_data = json.load(f)
 

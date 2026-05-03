@@ -565,7 +565,7 @@ class UpdateHandler:
                 msg_off = self._lookup_effect_message(getattr(effect, "type", ""), "msg_off")
                 if msg_off:
                     await self.message_bus.send_to_character(entity.id, self.message_bus.text_to_message(f"{msg_off}\r\n"))
-            EffectUtil.affect_remove(entity, effect, self.enums)
+            EffectUtil.affect_remove(entity, effect)
 
     async def _tick_item_effects(self, item):
         effects = list(EffectUtil.ensure_effects(item))
@@ -590,7 +590,7 @@ class UpdateHandler:
                 msg_obj = self._lookup_effect_message(getattr(effect, "type", ""), "msg_obj")
                 if msg_obj:
                     await self._emit_obj_effect_message(item, msg_obj)
-            EffectUtil.affect_remove_obj(item, effect, self.enums)
+            EffectUtil.affect_remove_obj(item, effect)
 
     def _lookup_effect_message(self, effect_type, field_name: str) -> str:
         want = str(effect_type or "").strip().lower()

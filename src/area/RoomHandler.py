@@ -40,7 +40,7 @@ class RoomHandler:
 
     async def move_player(self, character: Character, direction: str):
         room = self.room_registry.get_or_none(id=character.room_id)
-        destination_id = AreaUtil.is_valid_direction(direction, room)
+        destination_id = room.destination_id_for_direction(direction) if room is not None and hasattr(room, "destination_id_for_direction") else AreaUtil.is_valid_direction(direction, room)
         destination_room = self.room_registry.get_or_none(id=destination_id)
         if room is not None and destination_room is not None:
             character.room_id = destination_id
@@ -98,25 +98,19 @@ class RoomHandler:
 
     async def look_direction(self, character: Character, context: Context):
         token = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip()
-        direction_map = {"n": 0, "north": 0, "e": 1, "east": 1, "s": 2, "south": 2, "w": 3, "west": 3, "u": 4, "up": 4, "d": 5, "down": 5}
-        door = direction_map.get((token or "").strip().lower())
-        if door is None:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You do not see that here.\r\n"))
-            context.finish()
-            return
-
         room = self.room_registry.get(id=character.room_id)
         if room is None:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("Nothing special there.\r\n"))
             context.finish()
             return
 
-        pexit = None
-        for ex in room.exits:
-            if ex.direction == door:
-                pexit = ex
-                break
+        door = room.direction_index(token) if hasattr(room, "direction_index") else -1
+        if door < 0:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You do not see that here.\r\n"))
+            context.finish()
+            return
 
+        pexit = room.get_exit(door) if hasattr(room, "get_exit") else AreaUtil.get_exit_by_direction(room, door)
         if pexit is None:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("Nothing special there.\r\n"))
             context.finish()

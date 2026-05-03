@@ -25,6 +25,8 @@ class MovementUtil:
     def find_exit(room, direction: int):
         if room is None:
             return None
+        if hasattr(room, "get_exit"):
+            return room.get_exit(direction)
         for ex in room.exits:
             if int(getattr(ex, "direction", -1)) == int(direction):
                 return ex
@@ -32,6 +34,8 @@ class MovementUtil:
 
     @staticmethod
     def find_door(room, arg: str) -> int:
+        if room is not None and hasattr(room, "find_door"):
+            return room.find_door(arg)
         direction = MovementUtil.direction_index(arg)
         if direction >= 0:
             return direction if MovementUtil.find_exit(room, direction) is not None else -1
@@ -47,6 +51,8 @@ class MovementUtil:
 
     @staticmethod
     def has_key(character, key: int) -> bool:
+        if hasattr(character, "has_key"):
+            return character.has_key(key)
         if key is None or GenericUtil.to_int(key, -1) < 0:
             return False
         wanted = str(key)

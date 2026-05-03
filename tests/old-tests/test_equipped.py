@@ -84,6 +84,35 @@ class TestEquipped(unittest.TestCase):
         self.assertEqual("", item.wear_location)
         self.assertEqual(-1, item.wear_loc)
 
+    def test_equip_item_uses_character_remove_item_hook_when_available(self):
+        item = SimpleNamespace(id="item1", name="sword")
+        removed = []
+        character = SimpleNamespace(
+            loot=[item],
+            equipped=Equipped(),
+            remove_item=lambda value: removed.append(value),
+        )
+
+        Equipped.equip_item(character, item, "wielded")
+
+        self.assertEqual([item], removed)
+        self.assertIs(character.equipped.wielded, item)
+
+    def test_unequip_item_uses_character_add_item_hook_when_available(self):
+        item = SimpleNamespace(id="item1", name="sword", wear_location="wielded", wear_loc=16)
+        added = []
+        character = SimpleNamespace(
+            loot=[],
+            equipped=Equipped(wielded=item),
+            add_item=lambda value: added.append(value),
+        )
+
+        returned = Equipped.unequip_item(character, "wielded")
+
+        self.assertIs(returned, item)
+        self.assertEqual([item], added)
+        self.assertIsNone(character.equipped.wielded)
+
     def test_wear_slot_groups_for_light_maps_hold_request_to_light_slot(self):
         item = SimpleNamespace(item_type="light", wear_flags=WearFlags.ITEM_HOLD.value, short_description="a lamp")
 

@@ -53,7 +53,7 @@ class MovementCommands:
         if in_room is None:
             context.finish()
             return {"to_char": "Alas, you cannot go that way.\r\n"}
-        pexit = MovementUtil.find_exit(in_room, door)
+        pexit = in_room.get_exit(door) if hasattr(in_room, "get_exit") else MovementUtil.find_exit(in_room, door)
         if pexit is None or not getattr(pexit, "to_room_vnum", None):
             context.finish()
             return {"to_char": "Alas, you cannot go that way.\r\n"}
@@ -152,12 +152,12 @@ class MovementCommands:
             return {"to_char": "Open what?\r\n"}
 
         room = self.room_registry.get_or_none(id=character.room_id)
-        door = MovementUtil.find_door(room, arg)
+        door = room.find_door(arg) if room is not None and hasattr(room, "find_door") else MovementUtil.find_door(room, arg)
         if door < 0:
             context.finish()
             return {"to_char": "I see no door here.\r\n"}
 
-        ex = MovementUtil.find_exit(room, door)
+        ex = room.get_exit(door) if room is not None and hasattr(room, "get_exit") else MovementUtil.find_exit(room, door)
         flags = GenericUtil.to_int(getattr(ex, "exit_flags", 0), 0)
         ex_closed = MovementUtil.get_exit_flag(self.exit_flags, "EX_CLOSED", "CLOSED")
         ex_locked = MovementUtil.get_exit_flag(self.exit_flags, "EX_LOCKED", "LOCKED")
@@ -182,12 +182,12 @@ class MovementCommands:
             return {"to_char": "Close what?\r\n"}
 
         room = self.room_registry.get_or_none(id=character.room_id)
-        door = MovementUtil.find_door(room, arg)
+        door = room.find_door(arg) if room is not None and hasattr(room, "find_door") else MovementUtil.find_door(room, arg)
         if door < 0:
             context.finish()
             return {"to_char": "I see no door here.\r\n"}
 
-        ex = MovementUtil.find_exit(room, door)
+        ex = room.get_exit(door) if room is not None and hasattr(room, "get_exit") else MovementUtil.find_exit(room, door)
         flags = GenericUtil.to_int(getattr(ex, "exit_flags", 0), 0)
         ex_closed = MovementUtil.get_exit_flag(self.exit_flags, "EX_CLOSED", "CLOSED")
         if ex_closed and (flags & ex_closed) != 0:
@@ -208,12 +208,12 @@ class MovementCommands:
             return {"to_char": "Lock what?\r\n"}
 
         room = self.room_registry.get_or_none(id=character.room_id)
-        door = MovementUtil.find_door(room, arg)
+        door = room.find_door(arg) if room is not None and hasattr(room, "find_door") else MovementUtil.find_door(room, arg)
         if door < 0:
             context.finish()
             return {"to_char": "I see no door here.\r\n"}
 
-        ex = MovementUtil.find_exit(room, door)
+        ex = room.get_exit(door) if room is not None and hasattr(room, "get_exit") else MovementUtil.find_exit(room, door)
         flags = GenericUtil.to_int(getattr(ex, "exit_flags", 0), 0)
         ex_closed = MovementUtil.get_exit_flag(self.exit_flags, "EX_CLOSED", "CLOSED")
         ex_locked = MovementUtil.get_exit_flag(self.exit_flags, "EX_LOCKED", "LOCKED")
@@ -225,7 +225,7 @@ class MovementCommands:
         if key < 0:
             context.finish()
             return {"to_char": "It can't be locked.\r\n"}
-        if not MovementUtil.has_key(character, key):
+        if not ((character.has_key(key) if hasattr(character, "has_key") else MovementUtil.has_key(character, key))):
             context.finish()
             return {"to_char": "You lack the key.\r\n"}
         if ex_locked and (flags & ex_locked) != 0:
@@ -246,12 +246,12 @@ class MovementCommands:
             return {"to_char": "Unlock what?\r\n"}
 
         room = self.room_registry.get_or_none(id=character.room_id)
-        door = MovementUtil.find_door(room, arg)
+        door = room.find_door(arg) if room is not None and hasattr(room, "find_door") else MovementUtil.find_door(room, arg)
         if door < 0:
             context.finish()
             return {"to_char": "I see no door here.\r\n"}
 
-        ex = MovementUtil.find_exit(room, door)
+        ex = room.get_exit(door) if room is not None and hasattr(room, "get_exit") else MovementUtil.find_exit(room, door)
         flags = GenericUtil.to_int(getattr(ex, "exit_flags", 0), 0)
         ex_closed = MovementUtil.get_exit_flag(self.exit_flags, "EX_CLOSED", "CLOSED")
         ex_locked = MovementUtil.get_exit_flag(self.exit_flags, "EX_LOCKED", "LOCKED")
@@ -263,7 +263,7 @@ class MovementCommands:
         if key < 0:
             context.finish()
             return {"to_char": "It can't be unlocked.\r\n"}
-        if not MovementUtil.has_key(character, key):
+        if not ((character.has_key(key) if hasattr(character, "has_key") else MovementUtil.has_key(character, key))):
             context.finish()
             return {"to_char": "You lack the key.\r\n"}
         if ex_locked and (flags & ex_locked) == 0:
@@ -284,12 +284,12 @@ class MovementCommands:
             return {"to_char": "Pick what?\r\n"}
 
         room = self.room_registry.get_or_none(id=character.room_id)
-        door = MovementUtil.find_door(room, arg)
+        door = room.find_door(arg) if room is not None and hasattr(room, "find_door") else MovementUtil.find_door(room, arg)
         if door < 0:
             context.finish()
             return {"to_char": "I see no door here.\r\n"}
 
-        ex = MovementUtil.find_exit(room, door)
+        ex = room.get_exit(door) if room is not None and hasattr(room, "get_exit") else MovementUtil.find_exit(room, door)
         flags = GenericUtil.to_int(getattr(ex, "exit_flags", 0), 0)
         ex_closed = MovementUtil.get_exit_flag(self.exit_flags, "EX_CLOSED", "CLOSED")
         ex_locked = MovementUtil.get_exit_flag(self.exit_flags, "EX_LOCKED", "LOCKED")

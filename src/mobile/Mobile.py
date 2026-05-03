@@ -9,6 +9,7 @@ from game.StatusFlags import StatusFlags
 from mobile.MobileFlags import MobileFlags
 from player.CharacterAttributes import CharacterAttributes
 from server.LoggerFactory import LoggerFactory
+from util.GenericUtil import GenericUtil
 
 
 @dataclass
@@ -50,13 +51,13 @@ class Mobile:
     effects: list = field(default_factory=list)
     special_name: Optional[str] = None
     special_function: list[str] = field(default_factory=list)
-    lock: threading.Lock = field(default_factory=threading.Lock)
+    lock: threading.RLock = field(default_factory=threading.RLock)
 
     def __post_init__(self):
         from util.GenericUtil import GenericUtil
         self.instance_id = GenericUtil.generate_mongo_id()
         if self.lock is None:
-            self.lock = threading.Lock()
+            self.lock = threading.RLock()
         self.__name__ = "Mobile-" + str(self.instance_id)
         self.logger = LoggerFactory.get_logger(self.__name__)
 
@@ -67,6 +68,50 @@ class Mobile:
         if isinstance(other, Mobile):
             return self.id == other.id
         return False
+
+    def ensure_effects(self):
+        with self.lock:
+            if self.effects is None:
+                self.effects = []
+            return self.effects
+
+    def apply_effect(self, effect):
+        from util.EffectUtil import EffectUtil
+
+        with self.lock:
+            self.ensure_effects().append(effect)
+            EffectUtil.affect_modify(self, effect, True)
+        return effect
+
+    def remove_effect(self, effect) -> bool:
+        from util.EffectUtil import EffectUtil
+
+        with self.lock:
+            effects = self.ensure_effects()
+            if effect not in effects:
+                return False
+            where = getattr(effect, "where", 0)
+            vector = getattr(effect, "bitvector", 0)
+            EffectUtil.affect_modify(self, effect, False)
+            effects.remove(effect)
+            EffectUtil.affect_check(self, where, vector)
+        return True
+
+    def join_effect(self, effect):
+        from util.EffectUtil import EffectUtil
+
+        new_effect = EffectUtil.as_effect(effect)
+        matched = None
+        for old in list(self.ensure_effects()):
+            if str(getattr(old, "type", "")).strip().lower() == str(getattr(new_effect, "type", "")).strip().lower():
+                matched = old
+                break
+        if matched is not None:
+            new_effect.level = (GenericUtil.to_int(new_effect.level, 0) + GenericUtil.to_int(matched.level, 0)) // 2
+            new_effect.duration = GenericUtil.to_int(new_effect.duration, 0) + GenericUtil.to_int(matched.duration, 0)
+            new_effect.modifier = GenericUtil.to_int(new_effect.modifier, 0) + GenericUtil.to_int(matched.modifier, 0)
+            self.remove_effect(matched)
+        return self.apply_effect(new_effect)
 
     @classmethod
     def from_json(cls, data):

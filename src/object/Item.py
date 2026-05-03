@@ -56,7 +56,7 @@ class Item:
     def __post_init__(self):
         self.__name__ = "Item"
         self.logger = LoggerFactory.get_logger(self.__name__)
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()
 
     def __hash__(self):
         return hash(self.id)
@@ -73,9 +73,62 @@ class Item:
                 text = text + "\t" + item.name + "\r\n"
         return text
 
+    def short(self) -> str:
+        return self.short_description or self.name or "it"
+
+    def add_contained_item(self, item) -> None:
+        with self.lock:
+            if self.contains is None:
+                self.contains = []
+            self.contains.append(item)
+
+    def remove_contained_item(self, item) -> bool:
+        with self.lock:
+            contents = self.contains or []
+            try:
+                contents.remove(item)
+                return True
+            except ValueError:
+                return False
+
+    def find_contained_item(self, wanted: str):
+        q = (wanted or "").strip().lower()
+        if not q:
+            return None
+        for obj in list(self.contains or []):
+            name = (getattr(obj, "name", "") or "").lower()
+            if name == q or name.startswith(q):
+                return obj
+        return None
+
+    def ensure_effects(self):
+        with self.lock:
+            if self.effects is None:
+                self.effects = []
+            return self.effects
+
+    def apply_effect(self, effect):
+        from util.EffectUtil import EffectUtil
+
+        with self.lock:
+            self.ensure_effects().append(effect)
+            EffectUtil.affect_modify(self, effect, True)
+        return effect
+
+    def remove_effect(self, effect) -> bool:
+        from util.EffectUtil import EffectUtil
+
+        with self.lock:
+            effects = self.ensure_effects()
+            if effect not in effects:
+                return False
+            EffectUtil.affect_modify(self, effect, False)
+            effects.remove(effect)
+        return True
+
     def add_item_to_room(self, room: Room):
         with self.lock:
-            if self.room_data[room.id] is None:
+            if room.id not in self.room_data:
                 self.room_data[room.id] = room
 
     def remove_item_from_room(self, room: Room):

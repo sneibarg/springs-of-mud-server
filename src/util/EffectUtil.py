@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import ast
 import random
+
 from copy import deepcopy
 
 from game.GameMacros import GameMacros
@@ -72,6 +74,94 @@ class _EffectStatics:
                 entity.saving_throw = GenericUtil.to_int(getattr(entity, "saving_throw", 0), 0) + modifier
 
 
+class _SafeNumericExpression:
+    BIN_OPS = {
+        ast.Add: lambda a, b: a + b,
+        ast.Sub: lambda a, b: a - b,
+        ast.Mult: lambda a, b: a * b,
+        ast.Div: lambda a, b: a / b,
+        ast.FloorDiv: lambda a, b: a // b,
+        ast.Mod: lambda a, b: a % b,
+    }
+    UNARY_OPS = {
+        ast.UAdd: lambda value: +value,
+        ast.USub: lambda value: -value,
+        ast.Not: lambda value: not value,
+    }
+    COMPARE_OPS = {
+        ast.Eq: lambda a, b: a == b,
+        ast.NotEq: lambda a, b: a != b,
+        ast.Lt: lambda a, b: a < b,
+        ast.LtE: lambda a, b: a <= b,
+        ast.Gt: lambda a, b: a > b,
+        ast.GtE: lambda a, b: a >= b,
+    }
+    BOOL_OPS = {
+        ast.And: all,
+        ast.Or: any,
+    }
+
+    @classmethod
+    def evaluate(cls, expression: str, env: dict):
+        tree = ast.parse(str(expression), mode="eval")
+        return cls._eval_node(tree.body, env)
+
+    @classmethod
+    def _eval_node(cls, node, env: dict):
+        if isinstance(node, ast.Constant):
+            if isinstance(node.value, (int, float, bool)):
+                return node.value
+            raise ValueError(f"Unsupported constant: {node.value!r}")
+
+        if isinstance(node, ast.Name):
+            if node.id not in env:
+                raise ValueError(f"Unknown name: {node.id}")
+            return env[node.id]
+
+        if isinstance(node, ast.BinOp):
+            operator = cls.BIN_OPS.get(type(node.op))
+            if operator is None:
+                raise ValueError(f"Unsupported operator: {type(node.op).__name__}")
+            return operator(cls._eval_node(node.left, env), cls._eval_node(node.right, env))
+
+        if isinstance(node, ast.UnaryOp):
+            operator = cls.UNARY_OPS.get(type(node.op))
+            if operator is None:
+                raise ValueError(f"Unsupported unary operator: {type(node.op).__name__}")
+            return operator(cls._eval_node(node.operand, env))
+
+        if isinstance(node, ast.BoolOp):
+            operator = cls.BOOL_OPS.get(type(node.op))
+            if operator is None:
+                raise ValueError(f"Unsupported boolean operator: {type(node.op).__name__}")
+            return operator(bool(cls._eval_node(value, env)) for value in node.values)
+
+        if isinstance(node, ast.Compare):
+            left = cls._eval_node(node.left, env)
+            for operator_node, comparator_node in zip(node.ops, node.comparators):
+                operator = cls.COMPARE_OPS.get(type(operator_node))
+                if operator is None:
+                    raise ValueError(f"Unsupported comparison operator: {type(operator_node).__name__}")
+                right = cls._eval_node(comparator_node, env)
+                if not operator(left, right):
+                    return False
+                left = right
+            return True
+
+        if isinstance(node, ast.Call):
+            if not isinstance(node.func, ast.Name):
+                raise ValueError("Only direct function calls are allowed.")
+            func = env.get(node.func.id)
+            if not callable(func):
+                raise ValueError(f"Unsupported function: {node.func.id}")
+            if node.keywords:
+                raise ValueError("Keyword arguments are not allowed.")
+            args = [cls._eval_node(arg, env) for arg in node.args]
+            return func(*args)
+
+        raise ValueError(f"Unsupported expression node: {type(node).__name__}")
+
+
 class EffectUtil:
     @staticmethod
     def _expr_env(level: int, target=None, caster=None) -> dict:
@@ -110,6 +200,18 @@ class EffectUtil:
 
     @staticmethod
     def _eval_expr(value, level: int, default: int = 0, target=None, caster=None) -> int:
+        return EffectUtil.safe_eval_int(
+            value,
+            default=default,
+            level=level,
+            target=target,
+            victim=target,
+            caster=caster,
+            actor=caster,
+        )
+
+    @staticmethod
+    def safe_eval_int(value, default: int = 0, **env) -> int:
         if value is None:
             return default
         converted = GenericUtil.to_int(value, None)
@@ -119,7 +221,7 @@ class EffectUtil:
         if not expr:
             return default
         try:
-            return int(eval(expr, {"__builtins__": {}}, EffectUtil._expr_env(level, target=target, caster=caster)))
+            return int(_SafeNumericExpression.evaluate(expr, env={**EffectUtil._expr_env(GenericUtil.to_int(env.get("level", 0), 0), target=env.get("target"), caster=env.get("caster")), **env}))
         except Exception:
             return default
 
@@ -210,12 +312,18 @@ class EffectUtil:
     @staticmethod
     def affect_to_char(character, effect: Effect):
         new_effect = EffectUtil.as_effect(effect)
+        if hasattr(character, "apply_effect"):
+            character.apply_effect(new_effect)
+            return
         EffectUtil.ensure_effects(character).append(new_effect)
         EffectUtil.affect_modify(character, new_effect, True)
 
     @staticmethod
     def affect_to_obj(obj, effect: Effect):
         new_effect = EffectUtil.as_effect(effect)
+        if hasattr(obj, "apply_effect"):
+            obj.apply_effect(new_effect)
+            return
         EffectUtil.ensure_effects(obj).append(new_effect)
         EffectUtil.affect_modify(obj, new_effect, True)
 
@@ -232,6 +340,9 @@ class EffectUtil:
 
     @staticmethod
     def affect_remove(character, effect: Effect):
+        if hasattr(character, "remove_effect"):
+            character.remove_effect(effect)
+            return
         effects = EffectUtil.ensure_effects(character)
         if effect not in effects:
             return
@@ -243,6 +354,9 @@ class EffectUtil:
 
     @staticmethod
     def affect_remove_obj(obj, effect: Effect):
+        if hasattr(obj, "remove_effect"):
+            obj.remove_effect(effect)
+            return
         effects = EffectUtil.ensure_effects(obj)
         if effect not in effects:
             return
@@ -259,6 +373,9 @@ class EffectUtil:
 
     @staticmethod
     def affect_join(character, effect: Effect):
+        if hasattr(character, "join_effect"):
+            character.join_effect(effect)
+            return
         new_effect = EffectUtil.as_effect(effect)
         effects = EffectUtil.ensure_effects(character)
         for old in list(effects):

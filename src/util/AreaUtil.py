@@ -58,6 +58,10 @@ class AreaUtil:
 
     @staticmethod
     def is_valid_direction(direction, room):
+        if room is None:
+            return None
+        if hasattr(room, "destination_id_for_direction"):
+            return room.destination_id_for_direction(direction)
         for destination in room.exits:
             if destination.direction == DirectionEnum[direction.upper()].value:
                 return destination.to_room_id
@@ -65,6 +69,10 @@ class AreaUtil:
 
     @staticmethod
     def get_exit_by_direction(room, direction: int):
+        if room is None:
+            return None
+        if hasattr(room, "get_exit"):
+            return room.get_exit(direction)
         for exit_obj in room.exits:
             if int(getattr(exit_obj, "direction", -1)) == int(direction):
                 return exit_obj

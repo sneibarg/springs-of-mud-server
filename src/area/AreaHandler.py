@@ -220,7 +220,7 @@ class AreaHandler:
         room = self.room_registry.get_or_none(vnum=room_vnum)
         if room is None:
             return last
-        exit_obj = AreaUtil.get_exit_by_direction(room, direction)
+        exit_obj = room.get_exit(direction) if hasattr(room, "get_exit") else AreaUtil.get_exit_by_direction(room, direction)
         if exit_obj is None:
             return last
         AreaUtil.apply_door_reset(exit_obj, lock_state, self.ExitFlags)
