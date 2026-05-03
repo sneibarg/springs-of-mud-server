@@ -13,31 +13,6 @@
       "createdAt": "2026-02-02T00:00:00Z",
       "notes": "Baseline ruleset snapshot for Springs of MUD"
     },
-    "constants": {
-      "max": {
-        "skills": 150,
-        "groups": 30,
-        "inGroup": 15,
-        "socials": 256,
-        "classes": 4,
-        "pcRaces": 5,
-        "clans": 3,
-        "levels": 60,
-        "wearSlots": 19,
-        "idleTime": 300,
-        "alias": 5,
-        "damageMessage": 41,
-        "level": 60
-      },
-      "pulses": {
-        "perSecond": 4,
-        "violence": 12,
-        "mobile": 16,
-        "music": 24,
-        "tick": 240,
-        "area": 480
-      }
-    },
     "enums": {
       "flagLetters": {
           "A": 1,
@@ -133,6 +108,8 @@
         "MAX_PC_RACE": 5,
         "MAX_CLAN": 3,
         "MAX_DAMAGE_MESSAGE": 41,
+        "MAX_IDLE": 300,
+        "MAX_WEAR_SLOTS": 19,
         "MAX_LEVEL": 60,
         "LEVEL_HERO": 51,
         "LEVEL_IMMORTAL": 55,
@@ -162,24 +139,6 @@
         "SKY_CLOUDY": 1,
         "SKY_RAINING": 2,
         "SKY_LIGHTNING": 3
-      },
-      "connectedState": {
-        "CON_PLAYING": 0,
-        "CON_GET_NAME": 1,
-        "CON_GET_OLD_PASSWORD": 2,
-        "CON_CONFIRM_NEW_NAME": 3,
-        "CON_GET_NEW_PASSWORD": 4,
-        "CON_CONFIRM_NEW_PASSWORD": 5,
-        "CON_GET_NEW_RACE": 6,
-        "CON_GET_NEW_SEX": 7,
-        "CON_GET_NEW_CLASS": 8,
-        "CON_GET_ALIGNMENT": 9,
-        "CON_DEFAULT_CHOICE": 10,
-        "CON_GEN_GROUPS": 11,
-        "CON_PICK_WEAPON": 12,
-        "CON_READ_IMOTD": 13,
-        "CON_READ_MOTD": 14,
-        "CON_BREAK_CONNECT": 15
       },
       "toType": {
         "TO_ROOM": 0,
@@ -211,16 +170,6 @@
         "TO_RESIST": 3,
         "TO_VULN": 4,
         "TO_WEAPON": 5
-      },
-      "mobVnums": {
-        "MOB_VNUM_FIDO": 3090,
-        "MOB_VNUM_CITYGUARD": 3060,
-        "MOB_VNUM_VAMPIRE": 3404,
-        "MOB_VNUM_PATROLMAN": 2106
-      },
-      "mobGroupVnums": {
-        "GROUP_VNUM_TROLLS": 2100,
-        "GROUP_VNUM_OGRES": 2101
       },
       "damageTypes": {
         "DAM_NONE": 0,
@@ -479,6 +428,27 @@
         "OBJ_VNUM_MAP": 3162,
         "OBJ_VNUM_WHISTLE": 2116
       },
+      "wellKnownRoomVnums": {
+        "ROOM_VNUM_LIMBO": 2,
+        "ROOM_VNUM_CHAT": 1200,
+        "ROOM_VNUM_TEMPLE": 3001,
+        "ROOM_VNUM_ALTAR": 3054,
+        "ROOM_VNUM_SCHOOL": 3700,
+        "ROOM_VNUM_BALANCE": 4500,
+        "ROOM_VNUM_CIRCLE": 4400,
+        "ROOM_VNUM_DEMISE": 4201,
+        "ROOM_VNUM_HONOR": 4300
+      },
+      "mobVnums": {
+        "MOB_VNUM_FIDO": 3090,
+        "MOB_VNUM_CITYGUARD": 3060,
+        "MOB_VNUM_VAMPIRE": 3404,
+        "MOB_VNUM_PATROLMAN": 2106
+      },
+      "mobGroupVnums": {
+        "GROUP_VNUM_TROLLS": 2100,
+        "GROUP_VNUM_OGRES": 2101
+      },
       "itemTypes": {
         "ITEM_LIGHT": 1,
         "ITEM_SCROLL": 2,
@@ -636,17 +606,6 @@
         "CONT_CLOSED": 4,
         "CONT_LOCKED": 8,
         "CONT_PUT_ON": 16
-      },
-      "wellKnownRoomVnums": {
-        "ROOM_VNUM_LIMBO": 2,
-        "ROOM_VNUM_CHAT": 1200,
-        "ROOM_VNUM_TEMPLE": 3001,
-        "ROOM_VNUM_ALTAR": 3054,
-        "ROOM_VNUM_SCHOOL": 3700,
-        "ROOM_VNUM_BALANCE": 4500,
-        "ROOM_VNUM_CIRCLE": 4400,
-        "ROOM_VNUM_DEMISE": 4201,
-        "ROOM_VNUM_HONOR": 4300
       },
       "roomFlags": {
         "ROOM_DARK": 1,
@@ -826,240 +785,6 @@
       "attackType": {
         "TYPE_UNDEFINED": -1,
         "TYPE_HIT": 1000
-      }
-    },
-    "flags": {
-      "mobAct": {
-        "SENTINEL": 1,
-        "SCAVENGER": 2,
-        "AGGRESSIVE": 4,
-        "STAY_AREA": 8,
-        "WIMPY": 16,
-        "PET": 32,
-        "TRAIN": 64,
-        "PRACTICE": 128,
-        "UNDEAD": 256,
-        "CLERIC": 512,
-        "MAGE": 1024,
-        "THIEF": 2048,
-        "WARRIOR": 4096,
-        "NOALIGN": 8192,
-        "NOPURGE": 16384,
-        "OUTDOORS": 32768,
-        "INDOORS": 65536,
-        "IS_HEALER": 131072,
-        "GAIN": 262144,
-        "UPDATE_ALWAYS": 524288,
-        "IS_CHANGER": 1048576
-      },
-      "offense": {
-        "AREA_ATTACK": 1,
-        "BACKSTAB": 2,
-        "BASH": 4,
-        "BERSERK": 8,
-        "DISARM": 16,
-        "DODGE": 32,
-        "FADE": 64,
-        "FAST": 128,
-        "KICK": 256,
-        "KICK_DIRT": 512,
-        "PARRY": 1024,
-        "RESCUE": 2048,
-        "TAIL": 4096,
-        "TRIP": 8192,
-        "CRUSH": 16384,
-        "ASSIST_ALL": 32768,
-        "ASSIST_ALIGN": 65536,
-        "ASSIST_RACE": 131072,
-        "ASSIST_PLAYERS": 262144,
-        "ASSIST_GUARD": 524288,
-        "ASSIST_VNUM": 1048576
-      },
-      "affect": {
-        "BLIND": 1,
-        "INVISIBLE": 2,
-        "DETECT_EVIL": 4,
-        "DETECT_INVIS": 8,
-        "DETECT_MAGIC": 16,
-        "DETECT_HIDDEN": 32,
-        "DETECT_GOOD": 64,
-        "SANCTUARY": 128,
-        "FAERIE_FIRE": 256,
-        "INFRARED": 512,
-        "CURSE": 1024,
-        "POISON": 2048,
-        "PROTECT_EVIL": 4096,
-        "PROTECT_GOOD": 8192,
-        "SNEAK": 16384,
-        "HIDE": 32768,
-        "SLEEP": 65536,
-        "CHARM": 131072,
-        "FLYING": 262144,
-        "PASS_DOOR": 524288,
-        "HASTE": 1048576,
-        "CALM": 2097152,
-        "PLAGUE": 4194304,
-        "WEAKEN": 8388608,
-        "DARK_VISION": 16777216,
-        "BERSERK": 33554432,
-        "SWIM": 67108864,
-        "REGENERATION": 134217728,
-        "SLOW": 268435456
-      },
-      "room": {
-        "DARK": 1,
-        "NO_MOB": 2,
-        "INDOORS": 4,
-        "PRIVATE": 8,
-        "SAFE": 16,
-        "SOLITARY": 32,
-        "PET_SHOP": 64,
-        "NO_RECALL": 128,
-        "IMP_ONLY": 256,
-        "GODS_ONLY": 512,
-        "HEROES_ONLY": 1024,
-        "NEWBIES_ONLY": 2048,
-        "LAW": 4096,
-        "NOWHERE": 8192
-      },
-      "exit": {
-        "IS_DOOR": 1,
-        "CLOSED": 2,
-        "LOCKED": 4,
-        "PICKPROOF": 8,
-        "NO_PASS": 16,
-        "EASY": 32,
-        "HARD": 64,
-        "INFURIATING": 128,
-        "NO_CLOSE": 256,
-        "NO_LOCK": 512
-      },
-      "itemExtra": {
-        "GLOW": 1,
-        "HUM": 2,
-        "DARK": 4,
-        "LOCK": 8,
-        "EVIL": 16,
-        "INVIS": 32,
-        "MAGIC": 64,
-        "NODROP": 128,
-        "BLESS": 256,
-        "ANTI_GOOD": 512,
-        "ANTI_EVIL": 1024,
-        "ANTI_NEUTRAL": 2048,
-        "NOREMOVE": 4096,
-        "INVENTORY": 8192,
-        "NOPURGE": 16384,
-        "ROT_DEATH": 32768,
-        "VIS_DEATH": 65536,
-        "NONMETAL": 131072,
-        "NOLOCATE": 262144,
-        "MELT_DROP": 524288,
-        "HAD_TIMER": 1048576,
-        "SELL_EXTRACT": 2097152,
-        "BURN_PROOF": 4194304,
-        "NOUNCURSE": 8388608
-      },
-      "wear": {
-        "TAKE": 1,
-        "WEAR_FINGER": 2,
-        "WEAR_NECK": 4,
-        "WEAR_BODY": 8,
-        "WEAR_HEAD": 16,
-        "WEAR_LEGS": 32,
-        "WEAR_FEET": 64,
-        "WEAR_HANDS": 128,
-        "WEAR_ARMS": 256,
-        "WEAR_SHIELD": 512,
-        "WEAR_ABOUT": 1024,
-        "WEAR_WAIST": 2048,
-        "WEAR_WRIST": 4096,
-        "WIELD": 8192,
-        "HOLD": 16384,
-        "NO_SAC": 32768,
-        "WEAR_FLOAT": 65536
-      },
-      "weapon": {
-        "FLAMING": 1,
-        "FROST": 2,
-        "VAMPIRIC": 4,
-        "SHARP": 8,
-        "VORPAL": 16,
-        "TWO_HANDS": 32,
-        "SHOCKING": 64,
-        "POISON": 128
-      },
-      "container": {
-        "CLOSEABLE": 1,
-        "PICKPROOF": 2,
-        "CLOSED": 4,
-        "LOCKED": 8,
-        "PUT_ON": 16
-      },
-      "player": {
-        "AUTOASSIST": 1,
-        "AUTOEXIT": 2,
-        "AUTOLOOT": 4,
-        "AUTOSAC": 8,
-        "AUTOGOLD": 16,
-        "AUTOSPLIT": 32,
-        "HOLYLIGHT": 64,
-        "CANLOOT": 128,
-        "NOSUMMON": 256,
-        "NOFOLLOW": 512,
-        "PERMIT": 1024,
-        "LOG": 2048,
-        "DENY": 4096,
-        "FREEZE": 8192,
-        "THIEF": 16384,
-        "KILLER": 32768
-      },
-      "comm": {
-        "QUIET": 1,
-        "DEAF": 2,
-        "NOWIZ": 4,
-        "NOAUCTION": 8,
-        "NOGOSSIP": 16,
-        "NOQUESTION": 32,
-        "NOMUSIC": 64,
-        "NOCLAN": 128,
-        "NOQUOTE": 256,
-        "SHOUTSOFF": 512,
-        "COMPACT": 1024,
-        "BRIEF": 2048,
-        "PROMPT": 4096,
-        "COMBINE": 8192,
-        "TELNET_GA": 16384,
-        "SHOW_AFFECTS": 32768,
-        "NOGRATS": 65536,
-        "NOEMOTE": 131072,
-        "NOSHOUT": 262144,
-        "NOTELL": 524288,
-        "NOCHANNELS": 1048576,
-        "SNOOP_PROOF": 2097152,
-        "AFK": 4194304
-      },
-      "wiznet": {
-        "ON": 1,
-        "TICKS": 2,
-        "LOGINS": 4,
-        "SITES": 8,
-        "LINKS": 16,
-        "DEATHS": 32,
-        "RESETS": 64,
-        "MOBDEATHS": 128,
-        "FLAGS": 256,
-        "PENALTIES": 512,
-        "SACCING": 1024,
-        "LEVELS": 2048,
-        "SECURE": 4096,
-        "SWITCHES": 8192,
-        "SNOOPS": 16384,
-        "RESTORE": 32768,
-        "LOAD": 65536,
-        "NEWBIE": 131072,
-        "PREFIX": 262144,
-        "SPAM": 524288
       }
     },
     "attributeBonuses": {
@@ -2816,29 +2541,6 @@
           0,
           2
         ]
-      }
-    },
-    "wellKnownVnums": {
-      "mob": {
-        "FIDO": 3090,
-        "CITYGUARD": 3060,
-        "VAMPIRE": 3404,
-        "PATROLMAN": 2106
-      },
-      "obj": {
-        "SILVER_ONE": 1,
-        "GOLD_ONE": 2,
-        "CORPSE_NPC": 10,
-        "CORPSE_PC": 11
-      },
-      "room": {
-        "LIMBO": 2,
-        "TEMPLE": 3001,
-        "SCHOOL": 3700
-      },
-      "group": {
-        "TROLLS": 2100,
-        "OGRES": 2101
       }
     },
     "integrity": {

@@ -1,8 +1,6 @@
 from dataclasses import dataclass
-from enum import IntEnum
 
 from injector import inject
-from game.GameData import Constants
 from player.CharacterMacros import CharacterMacros
 from player.CharacterRegistry import CharacterRegistry
 from game.RandomNumberGenerator import RandomNumberGenerator
@@ -42,9 +40,8 @@ class WeatherHandler:
         self.session_handler = None
         self.TimeAndWeatherEnum = None
 
-    def lazy_load(self, constants: Constants):
+    def lazy_load(self):
         self.TimeAndWeatherEnum = CharacterMacros.get_enum('timeAndWeather')
-        self.constants = constants
         self.weather_info = WeatherInfo(mmhg=1000, change=0, sky=self.TimeAndWeatherEnum.SKY_CLOUDLESS, sunlight=self.TimeAndWeatherEnum.SUN_LIGHT)
         self.time_info = TimeInfo(hour=0, day=1, month=1, year=1)
         self.logger.info(f"WeatherHandler online.")

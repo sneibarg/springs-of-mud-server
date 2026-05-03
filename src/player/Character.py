@@ -7,7 +7,6 @@ from typing import Dict, List, Optional, Any, TYPE_CHECKING
 from interp.PromptFormat import PromptFormat
 from game.StatusFlags import StatusFlags
 from object.Item import Item
-from player import ArmorClass
 from player.CharacterClass import CharacterClass
 from player.ArmorClass import ArmorClass
 from player.CharacterFlags import CharacterFlags

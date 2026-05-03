@@ -39,7 +39,7 @@ class MobileService:
         return self._fetch_and_register(url, f"social '{mobile_name}'")
 
     def _fetch_and_register(self, url: str, description: str) -> Optional[Mobile]:
-        npc_flag = MobileUtil.resolve_npc_flag(self.game_data)
+        npc_flag = self.game_data.enums.get("actBits").get("ACT_IS_NPC")
         try:
             response = requests.get(url, timeout=10)
             response.raise_for_status()

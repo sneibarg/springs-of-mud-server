@@ -32,9 +32,9 @@ class GameService:
     async def _game_loop_iteration(self):
         self.last_time = gettimeofday()
         current_time = self.last_time.tv_sec
-        self.logger.debug(f"Current time: {current_time}; Pulses per second: {self.game_data.constants.pulses['perSecond']}")
+        self.logger.debug(f"Current time: {current_time}; Pulses per second: {self.enums['gameParameters']['PULSE_PER_SECOND']}")
         await self.update_handler.handle_updates()
-        stall_until_last_time(self.last_time, self.game_data.enums['gameParameters']['PULSE_PER_SECOND'])
+        stall_until_last_time(self.last_time, self.enums['gameParameters']['PULSE_PER_SECOND'])
 
     def _load_game_data(self):
         try:

@@ -132,7 +132,7 @@ class TestGameService(unittest.IsolatedAsyncioTestCase):
 
         self.assertIsInstance(service.game_data, GameData)
         self.assertEqual(service.game_data.id, "test-game")
-        self.assertEqual(service.game_data.constants.pulses["perSecond"], 4)
+        self.assertEqual(service.game_data.enums['gameParameters']['PULSE_PER_SECOND'], 4)
         self.assertIn("mage", service.game_data.titles)
         self.assertIn("container", service.game_data.item_table)
 
@@ -319,7 +319,7 @@ class TestGameService(unittest.IsolatedAsyncioTestCase):
 
         service = GameService(self.mock_service_config)
 
-        self.assertEqual(service.game_data.constants.pulses["perSecond"], 8)
+        self.assertEqual(service.game_data.enums['gameParameters']['PULSE_PER_SECOND'], 8)
 
 
 if __name__ == "__main__":

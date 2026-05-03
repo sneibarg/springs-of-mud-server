@@ -29,9 +29,9 @@ class TestWeatherService(unittest.TestCase):
 
         self.mock_game_data = Mock()
         self.mock_game_data.constants = Mock()
-        self.mock_game_data.constants.pulses = {
-            'perSecond': 4,
-            'tick': 240
+        self.mock_game_data.enums['gameParameters'] = {
+            'PULSE_PER_SECOND': 4,
+            'PULSE_TICK': 240
         }
 
         self.weather_service = WeatherService(

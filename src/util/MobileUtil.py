@@ -138,17 +138,6 @@ class MobileUtil:
         kill_table[level_bucket] = kill_table.get(level_bucket, 0) + 1
 
     @staticmethod
-    def resolve_npc_flag(game_data) -> int:
-        for domain in ("act", "mob", "mobile", "mob_act"):
-            for flag_name in ("ACT_IS_NPC", "IS_NPC"):
-                try:
-                    return game_data.flag_value(domain, flag_name)
-                except KeyError:
-                    pass
-        logger.warning("ACT_IS_NPC not found in GameData; defaulting to 1.")
-        return 1
-
-    @staticmethod
     def resolve_race_name(races, explicit_race, player_name: str) -> str:
         candidates = []
         if explicit_race is not None:

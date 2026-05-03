@@ -1,4 +1,4 @@
-from .GameData import GameData, Version, Constants, Integrity, BuildInfo
+from .GameData import GameData, Version, Integrity, BuildInfo
 from .GameService import GameService
 
-__all__ = ['GameData', 'GameService', 'Version', 'Constants', 'Integrity', 'BuildInfo']
+__all__ = ['GameData', 'GameService', 'Version', 'Integrity', 'BuildInfo']

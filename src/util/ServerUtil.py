@@ -69,9 +69,9 @@ class ServerUtil:
         ServerUtil._bind_game_data(injector)
         ServerUtil._bind_game_services(injector, service_config)
 
+        enums = injector.get(GameService).enums
         injector.binder.bind(ConnectionHandler, scope=singleton)
-        injector.binder.bind(SessionHandler, to=SessionHandler(injector.get(GameData).constants.max['idleTime']),
-                             scope=singleton)
+        injector.binder.bind(SessionHandler, to=SessionHandler(enums.get("gameParameters")["MAX_IDLE"]), scope=singleton)
 
         return injector
 
@@ -203,10 +203,10 @@ class ServerUtil:
         command_helper.lazy_load()
         object_commands.lazy_load()
         communications_commands.lazy_load()
-        update_handler.set_enums(injector.get(GameService).enums)
-        area_handler.set_enums(injector.get(GameService).enums)
+        update_handler.set_enums(enums)
+        area_handler.set_enums(enums)
         area_handler.initialize_world()
-        weather_handler.lazy_load(injector.get(GameData).constants)
+        weather_handler.lazy_load()
         room_helper.lazy_load(weather_handler)
         game_service.set_update_handler(injector.get(UpdateHandler))
 
