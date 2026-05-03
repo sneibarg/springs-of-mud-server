@@ -250,3 +250,92 @@ class TestUpdateAutosave(unittest.IsolatedAsyncioTestCase):
             await handler.char_update()
 
         handler.character_service.save_character.assert_called_once_with(due_character)
+
+    async def test_char_update_applies_rom_condition_tick_and_messages(self):
+        class Positions(IntEnum):
+            POS_STUNNED = 4
+
+        registry_service = Mock()
+        character = Character.from_json(build_character_data("char_001"))
+        character.status_flags.drunk = 1
+        character.status_flags.thirst = 1
+        character.status_flags.hunger = 1
+        registry_service.character_registry.all_characters.return_value = [character]
+        registry_service.room_registry.all_rooms.return_value = []
+        registry_service.skill_registry = Mock()
+        registry_service.spell_registry = Mock()
+        registry_service.combat_registry = Mock()
+
+        message_bus = Mock()
+        message_bus.text_to_message.side_effect = lambda text: text
+        message_bus.send_to_character = AsyncMock()
+        session_handler = Mock()
+        session_handler.get_playing_sessions.return_value = []
+
+        handler = UpdateHandler(
+            player_helper=Mock(),
+            weather_handler=Mock(),
+            area_handler=Mock(),
+            mobile_handler=Mock(),
+            fight_handler=Mock(),
+            message_bus=message_bus,
+            registry_service=registry_service,
+            character_service=Mock(),
+            session_handler=session_handler,
+        )
+        handler.PositionsEnum = Positions
+
+        with patch("game.UpdateHandler.CharacterMacros.is_immortal", return_value=False):
+            await handler.char_update()
+
+        self.assertEqual(0, character.status_flags.drunk)
+        self.assertEqual(0, character.status_flags.thirst)
+        self.assertEqual(0, character.status_flags.hunger)
+        self.assertEqual(
+            [
+                ("char_001", "You are sober.\r\n"),
+                ("char_001", "You are thirsty.\r\n"),
+                ("char_001", "You are hungry.\r\n"),
+            ],
+            [call.args for call in message_bus.send_to_character.await_args_list],
+        )
+
+    async def test_char_update_uses_faster_hunger_tick_for_large_races(self):
+        class Positions(IntEnum):
+            POS_STUNNED = 4
+            POS_STANDING = 8
+
+        registry_service = Mock()
+        character = Character.from_json(build_character_data("large_char"))
+        character.character_race.size = "SIZE_LARGE"
+        character.status_flags.hunger = 2
+        registry_service.character_registry.all_characters.return_value = [character]
+        registry_service.room_registry.all_rooms.return_value = []
+        registry_service.skill_registry = Mock()
+        registry_service.spell_registry = Mock()
+        registry_service.combat_registry = Mock()
+
+        message_bus = Mock()
+        message_bus.text_to_message.side_effect = lambda text: text
+        message_bus.send_to_character = AsyncMock()
+        session_handler = Mock()
+        session_handler.get_playing_sessions.return_value = []
+
+        handler = UpdateHandler(
+            player_helper=Mock(),
+            weather_handler=Mock(),
+            area_handler=Mock(),
+            mobile_handler=Mock(),
+            fight_handler=Mock(),
+            message_bus=message_bus,
+            registry_service=registry_service,
+            character_service=Mock(),
+            session_handler=session_handler,
+        )
+        handler.PositionsEnum = Positions
+
+        with patch("game.UpdateHandler.CharacterMacros.is_immortal", return_value=False):
+            await handler.char_update()
+
+        self.assertEqual(0, character.status_flags.hunger)
+        message_bus.send_to_character.assert_awaited_once_with("large_char", "You are hungry.\r\n")

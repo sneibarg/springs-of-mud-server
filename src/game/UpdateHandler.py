@@ -108,7 +108,7 @@ class UpdateHandler:
         for room in self.room_registry.all_rooms():
             if room is None:
                 continue
-            for attacker in self._entities_in_room(room):
+            for attacker in room.people():
                 defender = getattr(attacker, "fighting", None)
                 if defender is None:
                     continue
@@ -117,7 +117,7 @@ class UpdateHandler:
                 if not attacker_id or not defender_id:
                     self.fight_handler.stop_fighting(attacker, both=False)
                     continue
-                if self._find_entity_in_room(room, defender_id) is None:
+                if room.find_entity_in_room(defender_id) is None:
                     self.fight_handler.stop_fighting(attacker, both=False)
                     continue
                 key = (attacker_id, defender_id, str(room.id))
@@ -139,7 +139,7 @@ class UpdateHandler:
         decorated_events = []
         for index, event in enumerate(events):
             room = self.room_registry.get_or_none(id=event.room_id)
-            attacker = self._find_entity_in_room(room, event.attacker_id) if room is not None else None
+            attacker = room.find_entity_in_room(event.attacker_id) if room is not None else None
             decorated_events.append((0 if (attacker is not None and CharacterMacros.is_npc(attacker)) else 1, index, event))
 
         for _, _, event in sorted(decorated_events, key=lambda item: (item[0], item[1])):
@@ -148,8 +148,8 @@ class UpdateHandler:
                 self.combat_registry.remove_by_id(event.id)
                 continue
 
-            attacker = self._find_entity_in_room(room, event.attacker_id)
-            defender = self._find_entity_in_room(room, event.defender_id)
+            attacker = room.find_entity_in_room(event.attacker_id)
+            defender = room.find_entity_in_room(event.defender_id)
             if attacker is None or defender is None:
                 self.combat_registry.remove_by_id(event.id)
                 continue
@@ -159,7 +159,7 @@ class UpdateHandler:
                 continue
 
             # ROM fight.c parity: if awake and in same room then multi_hit(), else stop_fighting().
-            if self._find_entity_in_room(room, event.defender_id) is None:
+            if room.find_entity_in_room(event.defender_id) is None:
                 self.fight_handler.stop_fighting(attacker, both=False)
                 continue
 
@@ -209,24 +209,6 @@ class UpdateHandler:
             if room is not None and area is not None:
                 await self.message_bus.send_prompt(character, area, room)
 
-    @staticmethod
-    def _entities_in_room(room) -> list:
-        entities = []
-        entities.extend(list(room.characters.values()))
-        entities.extend(list(room.mobiles.values()))
-        return entities
-
-    @staticmethod
-    def _find_entity_in_room(room, entity_id: str):
-        wanted = str(entity_id or "")
-        if not wanted:
-            return None
-        if wanted in room.characters:
-            return room.characters[wanted]
-        if wanted in room.mobiles:
-            return room.mobiles[wanted]
-        return None
-
     async def char_update(self):
         if self.PositionsEnum is None:
             return
@@ -234,6 +216,7 @@ class UpdateHandler:
         self._advance_save_counter()
         pos_stunned = self.PositionsEnum.POS_STUNNED.value
         for ch in self.character_registry.all_characters():
+            await self._tick_conditions(ch)
             attrs = getattr(ch, "character_attributes", None)
             if attrs is None:
                 continue
@@ -308,6 +291,70 @@ class UpdateHandler:
         if self.save_cycle <= 0:
             return 0
         return sum(str(character_id).encode("utf-8")) % self.save_cycle
+
+    async def _tick_conditions(self, entity) -> None:
+        if not isinstance(entity, Character):
+            return
+        if CharacterMacros.is_npc(entity) or CharacterMacros.is_immortal(entity):
+            return
+
+        await self._gain_condition(entity, "drunk", -1)
+        await self._gain_condition(entity, "thirst", -1)
+        await self._gain_condition(entity, "hunger", -2 if self._is_large_race(entity) else -1)
+
+    async def _gain_condition(self, character: Character, condition_name: str, value: int) -> None:
+        if value == 0:
+            return
+
+        status_flags = getattr(character, "status_flags", None)
+        if status_flags is None or not hasattr(status_flags, condition_name):
+            return
+
+        current = GenericUtil.to_int(getattr(status_flags, condition_name, -1), -1)
+        if current == -1:
+            return
+
+        updated = max(0, min(48, current + value))
+        setattr(status_flags, condition_name, updated)
+        if updated != 0:
+            return
+
+        message = None
+        if condition_name == "hunger":
+            message = "You are hungry.\r\n"
+        elif condition_name == "thirst":
+            message = "You are thirsty.\r\n"
+        elif condition_name == "drunk" and current != 0:
+            message = "You are sober.\r\n"
+
+        if message:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message))
+
+    def _is_large_race(self, character: Character) -> bool:
+        race = getattr(character, "character_race", None)
+        raw_size = getattr(race, "size", getattr(character, "size", None))
+        if raw_size is None:
+            return False
+
+        try:
+            size_enum = CharacterMacros.get_enum("size")
+        except RuntimeError:
+            size_enum = None
+
+        if isinstance(raw_size, str):
+            normalized = raw_size.strip().upper()
+            if size_enum is not None and hasattr(size_enum, normalized):
+                raw_size = getattr(size_enum, normalized).value
+            else:
+                return normalized in {"SIZE_LARGE", "SIZE_HUGE", "SIZE_GIANT"}
+
+        size_value = GenericUtil.to_int(raw_size, None)
+        if size_value is None:
+            return False
+
+        if size_enum is not None and hasattr(size_enum, "SIZE_MEDIUM"):
+            return size_value > int(size_enum.SIZE_MEDIUM.value)
+        return size_value >= 3
 
     @staticmethod
     def _tick_regen(entity):

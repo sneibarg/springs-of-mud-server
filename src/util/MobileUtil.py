@@ -100,6 +100,9 @@ class MobileUtil:
             vuln=raw_vuln | race_vuln,
             form=raw_form | race_form,
             parts=raw_parts | race_parts,
+            hunger=48,
+            thirst=48,
+            drunk=0,
             invis_level=0,
             incog_level=0,
             played=0,
@@ -376,23 +379,7 @@ class MobileUtil:
 
             mob.armor_class = pMobIndex.armor_class
             if pMobIndex.status_flags is not None:
-                mob.status_flags = StatusFlags(
-                    act=pMobIndex.status_flags.act,
-                    comm=pMobIndex.status_flags.comm,
-                    affected_by=pMobIndex.status_flags.affected_by,
-                    off=pMobIndex.status_flags.off,
-                    imm=pMobIndex.status_flags.imm,
-                    res=pMobIndex.status_flags.res,
-                    vuln=pMobIndex.status_flags.vuln,
-                    form=pMobIndex.status_flags.form,
-                    parts=pMobIndex.status_flags.parts,
-                    invis_level=pMobIndex.status_flags.invis_level,
-                    incog_level=pMobIndex.status_flags.incog_level,
-                    played=pMobIndex.status_flags.played,
-                    logon=pMobIndex.status_flags.logon,
-                    pulse_wait=pMobIndex.status_flags.pulse_wait,
-                    pulse_daze=pMobIndex.status_flags.pulse_daze
-                )
+                mob.status_flags = StatusFlags.from_template(pMobIndex.status_flags)
             mob.start_pos = pMobIndex.start_pos
             mob.default_pos = pMobIndex.default_pos
             mob.perm_stat.position = mob.start_pos

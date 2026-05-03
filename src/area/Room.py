@@ -111,6 +111,16 @@ class Room:
                 return ch
         return None
 
+    def find_entity_in_room(self, entity_id: str):
+        wanted = str(entity_id or "")
+        if not wanted:
+            return None
+        if wanted in self.characters:
+            return self.characters[wanted]
+        if wanted in self.mobiles:
+            return self.mobiles[wanted]
+        return None
+
     def find_item_in_room(self, arg: str, name_matches_fn):
         q = (arg or "").strip().lower()
         for item in self.contents.values():

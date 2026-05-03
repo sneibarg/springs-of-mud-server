@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
-from object import Item
+from object.Item import Item
 
 WEAR_LOC_TO_EQUIPPED_SLOT = {
     0: "light",
