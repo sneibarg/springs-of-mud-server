@@ -6,7 +6,6 @@ from typing import Dict, List, Optional, Any, TYPE_CHECKING
 
 from interp.PromptFormat import PromptFormat
 from game.StatusFlags import StatusFlags
-from object.Item import Item
 from player.CharacterClass import CharacterClass
 from player.ArmorClass import ArmorClass
 from player.CharacterFlags import CharacterFlags
@@ -16,7 +15,7 @@ from server.LoggerFactory import LoggerFactory
 
 if TYPE_CHECKING:
     from game.Equipped import Equipped
-
+    from object.Item import Item
 
 @dataclass
 class Character:
@@ -75,6 +74,7 @@ class Character:
         return False
 
     def load_inventory(self):
+        from object.Item import Item
         with self.lock:
             for item in self.inventory:
                 self.loot.append(Item.from_json(item))
@@ -129,6 +129,7 @@ class Character:
     def from_json(cls, data):
         from util.GenericUtil import GenericUtil
         from game.Equipped import Equipped
+        from object.Item import Item
         payload = GenericUtil.camel_to_snake_case(data)
         prompt_format = payload.get('prompt_format')
         character_class = payload.get('character_class')

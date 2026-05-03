@@ -71,7 +71,7 @@ class StatusFlags:
             value = BitField.coerce(value)
             if getattr(self, "_initialized", False) and not getattr(self, "_bitfield_write_enabled", False):
                 raise AttributeError(f"{name} must be modified through StatusFlags bitfield helpers")
-        super().__setattr__(name, value)
+        object.__setattr__(self, name, value)
 
     def assign_bitfield(self, name: str, value) -> None:
         if name not in self.BITFIELD_FIELDS:
@@ -127,12 +127,20 @@ class StatusFlags:
 
         payload = GenericUtil.camel_to_snake_case(data or {})
         defaults = cls.default()
+        constructor_fields = {
+            field_name: field_def
+            for field_name, field_def in cls.__dataclass_fields__.items()
+            if field_def.init and not field_name.startswith("_")
+        }
         base = {
             field_name: getattr(defaults, field_name)
-            for field_name in cls.__dataclass_fields__
-            if not field_name.startswith("_")
+            for field_name in constructor_fields
         }
-        base.update(payload)
+        base.update({
+            field_name: value
+            for field_name, value in payload.items()
+            if field_name in constructor_fields
+        })
         return cls(**base)
 
     @classmethod

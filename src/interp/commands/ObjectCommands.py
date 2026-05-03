@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from injector import inject
 
+from game.Equipped import Equipped
 from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
@@ -31,6 +32,8 @@ class ObjectCommands:
         self.item_types = CharacterMacros.get_enum("itemTypes")
         self.item_flags = CharacterMacros.get_enum("itemFlags")
         self.wear_flags = CharacterMacros.get_enum("wearFlags")
+        if self.item_types is None or self.item_flags is None or self.wear_flags is None:
+            raise ValueError("Failed to load item types, flags, or wear flags")
 
     def execute(self, character: Character, context: Context):
         name = (getattr(context.command, "name", "") or "").strip().lower()
@@ -71,7 +74,6 @@ class ObjectCommands:
             context.finish()
             return {"to_char": "You are nowhere.\r\n"}
 
-        target_item = None
         container = None
         if rem:
             container = ObjectUtils.find_container(character, room, rem.split()[0])
@@ -253,7 +255,7 @@ class ObjectCommands:
         }
 
     def _melts_on_drop(self, item) -> bool:
-        if self.item_flags is None or not hasattr(self.item_flags, "ITEM_MELT_DROP"):
+        if not hasattr(self.item_flags, "ITEM_MELT_DROP"):
             return False
         return ObjectUtils.has_flag(getattr(item, "extra_flags", 0), self.item_flags.ITEM_MELT_DROP.value)
 
@@ -442,181 +444,67 @@ class ObjectCommands:
             result["targets"] = self.player_helper.players_in_room(character, room)
         return result
 
-    def _wear_item(
-        self,
-        character: Character,
-        item,
-        room,
-        *,
-        replace: bool,
-        preferred_slot: str = "",
-        forced_slot: str = "",
-        invalid_msg: str = "You can't wear, wield, or hold that.\r\n",
-    ) -> dict:
+    def _wear_item(self, character: Character, item, room, *, replace: bool, preferred_slot: str = "",
+                   forced_slot: str = "", invalid_msg: str = "You can't wear, wield, or hold that.\r\n") -> dict:
         level = GenericUtil.to_int(getattr(character, "level", 0), 0)
         item_level = GenericUtil.to_int(getattr(item, "level", 0), 0)
         if level < item_level:
-            return self._build_wear_payload(
-                character,
-                room,
-                to_char=f"You must be level {item_level} to use this object.\r\n",
-                to_room=f"{character.name} tries to use {ObjectUtils.short(item)}, but is too inexperienced.\r\n",
-            )
+            return Equipped.build_wear_payload(character, room,
+                                               to_char=f"You must be level {item_level} to use this object.\r\n",
+                                               to_room=f"{character.name} tries to use {ObjectUtils.short(item)}, but is too inexperienced.\r\n")
 
-        slot_groups = self._wear_slot_groups_for_item(item, preferred_slot=preferred_slot, forced_slot=forced_slot)
+        equipped = ObjectUtils.ensure_equipped(character)
+        slot_groups = equipped.wear_slot_groups_for_item(item, self.wear_flags, preferred_slot=preferred_slot, forced_slot=forced_slot)
         if not slot_groups:
             return {"to_char": invalid_msg if replace else ""}
 
         char_lines = []
         room_lines = []
         slots = slot_groups[0]
-        selected_slot, removed_payload = self._resolve_wear_slot(character, slots, replace)
+        selected_slot, removed_payload = equipped.resolve_wear_slot(character, slots, replace, can_remove_item=self._can_remove_worn_item, remove_item=self._remove_worn_item)
         if removed_payload:
             if removed_payload.get("to_char"):
                 char_lines.append(removed_payload["to_char"])
             if removed_payload.get("to_room"):
                 room_lines.append(removed_payload["to_room"])
         if selected_slot is None:
-            return self._build_wear_payload(character, room, "".join(char_lines), "".join(room_lines) if room_lines else "")
+            return Equipped.build_wear_payload(character, room, "".join(char_lines), "".join(room_lines) if room_lines else "")
 
         if selected_slot == "shield":
             weapon = getattr(getattr(character, "equipped", None), "wielded", None)
-            if weapon is not None and self._character_size(character) < self._large_size_value() and self._is_two_handed_weapon(weapon):
+            if weapon is not None and self._character_size(character) < self._large_size_value() and item.is_two_handed_weapon():
                 char_lines.append("Your hands are tied up with your weapon!\r\n")
-                return self._build_wear_payload(character, room, "".join(char_lines), "".join(room_lines))
+                return Equipped.build_wear_payload(character, room, "".join(char_lines), "".join(room_lines))
 
-        if selected_slot == "wielded":
-            if self._weapon_too_heavy(character, item):
-                char_lines.append("It is too heavy for you to wield.\r\n")
-                return self._build_wear_payload(character, room, "".join(char_lines), "".join(room_lines))
+        if selected_slot == "wielded" and not item.weapon_too_heavy(character):
             shield = getattr(getattr(character, "equipped", None), "shield", None)
-            if shield is not None and self._character_size(character) < self._large_size_value() and self._is_two_handed_weapon(item):
+            if shield is not None and self._character_size(character) < self._large_size_value() and item.is_two_handed_weapon():
                 char_lines.append("You need two hands free for that weapon.\r\n")
-                return self._build_wear_payload(character, room, "".join(char_lines), "".join(room_lines))
+                return Equipped.build_wear_payload(character, room, "".join(char_lines), "".join(room_lines))
+        else:
+            char_lines.append("It is too heavy for you to wield.\r\n")
+            return Equipped.build_wear_payload(character, room, "".join(char_lines), "".join(room_lines))
 
         ObjectUtils.equip_item(character, item, selected_slot)
         EffectUtil.apply_item_effects(character, item)
-        equip_payload = self._slot_wear_payload(character, room, item, selected_slot)
+        equip_payload = equipped.slot_wear_payload(character, room, item, selected_slot)
         char_lines.append(equip_payload.get("to_char", ""))
         room_lines.append(equip_payload.get("to_room", ""))
         if selected_slot == "wielded":
             skill_feedback = self._weapon_skill_feedback(character, item)
             if skill_feedback:
                 char_lines.append(skill_feedback)
-        return self._build_wear_payload(character, room, "".join(char_lines), "".join(room_lines))
+        return Equipped.build_wear_payload(character, room, "".join(char_lines), "".join(room_lines))
 
-    def _resolve_wear_slot(self, character: Character, slots: tuple[str, ...], replace: bool) -> tuple[str | None, dict]:
-        equipped = ObjectUtils.ensure_equipped(character)
-        for slot in slots:
-            if getattr(equipped, slot, None) is None:
-                return slot, {}
+    def _can_remove_worn_item(self, item) -> bool:
+        if not hasattr(self.item_flags, "ITEM_NOREMOVE"):
+            return True
+        return not ObjectUtils.has_flag(getattr(item, "extra_flags", 0), self.item_flags.ITEM_NOREMOVE.value)
 
-        combined_payload = {"to_char": "", "to_room": ""}
-        if not replace:
-            return None, combined_payload
-
-        for slot in slots:
-            removed, payload = self._remove_equipped_item(character, slot, replace=True)
-            combined_payload["to_char"] += payload.get("to_char", "")
-            combined_payload["to_room"] += payload.get("to_room", "")
-            if removed:
-                return slot, combined_payload
-
-        return None, combined_payload
-
-    def _remove_equipped_item(self, character: Character, slot: str, replace: bool) -> tuple[bool, dict]:
-        equipped = getattr(character, "equipped", None)
-        if equipped is None or not hasattr(equipped, slot):
-            return True, {"to_char": "", "to_room": ""}
-
-        item = getattr(equipped, slot)
-        if item is None:
-            return True, {"to_char": "", "to_room": ""}
-        if not replace:
-            return False, {"to_char": "", "to_room": ""}
-        if self.item_flags is not None and hasattr(self.item_flags, "ITEM_NOREMOVE"):
-            if ObjectUtils.has_flag(getattr(item, "extra_flags", 0), self.item_flags.ITEM_NOREMOVE.value):
-                return False, {"to_char": f"You can't remove {ObjectUtils.short(item)}.\r\n", "to_room": ""}
-
+    @staticmethod
+    def _remove_worn_item(character: Character, slot: str, item) -> None:
         EffectUtil.remove_item_effects(character, item)
         ObjectUtils.unequip_item(character, slot)
-        return True, {
-            "to_char": f"You stop using {ObjectUtils.short(item)}.\r\n",
-            "to_room": f"{character.name} stops using {ObjectUtils.short(item)}.\r\n",
-        }
-
-    def _wear_slot_groups_for_item(self, item, *, preferred_slot: str = "", forced_slot: str = "") -> list[tuple[str, ...]]:
-        equipped = ("light",) if self._is_light_item(item) else None
-        groups: list[tuple[str, ...]] = []
-        requested = (forced_slot or preferred_slot or "").strip().lower()
-
-        if equipped is not None:
-            groups.append(equipped)
-
-        flags = ObjectMacros.flags_to_int(getattr(item, "wear_flags", 0))
-        for flag_name, slots in ObjectUtils.WEAR_SLOT_ORDER.items():
-            if self.wear_flags is None or not hasattr(self.wear_flags, flag_name):
-                continue
-            if (flags & getattr(self.wear_flags, flag_name).value) == 0:
-                continue
-            groups.append(tuple(slots))
-
-        if not requested:
-            return groups
-
-        if requested in ("hold", "held") and self._is_light_item(item):
-            requested = "light"
-        slot_groups = [slots for slots in groups if requested in slots]
-        return slot_groups
-
-    @staticmethod
-    def _is_light_item(item) -> bool:
-        return str(getattr(item, "item_type", "") or "").strip().lower() == "light"
-
-    @staticmethod
-    def _build_wear_payload(character: Character, room, to_char: str, to_room: str = "") -> dict:
-        payload = {"to_char": to_char}
-        if room is not None and to_room:
-            payload["to_room"] = to_room
-            payload["targets"] = [target for target in room.characters.values() if getattr(target, "id", None) != getattr(character, "id", None)]
-        return payload
-
-    def _slot_wear_payload(self, character: Character, room, item, slot: str) -> dict:
-        short = ObjectUtils.short(item)
-        templates = {
-            "light": (f"You light {short} and hold it.\r\n", f"{character.name} lights {short} and holds it.\r\n"),
-            "finger1": (f"You wear {short} on your left finger.\r\n", f"{character.name} wears {short} on their left finger.\r\n"),
-            "finger2": (f"You wear {short} on your right finger.\r\n", f"{character.name} wears {short} on their right finger.\r\n"),
-            "neck1": (f"You wear {short} around your neck.\r\n", f"{character.name} wears {short} around their neck.\r\n"),
-            "neck2": (f"You wear {short} around your neck.\r\n", f"{character.name} wears {short} around their neck.\r\n"),
-            "torso": (f"You wear {short} on your torso.\r\n", f"{character.name} wears {short} on their torso.\r\n"),
-            "head": (f"You wear {short} on your head.\r\n", f"{character.name} wears {short} on their head.\r\n"),
-            "legs": (f"You wear {short} on your legs.\r\n", f"{character.name} wears {short} on their legs.\r\n"),
-            "feet": (f"You wear {short} on your feet.\r\n", f"{character.name} wears {short} on their feet.\r\n"),
-            "hands": (f"You wear {short} on your hands.\r\n", f"{character.name} wears {short} on their hands.\r\n"),
-            "arms": (f"You wear {short} on your arms.\r\n", f"{character.name} wears {short} on their arms.\r\n"),
-            "body": (f"You wear {short} about your torso.\r\n", f"{character.name} wears {short} about their torso.\r\n"),
-            "waist": (f"You wear {short} about your waist.\r\n", f"{character.name} wears {short} about their waist.\r\n"),
-            "wrist1": (f"You wear {short} around your left wrist.\r\n", f"{character.name} wears {short} around their left wrist.\r\n"),
-            "wrist2": (f"You wear {short} around your right wrist.\r\n", f"{character.name} wears {short} around their right wrist.\r\n"),
-            "shield": (f"You wear {short} as a shield.\r\n", f"{character.name} wears {short} as a shield.\r\n"),
-            "wielded": (f"You wield {short}.\r\n", f"{character.name} wields {short}.\r\n"),
-            "held": (f"You hold {short} in your hand.\r\n", f"{character.name} holds {short} in their hand.\r\n"),
-            "floating_nearby": (f"You release {short} and it floats next to you.\r\n", f"{character.name} releases {short} and it floats next to them.\r\n"),
-        }
-        to_char, to_room = templates.get(slot, (f"You wear {short}.\r\n", f"{character.name} wears {short}.\r\n"))
-        return self._build_wear_payload(character, room, to_char, to_room)
-
-    def _weapon_too_heavy(self, character: Character, item) -> bool:
-        if CharacterMacros.is_npc(character):
-            return False
-        strength = max(0, GenericUtil.to_int(getattr(getattr(character, "character_attributes", None), "strength", 0), 0))
-        try:
-            strength_bonus = CharacterMacros._attribute_bonus_map().get("strength", {})
-        except RuntimeError:
-            strength_bonus = {}
-        wield_limit = GenericUtil.to_int(strength_bonus.get(str(strength), {}).get("wield", 0), 0) * 10
-        return wield_limit > 0 and GenericUtil.to_int(getattr(item, "weight", 0), 0) > wield_limit
 
     def _character_size(self, character: Character) -> int:
         direct_size = GenericUtil.to_int(getattr(character, "size", None), None)
@@ -649,16 +537,6 @@ class ObjectCommands:
         if size_enum is not None and hasattr(size_enum, "SIZE_LARGE"):
             return int(size_enum.SIZE_LARGE.value)
         return 3
-
-    @staticmethod
-    def _is_two_handed_weapon(item) -> bool:
-        try:
-            weapon_flags = CharacterMacros.get_enum("weaponType")
-        except RuntimeError:
-            weapon_flags = None
-        if weapon_flags is None or not hasattr(weapon_flags, "WEAPON_TWO_HANDS"):
-            return False
-        return ObjectUtils.has_flag(getattr(item, "value4", 0), weapon_flags.WEAPON_TWO_HANDS.value)
 
     @staticmethod
     def _weapon_skill_feedback(character: Character, item) -> str:

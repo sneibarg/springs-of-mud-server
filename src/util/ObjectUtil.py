@@ -1,30 +1,13 @@
 from __future__ import annotations
 
-from game.Equipped import Equipped, WEAR_LOC_TO_EQUIPPED_SLOT
+from game.Equipped import Equipped, WEAR_SLOT_ORDER
 from game.GameMacros import GameMacros
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
 
 
 class ObjectUtils:
-    EQUIPPED_SLOT_TO_WEAR_LOC = {slot: wear_loc for wear_loc, slot in WEAR_LOC_TO_EQUIPPED_SLOT.items()}
-    WEAR_SLOT_ORDER = {
-        "ITEM_WEAR_FINGER": ("finger1", "finger2"),
-        "ITEM_WEAR_NECK": ("neck1", "neck2"),
-        "ITEM_WEAR_BODY": ("torso",),
-        "ITEM_WEAR_HEAD": ("head",),
-        "ITEM_WEAR_LEGS": ("legs",),
-        "ITEM_WEAR_FEET": ("feet",),
-        "ITEM_WEAR_HANDS": ("hands",),
-        "ITEM_WEAR_ARMS": ("arms",),
-        "ITEM_WEAR_SHIELD": ("shield",),
-        "ITEM_WEAR_ABOUT": ("body",),
-        "ITEM_WEAR_WAIST": ("waist",),
-        "ITEM_WEAR_WRIST": ("wrist1", "wrist2"),
-        "ITEM_WIELD": ("wielded",),
-        "ITEM_HOLD": ("held",),
-        "ITEM_WEAR_FLOAT": ("floating_nearby",),
-    }
+    WEAR_SLOT_ORDER = WEAR_SLOT_ORDER
 
     @staticmethod
     def parse_raw_arguments(raw_result, parameters) -> tuple[str, str]:
@@ -43,9 +26,7 @@ class ObjectUtils:
 
     @staticmethod
     def ensure_equipped(character):
-        if getattr(character, "equipped", None) is None:
-            character.equipped = Equipped()
-        return character.equipped
+        return Equipped.ensure_on(character)
 
     @staticmethod
     def find_inventory_item(character, wanted: str):
@@ -104,25 +85,11 @@ class ObjectUtils:
 
     @staticmethod
     def equip_item(character, item, slot_name: str):
-        equipped = ObjectUtils.ensure_equipped(character)
-        ObjectUtils.remove_from_inventory(character, item)
-        setattr(equipped, slot_name, item)
-        setattr(item, "wear_location", slot_name)
-        setattr(item, "wear_loc", ObjectUtils.EQUIPPED_SLOT_TO_WEAR_LOC.get(slot_name, -1))
-        return slot_name
+        return Equipped.equip_item(character, item, slot_name)
 
     @staticmethod
     def unequip_item(character, slot_name: str):
-        equipped = getattr(character, "equipped", None)
-        if equipped is None or not hasattr(equipped, slot_name):
-            return None
-        item = getattr(equipped, slot_name)
-        setattr(equipped, slot_name, None)
-        if item is not None:
-            setattr(item, "wear_location", "")
-            setattr(item, "wear_loc", -1)
-            ObjectUtils.add_to_inventory(character, item)
-        return item
+        return Equipped.unequip_item(character, slot_name)
 
     @staticmethod
     def find_wear_slot(character, item, wear_flags_enum, forced: str = ""):

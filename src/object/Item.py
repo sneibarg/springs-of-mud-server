@@ -8,7 +8,11 @@ from typing import Optional, List, TYPE_CHECKING
 
 from object.ExtraDescriptionData import ExtraDescriptionData
 from object.Effect import Effect
+from player.Character import Character
+from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
+from util.GenericUtil import GenericUtil
+from util.ObjectUtil import ObjectUtils
 
 if TYPE_CHECKING:
     from area.Room import Room
@@ -108,5 +112,22 @@ class Item:
 
         return None
 
+    def weapon_too_heavy(self, character: Character) -> bool:
+        if CharacterMacros.is_npc(character):
+            return False
+        strength = max(0, GenericUtil.to_int(getattr(getattr(character, "character_attributes", None), "strength", 0), 0))
+        try:
+            strength_bonus = CharacterMacros.get_attribute_bonus("strength", str(character.level))
+        except RuntimeError:
+            strength_bonus = {}
+        wield_limit = GenericUtil.to_int(strength_bonus.get(str(strength), {}).get("wield", 0), 0) * 10
+        return 0 < wield_limit < GenericUtil.to_int(getattr(self, "weight", 0), 0)
 
-
+    def is_two_handed_weapon(self) -> bool:
+        try:
+            weapon_flags = CharacterMacros.get_enum("weaponType")
+        except RuntimeError:
+            return False
+        if not hasattr(weapon_flags, "WEAPON_TWO_HANDS"):
+            return False
+        return ObjectUtils.has_flag(getattr(self, "value4", 0), weapon_flags.WEAPON_TWO_HANDS.value)
