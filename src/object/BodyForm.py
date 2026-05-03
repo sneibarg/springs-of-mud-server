@@ -1,30 +1,64 @@
+from __future__ import annotations
+
 from enum import IntEnum
 
+from game.GameData import GameData
 
-class BodyForm(IntEnum):
-    FORM_EDIBLE = 1 << 0
-    FORM_POISON = 1 << 1
-    FORM_MAGICAL = 1 << 2
-    FORM_INSTANT_DECAY = 1 << 3
-    FORM_OTHER = 1 << 4
-    FORM_ANIMAL = 1 << 6
-    FORM_SENTIENT = 1 << 7
-    FORM_UNDEAD = 1 << 8
-    FORM_CONSTRUCT = 1 << 9
-    FORM_MIST = 1 << 10
-    FORM_INTANGIBLE = 1 << 11
-    FORM_BIPED = 1 << 12
-    FORM_CENTAUR = 1 << 13
-    FORM_INSECT = 1 << 14
-    FORM_SPIDER = 1 << 15
-    FORM_CRUSTACEAN = 1 << 16
-    FORM_WORM = 1 << 17
-    FORM_BLOB = 1 << 18
-    FORM_MAMMAL = 1 << 21
-    FORM_BIRD = 1 << 22
-    FORM_REPTILE = 1 << 23
-    FORM_SNAKE = 1 << 24
-    FORM_DRAGON = 1 << 25
-    FORM_AMPHIBIAN = 1 << 26
-    FORM_FISH = 1 << 27
-    FORM_COLD_BLOOD = 1 << 28
+
+class BodyForm:
+    _enum: type[IntEnum] | None = None
+
+    def __new__(cls, *args, **kwargs):
+        raise RuntimeError("BodyForm may not be instantiated.")
+
+    @classmethod
+    def configure(cls, game_data: GameData) -> None:
+        member_map = dict(getattr(game_data, "enums", {}).get("bodyForm", {}))
+        if not member_map:
+            raise RuntimeError("GameData is missing bodyForm enum definitions.")
+
+        cls.reset_for_tests()
+        cls._enum = IntEnum("BodyForm", {str(name).strip().upper(): int(value) for name, value in member_map.items()})
+        for name, member in cls._enum.__members__.items():
+            setattr(cls, name, member)
+
+    @classmethod
+    def reset_for_tests(cls) -> None:
+        for name in list(vars(cls).keys()):
+            if name.startswith("FORM_"):
+                delattr(cls, name)
+        cls._enum = None
+
+    @classmethod
+    def _require_configured(cls) -> type[IntEnum]:
+        if cls._enum is None:
+            raise RuntimeError("BodyForm has not been configured.")
+        return cls._enum
+
+    @classmethod
+    def members(cls) -> dict[str, IntEnum]:
+        return dict(cls._require_configured().__members__)
+
+    @classmethod
+    def value(cls, name: str) -> int:
+        enum_type = cls._require_configured()
+        return int(enum_type[str(name).strip().upper()].value)
+
+    @classmethod
+    def mask(cls, *names: str) -> int:
+        total = 0
+        for name in names:
+            total |= cls.value(name)
+        return total
+
+    @classmethod
+    def has(cls, flags: int, bit) -> bool:
+        raw_bit = getattr(bit, "value", bit)
+        return (int(flags) & int(raw_bit)) != 0
+
+    @classmethod
+    def default_player_form(cls) -> int:
+        return cls.mask("FORM_EDIBLE", "FORM_SENTIENT", "FORM_BIPED", "FORM_MAMMAL")
+
+
+__all__ = ["BodyForm"]

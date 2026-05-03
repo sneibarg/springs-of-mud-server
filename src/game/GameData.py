@@ -52,6 +52,7 @@ class GameData:
         )
 
 
+
 @dataclass(frozen=True)
 class Version:
     family: str

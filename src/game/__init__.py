@@ -1,4 +1,10 @@
 from .GameData import GameData, Version, Integrity, BuildInfo
-from .GameService import GameService
 
 __all__ = ['GameData', 'GameService', 'Version', 'Integrity', 'BuildInfo']
+
+
+def __getattr__(name):
+    if name == "GameService":
+        from .GameService import GameService
+        return GameService
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

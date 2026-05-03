@@ -101,7 +101,8 @@ class Room:
             return chars + mobs
 
     def player_targets(self, character: Character) -> List[Character]:
-        return [ch for ch in self.characters.values() if ch.id != character.id]
+        with self.lock:
+            return [ch for ch in self.characters.values() if ch.id != character.id]
 
     def find_character_in_room(self, arg: str, name_matches_fn):
         q = (arg or "").strip().lower()

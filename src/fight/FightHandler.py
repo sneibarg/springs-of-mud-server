@@ -372,45 +372,15 @@ class FightHandler:
             return
 
         parts = self._entity_parts(victim)
-        roll = random.randint(0, 15)
-        body_part_vnum = None
-
-        if roll == 2 and CharacterMacros.is_set(parts, int(BodyParts.PART_GUTS.value)):
-            body_part_vnum = getattr(self.WellKnownObjectVnums, "OBJ_VNUM_GUTS", None)
-        elif roll == 3 and CharacterMacros.is_set(parts, int(BodyParts.PART_HEAD.value)):
-            body_part_vnum = getattr(self.WellKnownObjectVnums, "OBJ_VNUM_SEVERED_HEAD", None)
-        elif roll == 4 and CharacterMacros.is_set(parts, int(BodyParts.PART_HEART.value)):
-            body_part_vnum = getattr(self.WellKnownObjectVnums, "OBJ_VNUM_TORN_HEART", None)
-        elif roll == 5 and CharacterMacros.is_set(parts, int(BodyParts.PART_ARMS.value)):
-            body_part_vnum = getattr(self.WellKnownObjectVnums, "OBJ_VNUM_SLICED_ARM", None)
-        elif roll == 6 and CharacterMacros.is_set(parts, int(BodyParts.PART_LEGS.value)):
-            body_part_vnum = getattr(self.WellKnownObjectVnums, "OBJ_VNUM_SLICED_LEG", None)
-        elif roll == 7 and CharacterMacros.is_set(parts, int(BodyParts.PART_BRAINS.value)):
-            body_part_vnum = getattr(self.WellKnownObjectVnums, "OBJ_VNUM_BRAINS", None)
-
-        if body_part_vnum is None:
-            return
-
-        proto = self.item_registry.get_or_none(vnum=str(int(body_part_vnum.value)))
-        if proto is None:
-            return
-
-        part_item = ItemUtil.create_object(proto)
-        part_item.timer = random.randint(4, 7)
-
-        victim_name = self._corpse_name(victim)
-        part_item.short_description = self._format_template(getattr(part_item, "short_description", ""), victim_name)
-        part_item.long_description = self._format_template(getattr(part_item, "long_description", ""), victim_name)
-
-        item_type = str(getattr(part_item, "item_type", "") or "").lower()
         form = self._entity_form(victim)
-        if "food" in item_type:
-            if CharacterMacros.is_set(form, int(BodyForm.FORM_POISON.value)):
-                part_item.value3 = "1"
-            elif not CharacterMacros.is_set(form, int(BodyForm.FORM_EDIBLE.value)):
-                part_item.item_type = "trash"
-
-        room.add_item_to_room(part_item)
+        BodyParts.maybe_create_death_cry_part(
+            victim,
+            room,
+            self.item_registry,
+            self.WellKnownObjectVnums,
+            form_flags=form,
+            parts_flags=parts,
+        )
 
     def make_corpse(self, victim, room) -> None:
         if victim is None or room is None:
@@ -851,12 +821,7 @@ class FightHandler:
                 form = getattr(entity, "form", 0)
             return GenericUtil.to_int(form, 0)
 
-        return int(
-            BodyForm.FORM_EDIBLE
-            | BodyForm.FORM_SENTIENT
-            | BodyForm.FORM_BIPED
-            | BodyForm.FORM_MAMMAL
-        )
+        return int(BodyForm.default_player_form())
 
     def _entity_parts(self, entity) -> int:
         if CharacterMacros.is_npc(entity):
@@ -865,19 +830,7 @@ class FightHandler:
                 parts = getattr(entity, "parts", 0)
             return GenericUtil.to_int(parts, 0)
 
-        return int(
-            BodyParts.PART_HEAD
-            | BodyParts.PART_ARMS
-            | BodyParts.PART_LEGS
-            | BodyParts.PART_HEART
-            | BodyParts.PART_BRAINS
-            | BodyParts.PART_GUTS
-            | BodyParts.PART_HANDS
-            | BodyParts.PART_FEET
-            | BodyParts.PART_FINGERS
-            | BodyParts.PART_EAR
-            | BodyParts.PART_EYE
-        )
+        return int(BodyParts.default_player_parts())
 
     def _extract_owned_items(self, entity) -> list:
         items: list = []

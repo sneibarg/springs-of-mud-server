@@ -20,6 +20,8 @@ from interp.SocialHandler import SocialHandler
 from interp.SocialService import SocialService
 from mobile.MobileHelper import MobileHelper
 from object.ItemHandler import ItemHandler
+from object.BodyForm import BodyForm
+from object.BodyParts import BodyParts
 from mobile.MobileHandler import MobileHandler
 from player.PlayerHandler import PlayerHandler
 from game.GameData import GameData
@@ -144,6 +146,8 @@ class ServerUtil:
     @staticmethod
     def _bind_game_data(injector):
         injector.binder.bind(GameData, to=injector.get(GameService).game_data, scope=singleton)
+        BodyForm.configure(injector.get(GameData))
+        BodyParts.configure(injector.get(GameData))
         ObjectMacros.configure(
             races_provider=lambda: injector.get(GameData).races,
             item_table_provider=lambda: injector.get(GameData).item_table,
