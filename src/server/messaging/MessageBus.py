@@ -3,7 +3,6 @@ from injector import inject
 
 from area.Area import Area
 from area.Room import Room
-from game.GameMacros import GameMacros
 from util.GenericUtil import GenericUtil
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
@@ -83,7 +82,7 @@ class MessageBus:
         if session and session.metadata.get("paging_active", False):
             return True
 
-        comm_raw = GameMacros.letters_to_flags(getattr(getattr(character, "status_flags", None), "comm", ""))
+        comm_raw = GenericUtil.to_int(getattr(getattr(character, "status_flags", None), "comm", 0), 0)
         if comm_raw > 0 and (comm_raw & 8192) == 0:  # COMM_PROMPT
             return True
 

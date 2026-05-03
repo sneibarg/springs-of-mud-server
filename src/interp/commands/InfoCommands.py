@@ -195,8 +195,7 @@ class InfoCommands:
 
         if arg1 == "" or arg1 == "auto":
             await context.room_handler().print_room(character.id, room)
-            if CharacterMacros.is_set(int(CharacterMacros.convert_flags(character.status_flags.act)),
-                                            self.PlayerActBits.PLR_AUTOEXIT.value):
+            if CharacterMacros.is_set(CharacterMacros.get_act_flags(character), self.PlayerActBits.PLR_AUTOEXIT.value):
                 await context.room_handler().print_exits(character, room)
             context.jump_to(1)  # players + mobiles
             return None

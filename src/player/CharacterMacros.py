@@ -185,7 +185,7 @@ class CharacterMacros(GameMacros):
 
     @classmethod
     def is_affected(cls, char: Any, effect) -> bool:
-        return cls.is_set(cls.convert_flags(char.status_flags.affected_by), effect)
+        return cls.is_set(GenericUtil.to_int(char.status_flags.affected_by, 0), effect)
 
     @classmethod
     def is_blind(cls, character: Any) -> bool:
@@ -193,7 +193,7 @@ class CharacterMacros(GameMacros):
         if not hasattr(AffectedBits, "AFF_BLIND"):
             return False
         return cls.is_set(
-            int(cls.convert_flags(getattr(character.status_flags, "affected_by", "0") or "0")),
+            GenericUtil.to_int(getattr(character.status_flags, "affected_by", 0), 0),
             AffectedBits.AFF_BLIND.value,
         )
 
@@ -292,19 +292,35 @@ class CharacterMacros(GameMacros):
 
     @classmethod
     def get_act_flags(cls, character: Character) -> int:
-        return int(cls.convert_flags(getattr(character.status_flags, "act", "0") or "0"))
+        return GenericUtil.to_int(getattr(character.status_flags, "act", 0), 0)
 
     @staticmethod
-    def set_act_flags(character: Character, value: int) -> None:
-        character.status_flags.act = GameMacros.flags_to_letters(value)
+    def assign_act_flags(character: Character, value: int) -> None:
+        character.status_flags.assign_bitfield("act", GenericUtil.to_int(value, 0))
+
+    @classmethod
+    def set_act_flags(cls, character: Character, bit) -> None:
+        cls.assign_act_flags(character, cls.set_bit(cls.get_act_flags(character), bit))
+
+    @classmethod
+    def unset_act_flags(cls, character: Character, bit) -> None:
+        cls.assign_act_flags(character, cls.unset_bit(cls.get_act_flags(character), bit))
 
     @classmethod
     def get_comm_flags(cls, character: Character) -> int:
-        return int(cls.convert_flags(getattr(character.status_flags, "comm", "0") or "0"))
+        return GenericUtil.to_int(getattr(character.status_flags, "comm", 0), 0)
 
     @staticmethod
-    def set_comm_flags(character: Character, value: int) -> None:
-        character.status_flags.comm = GameMacros.flags_to_letters(value)
+    def assign_comm_flags(character: Character, value: int) -> None:
+        character.status_flags.assign_bitfield("comm", GenericUtil.to_int(value, 0))
+
+    @classmethod
+    def set_comm_flags(cls, character: Character, bit) -> None:
+        cls.assign_comm_flags(character, cls.set_bit(cls.get_comm_flags(character), bit))
+
+    @classmethod
+    def unset_comm_flags(cls, character: Character, bit) -> None:
+        cls.assign_comm_flags(character, cls.unset_bit(cls.get_comm_flags(character), bit))
 
     @classmethod
     def is_comm_enabled(cls, character: Character, bit_name: str) -> bool:
@@ -324,11 +340,9 @@ class CharacterMacros(GameMacros):
         bit_value = getattr(player_act_bits, bit_name).value
         act = cls.get_act_flags(character)
         if cls.is_set(act, bit_value):
-            act = cls.unset_bit(act, bit_value)
-            cls.set_act_flags(character, act)
+            cls.unset_act_flags(character, bit_value)
             return off_text
-        act = cls.set_bit(act, bit_value)
-        cls.set_act_flags(character, act)
+        cls.set_act_flags(character, bit_value)
         return on_text
 
     @classmethod
@@ -337,17 +351,15 @@ class CharacterMacros(GameMacros):
         bit_value = getattr(comm_bits, bit_name).value
         comm = cls.get_comm_flags(character)
         if cls.is_set(comm, bit_value):
-            comm = cls.unset_bit(comm, bit_value)
-            cls.set_comm_flags(character, comm)
+            cls.unset_comm_flags(character, bit_value)
             return off_text
-        comm = cls.set_bit(comm, bit_value)
-        cls.set_comm_flags(character, comm)
+        cls.set_comm_flags(character, bit_value)
         return on_text
 
     @classmethod
     def format_affects(cls, character: Character) -> str:
         affected_bits = cls.get_enum("affectedBy")
-        raw = int(cls.convert_flags(getattr(character.status_flags, "affected_by", "") or ""))
+        raw = GenericUtil.to_int(getattr(character.status_flags, "affected_by", 0), 0)
         lines = []
         for name, member in affected_bits.__members__.items():
             if cls.is_set(raw, member.value):
@@ -617,15 +629,13 @@ class CharacterMacros(GameMacros):
             context.finish()
             return {"to_char": "This feature is unavailable.\r\n"}
 
-        raw = GenericUtil.to_int(cls.convert_flags(getattr(victim.status_flags, "comm", "") or "0"), 0)
+        raw = GenericUtil.to_int(getattr(victim.status_flags, "comm", 0), 0)
         if cls.is_set(raw, bit):
-            raw = cls.unset_bit(raw, bit)
-            cls.set_comm_flags(victim, raw)
+            cls.unset_comm_flags(victim, bit)
             context.finish()
             return {"to_char": f"{label} removed.\r\n", "victim": victim, "to_victim": "The gods have restored your privileges.\r\n"}
 
-        raw = cls.set_bit(raw, bit)
-        cls.set_comm_flags(victim, raw)
+        cls.set_comm_flags(victim, bit)
         context.finish()
         return {"to_char": f"{label} set.\r\n", "victim": victim, "to_victim": "The gods have revoked your privileges.\r\n"}
 
@@ -722,7 +732,7 @@ class CharacterMacros(GameMacros):
             return False
         bit = getattr(affected_bits, bit_name).value
         return cls.is_set(
-            GenericUtil.to_int(cls.convert_flags(getattr(character.status_flags, "affected_by", "")), 0),
+            GenericUtil.to_int(getattr(character.status_flags, "affected_by", 0), 0),
             bit,
         )
 
@@ -731,9 +741,10 @@ class CharacterMacros(GameMacros):
         if affected_bits is None or not hasattr(affected_bits, bit_name):
             return
         bit = getattr(affected_bits, bit_name).value
-        raw = GenericUtil.to_int(cls.convert_flags(getattr(character.status_flags, "affected_by", "")), 0)
-        raw = cls.set_bit(raw, bit) if enabled else cls.unset_bit(raw, bit)
-        character.status_flags.affected_by = GameMacros.flags_to_letters(raw)
+        if enabled:
+            character.status_flags.set_flag("affected_by", bit)
+            return
+        character.status_flags.unset_flag("affected_by", bit)
 
     @classmethod
     def pos_value(cls, name: str) -> int:
@@ -811,7 +822,7 @@ class CharacterMacros(GameMacros):
         if not hasattr(player_bits, "PLR_HOLYLIGHT"):
             return False
         return cls.is_set(
-            int(cls.convert_flags(character.status_flags.act)),
+            GenericUtil.to_int(character.status_flags.act, 0),
             player_bits.PLR_HOLYLIGHT.value,
         )
 
@@ -917,14 +928,14 @@ class CharacterMacros(GameMacros):
         if type(char) is not Mobile:
             return False
         OffenseTypes = cls.get_enum("offenseTypes")
-        return cls.is_set(OffenseTypes.ASSIST_PLAYERS.value, char.status_flags.off)
+        return cls.is_set(char.status_flags.off, OffenseTypes.ASSIST_PLAYERS.value)
 
     @classmethod
-    def player_auto_assist(cls, char: Mobile) -> bool:
-        if type(char) is not Mobile:
+    def player_auto_assist(cls, char: Character) -> bool:
+        if cls.is_npc(char):
             return False
         PlayerActBits = cls.get_enum("playerActBits")
-        return cls.is_set(PlayerActBits.PLR_AUTOASSIST.value, char.status_flags.off)
+        return cls.is_set(cls.get_act_flags(char), PlayerActBits.PLR_AUTOASSIST.value)
 
     @classmethod
     def will_npc_assist(self, rch: Mobile, ch: Character) -> bool | str | Any | Any:

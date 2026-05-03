@@ -12,19 +12,16 @@ from player.CharacterMacros import CharacterMacros
 class _EffectStatics:
     @staticmethod
     def get_affected_raw(entity) -> int:
-        if hasattr(entity, "status_flags") and getattr(entity, "status_flags", None) is not None:
-            return GameMacros.convert_flags(getattr(entity.status_flags, "affected_by", "") or "")
-        if hasattr(entity, "status_flags") and getattr(entity, "status_flags", None) is not None:
-            return GenericUtil.to_int(getattr(entity.status_flags, "affected_by", 0), 0)
+        status_flags = getattr(entity, "status_flags", None)
+        if status_flags is not None:
+            return GenericUtil.to_int(getattr(status_flags, "affected_by", 0), 0)
         return 0
 
     @staticmethod
     def set_affected_raw(entity, value: int):
-        if hasattr(entity, "status_flags") and getattr(entity, "status_flags", None) is not None:
-            entity.status_flags.affected_by = GameMacros.flags_to_letters(value)
-            return
-        if hasattr(entity, "status_flags") and getattr(entity, "status_flags", None) is not None:
-            entity.status_flags.affected_by = int(value)
+        status_flags = getattr(entity, "status_flags", None)
+        if status_flags is not None:
+            status_flags.assign_bitfield("affected_by", GenericUtil.to_int(value, 0))
 
     @staticmethod
     def apply_stat_modifier(entity, location: int, modifier: int, apply_types):

@@ -7,7 +7,8 @@
         "shortcuts":  "qui",
         "role":  "player",
         "lambdas":  [
-                        "lambda ctx: ctx.player_handler().do_quit(ctx.character, ctx)"
+                        "lambda ctx: ctx.player_handler().do_quit(ctx.character, ctx)",
+                        "lambda ctx: ctx.room.remove_player_from_room(ctx.character)"
                     ],
         "message":  "%c has disconnected.",
         "function":  [

@@ -25,6 +25,7 @@ class InterpHandler:
         self.handler_service = handler_service
         self.social_registry = registry_service.social_registry
         self.interp_registry = registry_service.interp_registry
+        self.room_registry = registry_service.room_registry
         self.social_handler = self.handler_service.social_handler
         self.connection_manager = injector.get(ConnectionManager)
         self.command_not_found_message = self.message_bus.text_to_message("Huh?\r\n")
@@ -88,7 +89,8 @@ class InterpHandler:
 
         arguments = InterpUtil.build_arguments(command, parameters)
         connection = self.connection_manager.get_connection_by_character(character.id)
-        context = Context(character=character, handler_service=self.handler_service, conn=connection, command=command, parameters=arguments, result=parameters)
+        room = self.room_registry.get_or_none(id=character.room_id)
+        context = Context(character=character, handler_service=self.handler_service, conn=connection, command=command, parameters=arguments, result=parameters, room=room)
         if len(arguments) < command.max_arguments and command.usage != "":
             await self.handle_usage(command, context)
             return None

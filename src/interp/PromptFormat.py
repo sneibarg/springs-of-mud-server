@@ -218,8 +218,7 @@ class PromptFormat:
 
     def render_prompt(self, status: SessionStatus, character: Character, room: Room, area: Area) -> Message:
         carriage_return = bool(getattr(character, "carriage_return", False) or self.carriage_return)
-        comm_letters = getattr(getattr(character, "status_flags", None), "comm", "")
-        comm_raw = GameMacros.letters_to_flags(comm_letters)
+        comm_raw = GameMacros.flags_to_int(getattr(getattr(character, "status_flags", None), "comm", 0))
         if comm_raw > 0:
             carriage_return = (comm_raw & 2048) == 0  # COMM_COMPACT
         parts = [self._tag_afk(status)]

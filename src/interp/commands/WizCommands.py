@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from injector import inject
 
-from game.GameMacros import GameMacros
 from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
@@ -145,14 +144,11 @@ class WizCommands:
         if bit == 0:
             context.finish()
             return {"to_char": "This feature is unavailable.\r\n"}
-        act = GenericUtil.to_int(CharacterMacros.convert_flags(getattr(character.status_flags, "act", "") or "0"), 0)
-        if CharacterMacros.is_set(act, bit):
-            act = CharacterMacros.unset_bit(act, bit)
-            character.status_flags.act = GameMacros.flags_to_letters(act)
+        if CharacterMacros.is_set(CharacterMacros.get_act_flags(character), bit):
+            CharacterMacros.unset_act_flags(character, bit)
             context.finish()
             return {"to_char": "Holy light mode off.\r\n"}
-        act = CharacterMacros.set_bit(act, bit)
-        character.status_flags.act = GameMacros.flags_to_letters(act)
+        CharacterMacros.set_act_flags(character, bit)
         context.finish()
         return {"to_char": "Holy light mode on.\r\n"}
 
@@ -168,7 +164,7 @@ class WizCommands:
         max_level = GenericUtil.to_int(CharacterMacros.get_trust(character), int(getattr(character, "level", 0)))
         if level > max_level:
             level = max_level
-        character.invis_level = level
+        character.status_flags.invis_level = level
         context.finish()
         if level > 0:
             return {"to_char": f"You vanish into thin air (level {level}).\r\n"}
@@ -182,11 +178,11 @@ class WizCommands:
         arg = (argument or "").strip()
         level = GenericUtil.to_int(arg, -1) if arg else -1
         if level < 0:
-            level = 0 if GenericUtil.to_int(getattr(character, "incog_level", 0), 0) > 0 else int(getattr(character, "level", 0))
+            level = 0 if GenericUtil.to_int(getattr(character.status_flags, "incog_level", 0), 0) > 0 else int(getattr(character, "level", 0))
         max_level = GenericUtil.to_int(CharacterMacros.get_trust(character), int(getattr(character, "level", 0)))
         if level > max_level:
             level = max_level
-        character.incog_level = level
+        character.status_flags.incog_level = level
         context.finish()
         if level > 0:
             return {"to_char": f"Incognito mode enabled at level {level}.\r\n"}

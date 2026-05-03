@@ -218,7 +218,7 @@ class MobileApi:
         for player in ctx.room.players_in_room().values():
             if visible_only and not CharacterMacros.can_see(ctx.actor, player, ctx.handler.room_helper):
                 continue
-            act_flags = GenericUtil.to_int(CharacterMacros.convert_flags(getattr(getattr(player, "status_flags", None), "act", "") or ""), 0)
+            act_flags = CharacterMacros.get_act_flags(player)
             for flag_name in priorities:
                 bit = MobileMacros.enum_bit(player_bits, flag_name)
                 if bit and CharacterMacros.is_set(act_flags, bit):

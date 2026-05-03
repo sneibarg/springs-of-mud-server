@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from game.GameMacros import GameMacros
+from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
 
 
@@ -21,20 +22,18 @@ class CommunicationsUtil:
     def has_comm(character, comm_flags, name: str) -> bool:
         if comm_flags is None or not hasattr(comm_flags, name):
             return False
-        raw = GameMacros.flags_to_int(getattr(character.status_flags, "comm", "") or "0")
-        return (raw & int(getattr(comm_flags, name).value)) != 0
+        raw = GenericUtil.to_int(getattr(character.status_flags, "comm", 0), 0)
+        return GameMacros.is_set(raw, int(getattr(comm_flags, name).value))
 
     @staticmethod
     def set_comm(character, comm_flags, name: str, enabled: bool):
         if comm_flags is None or not hasattr(comm_flags, name):
             return
         bit = int(getattr(comm_flags, name).value)
-        raw = GameMacros.flags_to_int(getattr(character.status_flags, "comm", "") or "0")
         if enabled:
-            raw |= bit
-        else:
-            raw &= ~bit
-        character.status_flags.comm = GameMacros.flags_to_letters(raw)
+            character.status_flags.set_flag("comm", bit)
+            return
+        character.status_flags.unset_flag("comm", bit)
 
     @staticmethod
     def append_tell_buffer(character, line: str):
