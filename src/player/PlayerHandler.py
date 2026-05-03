@@ -436,7 +436,9 @@ class PlayerHandler:
                 await self.fight_handler.emit_round_payload(attacker, fight_payload)
 
     async def do_object_command(self, character: Character, context: Context):
+        print(f"Executing object command for character {character.name}; context: {context}")
         payload = self.object_commands.execute(character, context)
+        print(f"Object command payload: {payload}")
         if payload is None:
             return
         if isinstance(payload, str):

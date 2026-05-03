@@ -3,8 +3,8 @@
     "$oid": "697e4a9edf39f7359b41cbfe"
   },
   "accountId": "62d2ff6699c3578abe7941c9",
-  "roomId": "69f4d0cb0ce695cd67b76c67",
-  "areaId": "69f4d0cf152a45324fe53bc4",
+  "roomId": "69f7cce663b6394f1949cec8",
+  "areaId": "69f7ccea20db0261aa9b07f3",
   "name": "Fizban",
   "title": "the Fabulous",
   "characterRace": {
@@ -187,8 +187,8 @@
     "size": "SIZE_MEDIUM"
   },
   "sex": "male",
-  "roomId": "69f4d0cb0ce695cd67b76c67",
-  "areaId": "69f4d0cf152a45324fe53bc4",
+  "roomId": "69f7cce663b6394f1949cec8",
+  "areaId": "69f7ccea20db0261aa9b07f3",
   "guild": "",
   "role": "player",
   "equipped": {

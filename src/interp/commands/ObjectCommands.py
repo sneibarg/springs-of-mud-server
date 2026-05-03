@@ -6,6 +6,8 @@ from game.Equipped import Equipped
 from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
+from util.InterpUtil import InterpUtil
+from util.MobileUtil import MobileUtil
 from util.ObjectUtil import ObjectUtils
 from util.EffectUtil import EffectUtil
 from util.ItemUtil import ItemUtil
@@ -18,22 +20,34 @@ from server.LoggerFactory import LoggerFactory
 
 class ObjectCommands:
     @inject
-    def __init__(self, registry_service: RegistryService, player_helper: PlayerHelper):
+    def __init__(self, registry_service: RegistryService, player_helper: PlayerHelper, weather_handler=None, room_helper=None):
         self.__name__ = "ObjectCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
-        self.room_registry = registry_service.room_registry
+        self.room_registry = getattr(registry_service, "room_registry", None)
+        self.mobile_registry = getattr(registry_service, "mobile_registry", None)
+        self.shop_registry = getattr(registry_service, "shop_registry", None)
         self.player_helper = player_helper
+        self.weather_handler = weather_handler
+        self.room_helper = room_helper
         self.item_types = None
         self.item_flags = None
         self.wear_flags = None
+        self.room_flags = None
+        self.act_bits = None
+        self.affected_bits = None
+        self.comm_flags = None
 
     def lazy_load(self):
         self.item_types = CharacterMacros.get_enum("itemTypes")
         self.item_flags = CharacterMacros.get_enum("itemFlags")
         self.wear_flags = CharacterMacros.get_enum("wearFlags")
+        self.room_flags = CharacterMacros.get_enum("roomFlags")
+        self.act_bits = CharacterMacros.get_enum("actBits")
+        self.affected_bits = CharacterMacros.get_enum("affectedBy")
+        self.comm_flags = CharacterMacros.get_enum("commFlags")
         if self.item_types is None or self.item_flags is None or self.wear_flags is None:
-            raise ValueError("Failed to load item types, flags, or wear flags")
+            raise ValueError("Failed to load shop and item enums")
 
     def execute(self, character: Character, context: Context):
         name = (getattr(context.command, "name", "") or "").strip().lower()
@@ -49,6 +63,10 @@ class ObjectCommands:
             "hold": self.do_hold,
             "grab": self.do_hold,
             "remove": self.do_remove,
+            "buy": self.do_buy,
+            "list": self.do_list,
+            "sell": self.do_sell,
+            "value": self.do_value,
             "drink": self.do_drink,
             "eat": self.do_eat,
             "fill": self.do_fill,
@@ -60,9 +78,243 @@ class ObjectCommands:
         }
         fn = handlers.get(name)
         if fn is None:
+            print(f"Executing function {fn}")
             context.finish()
             return {"to_char": f"{name} is not implemented yet.\r\n"}
         return fn(character, context)
+
+    def do_buy(self, character: Character, context: Context):
+        room = self.room_registry.get_or_none(id=character.room_id)
+        raw = (context.result if isinstance(context.result, str) else "").strip()
+        if not raw and context.parameters:
+            raw = " ".join(context.parameters).strip()
+        if not raw:
+            context.finish()
+            return {"to_char": "Buy what?\r\n"}
+        if room is None:
+            context.finish()
+            return {"to_char": "You can't do that here.\r\n"}
+
+        if self._is_pet_shop(room):
+            payload = self._buy_pet(character, room, raw)
+            context.finish()
+            return payload
+
+        keeper, shop, error = self._find_keeper(character, room)
+        if error:
+            context.finish()
+            return {"to_char": error}
+
+        quantity, selector = self._mult_argument(raw)
+        if quantity < 1 or quantity > 99:
+            context.finish()
+            return {"to_char": "Get real!\r\n"}
+
+        obj = self._get_keeper_stock_item(character, keeper, selector)
+        cost = 0 if obj is None else shop.buy_price(obj)
+        if obj is None or cost <= 0 or not self._can_see_item(character, obj):
+            context.finish()
+            return {"to_char": "I don't sell that -- try 'list'.\r\n"}
+
+        if not self._is_inventory_item(obj):
+            available = self._available_stock_quantity(keeper, obj)
+            if available < quantity:
+                context.finish()
+                return {"to_char": "I don't have that many in stock.\r\n"}
+
+        total_cost = cost * quantity
+        if not self._can_afford(character, total_cost):
+            context.finish()
+            if quantity > 1:
+                return {"to_char": "You can't afford to buy that many.\r\n"}
+            return {"to_char": f"You can't afford to buy {ObjectUtils.short(obj)}.\r\n"}
+
+        if GenericUtil.to_int(getattr(obj, "level", 0), 0) > GenericUtil.to_int(getattr(character, "level", 0), 0):
+            context.finish()
+            return {"to_char": f"You can't use {ObjectUtils.short(obj)} yet.\r\n"}
+
+        if self._carry_count(character) + quantity > self._max_items(character):
+            context.finish()
+            return {"to_char": "You can't carry that many items.\r\n"}
+
+        if self._carry_weight(character) + (quantity * GenericUtil.to_int(getattr(obj, "weight", 0), 0)) > self._max_weight(character):
+            context.finish()
+            return {"to_char": "You can't carry that much weight.\r\n"}
+
+        purchased = []
+        current_obj = obj
+        for _ in range(quantity):
+            if self._is_inventory_item(current_obj):
+                item = ItemUtil.create_object(current_obj)
+            else:
+                item = current_obj
+                self._remove_keeper_item(keeper, item)
+                current_obj = self._find_matching_stock_item(keeper, item)
+
+            self._normalize_purchased_item(item, cost)
+            character.add_item(item)
+            purchased.append(item)
+
+        self._deduct_money(character, total_cost)
+        self._add_money(keeper, total_cost)
+        context.finish()
+
+        item_label = ObjectUtils.short(obj)
+        if quantity > 1:
+            return {
+                "to_char": f"You buy {item_label}[{quantity}] for {total_cost} silver.\r\n",
+                "to_room": f"{character.name} buys {item_label}[{quantity}].\r\n",
+                "targets": self.player_helper.players_in_room(character, room),
+            }
+        return {
+            "to_char": f"You buy {item_label} for {cost} silver.\r\n",
+            "to_room": f"{character.name} buys {item_label}.\r\n",
+            "targets": self.player_helper.players_in_room(character, room),
+        }
+
+    def do_list(self, character: Character, context: Context):
+        room = self.room_registry.get_or_none(id=character.room_id)
+        raw = (context.result if isinstance(context.result, str) else "").strip().lower()
+        if not raw and context.parameters:
+            raw = " ".join(context.parameters).strip().lower()
+        if room is None:
+            context.finish()
+            return {"to_char": "You can't do that here.\r\n"}
+
+        if self._is_pet_shop(room):
+            payload = self._list_pets(room)
+            context.finish()
+            return payload
+
+        keeper, shop, error = self._find_keeper(character, room)
+        if error:
+            context.finish()
+            return {"to_char": error}
+
+        lines = []
+        stock = self._keeper_visible_stock(character, keeper)
+        index = 0
+        while index < len(stock):
+            obj = stock[index]
+            cost = shop.buy_price(obj)
+            if cost > 0 and (not raw or self._matches_name(obj, raw)):
+                if not lines:
+                    lines.append("[Lv Price Qty] Item\r\n")
+                if self._is_inventory_item(obj):
+                    lines.append(
+                        f"[{GenericUtil.to_int(getattr(obj, 'level', 0), 0):>2} "
+                        f"{cost:>5} -- ] {ObjectUtils.short(obj)}\r\n"
+                    )
+                    index += 1
+                    continue
+
+                count = 1
+                while index + count < len(stock) and self._same_stock_item(obj, stock[index + count]):
+                    count += 1
+                lines.append(
+                    f"[{GenericUtil.to_int(getattr(obj, 'level', 0), 0):>2} "
+                    f"{cost:>5} {count:>2} ] {ObjectUtils.short(obj)}\r\n"
+                )
+                index += count
+                continue
+            index += 1
+
+        context.finish()
+        if not lines:
+            return {"to_char": "You can't buy anything here.\r\n"}
+        return {"to_char": "".join(lines)}
+
+    def do_sell(self, character: Character, context: Context):
+        room = self.room_registry.get_or_none(id=character.room_id)
+        raw = (context.result if isinstance(context.result, str) else "").strip()
+        if not raw and context.parameters:
+            raw = " ".join(context.parameters).strip()
+        if not raw:
+            context.finish()
+            return {"to_char": "Sell what?\r\n"}
+        if room is None:
+            context.finish()
+            return {"to_char": "You can't do that here.\r\n"}
+
+        keeper, shop, error = self._find_keeper(character, room)
+        if error:
+            context.finish()
+            return {"to_char": error}
+
+        obj = CharacterMacros.find_owned_item(character, raw)
+        if obj is None:
+            context.finish()
+            return {"to_char": "You don't have that item.\r\n"}
+        if ObjectUtils.is_nodrop(obj, self.item_flags):
+            context.finish()
+            return {"to_char": "You can't let go of it.\r\n"}
+
+        cost = shop.sell_price(obj, getattr(keeper, "inventory", []) or [], self.item_types, self.item_flags)
+        if cost <= 0:
+            context.finish()
+            return {"to_char": f"{getattr(keeper, 'short_description', 'The shopkeeper')} looks uninterested in {ObjectUtils.short(obj)}.\r\n"}
+        if self._money_value(keeper) < cost:
+            context.finish()
+            return {"to_char": f"I'm afraid I don't have enough wealth to buy {ObjectUtils.short(obj)}.\r\n"}
+
+        slot = character.equipped_slot_of(obj)
+        if slot:
+            EffectUtil.remove_item_effects(character, obj)
+            character.unequip_item(slot)
+        character.remove_item(obj)
+
+        self._add_money(character, cost)
+        self._deduct_money(keeper, cost)
+        if self._is_trash_item(obj) or self._is_sell_extract_item(obj):
+            context.finish()
+            return {
+                "to_char": self._sell_message(obj, cost),
+                "to_room": f"{character.name} sells {ObjectUtils.short(obj)}.\r\n",
+                "targets": self.player_helper.players_in_room(character, room),
+            }
+
+        self._prepare_sold_item(obj)
+        self._add_item_to_keeper(keeper, obj)
+        context.finish()
+        return {
+            "to_char": self._sell_message(obj, cost),
+            "to_room": f"{character.name} sells {ObjectUtils.short(obj)}.\r\n",
+            "targets": self.player_helper.players_in_room(character, room),
+        }
+
+    def do_value(self, character: Character, context: Context):
+        room = self.room_registry.get_or_none(id=character.room_id)
+        raw = (context.result if isinstance(context.result, str) else "").strip()
+        if not raw and context.parameters:
+            raw = " ".join(context.parameters).strip()
+        if not raw:
+            context.finish()
+            return {"to_char": "Value what?\r\n"}
+        if room is None:
+            context.finish()
+            return {"to_char": "You can't do that here.\r\n"}
+
+        keeper, shop, error = self._find_keeper(character, room)
+        if error:
+            context.finish()
+            return {"to_char": error}
+
+        obj = CharacterMacros.find_owned_item(character, raw)
+        if obj is None:
+            context.finish()
+            return {"to_char": "You don't have that item.\r\n"}
+        if ObjectUtils.is_nodrop(obj, self.item_flags):
+            context.finish()
+            return {"to_char": "You can't let go of it.\r\n"}
+
+        cost = shop.sell_price(obj, getattr(keeper, "inventory", []) or [], self.item_types, self.item_flags)
+        context.finish()
+        if cost <= 0:
+            return {"to_char": f"{getattr(keeper, 'short_description', 'The shopkeeper')} looks uninterested in {ObjectUtils.short(obj)}.\r\n"}
+
+        silver = cost - (cost // 100) * 100
+        gold = cost // 100
+        return {"to_char": f"I'll give you {silver} silver and {gold} gold coins for {ObjectUtils.short(obj)}.\r\n"}
 
     def do_get(self, character: Character, context: Context):
         arg1, rem = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
@@ -687,3 +939,306 @@ class ObjectCommands:
     def do_zap(self, character: Character, context: Context):
         context.finish()
         return {"to_char": "Zap is not implemented yet.\r\n"}
+
+    def _find_keeper(self, character: Character, room):
+        if self.shop_registry is None:
+            return None, None, "You can't do that here.\r\n"
+        for mob in room.mobiles.values():
+            shop = self.shop_registry.find_by_keeper_vnum(getattr(mob, "vnum", ""))
+            if shop is None:
+                continue
+            hour = GenericUtil.to_int(getattr(getattr(self.weather_handler, "time_info", None), "hour", -1), -1)
+            if not shop.is_open_at(hour):
+                if hour < GenericUtil.to_int(shop.open_hour, 0):
+                    return None, None, "Sorry, I am closed. Come back later.\r\n"
+                return None, None, "Sorry, I am closed. Come back tomorrow.\r\n"
+            if self.room_helper is not None and not CharacterMacros.can_see(mob, character, self.room_helper):
+                return None, None, "I don't trade with folks I can't see.\r\n"
+            return mob, shop, ""
+        return None, None, "You can't do that here.\r\n"
+
+    def _is_pet_shop(self, room) -> bool:
+        if room is None or self.room_flags is None or not hasattr(self.room_flags, "ROOM_PET_SHOP"):
+            return False
+        return ObjectUtils.has_flag(getattr(room, "room_flags", 0), self.room_flags.ROOM_PET_SHOP.value)
+
+    def _list_pets(self, room):
+        stock_room = self._pet_stock_room(room)
+        if stock_room is None:
+            return {"to_char": "You can't do that here.\r\n"}
+
+        pet_bit = CharacterMacros.enum_bit(self.act_bits, "ACT_PET")
+        lines = []
+        for pet in stock_room.mobiles.values():
+            if pet_bit and not CharacterMacros.is_set(GenericUtil.to_int(getattr(getattr(pet, "status_flags", None), "act", 0), 0), pet_bit):
+                continue
+            level = GenericUtil.to_int(getattr(pet, "level", 0), 0)
+            cost = 10 * level * level
+            if not lines:
+                lines.append("Pets for sale:\r\n")
+            lines.append(f"[{level:>2}] {cost:>8} - {getattr(pet, 'short_description', 'a pet')}\r\n")
+
+        if not lines:
+            return {"to_char": "Sorry, we're out of pets right now.\r\n"}
+        return {"to_char": "".join(lines)}
+
+    def _buy_pet(self, character: Character, room, raw: str):
+        if CharacterMacros.is_npc(character):
+            return {"to_char": "You can't do that here.\r\n"}
+
+        selector, pet_name = InterpUtil.one_argument(raw)
+        stock_room = self._pet_stock_room(room)
+        if stock_room is None:
+            return {"to_char": "Sorry, you can't buy that here.\r\n"}
+
+        pet_proto = self._find_pet(stock_room, selector)
+        if pet_proto is None:
+            return {"to_char": "Sorry, you can't buy that here.\r\n"}
+        if getattr(character, "pet", None) is not None:
+            return {"to_char": "You already own a pet.\r\n"}
+
+        cost = 10 * GenericUtil.to_int(getattr(pet_proto, "level", 0), 0) ** 2
+        if not self._can_afford(character, cost):
+            return {"to_char": "You can't afford it.\r\n"}
+        if GenericUtil.to_int(getattr(character, "level", 0), 0) < GenericUtil.to_int(getattr(pet_proto, "level", 0), 0):
+            return {"to_char": "You're not powerful enough to master this pet.\r\n"}
+
+        pet = MobileUtil.create_mobile(pet_proto, CharacterMacros._enums_map())
+        pet_bit = CharacterMacros.enum_bit(self.act_bits, "ACT_PET")
+        charm_bit = CharacterMacros.enum_bit(self.affected_bits, "AFF_CHARM")
+        if pet_bit:
+            pet.status_flags.act = CharacterMacros.set_bit(GenericUtil.to_int(getattr(pet.status_flags, "act", 0), 0), pet_bit)
+        if charm_bit:
+            pet.status_flags.affected_by = CharacterMacros.set_bit(GenericUtil.to_int(getattr(pet.status_flags, "affected_by", 0), 0), charm_bit)
+
+        for comm_name in ("COMM_NOTELL", "COMM_NOSHOUT", "COMM_NOCHANNELS"):
+            bit = CharacterMacros.enum_bit(self.comm_flags, comm_name)
+            if bit:
+                pet.status_flags.comm = CharacterMacros.set_bit(GenericUtil.to_int(getattr(pet.status_flags, "comm", 0), 0), bit)
+
+        if pet_name:
+            pet.name = f"{pet.name} {pet_name}".strip()
+        pet.description = f"{getattr(pet, 'description', '')}A neck tag says 'I belong to {character.name}'.\r\n"
+        room.add_mobile_to_room(pet)
+        pet.leader = character
+        character.pet = pet
+        self._deduct_money(character, cost)
+        return {
+            "to_char": "Enjoy your pet.\r\n",
+            "to_room": f"{character.name} bought {getattr(pet, 'short_description', 'a pet')} as a pet.\r\n",
+            "targets": self.player_helper.players_in_room(character, room),
+        }
+
+    def _pet_stock_room(self, room):
+        current_vnum = GenericUtil.to_int(getattr(room, "vnum", 0), 0)
+        next_vnum = 9706 if current_vnum == 9621 else current_vnum + 1
+        return self.room_registry.get_or_none(vnum=str(next_vnum))
+
+    def _find_pet(self, stock_room, selector: str):
+        number, keyword = InterpUtil.number_argument(selector)
+        pet_bit = CharacterMacros.enum_bit(self.act_bits, "ACT_PET")
+        count = 0
+        for pet in stock_room.mobiles.values():
+            if pet_bit and not CharacterMacros.is_set(GenericUtil.to_int(getattr(getattr(pet, "status_flags", None), "act", 0), 0), pet_bit):
+                continue
+            if not self._matches_name(pet, keyword):
+                continue
+            count += 1
+            if count == number:
+                return pet
+        return None
+
+    def _mult_argument(self, argument: str) -> tuple[int, str]:
+        text = str(argument or "").strip()
+        if "*" not in text:
+            return 1, text
+        count_text, remainder = text.split("*", 1)
+        count = GenericUtil.to_int(count_text, 1)
+        return max(1, count), remainder.strip()
+
+    def _keeper_visible_stock(self, character: Character, keeper) -> list:
+        stock = []
+        for item in list(getattr(keeper, "inventory", []) or []):
+            if self._is_item_worn(item):
+                continue
+            if not self._can_see_item(character, item):
+                continue
+            stock.append(item)
+        return stock
+
+    def _get_keeper_stock_item(self, character: Character, keeper, selector: str):
+        number, keyword = InterpUtil.number_argument(selector)
+        count = 0
+        stock = self._keeper_visible_stock(character, keeper)
+        index = 0
+        while index < len(stock):
+            item = stock[index]
+            if self._matches_name(item, keyword):
+                count += 1
+                if count == number:
+                    return item
+                while index + 1 < len(stock) and self._same_stock_item(item, stock[index + 1]):
+                    index += 1
+            index += 1
+        return None
+
+    def _available_stock_quantity(self, keeper, item) -> int:
+        count = 0
+        matched = False
+        for stocked in list(getattr(keeper, "inventory", []) or []):
+            if self._is_item_worn(stocked):
+                continue
+            if not matched:
+                matched = stocked is item
+            if not matched:
+                continue
+            if not self._same_stock_item(item, stocked):
+                break
+            count += 1
+        return count
+
+    def _find_matching_stock_item(self, keeper, wanted):
+        for stocked in list(getattr(keeper, "inventory", []) or []):
+            if self._is_item_worn(stocked):
+                continue
+            if self._same_stock_item(wanted, stocked):
+                return stocked
+        return wanted
+
+    def _remove_keeper_item(self, keeper, item):
+        inventory = getattr(keeper, "inventory", None)
+        if inventory is None:
+            return
+        try:
+            inventory.remove(item)
+        except ValueError:
+            return
+
+    def _add_item_to_keeper(self, keeper, item):
+        inventory = getattr(keeper, "inventory", None)
+        if inventory is None:
+            keeper.inventory = []
+            inventory = keeper.inventory
+
+        for index, stocked in enumerate(list(inventory)):
+            if not self._same_stock_item(item, stocked):
+                continue
+            if self._is_inventory_item(stocked):
+                return None
+            item.cost = GenericUtil.to_int(getattr(stocked, "cost", getattr(item, "cost", 0)), 0)
+            inventory.insert(index + 1, item)
+            return item
+        inventory.insert(0, item)
+        return item
+
+    def _normalize_purchased_item(self, item, cost: int):
+        if GenericUtil.to_int(getattr(item, "timer", 0), 0) > 0 and not self._had_timer(item):
+            item.timer = 0
+        item.extra_flags = CharacterMacros.unset_bit(GenericUtil.to_int(getattr(item, "extra_flags", 0), 0), CharacterMacros.enum_bit(self.item_flags, "ITEM_HAD_TIMER"))
+        if GenericUtil.to_int(getattr(item, "cost", 0), 0) > cost:
+            item.cost = cost
+        if hasattr(item, "wear_loc"):
+            item.wear_loc = -1
+
+    def _prepare_sold_item(self, item):
+        if GenericUtil.to_int(getattr(item, "timer", 0), 0) > 0:
+            had_timer = CharacterMacros.enum_bit(self.item_flags, "ITEM_HAD_TIMER")
+            item.extra_flags = CharacterMacros.set_bit(GenericUtil.to_int(getattr(item, "extra_flags", 0), 0), had_timer)
+        else:
+            item.timer = self._timer_roll()
+        if hasattr(item, "wear_loc"):
+            item.wear_loc = -1
+
+    def _timer_roll(self) -> int:
+        from game.RandomNumberGenerator import RandomNumberGenerator
+        return RandomNumberGenerator().number_range(50, 100)
+
+    def _had_timer(self, item) -> bool:
+        bit = CharacterMacros.enum_bit(self.item_flags, "ITEM_HAD_TIMER")
+        return bit != 0 and ObjectUtils.has_flag(getattr(item, "extra_flags", 0), bit)
+
+    def _is_inventory_item(self, item) -> bool:
+        bit = CharacterMacros.enum_bit(self.item_flags, "ITEM_INVENTORY")
+        return bit != 0 and ObjectUtils.has_flag(getattr(item, "extra_flags", 0), bit)
+
+    def _is_sell_extract_item(self, item) -> bool:
+        bit = CharacterMacros.enum_bit(self.item_flags, "ITEM_SELL_EXTRACT")
+        return bit != 0 and ObjectUtils.has_flag(getattr(item, "extra_flags", 0), bit)
+
+    @staticmethod
+    def _is_trash_item(item) -> bool:
+        return str(getattr(item, "item_type", "") or "").strip().upper() == "ITEM_TRASH"
+
+    @staticmethod
+    def _is_item_worn(item) -> bool:
+        wear_loc = GenericUtil.to_int(getattr(item, "wear_loc", -1), -1)
+        return wear_loc >= 0
+
+    @staticmethod
+    def _same_stock_item(left, right) -> bool:
+        return (
+            left is not None
+            and right is not None
+            and str(getattr(left, "vnum", "") or "") == str(getattr(right, "vnum", "") or "")
+            and str(getattr(left, "short_description", "") or "") == str(getattr(right, "short_description", "") or "")
+        )
+
+    @staticmethod
+    def _matches_name(entity, wanted: str) -> bool:
+        query = str(wanted or "").strip().lower()
+        if not query:
+            return True
+        name = str(getattr(entity, "name", "") or "").strip().lower()
+        words = [word for word in name.split() if word]
+        return name == query or name.startswith(query) or query in words or any(word.startswith(query) for word in words)
+
+    def _can_see_item(self, character: Character, item) -> bool:
+        if self.room_helper is None:
+            return True
+        return ItemUtil.can_see_object(self.room_helper, character, item)
+
+    @staticmethod
+    def _money_value(entity) -> int:
+        return (GenericUtil.to_int(getattr(entity, "gold", 0), 0) * 100) + GenericUtil.to_int(getattr(entity, "silver", 0), 0)
+
+    def _can_afford(self, entity, amount: int) -> bool:
+        return self._money_value(entity) >= GenericUtil.to_int(amount, 0)
+
+    @staticmethod
+    def _add_money(entity, amount: int):
+        total = (GenericUtil.to_int(getattr(entity, "gold", 0), 0) * 100) + GenericUtil.to_int(getattr(entity, "silver", 0), 0)
+        total += GenericUtil.to_int(amount, 0)
+        entity.gold = total // 100
+        entity.silver = total - (entity.gold * 100)
+
+    @staticmethod
+    def _deduct_money(entity, amount: int):
+        total = (GenericUtil.to_int(getattr(entity, "gold", 0), 0) * 100) + GenericUtil.to_int(getattr(entity, "silver", 0), 0)
+        total = max(0, total - GenericUtil.to_int(amount, 0))
+        entity.gold = total // 100
+        entity.silver = total - (entity.gold * 100)
+
+    @staticmethod
+    def _carry_count(character: Character) -> int:
+        return len(CharacterMacros.owned_items(character))
+
+    @staticmethod
+    def _carry_weight(character: Character) -> int:
+        item_weight = sum(GenericUtil.to_int(getattr(item, "weight", 0), 0) for item in CharacterMacros.owned_items(character))
+        coin_weight = int((GenericUtil.to_int(character.silver, 0) / 10) + (GenericUtil.to_int(character.gold, 0) * 2 / 5))
+        return item_weight + coin_weight
+
+    @staticmethod
+    def _max_items(character: Character) -> int:
+        return GenericUtil.to_int(getattr(getattr(character, "character_attributes", None), "max_items", 0), 0)
+
+    @staticmethod
+    def _max_weight(character: Character) -> int:
+        return GenericUtil.to_int(getattr(getattr(character, "character_attributes", None), "max_weight", 0), 0)
+
+    @staticmethod
+    def _sell_message(item, cost: int) -> str:
+        silver = cost - (cost // 100) * 100
+        gold = cost // 100
+        suffix = "" if cost == 1 else "s"
+        return f"You sell {ObjectUtils.short(item)} for {silver} silver and {gold} gold piece{suffix}.\r\n"

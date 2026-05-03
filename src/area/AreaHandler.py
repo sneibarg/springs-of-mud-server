@@ -6,6 +6,7 @@ from area.Reset import Reset
 from area.Area import Area
 from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
+from area.ShopRegistry import ShopRegistry
 from util.GenericUtil import GenericUtil
 from mobile.Mobile import Mobile
 from util.MobileUtil import MobileUtil
@@ -26,7 +27,8 @@ class AreaHandler:
                  area_registry: AreaRegistry,
                  room_registry: RoomRegistry,
                  item_registry: ItemRegistry,
-                 mobile_registry: MobileRegistry):
+                 mobile_registry: MobileRegistry,
+                 shop_registry: ShopRegistry | None = None):
         self.__name__ = "AreaHandler"
         self.logger = LoggerFactory.get_logger(__name__)
         self.message_bus = message_bus
@@ -34,15 +36,18 @@ class AreaHandler:
         self.room_registry = room_registry
         self.item_registry = item_registry
         self.mobile_registry = mobile_registry
+        self.shop_registry = shop_registry
         self.enums = None
         self.WellKnownRoomVnums = None
         self.ExitFlags = None
+        self.ItemFlags = None
 
     def set_enums(self, enums: dict[str, IntEnum]):
         self.enums = enums
 
         self.WellKnownRoomVnums = enums.get('wellKnownRoomVnums')
         self.ExitFlags = enums.get('exitFlags')
+        self.ItemFlags = enums.get('itemFlags')
 
     def area_update(self):
         for area in self.area_registry.all_areas():
@@ -78,9 +83,9 @@ class AreaHandler:
             elif reset.command == "P":
                 last = self._do_put_reset(last, reset, area)
             elif reset.command == "G":
-                pass  #  Skipped by ROM2.4b2
+                last = self._do_mob_item_reset(last, reset, mob)
             elif reset.command == "E":
-                last = self._do_equip_reset(last, reset, mob)
+                last = self._do_mob_item_reset(last, reset, mob)
             elif reset.command == "D":
                 last = self._do_door_reset(last, reset)
             elif reset.command == "R":
@@ -182,7 +187,7 @@ class AreaHandler:
         obj_to.value1 = template_target.value1
         return True
 
-    def _do_equip_reset(self, last: bool, reset: Reset, mob: Mobile | None) -> bool:
+    def _do_mob_item_reset(self, last: bool, reset: Reset, mob: Mobile | None) -> bool:
         obj_vnum = str(reset.arg1 or "")
         if not obj_vnum:
             return False
@@ -193,6 +198,18 @@ class AreaHandler:
             return last
         if mob is None:
             return False
+
+        if self._is_shopkeeper(mob):
+            obj = ItemUtil.create_object(template_obj)
+            inventory_bit = GenericUtil.to_int(getattr(getattr(self.ItemFlags, "ITEM_INVENTORY", None), "value", 0), 0)
+            if inventory_bit:
+                obj.extra_flags = GenericUtil.to_int(getattr(obj, "extra_flags", 0), 0) | inventory_bit
+            wear_loc = GenericUtil.to_int(reset.arg3, -1)
+            if reset.command == "E" and wear_loc >= 0:
+                MobileUtil.equip_item(mob, obj, wear_loc)
+            else:
+                MobileUtil.add_inventory_item(mob, obj)
+            return True
 
         arg2 = GenericUtil.to_int(reset.arg2, 0)
         if arg2 > 50:
@@ -212,6 +229,11 @@ class AreaHandler:
         else:
             MobileUtil.add_inventory_item(mob, obj)
         return True
+
+    def _is_shopkeeper(self, mob: Mobile | None) -> bool:
+        if mob is None or self.shop_registry is None:
+            return False
+        return self.shop_registry.find_by_keeper_vnum(getattr(mob, "vnum", "")) is not None
 
     def _do_door_reset(self, last: bool, reset: Reset) -> bool:
         room_vnum = str(reset.arg1 or "")

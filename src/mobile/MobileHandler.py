@@ -95,7 +95,6 @@ class MobileHandler:
             self.logger.warning("Act bits not initialized, skipping mobile update")
             return
 
-        shop_keepers = {str(getattr(shop, "keeper", "")) for shop in self.shop_registry.all_shops()}
         snapshots = []
         for room in self.room_registry.all_rooms():
             if room is None:
@@ -117,7 +116,7 @@ class MobileHandler:
                 self.logger.debug(f"mobile_update skipping {self._actor_label(mob)} in {self._room_label(room)} because the area is empty and ACT_UPDATE_ALWAYS is not set")
                 continue
 
-            self._update_shop_money(mob, shop_keepers)
+            self._update_shop_money(mob)
 
             special_performed = await self.execute_special_function(mob, room)
             self.logger.debug(
@@ -148,8 +147,9 @@ class MobileHandler:
             return False
         return not CharacterMacros.mobile_has_act(mob, self.act_bits, "ACT_UPDATE_ALWAYS")
 
-    def _update_shop_money(self, mob: Mobile, shop_keepers: set[str]):
-        if str(getattr(mob, "vnum", "")) not in shop_keepers:
+    def _update_shop_money(self, mob: Mobile):
+        shop = self.shop_registry.find_by_keeper_vnum(getattr(mob, "vnum", ""))
+        if shop is None:
             return
         wealth = GenericUtil.to_int(getattr(mob, "wealth", 0), 0)
         if wealth <= 0:
