@@ -36,7 +36,7 @@ class _EffectStatics:
                     return int(getattr(apply_types, candidate).value)
             return None
 
-        attrs = getattr(entity, "character_attributes", None) or getattr(entity, "perm_stat", None)
+        attrs = getattr(entity, "character_attributes", None) or getattr(entity, "character_attributes", None)
         if attrs is None:
             return
 

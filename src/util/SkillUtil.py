@@ -1,11 +1,12 @@
+import random
+
+from player.CharacterAdvancement import CharacterAdvancement
 from util.GenericUtil import GenericUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 
 
 class SkillUtil:
-    pass
-
     @staticmethod
     def is_practice_trainer(mob, practice_bit: int) -> bool:
         mob_flags = GenericUtil.to_int(getattr(getattr(mob, "status_flags", None), "act", 0), 0)
@@ -50,9 +51,88 @@ class SkillUtil:
 
     @staticmethod
     def practice_gain(character: Character, rating: int) -> int:
-        intelligence = GenericUtil.to_int(getattr(getattr(character, "character_attributes", None), "intelligence", 0), 0)
+        intelligence = GenericUtil.to_int(getattr(getattr(character, "character_attributes", None), "intelligence", 0),
+                                          0)
         learn_bonus = GenericUtil.to_int(
             CharacterMacros.get_attribute_bonus("intelligence", str(intelligence)).get("learn", 0), 0)
         rating = max(1, GenericUtil.to_int(rating, 1))
         gain = learn_bonus // rating
         return max(1, gain)
+
+    @staticmethod
+    def check_improve(ch: Character, skill_id: str, success: bool, multiplier: int = 1) -> None:
+        if CharacterMacros.is_npc(ch):
+            return
+
+        registry = CharacterMacros.get_registry()
+        ability = getattr(registry, "skill_registry", None).get_or_none(id=skill_id) if getattr(registry, "skill_registry", None) is not None else None
+        if ability is None and getattr(registry, "spell_registry", None) is not None:
+            ability = registry.spell_registry.get_or_none(id=skill_id)
+        if ability is None:
+            return
+
+        class_name = SkillUtil.practice_class_name(ch)
+        required_level = CharacterMacros.skill_value_for_class(getattr(ability, "level_by_class", {}) or {}, class_name, 99)
+        rating = max(0, CharacterMacros.skill_value_for_class(getattr(ability, "rating_by_class", {}) or {}, class_name, 0))
+        learned_entry = SkillUtil._find_learned_entry(ch, str(getattr(ability, "name", "") or ""))
+        learned = SkillUtil._learned_level(learned_entry)
+        adept = SkillUtil.practice_adept(ch)
+
+        if ch.level < required_level or rating == 0 or learned <= 0 or learned >= adept:
+            return
+
+        intelligence = GenericUtil.to_int(getattr(getattr(ch, "character_attributes", None), "intelligence", 0), 0)
+        learn_bonus = GenericUtil.to_int(
+            CharacterMacros.get_attribute_bonus("intelligence", str(intelligence)).get("learn", 0), 0
+        )
+
+        multiplier = max(1, GenericUtil.to_int(multiplier, 1))
+        chance = (10 * learn_bonus) // (multiplier * rating * 4) + GenericUtil.to_int(ch.level, 0)
+
+        if random.randint(1, 1000) > chance:
+            return
+
+        if success:
+            chance = max(5, min(adept - learned, 95))
+            if random.randint(1, 100) < chance:
+                SkillUtil._set_learned_level(learned_entry, min(learned + 1, adept))
+                CharacterAdvancement.gain_experience(ch, 2 * rating)
+        else:
+            chance = max(5, min(learned // 2, 30))
+            if random.randint(1, 100) < chance:
+                SkillUtil._set_learned_level(learned_entry, min(learned + random.randint(1, 3), adept))
+                CharacterAdvancement.gain_experience(ch, 2 * rating)
+
+    @staticmethod
+    def _find_learned_entry(character: Character, ability_name: str):
+        wanted = str(ability_name or "").strip().lower()
+        if not wanted:
+            return None
+
+        for collection_name in ("skills", "spells"):
+            for entry in list(getattr(character, collection_name, []) or []):
+                if isinstance(entry, dict):
+                    name = str(entry.get("name", "") or "").strip().lower()
+                else:
+                    name = str(getattr(entry, "name", "") or "").strip().lower()
+                if name == wanted:
+                    return entry
+        return None
+
+    @staticmethod
+    def _learned_level(entry) -> int:
+        if entry is None:
+            return 0
+        if isinstance(entry, dict):
+            return max(0, min(100, GenericUtil.to_int(entry.get("level", 0), 0)))
+        return max(0, min(100, GenericUtil.to_int(getattr(entry, "level", 0), 0)))
+
+    @staticmethod
+    def _set_learned_level(entry, value: int) -> None:
+        if entry is None:
+            return
+        normalized = max(0, min(100, GenericUtil.to_int(value, 0)))
+        if isinstance(entry, dict):
+            entry["level"] = normalized
+            return
+        setattr(entry, "level", normalized)

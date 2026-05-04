@@ -26,8 +26,6 @@ class Mobile:
     alignment: str
     group: str
     dam_type: str
-    start_pos: str
-    default_pos: str
     sex: str
     size: str
     material: str
@@ -37,8 +35,10 @@ class Mobile:
     silver: int
     count: int = 0
     killed: int = 0
-    fighting: Optional[bool] = False
-    perm_stat: Optional[CharacterAttributes] = None
+    start_pos: int = 0
+    default_pos: int = 0
+    fighting: Optional[Any] = None
+    character_attributes: Optional[CharacterAttributes] = None
     armor_class: Optional[ArmorClass] = None
     hit_dice: Optional[Dice] = None
     mana_dice: Optional[Dice] = None
@@ -116,6 +116,4 @@ class Mobile:
     @classmethod
     def from_json(cls, data):
         data.setdefault('lock', None)
-        if 'status_flags' not in data:
-            data['status_flags'] = StatusFlags.default()
         return cls(**data)

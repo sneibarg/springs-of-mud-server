@@ -13,21 +13,26 @@ from player.Character import Character
 from player.CharacterAdvancement import CharacterAdvancement
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
+from skill import Skill
+from skill.SkillApi import SkillApi
 from skill.SpellApi import SpellApi
 from skill.SpellContext import SpellContext
 from util.EffectUtil import EffectUtil
 from util.FightUtil import FightUtil
 from util.GenericUtil import GenericUtil
+from util.ItemUtil import ItemUtil
 from util.MovementUtil import MovementUtil
 from util.PlayerUtil import PlayerUtil
+from util.SkillUtil import SkillUtil
 
 
 class FightCommands:
     @inject
-    def __init__(self, registry_service: RegistryService, fight_handler: FightHandler, weather_handler: WeatherHandler = None):
+    def __init__(self, registry_service: RegistryService, skill_api: SkillApi, fight_handler: FightHandler, weather_handler: WeatherHandler = None):
         self.__name__ = "FightCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
+        self.skill_api = skill_api
         self.room_registry = registry_service.room_registry
         self.skill_registry = registry_service.skill_registry
         self.spell_registry = getattr(registry_service, "spell_registry", None)
@@ -51,6 +56,10 @@ class FightCommands:
             "rescue": self.do_rescue,
             "trip": self.do_trip,
         }
+        self.AffectBits = None
+
+    def lazy_load(self):
+        self.AffectBits = CharacterMacros.get_enum("affectedBy")
 
     def execute(self, character: Character, context: Context):
         name = (getattr(context.command, "name", "") or "").strip().lower()
@@ -73,7 +82,7 @@ class FightCommands:
         if CharacterMacros.is_npc(character):
             return self.do_kill(character, context)
 
-        room = self._room_for(character)
+        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         if room is None:
             context.finish()
             return {"to_char": "You are nowhere.\r\n"}
@@ -89,12 +98,12 @@ class FightCommands:
             context.finish()
             return {"to_char": "Kill whom?\r\n"}
 
-        room = self._room_for(character)
+        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         if room is None:
             context.finish()
             return {"to_char": "You are nowhere.\r\n"}
 
-        victim = PlayerUtil.get_target(character, argument, room, self.room_helper)
+        victim = PlayerUtil.get_target(character, argument, room)
         if victim is None:
             context.finish()
             return {"to_char": "They aren't here.\r\n"}
@@ -142,7 +151,7 @@ class FightCommands:
             context.finish()
             return {"to_char": "You don't have enough mana.\r\n"}
 
-        room = self._room_for(character)
+        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         if room is None:
             context.finish()
             return {"to_char": "You are nowhere.\r\n"}
@@ -172,8 +181,8 @@ class FightCommands:
         return {"payloads": spell_context.payloads}
 
     def do_backstab(self, character: Character, context: Context):
-        skill = self._skill_meta("backstab")
-        if not self._has_skill_access(character, "backstab", skill):
+        skill = self.skill_registry.get(name="backstab")
+        if not self._has_skill_access(character, skill):
             context.finish()
             return {"to_char": "You better leave the assassin trade to thieves.\r\n"}
 
@@ -185,12 +194,12 @@ class FightCommands:
             context.finish()
             return {"to_char": "You're facing the wrong end.\r\n"}
 
-        room = self._room_for(character)
+        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         if room is None:
             context.finish()
             return {"to_char": "You are nowhere.\r\n"}
 
-        victim = PlayerUtil.get_target(character, argument, room, self.room_helper)
+        victim = PlayerUtil.get_target(character, argument, room)
         if victim is None:
             context.finish()
             return {"to_char": "They aren't here.\r\n"}
@@ -216,26 +225,28 @@ class FightCommands:
 
         self._set_wait(character, self._skill_beats(skill, 12))
         pre_corpse_ids = self._pre_corpse_ids(room)
-        skill_percent = self._skill_percent(character, "backstab")
+        skill_percent = self.skill_api.get_rating(character, skill)
         success = random.randint(1, 100) <= max(1, skill_percent)
         if not CharacterMacros.is_awake(victim) and skill_percent >= 2:
             success = True
 
         if success:
+            self._check_improve(character, skill, True, 1)
             result = self.fight_handler.multi_hit(character, victim, dt="backstab")
         else:
+            self._check_improve(character, skill, False, 1)
             result = self.fight_handler.damage(character, victim, 0, dt="backstab")
 
         context.finish()
         return self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
 
     def do_bash(self, character: Character, context: Context):
-        skill = self._skill_meta("bash")
-        if not self._has_skill_access(character, "bash", skill):
+        skill = self.skill_registry.get(name="bash")
+        if not self._has_skill_access(character, skill):
             context.finish()
             return {"to_char": "Bashing? What's that?\r\n"}
 
-        room = self._room_for(character)
+        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         if room is None:
             context.finish()
             return {"to_char": "You are nowhere.\r\n"}
@@ -259,12 +270,13 @@ class FightCommands:
             context.finish()
             return {"to_char": "Kill stealing is not permitted.\r\n"}
 
-        chance = self._combat_skill_chance(character, victim, "bash", primary_stat="strength", defend_stat="dexterity", level_scale=2)
+        chance = self._combat_skill_chance(character, victim, skill, primary_stat="strength", defend_stat="dexterity", level_scale=2)
         self._set_wait(character, self._skill_beats(skill, 12))
         pre_corpse_ids = self._pre_corpse_ids(room)
         if random.randint(1, 100) <= chance:
             self._set_daze(victim, 24)
             CharacterMacros.set_position(victim, "POS_RESTING")
+            self._check_improve(character, skill, True, 1)
             result = self.fight_handler.damage(character, victim, random.randint(4, max(4, GenericUtil.to_int(getattr(character, "level", 1), 1))), dt="bash")
             payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
             self._prepend_payload(
@@ -274,27 +286,28 @@ class FightCommands:
                 f"{self._target_name(character)} sends {self._target_name(victim)} sprawling with a powerful bash.\r\n",
             )
         else:
+            self._check_improve(character, skill, False, 1)
             result = self.fight_handler.damage(character, victim, 0, dt="bash")
             payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
         context.finish()
         return payload
 
     def do_berserk(self, character: Character, context: Context):
-        skill = self._skill_meta("berserk")
-        if not self._has_skill_access(character, "berserk", skill):
+        skill = self.skill_registry.get(name="berserk")
+        if not self._has_skill_access(character, skill):
             context.finish()
             return {"to_char": "You turn red in the face, but nothing happens.\r\n"}
-        if self._entity_has_effect_type(character, "skill.berserk") or self._affected(character, "AFF_BERSERK") or self._entity_has_effect_type(character, "spell.frenzy"):
+        if self._entity_has_effect_type(character, "skill.berserk") or CharacterMacros.is_affected_by_name(character, self.AffectBits, "AFF_BERSERK") or self._entity_has_effect_type(character, "spell.frenzy"):
             context.finish()
             return {"to_char": "You get a little madder.\r\n"}
-        if self._affected(character, "AFF_CALM"):
+        if CharacterMacros.is_affected_by_name(character, self.AffectBits, "AFF_CALM"):
             context.finish()
             return {"to_char": "You're feeling too mellow to berserk.\r\n"}
         if GenericUtil.to_int(getattr(character, "mana", 0), 0) < 50:
             context.finish()
             return {"to_char": "You can't get up enough energy.\r\n"}
 
-        chance = self._skill_percent(character, "berserk")
+        chance = self.skill_api.get_rating(character, skill)
         if self._position(character) == self._pos("POS_FIGHTING"):
             chance += 10
         hp = GenericUtil.to_int(getattr(character, "hit", 0), 0)
@@ -310,10 +323,11 @@ class FightCommands:
             character.mana = max(0, GenericUtil.to_int(getattr(character, "mana", 0), 0) - 50)
             character.movement = max(0, GenericUtil.to_int(getattr(character, "movement", 0), 0) // 2)
             character.hit = min(GenericUtil.to_int(getattr(character, "max_hit", 0), 0), GenericUtil.to_int(getattr(character, "hit", 0), 0) + GenericUtil.to_int(getattr(character, "level", 0), 0) * 2)
+            self._check_improve(character, skill, True, 2)
             EffectUtil.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_HITROLL", modifier=bonus, bitvector="AFF_BERSERK"))
             EffectUtil.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_DAMROLL", modifier=bonus, bitvector="0"))
             EffectUtil.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_AC", modifier=ac_penalty, bitvector="0"))
-            room = self._room_for(character)
+            room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
             context.finish()
             return {
                 "to_char": "Your pulse races as you are consumed by rage!\r\n",
@@ -324,16 +338,17 @@ class FightCommands:
         self._set_wait(character, self._skill_beats(skill, 12) * 3)
         character.mana = max(0, GenericUtil.to_int(getattr(character, "mana", 0), 0) - 25)
         character.movement = max(0, GenericUtil.to_int(getattr(character, "movement", 0), 0) // 2)
+        self._check_improve(character, skill, False, 2)
         context.finish()
         return {"to_char": "Your pulse speeds up, but nothing happens.\r\n"}
 
     def do_dirt(self, character: Character, context: Context):
-        skill = self._skill_meta("dirt")
-        if not self._has_skill_access(character, "dirt", skill):
+        skill = self.skill_registry.get(name="dirt")
+        if not self._has_skill_access(character, skill):
             context.finish()
             return {"to_char": "You get your feet dirty.\r\n"}
 
-        room = self._room_for(character)
+        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         if room is None:
             context.finish()
             return {"to_char": "You are nowhere.\r\n"}
@@ -342,7 +357,7 @@ class FightCommands:
         if error:
             context.finish()
             return {"to_char": error}
-        if self._affected(victim, "AFF_BLIND"):
+        if CharacterMacros.is_affected_by_name(victim, self.AffectBits, "AFF_BLIND"):
             context.finish()
             return {"to_char": "They have already been blinded.\r\n"}
         if victim is character:
@@ -362,12 +377,13 @@ class FightCommands:
             context.finish()
             return {"to_char": "There isn't any dirt to kick.\r\n"}
 
-        chance = self._combat_skill_chance(character, victim, "dirt", primary_stat="dexterity", defend_stat="dexterity", level_scale=2)
+        chance = self._combat_skill_chance(character, victim, skill, primary_stat="dexterity", defend_stat="dexterity", level_scale=2)
         chance += terrain_adjustment
         self._set_wait(character, self._skill_beats(skill, 12))
         pre_corpse_ids = self._pre_corpse_ids(room)
         if random.randint(1, 100) <= chance:
             EffectUtil.affect_to_char(victim, Effect(where="TO_AFFECTS", type="skill.dirt", level=getattr(character, "level", 0), duration=0, location="APPLY_HITROLL", modifier=-4, bitvector="AFF_BLIND"))
+            self._check_improve(character, skill, True, 2)
             result = self.fight_handler.damage(character, victim, random.randint(2, 5), dt="dirt")
             payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
             self._prepend_payload(
@@ -377,24 +393,25 @@ class FightCommands:
                 f"{self._target_name(victim)} is blinded by dirt in their eyes!\r\n",
             )
         else:
+            self._check_improve(character, skill, False, 2)
             result = self.fight_handler.damage(character, victim, 0, dt="dirt")
             payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
         context.finish()
         return payload
 
     def do_disarm(self, character: Character, context: Context):
-        skill = self._skill_meta("disarm")
-        if not self._has_skill_access(character, "disarm", skill):
+        skill = self.skill_registry.get(name="disarm")
+        if not self._has_skill_access(character, skill):
             context.finish()
             return {"to_char": "You don't know how to disarm opponents.\r\n"}
 
         weapon = getattr(getattr(character, "equipped", None), "wielded", None)
-        hand_to_hand = self._skill_percent(character, "hand to hand")
+        hand_to_hand = self.skill_api.get_rating(character, self.skill_registry.get(name="hand to hand"))
         if weapon is None and hand_to_hand <= 0:
             context.finish()
             return {"to_char": "You must wield a weapon to disarm.\r\n"}
 
-        room = self._room_for(character)
+        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         if room is None:
             context.finish()
             return {"to_char": "You are nowhere.\r\n"}
@@ -407,14 +424,16 @@ class FightCommands:
             context.finish()
             return {"to_char": "Your opponent is not wielding a weapon.\r\n"}
 
-        chance = self._combat_skill_chance(character, victim, "disarm", primary_stat="dexterity", defend_stat="strength", level_scale=2)
+        chance = self._combat_skill_chance(character, victim, skill, primary_stat="dexterity", defend_stat="strength", level_scale=2)
         if weapon is None and hand_to_hand > 0:
             chance = chance * hand_to_hand // 150
 
         self._set_wait(character, self._skill_beats(skill, 12))
         if random.randint(1, 100) <= chance:
+            self._check_improve(character, skill, True, 1)
             payload = self._disarm_payload(character, victim, room, obj)
         else:
+            self._check_improve(character, skill, False, 1)
             payload = {
                 "to_char": f"You fail to disarm {self._target_name(victim)}.\r\n",
                 "to_victim": f"{self._target_name(character)} tries to disarm you, but fails.\r\n",
@@ -433,7 +452,7 @@ class FightCommands:
             context.finish()
             return {"to_char": "You aren't fighting anyone.\r\n"}
 
-        was_in = self._room_for(character)
+        was_in = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         if was_in is None:
             context.finish()
             return {"to_char": "PANIC! You couldn't escape!\r\n"}
@@ -483,8 +502,8 @@ class FightCommands:
         }
 
     def do_rescue(self, character: Character, context: Context):
-        skill = self._skill_meta("rescue")
-        if not self._has_skill_access(character, "rescue", skill):
+        skill = self.skill_registry.get(name="rescue")
+        if not self._has_skill_access(character, skill):
             context.finish()
             return {"to_char": "You don't know how to rescue others.\r\n"}
 
@@ -493,12 +512,12 @@ class FightCommands:
             context.finish()
             return {"to_char": "Rescue whom?\r\n"}
 
-        room = self._room_for(character)
+        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         if room is None:
             context.finish()
             return {"to_char": "You are nowhere.\r\n"}
 
-        victim = PlayerUtil.get_target(character, argument, room, self.room_helper)
+        victim = PlayerUtil.get_target(character, argument, room)
         if victim is None:
             context.finish()
             return {"to_char": "They aren't here.\r\n"}
@@ -519,9 +538,11 @@ class FightCommands:
 
         self._set_wait(character, self._skill_beats(skill, 12))
         if random.randint(1, 100) > max(1, self._skill_percent(character, "rescue")):
+            self._check_improve(character, skill, False, 1)
             context.finish()
             return {"to_char": "You fail the rescue.\r\n"}
 
+        self._check_improve(character, skill, True, 1)
         self.fight_handler.stop_fighting(foe, both=False)
         self.fight_handler.stop_fighting(victim, both=False)
         self.fight_handler.stop_fighting(character, both=False)
@@ -537,12 +558,12 @@ class FightCommands:
         }
 
     def do_kick(self, character: Character, context: Context):
-        skill = self._skill_meta("kick")
-        if not self._has_skill_access(character, "kick", skill):
+        skill = self.skill_registry.get(name="kick")
+        if not self._has_skill_access(character, skill):
             context.finish()
             return {"to_char": "You better leave the martial arts to fighters.\r\n"}
 
-        room = self._room_for(character)
+        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         victim = getattr(character, "fighting", None)
         if room is None:
             context.finish()
@@ -554,19 +575,21 @@ class FightCommands:
         self._set_wait(character, self._skill_beats(skill, 12))
         pre_corpse_ids = self._pre_corpse_ids(room)
         if random.randint(1, 100) <= max(1, self._skill_percent(character, "kick")):
+            self._check_improve(character, skill, True, 1)
             result = self.fight_handler.damage(character, victim, random.randint(1, max(1, GenericUtil.to_int(getattr(character, "level", 1), 1))), dt="kick")
         else:
+            self._check_improve(character, skill, False, 1)
             result = self.fight_handler.damage(character, victim, 0, dt="kick")
         context.finish()
         return self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
 
     def do_trip(self, character: Character, context: Context):
-        skill = self._skill_meta("trip")
-        if not self._has_skill_access(character, "trip", skill):
+        skill = self.skill_registry.get(name="trip")
+        if not self._has_skill_access(character, skill):
             context.finish()
             return {"to_char": "Tripping? What's that?\r\n"}
 
-        room = self._room_for(character)
+        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         if room is None:
             context.finish()
             return {"to_char": "You are nowhere.\r\n"}
@@ -583,7 +606,7 @@ class FightCommands:
         if self._kill_steal_blocked(character, victim):
             context.finish()
             return {"to_char": "Kill stealing is not permitted.\r\n"}
-        if self._affected(victim, "AFF_FLYING"):
+        if CharacterMacros.is_affected_by_name(victim, self.AffectBits, "AFF_FLYING"):
             context.finish()
             return {"to_char": "Their feet aren't on the ground.\r\n"}
         if self._position(victim) < self._pos("POS_FIGHTING"):
@@ -594,13 +617,14 @@ class FightCommands:
             context.finish()
             return {"to_char": "You fall flat on your face!\r\n", "to_room": f"{character.name} trips over their own feet!\r\n", "targets": room.player_targets(character)}
 
-        chance = self._combat_skill_chance(character, victim, "trip", primary_stat="dexterity", defend_stat="dexterity", level_scale=2)
+        chance = self._combat_skill_chance(character, victim, skill, primary_stat="dexterity", defend_stat="dexterity", level_scale=2)
         self._set_wait(character, self._skill_beats(skill, 12))
         pre_corpse_ids = self._pre_corpse_ids(room)
         if random.randint(1, 100) <= chance:
             self._set_daze(victim, 24)
             CharacterMacros.set_position(victim, "POS_RESTING")
             size = max(1, GenericUtil.to_int(getattr(victim, "size", 1), 1))
+            self._check_improve(character, skill, True, 1)
             result = self.fight_handler.damage(character, victim, random.randint(2, 2 + (2 * size)), dt="trip")
             payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
             self._prepend_payload(
@@ -610,12 +634,14 @@ class FightCommands:
                 f"{self._target_name(character)} trips {self._target_name(victim)}, sending them to the ground.\r\n",
             )
         else:
+            self._check_improve(character, skill, False, 1)
             result = self.fight_handler.damage(character, victim, 0, dt="trip")
             payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
         context.finish()
         return payload
 
     def _resolve_spell_target(self, character: Character, room, spell, target_arg: str):
+        from util.ItemUtil import ItemUtil
         target_type = str(getattr(spell, "target", "") or "").upper()
         argument = str(target_arg or "").strip()
 
@@ -628,11 +654,11 @@ class FightCommands:
             return character, "char", ""
 
         if target_type == "CHAR_DEFENSIVE":
-            victim = PlayerUtil.get_target(character, argument, room, self.room_helper) if argument else character
+            victim = PlayerUtil.get_target(character, argument, room) if argument else character
             return (victim, "char", "") if victim is not None else (None, "", "Cast the spell on whom?\r\n")
 
         if target_type == "CHAR_OFFENSIVE":
-            victim = PlayerUtil.get_target(character, argument, room, self.room_helper) if argument else getattr(character, "fighting", None)
+            victim = PlayerUtil.get_target(character, argument, room) if argument else getattr(character, "fighting", None)
             if victim is None:
                 return None, "", "Cast the spell on whom?\r\n"
             safe, safe_msg = self.fight_handler.is_safe(character, victim, room=room)
@@ -651,7 +677,7 @@ class FightCommands:
         if target_type == "OBJ_CHAR_DEF":
             if not argument:
                 return character, "char", ""
-            victim = PlayerUtil.get_target(character, argument, room, self.room_helper)
+            victim = PlayerUtil.get_target(character, argument, room)
             if victim is not None:
                 return victim, "char", ""
             obj = ItemUtil.find_inventory_item(character, argument)
@@ -665,7 +691,7 @@ class FightCommands:
                 if victim is None:
                     return None, "", "Cast the spell on whom or what?\r\n"
                 return victim, "char", ""
-            victim = PlayerUtil.get_target(character, argument, room, self.room_helper)
+            victim = PlayerUtil.get_target(character, argument, room)
             if victim is not None:
                 safe, safe_msg = self.fight_handler.is_safe(character, victim, room=room)
                 if safe and victim is not character:
@@ -678,57 +704,23 @@ class FightCommands:
 
         return None, "", "You can't cast that right now.\r\n"
 
-    def _room_for(self, character):
-        return self.room_registry.get_or_none(id=getattr(character, "room_id", ""))
-
-    @staticmethod
-    def _skill_entry_name(entry) -> str:
-        if isinstance(entry, dict):
-            return str(entry.get("name", "") or "").strip().lower()
-        return str(getattr(entry, "name", "") or "").strip().lower()
-
-    @staticmethod
-    def _skill_entry_percent(entry) -> int:
-        if isinstance(entry, dict):
-            for key in ("level", "learned", "percent", "value"):
-                if key in entry:
-                    return max(0, min(100, GenericUtil.to_int(entry.get(key, 0), 0)))
-            return 0
-        for key in ("level", "learned", "percent", "value"):
-            if hasattr(entry, key):
-                return max(0, min(100, GenericUtil.to_int(getattr(entry, key, 0), 0)))
-        return 0
-
-    def _skill_meta(self, skill_name: str):
-        registry = getattr(self.skill_registry, "all_skills", None)
-        if not callable(registry):
-            return None
-        wanted = str(skill_name or "").strip().lower()
-        for skill in registry():
-            if str(getattr(skill, "name", "") or "").strip().lower() == wanted:
-                return skill
-        return None
-
-    def _skill_percent(self, character: Character, skill_name: str) -> int:
-        wanted = str(skill_name or "").strip().lower()
-        for entry in list(getattr(character, "skills", []) or []):
-            if self._skill_entry_name(entry) == wanted:
-                return self._skill_entry_percent(entry)
-        return 0
-
-    def _has_skill_access(self, character: Character, skill_name: str, skill_meta=None) -> bool:
+    def _has_skill_access(self, character: Character, skill: Skill) -> bool:
         if CharacterMacros.is_npc(character):
             return True
-        skill_meta = skill_meta or self._skill_meta(skill_name)
-        if skill_meta is None:
-            return False
         if GenericUtil.to_int(getattr(character, "level", 0), 0) < FightUtil.level_for_class(skill_meta, character):
             return False
-        return self._skill_percent(character, skill_name) > 0
+        return self.skill_api.get_rating(character, skill) > 0
 
     @staticmethod
     def _skill_beats(skill_meta, default: int = 12) -> int:
         return max(1, GenericUtil.to_int(getattr(skill_meta, "beats", default), default))
+
+    @staticmethod
+    def _check_improve(character: Character, skill_meta, success: bool, multiplier: int) -> None:
+        skill_id = str(getattr(skill_meta, "id", "") or "").strip()
+        if not skill_id:
+            return
+        SkillUtil.check_improve(character, skill_id, success, multiplier)
 
     @staticmethod
     def _room_targets(room, *excluded):
@@ -760,7 +752,7 @@ class FightCommands:
     def _resolve_optional_target(self, character: Character, room, context: Context, no_target_text: str):
         argument = FightUtil.parse_action_argument(context.result, context.parameters)
         if argument:
-            victim = PlayerUtil.get_target(character, argument, room, self.room_helper)
+            victim = PlayerUtil.get_target(character, argument, room)
             if victim is None:
                 return None, "They aren't here.\r\n"
             return victim, ""
@@ -774,7 +766,7 @@ class FightCommands:
         attrs = getattr(entity, "character_attributes", None)
         if attrs is not None and hasattr(attrs, field_name):
             return GenericUtil.to_int(getattr(attrs, field_name, default), default)
-        perm = getattr(entity, "perm_stat", None)
+        perm = getattr(entity, "character_attributes", None)
         if perm is not None and hasattr(perm, field_name):
             return GenericUtil.to_int(getattr(perm, field_name, default), default)
         return GenericUtil.to_int(getattr(entity, field_name, default), default)
@@ -791,25 +783,22 @@ class FightCommands:
     def _pos(name: str) -> int:
         return CharacterMacros.pos_value(name)
 
-    def _combat_skill_chance(self, character: Character, victim, skill_name: str, primary_stat: str, defend_stat: str, level_scale: int = 1) -> int:
-        chance = self._skill_percent(character, skill_name)
+    def _combat_skill_chance(self, character: Character, victim, skill: Skill, primary_stat: str, defend_stat: str, level_scale: int = 1) -> int:
+        chance = self.skill_api.get_rating(character, skill)
         chance += self._attribute(character, primary_stat, 10)
         chance -= self._attribute(victim, defend_stat, 10)
         chance += (GenericUtil.to_int(getattr(character, "level", 0), 0) - GenericUtil.to_int(getattr(victim, "level", 0), 0)) * level_scale
-        if self._affected(character, "AFF_HASTE"):
+        if CharacterMacros.is_affected_by_name(character, self.AffectBits, "AFF_HASTE"):
             chance += 10
-        if self._affected(victim, "AFF_HASTE"):
+        if CharacterMacros.is_affected_by_name(victim, self.AffectBits, "AFF_HASTE"):
             chance -= 20
-        if self._affected(character, "AFF_SLOW"):
+        if CharacterMacros.is_affected_by_name(character, self.AffectBits, "AFF_SLOW"):
             chance -= 10
-        if self._affected(victim, "AFF_SLOW"):
+        if CharacterMacros.is_affected_by_name(victim, self.AffectBits, "AFF_SLOW"):
             chance += 10
         if self._size(character) < self._size(victim):
             chance += (self._size(character) - self._size(victim)) * 10
         return max(5, min(95, chance))
-
-    def _affected(self, entity, affect_name: str) -> bool:
-        return self.fight_handler._entity_has_affect(entity, affect_name)
 
     @staticmethod
     def _entity_has_effect_type(entity, effect_type: str) -> bool:
@@ -849,6 +838,7 @@ class FightCommands:
 
     def _kill_steal_blocked(self, character, victim) -> bool:
         current = getattr(victim, "fighting", None)
+        print(f"Checking kill steal block for {character.name} against {victim.name}, current: {current}")
         return CharacterMacros.is_npc(victim) and current is not None and current is not character
 
     def _disarm_payload(self, character, victim, room, obj) -> dict:
@@ -888,9 +878,9 @@ class FightCommands:
         if CharacterMacros.is_npc(character):
             return 0
         move = (MovementUtil.sector_cost(getattr(in_room, "sector_type", 0)) + MovementUtil.sector_cost(getattr(to_room, "sector_type", 0))) // 2
-        if self._affected(character, "AFF_FLYING") or self._affected(character, "AFF_HASTE"):
+        if CharacterMacros.is_affected_by_name(character, self.AffectBits, "AFF_FLYING") or CharacterMacros.is_affected_by_name(character, self.AffectBits, "AFF_HASTE"):
             move //= 2
-        if self._affected(character, "AFF_SLOW"):
+        if CharacterMacros.is_affected_by_name(character, self.AffectBits, "AFF_SLOW"):
             move *= 2
         return max(1, move)
 
@@ -912,9 +902,9 @@ class FightCommands:
         if to_room.is_room_private(room_flags):
             return None
         if not CharacterMacros.is_npc(character):
-            if (room.is_air_room(CharacterMacros.get_enum("sectorTypes")) or to_room.is_air_room(CharacterMacros.get_enum("sectorTypes"))) and not self._affected(character, "AFF_FLYING") and not CharacterMacros.is_immortal(character):
+            if (room.is_air_room(CharacterMacros.get_enum("sectorTypes")) or to_room.is_air_room(CharacterMacros.get_enum("sectorTypes"))) and not CharacterMacros.is_affected_by_name(character, self.AffectBits, "AFF_FLYING") and not CharacterMacros.is_immortal(character):
                 return None
-            if (room.requires_boat(CharacterMacros.get_enum("sectorTypes")) or to_room.requires_boat(CharacterMacros.get_enum("sectorTypes"))) and not self._affected(character, "AFF_FLYING") and not character.has_boat():
+            if (room.requires_boat(CharacterMacros.get_enum("sectorTypes")) or to_room.requires_boat(CharacterMacros.get_enum("sectorTypes"))) and not CharacterMacros.is_affected_by_name(character, self.AffectBits, "AFF_FLYING") and not character.has_boat():
                 return None
             if GenericUtil.to_int(getattr(character, "movement", 0), 0) < self._movement_cost(character, room, to_room):
                 return None

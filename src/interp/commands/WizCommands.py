@@ -420,7 +420,7 @@ class WizCommands:
             if attrs is not None and hasattr(self.PositionsEnum, "POS_STANDING"):
                 attrs.position = int(self.PositionsEnum.POS_STANDING.value)
         for mob in room.mobiles.values():
-            setattr(mob, "fighting", None)
+            CharacterMacros.unset_bit(mob.start_pos, self.PositionsEnum.POS_STANDING.value)
         context.finish()
         return {"to_char": "Ok.\r\n"}
 

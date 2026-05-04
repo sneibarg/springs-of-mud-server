@@ -31,6 +31,7 @@ from player.CharacterMacros import CharacterMacros
 from player.PlayerService import PlayerService
 from player.CharacterService import CharacterService
 from server.LoggerFactory import LoggerFactory
+from skill.SkillApi import SkillApi
 from skill.SkillService import SkillService
 from skill.SpellService import SpellService
 from game.RegistryService import RegistryService
@@ -62,6 +63,7 @@ class ServerUtil:
 
         ServerUtil._bind_network_services(injector)
         ServerUtil._bind_registries(injector)
+        ServerUtil._bind_api_instances(injector)
         ServerUtil._bind_handlers(injector)
         ServerUtil._bind_game_data(injector)
         ServerUtil._bind_game_services(injector, service_config)
@@ -143,6 +145,10 @@ class ServerUtil:
         )
 
     @staticmethod
+    def _bind_api_instances(injector):
+        injector.binder.bind(SkillApi, scope=singleton)
+
+    @staticmethod
     def lazy_load(injector) -> None:
         game_service = injector.get(GameService)
         player_service = injector.get(PlayerService)
@@ -175,6 +181,8 @@ class ServerUtil:
         info_commands = injector.get(InfoCommands)
         movement_commands = injector.get(MovementCommands)
         wiz_commands = injector.get(WizCommands)
+        skill_api = injector.get(SkillApi)
+        fight_commands = injector.get(FightCommands)
 
         CharacterMacros.configure(
             registry_provider=lambda: registry_service,
@@ -185,6 +193,8 @@ class ServerUtil:
             weather_handler_provider=lambda: weather_handler,
         )
 
+        fight_commands.lazy_load()
+        skill_api.lazy_load()
         fight_handler.lazy_load()
         fight_handler.set_mobile_handler(mobile_handler)
         wiz_commands.lazy_load()
@@ -198,9 +208,11 @@ class ServerUtil:
         weather_handler.lazy_load()
         game_service.set_update_handler(injector.get(UpdateHandler))
 
-        service_list = (
-            f"{game_service.__name__}; {player_service.__name__}; {room_service.__name__}; {area_service.__name__}; "
-            f"{skill_service.__name__}; {spell_service.__name__}; {item_service.__name__}\r\n{help_service.__name__}; {mobile_service.__name__}; "
-            f"{interp_service.__name__}; {social_service.__name__}; {note_service.__name__}; {character_service.__name__} "
-            f"{shop_service.__name__}; {reset_service.__name__}; {special_service.__name__}.")
-        logger.info(f"The following services have been started: {service_list}")
+        services = (
+            game_service, player_service, room_service, area_service,
+            skill_service, spell_service, item_service, help_service,
+            mobile_service, interp_service, social_service, note_service,
+            character_service, shop_service, reset_service, special_service
+        )
+        service_list = "; ".join(s.__name__ for s in services)
+        logger.info(f"The following services have been started: {service_list}.")

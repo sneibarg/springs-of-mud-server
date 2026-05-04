@@ -948,7 +948,7 @@ class SpellApi:
         attrs = getattr(entity, "character_attributes", None)
         if attrs is not None:
             return GenericUtil.to_int(getattr(attrs, "alignment", 0), 0)
-        perm = getattr(entity, "perm_stat", None)
+        perm = getattr(entity, "character_attributes", None)
         if perm is not None:
             return GenericUtil.to_int(getattr(perm, "alignment", 0), 0)
         return GenericUtil.to_int(getattr(entity, "alignment", 0), 0)

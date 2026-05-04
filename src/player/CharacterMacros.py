@@ -168,6 +168,10 @@ class CharacterMacros(GameMacros):
             return bonus
         return bonus_table.get(normalized,{})
 
+    @classmethod
+    def get_registry(cls):
+        return cls._registry()
+
     @staticmethod
     def is_npc(char: Any) -> bool:
         from mobile.Mobile import Mobile
@@ -185,7 +189,7 @@ class CharacterMacros(GameMacros):
 
     @classmethod
     def is_affected(cls, char: Any, effect) -> bool:
-        return cls.is_set(GenericUtil.to_int(char.status_flags.affected_by, 0), effect)
+        return cls.is_set(char.status_flags.affected_by, effect)
 
     @classmethod
     def is_blind(cls, character: Any) -> bool:
@@ -206,13 +210,13 @@ class CharacterMacros(GameMacros):
     def is_good(char: Any) -> bool:
         if type(char) is Character:
             return char.character_attributes.alignment >= 350
-        return char.perm_stat.alignment >= 350
+        return char.character_attributes.alignment >= 350
 
     @staticmethod
     def is_evil(char: Any) -> bool:
         if type(char) is Character:
             return char.character_attributes.alignment <= -350
-        return char.perm_stat.alignment <= -350
+        return char.character_attributes.alignment <= -350
 
     @classmethod
     def is_neutral(cls, char: Any) -> bool:
@@ -731,10 +735,7 @@ class CharacterMacros(GameMacros):
         if affected_bits is None or not hasattr(affected_bits, bit_name):
             return False
         bit = getattr(affected_bits, bit_name).value
-        return cls.is_set(
-            GenericUtil.to_int(getattr(character.status_flags, "affected_by", 0), 0),
-            bit,
-        )
+        return cls.is_set(character.status_flags.affected_by, bit)
 
     @classmethod
     def set_affected_by_name(cls, character: Character, affected_bits, bit_name: str, enabled: bool):

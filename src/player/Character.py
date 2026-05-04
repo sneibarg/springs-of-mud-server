@@ -4,6 +4,7 @@ import threading
 
 from dataclasses import dataclass, field
 from datetime import datetime
+from operator import ifloordiv
 from typing import Dict, List, Optional, Any, TYPE_CHECKING
 
 from interp.PromptFormat import PromptFormat
@@ -82,6 +83,18 @@ class Character:
         with self.lock:
             for item in self.inventory:
                 self.loot.append(Item.from_json(item))
+
+    def skill_level(self, skill_name: str) -> int:
+        for skill in self.skills:
+            if skill_name == skill.name:
+                return skill.level
+        return 1
+
+    def spell_level(self, spell_name: str) -> int:
+        for spell in self.spells:
+            if spell_name == spell.name:
+                return spell.level
+        return 1
 
     def get_items(self) -> List[Item]:
         return self.loot
@@ -281,3 +294,13 @@ class Character:
         if character_macros.is_blind(self):
             return False
         return True
+
+    def learned(self) -> List[Any]:
+        return [self.skills, self.spells]
+
+    def get_learned(self, learned_id):
+        for learned in self.learned():
+            for item in learned:
+                if item.id == learned_id:
+                    return item
+        return None

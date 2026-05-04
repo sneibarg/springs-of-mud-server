@@ -177,7 +177,7 @@ class ItemUtil:
     def update_staff(skill_registry, item_data):
         try:
             skill_name = item_data['value3']
-            skill = skill_registry.get_skill_by_name(skill_name)
+            skill = skill_registry.get(name=skill_name)
             item_data['value3'] = str(skill)
         except Exception as e:
             print(f"Failed to update staff skill: {e}")
@@ -188,7 +188,7 @@ class ItemUtil:
             try:
                 skill_name = item_data[skill_key]
                 if skill_name != "":
-                    skill = skill_registry.get_skill_by_name(skill_name)
+                    skill = skill_registry.get(name=skill_name)
                     item_data[skill_key] = str(skill)
             except Exception as e:
                 print(f"Failed to update scroll skill: {e}")

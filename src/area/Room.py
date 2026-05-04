@@ -257,6 +257,8 @@ class Room:
     def get_players_in_room(self, character: Character) -> str:
         text = ""
         for char_in_room in self.players_in_room():
+            if char_in_room.id == character.id:
+                continue
             if char_in_room.cloaked:
                 continue
             text += PlayerUtil.format_visible_character_line(character, char_in_room)

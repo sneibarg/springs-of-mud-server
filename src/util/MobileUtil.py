@@ -24,21 +24,16 @@ class MobileUtil:
     pass
 
     @staticmethod
-    def build_mobile(mobile_id: str, races: dict, mobile_data: dict, npc_flag: int, enums: dict[str, type[IntEnum]]) -> tuple[Mobile, int]:
+    def build_mobile(mobile_id: str, races: dict, mobile_data: dict) -> Mobile:
         player_name = str(mobile_data.get("name", "") or "")
         race_name = MobileUtil.resolve_race_name(races, mobile_data.get("race"), player_name)
-        race = races[race_name] or {}
-        flag_letters = enums.get("flagLetters")
-        flags = MobileUtil.resolve_mobile_flags(mobile_data, race, npc_flag, flag_letters)
+        status_flags = MobileUtil.resolve_mobile_flags(mobile_data)
         level = GenericUtil.to_int(mobile_data.get("level", 0), default=0)
         normalized = MobileUtil.build_normalized_mobile_data(mobile_id, mobile_data, player_name, race_name, level)
-
         mobile = Mobile.from_json(normalized)
-        mobile.status_flags = flags
-        mobile.form = flags.form
-        mobile.parts = flags.parts
+        mobile.status_flags = status_flags
         MobileUtil.apply_extended_mobile_fields(mobile, mobile_data)
-        return mobile, level
+        return mobile
 
     @staticmethod
     def convert_form(race: str, form: int):
@@ -57,61 +52,8 @@ class MobileUtil:
         return None
 
     @staticmethod
-    def resolve_mobile_flags(mobile_data: dict, race: dict, npc_flag: int, flag_letters: type[IntEnum] | None) -> StatusFlags:
-        raw_act = GenericUtil.to_int(mobile_data.get("actFlags") or mobile_data.get("act_flags"), 0)
-        raw_aff = GenericUtil.to_int(mobile_data.get("affectFlags") or mobile_data.get("affect_flags"), 0)
-        combat_raw = MobileUtil.parse_combat_flags(mobile_data.get("combat_flags"))
-        raw_off = MobileUtil.resolve_combat_flag(mobile_data, combat_raw, "off_flags", "offFlags", flag_letters)
-        raw_imm = MobileUtil.resolve_combat_flag(mobile_data, combat_raw, "imm_flags", "immFlags", flag_letters)
-        raw_res = MobileUtil.resolve_combat_flag(mobile_data, combat_raw, "res_flags", "resFlags", flag_letters)
-        raw_vuln = MobileUtil.resolve_combat_flag(mobile_data, combat_raw, "vuln_flags", "vulnFlags", flag_letters)
-        raw_form = GenericUtil.to_int(mobile_data.get("form"), 0)
-        raw_parts = GenericUtil.to_int(mobile_data.get("parts"), 0)
-        race_act = MobileUtil.race_flag_value(race, "act", mobile_data.get("race"))
-        race_aff = MobileUtil.race_flag_value(race, "aff", mobile_data.get("race"))
-        race_off = MobileUtil.race_flag_value(race, "off", mobile_data.get("race"))
-        race_imm = MobileUtil.race_flag_value(race, "imm", mobile_data.get("race"))
-        race_res = MobileUtil.race_flag_value(race, "res", mobile_data.get("race"))
-        race_vuln = MobileUtil.race_flag_value(race, "vuln", mobile_data.get("race"))
-        race_form = MobileUtil.race_flag_value(race, "form", mobile_data.get("race"))
-        race_parts = MobileUtil.race_flag_value(race, "parts", mobile_data.get("race"))
-        # act: int
-        # comm: int
-        # affected_by: int
-        # off: int
-        # imm: int
-        # res: int
-        # vuln: int
-        # form: int
-        # parts: int
-        # invis_level: int
-        # incog_level: int
-        # played: int
-        # logon: int
-        # pulse_wait: int
-        # pulse_daze: int
-        mobile_flags = StatusFlags(
-            act=raw_act | npc_flag | race_act,
-            comm=0,
-            affected_by=raw_aff | race_aff,
-            off=raw_off | race_off,
-            imm=raw_imm | race_imm,
-            res=raw_res | race_res,
-            vuln=raw_vuln | race_vuln,
-            form=raw_form | race_form,
-            parts=raw_parts | race_parts,
-            hunger=48,
-            thirst=48,
-            drunk=0,
-            invis_level=0,
-            incog_level=0,
-            played=0,
-            logon=0,
-            pulse_wait=GenericUtil.to_int(mobile_data.get("pulse_wait"), 0),
-            pulse_daze=GenericUtil.to_int(mobile_data.get("pulse_daze"), 0),
-        )
-        MobileUtil.apply_flag_removes(mobile_flags, mobile_data.get("flag_removes",[]))  # this always defaults to [] - there are no flag removal entries in ROM2.4.
-        return mobile_flags
+    def resolve_mobile_flags(mobile_data: dict) -> StatusFlags:
+        return StatusFlags.from_json(mobile_data.get("status_flags", {}))
 
     @staticmethod
     def parse_combat_flags(value) -> dict:
@@ -212,8 +154,8 @@ class MobileUtil:
             "alignment": str(mobile_data.get("alignment", "0") or "0"),
             "group": str(GenericUtil.to_int(mobile_data.get("group", 0), default=0)),
             "dam_type": str(mobile_data.get("dam_type", "") or ""),
-            "start_pos": str(start_pos),
-            "default_pos": str(default_pos),
+            "start_pos": GenericUtil.to_int(start_pos, default=0),
+            "default_pos": GenericUtil.to_int(default_pos, default=0),
             "sex": str(sex_value),
             "size": str(mobile_data.get("size", "") or ""),
             "material": str(mobile_data.get("material", "") or ""),
@@ -227,7 +169,7 @@ class MobileUtil:
             "armor_class": None,
             "gold": GenericUtil.to_int(mobile_data.get("gold", 0), default=0),
             "silver": GenericUtil.to_int(mobile_data.get("silver", 0), default=0),
-            "status_flags": mobile_data.get("status_flags", {}),
+            "status_flags": None,
             "lock": mobile_data.get("lock"),
         }
 
@@ -268,36 +210,36 @@ class MobileUtil:
         act_bits = enums.get('actBits')
         off_bits = enums.get('offenseTypes')
 
-        mob.perm_stat.strength = min(25, 11 + mob.level // 4)
-        mob.perm_stat.intelligence = min(25, 11 + mob.level // 4)
-        mob.perm_stat.wisdom = min(25, 11 + mob.level // 4)
-        mob.perm_stat.dexterity = min(25, 11 + mob.level // 4)
-        mob.perm_stat.constitution = min(25, 11 + mob.level // 4)
+        mob.character_attributes.strength = min(25, 11 + mob.level // 4)
+        mob.character_attributes.intelligence = min(25, 11 + mob.level // 4)
+        mob.character_attributes.wisdom = min(25, 11 + mob.level // 4)
+        mob.character_attributes.dexterity = min(25, 11 + mob.level // 4)
+        mob.character_attributes.constitution = min(25, 11 + mob.level // 4)
 
         if GameMacros.is_set(mob.status_flags.act, act_bits.ACT_WARRIOR.value):
-            mob.perm_stat.strength += 3
-            mob.perm_stat.intelligence -= 1
-            mob.perm_stat.constitution += 2
+            mob.character_attributes.strength += 3
+            mob.character_attributes.intelligence -= 1
+            mob.character_attributes.constitution += 2
         elif GameMacros.is_set(mob.status_flags.act, act_bits.ACT_THIEF.value):
-            mob.perm_stat.dexterity += 3
-            mob.perm_stat.intelligence += 1
-            mob.perm_stat.wisdom -= 1
+            mob.character_attributes.dexterity += 3
+            mob.character_attributes.intelligence += 1
+            mob.character_attributes.wisdom -= 1
         elif GameMacros.is_set(mob.status_flags.act, act_bits.ACT_CLERIC.value):
-            mob.perm_stat.wisdom += 3
-            mob.perm_stat.dexterity -= 1
-            mob.perm_stat.strength += 1
+            mob.character_attributes.wisdom += 3
+            mob.character_attributes.dexterity -= 1
+            mob.character_attributes.strength += 1
         elif GameMacros.is_set(mob.status_flags.act, act_bits.ACT_MAGE.value):
-            mob.perm_stat.intelligence += 3
-            mob.perm_stat.strength -= 1
-            mob.perm_stat.dexterity += 1
+            mob.character_attributes.intelligence += 3
+            mob.character_attributes.strength -= 1
+            mob.character_attributes.dexterity += 1
 
         if GameMacros.is_set(mob.status_flags.off, off_bits.OFF_FAST.value):
-            mob.perm_stat.dexterity += 2
+            mob.character_attributes.dexterity += 2
 
         size_key = "SIZE_" + mob.size.upper()
         size_bonus = enums["size"][size_key] - 2
-        mob.perm_stat.strength += size_bonus
-        mob.perm_stat.constitution += size_bonus // 2
+        mob.character_attributes.strength += size_bonus
+        mob.character_attributes.constitution += size_bonus // 2
 
     #  aff_type needs to be replaced with the result of skill_lookup("haste") etc.
     @staticmethod
@@ -348,7 +290,7 @@ class MobileUtil:
             "silver": 0,
             "flags": None,
             "status_flags": pMobIndex.status_flags,
-            "perm_stat": CharacterAttributes.default()
+            "character_attributes": CharacterAttributes.default()
         })
 
         if pMobIndex.gold and pMobIndex.gold > 0:
@@ -382,7 +324,7 @@ class MobileUtil:
                 mob.status_flags = StatusFlags.from_template(pMobIndex.status_flags)
             mob.start_pos = pMobIndex.start_pos
             mob.default_pos = pMobIndex.default_pos
-            mob.perm_stat.position = mob.start_pos
+            mob.character_attributes.position = mob.start_pos
             mob.sex = pMobIndex.sex
             if mob.sex == "3":
                 mob.sex = str(rng.number_range(1, 2))
