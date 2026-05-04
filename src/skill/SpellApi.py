@@ -852,16 +852,8 @@ class SpellApi:
                 return target
         return None
 
-    def _move_character(
-        self,
-        ctx: SpellContext,
-        victim,
-        room,
-        notify_victim: bool = False,
-        line: str = "",
-        from_room_line: str = "",
-        to_room_line: str = "",
-    ):
+    def _move_character(self, ctx: SpellContext, victim, room,
+                        notify_victim: bool = False, line: str = "",from_room_line: str = "", to_room_line: str = ""):
         current = self._find_room_for_entity(victim)
         if current is None or room is None or str(getattr(current, "id", "")) == str(getattr(room, "id", "")):
             return False

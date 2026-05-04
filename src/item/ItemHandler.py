@@ -4,7 +4,7 @@ from game.RegistryService import RegistryService
 from interp.Context import Context
 from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
-from item.ObjectMacros import ObjectMacros
+from item.ItemMacros import ObjectMacros
 from player.Character import Character
 from server.messaging import MessageBus
 

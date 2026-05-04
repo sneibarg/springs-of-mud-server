@@ -1,4 +1,4 @@
-__all__ = ['Item', 'ObjectMacros']
+__all__ = ['Item', 'ItemMacros.py']
 
 
 def __getattr__(name):
@@ -6,7 +6,7 @@ def __getattr__(name):
         from .Item import Item
         return Item
     if name == "ObjectMacros":
-        from .ObjectMacros import ObjectMacros
+        from .ItemMacros import ObjectMacros
         return ObjectMacros
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 

@@ -6,7 +6,7 @@ from game.RandomNumberGenerator import RandomNumberGenerator
 from item.ItemRegistry import ItemRegistry
 from util.GenericUtil import GenericUtil
 from item.ExtraDescriptionData import ExtraDescriptionData
-from item.ObjectMacros import ObjectMacros
+from item.ItemMacros import ObjectMacros
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory

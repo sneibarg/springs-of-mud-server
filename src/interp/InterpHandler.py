@@ -30,13 +30,6 @@ class InterpHandler:
         self.connection_manager = injector.get(ConnectionManager)
         self.command_not_found_message = self.message_bus.text_to_message("Huh?\r\n")
 
-    def get_message(self, cmd):
-        command = self.interp_registry.get_or_none(name=cmd.lower())
-        if command is None or command.message is None:
-            self.logger.error(f"Issue with command {cmd} in registry; message is {command.message if command else 'None'}")
-            return None
-        return command.message
-
     @staticmethod
     async def _execute_lambda(func, context) -> Context:
         result = func(context)

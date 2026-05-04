@@ -10,7 +10,7 @@ from util.InterpUtil import InterpUtil
 from util.MobileUtil import MobileUtil
 from util.EffectUtil import EffectUtil
 from util.ItemUtil import ItemUtil
-from item.ObjectMacros import ObjectMacros
+from item.ItemMacros import ObjectMacros
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory

@@ -26,7 +26,7 @@ from game.GameService import GameService
 from game.NoteHandler import NoteHandler
 from game.NoteService import NoteService
 from mobile.MobileService import MobileService
-from item.ObjectMacros import ObjectMacros
+from item.ItemMacros import ObjectMacros
 from player.CharacterMacros import CharacterMacros
 from player.PlayerService import PlayerService
 from player.CharacterService import CharacterService

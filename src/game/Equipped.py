@@ -136,7 +136,7 @@ class Equipped:
 
     @classmethod
     def wear_slot_groups_for_item(cls, item, wear_flags_enum, *, preferred_slot: str = "", forced_slot: str = "") -> list[tuple[str, ...]]:
-        from item.ObjectMacros import ObjectMacros
+        from item.ItemMacros import ObjectMacros
 
         groups: list[tuple[str, ...]] = []
         requested = (forced_slot or preferred_slot or "").strip().lower()
