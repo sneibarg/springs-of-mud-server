@@ -11,18 +11,16 @@ from fight.FightHandler import FightHandler
 from util.MobileUtil import MobileUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
-from player.PlayerHelper import PlayerHelper
 from server.LoggerFactory import LoggerFactory
 
 
 class MovementCommands:
     @inject
-    def __init__(self, registry_service: RegistryService, player_helper: PlayerHelper, game_data: GameData, fight_handler: FightHandler):
+    def __init__(self, registry_service: RegistryService, game_data: GameData, fight_handler: FightHandler):
         self.__name__ = "MovementCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.room_registry = registry_service.room_registry
-        self.player_helper = player_helper
         self.game_data = game_data
         self.fight_handler = fight_handler
         self.exit_flags = None
@@ -100,7 +98,7 @@ class MovementCommands:
                 return {"to_char": "You are too exhausted.\r\n"}
             character.movement -= move
 
-        from_room_targets = self.player_helper.players_in_room(character, in_room)
+        from_room_targets = in_room.player_targets(character)
         leave_msg = None
         if (not CharacterMacros.is_affected_by_name(character, self.affected_bits,"AFF_SNEAK")
                 and GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0) < 51):
@@ -110,7 +108,7 @@ class MovementCommands:
         to_room.add_player_to_room(character)
         character.room_id = to_room.id
 
-        to_room_targets = self.player_helper.players_in_room(character, to_room)
+        to_room_targets = to_room.player_targets(character)
         arrive_msg = None
         if (not CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_SNEAK")
                 and GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0) < 51):
@@ -171,7 +169,7 @@ class MovementCommands:
         ex.exit_flags = flags & ~ex_closed if ex_closed else flags
         CharacterMacros.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, set_mask=ex_closed)
         context.finish()
-        return {"to_char": "Ok.\r\n", "to_room": f"{character.name} opens the {ex.keyword or 'door'}.\r\n", "targets": self.player_helper.players_in_room(character, room)}
+        return {"to_char": "Ok.\r\n", "to_room": f"{character.name} opens the {ex.keyword or 'door'}.\r\n", "targets": room.player_targets(character)}
 
     def do_close(self, character: Character, context: Context) -> dict:
         arg = (context.result if isinstance(context.result, str) else "").strip().lower()
@@ -197,7 +195,7 @@ class MovementCommands:
         ex.exit_flags = flags | ex_closed if ex_closed else flags
         CharacterMacros.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, set_mask=ex_closed)
         context.finish()
-        return {"to_char": "Ok.\r\n", "to_room": f"{character.name} closes the {ex.keyword or 'door'}.\r\n", "targets": self.player_helper.players_in_room(character, room)}
+        return {"to_char": "Ok.\r\n", "to_room": f"{character.name} closes the {ex.keyword or 'door'}.\r\n", "targets": room.player_targets(character)}
 
     def do_lock(self, character: Character, context: Context) -> dict:
         arg = (context.result if isinstance(context.result, str) else "").strip().lower()
@@ -235,7 +233,7 @@ class MovementCommands:
         ex.exit_flags = flags | ex_locked if ex_locked else flags
         CharacterMacros.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, set_mask=ex_locked)
         context.finish()
-        return {"to_char": "*Click*\r\n", "to_room": f"{character.name} locks the {ex.keyword or 'door'}.\r\n", "targets": self.player_helper.players_in_room(character, room)}
+        return {"to_char": "*Click*\r\n", "to_room": f"{character.name} locks the {ex.keyword or 'door'}.\r\n", "targets": room.player_targets(character)}
 
     def do_unlock(self, character: Character, context: Context) -> dict:
         arg = (context.result if isinstance(context.result, str) else "").strip().lower()
@@ -273,7 +271,7 @@ class MovementCommands:
         ex.exit_flags = flags & ~ex_locked if ex_locked else flags
         CharacterMacros.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, clear_mask=ex_locked)
         context.finish()
-        return {"to_char": "*Click*\r\n", "to_room": f"{character.name} unlocks the {ex.keyword or 'door'}.\r\n", "targets": self.player_helper.players_in_room(character, room)}
+        return {"to_char": "*Click*\r\n", "to_room": f"{character.name} unlocks the {ex.keyword or 'door'}.\r\n", "targets": room.player_targets(character)}
 
     def do_pick(self, character: Character, context: Context) -> dict:
         arg = (context.result if isinstance(context.result, str) else "").strip().lower()
@@ -308,7 +306,7 @@ class MovementCommands:
         ex.exit_flags = flags & ~ex_locked if ex_locked else flags
         CharacterMacros.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, clear_mask=ex_locked)
         context.finish()
-        return {"to_char": "*Click*\r\n", "to_room": f"{character.name} picks the {ex.keyword or 'door'}.\r\n", "targets": self.player_helper.players_in_room(character, room)}
+        return {"to_char": "*Click*\r\n", "to_room": f"{character.name} picks the {ex.keyword or 'door'}.\r\n", "targets": room.player_targets(character)}
 
     def do_stand(self, character: Character, context: Context) -> str:
         pos = CharacterMacros.position_value(character)
@@ -456,12 +454,12 @@ class MovementCommands:
             context.finish()
             return {"to_char": "Mota has forsaken you.\r\n"}
 
-        from_targets = self.player_helper.players_in_room(character, current)
+        from_targets = current.player_targets(character)
         current.remove_player_from_room(character)
         temple_room.add_player_to_room(character)
         character.room_id = temple_room.id
         character.movement = max(0, GenericUtil.to_int(getattr(character, "movement", 0), 0) // 2)
-        to_targets = self.player_helper.players_in_room(character, temple_room)
+        to_targets = temple_room.player_targets(character)
         return {
             "from_room_targets": from_targets,
             "from_room_message": f"{character.name} disappears.\r\n",

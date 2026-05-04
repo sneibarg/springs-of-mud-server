@@ -3,7 +3,7 @@ from threading import RLock
 from typing import Any, Callable, Dict, List, Optional
 
 from game.GameMacros import GameMacros
-from object.Item import Item
+from item.Item import Item
 
 
 class ObjectMacros(GameMacros):

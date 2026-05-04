@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Callable, Optional
 
 if TYPE_CHECKING:
-    from object.Item import Item
+    from item.Item import Item
 
 WEAR_LOC_TO_EQUIPPED_SLOT = {
     0: "light",
@@ -136,7 +136,7 @@ class Equipped:
 
     @classmethod
     def wear_slot_groups_for_item(cls, item, wear_flags_enum, *, preferred_slot: str = "", forced_slot: str = "") -> list[tuple[str, ...]]:
-        from object.ObjectMacros import ObjectMacros
+        from item.ObjectMacros import ObjectMacros
 
         groups: list[tuple[str, ...]] = []
         requested = (forced_slot or preferred_slot or "").strip().lower()

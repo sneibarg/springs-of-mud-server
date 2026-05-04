@@ -6,7 +6,7 @@ from types import SimpleNamespace
 
 SRC_ROOT = Path(__file__).resolve().parents[1] / "src"
 
-for package_name in ("game", "object"):
+for package_name in ("game", "item"):
     if package_name not in sys.modules:
         package = types.ModuleType(package_name)
         package.__path__ = [str(SRC_ROOT / package_name)]
@@ -41,8 +41,8 @@ if "server.LoggerFactory" not in sys.modules:
     logger_factory.LoggerFactory = LoggerFactory
     sys.modules["server.LoggerFactory"] = logger_factory
 
-if "object.ObjectMacros" not in sys.modules:
-    object_macros = types.ModuleType("object.ObjectMacros")
+if "item.ObjectMacros" not in sys.modules:
+    object_macros = types.ModuleType("item.ObjectMacros")
 
     class ObjectMacros:
         @staticmethod
@@ -50,7 +50,7 @@ if "object.ObjectMacros" not in sys.modules:
             return int(value or 0)
 
     object_macros.ObjectMacros = ObjectMacros
-    sys.modules["object.ObjectMacros"] = object_macros
+    sys.modules["item.ObjectMacros"] = object_macros
 
 from game.Equipped import Equipped
 

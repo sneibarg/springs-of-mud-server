@@ -3,8 +3,8 @@ import unittest
 from enum import IntEnum
 from unittest.mock import MagicMock
 from game.GameData import GameData
-from object.Item import Item
-from object.ObjectMacros import ObjectMacros
+from item.Item import Item
+from item.ObjectMacros import ObjectMacros
 
 
 class TestItemTypes(IntEnum):

@@ -7,7 +7,7 @@ from copy import deepcopy
 
 from game.GameMacros import GameMacros
 from util.GenericUtil import GenericUtil
-from object.Effect import Effect
+from item.Effect import Effect
 from player.CharacterMacros import CharacterMacros
 
 
@@ -409,7 +409,7 @@ class EffectUtil:
             effect = EffectUtil.effect_from_spell_affect(spell, affect_like, caster_level, source=source)
             apply_to = str(getattr(effect, "apply_to", "") or "").strip().lower()
             where = str(getattr(effect, "where", "") or "").strip().upper()
-            wants_object = apply_to == "object" or where in ("TO_OBJECT", "TO_WEAPON")
+            wants_object = apply_to == "item" or where in ("TO_OBJECT", "TO_WEAPON")
             if wants_object and hasattr(victim, "item_type"):
                 EffectUtil.affect_to_obj(victim, effect)
             elif not hasattr(victim, "item_type"):

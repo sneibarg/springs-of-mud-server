@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-from area import Room
 from mobile.MobileMacros import MobileMacros
 from player.CharacterMacros import CharacterMacros
 

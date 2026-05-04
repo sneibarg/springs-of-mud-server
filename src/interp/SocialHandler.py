@@ -24,7 +24,7 @@ class SocialHandler:
         target_name = parts[1].strip() if len(parts) > 1 and parts[1].strip() else None
         social = social or self.social_registry.get(name=social_name)
         room = self.room_registry.get(id=actor.room_id)
-        in_room = self.player_handler.player_helper.players_in_room(actor, room)
+        in_room = room.players_in_room()
         if social is None:
             return False
 

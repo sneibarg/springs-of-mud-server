@@ -1,4 +1,5 @@
 from registries import Registry
+
 from area.Room import Room
 from server.LoggerFactory import LoggerFactory
 

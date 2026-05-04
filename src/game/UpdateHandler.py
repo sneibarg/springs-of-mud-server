@@ -16,7 +16,6 @@ from util.EffectUtil import EffectUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from player.CharacterService import CharacterService
-from player.PlayerHelper import PlayerHelper
 from server.messaging.MessageBus import MessageBus
 from server.session.SessionHandler import SessionHandler
 
@@ -24,7 +23,6 @@ from server.session.SessionHandler import SessionHandler
 class UpdateHandler:
     @inject
     def __init__(self,
-                 player_helper: PlayerHelper,
                  weather_handler: WeatherHandler,
                  area_handler: AreaHandler,
                  mobile_handler: MobileHandler,
@@ -33,7 +31,6 @@ class UpdateHandler:
                  registry_service: RegistryService,
                  character_service: CharacterService,
                  session_handler: SessionHandler):
-        self.player_helper = player_helper
         self.weather_handler = weather_handler
         self.area_handler = area_handler
         self.mobile_handler = mobile_handler
@@ -624,7 +621,7 @@ class UpdateHandler:
             await self.message_bus.send_to_character(parent.id, self.message_bus.text_to_message(text + "\r\n"))
             return
         if room is not None:
-            in_room = self.player_helper.players_in_room(parent, room)
+            in_room = room.players_in_room()
             message = self.message_bus.text_to_message(text + "\r\n")
             await self.message_bus.send_to_room(message, in_room)
 
@@ -664,12 +661,12 @@ class UpdateHandler:
         message = self.message_bus.text_to_message(text + "\r\n")
         if parent_kind in ["char_loot", "char_equipped"]:
             await self.message_bus.send_to_character(parent.id, self.message_bus.text_to_message(text + "\r\n"))
-            in_room = self.player_helper.players_in_room(parent, room)
+            in_room = room.players_in_room()
             if is_float and room is not None:
                 await self.message_bus.send_to_room(message, in_room)
             return
         if room is not None:
-            in_room = self.player_helper.players_in_room(parent, room)
+            in_room = room.players_in_room()
             await self.message_bus.send_to_room(message, in_room)
 
     @staticmethod

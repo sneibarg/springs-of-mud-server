@@ -11,10 +11,10 @@ from util.GenericUtil import GenericUtil
 from mobile.Mobile import Mobile
 from util.MobileUtil import MobileUtil
 from mobile.MobileRegistry import MobileRegistry
-from object import Item
+from item import Item
 from util.ItemUtil import ItemUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
-from object.ItemRegistry import ItemRegistry
+from item.ItemRegistry import ItemRegistry
 from server.messaging import MessageBus
 from server.LoggerFactory import LoggerFactory
 
@@ -183,7 +183,7 @@ class AreaHandler:
             if live_count >= limit:
                 break
 
-        # ROM: fix object lock state from prototype.
+        # ROM: fix item lock state from prototype.
         obj_to.value1 = template_target.value1
         return True
 

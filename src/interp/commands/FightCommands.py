@@ -4,12 +4,11 @@ import random
 
 from injector import inject
 
-from area.RoomHelper import RoomHelper
 from fight.FightHandler import FightHandler
 from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
 from interp.Context import Context
-from object.Effect import Effect
+from item.Effect import Effect
 from player.Character import Character
 from player.CharacterAdvancement import CharacterAdvancement
 from player.CharacterMacros import CharacterMacros
@@ -20,20 +19,18 @@ from util.EffectUtil import EffectUtil
 from util.FightUtil import FightUtil
 from util.GenericUtil import GenericUtil
 from util.MovementUtil import MovementUtil
-from util.ObjectUtil import ObjectUtils
 from util.PlayerUtil import PlayerUtil
 
 
 class FightCommands:
     @inject
-    def __init__(self, registry_service: RegistryService, room_helper: RoomHelper, fight_handler: FightHandler, weather_handler: WeatherHandler = None):
+    def __init__(self, registry_service: RegistryService, fight_handler: FightHandler, weather_handler: WeatherHandler = None):
         self.__name__ = "FightCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.room_registry = registry_service.room_registry
         self.skill_registry = registry_service.skill_registry
         self.spell_registry = getattr(registry_service, "spell_registry", None)
-        self.room_helper = room_helper
         self.fight_handler = fight_handler
         self.weather_handler = weather_handler
         self.spell_api = SpellApi()
@@ -80,7 +77,7 @@ class FightCommands:
         if room is None:
             context.finish()
             return {"to_char": "You are nowhere.\r\n"}
-        victim = PlayerUtil.get_target(character, argument, room, self.room_helper)
+        victim = PlayerUtil.get_target(character, argument, room)
         if victim is character:
             context.finish()
             return {"to_char": "Suicide is a mortal sin.\r\n"}
@@ -646,7 +643,7 @@ class FightCommands:
         if target_type == "OBJ_INV":
             if not argument:
                 return None, "", "What should the spell be cast upon?\r\n"
-            obj = ObjectUtils.find_inventory_item(character, argument)
+            obj = ItemUtil.find_inventory_item(character, argument)
             if obj is None:
                 return None, "", "You are not carrying that.\r\n"
             return obj, "obj", ""
@@ -657,7 +654,7 @@ class FightCommands:
             victim = PlayerUtil.get_target(character, argument, room, self.room_helper)
             if victim is not None:
                 return victim, "char", ""
-            obj = ObjectUtils.find_inventory_item(character, argument)
+            obj = ItemUtil.find_inventory_item(character, argument)
             if obj is None:
                 return None, "", "You don't see that here.\r\n"
             return obj, "obj", ""
@@ -674,7 +671,7 @@ class FightCommands:
                 if safe and victim is not character:
                     return None, "", safe_msg or "Not on that target.\r\n"
                 return victim, "char", ""
-            obj = ObjectUtils.find_room_item(room, argument) or ObjectUtils.find_inventory_item(character, argument)
+            obj = ItemUtil.find_room_item(room, argument) or ItemUtil.find_inventory_item(character, argument)
             if obj is None:
                 return None, "", "You don't see that here.\r\n"
             return obj, "obj", ""
@@ -856,7 +853,7 @@ class FightCommands:
 
     def _disarm_payload(self, character, victim, room, obj) -> dict:
         item_flags = CharacterMacros.get_enum("itemFlags")
-        if hasattr(item_flags, "ITEM_NOREMOVE") and ObjectUtils.has_flag(getattr(obj, "extra_flags", 0), item_flags.ITEM_NOREMOVE.value):
+        if hasattr(item_flags, "ITEM_NOREMOVE") and ItemUtil.has_flag(getattr(obj, "extra_flags", 0), item_flags.ITEM_NOREMOVE.value):
             return {
                 "to_char": "Their weapon won't budge!\r\n",
                 "to_victim": f"{self._target_name(character)} tries to disarm you, but your weapon won't budge!\r\n",
@@ -870,9 +867,9 @@ class FightCommands:
         victim.unequip_item("wielded")
 
         keep_inventory = False
-        if hasattr(item_flags, "ITEM_NODROP") and ObjectUtils.has_flag(getattr(obj, "extra_flags", 0), item_flags.ITEM_NODROP.value):
+        if hasattr(item_flags, "ITEM_NODROP") and ItemUtil.has_flag(getattr(obj, "extra_flags", 0), item_flags.ITEM_NODROP.value):
             keep_inventory = True
-        if hasattr(item_flags, "ITEM_INVENTORY") and ObjectUtils.has_flag(getattr(obj, "extra_flags", 0), item_flags.ITEM_INVENTORY.value):
+        if hasattr(item_flags, "ITEM_INVENTORY") and ItemUtil.has_flag(getattr(obj, "extra_flags", 0), item_flags.ITEM_INVENTORY.value):
             keep_inventory = True
 
         if not keep_inventory:

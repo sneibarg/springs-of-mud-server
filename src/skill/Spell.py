@@ -2,8 +2,8 @@ import json
 
 from dataclasses import dataclass, field
 
-from object.Item import Item
-from object.Effect import Effect
+from item.Item import Item
+from item.Effect import Effect
 
 
 @dataclass

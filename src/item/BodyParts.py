@@ -4,7 +4,7 @@ import random
 from enum import IntEnum
 
 from game.GameData import GameData
-from object.BodyForm import BodyForm
+from item.BodyForm import BodyForm
 
 
 class BodyParts:

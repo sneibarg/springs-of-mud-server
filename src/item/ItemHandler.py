@@ -1,22 +1,20 @@
 from injector import inject
 
-from area.RoomHelper import RoomHelper
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
-from object.ObjectMacros import ObjectMacros
+from item.ObjectMacros import ObjectMacros
 from player.Character import Character
 from server.messaging import MessageBus
 
 
 class ItemHandler:
     @inject
-    def __init__(self, message_bus: MessageBus, registry_service: RegistryService, room_helper: RoomHelper):
+    def __init__(self, message_bus: MessageBus, registry_service: RegistryService):
         self.message_bus = message_bus
         self.room_registry = registry_service.room_registry
         self.item_registry = registry_service.item_registry
-        self.room_helper = room_helper
 
     async def look_room_items(self, character: Character):
         room = self.room_registry.get(id=character.room_id)
@@ -64,7 +62,7 @@ class ItemHandler:
         context.finish()
 
     async def look_item_or_extra(self, character: Character, context: Context):
-        room = self.room_registry.get(id=character.room_id)
+        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         if room is None:
             context.finish()
             return
@@ -76,7 +74,7 @@ class ItemHandler:
         token = (arg3 or "").strip().lower()
 
         for item in list(character.get_items()) + list(room.contents.values()):
-            if not ItemUtil.can_see_object(self.room_helper, character, item):
+            if not ItemUtil.can_see_object(room, character, item):
                 continue
 
             extra = getattr(item, "extra_description", None)

@@ -4,8 +4,8 @@ import requests
 from injector import inject
 
 from game.GameData import GameData
-from object import Item
-from object.ItemRegistry import ItemRegistry
+from item import Item
+from item.ItemRegistry import ItemRegistry
 from util.ItemUtil import ItemUtil
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig

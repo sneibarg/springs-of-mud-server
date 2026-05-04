@@ -2,19 +2,16 @@ from datetime import datetime
 from typing import Any
 from injector import inject
 
-from area.RoomHelper import RoomHelper
 from game.RegistryService import RegistryService
 from util.GenericUtil import GenericUtil
 from game.WeatherHandler import WeatherHandler
 from util.InfoUtil import InfoUtil
-from interp.CommandHelper import CommandHelper
 from interp.Context import Context
 from interp.HelpEntry import HelpEntry
 from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
-from player.PlayerHelper import PlayerHelper
 from util.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
 from server.session.SessionHandler import SessionHandler
@@ -62,17 +59,13 @@ EQUIP_SLOT_LABELS = [
 class InfoCommands:
     @inject
     def __init__(self,
-                 registry_service: RegistryService, command_helper: CommandHelper, room_helper: RoomHelper,
-                 player_helper: PlayerHelper,session_handler: SessionHandler, weather_handler: WeatherHandler):
+                 registry_service: RegistryService, session_handler: SessionHandler, weather_handler: WeatherHandler):
         self.__name__ = "InfoCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.interp_registry = registry_service.interp_registry
         self.room_registry = registry_service.room_registry
         self.skill_registry = registry_service.skill_registry
         self.spell_registry = getattr(registry_service, "spell_registry", None)
-        self.command_helper = command_helper
-        self.room_helper = room_helper
-        self.player_helper = player_helper
         self.session_handler = session_handler
         self.weather_handler = weather_handler
         self.server_boot_time = datetime.now().ctime()
@@ -83,7 +76,7 @@ class InfoCommands:
 
     def do_quit(self, character: Character):
         room = self.room_registry.get(id=character.room_id)
-        in_room = self.player_helper.players_in_room(character, room)
+        in_room = room.players_in_room()
         return {
             "people": in_room,
             "to_char": "Alas, all good things must come to an end.\r\n",
@@ -153,7 +146,7 @@ class InfoCommands:
         if arg1 in ("", "auto", "i", "in", "on"):
             return None
 
-        target = PlayerUtil.get_target(character, arg1, room, self.room_helper)
+        target = PlayerUtil.get_target(character, arg1, room)
         if target is None:
             context.jump_to(4)
             return None
@@ -173,25 +166,21 @@ class InfoCommands:
         return "\r\n".join(lines) + "\r\n"
 
     async def do_look(self, character: Character, context: Context) -> str | None:
-        if not await self.command_helper.check_position(character):
-            context.finish()
-            return None
-
-        if not self.room_helper.check_blind(character):
+        if not character.check_blind(CharacterMacros):
             context.finish()
             return "You can't see a thing!\n\r"
+
+        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
+        if room is None:
+            context.finish()
+            return None
 
         arg1 = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip().lower()
         if (not CharacterMacros.is_npc(character)
                 and not CharacterMacros.has_holy_light(character)
-                and self.room_helper.is_room_dark(character.room_id)):
+                and room.is_room_dark()):
             context.jump_to(1)  # show chars/mobs only
             return "It is pitch black ...\n\r"
-
-        room = self.room_registry.get(id=character.room_id)
-        if room is None:
-            context.finish()
-            return None
 
         if arg1 == "" or arg1 == "auto":
             await context.room_handler().print_room(character.id, room)
@@ -581,7 +570,7 @@ class InfoCommands:
 
     def do_report(self, character: Character):
         room = self.room_registry.get_or_none(id=character.room_id)
-        in_room = self.player_helper.players_in_room(character, room) if room is not None else []
+        in_room = room.player_targets(character) if room is not None else []
         say_text = (
             f"I have {character.hit}/{character.max_hit} hp "
             f"{character.mana}/{character.max_mana} mana "

@@ -6,7 +6,7 @@ from types import SimpleNamespace
 
 SRC_ROOT = Path(__file__).resolve().parents[1] / "src"
 
-for package_name in ("area", "game", "interp", "object", "player"):
+for package_name in ("area", "game", "interp", "item", "player"):
     if package_name not in sys.modules:
         package = types.ModuleType(package_name)
         package.__path__ = [str(SRC_ROOT / package_name)]
@@ -62,7 +62,7 @@ if "server.LoggerFactory" not in sys.modules:
     sys.modules["server.LoggerFactory"] = logger_factory
 
 from area.Room import Room
-from object.Effect import Effect
+from item.Effect import Effect
 from util.EffectUtil import EffectUtil
 
 

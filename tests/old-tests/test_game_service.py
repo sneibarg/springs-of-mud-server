@@ -29,7 +29,7 @@ class TestGameService(unittest.IsolatedAsyncioTestCase):
         self.mock_game_data = self._create_mock_game_data()
 
     def _create_mock_game_data(self) -> GameData:
-        """Create a mock GameData object for testing"""
+        """Create a mock GameData item for testing"""
         return GameData(
             id="test-game",
             kind="mud",

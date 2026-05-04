@@ -8,8 +8,7 @@ from typing import Any
 from game.GameMacros import GameMacros
 from util.GenericUtil import GenericUtil
 from util.FightUtil import FightUtil
-from util.ObjectUtil import ObjectUtils
-from object.Effect import Effect
+from item.Effect import Effect
 from util.EffectUtil import EffectUtil
 from util.ItemUtil import ItemUtil
 from player.CharacterMacros import CharacterMacros
@@ -923,7 +922,7 @@ class SpellApi:
             location="APPLY_HITROLL" if weapon else "APPLY_AC",
             modifier=max(1, ctx.level // 10) if weapon else -max(1, ctx.level // 8),
             bitvector="0",
-            apply_to="object",
+            apply_to="item",
         )
         EffectUtil.affect_to_obj(obj, effect)
         if weapon:
@@ -937,7 +936,7 @@ class SpellApi:
                     location="APPLY_DAMROLL",
                     modifier=max(1, ctx.level // 12),
                     bitvector="0",
-                    apply_to="object",
+                    apply_to="item",
                 ),
             )
         obj.level = max(GenericUtil.to_int(getattr(obj, "level", 0), 0), ctx.level)
@@ -1031,15 +1030,15 @@ class SpellApi:
         if not cursed:
             if quiet:
                 return False
-            return ctx.fail(f"There doesn't seem to be a curse on {ObjectUtils.short(item)}.\r\n")
+            return ctx.fail(f"There doesn't seem to be a curse on {ItemUtil.short(item)}.\r\n")
         if nouncurse is not None and GameMacros.is_set(raw_flags, nouncurse.value):
             if quiet:
                 return False
-            return ctx.fail(f"The curse on {ObjectUtils.short(item)} is beyond your power.\r\n")
+            return ctx.fail(f"The curse on {ItemUtil.short(item)} is beyond your power.\r\n")
         if EffectUtil.saves_dispel(ctx.level + 2, GenericUtil.to_int(getattr(item, "level", 0), 0), 0):
             if quiet:
                 return False
-            return ctx.fail(f"The curse on {ObjectUtils.short(item)} is beyond your power.\r\n")
+            return ctx.fail(f"The curse on {ItemUtil.short(item)} is beyond your power.\r\n")
         if nodrop is not None:
             raw_flags = GameMacros.unset_bit(raw_flags, nodrop.value)
         if noremove is not None:
@@ -1048,11 +1047,11 @@ class SpellApi:
         if quiet:
             return True
         if owner is not None and owner is not ctx.actor:
-            self.send(ctx, to_victim=f"Your {ObjectUtils.short(item)} glows blue.\r\n", victim=owner)
-            self.send(ctx, to_room=f"{self._entity_name(owner)}'s {ObjectUtils.short(item)} glows blue.\r\n", victim=owner)
+            self.send(ctx, to_victim=f"Your {ItemUtil.short(item)} glows blue.\r\n", victim=owner)
+            self.send(ctx, to_room=f"{self._entity_name(owner)}'s {ItemUtil.short(item)} glows blue.\r\n", victim=owner)
         else:
-            self.send(ctx, to_char=f"{ObjectUtils.short(item)} glows blue.\r\n")
-            self.send(ctx, to_room=f"{ObjectUtils.short(item)} glows blue.\r\n")
+            self.send(ctx, to_char=f"{ItemUtil.short(item)} glows blue.\r\n")
+            self.send(ctx, to_room=f"{ItemUtil.short(item)} glows blue.\r\n")
         return ctx.mark_performed()
 
     @staticmethod

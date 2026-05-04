@@ -7,7 +7,7 @@ from unittest.mock import Mock
 
 SRC_ROOT = Path(__file__).resolve().parents[2] / "src"
 
-for package_name in ("area", "fight", "game", "interp", "mobile", "object", "player", "util"):
+for package_name in ("area", "fight", "game", "interp", "mobile", "item", "player", "util"):
     if package_name not in sys.modules:
         package = types.ModuleType(package_name)
         package.__path__ = [str(SRC_ROOT / package_name)]

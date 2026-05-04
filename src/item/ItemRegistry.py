@@ -1,5 +1,5 @@
 from registries import Registry
-from object.Item import Item
+from item.Item import Item
 from server.LoggerFactory import LoggerFactory
 
 

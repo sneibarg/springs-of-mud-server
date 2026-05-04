@@ -3,22 +3,19 @@ import random
 from typing import List
 from injector import inject
 
-from area.RoomHelper import RoomHelper
 from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
 from fight.CombatEvent import CombatEvent
 from fight.CombatRegistry import CombatRegistry
-from mobile import Mobile
 from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
 from util.InfoUtil import InfoUtil
 from mobile.MobileRegistry import MobileRegistry
-from object.BodyForm import BodyForm
-from object.BodyParts import BodyParts
+from item.BodyForm import BodyForm
+from item.BodyParts import BodyParts
 from util.EffectUtil import EffectUtil
-from object.ItemRegistry import ItemRegistry
+from item.ItemRegistry import ItemRegistry
 from util.ItemUtil import ItemUtil
-from util.ObjectUtil import ObjectUtils
 from player.CharacterAdvancement import CharacterAdvancement
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
@@ -33,7 +30,6 @@ class FightHandler:
         combat_registry: CombatRegistry,
         area_registry: AreaRegistry,
         room_registry: RoomRegistry,
-        room_helper: RoomHelper,
         item_registry: ItemRegistry,
         mobile_registry: MobileRegistry,
     ):
@@ -43,7 +39,6 @@ class FightHandler:
         self.combat_registry = combat_registry
         self.area_registry = area_registry
         self.room_registry = room_registry
-        self.room_helper = room_helper
         self.item_registry = item_registry
         self.mobile_registry = mobile_registry
         self.rng = RandomNumberGenerator()
@@ -1002,7 +997,7 @@ class FightHandler:
 
         remaining = []
         for item in list(getattr(corpse, "contains", []) or []):
-            if ObjectUtils.item_takeable(item, wear_flags):
+            if ItemUtil.item_takeable(item, wear_flags):
                 character.add_item(item)
             else:
                 remaining.append(item)
@@ -1010,7 +1005,7 @@ class FightHandler:
 
     @staticmethod
     def _autosacrifice_corpse(attacker, corpse, room) -> dict | None:
-        if room is None or corpse is None or not ObjectUtils.is_npc_corpse(corpse):
+        if room is None or corpse is None or not ItemUtil.is_npc_corpse(corpse):
             return None
 
         try:
@@ -1020,15 +1015,15 @@ class FightHandler:
             wear_flags = None
             item_flags = None
 
-        if not ObjectUtils.item_takeable(corpse, wear_flags) or ObjectUtils.is_nosac(corpse, item_flags):
+        if not ItemUtil.item_takeable(corpse, wear_flags) or ItemUtil.is_nosac(corpse, item_flags):
             return None
 
         room.remove_item_from_room(corpse)
-        silver = ObjectUtils.sacrifice_silver_value(corpse)
+        silver = ItemUtil.sacrifice_silver_value(corpse)
         attacker.silver = int(getattr(attacker, "silver", 0) or 0) + silver
         return {
-            "to_char": ObjectUtils.sacrifice_reward_message(silver),
-            "to_room": f"{attacker.name} sacrifices {ObjectUtils.short(corpse)} to Mota.\r\n",
+            "to_char": ItemUtil.sacrifice_reward_message(silver),
+            "to_room": f"{attacker.name} sacrifices {ItemUtil.short(corpse)} to Mota.\r\n",
         }
 
     @staticmethod
@@ -1136,7 +1131,7 @@ class FightHandler:
             return False
         if self._mob_has_act(aggressor, act_bits, "ACT_WIMPY") and CharacterMacros.is_awake(witness):
             return False
-        if not CharacterMacros.can_see(aggressor, witness, self.room_helper):
+        if not CharacterMacros.can_see(aggressor, witness, room):
             return False
         if self.rng.number_bits(1) == 0:
             return False

@@ -3,13 +3,15 @@ import threading
 from dataclasses import dataclass, field
 from typing import List, Any
 
+from player.CharacterMacros import CharacterMacros
 from util.AreaUtil import AreaUtil
 from area.Exit import Exit
 from mobile.Mobile import Mobile
-from object.Item import Item
+from item.Item import Item
 from player.Character import Character
-from object.ExtraDescriptionData import ExtraDescriptionData
+from item.ExtraDescriptionData import ExtraDescriptionData
 from util.GenericUtil import GenericUtil
+from util.PlayerUtil import PlayerUtil
 
 
 @dataclass
@@ -174,7 +176,7 @@ class Room:
                 return item
         return None
 
-    def find_visible_character(self, observer, wanted: str, room_helper):
+    def find_visible_character(self, observer, wanted: str):
         from player.CharacterMacros import CharacterMacros
 
         query = (wanted or "").strip().lower()
@@ -182,7 +184,7 @@ class Room:
             return None
 
         for char in self.characters.values():
-            if not CharacterMacros.can_see(observer, char, room_helper):
+            if not CharacterMacros.can_see(observer, char, self):
                 continue
             if getattr(char, "room_id", None) != self.id:
                 continue
@@ -191,26 +193,26 @@ class Room:
                 return char
         return None
 
-    def find_visible_mobile(self, observer, wanted: str, room_helper):
+    def find_visible_mobile(self, observer, wanted: str):
         from player.CharacterMacros import CharacterMacros
         from util.InterpUtil import InterpUtil
 
         mob = InterpUtil.find_nth_by_keyword(self.mobiles, wanted)
-        if mob is not None and CharacterMacros.can_see(observer, mob, room_helper):
+        if mob is not None and CharacterMacros.can_see(observer, mob, self):
             return mob
         return None
 
-    def find_visible_target(self, observer, wanted: str, room_helper):
+    def find_visible_target(self, observer, wanted: str):
         query = (wanted or "").strip().lower()
         if not query:
             return None
         if query == "self":
             return observer
 
-        target = self.find_visible_character(observer, query, room_helper)
+        target = self.find_visible_character(observer, query)
         if target is not None:
             return target
-        return self.find_visible_mobile(observer, query, room_helper)
+        return self.find_visible_mobile(observer, query)
 
     def is_room_private(self, room_flags) -> bool:
         private = GenericUtil.to_int(getattr(getattr(room_flags, "ROOM_PRIVATE", None), "value", 0), 0)
@@ -233,3 +235,41 @@ class Room:
             return False
         no_swim = getattr(sector_types, "SECT_WATER_NOSWIM", None)
         return no_swim is not None and GenericUtil.to_int(getattr(self, "sector_type", 0), 0) == int(no_swim.value)
+
+    def is_room_dark(self) -> bool:
+        if self.light > 0:
+            return False
+
+        RoomFlags = CharacterMacros.get_enum("roomFlags")
+        SectorTypes = CharacterMacros.get_enum("sectorTypes")
+        if CharacterMacros.is_set(self.room_flags, RoomFlags.ROOM_DARK.value):
+            return True
+
+        if self.sector_type == SectorTypes.SECT_INSIDE.value or self.sector_type == SectorTypes.SECT_CITY.value:
+            return False
+
+        return False
+
+    def format_room_description(self) -> str:
+        body = str(self.description or "").strip()
+        return f"{self.name}\r\n{body}"
+
+    def get_players_in_room(self, character: Character) -> str:
+        text = ""
+        for char_in_room in self.players_in_room():
+            if char_in_room.cloaked:
+                continue
+            text += PlayerUtil.format_visible_character_line(character, char_in_room)
+        return text
+
+    def get_mobiles_in_room(self, character: Character) -> str:
+        text = ""
+        for char_in_room in self.mobiles_in_room():
+            text += PlayerUtil.format_visible_character_line(character, char_in_room)
+        return text
+
+    @staticmethod
+    def can_see_room_vnum(char: Any) -> bool:
+        if CharacterMacros.is_immortal(char) and (CharacterMacros.is_npc(char) or CharacterMacros.has_holy_light(char)):
+            return True
+        return False

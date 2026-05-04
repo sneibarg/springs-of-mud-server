@@ -3,8 +3,8 @@ import unittest
 from pathlib import Path
 
 from game.GameData import GameData
-from object.BodyForm import BodyForm
-from object.BodyParts import BodyParts
+from item.BodyForm import BodyForm
+from item.BodyParts import BodyParts
 
 
 class TestBodyEnums(unittest.TestCase):

@@ -2,7 +2,6 @@ import inspect
 
 from injector import inject
 from area.AreaRegistry import AreaRegistry
-from area.RoomHelper import RoomHelper
 from area.RoomRegistry import RoomRegistry
 from area.ShopRegistry import ShopRegistry
 from util.GenericUtil import GenericUtil
@@ -13,7 +12,6 @@ from fight.FightHandler import FightHandler
 from mobile.Mobile import Mobile
 from mobile.KillTable import KillTable
 from mobile.MobileApi import MobileApi, MobileContext
-from mobile.MobileHelper import MobileHelper
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
@@ -29,8 +27,6 @@ class MobileHandler:
                  area_registry: AreaRegistry,
                  room_registry: RoomRegistry,
                  shop_registry: ShopRegistry,
-                 room_helper: RoomHelper,
-                 mobile_helper: MobileHelper,
                  fight_handler: FightHandler,
                  weather_handler: WeatherHandler):
         self.__name__ = "MobileHandler"
@@ -39,8 +35,6 @@ class MobileHandler:
         self.area_registry = area_registry
         self.room_registry = room_registry
         self.shop_registry = shop_registry
-        self.room_helper = room_helper
-        self.mobile_helper = mobile_helper
         self.fight_handler = fight_handler
         self.weather_handler = weather_handler
         self.skill_registry = registry_service.skill_registry
@@ -86,7 +80,8 @@ class MobileHandler:
         entry.killed += 1
 
     async def print_mobiles_in_room(self, character: Character):
-        message = self.mobile_helper.get_mobiles_in_room(character)
+        room = self.room_registry.get_or_none(id=getattr(character, "room_id", ""))
+        message = room.get_mobiles_in_room(character)
         if message:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message))
 

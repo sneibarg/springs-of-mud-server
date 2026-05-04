@@ -27,7 +27,7 @@ from fight.FightHandler import FightHandler
 from game.Equipped import Equipped
 from game.UpdateHandler import UpdateHandler
 from mobile.MobileHandler import MobileHandler
-from util.ObjectUtil import ObjectUtils
+from util.ItemUtil import ItemUtil
 from player.CharacterAdvancement import CharacterAdvancement
 
 
@@ -47,12 +47,12 @@ class TestCombatInventoryRegressions(TestCase):
         item = SimpleNamespace(id="item1", name="sword")
         character = SimpleNamespace(loot=[item], equipped=Equipped())
 
-        ObjectUtils.equip_item(character, item, "wielded")
+        ItemUtil.equip_item(character, item, "wielded")
 
         self.assertNotIn(item, character.loot)
         self.assertIs(character.equipped.wielded, item)
 
-        returned = ObjectUtils.unequip_item(character, "wielded")
+        returned = ItemUtil.unequip_item(character, "wielded")
 
         self.assertIs(returned, item)
         self.assertIn(item, character.loot)

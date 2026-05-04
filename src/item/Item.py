@@ -6,13 +6,12 @@ import threading
 from dataclasses import dataclass, field
 from typing import Optional, List, TYPE_CHECKING
 
-from object.ExtraDescriptionData import ExtraDescriptionData
-from object.Effect import Effect
+from item.ExtraDescriptionData import ExtraDescriptionData
+from item.Effect import Effect
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
 from util.GenericUtil import GenericUtil
-from util.ObjectUtil import ObjectUtils
 
 if TYPE_CHECKING:
     from area.Room import Room
@@ -177,10 +176,12 @@ class Item:
         return 0 < wield_limit < GenericUtil.to_int(getattr(self, "weight", 0), 0)
 
     def is_two_handed_weapon(self) -> bool:
+        from util.ItemUtil import ItemUtil
+
         try:
             weapon_flags = CharacterMacros.get_enum("weaponType")
         except RuntimeError:
             return False
         if not hasattr(weapon_flags, "WEAPON_TWO_HANDS"):
             return False
-        return ObjectUtils.has_flag(getattr(self, "value4", 0), weapon_flags.WEAPON_TWO_HANDS.value)
+        return ItemUtil.has_flag(getattr(self, "value4", 0), weapon_flags.WEAPON_TWO_HANDS.value)

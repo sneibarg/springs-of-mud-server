@@ -4,7 +4,6 @@ from injector import inject
 from util.AreaUtil import AreaUtil
 from area.Exit import Exit
 from area.Room import Room
-from area.RoomHelper import RoomHelper
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from util.ItemUtil import ItemUtil
@@ -17,19 +16,19 @@ from server.session.SessionHandler import SessionHandler
 
 class RoomHandler:
     @inject
-    def __init__(self, message_bus: MessageBus, session_handler: SessionHandler, registry_service: RegistryService, room_helper: RoomHelper):
+    def __init__(self, message_bus: MessageBus, session_handler: SessionHandler, registry_service: RegistryService):
         self.__name__ = "RoomHandler"
         self.message_bus = message_bus
         self.registry_service = registry_service
         self.room_registry = registry_service.room_registry
         self.character_registry = registry_service.character_registry
         self.session_handler = session_handler
-        self.room_helper = room_helper
         self.logger = LoggerFactory.get_logger(__name__)
 
     @staticmethod
     async def print_in_room(context: Context):
         character = context.character
+        room = context.room
         player_handler = context.player_handler()
         mobile_handler = context.mobile_handler()
 
@@ -54,7 +53,7 @@ class RoomHandler:
         room = self.room_registry.get(id=character.room_id)
         if room is None:
             return
-        if self.room_helper.can_see_room_vnum(character):
+        if room.can_see_room_vnum(character):
             lines = [f"Obvious exits from room {room.vnum}:"]
         else:
             lines = [f"Obvious exits:"]
@@ -64,7 +63,7 @@ class RoomHandler:
             if destination is None:
                 continue
             destination_room: Room = self.room_registry.get(id=destination)
-            if self.room_helper.can_see_room_vnum(character):
+            if destination_room.can_see_room_vnum(character):
                 line = AreaUtil.align_exits(direction.direction, destination_room.name, destination_room.vnum, width=6)
                 lines.append(line)
             else:
@@ -89,7 +88,8 @@ class RoomHandler:
                     show_description = False
 
         if show_description:
-            await self.message_bus.send_to_character(character_id, self.room_helper.format_room_description(room.name, room.description))
+            message = self.message_bus.text_to_message(room.format_room_description())
+            await self.message_bus.send_to_character(character_id, message)
         else:
             await self.message_bus.send_to_character(character_id, self.message_bus.text_to_message(f"[{room.name}]\r\n"))
         lines = ItemUtil.room_items(room)

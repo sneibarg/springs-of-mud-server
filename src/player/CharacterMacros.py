@@ -4,7 +4,6 @@ from enum import IntEnum
 from threading import RLock
 from typing import Any, TYPE_CHECKING, Callable, Optional
 
-from mobile.Mobile import Mobile
 from game.GameMacros import GameMacros
 from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
@@ -13,8 +12,8 @@ from server.LoggerFactory import LoggerFactory
 
 
 if TYPE_CHECKING:
-    from area.RoomHelper import RoomHelper
     from area.Room import Room
+    from mobile.Mobile import Mobile
 
 rng = RandomNumberGenerator()
 
@@ -171,6 +170,8 @@ class CharacterMacros(GameMacros):
 
     @staticmethod
     def is_npc(char: Any) -> bool:
+        from mobile.Mobile import Mobile
+
         return type(char) is Mobile
 
     @classmethod
@@ -392,7 +393,7 @@ class CharacterMacros(GameMacros):
                 continue
 
             if isinstance(obj, dict):
-                from object.Item import Item
+                from item.Item import Item
                 obj = Item.from_json(obj)
 
             item_text = ItemUtil.format_obj_to_char(obj, item_flags_enum=item_flags, f_short=True)
@@ -716,7 +717,7 @@ class CharacterMacros(GameMacros):
         proto = item_registry.get_or_none(vnum=vnum)
         if proto is None:
             context.finish()
-            return {"to_char": "No object has that vnum.\r\n"}
+            return {"to_char": "No item has that vnum.\r\n"}
 
         obj = ItemUtil.create_object(proto)
         room = room_registry.get_or_none(id=context.character.room_id)
@@ -826,7 +827,7 @@ class CharacterMacros(GameMacros):
         )
 
     @classmethod
-    def can_see(cls, character: Any, victim: Any, room_helper: RoomHelper) -> bool:
+    def can_see(cls, character: Any, victim: Any, room: Room) -> bool:
         if character == victim:
             return True
 
@@ -844,7 +845,7 @@ class CharacterMacros(GameMacros):
         if cls.is_affected(character, affected_bits.AFF_BLIND.value):
             return False
 
-        if type(character) is Character and room_helper.is_room_dark(character.room_id) and not cls.is_affected(character, affected_bits.AFF_INFRARED.value):
+        if type(character) is Character and room.is_room_dark() and not cls.is_affected(character, affected_bits.AFF_INFRARED.value):
             return False
 
         if cls.is_affected(victim, affected_bits.AFF_INVISIBLE.value) and not cls.is_affected(character, affected_bits.AFF_DETECT_INVIS.value):
@@ -924,6 +925,8 @@ class CharacterMacros(GameMacros):
 
     @classmethod
     def mobile_will_assist(cls, char: Mobile) -> bool:
+        from mobile.Mobile import Mobile
+
         if type(char) is not Mobile:
             return False
         OffenseTypes = cls.get_enum("offenseTypes")

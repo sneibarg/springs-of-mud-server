@@ -1,26 +1,29 @@
 from enum import IntEnum
-from typing import Tuple, Any
+from typing import Any, TYPE_CHECKING
 
-from area.Room import Room
-from area.RoomHelper import RoomHelper
 from game.GameMacros import GameMacros
 from game.RandomNumberGenerator import RandomNumberGenerator
-from object.ItemRegistry import ItemRegistry
+from item.ItemRegistry import ItemRegistry
 from util.GenericUtil import GenericUtil
-from object.ExtraDescriptionData import ExtraDescriptionData
-from object.ObjectMacros import ObjectMacros
+from item.ExtraDescriptionData import ExtraDescriptionData
+from item.ObjectMacros import ObjectMacros
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
-from object.Item import Item
-from object.Effect import Effect, AffectWhere
+from item.Item import Item
+from item.Effect import Effect, AffectWhere
+from game.Equipped import Equipped, WEAR_SLOT_ORDER
+from util.InterpUtil import InterpUtil
+
+if TYPE_CHECKING:
+    from area.Room import Room
 
 rng = RandomNumberGenerator()
 logger = LoggerFactory.get_logger('ItemUtil')
 
 
 class ItemUtil:
-    pass
+    WEAR_SLOT_ORDER = WEAR_SLOT_ORDER
 
     @staticmethod
     def create_money(gold: int, silver: int, item_registry: ItemRegistry, WellKnownObjEnums: IntEnum) -> Item:
@@ -124,7 +127,6 @@ class ItemUtil:
 
         return str(GameMacros.convert_flags(flag_str))
 
-    # Matches load_objects() logic from ROM db2.c:341-389
     @staticmethod
     def normalize_value_fields(item_data, ItemTypes: type[IntEnum]):
         item_type = item_data.get("itemType", "").strip().lower()
@@ -358,7 +360,7 @@ class ItemUtil:
     def create_object(pObjIndex: Item):
         if pObjIndex is None:
             logger.error("create_object: NULL pObjIndex.")
-            raise ValueError("Cannot create object from None index")
+            raise ValueError("Cannot create item from None index")
 
         extra_descr = list(getattr(pObjIndex, "extra_descr", []) or [])
         affect_data = list(getattr(pObjIndex, "affect_data", []) or [])
@@ -432,7 +434,7 @@ class ItemUtil:
         return count
 
     @staticmethod
-    def can_see_object(room_helper: RoomHelper, character: Character, obj: Item) -> bool:
+    def can_see_object(room: Room, character: Character, obj: Item) -> bool:
         ItemFlags = CharacterMacros.get_enum('itemFlags')
         ItemTypes = CharacterMacros.get_enum('itemTypes')
         AffectBits = CharacterMacros.get_enum('affectedBy')
@@ -455,7 +457,223 @@ class ItemUtil:
         if CharacterMacros.is_set(GameMacros.convert_flags(obj.extra_flags), ItemFlags.ITEM_GLOW.value):
             return True
 
-        if room_helper.is_room_dark(character.room_id) and not CharacterMacros.is_affected(character, AffectBits.AFF_DARK_VISION.value):
+        if room.is_room_dark() and not CharacterMacros.is_affected(character, AffectBits.AFF_DARK_VISION.value):
             return False
 
         return True
+
+    @staticmethod
+    def parse_raw_arguments(raw_result, parameters) -> tuple[str, str]:
+        text = (raw_result if isinstance(raw_result, str) else "").strip()
+        if not text:
+            text = " ".join(parameters or []).strip()
+        a1, rest = InterpUtil.one_argument(text)
+        a2, rest2 = InterpUtil.one_argument(rest)
+        if a2 in ("from", "in", "on"):
+            a2, rest2 = InterpUtil.one_argument(rest2)
+        return a1, f"{a2} {rest2}".strip()
+
+    @staticmethod
+    def has_flag(raw_flags, bit_value: int) -> bool:
+        return (GameMacros.flags_to_int(raw_flags) & int(bit_value)) != 0
+
+    @staticmethod
+    def ensure_equipped(character):
+        if hasattr(character, "ensure_equipped"):
+            return character.ensure_equipped()
+        return Equipped.ensure_on(character)
+
+    @staticmethod
+    def find_inventory_item(character, wanted: str):
+        if hasattr(character, "find_inventory_item"):
+            return character.find_inventory_item(wanted)
+        q = (wanted or "").strip().lower()
+        if not q:
+            return None
+        for item in list(getattr(character, "loot", []) or []):
+            name = (getattr(item, "name", "") or "").lower()
+            if name == q or name.startswith(q):
+                return item
+        return None
+
+    @staticmethod
+    def find_room_item(room, wanted: str):
+        if room is None:
+            return None
+        q = (wanted or "").strip().lower()
+        if not q:
+            return None
+        for item in room.contents.values():
+            name = (getattr(item, "name", "") or "").lower()
+            if name == q or name.startswith(q):
+                return item
+        return None
+
+    @staticmethod
+    def find_container(character, room, wanted: str):
+        return ItemUtil.find_inventory_item(character, wanted) or ItemUtil.find_room_item(room, wanted)
+
+    @staticmethod
+    def remove_from_inventory(character, item):
+        if hasattr(character, "remove_item"):
+            character.remove_item(item)
+            return
+        loot = getattr(character, "loot", None)
+        if loot is None:
+            return
+        try:
+            loot.remove(item)
+        except ValueError:
+            pass
+
+    @staticmethod
+    def add_to_inventory(character, item):
+        if hasattr(character, "add_item"):
+            character.add_item(item)
+            return
+        if getattr(character, "loot", None) is None:
+            character.loot = []
+        if item not in character.loot:
+            character.loot.append(item)
+
+    @staticmethod
+    def equipped_slot_of(character, item):
+        if hasattr(character, "equipped_slot_of"):
+            return character.equipped_slot_of(item)
+        equipped = getattr(character, "equipped", None)
+        if equipped is None:
+            return None
+        for slot, equipped_item in equipped.__dict__.items():
+            if equipped_item is item:
+                return slot
+        return None
+
+    @staticmethod
+    def equip_item(character, item, slot_name: str):
+        if hasattr(character, "equip_item"):
+            return character.equip_item(item, slot_name)
+        return Equipped.equip_item(character, item, slot_name)
+
+    @staticmethod
+    def unequip_item(character, slot_name: str):
+        if hasattr(character, "unequip_item"):
+            return character.unequip_item(slot_name)
+        return Equipped.unequip_item(character, slot_name)
+
+    @staticmethod
+    def find_wear_slot(character, item, wear_flags_enum, forced: str = ""):
+        equipped = ItemUtil.ensure_equipped(character)
+        if forced:
+            slot = forced.strip().lower()
+            return slot if hasattr(equipped, slot) and getattr(equipped, slot) is None else None
+
+        flags = GameMacros.flags_to_int(getattr(item, "wear_flags", 0))
+        for flag_name, slots in ItemUtil.WEAR_SLOT_ORDER.items():
+            if wear_flags_enum is None or not hasattr(wear_flags_enum, flag_name):
+                continue
+            bit = getattr(wear_flags_enum, flag_name).value
+            if (flags & bit) == 0:
+                continue
+            for slot in slots:
+                if getattr(equipped, slot) is None:
+                    return slot
+        return None
+
+    @staticmethod
+    def item_takeable(item, wear_flags_enum) -> bool:
+        if wear_flags_enum is None or not hasattr(wear_flags_enum, "ITEM_TAKE"):
+            return True
+        return ItemUtil.has_flag(getattr(item, "wear_flags", 0), wear_flags_enum.ITEM_TAKE.value)
+
+    @staticmethod
+    def is_nodrop(item, item_flags_enum) -> bool:
+        if item_flags_enum is None or not hasattr(item_flags_enum, "ITEM_NODROP"):
+            return False
+        return ItemUtil.has_flag(getattr(item, "extra_flags", 0), item_flags_enum.ITEM_NODROP.value)
+
+    @staticmethod
+    def is_nosac(item, item_flags_enum) -> bool:
+        if item_flags_enum is None or not hasattr(item_flags_enum, "ITEM_NO_SAC"):
+            return False
+        return ItemUtil.has_flag(getattr(item, "extra_flags", 0), item_flags_enum.ITEM_NO_SAC.value)
+
+    @staticmethod
+    def item_type_name(item) -> str:
+        return str(getattr(item, "item_type", "") or "").strip().upper()
+
+    @staticmethod
+    def is_pc_corpse(item) -> bool:
+        return ItemUtil.item_type_name(item) == "ITEM_CORPSE_PC"
+
+    @staticmethod
+    def is_npc_corpse(item) -> bool:
+        return ItemUtil.item_type_name(item) == "ITEM_CORPSE_NPC"
+
+    @staticmethod
+    def is_corpse(item) -> bool:
+        item_type = ItemUtil.item_type_name(item)
+        return item_type in {"ITEM_CORPSE_NPC", "ITEM_CORPSE_PC"}
+
+    @staticmethod
+    def sacrifice_silver_value(item) -> int:
+        silver = max(1, GenericUtil.to_int(getattr(item, "level", 1), 0) * 3)
+        if not ItemUtil.is_corpse(item):
+            silver = min(silver, max(0, GenericUtil.to_int(getattr(item, "cost", 0), 0)))
+        return max(3, silver)
+
+    @staticmethod
+    def sacrifice_reward_message(silver: int) -> str:
+        if GenericUtil.to_int(silver, 0) == 1:
+            return "Mota gives you one silver coin for your sacrifice.\r\n"
+        return f"Mota gives you {GenericUtil.to_int(silver, 0)} silver coins for your sacrifice.\r\n"
+
+    @staticmethod
+    def is_container(item) -> bool:
+        item_type = (getattr(item, "item_type", "") or "").upper()
+        return "ITEM_CONTAINER" in item_type or "CONTAINER" in item_type
+
+    @staticmethod
+    def short(item) -> str | object | Any:
+        short_fn = getattr(item, "short", None)
+        if callable(short_fn):
+            return short_fn()
+        return getattr(item, "short_description", None) or getattr(item, "name", "it")
+
+    @staticmethod
+    def add_to_contains(container, obj):
+        if hasattr(container, "add_contained_item"):
+            container.add_contained_item(obj)
+            return
+        if getattr(container, "contains", None) is None:
+            container.contains = []
+        container.contains.append(obj)
+
+    @staticmethod
+    def remove_from_contains(container, obj):
+        if hasattr(container, "remove_contained_item"):
+            container.remove_contained_item(obj)
+            return
+        try:
+            container.contains.remove(obj)
+        except Exception:
+            pass
+
+    @staticmethod
+    def find_in_contains(container, wanted: str):
+        if hasattr(container, "find_contained_item"):
+            return container.find_contained_item(wanted)
+        q = (wanted or "").strip().lower()
+        for obj in list(getattr(container, "contains", []) or []):
+            name = (getattr(obj, "name", "") or "").lower()
+            if name == q or name.startswith(q):
+                return obj
+        return None
+
+    @staticmethod
+    def first_fountain(room):
+        if room is None:
+            return None
+        for item in room.contents.values():
+            if "FOUNTAIN" in ((getattr(item, "item_type", "") or "").upper()):
+                return item
+        return None

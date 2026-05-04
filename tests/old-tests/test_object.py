@@ -4,12 +4,12 @@ from unittest.mock import Mock, patch
 import json
 
 from game import GameData, Version, Constants, Integrity, BuildInfo
-from object.Item import Item
-from object.ItemService import ItemService
+from item.Item import Item
+from item.ItemService import ItemService
 
 
 def create_mock_game_data() -> GameData:
-    """Create a mock GameData object for testing"""
+    """Create a mock GameData item for testing"""
     return GameData(
         id="test-game",
         kind="mud",
@@ -188,7 +188,7 @@ class TestItemService(unittest.TestCase):
             mobiles_endpoint="http://test/mobiles"
         )
 
-    @patch('object.ItemService.requests.get')
+    @patch('item.ItemService.requests.get')
     def test_initialization(self, mock_get):
         """Test ItemService initialization"""
         mock_response = Mock()
@@ -205,7 +205,7 @@ class TestItemService(unittest.TestCase):
         self.assertIn('item_001', service.all_items)
         self.assertIn('item_002', service.all_items)
 
-    @patch('object.ItemService.requests.get')
+    @patch('item.ItemService.requests.get')
     def test_initialization_empty(self, mock_get):
         """Test ItemService initialization with empty items"""
         mock_response = Mock()
@@ -217,7 +217,7 @@ class TestItemService(unittest.TestCase):
         self.assertEqual(service.total_items, 0)
         self.assertEqual(len(service.all_items), 0)
 
-    @patch('object.ItemService.requests.get')
+    @patch('item.ItemService.requests.get')
     def test_initialization_failure(self, mock_get):
         """Test ItemService handles initialization failure gracefully"""
         mock_get.side_effect = Exception('API Error')
@@ -228,7 +228,7 @@ class TestItemService(unittest.TestCase):
         self.assertEqual(service.total_items, 0)
         self.assertEqual(len(service.all_items), 0)
 
-    @patch('object.ItemService.requests.get')
+    @patch('item.ItemService.requests.get')
     def test_return_item_by_id(self, mock_get):
         """Test returning item by ID from cache"""
         mock_response = Mock()
@@ -243,7 +243,7 @@ class TestItemService(unittest.TestCase):
         self.assertEqual(item['id'], 'item_001')
         self.assertEqual(item['name'], 'sword')
 
-    @patch('object.ItemService.requests.get')
+    @patch('item.ItemService.requests.get')
     def test_return_item_by_id_not_found(self, mock_get):
         """Test returning item by ID when not in cache"""
         mock_response = Mock()
@@ -255,7 +255,7 @@ class TestItemService(unittest.TestCase):
         with self.assertRaises(KeyError):
             service.return_item_by_id('nonexistent')
 
-    @patch('object.ItemService.requests.get')
+    @patch('item.ItemService.requests.get')
     def test_get_item_by_id_success(self, mock_get):
         """Test getting item by ID from API"""
         # Initial load
@@ -274,7 +274,7 @@ class TestItemService(unittest.TestCase):
         self.assertEqual(result['id'], 'item_001')
         self.assertEqual(result['name'], 'sword')
 
-    @patch('object.ItemService.requests.get')
+    @patch('item.ItemService.requests.get')
     def test_get_item_by_id_failure(self, mock_get):
         """Test getting item by ID handles failure"""
         # Initial load
@@ -289,7 +289,7 @@ class TestItemService(unittest.TestCase):
         result = service.get_item_by_id('item_001')
         self.assertIsNone(result)
 
-    @patch('object.ItemService.requests.get')
+    @patch('item.ItemService.requests.get')
     def test_load_items_counts_correctly(self, mock_get):
         """Test load_items counts items correctly"""
         mock_response = Mock()
@@ -305,7 +305,7 @@ class TestItemService(unittest.TestCase):
         self.assertEqual(service.total_items, 3)
         self.assertEqual(len(service.all_items), 3)
 
-    @patch('object.ItemService.requests.get')
+    @patch('item.ItemService.requests.get')
     def test_load_items_stores_by_id(self, mock_get):
         """Test load_items stores items by ID"""
         mock_response = Mock()

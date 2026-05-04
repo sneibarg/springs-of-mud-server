@@ -179,12 +179,12 @@ class TestCommandUtilityFunctions(unittest.TestCase):
     """Test interp utility functions"""
 
     def test_get_class_obj_player(self):
-        """Test getting Player class object"""
+        """Test getting Player class item"""
         result = get_class_obj('Player')
         self.assertEqual(result, Player)
 
     def test_get_class_obj_character(self):
-        """Test getting Character class object"""
+        """Test getting Character class item"""
         result = get_class_obj('Character')
         self.assertEqual(result, Character)
 

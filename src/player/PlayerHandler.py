@@ -11,7 +11,6 @@ from interp.commands.FightCommands import FightCommands
 from interp.commands.ObjectCommands import ObjectCommands
 from interp.commands.WizCommands import WizCommands
 from player.Character import Character
-from player.PlayerHelper import PlayerHelper
 from player.CharacterMacros import CharacterMacros
 from server.messaging import MessageBus
 from server.LoggerFactory import LoggerFactory
@@ -21,7 +20,6 @@ class PlayerHandler:
     @inject
     def __init__(self, message_bus: MessageBus,
                  registry_service: RegistryService,
-                 player_helper: PlayerHelper,
                  fight_handler: FightHandler,
                  communications_commands: CommunicationsCommands,
                  fight_commands: FightCommands,
@@ -34,7 +32,6 @@ class PlayerHandler:
         self.character_registry = registry_service.character_registry
         self.room_registry = registry_service.room_registry
         self.fight_handler = fight_handler
-        self.player_helper = player_helper
         self.communications_commands = communications_commands
         self.fight_commands = fight_commands
         self.info_commands = info_commands
@@ -54,7 +51,7 @@ class PlayerHandler:
             for viewer in room.characters.values():
                 if viewer.id == character.id:
                     continue
-                if CharacterMacros.can_see(viewer, character, self.player_helper.room_helper):
+                if CharacterMacros.can_see(viewer, character, room):
                     text = payload["to_room"]
                 else:
                     text = "Someone has left the game.\r\n"
@@ -76,6 +73,10 @@ class PlayerHandler:
         context.finish()
 
     async def do_look(self, character: Character, context: Context):
+        if not await self.check_position(character):
+            context.finish()
+            return
+
         text = await self.info_commands.do_look(character, context)
         if text:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
@@ -522,7 +523,10 @@ class PlayerHandler:
         await self._emit_standard_payload(character, payload, context=context)
 
     async def print_players_in_room(self, character: Character):
-        message = self.player_helper.get_players_in_room(character)
+        room = self.room_registry.get(id=character.room_id)
+        if room is None:
+            return
+        message = room.get_players_in_room(character)
         if message:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message))
 
@@ -545,13 +549,35 @@ class PlayerHandler:
         room = self.room_registry.get(id=character.room_id)
         text = msg.replace("%c", character.name).replace("%m", msg)
         message = self.message_bus.text_to_message(text)
-        in_room = self.player_helper.players_in_room(character, room)
+        in_room = room.player_targets(character)
         await self.message_bus.send_to_room(message, in_room)
 
     async def look_target(self, character: Any, context: Context):
         text = self.info_commands.look_target(character, context)
         if text:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def check_position(self, character: Character) -> bool:
+        positions = CharacterMacros.get_enum('positions')
+        current_position = getattr(getattr(character, "character_attributes", None), "position", None)
+        if current_position is None:
+            return True
+
+        if current_position < positions.POS_SLEEPING.value:
+            await self.message_bus.send_to_character(
+                character.id,
+                self.message_bus.text_to_message("You can't see anything but stars!\n\r"),
+            )
+            return False
+
+        if current_position == positions.POS_SLEEPING.value:
+            await self.message_bus.send_to_character(
+                character.id,
+                self.message_bus.text_to_message("You can't see anything; you're sleeping!\n\r"),
+            )
+            return False
+
+        return True
 
     async def _handle_room_action_payload(self, character: Character, payload: dict):
         await self._emit_standard_payload(character, payload)

@@ -1,13 +1,11 @@
 from injector import singleton, Injector
 
-from area.RoomHelper import RoomHelper
 from area.ShopService import ShopService
 from area.AreaHandler import AreaHandler
 from area.ResetService import ResetService
 from area.RoomHandler import RoomHandler
 from area.SpecialService import SpecialService
 from game.HandlerService import HandlerService
-from interp.CommandHelper import CommandHelper
 from interp.commands.FightCommands import FightCommands
 from interp.commands.CommunicationsCommands import CommunicationsCommands
 from interp.commands.InfoCommands import InfoCommands
@@ -18,10 +16,9 @@ from interp.HelpService import HelpService
 from interp.InterpHandler import InterpHandler
 from interp.SocialHandler import SocialHandler
 from interp.SocialService import SocialService
-from mobile.MobileHelper import MobileHelper
-from object.ItemHandler import ItemHandler
-from object.BodyForm import BodyForm
-from object.BodyParts import BodyParts
+from item.ItemHandler import ItemHandler
+from item.BodyForm import BodyForm
+from item.BodyParts import BodyParts
 from mobile.MobileHandler import MobileHandler
 from player.PlayerHandler import PlayerHandler
 from game.GameData import GameData
@@ -29,9 +26,8 @@ from game.GameService import GameService
 from game.NoteHandler import NoteHandler
 from game.NoteService import NoteService
 from mobile.MobileService import MobileService
-from object.ObjectMacros import ObjectMacros
+from item.ObjectMacros import ObjectMacros
 from player.CharacterMacros import CharacterMacros
-from player.PlayerHelper import PlayerHelper
 from player.PlayerService import PlayerService
 from player.CharacterService import CharacterService
 from server.LoggerFactory import LoggerFactory
@@ -43,7 +39,7 @@ from interp.InterpService import InterpService
 from server.handlers.ConnectionHandler import ConnectionHandler
 from area.AreaService import AreaService
 from area.RoomService import RoomService
-from object.ItemService import ItemService
+from item.ItemService import ItemService
 from server.connection.ConnectionManager import ConnectionManager
 from server.messaging.MessageBus import MessageBus
 from server.session.AuthenticationService import AuthenticationService
@@ -66,7 +62,6 @@ class ServerUtil:
 
         ServerUtil._bind_network_services(injector)
         ServerUtil._bind_registries(injector)
-        ServerUtil._bind_helpers(injector)
         ServerUtil._bind_handlers(injector)
         ServerUtil._bind_game_data(injector)
         ServerUtil._bind_game_services(injector, service_config)
@@ -76,13 +71,6 @@ class ServerUtil:
         injector.binder.bind(SessionHandler, to=SessionHandler(enums.get("gameParameters")["MAX_IDLE"]), scope=singleton)
 
         return injector
-
-    @staticmethod
-    def _bind_helpers(injector):
-        injector.binder.bind(CommandHelper, scope=singleton)
-        injector.binder.bind(RoomHelper, scope=singleton)
-        injector.binder.bind(MobileHelper, scope=singleton)
-        injector.binder.bind(PlayerHelper, scope=singleton)
 
     @staticmethod
     def _bind_singleton_classes(injector, classes):
@@ -96,7 +84,7 @@ class ServerUtil:
 
     @staticmethod
     def _bind_game_services(injector, service_config):
-        from object.ItemRegistry import ItemRegistry
+        from item.ItemRegistry import ItemRegistry
         from skill.SkillRegistry import SkillRegistry
         ServerUtil._bind_singleton_classes(injector, [GameService, SkillService, SpellService, PlayerService,
                                                       CharacterService, HelpService, InterpService, AreaService,
@@ -125,7 +113,7 @@ class ServerUtil:
         from mobile.MobileRegistry import MobileRegistry
         from area.AreaRegistry import AreaRegistry
         from area.RoomRegistry import RoomRegistry
-        from object.ItemRegistry import ItemRegistry
+        from item.ItemRegistry import ItemRegistry
         from skill.SkillRegistry import SkillRegistry
         from skill.SpellRegistry import SpellRegistry
         from interp.InterpRegistry import InterpRegistry
@@ -187,8 +175,6 @@ class ServerUtil:
         info_commands = injector.get(InfoCommands)
         movement_commands = injector.get(MovementCommands)
         wiz_commands = injector.get(WizCommands)
-        command_helper = injector.get(CommandHelper)
-        room_helper = injector.get(RoomHelper)
 
         CharacterMacros.configure(
             registry_provider=lambda: registry_service,
@@ -204,14 +190,12 @@ class ServerUtil:
         wiz_commands.lazy_load()
         movement_commands.lazy_load()
         info_commands.lazy_load()
-        command_helper.lazy_load()
         object_commands.lazy_load()
         communications_commands.lazy_load()
         update_handler.set_enums(enums)
         area_handler.set_enums(enums)
         area_handler.initialize_world()
         weather_handler.lazy_load()
-        room_helper.lazy_load(weather_handler)
         game_service.set_update_handler(injector.get(UpdateHandler))
 
         service_list = (

@@ -8,13 +8,12 @@ from interp.Context import Context
 from util.WizUtil import WizUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
-from player.PlayerHelper import PlayerHelper
 from server.LoggerFactory import LoggerFactory
 
 
 class WizCommands:
     @inject
-    def __init__(self, registry_service: RegistryService, player_helper: PlayerHelper):
+    def __init__(self, registry_service: RegistryService):
         self.__name__ = "WizCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -24,7 +23,6 @@ class WizCommands:
         self.item_registry = registry_service.item_registry
         self.mobile_registry = registry_service.mobile_registry
         self.interp_registry = registry_service.interp_registry
-        self.player_helper = player_helper
         self.PlayerActBitsEnum = None
         self.CommFlagsEnum = None
         self.WiznetFlagsEnum = None
@@ -208,11 +206,12 @@ class WizCommands:
         if not (argument or "").strip():
             context.finish()
             return {"to_char": "Echo what?\r\n"}
+        room = self.room_registry.get_or_none(id=character.room_id)
         context.finish()
         return {
             "to_char": f"{argument}\r\n",
             "room_message": f"{argument}\r\n",
-            "room_targets": self.player_helper.players_in_room(character, self.room_registry.get_or_none(id=character.room_id)),
+            "room_targets": room.player_targets(character),
         }
 
     def do_gecho(self, character: Character, context: Context, argument: str):
@@ -261,12 +260,12 @@ class WizCommands:
             return {"to_char": "Ok.\r\n"}
 
         character.context["return_room_id"] = in_room.id
-        from_targets = self.player_helper.players_in_room(character, in_room)
+        from_targets = in_room.player_targets(character)
         in_room.remove_player_from_room(character)
         room.add_player_to_room(character)
         character.room_id = room.id
         character.area_id = room.area_id
-        to_targets = self.player_helper.players_in_room(character, room)
+        to_targets = room.player_targets(character)
         poofout = (character.context or {}).get("poofout", f"{character.name} leaves in a swirling mist.")
         poofin = (character.context or {}).get("poofin", f"{character.name} appears in a swirling mist.")
         context.finish()
@@ -298,12 +297,12 @@ class WizCommands:
             context.finish()
             return {"to_char": "They are nowhere.\r\n"}
 
-        from_targets = self.player_helper.players_in_room(victim, source)
+        from_targets = source.player_targets(victim)
         source.remove_player_from_room(victim)
         room.add_player_to_room(victim)
         victim.room_id = room.id
         victim.area_id = room.area_id
-        to_targets = self.player_helper.players_in_room(victim, room)
+        to_targets = room.player_targets(victim)
         context.finish()
         return {
             "to_char": "Ok.\r\n",
@@ -328,12 +327,12 @@ class WizCommands:
         if in_room is None:
             context.finish()
             return {"to_char": "You are nowhere.\r\n"}
-        from_targets = self.player_helper.players_in_room(character, in_room)
+        from_targets = in_room.player_targets(character)
         in_room.remove_player_from_room(character)
         room.add_player_to_room(character)
         character.room_id = room.id
         character.area_id = room.area_id
-        to_targets = self.player_helper.players_in_room(character, room)
+        to_targets = room.player_targets(character)
         character.context["return_room_id"] = ""
         context.finish()
         return {
@@ -494,12 +493,12 @@ class WizCommands:
                 return {"to_char": "No such character.\r\n"}
             context.finish()
             return {"to_char": f"{target.name} lvl {target.level} hp {target.hit}/{target.max_hit} mana {target.mana}/{target.max_mana} mv {target.movement}/{target.max_movement}\r\n"}
-        if kind in ("obj", "object", "o"):
+        if kind in ("obj", "item", "o"):
             room = self.room_registry.get_or_none(id=character.room_id)
             obj = CharacterMacros.find_item_in_room(room, value, WizUtil.name_matches)
             if obj is None:
                 context.finish()
-                return {"to_char": "No such object in room.\r\n"}
+                return {"to_char": "No such item in room.\r\n"}
             context.finish()
             return {"to_char": f"Obj [{obj.vnum}] {obj.short_description}\r\nType: {obj.item_type} Flags: {obj.extra_flags} Wear: {obj.wear_flags}\r\n"}
         context.finish()
@@ -509,7 +508,7 @@ class WizCommands:
         kind, rest = WizUtil.split_argument(argument)
         if kind in ("mob", "mobile", "mload"):
             return self._do_mload(context, rest)
-        if kind in ("obj", "object", "oload"):
+        if kind in ("obj", "item", "oload"):
             return self._do_oload(context, rest)
         if (kind or "").isdigit():
             return self._do_mload(context, kind)
@@ -535,7 +534,7 @@ class WizCommands:
         return {
             "to_char": f"{text}\r\n",
             "room_message": f"{text}\r\n",
-            "room_targets": self.player_helper.players_in_room(character, room),
+            "room_targets": room.player_targets(character),
         }
 
     def do_sockets(self, character: Character, context: Context, argument: str):

@@ -8,26 +8,23 @@ from game.RegistryService import RegistryService
 from interp.Context import Context
 from util.InterpUtil import InterpUtil
 from util.MobileUtil import MobileUtil
-from util.ObjectUtil import ObjectUtils
 from util.EffectUtil import EffectUtil
 from util.ItemUtil import ItemUtil
-from object.ObjectMacros import ObjectMacros
+from item.ObjectMacros import ObjectMacros
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
-from player.PlayerHelper import PlayerHelper
 from server.LoggerFactory import LoggerFactory
 
 
 class ObjectCommands:
     @inject
-    def __init__(self, registry_service: RegistryService, player_helper: PlayerHelper, weather_handler=None, room_helper=None):
+    def __init__(self, registry_service: RegistryService, weather_handler=None, room_helper=None):
         self.__name__ = "ObjectCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.room_registry = getattr(registry_service, "room_registry", None)
         self.mobile_registry = getattr(registry_service, "mobile_registry", None)
         self.shop_registry = getattr(registry_service, "shop_registry", None)
-        self.player_helper = player_helper
         self.weather_handler = weather_handler
         self.room_helper = room_helper
         self.item_types = None
@@ -127,11 +124,11 @@ class ObjectCommands:
             context.finish()
             if quantity > 1:
                 return {"to_char": "You can't afford to buy that many.\r\n"}
-            return {"to_char": f"You can't afford to buy {ObjectUtils.short(obj)}.\r\n"}
+            return {"to_char": f"You can't afford to buy {ItemUtil.short(obj)}.\r\n"}
 
         if GenericUtil.to_int(getattr(obj, "level", 0), 0) > GenericUtil.to_int(getattr(character, "level", 0), 0):
             context.finish()
-            return {"to_char": f"You can't use {ObjectUtils.short(obj)} yet.\r\n"}
+            return {"to_char": f"You can't use {ItemUtil.short(obj)} yet.\r\n"}
 
         if self._carry_count(character) + quantity > self._max_items(character):
             context.finish()
@@ -159,17 +156,17 @@ class ObjectCommands:
         self._add_money(keeper, total_cost)
         context.finish()
 
-        item_label = ObjectUtils.short(obj)
+        item_label = ItemUtil.short(obj)
         if quantity > 1:
             return {
                 "to_char": f"You buy {item_label}[{quantity}] for {total_cost} silver.\r\n",
                 "to_room": f"{character.name} buys {item_label}[{quantity}].\r\n",
-                "targets": self.player_helper.players_in_room(character, room),
+                "targets": room.player_targets(character),
             }
         return {
             "to_char": f"You buy {item_label} for {cost} silver.\r\n",
             "to_room": f"{character.name} buys {item_label}.\r\n",
-            "targets": self.player_helper.players_in_room(character, room),
+            "targets": room.player_targets(character),
         }
 
     def do_list(self, character: Character, context: Context):
@@ -203,7 +200,7 @@ class ObjectCommands:
                 if self._is_inventory_item(obj):
                     lines.append(
                         f"[{GenericUtil.to_int(getattr(obj, 'level', 0), 0):>2} "
-                        f"{cost:>5} -- ] {ObjectUtils.short(obj)}\r\n"
+                        f"{cost:>5} -- ] {ItemUtil.short(obj)}\r\n"
                     )
                     index += 1
                     continue
@@ -213,7 +210,7 @@ class ObjectCommands:
                     count += 1
                 lines.append(
                     f"[{GenericUtil.to_int(getattr(obj, 'level', 0), 0):>2} "
-                    f"{cost:>5} {count:>2} ] {ObjectUtils.short(obj)}\r\n"
+                    f"{cost:>5} {count:>2} ] {ItemUtil.short(obj)}\r\n"
                 )
                 index += count
                 continue
@@ -245,17 +242,17 @@ class ObjectCommands:
         if obj is None:
             context.finish()
             return {"to_char": "You don't have that item.\r\n"}
-        if ObjectUtils.is_nodrop(obj, self.item_flags):
+        if ItemUtil.is_nodrop(obj, self.item_flags):
             context.finish()
             return {"to_char": "You can't let go of it.\r\n"}
 
         cost = shop.sell_price(obj, getattr(keeper, "inventory", []) or [], self.item_types, self.item_flags)
         if cost <= 0:
             context.finish()
-            return {"to_char": f"{getattr(keeper, 'short_description', 'The shopkeeper')} looks uninterested in {ObjectUtils.short(obj)}.\r\n"}
+            return {"to_char": f"{getattr(keeper, 'short_description', 'The shopkeeper')} looks uninterested in {ItemUtil.short(obj)}.\r\n"}
         if self._money_value(keeper) < cost:
             context.finish()
-            return {"to_char": f"I'm afraid I don't have enough wealth to buy {ObjectUtils.short(obj)}.\r\n"}
+            return {"to_char": f"I'm afraid I don't have enough wealth to buy {ItemUtil.short(obj)}.\r\n"}
 
         slot = character.equipped_slot_of(obj)
         if slot:
@@ -269,8 +266,8 @@ class ObjectCommands:
             context.finish()
             return {
                 "to_char": self._sell_message(obj, cost),
-                "to_room": f"{character.name} sells {ObjectUtils.short(obj)}.\r\n",
-                "targets": self.player_helper.players_in_room(character, room),
+                "to_room": f"{character.name} sells {ItemUtil.short(obj)}.\r\n",
+                "targets": room.player_targets(character),
             }
 
         self._prepare_sold_item(obj)
@@ -278,8 +275,8 @@ class ObjectCommands:
         context.finish()
         return {
             "to_char": self._sell_message(obj, cost),
-            "to_room": f"{character.name} sells {ObjectUtils.short(obj)}.\r\n",
-            "targets": self.player_helper.players_in_room(character, room),
+            "to_room": f"{character.name} sells {ItemUtil.short(obj)}.\r\n",
+            "targets": room.player_targets(character),
         }
 
     def do_value(self, character: Character, context: Context):
@@ -303,21 +300,21 @@ class ObjectCommands:
         if obj is None:
             context.finish()
             return {"to_char": "You don't have that item.\r\n"}
-        if ObjectUtils.is_nodrop(obj, self.item_flags):
+        if ItemUtil.is_nodrop(obj, self.item_flags):
             context.finish()
             return {"to_char": "You can't let go of it.\r\n"}
 
         cost = shop.sell_price(obj, getattr(keeper, "inventory", []) or [], self.item_types, self.item_flags)
         context.finish()
         if cost <= 0:
-            return {"to_char": f"{getattr(keeper, 'short_description', 'The shopkeeper')} looks uninterested in {ObjectUtils.short(obj)}.\r\n"}
+            return {"to_char": f"{getattr(keeper, 'short_description', 'The shopkeeper')} looks uninterested in {ItemUtil.short(obj)}.\r\n"}
 
         silver = cost - (cost // 100) * 100
         gold = cost // 100
-        return {"to_char": f"I'll give you {silver} silver and {gold} gold coins for {ObjectUtils.short(obj)}.\r\n"}
+        return {"to_char": f"I'll give you {silver} silver and {gold} gold coins for {ItemUtil.short(obj)}.\r\n"}
 
     def do_get(self, character: Character, context: Context):
-        arg1, rem = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
+        arg1, rem = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = self.room_registry.get_or_none(id=character.room_id)
         if not arg1:
             context.finish()
@@ -328,7 +325,7 @@ class ObjectCommands:
 
         container = None
         if rem:
-            container = ObjectUtils.find_container(character, room, rem.split()[0])
+            container = ItemUtil.find_container(character, room, rem.split()[0])
             if container is None:
                 context.finish()
                 return {"to_char": "I see no container here.\r\n"}
@@ -344,15 +341,15 @@ class ObjectCommands:
                 return payload
             target_item = container.find_contained_item(arg1)
         else:
-            target_item = ObjectUtils.find_room_item(room, arg1)
+            target_item = ItemUtil.find_room_item(room, arg1)
 
         if target_item is None:
             context.finish()
             if container is not None:
-                return {"to_char": f"I see nothing like that in {ObjectUtils.short(container)}.\r\n"}
+                return {"to_char": f"I see nothing like that in {ItemUtil.short(container)}.\r\n"}
             return {"to_char": "I see nothing like that here.\r\n"}
 
-        if not ObjectUtils.item_takeable(target_item, self.wear_flags):
+        if not ItemUtil.item_takeable(target_item, self.wear_flags):
             context.finish()
             return {"to_char": "You can't take that.\r\n"}
 
@@ -363,9 +360,9 @@ class ObjectCommands:
         character.add_item(target_item)
         context.finish()
         return {
-            "to_char": f"You get {ObjectUtils.short(target_item)}.\r\n",
-            "to_room": f"{character.name} gets {ObjectUtils.short(target_item)}.\r\n",
-            "targets": self.player_helper.players_in_room(character, room),
+            "to_char": f"You get {ItemUtil.short(target_item)}.\r\n",
+            "to_room": f"{character.name} gets {ItemUtil.short(target_item)}.\r\n",
+            "targets": room.player_targets(character),
         }
 
     def _get_all_from_container(self, character: Character, room, container, arg1: str):
@@ -378,7 +375,7 @@ class ObjectCommands:
             name = str(getattr(obj, "name", "") or "").strip().lower()
             if wanted and wanted not in name.split() and not name.startswith(wanted):
                 continue
-            if not ObjectUtils.item_takeable(obj, self.wear_flags):
+            if not ItemUtil.item_takeable(obj, self.wear_flags):
                 continue
             container.remove_contained_item(obj)
             character.add_item(obj)
@@ -386,17 +383,17 @@ class ObjectCommands:
 
         if not picked:
             if wanted:
-                return {"to_char": f"I see nothing like that in {ObjectUtils.short(container)}.\r\n"}
-            return {"to_char": f"I see nothing in {ObjectUtils.short(container)}.\r\n"}
+                return {"to_char": f"I see nothing like that in {ItemUtil.short(container)}.\r\n"}
+            return {"to_char": f"I see nothing in {ItemUtil.short(container)}.\r\n"}
 
         return {
-            "to_char": "".join(f"You get {ObjectUtils.short(obj)} from {ObjectUtils.short(container)}.\r\n" for obj in picked),
-            "to_room": "".join(f"{character.name} gets {ObjectUtils.short(obj)} from {ObjectUtils.short(container)}.\r\n" for obj in picked),
-            "targets": self.player_helper.players_in_room(character, room),
+            "to_char": "".join(f"You get {ItemUtil.short(obj)} from {ItemUtil.short(container)}.\r\n" for obj in picked),
+            "to_room": "".join(f"{character.name} gets {ItemUtil.short(obj)} from {ItemUtil.short(container)}.\r\n" for obj in picked),
+            "targets": room.player_targets(character),
         }
 
     def do_put(self, character: Character, context: Context):
-        arg1, rem = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
+        arg1, rem = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = self.room_registry.get_or_none(id=character.room_id)
         if not arg1 or not rem:
             context.finish()
@@ -409,11 +406,11 @@ class ObjectCommands:
         if obj is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
-        container = ObjectUtils.find_container(character, room, rem.split()[0])
+        container = ItemUtil.find_container(character, room, rem.split()[0])
         if container is None:
             context.finish()
             return {"to_char": "I see no container here.\r\n"}
-        if not ObjectUtils.is_container(container):
+        if not ItemUtil.is_container(container):
             context.finish()
             return {"to_char": "That's not a container.\r\n"}
         if ObjectMacros.is_container_closed(container):
@@ -427,13 +424,13 @@ class ObjectCommands:
         container.add_contained_item(obj)
         context.finish()
         return {
-            "to_char": f"You put {ObjectUtils.short(obj)} in {ObjectUtils.short(container)}.\r\n",
-            "to_room": f"{character.name} puts {ObjectUtils.short(obj)} in {ObjectUtils.short(container)}.\r\n",
-            "targets": self.player_helper.players_in_room(character, room),
+            "to_char": f"You put {ItemUtil.short(obj)} in {ItemUtil.short(container)}.\r\n",
+            "to_room": f"{character.name} puts {ItemUtil.short(obj)} in {ItemUtil.short(container)}.\r\n",
+            "targets": room.player_targets(character),
         }
 
     def do_drop(self, character: Character, context: Context):
-        arg1, _ = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
+        arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = self.room_registry.get_or_none(id=character.room_id)
         if not arg1:
             context.finish()
@@ -449,7 +446,7 @@ class ObjectCommands:
         if item is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
-        if ObjectUtils.is_nodrop(item, self.item_flags):
+        if ItemUtil.is_nodrop(item, self.item_flags):
             context.finish()
             return {"to_char": "You can't let go of it.\r\n"}
 
@@ -466,7 +463,7 @@ class ObjectCommands:
         for item in list(getattr(character, "loot", []) or []):
             if character.equipped_slot_of(item):
                 continue
-            if ObjectUtils.is_nodrop(item, self.item_flags):
+            if ItemUtil.is_nodrop(item, self.item_flags):
                 continue
             name = str(getattr(item, "name", "") or "").strip().lower()
             if wanted and wanted not in name.split() and not name.startswith(wanted):
@@ -484,7 +481,7 @@ class ObjectCommands:
         return {
             "to_char": "".join(char_lines),
             "to_room": "".join(room_lines),
-            "targets": self.player_helper.players_in_room(character, room),
+            "targets": room.player_targets(character),
         }
 
     def _drop_one(self, character: Character, room, item):
@@ -496,64 +493,64 @@ class ObjectCommands:
 
         if self._melts_on_drop(item):
             return {
-                "to_char": f"You drop {ObjectUtils.short(item)}.\r\n{ObjectUtils.short(item)} dissolves into smoke.\r\n",
-                "to_room": f"{character.name} drops {ObjectUtils.short(item)}.\r\n{ObjectUtils.short(item)} dissolves into smoke.\r\n",
+                "to_char": f"You drop {ItemUtil.short(item)}.\r\n{ItemUtil.short(item)} dissolves into smoke.\r\n",
+                "to_room": f"{character.name} drops {ItemUtil.short(item)}.\r\n{ItemUtil.short(item)} dissolves into smoke.\r\n",
             }
 
         room.add_item_to_room(item)
         return {
-            "to_char": f"You drop {ObjectUtils.short(item)}.\r\n",
-            "to_room": f"{character.name} drops {ObjectUtils.short(item)}.\r\n",
+            "to_char": f"You drop {ItemUtil.short(item)}.\r\n",
+            "to_room": f"{character.name} drops {ItemUtil.short(item)}.\r\n",
         }
 
     def _melts_on_drop(self, item) -> bool:
         if not hasattr(self.item_flags, "ITEM_MELT_DROP"):
             return False
-        return ObjectUtils.has_flag(getattr(item, "extra_flags", 0), self.item_flags.ITEM_MELT_DROP.value)
+        return ItemUtil.has_flag(getattr(item, "extra_flags", 0), self.item_flags.ITEM_MELT_DROP.value)
 
     def do_junk(self, character: Character, context: Context):
         return self.destroy_carried(character, context, "Junk what?\r\n")
 
     def do_sacrifice(self, character: Character, context: Context):
-        arg1, _ = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
+        arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = self.room_registry.get_or_none(id=character.room_id)
         if not arg1 or arg1.lower() == str(getattr(character, "name", "") or "").strip().lower():
             context.finish()
             return {
                 "to_char": "Mota appreciates your offer and may accept it later.\r\n",
                 "to_room": f"{character.name} offers themselves to Mota, who graciously declines.\r\n",
-                "targets": self.player_helper.players_in_room(character, room),
+                "targets": room.player_targets(character),
             }
 
-        item = ObjectUtils.find_room_item(room, arg1) if room is not None else None
+        item = ItemUtil.find_room_item(room, arg1) if room is not None else None
         if item is None:
             context.finish()
             return {"to_char": "You can't find it.\r\n"}
-        if ObjectUtils.is_pc_corpse(item) and list(getattr(item, "contains", []) or []):
+        if ItemUtil.is_pc_corpse(item) and list(getattr(item, "contains", []) or []):
             context.finish()
             return {"to_char": "Mota wouldn't like that.\r\n"}
-        if not ObjectUtils.item_takeable(item, self.wear_flags) or ObjectUtils.is_nosac(item, self.item_flags):
+        if not ItemUtil.item_takeable(item, self.wear_flags) or ItemUtil.is_nosac(item, self.item_flags):
             context.finish()
-            return {"to_char": f"{ObjectUtils.short(item)} is not an acceptable sacrifice.\r\n"}
+            return {"to_char": f"{ItemUtil.short(item)} is not an acceptable sacrifice.\r\n"}
 
         for occupant in list(getattr(room, "characters", {}).values()) + list(getattr(room, "mobiles", {}).values()) if room is not None else []:
             if getattr(occupant, "on", None) is item:
                 name = getattr(occupant, "short_description", None) or getattr(occupant, "name", "Someone")
                 context.finish()
-                return {"to_char": f"{name} appears to be using {ObjectUtils.short(item)}.\r\n"}
+                return {"to_char": f"{name} appears to be using {ItemUtil.short(item)}.\r\n"}
 
-        silver = ObjectUtils.sacrifice_silver_value(item)
+        silver = ItemUtil.sacrifice_silver_value(item)
         room.remove_item_from_room(item)
         character.silver = int(getattr(character, "silver", 0) or 0) + silver
         context.finish()
         return {
-            "to_char": ObjectUtils.sacrifice_reward_message(silver),
-            "to_room": f"{character.name} sacrifices {ObjectUtils.short(item)} to Mota.\r\n",
-            "targets": self.player_helper.players_in_room(character, room),
+            "to_char": ItemUtil.sacrifice_reward_message(silver),
+            "to_room": f"{character.name} sacrifices {ItemUtil.short(item)} to Mota.\r\n",
+            "targets": room.player_targets(character),
         }
 
     def destroy_carried(self, character: Character, context: Context, empty_msg: str, success_msg: str = "Ok.\r\n"):
-        arg1, _ = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
+        arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         if not arg1:
             context.finish()
             return {"to_char": empty_msg}
@@ -561,7 +558,7 @@ class ObjectCommands:
         if item is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
-        if ObjectUtils.is_nodrop(item, self.item_flags):
+        if ItemUtil.is_nodrop(item, self.item_flags):
             context.finish()
             return {"to_char": "You can't let go of it.\r\n"}
         slot = character.equipped_slot_of(item)
@@ -573,7 +570,7 @@ class ObjectCommands:
         return {"to_char": success_msg}
 
     def do_give(self, character: Character, context: Context):
-        arg1, rem = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
+        arg1, rem = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = self.room_registry.get_or_none(id=character.room_id)
         if not arg1 or not rem:
             context.finish()
@@ -589,7 +586,7 @@ class ObjectCommands:
         if item is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
-        if ObjectUtils.is_nodrop(item, self.item_flags):
+        if ItemUtil.is_nodrop(item, self.item_flags):
             context.finish()
             return {"to_char": "You can't let go of it.\r\n"}
 
@@ -601,15 +598,15 @@ class ObjectCommands:
         victim.add_item(item)
         context.finish()
         return {
-            "to_char": f"You give {ObjectUtils.short(item)} to {victim.name}.\r\n",
-            "to_victim": f"{character.name} gives you {ObjectUtils.short(item)}.\r\n",
+            "to_char": f"You give {ItemUtil.short(item)} to {victim.name}.\r\n",
+            "to_victim": f"{character.name} gives you {ItemUtil.short(item)}.\r\n",
             "victim": victim,
-            "to_room": f"{character.name} gives {ObjectUtils.short(item)} to {victim.name}.\r\n",
-            "targets": self.player_helper.players_in_room(character, room),
+            "to_room": f"{character.name} gives {ItemUtil.short(item)} to {victim.name}.\r\n",
+            "targets": room.player_targets(character),
         }
 
     def do_wear(self, character: Character, context: Context):
-        arg1, rem = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
+        arg1, rem = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = self.room_registry.get_or_none(id=character.room_id)
         if not arg1:
             context.finish()
@@ -635,7 +632,7 @@ class ObjectCommands:
         return self.equip_to_slot(character, context, "held", "Hold what?\r\n", "You can't hold that.\r\n")
 
     def equip_to_slot(self, character: Character, context: Context, slot: str, empty_msg: str, invalid_msg: str):
-        arg1, _ = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
+        arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = self.room_registry.get_or_none(id=character.room_id)
         if not arg1:
             context.finish()
@@ -649,7 +646,7 @@ class ObjectCommands:
         return payload
 
     def do_remove(self, character: Character, context: Context):
-        arg1, _ = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
+        arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         if not arg1:
             context.finish()
             return {"to_char": "Remove what?\r\n"}
@@ -663,7 +660,7 @@ class ObjectCommands:
                 return {"to_char": "You aren't wearing that.\r\n"}
             EffectUtil.remove_item_effects(character, item)
             context.finish()
-            return {"to_char": f"You stop using {ObjectUtils.short(item)}.\r\n"}
+            return {"to_char": f"You stop using {ItemUtil.short(item)}.\r\n"}
 
         for slot, item in equipped.__dict__.items():
             if item is None:
@@ -673,7 +670,7 @@ class ObjectCommands:
                 EffectUtil.remove_item_effects(character, item)
                 character.unequip_item(slot)
                 context.finish()
-                return {"to_char": f"You stop using {ObjectUtils.short(item)}.\r\n"}
+                return {"to_char": f"You stop using {ItemUtil.short(item)}.\r\n"}
         context.finish()
         return {"to_char": "You aren't wearing that.\r\n"}
 
@@ -693,7 +690,7 @@ class ObjectCommands:
         result = {"to_char": "".join(char_lines)}
         if room_lines and room is not None:
             result["to_room"] = "".join(room_lines)
-            result["targets"] = self.player_helper.players_in_room(character, room)
+            result["targets"] = room.player_targets(character)
         return result
 
     def _wear_item(self, character: Character, item, room, *, replace: bool, preferred_slot: str = "",
@@ -703,7 +700,7 @@ class ObjectCommands:
         if level < item_level:
             return Equipped.build_wear_payload(character, room,
                                                to_char=f"You must be level {item_level} to use this object.\r\n",
-                                               to_room=f"{character.name} tries to use {ObjectUtils.short(item)}, but is too inexperienced.\r\n")
+                                               to_room=f"{character.name} tries to use {ItemUtil.short(item)}, but is too inexperienced.\r\n")
 
         equipped = character.ensure_equipped()
         slot_groups = equipped.wear_slot_groups_for_item(item, self.wear_flags, preferred_slot=preferred_slot, forced_slot=forced_slot)
@@ -752,7 +749,7 @@ class ObjectCommands:
     def _can_remove_worn_item(self, item) -> bool:
         if not hasattr(self.item_flags, "ITEM_NOREMOVE"):
             return True
-        return not ObjectUtils.has_flag(getattr(item, "extra_flags", 0), self.item_flags.ITEM_NOREMOVE.value)
+        return not ItemUtil.has_flag(getattr(item, "extra_flags", 0), self.item_flags.ITEM_NOREMOVE.value)
 
     @staticmethod
     def _remove_worn_item(character: Character, slot: str, item) -> None:
@@ -834,7 +831,7 @@ class ObjectCommands:
                 skill = max(0, min(100, GenericUtil.to_int(entry_level, 0)))
                 break
 
-        short = ObjectUtils.short(item)
+        short = ItemUtil.short(item)
         if skill >= 100:
             return f"{short} feels like a part of you!\r\n"
         if skill > 85:
@@ -850,11 +847,11 @@ class ObjectCommands:
         return f"You don't even know which end is up on {short}.\r\n"
 
     def do_drink(self, character: Character, context: Context):
-        arg1, _ = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
+        arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = self.room_registry.get_or_none(id=character.room_id)
         item = character.find_inventory_item(arg1) if arg1 else None
         if item is None:
-            item = ObjectUtils.find_room_item(room, arg1) if arg1 else None
+            item = ItemUtil.find_room_item(room, arg1) if arg1 else None
         if item is None:
             context.finish()
             return {"to_char": "Drink what?\r\n"}
@@ -870,7 +867,7 @@ class ObjectCommands:
         return {"to_char": "You take a drink.\r\n"}
 
     def do_eat(self, character: Character, context: Context):
-        arg1, _ = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
+        arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         if not arg1:
             context.finish()
             return {"to_char": "Eat what?\r\n"}
@@ -891,7 +888,7 @@ class ObjectCommands:
         return {"to_char": "You eat it.\r\n"}
 
     def do_fill(self, character: Character, context: Context):
-        arg1, rem = ObjectUtils.parse_raw_arguments(context.result, context.parameters)
+        arg1, rem = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = self.room_registry.get_or_none(id=character.room_id)
         if not arg1:
             context.finish()
@@ -901,10 +898,10 @@ class ObjectCommands:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
         src_name = rem.split()[0] if rem else ""
-        src = ObjectUtils.find_container(character, room, src_name) if src_name else None
+        src = ItemUtil.find_container(character, room, src_name) if src_name else None
         if src is None:
             # fallback to first fountain in room
-            src = ObjectUtils.first_fountain(room)
+            src = ItemUtil.first_fountain(room)
         if src is None:
             context.finish()
             return {"to_char": "There is no source of liquid here.\r\n"}
@@ -960,7 +957,7 @@ class ObjectCommands:
     def _is_pet_shop(self, room) -> bool:
         if room is None or self.room_flags is None or not hasattr(self.room_flags, "ROOM_PET_SHOP"):
             return False
-        return ObjectUtils.has_flag(getattr(room, "room_flags", 0), self.room_flags.ROOM_PET_SHOP.value)
+        return ItemUtil.has_flag(getattr(room, "room_flags", 0), self.room_flags.ROOM_PET_SHOP.value)
 
     def _list_pets(self, room):
         stock_room = self._pet_stock_room(room)
@@ -1026,7 +1023,7 @@ class ObjectCommands:
         return {
             "to_char": "Enjoy your pet.\r\n",
             "to_room": f"{character.name} bought {getattr(pet, 'short_description', 'a pet')} as a pet.\r\n",
-            "targets": self.player_helper.players_in_room(character, room),
+            "targets": room.player_targets(character),
         }
 
     def _pet_stock_room(self, room):
@@ -1155,15 +1152,15 @@ class ObjectCommands:
 
     def _had_timer(self, item) -> bool:
         bit = CharacterMacros.enum_bit(self.item_flags, "ITEM_HAD_TIMER")
-        return bit != 0 and ObjectUtils.has_flag(getattr(item, "extra_flags", 0), bit)
+        return bit != 0 and ItemUtil.has_flag(getattr(item, "extra_flags", 0), bit)
 
     def _is_inventory_item(self, item) -> bool:
         bit = CharacterMacros.enum_bit(self.item_flags, "ITEM_INVENTORY")
-        return bit != 0 and ObjectUtils.has_flag(getattr(item, "extra_flags", 0), bit)
+        return bit != 0 and ItemUtil.has_flag(getattr(item, "extra_flags", 0), bit)
 
     def _is_sell_extract_item(self, item) -> bool:
         bit = CharacterMacros.enum_bit(self.item_flags, "ITEM_SELL_EXTRACT")
-        return bit != 0 and ObjectUtils.has_flag(getattr(item, "extra_flags", 0), bit)
+        return bit != 0 and ItemUtil.has_flag(getattr(item, "extra_flags", 0), bit)
 
     @staticmethod
     def _is_trash_item(item) -> bool:
@@ -1241,4 +1238,4 @@ class ObjectCommands:
         silver = cost - (cost // 100) * 100
         gold = cost // 100
         suffix = "" if cost == 1 else "s"
-        return f"You sell {ObjectUtils.short(item)} for {silver} silver and {gold} gold piece{suffix}.\r\n"
+        return f"You sell {ItemUtil.short(item)} for {silver} silver and {gold} gold piece{suffix}.\r\n"

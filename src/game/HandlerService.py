@@ -3,7 +3,7 @@ from injector import inject
 from area.RoomHandler import RoomHandler
 from interp.SocialHandler import SocialHandler
 from mobile.MobileHandler import MobileHandler
-from object.ItemHandler import ItemHandler
+from item.ItemHandler import ItemHandler
 from player.PlayerHandler import PlayerHandler
 from server.LoggerFactory import LoggerFactory
 

@@ -1,13 +1,17 @@
-from typing import List
-from typing import Any
+from __future__ import annotations
 
-from area import Room
-from area.RoomHelper import RoomHelper
+from typing import List
+from typing import Any, TYPE_CHECKING
+
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from server.session.SessionHandler import SessionHandler
+
+
+if TYPE_CHECKING:
+    from area.Room import Room
 
 
 class PlayerUtil:
@@ -142,30 +146,30 @@ class PlayerUtil:
         return False
 
     @staticmethod
-    def get_target(character: Character, victim: str, room: Room, room_helper: RoomHelper):
+    def get_target(character: Character, victim: str, room: Room):
         if room is None:
             return None
 
         if hasattr(room, "find_visible_target"):
-            return room.find_visible_target(character, victim, room_helper)
+            return room.find_visible_target(character, victim)
 
         if (victim or "").strip().lower() == "self":
             return character
 
-        target = PlayerUtil._get_character_target(character, victim, room, room_helper)
+        target = PlayerUtil._get_character_target(character, victim, room)
         if target is None:
-            target = PlayerUtil._get_mobile_target(character, victim, room, room_helper)
+            target = PlayerUtil._get_mobile_target(character, victim, room)
 
         return target
 
     @staticmethod
-    def _get_character_target(character: Character, victim: str, room: Room, room_helper: RoomHelper):
+    def _get_character_target(character: Character, victim: str, room: Room):
         wanted = (victim or "").strip().lower()
         if not wanted:
             return None
 
         for char in room.characters.values():
-            if not CharacterMacros.can_see(character, char, room_helper):
+            if not CharacterMacros.can_see(character, char, room):
                 continue
 
             if char.room_id == room.id:
@@ -175,9 +179,9 @@ class PlayerUtil:
         return None
 
     @staticmethod
-    def _get_mobile_target(character, victim: str, room: Room, room_helper: RoomHelper):
+    def _get_mobile_target(character, victim: str, room: Room):
         mob = InterpUtil.find_nth_by_keyword(room.mobiles, victim)  # support for 1.mob_name; 2.mob_name, etc
-        if mob is not None and CharacterMacros.can_see(character, mob, room_helper):
+        if mob is not None and CharacterMacros.can_see(character, mob, room):
             return mob
         else:
             return None

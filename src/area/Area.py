@@ -1,12 +1,17 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Tuple
-from area import Room
+from typing import Tuple, TYPE_CHECKING
 from area.Reset import Reset
 from area.Shop import Shop
 from area.Special import Special
-from object.Item import Item
+from item.Item import Item
 from mobile.Mobile import Mobile
 from server.LoggerFactory import LoggerFactory
+
+
+if TYPE_CHECKING:
+    from area.Room import Room
 
 
 @dataclass

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import threading
 
 from dataclasses import dataclass, field
@@ -16,7 +18,8 @@ from util.GenericUtil import GenericUtil
 
 if TYPE_CHECKING:
     from game.Equipped import Equipped
-    from object.Item import Item
+    from item.Item import Item
+
 
 @dataclass
 class Character:
@@ -75,7 +78,7 @@ class Character:
         return False
 
     def load_inventory(self):
-        from object.Item import Item
+        from item.Item import Item
         with self.lock:
             for item in self.inventory:
                 self.loot.append(Item.from_json(item))
@@ -230,7 +233,7 @@ class Character:
     def from_json(cls, data):
         from util.GenericUtil import GenericUtil
         from game.Equipped import Equipped
-        from object.Item import Item
+        from item.Item import Item
         payload = GenericUtil.camel_to_snake_case(data)
         prompt_format = payload.get('prompt_format')
         character_class = payload.get('character_class')
@@ -271,3 +274,10 @@ class Character:
             if "boat" in item_type:
                 return True
         return False
+
+    def check_blind(self, character_macros) -> bool:
+        if not character_macros.is_npc(self) and character_macros.has_holy_light(self):
+            return True
+        if character_macros.is_blind(self):
+            return False
+        return True
