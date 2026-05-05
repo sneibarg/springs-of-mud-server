@@ -81,7 +81,8 @@ class InterpService:
                     self._help_token_index[normalized] = help_entry
 
     def _assign_help_to_command(self, command: Command) -> None:
-        command.help = None
+        if command.help is not None:
+            return
         command_name = str(getattr(command, "name", "") or "").strip().lower()
         if not command_name:
             return

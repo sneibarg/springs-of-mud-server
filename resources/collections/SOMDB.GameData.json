@@ -1941,48 +1941,6 @@
         "type": "ITEM_JUKEBOX"
       }
     },
-    "weapons": {
-      "sword": {
-        "vnum": "OBJ_VNUM_SCHOOL_SWORD",
-        "type": "WEAPON_SWORD",
-        "gsn": "gsn_sword"
-      },
-      "mace": {
-        "vnum": "OBJ_VNUM_SCHOOL_MACE",
-        "type": "WEAPON_MACE",
-        "gsn": "gsn_mace"
-      },
-      "dagger": {
-        "vnum": "OBJ_VNUM_SCHOOL_DAGGER",
-        "type": "WEAPON_DAGGER",
-        "gsn": "gsn_dagger"
-      },
-      "axe": {
-        "vnum": "OBJ_VNUM_SCHOOL_AXE",
-        "type": "WEAPON_AXE",
-        "gsn": "gsn_axe"
-      },
-      "staff": {
-        "vnum": "OBJ_VNUM_SCHOOL_STAFF",
-        "type": "WEAPON_SPEAR",
-        "gsn": "gsn_spear"
-      },
-      "flail": {
-        "vnum": "OBJ_VNUM_SCHOOL_FLAIL",
-        "type": "WEAPON_FLAIL",
-        "gsn": "gsn_flail"
-      },
-      "whip": {
-        "vnum": "OBJ_VNUM_SCHOOL_WHIP",
-        "type": "WEAPON_WHIP",
-        "gsn": "gsn_whip"
-      },
-      "polearm": {
-        "vnum": "OBJ_VNUM_SCHOOL_POLEARM",
-        "type": "WEAPON_POLEARM",
-        "gsn": "gsn_polearm"
-      }
-    },
     "attacks": {
       "none": {
         "message": "hit",

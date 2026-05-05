@@ -41,6 +41,3 @@ class Command:
         data['_id'] = GenericUtil.generate_mongo_id()
         data = GenericUtil.camel_to_snake_case(data)
         return cls(**data)
-
-    def message(self, channel: str, key: str, fallback: str = "", **values) -> str:
-        return self.payload.render(channel, key, fallback=fallback, **values)

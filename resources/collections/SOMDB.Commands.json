@@ -18,12 +18,19 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
+                "fighting": "No way! You are fighting.",
+                "stunned": "You're not DEAD yet.",
                 "default": "Alas, all good things must come to an end."
             },
             "toRoom": {
-                "default": "%c has disconnected."
+                "default": "%c has left the game."
             },
-            "toVictim": {}
+            "toVictim": {
+
+            },
+            "toWiznet": {
+                "default": "%c rejoins the real world."
+            }
         }
     },
     {
@@ -70,6 +77,17 @@
         "maxArguments": 2,
         "payload": {
             "toChar": {
+                "noArgument": "Tell whom what?",
+                "targetMissing": "They aren't here.",
+                "targetDisconnected": "%v seems to have misplaced their link...try again later.",
+                "targetSleeping": "%v can't hear you.",
+                "targetDeaf": "$v is not receiving tells.",
+                "targetNPC": "%v is AFK, and not receiving tells.",
+                "targetAFK": "%n is AFK, but your tell will go through when %n returns.",
+                "noTell": "Your message didn't get through",
+                "deaf": "Your message didn't get through",
+                "quietMode": "You must turn off quiet mode first.",
+                "deafMode": "You must turn off deaf mode first.",
                 "default": "You tell %t '%m'"
             },
             "toRoom": {},
@@ -337,6 +355,7 @@
             "$oid": "69bc3df3af6857ce485bb989"
         },
         "name": "cast",
+        "shortcuts": "ca, cas",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_cast(ctx.character, ctx)"
@@ -358,6 +377,7 @@
             "$oid": "69bc3df3af6857ce485bb98a"
         },
         "name": "auction",
+        "shortcuts": "auc, auct",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_communications_command(ctx.character, ctx)"
@@ -369,9 +389,18 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "enable": "Auction channel is now ON.",
+                "disable": "Auction channel is now OFF.",
+                "quietMode": "You must turn off quiet mode first.",
+                "noChannels": "The gods have revoked your channel privileges.",
+                "default": "You acution '%s'"
+            },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {},
+            "toWorld": {
+                "default": "%c auctions '%t'"
+            }
         }
     },
     {
@@ -400,6 +429,7 @@
             "$oid": "69bc3df3af6857ce485bb98c"
         },
         "name": "channels",
+        "shortcuts": "cha, chan, chann",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_communications_command(ctx.character, ctx)"
@@ -421,6 +451,7 @@
             "$oid": "69bc3df3af6857ce485bb98d"
         },
         "name": "exits",
+        "shortcuts": "ex, exi, exit",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.room_handler().print_exits(ctx.character)"
@@ -484,6 +515,7 @@
             "$oid": "69bc3df3af6857ce485bb990"
         },
         "name": "group",
+        "shortcuts": "gr, gro, grou, ",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_communications_command(ctx.character, ctx)"
@@ -505,6 +537,7 @@
             "$oid": "69bc3df3af6857ce485bb991"
         },
         "name": "guild",
+        "shortcuts": "gu, gui, guil, ",
         "role": "immortal",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_wiz_command(ctx.character, ctx)"
@@ -526,6 +559,7 @@
             "$oid": "69bc3df3af6857ce485bb992"
         },
         "name": "hit",
+        "shortcuts": "h, hi",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_hit(ctx.character, ctx)"
@@ -547,6 +581,7 @@
             "$oid": "69bc3df3af6857ce485bb993"
         },
         "name": "kill",
+        "shortcuts": "k, ki, kil",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_kill(ctx.character, ctx)"
@@ -576,6 +611,7 @@
             "$oid": "69bc3df3af6857ce485bb994"
         },
         "name": "clan",
+        "shortcuts": "cl, cla",
         "role": "player",
         "enabled": true,
         "position": "POS_SLEEPING",
@@ -584,9 +620,19 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "noClan": "You aren't in a clan.",
+                "enable": "Clan channel is now ON.",
+                "disable": "Clan channel is now OFF.",
+                "quietMode": "You must turn off quiet mode first.",
+                "noChannels": "The gods have revoked your channel privileges.",
+                "default": "You clan '%s'"
+            },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {},
+            "toClan": {
+                "default": "%n clans '%t'"
+            }
         }
     },
     {
@@ -594,6 +640,7 @@
             "$oid": "69bc3df3af6857ce485bb995"
         },
         "name": "music",
+        "shortcuts": "mu, mus, musi",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_communications_command(ctx.character, ctx)"
@@ -605,9 +652,18 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "enable": "Music channel is now ON.",
+                "disable": "Music channel is now OFF.",
+                "quietMode": "You must turn off quiet mode first.",
+                "noChannels": "The gods have revoked your channel privileges.",
+                "default": "You MUSIC: '%s'"
+            },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {},
+            "toWorld": {
+                "default": "%c MUSIC: '%t'"
+            }
         }
     },
     {
@@ -615,6 +671,7 @@
             "$oid": "69bc3df3af6857ce485bb996"
         },
         "name": "order",
+        "shortcuts": "or, ord, orde",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_communications_command(ctx.character, ctx)"
@@ -636,6 +693,7 @@
             "$oid": "69bc3df3af6857ce485bb997"
         },
         "name": "practice",
+        "shortcuts": "pr, prac, prac, pract",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_practice(ctx.character, ctx)"
@@ -657,6 +715,7 @@
             "$oid": "69bc3df3af6857ce485bb998"
         },
         "name": "rest",
+        "shortcuts": "re, res, res",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_rest(ctx.character, ctx)"
@@ -699,6 +758,7 @@
             "$oid": "69bc3df3af6857ce485bb99a"
         },
         "name": "sockets",
+        "shortcuts": "soc, sock, socke, socket",
         "role": "immortal",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_wiz_command(ctx.character, ctx)"
@@ -710,9 +770,16 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "enable": "Immortal channel is now ON.",
+                "disable": "Immortal channel is now OFF.",
+                "default": "%c: %t"
+            },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {},
+            "toWiznet": {
+                "default": "%c: %t"
+            }
         }
     },
     {
@@ -720,6 +787,7 @@
             "$oid": "69bc3df3af6857ce485bb99b"
         },
         "name": "stand",
+        "shortcuts": "st, sta, stan",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_stand(ctx.character, ctx)"
@@ -741,6 +809,7 @@
             "$oid": "69bc3df3af6857ce485bb99c"
         },
         "name": "unlock",
+        "shortcuts": "un, unl, unlo, unloc",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_unlock(ctx.character, ctx)"
@@ -762,6 +831,7 @@
             "$oid": "69bc3df3af6857ce485bb99d"
         },
         "name": "wield",
+        "shortcuts": "wi, wie, wiel",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
@@ -783,6 +853,7 @@
             "$oid": "69bc3df3af6857ce485bb99e"
         },
         "name": "wizhelp",
+        "shortcuts": "wizh, wizhe, wizhel",
         "role": "immortal",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_wiz_command(ctx.character, ctx)"
@@ -804,6 +875,7 @@
             "$oid": "69bc3df3af6857ce485bb99f"
         },
         "name": "affects",
+        "shortcuts": "af, aff, affec, affect",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_affects(ctx.character, ctx)"
@@ -825,6 +897,7 @@
             "$oid": "69bc3df3af6857ce485bb9a0"
         },
         "name": "areas",
+        "shortcuts": "ar, are, area",
         "role": "player",
         "lambdas": [],
         "enabled": true,
@@ -865,6 +938,7 @@
             "$oid": "69bc3df3af6857ce485bb9a2"
         },
         "name": "changes",
+        "shortcuts": "ch, cha, chan, chang",
         "role": "player",
         "lambdas": [],
         "enabled": true,
@@ -903,6 +977,7 @@
             "$oid": "69bc3df3af6857ce485bb9a4"
         },
         "name": "compare",
+        "shortcuts": "co, com, compar, compa",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_compare(ctx.character, ctx)"
@@ -924,6 +999,7 @@
             "$oid": "69bc3df3af6857ce485bb9a5"
         },
         "name": "consider",
+        "shortcuts": "con, cons, consid, conside",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_consider(ctx.character, ctx)"
@@ -945,6 +1021,7 @@
             "$oid": "69bc3df3af6857ce485bb9a6"
         },
         "name": "count",
+        "shortcuts": "cou, coun, count",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_count(ctx.character, ctx)"
@@ -966,6 +1043,7 @@
             "$oid": "69bc3df3af6857ce485bb9a7"
         },
         "name": "credits",
+        "shortcuts": "cr, cre, cred, credi",
         "role": "player",
         "lambdas": [],
         "enabled": true,
@@ -1127,6 +1205,7 @@
             "$oid": "69bc3df3af6857ce485bb9af"
         },
         "name": "report",
+        "shortcuts": "rep, repor, repo",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_report(ctx.character, ctx)"
@@ -1169,6 +1248,7 @@
             "$oid": "69bc3df3af6857ce485bb9b1"
         },
         "name": "score",
+        "shortcuts": "sc, sco, scor",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_score(ctx.character, ctx)"
@@ -1663,6 +1743,7 @@
             "$oid": "69bc3df3af6857ce485bb9c9"
         },
         "name": "description",
+        "shortcuts": "desc, descrip, descript",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_description(ctx.character, ctx)"
@@ -1936,7 +2017,10 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "enable": "You are now in AFK mode.",
+                "disable": "AFK mode removed. Type 'replay' to see tells."
+            },
             "toRoom": {},
             "toVictim": {}
         }
@@ -1957,9 +2041,18 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "enable": "Q/A channel is now ON.",
+                "disable": "Q/A channel is now OFF.",
+                "quietMode": "You must turn off quiet mode first.",
+                "noChannels": "The gods have revoked your channel privileges.",
+                "default": "You answer '%s'"
+            },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {},
+            "toWorld": {
+                "default": "%c answers '%t'"
+            }
         }
     },
     {
@@ -1978,7 +2071,10 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "enable": "From now on, you won't hear tells.",
+                "disable": "You can now hear tells again."
+            },
             "toRoom": {},
             "toVictim": {}
         }
@@ -1999,8 +2095,14 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
-            "toRoom": {},
+            "toChar": {
+                "noEmote": "You can't show your emotions.",
+                "noArgument": "Emote what?",
+                "default": "%c %e"
+            },
+            "toRoom": {
+                "default": "%c %e"
+            },
             "toVictim": {}
         }
     },
@@ -2062,9 +2164,18 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "enable": "Gossip channel is now ON.",
+                "disable": "Gossip channel is now OFF.",
+                "quietMode": "You must turn off quiet mode first.",
+                "noChannels": "The gods have revoked your channel privileges.",
+                "default": "You gossip '%s'"
+            },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {},
+            "toWorld": {
+                "default": "%c gossips '%t'"
+            }
         }
     },
     {
@@ -2104,9 +2215,18 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "enable": "Grats channel is now ON.",
+                "disable": "Grats channel is now OFF.",
+                "quietMode": "You must turn off quiet mode first.",
+                "noChannels": "The gods have revoked your channel privileges.",
+                "default": "You grats '%s'"
+            },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {},
+            "toWorld": {
+                "default": "%c grats '%t'"
+            }
         }
     },
     {
@@ -2207,9 +2327,18 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "enable": "Q/A channel is now ON.",
+                "disable": "Q/A channel is now OFF.",
+                "quietMode": "You must turn off quiet mode first.",
+                "noChannels": "The gods have revoked your channel privileges.",
+                "default": "You question '%s'"
+            },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {},
+            "toWorld": {
+                "default": "%c questions '%t'"
+            }
         }
     },
     {
@@ -2228,9 +2357,18 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "enable": "Quote channel is now ON.",
+                "disable": "Quote channel is now OFF.",
+                "quietMode": "You must turn off quiet mode first.",
+                "noChannels": "The gods have revoked your channel privileges.",
+                "default": "You quote '%s'"
+            },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {},
+            "toWorld": {
+                "default": "%c quotes '%t'"
+            }
         }
     },
     {
@@ -2249,7 +2387,10 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "enable": "From now on, you will only hear says and emotes.",
+                "disable": "Quiet mode removed."
+            },
             "toRoom": {},
             "toVictim": {}
         }
@@ -2270,9 +2411,24 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "noArgument": "Tell whom what?",
+                "targetMissing": "They aren't here.",
+                "targetDisconnected": "%v seems to have misplaced their link...try again later.",
+                "targetSleeping": "%v can't hear you.",
+                "targetDeaf": "$v is not receiving tells.",
+                "targetNPC": "%v is AFK, and not receiving tells.",
+                "targetAFK": "%n is AFK, but your tell will go through when %n returns.",
+                "noTell": "Your message didn't get through",
+                "deaf": "Your message didn't get through",
+                "quietMode": "You must turn off quiet mode first.",
+                "deafMode": "You must turn off deaf mode first.",
+                "default": "You tell %t '%m'"
+            },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {
+                "default": "%c tells you '%m'"
+            }
         }
     },
     {
@@ -2291,7 +2447,10 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "isNpc": "You can't replay.",
+                "noTells": "You have no tells to replay."
+            },
             "toRoom": {},
             "toVictim": {}
         }
@@ -2312,9 +2471,17 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "enable": "You can hear shouts again.",
+                "disable": "You will no longer hear shouts.",
+                "noShout": "You can't shout.",
+                "default": "You shout '%t'"
+            },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {},
+            "toArea": {
+                "default": "%c shouts '%t'"
+            }
         }
     },
     {
@@ -2352,7 +2519,11 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "noShout": "You can't yell.",
+                "noArgument": "Yell what?",
+                "default": "You yell '%m'"
+            },
             "toRoom": {},
             "toVictim": {}
         }
@@ -2394,8 +2565,22 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
-            "toRoom": {},
+            "toChar": {
+                "noArgument": "Drink what?",
+                "itemMissing": "You can't find it.",
+                "itemNotContainer": "You can't drink from that.",
+                "containerEmpty": "It is already empty.",
+                "tooFull": "You're too full to drink more.",
+                "quenched": "Your thirst is quenched.",
+                "alcohol": "You feel drunk.",
+                "poison": "You choke and gag.",
+                "drunk": "You fail to reach your mouth. *Hic*",
+                "default": "You drink %l from %p."
+            },
+            "toRoom": {
+                "poison": "%c chokes and gags.",
+                "default": "%c drinks %l from %p."
+            },
             "toVictim": {}
         }
     },
@@ -2436,8 +2621,20 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
-            "toRoom": {},
+            "toChar": {
+                "noArgument": "Eat what?",
+                "itemMissing": "You do not have that item.",
+                "notEdible": "That's not edible.",
+                "tooFull": "You are too full to eat more.",
+                "satiated": "You are no longer hungry.",
+                "full": "You are full.",
+                "poison": "You choke and gag.",
+                "default": "You eat %p."
+            },
+            "toRoom": {
+                "poison": "%c chokes and gags.",
+                "default": "%c eats %p."
+            },
             "toVictim": {}
         }
     },
@@ -2476,8 +2673,16 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
-            "toRoom": {},
+            "toChar": {
+                "noArgument": "Fill what?",
+                "itemMissing": "You do not have that item.",
+                "notContainer": "You can't fill that.",
+                "containerFull": "It is already full.",
+                "default": "You fill %p with %s from %P."
+            },
+            "toRoom": {
+                "default": "%c fills %p with %s from %P."
+            },
             "toVictim": {}
         }
     },
@@ -2497,9 +2702,31 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
-            "toRoom": {},
-            "toVictim": {}
+            "toChar": {
+                "noArgument": "Give what to whom?",
+                "giveZeroFunds": "Sorry, you can't do that.",
+                "targetMissing": "They aren't here.",
+                "insufficientFunds": "You haven't got that much.",
+                "fundsReceived": "You give %v %d %s.",
+                "moneyChangerInsufficientFunds": "%v tells you 'I'm sorry, you did not give me enough to change.'",
+                "moneyChangerFundsReceived": "%v tells you 'Thank you, come again.'",
+                "itemMissing": "You do not have that item.",
+                "itemWorn": "You must remove it first.",
+                "targetKeeper": "%v tells you 'Sorry, you'll have to sell that.'",
+                "noDrop": "You can't let go of it.",
+                "targetHandsFull": "%v has %s hands full.",
+                "targetEncumbered": "%v can't carry that much weight.",
+                "targetCannotSee": "%n can't see it.",
+                "itemReceived": "You give %p to %v."
+            },
+            "toRoom": {
+                "fundsReceived": "%c gives $v some coins.",
+                "itemReceived": "%c gives %p to %v"
+            },
+            "toVictim": {
+                "fundsReceived": "%c gives you %d %s.",
+                "itemReceived": "%c gives you %p"
+            }
         }
     },
     {
@@ -2548,7 +2775,7 @@
         },
         "name": "list",
         "role": "player",
-        "lambdas": [],
+        "lambdas": ["lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"],
         "enabled": true,
         "position": "POS_RESTING",
         "level": 0,
@@ -2796,6 +3023,7 @@
             "$oid": "69bc3df3af6857ce485bba00"
         },
         "name": "sacrifice",
+        "shortcuts": "sac, sacri, sacrif",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
@@ -3211,9 +3439,18 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "noArgument": "Follow whom?",
+                "targetMissing": "They aren't here.",
+                "charmed": "But you'd rather follow %M",
+                "noMaster": "You already follow yourself.",
+                "noFollow": "%v doesn't seem to want any followers.",
+                "default": "You now follow %v."
+            },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {
+                "default": "%c now follows you."
+            }
         }
     },
     {

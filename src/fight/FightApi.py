@@ -205,16 +205,16 @@ class FightApi:
         weapon_class = CharacterMacros.get_enum("weaponClass")
         numeric = GenericUtil.to_int(raw, None)
         if numeric is not None:
-            for enum_name, skill_name in FightHandler.WEAPON_SKILL_NAMES.items():
+            for enum_name, skill_name in self.fight_handler.WeaponClass.__members__.items():
                 member = getattr(weapon_class, enum_name, None)
                 if member is not None and int(member.value) == numeric:
                     return skill_name
         upper_token = token.upper()
-        if upper_token in FightHandler.WEAPON_SKILL_NAMES:
-            return FightHandler.WEAPON_SKILL_NAMES[upper_token]
+        if self.fight_handler.WeaponClass.__contains__(upper_token):
+            return self.fight_handler.WeaponClass[upper_token]
 
         lowered = token.lower()
-        if lowered in FightHandler.WEAPON_SKILL_NAMES.values():
+        if lowered in self.fight_handler.WeaponClass.__members__.values():
             return lowered
         return "hand to hand"
 

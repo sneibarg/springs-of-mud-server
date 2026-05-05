@@ -60,17 +60,6 @@ class FightHandler:
         "dirt": "DAM_BASH",
     }
 
-    WEAPON_SKILL_NAMES = {
-        "WEAPON_SWORD": "sword",
-        "WEAPON_DAGGER": "dagger",
-        "WEAPON_SPEAR": "spear",
-        "WEAPON_MACE": "mace",
-        "WEAPON_AXE": "axe",
-        "WEAPON_FLAIL": "flail",
-        "WEAPON_WHIP": "whip",
-        "WEAPON_POLEARM": "polearm",
-    }
-
     @inject
     def __init__(self, message_bus: MessageBus, combat_registry: CombatRegistry, area_registry: AreaRegistry,
                  room_registry: RoomRegistry, item_registry: ItemRegistry, mobile_registry: MobileRegistry):
@@ -91,6 +80,7 @@ class FightHandler:
         self.RoomFlags = None
         self.WearFlags = None
         self.ItemFlags = None
+        self.WeaponClass = None
         self.mobile_handler = None
         self.logger.info("Initialized FightHandler instance.")
 
@@ -103,6 +93,7 @@ class FightHandler:
         self.RoomFlags = CharacterMacros.get_enum("roomFlags")
         self.WearFlags = CharacterMacros.get_enum("wearFlags")
         self.ItemFlags = CharacterMacros.get_enum("itemFlags")
+        self.WeaponClass = CharacterMacros.get_enum("weaponClass")
         self.logger.info("Loaded FightHandler enums.")
 
     def set_mobile_handler(self, mobile_handler) -> None:
@@ -1409,24 +1400,18 @@ class FightHandler:
 
         raw = getattr(weapon, "value0", None)
         token = str(raw or "").strip()
-        try:
-            weapon_class = CharacterMacros.get_enum("weaponClass")
-        except RuntimeError:
-            weapon_class = None
-
-        if weapon_class is not None:
-            numeric = GenericUtil.to_int(raw, None)
-            if numeric is not None:
-                for enum_name, skill_name in self.WEAPON_SKILL_NAMES.items():
-                    member = getattr(weapon_class, enum_name, None)
-                    if member is not None and int(member.value) == numeric:
-                        return skill_name
-            upper_token = token.upper()
-            if upper_token in self.WEAPON_SKILL_NAMES:
-                return self.WEAPON_SKILL_NAMES[upper_token]
+        numeric = GenericUtil.to_int(raw, None)
+        if numeric is not None:
+            for enum_name, skill_name in self.WeaponClass.items():
+                member = getattr(self.WeaponClass, enum_name, None)
+                if member is not None and int(member.value) == numeric:
+                    return skill_name
+        upper_token = token.upper()
+        if self.WeaponClass.__contains__(upper_token):
+            return self.WeaponClass[upper_token]
 
         lowered = token.lower()
-        if lowered in self.WEAPON_SKILL_NAMES.values():
+        if lowered in self.WeaponClass.__members__.values():
             return lowered
         return ""
 

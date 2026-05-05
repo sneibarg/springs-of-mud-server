@@ -119,15 +119,3 @@ class InterpHandler:
 
         self.logger.info(f"CMD: {cmd.name}, PARAMETERS: {parameters}, USAGE: {str(player.usage)}")
         return await self._call_lambda(character, cmd.name, self.interp_registry.all_commands(), parameters)
-
-    async def handle_usage(self, cmd: Command, context: Context):
-        usage = getattr(cmd, "usage", None)
-        if isinstance(usage, str) and cmd.usage.strip():
-            usage_function = eval(cmd.usage)
-            if not callable(usage_function):
-                self.logger.error("NOT_CALLABLE: " + str(usage_function))
-                return None
-            if not inspect.iscoroutinefunction(usage_function):
-                self.logger.error("NOT_ASYNC: " + str(usage_function))
-            await usage_function(context)
-        return None
