@@ -3,6 +3,8 @@ from typing import Any
 import requests
 
 from injector import inject
+
+from game.GamePayload import GamePayload
 from interp.Command import Command
 from interp.InterpRegistry import InterpRegistry
 from interp.HelpRegistry import HelpRegistry
@@ -40,6 +42,7 @@ class InterpService:
         return self._fetch_and_register(url, f"command '{command_name}'")
 
     def _fetch_and_register(self, url: str, description: str) -> int:
+        from util.GenericUtil import GenericUtil
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         data = response.json()
@@ -47,6 +50,7 @@ class InterpService:
             if isinstance(data, list):
                 for command_data in data:
                     command = Command.from_json(command_data)
+                    command.payload = GamePayload.from_json(GenericUtil.camel_to_snake_case(command_data.get("payload")))
                     self._assign_help_to_command(command)
                     self.interp_registry.register(command)
                 self.logger.info(f"Loaded {len(self.interp_registry.all_commands())} {description}.")

@@ -4,7 +4,6 @@ import threading
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from operator import ifloordiv
 from typing import Dict, List, Optional, Any, TYPE_CHECKING
 
 from interp.PromptFormat import PromptFormat
@@ -49,8 +48,8 @@ class Character:
     trust: int
     inventory: List[Any]
     effects: List[Any]
-    skills: List[Any]
-    spells: List[Any]
+    skills: List[dict]
+    spells: List[dict]
     status_flags: StatusFlags
     character_flags: CharacterFlags
     character_attributes: CharacterAttributes
@@ -86,14 +85,14 @@ class Character:
 
     def skill_level(self, skill_name: str) -> int:
         for skill in self.skills:
-            if skill_name == skill.name:
-                return skill.level
+            if skill_name == skill['name']:
+                return skill['level']
         return 1
 
     def spell_level(self, spell_name: str) -> int:
         for spell in self.spells:
-            if spell_name == spell.name:
-                return spell.level
+            if spell_name == spell['name']:
+                return spell['level']
         return 1
 
     def get_items(self) -> List[Item]:

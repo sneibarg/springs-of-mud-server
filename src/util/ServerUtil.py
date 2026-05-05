@@ -5,6 +5,7 @@ from area.AreaHandler import AreaHandler
 from area.ResetService import ResetService
 from area.RoomHandler import RoomHandler
 from area.SpecialService import SpecialService
+from fight import FightApi
 from game.HandlerService import HandlerService
 from interp.commands.FightCommands import FightCommands
 from interp.commands.CommunicationsCommands import CommunicationsCommands
@@ -63,8 +64,8 @@ class ServerUtil:
 
         ServerUtil._bind_network_services(injector)
         ServerUtil._bind_registries(injector)
-        ServerUtil._bind_api_instances(injector)
         ServerUtil._bind_handlers(injector)
+        ServerUtil._bind_api_instances(injector)
         ServerUtil._bind_game_data(injector)
         ServerUtil._bind_game_services(injector, service_config)
 
@@ -147,6 +148,7 @@ class ServerUtil:
     @staticmethod
     def _bind_api_instances(injector):
         injector.binder.bind(SkillApi, scope=singleton)
+        injector.binder.bind(FightApi, scope=singleton)
 
     @staticmethod
     def lazy_load(injector) -> None:

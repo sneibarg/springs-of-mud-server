@@ -1,6 +1,7 @@
 from .GameData import GameData, Version, Integrity, BuildInfo
+from .GamePayload import GamePayload
 
-__all__ = ['GameData', 'GameService', 'Version', 'Integrity', 'BuildInfo']
+__all__ = ['GameData', 'GamePayload', 'GameService', 'Version', 'Integrity', 'BuildInfo']
 
 
 def __getattr__(name):

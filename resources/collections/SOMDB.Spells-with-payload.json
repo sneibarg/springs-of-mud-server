@@ -1,0 +1,2797 @@
+[
+  {
+    "_id": { "$oid": "8d3c3dcfcbd18cf679c2d001" },
+    "name": "armor",
+    "kind": "spell",
+    "handlerId": "spell.armor",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "STANDING",
+    "slot": 1,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "You feel less armored.",
+    "msgObj": "",
+    "functionName": "armor",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "24",
+        "location": "APPLY_AC",
+        "modifier": "-20",
+        "bitvector": "0",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('spell.armor', 'You are already armored.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "c0f7ccb31fbf8ac341ea4754" },
+    "name": "teleport",
+    "kind": "spell",
+    "handlerId": "spell.teleport",
+    "target": "CHAR_SELF",
+    "minPosition": "FIGHTING",
+    "slot": 2,
+    "minMana": 35,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Teleport!",
+    "msgObj": "",
+    "functionName": "teleport",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.teleport_target()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "f3b60b33439e36b8f50f8944" },
+    "name": "bless",
+    "kind": "spell",
+    "handlerId": "spell.bless",
+    "target": "OBJ_CHAR_DEF",
+    "minPosition": "STANDING",
+    "slot": 3,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "You feel less righteous.",
+    "msgObj": "$p's holy aura fades.",
+    "functionName": "bless",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_OBJECT",
+        "type": "sn",
+        "level": "level",
+        "duration": "6 + level",
+        "location": "APPLY_SAVES",
+        "modifier": "-1",
+        "bitvector": "ITEM_BLESS",
+        "applyTo": "object"
+      },
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "6+level",
+        "location": "APPLY_HITROLL",
+        "modifier": "level / 8",
+        "bitvector": "0",
+        "applyTo": "char"
+      },
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "6+level",
+        "location": "APPLY_SAVING_SPELL",
+        "modifier": "0 - level / 8",
+        "bitvector": "0",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "fc129622f869b6193324d81b" },
+    "name": "blindness",
+    "kind": "spell",
+    "handlerId": "spell.blindness",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 4,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "You can see again.",
+    "msgObj": "",
+    "functionName": "blindness",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "1+level",
+        "location": "APPLY_HITROLL",
+        "modifier": "-4",
+        "bitvector": "AFF_BLIND",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('AFF_BLIND')",
+      "lambda ctx: ctx.stop_if_saved()",
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "89325e38cac189db8f9c2ad2" },
+    "name": "burning hands",
+    "kind": "spell",
+    "handlerId": "spell.burning_hands",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 5,
+    "minMana": 15,
+    "beats": 12,
+    "nounDamage": "burning hands",
+    "msgOff": "!Burning Hands!",
+    "msgObj": "",
+    "functionName": "burning_hands",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_expr('dice(level, 7)', 'DAM_FIRE')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "4b63ce8f7a9f72d35a4d0ea0" },
+    "name": "call lightning",
+    "kind": "spell",
+    "handlerId": "spell.call_lightning",
+    "target": "IGNORE",
+    "minPosition": "FIGHTING",
+    "slot": 6,
+    "minMana": 15,
+    "beats": 12,
+    "nounDamage": "lightning bolt",
+    "msgOff": "!Call Lightning!",
+    "msgObj": "",
+    "functionName": "call_lightning",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.call_lightning()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "73f0c12cacbf22c332d72103" },
+    "name": "charm person",
+    "kind": "spell",
+    "handlerId": "spell.charm_person",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "STANDING",
+    "slot": 7,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "You feel more self-confident.",
+    "msgObj": "",
+    "functionName": "charm_person",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "number_fuzzy( level / 4 )",
+        "location": "0",
+        "modifier": "0",
+        "bitvector": "AFF_CHARM",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.charm_person()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "06a746fad51243f853df4f54" },
+    "name": "chill touch",
+    "kind": "spell",
+    "handlerId": "spell.chill_touch",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 8,
+    "minMana": 15,
+    "beats": 12,
+    "nounDamage": "chilling touch",
+    "msgOff": "You feel less cold.",
+    "msgObj": "",
+    "functionName": "chill_touch",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.chill_touch()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "dad8d90e1f680c7d46130b66" },
+    "name": "colour spray",
+    "kind": "spell",
+    "handlerId": "spell.colour_spray",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 10,
+    "minMana": 15,
+    "beats": 12,
+    "nounDamage": "colour spray",
+    "msgOff": "!Colour Spray!",
+    "msgObj": "",
+    "functionName": "colour_spray",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_expr('dice(level, 6)', 'DAM_LIGHT')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "14b0e0a2108f89360a75a928" },
+    "name": "control weather",
+    "kind": "spell",
+    "handlerId": "spell.control_weather",
+    "target": "IGNORE",
+    "minPosition": "STANDING",
+    "slot": 11,
+    "minMana": 25,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Control Weather!",
+    "msgObj": "",
+    "functionName": "control_weather",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.control_weather()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "28091ef0abda8146c971fb12" },
+    "name": "create food",
+    "kind": "spell",
+    "handlerId": "spell.create_food",
+    "target": "IGNORE",
+    "minPosition": "STANDING",
+    "slot": 12,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Create Food!",
+    "msgObj": "",
+    "functionName": "create_food",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.create_object('20')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "78cb32ae0d20a2d5ccfc376f" },
+    "name": "create water",
+    "kind": "spell",
+    "handlerId": "spell.create_water",
+    "target": "OBJ_INV",
+    "minPosition": "STANDING",
+    "slot": 13,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Create Water!",
+    "msgObj": "",
+    "functionName": "create_water",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.create_water()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "bf2599794bc862d383b27d7c" },
+    "name": "cure blindness",
+    "kind": "spell",
+    "handlerId": "spell.cure_blindness",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 14,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Cure Blindness!",
+    "msgObj": "",
+    "functionName": "cure_blindness",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.remove_effects('spell.blindness')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "b2e4d6b21db6af2108b7b997" },
+    "name": "cure critical",
+    "kind": "spell",
+    "handlerId": "spell.cure_critical",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 15,
+    "minMana": 20,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Cure Critical!",
+    "msgObj": "",
+    "functionName": "cure_critical",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.heal_expr('dice(3, 8) + level - 6')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "9708363d907916ba4ddb1328" },
+    "name": "cure light",
+    "kind": "spell",
+    "handlerId": "spell.cure_light",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 16,
+    "minMana": 10,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Cure Light!",
+    "msgObj": "",
+    "functionName": "cure_light",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.heal_expr('dice(1, 8) + level // 3')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "55126da48ad137bb70d3c653" },
+    "name": "curse",
+    "kind": "spell",
+    "handlerId": "spell.curse",
+    "target": "OBJ_CHAR_OFF",
+    "minPosition": "FIGHTING",
+    "slot": 17,
+    "minMana": 20,
+    "beats": 12,
+    "nounDamage": "curse",
+    "msgOff": "The curse wears off.",
+    "msgObj": "$p is no longer impure.",
+    "functionName": "curse",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_OBJECT",
+        "type": "sn",
+        "level": "level",
+        "duration": "2 * level",
+        "location": "APPLY_SAVES",
+        "modifier": "+1",
+        "bitvector": "ITEM_EVIL",
+        "applyTo": "object"
+      },
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "2*level",
+        "location": "APPLY_HITROLL",
+        "modifier": "-1 * (level / 8)",
+        "bitvector": "AFF_CURSE",
+        "applyTo": "char"
+      },
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "2*level",
+        "location": "APPLY_SAVING_SPELL",
+        "modifier": "level / 8",
+        "bitvector": "AFF_CURSE",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "1385fdb3c7cf076f0458b660" },
+    "name": "detect evil",
+    "kind": "spell",
+    "handlerId": "spell.detect_evil",
+    "target": "CHAR_SELF",
+    "minPosition": "STANDING",
+    "slot": 18,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "The red in your vision disappears.",
+    "msgObj": "",
+    "functionName": "detect_evil",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level",
+        "location": "APPLY_NONE",
+        "modifier": "0",
+        "bitvector": "AFF_DETECT_EVIL",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('spell.detect_evil', 'You can already sense evil.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "142fc5f8a46584098eb7937d" },
+    "name": "detect invis",
+    "kind": "spell",
+    "handlerId": "spell.detect_invis",
+    "target": "CHAR_SELF",
+    "minPosition": "STANDING",
+    "slot": 19,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "You no longer see invisible objects.",
+    "msgObj": "",
+    "functionName": "detect_invis",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level",
+        "location": "APPLY_NONE",
+        "modifier": "0",
+        "bitvector": "AFF_DETECT_INVIS",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('spell.detect_invis', 'You can already see invisible things.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "dbd909256ffec3c70c08759b" },
+    "name": "detect magic",
+    "kind": "spell",
+    "handlerId": "spell.detect_magic",
+    "target": "CHAR_SELF",
+    "minPosition": "STANDING",
+    "slot": 20,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "The detect magic wears off.",
+    "msgObj": "",
+    "functionName": "detect_magic",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level",
+        "location": "APPLY_NONE",
+        "modifier": "0",
+        "bitvector": "AFF_DETECT_MAGIC",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('spell.detect_magic', 'You can already sense magic.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "61453875ce442dc709569639" },
+    "name": "detect poison",
+    "kind": "spell",
+    "handlerId": "spell.detect_poison",
+    "target": "OBJ_INV",
+    "minPosition": "STANDING",
+    "slot": 21,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Detect Poison!",
+    "msgObj": "",
+    "functionName": "detect_poison",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.detect_poison()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "f87d2cc0257234663a58a23b" },
+    "name": "dispel evil",
+    "kind": "spell",
+    "handlerId": "spell.dispel_evil",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 22,
+    "minMana": 15,
+    "beats": 12,
+    "nounDamage": "dispel evil",
+    "msgOff": "!Dispel Evil!",
+    "msgObj": "",
+    "functionName": "dispel_evil",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_expr('dice(level, 4)', 'DAM_HOLY')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "cc5d431fbfe220bb6551692a" },
+    "name": "earthquake",
+    "kind": "spell",
+    "handlerId": "spell.earthquake",
+    "target": "IGNORE",
+    "minPosition": "FIGHTING",
+    "slot": 23,
+    "minMana": 15,
+    "beats": 12,
+    "nounDamage": "earthquake",
+    "msgOff": "!Earthquake!",
+    "msgObj": "",
+    "functionName": "earthquake",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_room_expr('level + dice(2, 8)', 'DAM_BASH')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "25848bb9d6def3a66ff77d92" },
+    "name": "enchant weapon",
+    "kind": "spell",
+    "handlerId": "spell.enchant_weapon",
+    "target": "OBJ_INV",
+    "minPosition": "STANDING",
+    "slot": 24,
+    "minMana": 100,
+    "beats": 24,
+    "nounDamage": "",
+    "msgOff": "!Enchant Weapon!",
+    "msgObj": "",
+    "functionName": "enchant_weapon",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.enchant_weapon()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "d68db8a0a4e9c9f462d5adcc" },
+    "name": "energy drain",
+    "kind": "spell",
+    "handlerId": "spell.energy_drain",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 25,
+    "minMana": 35,
+    "beats": 12,
+    "nounDamage": "energy drain",
+    "msgOff": "!Energy Drain!",
+    "msgObj": "",
+    "functionName": "energy_drain",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.energy_drain()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "2389fdc4f1cb93eb5d1292a8" },
+    "name": "fireball",
+    "kind": "spell",
+    "handlerId": "spell.fireball",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 26,
+    "minMana": 15,
+    "beats": 12,
+    "nounDamage": "fireball",
+    "msgOff": "!Fireball!",
+    "msgObj": "",
+    "functionName": "fireball",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_expr('dice(level, 10)', 'DAM_FIRE')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "2d2d60b25097a71e3185e059" },
+    "name": "harm",
+    "kind": "spell",
+    "handlerId": "spell.harm",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 27,
+    "minMana": 35,
+    "beats": 12,
+    "nounDamage": "harm spell",
+    "msgOff": "!Harm!",
+    "msgObj": "",
+    "functionName": "harm",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.harm()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "36d6fd1c75a4cb71b2fe8a9f" },
+    "name": "heal",
+    "kind": "spell",
+    "handlerId": "spell.heal",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 28,
+    "minMana": 50,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Heal!",
+    "msgObj": "",
+    "functionName": "heal",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.heal_expr('100')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "faab6272fdc28769c558d106" },
+    "name": "invisibility",
+    "kind": "spell",
+    "handlerId": "spell.invis",
+    "target": "OBJ_CHAR_DEF",
+    "minPosition": "STANDING",
+    "slot": 29,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "You are no longer invisible.",
+    "msgObj": "$p fades into view.",
+    "functionName": "invis",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_OBJECT",
+        "type": "sn",
+        "level": "level",
+        "duration": "level + 12",
+        "location": "APPLY_NONE",
+        "modifier": "0",
+        "bitvector": "ITEM_INVIS",
+        "applyTo": "object"
+      },
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level + 12",
+        "location": "APPLY_NONE",
+        "modifier": "0",
+        "bitvector": "AFF_INVISIBLE",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "ecc4c67abd8e595000106bfe" },
+    "name": "lightning bolt",
+    "kind": "spell",
+    "handlerId": "spell.lightning_bolt",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 30,
+    "minMana": 15,
+    "beats": 12,
+    "nounDamage": "lightning bolt",
+    "msgOff": "!Lightning Bolt!",
+    "msgObj": "",
+    "functionName": "lightning_bolt",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_expr('dice(level, 7)', 'DAM_LIGHTNING')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "931797dc983df7cb5b4f7b74" },
+    "name": "locate object",
+    "kind": "spell",
+    "handlerId": "spell.locate_object",
+    "target": "IGNORE",
+    "minPosition": "STANDING",
+    "slot": 31,
+    "minMana": 20,
+    "beats": 18,
+    "nounDamage": "",
+    "msgOff": "!Locate Object!",
+    "msgObj": "",
+    "functionName": "locate_object",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.locate_object()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "e77c7e65da4b5b871ba07280" },
+    "name": "magic missile",
+    "kind": "spell",
+    "handlerId": "spell.magic_missile",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 32,
+    "minMana": 15,
+    "beats": 12,
+    "nounDamage": "magic missile",
+    "msgOff": "!Magic Missile!",
+    "msgObj": "",
+    "functionName": "magic_missile",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_expr('dice(level, 4)', 'DAM_ENERGY')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "c85576b89acf6b836b6f6288" },
+    "name": "poison",
+    "kind": "spell",
+    "handlerId": "spell.poison",
+    "target": "OBJ_CHAR_OFF",
+    "minPosition": "FIGHTING",
+    "slot": 33,
+    "minMana": 10,
+    "beats": 12,
+    "nounDamage": "poison",
+    "msgOff": "You feel less sick.",
+    "msgObj": "The poison on $p dries up.",
+    "functionName": "poison",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_WEAPON",
+        "type": "sn",
+        "level": "level / 2",
+        "duration": "level/8",
+        "location": "0",
+        "modifier": "0",
+        "bitvector": "WEAPON_POISON",
+        "applyTo": "object"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.poison()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "19de512193f7eeb2f04a492f" },
+    "name": "protection evil",
+    "kind": "spell",
+    "handlerId": "spell.protection_evil",
+    "target": "CHAR_SELF",
+    "minPosition": "STANDING",
+    "slot": 34,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "You feel less protected.",
+    "msgObj": "",
+    "functionName": "protection_evil",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "24",
+        "location": "APPLY_SAVING_SPELL",
+        "modifier": "-1",
+        "bitvector": "AFF_PROTECT_EVIL",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('spell.protection_evil', 'You are already protected from evil.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "50b50e5c4bd6c10c48c83d83" },
+    "name": "remove curse",
+    "kind": "spell",
+    "handlerId": "spell.remove_curse",
+    "target": "OBJ_CHAR_DEF",
+    "minPosition": "STANDING",
+    "slot": 35,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Remove Curse!",
+    "msgObj": "",
+    "functionName": "remove_curse",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.remove_curse()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "3bf1a7dc88dab0b0c5433132" },
+    "name": "sanctuary",
+    "kind": "spell",
+    "handlerId": "spell.sanctuary",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "STANDING",
+    "slot": 36,
+    "minMana": 75,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "The white aura around your body fades.",
+    "msgObj": "",
+    "functionName": "sanctuary",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level / 6",
+        "location": "APPLY_NONE",
+        "modifier": "0",
+        "bitvector": "AFF_SANCTUARY",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('spell.sanctuary', 'You are already in sanctuary.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "887dafadcff25cea0786d843" },
+    "name": "sleep",
+    "kind": "spell",
+    "handlerId": "spell.sleep",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "STANDING",
+    "slot": 38,
+    "minMana": 15,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "You feel less tired.",
+    "msgObj": "",
+    "functionName": "sleep",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.sleep()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "b1c24b3ce79a5d2fbe6d1874" },
+    "name": "giant strength",
+    "kind": "spell",
+    "handlerId": "spell.giant_strength",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "STANDING",
+    "slot": 39,
+    "minMana": 20,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "You feel weaker.",
+    "msgObj": "",
+    "functionName": "giant_strength",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level",
+        "location": "APPLY_STR",
+        "modifier": "1 + (level >= 18) + (level >= 25) + (level >= 32)",
+        "bitvector": "0",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('spell.giant_strength', 'You are already as strong as a giant.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "b51bed2aef9a7b3adc650205" },
+    "name": "summon",
+    "kind": "spell",
+    "handlerId": "spell.summon",
+    "target": "IGNORE",
+    "minPosition": "STANDING",
+    "slot": 40,
+    "minMana": 50,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Summon!",
+    "msgObj": "",
+    "functionName": "summon",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.summon_target()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "fbddfdc830dd3cd913065c57" },
+    "name": "ventriloquate",
+    "kind": "spell",
+    "handlerId": "spell.ventriloquate",
+    "target": "IGNORE",
+    "minPosition": "STANDING",
+    "slot": 41,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Ventriloquate!",
+    "msgObj": "",
+    "functionName": "ventriloquate",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.ventriloquate()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "e2d911d74dd2cc1aaf14c16d" },
+    "name": "word of recall",
+    "kind": "spell",
+    "handlerId": "spell.word_of_recall",
+    "target": "CHAR_SELF",
+    "minPosition": "RESTING",
+    "slot": 42,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Word of Recall!",
+    "msgObj": "",
+    "functionName": "word_of_recall",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.word_of_recall()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "16ae2c8d1ef1f5431743b65b" },
+    "name": "cure poison",
+    "kind": "spell",
+    "handlerId": "spell.cure_poison",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "STANDING",
+    "slot": 43,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Cure Poison!",
+    "msgObj": "",
+    "functionName": "cure_poison",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.remove_effects('spell.poison')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "e95dab40e41ba58ddd5b0091" },
+    "name": "detect hidden",
+    "kind": "spell",
+    "handlerId": "spell.detect_hidden",
+    "target": "CHAR_SELF",
+    "minPosition": "STANDING",
+    "slot": 44,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "You feel less aware of your surroundings.",
+    "msgObj": "",
+    "functionName": "detect_hidden",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level",
+        "location": "APPLY_NONE",
+        "modifier": "0",
+        "bitvector": "AFF_DETECT_HIDDEN",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('spell.detect_hidden', 'You can already see hidden things.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "c3b52d0f5e06150b9bb81453" },
+    "name": "identify",
+    "kind": "spell",
+    "handlerId": "spell.identify",
+    "target": "OBJ_INV",
+    "minPosition": "STANDING",
+    "slot": 53,
+    "minMana": 12,
+    "beats": 24,
+    "nounDamage": "",
+    "msgOff": "!Identify!",
+    "msgObj": "",
+    "functionName": "identify",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.identify()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "20c33428b4da3ccd20b025b1" },
+    "name": "shocking grasp",
+    "kind": "spell",
+    "handlerId": "spell.shocking_grasp",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 53,
+    "minMana": 15,
+    "beats": 12,
+    "nounDamage": "shocking grasp",
+    "msgOff": "!Shocking Grasp!",
+    "msgObj": "",
+    "functionName": "shocking_grasp",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_expr('dice(level, 5)', 'DAM_LIGHTNING')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "576ba58fe6cbfada91555c95" },
+    "name": "fly",
+    "kind": "spell",
+    "handlerId": "spell.fly",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "STANDING",
+    "slot": 56,
+    "minMana": 10,
+    "beats": 18,
+    "nounDamage": "",
+    "msgOff": "You slowly float to the ground.",
+    "msgObj": "",
+    "functionName": "fly",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level + 3",
+        "location": "0",
+        "modifier": "0",
+        "bitvector": "AFF_FLYING",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('spell.fly', 'You are already airborne.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "c6858a72deac4b94e63a337b" },
+    "name": "continual light",
+    "kind": "spell",
+    "handlerId": "spell.continual_light",
+    "target": "IGNORE",
+    "minPosition": "STANDING",
+    "slot": 57,
+    "minMana": 7,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Continual Light!",
+    "msgObj": "",
+    "functionName": "continual_light",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.create_object('21')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "95c199d642cf58992725d897" },
+    "name": "know alignment",
+    "kind": "spell",
+    "handlerId": "spell.know_alignment",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 58,
+    "minMana": 9,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Know Alignment!",
+    "msgObj": "",
+    "functionName": "know_alignment",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.know_alignment()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "8a6ca6e81d39f7a57d3144d7" },
+    "name": "dispel magic",
+    "kind": "spell",
+    "handlerId": "spell.dispel_magic",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 59,
+    "minMana": 15,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Dispel Magic!",
+    "msgObj": "",
+    "functionName": "dispel_magic",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.dispel_magic()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "beeb2cc8efe61f58ba54a885" },
+    "name": "cure serious",
+    "kind": "spell",
+    "handlerId": "spell.cure_serious",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 61,
+    "minMana": 15,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Cure Serious!",
+    "msgObj": "",
+    "functionName": "cure_serious",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.heal_expr('dice(2, 8) + level // 2')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "0569515e6766c6da6b207daa" },
+    "name": "cause light",
+    "kind": "spell",
+    "handlerId": "spell.cause_light",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 62,
+    "minMana": 15,
+    "beats": 12,
+    "nounDamage": "spell",
+    "msgOff": "!Cause Light!",
+    "msgObj": "",
+    "functionName": "cause_light",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_expr('dice(1, 8) + level // 3', 'DAM_HARM')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "c1f45a13046ec954d4c094da" },
+    "name": "cause critical",
+    "kind": "spell",
+    "handlerId": "spell.cause_critical",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 63,
+    "minMana": 20,
+    "beats": 12,
+    "nounDamage": "spell",
+    "msgOff": "!Cause Critical!",
+    "msgObj": "",
+    "functionName": "cause_critical",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_expr('dice(3, 8) + level - 6', 'DAM_HARM')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "26de64f57c266a6b11aacac1" },
+    "name": "cause serious",
+    "kind": "spell",
+    "handlerId": "spell.cause_serious",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 64,
+    "minMana": 17,
+    "beats": 12,
+    "nounDamage": "spell",
+    "msgOff": "!Cause Serious!",
+    "msgObj": "",
+    "functionName": "cause_serious",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_expr('dice(2, 8) + level // 2', 'DAM_HARM')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "6f4ab88d358c38448cee3927" },
+    "name": "flamestrike",
+    "kind": "spell",
+    "handlerId": "spell.flamestrike",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 65,
+    "minMana": 20,
+    "beats": 12,
+    "nounDamage": "flamestrike",
+    "msgOff": "!Flamestrike!",
+    "msgObj": "",
+    "functionName": "flamestrike",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_expr('dice(6, 8) + level', 'DAM_FIRE')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "91ee0472aab35298cf05ff0c" },
+    "name": "stone skin",
+    "kind": "spell",
+    "handlerId": "spell.stone_skin",
+    "target": "CHAR_SELF",
+    "minPosition": "STANDING",
+    "slot": 66,
+    "minMana": 12,
+    "beats": 18,
+    "nounDamage": "",
+    "msgOff": "Your skin feels soft again.",
+    "msgObj": "",
+    "functionName": "stone_skin",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level",
+        "location": "APPLY_AC",
+        "modifier": "-40",
+        "bitvector": "0",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('spell.stone_skin', 'Your skin is already as hard as a rock.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "f7a06b5a8785a7fa9978137a" },
+    "name": "shield",
+    "kind": "spell",
+    "handlerId": "spell.shield",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "STANDING",
+    "slot": 67,
+    "minMana": 12,
+    "beats": 18,
+    "nounDamage": "",
+    "msgOff": "Your force shield shimmers then fades away.",
+    "msgObj": "",
+    "functionName": "shield",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "8 + level",
+        "location": "APPLY_AC",
+        "modifier": "-20",
+        "bitvector": "0",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('spell.shield', 'You are already shielded from harm.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "43533a082b85101a6dfa8cff" },
+    "name": "weaken",
+    "kind": "spell",
+    "handlerId": "spell.weaken",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 68,
+    "minMana": 20,
+    "beats": 12,
+    "nounDamage": "spell",
+    "msgOff": "You feel stronger.",
+    "msgObj": "",
+    "functionName": "weaken",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level / 2",
+        "location": "APPLY_STR",
+        "modifier": "-1 * (level / 5)",
+        "bitvector": "AFF_WEAKEN",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.stop_if_saved()",
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "0af29c2e5508e21f08f4c904" },
+    "name": "mass invis",
+    "kind": "spell",
+    "handlerId": "spell.mass_invis",
+    "target": "IGNORE",
+    "minPosition": "STANDING",
+    "slot": 69,
+    "minMana": 20,
+    "beats": 24,
+    "nounDamage": "",
+    "msgOff": "You are no longer invisible.",
+    "msgObj": "",
+    "functionName": "mass_invis",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level/2",
+        "duration": "24",
+        "location": "APPLY_NONE",
+        "modifier": "0",
+        "bitvector": "AFF_INVISIBLE",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.mass_invis()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "06f6378d53878d387132d397" },
+    "name": "acid blast",
+    "kind": "spell",
+    "handlerId": "spell.acid_blast",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 70,
+    "minMana": 20,
+    "beats": 12,
+    "nounDamage": "acid blast",
+    "msgOff": "!Acid Blast!",
+    "msgObj": "",
+    "functionName": "acid_blast",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_expr('dice(level, 12)', 'DAM_ACID')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "90bc8371b763971604e2c257" },
+    "name": "faerie fire",
+    "kind": "spell",
+    "handlerId": "spell.faerie_fire",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 72,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "faerie fire",
+    "msgOff": "The pink aura around you fades away.",
+    "msgObj": "",
+    "functionName": "faerie_fire",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level",
+        "location": "APPLY_AC",
+        "modifier": "2 * level",
+        "bitvector": "AFF_FAERIE_FIRE",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "9aedb60d843a4aa32dfa4acb" },
+    "name": "faerie fog",
+    "kind": "spell",
+    "handlerId": "spell.faerie_fog",
+    "target": "IGNORE",
+    "minPosition": "STANDING",
+    "slot": 73,
+    "minMana": 12,
+    "beats": 12,
+    "nounDamage": "faerie fog",
+    "msgOff": "!Faerie Fog!",
+    "msgObj": "",
+    "functionName": "faerie_fog",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.faerie_fog()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "fb8472fd0cfa67386bd89de8" },
+    "name": "pass door",
+    "kind": "spell",
+    "handlerId": "spell.pass_door",
+    "target": "CHAR_SELF",
+    "minPosition": "STANDING",
+    "slot": 74,
+    "minMana": 20,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "You feel solid again.",
+    "msgObj": "",
+    "functionName": "pass_door",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "number_fuzzy( level / 4 )",
+        "location": "APPLY_NONE",
+        "modifier": "0",
+        "bitvector": "AFF_PASS_DOOR",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('spell.pass_door', 'You are already out of phase.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "80125f2ced11eb88b1f4af7a" },
+    "name": "infravision",
+    "kind": "spell",
+    "handlerId": "spell.infravision",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "STANDING",
+    "slot": 77,
+    "minMana": 5,
+    "beats": 18,
+    "nounDamage": "",
+    "msgOff": "You no longer see in the dark.",
+    "msgObj": "",
+    "functionName": "infravision",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "2 * level",
+        "location": "APPLY_NONE",
+        "modifier": "0",
+        "bitvector": "AFF_INFRARED",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('spell.infravision', 'You can already see in the dark.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "efdc862d0c95bb9000ba91f6" },
+    "name": "create spring",
+    "kind": "spell",
+    "handlerId": "spell.create_spring",
+    "target": "IGNORE",
+    "minPosition": "STANDING",
+    "slot": 80,
+    "minMana": 20,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Create Spring!",
+    "msgObj": "",
+    "functionName": "create_spring",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.create_object('22')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "eaba704f52381f4f1e2c32d0" },
+    "name": "refresh",
+    "kind": "spell",
+    "handlerId": "spell.refresh",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "STANDING",
+    "slot": 81,
+    "minMana": 12,
+    "beats": 18,
+    "nounDamage": "refresh",
+    "msgOff": "!Refresh!",
+    "msgObj": "",
+    "functionName": "refresh",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.restore_move_expr('level')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "1940ab1a79ed40400eba3b98" },
+    "name": "change sex",
+    "kind": "spell",
+    "handlerId": "spell.change_sex",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 82,
+    "minMana": 15,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "Your body feels familiar again.",
+    "msgObj": "",
+    "functionName": "change_sex",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "2 * level",
+        "location": "APPLY_SEX",
+        "modifier": "= 0 )",
+        "bitvector": "0",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.change_sex()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "b95e8a8dbc836d6bf0c31f2b" },
+    "name": "gate",
+    "kind": "spell",
+    "handlerId": "spell.gate",
+    "target": "IGNORE",
+    "minPosition": "FIGHTING",
+    "slot": 83,
+    "minMana": 80,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Gate!",
+    "msgObj": "",
+    "functionName": "gate",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.gate()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "a6f21ba53d9b3f8c7265c32a" },
+    "name": "acid breath",
+    "kind": "spell",
+    "handlerId": "spell.acid_breath",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 200,
+    "minMana": 100,
+    "beats": 24,
+    "nounDamage": "blast of acid",
+    "msgOff": "!Acid Breath!",
+    "msgObj": "",
+    "functionName": "acid_breath",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_expr('dice(level, 16)', 'DAM_ACID')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "b28755702461e6d6de0b13f7" },
+    "name": "fire breath",
+    "kind": "spell",
+    "handlerId": "spell.fire_breath",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 201,
+    "minMana": 200,
+    "beats": 24,
+    "nounDamage": "blast of flame",
+    "msgOff": "The smoke leaves your eyes.",
+    "msgObj": "",
+    "functionName": "fire_breath",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_room_expr('dice(level, 20)', 'DAM_FIRE')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "448120b080b028c7246cffa9" },
+    "name": "frost breath",
+    "kind": "spell",
+    "handlerId": "spell.frost_breath",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 202,
+    "minMana": 125,
+    "beats": 24,
+    "nounDamage": "blast of frost",
+    "msgOff": "!Frost Breath!",
+    "msgObj": "",
+    "functionName": "frost_breath",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_room_expr('dice(level, 16)', 'DAM_COLD')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "df896c0288bfe1584fdb0e35" },
+    "name": "gas breath",
+    "kind": "spell",
+    "handlerId": "spell.gas_breath",
+    "target": "IGNORE",
+    "minPosition": "FIGHTING",
+    "slot": 203,
+    "minMana": 175,
+    "beats": 24,
+    "nounDamage": "blast of gas",
+    "msgOff": "!Gas Breath!",
+    "msgObj": "",
+    "functionName": "gas_breath",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_room_expr('dice(level, 12)', 'DAM_POISON')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "a9d56c2872726e3089d8a956" },
+    "name": "lightning breath",
+    "kind": "spell",
+    "handlerId": "spell.lightning_breath",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 204,
+    "minMana": 150,
+    "beats": 24,
+    "nounDamage": "blast of lightning",
+    "msgOff": "!Lightning Breath!",
+    "msgObj": "",
+    "functionName": "lightning_breath",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_expr('dice(level, 20)', 'DAM_LIGHTNING')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "7ec18929691f85c3e6b7eb96" },
+    "name": "general purpose",
+    "kind": "spell",
+    "handlerId": "spell.general_purpose",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 401,
+    "minMana": 0,
+    "beats": 12,
+    "nounDamage": "general purpose ammo",
+    "msgOff": "!General Purpose Ammo!",
+    "msgObj": "",
+    "functionName": "general_purpose",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_expr('number_range(25, 100)', 'DAM_PIERCE')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "28ac8fad74eefe0e011dfdc6" },
+    "name": "high explosive",
+    "kind": "spell",
+    "handlerId": "spell.high_explosive",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 402,
+    "minMana": 0,
+    "beats": 12,
+    "nounDamage": "high explosive ammo",
+    "msgOff": "!High Explosive Ammo!",
+    "msgObj": "",
+    "functionName": "high_explosive",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_expr('number_range(30, 120)', 'DAM_PIERCE')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "2ac940075bece28076460a50" },
+    "name": "chain lightning",
+    "kind": "spell",
+    "handlerId": "spell.chain_lightning",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 500,
+    "minMana": 25,
+    "beats": 12,
+    "nounDamage": "lightning",
+    "msgOff": "!Chain Lightning!",
+    "msgObj": "",
+    "functionName": "chain_lightning",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.chain_lightning()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "499d0ae630dd011184de1dd7" },
+    "name": "cure disease",
+    "kind": "spell",
+    "handlerId": "spell.cure_disease",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "STANDING",
+    "slot": 501,
+    "minMana": 20,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Cure Disease!",
+    "msgObj": "",
+    "functionName": "cure_disease",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.remove_effects('spell.plague')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "0959597b6c801f156d084537" },
+    "name": "haste",
+    "kind": "spell",
+    "handlerId": "spell.haste",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 502,
+    "minMana": 30,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "You feel yourself slow down.",
+    "msgObj": "",
+    "functionName": "haste",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level/4",
+        "location": "APPLY_DEX",
+        "modifier": "1 + (level >= 18) + (level >= 25) + (level >= 32)",
+        "bitvector": "AFF_HASTE",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('spell.haste', \"You can't move any faster!\\\\r\\\\n\")",
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "f87970ce62dc101191c0446a" },
+    "name": "plague",
+    "kind": "spell",
+    "handlerId": "spell.plague",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 503,
+    "minMana": 20,
+    "beats": 12,
+    "nounDamage": "sickness",
+    "msgOff": "Your sores vanish.",
+    "msgObj": "",
+    "functionName": "plague",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "d91680b6e5591822d4ba45d4" },
+    "name": "frenzy",
+    "kind": "spell",
+    "handlerId": "spell.frenzy",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "STANDING",
+    "slot": 504,
+    "minMana": 30,
+    "beats": 24,
+    "nounDamage": "",
+    "msgOff": "Your rage ebbs.",
+    "msgObj": "",
+    "functionName": "frenzy",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level / 3",
+        "location": "APPLY_HITROLL",
+        "modifier": "level / 6",
+        "bitvector": "0",
+        "applyTo": "char"
+      },
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level / 3",
+        "location": "APPLY_DAMROLL",
+        "modifier": "level / 6",
+        "bitvector": "0",
+        "applyTo": "char"
+      },
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level / 3",
+        "location": "APPLY_AC",
+        "modifier": "10 * (level / 12)",
+        "bitvector": "0",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "1c86c7b125abd7aa59cd99d0" },
+    "name": "demonfire",
+    "kind": "spell",
+    "handlerId": "spell.demonfire",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 505,
+    "minMana": 20,
+    "beats": 12,
+    "nounDamage": "torments",
+    "msgOff": "!Demonfire!",
+    "msgObj": "",
+    "functionName": "demonfire",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_expr('dice(level, 4) + 20', 'DAM_NEGATIVE')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "c17d5d4e5486e6c494a80ade" },
+    "name": "holy word",
+    "kind": "spell",
+    "handlerId": "spell.holy_word",
+    "target": "IGNORE",
+    "minPosition": "FIGHTING",
+    "slot": 506,
+    "minMana": 200,
+    "beats": 24,
+    "nounDamage": "divine wrath",
+    "msgOff": "!Holy Word!",
+    "msgObj": "",
+    "functionName": "holy_word",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.holy_word()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "f9d67098f30c7aafe4b3f1d3" },
+    "name": "cancellation",
+    "kind": "spell",
+    "handlerId": "spell.cancellation",
+    "target": "CHAR_DEFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 507,
+    "minMana": 20,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Cancellation!",
+    "msgObj": "",
+    "functionName": "cancellation",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.cancellation()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "390c52c716b6fb7b731b863b" },
+    "name": "mass healing",
+    "kind": "spell",
+    "handlerId": "spell.mass_healing",
+    "target": "IGNORE",
+    "minPosition": "STANDING",
+    "slot": 508,
+    "minMana": 100,
+    "beats": 36,
+    "nounDamage": "",
+    "msgOff": "!Mass Healing!",
+    "msgObj": "",
+    "functionName": "mass_healing",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.mass_healing()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "f7c14412a6afe8144c95e01e" },
+    "name": "calm",
+    "kind": "spell",
+    "handlerId": "spell.calm",
+    "target": "IGNORE",
+    "minPosition": "FIGHTING",
+    "slot": 509,
+    "minMana": 30,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "You have lost your peace of mind.",
+    "msgObj": "",
+    "functionName": "calm",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level/4",
+        "location": "APPLY_HITROLL",
+        "modifier": "-2",
+        "bitvector": "AFF_CALM",
+        "applyTo": "char"
+      },
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level/4",
+        "location": "APPLY_DAMROLL",
+        "modifier": "-2",
+        "bitvector": "AFF_CALM",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.calm()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "6cf86bd848d2a3d6af2fd8a7" },
+    "name": "enchant armor",
+    "kind": "spell",
+    "handlerId": "spell.enchant_armor",
+    "target": "OBJ_INV",
+    "minPosition": "STANDING",
+    "slot": 510,
+    "minMana": 100,
+    "beats": 24,
+    "nounDamage": "",
+    "msgOff": "!Enchant Armor!",
+    "msgObj": "",
+    "functionName": "enchant_armor",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.enchant_armor()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "8e6a28fc43d17fb10052d90c" },
+    "name": "create rose",
+    "kind": "spell",
+    "handlerId": "spell.create_rose",
+    "target": "IGNORE",
+    "minPosition": "STANDING",
+    "slot": 511,
+    "minMana": 30,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "!Create Rose!",
+    "msgObj": "",
+    "functionName": "create_rose",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.create_object('1001')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "6c06d1c7e7678975f14f5b87" },
+    "name": "dispel good",
+    "kind": "spell",
+    "handlerId": "spell.dispel_good",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 512,
+    "minMana": 15,
+    "beats": 12,
+    "nounDamage": "dispel good",
+    "msgOff": "!Dispel Good!",
+    "msgObj": "",
+    "functionName": "dispel_good",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.damage_expr('dice(level, 4)', 'DAM_NEGATIVE')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "bc25211c0593dbd5816c20ef" },
+    "name": "detect good",
+    "kind": "spell",
+    "handlerId": "spell.detect_good",
+    "target": "CHAR_SELF",
+    "minPosition": "STANDING",
+    "slot": 513,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "The gold in your vision disappears.",
+    "msgObj": "",
+    "functionName": "detect_good",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level",
+        "location": "APPLY_NONE",
+        "modifier": "0",
+        "bitvector": "AFF_DETECT_GOOD",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('spell.detect_good', 'You can already sense good.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "95c83fba8d459b0c329080ee" },
+    "name": "protection good",
+    "kind": "spell",
+    "handlerId": "spell.protection_good",
+    "target": "CHAR_SELF",
+    "minPosition": "STANDING",
+    "slot": 514,
+    "minMana": 5,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "You feel less protected.",
+    "msgObj": "",
+    "functionName": "protection_good",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "24",
+        "location": "APPLY_SAVING_SPELL",
+        "modifier": "-1",
+        "bitvector": "AFF_PROTECT_GOOD",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('spell.protection_good', 'You are already protected from good.\\\\r\\\\n')",
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "c0a9a4fc988d47722a043945" },
+    "name": "slow",
+    "kind": "spell",
+    "handlerId": "spell.slow",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 515,
+    "minMana": 30,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "You feel yourself speed up.",
+    "msgObj": "",
+    "functionName": "slow",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level/2",
+        "location": "APPLY_DEX",
+        "modifier": "-1 - (level >= 18) - (level >= 25) - (level >= 32)",
+        "bitvector": "AFF_SLOW",
+        "applyTo": "char"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.slow()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "003fef2e8144edbf0f89c3f2" },
+    "name": "heat metal",
+    "kind": "spell",
+    "handlerId": "spell.heat_metal",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 516,
+    "minMana": 25,
+    "beats": 18,
+    "nounDamage": "spell",
+    "msgOff": "!Heat Metal!",
+    "msgObj": "",
+    "functionName": "heat_metal",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.heat_metal()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "6addc9995b8c97ffeae22fb1" },
+    "name": "recharge",
+    "kind": "spell",
+    "handlerId": "spell.recharge",
+    "target": "OBJ_INV",
+    "minPosition": "STANDING",
+    "slot": 517,
+    "minMana": 60,
+    "beats": 24,
+    "nounDamage": "",
+    "msgOff": "!Recharge!",
+    "msgObj": "",
+    "functionName": "recharge",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.recharge()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "3fef3e716bcb14042428f75c" },
+    "name": "ray of truth",
+    "kind": "spell",
+    "handlerId": "spell.ray_of_truth",
+    "target": "CHAR_OFFENSIVE",
+    "minPosition": "FIGHTING",
+    "slot": 518,
+    "minMana": 20,
+    "beats": 12,
+    "nounDamage": "ray of truth",
+    "msgOff": "!Ray of Truth!",
+    "msgObj": "",
+    "functionName": "ray_of_truth",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.ray_of_truth()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "07ff9f1ed9db581fc466eda2" },
+    "name": "portal",
+    "kind": "spell",
+    "handlerId": "spell.portal",
+    "target": "IGNORE",
+    "minPosition": "STANDING",
+    "slot": 519,
+    "minMana": 100,
+    "beats": 24,
+    "nounDamage": "",
+    "msgOff": "!Portal!",
+    "msgObj": "",
+    "functionName": "portal",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.portal()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "8266e833e2337cdbef58d6a2" },
+    "name": "nexus",
+    "kind": "spell",
+    "handlerId": "spell.nexus",
+    "target": "IGNORE",
+    "minPosition": "STANDING",
+    "slot": 520,
+    "minMana": 150,
+    "beats": 36,
+    "nounDamage": "",
+    "msgOff": "!Nexus!",
+    "msgObj": "",
+    "functionName": "nexus",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.nexus()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "490adc47574556feacf46d0f" },
+    "name": "farsight",
+    "kind": "spell",
+    "handlerId": "spell.farsight",
+    "target": "IGNORE",
+    "minPosition": "STANDING",
+    "slot": 521,
+    "minMana": 36,
+    "beats": 20,
+    "nounDamage": "farsight",
+    "msgOff": "!Farsight!",
+    "msgObj": "",
+    "functionName": "farsight",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.farsight()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "b4bbe126fe0c53a953839835" },
+    "name": "floating disc",
+    "kind": "spell",
+    "handlerId": "spell.floating_disc",
+    "target": "IGNORE",
+    "minPosition": "STANDING",
+    "slot": 522,
+    "minMana": 40,
+    "beats": 24,
+    "nounDamage": "",
+    "msgOff": "!Floating disc!",
+    "msgObj": "",
+    "functionName": "floating_disc",
+    "affectData": [],
+    "lambdas": [
+      "lambda ctx: ctx.create_object('23')"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  },
+  {
+    "_id": { "$oid": "fc0064b4fef8bf59c10eb1fe" },
+    "name": "fireproof",
+    "kind": "spell",
+    "handlerId": "spell.fireproof",
+    "target": "OBJ_INV",
+    "minPosition": "STANDING",
+    "slot": 523,
+    "minMana": 10,
+    "beats": 12,
+    "nounDamage": "",
+    "msgOff": "",
+    "msgObj": "$p's protective aura fades.",
+    "functionName": "fireproof",
+    "affectData": [
+      {
+        "valid": true,
+        "where": "TO_OBJECT",
+        "type": "sn",
+        "level": "level",
+        "duration": "number_fuzzy(level / 4)",
+        "location": "APPLY_NONE",
+        "modifier": "0",
+        "bitvector": "ITEM_BURN_PROOF",
+        "applyTo": "object"
+      }
+    ],
+    "lambdas": [
+      "lambda ctx: ctx.apply_affect_data()"
+    ],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
+  }
+]

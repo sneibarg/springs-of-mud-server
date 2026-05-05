@@ -144,9 +144,7 @@ class Room:
 
     def people(self) -> List[Any]:
         with self.lock:
-            chars = [self.characters.items()]
-            mobs = [self.mobiles.items()]
-            return chars + mobs
+            return list(self.characters.values()) + list(self.mobiles.values())
 
     def player_targets(self, character: Character) -> List[Character]:
         with self.lock:

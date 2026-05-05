@@ -3,6 +3,7 @@ from __future__ import annotations
 from injector import inject
 
 from game.Equipped import Equipped
+from item.Item import Item
 from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
@@ -18,7 +19,7 @@ from server.LoggerFactory import LoggerFactory
 
 class ObjectCommands:
     @inject
-    def __init__(self, registry_service: RegistryService, weather_handler=None, room_helper=None):
+    def __init__(self, registry_service: RegistryService, weather_handler=None):
         self.__name__ = "ObjectCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -26,7 +27,6 @@ class ObjectCommands:
         self.mobile_registry = getattr(registry_service, "mobile_registry", None)
         self.shop_registry = getattr(registry_service, "shop_registry", None)
         self.weather_handler = weather_handler
-        self.room_helper = room_helper
         self.item_types = None
         self.item_flags = None
         self.wear_flags = None
@@ -109,7 +109,7 @@ class ObjectCommands:
 
         obj = self._get_keeper_stock_item(character, keeper, selector)
         cost = 0 if obj is None else shop.buy_price(obj)
-        if obj is None or cost <= 0 or not self._can_see_item(character, obj):
+        if obj is None or cost <= 0 or not ItemUtil.can_see_object(room, character, obj):
             context.finish()
             return {"to_char": "I don't sell that -- try 'list'.\r\n"}
 
@@ -949,7 +949,7 @@ class ObjectCommands:
                 if hour < GenericUtil.to_int(shop.open_hour, 0):
                     return None, None, "Sorry, I am closed. Come back later.\r\n"
                 return None, None, "Sorry, I am closed. Come back tomorrow.\r\n"
-            if self.room_helper is not None and not CharacterMacros.can_see(mob, character, self.room_helper):
+            if not CharacterMacros.can_see(mob, character, room):
                 return None, None, "I don't trade with folks I can't see.\r\n"
             return mob, shop, ""
         return None, None, "You can't do that here.\r\n"
@@ -1055,15 +1055,16 @@ class ObjectCommands:
 
     def _keeper_visible_stock(self, character: Character, keeper) -> list:
         stock = []
+        room = self.room_registry.get(id=character.room_id)
         for item in list(getattr(keeper, "inventory", []) or []):
             if self._is_item_worn(item):
                 continue
-            if not self._can_see_item(character, item):
+            if not ItemUtil.can_see_object(room, character, item):
                 continue
             stock.append(item)
         return stock
 
-    def _get_keeper_stock_item(self, character: Character, keeper, selector: str):
+    def _get_keeper_stock_item(self, character: Character, keeper, selector: str) -> Item:
         number, keyword = InterpUtil.number_argument(selector)
         count = 0
         stock = self._keeper_visible_stock(character, keeper)
@@ -1188,11 +1189,6 @@ class ObjectCommands:
         name = str(getattr(entity, "name", "") or "").strip().lower()
         words = [word for word in name.split() if word]
         return name == query or name.startswith(query) or query in words or any(word.startswith(query) for word in words)
-
-    def _can_see_item(self, character: Character, item) -> bool:
-        if self.room_helper is None:
-            return True
-        return ItemUtil.can_see_object(self.room_helper, character, item)
 
     @staticmethod
     def _money_value(entity) -> int:

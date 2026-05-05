@@ -4,6 +4,7 @@ import random
 
 from injector import inject
 
+from fight.FightApi import FightApi
 from fight.FightHandler import FightHandler
 from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
@@ -28,7 +29,7 @@ from util.SkillUtil import SkillUtil
 
 class FightCommands:
     @inject
-    def __init__(self, registry_service: RegistryService, skill_api: SkillApi, fight_handler: FightHandler, weather_handler: WeatherHandler = None):
+    def __init__(self, registry_service: RegistryService, skill_api: SkillApi, fight_api: FightApi, weather_handler: WeatherHandler = None):
         self.__name__ = "FightCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -36,7 +37,8 @@ class FightCommands:
         self.room_registry = registry_service.room_registry
         self.skill_registry = registry_service.skill_registry
         self.spell_registry = getattr(registry_service, "spell_registry", None)
-        self.fight_handler = fight_handler
+        self.fight_handler = fight_api.fight_handler
+        self.fight_api = fight_api
         self.weather_handler = weather_handler
         self.spell_api = SpellApi()
         self._handlers = {
@@ -92,48 +94,8 @@ class FightCommands:
             return {"to_char": "Suicide is a mortal sin.\r\n"}
         return self.do_kill(character, context)
 
-    def do_kill(self, character: Character, context: Context):
-        argument = FightUtil.parse_action_argument(context.result, context.parameters)
-        if not argument:
-            context.finish()
-            return {"to_char": "Kill whom?\r\n"}
-
-        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
-        if room is None:
-            context.finish()
-            return {"to_char": "You are nowhere.\r\n"}
-
-        victim = PlayerUtil.get_target(character, argument, room)
-        if victim is None:
-            context.finish()
-            return {"to_char": "They aren't here.\r\n"}
-        if victim is character:
-            context.finish()
-            return {"to_char": "You hit yourself. Ouch!\r\n"}
-
-        safe, safe_msg = self.fight_handler.is_safe(character, victim, room=room)
-        if safe:
-            context.finish()
-            return {"to_char": safe_msg or "You cannot attack them.\r\n"}
-
-        current_fighting = getattr(character, "fighting", None)
-        if current_fighting is victim:
-            victim_name = self.fight_handler._combat_target_name(victim)
-            context.finish()
-            return {"to_char": f"You are already fighting {victim_name}.\r\n"}
-        if current_fighting is not None and current_fighting is not victim:
-            context.finish()
-            return {"to_char": "You do the best you can!\r\n"}
-
-        if getattr(character, "fighting", None) is None:
-            self.fight_handler.set_fighting(character, victim, room.id)
-        if getattr(victim, "fighting", None) is None:
-            self.fight_handler.set_fighting(victim, character, room.id)
-
-        pre_corpse_ids = self._pre_corpse_ids(room)
-        result = self.fight_handler.multi_hit(character, victim, dt="TYPE_UNDEFINED")
-        context.finish()
-        return self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
+    def do_kill(self, character, context):
+        return self.fight_api.run_action(self, character, context, context.command.name)
 
     def do_cast(self, character: Character, context: Context):
         spell_name, target_arg = FightUtil.parse_cast_argument(context.result, context.parameters)
@@ -181,64 +143,7 @@ class FightCommands:
         return {"payloads": spell_context.payloads}
 
     def do_backstab(self, character: Character, context: Context):
-        skill = self.skill_registry.get(name="backstab")
-        if not self._has_skill_access(character, skill):
-            context.finish()
-            return {"to_char": "You better leave the assassin trade to thieves.\r\n"}
-
-        argument = FightUtil.parse_action_argument(context.result, context.parameters)
-        if not argument:
-            context.finish()
-            return {"to_char": "Backstab whom?\r\n"}
-        if getattr(character, "fighting", None) is not None:
-            context.finish()
-            return {"to_char": "You're facing the wrong end.\r\n"}
-
-        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
-        if room is None:
-            context.finish()
-            return {"to_char": "You are nowhere.\r\n"}
-
-        victim = PlayerUtil.get_target(character, argument, room)
-        if victim is None:
-            context.finish()
-            return {"to_char": "They aren't here.\r\n"}
-        if victim is character:
-            context.finish()
-            return {"to_char": "How can you sneak up on yourself?\r\n"}
-
-        safe, safe_msg = self.fight_handler.is_safe(character, victim, room=room)
-        if safe:
-            context.finish()
-            return {"to_char": safe_msg or "You cannot attack them.\r\n"}
-        if self._kill_steal_blocked(character, victim):
-            context.finish()
-            return {"to_char": "Kill stealing is not permitted.\r\n"}
-
-        weapon = getattr(getattr(character, "equipped", None), "wielded", None)
-        if weapon is None or str(getattr(weapon, "item_type", "") or "").strip().lower() != "weapon":
-            context.finish()
-            return {"to_char": "You need to wield a weapon to backstab.\r\n"}
-        if GenericUtil.to_int(getattr(victim, "hit", 0), 0) < max(1, GenericUtil.to_int(getattr(victim, "max_hit", 0), 0) // 3):
-            context.finish()
-            return {"to_char": "They are hurt and suspicious. You can't sneak up.\r\n"}
-
-        self._set_wait(character, self._skill_beats(skill, 12))
-        pre_corpse_ids = self._pre_corpse_ids(room)
-        skill_percent = self.skill_api.get_rating(character, skill)
-        success = random.randint(1, 100) <= max(1, skill_percent)
-        if not CharacterMacros.is_awake(victim) and skill_percent >= 2:
-            success = True
-
-        if success:
-            self._check_improve(character, skill, True, 1)
-            result = self.fight_handler.multi_hit(character, victim, dt="backstab")
-        else:
-            self._check_improve(character, skill, False, 1)
-            result = self.fight_handler.damage(character, victim, 0, dt="backstab")
-
-        context.finish()
-        return self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
+        return self.fight_api.run_action(self, character, context, context.command.name)
 
     def do_bash(self, character: Character, context: Context):
         skill = self.skill_registry.get(name="bash")
@@ -537,7 +442,7 @@ class FightCommands:
             return {"to_char": "That person is not fighting right now.\r\n"}
 
         self._set_wait(character, self._skill_beats(skill, 12))
-        if random.randint(1, 100) > max(1, self._skill_percent(character, "rescue")):
+        if random.randint(1, 100) > max(1, self.skill_api.get_rating(character, skill)):
             self._check_improve(character, skill, False, 1)
             context.finish()
             return {"to_char": "You fail the rescue.\r\n"}
@@ -707,7 +612,7 @@ class FightCommands:
     def _has_skill_access(self, character: Character, skill: Skill) -> bool:
         if CharacterMacros.is_npc(character):
             return True
-        if GenericUtil.to_int(getattr(character, "level", 0), 0) < FightUtil.level_for_class(skill_meta, character):
+        if GenericUtil.to_int(getattr(character, "level", 0), 0) < FightUtil.level_for_class(skill, character):
             return False
         return self.skill_api.get_rating(character, skill) > 0
 

@@ -84,9 +84,6 @@ class InterpHandler:
         connection = self.connection_manager.get_connection_by_character(character.id)
         room = self.room_registry.get_or_none(id=character.room_id)
         context = Context(character=character, handler_service=self.handler_service, conn=connection, command=command, parameters=arguments, result=parameters, room=room)
-        if len(arguments) < command.max_arguments and command.usage != "":
-            await self.handle_usage(command, context)
-            return None
 
         if command.pipeline:
             await self._handle_pipeline(command, context)
@@ -120,7 +117,7 @@ class InterpHandler:
             await self.message_bus.send_to_character(character.id, self.command_not_found_message)
             return None
 
-        self.logger.debug(f"CMD: {cmd.name}, PARAMETERS: {parameters}, USAGE: {str(player.usage)}")
+        self.logger.info(f"CMD: {cmd.name}, PARAMETERS: {parameters}, USAGE: {str(player.usage)}")
         return await self._call_lambda(character, cmd.name, self.interp_registry.all_commands(), parameters)
 
     async def handle_usage(self, cmd: Command, context: Context):

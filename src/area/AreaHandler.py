@@ -130,8 +130,6 @@ class AreaHandler:
             last = False
             return last, None
         mob = MobileUtil.create_mobile(template_mob, self.enums)
-        if mob.vnum == "3704":
-            print(f"MOB: {mob}")
         for special in getattr(template_mob, "specials", []) or []:
             if str(getattr(special, "mob_vnum", "") or "") == str(mob.vnum):
                 mob.special_name = str(getattr(special, "name", "") or "")

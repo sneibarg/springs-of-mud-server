@@ -2,6 +2,7 @@ import json
 
 from dataclasses import dataclass, field
 
+from game.GamePayload import GamePayload
 from item.Item import Item
 from item.Effect import Effect
 
@@ -25,6 +26,7 @@ class Spell:
     function_name: str = ""
     lambdas: list[str] = field(default_factory=list)
     affect_data: list[Effect] = field(default_factory=list)
+    payload: GamePayload = field(default_factory=GamePayload)
 
     def __hash__(self):
         return hash(self.id)
@@ -44,6 +46,7 @@ class Spell:
         raw_affects = payload.get("affect_data", []) or []
         payload["affect_data"] = [Effect.from_json(a) for a in raw_affects]
         payload["lambdas"] = cls._normalize_lambdas(payload.get("lambdas"))
+        # payload["payload"] = GamePayload.from_json(payload.get("payload"))
         payload.pop("_id", None)
         return cls(**payload)
 
@@ -70,3 +73,6 @@ class Spell:
         if isinstance(value, str) and value.strip().startswith("lambda "):
             return [value.strip()]
         return []
+
+    def message(self, channel: str, key: str, fallback: str = "", **values) -> str:
+        return self.payload.render(channel, key, fallback=fallback, **values)

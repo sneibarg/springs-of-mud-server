@@ -127,11 +127,12 @@ class FightHandler:
 
     @staticmethod
     def _entity_position_value(entity) -> int:
-        from mobile.Mobile import Mobile
-        if type(entity) is Mobile:
-            return GenericUtil.to_int(entity.start_pos, 0)
-        else:
-            return entity.character_attributes.position
+        attrs = getattr(entity, "character_attributes", None)
+        if attrs is not None and hasattr(attrs, "position"):
+            return GenericUtil.to_int(getattr(attrs, "position", 0), 0)
+        if hasattr(entity, "position"):
+            return GenericUtil.to_int(getattr(entity, "position", 0), 0)
+        return GenericUtil.to_int(getattr(entity, "start_pos", 0), 0)
 
     def is_safe(self, attacker, victim, room=None) -> tuple[bool, str]:
         if attacker is None or victim is None:
@@ -176,31 +177,40 @@ class FightHandler:
     def check_killer(self, attacker, victim) -> None:
         return
 
-    @staticmethod
-    def check_parry(attacker, victim) -> bool:
+    def check_parry(self, attacker, victim) -> bool:
         if not CharacterMacros.is_awake(victim):
             return False
-
-        stats = getattr(victim, "character_attributes", None)
-        dex = GenericUtil.to_int(getattr(stats, "dexterity", 10), 10)
-        chance = max(0, min(25, dex // 2))
-        return random.randint(1, 100) <= chance
-
-    @staticmethod
-    def check_shield_block(attacker, victim) -> bool:
-        if not CharacterMacros.is_awake(victim) or victim.equipped is None or not victim.equipped.is_shield_equipped():
+        skill = self._defense_skill_percent(victim, "parry")
+        if skill <= 0:
             return False
 
         stats = getattr(victim, "character_attributes", None)
         dex = GenericUtil.to_int(getattr(stats, "dexterity", 10), 10)
-        chance = max(0, min(20, dex // 2))
+        chance = max(0, min(60, skill // 2 + dex // 4))
         return random.randint(1, 100) <= chance
 
-    @staticmethod
-    def check_dodge(attacker, victim) -> bool:
+    def check_shield_block(self, attacker, victim) -> bool:
+        if not CharacterMacros.is_awake(victim) or victim.equipped is None or not victim.equipped.is_shield_equipped():
+            return False
+        skill = self._defense_skill_percent(victim, "shield block")
+        if skill <= 0:
+            return False
+
         stats = getattr(victim, "character_attributes", None)
         dex = GenericUtil.to_int(getattr(stats, "dexterity", 10), 10)
-        chance = max(0, min(30, dex))
+        chance = max(0, min(50, skill // 2 + dex // 4))
+        return random.randint(1, 100) <= chance
+
+    def check_dodge(self, attacker, victim) -> bool:
+        if not CharacterMacros.is_awake(victim):
+            return False
+        skill = self._defense_skill_percent(victim, "dodge")
+        if skill <= 0:
+            return False
+
+        stats = getattr(victim, "character_attributes", None)
+        dex = GenericUtil.to_int(getattr(stats, "dexterity", 10), 10)
+        chance = max(0, min(65, skill // 2 + dex // 3))
         return random.randint(1, 100) <= chance
 
     def update_pos(self, victim) -> None:
@@ -208,17 +218,29 @@ class FightHandler:
         if hit > 0:
             return
 
-        if hasattr(self.PositionsEnum, "POS_DEAD") and hit <= -11:
-            self._set_position(victim, int(self.PositionsEnum.POS_DEAD.value))
+        try:
+            positions_enum = CharacterMacros.get_enum("positions")
+        except RuntimeError:
+            positions_enum = self.PositionsEnum
+        if positions_enum is None:
             return
-        if hasattr(self.PositionsEnum, "POS_MORTAL") and hit <= -6:
-            self._set_position(victim, int(self.PositionsEnum.POS_MORTAL.value))
+
+        if CharacterMacros.is_npc(victim):
+            if hasattr(positions_enum, "POS_DEAD"):
+                self._set_position(victim, int(positions_enum.POS_DEAD.value))
             return
-        if hasattr(self.PositionsEnum, "POS_INCAP") and hit <= -3:
-            self._set_position(victim, int(self.PositionsEnum.POS_INCAP.value))
+
+        if hasattr(positions_enum, "POS_DEAD") and hit <= -11:
+            self._set_position(victim, int(positions_enum.POS_DEAD.value))
             return
-        if hasattr(self.PositionsEnum, "POS_STUNNED"):
-            self._set_position(victim, int(self.PositionsEnum.POS_STUNNED.value))
+        if hasattr(positions_enum, "POS_MORTAL") and hit <= -6:
+            self._set_position(victim, int(positions_enum.POS_MORTAL.value))
+            return
+        if hasattr(positions_enum, "POS_INCAP") and hit <= -3:
+            self._set_position(victim, int(positions_enum.POS_INCAP.value))
+            return
+        if hasattr(positions_enum, "POS_STUNNED"):
+            self._set_position(victim, int(positions_enum.POS_STUNNED.value))
 
     @staticmethod
     def _set_position(entity, position_value: int) -> None:
@@ -809,6 +831,9 @@ class FightHandler:
 
     # TO-DO
     def check_assist(self, attacker, victim) -> None:
+        from mobile.Mobile import Mobile
+        if type(attacker) is Mobile:
+            return None
         room = self.room_registry.get(id=attacker.room_id)
         for char in room.people():
             if (not CharacterMacros.is_npc(attacker) and
@@ -1196,6 +1221,23 @@ class FightHandler:
             return max(0, min(100, 10 + 3 * level)) if (is_warrior or is_thief) else 0
         if wanted == "third attack":
             return max(0, min(100, 4 * level - 40)) if self._mob_has_act(entity, act_bits, "ACT_WARRIOR") else 0
+        return 0
+
+    def _defense_skill_percent(self, entity, skill_name: str) -> int:
+        wanted = str(skill_name or "").strip().lower()
+        if not wanted:
+            return 0
+
+        if not CharacterMacros.is_npc(entity):
+            return self._skill_percent(entity, wanted)
+
+        level = max(0, GenericUtil.to_int(getattr(entity, "level", 0), 0))
+        if wanted == "shield block":
+            return max(0, min(100, 10 + 2 * level))
+        if wanted == "dodge":
+            return max(0, min(100, 2 * level)) if self._mob_has_off(entity, "OFF_DODGE") else 0
+        if wanted == "parry":
+            return max(0, min(100, 2 * level)) if self._mob_has_off(entity, "OFF_PARRY") else 0
         return 0
 
     @staticmethod

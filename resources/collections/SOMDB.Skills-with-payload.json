@@ -1,8 +1,6 @@
 [
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb8d3"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb8d3" },
     "name": "reserved",
     "kind": "skill",
     "levelByClass": {
@@ -17,7 +15,7 @@
       "thief": 99,
       "warrior": 99
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -25,12 +23,15 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "",
-    "msgObj": ""
+    "msgObj": "",
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb935"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb935" },
     "name": "axe",
     "kind": "skill",
     "levelByClass": {
@@ -45,7 +46,7 @@
       "thief": 5,
       "warrior": 4
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -88,12 +89,15 @@
     "fightExecutor": "multi_hit",
     "fightPlan": {
       "dt": "TYPE_UNDEFINED"
+    },
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
     }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb936"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb936" },
     "name": "dagger",
     "kind": "skill",
     "levelByClass": {
@@ -108,7 +112,7 @@
       "thief": 2,
       "warrior": 2
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -151,12 +155,15 @@
     "fightExecutor": "multi_hit",
     "fightPlan": {
       "dt": "TYPE_UNDEFINED"
+    },
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
     }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb937"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb937" },
     "name": "flail",
     "kind": "skill",
     "levelByClass": {
@@ -171,7 +178,7 @@
       "thief": 6,
       "warrior": 4
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -214,12 +221,15 @@
     "fightExecutor": "multi_hit",
     "fightPlan": {
       "dt": "TYPE_UNDEFINED"
+    },
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
     }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb938"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb938" },
     "name": "mace",
     "kind": "skill",
     "levelByClass": {
@@ -234,7 +244,7 @@
       "thief": 3,
       "warrior": 3
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -277,12 +287,15 @@
     "fightExecutor": "multi_hit",
     "fightPlan": {
       "dt": "TYPE_UNDEFINED"
+    },
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
     }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb939"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb939" },
     "name": "polearm",
     "kind": "skill",
     "levelByClass": {
@@ -297,7 +310,7 @@
       "thief": 6,
       "warrior": 4
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -340,12 +353,15 @@
     "fightExecutor": "multi_hit",
     "fightPlan": {
       "dt": "TYPE_UNDEFINED"
+    },
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
     }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb93a"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb93a" },
     "name": "shield block",
     "kind": "skill",
     "levelByClass": {
@@ -360,7 +376,7 @@
       "thief": 6,
       "warrior": 2
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -369,12 +385,15 @@
     "nounDamage": "",
     "msgOff": "!Shield!",
     "msgObj": "",
-    "checks": []
+    "checks": [],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb93b"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb93b" },
     "name": "spear",
     "kind": "skill",
     "levelByClass": {
@@ -389,7 +408,7 @@
       "thief": 4,
       "warrior": 3
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -432,12 +451,15 @@
     "fightExecutor": "multi_hit",
     "fightPlan": {
       "dt": "TYPE_UNDEFINED"
+    },
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
     }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb93c"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb93c" },
     "name": "sword",
     "kind": "skill",
     "levelByClass": {
@@ -452,7 +474,7 @@
       "thief": 3,
       "warrior": 2
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -495,12 +517,15 @@
     "fightExecutor": "multi_hit",
     "fightPlan": {
       "dt": "TYPE_UNDEFINED"
+    },
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
     }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb93d"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb93d" },
     "name": "whip",
     "kind": "skill",
     "levelByClass": {
@@ -515,7 +540,7 @@
       "thief": 5,
       "warrior": 4
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -558,12 +583,15 @@
     "fightExecutor": "multi_hit",
     "fightPlan": {
       "dt": "TYPE_UNDEFINED"
+    },
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
     }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb93e"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb93e" },
     "name": "backstab",
     "kind": "skill",
     "levelByClass": {
@@ -578,7 +606,7 @@
       "thief": 5,
       "warrior": 0
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -632,12 +660,15 @@
     "fightExecutor": "backstab",
     "fightPlan": {
       "dt": "backstab"
+    },
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
     }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb93f"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb93f" },
     "name": "bash",
     "kind": "skill",
     "levelByClass": {
@@ -652,7 +683,7 @@
       "thief": 0,
       "warrior": 4
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -661,12 +692,15 @@
     "nounDamage": "bash",
     "msgOff": "!Bash!",
     "msgObj": "",
-    "checks": []
+    "checks": [],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb940"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb940" },
     "name": "berserk",
     "kind": "skill",
     "levelByClass": {
@@ -681,7 +715,7 @@
       "thief": 0,
       "warrior": 5
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -689,12 +723,15 @@
     "beats": 24,
     "nounDamage": "",
     "msgOff": "You feel your pulse slow down.",
-    "msgObj": ""
+    "msgObj": "",
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb941"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb941" },
     "name": "dirt kicking",
     "kind": "skill",
     "levelByClass": {
@@ -709,7 +746,7 @@
       "thief": 4,
       "warrior": 4
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -718,12 +755,15 @@
     "nounDamage": "kicked dirt",
     "msgOff": "You rub the dirt out of your eyes.",
     "msgObj": "",
-    "checks": []
+    "checks": [],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb942"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb942" },
     "name": "disarm",
     "kind": "skill",
     "levelByClass": {
@@ -738,7 +778,7 @@
       "thief": 6,
       "warrior": 4
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -747,12 +787,15 @@
     "nounDamage": "",
     "msgOff": "!Disarm!",
     "msgObj": "",
-    "checks": []
+    "checks": [],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb943"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb943" },
     "name": "dodge",
     "kind": "skill",
     "levelByClass": {
@@ -767,7 +810,7 @@
       "thief": 4,
       "warrior": 6
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -776,12 +819,15 @@
     "nounDamage": "",
     "msgOff": "!Dodge!",
     "msgObj": "",
-    "checks": []
+    "checks": [],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb944"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb944" },
     "name": "enhanced damage",
     "kind": "skill",
     "levelByClass": {
@@ -796,7 +842,7 @@
       "thief": 5,
       "warrior": 3
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -805,12 +851,15 @@
     "nounDamage": "",
     "msgOff": "!Enhanced Damage!",
     "msgObj": "",
-    "checks": []
+    "checks": [],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb945"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb945" },
     "name": "envenom",
     "kind": "skill",
     "levelByClass": {
@@ -825,7 +874,7 @@
       "thief": 4,
       "warrior": 0
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "RESTING",
     "slot": 0,
@@ -833,12 +882,15 @@
     "beats": 36,
     "nounDamage": "",
     "msgOff": "!Envenom!",
-    "msgObj": ""
+    "msgObj": "",
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb946"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb946" },
     "name": "hand to hand",
     "kind": "skill",
     "levelByClass": {
@@ -853,7 +905,7 @@
       "thief": 6,
       "warrior": 4
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -896,12 +948,15 @@
     "fightExecutor": "multi_hit",
     "fightPlan": {
       "dt": "TYPE_UNDEFINED"
+    },
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
     }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb947"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb947" },
     "name": "kick",
     "kind": "skill",
     "levelByClass": {
@@ -916,7 +971,7 @@
       "thief": 6,
       "warrior": 3
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "CHAR_OFFENSIVE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -925,12 +980,15 @@
     "nounDamage": "kick",
     "msgOff": "!Kick!",
     "msgObj": "",
-    "checks": []
+    "checks": [],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb948"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb948" },
     "name": "parry",
     "kind": "skill",
     "levelByClass": {
@@ -945,7 +1003,7 @@
       "thief": 6,
       "warrior": 4
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -954,12 +1012,15 @@
     "nounDamage": "",
     "msgOff": "!Parry!",
     "msgObj": "",
-    "checks": []
+    "checks": [],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb949"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb949" },
     "name": "rescue",
     "kind": "skill",
     "levelByClass": {
@@ -974,7 +1035,7 @@
       "thief": 0,
       "warrior": 4
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -983,12 +1044,15 @@
     "nounDamage": "",
     "msgOff": "!Rescue!",
     "msgObj": "",
-    "checks": []
+    "checks": [],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb94a"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb94a" },
     "name": "trip",
     "kind": "skill",
     "levelByClass": {
@@ -1003,7 +1067,7 @@
       "thief": 4,
       "warrior": 8
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -1012,12 +1076,15 @@
     "nounDamage": "trip",
     "msgOff": "!Trip!",
     "msgObj": "",
-    "checks": []
+    "checks": [],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb94b"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb94b" },
     "name": "second attack",
     "kind": "skill",
     "levelByClass": {
@@ -1032,7 +1099,7 @@
       "thief": 5,
       "warrior": 3
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -1041,12 +1108,15 @@
     "nounDamage": "",
     "msgOff": "!Second Attack!",
     "msgObj": "",
-    "checks": []
+    "checks": [],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb94c"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb94c" },
     "name": "third attack",
     "kind": "skill",
     "levelByClass": {
@@ -1061,7 +1131,7 @@
       "thief": 10,
       "warrior": 4
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -1070,12 +1140,15 @@
     "nounDamage": "",
     "msgOff": "!Third Attack!",
     "msgObj": "",
-    "checks": []
+    "checks": [],
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb94d"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb94d" },
     "name": "fast healing",
     "kind": "skill",
     "levelByClass": {
@@ -1090,7 +1163,7 @@
       "thief": 6,
       "warrior": 4
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "SLEEPING",
     "slot": 0,
@@ -1098,12 +1171,15 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "!Fast Healing!",
-    "msgObj": ""
+    "msgObj": "",
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb94e"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb94e" },
     "name": "haggle",
     "kind": "skill",
     "levelByClass": {
@@ -1118,7 +1194,7 @@
       "thief": 3,
       "warrior": 6
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "RESTING",
     "slot": 0,
@@ -1126,12 +1202,15 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "!Haggle!",
-    "msgObj": ""
+    "msgObj": "",
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb94f"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb94f" },
     "name": "hide",
     "kind": "skill",
     "levelByClass": {
@@ -1146,7 +1225,7 @@
       "thief": 4,
       "warrior": 6
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "RESTING",
     "slot": 0,
@@ -1154,12 +1233,15 @@
     "beats": 12,
     "nounDamage": "",
     "msgOff": "!Hide!",
-    "msgObj": ""
+    "msgObj": "",
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb950"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb950" },
     "name": "lore",
     "kind": "skill",
     "levelByClass": {
@@ -1174,7 +1256,7 @@
       "thief": 4,
       "warrior": 8
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "RESTING",
     "slot": 0,
@@ -1182,12 +1264,15 @@
     "beats": 36,
     "nounDamage": "",
     "msgOff": "!Lore!",
-    "msgObj": ""
+    "msgObj": "",
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb951"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb951" },
     "name": "meditation",
     "kind": "skill",
     "levelByClass": {
@@ -1202,7 +1287,7 @@
       "thief": 8,
       "warrior": 8
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "SLEEPING",
     "slot": 0,
@@ -1210,12 +1295,15 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "Meditation",
-    "msgObj": ""
+    "msgObj": "",
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb952"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb952" },
     "name": "peek",
     "kind": "skill",
     "levelByClass": {
@@ -1230,7 +1318,7 @@
       "thief": 3,
       "warrior": 6
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -1238,12 +1326,15 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "!Peek!",
-    "msgObj": ""
+    "msgObj": "",
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb953"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb953" },
     "name": "pick lock",
     "kind": "skill",
     "levelByClass": {
@@ -1258,7 +1349,7 @@
       "thief": 4,
       "warrior": 8
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -1266,12 +1357,15 @@
     "beats": 12,
     "nounDamage": "",
     "msgOff": "!Pick!",
-    "msgObj": ""
+    "msgObj": "",
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb954"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb954" },
     "name": "sneak",
     "kind": "skill",
     "levelByClass": {
@@ -1286,7 +1380,7 @@
       "thief": 4,
       "warrior": 6
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -1294,12 +1388,15 @@
     "beats": 12,
     "nounDamage": "",
     "msgOff": "You no longer feel stealthy.",
-    "msgObj": ""
+    "msgObj": "",
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb955"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb955" },
     "name": "steal",
     "kind": "skill",
     "levelByClass": {
@@ -1314,7 +1411,7 @@
       "thief": 4,
       "warrior": 0
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -1322,12 +1419,15 @@
     "beats": 24,
     "nounDamage": "",
     "msgOff": "!Steal!",
-    "msgObj": ""
+    "msgObj": "",
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb956"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb956" },
     "name": "scrolls",
     "kind": "skill",
     "levelByClass": {
@@ -1342,7 +1442,7 @@
       "thief": 5,
       "warrior": 8
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -1350,12 +1450,15 @@
     "beats": 24,
     "nounDamage": "",
     "msgOff": "!Scrolls!",
-    "msgObj": ""
+    "msgObj": "",
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb957"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb957" },
     "name": "staves",
     "kind": "skill",
     "levelByClass": {
@@ -1370,7 +1473,7 @@
       "thief": 5,
       "warrior": 8
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -1378,12 +1481,15 @@
     "beats": 12,
     "nounDamage": "",
     "msgOff": "!Staves!",
-    "msgObj": ""
+    "msgObj": "",
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb958"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb958" },
     "name": "wands",
     "kind": "skill",
     "levelByClass": {
@@ -1398,7 +1504,7 @@
       "thief": 5,
       "warrior": 8
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -1406,12 +1512,15 @@
     "beats": 12,
     "nounDamage": "",
     "msgOff": "!Wands!",
-    "msgObj": ""
+    "msgObj": "",
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   },
   {
-    "_id": {
-      "$oid": "69bac4dcaf6857ce485bb959"
-    },
+    "_id": { "$oid": "69bac4dcaf6857ce485bb959" },
     "name": "recall",
     "kind": "skill",
     "levelByClass": {
@@ -1426,7 +1535,7 @@
       "thief": 2,
       "warrior": 2
     },
-    "handlerId": "skill.none",
+    "handlerId": "spell.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -1434,6 +1543,11 @@
     "beats": 12,
     "nounDamage": "",
     "msgOff": "!Recall!",
-    "msgObj": ""
+    "msgObj": "",
+    "payload": {
+      "toChar": {},
+      "toRoom": {},
+      "toVictim": {}
+    }
   }
 ]

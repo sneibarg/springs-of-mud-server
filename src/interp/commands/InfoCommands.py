@@ -435,7 +435,7 @@ class InfoCommands:
                     continue
                 if nowhere_bit is not None and CharacterMacros.is_set(int(room.room_flags), nowhere_bit):
                     continue
-                if not CharacterMacros.can_see(character, victim, self.room_helper):
+                if not CharacterMacros.can_see(character, victim):
                     continue
                 lines.append(f"{victim.name:<28} {room.name}\r\n")
                 found = True
@@ -453,7 +453,7 @@ class InfoCommands:
             room = self.room_registry.get_or_none(id=victim.room_id)
             if room is None or room.area_id != my_room.area_id:
                 continue
-            if not CharacterMacros.can_see(character, victim, self.room_helper):
+            if not CharacterMacros.can_see(character, victim):
                 continue
             victim_name = (victim.name or "").lower()
             if victim_name == wanted or victim_name.startswith(wanted):
@@ -466,7 +466,7 @@ class InfoCommands:
             for mob in room.mobiles.values():
                 if mob is None:
                     continue
-                if not CharacterMacros.can_see(character, mob, self.room_helper):
+                if not CharacterMacros.can_see(character, mob):
                     continue
                 mob_name = (getattr(mob, "name", "") or "").lower()
                 short_name = (getattr(mob, "short_description", "") or "").lower()
@@ -489,7 +489,7 @@ class InfoCommands:
             context.finish()
             return "They're not here.\r\n"
 
-        victim = PlayerUtil.get_target(character, arg, room, self.room_helper)
+        victim = PlayerUtil.get_target(character, arg, room)
         if victim is None:
             context.finish()
             return "They're not here.\r\n"
