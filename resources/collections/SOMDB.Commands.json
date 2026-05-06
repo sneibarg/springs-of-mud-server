@@ -78,15 +78,15 @@
                 "noArgument": "Tell whom what?",
                 "targetMissing": "They aren't here.",
                 "targetDisconnected": "%v seems to have misplaced their link...try again later.",
-                "targetSleeping": "%v can't hear you.",
-                "targetDeaf": "$v is not receiving tells.",
-                "targetNPC": "%v is AFK, and not receiving tells.",
-                "targetAFK": "%n is AFK, but your tell will go through when %n returns.",
+                "targetSleeping": "%t can't hear you.",
+                "targetDeaf": "%t is not receiving tells.",
+                "targetNPC": "%t is AFK, and not receiving tells.",
+                "targetAFK": "%t is AFK, but your tell will go through when %t returns.",
                 "noTell": "Your message didn't get through",
                 "deaf": "Your message didn't get through",
                 "quietMode": "You must turn off quiet mode first.",
                 "deafMode": "You must turn off deaf mode first.",
-                "default": "You tell %v '%s'"
+                "default": "You tell %t '%s'"
             },
             "toRoom": {},
             "toVictim": {
@@ -3409,26 +3409,23 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "putWhatWhat": "Put what in what?",
-                "canTDo": "You can't do that.",
-                "sNotContainer": "That's not a container.",
-                "doNotItem": "You do not have that item.",
-                "canTFoldIt": "You can't fold it into itself.",
-                "canTLetGo": "You can't let go of it.",
-                "feelingWouldBadIdea": "You have a feeling that would be a bad idea.",
-                "itWonTFit": "It won't fit.",
-                "iSeeNo": "I see no $T here.",
-                "closed": "The $d is closed.",
-                "put": "You put $p on $P.",
-                "put2": "You put $p in $P.",
-                "put3": "You put $p on $P.",
-                "put4": "You put $p in $P."
+                "noArgument": "Put what in what?",
+                "invalidPut": "You can't do that.",
+                "nullContainer": "I see no %t here.",
+                "notContainer": "That's not a container.",
+                "closed": "The %t is closed.",
+                "targetMissing": "You do not have that item.",
+                "putContainer": "You can't fold it into itself.",
+                "targetNoDrop": "You can't let go of it.",
+                "weightExceeds": "You have a feeling that would be a bad idea.",
+                "containerFull": "It won't fit.",
+                "on": "You put %t on %T",
+                "in": "You put %t in %T"
+
             },
             "toRoom": {
-                "puts": "$n puts $p on $P.",
-                "puts2": "$n puts $p in $P.",
-                "puts3": "$n puts $p on $P.",
-                "puts4": "$n puts $p in $P."
+                "on": "%c puts %t on %T",
+                "in": "$c puts %t in %T"
             },
             "toVictim": {}
         }
@@ -3450,14 +3447,14 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "quaffWhat": "Quaff what?",
-                "doNotPotion": "You do not have that potion.",
-                "canQuaffOnlyPotions": "You can quaff only potions.",
-                "liquidTooPowerfulDrink": "This liquid is too powerful for you to drink.",
-                "quaff": "You quaff $p."
+                "noArgument": "Quaff what?",
+                "targetMissing": "You do not have that potion.",
+                "notPotion": "You can quaff only potions.",
+                "insufficientLevel": "This liquid is too powerful for you to drink.",
+                "quaff": "You quaff %t."
             },
             "toRoom": {
-                "quaffs": "$n quaffs $p."
+                "quaffs": "%c quaffs %t."
             },
             "toVictim": {}
         }
@@ -3479,15 +3476,15 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "doNotScroll": "You do not have that scroll.",
-                "canReciteOnlyScrolls": "You can recite only scrolls.",
-                "scrollTooComplexComprehend": "This scroll is too complex for you to comprehend.",
-                "canTFindIt": "You can't find it.",
-                "mispronounceSyllable": "You mispronounce a syllable.",
-                "recite": "You recite $p."
+                "scrollMissing": "You do not have that scroll.",
+                "notScroll": "You can recite only scrolls.",
+                "insufficientLevel": "This scroll is too complex for you to comprehend.",
+                "targetMissing": "You can't find it.",
+                "failed": "You mispronounce a syllable.",
+                "recite": "You recite %t."
             },
             "toRoom": {
-                "recites": "$n recites $p."
+                "recites": "%c recites %t."
             },
             "toVictim": {}
         }
@@ -3509,8 +3506,8 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "removeWhat": "Remove what?",
-                "doNotItem": "You do not have that item."
+                "noTarget": "Remove what?",
+                "targetMissing": "You do not have that item."
             },
             "toRoom": {},
             "toVictim": {}
@@ -3586,7 +3583,7 @@
             "$oid": "69bc3df3af6857ce485bba00"
         },
         "name": "sacrifice",
-        "shortcuts": "sac, sacri, sacrif",
+        "shortcuts": "sac, sacri, sacrif, junk, tap",
         "role": "player",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
@@ -3599,89 +3596,21 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "motaAppreciatesOfferMay": "Mota appreciates your offer and may accept it later.",
-                "canTFindIt": "You can't find it.",
-                "motaWouldnTLike": "Mota wouldn't like that.",
-                "motaGivesOneSilver": "Mota gives you one silver coin for your sacrifice.",
-                "motaGivesSilverCoins": "Mota gives you %d silver coins for your sacrifice.",
-                "notAcceptableSacrifice": "$p is not an acceptable sacrifice.",
-                "appearsUsing": "$N appears to be using $p."
+                "targetSelf": "Mota appreciates your offer and may accept it later.",
+                "targetMissing": "You can't find it.",
+                "pcCorpse": "Mota wouldn't like that.",
+                "oneSilver": "Mota gives you one silver coin for your sacrifice.",
+                "multipleSilver": "Mota gives you %d silver coins for your sacrifice.",
+                "noSacrifice": "$p is not an acceptable sacrifice.",
+                "targetInUse": "$N appears to be using $p."
             },
             "toRoom": {
-                "offersSelfMotaWho": "$n offers $mself to Mota, who graciously declines.",
-                "sacrificesMota": "$n sacrifices $p to Mota."
+                "targetSelf": "%c offers their self to Mota, who graciously declines.",
+                "default": "%c sacrifices %t to Mota."
             },
             "toVictim": {},
             "toWiznet": {
-                "sendsUpAsBurnt": "$N sends up $p as a burnt offering."
-            }
-        }
-    },
-    {
-        "_id": {
-            "$oid": "69bc3df3af6857ce485bba01"
-        },
-        "name": "junk",
-        "role": "player",
-        "lambdas": [
-            "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
-        ],
-        "enabled": true,
-        "position": "POS_RESTING",
-        "level": 0,
-        "log": "LOG_NORMAL",
-        "pipeline": false,
-        "maxArguments": 0,
-        "payload": {
-            "toChar": {
-                "motaAppreciatesOfferMay": "Mota appreciates your offer and may accept it later.",
-                "canTFindIt": "You can't find it.",
-                "motaWouldnTLike": "Mota wouldn't like that.",
-                "motaGivesOneSilver": "Mota gives you one silver coin for your sacrifice.",
-                "motaGivesSilverCoins": "Mota gives you %d silver coins for your sacrifice.",
-                "notAcceptableSacrifice": "$p is not an acceptable sacrifice.",
-                "appearsUsing": "$N appears to be using $p."
-            },
-            "toRoom": {
-                "offersSelfMotaWho": "$n offers $mself to Mota, who graciously declines.",
-                "sacrificesMota": "$n sacrifices $p to Mota."
-            },
-            "toVictim": {},
-            "toWiznet": {
-                "sendsUpAsBurnt": "$N sends up $p as a burnt offering."
-            }
-        }
-    },
-    {
-        "_id": {
-            "$oid": "69bc3df3af6857ce485bba02"
-        },
-        "name": "tap",
-        "role": "player",
-        "lambdas": [],
-        "enabled": true,
-        "position": "POS_RESTING",
-        "level": 0,
-        "log": "LOG_NORMAL",
-        "pipeline": false,
-        "maxArguments": 0,
-        "payload": {
-            "toChar": {
-                "motaAppreciatesOfferMay": "Mota appreciates your offer and may accept it later.",
-                "canTFindIt": "You can't find it.",
-                "motaWouldnTLike": "Mota wouldn't like that.",
-                "motaGivesOneSilver": "Mota gives you one silver coin for your sacrifice.",
-                "motaGivesSilverCoins": "Mota gives you %d silver coins for your sacrifice.",
-                "notAcceptableSacrifice": "$p is not an acceptable sacrifice.",
-                "appearsUsing": "$N appears to be using $p."
-            },
-            "toRoom": {
-                "offersSelfMotaWho": "$n offers $mself to Mota, who graciously declines.",
-                "sacrificesMota": "$n sacrifices $p to Mota."
-            },
-            "toVictim": {},
-            "toWiznet": {
-                "sendsUpAsBurnt": "$N sends up $p as a burnt offering."
+                "default": "%c sends up %t as a burnt offering."
             }
         }
     },
@@ -3700,14 +3629,15 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "valueWhat": "Value what?",
-                "canTLetGo": "You can't let go of it."
+                "noArgument": "Value what?",
+                "targetMissing": "%t tells you 'You don't have that item'.",
+                "noDrop": "You can't let go of it."
             },
             "toRoom": {},
             "toVictim": {
-                "tellsDonTItem": "$n tells you 'You don't have that item'.",
-                "doesnTSeeWhat": "$n doesn't see what you are offering.",
-                "looksUninterested": "$n looks uninterested in $p."
+                "targetMissing": "%t tells you 'You don't have that item'.",
+                "itemInvisible": "%t doesn't see what you are offering.",
+                "neverStocked": "%t looks uninterested in %t."
             }
         }
     },
@@ -3728,10 +3658,60 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "wearWieldHoldWhat": "Wear, wield, or hold what?",
-                "doNotItem": "You do not have that item."
+                "noArgument": "Wear, wield, or hold what?",
+                "targetMissing": "You do not have that item.",
+                "invalidTarget": "You can't wear, wield, or hold that.",
+                "insufficientLevel": "You must be level %d to use this object.",
+                "light": "You light %t and hold it.",
+                "finger": "You wear %t on your %s finger.",
+                "fingersEquipped": "You already wear two rings.",
+                "neck": "You wear %t around your neck.",
+                "neckEquipped": "You already wear two neck items.",
+                "torso": "You wear %t on your torso.",
+                "head": "You wear %t on your head.",
+                "hands": "You wear %t on your hands.",
+                "arms": "You wear %t on your arms.",
+                "legs": "You wear %t on your legs.",
+                "feet": "You wear %t on your feet.",,
+                "waist": "You wear %t on your waist.",
+                "aboutTorso": "You wear %t about your torso.",
+                "aboutWaist": "You wear %t about your waist.",
+                "wrist": "You wear %t around your %s wrist.",
+                "wristsEquipped": "You already wear two wrist items.",
+                "shield": "You wear %t as a shield.",
+                "weaponTwoHanded": "Your hands are tied up with your weapon!",
+                "wearingShield": "You need two hands free for that weapon.",
+                "wield": "You wield %t.",
+                "hold": "You hold %t in your hand.",
+                "float": "You release %t and it floats next to you.",
+                "skill100": "%t feels like a part of you!",
+                "skill85": "You feel quite confident with %t.",
+                "skill70": "You are skilled with %t.",
+                "skill50": "Your skill with %t is adequate.",
+                "skill25": "%t feels a little clumsy in your hands.",
+                "skill1": "You fumble and almost drop %t.",
+                "skill0": "You don't even know which end is up on %t."
             },
-            "toRoom": {},
+            "toRoom": {
+                "insufficientLevel": "%c tries to use %t, but is too inexperienced.",
+                "light": "%c lights %t and holds it.",
+                "finger": "%c wears %t on %s finger.",
+                "neck": "%c wears %t around their neck.",
+                "torso": "%c wears %t on their torso.",
+                "head": "%c wears %t on their head.",
+                "hands": "%c wears %t on their hands.",
+                "arms": "%c wears %t on their arms.",
+                "legs": "%c wears %t on their legs.",
+                "feet": "%c wears %t on their feet.",
+                "waist": "%c wears %t on their waist.",
+                "aboutTorso": "%c wears %t about their torso.",
+                "aboutWaist": "%c wears %t about their waist.",
+                "wrist": "%c wears %t around their %s wrist.",
+                "shield": "%c wears %t as a shield.",
+                "wield": "%c wields %t.",
+                "hold": "%c holds %t in their hand.",
+                "float": "%c releases %t to float next to them."
+            },
             "toVictim": {}
         }
     },
@@ -3752,24 +3732,21 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "zapWhomWhat": "Zap whom or what?",
-                "holdNothingHand": "You hold nothing in your hand.",
-                "canZapOnlyWith": "You can zap only with a wand.",
-                "zapWhomWhat2": "Zap whom or what?",
-                "canTFindIt": "You can't find it.",
-                "zapWith": "You zap $N with $p.",
-                "zapWith2": "You zap $P with $p.",
-                "effortsWithProduceOnly": "Your efforts with $p produce only smoke and sparks.",
-                "explodesIntoFragments": "Your $p explodes into fragments."
+                "noArgument": "Zap whom or what?",
+                "notHeld": "You hold nothing in your hand.",
+                "notWand": "You can zap only with a wand.",
+                "targetMissing": "You can't find it.",
+                "default": "You zap %t with %T.",
+                "failed": "Your efforts with %t produce only smoke and sparks.",
+                "itemBroken": "Your %t explodes into fragments."
             },
             "toRoom": {
-                "zapsWith": "$n zaps $N with $p.",
-                "zapsWith2": "$n zaps $P with $p.",
-                "sEffortsWithProduce": "$n's efforts with $p produce only smoke and sparks.",
-                "sExplodesIntoFragments": "$n's $p explodes into fragments."
+                "default": "%c zaps %t with %T.",
+                "failed": "%c's efforts with %t produce only smoke and sparks.",
+                "itemBroken": "%c's %t explodes into fragments."
             },
             "toVictim": {
-                "zapsWith": "$n zaps you with $p."
+                "zapsWith": "%c zaps you with %t."
             }
         }
     },
@@ -4390,45 +4367,16 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "onlyPlayersCanRecall": "Only players can recall.",
-                "completelyLost": "You are completely lost.",
-                "motaForsaken": "Mota has forsaken you.",
+                "isPet": "Only players can recall.",
+                "nullTemple": "You are completely lost.",
+                "noRecall": "Mota has forsaken you.",
                 "failed": "You failed!.",
-                "recallFromCombatLose": "You recall from combat!  You lose %d exps."
+                "combatRecall": "You recall from combat!  You lose %d exps."
             },
             "toRoom": {
-                "praysTransportation": "$n prays for transportation!",
-                "disappears": "$n disappears.",
-                "appearsRoom": "$n appears in the room."
-            },
-            "toVictim": {}
-        }
-    },
-    {
-        "_id": {
-            "$oid": "69bc3df3af6857ce485bba1c"
-        },
-        "name": "/",
-        "role": "player",
-        "lambdas": [],
-        "enabled": true,
-        "position": "POS_FIGHTING",
-        "level": 0,
-        "log": "LOG_NORMAL",
-        "pipeline": false,
-        "maxArguments": 0,
-        "payload": {
-            "toChar": {
-                "onlyPlayersCanRecall": "Only players can recall.",
-                "completelyLost": "You are completely lost.",
-                "motaForsaken": "Mota has forsaken you.",
-                "failed": "You failed!.",
-                "recallFromCombatLose": "You recall from combat!  You lose %d exps."
-            },
-            "toRoom": {
-                "praysTransportation": "$n prays for transportation!",
-                "disappears": "$n disappears.",
-                "appearsRoom": "$n appears in the room."
+                "praysTransportation": "%c prays for transportation!",
+                "disappears": "%c disappears.",
+                "appearsRoom": "%c appears in the room."
             },
             "toVictim": {}
         }
@@ -4450,7 +4398,7 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "noRentJustSave": "There is no rent here.  Just save and quit."
+                "default": "There is no rent here.  Just save and quit."
             },
             "toRoom": {},
             "toVictim": {}
@@ -4473,7 +4421,7 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "savingRememberRomAutomatic": "Saving. Remember that ROM has automatic saving now."
+                "default": "Saving. Remember that ROM has automatic saving now."
             },
             "toRoom": {},
             "toVictim": {}
@@ -4496,20 +4444,20 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "alreadySleeping": "You are already sleeping.",
-                "goSleep": "You go to sleep.",
-                "donTSee": "You don't see that here.",
-                "canTSleep": "You can't sleep on that!",
-                "alreadyFighting": "You are already fighting!",
-                "goSleepAt": "You go to sleep at $p.",
-                "goSleep2": "You go to sleep on $p.",
-                "goSleep3": "You go to sleep in $p."
+                "isAsleep": "You are already sleeping.",
+                "default": "You go to sleep.",
+                "targetMissing": "You don't see that here.",
+                "invalidTarget": "You can't sleep on that!",
+                "isFighting": "You are already fighting!",
+                "at": "You go to sleep at %t.",
+                "on": "You go to sleep on %t.",
+                "in": "You go to sleep in %t."
             },
             "toRoom": {
-                "goesSleep": "$n goes to sleep.",
-                "goesSleepAt": "$n goes to sleep at $p.",
-                "goesSleep2": "$n goes to sleep on $p.",
-                "goesSleep3": "$n goes to sleep in $p."
+                "default": "%c goes to sleep.",
+                "at": "%c goes to sleep at %t.",
+                "on": "%c goes to sleep on %t.",
+                "in": "%c goes to sleep in %t."
             },
             "toVictim": {}
         }
@@ -4582,25 +4530,33 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "stealWhatFromWhom": "Steal what from whom?",
-                "theyArenT": "They aren't here.",
-                "sPointless": "That's pointless.",
-                "oops": "Oops.",
-                "nowThief": "*** You are now a THIEF!! ***",
-                "couldnTGetAny": "You couldn't get any coins.",
-                "canTFindIt": "You can't find it.",
-                "canTPryIt": "You can't pry it away.",
-                "handsFull": "You have your hands full.",
-                "canTCarryMuch": "You can't carry that much weight.",
-                "gotIt": "Got it!",
-                "lousyThief": "%s is a lousy thief!",
-                "pocket": "You pocket $p."
+                "noArgument": "Steal what from whom?",
+                "targetMissing": "They aren't here.",
+                "inventoryItemMissing": "You can't find it.",
+                "noDrop": "You can't pry it away.",
+                "inventoryFull": "You have your hands full.",
+                "encumbered": "You can't carry that much weight.",
+                "targetSelf": "That's pointless.",
+                "noKillStealing": "Kill stealing is not permitted.\\n\\rYou'd better not -- you might get hit.",
+                "failed": "Oops.",
+                "failedCoins": "You couldn't get any coins.",
+                "thief": "*** You are now a THIEF!! ***",
+                "gold": "Bingo!  You got %d gold coins.",
+                "silver": "Bingo!  You got %d silver coins.",
+                "coins": "Bingo!  You got %d silver and %d gold coins.",
+                "item": "You pocket %t."
             },
             "toRoom": {
-                "triedStealFrom": "$n tried to steal from $N."
+                "failed": "%c tried to steal from %t.",
+                "failMessageOne": "%c is a lousy thief!",
+                "failMessageTwo": "%c couldn't rob their way out of a paper bag!",
+                "failMessageThree": "Keep your hands out of there, %c!"
             },
             "toVictim": {
-                "triedStealFrom": "$n tried to steal from you."
+                "failed": "%c tried to steal from you."
+            },
+            "toWiznet": {
+                "default": "%c tried to steal from %t."
             }
         }
     },
@@ -4621,21 +4577,19 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "canTDo": "You can't do that here.",
-                "donTEnoughTraining": "You don't have enough training sessions.",
-                "donTEnoughTraining2": "You don't have enough training sessions.",
-                "donTEnoughTraining3": "You don't have enough training sessions.",
+                "noTrainer": "You can't do that here.",
+                "insufficientSessions": "You don't have enough training sessions.",
                 "trainingSessions": "You have %d training sessions.",
-                "nothingLeftTrain": "You have nothing left to train, you $T!",
+                "nothingLeftTrain": "You have nothing left to train, you %s!",
                 "durabilityIncreases": "Your durability increases!",
                 "powerIncreases": "Your power increases!",
-                "alreadyAtMaximum": "Your $T is already at maximum.",
-                "increases": "Your $T increases!"
+                "alreadyAtMaximum": "Your %t is already at maximum.",
+                "increases": "Your %t increases!"
             },
             "toRoom": {
-                "sDurabilityIncreases": "$n's durability increases!",
-                "sPowerIncreases": "$n's power increases!",
-                "sIncreases": "$n's $T increases!"
+                "durabilityIncreases": "%c's durability increases!",
+                "powerIncreases": "%c's power increases!",
+                "increases": "%c's %t increases!"
             },
             "toVictim": {}
         }
@@ -4680,10 +4634,10 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "asleepYourself": "You are asleep yourself!",
-                "theyArenT": "They aren't here.",
-                "alreadyAwake": "$N is already awake.",
-                "canTWake": "You can't wake $M!"
+                "isAsleep": "You are asleep yourself!",
+                "targetMissing": "They aren't here.",
+                "targetAwake": "%t is already awake.",
+                "affectSleep": "You can't wake %t!"
             },
             "toRoom": {},
             "toVictim": {}
@@ -4706,11 +4660,6 @@
         "maxArguments": 1,
         "payload": {
             "toChar": {
-                "playersNear": "Players near you:",
-                "none": "None",
-                "28s": "%-28s %s",
-                "28s2": "%-28s %s",
-                "didnTFindAny": "You didn't find any $T."
             },
             "toRoom": {},
             "toVictim": {}
@@ -4733,16 +4682,20 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "syntaxAdvanceCharLevel": "Syntax: advance <char> <level>.",
-                "playerNot": "That player is not here.",
-                "notNpcS": "Not on NPC's.",
-                "limitedTrustLevel": "Limited to your trust level.",
-                "loweringPlayerSLevel": "Lowering a player's level!",
-                "raisingPlayerSLevel": "Raising a player's level!",
-                "levelMust1": "Level must be 1 to %d."
+                "syntax": "Syntax: advance <char> <level>.",
+                "targetMissing": "That player is not here.",
+                "isNPC": "Not on NPCs.",
+                "trustLimited": "Limited to your trust level.",
+                "lower": "Lowering a player's level!",
+                "raise": "Raising a player's level!",
+                "levelInvalid": "Level must be 1 to %d."
             },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {
+                "lower": "**** OOOOHHHHHHHHHH  NNNNOOOO ****",
+                "raise": "**** OOOOHHHHHHHHHH  YYYYEEEESSS ****",
+                "newLevel": "You are now level %d."
+            }
         }
     },
     {
@@ -4783,10 +4736,10 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "syntaxTrustCharLevel": "Syntax: trust <char> <level>.",
-                "playerNot": "That player is not here.",
-                "limitedTrust": "Limited to your trust.",
-                "levelMust0Reset": "Level must be 0 (reset) or 1 to %d."
+                "syntax": "Syntax: trust <char> <level>.",
+                "targetMissing": "That player is not here.",
+                "trustLimited": "Limited to your trust.",
+                "invalidLevel": "Level must be 0 (reset) or 1 to %d."
             },
             "toRoom": {},
             "toVictim": {}
@@ -5494,40 +5447,18 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "roomRestored": "Room restored.",
-                "allActivePlayersRestored": "All active players restored.",
-                "theyArenT": "They aren't here.",
+                "room": "Room restored.",
+                "activePlayers": "All active players restored.",
+                "targetMissing": "They aren't here.",
                 "default": "Ok."
             },
             "toRoom": {},
             "toVictim": {
-                "restored": "$n has restored you.",
-                "restored2": "$n has restored you.",
-                "restored3": "$n has restored you."
-            }
-        }
-    },
-    {
-        "_id": {
-            "$oid": "69bc3df3af6857ce485bba44"
-        },
-        "name": "sla",
-        "role": "immortal",
-        "lambdas": [
-            "lambda ctx: ctx.player_handler().do_wiz_command(ctx.character, ctx)"
-        ],
-        "enabled": true,
-        "position": "POS_DEAD",
-        "level": "L3",
-        "log": "LOG_NORMAL",
-        "pipeline": false,
-        "maxArguments": 0,
-        "payload": {
-            "toChar": {
-                "ifWantSlaySpell": "If you want to SLAY, spell it out."
+                "default": "%c has restored you."
             },
-            "toRoom": {},
-            "toVictim": {}
+            "toWiznet": {
+                "default": "%c has restored %s."
+            }
         }
     },
     {
@@ -5547,17 +5478,17 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "slayWhom": "Slay whom?",
-                "theyArenT": "They aren't here.",
-                "suicideMortalSin": "Suicide is a mortal sin.",
+                "noArgument": "Slay whom?",
+                "targetMissing": "They aren't here.",
+                "targetSelf": "Suicide is a mortal sin.",
                 "failed": "You failed.",
-                "slayColdBlood": "You slay $M in cold blood!"
+                "default": "You slay %t in cold blood!"
             },
             "toRoom": {
-                "slaysColdBlood": "$n slays $N in cold blood!"
+                "default": "%c slays %t in cold blood!"
             },
             "toVictim": {
-                "slaysColdBlood": "$n slays you in cold blood!"
+                "default": "%c slays you in cold blood!"
             }
         }
     },
