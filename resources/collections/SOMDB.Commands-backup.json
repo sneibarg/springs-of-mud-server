@@ -25,7 +25,9 @@
             "toRoom": {
                 "default": "%c has left the game."
             },
-            "toVictim": {},
+            "toVictim": {
+
+            },
             "toWiznet": {
                 "default": "%c rejoins the real world."
             }
@@ -111,10 +113,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "exceedsMaxLevel": "Only two level numbers allowed.",
-                "invalidRace": "That's not a valid race, class, or clan."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -136,9 +135,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "carrying": "You are carrying:"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -160,10 +157,7 @@
         "pipeline": false,
         "maxArguments": 1,
         "payload": {
-            "toChar": {
-                "noArgument": "Examine what?",
-                "targetMissing": "Odd...there's no coins in the pile."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -286,25 +280,7 @@
         "pipeline": true,
         "maxArguments": 2,
         "payload": {
-            "toChar": {
-                "stunned": "You can't see anything but stars!",
-                "sleeping": "You can't see anything, you're sleeping!",
-                "dark": "It is pitch black ... ",
-                "noInTarget": "Look in what?",
-                "targetMissing": "You do not see that here.",
-                "notContainer": "That is not a container.",
-                "isEmpty": "It is empty.",
-                "isClosed": "It is closed.",
-                "invalidDirection": "Nothing special there.",
-                "nonDescriptDirection": "Nothing special there.",,
-                "hasHolylight": " [Room %d]",
-                "partiallyFilled": "It's %a-filled with a %l liquid.",
-                "singleTarget": "You only see one %t here.",
-                "multipleTargets": "You only see %a of those here.",
-                "holds": "%t holds:",
-                "closed": "The %d is closed.",
-                "open": "The %d is open."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -373,11 +349,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noArgument": "At where what?",
-                "noSuchLocation": "No such location.",
-                "privateRoom": "That room is private right now."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -399,25 +371,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noArgument": "Cast which what where?",
-                "spellNotLearned": "You don't know any spells of that name.",
-                "minimumPosition": "You can't concentrate enough.",
-                "noTarget": "Cast the spell on whom?",
-                "targetMissing": "They aren't here.",
-                "targetSelf": "You can't do that to yourself.",
-                "isSafe": "Not on that target.",
-                "isFollower": "You can't do that on your own follower.",
-                "invalidTarget": "You cannot cast this spell on another.",
-                "noInventoryTarget": "What should the spell be cast upon?",
-                "notCarrying": "You are not carrying that.",
-                "missingTarget": "Cast the spell on whom or what?",
-                "isSafeSpell": "Not on that target.",
-                "canTDoOwn2": "You can't do that on your own follower.",
-                "targetNotVisible": "You don't see that here.",
-                "insufficientMana": "You don't have enough mana.",
-                "skillFailure": "You lost your concentration."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -469,31 +423,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "buyWhat": "Buy what?",
-                "notPetShop": "Sorry, you can't buy that here.",
-                "alreadyOwnPet": "You already own a pet.",
-                "insufficientFunds": "You can't afford it.",
-                "insufficientLevel": "You're not powerful enough to master this pet.",
-                "enjoyPet": "Enjoy your pet.",
-                "quantityExceedsAllowed": "You can't carry that many items.",
-                "weightExceedsAllowed": "You can't carry that much weight.",
-                "haggleSuccess": "You haggle the price down to %q coins.",
-                "haggleWith": "You haggle with %v.",
-                "default": "You buy %t for %q silver."
-            },
-            "toRoom": {
-                "boughtPet": "%c bought %v as a pet.",
-                "boughtItem": "%c buys %t."
-            },
-            "toVictim": {
-                "requestedQuantityExcessive": "$n tells you 'Get real!",
-                "noSuchItem": "$n tells you 'I don't sell that -- try 'list''.",
-                "availableQuantityInsufficient": "$n tells you 'I don't have that many in stock.",
-                "requestedQuantityExceedsFunds": "$n tells you 'You can't afford to buy that many.",
-                "tooExpensive": "$n tells you 'You can't afford to buy $p'.",
-                "insufficientLevel": "$n tells you 'You can't use $p yet'."
-            }
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
         }
     },
     {
@@ -513,16 +445,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noSnoop": "You are immune to snooping.",
-                "noScrollBuffering": "Scroll buffering is off.",
-                "noShout": "You cannot shout.",
-                "noTell": "You cannot use tell.",
-                "noChannels": "You cannot use channels.",
-                "noEmotions": "You cannot show emotions.",
-                "scrollBuffer": "You display %d lines of scroll.",
-                "currentPrompt": "Your current prompt is: %s"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -565,17 +488,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noArgument": "Get what?",
-                "targetMissing": "I see nothing here.",
-                "cannot": "You can't do that.",
-                "notContainer": "That's not a container.",
-                "isNewbiePit": "Don't be so greedy!",
-                "targetNotVisible": "I see no %t here.",
-                "closed": "The $d is closed.",
-                "invalidContainerTarget": "I see nothing like that in the %t.",
-                "containerEmpty": "I see nothing in the %t."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -596,18 +509,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noArgument": "Goto where?",
-                "noSuchLocation": "No such location.",
-                "privateRoom": "That room is private right now."
-            },
+            "toChar": {},
             "toRoom": {},
-            "toVictim": {
-                "default": "$t",
-                "leavesSwirlingMist": "$n leaves in a swirling mist.",
-                "default2": "$t",
-                "appearsSwirlingMist": "$n appears in a swirling mist."
-            }
+            "toVictim": {}
         }
     },
     {
@@ -627,23 +531,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "targetMissing": "They aren't here.",
-                "isFollower": "But you are following someone else!",
-                "isCharmed": "You like your master too much to leave %m",
-                "targetIsNotFOllower": "%t isn't following you.",
-                "cannotRemoveCharmed": "You can't remove charmed mobs from your group.",
-                "removal": "You remove %t from your group.",
-                "addition": "%t joins your group."
-            },
-            "toRoom": {
-                "removal": "%m removes %t from their group.",
-                "addition": "%t joins %m's group."
-            },
-            "toVictim": {
-                "removal": "%m removes you from the group.",
-                "addition": "You join %m's group."
-            }
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
         }
     },
     {
@@ -663,21 +553,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "syntax": "Syntax: guild <char> <cln name>",
-                "targetMissing": "They aren't playing.",
-                "removal": "They are now clanless.",
-                "addIndependent": "They are now a %s.",
-                "addClanMember": "They are now a member of clan %g.",
-                "noSuchClan": "No such clan exists.",
-                "now": "You are now a %s."
-            },
+            "toChar": {},
             "toRoom": {},
-            "toVictim": {
-                "removal": "You are now a member of no clan!",
-                "addIndependent": "You are now independent.",
-                "addClanMember": "You are now a member of clan %g."
-            }
+            "toVictim": {}
         }
     },
     {
@@ -697,15 +575,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "killWhom": "Kill whom?",
-                "theyArenT": "They aren't here.",
-                "mustMurderPlayer": "You must MURDER a player.",
-                "hitYourselfOuch": "You hit yourself.  Ouch!",
-                "killStealingNotPermitted": "Kill stealing is not permitted.",
-                "doBestCan": "You do the best you can!",
-                "belovedMaster": "$N is your beloved master."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -817,16 +687,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "willNotDone": "That will NOT be done.",
-                "orderWhomDoWhat": "Order whom to do what?",
-                "feelLikeTakingNot": "You feel like taking, not giving, orders.",
-                "theyArenT": "They aren't here.",
-                "ayeAyeRightAway": "Aye aye, right away!",
-                "doItYourself": "Do it yourself!",
-                "default": "Ok.",
-                "noFollowers": "You have no followers here."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -848,23 +709,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "default": "",
-                "default2": "",
-                "dreamsWhat": "In your dreams, or what?",
-                "canTDo": "You can't do that here.",
-                "noPracticeSessionsLeft": "You have no practice sessions left.",
-                "canTPractice": "You can't practice that.",
-                "18s3d": "%-18s %3d%%  ",
-                "practiceSessionsLeft": "You have %d practice sessions left.",
-                "alreadyLearnedAt": "You are already learned at %s.",
-                "practice": "You practice $T.",
-                "nowLearnedAt": "You are now learned at $T."
-            },
-            "toRoom": {
-                "practices": "$n practices $T.",
-                "nowLearnedAt": "$n is now learned at $T."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -885,36 +731,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "alreadyFighting": "You are already fighting!",
-                "donTSee": "You don't see that here.",
-                "canTRest": "You can't rest on that.",
-                "canTWakeUp": "You can't wake up!",
-                "wakeUpStartResting": "You wake up and start resting.",
-                "alreadyResting": "You are already resting.",
-                "rest": "You rest.",
-                "rest2": "You rest.",
-                "sitDownAtRest": "You sit down at $p and rest.",
-                "sitRest": "You sit on $p and rest.",
-                "rest3": "You rest in $p.",
-                "restAt": "You rest at $p.",
-                "rest4": "You rest on $p.",
-                "rest5": "You rest in $p."
-            },
-            "toRoom": {
-                "wakesUpStartsResting": "$n wakes up and starts resting.",
-                "wakesUpRestsAt": "$n wakes up and rests at $p.",
-                "wakesUpRests": "$n wakes up and rests on $p.",
-                "wakesUpRests2": "$n wakes up and rests in $p.",
-                "sitsDownRests": "$n sits down and rests.",
-                "sitsDownAtRests": "$n sits down at $p and rests.",
-                "sitsRests": "$n sits on $p and rests.",
-                "rests": "$n rests in $p.",
-                "rests2": "$n rests.",
-                "restsAt": "$n rests at $p.",
-                "rests3": "$n rests on $p.",
-                "rests4": "$n rests in $p."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -934,33 +752,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "maybeShouldFinishFight": "Maybe you should finish this fight first?",
-                "donTSee": "You don't see that here.",
-                "canTSit": "You can't sit on that.",
-                "canTWakeUp": "You can't wake up!",
-                "wakeSitUp": "You wake and sit up.",
-                "stopResting": "You stop resting.",
-                "alreadySittingDown": "You are already sitting down.",
-                "sitDown": "You sit down.",
-                "sitAt": "You sit at $p.",
-                "sit": "You sit on $p.",
-                "sitDownAt": "You sit down at $p.",
-                "sit2": "You sit on $p.",
-                "sitDown2": "You sit down in $p."
-            },
-            "toRoom": {
-                "wakesSitsUp": "$n wakes and sits up.",
-                "wakesSitsAt": "$n wakes and sits at $p.",
-                "wakesSitsAt2": "$n wakes and sits at $p.",
-                "wakesSits": "$n wakes and sits in $p.",
-                "sitsAt": "$n sits at $p.",
-                "sits": "$n sits on $p.",
-                "sitsDownGround": "$n sits down on the ground.",
-                "sitsDownAt": "$n sits down at $p.",
-                "sits2": "$n sits on $p.",
-                "sitsDown": "$n sits down in $p."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -1010,29 +803,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "maybeShouldFinishFighting": "Maybe you should finish fighting first?",
-                "donTSee": "You don't see that here.",
-                "canTSeemFind": "You can't seem to find a place to stand.",
-                "canTWakeUp": "You can't wake up!",
-                "wakeStandUp": "You wake and stand up.",
-                "standUp": "You stand up.",
-                "alreadyStanding": "You are already standing.",
-                "alreadyFighting": "You are already fighting!",
-                "standAt": "You stand at $p.",
-                "stand": "You stand on $p.",
-                "stand2": "You stand in $p."
-            },
-            "toRoom": {
-                "wakesStandsUp": "$n wakes and stands up.",
-                "wakesStandsAt": "$n wakes and stands at $p.",
-                "wakesStands": "$n wakes and stands on $p.",
-                "wakesStands2": "$n wakes and stands in $p.",
-                "standsUp": "$n stands up.",
-                "standsAt": "$n stands at $p.",
-                "stands": "$n stands on $p.",
-                "stands2": "$n stands on $p."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -1053,31 +825,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noArgument": "Unlock what?",
-                "canTDo": "You can't do that.",
-                "itSNotClosed": "It's not closed.",
-                "itCanTUnlocked": "It can't be unlocked.",
-                "missingKey": "You lack the key.",
-                "itSAlreadyUnlocked": "It's already unlocked.",
-                "sNotContainer": "That's not a container.",
-                "itSNotClosed2": "It's not closed.",
-                "itCanTUnlocked2": "It can't be unlocked.",
-                "missingKey2": "You lack the key.",
-                "itSAlreadyUnlocked2": "It's already unlocked.",
-                "itSNotClosed3": "It's not closed.",
-                "itCanTUnlocked3": "It can't be unlocked.",
-                "missingKey3": "You lack the key.",
-                "itSAlreadyUnlocked3": "It's already unlocked.",
-                "click": "*Click*",
-                "unlock": "You unlock $p.",
-                "unlock2": "You unlock $p."
-            },
-            "toRoom": {
-                "unlocks": "$n unlocks $p.",
-                "unlocks2": "$n unlocks $p.",
-                "unlocks3": "$n unlocks the $d."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -1098,10 +847,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "wearWieldHoldWhat": "Wear, wield, or hold what?",
-                "doNotItem": "You do not have that item."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1123,11 +869,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "default": "",
-                "default2": "",
-                "12s": "%-12s"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1149,13 +891,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "affectedByFollowingSpells": "You are affected by the following spells:",
-                "default": "",
-                "notAffectedByAny": "You are not affected by any spells.",
-                "modifiesBy": ": modifies %s by %d ",
-                "permanently": "permanently"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1175,10 +911,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noArgumentUsedWith": "No argument is used with this command.",
-                "39s39s": "%-39s%-39s"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1199,9 +932,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "bugLogged": "Bug logged."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1221,43 +952,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "invalidNumber": "Read which number?",
-                "noNotes": "There are no notes for you.",
-                "noIdeas": "There are no ideas for you.",
-                "noPenalties": "There are no penalties for you.",
-                "noNews": "There is no news for you.",
-                "noChanges": "There are no changes for you.",
-                "noteRemoveWhichNumber": "Note remove which number?",
-                "default": "Ok.",
-                "noteDeleteWhichNumber": "Note delete which number?",
-                "alreadyHaveDifferentNote": "You already have a different note in progress.",
-                "tooLong": "Note too long.",
-                "ok3": "Ok.",
-                "alreadyHaveDifferentNote2": "You already have a different note in progress.",
-                "nothingToRemove": "No lines left to remove.",
-                "alreadyHaveDifferentNote3": "You already have a different note in progress.",
-                "ok4": "Ok.",
-                "alreadyHaveDifferentNote4": "You already have a different note in progress.",
-                "ok5": "Ok.",
-                "ok6": "Ok.",
-                "noDraft": "You have no note in progress.",
-                "arenTWorkingThat": "You aren't working on that kind of note.",
-                "noDraft2": "You have no note in progress.",
-                "arenTWorkingThat2": "You aren't working on that kind of note.",
-                "missingRecipient": "You need to provide a recipient (name, all, or immortal).",
-                "missingSubject": "You need to provide a subject.",
-                "canTDoThat": "You can't do that.",
-                "3d": "[%3d] %s: %s%sTo: %s",
-                "haveNoUnread": "You have no unread %s.",
-                "3d2": "[%3d] %s: %s%sTo: %s",
-                "arenTThatMany": "There aren't that many %s.",
-                "3d3": "[%3d%s] %s: %s",
-                "arenTThatMany2": "There aren't that many %s.",
-                "arenTThatMany3": "There aren't that many %s.",
-                "arenTHighEnough": "You aren't high enough level to write %s.",
-                "default": "%s: %sTo: %s"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1276,11 +971,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "default": "",
-                "default2": "",
-                "12s": "%-12s"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1302,12 +993,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "compareWhatWhat": "Compare what to what?",
-                "doNotItem": "You do not have that item.",
-                "arenTWearingAnything": "You aren't wearing anything comparable.",
-                "doNotItem2": "You do not have that item."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1329,11 +1015,7 @@
         "pipeline": false,
         "maxArguments": 1,
         "payload": {
-            "toChar": {
-                "considerKillingWhom": "Consider killing whom?",
-                "theyReNot": "They're not here.",
-                "donTEvenThink": "Don't even think about it."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1355,9 +1037,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "charactersMostSoFar": "There are %d characters on, the most so far today."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1377,9 +1057,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noHelpWord": "No help on that word."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1401,12 +1079,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "using": "You are using:",
-                "default": "",
-                "something": "something.",
-                "nothing": "Nothing."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1427,9 +1100,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noHelpWord": "No help on that word."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1448,8 +1119,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1468,8 +1138,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1490,9 +1159,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noSuchHelp": "No help on that word."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1511,8 +1178,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1533,25 +1199,7 @@
         "pipeline": false,
         "maxArguments": 1,
         "payload": {
-            "toChar": {
-                "canTSeeAnything": "You can't see anything but stars!",
-                "canTSeeAnything2": "You can't see anything, you're sleeping!",
-                "itPitchBlack": "It is pitch black ... ",
-                "lookWhat": "Look in what?",
-                "doNotSee": "You do not see that here.",
-                "notContainer": "That is not a container.",
-                "itEmpty": "It is empty.",
-                "itClosed": "It is closed.",
-                "doNotSee2": "You do not see that here.",
-                "nothingSpecial": "Nothing special there.",
-                "nothingSpecial2": "Nothing special there.",
-                "room": " [Room %d]",
-                "itSFilledWith": "It's %sfilled with  a %s liquid.",
-                "onlySeeOne": "You only see one %s here.",
-                "holds": "$p holds:",
-                "closed": "The $d is closed.",
-                "open": "The $d is open."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1573,8 +1221,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1595,9 +1242,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noHelpWord": "No help on that word."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1619,8 +1264,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1639,8 +1283,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1661,8 +1304,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1683,8 +1325,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1703,8 +1344,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1725,9 +1365,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noSuchHelp": "No help on that word."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1748,8 +1386,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1770,8 +1407,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1792,8 +1428,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1814,10 +1449,7 @@
         "pipeline": false,
         "maxArguments": 1,
         "payload": {
-            "toChar": {
-                "noArgument": "You must provide a name.",
-                "targetMissing": "No one of that name is playing."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1836,8 +1468,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1858,8 +1489,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1878,8 +1508,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1898,18 +1527,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noAliasesDefined": "You have no aliases defined.",
-                "currentAliases": "Your current aliases are:",
-                "sorryWordReserved": "Sorry, that word is reserved.",
-                "aliasNotDefined": "That alias is not defined.",
-                "shallNotDone": "That shall not be done!",
-                "sorryReachedAliasLimit": "Sorry, you have reached the alias limit.",
-                "default": "    %s:  %s",
-                "aliases": "%s aliases to '%s'.",
-                "nowRealiased": "%s is now realiased to '%s'.",
-                "nowAliased": "%s is now aliased to '%s'."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1930,9 +1548,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1953,10 +1569,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "disable": "Autoassist removed.",
-                "enable": "You will now assist when needed."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1977,10 +1590,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "disable": "Exits will no longer be displayed.",
-                "enable": "Exits will now be displayed."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2001,10 +1611,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "disable": "Autogold removed.",
-                "enable": "Automatic gold looting set."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2025,10 +1632,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "disable": "Autolooting removed.",
-                "enable": "Automatic corpse looting set."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2049,10 +1653,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "disable": "Autosacrificing removed.",
-                "enable": "Automatic corpse sacrificing set."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2073,10 +1674,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "disable": "Autosplitting removed.",
-                "enable": "Automatic gold splitting set."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2097,10 +1695,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "disable": "Full descriptions activated.",
-                "enable": "Short descriptions activated."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2121,10 +1716,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "disable": "Long inventory selected.",
-                "enable": "Combined inventory selected."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2145,10 +1737,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "disable": "Compact mode removed.",
-                "enable": "Compact mode set."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2170,8 +1759,44 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
+        }
+    },
+    {
+        "_id": {
+            "$oid": "69bc3df3af6857ce485bb9ca"
+        },
+        "name": "delet",
+        "role": "player",
+        "lambdas": [],
+        "enabled": true,
+        "position": "POS_DEAD",
+        "level": 0,
+        "log": "LOG_ALWAYS",
+        "pipeline": false,
+        "maxArguments": 0,
+        "payload": {
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
+        }
+    },
+    {
+        "_id": {
+            "$oid": "69bc3df3af6857ce485bb9cb"
+        },
+        "name": "delete",
+        "role": "player",
+        "enabled": true,
+        "position": "STANDING",
+        "level": 0,
+        "log": "LOG_ALWAYS",
+        "pipeline": false,
+        "maxArguments": 0,
+        "payload": {
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2192,10 +1817,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "disable": "You now accept followers.",
-                "enable": "You no longer accept followers."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2216,10 +1838,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "enable": "Your corpse is now safe from thieves.",
-                "disable": "Your corpse may now be looted."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2240,10 +1859,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "disable": "You are no longer immune to summon.",
-                "enable": "You are now immune to summoning."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2262,10 +1878,26 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "graduate": "Find it yourself!",
-                "default": "You have been equipped by Mota."
-            },
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
+        }
+    },
+    {
+        "_id": {
+            "$oid": "69bc3df3af6857ce485bb9d0"
+        },
+        "name": "password",
+        "role": "player",
+        "lambdas": [],
+        "enabled": true,
+        "position": "POS_DEAD",
+        "level": 0,
+        "log": "LOG_NEVER",
+        "pipeline": false,
+        "maxArguments": 0,
+        "payload": {
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2286,11 +1918,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "disable": "You will no longer see prompts.",
-                "enable": "You will now see prompts.",
-                "set": "Prompt set to %s"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2311,14 +1939,7 @@
         "pipeline": false,
         "maxArguments": 1,
         "payload": {
-            "toChar": {
-                "disabled": "You do not page long messages.",
-                "noArgument": "You must provide a number.",
-                "disable": "Paging disabled.",
-                "quantityExcessive": "You must provide a reasonable number.",
-                "default": "You currently display %d lines per page.",
-                "set": "Scroll set to %n lines."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2339,10 +1960,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noArgument": "Change your title to what?",
-                "default": "Ok."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2361,11 +1979,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noArgument": "Unalias what?",
-                "remove": "Alias removed.",
-                "noSuchAlias": "No alias of that name to remove."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2386,11 +2000,7 @@
         "pipeline": false,
         "maxArguments": 1,
         "payload": {
-            "toChar": {
-                "invalidWimpy": "Your courage exceeds your wisdom.",
-                "exceedsHalfMaxHit": "Such cowardice ill becomes you.",
-                "set": "Wimpy set to %d hit points."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2516,13 +2126,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "canTShowEmotions": "You can't show your emotions.",
-                "emoteWhat": "Emote what?",
-                "default": "$n $t",
-                "default2": "$N $t",
-                "default3": "$N $t"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2543,13 +2147,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "gossipChannelNow": "Gossip channel is now ON.",
-                "gossipChannelNowOff": "Gossip channel is now OFF.",
-                "quietMode": "You must turn off quiet mode first.",
-                "noChannels": "The gods have revoked your channel priviliges.",
-                "gossip": "You gossip '%s'"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2600,14 +2198,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noEmote": "You can't show your emotions.",
-                "noArgument": "Emote what?",
-                "default": "%c %e"
-            },
-            "toRoom": {
-                "default": "%c %e"
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -2657,10 +2249,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noArgument": "Tell your group what?",
-                "messageDidnTGet": "Your message didn't get through!"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2681,10 +2270,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noArgument": "Tell your group what?",
-                "messageDidnTGet": "Your message didn't get through!"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2703,44 +2289,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "invalidNumber": "Read which number?",
-                "noNotes": "There are no notes for you.",
-                "noIdeas": "There are no ideas for you.",
-                "noPenalties": "There are no penalties for you.",
-                "noNews": "There is no news for you.",
-                "noChanges": "There are no changes for you.",
-                "noteRemoveWhichNumber": "Note remove which number?",
-                "default": "Ok.",
-                "noteDeleteWhichNumber": "Note delete which number?",
-                "ok2": "Ok.",
-                "alreadyHaveDifferentNote": "You already have a different note in progress.",
-                "tooLong": "Note too long.",
-                "ok3": "Ok.",
-                "alreadyHaveDifferentNote2": "You already have a different note in progress.",
-                "nothingToRemove": "No lines left to remove.",
-                "alreadyHaveDifferentNote3": "You already have a different note in progress.",
-                "ok4": "Ok.",
-                "alreadyHaveDifferentNote4": "You already have a different note in progress.",
-                "ok5": "Ok.",
-                "ok6": "Ok.",
-                "noDraft": "You have no note in progress.",
-                "arenTWorkingThat": "You aren't working on that kind of note.",
-                "noDraft2": "You have no note in progress.",
-                "arenTWorkingThat2": "You aren't working on that kind of note.",
-                "missingRecipient": "You need to provide a recipient (name, all, or immortal).",
-                "missingSubject": "You need to provide a subject.",
-                "canTDoThat": "You can't do that.",
-                "3d": "[%3d] %s: %s%sTo: %s",
-                "haveNoUnread": "You have no unread %s.",
-                "3d2": "[%3d] %s: %s%sTo: %s",
-                "arenTThatMany": "There aren't that many %s.",
-                "3d3": "[%3d%s] %s: %s",
-                "arenTThatMany2": "There aren't that many %s.",
-                "arenTThatMany3": "There aren't that many %s.",
-                "arenTHighEnough": "You aren't high enough level to write %s.",
-                "default": "%s: %sTo: %s"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2761,146 +2310,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "variant01": "You sizzle with energy.",
-                "variant02": "You feel very holy.",
-                "variant03": "You perform a small card trick.",
-                "variant04": "You show your bulging muscles.",
-                "variant05": "You turn into a butterfly, then return to your normal shape.",
-                "variant06": "You nonchalantly turn wine into water.",
-                "variant07": "You wiggle your ears alternately.",
-                "variant08": "You crack nuts between your fingers.",
-                "variant09": "Blue sparks fly from your fingers.",
-                "variant10": "A halo appears over your head.",
-                "variant11": "You nimbly tie yourself into a knot.",
-                "variant12": "You grizzle your teeth and look mean.",
-                "variant13": "Little red lights dance in your eyes.",
-                "variant14": "You recite words of wisdom.",
-                "variant15": "You juggle with daggers, apples, and eyeballs.",
-                "variant16": "You hit your head, and your eyes roll.",
-                "variant17": "A slimy green monster appears before you and bows.",
-                "variant18": "Deep in prayer, you levitate.",
-                "variant19": "You steal the underwear off every person in the room.",
-                "variant20": "Crunch, crunch -- you munch a bottle.",
-                "variant21": "You turn everybody into a little pink elephant.",
-                "variant22": "An angel consults you.",
-                "variant23": "The dice roll ... and you win again.",
-                "variant24": "... 98, 99, 100 ... you do pushups.",
-                "variant25": "A small ball of light dances on your fingertips.",
-                "variant26": "Your body glows with an unearthly light.",
-                "variant27": "You count the money in everyone's pockets.",
-                "variant28": "Arnold Schwarzenegger admires your physique.",
-                "variant29": "Smoke and fumes leak from your nostrils.",
-                "variant30": "A spot light hits you.",
-                "variant31": "You balance a pocket knife on your tongue.",
-                "variant32": "Watch your feet, you are juggling granite boulders.",
-                "variant33": "The light flickers as you rap in magical languages.",
-                "variant34": "Everyone levitates as you pray.",
-                "variant35": "You produce a coin from everyone's ear.",
-                "variant36": "Oomph!  You squeeze water out of a granite boulder.",
-                "variant37": "Your head disappears.",
-                "variant38": "A cool breeze refreshes you.",
-                "variant39": "You step behind your shadow.",
-                "variant40": "You pick your teeth with a spear.",
-                "variant41": "A fire elemental singes your hair.",
-                "variant42": "The sun pierces through the clouds to illuminate you.",
-                "variant43": "Your eyes dance with greed.",
-                "variant44": "Everyone is swept off their foot by your hug.",
-                "variant45": "The sky changes color to match your eyes.",
-                "variant46": "The ocean parts before you.",
-                "variant47": "You deftly steal everyone's weapon.",
-                "variant48": "Your karate chop splits a tree.",
-                "variant49": "The stones dance to your command.",
-                "variant50": "A thunder cloud kneels to you.",
-                "variant51": "The Grey Mouser buys you a beer.",
-                "variant52": "A strap of your armor breaks over your mighty thews.",
-                "variant53": "The heavens and grass change colour as you smile.",
-                "variant54": "The Burning Man speaks to you.",
-                "variant55": "Everyone's pocket explodes with your fireworks.",
-                "variant56": "A boulder cracks at your frown.",
-                "variant57": "Everyone's clothes are transparent, and you are laughing.",
-                "variant58": "An eye in a pyramid winks at you.",
-                "variant59": "Everyone discovers your dagger a centimeter from their eye.",
-                "variant60": "Mercenaries arrive to do your bidding.",
-                "variant61": "A black hole swallows you.",
-                "variant62": "Valentine Michael Smith offers you a glass of water.",
-                "variant63": "Where did you go?",
-                "variant64": "Four matched Percherons bring in your chariot.",
-                "variant65": "The world shimmers in time with your whistling.",
-                "variant66": "The great god Mota gives you a staff.",
-                "variant67": "Click.",
-                "variant68": "Atlas asks you to relieve him."
-            },
-            "toRoom": {
-                "variant01": "$n sizzles with energy.",
-                "variant02": "$n looks very holy.",
-                "variant03": "$n performs a small card trick.",
-                "variant04": "$n shows $s bulging muscles.",
-                "variant05": "$n turns into a butterfly, then returns to $s normal shape.",
-                "variant06": "$n nonchalantly turns wine into water.",
-                "variant07": "$n wiggles $s ears alternately.",
-                "variant08": "$n cracks nuts between $s fingers.",
-                "variant09": "Blue sparks fly from $n's fingers.",
-                "variant10": "A halo appears over $n's head.",
-                "variant11": "$n nimbly ties $mself into a knot.",
-                "variant12": "$n grizzles $s teeth and looks mean.",
-                "variant13": "Little red lights dance in $n's eyes.",
-                "variant14": "$n recites words of wisdom.",
-                "variant15": "$n juggles with daggers, apples, and eyeballs.",
-                "variant16": "$n hits $s head, and $s eyes roll.",
-                "variant17": "A slimy green monster appears before $n and bows.",
-                "variant18": "Deep in prayer, $n levitates.",
-                "variant19": "Your underwear is gone!  $n stole it!",
-                "variant20": "Crunch, crunch -- $n munches a bottle.",
-                "variant21": "You are turned into a little pink elephant by $n.",
-                "variant22": "An angel consults $n.",
-                "variant23": "The dice roll ... and $n wins again.",
-                "variant24": "... 98, 99, 100 ... $n does pushups.",
-                "variant25": "A small ball of light dances on $n's fingertips.",
-                "variant26": "$n's body glows with an unearthly light.",
-                "variant27": "Check your money, $n is counting it.",
-                "variant28": "Arnold Schwarzenegger admires $n's physique.",
-                "variant29": "Smoke and fumes leak from $n's nostrils.",
-                "variant30": "A spot light hits $n.",
-                "variant31": "$n balances a pocket knife on your tongue.",
-                "variant32": "Watch your feet, $n is juggling granite boulders.",
-                "variant33": "The light flickers as $n raps in magical languages.",
-                "variant34": "You levitate as $n prays.",
-                "variant35": "$n produces a coin from your ear.",
-                "variant36": "Oomph!  $n squeezes water out of a granite boulder.",
-                "variant37": "$n's head disappears.",
-                "variant38": "A cool breeze refreshes $n.",
-                "variant39": "$n steps behind $s shadow.",
-                "variant40": "$n picks $s teeth with a spear.",
-                "variant41": "A fire elemental singes $n's hair.",
-                "variant42": "The sun pierces through the clouds to illuminate $n.",
-                "variant43": "$n's eyes dance with greed.",
-                "variant44": "You are swept off your feet by $n's hug.",
-                "variant45": "The sky changes color to match $n's eyes.",
-                "variant46": "The ocean parts before $n.",
-                "variant47": "$n deftly steals your weapon.",
-                "variant48": "$n's karate chop splits a tree.",
-                "variant49": "The stones dance to $n's command.",
-                "variant50": "A thunder cloud kneels to $n.",
-                "variant51": "The Grey Mouser buys $n a beer.",
-                "variant52": "A strap of $n's armor breaks over $s mighty thews.",
-                "variant53": "The heavens and grass change colour as $n smiles.",
-                "variant54": "The Burning Man speaks to $n.",
-                "variant55": "Your pocket explodes with $n's fireworks.",
-                "variant56": "A boulder cracks at $n's frown.",
-                "variant57": "Your clothes are transparent, and $n is laughing.",
-                "variant58": "An eye in a pyramid winks at $n.",
-                "variant59": "You discover $n's dagger a centimeter from your eye.",
-                "variant60": "Mercenaries arrive to do $n's bidding.",
-                "variant61": "A black hole swallows $n.",
-                "variant62": "Valentine Michael Smith offers $n a glass of water.",
-                "variant63": "Where did $n go?",
-                "variant64": "Four matched Percherons bring in $n's chariot.",
-                "variant65": "The world shimmers in time with $n's whistling.",
-                "variant66": "The great god Mota gives $n a staff.",
-                "variant67": "Click.",
-                "variant68": "Atlas asks $n to relieve him."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -3091,14 +2502,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noneUnread": "You have no unread notes.",
-                "newNewsArticleWaiting": "There %s %d new news article%s waiting.",
-                "changeWaitingRead": "There %s %d change%s waiting to be read.",
-                "newNoteWaiting": "You have %d new note%s waiting.",
-                "unreadIdeaPeruse": "You have %d unread idea%s to peruse.",
-                "beenAdded": "%d %s been added."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -3144,18 +2548,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "holdNothingHand": "You hold nothing in your hand.",
-                "canBrandishOnlyWith": "You can brandish only with a staff.",
-                "brandish": "You brandish $p.",
-                "failInvoke": "You fail to invoke $p.",
-                "blazesBrightGone": "Your $p blazes bright and is gone."
-            },
-            "toRoom": {
-                "brandishes": "$n brandishes $p.",
-                "nothingHappens": "...and nothing happens.",
-                "sBlazesBrightGone": "$n's $p blazes bright and is gone."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -3210,28 +2604,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "dropWhat": "Drop what?",
-                "sorryCanTDo": "Sorry, you can't do that.",
-                "donTMuchSilver": "You don't have that much silver.",
-                "donTMuchGold": "You don't have that much gold.",
-                "default": "OK.",
-                "doNotItem": "You do not have that item.",
-                "canTLetGo": "You can't let go of it.",
-                "drop": "You drop $p.",
-                "dissolvesIntoSmoke": "$p dissolves into smoke.",
-                "drop2": "You drop $p.",
-                "dissolvesIntoSmoke2": "$p dissolves into smoke.",
-                "notCarryingAnything": "You are not carrying anything.",
-                "notCarryingAny": "You are not carrying any $T."
-            },
-            "toRoom": {
-                "dropsSomeCoins": "$n drops some coins.",
-                "drops": "$n drops $p.",
-                "dissolvesIntoSmoke": "$p dissolves into smoke.",
-                "drops2": "$n drops $p.",
-                "dissolvesIntoSmoke2": "$p dissolves into smoke."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -3282,24 +2656,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "envenomWhatItem": "Envenom what item?",
-                "donTItem": "You don't have that item.",
-                "crazyDPoisonYourself": "Are you crazy? You'd poison yourself!",
-                "canOnlyEnvenomEdged": "You can only envenom edged weapons.",
-                "failPoison": "You fail to poison $p.",
-                "treatWithDeadlyPoison": "You treat $p with deadly poison.",
-                "failPoison2": "You fail to poison $p.",
-                "canTSeemEnvenom": "You can't seem to envenom $p.",
-                "alreadyEnvenomed": "$p is already envenomed.",
-                "coatWithVenom": "You coat $p with venom.",
-                "failEnvenom": "You fail to envenom $p.",
-                "canTPoison": "You can't poison $p."
-            },
-            "toRoom": {
-                "treatsWithDeadlyPoison": "$n treats $p with deadly poison.",
-                "coatsWithDeadlyVenom": "$n coats $p with deadly venom."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -3389,27 +2747,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "canTDo": "You can't do that here.",
-                "lightCureLightWounds": "  light: cure light wounds      10 gold",
-                "seriousCureSeriousWounds": "  serious: cure serious wounds  15 gold",
-                "criticCureCriticalWounds": "  critic: cure critical wounds  25 gold",
-                "healHealingSpell50": "  heal: healing spell\t      50 gold",
-                "blindCureBlindness20": "  blind: cure blindness         20 gold",
-                "diseaseCureDisease15": "  disease: cure disease         15 gold",
-                "poisonCurePoison25": "  poison:  cure poison\t      25 gold",
-                "uncurseRemoveCurse50": "  uncurse: remove curse\t      50 gold",
-                "refreshRestoreMovement5": "  refresh: restore movement      5 gold",
-                "manaRestoreMana10": "  mana:  restore mana\t      10 gold",
-                "typeHealTypeHealed": " Type heal <type> to be healed.",
-                "warmGlowPassesThrough": "A warm glow passes through you.",
-                "saysIOfferFollowing": "$N says 'I offer the following spells:'",
-                "saysTypeHealList": "$N says 'Type 'heal' for a list of spells.'",
-                "saysDoNotEnough": "$N says 'You do not have enough gold for my services.'"
-            },
-            "toRoom": {
-                "uttersWords": "$n utters the words '$T'."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -3429,10 +2768,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "wearWieldHoldWhat": "Wear, wield, or hold what?",
-                "doNotItem": "You do not have that item."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -3443,9 +2779,7 @@
         },
         "name": "list",
         "role": "player",
-        "lambdas": [
-            "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
-        ],
+        "lambdas": ["lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"],
         "enabled": true,
         "position": "POS_RESTING",
         "level": 0,
@@ -3453,15 +2787,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "canTDo": "You can't do that here.",
-                "petsSale": "Pets for sale:",
-                "sorryWeReOut": "Sorry, we're out of pets right now.",
-                "lvPriceQtyItem": "[Lv Price Qty] Item",
-                "canTBuyAnything": "You can't buy anything here.",
-                "2d8d": "[%2d] %8d - %s",
-                "2d5d": "[%2d %5d -- ] %s"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -3482,31 +2808,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noArgument": "Lock what?",
-                "canTDo": "You can't do that.",
-                "itSNotClosed": "It's not closed.",
-                "itCanTLocked": "It can't be locked.",
-                "missingKey": "You lack the key.",
-                "itSAlreadyLocked": "It's already locked.",
-                "sNotContainer": "That's not a container.",
-                "itSNotClosed2": "It's not closed.",
-                "itCanTLocked2": "It can't be locked.",
-                "missingKey2": "You lack the key.",
-                "itSAlreadyLocked2": "It's already locked.",
-                "itSNotClosed3": "It's not closed.",
-                "itCanTLocked3": "It can't be locked.",
-                "missingKey3": "You lack the key.",
-                "itSAlreadyLocked3": "It's already locked.",
-                "click": "*Click*",
-                "lock": "You lock $p.",
-                "lock2": "You lock $p."
-            },
-            "toRoom": {
-                "locks": "$n locks $p.",
-                "locks2": "$n locks $p.",
-                "locks3": "$n locks the $d."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -3526,27 +2829,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noArgument": "Open what?",
-                "canTDo": "You can't do that.",
-                "itSAlreadyOpen": "It's already open.",
-                "itSLocked": "It's locked.",
-                "sNotContainer": "That's not a container.",
-                "itSAlreadyOpen2": "It's already open.",
-                "canTDo2": "You can't do that.",
-                "itSLocked2": "It's locked.",
-                "itSAlreadyOpen3": "It's already open.",
-                "itSLocked3": "It's locked.",
-                "default": "Ok.",
-                "open": "You open $p.",
-                "open2": "You open $p.",
-                "opens": "The $d opens."
-            },
-            "toRoom": {
-                "opens": "$n opens $p.",
-                "opens2": "$n opens $p.",
-                "opens3": "$n opens the $d."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -3567,24 +2851,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noArgument": "Close what?",
-                "canTDo": "You can't do that.",
-                "itSAlreadyClosed": "It's already closed.",
-                "sNotContainer": "That's not a container.",
-                "itSAlreadyClosed2": "It's already closed.",
-                "canTDo2": "You can't do that.",
-                "itSAlreadyClosed3": "It's already closed.",
-                "default": "Ok.",
-                "close": "You close $p.",
-                "close2": "You close $p.",
-                "closes": "The $d closes."
-            },
-            "toRoom": {
-                "closes": "$n closes $p.",
-                "closes2": "$n closes $p.",
-                "closes3": "$n closes the $d."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -3604,32 +2872,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "pickWhat": "Pick what?",
-                "failed": "You failed.",
-                "canTDo": "You can't do that.",
-                "itSNotClosed": "It's not closed.",
-                "itCanTUnlocked": "It can't be unlocked.",
-                "failed2": "You failed.",
-                "sNotContainer": "That's not a container.",
-                "itSNotClosed2": "It's not closed.",
-                "itCanTUnlocked2": "It can't be unlocked.",
-                "itSAlreadyUnlocked": "It's already unlocked.",
-                "failed3": "You failed.",
-                "itSNotClosed3": "It's not closed.",
-                "itCanTPicked": "It can't be picked.",
-                "itSAlreadyUnlocked2": "It's already unlocked.",
-                "failed4": "You failed.",
-                "click": "*Click*",
-                "standingTooCloseLock": "$N is standing too close to the lock.",
-                "pickLock": "You pick the lock on $p.",
-                "pickLock2": "You pick the lock on $p."
-            },
-            "toRoom": {
-                "picksLock": "$n picks the lock on $p.",
-                "picksLock2": "$n picks the lock on $p.",
-                "picks": "$n picks the $d."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -3649,19 +2893,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "pourWhatIntoWhat": "Pour what into what?",
-                "donTItem": "You don't have that item.",
-                "sNotDrinkContainer": "That's not a drink container.",
-                "itSAlreadyEmpty": "It's already empty.",
-                "pourIntoWhat": "Pour into what?",
-                "theyArenTHolding": "They aren't holding anything.",
-                "canOnlyPourInto": "You can only pour into other drink containers.",
-                "cannotChangeLawsPhysics": "You cannot change the laws of physics!",
-                "theyDonTHold": "They don't hold the same liquid.",
-                "sNothingPour": "There's nothing in $p to pour.",
-                "alreadyFilledTop": "$p is already filled to the top."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -3682,28 +2914,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "putWhatWhat": "Put what in what?",
-                "canTDo": "You can't do that.",
-                "sNotContainer": "That's not a container.",
-                "doNotItem": "You do not have that item.",
-                "canTFoldIt": "You can't fold it into itself.",
-                "canTLetGo": "You can't let go of it.",
-                "feelingWouldBadIdea": "You have a feeling that would be a bad idea.",
-                "itWonTFit": "It won't fit.",
-                "iSeeNo": "I see no $T here.",
-                "closed": "The $d is closed.",
-                "put": "You put $p on $P.",
-                "put2": "You put $p in $P.",
-                "put3": "You put $p on $P.",
-                "put4": "You put $p in $P."
-            },
-            "toRoom": {
-                "puts": "$n puts $p on $P.",
-                "puts2": "$n puts $p in $P.",
-                "puts3": "$n puts $p on $P.",
-                "puts4": "$n puts $p in $P."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -3723,16 +2935,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "quaffWhat": "Quaff what?",
-                "doNotPotion": "You do not have that potion.",
-                "canQuaffOnlyPotions": "You can quaff only potions.",
-                "liquidTooPowerfulDrink": "This liquid is too powerful for you to drink.",
-                "quaff": "You quaff $p."
-            },
-            "toRoom": {
-                "quaffs": "$n quaffs $p."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -3752,17 +2956,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "doNotScroll": "You do not have that scroll.",
-                "canReciteOnlyScrolls": "You can recite only scrolls.",
-                "scrollTooComplexComprehend": "This scroll is too complex for you to comprehend.",
-                "canTFindIt": "You can't find it.",
-                "mispronounceSyllable": "You mispronounce a syllable.",
-                "recite": "You recite $p."
-            },
-            "toRoom": {
-                "recites": "$n recites $p."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -3782,10 +2977,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "removeWhat": "Remove what?",
-                "doNotItem": "You do not have that item."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -3806,20 +2998,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "sellWhat": "Sell what?",
-                "canTLetGo": "You can't let go of it.",
-                "haggleWithShopkeeper": "You haggle with the shopkeeper."
-            },
-            "toRoom": {
-                "sells": "$n sells $p."
-            },
-            "toVictim": {
-                "tellsDonTItem": "$n tells you 'You don't have that item'.",
-                "doesnTSeeWhat": "$n doesn't see what you are offering.",
-                "looksUninterested": "$n looks uninterested in $p.",
-                "tellsIMAfraid": "$n tells you 'I'm afraid I don't have enough wealth to buy $p."
-            }
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
         }
     },
     {
@@ -3836,21 +3017,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "getWhat": "Get what?",
-                "iSeeNothing": "I see nothing here.",
-                "canTDo": "You can't do that.",
-                "sNotContainer": "That's not a container.",
-                "canTDo2": "You can't do that.",
-                "donTSoGreedy": "Don't be so greedy!",
-                "iSeeNo": "I see no $T here.",
-                "iSeeNo2": "I see no $T here.",
-                "iSeeNo3": "I see no $T here.",
-                "closed": "The $d is closed.",
-                "iSeeNothingLike": "I see nothing like that in the $T.",
-                "iSeeNothing2": "I see nothing in the $T.",
-                "iSeeNothingLike2": "I see nothing like that in the $T."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -3872,23 +3039,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "motaAppreciatesOfferMay": "Mota appreciates your offer and may accept it later.",
-                "canTFindIt": "You can't find it.",
-                "motaWouldnTLike": "Mota wouldn't like that.",
-                "motaGivesOneSilver": "Mota gives you one silver coin for your sacrifice.",
-                "motaGivesSilverCoins": "Mota gives you %d silver coins for your sacrifice.",
-                "notAcceptableSacrifice": "$p is not an acceptable sacrifice.",
-                "appearsUsing": "$N appears to be using $p."
-            },
-            "toRoom": {
-                "offersSelfMotaWho": "$n offers $mself to Mota, who graciously declines.",
-                "sacrificesMota": "$n sacrifices $p to Mota."
-            },
-            "toVictim": {},
-            "toWiznet": {
-                "sendsUpAsBurnt": "$N sends up $p as a burnt offering."
-            }
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
         }
     },
     {
@@ -3907,23 +3060,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "motaAppreciatesOfferMay": "Mota appreciates your offer and may accept it later.",
-                "canTFindIt": "You can't find it.",
-                "motaWouldnTLike": "Mota wouldn't like that.",
-                "motaGivesOneSilver": "Mota gives you one silver coin for your sacrifice.",
-                "motaGivesSilverCoins": "Mota gives you %d silver coins for your sacrifice.",
-                "notAcceptableSacrifice": "$p is not an acceptable sacrifice.",
-                "appearsUsing": "$N appears to be using $p."
-            },
-            "toRoom": {
-                "offersSelfMotaWho": "$n offers $mself to Mota, who graciously declines.",
-                "sacrificesMota": "$n sacrifices $p to Mota."
-            },
-            "toVictim": {},
-            "toWiznet": {
-                "sendsUpAsBurnt": "$N sends up $p as a burnt offering."
-            }
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
         }
     },
     {
@@ -3940,23 +3079,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "motaAppreciatesOfferMay": "Mota appreciates your offer and may accept it later.",
-                "canTFindIt": "You can't find it.",
-                "motaWouldnTLike": "Mota wouldn't like that.",
-                "motaGivesOneSilver": "Mota gives you one silver coin for your sacrifice.",
-                "motaGivesSilverCoins": "Mota gives you %d silver coins for your sacrifice.",
-                "notAcceptableSacrifice": "$p is not an acceptable sacrifice.",
-                "appearsUsing": "$N appears to be using $p."
-            },
-            "toRoom": {
-                "offersSelfMotaWho": "$n offers $mself to Mota, who graciously declines.",
-                "sacrificesMota": "$n sacrifices $p to Mota."
-            },
-            "toVictim": {},
-            "toWiznet": {
-                "sendsUpAsBurnt": "$N sends up $p as a burnt offering."
-            }
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
         }
     },
     {
@@ -3973,16 +3098,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "valueWhat": "Value what?",
-                "canTLetGo": "You can't let go of it."
-            },
+            "toChar": {},
             "toRoom": {},
-            "toVictim": {
-                "tellsDonTItem": "$n tells you 'You don't have that item'.",
-                "doesnTSeeWhat": "$n doesn't see what you are offering.",
-                "looksUninterested": "$n looks uninterested in $p."
-            }
+            "toVictim": {}
         }
     },
     {
@@ -4001,10 +3119,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "wearWieldHoldWhat": "Wear, wield, or hold what?",
-                "doNotItem": "You do not have that item."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -4025,26 +3140,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "zapWhomWhat": "Zap whom or what?",
-                "holdNothingHand": "You hold nothing in your hand.",
-                "canZapOnlyWith": "You can zap only with a wand.",
-                "zapWhomWhat2": "Zap whom or what?",
-                "canTFindIt": "You can't find it.",
-                "zapWith": "You zap $N with $p.",
-                "zapWith2": "You zap $P with $p.",
-                "effortsWithProduceOnly": "Your efforts with $p produce only smoke and sparks.",
-                "explodesIntoFragments": "Your $p explodes into fragments."
-            },
-            "toRoom": {
-                "zapsWith": "$n zaps $N with $p.",
-                "zapsWith2": "$n zaps $P with $p.",
-                "sEffortsWithProduce": "$n's efforts with $p produce only smoke and sparks.",
-                "sExplodesIntoFragments": "$n's $p explodes into fragments."
-            },
-            "toVictim": {
-                "zapsWith": "$n zaps you with $p."
-            }
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
         }
     },
     {
@@ -4096,27 +3194,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "bashingWhatS": "Bashing? What's that?",
-                "butArenTFighting": "But you aren't fighting anyone!",
-                "theyArenT": "They aren't here.",
-                "tryBashBrainsOut": "You try to bash your brains out, but fail.",
-                "killStealingNotPermitted": "Kill stealing is not permitted.",
-                "llLetGetBack": "You'll have to let $M get back up first.",
-                "butFriend": "But $N is your friend!",
-                "dodgesBashFallFlat": "$N dodges your bash, you fall flat on your face.",
-                "slamIntoSendFlying": "You slam into $N, and send $M flying!",
-                "fallFlatFace": "You fall flat on your face!"
-            },
-            "toRoom": {
-                "sendsSprawlingWithPowerful": "$n sends $N sprawling with a powerful bash.",
-                "fallsFlatFace": "$n falls flat on $s face."
-            },
-            "toVictim": {
-                "triesBashButDodge": "$n tries to bash you, but you dodge it.",
-                "sendsSprawlingWithPowerful": "$n sends you sprawling with a powerful bash!",
-                "evadeSBashCausing": "You evade $n's bash, causing $m to fall flat on $s face."
-            }
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
         }
     },
     {
@@ -4135,17 +3215,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "turnRedFaceBut": "You turn red in the face, but nothing happens.",
-                "getLittleMadder": "You get a little madder.",
-                "reFeelingMellowBerserk": "You're feeling to mellow to berserk.",
-                "canTGetUp": "You can't get up enough energy.",
-                "pulseRacesAsConsumed": "Your pulse races as you are consumed by rage!",
-                "pulseSpeedsUpBut": "Your pulse speeds up, but nothing happens."
-            },
-            "toRoom": {
-                "getsWildLookEyes": "$n gets a wild look in $s eyes."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -4165,22 +3236,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "getFeetDirty": "You get your feet dirty.",
-                "butArenTCombat": "But you aren't in combat!",
-                "theyArenT": "They aren't here.",
-                "veryFunny": "Very funny.",
-                "killStealingNotPermitted": "Kill stealing is not permitted.",
-                "isnTAnyDirt": "There isn't any dirt to kick.",
-                "sAlreadyBeenBlinded": "$E's already been blinded.",
-                "butSuchGoodFriend": "But $N is such a good friend!"
-            },
-            "toRoom": {
-                "blindedByDirtEyes": "$n is blinded by the dirt in $s eyes!"
-            },
-            "toVictim": {
-                "kicksDirtEyes": "$n kicks dirt in your eyes!"
-            }
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
         }
     },
     {
@@ -4199,19 +3257,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "donTKnowHow": "You don't know how to disarm opponents.",
-                "mustWieldWeaponDisarm": "You must wield a weapon to disarm.",
-                "arenTFightingAnyone": "You aren't fighting anyone.",
-                "opponentNotWieldingWeapon": "Your opponent is not wielding a weapon.",
-                "failDisarm": "You fail to disarm $N."
-            },
-            "toRoom": {
-                "triesDisarmButFails": "$n tries to disarm $N, but fails."
-            },
-            "toVictim": {
-                "triesDisarmButFails": "$n tries to disarm you, but fails."
-            }
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
         }
     },
     {
@@ -4230,16 +3278,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "arenTFightingAnyone": "You aren't fighting anyone.",
-                "fleeFromCombat": "You flee from combat!",
-                "snuckAwaySafely": "You snuck away safely.",
-                "lost10Exp": "You lost 10 exp.",
-                "panicCouldnTEscape": "PANIC! You couldn't escape!"
-            },
-            "toRoom": {
-                "fled": "$n has fled!"
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -4259,10 +3299,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "betterLeaveMartialArts": "You better leave the martial arts to fighters.",
-                "arenTFightingAnyone": "You aren't fighting anyone."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -4283,9 +3320,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "ifWantMurderSpell": "If you want to MURDER, spell it out."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -4306,14 +3341,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "murderWhom": "Murder whom?",
-                "theyArenT": "They aren't here.",
-                "suicideMortalSin": "Suicide is a mortal sin.",
-                "killStealingNotPermitted": "Kill stealing is not permitted.",
-                "doBestCan": "You do the best you can!",
-                "belovedMaster": "$N is your beloved master."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -4334,23 +3362,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "rescueWhom": "Rescue whom?",
-                "theyArenT": "They aren't here.",
-                "whatAboutFleeingInstead": "What about fleeing instead?",
-                "doesnTNeedHelp": "Doesn't need your help!",
-                "tooLate": "Too late.",
-                "personNotFightingRight": "That person is not fighting right now.",
-                "killStealingNotPermitted": "Kill stealing is not permitted.",
-                "failRescue": "You fail the rescue.",
-                "rescue": "You rescue $N!"
-            },
-            "toRoom": {
-                "rescues": "$n rescues $N!"
-            },
-            "toVictim": {
-                "rescues": "$n rescues you!"
-            }
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
         }
     },
     {
@@ -4369,24 +3383,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "trippingWhatS": "Tripping?  What's that?",
-                "butArenTFighting": "But you aren't fighting anyone!",
-                "theyArenT": "They aren't here.",
-                "killStealingNotPermitted": "Kill stealing is not permitted.",
-                "fallFlatFace": "You fall flat on your face!",
-                "feetArenTGround": "$S feet aren't on the ground.",
-                "alreadyDown": "$N is already down.",
-                "belovedMaster": "$N is your beloved master.",
-                "tripGoesDown": "You trip $N and $N goes down!"
-            },
-            "toRoom": {
-                "tripsOverOwnFeet": "$n trips over $s own feet!",
-                "tripsSendingGround": "$n trips $N, sending $M to the ground."
-            },
-            "toVictim": {
-                "tripsGoDown": "$n trips you and you go down!"
-            }
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
         }
     },
     {
@@ -4403,28 +3402,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "donTSee": "You don't see that here.",
-                "canTSeemFind": "You can't seem to find a way in.",
-                "somethingPreventsFromLeaving": "Something prevents you from leaving...",
-                "somethingPreventsFromLeaving2": "Something prevents you from leaving...",
-                "nopeCanTDo": "Nope, can't do it.",
-                "doesnTSeemGo": "$p doesn't seem to go anywhere.",
-                "enter": "You enter $p.",
-                "walkThroughFindYourself": "You walk through $p and find yourself somewhere else...",
-                "canTBringInto": "You can't bring $N into the city.",
-                "arenTAllowedCity": "You aren't allowed in the city.",
-                "follow": "You follow $N.",
-                "fadesOutExistence": "$p fades out of existence.",
-                "fadesOutExistence2": "$p fades out of existence."
-            },
-            "toRoom": {
-                "stepsInto": "$n steps into $p.",
-                "arrived": "$n has arrived.",
-                "arrivedThrough": "$n has arrived through $p.",
-                "fadesOutExistence": "$p fades out of existence.",
-                "fadesOutExistence2": "$p fades out of existence."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -4472,33 +3451,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "canTDo": "You can't do that here.",
-                "default": "",
-                "default2": "",
-                "default3": "",
-                "default4": "",
-                "default5": "",
-                "18s5s18s5s": "%-18s %-5s %-18s %-5s %-18s %-5s",
-                "18s5d": "%-18s %-5d ",
-                "18s5s18s5s2": "%-18s %-5s %-18s %-5s %-18s %-5s",
-                "18s5d2": "%-18s %-5d ",
-                "tellsNotYetReady": "$N tells you 'You are not yet ready.'",
-                "helpsApplyPracticeTraining": "$N helps you apply your practice to training",
-                "tellsNotYetReady2": "$N tells you 'You are not yet ready.'",
-                "tellsWouldNoPoint": "$N tells you 'There would be no point in that.'",
-                "trainsFeelMoreAt": "$N trains you, and you feel more at ease with your skills.",
-                "tellsAlreadyKnowGroup": "$N tells you 'You already know that group!'",
-                "tellsGroupBeyondPowers": "$N tells you 'That group is beyond your powers.'",
-                "tellsNotYetReady3": "$N tells you 'You are not yet ready for that group.'",
-                "trainsArt": "$N trains you in the art of $t",
-                "tellsMustLearnFull": "$N tells you 'You must learn the full group.'",
-                "tellsAlreadyKnowSkill": "$N tells you 'You already know that skill!'",
-                "tellsSkillBeyondPowers": "$N tells you 'That skill is beyond your powers.'",
-                "tellsNotYetReady4": "$N tells you 'You are not yet ready for that skill.'",
-                "trainsArt2": "$N trains you in the art of $t",
-                "tellsIDoNot": "$N tells you 'I do not understand...'"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -4517,28 +3470,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "donTSee": "You don't see that here.",
-                "canTSeemFind": "You can't seem to find a way in.",
-                "somethingPreventsFromLeaving": "Something prevents you from leaving...",
-                "somethingPreventsFromLeaving2": "Something prevents you from leaving...",
-                "nopeCanTDo": "Nope, can't do it.",
-                "doesnTSeemGo": "$p doesn't seem to go anywhere.",
-                "enter": "You enter $p.",
-                "walkThroughFindYourself": "You walk through $p and find yourself somewhere else...",
-                "canTBringInto": "You can't bring $N into the city.",
-                "arenTAllowedCity": "You aren't allowed in the city.",
-                "follow": "You follow $N.",
-                "fadesOutExistence": "$p fades out of existence.",
-                "fadesOutExistence2": "$p fades out of existence."
-            },
-            "toRoom": {
-                "stepsInto": "$n steps into $p.",
-                "arrived": "$n has arrived.",
-                "arrivedThrough": "$n has arrived through $p.",
-                "fadesOutExistence": "$p fades out of existence.",
-                "fadesOutExistence2": "$p fades out of existence."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -4556,20 +3489,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "default": "",
-                "default2": "",
-                "default3": "",
-                "default4": "",
-                "noGroupNameExist": "No group of that name exist.",
-                "typeGroupsAllInfo": "Type 'groups all' or 'info all' for a full listing.",
-                "default5": "",
-                "default6": "",
-                "20s": "%-20s ",
-                "creationPoints": "Creation points: %d",
-                "20s2": "%-20s ",
-                "20s3": "%-20s "
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -4590,9 +3510,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "attemptHide": "You attempt to hide."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -4611,15 +3529,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "playWhat": "Play what?",
-                "seeNothingPlay": "You see nothing to play.",
-                "playWhat2": "Play what?",
-                "jukeboxFullUpRight": "The jukebox is full up right now.",
-                "songIsnTAvailable": "That song isn't available.",
-                "songIsnTAvailable2": "That song isn't available.",
-                "comingRightUp": "Coming right up."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -4640,9 +3550,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "ifWantQuitSpell": "If you want to QUIT, you have to spell it out."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -4663,18 +3571,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "onlyPlayersCanRecall": "Only players can recall.",
-                "completelyLost": "You are completely lost.",
-                "motaForsaken": "Mota has forsaken you.",
-                "failed": "You failed!.",
-                "recallFromCombatLose": "You recall from combat!  You lose %d exps."
-            },
-            "toRoom": {
-                "praysTransportation": "$n prays for transportation!",
-                "disappears": "$n disappears.",
-                "appearsRoom": "$n appears in the room."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -4692,18 +3590,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "onlyPlayersCanRecall": "Only players can recall.",
-                "completelyLost": "You are completely lost.",
-                "motaForsaken": "Mota has forsaken you.",
-                "failed": "You failed!.",
-                "recallFromCombatLose": "You recall from combat!  You lose %d exps."
-            },
-            "toRoom": {
-                "praysTransportation": "$n prays for transportation!",
-                "disappears": "$n disappears.",
-                "appearsRoom": "$n appears in the room."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -4723,9 +3611,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noRentJustSave": "There is no rent here.  Just save and quit."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -4746,9 +3632,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "savingRememberRomAutomatic": "Saving. Remember that ROM has automatic saving now."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -4769,22 +3653,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "alreadySleeping": "You are already sleeping.",
-                "goSleep": "You go to sleep.",
-                "donTSee": "You don't see that here.",
-                "canTSleep": "You can't sleep on that!",
-                "alreadyFighting": "You are already fighting!",
-                "goSleepAt": "You go to sleep at $p.",
-                "goSleep2": "You go to sleep on $p.",
-                "goSleep3": "You go to sleep in $p."
-            },
-            "toRoom": {
-                "goesSleep": "$n goes to sleep.",
-                "goesSleepAt": "$n goes to sleep at $p.",
-                "goesSleep2": "$n goes to sleep on $p.",
-                "goesSleep3": "$n goes to sleep in $p."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -4804,9 +3674,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "attemptMoveSilently": "You attempt to move silently."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -4827,16 +3695,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "splitHowMuch": "Split how much?",
-                "groupWouldnTLike": "Your group wouldn't like that.",
-                "handOutZeroCoins": "You hand out zero coins, but no one notices.",
-                "donTMuchSplit": "You don't have that much to split.",
-                "justKeepItAll": "Just keep it all.",
-                "donTEvenBother": "Don't even bother, cheapskate.",
-                "splitSilverCoinsShare": "You split %d silver coins. Your share is %d silver.",
-                "splitGoldCoinsShare": "You split %d gold coins. Your share is %d gold."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -4855,27 +3714,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "stealWhatFromWhom": "Steal what from whom?",
-                "theyArenT": "They aren't here.",
-                "sPointless": "That's pointless.",
-                "oops": "Oops.",
-                "nowThief": "*** You are now a THIEF!! ***",
-                "couldnTGetAny": "You couldn't get any coins.",
-                "canTFindIt": "You can't find it.",
-                "canTPryIt": "You can't pry it away.",
-                "handsFull": "You have your hands full.",
-                "canTCarryMuch": "You can't carry that much weight.",
-                "gotIt": "Got it!",
-                "lousyThief": "%s is a lousy thief!",
-                "pocket": "You pocket $p."
-            },
-            "toRoom": {
-                "triedStealFrom": "$n tried to steal from $N."
-            },
-            "toVictim": {
-                "triedStealFrom": "$n tried to steal from you."
-            }
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
         }
     },
     {
@@ -4894,23 +3735,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "canTDo": "You can't do that here.",
-                "donTEnoughTraining": "You don't have enough training sessions.",
-                "donTEnoughTraining2": "You don't have enough training sessions.",
-                "donTEnoughTraining3": "You don't have enough training sessions.",
-                "trainingSessions": "You have %d training sessions.",
-                "nothingLeftTrain": "You have nothing left to train, you $T!",
-                "durabilityIncreases": "Your durability increases!",
-                "powerIncreases": "Your power increases!",
-                "alreadyAtMaximum": "Your $T is already at maximum.",
-                "increases": "Your $T increases!"
-            },
-            "toRoom": {
-                "sDurabilityIncreases": "$n's durability increases!",
-                "sPowerIncreases": "$n's power increases!",
-                "sIncreases": "$n's $T increases!"
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -4930,9 +3756,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "default": "Ok."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -4953,12 +3777,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "asleepYourself": "You are asleep yourself!",
-                "theyArenT": "They aren't here.",
-                "alreadyAwake": "$N is already awake.",
-                "canTWake": "You can't wake $M!"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -4979,13 +3798,7 @@
         "pipeline": false,
         "maxArguments": 1,
         "payload": {
-            "toChar": {
-                "playersNear": "Players near you:",
-                "none": "None",
-                "28s": "%-28s %s",
-                "28s2": "%-28s %s",
-                "didnTFindAny": "You didn't find any $T."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5006,15 +3819,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "syntaxAdvanceCharLevel": "Syntax: advance <char> <level>.",
-                "playerNot": "That player is not here.",
-                "notNpcS": "Not on NPC's.",
-                "limitedTrustLevel": "Limited to your trust level.",
-                "loweringPlayerSLevel": "Lowering a player's level!",
-                "raisingPlayerSLevel": "Raising a player's level!",
-                "levelMust1": "Level must be 1 to %d."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5056,12 +3861,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "syntaxTrustCharLevel": "Syntax: trust <char> <level>.",
-                "playerNot": "That player is not here.",
-                "limitedTrust": "Limited to your trust.",
-                "levelMust0Reset": "Level must be 0 (reset) or 1 to %d."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5082,18 +3882,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "gotoWhere": "Goto where?",
-                "noSuchLocation": "No such location.",
-                "roomIsnTPrivate": "That room isn't private, use goto."
-            },
+            "toChar": {},
             "toRoom": {},
-            "toVictim": {
-                "default": "$t",
-                "leavesSwirlingMist": "$n leaves in a swirling mist.",
-                "default2": "$t",
-                "appearsSwirlingMist": "$n appears in a swirling mist."
-            }
+            "toVictim": {}
         }
     },
     {
@@ -5112,12 +3903,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "removeWhichSiteFrom": "Remove which site from the ban list?",
-                "notPowerfulEnoughLift": "You are not powerful enough to lift that ban.",
-                "siteNotBanned": "Site is not banned.",
-                "banLifted": "Ban on %s lifted."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5138,13 +3924,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noSitesBannedAt": "No sites banned at this time.",
-                "acceptableBanTypesAll": "Acceptable ban types are all, newbies, and permit.",
-                "banSomething": "You have to ban SOMETHING.",
-                "banWasSetBy": "That ban was set by a higher power.",
-                "12s3d7s": "%-12s    %-3d  %-7s  %s"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5165,13 +3945,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "denyWhom": "Deny whom?",
-                "theyArenT": "They aren't here.",
-                "notNpcS": "Not on NPC's.",
-                "failed": "You failed.",
-                "default": "OK."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5192,14 +3966,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "disconnectWhom": "Disconnect whom?",
-                "default": "Ok.",
-                "theyArenT": "They aren't here.",
-                "ok2": "Ok.",
-                "descriptorNotFound": "Descriptor not found!",
-                "doesnTDescriptor": "$N doesn't have a descriptor."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5220,26 +3987,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "syntax": "Syntax:",
-                "flagMobNameField": "  flag mob  <name> <field> <flags>",
-                "flagCharNameField": "  flag char <name> <field> <flags>",
-                "mobFlagsActAff": "  mob  flags: act,aff,off,imm,res,vuln,form,part",
-                "charFlagsPlrComm": "  char flags: plr,comm,aff,imm,res,vuln,",
-                "addFlagRemoveFlag": "  +: add flag, -: remove flag, = set equal to",
-                "otherwiseFlagTogglesFlags": "  otherwise flag toggles the flags listed.",
-                "whatDoWishSet": "What do you wish to set flags on?",
-                "needSpecifyFlagSet": "You need to specify a flag to set.",
-                "whichFlagsDoWish": "Which flags do you wish to change?",
-                "canTFindThem": "You can't find them.",
-                "usePlrPcs": "Use plr for PCs.",
-                "useActNpcs": "Use act for NPCs.",
-                "formCanTSet": "Form can't be set on PCs.",
-                "partsCanTSet": "Parts can't be set on PCs.",
-                "commCanTSet": "Comm can't be set on NPCs.",
-                "sNotAcceptableFlag": "That's not an acceptable flag.",
-                "flagDoesnTExist": "That flag doesn't exist!"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5260,14 +4008,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "freezeWhom": "Freeze whom?",
-                "theyArenT": "They aren't here.",
-                "notNpcS": "Not on NPC's.",
-                "failed": "You failed.",
-                "freezeRemoved": "FREEZE removed.",
-                "freezeSet": "FREEZE set."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5288,13 +4029,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noSitesBannedAt": "No sites banned at this time.",
-                "acceptableBanTypesAll": "Acceptable ban types are all, newbies, and permit.",
-                "banSomething": "You have to ban SOMETHING.",
-                "banWasSetBy": "That ban was set by a higher power.",
-                "12s3d7s": "%-12s    %-3d  %-7s  %s"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5315,10 +4050,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "protectWhomFromSnooping": "Protect whom from snooping?",
-                "canTFindThem": "You can't find them."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5339,9 +4071,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "ifWantRebootSpell": "If you want to REBOOT, spell it out."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5364,10 +4094,7 @@
         "payload": {
             "toChar": {},
             "toRoom": {},
-            "toVictim": {},
-            "toWorld": {
-                "default": "Reboot by %c."
-            }
+            "toVictim": {}
         }
     },
     {
@@ -5386,13 +4113,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "syntax": "Syntax:",
-                "setMobNameField": "  set mob   <name> <field> <value>",
-                "setObjNameField": "  set obj   <name> <field> <value>",
-                "setRoomRoomField": "  set room  <room> <field> <value>",
-                "setSkillNameSpell": "  set skill <name> <spell or skill> <value>"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5413,9 +4134,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "ifWantShutdownSpell": "If you want to SHUTDOWN, spell it out."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5438,10 +4157,7 @@
         "payload": {
             "toChar": {},
             "toRoom": {},
-            "toVictim": {},
-            "toWorld": {
-                "default": "Shutdown by %c.\r\n"
-            }
+            "toVictim": {}
         }
     },
     {
@@ -5460,16 +4176,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "gameWizlocked": "Game wizlocked.",
-                "gameUnWizlocked": "Game un-wizlocked."
-            },
+            "toChar": {},
             "toRoom": {},
-            "toVictim": {},
-            "toWiznet": {
-                "wizlockedGame": "$N has wizlocked the game.",
-                "removesWizlock": "$N removes wizlock."
-            }
+            "toVictim": {}
         }
     },
     {
@@ -5488,19 +4197,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "forceWhomDoWhat": "Force whom to do what?",
-                "willNotDone": "That will NOT be done.",
-                "notAtLevel": "Not at your level!",
-                "notAtLevel2": "Not at your level!",
-                "notAtLevel3": "Not at your level!",
-                "theyArenT": "They aren't here.",
-                "ayeAyeRightAway": "Aye aye, right away!",
-                "characterPrivateRoom": "That character is in a private room.",
-                "doItYourself": "Do it yourself!",
-                "notAtLevel4": "Not at your level!",
-                "default": "Ok."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5521,11 +4218,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "syntax": "Syntax:",
-                "loadMobVnum": "  load mob <vnum>",
-                "loadObjVnumLevel": "  load obj <vnum> <level>"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5546,16 +4239,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "newCharactersBeenLocked": "New characters have been locked out.",
-                "newlockRemoved": "Newlock removed."
-            },
+            "toChar": {},
             "toRoom": {},
-            "toVictim": {},
-            "toWiznet": {
-                "locksOutNewCharacters": "$N locks out new characters.",
-                "allowsNewCharactersBack": "$N allows new characters back in."
-            }
+            "toVictim": {}
         }
     },
     {
@@ -5574,13 +4260,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "nochannelWhom": "Nochannel whom?",
-                "theyArenT": "They aren't here.",
-                "failed": "You failed.",
-                "nochannelsRemoved": "NOCHANNELS removed.",
-                "nochannelsSet": "NOCHANNELS set."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5601,13 +4281,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noemoteWhom": "Noemote whom?",
-                "theyArenT": "They aren't here.",
-                "failed": "You failed.",
-                "noemoteRemoved": "NOEMOTE removed.",
-                "noemoteSet": "NOEMOTE set."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5628,14 +4302,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noshoutWhom": "Noshout whom?",
-                "theyArenT": "They aren't here.",
-                "notNpcS": "Not on NPC's.",
-                "failed": "You failed.",
-                "noshoutRemoved": "NOSHOUT removed.",
-                "noshoutSet": "NOSHOUT set."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5656,13 +4323,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "notellWhom": "Notell whom?",
-                "theyArenT": "They aren't here.",
-                "failed": "You failed.",
-                "notellRemoved": "NOTELL removed.",
-                "notellSet": "NOTELL set."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5683,12 +4344,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "personalEchoWhat": "Personal echo what?",
-                "targetNotFound": "Target not found.",
-                "personal": "personal> ",
-                "default": ""
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5709,14 +4365,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "syntaxPardonCharacterKiller": "Syntax: pardon <character> <killer|thief>.",
-                "theyArenT": "They aren't here.",
-                "notNpcS": "Not on NPC's.",
-                "killerFlagRemoved": "Killer flag removed.",
-                "thiefFlagRemoved": "Thief flag removed.",
-                "syntaxPardonCharacterKiller2": "Syntax: pardon <character> <killer|thief>."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5737,17 +4386,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "default": "Ok.",
-                "theyArenT": "They aren't here.",
-                "hoHoHo": "Ho ho ho.",
-                "maybeWasnTGood": "Maybe that wasn't a good idea..."
-            },
-            "toRoom": {
-                "purgesRoom": "$n purges the room!",
-                "disintegrates": "$n disintegrates $N.",
-                "purges": "$n purges $N."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -5767,18 +4407,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "roomRestored": "Room restored.",
-                "allActivePlayersRestored": "All active players restored.",
-                "theyArenT": "They aren't here.",
-                "default": "Ok."
-            },
+            "toChar": {},
             "toRoom": {},
-            "toVictim": {
-                "restored": "$n has restored you.",
-                "restored2": "$n has restored you.",
-                "restored3": "$n has restored you."
-            }
+            "toVictim": {}
         }
     },
     {
@@ -5797,9 +4428,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "ifWantSlaySpell": "If you want to SLAY, spell it out."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5820,19 +4449,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "slayWhom": "Slay whom?",
-                "theyArenT": "They aren't here.",
-                "suicideMortalSin": "Suicide is a mortal sin.",
-                "failed": "You failed.",
-                "slayColdBlood": "You slay $M in cold blood!"
-            },
-            "toRoom": {
-                "slaysColdBlood": "$n slays $N in cold blood!"
-            },
-            "toVictim": {
-                "slaysColdBlood": "$n slays you in cold blood!"
-            }
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
         }
     },
     {
@@ -5851,21 +4470,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "transferWhomWhere": "Transfer whom (and where)?",
-                "noSuchLocation": "No such location.",
-                "privateRoom": "That room is private right now.",
-                "theyArenT": "They aren't here.",
-                "theyLimbo": "They are in limbo.",
-                "default": "Ok."
-            },
-            "toRoom": {
-                "disappearsMushroomCloud": "$n disappears in a mushroom cloud.",
-                "arrivesFromPuffSmoke": "$n arrives from a puff of smoke."
-            },
-            "toVictim": {
-                "transferred": "$n has transferred you."
-            }
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
         }
     },
     {
@@ -5884,21 +4491,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "transferWhomWhere": "Transfer whom (and where)?",
-                "noSuchLocation": "No such location.",
-                "privateRoom": "That room is private right now.",
-                "theyArenT": "They aren't here.",
-                "theyLimbo": "They are in limbo.",
-                "default": "Ok."
-            },
-            "toRoom": {
-                "disappearsMushroomCloud": "$n disappears in a mushroom cloud.",
-                "arrivesFromPuffSmoke": "$n arrives from a puff of smoke."
-            },
-            "toVictim": {
-                "transferred": "$n has transferred you."
-            }
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
         }
     },
     {
@@ -5917,11 +4512,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "mustIncludeName": "You must include your name.",
-                "poofin": "Your poofin is %s",
-                "poofinNow": "Your poofin is now %s"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5942,11 +4533,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "mustIncludeName": "You must include your name.",
-                "poofout": "Your poofout is %s",
-                "poofoutNow": "Your poofout is now %s"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5967,9 +4554,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "globalEchoWhat": "Global echo what?"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5990,10 +4575,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "holyLightModeOff": "Holy light mode off.",
-                "holyLightMode": "Holy light mode on."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6014,17 +4596,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noLongerCloaked": "You are no longer cloaked.",
-                "cloakPresence": "You cloak your presence.",
-                "incogLevelMustBetween": "Incog level must be between 2 and your level.",
-                "cloakPresence2": "You cloak your presence."
-            },
-            "toRoom": {
-                "noLongerCloaked": "$n is no longer cloaked.",
-                "cloaksPresence": "$n cloaks $s presence.",
-                "cloaksPresence2": "$n cloaks $s presence."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -6044,17 +4617,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "slowlyFadeBackInto": "You slowly fade back into existence.",
-                "slowlyVanishIntoThin": "You slowly vanish into thin air.",
-                "invisLevelMustBetween": "Invis level must be between 2 and your level.",
-                "slowlyVanishIntoThin2": "You slowly vanish into thin air."
-            },
-            "toRoom": {
-                "slowlyFadesIntoExistence": "$n slowly fades into existence.",
-                "slowlyFadesIntoThin": "$n slowly fades into thin air.",
-                "slowlyFadesIntoThin2": "$n slowly fades into thin air."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -6074,15 +4638,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "logWhom": "Log whom?",
-                "logAllOff": "Log ALL off.",
-                "logAll": "Log ALL on.",
-                "theyArenT": "They aren't here.",
-                "notNpcS": "Not on NPC's.",
-                "logRemoved": "LOG removed.",
-                "logSet": "LOG set."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6103,22 +4659,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "affects5d": "Affects %5d",
-                "areas5d": "Areas   %5d",
-                "exdes5d": "ExDes   %5d",
-                "exits5d": "Exits   %5d",
-                "helps5d": "Helps   %5d",
-                "socials5d": "Socials %5d",
-                "mobs5dNewFormat": "Mobs    %5d(%d new format)",
-                "use5d": "(in use)%5d",
-                "objs5dNewFormat": "Objs    %5d(%d new format)",
-                "resets5d": "Resets  %5d",
-                "rooms5d": "Rooms   %5d",
-                "shops5d": "Shops   %5d",
-                "strings5dStrings7d": "Strings %5d strings of %7d bytes (max %d).",
-                "perms5dBlocks7d": "Perms   %5d blocks  of %7d bytes."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6139,9 +4680,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "didnTFindAny": "You didn't find any $T."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6162,10 +4701,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "findWhat": "Find what?",
-                "nothingLikeHeavenEarth": "Nothing like that in heaven or earth."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6186,9 +4722,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "default": "Ok."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6209,44 +4743,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "invalidNumber": "Read which number?",
-                "noNotes": "There are no notes for you.",
-                "noIdeas": "There are no ideas for you.",
-                "noPenalties": "There are no penalties for you.",
-                "noNews": "There is no news for you.",
-                "noChanges": "There are no changes for you.",
-                "noteRemoveWhichNumber": "Note remove which number?",
-                "default": "Ok.",
-                "noteDeleteWhichNumber": "Note delete which number?",
-                "ok2": "Ok.",
-                "alreadyHaveDifferentNote": "You already have a different note in progress.",
-                "tooLong": "Note too long.",
-                "ok3": "Ok.",
-                "alreadyHaveDifferentNote2": "You already have a different note in progress.",
-                "nothingToRemove": "No lines left to remove.",
-                "alreadyHaveDifferentNote3": "You already have a different note in progress.",
-                "ok4": "Ok.",
-                "alreadyHaveDifferentNote4": "You already have a different note in progress.",
-                "ok5": "Ok.",
-                "ok6": "Ok.",
-                "noDraft": "You have no note in progress.",
-                "arenTWorkingThat": "You aren't working on that kind of note.",
-                "noDraft2": "You have no note in progress.",
-                "arenTWorkingThat2": "You aren't working on that kind of note.",
-                "missingRecipient": "You need to provide a recipient (name, all, or immortal).",
-                "missingSubject": "You need to provide a subject.",
-                "canTDoThat": "You can't do that.",
-                "3d": "[%3d] %s: %s%sTo: %s",
-                "haveNoUnread": "You have no unread %s.",
-                "3d2": "[%3d] %s: %s%sTo: %s",
-                "arenTThatMany": "There aren't that many %s.",
-                "3d3": "[%3d%s] %s: %s",
-                "arenTThatMany2": "There aren't that many %s.",
-                "arenTThatMany3": "There aren't that many %s.",
-                "arenTHighEnough": "You aren't high enough level to write %s.",
-                "default": "%s: %sTo: %s"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6267,9 +4764,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "localEchoWhat": "Local echo what?"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6290,10 +4785,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "arenTSwitched": "You aren't switched.",
-                "returnOriginalBodyType": "You return to your original body. Type replay to see any missed tells."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6314,22 +4806,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "snoopWhom": "Snoop whom?",
-                "theyArenT": "They aren't here.",
-                "noDescriptorSnoop": "No descriptor to snoop.",
-                "cancellingAllSnoops": "Cancelling all snoops.",
-                "busyAlready": "Busy already.",
-                "characterPrivateRoom": "That character is in a private room.",
-                "failed": "You failed.",
-                "noSnoopLoops": "No snoop loops.",
-                "default": "Ok."
-            },
+            "toChar": {},
             "toRoom": {},
-            "toVictim": {},
-            "toWiznet": {
-                "stopsBeingSuchSnoop": "$N stops being such a snoop."
-            }
+            "toVictim": {}
         }
     },
     {
@@ -6348,14 +4827,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "syntax": "Syntax:",
-                "statName": "  stat <name>",
-                "statObjName": "  stat obj <name>",
-                "statMobName": "  stat mob <name>",
-                "statRoomNumber": "  stat room <number>",
-                "nothingByNameFound": "Nothing by that name found anywhere."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6376,15 +4848,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "syntax": "Syntax:\\n\\r  string char <name> <field> <string>\\n\\r    fields: name short long desc title spec\\n\\r  string obj  <name> <field> <string>\\n\\r    fields: name short long extended",
-                "targetMissing": "They aren't here.",
-                "pcInvalid": "Not on PC's.",
-                "npcInvalid": "Not on NPC's.",
-                "noSuchSpecFun": "No such spec fun.",
-                "noSuchObject": "Nothing like that in heaven or earth.",
-                "osetSyntax": "Syntax: oset <object> ed <keyword> <string>"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6405,15 +4869,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noArgument": "Switch into whom?",
-                "alreadySwitched": "You are already switched.",
-                "targetMissing": "They aren't here.",
-                "default": "Ok.",
-                "invalidTarget": "You can only switch into mobiles.",
-                "privateRoom": "That character is in a private room.",
-                "characterUse": "Character in use."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6434,17 +4890,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "slowlyFadeBackInto": "You slowly fade back into existence.",
-                "slowlyVanishIntoThin": "You slowly vanish into thin air.",
-                "invisLevelMustBetween": "Invis level must be between 2 and your level.",
-                "slowlyVanishIntoThin2": "You slowly vanish into thin air."
-            },
-            "toRoom": {
-                "slowlyFadesIntoExistence": "$n slowly fades into existence.",
-                "slowlyFadesIntoThin": "$n slowly fades into thin air.",
-                "slowlyFadesIntoThin2": "$n slowly fades into thin air."
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -6464,12 +4911,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "syntax": "Syntax:",
-                "vnumObjName": "  vnum obj <name>",
-                "vnumMobName": "  vnum mob <name>",
-                "vnumSkillSkillSpell": "  vnum skill <skill or spell>"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6490,9 +4932,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "zoneEchoWhat": "Zone echo what?"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6513,25 +4953,9 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "cloneWhat": "Clone what?",
-                "donTSee": "You don't see that here.",
-                "donTSee2": "You don't see that here.",
-                "donTSee3": "You don't see that here.",
-                "powersNotGreatEnough": "Your powers are not great enough for such a task.",
-                "canOnlyCloneMobiles": "You can only clone mobiles.",
-                "powersNotGreatEnough2": "Your powers are not great enough for such a task.",
-                "clone": "You clone $p.",
-                "clone2": "You clone $N."
-            },
-            "toRoom": {
-                "created": "$n has created $p.",
-                "created2": "$n has created $N."
-            },
-            "toVictim": {},
-            "toWiznet": {
-                "clones": "$N clones $p."
-            }
+            "toChar": {},
+            "toRoom": {},
+            "toVictim": {}
         }
     },
     {
@@ -6550,17 +4974,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "signingOffWiznet": "Signing off of Wiznet.",
-                "welcomeWiznet": "Welcome to Wiznet!",
-                "welcomeWiznet2": "Welcome to Wiznet!",
-                "signingOffWiznet2": "Signing off of Wiznet.",
-                "wiznetStatus": "Wiznet status:",
-                "wiznetOptionsAvailable": "Wiznet options available to you are:",
-                "noSuchOption": "No such option.",
-                "willNoLongerSee": "You will no longer see %s on wiznet.",
-                "willNowSeeWiznet": "You will now see %s on wiznet."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6581,10 +4995,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "immortalChannelNow": "Immortal channel is now ON",
-                "immortalChannelNowOff": "Immortal channel is now OFF"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6605,9 +5016,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noHelpWord": "No help on that word."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6628,10 +5037,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "immortalChannelNow": "Immortal channel is now ON",
-                "immortalChannelNowOff": "Immortal channel is now OFF"
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6652,12 +5058,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "canTShowEmotions": "You can't show your emotions.",
-                "emoteWhat": "Emote what?",
-                "mustIncludeNameSmote": "You must include your name in an smote.",
-                "default": ""
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6678,9 +5079,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "cannotAbbreviatePrefixCommand": "You cannot abbreviate the prefix command."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -6701,10 +5100,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "noPrefixClear": "You have no prefix to clear.",
-                "prefixRemoved": "Prefix removed."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
