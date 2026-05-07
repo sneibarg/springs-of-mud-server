@@ -439,7 +439,7 @@ class ItemUtil:
         ItemTypes = CharacterMacros.get_enum('itemTypes')
         AffectBits = CharacterMacros.get_enum('affectedBy')
         PlayerActBits = CharacterMacros.get_enum('playerActBits')
-        if not CharacterMacros.is_npc(character) and CharacterMacros.is_set(CharacterMacros.get_act_flags(character), PlayerActBits.PLR_HOLYLIGHT.value):
+        if not CharacterMacros.is_npc(character) and CharacterMacros.is_set(character.status_flags.act, PlayerActBits.PLR_HOLYLIGHT.value):
             return True
 
         if CharacterMacros.is_set(GameMacros.convert_flags(obj.extra_flags), ItemFlags.ITEM_VIS_DEATH.value):

@@ -41,16 +41,16 @@ if "server.LoggerFactory" not in sys.modules:
     logger_factory.LoggerFactory = LoggerFactory
     sys.modules["server.LoggerFactory"] = logger_factory
 
-if "item.ObjectMacros" not in sys.modules:
-    object_macros = types.ModuleType("item.ObjectMacros")
+if "item.ItemMacros" not in sys.modules:
+    object_macros = types.ModuleType("item.ItemMacros")
 
-    class ObjectMacros:
+    class ItemMacros:
         @staticmethod
         def flags_to_int(value):
             return int(value or 0)
 
-    object_macros.ObjectMacros = ObjectMacros
-    sys.modules["item.ObjectMacros"] = object_macros
+    object_macros.ItemMacros = ItemMacros
+    sys.modules["item.ItemMacros"] = object_macros
 
 from game.Equipped import Equipped
 

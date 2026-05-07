@@ -2,9 +2,8 @@ import unittest
 
 from enum import IntEnum
 from unittest.mock import MagicMock
-from game.GameData import GameData
 from item.Item import Item
-from item.ItemMacros import ObjectMacros
+from item.ItemMacros import ItemMacros
 
 
 class TestItemTypes(IntEnum):
@@ -93,7 +92,7 @@ class TestBodyParts(IntEnum):
     PART_TUSKS = 16777216
 
 
-class TestObjectMacros(unittest.TestCase):
+class TestItemMacros(unittest.TestCase):
     def setUp(self):
         self.mock_item_table = MagicMock(spec=dict)
         self.mock_item_types = TestItemTypes
@@ -113,7 +112,7 @@ class TestObjectMacros(unittest.TestCase):
             "empty_race": {},
         }
 
-        self.macros = ObjectMacros(self.races, self.mock_item_table, self.mock_item_types)
+        self.macros = ItemMacros(self.races, self.mock_item_table, self.mock_item_types)
 
     def test_decode_form_and_parts_human(self):
         result = self.macros.decode_form_and_parts("human", TestBodyForm, TestBodyParts)

@@ -621,7 +621,7 @@ class PlayerHandler:
         if self.info_commands.PlayerActBits is not None and hasattr(self.info_commands.PlayerActBits, "PLR_AUTOEXIT"):
             autoexit_bit = self.info_commands.PlayerActBits.PLR_AUTOEXIT.value
         if autoexit_bit is not None:
-            act = CharacterMacros.get_act_flags(viewer)
+            act = viewer.status_flags.act
             if CharacterMacros.is_set(act, autoexit_bit):
                 await context.room_handler().print_exits(viewer)
         await self.print_players_in_room(viewer)

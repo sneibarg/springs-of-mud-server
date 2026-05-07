@@ -181,7 +181,7 @@ class InfoCommands:
 
         if arg1 == "" or arg1 == "auto":
             await context.room_handler().print_room(character.id, room)
-            if CharacterMacros.is_set(CharacterMacros.get_act_flags(character), self.PlayerActBits.PLR_AUTOEXIT.value):
+            if CharacterMacros.is_set(character.status_flags.act, self.PlayerActBits.PLR_AUTOEXIT.value):
                 await context.room_handler().print_exits(character, room)
             context.jump_to(1)  # players + mobiles
             return None
@@ -317,10 +317,10 @@ class InfoCommands:
         position_line = CharacterMacros.score_position_line(attributes)
         lines.append(position_line)
 
-        ac_pierce = CharacterMacros.get_ac(character, 0)
-        ac_bash = CharacterMacros.get_ac(character, 1)
-        ac_slash = CharacterMacros.get_ac(character, 2)
-        ac_magic = CharacterMacros.get_ac(character, 3)
+        ac_pierce = character.armor_class.get_ac(character, 0)
+        ac_bash = character.armor_class.get_ac(character, 1)
+        ac_slash = character.armor_class.get_ac(character, 2)
+        ac_magic = character.armor_class.get_ac(character, 3)
 
         if character.level >= 25:
             lines.append(f"Armor: pierce: {ac_pierce}  bash: {ac_bash}  slash: {ac_slash}  magic: {ac_magic}")
@@ -605,8 +605,8 @@ class InfoCommands:
 
         act_bits = self.PlayerActBits
         comm_bits = CharacterMacros.get_enum("commFlags")
-        act = CharacterMacros.get_act_flags(character)
-        comm = CharacterMacros.get_comm_flags(character)
+        act = character.status_flags.act
+        comm = character.status_flags.comm
 
         def on_off(value: bool) -> str:
             return "ON" if value else "OFF"
@@ -693,7 +693,7 @@ class InfoCommands:
     def do_compact(self, character: Character, context: Context) -> str:
         text = CharacterMacros.toggle_comm(character, "COMM_COMPACT", "Compact mode removed.\r\n", "Compact mode set.\r\n")
         comm_bits = CharacterMacros.get_enum("commFlags")
-        comm = CharacterMacros.get_comm_flags(character)
+        comm = character.status_flags.comm
         is_compact = (
             comm_bits is not None
             and hasattr(comm_bits, "COMM_COMPACT")

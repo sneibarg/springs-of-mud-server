@@ -1,8 +1,6 @@
 import random
-from enum import IntEnum
-from threading import RLock
 
-from typing import Any, Optional, Callable
+from typing import Any
 
 from game.GameMacros import GameMacros
 from mobile.Mobile import Mobile
@@ -12,95 +10,6 @@ from player.CharacterMacros import CharacterMacros
 
 
 class MobileMacros(GameMacros):
-    _lock = RLock()
-    _configured = False
-
-    _races_provider: Optional[Callable[[], dict]] = None
-    _item_table_provider: Optional[Callable[[], dict]] = None
-    _enums_provider: Optional[Callable[[], dict[str, IntEnum]]] = None
-
-    _races = None
-    _item_table = None
-    _enums = None
-
-    def __new__(cls, *args, **kwargs):
-        raise RuntimeError("MobileMacros may not be instantiated. Use MobileMacros.<method>(...).")
-
-    @classmethod
-    def configure(
-        cls,
-        *,
-        races_provider: Callable[[], dict],
-        item_table_provider: Callable[[], dict],
-        enums_provider: Callable[[], dict[str, IntEnum]],
-    ) -> None:
-        with cls._lock:
-            cls._races_provider = races_provider
-            cls._item_table_provider = item_table_provider
-            cls._enums_provider = enums_provider
-            cls._configured = True
-
-    @classmethod
-    def configure(
-        cls,
-        *,
-        races_provider: Callable[[], dict],
-        item_table_provider: Callable[[], dict],
-        enums_provider: Callable[[], dict[str, IntEnum]],
-    ) -> None:
-        with cls._lock:
-            cls._races_provider = races_provider
-            cls._item_table_provider = item_table_provider
-            cls._enums_provider = enums_provider
-            cls._configured = True
-
-    @classmethod
-    def reset_for_tests(cls) -> None:
-        with cls._lock:
-            cls._configured = False
-            cls._races_provider = None
-            cls._item_table_provider = None
-            cls._enums_provider = None
-            cls._races = None
-            cls._item_table = None
-            cls._enums = None
-
-    @classmethod
-    def _require_configured(cls) -> None:
-        if not cls._configured:
-            raise RuntimeError("MobileMacros has not been configured.")
-
-    @classmethod
-    def _races_map(cls) -> dict:
-        if cls._races is None:
-            cls._require_configured()
-            if cls._races_provider is None:
-                raise RuntimeError("MobileMacros races provider not configured.")
-            cls._races = cls._races_provider()
-        return cls._races
-
-    @classmethod
-    def _item_table_map(cls) -> dict:
-        if cls._item_table is None:
-            cls._require_configured()
-            if cls._item_table_provider is None:
-                raise RuntimeError("MobileMacros item_table provider not configured.")
-            cls._item_table = cls._item_table_provider()
-        return cls._item_table
-
-    @classmethod
-    def _enums_map(cls) -> dict[str, IntEnum]:
-        if cls._enums is None:
-            cls._require_configured()
-            if cls._enums_provider is None:
-                raise RuntimeError("MobileMacros enums provider not configured.")
-            cls._enums = cls._enums_provider()
-        return cls._enums
-
-    @classmethod
-    def get_enum(cls, enum_name: str) -> Any:
-        return cls._enums_map().get(enum_name)
-
     @staticmethod
     def choose_weighted(weighted: list[tuple[Any, int]]) -> Any:
         choices = [(value, max(0, GenericUtil.to_int(weight, 0))) for value, weight in weighted]

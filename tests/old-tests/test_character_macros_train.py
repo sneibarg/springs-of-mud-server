@@ -2,6 +2,7 @@ import unittest
 from enum import IntEnum
 from types import SimpleNamespace
 
+from game.GameData import GameData
 from player.CharacterMacros import CharacterMacros
 from util.CommunicationsUtil import CommunicationsUtil
 
@@ -20,30 +21,50 @@ class _AffectedBy(IntEnum):
 
 
 class TestCharacterMacrosTrain(unittest.TestCase):
+    @staticmethod
+    def _enum_map(enum_type):
+        return {member.name: member.value for member in enum_type}
+
+    @staticmethod
+    def _game_data(*, enums=None, attribute_bonuses=None, pc_races=None, titles=None):
+        return GameData.from_json({
+            "id": "test-game-data",
+            "kind": "gameData",
+            "status": "active",
+            "version": {
+                "family": "test",
+                "lineage": [],
+                "semver": "0.0.0",
+                "createdAt": "2026-01-01T00:00:00Z",
+            },
+            "enums": enums or {},
+            "attributeBonuses": attribute_bonuses or {},
+            "pcRaces": pc_races or {},
+            "titles": titles or {},
+        })
+
     def tearDown(self):
         CharacterMacros.reset_for_tests()
 
     def _configure_with_flag_enums(self):
         CharacterMacros.configure(
-            registry_provider=lambda: None,
-            enums_provider=lambda: {
-                "playerActBits": _PlayerActBits,
-                "commFlags": _CommFlags,
-                "affectedBy": _AffectedBy,
-            },
-            attribute_bonuses_provider=lambda: {},
-            pc_races_provider=lambda: {},
+            self._game_data(
+                enums={
+                    "playerActBits": self._enum_map(_PlayerActBits),
+                    "commFlags": self._enum_map(_CommFlags),
+                    "affectedBy": self._enum_map(_AffectedBy),
+                },
+            )
         )
 
     def test_get_max_train_uses_configured_pc_races(self):
         CharacterMacros.configure(
-            registry_provider=lambda: None,
-            enums_provider=lambda: {},
-            attribute_bonuses_provider=lambda: {},
-            pc_races_provider=lambda: {
-                "human": {"max_stats": [18, 18, 18, 18, 18]},
-                "elf": {"max_stats": [16, 20, 18, 21, 15]},
-            },
+            self._game_data(
+                pc_races={
+                    "human": {"max_stats": [18, 18, 18, 18, 18]},
+                    "elf": {"max_stats": [16, 20, 18, 21, 15]},
+                },
+            )
         )
         character = SimpleNamespace(race="human")
 
@@ -52,10 +73,9 @@ class TestCharacterMacrosTrain(unittest.TestCase):
 
     def test_get_max_train_prefers_character_race_object(self):
         CharacterMacros.configure(
-            registry_provider=lambda: None,
-            enums_provider=lambda: {},
-            attribute_bonuses_provider=lambda: {},
-            pc_races_provider=lambda: {"human": {"max_stats": [18, 18, 18, 18, 18]}},
+            self._game_data(
+                pc_races={"human": {"max_stats": [18, 18, 18, 18, 18]}},
+            )
         )
         character = SimpleNamespace(
             race="human",
@@ -73,10 +93,9 @@ class TestCharacterMacrosTrain(unittest.TestCase):
 
     def test_get_max_train_falls_back_when_race_missing(self):
         CharacterMacros.configure(
-            registry_provider=lambda: None,
-            enums_provider=lambda: {},
-            attribute_bonuses_provider=lambda: {},
-            pc_races_provider=lambda: {"human": {"max_stats": [18, 18, 18, 18, 18]}},
+            self._game_data(
+                pc_races={"human": {"max_stats": [18, 18, 18, 18, 18]}},
+            )
         )
         character = SimpleNamespace(race="unknown")
 

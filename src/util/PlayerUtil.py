@@ -25,7 +25,7 @@ class PlayerUtil:
         def _has_player_act_bit(char, bit_name: str) -> bool:
             if CharacterMacros.is_npc(char) or not hasattr(player_act_bits, bit_name):
                 return False
-            act_value = CharacterMacros.get_act_flags(char)
+            act_value = char.status_flags.comm
             return CharacterMacros.is_set(act_value, getattr(player_act_bits, bit_name).value)
 
         def _is_affected(char, bit_name: str) -> bool:

@@ -1,5 +1,6 @@
 import requests
 
+from game.GameMacros import GameMacros
 from injector import inject
 from game.GameData import GameData
 from server.LoggerFactory import LoggerFactory
@@ -50,3 +51,4 @@ class GameService:
         for enum_name in self.game_data.enums:
             member_map = self.game_data.enums.get(enum_name)
             self.enums[enum_name] = GenericUtil.build_int_enum(enum_name, member_map)
+        GameMacros.register_shared_enums(self.game_data, self.enums)

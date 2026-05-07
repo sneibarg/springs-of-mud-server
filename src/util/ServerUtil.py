@@ -72,6 +72,7 @@ class ServerUtil:
         ServerUtil._bind_game_services(injector, service_config)
 
         enums = injector.get(GameService).enums
+
         injector.binder.bind(ConnectionHandler, scope=singleton)
         injector.binder.bind(SessionHandler, to=SessionHandler(enums.get("gameParameters")["MAX_IDLE"]), scope=singleton)
 
@@ -138,19 +139,13 @@ class ServerUtil:
 
     @staticmethod
     def _bind_game_data(injector):
-        injector.binder.bind(GameData, to=injector.get(GameService).game_data, scope=singleton)
-        BodyForm.configure(injector.get(GameData))
-        BodyParts.configure(injector.get(GameData))
-        ItemMacros.configure(
-            races_provider=lambda: injector.get(GameData).races,
-            item_table_provider=lambda: injector.get(GameData).item_table,
-            enums_provider=lambda: injector.get(GameService).enums,
-        )
-        MobileMacros.configure(
-            races_provider=lambda: injector.get(GameData).races,
-            item_table_provider=lambda: injector.get(GameData).item_table,
-            enums_provider=lambda: injector.get(GameService).enums,
-        )
+        game_data = injector.get(GameService).game_data
+        injector.binder.bind(GameData, to=game_data, scope=singleton)
+        BodyForm.configure(game_data)
+        BodyParts.configure(game_data)
+        ItemMacros.configure(game_data)
+        MobileMacros.configure(game_data)
+        CharacterMacros.configure(game_data)
 
     @staticmethod
     def _bind_api_instances(injector):
@@ -183,8 +178,6 @@ class ServerUtil:
         fight_handler = injector.get(FightHandler)
         mobile_handler = injector.get(MobileHandler)
         registry_service = injector.get(RegistryService)
-        attribute_bonuses = injector.get(GameData).attribute_bonuses
-        pc_races = injector.get(GameData).pc_races
         enums = injector.get(GameService).enums
         communications_commands = injector.get(CommunicationsCommands)
         object_commands = injector.get(ObjectCommands)
@@ -194,14 +187,8 @@ class ServerUtil:
         skill_api = injector.get(SkillApi)
         fight_commands = injector.get(FightCommands)
 
-        CharacterMacros.configure(
-            registry_provider=lambda: registry_service,
-            enums_provider=lambda: enums,
-            attribute_bonuses_provider=lambda: attribute_bonuses,
-            pc_races_provider=lambda: pc_races,
-            titles_provider=lambda: injector.get(GameData).titles,
-            weather_handler_provider=lambda: weather_handler,
-        )
+        CharacterMacros.set_registry(registry_service)
+        CharacterMacros.lazy_load(weather_handler)
 
         fight_commands.lazy_load()
         skill_api.lazy_load()

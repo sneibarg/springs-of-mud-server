@@ -78,13 +78,12 @@ class RoomHandler:
         if room is None:
             self.logger.error(f"Attempted to print room to character {character_id} but room is None")
             return
-        character = self.character_registry.get_or_none(id=character_id)
+        character: Character = self.character_registry.get(id=character_id)
         show_description = True
         if character is not None:
             comm_flags = CharacterMacros.get_enum("commFlags")
             if hasattr(comm_flags, "COMM_BRIEF"):
-                comm = CharacterMacros.get_comm_flags(character)
-                if CharacterMacros.is_set(comm, comm_flags.COMM_BRIEF.value):
+                if CharacterMacros.is_set(character.status_flags.comm, comm_flags.COMM_BRIEF.value):
                     show_description = False
 
         if show_description:

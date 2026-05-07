@@ -142,7 +142,7 @@ class WizCommands:
         if bit == 0:
             context.finish()
             return {"to_char": "This feature is unavailable.\r\n"}
-        if CharacterMacros.is_set(CharacterMacros.get_act_flags(character), bit):
+        if CharacterMacros.is_set(character.status_flags.act, bit):
             CharacterMacros.unset_act_flags(character, bit)
             context.finish()
             return {"to_char": "Holy light mode off.\r\n"}

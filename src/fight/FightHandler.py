@@ -1049,7 +1049,7 @@ class FightHandler:
         bit = CharacterMacros.enum_bit(player_bits, flag_name)
         if bit <= 0:
             return False
-        return CharacterMacros.is_set(CharacterMacros.get_act_flags(character), bit)
+        return CharacterMacros.is_set(character.status_flags.act, bit)
 
     @staticmethod
     def _find_latest_corpse(room, victim, pre_corpse_ids=None):

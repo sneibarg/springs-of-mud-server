@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from enum import IntEnum
-from threading import RLock
-from typing import Any, TYPE_CHECKING, Callable, Optional
+from typing import Any, TYPE_CHECKING
 
+from mobile.Mobile import Mobile
 from player.Character import Character
 from game.GameMacros import GameMacros
 from util.GenericUtil import GenericUtil
@@ -13,81 +12,28 @@ from server.LoggerFactory import LoggerFactory
 
 if TYPE_CHECKING:
     from area.Room import Room
-    from mobile.Mobile import Mobile
 
 rng = RandomNumberGenerator()
 
 
 class CharacterMacros(GameMacros):
-    _lock = RLock()
-    _configured = False
-
-    _registry_provider: Optional[Callable[[], Any]] = None
-    _enums_provider: Optional[Callable[[], dict[str, IntEnum]]] = None
-    _attribute_bonuses_provider: Optional[Callable[[], dict[str, dict[str, dict[str, int]]]]] = None
-    _pc_races_provider: Optional[Callable[[], dict[str, dict[str, Any]]]] = None
-    _titles_provider: Optional[Callable[[], dict[str, dict[str, Any]]]] = None
-    _weather_handler_provider: Optional[Callable[[], Any]] = None
-
     _registry_service = None
-    _enums = None
-    _attribute_bonuses = None
-    _pc_races = None
-    _titles = None
     _weather_handler = None
     _logger = None
 
-    def __new__(cls, *args, **kwargs):
-        raise RuntimeError(
-            "CharacterMacros may not be instantiated. Use CharacterMacros.<method>(...)."
-        )
+    @classmethod
+    def _reset_internal_variables(cls) -> None:
+        cls._registry_service = None
+        cls._weather_handler = None
+        cls._logger = None
 
     @classmethod
-    def configure(
-        cls,
-        *,
-        registry_provider: Callable[[], Any],
-        enums_provider: Callable[[], dict[str, IntEnum]],
-        attribute_bonuses_provider: Callable[[], dict[str, dict[str, dict[str, int]]]],
-        pc_races_provider: Callable[[], dict[str, dict[str, Any]]],
-        titles_provider: Optional[Callable[[], dict[str, dict[str, Any]]]] = None,
-        weather_handler_provider: Optional[Callable[[], Any]] = None,
-    ) -> None:
-        with cls._lock:
-            cls._registry_provider = registry_provider
-            cls._enums_provider = enums_provider
-            cls._attribute_bonuses_provider = attribute_bonuses_provider
-            cls._pc_races_provider = pc_races_provider
-            cls._titles_provider = titles_provider
-            cls._weather_handler_provider = weather_handler_provider
-            cls._configured = True
-
-    @classmethod
-    def reset_for_tests(cls) -> None:
-        with cls._lock:
-            cls._configured = False
-            cls._registry_provider = None
-            cls._enums_provider = None
-            cls._attribute_bonuses_provider = None
-            cls._pc_races_provider = None
-            cls._titles_provider = None
-            cls._weather_handler_provider = None
-            cls._registry_service = None
-            cls._enums = None
-            cls._attribute_bonuses = None
-            cls._pc_races = None
-            cls._titles = None
-            cls._weather_handler = None
-            cls._logger = None
+    def set_registry(cls, registry_service) -> None:
+        cls._registry_service = registry_service
 
     @classmethod
     def lazy_load(cls, weather_handler) -> None:
         cls._weather_handler = weather_handler
-
-    @classmethod
-    def _require_configured(cls) -> None:
-        if not cls._configured:
-            raise RuntimeError("CharacterMacros has not been configured.")
 
     @classmethod
     def _logger_obj(cls):
@@ -99,51 +45,11 @@ class CharacterMacros(GameMacros):
     def _registry(cls):
         if cls._registry_service is None:
             cls._require_configured()
-            if cls._registry_provider is None:
-                raise RuntimeError("CharacterMacros registry provider not configured.")
-            cls._registry_service = cls._registry_provider()
+            raise RuntimeError("CharacterMacros registry service not configured.")
         return cls._registry_service
 
     @classmethod
-    def _enums_map(cls):
-        if cls._enums is None:
-            cls._require_configured()
-            if cls._enums_provider is None:
-                raise RuntimeError("CharacterMacros enums provider not configured.")
-            cls._enums = cls._enums_provider()
-        return cls._enums
-
-    @classmethod
-    def _attribute_bonus_map(cls):
-        if cls._attribute_bonuses is None:
-            cls._require_configured()
-            if cls._attribute_bonuses_provider is None:
-                raise RuntimeError("CharacterMacros attribute_bonuses provider not configured.")
-            cls._attribute_bonuses = cls._attribute_bonuses_provider()
-        return cls._attribute_bonuses
-
-    @classmethod
-    def _pc_races_map(cls):
-        if cls._pc_races is None:
-            cls._require_configured()
-            if cls._pc_races_provider is None:
-                raise RuntimeError("CharacterMacros pc_races provider not configured.")
-            cls._pc_races = cls._pc_races_provider()
-        return cls._pc_races
-
-    @classmethod
-    def _titles_map(cls):
-        if cls._titles is None:
-            cls._require_configured()
-            if cls._titles_provider is None:
-                raise RuntimeError("CharacterMacros titles provider not configured.")
-            cls._titles = cls._titles_provider()
-        return cls._titles
-
-    @classmethod
     def _weather(cls):
-        if cls._weather_handler is None and cls._weather_handler_provider is not None:
-            cls._weather_handler = cls._weather_handler_provider()
         return cls._weather_handler
 
     @classmethod
@@ -175,8 +81,6 @@ class CharacterMacros(GameMacros):
 
     @staticmethod
     def is_npc(char: Any) -> bool:
-        from mobile.Mobile import Mobile
-
         return type(char) is Mobile
 
     @classmethod
@@ -197,10 +101,7 @@ class CharacterMacros(GameMacros):
         AffectedBits = cls.get_enum("affectedBy")
         if not hasattr(AffectedBits, "AFF_BLIND"):
             return False
-        return cls.is_set(
-            GenericUtil.to_int(getattr(character.status_flags, "affected_by", 0), 0),
-            AffectedBits.AFF_BLIND.value,
-        )
+        return cls.is_set(character.status_flags.affected_by, AffectedBits.AFF_BLIND.value)
 
     @classmethod
     def is_awake(cls, char: Any) -> bool:
@@ -226,51 +127,13 @@ class CharacterMacros(GameMacros):
         return not cls.is_good(char) and not cls.is_evil(char)
 
     @classmethod
-    def get_ac(cls, char: Any, ac: int) -> int:
-        armor = getattr(char, "armor_class", None)
-        if armor is None:
-            return 0
-
-        key = ac
-        if isinstance(ac, int):
-            if ac == 0:
-                key = "pierce"
-            elif ac == 1:
-                key = "bash"
-            elif ac == 2:
-                key = "slash"
-            elif ac == 3:
-                key = "exotic"
-            else:
-                key = "pierce"
-
-        if isinstance(key, str):
-            normalized_key = key.lower()
-            if normalized_key in ("pierce", "piercing"):
-                base = getattr(armor, "piercing", getattr(armor, "pierce", 0))
-            elif normalized_key == "bash":
-                base = getattr(armor, "bashing", getattr(armor, "bash", 0))
-            elif normalized_key == "slash":
-                base = getattr(armor, "slashing", getattr(armor, "slash", 0))
-            else:
-                base = getattr(armor, "magic", getattr(armor, "exotic", 0))
-        else:
-            base = 0
-
-        dex_value = 0
-        if hasattr(char, "character_attributes"):
-            dex_value = getattr(char.character_attributes, "dexterity", 0)
-        dex_defensive = cls.get_attribute_bonus("dexterity", str(dex_value)).get("defensive", 0)
-        return int(base) + int(dex_defensive)
-
-    @classmethod
     def get_hitroll(cls, char: Any) -> int:
-        strength = getattr(getattr(char, "character_attributes", None), "strength", 0)
+        strength = char.character_attributes.strength
         return int(cls.get_attribute_bonus(attr_name="strength", attr_level=str(strength)).get("tohit", 0))
 
     @classmethod
     def get_damroll(cls, char: Any) -> int:
-        strength = getattr(getattr(char, "character_attributes", None), "strength", 0)
+        strength = char.character_attributes.strength
         return int(cls.get_attribute_bonus(attr_name="strength", attr_level=str(strength)).get("todam", 0))
 
     @classmethod
@@ -297,25 +160,17 @@ class CharacterMacros(GameMacros):
         token = str(value or "").strip().lower()
         return token.strip("~`'\".,;:!?()[]{}<>")
 
-    @classmethod
-    def get_act_flags(cls, character: Character) -> int:
-        return GenericUtil.to_int(getattr(character.status_flags, "act", 0), 0)
-
     @staticmethod
     def assign_act_flags(character: Character, value: int) -> None:
         character.status_flags.assign_bitfield("act", GenericUtil.to_int(value, 0))
 
     @classmethod
     def set_act_flags(cls, character: Character, bit) -> None:
-        cls.assign_act_flags(character, cls.set_bit(cls.get_act_flags(character), bit))
+        cls.assign_act_flags(character, cls.set_bit(character.status_flags.act, bit))
 
     @classmethod
     def unset_act_flags(cls, character: Character, bit) -> None:
-        cls.assign_act_flags(character, cls.unset_bit(cls.get_act_flags(character), bit))
-
-    @classmethod
-    def get_comm_flags(cls, character: Character) -> int:
-        return GenericUtil.to_int(getattr(character.status_flags, "comm", 0), 0)
+        cls.assign_act_flags(character, cls.unset_bit(character.status_flags.act, bit))
 
     @staticmethod
     def assign_comm_flags(character: Character, value: int) -> None:
@@ -323,18 +178,18 @@ class CharacterMacros(GameMacros):
 
     @classmethod
     def set_comm_flags(cls, character: Character, bit) -> None:
-        cls.assign_comm_flags(character, cls.set_bit(cls.get_comm_flags(character), bit))
+        cls.assign_comm_flags(character, cls.set_bit(character.status_flags.comm, bit))
 
     @classmethod
     def unset_comm_flags(cls, character: Character, bit) -> None:
-        cls.assign_comm_flags(character, cls.unset_bit(cls.get_comm_flags(character), bit))
+        cls.assign_comm_flags(character, cls.unset_bit(character.status_flags.comm, bit))
 
     @classmethod
     def is_comm_enabled(cls, character: Character, bit_name: str) -> bool:
         comm_bits = cls.get_enum("commFlags")
         if not hasattr(comm_bits, bit_name):
             return False
-        comm = cls.get_comm_flags(character)
+        comm = character.status_flags.comm
         return cls.is_set(comm, getattr(comm_bits, bit_name).value)
 
     @classmethod
@@ -345,7 +200,7 @@ class CharacterMacros(GameMacros):
         if not hasattr(player_act_bits, bit_name):
             return ""
         bit_value = getattr(player_act_bits, bit_name).value
-        act = cls.get_act_flags(character)
+        act = character.status_flags.act
         if cls.is_set(act, bit_value):
             cls.unset_act_flags(character, bit_value)
             return off_text
@@ -356,7 +211,7 @@ class CharacterMacros(GameMacros):
     def toggle_comm(cls, character: Character, bit_name: str, off_text: str, on_text: str) -> str:
         comm_bits = cls.get_enum("commFlags")
         bit_value = getattr(comm_bits, bit_name).value
-        comm = cls.get_comm_flags(character)
+        comm = character.status_flags.comm
         if cls.is_set(comm, bit_value):
             cls.unset_comm_flags(character, bit_value)
             return off_text
@@ -475,8 +330,6 @@ class CharacterMacros(GameMacros):
             if name == key or name.startswith(key):
                 return item
         return None
-
-
 
     @staticmethod
     def skill_value_for_class(values: dict, class_name: str, default: int = 0) -> int:
@@ -883,10 +736,6 @@ class CharacterMacros(GameMacros):
         return True
 
     @classmethod
-    def get_enum(cls, enum_name: str) -> IntEnum:
-        return cls._enums_map()[enum_name]
-
-    @classmethod
     def get_max_train(cls, character: Character, stat_index: int, current_value: int) -> int:
         race_obj = getattr(character, "character_race", None)
         race_fields = (
@@ -913,7 +762,7 @@ class CharacterMacros(GameMacros):
         if cls.is_npc(char):
             return False
         PlayerActBits = cls.get_enum("playerActBits")
-        return cls.is_set(cls.get_act_flags(char), PlayerActBits.PLR_AUTOASSIST.value)
+        return cls.is_set(char.status_flags.act, PlayerActBits.PLR_AUTOASSIST.value)
 
     @classmethod
     def will_npc_assist(self, rch: Mobile, ch: Character) -> bool | str | Any | Any:

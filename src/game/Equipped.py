@@ -139,7 +139,7 @@ class Equipped:
 
     @classmethod
     def wear_slot_groups_for_item(cls, item, wear_flags_enum, *, preferred_slot: str = "", forced_slot: str = "") -> list[tuple[str, ...]]:
-        from item.ItemMacros import ObjectMacros
+        from item.ItemMacros import ItemMacros
 
         groups: list[tuple[str, ...]] = []
         requested = (forced_slot or preferred_slot or "").strip().lower()
@@ -147,7 +147,7 @@ class Equipped:
         if cls.is_light_item(item):
             groups.append(("light",))
 
-        flags = ObjectMacros.flags_to_int(getattr(item, "wear_flags", 0))
+        flags = ItemMacros.flags_to_int(getattr(item, "wear_flags", 0))
         for flag_name, slots in WEAR_SLOT_ORDER.items():
             if wear_flags_enum is None or not hasattr(wear_flags_enum, flag_name):
                 continue
