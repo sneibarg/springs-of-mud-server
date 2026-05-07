@@ -11,7 +11,7 @@ from util.InterpUtil import InterpUtil
 from util.MobileUtil import MobileUtil
 from util.EffectUtil import EffectUtil
 from util.ItemUtil import ItemUtil
-from item.ItemMacros import ObjectMacros
+from item.ItemMacros import ItemMacros
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
@@ -332,7 +332,7 @@ class ObjectCommands:
             if not ItemUtil.is_container_like(container):
                 context.finish()
                 return {"to_char": "That's not a container.\r\n"}
-            if ObjectMacros.is_container_closed(container):
+            if ItemMacros.is_container_closed(container):
                 context.finish()
                 return {"to_char": "It is closed.\r\n"}
             if arg1 == "all" or arg1.startswith("all."):
@@ -413,7 +413,7 @@ class ObjectCommands:
         if not ItemUtil.is_container(container):
             context.finish()
             return {"to_char": "That's not a container.\r\n"}
-        if ObjectMacros.is_container_closed(container):
+        if ItemMacros.is_container_closed(container):
             context.finish()
             return {"to_char": "It is closed.\r\n"}
         if obj is container:

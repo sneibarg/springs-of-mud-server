@@ -5,6 +5,7 @@ import random
 from types import SimpleNamespace
 from typing import Any, Optional
 
+from item.ItemMacros import ItemMacros
 from util.GenericUtil import GenericUtil
 from util.FightUtil import FightUtil
 from mobile.MobileContext import MobileContext
@@ -344,7 +345,7 @@ class MobileApi:
         for obj in list(getattr(ctx.room, "contents", {}).values()):
             proxy = SimpleNamespace(
                 obj=obj,
-                can_take=CharacterMacros.item_takeable(obj, ctx.handler.wear_flags),
+                can_take=ItemMacros.item_takeable(obj, ctx.handler.wear_flags),
                 can_loot=True,
                 item_type=str(getattr(obj, "item_type", "") or ""),
                 cost=GenericUtil.to_int(getattr(obj, "cost", 0), 0),
@@ -597,7 +598,7 @@ class MobileApi:
     def scavenge(self, ctx: MobileContext):
         actor_label = self._actor_label(ctx)
         room_label = self._room_label(ctx.room)
-        if not CharacterMacros.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_SCAVENGER"):
+        if not MobileMacros.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_SCAVENGER"):
             self.logger.debug(f"{actor_label}: scavenge skipped in {room_label} because ACT_SCAVENGER is not set")
             return False
         if not getattr(ctx.room, "contents", {}):
@@ -611,7 +612,7 @@ class MobileApi:
         obj_best = None
         max_cost = 1
         for obj in list(ctx.room.contents.values()):
-            if not CharacterMacros.item_takeable(obj, ctx.handler.wear_flags):
+            if not ItemMacros.item_takeable(obj, ctx.handler.wear_flags):
                 continue
             cost = GenericUtil.to_int(getattr(obj, "cost", 0), 0)
             if cost > max_cost:
@@ -630,7 +631,7 @@ class MobileApi:
     def wander(self, ctx: MobileContext):
         actor_label = self._actor_label(ctx)
         room_label = self._room_label(ctx.room)
-        if CharacterMacros.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_SENTINEL"):
+        if MobileMacros.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_SENTINEL"):
             self.logger.debug(f"{actor_label}: wander skipped in {room_label} because ACT_SENTINEL is set")
             return False
         wander_roll = ctx.handler.rng.number_bits(3)
@@ -671,16 +672,16 @@ class MobileApi:
             self.logger.debug(f"{actor_label}: move blocked from {room_label} to {self._room_label(to_room)} because ROOM_NO_MOB is set")
             return False
 
-        if CharacterMacros.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_STAY_AREA") and getattr(to_room, "area_id", "") != getattr(ctx.room, "area_id", ""):
+        if MobileMacros.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_STAY_AREA") and getattr(to_room, "area_id", "") != getattr(ctx.room, "area_id", ""):
             self.logger.debug(f"{actor_label}: move blocked from {room_label} to {self._room_label(to_room)} because ACT_STAY_AREA is set")
             return False
 
         indoors_bit = MobileMacros.enum_bit(ctx.handler.room_flags, "ROOM_INDOORS")
         to_indoor = indoors_bit and (GenericUtil.to_int(getattr(to_room, "room_flags", 0), 0) & indoors_bit) != 0
-        if CharacterMacros.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_OUTDOORS") and to_indoor:
+        if MobileMacros.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_OUTDOORS") and to_indoor:
             self.logger.debug(f"{actor_label}: move blocked from {room_label} to {self._room_label(to_room)} because ACT_OUTDOORS forbids indoor rooms")
             return False
-        if CharacterMacros.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_INDOORS") and not to_indoor:
+        if MobileMacros.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_INDOORS") and not to_indoor:
             self.logger.debug(f"{actor_label}: move blocked from {room_label} to {self._room_label(to_room)} because ACT_INDOORS forbids outdoor rooms")
             return False
 

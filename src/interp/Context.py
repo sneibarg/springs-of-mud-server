@@ -25,6 +25,23 @@ class Context:
     count: Optional[int] = 0  # used for counting items; result of number_argument
     room: Optional[Room] = None
 
+    @property
+    def argument(self) -> str:
+        if isinstance(self.result, str):
+            return self.result.strip()
+        if self.parameters:
+            return " ".join(self.parameters).strip()
+        return ""
+
+    @property
+    def current_fighting(self):
+        return getattr(self.character, "fighting", None)
+
+    @property
+    def position(self) -> int:
+        from player.CharacterMacros import CharacterMacros
+        return CharacterMacros.position_value(self.character)
+
     def mobile_handler(self):
         if self.handler_service:
             return self.handler_service.get_handler("mh")

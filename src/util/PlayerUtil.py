@@ -5,13 +5,13 @@ from typing import Any, TYPE_CHECKING
 
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
-from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from server.session.SessionHandler import SessionHandler
 
 
 if TYPE_CHECKING:
     from area.Room import Room
+    from player.Character import Character
 
 
 class PlayerUtil:
@@ -120,7 +120,7 @@ class PlayerUtil:
         visible = []
         observer_trust = GenericUtil.to_int(CharacterMacros.get_trust(character))
         for session in session_handler.get_playing_sessions():
-            char: Character = session.character
+            char = session.character
             if char is None:
                 continue
             if char.id == character.id:

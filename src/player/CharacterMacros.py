@@ -4,10 +4,10 @@ from enum import IntEnum
 from threading import RLock
 from typing import Any, TYPE_CHECKING, Callable, Optional
 
+from player.Character import Character
 from game.GameMacros import GameMacros
 from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
-from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 
 
@@ -148,6 +148,7 @@ class CharacterMacros(GameMacros):
 
     @classmethod
     def get_trust(cls, char: Any) -> int:
+        from player.Character import Character
         GameParameters = cls.get_enum("gameParameters")
         if type(char) is Character and char.trust > 0:
             return char.trust
@@ -208,12 +209,14 @@ class CharacterMacros(GameMacros):
 
     @staticmethod
     def is_good(char: Any) -> bool:
+        from player.Character import Character
         if type(char) is Character:
             return char.character_attributes.alignment >= 350
         return char.character_attributes.alignment >= 350
 
     @staticmethod
     def is_evil(char: Any) -> bool:
+        from player.Character import Character
         if type(char) is Character:
             return char.character_attributes.alignment <= -350
         return char.character_attributes.alignment <= -350
@@ -473,28 +476,7 @@ class CharacterMacros(GameMacros):
                 return item
         return None
 
-    @staticmethod
-    def find_comparable_equipped_item(character: Character, source_item):
-        src_type = str(getattr(source_item, "item_type", "") or "").strip().lower()
-        equipped = getattr(character, "equipped", None)
-        for slot_item in getattr(equipped, "__dict__", {}).values() if equipped is not None else []:
-            if slot_item is None or slot_item == source_item:
-                continue
-            item_type = str(getattr(slot_item, "item_type", "") or "").strip().lower()
-            if item_type == src_type:
-                return slot_item
-        return None
 
-    @staticmethod
-    def compare_value(item) -> int | None:
-        item_type = str(getattr(item, "item_type", "") or "").strip().lower()
-        if "weapon" in item_type:
-            dam_min = GenericUtil.to_int(getattr(item, "value1", 0), 0)
-            dam_max = GenericUtil.to_int(getattr(item, "value2", 0), 0)
-            return (dam_min + dam_max) // 2
-        if "armor" in item_type:
-            return GenericUtil.to_int(getattr(item, "value0", 0), 0)
-        return None
 
     @staticmethod
     def skill_value_for_class(values: dict, class_name: str, default: int = 0) -> int:
@@ -801,6 +783,38 @@ class CharacterMacros(GameMacros):
             attrs.position = value
         setattr(character, "position", value)
 
+    @classmethod
+    def is_fighting(cls, char: Character) -> bool:
+        return char.character_attributes.position == cls.pos_value("POS_FIGHTING")
+
+    @classmethod
+    def is_stunned(cls, char: Character) -> bool:
+        return char.character_attributes.position == cls.pos_value("POS_STUNNED")
+
+    @classmethod
+    def is_dead(cls, char: Character) -> bool:
+        return char.character_attributes.position == cls.pos_value("POS_DEAD")
+
+    @classmethod
+    def is_mortal(cls, char: Character) -> bool:
+        return char.character_attributes.position == cls.pos_value("POS_MORTAL")
+
+    @classmethod
+    def is_sleeping(cls, char: Character) -> bool:
+        return char.character_attributes.position == cls.pos_value("POS_SLEEPING")
+
+    @classmethod
+    def is_resting(cls, char: Character) -> bool:
+        return char.character_attributes.position == cls.pos_value("POS_RESTING")
+
+    @classmethod
+    def is_sitting(cls, char: Character) -> bool:
+        return char.character_attributes.position == cls.pos_value("POS_SITTING")
+
+    @classmethod
+    def is_standing(cls, char: Character) -> bool:
+        return char.character_attributes.position == cls.pos_value("POS_STANDING")
+
     @staticmethod
     def mirror_exit_flag(room_registry, room, ex, rev_dir_map, find_exit_fn, set_mask: int = 0, clear_mask: int = 0):
         to_room = room_registry.get_or_none(id=getattr(ex, "to_room_id", None))
@@ -869,36 +883,6 @@ class CharacterMacros(GameMacros):
         return True
 
     @classmethod
-    def mobile_has_act(cls, mob: Any, act_bits, name: str) -> bool:
-        bit = cls.enum_bit(act_bits, name)
-        if bit == 0:
-            return False
-        flags = GenericUtil.to_int(getattr(getattr(mob, "status_flags", None), "act", 0), 0)
-        return (flags & bit) != 0
-
-    @classmethod
-    def mobile_is_charmed(cls, mob: Any) -> bool:
-        charm = cls.enum_bit(cls.get_enum("affectedBy"), "AFF_CHARM")
-        if charm == 0:
-            return False
-        flags = GenericUtil.to_int(getattr(getattr(mob, "status_flags", None), "affected_by", 0), 0)
-        return (flags & charm) != 0
-
-    @classmethod
-    def mobile_is_standing(cls, mob: Any) -> bool:
-        standing = cls.enum_bit(cls.get_enum("positions"), "POS_STANDING")
-        current = GenericUtil.to_int(getattr(mob, "position", getattr(mob, "start_pos", standing)), standing)
-        return current == standing
-
-    @classmethod
-    def item_takeable(cls, obj: Any, wear_flags_enum) -> bool:
-        take_bit = cls.enum_bit(wear_flags_enum, "ITEM_TAKE")
-        if take_bit == 0:
-            return False
-        wear_flags = GameMacros.flags_to_int(getattr(obj, "wear_flags", 0))
-        return (wear_flags & take_bit) != 0
-
-    @classmethod
     def get_enum(cls, enum_name: str) -> IntEnum:
         return cls._enums_map()[enum_name]
 
@@ -923,15 +907,6 @@ class CharacterMacros(GameMacros):
         if isinstance(max_stats, list) and 0 <= stat_index < len(max_stats):
             return GenericUtil.to_int(max_stats[stat_index], current_value)
         return current_value
-
-    @classmethod
-    def mobile_will_assist(cls, char: Mobile) -> bool:
-        from mobile.Mobile import Mobile
-
-        if type(char) is not Mobile:
-            return False
-        OffenseTypes = cls.get_enum("offenseTypes")
-        return cls.is_set(char.status_flags.off, OffenseTypes.ASSIST_PLAYERS.value)
 
     @classmethod
     def player_auto_assist(cls, char: Character) -> bool:

@@ -4,7 +4,7 @@ from game.RegistryService import RegistryService
 from interp.Context import Context
 from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
-from item.ItemMacros import ObjectMacros
+from item.ItemMacros import ItemMacros
 from player.Character import Character
 from server.messaging import MessageBus
 
@@ -50,7 +50,7 @@ class ItemHandler:
             return
 
         if ItemUtil.is_container_like(obj):
-            if ObjectMacros.is_container_closed(obj):
+            if ItemMacros.is_container_closed(obj):
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("It is closed.\r\n"))
                 context.finish()
                 return

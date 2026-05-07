@@ -4,9 +4,11 @@ from typing import Any, Callable, Dict, List, Optional
 
 from game.GameMacros import GameMacros
 from item.Item import Item
+from player.Character import Character
+from util.GenericUtil import GenericUtil
 
 
-class ObjectMacros(GameMacros):
+class ItemMacros(GameMacros):
     _lock = RLock()
     _configured = False
 
@@ -51,14 +53,14 @@ class ObjectMacros(GameMacros):
     @classmethod
     def _require_configured(cls) -> None:
         if not cls._configured:
-            raise RuntimeError("ObjectMacros has not been configured.")
+            raise RuntimeError("ItemMacros has not been configured.")
 
     @classmethod
     def _races_map(cls) -> dict:
         if cls._races is None:
             cls._require_configured()
             if cls._races_provider is None:
-                raise RuntimeError("ObjectMacros races provider not configured.")
+                raise RuntimeError("ItemMacros races provider not configured.")
             cls._races = cls._races_provider()
         return cls._races
 
@@ -67,7 +69,7 @@ class ObjectMacros(GameMacros):
         if cls._item_table is None:
             cls._require_configured()
             if cls._item_table_provider is None:
-                raise RuntimeError("ObjectMacros item_table provider not configured.")
+                raise RuntimeError("ItemMacros item_table provider not configured.")
             cls._item_table = cls._item_table_provider()
         return cls._item_table
 
@@ -76,7 +78,7 @@ class ObjectMacros(GameMacros):
         if cls._enums is None:
             cls._require_configured()
             if cls._enums_provider is None:
-                raise RuntimeError("ObjectMacros enums provider not configured.")
+                raise RuntimeError("ItemMacros enums provider not configured.")
             cls._enums = cls._enums_provider()
         return cls._enums
 
@@ -133,3 +135,34 @@ class ObjectMacros(GameMacros):
             "form": decoded_form,
             "parts": decoded_parts
         }
+
+    @classmethod
+    def item_takeable(cls, obj: Any, wear_flags_enum) -> bool:
+        take_bit = cls.enum_bit(wear_flags_enum, "ITEM_TAKE")
+        if take_bit == 0:
+            return False
+        wear_flags = GameMacros.flags_to_int(getattr(obj, "wear_flags", 0))
+        return (wear_flags & take_bit) != 0
+
+    @staticmethod
+    def find_comparable_equipped_item(character: Character, source_item):
+        src_type = str(getattr(source_item, "item_type", "") or "").strip().lower()
+        equipped = getattr(character, "equipped", None)
+        for slot_item in getattr(equipped, "__dict__", {}).values() if equipped is not None else []:
+            if slot_item is None or slot_item == source_item:
+                continue
+            item_type = str(getattr(slot_item, "item_type", "") or "").strip().lower()
+            if item_type == src_type:
+                return slot_item
+        return None
+
+    @staticmethod
+    def compare_value(item) -> int | None:
+        item_type = str(getattr(item, "item_type", "") or "").strip().lower()
+        if "weapon" in item_type:
+            dam_min = GenericUtil.to_int(getattr(item, "value1", 0), 0)
+            dam_max = GenericUtil.to_int(getattr(item, "value2", 0), 0)
+            return (dam_min + dam_max) // 2
+        if "armor" in item_type:
+            return GenericUtil.to_int(getattr(item, "value0", 0), 0)
+        return None

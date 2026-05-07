@@ -7,8 +7,7 @@
         "shortcuts": "qui",
         "role": "player",
         "lambdas": [
-            "lambda ctx: ctx.player_handler().do_quit(ctx.character, ctx)",
-            "lambda ctx: ctx.room.remove_player_from_room(ctx.character)"
+            "lambda ctx: ctx.player_handler().do_quit(ctx.character, ctx)"
         ],
         "enabled": true,
         "position": "POS_DEAD",
@@ -16,6 +15,16 @@
         "log": "LOG_NORMAL",
         "pipeline": false,
         "maxArguments": 0,
+        "checks": [
+            {
+                "predicate": "lambda v: CharacterMacros.is_fighting(v.context.character)",
+                "messageKey": "fighting"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
+                "messageKey": "stunned"
+            }
+        ],
         "payload": {
             "toChar": {
                 "fighting": "No way! You are fighting.",
@@ -1267,7 +1276,7 @@
             "toChar": {
                 "noArgument": "Compare what to what?",
                 "targetMissing": "You do not have that item.",
-                "wearSlotEmpty": "You aren't wearing anything comparable.",
+                "wearSlotEmpty": "You aren't wearing anything comparable."
             },
             "toRoom": {},
             "toVictim": {}
@@ -3672,7 +3681,7 @@
                 "hands": "You wear %t on your hands.",
                 "arms": "You wear %t on your arms.",
                 "legs": "You wear %t on your legs.",
-                "feet": "You wear %t on your feet.",,
+                "feet": "You wear %t on your feet.",
                 "waist": "You wear %t on your waist.",
                 "aboutTorso": "You wear %t about your torso.",
                 "aboutWaist": "You wear %t about your waist.",
@@ -3777,7 +3786,10 @@
                 "targetSafe": "You cannot attack them.",
                 "killSteal": "Kill stealing is not permitted.",
                 "requiresWeapon": "You need to wield a weapon to backstab.",
-                "targetTooHurt": "They are hurt and suspicious. You can't sneak up."
+                "targetTooHurt": "They are hurt and suspicious. You can't sneak up.",
+                "isSafe": "Not in this room.",
+                "isShop": "The shopkeeper wouldn't like that.",
+                "isMota": "I don't think Mota would approve."
             },
             "toRoom": {},
             "toVictim": {}

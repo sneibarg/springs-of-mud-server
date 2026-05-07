@@ -12,7 +12,7 @@ from mobile.Dice import Dice
 from game.StatusFlags import StatusFlags
 from game.RandomNumberGenerator import RandomNumberGenerator
 from item.Effect import AffectWhere, Effect
-from item.ItemMacros import ObjectMacros
+from item.ItemMacros import ItemMacros
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
 
@@ -37,11 +37,11 @@ class MobileUtil:
 
     @staticmethod
     def convert_form(race: str, form: int):
-        return ObjectMacros.set_bit(form, ObjectMacros.race_data(race).get(form, 0))
+        return ItemMacros.set_bit(form, ItemMacros.race_data(race).get(form, 0))
 
     @staticmethod
     def convert_parts(race: str, parts: int):
-        return ObjectMacros.set_bit(parts, ObjectMacros.race_data(race).get(parts, 0))
+        return ItemMacros.set_bit(parts, ItemMacros.race_data(race).get(parts, 0))
 
     @staticmethod
     def resolve_mobile_id(mobile_data: dict, raw_mobile: dict) -> str | None:

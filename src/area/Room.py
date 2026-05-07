@@ -1,17 +1,20 @@
 import threading
 
 from dataclasses import dataclass, field
-from typing import List, Any
+from typing import List, Any, TYPE_CHECKING
 
 from player.CharacterMacros import CharacterMacros
 from util.AreaUtil import AreaUtil
 from area.Exit import Exit
 from mobile.Mobile import Mobile
-from item.Item import Item
-from player.Character import Character
 from item.ExtraDescriptionData import ExtraDescriptionData
 from util.GenericUtil import GenericUtil
 from util.PlayerUtil import PlayerUtil
+
+
+if TYPE_CHECKING:
+    from item.Item import Item
+    from player.Character import Character
 
 
 @dataclass

@@ -1,3 +1,1 @@
-from .InterpService import InterpService
-
-__all__ = ['InterpService']
+__all__ = ["InterpApi", "InterpService"]

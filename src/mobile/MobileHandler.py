@@ -4,6 +4,7 @@ from injector import inject
 from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
 from area.ShopRegistry import ShopRegistry
+from mobile.MobileMacros import MobileMacros
 from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
 from game.RegistryService import RegistryService
@@ -104,7 +105,7 @@ class MobileHandler:
             if mob is None or room is None or getattr(mob, "id", None) not in room.mobiles:
                 self.logger.debug(f"mobile_update skipping snapshot because mob or resolved room is invalid: mob={self._actor_label(mob)}, room={self._room_label(room)}")
                 continue
-            if CharacterMacros.mobile_is_charmed(mob):
+            if MobileMacros.mobile_is_charmed(mob):
                 self.logger.debug(f"mobile_update skipping {self._actor_label(mob)} in {self._room_label(room)} because it is charmed")
                 continue
             if self._skip_in_empty_area(room, mob):
@@ -121,7 +122,7 @@ class MobileHandler:
             if special_performed:
                 continue
 
-            if not CharacterMacros.mobile_is_standing(mob):
+            if not MobileMacros.mobile_is_standing(mob):
                 self.logger.debug(f"mobile_update skipping generic specials for {self._actor_label(mob)} in {self._room_label(room)} because position is not standing")
                 continue
 
@@ -140,7 +141,7 @@ class MobileHandler:
         area = self.area_registry.get_or_none(id=getattr(room, "area_id", ""))
         if area is None or not getattr(area, "empty", False):
             return False
-        return not CharacterMacros.mobile_has_act(mob, self.act_bits, "ACT_UPDATE_ALWAYS")
+        return not MobileMacros.mobile_has_act(mob, self.act_bits, "ACT_UPDATE_ALWAYS")
 
     def _update_shop_money(self, mob: Mobile):
         shop = self.shop_registry.find_by_keeper_vnum(getattr(mob, "vnum", ""))

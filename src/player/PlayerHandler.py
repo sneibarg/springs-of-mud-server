@@ -41,12 +41,12 @@ class PlayerHandler:
         self.logger = LoggerFactory.get_logger(__name__)
 
     async def do_quit(self, character: Character, context: Context):
-        payload = self.info_commands.do_quit(character)
-        await self.message_bus.send_to_character(
-            character.id,
-            self.message_bus.text_to_message(payload["to_char"])
-        )
-        room = self.room_registry.get_or_none(id=character.room_id)
+        payload = self.info_commands.do_quit(context)
+        message = self.message_bus.text_to_message(payload["to_char"])
+        await self.message_bus.send_to_character(character.id, message)
+        if payload.get("blocked"):
+            return
+        room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
         if room is not None:
             for viewer in room.characters.values():
                 if viewer.id == character.id:
@@ -56,6 +56,7 @@ class PlayerHandler:
                 else:
                     text = "Someone has left the game.\r\n"
                 await self.message_bus.send_to_character(viewer.id, self.message_bus.text_to_message(text))
+            room.remove_player_from_room(character)
         await context.disconnect()
 
     async def do_who(self, character):

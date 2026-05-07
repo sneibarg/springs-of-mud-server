@@ -5,10 +5,11 @@ from area.AreaHandler import AreaHandler
 from area.ResetService import ResetService
 from area.RoomHandler import RoomHandler
 from area.SpecialService import SpecialService
-from fight import FightApi
+from fight.FightApi import FightApi
 from game.HandlerService import HandlerService
 from interp.commands.FightCommands import FightCommands
 from interp.commands.CommunicationsCommands import CommunicationsCommands
+from interp.InterpApi import InterpApi
 from interp.commands.InfoCommands import InfoCommands
 from interp.commands.MovementCommands import MovementCommands
 from interp.commands.ObjectCommands import ObjectCommands
@@ -21,13 +22,14 @@ from item.ItemHandler import ItemHandler
 from item.BodyForm import BodyForm
 from item.BodyParts import BodyParts
 from mobile.MobileHandler import MobileHandler
+from mobile.MobileMacros import MobileMacros
 from player.PlayerHandler import PlayerHandler
 from game.GameData import GameData
 from game.GameService import GameService
 from game.NoteHandler import NoteHandler
 from game.NoteService import NoteService
 from mobile.MobileService import MobileService
-from item.ItemMacros import ObjectMacros
+from item.ItemMacros import ItemMacros
 from player.CharacterMacros import CharacterMacros
 from player.PlayerService import PlayerService
 from player.CharacterService import CharacterService
@@ -139,7 +141,12 @@ class ServerUtil:
         injector.binder.bind(GameData, to=injector.get(GameService).game_data, scope=singleton)
         BodyForm.configure(injector.get(GameData))
         BodyParts.configure(injector.get(GameData))
-        ObjectMacros.configure(
+        ItemMacros.configure(
+            races_provider=lambda: injector.get(GameData).races,
+            item_table_provider=lambda: injector.get(GameData).item_table,
+            enums_provider=lambda: injector.get(GameService).enums,
+        )
+        MobileMacros.configure(
             races_provider=lambda: injector.get(GameData).races,
             item_table_provider=lambda: injector.get(GameData).item_table,
             enums_provider=lambda: injector.get(GameService).enums,
@@ -149,6 +156,7 @@ class ServerUtil:
     def _bind_api_instances(injector):
         injector.binder.bind(SkillApi, scope=singleton)
         injector.binder.bind(FightApi, scope=singleton)
+        injector.binder.bind(InterpApi, scope=singleton)
 
     @staticmethod
     def lazy_load(injector) -> None:

@@ -1,18 +1,3 @@
-from dataclasses import dataclass, field
-from typing import Any
+from game.action import ActionPlan as FightPlan, MessageRef
 
-
-@dataclass(frozen=True)
-class MessageRef:
-    channel: str
-    key: str
-    fallback: str = ""
-    tokens: dict[str, Any] = field(default_factory=dict)
-
-
-@dataclass(frozen=True)
-class FightPlan:
-    stop: bool = True
-    messages: tuple[MessageRef, ...] = ()
-    executor: str = ""
-    data: dict[str, Any] = field(default_factory=dict)
+__all__ = ["FightPlan", "MessageRef"]

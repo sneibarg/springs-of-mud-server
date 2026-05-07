@@ -1,9 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from registries import Registry
-from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 
+if TYPE_CHECKING:
+    from player.Character import Character
 
-class CharacterRegistry(Registry[Character]):
+
+class CharacterRegistry(Registry):
     lookup_attrs = ('id', )
 
     def __init__(self):

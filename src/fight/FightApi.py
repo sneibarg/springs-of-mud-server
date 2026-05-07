@@ -7,11 +7,9 @@ from typing import Any
 from injector import inject
 
 from area.RoomRegistry import RoomRegistry
-from fight.FightActionDefinition import FightActionDefinition
-from fight.FightCheck import FightCheck
 from fight.FightHandler import FightHandler
-from fight.FightPlan import FightPlan, MessageRef
 from fight.FightView import FightView
+from game.action import ActionCheck, ActionDefinition, ActionPlan, MessageRef
 from skill.SkillApi import SkillApi
 from skill.SkillRegistry import SkillRegistry
 from player.CharacterMacros import CharacterMacros
@@ -38,17 +36,14 @@ class FightApi:
         context.finish()
         return self.execute_fight_plan(context, commands_handler, view, plan)
 
-    def build_fight_view(self, character, context, action_name: str) -> FightView:
-        command_name = str(getattr(getattr(context, "command", None), "name", "") or action_name).strip().lower()
+    def build_fight_view(self, context) -> FightView:
+        character = context.character
+        command_name = context.command.name
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
         argument = FightUtil.parse_action_argument(context.result, context.parameters)
         victim = PlayerUtil.get_target(character, argument, room) if room is not None and argument else None
         weapon = getattr(getattr(character, "equipped", None), "wielded", None)
         skill = self._resolve_action_skill(command_name, weapon)
-        safe = False
-        safe_message = ""
-        if room is not None and victim is not None and victim is not character:
-            safe, safe_message = self.fight_handler.is_safe(character, victim, room=room)
         skill_percent = self.skill_api.get_rating(character, skill) if skill is not None else 0
         has_skill_access = True if skill is None else self._has_skill_access(character, skill)
         return FightView(
@@ -57,10 +52,8 @@ class FightApi:
             room=room,
             argument=argument,
             victim=victim,
+            spell=None,
             skill=skill,
-            current_fighting=getattr(character, "fighting", None),
-            safe=safe,
-            safe_message=safe_message or "",
             extra={
                 "command_name": command_name,
                 "weapon": weapon,
@@ -70,10 +63,10 @@ class FightApi:
         )
 
     @staticmethod
-    def evaluate_fight_action(view: FightView, definition: FightActionDefinition) -> FightPlan:
+    def evaluate_fight_action(view: FightView, definition: ActionDefinition[FightView]) -> ActionPlan:
         for check in definition.checks:
             if check.predicate(view):
-                return FightPlan(
+                return ActionPlan(
                     stop=True,
                     messages=(
                         MessageRef(
@@ -84,22 +77,18 @@ class FightApi:
                         ),
                     ),
                 )
-        return FightPlan(
-            stop=True,
-            executor=definition.executor,
-            data=dict(definition.plan_factory(view) or {}),
-        )
+        return definition.plan_factory(view)
 
-    def execute_fight_plan(self, context, fight_commands, view: FightView, plan: FightPlan):
-        if not plan.executor:
+    def execute_fight_plan(self, context, fight_commands, view: FightView, plan: ActionPlan):
+        if not plan.operation:
             return self.render_plan_payload(
-                view.command.payload,
+                view.context.command.payload,
                 plan,
                 victim=view.victim,
                 targets=context.room.player_targets(context.character),
             )
 
-        if plan.executor == "multi_hit":
+        if plan.operation == "multi_hit":
             victim = view.victim
             room = view.room
             if getattr(view.actor, "fighting", None) is None:
@@ -110,7 +99,7 @@ class FightApi:
             result = self.fight_handler.multi_hit(view.actor, victim, dt=plan.data.get("dt", "TYPE_UNDEFINED"))
             return self.fight_handler.build_round_payload(view.actor, victim, room, result, pre_corpse_ids)
 
-        if plan.executor == "backstab":
+        if plan.operation == "backstab":
             victim = view.victim
             room = view.room
             skill = view.skill
@@ -129,10 +118,10 @@ class FightApi:
                 result = self.fight_handler.damage(view.actor, victim, 0, dt=plan.data.get("dt", "backstab"))
             return self.fight_handler.build_round_payload(view.actor, victim, room, result, pre_corpse_ids)
 
-        raise ValueError(f"Unknown fight executor: {plan.executor}")
+        raise ValueError(f"Unknown fight executor: {plan.operation}")
 
     @staticmethod
-    def render_plan_payload(payload_def, plan: FightPlan, victim=None, targets=None) -> dict:
+    def render_plan_payload(payload_def, plan: ActionPlan, victim=None, targets=None) -> dict:
         payload: dict[str, Any] = {}
         for msg in plan.messages:
             text = payload_def.render(msg.channel, msg.key, msg.fallback, **msg.tokens)
@@ -145,7 +134,7 @@ class FightApi:
             payload["targets"] = list(targets)
         return payload
 
-    def _fight_action_definition(self, view: FightView, action_name: str) -> FightActionDefinition:
+    def _fight_action_definition(self, view: FightView, action_name: str) -> ActionDefinition[FightView]:
         skill = view.skill
         command_name = str(view.extra.get("command_name", "") or action_name).strip().lower()
         if skill is None:
@@ -156,11 +145,10 @@ class FightApi:
             raise KeyError(f"Skill '{getattr(skill, 'name', command_name)}' does not define a fight executor")
 
         plan_data = dict(getattr(skill, "fight_plan", {}) or {})
-        return FightActionDefinition(
+        return ActionDefinition(
             name=str(getattr(skill, "name", "") or command_name),
             checks=self._build_checks(skill),
-            executor=executor,
-            plan_factory=lambda _view: dict(plan_data),
+            plan_factory=lambda _view: ActionPlan(operation=executor, data=dict(plan_data)),
         )
 
     @staticmethod
@@ -218,15 +206,15 @@ class FightApi:
             return lowered
         return "hand to hand"
 
-    def _build_checks(self, skill) -> tuple[FightCheck, ...]:
-        checks: list[FightCheck] = []
+    def _build_checks(self, skill) -> tuple[ActionCheck[FightView], ...]:
+        checks: list[ActionCheck[FightView]] = []
         for entry in list(getattr(skill, "checks", []) or []):
             predicate_src = str(entry.get("predicate", "") or "").strip()
             if not predicate_src:
                 continue
             token_factory_src = str(entry.get("token_factory", "") or "").strip()
             checks.append(
-                FightCheck(
+                ActionCheck(
                     predicate=self._compile_lambda(predicate_src),
                     message_key=str(entry.get("message_key", "") or "").strip(),
                     fallback=str(entry.get("fallback", "") or ""),

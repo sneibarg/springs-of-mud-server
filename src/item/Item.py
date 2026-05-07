@@ -8,13 +8,13 @@ from typing import Optional, List, TYPE_CHECKING
 
 from item.ExtraDescriptionData import ExtraDescriptionData
 from item.Effect import Effect
-from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
 from util.GenericUtil import GenericUtil
 
 if TYPE_CHECKING:
     from area.Room import Room
+    from player.Character import Character
 
 
 @dataclass

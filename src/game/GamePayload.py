@@ -15,7 +15,9 @@ class _SafeTokens(dict):
 class GamePayload:
     to_char: dict[str, str] = field(default_factory=dict)
     to_room: dict[str, str] = field(default_factory=dict)
-    to_victim: dict[str, str] = field(default_factory=dict)
+    to_vict: dict[str, str] = field(default_factory=dict)
+    to_world: dict[str, str] = field(default_factory=dict)
+    to_wiznet: dict[str, str] = field(default_factory=dict)
 
     @classmethod
     def from_json(cls, data: Any) -> "GamePayload":
@@ -27,13 +29,27 @@ class GamePayload:
         return cls(
             to_char=cls._normalize_message_keys(normalized.get("to_char", {})),
             to_room=cls._normalize_message_keys(normalized.get("to_room", {})),
-            to_victim=cls._normalize_message_keys(normalized.get("to_victim", {})),
+            to_vict=cls._normalize_message_keys(normalized.get("to_vict", normalized.get("to_victim", {}))),
+            to_world=cls._normalize_message_keys(normalized.get("to_world", {})),
+            to_wiznet=cls._normalize_message_keys(normalized.get("to_wiznet", {})),
         )
 
     def render(self, channel: str, key: str, fallback: str = "", **tokens) -> str:
-        table = getattr(self, channel, {}) or {}
+        alias = "to_vict" if channel == "to_victim" else channel
+        table = getattr(self, alias, {}) or {}
         template = table.get(key, fallback)
-        return str(template or "").format_map(_SafeTokens(tokens))
+        rendered = str(template or "").format_map(_SafeTokens(tokens))
+        legacy_tokens = {
+            "%c": tokens.get("c", ""),
+            "%t": tokens.get("t", ""),
+            "%s": tokens.get("s", ""),
+            "%d": tokens.get("d", ""),
+            "%q": tokens.get("q", ""),
+            "%T": tokens.get("T", ""),
+        }
+        for marker, value in legacy_tokens.items():
+            rendered = rendered.replace(marker, str(value or ""))
+        return rendered
 
     @staticmethod
     def _normalize_message_keys(data: Any) -> dict[str, str]:
@@ -45,4 +61,3 @@ class GamePayload:
             normalized_key = next(iter(converted.keys()), str(key))
             normalized[normalized_key] = str(value)
         return normalized
-

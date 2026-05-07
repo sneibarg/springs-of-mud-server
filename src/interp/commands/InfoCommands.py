@@ -3,8 +3,10 @@ from typing import Any
 from injector import inject
 
 from game.RegistryService import RegistryService
+from item.ItemMacros import ItemMacros
 from util.GenericUtil import GenericUtil
 from game.WeatherHandler import WeatherHandler
+from interp.InterpApi import InterpApi
 from util.InfoUtil import InfoUtil
 from interp.Context import Context
 from interp.HelpEntry import HelpEntry
@@ -59,7 +61,7 @@ EQUIP_SLOT_LABELS = [
 class InfoCommands:
     @inject
     def __init__(self,
-                 registry_service: RegistryService, session_handler: SessionHandler, weather_handler: WeatherHandler):
+                 registry_service: RegistryService, session_handler: SessionHandler, weather_handler: WeatherHandler, interp_api: InterpApi = None):
         self.__name__ = "InfoCommands"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.interp_registry = registry_service.interp_registry
@@ -68,20 +70,15 @@ class InfoCommands:
         self.spell_registry = getattr(registry_service, "spell_registry", None)
         self.session_handler = session_handler
         self.weather_handler = weather_handler
+        self.interp_api = interp_api or InterpApi()
         self.server_boot_time = datetime.now().ctime()
         self.PlayerActBits = None
 
     def lazy_load(self):
         self.PlayerActBits = CharacterMacros.get_enum('playerActBits')
 
-    def do_quit(self, character: Character):
-        room = self.room_registry.get(id=character.room_id)
-        in_room = room.players_in_room()
-        return {
-            "people": in_room,
-            "to_char": "Alas, all good things must come to an end.\r\n",
-            "to_room": f"{character.name} has left the game.\r\n",
-        }
+    def do_quit(self, context: Context):
+        return self.interp_api.run_action(context, context.command.name)
 
     def do_who(self, character: Character) -> str:
         who_list = [character] + PlayerUtil.visible(character, self.session_handler)
@@ -1021,7 +1018,7 @@ class InfoCommands:
             context.finish()
             return "You do not have that item.\r\n"
 
-        obj2 = CharacterMacros.find_owned_item(character, arg2) if arg2 else CharacterMacros.find_comparable_equipped_item(character, obj1)
+        obj2 = CharacterMacros.find_owned_item(character, arg2) if arg2 else ItemMacros.find_comparable_equipped_item(character, obj1)
         if obj2 is None:
             context.finish()
             return "You aren't wearing anything comparable.\r\n" if not arg2 else "You do not have that item.\r\n"
@@ -1032,8 +1029,8 @@ class InfoCommands:
             context.finish()
             return "You can't compare those items.\r\n"
 
-        v1 = CharacterMacros.compare_value(obj1)
-        v2 = CharacterMacros.compare_value(obj2)
+        v1 = ItemMacros.compare_value(obj1)
+        v2 = ItemMacros.compare_value(obj2)
         if v1 is None or v2 is None:
             context.finish()
             return "You can't compare those items.\r\n"

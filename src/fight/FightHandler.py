@@ -7,6 +7,7 @@ from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
 from fight.CombatEvent import CombatEvent
 from fight.CombatRegistry import CombatRegistry
+from mobile.MobileMacros import MobileMacros
 from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
 from util.InfoUtil import InfoUtil
@@ -1255,7 +1256,7 @@ class FightHandler:
             return False
         if CharacterMacros.is_set(aggressor.start_pos, CharacterMacros.enum_bit(self.PositionsEnum, "POS_FIGHTING")):
             return False
-        if CharacterMacros.mobile_is_charmed(aggressor):
+        if MobileMacros.mobile_is_charmed(aggressor):
             return False
         if not CharacterMacros.is_awake(aggressor):
             return False

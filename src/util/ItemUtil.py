@@ -6,7 +6,7 @@ from game.RandomNumberGenerator import RandomNumberGenerator
 from item.ItemRegistry import ItemRegistry
 from util.GenericUtil import GenericUtil
 from item.ExtraDescriptionData import ExtraDescriptionData
-from item.ItemMacros import ObjectMacros
+from item.ItemMacros import ItemMacros
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
@@ -59,8 +59,8 @@ class ItemUtil:
     @staticmethod
     def normalize_item_data(item_data, liquids, skill_registry) -> Item:
         ItemUtil.convert_extra_and_wear_flags(item_data)
-        item_types = ObjectMacros.get_enum("itemTypes")
-        damage_types = ObjectMacros.get_enum("damageTypes")
+        item_types = ItemMacros.get_enum("itemTypes")
+        damage_types = ItemMacros.get_enum("damageTypes")
         ItemUtil.normalize_value_fields(item_data, item_types)
         ItemUtil.update_item_type(item_data, damage_types, item_types, liquids, skill_registry)
         ItemUtil.update_condition(item_data)
