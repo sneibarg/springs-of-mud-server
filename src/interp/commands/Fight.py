@@ -27,10 +27,10 @@ from util.PlayerUtil import PlayerUtil
 from util.SkillUtil import SkillUtil
 
 
-class FightCommands:
+class Fight:
     @inject
     def __init__(self, registry_service: RegistryService, skill_api: SkillApi, fight_api: FightApi, weather_handler: WeatherHandler = None):
-        self.__name__ = "FightCommands"
+        self.__name__ = "Fight"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.skill_api = skill_api

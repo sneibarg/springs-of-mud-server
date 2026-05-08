@@ -113,7 +113,7 @@ _load_module("interp.InterpCheck", "interp/InterpCheck.py")
 _load_module("interp.InterpActionDefinition", "interp/InterpActionDefinition.py")
 _load_module("interp.InterpPlan", "interp/InterpPlan.py")
 _load_module("interp.InterpApi", "interp/InterpApi.py")
-InfoCommands = _load_module("interp.commands.InfoCommands", "interp/commands/InfoCommands.py").InfoCommands
+InfoCommands = _load_module("interp.commands.Info", "interp/commands/Info.py").InfoCommands
 
 
 class TestQuitCommandChecks(unittest.TestCase):

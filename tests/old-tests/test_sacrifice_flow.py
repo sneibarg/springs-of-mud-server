@@ -76,7 +76,7 @@ if "server.messaging.MessageBus" not in sys.modules:
     sys.modules["server.messaging.MessageBus"] = message_bus
 
 from fight.FightHandler import FightHandler
-from interp.commands.ObjectCommands import ObjectCommands
+from interp.commands.Object import Object
 
 
 class TestRoom:
@@ -107,7 +107,7 @@ class TestSacrificeFlow(unittest.TestCase):
         room_registry.get_or_none.return_value = room
         player_helper = Mock()
         player_helper.players_in_room.return_value = []
-        commands = ObjectCommands(
+        commands = Object(
             registry_service=SimpleNamespace(room_registry=room_registry),
             player_helper=player_helper,
         )

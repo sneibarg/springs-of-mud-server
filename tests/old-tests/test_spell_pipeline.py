@@ -4,7 +4,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-from interp.commands.FightCommands import FightCommands
+from interp.commands.Fight import Fight
 from skill.Spell import Spell
 from skill.SpellSpeech import SpellSpeech
 
@@ -76,14 +76,14 @@ class TestSpellPipeline(unittest.TestCase):
         room = SimpleNamespace(id="room1", characters={"char1": character, "char2": same_class, "char3": other_class}, mobiles={}, contents={})
         registry_service.room_registry.get_or_none.return_value = room
 
-        commands = FightCommands(
+        commands = Fight(
             registry_service=registry_service,
             room_helper=Mock(),
             fight_handler=Mock(),
         )
         context = SimpleNamespace(result="'unit spell'", parameters=[], finish=Mock())
 
-        with patch("interp.commands.FightCommands.CharacterMacros.is_npc", return_value=False), \
+        with patch("interp.commands.Fight.CharacterMacros.is_npc", return_value=False), \
              patch("skill.SpellApi.CharacterMacros.is_npc", return_value=False):
             payload = commands.do_cast(character, context)
 

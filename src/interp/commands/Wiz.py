@@ -11,10 +11,10 @@ from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
 
 
-class WizCommands:
+class Wiz:
     @inject
     def __init__(self, registry_service: RegistryService):
-        self.__name__ = "WizCommands"
+        self.__name__ = "Wiz"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.character_registry = registry_service.character_registry

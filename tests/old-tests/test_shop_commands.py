@@ -63,7 +63,7 @@ if "server.LoggerFactory" not in sys.modules:
 
 from area.Shop import Shop
 from game.Equipped import Equipped
-from interp.commands.ObjectCommands import ObjectCommands
+from interp.commands.Object import Object
 
 
 class TestShopCommands(unittest.TestCase):
@@ -86,7 +86,7 @@ class TestShopCommands(unittest.TestCase):
         )
         player_helper = Mock()
         player_helper.players_in_room.return_value = []
-        commands = ObjectCommands(
+        commands = Object(
             registry_service=registry_service,
             player_helper=player_helper,
             weather_handler=SimpleNamespace(time_info=SimpleNamespace(hour=hour)),

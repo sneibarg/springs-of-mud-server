@@ -82,7 +82,7 @@ if "server.LoggerFactory" not in sys.modules:
     sys.modules["server.LoggerFactory"] = logger_factory
 
 from game.Equipped import Equipped
-from interp.commands.ObjectCommands import ObjectCommands
+from interp.commands.Object import Object
 
 
 class WearFlags:
@@ -95,7 +95,7 @@ class TestObjectCommandsEquipment(unittest.TestCase):
         room_registry.get_or_none.return_value = room
         player_helper = Mock()
         player_helper.players_in_room.return_value = []
-        commands = ObjectCommands(
+        commands = Object(
             registry_service=SimpleNamespace(room_registry=room_registry),
             player_helper=player_helper,
         )
@@ -132,7 +132,7 @@ class TestObjectCommandsEquipment(unittest.TestCase):
         )
         character = self._build_character(item)
 
-        with patch("interp.commands.ObjectCommands.EffectUtil.apply_item_effects"):
+        with patch("interp.commands.Object.EffectUtil.apply_item_effects"):
             payload = self._build_commands(room)._wear_item(character, item, room, replace=True)
 
         self.assertEqual("You wear a vest on your torso.\r\n", payload["to_char"])
@@ -155,8 +155,8 @@ class TestObjectCommandsEquipment(unittest.TestCase):
         commands = self._build_commands(room)
         context = SimpleNamespace(result="vest", parameters=[], finish=Mock())
 
-        with patch("interp.commands.ObjectCommands.EffectUtil.apply_item_effects"), \
-             patch("interp.commands.ObjectCommands.EffectUtil.remove_item_effects"):
+        with patch("interp.commands.Object.EffectUtil.apply_item_effects"), \
+             patch("interp.commands.Object.EffectUtil.remove_item_effects"):
             commands._wear_item(character, item, room, replace=True)
             payload = commands.do_remove(character, context)
 

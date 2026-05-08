@@ -4,7 +4,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, patch
 
 from game.UpdateHandler import UpdateHandler
-from interp.commands.CommunicationsCommands import CommunicationsCommands
+from interp.commands.Communications import Communications
 from player.Character import Character
 from player.CharacterRegistry import CharacterRegistry
 from player.CharacterService import CharacterService
@@ -201,7 +201,7 @@ class TestCharacterSave(unittest.TestCase):
         session_handler = Mock()
         character_service = Mock()
         character_service.save_character.return_value = True
-        command = CommunicationsCommands(registry_service, session_handler, character_service)
+        command = Communications(registry_service, session_handler, character_service)
 
         context = Mock()
         payload = command.do_save(Mock(spec=Character), context)

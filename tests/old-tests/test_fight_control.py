@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 from fight.FightHandler import FightHandler
 from game.UpdateHandler import UpdateHandler
-from interp.commands.FightCommands import FightCommands
+from interp.commands.Fight import Fight
 
 
 class TestFightControl(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestFightControl(unittest.TestCase):
         fight_handler = Mock()
         fight_handler.is_safe.return_value = (False, "")
 
-        commands = FightCommands(
+        commands = Fight(
             registry_service=registry_service,
             room_helper=Mock(),
             fight_handler=fight_handler,
@@ -29,8 +29,8 @@ class TestFightControl(unittest.TestCase):
         registry_service.room_registry.get_or_none.return_value = room
         context = SimpleNamespace(result="monster", parameters=[], finish=Mock())
 
-        with patch("interp.commands.FightCommands.PlayerUtil.get_target", return_value=victim), \
-             patch("interp.commands.FightCommands.CharacterMacros.is_npc", return_value=False):
+        with patch("interp.commands.Fight.PlayerUtil.get_target", return_value=victim), \
+             patch("interp.commands.Fight.CharacterMacros.is_npc", return_value=False):
             payload = commands.do_kill(character, context)
 
         self.assertEqual("You are already fighting the monster.\r\n", payload["to_char"])

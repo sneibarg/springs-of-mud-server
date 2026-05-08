@@ -58,11 +58,11 @@ EQUIP_SLOT_LABELS = [
 ]
 
 
-class InfoCommands:
+class Info:
     @inject
     def __init__(self,
                  registry_service: RegistryService, session_handler: SessionHandler, weather_handler: WeatherHandler, interp_api: InterpApi = None):
-        self.__name__ = "InfoCommands"
+        self.__name__ = "Info"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.interp_registry = registry_service.interp_registry
         self.room_registry = registry_service.room_registry

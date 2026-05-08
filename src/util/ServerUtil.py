@@ -7,13 +7,13 @@ from area.RoomHandler import RoomHandler
 from area.SpecialService import SpecialService
 from fight.FightApi import FightApi
 from game.HandlerService import HandlerService
-from interp.commands.FightCommands import FightCommands
-from interp.commands.CommunicationsCommands import CommunicationsCommands
+from interp.commands.Fight import Fight
+from interp.commands.Communications import Communications
 from interp.InterpApi import InterpApi
-from interp.commands.InfoCommands import InfoCommands
-from interp.commands.MovementCommands import MovementCommands
-from interp.commands.ObjectCommands import ObjectCommands
-from interp.commands.WizCommands import WizCommands
+from interp.commands.Info import Info
+from interp.commands.Movement import Movement
+from interp.commands.Object import Object
+from interp.commands.Wiz import Wiz
 from interp.HelpService import HelpService
 from interp.InterpHandler import InterpHandler
 from interp.SocialHandler import SocialHandler
@@ -104,8 +104,8 @@ class ServerUtil:
     @staticmethod
     def _bind_handlers(injector):
         ServerUtil._bind_singleton_classes(injector,
-                                           [SocialHandler, CommunicationsCommands, FightCommands, InfoCommands,
-                                            MovementCommands, ObjectCommands, WizCommands, AreaHandler,
+                                           [SocialHandler, Communications, Fight, Info,
+                                            Movement, Object, Wiz, AreaHandler,
                                             RoomHandler, FightHandler, ItemHandler, MobileHandler, PlayerHandler,
                                             InterpHandler, NoteHandler, WeatherHandler, UpdateHandler])
         logger.info(f"All game handlers have been bound.")
@@ -179,13 +179,13 @@ class ServerUtil:
         mobile_handler = injector.get(MobileHandler)
         registry_service = injector.get(RegistryService)
         enums = injector.get(GameService).enums
-        communications_commands = injector.get(CommunicationsCommands)
-        object_commands = injector.get(ObjectCommands)
-        info_commands = injector.get(InfoCommands)
-        movement_commands = injector.get(MovementCommands)
-        wiz_commands = injector.get(WizCommands)
+        communications_commands = injector.get(Communications)
+        object_commands = injector.get(Object)
+        info_commands = injector.get(Info)
+        movement_commands = injector.get(Movement)
+        wiz_commands = injector.get(Wiz)
         skill_api = injector.get(SkillApi)
-        fight_commands = injector.get(FightCommands)
+        fight_commands = injector.get(Fight)
 
         CharacterMacros.set_registry(registry_service)
         CharacterMacros.lazy_load(weather_handler)

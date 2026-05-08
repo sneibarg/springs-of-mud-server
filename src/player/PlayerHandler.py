@@ -4,12 +4,12 @@ from injector import inject
 from fight.FightHandler import FightHandler
 from game.RegistryService import RegistryService
 from interp.Context import Context
-from interp.commands.InfoCommands import InfoCommands
-from interp.commands.MovementCommands import MovementCommands
-from interp.commands.CommunicationsCommands import CommunicationsCommands
-from interp.commands.FightCommands import FightCommands
-from interp.commands.ObjectCommands import ObjectCommands
-from interp.commands.WizCommands import WizCommands
+from interp.commands.Info import Info
+from interp.commands.Movement import Movement
+from interp.commands.Communications import Communications
+from interp.commands.Fight import Fight
+from interp.commands.Object import Object
+from interp.commands.Wiz import Wiz
 from player.Character import Character
 from player.CharacterMacros import CharacterMacros
 from server.messaging import MessageBus
@@ -21,12 +21,12 @@ class PlayerHandler:
     def __init__(self, message_bus: MessageBus,
                  registry_service: RegistryService,
                  fight_handler: FightHandler,
-                 communications_commands: CommunicationsCommands,
-                 fight_commands: FightCommands,
-                 info_commands: InfoCommands,
-                 movement_commands: MovementCommands,
-                 object_commands: ObjectCommands,
-                 wiz_commands: WizCommands):
+                 communications_commands: Communications,
+                 fight_commands: Fight,
+                 info_commands: Info,
+                 movement_commands: Movement,
+                 object_commands: Object,
+                 wiz_commands: Wiz):
         self.__name__ = "PlayerHandler"
         self.message_bus = message_bus
         self.character_registry = registry_service.character_registry

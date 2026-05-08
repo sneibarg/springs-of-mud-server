@@ -54,14 +54,14 @@ class InterpApi:
         payload.update(dict(plan.data or {}))
         return payload
 
-    @staticmethod
-    def render_plan_payload(payload_def, plan: ActionPlan) -> dict:
+    def render_plan_payload(self, payload_def, plan: ActionPlan) -> dict:
         payload: dict[str, Any] = {}
         for msg in plan.messages:
             text = payload_def.render(msg.channel, msg.key, msg.fallback, **msg.tokens)
             if not text:
                 continue
             payload[msg.channel] = InterpApi._ensure_message_break(text)
+        self.logger.debug(f"Plan payload: {payload}")
         return payload
 
     def _interp_action_definition(self, view: InterpView, action_name: str) -> ActionDefinition[InterpView]:
@@ -148,8 +148,8 @@ class InterpApi:
             "v.argument": "v.context.argument",
             "v.room": "v.context.room",
             "v.command": "v.context.command",
-            "v.current_fighting": "v.context.current_fighting",
-            "v.position": "v.context.position",
+            "v.current_fighting": "v.context.character.fighting",
+            "v.position": "v.context.character.character_attributes.position",
         }
         for old, new in replacements.items():
             text = text.replace(old, new)

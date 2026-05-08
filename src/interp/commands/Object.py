@@ -17,10 +17,10 @@ from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
 
 
-class ObjectCommands:
+class Object:
     @inject
     def __init__(self, registry_service: RegistryService, weather_handler=None):
-        self.__name__ = "ObjectCommands"
+        self.__name__ = "Object"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.room_registry = getattr(registry_service, "room_registry", None)

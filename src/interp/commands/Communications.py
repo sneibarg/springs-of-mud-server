@@ -13,7 +13,7 @@ from server.LoggerFactory import LoggerFactory
 from server.session.SessionHandler import SessionHandler
 
 
-class CommunicationsCommands:
+class Communications:
     POSES = [
         "strikes a heroic pose.",
         "looks around cautiously.",
@@ -27,7 +27,7 @@ class CommunicationsCommands:
                  registry_service: RegistryService,
                  session_handler: SessionHandler,
                  character_service: CharacterService):
-        self.__name__ = "CommunicationsCommands"
+        self.__name__ = "Communications"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.character_registry = registry_service.character_registry

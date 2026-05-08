@@ -14,10 +14,10 @@ from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
 
 
-class MovementCommands:
+class Movement:
     @inject
     def __init__(self, registry_service: RegistryService, game_data: GameData, fight_handler: FightHandler):
-        self.__name__ = "MovementCommands"
+        self.__name__ = "Movement"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.room_registry = registry_service.room_registry
