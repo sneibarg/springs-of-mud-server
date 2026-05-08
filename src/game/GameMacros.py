@@ -220,10 +220,13 @@ class GameMacros:
         return GameMacros.letters_to_flags(str(raw or "0"))
 
     @staticmethod
-    def enum_bit(enum_obj, name: str) -> int:
-        if enum_obj is None or not hasattr(enum_obj, name):
+    def enum_bit(enum_obj, *names: str) -> int:
+        if enum_obj is None:
             return 0
-        return int(getattr(enum_obj, name).value)
+        for name in names:
+            if hasattr(enum_obj, name):
+                return int(getattr(enum_obj, name).value)
+        return 0
 
     @staticmethod
     def enum_names(enum_obj, prefix: str) -> list[str]:

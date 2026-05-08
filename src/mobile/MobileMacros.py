@@ -74,14 +74,6 @@ class MobileMacros(GameMacros):
         return True
 
     @staticmethod
-    def enum_bit(enum_obj, *names: str) -> int:
-        for name in names:
-            value = CharacterMacros.enum_bit(enum_obj, name)
-            if value:
-                return value
-        return 0
-
-    @staticmethod
     def render_mobile_name(entity) -> str:
         if entity is None:
             return "someone"
