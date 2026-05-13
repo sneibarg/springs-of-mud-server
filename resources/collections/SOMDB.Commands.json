@@ -4672,6 +4672,7 @@
         "maxArguments": 1,
         "payload": {
             "toChar": {
+                "targetMissing": "You didn't find any %t."
             },
             "toRoom": {},
             "toVictim": {}
@@ -4774,16 +4775,15 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "gotoWhere": "Goto where?",
+                "noArgument": "Goto where?",
                 "noSuchLocation": "No such location.",
-                "roomIsnTPrivate": "That room isn't private, use goto."
+                "privateRoom": "That room isn't private, use goto."
             },
             "toRoom": {},
             "toVictim": {
-                "default": "$t",
-                "leavesSwirlingMist": "$n leaves in a swirling mist.",
-                "default2": "$t",
-                "appearsSwirlingMist": "$n appears in a swirling mist."
+                "bamfout": "%t %s",
+                "exit": "%t leaves in a swirling mist.",
+                "entry": "%t appears in a swirling mist."
             }
         }
     },
@@ -4804,10 +4804,10 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "removeWhichSiteFrom": "Remove which site from the ban list?",
-                "notPowerfulEnoughLift": "You are not powerful enough to lift that ban.",
-                "siteNotBanned": "Site is not banned.",
-                "banLifted": "Ban on %s lifted."
+                "noArgument": "Remove which site from the ban list?",
+                "insufficientLevel": "You are not powerful enough to lift that ban.",
+                "noSuchBan": "Site is not banned.",
+                "removed": "Ban on %s lifted."
             },
             "toRoom": {},
             "toVictim": {}
@@ -4830,11 +4830,11 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "noSitesBannedAt": "No sites banned at this time.",
-                "acceptableBanTypesAll": "Acceptable ban types are all, newbies, and permit.",
-                "banSomething": "You have to ban SOMETHING.",
-                "banWasSetBy": "That ban was set by a higher power.",
-                "12s3d7s": "%-12s    %-3d  %-7s  %s"
+                "nullList": "No sites banned at this time.",
+                "invalidOption": "Acceptable ban types are all, newbies, and permit.",
+                "noArgument": "You have to ban SOMETHING.",
+                "insufficientLevel": "That ban was set by a higher power.",
+                "default": "%t has been banned."
             },
             "toRoom": {},
             "toVictim": {}
@@ -4857,14 +4857,19 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "denyWhom": "Deny whom?",
-                "theyArenT": "They aren't here.",
-                "notNpcS": "Not on NPC's.",
+                "noArgument": "Deny whom?",
+                "targetMissing": "They aren't here.",
+                "noNPCs": "Not on NPCs.",
                 "failed": "You failed.",
                 "default": "OK."
             },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {
+                "default": "You are denied access!"
+            },
+            "toWiznet": {
+                "default": "%c denied access to %t."
+            }
         }
     },
     {
@@ -4884,12 +4889,11 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "disconnectWhom": "Disconnect whom?",
+                "noArgument": "Disconnect whom?",
                 "default": "Ok.",
-                "theyArenT": "They aren't here.",
-                "ok2": "Ok.",
-                "descriptorNotFound": "Descriptor not found!",
-                "doesnTDescriptor": "$N doesn't have a descriptor."
+                "targetMissing": "They aren't here.",
+                "noSuchDescriptor": "Descriptor not found!",
+                "nullDescriptor": "%c doesn't have a descriptor."
             },
             "toRoom": {},
             "toVictim": {}
@@ -4912,24 +4916,18 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "syntax": "Syntax:",
-                "flagMobNameField": "  flag mob  <name> <field> <flags>",
-                "flagCharNameField": "  flag char <name> <field> <flags>",
-                "mobFlagsActAff": "  mob  flags: act,aff,off,imm,res,vuln,form,part",
-                "charFlagsPlrComm": "  char flags: plr,comm,aff,imm,res,vuln,",
-                "addFlagRemoveFlag": "  +: add flag, -: remove flag, = set equal to",
-                "otherwiseFlagTogglesFlags": "  otherwise flag toggles the flags listed.",
-                "whatDoWishSet": "What do you wish to set flags on?",
-                "needSpecifyFlagSet": "You need to specify a flag to set.",
-                "whichFlagsDoWish": "Which flags do you wish to change?",
-                "canTFindThem": "You can't find them.",
-                "usePlrPcs": "Use plr for PCs.",
-                "useActNpcs": "Use act for NPCs.",
-                "formCanTSet": "Form can't be set on PCs.",
-                "partsCanTSet": "Parts can't be set on PCs.",
-                "commCanTSet": "Comm can't be set on NPCs.",
-                "sNotAcceptableFlag": "That's not an acceptable flag.",
-                "flagDoesnTExist": "That flag doesn't exist!"
+                "syntax": "Syntax:\\n\\r  flag mob  <name> <field> <flags>\\n\\r\\n\\r  flag char <name> <field> <flags>\\n\\r  mob  flags: act,aff,off,imm,res,vuln,form,part\\n\\r  char flags: plr,comm,aff,imm,res,vuln,\\n\\r  +: add flag, -: remove flag, = set equal to\\n\\r  otherwise flag toggles the flags listed.",
+                "noTarget": "What do you wish to set flags on?",
+                "noFlag": "You need to specify a flag to set.",
+                "noArgument": "Which flags do you wish to change?",
+                "targetMissing": "You can't find them.",
+                "plrIsNPC": "Use plr for PCs.",
+                "npcIsPlr": "Use act for NPCs.",
+                "noForm": "Form can't be set on PCs.",
+                "noParts": "Parts can't be set on PCs.",
+                "noComm": "Comm can't be set on NPCs.",
+                "invalidFlag": "That's not an acceptable flag.",
+                "noSuchFlag": "That flag doesn't exist!"
             },
             "toRoom": {},
             "toVictim": {}
@@ -4952,15 +4950,22 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "freezeWhom": "Freeze whom?",
-                "theyArenT": "They aren't here.",
-                "notNpcS": "Not on NPC's.",
+                "noArgument": "Freeze whom?",
+                "targetMissing": "They aren't here.",
+                "noNPCs": "Not on NPCs.",
                 "failed": "You failed.",
-                "freezeRemoved": "FREEZE removed.",
-                "freezeSet": "FREEZE set."
+                "removed": "FREEZE removed.",
+                "set": "FREEZE set."
             },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {
+                "removed": "You can play again.",
+                "set": "You can't do ANYthing!"
+            },
+            "toWiznet": {
+                "set": "%c puts %t in the deep freeze.",
+                "removed": "%c thaws %t."
+            }
         }
     },
     {
@@ -4980,11 +4985,11 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "noSitesBannedAt": "No sites banned at this time.",
-                "acceptableBanTypesAll": "Acceptable ban types are all, newbies, and permit.",
-                "banSomething": "You have to ban SOMETHING.",
-                "banWasSetBy": "That ban was set by a higher power.",
-                "12s3d7s": "%-12s    %-3d  %-7s  %s"
+                "nullList": "No sites banned at this time.",
+                "invalidOption": "Acceptable ban types are all, newbies, and permit.",
+                "noArgument": "You have to ban SOMETHING.",
+                "insufficientLevel": "That ban was set by a higher power.",
+                "default": "%t has been banned."
             },
             "toRoom": {},
             "toVictim": {}
@@ -5007,34 +5012,15 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "protectWhomFromSnooping": "Protect whom from snooping?",
-                "canTFindThem": "You can't find them."
+                "noArgument": "Protect whom from snooping?",
+                "targetMissing": "You can't find them.",
+                "remove": "%t is no longer snoop-proof."
             },
             "toRoom": {},
-            "toVictim": {}
-        }
-    },
-    {
-        "_id": {
-            "$oid": "69bc3df3af6857ce485bba33"
-        },
-        "name": "reboo",
-        "role": "immortal",
-        "lambdas": [
-            "lambda ctx: ctx.player_handler().do_wiz_command(ctx.character, ctx)"
-        ],
-        "enabled": true,
-        "position": "POS_DEAD",
-        "level": "L1",
-        "log": "LOG_NORMAL",
-        "pipeline": false,
-        "maxArguments": 0,
-        "payload": {
-            "toChar": {
-                "ifWantRebootSpell": "If you want to REBOOT, spell it out."
-            },
-            "toRoom": {},
-            "toVictim": {}
+            "toVictim": {
+                "remove": "Your snoop-proofing was just removed.",
+                "set": "You are now immune to snooping."
+            }
         }
     },
     {
@@ -5078,34 +5064,7 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "syntax": "Syntax:",
-                "setMobNameField": "  set mob   <name> <field> <value>",
-                "setObjNameField": "  set obj   <name> <field> <value>",
-                "setRoomRoomField": "  set room  <room> <field> <value>",
-                "setSkillNameSpell": "  set skill <name> <spell or skill> <value>"
-            },
-            "toRoom": {},
-            "toVictim": {}
-        }
-    },
-    {
-        "_id": {
-            "$oid": "69bc3df3af6857ce485bba36"
-        },
-        "name": "shutdow",
-        "role": "immortal",
-        "lambdas": [
-            "lambda ctx: ctx.player_handler().do_wiz_command(ctx.character, ctx)"
-        ],
-        "enabled": true,
-        "position": "POS_DEAD",
-        "level": "L1",
-        "log": "LOG_NORMAL",
-        "pipeline": false,
-        "maxArguments": 0,
-        "payload": {
-            "toChar": {
-                "ifWantShutdownSpell": "If you want to SHUTDOWN, spell it out."
+                "syntax": "Syntax:\\n\\r  set mob   <name> <field> <value>\\n\\r  set obj   <name> <field> <value>\\n\\r  set room  <room> <field> <value>\\n\\r  set skill <name> <spell or skill> <value>"
             },
             "toRoom": {},
             "toVictim": {}
@@ -5131,7 +5090,7 @@
             "toRoom": {},
             "toVictim": {},
             "toWorld": {
-                "default": "Shutdown by %c.\r\n"
+                "default": "Shutdown by %c."
             }
         }
     },
@@ -5152,14 +5111,14 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "gameWizlocked": "Game wizlocked.",
-                "gameUnWizlocked": "Game un-wizlocked."
+                "enabled": "Game wizlocked.",
+                "disabled": "Game un-wizlocked."
             },
             "toRoom": {},
             "toVictim": {},
             "toWiznet": {
-                "wizlockedGame": "$N has wizlocked the game.",
-                "removesWizlock": "$N removes wizlock."
+                "enabled": "%c has wizlocked the game.",
+                "disabled": "%c removes wizlock."
             }
         }
     },
@@ -5180,16 +5139,13 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "forceWhomDoWhat": "Force whom to do what?",
-                "willNotDone": "That will NOT be done.",
-                "notAtLevel": "Not at your level!",
-                "notAtLevel2": "Not at your level!",
-                "notAtLevel3": "Not at your level!",
-                "theyArenT": "They aren't here.",
-                "ayeAyeRightAway": "Aye aye, right away!",
-                "characterPrivateRoom": "That character is in a private room.",
-                "doItYourself": "Do it yourself!",
-                "notAtLevel4": "Not at your level!",
+                "noArgument": "Force whom to do what?",
+                "delete": "That will NOT be done.",
+                "insufficientLevel": "Not at your level!",
+                "targetMissing": "They aren't here.",
+                "targetSelf": "Aye aye, right away!",
+                "privateRoom": "That character is in a private room.",
+                "targetHigherLevel": "Do it yourself!",
                 "default": "Ok."
             },
             "toRoom": {},
@@ -5213,9 +5169,7 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "syntax": "Syntax:",
-                "loadMobVnum": "  load mob <vnum>",
-                "loadObjVnumLevel": "  load obj <vnum> <level>"
+                "syntax": "Syntax:\\n\\r  load mob <vnum>\\n\\r  load obj <vnum> <level>"
             },
             "toRoom": {},
             "toVictim": {}
@@ -5238,14 +5192,14 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "newCharactersBeenLocked": "New characters have been locked out.",
-                "newlockRemoved": "Newlock removed."
+                "enabled": "New characters have been locked out.",
+                "disabled": "Newlock removed."
             },
             "toRoom": {},
             "toVictim": {},
             "toWiznet": {
-                "locksOutNewCharacters": "$N locks out new characters.",
-                "allowsNewCharactersBack": "$N allows new characters back in."
+                "enabled": "%c locks out new characters.",
+                "disabled": "%c allows new characters back in."
             }
         }
     },
@@ -5266,14 +5220,21 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "nochannelWhom": "Nochannel whom?",
-                "theyArenT": "They aren't here.",
+                "noArgument": "Nochannel whom?",
+                "targetMissing": "They aren't here.",
                 "failed": "You failed.",
-                "nochannelsRemoved": "NOCHANNELS removed.",
-                "nochannelsSet": "NOCHANNELS set."
+                "removed": "NOCHANNELS removed.",
+                "set": "NOCHANNELS set."
             },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {
+                "removed": "The gods have restored your channel privileges.",
+                "set": "The gods have revoked your channel privileges."
+            },
+            "toWiznet": {
+                "removed": "%c restores channels to %t",
+                "set": "$c revokes %s's channels."
+            }
         }
     },
     {
@@ -5293,14 +5254,21 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "noemoteWhom": "Noemote whom?",
-                "theyArenT": "They aren't here.",
+                "noArgument": "Noemote whom?",
+                "targetMissing": "They aren't here.",
                 "failed": "You failed.",
-                "noemoteRemoved": "NOEMOTE removed.",
-                "noemoteSet": "NOEMOTE set."
+                "removed": "NOEMOTE removed.",
+                "set": "NOEMOTE set."
             },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {
+                "removed": "You can emote again.",
+                "set": "You can't emote!"
+            },
+            "toWiznet": {
+                "removed": "%c restores emotes to %t",
+                "set": "$c revokes %s's emotes."
+            }
         }
     },
     {
@@ -5320,15 +5288,22 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "noshoutWhom": "Noshout whom?",
-                "theyArenT": "They aren't here.",
-                "notNpcS": "Not on NPC's.",
+                "noArgument": "Noshout whom?",
+                "targetMissing": "They aren't here.",
+                "noNPCs": "Not on NPCs.",
                 "failed": "You failed.",
-                "noshoutRemoved": "NOSHOUT removed.",
-                "noshoutSet": "NOSHOUT set."
+                "removed": "NOSHOUT removed.",
+                "set": "NOSHOUT set."
             },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {
+                "removed": "You can shout again.",
+                "set": "You can't shout!"
+            },
+            "toWiznet": {
+                "removed": "%c restores shouts to %t",
+                "set": "$c revokes %s's shouts."
+            }
         }
     },
     {
@@ -5348,14 +5323,21 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "notellWhom": "Notell whom?",
-                "theyArenT": "They aren't here.",
+                "noArgument": "Notell whom?",
+                "targetMissing": "They aren't here.",
                 "failed": "You failed.",
-                "notellRemoved": "NOTELL removed.",
-                "notellSet": "NOTELL set."
+                "removed": "NOTELL removed.",
+                "set": "NOTELL set."
             },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {
+                "removed": "You can tell again.",
+                "set": "You can't tell!"
+            },
+            "toWiznet": {
+                "removed": "%c restores tells to %t",
+                "set": "$c revokes %s's tells."
+            }
         }
     },
     {
@@ -5375,13 +5357,15 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "personalEchoWhat": "Personal echo what?",
+                "noArgument": "Personal echo what?",
                 "targetNotFound": "Target not found.",
-                "personal": "personal> ",
-                "default": ""
+                "default": "personal> %s"
             },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {
+                "default": "%s",
+                "insufficientLevel": "personal> "
+            }
         }
     },
     {
@@ -5401,15 +5385,17 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "syntaxPardonCharacterKiller": "Syntax: pardon <character> <killer|thief>.",
-                "theyArenT": "They aren't here.",
-                "notNpcS": "Not on NPC's.",
-                "killerFlagRemoved": "Killer flag removed.",
-                "thiefFlagRemoved": "Thief flag removed.",
-                "syntaxPardonCharacterKiller2": "Syntax: pardon <character> <killer|thief>."
+                "syntax": "Syntax: pardon <character> <killer|thief>.",
+                "targetMissing": "They aren't here.",
+                "noNPCs": "Not on NPCs.",
+                "removeKiller": "Killer flag removed.",
+                "removeThief": "Thief flag removed."
             },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {
+                "removeKiller": "You are no longer a KILLER.",
+                "removeThief": "You are no longer a THIEF."
+            }
         }
     },
     {
@@ -5430,16 +5416,18 @@
         "payload": {
             "toChar": {
                 "default": "Ok.",
-                "theyArenT": "They aren't here.",
-                "hoHoHo": "Ho ho ho.",
-                "maybeWasnTGood": "Maybe that wasn't a good idea..."
+                "targetMissing": "They aren't here.",
+                "targetSelf": "Ho ho ho.",
+                "insufficientLevel": "Maybe that wasn't a good idea..."
             },
             "toRoom": {
-                "purgesRoom": "$n purges the room!",
-                "disintegrates": "$n disintegrates $N.",
-                "purges": "$n purges $N."
+                "room": "%c purges the room!",
+                "disintegrates": "%c disintegrates %t.",
+                "notVictim": "%c purges %t."
             },
-            "toVictim": {}
+            "toVictim": {
+                "insufficientLevel": "%c tried to purge you!"
+            }
         }
     },
     {
@@ -5521,19 +5509,19 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "transferWhomWhere": "Transfer whom (and where)?",
+                "noArgument": "Transfer whom (and where)?",
                 "noSuchLocation": "No such location.",
                 "privateRoom": "That room is private right now.",
-                "theyArenT": "They aren't here.",
-                "theyLimbo": "They are in limbo.",
+                "targetMissing": "They aren't here.",
+                "targetInLimbo": "They are in limbo.",
                 "default": "Ok."
             },
             "toRoom": {
-                "disappearsMushroomCloud": "$n disappears in a mushroom cloud.",
-                "arrivesFromPuffSmoke": "$n arrives from a puff of smoke."
+                "leaves": "%c disappears in a mushroom cloud.",
+                "arrives": "%c arrives from a puff of smoke."
             },
             "toVictim": {
-                "transferred": "$n has transferred you."
+                "default": "%c has transferred you."
             }
         }
     },
@@ -5554,19 +5542,19 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "transferWhomWhere": "Transfer whom (and where)?",
+                "noArgument": "Transfer whom (and where)?",
                 "noSuchLocation": "No such location.",
                 "privateRoom": "That room is private right now.",
-                "theyArenT": "They aren't here.",
-                "theyLimbo": "They are in limbo.",
+                "targetMissing": "They aren't here.",
+                "targetInLimbo": "They are in limbo.",
                 "default": "Ok."
             },
             "toRoom": {
-                "disappearsMushroomCloud": "$n disappears in a mushroom cloud.",
-                "arrivesFromPuffSmoke": "$n arrives from a puff of smoke."
+                "leaves": "%c disappears in a mushroom cloud.",
+                "arrives": "%c arrives from a puff of smoke."
             },
             "toVictim": {
-                "transferred": "$n has transferred you."
+                "default": "%c has transferred you."
             }
         }
     },
@@ -5587,9 +5575,9 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "mustIncludeName": "You must include your name.",
-                "poofin": "Your poofin is %s",
-                "poofinNow": "Your poofin is now %s"
+                "nameRequired": "You must include your name.",
+                "default": "Your poofin is %s",
+                "set": "Your poofin is now %s"
             },
             "toRoom": {},
             "toVictim": {}
@@ -5612,9 +5600,9 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "mustIncludeName": "You must include your name.",
-                "poofout": "Your poofout is %s",
-                "poofoutNow": "Your poofout is now %s"
+                "nameRequired": "You must include your name.",
+                "default": "Your poofout is %s",
+                "set": "Your poofout is now %s"
             },
             "toRoom": {},
             "toVictim": {}
@@ -5637,7 +5625,7 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "globalEchoWhat": "Global echo what?"
+                "noArgument": "Global echo what?"
             },
             "toRoom": {},
             "toVictim": {}
@@ -5660,8 +5648,8 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "holyLightModeOff": "Holy light mode off.",
-                "holyLightMode": "Holy light mode on."
+                "disabled": "Holy light mode off.",
+                "enabled": "Holy light mode on."
             },
             "toRoom": {},
             "toVictim": {}
@@ -5684,15 +5672,13 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "noLongerCloaked": "You are no longer cloaked.",
-                "cloakPresence": "You cloak your presence.",
-                "incogLevelMustBetween": "Incog level must be between 2 and your level.",
-                "cloakPresence2": "You cloak your presence."
+                "disabled": "You are no longer cloaked.",
+                "enabled": "You cloak your presence.",
+                "levelRange": "Incog level must be between 2 and your level."
             },
             "toRoom": {
-                "noLongerCloaked": "$n is no longer cloaked.",
-                "cloaksPresence": "$n cloaks $s presence.",
-                "cloaksPresence2": "$n cloaks $s presence."
+                "noLongerCloaked": "%c is no longer cloaked.",
+                "cloaksPresence": "%c cloaks their presence."
             },
             "toVictim": {}
         }
@@ -5714,15 +5700,13 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "slowlyFadeBackInto": "You slowly fade back into existence.",
-                "slowlyVanishIntoThin": "You slowly vanish into thin air.",
-                "invisLevelMustBetween": "Invis level must be between 2 and your level.",
-                "slowlyVanishIntoThin2": "You slowly vanish into thin air."
+                "disabled": "You slowly fade back into existence.",
+                "enabled": "You slowly vanish into thin air.",
+                "levelRange": "Invis level must be between 2 and your level."
             },
             "toRoom": {
-                "slowlyFadesIntoExistence": "$n slowly fades into existence.",
-                "slowlyFadesIntoThin": "$n slowly fades into thin air.",
-                "slowlyFadesIntoThin2": "$n slowly fades into thin air."
+                "disabled": "%c slowly fades into existence.",
+                "enabled": "%c slowly fades into thin air."
             },
             "toVictim": {}
         }
@@ -5744,13 +5728,13 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "logWhom": "Log whom?",
-                "logAllOff": "Log ALL off.",
-                "logAll": "Log ALL on.",
-                "theyArenT": "They aren't here.",
-                "notNpcS": "Not on NPC's.",
-                "logRemoved": "LOG removed.",
-                "logSet": "LOG set."
+                "noArgument": "Log whom?",
+                "disableLogAll": "Log ALL off.",
+                "enableLogAll": "Log ALL on.",
+                "targetMissing": "They aren't here.",
+                "noNPCs": "Not on NPCs.",
+                "remove": "LOG removed.",
+                "set": "LOG set."
             },
             "toRoom": {},
             "toVictim": {}
@@ -5773,20 +5757,6 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "affects5d": "Affects %5d",
-                "areas5d": "Areas   %5d",
-                "exdes5d": "ExDes   %5d",
-                "exits5d": "Exits   %5d",
-                "helps5d": "Helps   %5d",
-                "socials5d": "Socials %5d",
-                "mobs5dNewFormat": "Mobs    %5d(%d new format)",
-                "use5d": "(in use)%5d",
-                "objs5dNewFormat": "Objs    %5d(%d new format)",
-                "resets5d": "Resets  %5d",
-                "rooms5d": "Rooms   %5d",
-                "shops5d": "Shops   %5d",
-                "strings5dStrings7d": "Strings %5d strings of %7d bytes (max %d).",
-                "perms5dBlocks7d": "Perms   %5d blocks  of %7d bytes."
             },
             "toRoom": {},
             "toVictim": {}
@@ -5809,7 +5779,7 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "didnTFindAny": "You didn't find any $T."
+                "targetMissing": "You didn't find any %t."
             },
             "toRoom": {},
             "toVictim": {}
@@ -5960,11 +5930,14 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "arenTSwitched": "You aren't switched.",
-                "returnOriginalBodyType": "You return to your original body. Type replay to see any missed tells."
+                "switchInactive": "You aren't switched.",
+                "default": "You return to your original body. Type replay to see any missed tells."
             },
             "toRoom": {},
-            "toVictim": {}
+            "toVictim": {},
+            "toWiznet": {
+                "default": "%c returns from %t"
+            }
         }
     },
     {
@@ -5984,12 +5957,12 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "snoopWhom": "Snoop whom?",
-                "theyArenT": "They aren't here.",
-                "noDescriptorSnoop": "No descriptor to snoop.",
-                "cancellingAllSnoops": "Cancelling all snoops.",
-                "busyAlready": "Busy already.",
-                "characterPrivateRoom": "That character is in a private room.",
+                "noArgument": "Snoop whom?",
+                "targetMissing": "They aren't here.",
+                "noSuchDescriptor": "No descriptor to snoop.",
+                "cancelAll": "Cancelling all snoops.",
+                "busy": "Busy already.",
+                "privateRoom": "That character is in a private room.",
                 "failed": "You failed.",
                 "noSnoopLoops": "No snoop loops.",
                 "default": "Ok."
@@ -5997,7 +5970,8 @@
             "toRoom": {},
             "toVictim": {},
             "toWiznet": {
-                "stopsBeingSuchSnoop": "$N stops being such a snoop."
+                "default": "%c starts snooping on %t",
+                "cancelAll": "%c stops being such a snoop."
             }
         }
     },
@@ -6018,12 +5992,8 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "syntax": "Syntax:",
-                "statName": "  stat <name>",
-                "statObjName": "  stat obj <name>",
-                "statMobName": "  stat mob <name>",
-                "statRoomNumber": "  stat room <number>",
-                "nothingByNameFound": "Nothing by that name found anywhere."
+                "syntax": "Syntax:\\n\\r  stat <name>\\n\\r  stat obj <name>\\n\\r  stat mob <name>\\n\\r  stat room <number>",
+                "noSuchTarget": "Nothing by that name found anywhere."
             },
             "toRoom": {},
             "toVictim": {}
@@ -6048,8 +6018,8 @@
             "toChar": {
                 "syntax": "Syntax:\\n\\r  string char <name> <field> <string>\\n\\r    fields: name short long desc title spec\\n\\r  string obj  <name> <field> <string>\\n\\r    fields: name short long extended",
                 "targetMissing": "They aren't here.",
-                "pcInvalid": "Not on PC's.",
-                "npcInvalid": "Not on NPC's.",
+                "pcInvalid": "Not on PCs.",
+                "npcInvalid": "Not on NPCs.",
                 "noSuchSpecFun": "No such spec fun.",
                 "noSuchObject": "Nothing like that in heaven or earth.",
                 "osetSyntax": "Syntax: oset <object> ed <keyword> <string>"
@@ -6104,15 +6074,13 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "slowlyFadeBackInto": "You slowly fade back into existence.",
-                "slowlyVanishIntoThin": "You slowly vanish into thin air.",
-                "invisLevelMustBetween": "Invis level must be between 2 and your level.",
-                "slowlyVanishIntoThin2": "You slowly vanish into thin air."
+                "disabled": "You slowly fade back into existence.",
+                "enabled": "You slowly vanish into thin air.",
+                "levelRange": "Invis level must be between 2 and your level."
             },
             "toRoom": {
-                "slowlyFadesIntoExistence": "$n slowly fades into existence.",
-                "slowlyFadesIntoThin": "$n slowly fades into thin air.",
-                "slowlyFadesIntoThin2": "$n slowly fades into thin air."
+                "disabled": "$n slowly fades into existence.",
+                "enabled": "$n slowly fades into thin air."
             },
             "toVictim": {}
         }
@@ -6134,10 +6102,7 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "syntax": "Syntax:",
-                "vnumObjName": "  vnum obj <name>",
-                "vnumMobName": "  vnum mob <name>",
-                "vnumSkillSkillSpell": "  vnum skill <skill or spell>"
+                "syntax": "Syntax:\\n\\r  vnum obj <name>\\n\\r  vnum <mob> <name>\\n\\r  vnum skill <skill or spell>"
             },
             "toRoom": {},
             "toVictim": {}
@@ -6148,6 +6113,7 @@
             "$oid": "69bc3df3af6857ce485bba5c"
         },
         "name": "zecho",
+        "shortcuts": "zec, zech",
         "role": "immortal",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_wiz_command(ctx.character, ctx)"
@@ -6160,7 +6126,7 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "zoneEchoWhat": "Zone echo what?"
+                "noArgument": "Zone echo what?"
             },
             "toRoom": {},
             "toVictim": {}
@@ -6183,23 +6149,18 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "cloneWhat": "Clone what?",
-                "donTSee": "You don't see that here.",
-                "donTSee2": "You don't see that here.",
-                "donTSee3": "You don't see that here.",
-                "powersNotGreatEnough": "Your powers are not great enough for such a task.",
-                "canOnlyCloneMobiles": "You can only clone mobiles.",
-                "powersNotGreatEnough2": "Your powers are not great enough for such a task.",
-                "clone": "You clone $p.",
-                "clone2": "You clone $N."
+                "noArgument": "Clone what?",
+                "targetMissing": "You don't see that here.",
+                "insufficientLevel": "Your powers are not great enough for such a task.",
+                "mobilesOnly": "You can only clone mobiles.",
+                "default": "You clone %t."
             },
             "toRoom": {
-                "created": "$n has created $p.",
-                "created2": "$n has created $N."
+                "created": "%c has created %t."
             },
             "toVictim": {},
             "toWiznet": {
-                "clones": "$N clones $p."
+                "clones": "%c clones %t."
             }
         }
     },
@@ -6220,15 +6181,13 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "signingOffWiznet": "Signing off of Wiznet.",
-                "welcomeWiznet": "Welcome to Wiznet!",
-                "welcomeWiznet2": "Welcome to Wiznet!",
-                "signingOffWiznet2": "Signing off of Wiznet.",
-                "wiznetStatus": "Wiznet status:",
-                "wiznetOptionsAvailable": "Wiznet options available to you are:",
+                "enabled": "Welcome to Wiznet!",
+                "disabled": "Signing off of Wiznet.",
+                "status": "Wiznet status:",
+                "availableOptions": "Wiznet options available to you are:",
                 "noSuchOption": "No such option.",
-                "willNoLongerSee": "You will no longer see %s on wiznet.",
-                "willNowSeeWiznet": "You will now see %s on wiznet."
+                "enableOption": "You will no longer see %s on wiznet.",
+                "disableOption": "You will now see %s on wiznet."
             },
             "toRoom": {},
             "toVictim": {}
@@ -6239,6 +6198,7 @@
             "$oid": "69bc3df3af6857ce485bba5f"
         },
         "name": "immtalk",
+        "shortcuts": ":, immt, immta, immtal",
         "role": "immortal",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_wiz_command(ctx.character, ctx)"
@@ -6275,31 +6235,7 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "noHelpWord": "No help on that word."
-            },
-            "toRoom": {},
-            "toVictim": {}
-        }
-    },
-    {
-        "_id": {
-            "$oid": "69bc3df3af6857ce485bba61"
-        },
-        "name": ":",
-        "role": "immortal",
-        "lambdas": [
-            "lambda ctx: ctx.player_handler().do_wiz_command(ctx.character, ctx)"
-        ],
-        "enabled": true,
-        "position": "POS_DEAD",
-        "level": "IM",
-        "log": "LOG_NORMAL",
-        "pipeline": false,
-        "maxArguments": 0,
-        "payload": {
-            "toChar": {
-                "immortalChannelNow": "Immortal channel is now ON",
-                "immortalChannelNowOff": "Immortal channel is now OFF"
+                "noSuchHelp": "No help on that word."
             },
             "toRoom": {},
             "toVictim": {}
@@ -6322,33 +6258,9 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "canTShowEmotions": "You can't show your emotions.",
-                "emoteWhat": "Emote what?",
-                "mustIncludeNameSmote": "You must include your name in an smote.",
-                "default": ""
-            },
-            "toRoom": {},
-            "toVictim": {}
-        }
-    },
-    {
-        "_id": {
-            "$oid": "69bc3df3af6857ce485bba63"
-        },
-        "name": "prefi",
-        "role": "immortal",
-        "lambdas": [
-            "lambda ctx: ctx.player_handler().do_wiz_command(ctx.character, ctx)"
-        ],
-        "enabled": true,
-        "position": "POS_DEAD",
-        "level": "IM",
-        "log": "LOG_NORMAL",
-        "pipeline": false,
-        "maxArguments": 0,
-        "payload": {
-            "toChar": {
-                "cannotAbbreviatePrefixCommand": "You cannot abbreviate the prefix command."
+                "noEmote": "You can't show your emotions.",
+                "noArgument": "Emote what?",
+                "nameRequired": "You must include your name in an smote."
             },
             "toRoom": {},
             "toVictim": {}
@@ -6359,6 +6271,7 @@
             "$oid": "69bc3df3af6857ce485bba64"
         },
         "name": "prefix",
+        "shortcuts": "pref, prefi",
         "role": "immortal",
         "lambdas": [
             "lambda ctx: ctx.player_handler().do_wiz_command(ctx.character, ctx)"
@@ -6371,8 +6284,10 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "noPrefixClear": "You have no prefix to clear.",
-                "prefixRemoved": "Prefix removed."
+                "noArgument": "You have no prefix to clear.",
+                "removed": "Prefix removed.",
+                "set": "Prefix set to %s.",
+                "changed": "Prefix changed to %s."
             },
             "toRoom": {},
             "toVictim": {}

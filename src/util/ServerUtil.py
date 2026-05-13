@@ -56,9 +56,6 @@ logger = LoggerFactory.get_logger("ServerUtil")
 
 
 class ServerUtil:
-    def __init__(self):
-        pass
-
     @staticmethod
     def bind_dependencies(service_config) -> Injector:
         injector = Injector()
@@ -206,10 +203,9 @@ class ServerUtil:
         game_service.set_update_handler(injector.get(UpdateHandler))
 
         services = (
-            game_service, player_service, room_service, area_service,
-            skill_service, spell_service, item_service, help_service,
-            mobile_service, interp_service, social_service, note_service,
-            character_service, shop_service, reset_service, special_service
+            game_service, player_service, room_service, area_service, skill_service, spell_service, item_service,
+            help_service, mobile_service, interp_service, social_service, note_service, character_service, shop_service,
+            reset_service, special_service
         )
         service_list = "; ".join(s.__name__ for s in services)
         logger.info(f"The following services have been started: {service_list}.")
