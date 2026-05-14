@@ -78,7 +78,7 @@ class Command:
             normalized.append(
                 {
                     "predicate": predicate,
-                    "channel": str(check.get("channel", "to_char") or "to_char").strip(),
+                    "channel": str(check.get("channel", "") or "").strip(),
                     "message_key": normalized_message_key,
                     "fallback": str(check.get("fallback", "") or ""),
                     "token_factory": str(check.get("token_factory", "") or "").strip(),

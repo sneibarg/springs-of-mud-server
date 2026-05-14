@@ -121,6 +121,15 @@
             {
                 "predicate": "lambda v: not InterpApi.argument_text(v)",
                 "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: InterpApi.tell_target(v) is None",
+                "messageKey": "targetMissing"
+            },
+            {
+                "predicate": "lambda v: InterpApi.tell_target_blocks_tells(v)",
+                "messageKey": "targetDeaf",
+                "tokenFactory": "lambda v: InterpApi.tell_target_tokens(v)"
             }
         ]
     },
@@ -1246,7 +1255,8 @@
         "payload": {
             "toChar": {
                 "bugLogged": "Bug logged.",
-                "noArgument": "Bug what?"
+                "noArgument": "Bug what?",
+                "default": "Bug logged."
             },
             "toRoom": {},
             "toVictim": {}
@@ -2931,13 +2941,13 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "noArgument": "Tell whom what?",
+                "replyWhat": "Reply what?",
                 "targetMissing": "They aren't here.",
                 "targetDisconnected": "%t seems to have misplaced their link...try again later.",
                 "targetSleeping": "%t can't hear you.",
                 "targetDeaf": "%t is not receiving tells.",
                 "targetNPC": "%t is AFK, and not receiving tells.",
-                "targetAFK": "%t is AFK, but your tell will go through when %n returns.",
+                "targetAFK": "%t is AFK, but your tell will go through when %t returns.",
                 "noTell": "Your message didn't get through",
                 "deaf": "Your message didn't get through",
                 "quietMode": "You must turn off quiet mode first.",
@@ -2960,7 +2970,16 @@
             },
             {
                 "predicate": "lambda v: not InterpApi.argument_text(v)",
-                "messageKey": "noArgument"
+                "messageKey": "replyWhat"
+            },
+            {
+                "predicate": "lambda v: InterpApi.reply_target(v) is None",
+                "messageKey": "targetMissing"
+            },
+            {
+                "predicate": "lambda v: InterpApi.reply_target_blocks_tells(v)",
+                "messageKey": "targetDeaf",
+                "tokenFactory": "lambda v: InterpApi.reply_target_tokens(v)"
             }
         ]
     },
@@ -3014,6 +3033,7 @@
                 "enable": "You can hear shouts again.",
                 "disable": "You will no longer hear shouts.",
                 "noShout": "You can't shout.",
+                "quietMode": "You must turn off quiet mode first.",
                 "default": "You shout '%s'",
                 "noArgument": "Shout what?"
             },
@@ -3027,6 +3047,10 @@
             {
                 "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOSHOUT')",
                 "messageKey": "noShout"
+            },
+            {
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "messageKey": "quietMode"
             },
             {
                 "predicate": "lambda v: not InterpApi.argument_text(v)",
@@ -4604,7 +4628,8 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "default": "Saving. Remember that ROM has automatic saving now."
+                "default": "Saving. Remember that ROM has automatic saving now.",
+                "saveFailed": "Save failed."
             },
             "toRoom": {},
             "toVictim": {}

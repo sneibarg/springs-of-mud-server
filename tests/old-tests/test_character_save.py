@@ -208,7 +208,7 @@ class TestCharacterSave(unittest.TestCase):
 
         context.finish.assert_called_once()
         character_service.save_character.assert_called_once()
-        self.assertEqual({"to_char": "Saving complete.\r\n"}, payload)
+        self.assertEqual({"to_char": "Saving. Remember that ROM has automatic saving now.\r\n", "blocked": False}, payload)
 
 
 class TestUpdateAutosave(unittest.IsolatedAsyncioTestCase):
