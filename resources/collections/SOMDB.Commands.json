@@ -58,13 +58,20 @@
         "maxArguments": 1,
         "payload": {
             "toChar": {
-                "default": "You say '%s'"
+                "default": "You say '%s'",
+                "noArgument": "Say what?"
             },
             "toRoom": {
                 "default": "%c says '%s'"
             },
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "messageKey": "noArgument"
+            }
+        ]
     },
     {
         "_id": {
@@ -101,7 +108,21 @@
             "toVictim": {
                 "default": "%c tells you '%s'"
             }
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOTELL')",
+                "messageKey": "noTell"
+            },
+            {
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "messageKey": "quietMode"
+            },
+            {
+                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "messageKey": "noArgument"
+            }
+        ]
     },
     {
         "_id": {
@@ -145,8 +166,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -459,7 +479,17 @@
             "toWorld": {
                 "default": "%c auctions '%t'"
             }
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "messageKey": "quietMode"
+            },
+            {
+                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "messageKey": "noChannels"
+            }
+        ]
     },
     {
         "_id": {
@@ -613,8 +643,7 @@
                 "entry": "%c appears in a swirling mist.",
                 "exit": "%c disappears in a swirling mist."
             },
-            "toVictim": {
-            }
+            "toVictim": {}
         }
     },
     {
@@ -805,7 +834,17 @@
             "toWorld": {
                 "default": "%c MUSIC: '%s'"
             }
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "messageKey": "quietMode"
+            },
+            {
+                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "messageKey": "noChannels"
+            }
+        ]
     },
     {
         "_id": {
@@ -1206,11 +1245,18 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "bugLogged": "Bug logged."
+                "bugLogged": "Bug logged.",
+                "noArgument": "Bug what?"
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "messageKey": "noArgument"
+            }
+        ]
     },
     {
         "_id": {
@@ -1227,8 +1273,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1371,8 +1416,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1414,8 +1458,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1434,8 +1477,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1477,8 +1519,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1539,8 +1580,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1585,8 +1625,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1605,8 +1644,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1627,8 +1665,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1649,8 +1686,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1669,8 +1705,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1714,8 +1749,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1737,10 +1771,18 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
+                "noArgument": "Typo what?",
+                "default": "Typo noted."
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "messageKey": "noArgument"
+            }
+        ]
     },
     {
         "_id": {
@@ -1758,8 +1800,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1802,8 +1843,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1824,8 +1864,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1844,8 +1883,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -1896,9 +1934,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2136,8 +2172,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2413,7 +2448,17 @@
             "toWorld": {
                 "default": "%c answers '%t'"
             }
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "messageKey": "quietMode"
+            },
+            {
+                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "messageKey": "noChannels"
+            }
+        ]
     },
     {
         "_id": {
@@ -2464,7 +2509,17 @@
                 "default": "%c %e"
             },
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOEMOTE')",
+                "messageKey": "noEmote"
+            },
+            {
+                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "messageKey": "noArgument"
+            }
+        ]
     },
     {
         "_id": {
@@ -2484,12 +2539,22 @@
         "payload": {
             "toChar": {
                 "noEmote": "You can't show your emotions.",
-                "noARgument": "Emote what?",
-                "default": "%c %e"
+                "default": "%c %e",
+                "noArgument": "Emote what?"
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOEMOTE')",
+                "messageKey": "noEmote"
+            },
+            {
+                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "messageKey": "noArgument"
+            }
+        ]
     },
     {
         "_id": {
@@ -2512,11 +2577,24 @@
                 "disable": "Gossip channel is now OFF.",
                 "quietMode": "You must turn off quiet mode first.",
                 "noChannels": "The gods have revoked your channel privileges.",
-                "gossip": "You gossip '%s'"
+                "default": "You gossip '%s'"
             },
             "toRoom": {},
-            "toVictim": {}
-        }
+            "toVictim": {},
+            "toWorld": {
+                "default": "%c gossips '%s'"
+            }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "messageKey": "quietMode"
+            },
+            {
+                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "messageKey": "noChannels"
+            }
+        ]
     },
     {
         "_id": {
@@ -2546,7 +2624,17 @@
             "toWorld": {
                 "default": "%c gossips '%t'"
             }
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "messageKey": "quietMode"
+            },
+            {
+                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "messageKey": "noChannels"
+            }
+        ]
     },
     {
         "_id": {
@@ -2573,7 +2661,17 @@
                 "default": "%c %e"
             },
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOEMOTE')",
+                "messageKey": "noEmote"
+            },
+            {
+                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "messageKey": "noArgument"
+            }
+        ]
     },
     {
         "_id": {
@@ -2603,7 +2701,17 @@
             "toWorld": {
                 "default": "%c grats '%t'"
             }
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "messageKey": "quietMode"
+            },
+            {
+                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "messageKey": "noChannels"
+            }
+        ]
     },
     {
         "_id": {
@@ -2623,11 +2731,20 @@
         "payload": {
             "toChar": {
                 "noArgument": "Tell your group what?",
-                "messageDidnTGet": "Your message didn't get through!"
+                "messageDidnTGet": "Your message didn't get through!",
+                "default": "You tell your group '%s'"
             },
-            "toRoom": {},
+            "toRoom": {
+                "default": "%c tells the group '%s'"
+            },
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "messageKey": "noArgument"
+            }
+        ]
     },
     {
         "_id": {
@@ -2667,8 +2784,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2689,10 +2805,8 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
-            "toRoom": {
-            },
+            "toChar": {},
+            "toRoom": {},
             "toVictim": {}
         }
     },
@@ -2724,7 +2838,17 @@
             "toWorld": {
                 "default": "%c questions '%t'"
             }
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "messageKey": "quietMode"
+            },
+            {
+                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "messageKey": "noChannels"
+            }
+        ]
     },
     {
         "_id": {
@@ -2754,7 +2878,17 @@
             "toWorld": {
                 "default": "%c quotes '%t'"
             }
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "messageKey": "quietMode"
+            },
+            {
+                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "messageKey": "noChannels"
+            }
+        ]
     },
     {
         "_id": {
@@ -2814,7 +2948,21 @@
             "toVictim": {
                 "default": "%c tells you '%s'"
             }
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOTELL')",
+                "messageKey": "noTell"
+            },
+            {
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "messageKey": "quietMode"
+            },
+            {
+                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "messageKey": "noArgument"
+            }
+        ]
     },
     {
         "_id": {
@@ -2838,7 +2986,13 @@
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not (v.context.character.context or {}).get('tell_buffer', [])",
+                "messageKey": "noTells"
+            }
+        ]
     },
     {
         "_id": {
@@ -2860,14 +3014,25 @@
                 "enable": "You can hear shouts again.",
                 "disable": "You will no longer hear shouts.",
                 "noShout": "You can't shout.",
-                "default": "You shout '%s'"
+                "default": "You shout '%s'",
+                "noArgument": "Shout what?"
             },
             "toRoom": {},
             "toVictim": {},
             "toArea": {
                 "default": "%c shouts '%s'"
             }
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOSHOUT')",
+                "messageKey": "noShout"
+            },
+            {
+                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "messageKey": "noArgument"
+            }
+        ]
     },
     {
         "_id": {
@@ -2883,8 +3048,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -2912,7 +3076,17 @@
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOSHOUT')",
+                "messageKey": "noShout"
+            },
+            {
+                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "messageKey": "noArgument"
+            }
+        ]
     },
     {
         "_id": {
@@ -3170,8 +3344,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {
                 "uttersWords": "$n utters the words '$T'."
             },
@@ -3218,8 +3391,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -3430,7 +3602,6 @@
                 "containerFull": "It won't fit.",
                 "on": "You put %t on %T",
                 "in": "You put %t in %T"
-
             },
             "toRoom": {
                 "on": "%c puts %t on %T",
@@ -5756,8 +5927,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -5856,7 +6026,7 @@
                 "noNews": "There is no news for you.",
                 "noChanges": "There are no changes for you.",
                 "noteRemoveWhichNumber": "Note remove which number?",
-                "default": "Ok.",
+                "default": "%s: %sTo: %s",
                 "noteDeleteWhichNumber": "Note delete which number?",
                 "ok2": "Ok.",
                 "alreadyHaveDifferentNote": "You already have a different note in progress.",
@@ -5883,8 +6053,7 @@
                 "3d3": "[%3d%s] %s: %s",
                 "arenTThatMany2": "There aren't that many %s.",
                 "arenTThatMany3": "There aren't that many %s.",
-                "arenTHighEnough": "You aren't high enough level to write %s.",
-                "default": "%s: %sTo: %s"
+                "arenTHighEnough": "You aren't high enough level to write %s."
             },
             "toRoom": {},
             "toVictim": {}

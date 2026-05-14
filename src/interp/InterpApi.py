@@ -10,6 +10,7 @@ from interp.InterpView import InterpView
 from game.GamePayload import GamePayload
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
+from util.CommunicationsUtil import CommunicationsUtil
 from util.GenericUtil import GenericUtil
 
 
@@ -122,7 +123,17 @@ class InterpApi:
     @staticmethod
     def _default_tokens(view: InterpView) -> dict[str, Any]:
         actor = getattr(view.context, "character", None)
-        return {"c": str(getattr(actor, "name", "") or "")}
+        argument = InterpApi.argument_text(view)
+        target, message = CommunicationsUtil.split_first(argument)
+        tokens = {
+            "c": str(getattr(actor, "name", "") or ""),
+            "s": message or argument,
+            "e": argument,
+            "t": target or argument,
+            "v": target or argument,
+        }
+        tokens.update(dict(getattr(view.context, "interp_tokens", {}) or {}))
+        return tokens
 
     @staticmethod
     def _empty_tokens(_view: InterpView) -> dict[str, Any]:
@@ -156,10 +167,20 @@ class InterpApi:
         return text
 
     @staticmethod
+    def argument_text(view: InterpView) -> str:
+        context = view.context
+        result = getattr(context, "result", "")
+        text = (result if isinstance(result, str) else "").strip()
+        if text:
+            return text
+        return " ".join(getattr(context, "parameters", []) or []).strip()
+
+    @staticmethod
     def _lambda_locals() -> dict[str, Any]:
         return {
             "InterpApi": InterpApi,
             "CharacterMacros": CharacterMacros,
+            "CommunicationsUtil": CommunicationsUtil,
             "GenericUtil": GenericUtil,
             "bool": bool,
             "int": int,

@@ -458,6 +458,10 @@ class PlayerHandler:
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload))
             return
         await self._emit_standard_payload(character, payload)
+        if payload.get("to_area"):
+            await self.message_bus.send_to_area(character.area_id, self.message_bus.text_to_message(payload["to_area"]))
+        if payload.get("to_world"):
+            await self.message_bus.broadcast(self.message_bus.text_to_message(payload["to_world"]), [character.id])
         if payload.get("global_message"):
             targets = payload.get("global_targets", [])
             if len(targets) > 0:
