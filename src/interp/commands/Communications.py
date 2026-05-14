@@ -313,10 +313,6 @@ class Communications:
         context.finish()
         return {"to_char": "There is no rent here. Just save and quit.\r\n"}
 
-    def do_qui(self, character: Character, context: Context):
-        context.finish()
-        return {"to_char": "If you want to QUIT, you have to spell it out.\r\n"}
-
     def do_save(self, character: Character, context: Context):
         context.finish()
         if self.character_service.save_character(character):

@@ -212,7 +212,7 @@ class UpdateHandler:
 
         self._advance_save_counter()
         pos_stunned = self.PositionsEnum.POS_STUNNED.value
-        for ch in self.character_registry.all_characters():
+        for ch in self._active_player_characters():
             await self._tick_conditions(ch)
             attrs = getattr(ch, "character_attributes", None)
             if attrs is None:

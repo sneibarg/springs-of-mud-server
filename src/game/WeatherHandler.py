@@ -70,17 +70,10 @@ class WeatherHandler:
 
     def _indoors(self) -> list:
         indoors = []
-        for character in self.character_registry.all_characters():
-            if not self._is_player_outdoors(character.id) and CharacterMacros.is_awake(character):
+        for character in self.message_bus.get_active_players():
+            if not CharacterMacros.is_outside(character) and CharacterMacros.is_awake(character):
                 indoors.append(character.id)
         return indoors
-
-    def _is_player_outdoors(self, character_id: str) -> bool:
-        character = self.character_registry.get(id=character_id)
-        self.logger.debug(f"Checking if player {character_id} is outdoors: {character}")
-        if character:
-            return CharacterMacros.is_outside(char=character)
-        return False
 
     def _time_change(self):
         time_message: str = ""
