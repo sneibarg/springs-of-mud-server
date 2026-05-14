@@ -2421,6 +2421,16 @@
         "log": "LOG_NORMAL",
         "pipeline": false,
         "maxArguments": 0,
+        "checks": [
+            {
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_AFK')",
+                "messageKey": "enable"
+            },
+            {
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_AFK')",
+                "messageKey": "disable"
+            }
+        ],
         "payload": {
             "toChar": {
                 "enable": "You are now in AFK mode.",

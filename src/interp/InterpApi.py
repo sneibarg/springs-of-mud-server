@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import fields
 from functools import lru_cache
-from typing import Any
+from typing import Any, Callable
 from injector import inject
 
 from game.action import ActionCheck, ActionDefinition, ActionPlan, MessageRef
@@ -22,8 +22,11 @@ class InterpApi:
 
     def run_action(self, context, action_name: str):
         view = self.build_interp_view(context)
+        self.logger.info(f"View payload: {view.context.command.payload}")
         definition = self._interp_action_definition(view, action_name)
+        self.logger.info(f"Definition: {definition}")
         plan = self.evaluate_interp_action(view, definition)
+        self.logger.info(f"Plan: {plan}")
         context.finish()
         return self.execute_interp_plan(view, plan)
 
@@ -50,8 +53,9 @@ class InterpApi:
         payload.update(dict(plan.data or {}))
         return payload
 
-    def render_plan_payload(self, payload_def, plan: ActionPlan) -> dict:
+    def render_plan_payload(self, payload_def: GamePayload, plan: ActionPlan) -> dict:
         payload: dict[str, Any] = {}
+        self.logger.info(f"Plan: {plan}")
         for msg in plan.messages:
             text = payload_def.render(msg.channel, msg.key, msg.fallback, **msg.tokens)
             if not text:
@@ -62,6 +66,7 @@ class InterpApi:
 
     def render_message_key(self, context, message_key: str, channel: str = "", fallback: str = "", **tokens) -> dict:
         view = self.build_interp_view(context)
+        self.logger.info(f"View payload: {view.context.command.payload}")
         merged_tokens = self._default_tokens(view)
         merged_tokens.update(tokens)
         plan = ActionPlan(
@@ -165,7 +170,7 @@ class InterpApi:
 
     @staticmethod
     @lru_cache(maxsize=256)
-    def _compile_lambda(source: str):
+    def _compile_lambda(source: str) -> type[Callable]:
         text = InterpApi._normalize_view_expression(source)
         if not text:
             return InterpApi._empty_tokens

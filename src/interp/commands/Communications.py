@@ -132,7 +132,11 @@ class Communications:
         return self._render_message_key(context, "disable" if enabled else "enable")
 
     def do_afk(self, character: Character, context: Context):
-        enabled = CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_AFK")
+        payload = self.interp_api.run_action(context, context.command.name)
+        if "enable" in payload:
+            enabled = True
+        else:
+            enabled = False
         CommunicationsUtil.set_comm(character, self.comm_flags, "COMM_AFK", not enabled)
         context.finish()
         return self._render_message_key(context, "disable" if enabled else "enable")
@@ -150,7 +154,7 @@ class Communications:
         if payload.get("blocked"):
             return payload
         room = self.room_registry.get_or_none(id=character.room_id)
-        payload["targets"] = self._room_targets(character, room)
+        payload["targets"] = room.player_targets(character)
         return payload
 
     def do_emote(self, character: Character, context: Context):
@@ -181,7 +185,7 @@ class Communications:
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload
-        victim = self._find_playing_character(target_name)
+        victim = CharacterMacros.find_playing_character(target_name, self.session_handler)
         if victim is None:
             return self._blocked_message(context, "target_missing")
         return self._deliver_tell(character, context, victim, message)
@@ -318,9 +322,6 @@ class Communications:
         payload["global_message"] = payload.pop("to_world", "")
         payload["global_targets"] = targets
         return payload
-
-    def _find_playing_character(self, name: str):
-        return CharacterMacros.find_playing_character(name, self.session_handler)
 
     def _deliver_tell(self, character: Character, context: Context, victim, message: str) -> dict:
         if getattr(character, "context", None) is None:
