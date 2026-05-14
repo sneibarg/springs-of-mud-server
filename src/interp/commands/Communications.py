@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+
 from injector import inject
 
 from game.RegistryService import RegistryService
@@ -135,9 +136,9 @@ class Communications:
         payload = self.interp_api.run_action(context, context.command.name)
         if "enable" in payload:
             enabled = True
-        else:
+        elif "disable" in payload:
             enabled = False
-        CommunicationsUtil.set_comm(character, self.comm_flags, "COMM_AFK", not enabled)
+        CommunicationsUtil.set_comm(character, self.comm_flags, "COMM_AFK", enabled)
         context.finish()
         return self._render_message_key(context, "disable" if enabled else "enable")
 
@@ -249,9 +250,9 @@ class Communications:
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload
-        room = self.room_registry.get_or_none(id=character.room_id)
+        room = self.room_registry.get(id=character.room_id)
         payload.setdefault("to_room", f"{character.name} tells the group '{CommunicationsUtil.parse_argument(context.result, context.parameters)}'\r\n")
-        payload["targets"] = self._room_targets(character, room)
+        payload["targets"] = room.player_targets(character)
         return payload
 
     def do_bug(self, character: Character, context: Context):
@@ -269,7 +270,7 @@ class Communications:
             return payload
         if self.character_service.save_character(character):
             return payload
-        return self._render_message_key(context, "save_failed")
+        return self._render_message_key(context, "failed")
 
     def do_follow(self, character: Character, context: Context):
         context.finish()

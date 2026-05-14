@@ -4639,7 +4639,7 @@
         "payload": {
             "toChar": {
                 "default": "Saving. Remember that ROM has automatic saving now.",
-                "saveFailed": "Save failed."
+                "failed": "Save failed."
             },
             "toRoom": {},
             "toVictim": {}
@@ -5317,14 +5317,14 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "enabled": "Game wizlocked.",
-                "disabled": "Game un-wizlocked."
+                "enable": "Game wizlocked.",
+                "disable": "Game un-wizlocked."
             },
             "toRoom": {},
             "toVictim": {},
             "toWiznet": {
-                "enabled": "%c has wizlocked the game.",
-                "disabled": "%c removes wizlock."
+                "enable": "%c has wizlocked the game.",
+                "disable": "%c removes wizlock."
             }
         }
     },
@@ -5398,14 +5398,14 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "enabled": "New characters have been locked out.",
-                "disabled": "Newlock removed."
+                "enable": "New characters have been locked out.",
+                "disable": "Newlock removed."
             },
             "toRoom": {},
             "toVictim": {},
             "toWiznet": {
-                "enabled": "%c locks out new characters.",
-                "disabled": "%c allows new characters back in."
+                "enable": "%c locks out new characters.",
+                "disable": "%c allows new characters back in."
             }
         }
     },
@@ -5854,8 +5854,8 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "disabled": "Holy light mode off.",
-                "enabled": "Holy light mode on."
+                "disable": "Holy light mode off.",
+                "enable": "Holy light mode on."
             },
             "toRoom": {},
             "toVictim": {}
@@ -5878,8 +5878,8 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "disabled": "You are no longer cloaked.",
-                "enabled": "You cloak your presence.",
+                "disable": "You are no longer cloaked.",
+                "enable": "You cloak your presence.",
                 "levelRange": "Incog level must be between 2 and your level."
             },
             "toRoom": {
@@ -5906,13 +5906,13 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "disabled": "You slowly fade back into existence.",
-                "enabled": "You slowly vanish into thin air.",
+                "disable": "You slowly fade back into existence.",
+                "enable": "You slowly vanish into thin air.",
                 "levelRange": "Invis level must be between 2 and your level."
             },
             "toRoom": {
-                "disabled": "%c slowly fades into existence.",
-                "enabled": "%c slowly fades into thin air."
+                "disable": "%c slowly fades into existence.",
+                "enable": "%c slowly fades into thin air."
             },
             "toVictim": {}
         }
@@ -6278,13 +6278,13 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "disabled": "You slowly fade back into existence.",
-                "enabled": "You slowly vanish into thin air.",
+                "disable": "You slowly fade back into existence.",
+                "enable": "You slowly vanish into thin air.",
                 "levelRange": "Invis level must be between 2 and your level."
             },
             "toRoom": {
-                "disabled": "$n slowly fades into existence.",
-                "enabled": "$n slowly fades into thin air."
+                "disable": "$n slowly fades into existence.",
+                "enable": "$n slowly fades into thin air."
             },
             "toVictim": {}
         }
@@ -6385,8 +6385,8 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "enabled": "Welcome to Wiznet!",
-                "disabled": "Signing off of Wiznet.",
+                "enable": "Welcome to Wiznet!",
+                "disable": "Signing off of Wiznet.",
                 "status": "Wiznet status:",
                 "availableOptions": "Wiznet options available to you are:",
                 "noSuchOption": "No such option.",
