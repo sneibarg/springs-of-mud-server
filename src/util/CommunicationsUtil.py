@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from game.GameMacros import GameMacros
+from player.CharacterMacros import CharacterMacros
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
 
@@ -44,3 +45,13 @@ class CommunicationsUtil:
             history = []
         history.append(line)
         character.context["tell_buffer"] = history[-50:]
+
+    @staticmethod
+    def _target_blocks_tells(target) -> bool:
+        if target is None:
+            return False
+        comm_flags = CharacterMacros.get_enum("commFlags")
+        return any(
+            CommunicationsUtil.has_comm(target, comm_flags, flag)
+            for flag in ("COMM_DEAF", "COMM_QUIET", "COMM_NOTELL")
+        )

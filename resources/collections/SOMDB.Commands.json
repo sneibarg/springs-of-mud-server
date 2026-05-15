@@ -68,7 +68,7 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "predicate": "lambda v: not InterpUtil.argument_text(v)",
                 "messageKey": "noArgument"
             }
         ]
@@ -119,7 +119,7 @@
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "predicate": "lambda v: not InterpUtil.argument_text(v)",
                 "messageKey": "noArgument"
             },
             {
@@ -175,10 +175,7 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {
-                "disable": "Affects will no longer be shown in score.",
-                "enable": "Affects will now be shown in score."
-            },
+            "toChar": {},
             "toRoom": {},
             "toVictim": {}
         }
@@ -233,7 +230,7 @@
         "payload": {
             "toChar": {
                 "dead": "Lie still; you are DEAD.",
-                "hurtTooBad": "You are hurt far too bad for that.",
+                "hurt": "You are hurt far too bad for that.",
                 "stunned": "You are too stunned to do that.",
                 "sleeping": "In your dreams, or what?",
                 "resting": "Nah... You feel too relaxed...",
@@ -258,7 +255,7 @@
             },
             {
                 "predicate": "lambda v: CharacterMacros.position_value(v.context.character) in (CharacterMacros.pos_value('POS_MORTAL'), CharacterMacros.pos_value('POS_INCAP'))",
-                "messageKey": "hurtTooBad"
+                "messageKey": "hurt"
             },
             {
                 "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
@@ -281,28 +278,28 @@
                 "messageKey": "fighting"
             },
             {
-                "predicate": "lambda v: v.context.move_exit is None or not v.context.move_has_destination or v.context.move_to_room is None",
+                "predicate": "lambda v: MovementApi.invalid_exit(v)",
                 "messageKey": "invalidExit"
             },
             {
-                "predicate": "lambda v: v.context.move_exit_closed",
+                "predicate": "lambda v: MovementApi.exit_closed(v)",
                 "messageKey": "closed",
-                "tokenFactory": "lambda v: {'t': v.context.move_keyword}"
+                "tokenFactory": "lambda v: MovementApi.closed_tokens(v)"
             },
             {
-                "predicate": "lambda v: v.context.move_private_room",
+                "predicate": "lambda v: MovementApi.private_room(v)",
                 "messageKey": "privateRoom"
             },
             {
-                "predicate": "lambda v: v.context.move_air_blocked",
+                "predicate": "lambda v: MovementApi.air_blocked(v)",
                 "messageKey": "inAir"
             },
             {
-                "predicate": "lambda v: v.context.move_water_blocked",
+                "predicate": "lambda v: MovementApi.water_blocked(v)",
                 "messageKey": "inWater"
             },
             {
-                "predicate": "lambda v: v.context.move_insufficient_movement",
+                "predicate": "lambda v: MovementApi.insufficient_movement(v)",
                 "messageKey": "insufficientMovement"
             }
         ]
@@ -326,7 +323,7 @@
         "payload": {
             "toChar": {
                 "dead": "Lie still; you are DEAD.",
-                "hurtTooBad": "You are hurt far too bad for that.",
+                "hurt": "You are hurt far too bad for that.",
                 "stunned": "You are too stunned to do that.",
                 "sleeping": "In your dreams, or what?",
                 "resting": "Nah... You feel too relaxed...",
@@ -351,7 +348,7 @@
             },
             {
                 "predicate": "lambda v: CharacterMacros.position_value(v.context.character) in (CharacterMacros.pos_value('POS_MORTAL'), CharacterMacros.pos_value('POS_INCAP'))",
-                "messageKey": "hurtTooBad"
+                "messageKey": "hurt"
             },
             {
                 "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
@@ -374,28 +371,28 @@
                 "messageKey": "fighting"
             },
             {
-                "predicate": "lambda v: v.context.move_exit is None or not v.context.move_has_destination or v.context.move_to_room is None",
+                "predicate": "lambda v: MovementApi.invalid_exit(v)",
                 "messageKey": "invalidExit"
             },
             {
-                "predicate": "lambda v: v.context.move_exit_closed",
+                "predicate": "lambda v: MovementApi.exit_closed(v)",
                 "messageKey": "closed",
-                "tokenFactory": "lambda v: {'t': v.context.move_keyword}"
+                "tokenFactory": "lambda v: MovementApi.closed_tokens(v)"
             },
             {
-                "predicate": "lambda v: v.context.move_private_room",
+                "predicate": "lambda v: MovementApi.private_room(v)",
                 "messageKey": "privateRoom"
             },
             {
-                "predicate": "lambda v: v.context.move_air_blocked",
+                "predicate": "lambda v: MovementApi.air_blocked(v)",
                 "messageKey": "inAir"
             },
             {
-                "predicate": "lambda v: v.context.move_water_blocked",
+                "predicate": "lambda v: MovementApi.water_blocked(v)",
                 "messageKey": "inWater"
             },
             {
-                "predicate": "lambda v: v.context.move_insufficient_movement",
+                "predicate": "lambda v: MovementApi.insufficient_movement(v)",
                 "messageKey": "insufficientMovement"
             }
         ]
@@ -419,7 +416,7 @@
         "payload": {
             "toChar": {
                 "dead": "Lie still; you are DEAD.",
-                "hurtTooBad": "You are hurt far too bad for that.",
+                "hurt": "You are hurt far too bad for that.",
                 "stunned": "You are too stunned to do that.",
                 "sleeping": "In your dreams, or what?",
                 "resting": "Nah... You feel too relaxed...",
@@ -444,7 +441,7 @@
             },
             {
                 "predicate": "lambda v: CharacterMacros.position_value(v.context.character) in (CharacterMacros.pos_value('POS_MORTAL'), CharacterMacros.pos_value('POS_INCAP'))",
-                "messageKey": "hurtTooBad"
+                "messageKey": "hurt"
             },
             {
                 "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
@@ -467,28 +464,28 @@
                 "messageKey": "fighting"
             },
             {
-                "predicate": "lambda v: v.context.move_exit is None or not v.context.move_has_destination or v.context.move_to_room is None",
+                "predicate": "lambda v: MovementApi.invalid_exit(v)",
                 "messageKey": "invalidExit"
             },
             {
-                "predicate": "lambda v: v.context.move_exit_closed",
+                "predicate": "lambda v: MovementApi.exit_closed(v)",
                 "messageKey": "closed",
-                "tokenFactory": "lambda v: {'t': v.context.move_keyword}"
+                "tokenFactory": "lambda v: MovementApi.closed_tokens(v)"
             },
             {
-                "predicate": "lambda v: v.context.move_private_room",
+                "predicate": "lambda v: MovementApi.private_room(v)",
                 "messageKey": "privateRoom"
             },
             {
-                "predicate": "lambda v: v.context.move_air_blocked",
+                "predicate": "lambda v: MovementApi.air_blocked(v)",
                 "messageKey": "inAir"
             },
             {
-                "predicate": "lambda v: v.context.move_water_blocked",
+                "predicate": "lambda v: MovementApi.water_blocked(v)",
                 "messageKey": "inWater"
             },
             {
-                "predicate": "lambda v: v.context.move_insufficient_movement",
+                "predicate": "lambda v: MovementApi.insufficient_movement(v)",
                 "messageKey": "insufficientMovement"
             }
         ]
@@ -512,7 +509,7 @@
         "payload": {
             "toChar": {
                 "dead": "Lie still; you are DEAD.",
-                "hurtTooBad": "You are hurt far too bad for that.",
+                "hurt": "You are hurt far too bad for that.",
                 "stunned": "You are too stunned to do that.",
                 "sleeping": "In your dreams, or what?",
                 "resting": "Nah... You feel too relaxed...",
@@ -537,7 +534,7 @@
             },
             {
                 "predicate": "lambda v: CharacterMacros.position_value(v.context.character) in (CharacterMacros.pos_value('POS_MORTAL'), CharacterMacros.pos_value('POS_INCAP'))",
-                "messageKey": "hurtTooBad"
+                "messageKey": "hurt"
             },
             {
                 "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
@@ -560,28 +557,28 @@
                 "messageKey": "fighting"
             },
             {
-                "predicate": "lambda v: v.context.move_exit is None or not v.context.move_has_destination or v.context.move_to_room is None",
+                "predicate": "lambda v: MovementApi.invalid_exit(v)",
                 "messageKey": "invalidExit"
             },
             {
-                "predicate": "lambda v: v.context.move_exit_closed",
+                "predicate": "lambda v: MovementApi.exit_closed(v)",
                 "messageKey": "closed",
-                "tokenFactory": "lambda v: {'t': v.context.move_keyword}"
+                "tokenFactory": "lambda v: MovementApi.closed_tokens(v)"
             },
             {
-                "predicate": "lambda v: v.context.move_private_room",
+                "predicate": "lambda v: MovementApi.private_room(v)",
                 "messageKey": "privateRoom"
             },
             {
-                "predicate": "lambda v: v.context.move_air_blocked",
+                "predicate": "lambda v: MovementApi.air_blocked(v)",
                 "messageKey": "inAir"
             },
             {
-                "predicate": "lambda v: v.context.move_water_blocked",
+                "predicate": "lambda v: MovementApi.water_blocked(v)",
                 "messageKey": "inWater"
             },
             {
-                "predicate": "lambda v: v.context.move_insufficient_movement",
+                "predicate": "lambda v: MovementApi.insufficient_movement(v)",
                 "messageKey": "insufficientMovement"
             }
         ]
@@ -650,7 +647,7 @@
         "payload": {
             "toChar": {
                 "dead": "Lie still; you are DEAD.",
-                "hurtTooBad": "You are hurt far too bad for that.",
+                "hurt": "You are hurt far too bad for that.",
                 "stunned": "You are too stunned to do that.",
                 "sleeping": "In your dreams, or what?",
                 "resting": "Nah... You feel too relaxed...",
@@ -675,7 +672,7 @@
             },
             {
                 "predicate": "lambda v: CharacterMacros.position_value(v.context.character) in (CharacterMacros.pos_value('POS_MORTAL'), CharacterMacros.pos_value('POS_INCAP'))",
-                "messageKey": "hurtTooBad"
+                "messageKey": "hurt"
             },
             {
                 "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
@@ -698,28 +695,28 @@
                 "messageKey": "fighting"
             },
             {
-                "predicate": "lambda v: v.context.move_exit is None or not v.context.move_has_destination or v.context.move_to_room is None",
+                "predicate": "lambda v: MovementApi.invalid_exit(v)",
                 "messageKey": "invalidExit"
             },
             {
-                "predicate": "lambda v: v.context.move_exit_closed",
+                "predicate": "lambda v: MovementApi.exit_closed(v)",
                 "messageKey": "closed",
-                "tokenFactory": "lambda v: {'t': v.context.move_keyword}"
+                "tokenFactory": "lambda v: MovementApi.closed_tokens(v)"
             },
             {
-                "predicate": "lambda v: v.context.move_private_room",
+                "predicate": "lambda v: MovementApi.private_room(v)",
                 "messageKey": "privateRoom"
             },
             {
-                "predicate": "lambda v: v.context.move_air_blocked",
+                "predicate": "lambda v: MovementApi.air_blocked(v)",
                 "messageKey": "inAir"
             },
             {
-                "predicate": "lambda v: v.context.move_water_blocked",
+                "predicate": "lambda v: MovementApi.water_blocked(v)",
                 "messageKey": "inWater"
             },
             {
-                "predicate": "lambda v: v.context.move_insufficient_movement",
+                "predicate": "lambda v: MovementApi.insufficient_movement(v)",
                 "messageKey": "insufficientMovement"
             }
         ]
@@ -743,7 +740,7 @@
         "payload": {
             "toChar": {
                 "dead": "Lie still; you are DEAD.",
-                "hurtTooBad": "You are hurt far too bad for that.",
+                "hurt": "You are hurt far too bad for that.",
                 "stunned": "You are too stunned to do that.",
                 "sleeping": "In your dreams, or what?",
                 "resting": "Nah... You feel too relaxed...",
@@ -768,7 +765,7 @@
             },
             {
                 "predicate": "lambda v: CharacterMacros.position_value(v.context.character) in (CharacterMacros.pos_value('POS_MORTAL'), CharacterMacros.pos_value('POS_INCAP'))",
-                "messageKey": "hurtTooBad"
+                "messageKey": "hurt"
             },
             {
                 "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
@@ -791,28 +788,28 @@
                 "messageKey": "fighting"
             },
             {
-                "predicate": "lambda v: v.context.move_exit is None or not v.context.move_has_destination or v.context.move_to_room is None",
+                "predicate": "lambda v: MovementApi.invalid_exit(v)",
                 "messageKey": "invalidExit"
             },
             {
-                "predicate": "lambda v: v.context.move_exit_closed",
+                "predicate": "lambda v: MovementApi.exit_closed(v)",
                 "messageKey": "closed",
-                "tokenFactory": "lambda v: {'t': v.context.move_keyword}"
+                "tokenFactory": "lambda v: MovementApi.closed_tokens(v)"
             },
             {
-                "predicate": "lambda v: v.context.move_private_room",
+                "predicate": "lambda v: MovementApi.private_room(v)",
                 "messageKey": "privateRoom"
             },
             {
-                "predicate": "lambda v: v.context.move_air_blocked",
+                "predicate": "lambda v: MovementApi.air_blocked(v)",
                 "messageKey": "inAir"
             },
             {
-                "predicate": "lambda v: v.context.move_water_blocked",
+                "predicate": "lambda v: MovementApi.water_blocked(v)",
                 "messageKey": "inWater"
             },
             {
-                "predicate": "lambda v: v.context.move_insufficient_movement",
+                "predicate": "lambda v: MovementApi.insufficient_movement(v)",
                 "messageKey": "insufficientMovement"
             }
         ]
@@ -914,11 +911,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
                 "messageKey": "noChannels"
             }
         ]
@@ -1050,6 +1047,7 @@
         "payload": {
             "toChar": {
                 "noArgument": "Get what?",
+                "roomMissing": "You are nowhere.",
                 "targetMissing": "I see nothing here.",
                 "cannot": "You can't do that.",
                 "notContainer": "That's not a container.",
@@ -1061,7 +1059,45 @@
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.get_arg1",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: v.context.get_room is None",
+                "messageKey": "roomMissing"
+            },
+            {
+                "predicate": "lambda v: bool(v.context.get_rem) and v.context.get_container is None",
+                "messageKey": "targetNotVisible",
+                "tokenFactory": "lambda v: {'t': v.context.get_container_name}"
+            },
+            {
+                "predicate": "lambda v: v.context.get_container is not None and not ItemUtil.is_container_like(v.context.get_container)",
+                "messageKey": "notContainer"
+            },
+            {
+                "predicate": "lambda v: v.context.get_container is not None and ItemUtil.is_closed_container(v.context.get_container)",
+                "messageKey": "closed",
+                "tokenFactory": "lambda v: {'t': v.context.get_container_name}"
+            },
+            {
+                "predicate": "lambda v: bool(v.context.get_rem) and not v.context.get_all_from_container and v.context.get_target_item is None",
+                "messageKey": "invalidContainerTarget",
+                "tokenFactory": "lambda v: {'t': v.context.get_container_name}"
+            },
+            {
+                "predicate": "lambda v: not bool(v.context.get_rem) and v.context.get_target_item is None",
+                "messageKey": "targetNotVisible",
+                "tokenFactory": "lambda v: {'t': v.context.get_arg1}"
+            },
+            {
+                "predicate": "lambda v: (not v.context.get_all_from_container) and v.context.get_target_item is not None and not v.context.get_item_takeable",
+                "messageKey": "cannot"
+            }
+        ]
     },
     {
         "_id": {
@@ -1282,11 +1318,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
                 "messageKey": "noChannels"
             }
         ]
@@ -1617,7 +1653,17 @@
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.equip_arg1",
+                "messageKey": "wearWieldHoldWhat"
+            },
+            {
+                "predicate": "lambda v: v.context.equip_item is None",
+                "messageKey": "doNotItem"
+            }
+        ]
     },
     {
         "_id": {
@@ -1722,7 +1768,7 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "predicate": "lambda v: not InterpUtil.argument_text(v)",
                 "messageKey": "noArgument"
             }
         ]
@@ -2296,7 +2342,7 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "predicate": "lambda v: not InterpUtil.argument_text(v)",
                 "messageKey": "noArgument"
             }
         ]
@@ -3030,11 +3076,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
                 "messageKey": "noChannels"
             }
         ]
@@ -3095,7 +3141,7 @@
                 "messageKey": "noEmote"
             },
             {
-                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "predicate": "lambda v: not InterpUtil.argument_text(v)",
                 "messageKey": "noArgument"
             }
         ]
@@ -3130,7 +3176,7 @@
                 "messageKey": "noEmote"
             },
             {
-                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "predicate": "lambda v: not InterpUtil.argument_text(v)",
                 "messageKey": "noArgument"
             }
         ]
@@ -3166,11 +3212,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
                 "messageKey": "noChannels"
             }
         ]
@@ -3206,11 +3252,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
                 "messageKey": "noChannels"
             }
         ]
@@ -3247,7 +3293,7 @@
                 "messageKey": "noEmote"
             },
             {
-                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "predicate": "lambda v: not InterpUtil.argument_text(v)",
                 "messageKey": "noArgument"
             }
         ]
@@ -3283,11 +3329,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
                 "messageKey": "noChannels"
             }
         ]
@@ -3320,7 +3366,7 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "predicate": "lambda v: not InterpUtil.argument_text(v)",
                 "messageKey": "noArgument"
             }
         ]
@@ -3420,11 +3466,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
                 "messageKey": "noChannels"
             }
         ]
@@ -3460,11 +3506,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: bool(InterpApi.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
                 "messageKey": "noChannels"
             }
         ]
@@ -3538,7 +3584,7 @@
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "predicate": "lambda v: not InterpUtil.argument_text(v)",
                 "messageKey": "replyWhat"
             },
             {
@@ -3622,7 +3668,7 @@
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "predicate": "lambda v: not InterpUtil.argument_text(v)",
                 "messageKey": "noArgument"
             }
         ]
@@ -3676,7 +3722,7 @@
                 "messageKey": "noShout"
             },
             {
-                "predicate": "lambda v: not InterpApi.argument_text(v)",
+                "predicate": "lambda v: not InterpUtil.argument_text(v)",
                 "messageKey": "noArgument"
             }
         ]
@@ -3745,7 +3791,25 @@
                 "default": "%c drinks %l from %p."
             },
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.drink_arg1",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: v.context.drink_item is None",
+                "messageKey": "itemMissing"
+            },
+            {
+                "predicate": "lambda v: v.context.drink_item is not None and not ItemUtil.is_drink_container(v.context.drink_item)",
+                "messageKey": "itemNotContainer"
+            },
+            {
+                "predicate": "lambda v: v.context.drink_item is not None and GenericUtil.to_int(getattr(v.context.drink_item, 'value1', 0), 0) <= 0",
+                "messageKey": "containerEmpty"
+            }
+        ]
     },
     {
         "_id": {
@@ -3765,6 +3829,7 @@
         "payload": {
             "toChar": {
                 "noArgument": "Drop what?",
+                "roomMissing": "You are nowhere.",
                 "invalidAmount": "Sorry, you can't do that.",
                 "insufficientSilver": "You don't have that much silver.",
                 "insufficientGold": "You don't have that much gold.",
@@ -3782,7 +3847,25 @@
                 "dissolved": "%t dissolves into smoke."
             },
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.drop_arg1",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: v.context.drop_room is None",
+                "messageKey": "roomMissing"
+            },
+            {
+                "predicate": "lambda v: (not v.context.drop_all) and v.context.drop_item is None",
+                "messageKey": "targetMissing"
+            },
+            {
+                "predicate": "lambda v: (not v.context.drop_all) and v.context.drop_item is not None and v.context.drop_no_drop",
+                "messageKey": "noDrop"
+            }
+        ]
     },
     {
         "_id": {
@@ -3815,7 +3898,21 @@
                 "default": "%c eats %p."
             },
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.eat_arg1",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: v.context.eat_item is None",
+                "messageKey": "itemMissing"
+            },
+            {
+                "predicate": "lambda v: v.context.eat_item is not None and not ItemUtil.is_edible(v.context.eat_item)",
+                "messageKey": "notEdible"
+            }
+        ]
     },
     {
         "_id": {
@@ -3878,7 +3975,21 @@
                 "default": "%c fills %t with %s from %T."
             },
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.fill_arg1",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: v.context.fill_dest is None",
+                "messageKey": "itemMissing"
+            },
+            {
+                "predicate": "lambda v: v.context.fill_dest is not None and ((not ItemUtil.is_drink_container(v.context.fill_dest)) or (v.context.fill_src is not None and not ItemUtil.is_drink_container(v.context.fill_src)))",
+                "messageKey": "notContainer"
+            }
+        ]
     },
     {
         "_id": {
@@ -3921,7 +4032,25 @@
                 "fundsReceived": "%c gives you %q %s.",
                 "itemReceived": "%c gives you %t"
             }
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.give_arg1 or not v.context.give_rem",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: v.context.give_victim is None",
+                "messageKey": "targetMissing"
+            },
+            {
+                "predicate": "lambda v: v.context.give_item is None",
+                "messageKey": "itemMissing"
+            },
+            {
+                "predicate": "lambda v: v.context.give_item is not None and v.context.give_no_drop",
+                "messageKey": "noDrop"
+            }
+        ]
     },
     {
         "_id": {
@@ -3966,7 +4095,17 @@
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.equip_arg1",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: v.context.equip_item is None",
+                "messageKey": "targetMissing"
+            }
+        ]
     },
     {
         "_id": {
@@ -4184,6 +4323,7 @@
         "payload": {
             "toChar": {
                 "noArgument": "Put what in what?",
+                "roomMissing": "You are nowhere.",
                 "invalidPut": "You can't do that.",
                 "nullContainer": "I see no %t here.",
                 "notContainer": "That's not a container.",
@@ -4201,7 +4341,39 @@
                 "in": "$c puts %t in %T"
             },
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.put_arg1 or not v.context.put_rem",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: v.context.put_room is None",
+                "messageKey": "roomMissing"
+            },
+            {
+                "predicate": "lambda v: v.context.put_obj is None",
+                "messageKey": "targetMissing"
+            },
+            {
+                "predicate": "lambda v: v.context.put_container is None",
+                "messageKey": "nullContainer",
+                "tokenFactory": "lambda v: {'t': v.context.put_container_name}"
+            },
+            {
+                "predicate": "lambda v: v.context.put_container is not None and not ItemUtil.is_container(v.context.put_container)",
+                "messageKey": "notContainer"
+            },
+            {
+                "predicate": "lambda v: v.context.put_container is not None and ItemUtil.is_closed_container(v.context.put_container)",
+                "messageKey": "closed",
+                "tokenFactory": "lambda v: {'t': v.context.put_container_name}"
+            },
+            {
+                "predicate": "lambda v: v.context.put_obj is v.context.put_container",
+                "messageKey": "putContainer"
+            }
+        ]
     },
     {
         "_id": {
@@ -4280,11 +4452,22 @@
         "payload": {
             "toChar": {
                 "noTarget": "Remove what?",
-                "targetMissing": "You do not have that item."
+                "targetMissing": "You do not have that item.",
+                "notWorn": "You aren't wearing that."
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.remove_arg1",
+                "messageKey": "noTarget"
+            },
+            {
+                "predicate": "lambda v: v.context.remove_item is None",
+                "messageKey": "notWorn"
+            }
+        ]
     },
     {
         "_id": {
@@ -4374,8 +4557,8 @@
                 "pcCorpse": "Mota wouldn't like that.",
                 "oneSilver": "Mota gives you one silver coin for your sacrifice.",
                 "multipleSilver": "Mota gives you %d silver coins for your sacrifice.",
-                "noSacrifice": "$p is not an acceptable sacrifice.",
-                "targetInUse": "$N appears to be using $p."
+                "noSacrifice": "%t is not an acceptable sacrifice.",
+                "targetInUse": "%v appears to be using %t."
             },
             "toRoom": {
                 "targetSelf": "%c offers their self to Mota, who graciously declines.",
@@ -4385,7 +4568,27 @@
             "toWiznet": {
                 "default": "%c sends up %t as a burnt offering."
             }
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: v.context.sacrifice_item is None",
+                "messageKey": "targetMissing"
+            },
+            {
+                "predicate": "lambda v: v.context.sacrifice_pc_corpse",
+                "messageKey": "pcCorpse"
+            },
+            {
+                "predicate": "lambda v: v.context.sacrifice_item is not None and not v.context.sacrifice_valid",
+                "messageKey": "noSacrifice",
+                "tokenFactory": "lambda v: {'t': v.context.sacrifice_item_name}"
+            },
+            {
+                "predicate": "lambda v: bool(v.context.sacrifice_occupant_name)",
+                "messageKey": "targetInUse",
+                "tokenFactory": "lambda v: {'t': v.context.sacrifice_item_name, 'v': v.context.sacrifice_occupant_name}"
+            }
+        ]
     },
     {
         "_id": {
@@ -4412,7 +4615,22 @@
                 "itemInvisible": "%t doesn't see what you are offering.",
                 "neverStocked": "%t looks uninterested in %t."
             }
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.value_raw",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: v.context.value_item is None",
+                "messageKey": "targetMissing",
+                "tokenFactory": "lambda v: {'t': v.context.value_keeper_name}"
+            },
+            {
+                "predicate": "lambda v: v.context.value_item is not None and v.context.value_no_drop",
+                "messageKey": "noDrop"
+            }
+        ]
     },
     {
         "_id": {
@@ -4486,7 +4704,17 @@
                 "float": "%c releases %t to float next to them."
             },
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: (not v.context.wear_all) and not v.context.wear_arg1",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: (not v.context.wear_all) and v.context.wear_item is None",
+                "messageKey": "targetMissing"
+            }
+        ]
     },
     {
         "_id": {

@@ -7,11 +7,14 @@ from injector import inject
 
 from game.action import ActionCheck, ActionDefinition, ActionPlan, MessageRef
 from interp.InterpView import InterpView
+from interp.MovementApi import MovementApi
 from game.GamePayload import GamePayload
 from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
 from util.CommunicationsUtil import CommunicationsUtil
+from util.FightUtil import FightUtil
 from util.GenericUtil import GenericUtil
+from util.InterpUtil import InterpUtil
 from util.MovementUtil import MovementUtil
 
 
@@ -23,11 +26,11 @@ class InterpApi:
 
     def run_action(self, context, action_name: str):
         view = self.build_interp_view(context)
-        self.logger.info(f"View payload: {view.context.command.payload}")
+        self.logger.debug(f"View payload: {view.context.command.payload}")
         definition = self._interp_action_definition(view, action_name)
-        self.logger.info(f"Definition: {definition}")
+        self.logger.debug(f"Definition: {definition}")
         plan = self.evaluate_interp_action(view, definition)
-        self.logger.info(f"Plan: {plan}")
+        self.logger.debug(f"Plan: {plan}")
         context.finish()
         return self.execute_interp_plan(view, plan)
 
@@ -153,7 +156,7 @@ class InterpApi:
     @staticmethod
     def _default_tokens(view: InterpView) -> dict[str, Any]:
         actor = getattr(view.context, "character", None)
-        argument = InterpApi.argument_text(view)
+        argument = InterpUtil.argument_text(view)
         target, message = CommunicationsUtil.split_first(argument)
         tokens = {
             "c": str(getattr(actor, "name", "") or ""),
@@ -197,21 +200,12 @@ class InterpApi:
         return text
 
     @staticmethod
-    def argument_text(view: InterpView) -> str:
-        context = view.context
-        result = getattr(context, "result", "")
-        text = (result if isinstance(result, str) else "").strip()
-        if text:
-            return text
-        return " ".join(getattr(context, "parameters", []) or []).strip()
-
-    @staticmethod
     def tell_target_name(view: InterpView) -> str:
         context = view.context
         override = str(getattr(context, "tell_target_name", "") or "").strip()
         if override:
             return override
-        target, _message = CommunicationsUtil.split_first(InterpApi.argument_text(view))
+        target, _message = CommunicationsUtil.split_first(InterpUtil.argument_text(view))
         return target
 
     @staticmethod
@@ -299,6 +293,9 @@ class InterpApi:
             "CommunicationsUtil": CommunicationsUtil,
             "GenericUtil": GenericUtil,
             "MovementUtil": MovementUtil,
+            "InterpUtil": InterpUtil,
+            "FightUtil": FightUtil,
+            "MovementApi": MovementApi,
             "bool": bool,
             "int": int,
             "max": max,

@@ -187,6 +187,7 @@ _load_module("interp.InterpCheck", "interp/InterpCheck.py")
 _load_module("interp.InterpActionDefinition", "interp/InterpActionDefinition.py")
 _load_module("interp.InterpPlan", "interp/InterpPlan.py")
 InterpApi = _load_module("interp.InterpApi", "interp/InterpApi.py").InterpApi
+MovementApi = sys.modules["interp.MovementApi"].MovementApi
 Movement = _load_module("interp.commands.Movement", "interp/commands/Movement.py").Movement
 
 
@@ -256,21 +257,23 @@ class TestMovementDynamicCommands(unittest.TestCase):
             status_flags=SimpleNamespace(invis_level=0),
             effects={},
         )
-        context = _Context(character=character, command=_load_command("north"), done=False)
+        context = _Context(character=character, command=_load_command("north"), done=False, player_handler=lambda: SimpleNamespace(room_registry=room_registry))
 
         payload = commands.do_north(character, context)
 
         self.assertEqual("Alas, you cannot go that way.\r\n", payload["to_char"])
+        self.assertFalse(hasattr(context, "move_exit"))
 
     def test_direction_checks_can_compile_with_movement_util_available(self):
         command = _load_command("north")
 
         self.assertIs(_MovementUtil, InterpApi._lambda_locals()["MovementUtil"])
+        self.assertIs(MovementApi, InterpApi._lambda_locals()["MovementApi"])
         self.assertTrue(callable(InterpApi._compile_lambda(command.checks[0]["predicate"])))
 
     def test_direction_closed_uses_keyword_payload_token(self):
         commands, room_registry = self._commands()
-        current_room = _Room(id="room-1", exits={0: _Exit(to_room_vnum="200", exit_flags=1, keyword="gate")}, sector_type="field")
+        current_room = _Room(id="room-1", exits={0: _Exit(to_room_vnum="200", to_room_id="room-2", exit_flags=1, keyword="gate")}, sector_type="field")
         destination = _Room(id="room-2", exits={}, sector_type="field")
 
         def _get_or_none(**kwargs):
@@ -289,15 +292,22 @@ class TestMovementDynamicCommands(unittest.TestCase):
             status_flags=SimpleNamespace(invis_level=0),
             effects={},
         )
-        context = _Context(character=character, command=_load_command("north"), done=False)
+        context = _Context(
+            character=character,
+            command=_load_command("north"),
+            done=False,
+            room=current_room,
+            player_handler=lambda: SimpleNamespace(room_registry=room_registry),
+        )
 
         payload = commands.do_north(character, context)
 
         self.assertEqual("The gate is closed.\r\n", payload["to_char"])
+        self.assertFalse(hasattr(context, "move_keyword"))
 
     def test_direction_success_moves_character_after_check_passes(self):
         commands, room_registry = self._commands()
-        current_room = _Room(id="room-1", exits={0: _Exit(to_room_vnum="200", exit_flags=0, keyword="door")}, sector_type="field")
+        current_room = _Room(id="room-1", exits={0: _Exit(to_room_vnum="200", to_room_id="room-2", exit_flags=0, keyword="door")}, sector_type="field")
         destination = _Room(id="room-2", exits={}, sector_type="field")
 
         def _get_or_none(**kwargs):
@@ -318,7 +328,13 @@ class TestMovementDynamicCommands(unittest.TestCase):
             effects={},
             has_boat=lambda: False,
         )
-        context = _Context(character=character, command=_load_command("north"), done=False)
+        context = _Context(
+            character=character,
+            command=_load_command("north"),
+            done=False,
+            room=current_room,
+            player_handler=lambda: SimpleNamespace(room_registry=room_registry),
+        )
 
         payload = commands.do_north(character, context)
 
@@ -326,6 +342,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
         self.assertEqual(4, character.movement)
         self.assertEqual("Tester leaves north.\r\n", payload["from_room_message"])
         self.assertEqual("Tester has arrived.\r\n", payload["to_room_message"])
+        self.assertFalse(hasattr(context, "move_cost"))
 
 
 if __name__ == "__main__":

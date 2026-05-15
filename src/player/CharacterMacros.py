@@ -42,6 +42,7 @@ class CharacterMacros(GameMacros):
         cls.CommFlags = cls.get_enum("commFlags")
         cls.PlayerActBits = cls.get_enum("playerActBits")
         cls.OffenseTypes = cls.get_enum("offenseTypes")
+        cls.SectorTypes = cls.get_enum("sectorTypes")
 
     @classmethod
     def _logger_obj(cls):

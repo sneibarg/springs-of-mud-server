@@ -1,5 +1,6 @@
 from typing import Optional, Union, Any, List
 from interp.Command import Command
+from interp.InterpView import InterpView
 from server.LoggerFactory import LoggerFactory
 
 logger = LoggerFactory.get_logger("InterpUtil")
@@ -127,3 +128,11 @@ class InterpUtil:
                 return cmd, parameters
         return None, None
 
+    @staticmethod
+    def argument_text(view: InterpView) -> str:
+        context = view.context
+        result = getattr(context, "result", "")
+        text = (result if isinstance(result, str) else "").strip()
+        if text:
+            return text
+        return " ".join(getattr(context, "parameters", []) or []).strip()

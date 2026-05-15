@@ -7,6 +7,7 @@ from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from interp.InterpApi import InterpApi
+from interp.MovementApi import MovementApi
 from util.MovementUtil import MovementUtil
 from fight.FightHandler import FightHandler
 from util.MobileUtil import MobileUtil
@@ -43,25 +44,26 @@ class Movement:
         self.sector_types = CharacterMacros.get_enum("sectorTypes")
 
     def move_char(self, character: Character, direction: str, context: Context):
-        self._prepare_move_context(character, direction, context)
+        state = MovementApi.move_state(context, direction=direction, room_registry=self.room_registry)
+        context.room = state.in_room
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload
 
         context.done = False
         if not CharacterMacros.is_npc(character):
-            character.movement -= context.move_cost
+            character.movement -= state.move_cost
 
-        in_room = context.move_in_room
-        to_room = context.move_to_room
+        in_room = state.in_room
+        to_room = state.to_room
         from_room_targets = in_room.player_targets(character)
-        leave_msg = self._leave_message(character, context.move_door)
+        leave_msg = MovementApi.leave_message(character, state.direction)
         in_room.remove_player_from_room(character)
         to_room.add_player_to_room(character)
         character.room_id = to_room.id
 
         to_room_targets = to_room.player_targets(character)
-        arrive_msg = self._arrive_message(character)
+        arrive_msg = MovementApi.arrive_message(character)
         return {
             "from_room_targets": from_room_targets,
             "from_room_message": leave_msg,
@@ -70,97 +72,6 @@ class Movement:
             "to_room_obj": to_room,
             "aggressive_rounds": self.fight_handler.aggressive_entry_rounds(character, to_room),
         }
-
-    def _prepare_move_context(self, character: Character, direction: str, context: Context):
-        context.move_direction = direction
-        context.move_position_block_message = CharacterMacros.movement_position_block_message(character)
-        context.move_door = MovementUtil.direction_index(direction)
-        self._load_move_destination(character, context)
-        self._load_move_exit_state(character, context)
-        self._load_move_cost(character, context)
-
-    def _load_move_destination(self, character: Character, context: Context):
-        in_room = self.room_registry.get_or_none(id=character.room_id)
-        pexit = None
-        if in_room is not None and context.move_door >= 0:
-            pexit = in_room.get_exit(context.move_door) if hasattr(in_room, "get_exit") else MovementUtil.find_exit(in_room, context.move_door)
-
-        context.move_in_room = in_room
-        context.move_exit = pexit
-        context.move_has_destination = bool(pexit is not None and getattr(pexit, "to_room_vnum", None))
-        context.move_to_room = self.room_registry.get_or_none(vnum=str(pexit.to_room_vnum)) if context.move_has_destination else None
-
-    def _load_move_exit_state(self, character: Character, context: Context):
-        pexit = context.move_exit
-        flags = GenericUtil.to_int(getattr(pexit, "exit_flags", 0), 0) if pexit is not None else 0
-        ex_closed = MovementUtil.get_exit_flag(self.exit_flags, "EX_CLOSED", "CLOSED")
-        ex_nopass = MovementUtil.get_exit_flag(self.exit_flags, "EX_NOPASS", "NOPASS")
-        pass_door = CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_PASS_DOOR")
-
-        context.move_exit_closed = bool(
-            pexit is not None
-            and ex_closed
-            and (flags & ex_closed) != 0
-            and ((not pass_door) or (ex_nopass and (flags & ex_nopass) != 0))
-        )
-        context.move_keyword = (getattr(pexit, "keyword", "") or "door") if pexit is not None else "door"
-        context.move_private_room = bool(
-            context.move_to_room is not None and context.move_to_room.is_room_private(self.room_flags)
-        )
-
-    def _load_move_cost(self, character: Character, context: Context):
-        context.move_air_blocked = False
-        context.move_water_blocked = False
-        context.move_insufficient_movement = False
-        context.move_cost = 0
-        if CharacterMacros.is_npc(character):
-            return
-
-        in_room = context.move_in_room
-        to_room = context.move_to_room
-        if in_room is None or to_room is None:
-            return
-
-        is_flying = CharacterMacros.is_flying(character)
-        context.move_air_blocked = (
-            (in_room.is_air_room(self.sector_types) or to_room.is_air_room(self.sector_types))
-            and not is_flying
-            and not CharacterMacros.is_immortal(character)
-        )
-        context.move_water_blocked = (
-            (in_room.requires_boat(self.sector_types) or to_room.requires_boat(self.sector_types))
-            and not is_flying
-            and not character.has_boat()
-        )
-
-        context.move_cost = self._movement_cost(character, in_room, to_room, is_flying)
-        context.move_insufficient_movement = (
-            GenericUtil.to_int(getattr(character, "movement", 0), 0) < context.move_cost
-        )
-
-    def _movement_cost(self, character: Character, in_room, to_room, is_flying: bool) -> int:
-        move = (MovementUtil.sector_cost(in_room.sector_type) + MovementUtil.sector_cost(to_room.sector_type)) // 2
-        if is_flying or CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_HASTE"):
-            move //= 2
-        if CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_SLOW"):
-            move *= 2
-        return max(1, move)
-
-    def _leave_message(self, character: Character, door: int) -> str | None:
-        if not self._shows_movement_messages(character):
-            return None
-        return f"{character.name} leaves {MovementUtil.DIR_NAME[door]}.\r\n"
-
-    def _arrive_message(self, character: Character) -> str | None:
-        if not self._shows_movement_messages(character):
-            return None
-        return f"{character.name} has arrived.\r\n"
-
-    def _shows_movement_messages(self, character: Character) -> bool:
-        return (
-            not CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_SNEAK")
-            and GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0) < 51
-        )
 
     def do_north(self, character: Character, context: Context):
         return self.move_char(character, "north", context)
