@@ -200,30 +200,26 @@ class Info:
             character.context = {}
 
         current_lines = GenericUtil.to_int(character.context.get("scroll_lines", 0), 0)
+        context.scroll_argument = arg
+        context.scroll_lines = GenericUtil.to_int(arg, 0)
+        context.scroll_is_numeric = bool(arg) and arg.lstrip("-").isdigit()
 
         if arg == "":
             display_lines = current_lines + 2 if current_lines > 0 else 0
-            text = f"You currently display {display_lines} lines per page.\r\n"
             context.finish()
-            return text
+            return self._render_message_key(context, "default", channel="to_char", n=display_lines).get("to_char", "")
 
-        if not arg.lstrip("-").isdigit():
-            context.finish()
-            return "You must provide a number.\r\n"
+        payload = self.interp_api.run_action(context, context.command.name)
+        if payload.get("blocked"):
+            return payload.get("to_char", "")
 
-        lines = GenericUtil.to_int(arg, 0)
+        lines = context.scroll_lines
         if lines == 0:
             character.context["scroll_lines"] = 0
-            context.finish()
-            return "Paging disabled.\r\n"
-
-        if lines < 10 or lines > 100:
-            context.finish()
-            return "You must provide a reasonable number.\r\n"
+            return self._render_message_key(context, "disable", channel="to_char").get("to_char", "")
 
         character.context["scroll_lines"] = lines - 2
-        context.finish()
-        return f"Scroll set to {lines} lines.\r\n"
+        return self._render_message_key(context, "set", channel="to_char", n=lines).get("to_char", "")
 
     def do_wimpy(self, character: Character, context: Context) -> str:
         if CharacterMacros.is_npc(character):
@@ -237,26 +233,21 @@ class Info:
 
         raw_arg = context.result if isinstance(context.result, str) else ""
         arg = raw_arg.strip() if raw_arg else (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip()
+        context.wimpy_argument = arg
+        context.wimpy_is_numeric = bool(arg) and arg.lstrip("-").isdigit()
 
         if arg == "":
             wimpy = int(getattr(character, "max_hit", 0) / 5)
-        elif not arg.lstrip("-").isdigit():
-            context.finish()
-            return "Your courage exceeds your wisdom.\r\n"
         else:
             wimpy = GenericUtil.to_int(arg, 0)
-
-        if wimpy < 0:
-            context.finish()
-            return "Your courage exceeds your wisdom.\r\n"
-
-        if wimpy > int(getattr(character, "max_hit", 0) / 2):
-            context.finish()
-            return "Such cowardice ill becomes you.\r\n"
+            context.wimpy_value = wimpy
+            payload = self.interp_api.run_action(context, context.command.name)
+            if payload.get("blocked"):
+                return payload.get("to_char", "")
 
         attributes.wimpy = wimpy
         context.finish()
-        return f"Wimpy set to {wimpy} hit points.\r\n"
+        return self._render_message_key(context, "set", channel="to_char", d=wimpy).get("to_char", "")
 
     def do_score(self, character: Character, context: Context) -> str:
         attributes = getattr(character, "character_attributes", None)
@@ -385,14 +376,12 @@ class Info:
         return text
 
     def do_weather(self, character: Character, context: Context) -> str:
-        if not CharacterMacros.is_outside(character):
-            context.finish()
-            return "You can't see the weather indoors.\r\n"
-
+        context.weather_outside = CharacterMacros.is_outside(character)
         weather_info = self.weather_handler.weather_info
-        if weather_info is None:
-            context.finish()
-            return "The weather is unavailable.\r\n"
+        context.weather_available = weather_info is not None
+        payload = self.interp_api.run_action(context, context.command.name)
+        if payload.get("blocked"):
+            return payload.get("to_char", "")
 
         sky = getattr(weather_info, "sky", 0)
         if hasattr(sky, "value"):
@@ -477,19 +466,13 @@ class Info:
 
     def do_consider(self, character: Character, context: Context) -> str:
         arg = (context.result if isinstance(context.result, str) else "").strip().lower()
-        if not arg:
-            context.finish()
-            return "Consider killing whom?\r\n"
-
         room = self.room_registry.get_or_none(id=character.room_id)
-        if room is None:
-            context.finish()
-            return "They're not here.\r\n"
-
-        victim = PlayerUtil.get_target(character, arg, room)
-        if victim is None:
-            context.finish()
-            return "They're not here.\r\n"
+        victim = PlayerUtil.get_target(character, arg, room) if room is not None else None
+        context.consider_argument = arg
+        context.consider_victim = victim
+        payload = self.interp_api.run_action(context, context.command.name)
+        if payload.get("blocked"):
+            return payload.get("to_char", "")
 
         diff = GenericUtil.to_int(getattr(victim, "level", 0), 0) - GenericUtil.to_int(getattr(character, "level", 0), 0)
         if diff <= -10:
@@ -516,9 +499,10 @@ class Info:
             return ""
 
         argument = (context.result if isinstance(context.result, str) else "").strip()
-        if argument == "":
-            context.finish()
-            return "Change your title to what?\r\n"
+        context.title_argument = argument
+        payload = self.interp_api.run_action(context, context.command.name)
+        if payload.get("blocked"):
+            return payload.get("to_char", "")
 
         argument = argument.replace("~", "")[:45]
         if argument and argument[0] not in (".", ",", "!", "?"):
@@ -526,8 +510,7 @@ class Info:
         else:
             character.title = argument
 
-        context.finish()
-        return "Ok.\r\n"
+        return self._render_message_key(context, "default", channel="to_char").get("to_char", "")
 
     def do_description(self, character: Character, context: Context) -> str:
         argument = (context.result if isinstance(context.result, str) else "").strip()
@@ -656,42 +639,42 @@ class Info:
         return "".join(lines)
 
     def do_autoassist(self, character: Character, context: Context) -> str:
-        text = CharacterMacros.toggle_player_act(character, "PLR_AUTOASSIST", "Autoassist removed.\r\n", "You will now assist when needed.\r\n")
+        CharacterMacros.toggle_player_act(character, "PLR_AUTOASSIST", "Autoassist removed.\r\n", "You will now assist when needed.\r\n")
         context.finish()
-        return text
+        return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOASSIST") else "disable", channel="to_char").get("to_char", "")
 
     def do_autoexit(self, character: Character, context: Context) -> str:
-        text = CharacterMacros.toggle_player_act(character, "PLR_AUTOEXIT", "Exits will no longer be displayed.\r\n", "Exits will now be displayed.\r\n")
+        CharacterMacros.toggle_player_act(character, "PLR_AUTOEXIT", "Exits will no longer be displayed.\r\n", "Exits will now be displayed.\r\n")
         context.finish()
-        return text
+        return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOEXIT") else "disable", channel="to_char").get("to_char", "")
 
     def do_autogold(self, character: Character, context: Context) -> str:
-        text = CharacterMacros.toggle_player_act(character, "PLR_AUTOGOLD", "Autogold removed.\r\n", "Automatic gold looting set.\r\n")
+        CharacterMacros.toggle_player_act(character, "PLR_AUTOGOLD", "Autogold removed.\r\n", "Automatic gold looting set.\r\n")
         context.finish()
-        return text
+        return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOGOLD") else "disable", channel="to_char").get("to_char", "")
 
     def do_autoloot(self, character: Character, context: Context) -> str:
-        text = CharacterMacros.toggle_player_act(character, "PLR_AUTOLOOT", "Autolooting removed.\r\n", "Automatic corpse looting set.\r\n")
+        CharacterMacros.toggle_player_act(character, "PLR_AUTOLOOT", "Autolooting removed.\r\n", "Automatic corpse looting set.\r\n")
         context.finish()
-        return text
+        return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOLOOT") else "disable", channel="to_char").get("to_char", "")
 
     def do_autosac(self, character: Character, context: Context) -> str:
-        text = CharacterMacros.toggle_player_act(character, "PLR_AUTOSAC", "Autosacrificing removed.\r\n", "Automatic corpse sacrificing set.\r\n")
+        CharacterMacros.toggle_player_act(character, "PLR_AUTOSAC", "Autosacrificing removed.\r\n", "Automatic corpse sacrificing set.\r\n")
         context.finish()
-        return text
+        return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOSAC") else "disable", channel="to_char").get("to_char", "")
 
     def do_autosplit(self, character: Character, context: Context) -> str:
-        text = CharacterMacros.toggle_player_act(character, "PLR_AUTOSPLIT", "Autosplitting removed.\r\n", "Automatic gold splitting set.\r\n")
+        CharacterMacros.toggle_player_act(character, "PLR_AUTOSPLIT", "Autosplitting removed.\r\n", "Automatic gold splitting set.\r\n")
         context.finish()
-        return text
+        return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOSPLIT") else "disable", channel="to_char").get("to_char", "")
 
     def do_brief(self, character: Character, context: Context) -> str:
-        text = CharacterMacros.toggle_comm(character, "COMM_BRIEF", "Full descriptions activated.\r\n", "Short descriptions activated.\r\n")
+        CharacterMacros.toggle_comm(character, "COMM_BRIEF", "Full descriptions activated.\r\n", "Short descriptions activated.\r\n")
         context.finish()
-        return text
+        return self._render_message_key(context, "enable" if self._comm_enabled(character, "COMM_BRIEF") else "disable", channel="to_char").get("to_char", "")
 
     def do_compact(self, character: Character, context: Context) -> str:
-        text = CharacterMacros.toggle_comm(character, "COMM_COMPACT", "Compact mode removed.\r\n", "Compact mode set.\r\n")
+        CharacterMacros.toggle_comm(character, "COMM_COMPACT", "Compact mode removed.\r\n", "Compact mode set.\r\n")
         comm_bits = CharacterMacros.get_enum("commFlags")
         comm = character.status_flags.comm
         is_compact = (
@@ -703,42 +686,42 @@ class Info:
         if getattr(character, "prompt_format", None) is not None:
             character.prompt_format.carriage_return = not is_compact
         context.finish()
-        return text
+        return self._render_message_key(context, "enable" if is_compact else "disable", channel="to_char").get("to_char", "")
 
     def do_combine(self, character: Character, context: Context) -> str:
-        text = CharacterMacros.toggle_comm(character, "COMM_COMBINE", "Long inventory selected.\r\n", "Combined inventory selected.\r\n")
+        CharacterMacros.toggle_comm(character, "COMM_COMBINE", "Long inventory selected.\r\n", "Combined inventory selected.\r\n")
         context.finish()
-        return text
+        return self._render_message_key(context, "enable" if self._comm_enabled(character, "COMM_COMBINE") else "disable", channel="to_char").get("to_char", "")
 
     def do_noloot(self, character: Character, context: Context) -> str:
-        text = CharacterMacros.toggle_player_act(
+        CharacterMacros.toggle_player_act(
             character,
             "PLR_CANLOOT",
             "Your corpse is now safe from thieves.\r\n",
             "Your corpse may now be looted.\r\n",
         )
         context.finish()
-        return text
+        return self._render_message_key(context, "disable" if self._player_act_enabled(character, "PLR_CANLOOT") else "enable", channel="to_char").get("to_char", "")
 
     def do_nofollow(self, character: Character, context: Context) -> str:
-        text = CharacterMacros.toggle_player_act(
+        CharacterMacros.toggle_player_act(
             character,
             "PLR_NOFOLLOW",
             "You now accept followers.\r\n",
             "You no longer accept followers.\r\n",
         )
         context.finish()
-        return text
+        return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_NOFOLLOW") else "disable", channel="to_char").get("to_char", "")
 
     def do_nosummon(self, character: Character, context: Context) -> str:
-        text = CharacterMacros.toggle_player_act(
+        CharacterMacros.toggle_player_act(
             character,
             "PLR_NOSUMMON",
             "You are now summonable.\r\n",
             "You are no longer summonable.\r\n",
         )
         context.finish()
-        return text
+        return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_NOSUMMON") else "disable", channel="to_char").get("to_char", "")
 
     def do_read(self, character: Character, context: Context) -> dict:
         arg = (context.result if isinstance(context.result, str) else "").strip()
@@ -752,9 +735,11 @@ class Info:
         arg = (context.result if isinstance(context.result, str) else "").strip()
         if not arg and context.parameters:
             arg = " ".join(context.parameters).strip()
-        if not arg:
-            context.finish()
-            return {"error": "Examine what?\r\n"}
+        context.examine_argument = arg
+        payload = self.interp_api.run_action(context, context.command.name)
+        if payload.get("blocked"):
+            return {"error": payload.get("to_char", "")}
+        context.done = False
 
         room = self.room_registry.get_or_none(id=character.room_id)
         obj = ItemUtil.find_item(character, room, arg) if room is not None else None
@@ -773,9 +758,10 @@ class Info:
             if name == arg or name.startswith(arg):
                 matches.append(c)
 
-        context.finish()
-        if not matches:
-            return "No one by that name is playing.\r\n"
+        context.whois_matches = matches
+        payload = self.interp_api.run_action(context, context.command.name)
+        if payload.get("blocked"):
+            return payload.get("to_char", "")
 
         lines = [
             f"{CharacterMacros.who_line(character, c)}\r\n"
@@ -791,14 +777,14 @@ class Info:
         return f"There are {count} players online.\r\n"
 
     def do_show(self, character: Character, context: Context) -> str:
-        text = CharacterMacros.toggle_comm(
+        CharacterMacros.toggle_comm(
             character,
             "COMM_SHOW_AFFECTS",
             "Affects will no longer be shown in score.\r\n",
             "Affects will now be shown in score.\r\n",
         )
         context.finish()
-        return text
+        return self._render_message_key(context, "enable" if self._comm_enabled(character, "COMM_SHOW_AFFECTS") else "disable", channel="to_char").get("to_char", "")
 
     def do_practice(self, character: Character, context: Context) -> str | dict:
         if CharacterMacros.is_npc(character):
@@ -836,13 +822,9 @@ class Info:
             context.finish()
             return "".join(lines)
 
-        if not CharacterMacros.is_awake(character):
-            context.finish()
-            return "In your dreams, or what?\r\n"
-
-        if practices <= 0:
-            context.finish()
-            return "You have no practice sessions left.\r\n"
+        context.practice_argument = raw
+        context.practice_is_awake = CharacterMacros.is_awake(character)
+        context.practice_sessions = practices
 
         room = self.room_registry.get_or_none(id=character.room_id)
         act_bits = CharacterMacros.get_enum("actBits")
@@ -854,50 +836,46 @@ class Info:
                     trainer = mob
                     break
 
-        if trainer is None:
-            context.finish()
-            return "You can't do that here.\r\n"
+        context.practice_trainer = trainer
 
         practiced_skill = SkillUtil.find_character_skill(practice_entries, raw)
         practice_meta = self._practice_meta(raw if practiced_skill is None else practiced_skill.get("name", raw))
         learned = GenericUtil.to_int(practiced_skill.get("level", 0), 0) if practiced_skill is not None else 0
-
-        if practiced_skill is None or learned < 1 or not self._practice_visible(character, practice_meta):
-            context.finish()
-            return "You can't practice that.\r\n"
+        context.practice_skill = practiced_skill
+        context.practice_skill_name = str(practiced_skill.get("name", raw) or raw) if practiced_skill is not None else raw
+        context.practice_learned = learned
+        context.practice_visible = bool(practiced_skill is not None and learned >= 1 and self._practice_visible(character, practice_meta))
 
         rating = self._practice_rating(character, practice_meta)
-        if rating <= 0:
-            context.finish()
-            return "You can't practice that.\r\n"
+        context.practice_rating = rating
 
         adept = SkillUtil.practice_adept(character)
-        skill_name = str(practiced_skill.get("name", raw) or raw)
-
-        if learned >= adept:
-            context.finish()
-            return f"You are already learned at {skill_name}.\r\n"
+        context.practice_adept = adept
+        payload = self.interp_api.run_action(context, context.command.name)
+        if payload.get("blocked"):
+            return payload.get("to_char", "")
 
         attributes.practices = max(0, practices - 1)
         gain = SkillUtil.practice_gain(character, rating)
         new_level = learned + gain
         room = self.room_registry.get_or_none(id=character.room_id)
         targets = room.player_targets(character)
+        skill_name = context.practice_skill_name
 
         if new_level < adept:
             practiced_skill["level"] = new_level
             context.finish()
             return {
-                "to_char": f"You practice {skill_name}.\r\n",
-                "to_room": f"{character.name} practices {skill_name}.\r\n",
+                **self._render_message_key(context, "practice", s=skill_name),
+                "to_room": self._render_message_key(context, "default", channel="to_room", s=skill_name).get("to_room", ""),
                 "targets": targets,
             }
 
         practiced_skill["level"] = adept
         context.finish()
         return {
-            "to_char": f"You are now learned at {skill_name}.\r\n",
-            "to_room": f"{character.name} is now learned at {skill_name}.\r\n",
+            **self._render_message_key(context, "now_adept", s=skill_name),
+            "to_room": self._render_message_key(context, "learned", channel="to_room", s=skill_name).get("to_room", ""),
             "targets": targets,
         }
 
@@ -950,13 +928,15 @@ class Info:
             raw = " ".join(context.parameters).strip()
 
         if raw == "":
-            text = CharacterMacros.toggle_comm(character, "COMM_PROMPT", "You will no longer see prompts.\r\n", "You will now see prompts.\r\n")
+            CharacterMacros.toggle_comm(character, "COMM_PROMPT", "You will no longer see prompts.\r\n", "You will now see prompts.\r\n")
             context.finish()
-            return text
+            return self._render_message_key(context, "enable" if self._comm_enabled(character, "COMM_PROMPT") else "disable", channel="to_char").get("to_char", "")
 
-        if getattr(character, "prompt_format", None) is None:
-            context.finish()
-            return "Prompt settings are unavailable.\r\n"
+        context.prompt_argument = raw
+        context.prompt_format_available = getattr(character, "prompt_format", None) is not None
+        payload = self.interp_api.run_action(context, context.command.name)
+        if payload.get("blocked"):
+            return payload.get("to_char", "")
 
         if raw.lower() == "all":
             for attr, value in vars(character.prompt_format).items():
@@ -965,7 +945,7 @@ class Info:
                 else:
                     setattr(character.prompt_format, attr, False)
             context.finish()
-            return "Prompt set to <%hhp %mm %vmv> \r\n"
+            return self._render_message_key(context, "set", channel="to_char", s="<%hhp %mm %vmv> ").get("to_char", "")
 
         template = raw.replace("~", "")[:50]
         tokens = set()
@@ -992,7 +972,7 @@ class Info:
 
         shown = template if "%c" in template else (template + " ")
         context.finish()
-        return f"Prompt set to {shown}\r\n"
+        return self._render_message_key(context, "set", channel="to_char", s=shown).get("to_char", "")
 
     def do_equipment(self, character: Character, context: Context) -> str:
         lines = CharacterMacros.target_equipment_lines(character, EQUIP_SLOT_LABELS)
@@ -1009,31 +989,21 @@ class Info:
         else:
             arg1 = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip().lower()
             arg2 = (context.parameters[1] if context.parameters and len(context.parameters) > 1 else "").strip().lower()
-        if not arg1:
-            context.finish()
-            return "Compare what to what?\r\n"
-
-        obj1 = CharacterMacros.find_owned_item(character, arg1)
-        if obj1 is None:
-            context.finish()
-            return "You do not have that item.\r\n"
-
-        obj2 = CharacterMacros.find_owned_item(character, arg2) if arg2 else ItemMacros.find_comparable_equipped_item(character, obj1)
-        if obj2 is None:
-            context.finish()
-            return "You aren't wearing anything comparable.\r\n" if not arg2 else "You do not have that item.\r\n"
-
-        t1 = str(getattr(obj1, "item_type", "") or "").strip().lower()
-        t2 = str(getattr(obj2, "item_type", "") or "").strip().lower()
-        if t1 != t2:
-            context.finish()
-            return "You can't compare those items.\r\n"
-
-        v1 = ItemMacros.compare_value(obj1)
-        v2 = ItemMacros.compare_value(obj2)
-        if v1 is None or v2 is None:
-            context.finish()
-            return "You can't compare those items.\r\n"
+        obj1 = CharacterMacros.find_owned_item(character, arg1) if arg1 else None
+        obj2 = CharacterMacros.find_owned_item(character, arg2) if arg2 else (ItemMacros.find_comparable_equipped_item(character, obj1) if obj1 is not None else None)
+        t1 = str(getattr(obj1, "item_type", "") or "").strip().lower() if obj1 is not None else ""
+        t2 = str(getattr(obj2, "item_type", "") or "").strip().lower() if obj2 is not None else ""
+        v1 = ItemMacros.compare_value(obj1) if obj1 is not None else None
+        v2 = ItemMacros.compare_value(obj2) if obj2 is not None else None
+        context.compare_arg1 = arg1
+        context.compare_arg2 = arg2
+        context.compare_obj1 = obj1
+        context.compare_obj2 = obj2
+        context.compare_same_type = bool(obj1 is not None and obj2 is not None and t1 == t2)
+        context.compare_values_available = v1 is not None and v2 is not None
+        payload = self.interp_api.run_action(context, context.command.name)
+        if payload.get("blocked"):
+            return payload.get("to_char", "")
 
         item_flags = CharacterMacros.get_enum("itemFlags")
         n1 = ItemUtil.format_obj_to_char(obj1, item_flags_enum=item_flags, f_short=True)
@@ -1045,3 +1015,20 @@ class Info:
         if v1 > v2:
             return f"{n1} looks better than {n2}.\r\n"
         return f"{n1} looks worse than {n2}.\r\n"
+
+    def _render_message_key(self, context: Context, message_key: str, channel: str = "", **tokens) -> dict:
+        return self.interp_api.render_message_key(context, message_key, channel=channel, **tokens)
+
+    @staticmethod
+    def _player_act_enabled(character: Character, bit_name: str) -> bool:
+        player_act_bits = CharacterMacros.get_enum("playerActBits")
+        if player_act_bits is None or not hasattr(player_act_bits, bit_name):
+            return False
+        return CharacterMacros.is_set(character.status_flags.act, getattr(player_act_bits, bit_name).value)
+
+    @staticmethod
+    def _comm_enabled(character: Character, bit_name: str) -> bool:
+        comm_bits = CharacterMacros.get_enum("commFlags")
+        if comm_bits is None or not hasattr(comm_bits, bit_name):
+            return False
+        return CharacterMacros.is_set(character.status_flags.comm, getattr(comm_bits, bit_name).value)

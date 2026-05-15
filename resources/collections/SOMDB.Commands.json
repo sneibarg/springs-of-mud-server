@@ -203,7 +203,13 @@
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.examine_argument",
+                "messageKey": "noArgument"
+            }
+        ]
     },
     {
         "_id": {
@@ -920,7 +926,30 @@
                 "learned": "%c is now learned at %s."
             },
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: bool(v.context.practice_argument) and not v.context.practice_is_awake",
+                "messageKey": "isAsleep"
+            },
+            {
+                "predicate": "lambda v: bool(v.context.practice_argument) and v.context.practice_sessions <= 0",
+                "messageKey": "noPractice"
+            },
+            {
+                "predicate": "lambda v: bool(v.context.practice_argument) and v.context.practice_trainer is None",
+                "messageKey": "canTDo"
+            },
+            {
+                "predicate": "lambda v: bool(v.context.practice_argument) and (not v.context.practice_visible or v.context.practice_rating <= 0)",
+                "messageKey": "unlearned"
+            },
+            {
+                "predicate": "lambda v: bool(v.context.practice_argument) and v.context.practice_learned >= v.context.practice_adept",
+                "messageKey": "learned",
+                "tokenFactory": "lambda v: {'s': v.context.practice_skill_name}"
+            }
+        ]
     },
     {
         "_id": {
@@ -1331,11 +1360,30 @@
             "toChar": {
                 "noArgument": "Compare what to what?",
                 "targetMissing": "You do not have that item.",
-                "wearSlotEmpty": "You aren't wearing anything comparable."
+                "wearSlotEmpty": "You aren't wearing anything comparable.",
+                "cannotCompare": "You can't compare those items."
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.compare_arg1",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: v.context.compare_obj1 is None or (bool(v.context.compare_arg2) and v.context.compare_obj2 is None)",
+                "messageKey": "targetMissing"
+            },
+            {
+                "predicate": "lambda v: not bool(v.context.compare_arg2) and v.context.compare_obj2 is None",
+                "messageKey": "wearSlotEmpty"
+            },
+            {
+                "predicate": "lambda v: v.context.compare_obj1 is not None and v.context.compare_obj2 is not None and (not v.context.compare_same_type or not v.context.compare_values_available)",
+                "messageKey": "cannotCompare"
+            }
+        ]
     },
     {
         "_id": {
@@ -1361,7 +1409,17 @@
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.consider_argument",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: v.context.consider_victim is None",
+                "messageKey": "targetMissing"
+            }
+        ]
     },
     {
         "_id": {
@@ -1426,7 +1484,10 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "disable": "Affects will no longer be shown in score.",
+                "enable": "Affects will now be shown in score."
+            },
             "toRoom": {},
             "toVictim": {}
         }
@@ -1468,10 +1529,23 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "indoors": "You can't see the weather indoors.",
+                "unavailable": "The weather is unavailable."
+            },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.weather_outside",
+                "messageKey": "indoors"
+            },
+            {
+                "predicate": "lambda v: not v.context.weather_available",
+                "messageKey": "unavailable"
+            }
+        ]
     },
     {
         "_id": {
@@ -1837,7 +1911,13 @@
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.whois_matches",
+                "messageKey": "targetMissing"
+            }
+        ]
     },
     {
         "_id": {
@@ -2298,13 +2378,20 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
+                "promptUnavailable": "Prompt settings are unavailable.",
                 "disable": "You will no longer see prompts.",
                 "enable": "You will now see prompts.",
                 "set": "Prompt set to %s"
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: bool(v.context.prompt_argument) and not v.context.prompt_format_available",
+                "messageKey": "promptUnavailable"
+            }
+        ]
     },
     {
         "_id": {
@@ -2327,12 +2414,22 @@
                 "noArgument": "You must provide a number.",
                 "disable": "Paging disabled.",
                 "quantityExcessive": "You must provide a reasonable number.",
-                "default": "You currently display %n lines per page.",
-                "set": "Scroll set to %n lines."
+                "default": "You currently display {n} lines per page.",
+                "set": "Scroll set to {n} lines."
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: bool(v.context.scroll_argument) and not v.context.scroll_is_numeric",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: bool(v.context.scroll_argument) and v.context.scroll_lines != 0 and (v.context.scroll_lines < 10 or v.context.scroll_lines > 100)",
+                "messageKey": "quantityExcessive"
+            }
+        ]
     },
     {
         "_id": {
@@ -2356,7 +2453,13 @@
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.title_argument",
+                "messageKey": "noArgument"
+            }
+        ]
     },
     {
         "_id": {
@@ -2404,7 +2507,17 @@
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: bool(v.context.wimpy_argument) and (not v.context.wimpy_is_numeric or v.context.wimpy_value < 0)",
+                "messageKey": "invalidWimpy"
+            },
+            {
+                "predicate": "lambda v: bool(v.context.wimpy_argument) and v.context.wimpy_value > int(getattr(v.context.character, 'max_hit', 0) / 2)",
+                "messageKey": "exceedsHalfMaxHit"
+            }
+        ]
     },
     {
         "_id": {
