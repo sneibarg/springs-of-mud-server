@@ -658,6 +658,10 @@ class CharacterMacros(GameMacros):
     def is_standing(cls, char: Character) -> bool:
         return char.character_attributes.position == cls.pos_value("POS_STANDING")
 
+    @classmethod
+    def is_flying(cls, char: Character) -> bool:
+        return char.character_attributes.position == cls.pos_value("POS_FLYING")
+
     @staticmethod
     def mirror_exit_flag(room_registry, room, ex, rev_dir_map, find_exit_fn, set_mask: int = 0, clear_mask: int = 0):
         to_room = room_registry.get_or_none(id=getattr(ex, "to_room_id", None))

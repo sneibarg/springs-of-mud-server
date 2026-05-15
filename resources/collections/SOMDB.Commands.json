@@ -175,7 +175,10 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "disable": "Affects will no longer be shown in score.",
+                "enable": "Affects will now be shown in score."
+            },
             "toRoom": {},
             "toVictim": {}
         }
@@ -228,12 +231,81 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "dead": "Lie still; you are DEAD.",
+                "hurtTooBad": "You are hurt far too bad for that.",
+                "stunned": "You are too stunned to do that.",
+                "sleeping": "In your dreams, or what?",
+                "resting": "Nah... You feel too relaxed...",
+                "sitting": "Better stand up first.",
+                "fighting": "No way! You are still fighting!",
+                "invalidExit": "Alas, you cannot go that way.",
+                "closed": "The %t is closed.",
+                "privateRoom": "That room is private right now.",
+                "inAir": "You can't fly.",
+                "inWater": "You need a boat to go there.",
+                "insufficientMovement": "You are too exhausted."
+            },
             "toRoom": {
                 "default": "%c leaves west."
             },
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: CharacterMacros.is_dead(v.context.character)",
+                "messageKey": "dead"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.position_value(v.context.character) in (CharacterMacros.pos_value('POS_MORTAL'), CharacterMacros.pos_value('POS_INCAP'))",
+                "messageKey": "hurtTooBad"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
+                "messageKey": "stunned"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_sleeping(v.context.character)",
+                "messageKey": "sleeping"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_resting(v.context.character)",
+                "messageKey": "resting"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_sitting(v.context.character)",
+                "messageKey": "sitting"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_fighting(v.context.character)",
+                "messageKey": "fighting"
+            },
+            {
+                "predicate": "lambda v: v.context.move_exit is None or not v.context.move_has_destination or v.context.move_to_room is None",
+                "messageKey": "invalidExit"
+            },
+            {
+                "predicate": "lambda v: v.context.move_exit_closed",
+                "messageKey": "closed",
+                "tokenFactory": "lambda v: {'t': v.context.move_keyword}"
+            },
+            {
+                "predicate": "lambda v: v.context.move_private_room",
+                "messageKey": "privateRoom"
+            },
+            {
+                "predicate": "lambda v: v.context.move_air_blocked",
+                "messageKey": "inAir"
+            },
+            {
+                "predicate": "lambda v: v.context.move_water_blocked",
+                "messageKey": "inWater"
+            },
+            {
+                "predicate": "lambda v: v.context.move_insufficient_movement",
+                "messageKey": "insufficientMovement"
+            }
+        ]
     },
     {
         "_id": {
@@ -252,12 +324,81 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "dead": "Lie still; you are DEAD.",
+                "hurtTooBad": "You are hurt far too bad for that.",
+                "stunned": "You are too stunned to do that.",
+                "sleeping": "In your dreams, or what?",
+                "resting": "Nah... You feel too relaxed...",
+                "sitting": "Better stand up first.",
+                "fighting": "No way! You are still fighting!",
+                "invalidExit": "Alas, you cannot go that way.",
+                "closed": "The %t is closed.",
+                "privateRoom": "That room is private right now.",
+                "inAir": "You can't fly.",
+                "inWater": "You need a boat to go there.",
+                "insufficientMovement": "You are too exhausted."
+            },
             "toRoom": {
                 "default": "%c leaves east."
             },
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: CharacterMacros.is_dead(v.context.character)",
+                "messageKey": "dead"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.position_value(v.context.character) in (CharacterMacros.pos_value('POS_MORTAL'), CharacterMacros.pos_value('POS_INCAP'))",
+                "messageKey": "hurtTooBad"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
+                "messageKey": "stunned"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_sleeping(v.context.character)",
+                "messageKey": "sleeping"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_resting(v.context.character)",
+                "messageKey": "resting"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_sitting(v.context.character)",
+                "messageKey": "sitting"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_fighting(v.context.character)",
+                "messageKey": "fighting"
+            },
+            {
+                "predicate": "lambda v: v.context.move_exit is None or not v.context.move_has_destination or v.context.move_to_room is None",
+                "messageKey": "invalidExit"
+            },
+            {
+                "predicate": "lambda v: v.context.move_exit_closed",
+                "messageKey": "closed",
+                "tokenFactory": "lambda v: {'t': v.context.move_keyword}"
+            },
+            {
+                "predicate": "lambda v: v.context.move_private_room",
+                "messageKey": "privateRoom"
+            },
+            {
+                "predicate": "lambda v: v.context.move_air_blocked",
+                "messageKey": "inAir"
+            },
+            {
+                "predicate": "lambda v: v.context.move_water_blocked",
+                "messageKey": "inWater"
+            },
+            {
+                "predicate": "lambda v: v.context.move_insufficient_movement",
+                "messageKey": "insufficientMovement"
+            }
+        ]
     },
     {
         "_id": {
@@ -276,12 +417,81 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "dead": "Lie still; you are DEAD.",
+                "hurtTooBad": "You are hurt far too bad for that.",
+                "stunned": "You are too stunned to do that.",
+                "sleeping": "In your dreams, or what?",
+                "resting": "Nah... You feel too relaxed...",
+                "sitting": "Better stand up first.",
+                "fighting": "No way! You are still fighting!",
+                "invalidExit": "Alas, you cannot go that way.",
+                "closed": "The %t is closed.",
+                "privateRoom": "That room is private right now.",
+                "inAir": "You can't fly.",
+                "inWater": "You need a boat to go there.",
+                "insufficientMovement": "You are too exhausted."
+            },
             "toRoom": {
                 "default": "%c leaves north."
             },
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: CharacterMacros.is_dead(v.context.character)",
+                "messageKey": "dead"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.position_value(v.context.character) in (CharacterMacros.pos_value('POS_MORTAL'), CharacterMacros.pos_value('POS_INCAP'))",
+                "messageKey": "hurtTooBad"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
+                "messageKey": "stunned"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_sleeping(v.context.character)",
+                "messageKey": "sleeping"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_resting(v.context.character)",
+                "messageKey": "resting"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_sitting(v.context.character)",
+                "messageKey": "sitting"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_fighting(v.context.character)",
+                "messageKey": "fighting"
+            },
+            {
+                "predicate": "lambda v: v.context.move_exit is None or not v.context.move_has_destination or v.context.move_to_room is None",
+                "messageKey": "invalidExit"
+            },
+            {
+                "predicate": "lambda v: v.context.move_exit_closed",
+                "messageKey": "closed",
+                "tokenFactory": "lambda v: {'t': v.context.move_keyword}"
+            },
+            {
+                "predicate": "lambda v: v.context.move_private_room",
+                "messageKey": "privateRoom"
+            },
+            {
+                "predicate": "lambda v: v.context.move_air_blocked",
+                "messageKey": "inAir"
+            },
+            {
+                "predicate": "lambda v: v.context.move_water_blocked",
+                "messageKey": "inWater"
+            },
+            {
+                "predicate": "lambda v: v.context.move_insufficient_movement",
+                "messageKey": "insufficientMovement"
+            }
+        ]
     },
     {
         "_id": {
@@ -300,12 +510,81 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "dead": "Lie still; you are DEAD.",
+                "hurtTooBad": "You are hurt far too bad for that.",
+                "stunned": "You are too stunned to do that.",
+                "sleeping": "In your dreams, or what?",
+                "resting": "Nah... You feel too relaxed...",
+                "sitting": "Better stand up first.",
+                "fighting": "No way! You are still fighting!",
+                "invalidExit": "Alas, you cannot go that way.",
+                "closed": "The %t is closed.",
+                "privateRoom": "That room is private right now.",
+                "inAir": "You can't fly.",
+                "inWater": "You need a boat to go there.",
+                "insufficientMovement": "You are too exhausted."
+            },
             "toRoom": {
                 "default": "%c leaves south."
             },
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: CharacterMacros.is_dead(v.context.character)",
+                "messageKey": "dead"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.position_value(v.context.character) in (CharacterMacros.pos_value('POS_MORTAL'), CharacterMacros.pos_value('POS_INCAP'))",
+                "messageKey": "hurtTooBad"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
+                "messageKey": "stunned"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_sleeping(v.context.character)",
+                "messageKey": "sleeping"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_resting(v.context.character)",
+                "messageKey": "resting"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_sitting(v.context.character)",
+                "messageKey": "sitting"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_fighting(v.context.character)",
+                "messageKey": "fighting"
+            },
+            {
+                "predicate": "lambda v: v.context.move_exit is None or not v.context.move_has_destination or v.context.move_to_room is None",
+                "messageKey": "invalidExit"
+            },
+            {
+                "predicate": "lambda v: v.context.move_exit_closed",
+                "messageKey": "closed",
+                "tokenFactory": "lambda v: {'t': v.context.move_keyword}"
+            },
+            {
+                "predicate": "lambda v: v.context.move_private_room",
+                "messageKey": "privateRoom"
+            },
+            {
+                "predicate": "lambda v: v.context.move_air_blocked",
+                "messageKey": "inAir"
+            },
+            {
+                "predicate": "lambda v: v.context.move_water_blocked",
+                "messageKey": "inWater"
+            },
+            {
+                "predicate": "lambda v: v.context.move_insufficient_movement",
+                "messageKey": "insufficientMovement"
+            }
+        ]
     },
     {
         "_id": {
@@ -369,12 +648,81 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "dead": "Lie still; you are DEAD.",
+                "hurtTooBad": "You are hurt far too bad for that.",
+                "stunned": "You are too stunned to do that.",
+                "sleeping": "In your dreams, or what?",
+                "resting": "Nah... You feel too relaxed...",
+                "sitting": "Better stand up first.",
+                "fighting": "No way! You are still fighting!",
+                "invalidExit": "Alas, you cannot go that way.",
+                "closed": "The %t is closed.",
+                "privateRoom": "That room is private right now.",
+                "inAir": "You can't fly.",
+                "inWater": "You need a boat to go there.",
+                "insufficientMovement": "You are too exhausted."
+            },
             "toRoom": {
                 "default": "%c leaves up."
             },
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: CharacterMacros.is_dead(v.context.character)",
+                "messageKey": "dead"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.position_value(v.context.character) in (CharacterMacros.pos_value('POS_MORTAL'), CharacterMacros.pos_value('POS_INCAP'))",
+                "messageKey": "hurtTooBad"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
+                "messageKey": "stunned"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_sleeping(v.context.character)",
+                "messageKey": "sleeping"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_resting(v.context.character)",
+                "messageKey": "resting"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_sitting(v.context.character)",
+                "messageKey": "sitting"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_fighting(v.context.character)",
+                "messageKey": "fighting"
+            },
+            {
+                "predicate": "lambda v: v.context.move_exit is None or not v.context.move_has_destination or v.context.move_to_room is None",
+                "messageKey": "invalidExit"
+            },
+            {
+                "predicate": "lambda v: v.context.move_exit_closed",
+                "messageKey": "closed",
+                "tokenFactory": "lambda v: {'t': v.context.move_keyword}"
+            },
+            {
+                "predicate": "lambda v: v.context.move_private_room",
+                "messageKey": "privateRoom"
+            },
+            {
+                "predicate": "lambda v: v.context.move_air_blocked",
+                "messageKey": "inAir"
+            },
+            {
+                "predicate": "lambda v: v.context.move_water_blocked",
+                "messageKey": "inWater"
+            },
+            {
+                "predicate": "lambda v: v.context.move_insufficient_movement",
+                "messageKey": "insufficientMovement"
+            }
+        ]
     },
     {
         "_id": {
@@ -393,12 +741,81 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "dead": "Lie still; you are DEAD.",
+                "hurtTooBad": "You are hurt far too bad for that.",
+                "stunned": "You are too stunned to do that.",
+                "sleeping": "In your dreams, or what?",
+                "resting": "Nah... You feel too relaxed...",
+                "sitting": "Better stand up first.",
+                "fighting": "No way! You are still fighting!",
+                "invalidExit": "Alas, you cannot go that way.",
+                "closed": "The %t is closed.",
+                "privateRoom": "That room is private right now.",
+                "inAir": "You can't fly.",
+                "inWater": "You need a boat to go there.",
+                "insufficientMovement": "You are too exhausted."
+            },
             "toRoom": {
                 "default": "%c leaves down."
             },
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: CharacterMacros.is_dead(v.context.character)",
+                "messageKey": "dead"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.position_value(v.context.character) in (CharacterMacros.pos_value('POS_MORTAL'), CharacterMacros.pos_value('POS_INCAP'))",
+                "messageKey": "hurtTooBad"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
+                "messageKey": "stunned"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_sleeping(v.context.character)",
+                "messageKey": "sleeping"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_resting(v.context.character)",
+                "messageKey": "resting"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_sitting(v.context.character)",
+                "messageKey": "sitting"
+            },
+            {
+                "predicate": "lambda v: CharacterMacros.is_fighting(v.context.character)",
+                "messageKey": "fighting"
+            },
+            {
+                "predicate": "lambda v: v.context.move_exit is None or not v.context.move_has_destination or v.context.move_to_room is None",
+                "messageKey": "invalidExit"
+            },
+            {
+                "predicate": "lambda v: v.context.move_exit_closed",
+                "messageKey": "closed",
+                "tokenFactory": "lambda v: {'t': v.context.move_keyword}"
+            },
+            {
+                "predicate": "lambda v: v.context.move_private_room",
+                "messageKey": "privateRoom"
+            },
+            {
+                "predicate": "lambda v: v.context.move_air_blocked",
+                "messageKey": "inAir"
+            },
+            {
+                "predicate": "lambda v: v.context.move_water_blocked",
+                "messageKey": "inWater"
+            },
+            {
+                "predicate": "lambda v: v.context.move_insufficient_movement",
+                "messageKey": "insufficientMovement"
+            }
+        ]
     },
     {
         "_id": {
@@ -597,10 +1014,23 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "indoors": "You can't see the weather indoors.",
+                "unavailable": "The weather is unavailable."
+            },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.weather_outside",
+                "messageKey": "indoors"
+            },
+            {
+                "predicate": "lambda v: not v.context.weather_available",
+                "messageKey": "unavailable"
+            }
+        ]
     },
     {
         "_id": {
@@ -1770,7 +2200,10 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "disable": "Affects will no longer be shown in score.",
+                "enable": "Affects will now be shown in score."
+            },
             "toRoom": {},
             "toVictim": {}
         }
@@ -1884,10 +2317,23 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "indoors": "You can't see the weather indoors.",
+                "unavailable": "The weather is unavailable."
+            },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not v.context.weather_outside",
+                "messageKey": "indoors"
+            },
+            {
+                "predicate": "lambda v: not v.context.weather_available",
+                "messageKey": "unavailable"
+            }
+        ]
     },
     {
         "_id": {

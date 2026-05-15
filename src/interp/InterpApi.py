@@ -12,6 +12,7 @@ from player.CharacterMacros import CharacterMacros
 from server.LoggerFactory import LoggerFactory
 from util.CommunicationsUtil import CommunicationsUtil
 from util.GenericUtil import GenericUtil
+from util.MovementUtil import MovementUtil
 
 
 class InterpApi:
@@ -297,6 +298,7 @@ class InterpApi:
             "CharacterMacros": CharacterMacros,
             "CommunicationsUtil": CommunicationsUtil,
             "GenericUtil": GenericUtil,
+            "MovementUtil": MovementUtil,
             "bool": bool,
             "int": int,
             "max": max,

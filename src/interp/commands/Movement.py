@@ -6,6 +6,7 @@ from game.GameData import GameData
 from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
+from interp.InterpApi import InterpApi
 from util.MovementUtil import MovementUtil
 from fight.FightHandler import FightHandler
 from util.MobileUtil import MobileUtil
@@ -16,13 +17,18 @@ from server.LoggerFactory import LoggerFactory
 
 class Movement:
     @inject
-    def __init__(self, registry_service: RegistryService, game_data: GameData, fight_handler: FightHandler):
+    def __init__(self,
+                 registry_service: RegistryService,
+                 game_data: GameData,
+                 fight_handler: FightHandler,
+                 interp_api: InterpApi = None):
         self.__name__ = "Movement"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.room_registry = registry_service.room_registry
         self.game_data = game_data
         self.fight_handler = fight_handler
+        self.interp_api = interp_api or InterpApi()
         self.exit_flags = None
         self.room_flags = None
         self.affected_bits = None
@@ -37,83 +43,25 @@ class Movement:
         self.sector_types = CharacterMacros.get_enum("sectorTypes")
 
     def move_char(self, character: Character, direction: str, context: Context):
-        blocked = CharacterMacros.movement_position_block_message(character)
-        if blocked:
-            context.finish()
-            return {"to_char": blocked}
+        self._prepare_move_context(character, direction, context)
+        payload = self.interp_api.run_action(context, context.command.name)
+        if payload.get("blocked"):
+            return payload
 
-        door = MovementUtil.direction_index(direction)
-        if door < 0:
-            context.finish()
-            return {"to_char": "Alas, you cannot go that way.\r\n"}
-
-        in_room = self.room_registry.get_or_none(id=character.room_id)
-        if in_room is None:
-            context.finish()
-            return {"to_char": "Alas, you cannot go that way.\r\n"}
-        pexit = in_room.get_exit(door) if hasattr(in_room, "get_exit") else MovementUtil.find_exit(in_room, door)
-        if pexit is None or not getattr(pexit, "to_room_vnum", None):
-            context.finish()
-            return {"to_char": "Alas, you cannot go that way.\r\n"}
-
-        to_room = self.room_registry.get_or_none(vnum=str(pexit.to_room_vnum))
-        if to_room is None:
-            context.finish()
-            return {"to_char": "Alas, you cannot go that way.\r\n"}
-
-        ex_closed = MovementUtil.get_exit_flag(self.exit_flags, "EX_CLOSED", "CLOSED")
-        ex_nopass = MovementUtil.get_exit_flag(self.exit_flags, "EX_NOPASS", "NOPASS")
-        flags = GenericUtil.to_int(getattr(pexit, "exit_flags", 0), 0)
-        pass_door = CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_PASS_DOOR")
-        if ex_closed and (flags & ex_closed) != 0 and ((not pass_door) or (ex_nopass and (flags & ex_nopass) != 0)):
-            keyword = (getattr(pexit, "keyword", "") or "door")
-            context.finish()
-            return {"to_char": f"The {keyword} is closed.\r\n"}
-
-        if to_room.is_room_private(self.room_flags):
-            context.finish()
-            return {"to_char": "That room is private right now.\r\n"}
-
+        context.done = False
         if not CharacterMacros.is_npc(character):
-            if in_room.is_air_room(self.sector_types) or to_room.is_air_room(self.sector_types):
-                if not CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_FLYING") and not CharacterMacros.is_immortal(character):
-                    context.finish()
-                    return {"to_char": "You can't fly.\r\n"}
+            character.movement -= context.move_cost
 
-            if in_room.requires_boat(self.sector_types) or to_room.requires_boat(self.sector_types):
-                if not CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_FLYING") and not character.has_boat():
-                    context.finish()
-                    return {"to_char": "You need a boat to go there.\r\n"}
-
-            move = (MovementUtil.sector_cost(in_room.sector_type) + MovementUtil.sector_cost(to_room.sector_type)) // 2
-            if (CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_FLYING")
-                    or CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_HASTE")):
-                move //= 2
-            if CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_SLOW"):
-                move *= 2
-            move = max(1, move)
-
-            if GenericUtil.to_int(getattr(character, "movement", 0), 0) < move:
-                context.finish()
-                return {"to_char": "You are too exhausted.\r\n"}
-            character.movement -= move
-
+        in_room = context.move_in_room
+        to_room = context.move_to_room
         from_room_targets = in_room.player_targets(character)
-        leave_msg = None
-        if (not CharacterMacros.is_affected_by_name(character, self.affected_bits,"AFF_SNEAK")
-                and GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0) < 51):
-            leave_msg = f"{character.name} leaves {MovementUtil.DIR_NAME[door]}.\r\n"
-
+        leave_msg = self._leave_message(character, context.move_door)
         in_room.remove_player_from_room(character)
         to_room.add_player_to_room(character)
         character.room_id = to_room.id
 
         to_room_targets = to_room.player_targets(character)
-        arrive_msg = None
-        if (not CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_SNEAK")
-                and GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0) < 51):
-            arrive_msg = f"{character.name} has arrived.\r\n"
-
+        arrive_msg = self._arrive_message(character)
         return {
             "from_room_targets": from_room_targets,
             "from_room_message": leave_msg,
@@ -122,6 +70,97 @@ class Movement:
             "to_room_obj": to_room,
             "aggressive_rounds": self.fight_handler.aggressive_entry_rounds(character, to_room),
         }
+
+    def _prepare_move_context(self, character: Character, direction: str, context: Context):
+        context.move_direction = direction
+        context.move_position_block_message = CharacterMacros.movement_position_block_message(character)
+        context.move_door = MovementUtil.direction_index(direction)
+        self._load_move_destination(character, context)
+        self._load_move_exit_state(character, context)
+        self._load_move_cost(character, context)
+
+    def _load_move_destination(self, character: Character, context: Context):
+        in_room = self.room_registry.get_or_none(id=character.room_id)
+        pexit = None
+        if in_room is not None and context.move_door >= 0:
+            pexit = in_room.get_exit(context.move_door) if hasattr(in_room, "get_exit") else MovementUtil.find_exit(in_room, context.move_door)
+
+        context.move_in_room = in_room
+        context.move_exit = pexit
+        context.move_has_destination = bool(pexit is not None and getattr(pexit, "to_room_vnum", None))
+        context.move_to_room = self.room_registry.get_or_none(vnum=str(pexit.to_room_vnum)) if context.move_has_destination else None
+
+    def _load_move_exit_state(self, character: Character, context: Context):
+        pexit = context.move_exit
+        flags = GenericUtil.to_int(getattr(pexit, "exit_flags", 0), 0) if pexit is not None else 0
+        ex_closed = MovementUtil.get_exit_flag(self.exit_flags, "EX_CLOSED", "CLOSED")
+        ex_nopass = MovementUtil.get_exit_flag(self.exit_flags, "EX_NOPASS", "NOPASS")
+        pass_door = CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_PASS_DOOR")
+
+        context.move_exit_closed = bool(
+            pexit is not None
+            and ex_closed
+            and (flags & ex_closed) != 0
+            and ((not pass_door) or (ex_nopass and (flags & ex_nopass) != 0))
+        )
+        context.move_keyword = (getattr(pexit, "keyword", "") or "door") if pexit is not None else "door"
+        context.move_private_room = bool(
+            context.move_to_room is not None and context.move_to_room.is_room_private(self.room_flags)
+        )
+
+    def _load_move_cost(self, character: Character, context: Context):
+        context.move_air_blocked = False
+        context.move_water_blocked = False
+        context.move_insufficient_movement = False
+        context.move_cost = 0
+        if CharacterMacros.is_npc(character):
+            return
+
+        in_room = context.move_in_room
+        to_room = context.move_to_room
+        if in_room is None or to_room is None:
+            return
+
+        is_flying = CharacterMacros.is_flying(character)
+        context.move_air_blocked = (
+            (in_room.is_air_room(self.sector_types) or to_room.is_air_room(self.sector_types))
+            and not is_flying
+            and not CharacterMacros.is_immortal(character)
+        )
+        context.move_water_blocked = (
+            (in_room.requires_boat(self.sector_types) or to_room.requires_boat(self.sector_types))
+            and not is_flying
+            and not character.has_boat()
+        )
+
+        context.move_cost = self._movement_cost(character, in_room, to_room, is_flying)
+        context.move_insufficient_movement = (
+            GenericUtil.to_int(getattr(character, "movement", 0), 0) < context.move_cost
+        )
+
+    def _movement_cost(self, character: Character, in_room, to_room, is_flying: bool) -> int:
+        move = (MovementUtil.sector_cost(in_room.sector_type) + MovementUtil.sector_cost(to_room.sector_type)) // 2
+        if is_flying or CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_HASTE"):
+            move //= 2
+        if CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_SLOW"):
+            move *= 2
+        return max(1, move)
+
+    def _leave_message(self, character: Character, door: int) -> str | None:
+        if not self._shows_movement_messages(character):
+            return None
+        return f"{character.name} leaves {MovementUtil.DIR_NAME[door]}.\r\n"
+
+    def _arrive_message(self, character: Character) -> str | None:
+        if not self._shows_movement_messages(character):
+            return None
+        return f"{character.name} has arrived.\r\n"
+
+    def _shows_movement_messages(self, character: Character) -> bool:
+        return (
+            not CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_SNEAK")
+            and GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0) < 51
+        )
 
     def do_north(self, character: Character, context: Context):
         return self.move_char(character, "north", context)
