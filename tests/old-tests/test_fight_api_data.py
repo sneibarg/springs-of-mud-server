@@ -137,7 +137,7 @@ _stub_package("skill")
 _stub_module("skill.SkillApi", SkillApi=_SkillApi)
 _stub_module("skill.SkillRegistry", SkillRegistry=_SkillRegistry)
 _stub_package("player")
-_stub_module("player.CharacterMacros", CharacterMacros=_CharacterMacros)
+_stub_module("player.CharacterApi", CharacterMacros=_CharacterMacros)
 
 GamePayload = _load_module("game.GamePayload", "game/GamePayload.py").GamePayload
 Skill = _load_module("skill.Skill", "skill/Skill.py").Skill

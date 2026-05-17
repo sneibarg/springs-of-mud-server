@@ -3,7 +3,7 @@ import threading
 from dataclasses import dataclass, field
 from typing import List, Any, TYPE_CHECKING
 
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 from util.AreaUtil import AreaUtil
 from area.Exit import Exit
 from mobile.Mobile import Mobile
@@ -20,17 +20,11 @@ if TYPE_CHECKING:
 @dataclass
 class Room:
     DIRECTION_ALIASES = {
-        "n": 0,
         "north": 0,
-        "e": 1,
         "east": 1,
-        "s": 2,
         "south": 2,
-        "w": 3,
         "west": 3,
-        "u": 4,
         "up": 4,
-        "d": 5,
         "down": 5,
     }
 
@@ -178,14 +172,14 @@ class Room:
         return None
 
     def find_visible_character(self, observer, wanted: str):
-        from player.CharacterMacros import CharacterMacros
+        from api.CharacterApi import CharacterApi
 
         query = (wanted or "").strip().lower()
         if not query:
             return None
 
         for char in self.characters.values():
-            if not CharacterMacros.can_see(observer, char, self):
+            if not CharacterApi.can_see(observer, char, self):
                 continue
             if getattr(char, "room_id", None) != self.id:
                 continue
@@ -195,11 +189,11 @@ class Room:
         return None
 
     def find_visible_mobile(self, observer, wanted: str):
-        from player.CharacterMacros import CharacterMacros
+        from api.CharacterApi import CharacterApi
         from util.InterpUtil import InterpUtil
 
         mob = InterpUtil.find_nth_by_keyword(self.mobiles, wanted)
-        if mob is not None and CharacterMacros.can_see(observer, mob, self):
+        if mob is not None and CharacterApi.can_see(observer, mob, self):
             return mob
         return None
 
@@ -241,9 +235,9 @@ class Room:
         if self.light > 0:
             return False
 
-        RoomFlags = CharacterMacros.get_enum("roomFlags")
-        SectorTypes = CharacterMacros.get_enum("sectorTypes")
-        if CharacterMacros.is_set(self.room_flags, RoomFlags.ROOM_DARK.value):
+        RoomFlags = CharacterApi.get_enum("roomFlags")
+        SectorTypes = CharacterApi.get_enum("sectorTypes")
+        if CharacterApi.is_set(self.room_flags, RoomFlags.ROOM_DARK.value):
             return True
 
         if self.sector_type == SectorTypes.SECT_INSIDE.value or self.sector_type == SectorTypes.SECT_CITY.value:
@@ -273,6 +267,6 @@ class Room:
 
     @staticmethod
     def can_see_room_vnum(char: Any) -> bool:
-        if CharacterMacros.is_immortal(char) and (CharacterMacros.is_npc(char) or CharacterMacros.has_holy_light(char)):
+        if CharacterApi.is_immortal(char) and (CharacterApi.is_npc(char) or CharacterApi.has_holy_light(char)):
             return True
         return False

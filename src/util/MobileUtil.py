@@ -3,7 +3,7 @@ import json
 from enum import IntEnum
 from typing import Tuple
 
-from game.GameMacros import GameMacros
+from api.GameApi import GameApi
 from game.Equipped import Equipped, WEAR_LOC_TO_EQUIPPED_SLOT
 from util.GenericUtil import GenericUtil
 from mobile.Mobile import Mobile
@@ -12,8 +12,8 @@ from mobile.Dice import Dice
 from game.StatusFlags import StatusFlags
 from game.RandomNumberGenerator import RandomNumberGenerator
 from item.Effect import AffectWhere, Effect
-from item.ItemMacros import ItemMacros
-from player.CharacterMacros import CharacterMacros
+from api.ItemApi import ItemApi
+from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
 
 logger = LoggerFactory.get_logger('MobileUtil')
@@ -37,11 +37,11 @@ class MobileUtil:
 
     @staticmethod
     def convert_form(race: str, form: int):
-        return ItemMacros.set_bit(form, ItemMacros.race_data(race).get(form, 0))
+        return ItemApi.set_bit(form, ItemApi.race_data(race).get(form, 0))
 
     @staticmethod
     def convert_parts(race: str, parts: int):
-        return ItemMacros.set_bit(parts, ItemMacros.race_data(race).get(parts, 0))
+        return ItemApi.set_bit(parts, ItemApi.race_data(race).get(parts, 0))
 
     @staticmethod
     def resolve_mobile_id(mobile_data: dict, raw_mobile: dict) -> str | None:
@@ -74,7 +74,7 @@ class MobileUtil:
         if value in (None, ""):
             value = mobile_data.get(snake_key, mobile_data.get(camel_key))
         if isinstance(value, str):
-            return GameMacros.parse_flag_string(value, flag_letters)
+            return GameApi.parse_flag_string(value, flag_letters)
         return GenericUtil.to_int(value, default=0)
 
     @staticmethod
@@ -216,24 +216,24 @@ class MobileUtil:
         mob.character_attributes.dexterity = min(25, 11 + mob.level // 4)
         mob.character_attributes.constitution = min(25, 11 + mob.level // 4)
 
-        if GameMacros.is_set(mob.status_flags.act, act_bits.ACT_WARRIOR.value):
+        if GameApi.is_set(mob.status_flags.act, act_bits.ACT_WARRIOR.value):
             mob.character_attributes.strength += 3
             mob.character_attributes.intelligence -= 1
             mob.character_attributes.constitution += 2
-        elif GameMacros.is_set(mob.status_flags.act, act_bits.ACT_THIEF.value):
+        elif GameApi.is_set(mob.status_flags.act, act_bits.ACT_THIEF.value):
             mob.character_attributes.dexterity += 3
             mob.character_attributes.intelligence += 1
             mob.character_attributes.wisdom -= 1
-        elif GameMacros.is_set(mob.status_flags.act, act_bits.ACT_CLERIC.value):
+        elif GameApi.is_set(mob.status_flags.act, act_bits.ACT_CLERIC.value):
             mob.character_attributes.wisdom += 3
             mob.character_attributes.dexterity -= 1
             mob.character_attributes.strength += 1
-        elif GameMacros.is_set(mob.status_flags.act, act_bits.ACT_MAGE.value):
+        elif GameApi.is_set(mob.status_flags.act, act_bits.ACT_MAGE.value):
             mob.character_attributes.intelligence += 3
             mob.character_attributes.strength -= 1
             mob.character_attributes.dexterity += 1
 
-        if GameMacros.is_set(mob.status_flags.off, off_bits.OFF_FAST.value):
+        if GameApi.is_set(mob.status_flags.off, off_bits.OFF_FAST.value):
             mob.character_attributes.dexterity += 2
 
         size_key = "SIZE_" + mob.size.upper()
@@ -246,14 +246,14 @@ class MobileUtil:
     def _apply_affected_by(mob: Mobile, enums: dict[str, type[IntEnum]]):
         affect_bits = enums.get('affectedBy')
         apply_types = enums.get('applyTypes')
-        if CharacterMacros.is_affected(mob, affect_bits.AFF_SANCTUARY):
+        if CharacterApi.is_affected(mob, affect_bits.AFF_SANCTUARY):
             sanctuary = MobileUtil._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, 0, apply_types.APPLY_NONE.value, affect_bits.AFF_SANCTUARY.value)
-        if CharacterMacros.is_affected(mob, affect_bits.AFF_HASTE):
+        if CharacterApi.is_affected(mob, affect_bits.AFF_HASTE):
             modifier = 1 + (mob.level >= 18) + (mob.level >= 25) + (mob.level >= 32)
             haste = MobileUtil._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, modifier, apply_types.APPLY_DEX.value, affect_bits.AFF_HASTE.value)
-        if CharacterMacros.is_affected(mob, affect_bits.AFF_PROTECT_EVIL):
+        if CharacterApi.is_affected(mob, affect_bits.AFF_PROTECT_EVIL):
             protect_evil = MobileUtil._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, -1, apply_types.APPLY_SAVES.value, affect_bits.AFF_PROTECT_EVIL.value)
-        if CharacterMacros.is_affected(mob, affect_bits.AFF_PROTECT_GOOD):
+        if CharacterApi.is_affected(mob, affect_bits.AFF_PROTECT_GOOD):
             protect_good = MobileUtil._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, -1, apply_types.APPLY_SAVES.value, affect_bits.AFF_PROTECT_GOOD.value)
 
     @staticmethod
@@ -358,7 +358,7 @@ class MobileUtil:
     @staticmethod
     def is_train_trainer(mob, train_bit: int) -> bool:
         mob_flags = GenericUtil.to_int(getattr(getattr(mob, "status_flags", None), "act", 0), 0)
-        if train_bit and CharacterMacros.is_set(mob_flags, train_bit):
+        if train_bit and CharacterApi.is_set(mob_flags, train_bit):
             return True
 
         special_name = str(getattr(mob, "special_name", "") or "").strip().lower()

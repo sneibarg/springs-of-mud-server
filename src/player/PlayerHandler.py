@@ -11,7 +11,10 @@ from interp.commands.Fight import Fight
 from interp.commands.Object import Object
 from interp.commands.Wiz import Wiz
 from player.Character import Character
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
+from util.InterpUtil import InterpUtil
+from util.ItemUtil import ItemUtil
+from util.PlayerUtil import PlayerUtil
 from server.messaging import MessageBus
 from server.LoggerFactory import LoggerFactory
 
@@ -51,7 +54,7 @@ class PlayerHandler:
             for viewer in room.characters.values():
                 if viewer.id == character.id:
                     continue
-                if CharacterMacros.can_see(viewer, character, room):
+                if CharacterApi.can_see(viewer, character, room):
                     text = payload["to_room"]
                 else:
                     text = "Someone has left the game.\r\n"
@@ -74,13 +77,76 @@ class PlayerHandler:
         context.finish()
 
     async def do_look(self, character: Character, context: Context):
-        if not await self.check_position(character):
-            context.finish()
+        self._classify_look(character, context)
+        payload = await self.info_commands.do_look(character, context)
+        if payload is not None:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
+
+    def _classify_look(self, character: Character, context: Context) -> None:
+        room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
+        context.look_mode = "room"
+        context.look_in_argument = ""
+        context.look_in_target = None
+        context.look_target_character = None
+        context.look_direction_exit = None
+        if room is None:
             return
 
-        text = await self.info_commands.do_look(character, context)
-        if text:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+        arg1 = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip().lower()
+        if arg1 in ("", "auto"):
+            return
+
+        if arg1 in ("i", "in", "on"):
+            context.look_mode = "in"
+            context.look_in_argument = (context.parameters[1] if context.parameters and len(context.parameters) > 1 else "").strip().lower()
+            context.look_in_target = ItemUtil.find_item(character, room, context.look_in_argument)
+            return
+
+        target = PlayerUtil.get_target(character, arg1, room)
+        if target is not None:
+            context.look_mode = "target"
+            context.look_target_character = target
+            return
+
+        if self._look_item_or_extra_exists(character, room, arg1):
+            context.look_mode = "item_or_extra"
+            return
+
+        direction = room.direction_index(arg1) if hasattr(room, "direction_index") else -1
+        if direction >= 0:
+            context.look_mode = "direction"
+            context.look_direction_exit = room.get_exit(direction) if hasattr(room, "get_exit") else None
+            return
+
+        context.look_mode = "unknown"
+
+    @staticmethod
+    def _look_item_or_extra_exists(character: Character, room, argument: str) -> bool:
+        _number, token = InterpUtil.number_argument(argument)
+        wanted = (token or "").strip().lower()
+        if not wanted:
+            return False
+
+        for item in list(character.get_items()) + list(room.contents.values()):
+            if not ItemUtil.can_see_object(room, character, item):
+                continue
+
+            extra = getattr(item, "extra_description", None)
+            extra_keyword = getattr(extra, "keyword", None) if extra is not None else None
+            if isinstance(extra, dict):
+                extra_keyword = extra.get("keyword")
+            if extra and Context.look_keyword_matches(wanted, extra_keyword or ""):
+                return True
+
+            if Context.look_keyword_matches(wanted, getattr(item, "name", "") or ""):
+                return True
+
+        room_extra = getattr(room, "extra_description", None)
+        if isinstance(room_extra, dict):
+            room_extra_keyword = room_extra.get("keyword")
+        else:
+            room_extra_keyword = getattr(room_extra, "keyword", "")
+        return bool(room_extra and Context.look_keyword_matches(wanted, room_extra_keyword or ""))
 
     async def do_scroll(self, character: Character, context: Context):
         text = self.info_commands.do_scroll(character, context)
@@ -563,7 +629,7 @@ class PlayerHandler:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
 
     async def check_position(self, character: Character) -> bool:
-        positions = CharacterMacros.get_enum('positions')
+        positions = CharacterApi.get_enum('positions')
         current_position = getattr(getattr(character, "character_attributes", None), "position", None)
         if current_position is None:
             return True
@@ -618,7 +684,7 @@ class PlayerHandler:
             await self._emit_standard_payload(character, payload, context=context)
 
     async def _show_room_to_character(self, viewer: Character, room, context: Context):
-        if viewer is None or CharacterMacros.is_npc(viewer):
+        if viewer is None or CharacterApi.is_npc(viewer):
             return
         await context.room_handler().print_room(viewer.id, room)
         autoexit_bit = None
@@ -626,7 +692,7 @@ class PlayerHandler:
             autoexit_bit = self.info_commands.PlayerActBits.PLR_AUTOEXIT.value
         if autoexit_bit is not None:
             act = viewer.status_flags.act
-            if CharacterMacros.is_set(act, autoexit_bit):
+            if CharacterApi.is_set(act, autoexit_bit):
                 await context.room_handler().print_exits(viewer)
         await self.print_players_in_room(viewer)
         await context.mobile_handler().print_mobiles_in_room(viewer)

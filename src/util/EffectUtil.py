@@ -5,10 +5,10 @@ import random
 
 from copy import deepcopy
 
-from game.GameMacros import GameMacros
+from api.GameApi import GameApi
 from util.GenericUtil import GenericUtil
 from item.Effect import Effect
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 
 
 class _EffectStatics:
@@ -267,11 +267,11 @@ class EffectUtil:
 
     @staticmethod
     def affect_modify(entity, effect: Effect, add: bool):
-        where_enum = CharacterMacros.get_enum("whereAffect")
-        apply_types = CharacterMacros.get_enum("applyTypes")
-        affected_by = CharacterMacros.get_enum("affectedBy")
-        item_flags = CharacterMacros.get_enum("itemFlags")
-        weapon_type = CharacterMacros.get_enum("weaponType")
+        where_enum = CharacterApi.get_enum("whereAffect")
+        apply_types = CharacterApi.get_enum("applyTypes")
+        affected_by = CharacterApi.get_enum("affectedBy")
+        item_flags = CharacterApi.get_enum("itemFlags")
+        weapon_type = CharacterApi.get_enum("weaponType")
 
         where = EffectUtil.enum_value(where_enum, effect.where, EffectUtil.enum_value(where_enum, "TO_AFFECTS", 0))
         location = EffectUtil.enum_value(apply_types, effect.location, 0)
@@ -284,19 +284,19 @@ class EffectUtil:
             bit = EffectUtil.enum_value(affected_by, raw_bit, 0)
             if bit != 0:
                 raw = _EffectStatics.get_affected_raw(entity)
-                raw = GameMacros.set_bit(raw, bit) if add else GameMacros.unset_bit(raw, bit)
+                raw = GameApi.set_bit(raw, bit) if add else GameApi.unset_bit(raw, bit)
                 _EffectStatics.set_affected_raw(entity, raw)
         elif where == EffectUtil.enum_value(where_enum, "TO_OBJECT", -1):
             bit = EffectUtil.enum_value(item_flags, raw_bit, 0)
             if bit != 0 and hasattr(entity, "extra_flags"):
-                flags = GameMacros.convert_flags(getattr(entity, "extra_flags", "") or "")
-                flags = GameMacros.set_bit(flags, bit) if add else GameMacros.unset_bit(flags, bit)
-                entity.extra_flags = GameMacros.flags_to_letters(flags)
+                flags = GameApi.convert_flags(getattr(entity, "extra_flags", "") or "")
+                flags = GameApi.set_bit(flags, bit) if add else GameApi.unset_bit(flags, bit)
+                entity.extra_flags = GameApi.flags_to_letters(flags)
         elif where == EffectUtil.enum_value(where_enum, "TO_WEAPON", -1):
             bit = EffectUtil.enum_value(weapon_type, raw_bit, 0)
             if bit != 0 and hasattr(entity, "value4"):
                 value = GenericUtil.to_int(getattr(entity, "value4", 0), 0)
-                value = GameMacros.set_bit(value, bit) if add else GameMacros.unset_bit(value, bit)
+                value = GameApi.set_bit(value, bit) if add else GameApi.unset_bit(value, bit)
                 entity.value4 = str(value)
 
         _EffectStatics.apply_stat_modifier(entity, location, modifier, apply_types)
@@ -331,7 +331,7 @@ class EffectUtil:
     def affect_check(character, where, vector):
         if GenericUtil.to_int(vector, 0) == 0:
             return
-        where_enum = CharacterMacros.get_enum("whereAffect")
+        where_enum = CharacterApi.get_enum("whereAffect")
         where_value = EffectUtil.enum_value(where_enum, where, -1)
         for effect in EffectUtil.ensure_effects(character):
             if EffectUtil.enum_value(where_enum, effect.where, -1) == where_value and str(effect.bitvector) == str(vector):
@@ -434,12 +434,12 @@ class EffectUtil:
 
     @staticmethod
     def is_affected(character, effect_type) -> bool:
-        affected_by = CharacterMacros.get_enum("affectedBy")
-        if CharacterMacros.is_affected(character, effect_type):
+        affected_by = CharacterApi.get_enum("affectedBy")
+        if CharacterApi.is_affected(character, effect_type):
             return True
         if hasattr(affected_by, str(effect_type)):
             bit = getattr(affected_by, str(effect_type)).value
-            return CharacterMacros.is_affected(character, bit)
+            return CharacterApi.is_affected(character, bit)
         return False
 
     @staticmethod
@@ -468,7 +468,7 @@ class EffectUtil:
         victim_level = GenericUtil.to_int(getattr(victim, "level", 0), 0)
         saving_throw = GenericUtil.to_int(getattr(victim, "saving_throw", 0), 0)
         save = 50 + (victim_level - GenericUtil.to_int(level, 0)) * 5 - saving_throw * 2
-        if CharacterMacros.is_affected_by_name(victim, CharacterMacros.get_enum("affectedBy"),"AFF_BERSERK"):
+        if CharacterApi.is_affected_by_name(victim, CharacterApi.get_enum("affectedBy"), "AFF_BERSERK"):
             save += victim_level // 2
         save = max(5, min(95, save))
         return random.randint(1, 100) < save

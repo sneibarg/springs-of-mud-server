@@ -8,7 +8,7 @@ from game.RegistryService import RegistryService
 from interp.Context import Context
 from util.ItemUtil import ItemUtil
 from player.Character import Character
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
 from server.messaging import MessageBus
 from server.session.SessionHandler import SessionHandler
@@ -27,13 +27,11 @@ class RoomHandler:
 
     @staticmethod
     async def print_in_room(context: Context):
-        character = context.character
-        room = context.room
         player_handler = context.player_handler()
         mobile_handler = context.mobile_handler()
 
-        await player_handler.print_players_in_room(character)
-        await mobile_handler.print_mobiles_in_room(character)
+        await player_handler.print_players_in_room(context.character)
+        await mobile_handler.print_mobiles_in_room(context.character)
 
         context.finish()
 
@@ -81,9 +79,9 @@ class RoomHandler:
         character: Character = self.character_registry.get(id=character_id)
         show_description = True
         if character is not None:
-            comm_flags = CharacterMacros.get_enum("commFlags")
+            comm_flags = CharacterApi.get_enum("commFlags")
             if hasattr(comm_flags, "COMM_BRIEF"):
-                if CharacterMacros.is_set(character.status_flags.comm, comm_flags.COMM_BRIEF.value):
+                if CharacterApi.is_set(character.status_flags.comm, comm_flags.COMM_BRIEF.value):
                     show_description = False
 
         if show_description:
@@ -96,30 +94,16 @@ class RoomHandler:
             await self.message_bus.send_to_character(character_id, self.message_bus.text_to_message("\r\n".join(lines) + "\r\n"))
 
     async def look_direction(self, character: Character, context: Context):
-        token = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip()
-        room = self.room_registry.get(id=character.room_id)
-        if room is None:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("Nothing special there.\r\n"))
-            context.finish()
-            return
-
-        door = room.direction_index(token) if hasattr(room, "direction_index") else -1
-        if door < 0:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You do not see that here.\r\n"))
-            context.finish()
-            return
-
+        arg1 = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip()
+        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
+        door = room.direction_index(arg1)
         pexit = room.get_exit(door) if hasattr(room, "get_exit") else AreaUtil.get_exit_by_direction(room, door)
-        if pexit is None:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("Nothing special there.\r\n"))
-            context.finish()
-            return
-
         desc = (pexit.description or "").strip()
+
         if desc:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(desc + "\r\n"))
-        else:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("Nothing special there.\r\n"))
+            context.finish()
+            return
 
         keyword = (pexit.keyword or "").strip()
         if keyword and not keyword.startswith(" "):

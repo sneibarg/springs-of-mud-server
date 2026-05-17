@@ -39,8 +39,8 @@ class Context:
 
     @property
     def position(self) -> int:
-        from player.CharacterMacros import CharacterMacros
-        return CharacterMacros.position_value(self.character)
+        from api.CharacterApi import CharacterApi
+        return CharacterApi.position_value(self.character)
 
     def mobile_handler(self):
         if self.handler_service:

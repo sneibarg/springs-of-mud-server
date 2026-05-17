@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from injector import inject
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 from player.CharacterRegistry import CharacterRegistry
 from game.RandomNumberGenerator import RandomNumberGenerator
 from server.LoggerFactory import LoggerFactory
@@ -41,7 +41,7 @@ class WeatherHandler:
         self.TimeAndWeatherEnum = None
 
     def lazy_load(self):
-        self.TimeAndWeatherEnum = CharacterMacros.get_enum('timeAndWeather')
+        self.TimeAndWeatherEnum = CharacterApi.get_enum('timeAndWeather')
         self.weather_info = WeatherInfo(mmhg=1000, change=0, sky=self.TimeAndWeatherEnum.SKY_CLOUDLESS, sunlight=self.TimeAndWeatherEnum.SUN_LIGHT)
         self.time_info = TimeInfo(hour=0, day=1, month=1, year=1)
         self.logger.info(f"WeatherHandler online.")
@@ -71,7 +71,7 @@ class WeatherHandler:
     def _indoors(self) -> list:
         indoors = []
         for character in self.message_bus.get_active_players():
-            if not CharacterMacros.is_outside(character) and CharacterMacros.is_awake(character):
+            if not CharacterApi.is_outside(character) and CharacterApi.is_awake(character):
                 indoors.append(character.id)
         return indoors
 

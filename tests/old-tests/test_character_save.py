@@ -285,7 +285,7 @@ class TestUpdateAutosave(unittest.IsolatedAsyncioTestCase):
         )
         handler.PositionsEnum = Positions
 
-        with patch("game.UpdateHandler.CharacterMacros.is_immortal", return_value=False):
+        with patch("game.UpdateHandler.CharacterApi.is_immortal", return_value=False):
             await handler.char_update()
 
         self.assertEqual(0, character.status_flags.drunk)
@@ -334,7 +334,7 @@ class TestUpdateAutosave(unittest.IsolatedAsyncioTestCase):
         )
         handler.PositionsEnum = Positions
 
-        with patch("game.UpdateHandler.CharacterMacros.is_immortal", return_value=False):
+        with patch("game.UpdateHandler.CharacterApi.is_immortal", return_value=False):
             await handler.char_update()
 
         self.assertEqual(0, character.status_flags.hunger)

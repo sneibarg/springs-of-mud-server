@@ -3,14 +3,14 @@ import random
 from player.CharacterAdvancement import CharacterAdvancement
 from util.GenericUtil import GenericUtil
 from player.Character import Character
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 
 
 class SkillUtil:
     @staticmethod
     def is_practice_trainer(mob, practice_bit: int) -> bool:
         mob_flags = GenericUtil.to_int(getattr(getattr(mob, "status_flags", None), "act", 0), 0)
-        if practice_bit and CharacterMacros.is_set(mob_flags, practice_bit):
+        if practice_bit and CharacterApi.is_set(mob_flags, practice_bit):
             return True
 
         special_name = str(getattr(mob, "special_name", "") or "").strip().lower()
@@ -54,17 +54,17 @@ class SkillUtil:
         intelligence = GenericUtil.to_int(getattr(getattr(character, "character_attributes", None), "intelligence", 0),
                                           0)
         learn_bonus = GenericUtil.to_int(
-            CharacterMacros.get_attribute_bonus("intelligence", str(intelligence)).get("learn", 0), 0)
+            CharacterApi.get_attribute_bonus("intelligence", str(intelligence)).get("learn", 0), 0)
         rating = max(1, GenericUtil.to_int(rating, 1))
         gain = learn_bonus // rating
         return max(1, gain)
 
     @staticmethod
     def check_improve(ch: Character, skill_id: str, success: bool, multiplier: int = 1) -> None:
-        if CharacterMacros.is_npc(ch):
+        if CharacterApi.is_npc(ch):
             return
 
-        registry = CharacterMacros.get_registry()
+        registry = CharacterApi.get_registry()
         ability = getattr(registry, "skill_registry", None).get_or_none(id=skill_id) if getattr(registry, "skill_registry", None) is not None else None
         if ability is None and getattr(registry, "spell_registry", None) is not None:
             ability = registry.spell_registry.get_or_none(id=skill_id)
@@ -72,8 +72,8 @@ class SkillUtil:
             return
 
         class_name = SkillUtil.practice_class_name(ch)
-        required_level = CharacterMacros.skill_value_for_class(getattr(ability, "level_by_class", {}) or {}, class_name, 99)
-        rating = max(0, CharacterMacros.skill_value_for_class(getattr(ability, "rating_by_class", {}) or {}, class_name, 0))
+        required_level = CharacterApi.skill_value_for_class(getattr(ability, "level_by_class", {}) or {}, class_name, 99)
+        rating = max(0, CharacterApi.skill_value_for_class(getattr(ability, "rating_by_class", {}) or {}, class_name, 0))
         learned_entry = SkillUtil._find_learned_entry(ch, str(getattr(ability, "name", "") or ""))
         learned = SkillUtil._learned_level(learned_entry)
         adept = SkillUtil.practice_adept(ch)
@@ -83,7 +83,7 @@ class SkillUtil:
 
         intelligence = GenericUtil.to_int(getattr(getattr(ch, "character_attributes", None), "intelligence", 0), 0)
         learn_bonus = GenericUtil.to_int(
-            CharacterMacros.get_attribute_bonus("intelligence", str(intelligence)).get("learn", 0), 0
+            CharacterApi.get_attribute_bonus("intelligence", str(intelligence)).get("learn", 0), 0
         )
 
         multiplier = max(1, GenericUtil.to_int(multiplier, 1))

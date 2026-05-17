@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from game.GameMacros import GameMacros
-from player.CharacterMacros import CharacterMacros
+from api.GameApi import GameApi
+from api.CharacterApi import CharacterApi
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
 
@@ -24,7 +24,7 @@ class CommunicationsUtil:
         if comm_flags is None or not hasattr(comm_flags, name):
             return False
         raw = GenericUtil.to_int(getattr(character.status_flags, "comm", 0), 0)
-        return GameMacros.is_set(raw, int(getattr(comm_flags, name).value))
+        return GameApi.is_set(raw, int(getattr(comm_flags, name).value))
 
     @staticmethod
     def set_comm(character, comm_flags, name: str, enabled: bool):
@@ -47,11 +47,18 @@ class CommunicationsUtil:
         character.context["tell_buffer"] = history[-50:]
 
     @staticmethod
-    def _target_blocks_tells(target) -> bool:
+    def target_blocks_tells(target) -> bool:
         if target is None:
             return False
-        comm_flags = CharacterMacros.get_enum("commFlags")
+        comm_flags = CharacterApi.get_enum("commFlags")
         return any(
             CommunicationsUtil.has_comm(target, comm_flags, flag)
             for flag in ("COMM_DEAF", "COMM_QUIET", "COMM_NOTELL")
         )
+
+    @staticmethod
+    def ensure_message_break(text: str) -> str:
+        rendered = str(text or "")
+        if rendered and not rendered.endswith("\r\n"):
+            rendered += "\r\n"
+        return rendered

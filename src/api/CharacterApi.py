@@ -4,7 +4,7 @@ from typing import Any, TYPE_CHECKING
 
 from mobile.Mobile import Mobile
 from player.Character import Character
-from game.GameMacros import GameMacros
+from api.GameApi import GameApi
 from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
 from server.LoggerFactory import LoggerFactory
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 rng = RandomNumberGenerator()
 
 
-class CharacterMacros(GameMacros):
+class CharacterApi(GameApi):
     _registry_service = None
     _weather_handler = None
     _logger = None
@@ -54,7 +54,7 @@ class CharacterMacros(GameMacros):
     def _registry(cls):
         if cls._registry_service is None:
             cls._require_configured()
-            raise RuntimeError("CharacterMacros registry service not configured.")
+            raise RuntimeError("CharacterApi registry service not configured.")
         return cls._registry_service
 
     @classmethod
@@ -320,7 +320,7 @@ class CharacterMacros(GameMacros):
         key = (wanted or "").strip().lower()
         if not key:
             return None
-        for item in CharacterMacros.owned_items(character):
+        for item in CharacterApi.owned_items(character):
             name = (getattr(item, "name", "") or "").lower()
             if name == key or name.startswith(key):
                 return item
@@ -757,17 +757,17 @@ class CharacterMacros(GameMacros):
 
     @classmethod
     def will_npc_assist(cls, rch: Mobile, ch: Character) -> bool | str | Any | Any:
-        if not CharacterMacros.is_npc(rch):
+        if not CharacterApi.is_npc(rch):
             return False
 
         off = rch.status_flags.off
         return (
-                CharacterMacros.is_set(off, cls.OffenseTypes.ASSIST_ALL.value) or
+                CharacterApi.is_set(off, cls.OffenseTypes.ASSIST_ALL.value) or
                 (rch.group and rch.group == ch.group) or
-                (rch.race == ch.race and CharacterMacros.is_set(off, cls.OffenseTypes.ASSIST_RACE.value)) or
-                (CharacterMacros.is_set(off, cls.OffenseTypes.ASSIST_ALIGN.value) and
-                 CharacterMacros.same_alignment(rch, ch)) or
-                (rch.vnum == ch.vnum and CharacterMacros.is_set(off, cls.OffenseTypes.ASSIST_VNUM.value))
+                (rch.race == ch.race and CharacterApi.is_set(off, cls.OffenseTypes.ASSIST_RACE.value)) or
+                (CharacterApi.is_set(off, cls.OffenseTypes.ASSIST_ALIGN.value) and
+                 CharacterApi.same_alignment(rch, ch)) or
+                (rch.vnum == ch.vnum and CharacterApi.is_set(off, cls.OffenseTypes.ASSIST_VNUM.value))
         )
 
     @classmethod

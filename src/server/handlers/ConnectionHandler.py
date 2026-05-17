@@ -9,7 +9,7 @@ from area.RoomHandler import RoomHandler
 from area.Area import Area
 from area.Room import Room
 from interp.InterpHandler import InterpHandler
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 from server.connection.TelnetConnection import TelnetConnection
 from server.connection.ConnectionManager import ConnectionManager
 from server.session.SessionHandler import SessionHandler
@@ -104,7 +104,7 @@ class ConnectionHandler:
                     for viewer in occupants:
                         if viewer.id == character.id:
                             continue
-                        if CharacterMacros.can_see(viewer, character, room):
+                        if CharacterApi.can_see(viewer, character, room):
                             text = f"{character.name} has entered the game.\r\n"
                         else:
                             text = "Someone has entered the game.\r\n"

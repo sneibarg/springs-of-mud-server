@@ -6,10 +6,10 @@ from injector import inject
 
 from game.RegistryService import RegistryService
 from interp.Context import Context
-from interp.InterpApi import InterpApi
+from api.InterpApi import InterpApi
 from util.CommunicationsUtil import CommunicationsUtil
 from player.Character import Character
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 from player.CharacterService import CharacterService
 from server.LoggerFactory import LoggerFactory
 from server.session.SessionHandler import SessionHandler
@@ -41,7 +41,7 @@ class Communications:
         self.comm_flags = None
 
     def lazy_load(self):
-        self.comm_flags = CharacterMacros.get_enum("commFlags")
+        self.comm_flags = CharacterApi.get_enum("commFlags")
 
     def execute(self, character: Character, context: Context):
         name = (getattr(context.command, "name", "") or "").strip().lower()
@@ -102,7 +102,7 @@ class Communications:
             f"tells          {'OFF' if CommunicationsUtil.has_comm(character, self.comm_flags, 'COMM_DEAF') else 'ON'}",
             f"quiet mode     {'ON' if CommunicationsUtil.has_comm(character, self.comm_flags, 'COMM_QUIET') else 'OFF'}",
         ]
-        if CharacterMacros.is_immortal(character):
+        if CharacterApi.is_immortal(character):
             lines.insert(8, f"god channel    {'OFF' if CommunicationsUtil.has_comm(character, self.comm_flags, 'COMM_NOWIZ') else 'ON'}")
         if CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_AFK"):
             lines.append("You are AFK.")
@@ -186,7 +186,7 @@ class Communications:
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload
-        victim = CharacterMacros.find_playing_character(target_name, self.session_handler)
+        victim = CharacterApi.find_playing_character(target_name, self.session_handler)
         if victim is None:
             return self._blocked_message(context, "target_missing")
         return self._deliver_tell(character, context, victim, message)

@@ -7,7 +7,7 @@ from game.GameData import GameData
 from util.GenericUtil import GenericUtil
 
 
-class GameMacros:
+class GameApi:
     _lock = RLock()
     _configured = False
     _shared_enums = None
@@ -64,9 +64,9 @@ class GameMacros:
             cls._titles = None
             cls._reset_internal_variables()
 
-        if GameMacros._shared_enums_source is prior_game_data:
-            GameMacros._shared_enums = None
-            GameMacros._shared_enums_source = None
+        if GameApi._shared_enums_source is prior_game_data:
+            GameApi._shared_enums = None
+            GameApi._shared_enums_source = None
 
     @classmethod
     def _configure_internal_variables(cls, game_data: GameData) -> None:
@@ -87,18 +87,18 @@ class GameMacros:
 
     @classmethod
     def _shared_enums_for(cls, game_data: GameData) -> dict[str, type[IntEnum]]:
-        if GameMacros._shared_enums_source is not game_data:
-            GameMacros._shared_enums = {
+        if GameApi._shared_enums_source is not game_data:
+            GameApi._shared_enums = {
                 enum_name: GenericUtil.build_int_enum(enum_name, member_map)
                 for enum_name, member_map in game_data.enums.items()
             }
-            GameMacros._shared_enums_source = game_data
-        return GameMacros._shared_enums or {}
+            GameApi._shared_enums_source = game_data
+        return GameApi._shared_enums or {}
 
     @classmethod
     def register_shared_enums(cls, game_data: GameData, enums: dict[str, type[IntEnum]]) -> None:
-        GameMacros._shared_enums = enums
-        GameMacros._shared_enums_source = game_data
+        GameApi._shared_enums = enums
+        GameApi._shared_enums_source = game_data
 
     @classmethod
     def _configure_races(cls, game_data: GameData) -> None:
@@ -191,7 +191,7 @@ class GameMacros:
 
     @staticmethod
     def convert_flags(flag_value: str) -> int:
-        return GameMacros.letters_to_flags(str(flag_value or ""))
+        return GameApi.letters_to_flags(str(flag_value or ""))
 
     @staticmethod
     def letters_to_flags(value: str) -> int:
@@ -217,7 +217,7 @@ class GameMacros:
         value = GenericUtil.to_int(raw, None)
         if value is not None:
             return value
-        return GameMacros.letters_to_flags(str(raw or "0"))
+        return GameApi.letters_to_flags(str(raw or "0"))
 
     @staticmethod
     def enum_bit(enum_obj, *names: str) -> int:

@@ -4,7 +4,7 @@ import random
 
 from dataclasses import dataclass, field
 
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 from util.GenericUtil import GenericUtil
 
 
@@ -46,7 +46,7 @@ class CharacterAdvancement:
     def gain_experience(character, gain: int) -> ExperienceGainResult:
         attrs = getattr(character, "character_attributes", None)
         try:
-            is_npc = CharacterMacros.is_npc(character)
+            is_npc = CharacterApi.is_npc(character)
         except Exception:
             is_npc = False
         if character is None or attrs is None or is_npc:
@@ -119,7 +119,7 @@ class CharacterAdvancement:
             attrs.practices = GenericUtil.to_int(getattr(attrs, "practices", 0), 0) + add_prac
             attrs.trains = GenericUtil.to_int(getattr(attrs, "trains", 0), 0) + 1
 
-        title = CharacterMacros.title_for_level(character, GenericUtil.to_int(getattr(character, "level", 0), 0))
+        title = CharacterApi.title_for_level(character, GenericUtil.to_int(getattr(character, "level", 0), 0))
         if title:
             character.title = title
 
@@ -136,7 +136,7 @@ class CharacterAdvancement:
     @staticmethod
     def _hero_level() -> int:
         try:
-            params = CharacterMacros.get_enum("gameParameters")
+            params = CharacterApi.get_enum("gameParameters")
         except Exception:
             params = None
         if hasattr(params, "LEVEL_HERO"):
@@ -151,7 +151,7 @@ class CharacterAdvancement:
     @staticmethod
     def _attribute_bonus(table_name: str, stat_value: int, key: str, default: int = 0) -> int:
         try:
-            bonuses = CharacterMacros._attribute_bonus_map()
+            bonuses = CharacterApi._attribute_bonus_map()
         except Exception:
             return default
         table = bonuses.get(str(table_name or "").lower(), {})

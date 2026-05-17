@@ -202,9 +202,9 @@ class TestSacrificeFlow(unittest.TestCase):
                 return self._item_flags()
             return SimpleNamespace()
 
-        with patch("fight.FightHandler.CharacterMacros.is_npc", side_effect=lambda entity: entity is victim), \
+        with patch("fight.FightHandler.CharacterApi.is_npc", side_effect=lambda entity: entity is victim), \
              patch.object(handler, "_player_act_enabled", side_effect=lambda _character, flag: flag in {"PLR_AUTOLOOT", "PLR_AUTOSAC"}), \
-             patch("fight.FightHandler.CharacterMacros.get_enum", side_effect=enum_lookup):
+             patch("fight.FightHandler.CharacterApi.get_enum", side_effect=enum_lookup):
             payload = handler.build_round_payload(
                 attacker,
                 victim,
@@ -247,9 +247,9 @@ class TestSacrificeFlow(unittest.TestCase):
                 return self._item_flags()
             return SimpleNamespace()
 
-        with patch("fight.FightHandler.CharacterMacros.is_npc", side_effect=lambda entity: entity is victim), \
+        with patch("fight.FightHandler.CharacterApi.is_npc", side_effect=lambda entity: entity is victim), \
              patch.object(handler, "_player_act_enabled", side_effect=lambda _character, flag: flag in {"PLR_AUTOLOOT", "PLR_AUTOSAC"}), \
-             patch("fight.FightHandler.CharacterMacros.get_enum", side_effect=enum_lookup):
+             patch("fight.FightHandler.CharacterApi.get_enum", side_effect=enum_lookup):
             payload = handler.build_round_payload(
                 attacker,
                 victim,

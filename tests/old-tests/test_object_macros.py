@@ -3,7 +3,7 @@ import unittest
 from enum import IntEnum
 from unittest.mock import MagicMock
 from item.Item import Item
-from item.ItemMacros import ItemMacros
+from api.ItemApi import ItemApi
 
 
 class TestItemTypes(IntEnum):
@@ -112,7 +112,7 @@ class TestItemMacros(unittest.TestCase):
             "empty_race": {},
         }
 
-        self.macros = ItemMacros(self.races, self.mock_item_table, self.mock_item_types)
+        self.macros = ItemApi(self.races, self.mock_item_table, self.mock_item_types)
 
     def test_decode_form_and_parts_human(self):
         result = self.macros.decode_form_and_parts("human", TestBodyForm, TestBodyParts)

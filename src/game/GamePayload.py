@@ -47,6 +47,8 @@ class GamePayload:
             "%s": tokens.get("s", ""),
             "%d": tokens.get("d", ""),
             "%q": tokens.get("q", ""),
+            "%p": tokens.get("p", ""),
+            "%l": tokens.get("l", ""),
             "%T": tokens.get("T", ""),
         }
         for marker, value in legacy_tokens.items():

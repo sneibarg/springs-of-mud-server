@@ -1,15 +1,16 @@
 from injector import singleton, Injector
 
+from api.MovementApi import MovementApi
 from area.ShopService import ShopService
 from area.AreaHandler import AreaHandler
 from area.ResetService import ResetService
 from area.RoomHandler import RoomHandler
 from area.SpecialService import SpecialService
-from fight.FightApi import FightApi
+from api.FightApi import FightApi
 from game.HandlerService import HandlerService
 from interp.commands.Fight import Fight
 from interp.commands.Communications import Communications
-from interp.InterpApi import InterpApi
+from api.InterpApi import InterpApi
 from interp.commands.Info import Info
 from interp.commands.Movement import Movement
 from interp.commands.Object import Object
@@ -22,19 +23,19 @@ from item.ItemHandler import ItemHandler
 from item.BodyForm import BodyForm
 from item.BodyParts import BodyParts
 from mobile.MobileHandler import MobileHandler
-from mobile.MobileMacros import MobileMacros
+from api.MobileApi import MobileApi
 from player.PlayerHandler import PlayerHandler
 from game.GameData import GameData
 from game.GameService import GameService
 from game.NoteHandler import NoteHandler
 from game.NoteService import NoteService
 from mobile.MobileService import MobileService
-from item.ItemMacros import ItemMacros
-from player.CharacterMacros import CharacterMacros
+from api.ItemApi import ItemApi
+from api.CharacterApi import CharacterApi
 from player.PlayerService import PlayerService
 from player.CharacterService import CharacterService
 from server.LoggerFactory import LoggerFactory
-from skill.SkillApi import SkillApi
+from api.SkillApi import SkillApi
 from skill.SkillService import SkillService
 from skill.SpellService import SpellService
 from game.RegistryService import RegistryService
@@ -140,9 +141,10 @@ class ServerUtil:
         injector.binder.bind(GameData, to=game_data, scope=singleton)
         BodyForm.configure(game_data)
         BodyParts.configure(game_data)
-        ItemMacros.configure(game_data)
-        MobileMacros.configure(game_data)
-        CharacterMacros.configure(game_data)
+        ItemApi.configure(game_data)
+        MobileApi.configure(game_data)
+        CharacterApi.configure(game_data)
+        MovementApi.configure(game_data)
 
     @staticmethod
     def _bind_api_instances(injector):
@@ -184,8 +186,8 @@ class ServerUtil:
         skill_api = injector.get(SkillApi)
         fight_commands = injector.get(Fight)
 
-        CharacterMacros.set_registry(registry_service)
-        CharacterMacros.lazy_load(weather_handler)
+        CharacterApi.set_registry(registry_service)
+        CharacterApi.lazy_load(weather_handler)
 
         fight_commands.lazy_load()
         skill_api.lazy_load()

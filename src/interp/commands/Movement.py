@@ -6,13 +6,13 @@ from game.GameData import GameData
 from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
-from interp.InterpApi import InterpApi
-from interp.MovementApi import MovementApi
+from api.InterpApi import InterpApi
+from api.MovementApi import MovementApi
 from util.MovementUtil import MovementUtil
 from fight.FightHandler import FightHandler
 from util.MobileUtil import MobileUtil
 from player.Character import Character
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
 
 
@@ -37,11 +37,11 @@ class Movement:
         self.sector_types = None
 
     def lazy_load(self):
-        self.exit_flags = CharacterMacros.get_enum("exitFlags")
-        self.room_flags = CharacterMacros.get_enum("roomFlags")
-        self.affected_bits = CharacterMacros.get_enum("affectedBy")
-        self.act_bits = CharacterMacros.get_enum("actBits")
-        self.sector_types = CharacterMacros.get_enum("sectorTypes")
+        self.exit_flags = CharacterApi.get_enum("exitFlags")
+        self.room_flags = CharacterApi.get_enum("roomFlags")
+        self.affected_bits = CharacterApi.get_enum("affectedBy")
+        self.act_bits = CharacterApi.get_enum("actBits")
+        self.sector_types = CharacterApi.get_enum("sectorTypes")
 
     def move_char(self, character: Character, direction: str, context: Context):
         state = MovementApi.move_state(context, direction=direction, room_registry=self.room_registry)
@@ -51,7 +51,7 @@ class Movement:
             return payload
 
         context.done = False
-        if not CharacterMacros.is_npc(character):
+        if not CharacterApi.is_npc(character):
             character.movement -= state.move_cost
 
         in_room = state.in_room
@@ -117,7 +117,7 @@ class Movement:
             return {"to_char": "It's locked.\r\n"}
 
         ex.exit_flags = flags & ~ex_closed if ex_closed else flags
-        CharacterMacros.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, set_mask=ex_closed)
+        CharacterApi.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, set_mask=ex_closed)
         context.finish()
         return {"to_char": "Ok.\r\n", "to_room": f"{character.name} opens the {ex.keyword or 'door'}.\r\n", "targets": room.player_targets(character)}
 
@@ -143,7 +143,7 @@ class Movement:
             return {"to_char": "It's already closed.\r\n"}
 
         ex.exit_flags = flags | ex_closed if ex_closed else flags
-        CharacterMacros.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, set_mask=ex_closed)
+        CharacterApi.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, set_mask=ex_closed)
         context.finish()
         return {"to_char": "Ok.\r\n", "to_room": f"{character.name} closes the {ex.keyword or 'door'}.\r\n", "targets": room.player_targets(character)}
 
@@ -181,7 +181,7 @@ class Movement:
             return {"to_char": "It's already locked.\r\n"}
 
         ex.exit_flags = flags | ex_locked if ex_locked else flags
-        CharacterMacros.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, set_mask=ex_locked)
+        CharacterApi.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, set_mask=ex_locked)
         context.finish()
         return {"to_char": "*Click*\r\n", "to_room": f"{character.name} locks the {ex.keyword or 'door'}.\r\n", "targets": room.player_targets(character)}
 
@@ -219,7 +219,7 @@ class Movement:
             return {"to_char": "It's already unlocked.\r\n"}
 
         ex.exit_flags = flags & ~ex_locked if ex_locked else flags
-        CharacterMacros.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, clear_mask=ex_locked)
+        CharacterApi.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, clear_mask=ex_locked)
         context.finish()
         return {"to_char": "*Click*\r\n", "to_room": f"{character.name} unlocks the {ex.keyword or 'door'}.\r\n", "targets": room.player_targets(character)}
 
@@ -254,86 +254,86 @@ class Movement:
             return {"to_char": "You failed.\r\n"}
 
         ex.exit_flags = flags & ~ex_locked if ex_locked else flags
-        CharacterMacros.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, clear_mask=ex_locked)
+        CharacterApi.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, clear_mask=ex_locked)
         context.finish()
         return {"to_char": "*Click*\r\n", "to_room": f"{character.name} picks the {ex.keyword or 'door'}.\r\n", "targets": room.player_targets(character)}
 
     def do_stand(self, character: Character, context: Context) -> str:
-        pos = CharacterMacros.position_value(character)
-        if pos <= CharacterMacros.pos_value("POS_STUNNED"):
+        pos = CharacterApi.position_value(character)
+        if pos <= CharacterApi.pos_value("POS_STUNNED"):
             context.finish()
             return "You can't do that right now.\r\n"
-        if pos == CharacterMacros.pos_value("POS_SLEEPING"):
-            if CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_SLEEP"):
+        if pos == CharacterApi.pos_value("POS_SLEEPING"):
+            if CharacterApi.is_affected_by_name(character, self.affected_bits, "AFF_SLEEP"):
                 context.finish()
                 return "You can't wake up!\r\n"
-            CharacterMacros.set_position(character, "POS_STANDING")
+            CharacterApi.set_position(character, "POS_STANDING")
             context.finish()
             return "You wake and stand up.\r\n"
-        if pos in (CharacterMacros.pos_value("POS_RESTING"), CharacterMacros.pos_value("POS_SITTING")):
-            CharacterMacros.set_position(character, "POS_STANDING")
+        if pos in (CharacterApi.pos_value("POS_RESTING"), CharacterApi.pos_value("POS_SITTING")):
+            CharacterApi.set_position(character, "POS_STANDING")
             context.finish()
             return "You stand up.\r\n"
-        if pos == CharacterMacros.pos_value("POS_STANDING"):
+        if pos == CharacterApi.pos_value("POS_STANDING"):
             context.finish()
             return "You are already standing.\r\n"
-        if pos == CharacterMacros.pos_value("POS_FIGHTING"):
+        if pos == CharacterApi.pos_value("POS_FIGHTING"):
             context.finish()
             return "You are already fighting!\r\n"
         context.finish()
         return ""
 
     def do_rest(self, character: Character, context: Context) -> str:
-        pos = CharacterMacros.position_value(character)
-        if pos == CharacterMacros.pos_value("POS_FIGHTING"):
+        pos = CharacterApi.position_value(character)
+        if pos == CharacterApi.pos_value("POS_FIGHTING"):
             context.finish()
             return "You are already fighting!\r\n"
-        if pos == CharacterMacros.pos_value("POS_SLEEPING"):
-            if CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_SLEEP"):
+        if pos == CharacterApi.pos_value("POS_SLEEPING"):
+            if CharacterApi.is_affected_by_name(character, self.affected_bits, "AFF_SLEEP"):
                 context.finish()
                 return "You can't wake up!\r\n"
-            CharacterMacros.set_position(character, "POS_RESTING")
+            CharacterApi.set_position(character, "POS_RESTING")
             context.finish()
             return "You wake up and start resting.\r\n"
-        if pos in (CharacterMacros.pos_value("POS_STANDING"), CharacterMacros.pos_value("POS_SITTING")):
-            CharacterMacros.set_position(character, "POS_RESTING")
+        if pos in (CharacterApi.pos_value("POS_STANDING"), CharacterApi.pos_value("POS_SITTING")):
+            CharacterApi.set_position(character, "POS_RESTING")
             context.finish()
             return "You rest.\r\n"
         context.finish()
         return "You are already resting.\r\n"
 
     def do_sit(self, character: Character, context: Context) -> str:
-        pos = CharacterMacros.position_value(character)
-        if pos == CharacterMacros.pos_value("POS_FIGHTING"):
+        pos = CharacterApi.position_value(character)
+        if pos == CharacterApi.pos_value("POS_FIGHTING"):
             context.finish()
             return "Maybe you should finish this fight first?\r\n"
-        if pos == CharacterMacros.pos_value("POS_SLEEPING"):
-            if CharacterMacros.is_affected_by_name(character, self.affected_bits, "AFF_SLEEP"):
+        if pos == CharacterApi.pos_value("POS_SLEEPING"):
+            if CharacterApi.is_affected_by_name(character, self.affected_bits, "AFF_SLEEP"):
                 context.finish()
                 return "You can't wake up!\r\n"
-            CharacterMacros.set_position(character, "POS_SITTING")
+            CharacterApi.set_position(character, "POS_SITTING")
             context.finish()
             return "You wake and sit up.\r\n"
-        if pos == CharacterMacros.pos_value("POS_RESTING"):
-            CharacterMacros.set_position(character, "POS_SITTING")
+        if pos == CharacterApi.pos_value("POS_RESTING"):
+            CharacterApi.set_position(character, "POS_SITTING")
             context.finish()
             return "You stop resting.\r\n"
-        if pos == CharacterMacros.pos_value("POS_STANDING"):
-            CharacterMacros.set_position(character, "POS_SITTING")
+        if pos == CharacterApi.pos_value("POS_STANDING"):
+            CharacterApi.set_position(character, "POS_SITTING")
             context.finish()
             return "You sit down.\r\n"
         context.finish()
         return "You are already sitting down.\r\n"
 
     def do_sleep(self, character: Character, context: Context) -> str:
-        pos = CharacterMacros.position_value(character)
-        if pos == CharacterMacros.pos_value("POS_SLEEPING"):
+        pos = CharacterApi.position_value(character)
+        if pos == CharacterApi.pos_value("POS_SLEEPING"):
             context.finish()
             return "You are already sleeping.\r\n"
-        if pos == CharacterMacros.pos_value("POS_FIGHTING"):
+        if pos == CharacterApi.pos_value("POS_FIGHTING"):
             context.finish()
             return "You are already fighting!\r\n"
-        CharacterMacros.set_position(character, "POS_SLEEPING")
+        CharacterApi.set_position(character, "POS_SLEEPING")
         context.finish()
         return "You go to sleep.\r\n"
 
@@ -343,7 +343,7 @@ class Movement:
             arg = context.parameters[0].strip().lower()
         if not arg:
             return {"self_stand": True}
-        if not CharacterMacros.is_awake(character):
+        if not CharacterApi.is_awake(character):
             context.finish()
             return {"to_char": "You are asleep yourself!\r\n"}
 
@@ -358,31 +358,31 @@ class Movement:
         if victim is None:
             context.finish()
             return {"to_char": "They aren't here.\r\n"}
-        if CharacterMacros.is_awake(victim):
+        if CharacterApi.is_awake(victim):
             context.finish()
             return {"to_char": f"{victim.name} is already awake.\r\n"}
-        if CharacterMacros.is_affected_by_name(victim, self.affected_bits, "AFF_SLEEP"):
+        if CharacterApi.is_affected_by_name(victim, self.affected_bits, "AFF_SLEEP"):
             context.finish()
             return {"to_char": f"You can't wake {victim.name}!\r\n"}
 
-        CharacterMacros.set_position(victim, "POS_STANDING")
+        CharacterApi.set_position(victim, "POS_STANDING")
         context.finish()
         return {"to_char": f"You wake {victim.name}.\r\n", "to_victim": f"{character.name} wakes you.\r\n", "victim": victim}
 
     def do_sneak(self, character: Character, context: Context) -> str:
-        CharacterMacros.set_affected_by_name(character, self.affected_bits, "AFF_SNEAK", True)
+        CharacterApi.set_affected_by_name(character, self.affected_bits, "AFF_SNEAK", True)
         context.finish()
         return "You attempt to move silently.\r\n"
 
     def do_hide(self, character: Character, context: Context) -> str:
-        CharacterMacros.set_affected_by_name(character, self.affected_bits, "AFF_HIDE", True)
+        CharacterApi.set_affected_by_name(character, self.affected_bits, "AFF_HIDE", True)
         context.finish()
         return "You attempt to hide.\r\n"
 
     def do_visible(self, character: Character, context: Context) -> str:
-        CharacterMacros.set_affected_by_name(character, self.affected_bits, "AFF_HIDE", False)
-        CharacterMacros.set_affected_by_name(character, self.affected_bits, "AFF_INVISIBLE", False)
-        CharacterMacros.set_affected_by_name(character, self.affected_bits, "AFF_SNEAK", False)
+        CharacterApi.set_affected_by_name(character, self.affected_bits, "AFF_HIDE", False)
+        CharacterApi.set_affected_by_name(character, self.affected_bits, "AFF_INVISIBLE", False)
+        CharacterApi.set_affected_by_name(character, self.affected_bits, "AFF_SNEAK", False)
         context.finish()
         return "Ok.\r\n"
 
@@ -436,7 +436,7 @@ class Movement:
             short_name
             for short_name, attr_name, stat_index in trainable_stats
             if (current := GenericUtil.to_int(getattr(attrs, attr_name, 0), 0))
-            < CharacterMacros.get_max_train(character, stat_index, current)
+               < CharacterApi.get_max_train(character, stat_index, current)
         ]
 
         options.extend(["hp", "mana"])
@@ -453,7 +453,7 @@ class Movement:
         return f"You have nothing left to train, you {ending}!\r\n"
 
     def do_train(self, character: Character, context: Context) -> str | dict:
-        if CharacterMacros.is_npc(character):
+        if CharacterApi.is_npc(character):
             context.finish()
             return ""
 
@@ -462,7 +462,7 @@ class Movement:
             raw = " ".join(context.parameters).strip().lower()
 
         room = self.room_registry.get_or_none(id=character.room_id)
-        act_bits = self.act_bits or CharacterMacros.get_enum("actBits")
+        act_bits = self.act_bits or CharacterApi.get_enum("actBits")
         trainer_found = False
         if room is not None:
             train_bit = act_bits.ACT_TRAIN.value if act_bits is not None and hasattr(act_bits, "ACT_TRAIN") else 0
@@ -531,7 +531,7 @@ class Movement:
 
         attr_name, output_name, stat_index = stat_spec
         current = GenericUtil.to_int(getattr(attrs, attr_name, 0), 0)
-        max_train = CharacterMacros.get_max_train(character, stat_index, current)
+        max_train = CharacterApi.get_max_train(character, stat_index, current)
         if current >= max_train:
             context.finish()
             return f"Your {output_name} is already at maximum.\r\n"

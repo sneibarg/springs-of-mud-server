@@ -79,7 +79,7 @@ class _CharacterMacros:
         return False
 
 
-sys.modules["player.CharacterMacros"] = SimpleNamespace(CharacterMacros=_CharacterMacros)
+sys.modules["player.CharacterApi"] = SimpleNamespace(CharacterMacros=_CharacterMacros)
 sys.modules["player.Character"] = SimpleNamespace(Character=object)
 sys.modules["game.RegistryService"] = SimpleNamespace(RegistryService=object)
 sys.modules["player.CharacterService"] = SimpleNamespace(CharacterService=object)

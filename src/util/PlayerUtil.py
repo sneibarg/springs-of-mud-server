@@ -5,7 +5,7 @@ from typing import Any, TYPE_CHECKING
 
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 from server.session.SessionHandler import SessionHandler
 
 
@@ -19,24 +19,24 @@ class PlayerUtil:
 
     @staticmethod
     def format_visible_character_line(observer: Any, target: Any) -> str:
-        affected_bits = CharacterMacros.get_enum('affectedBy')
-        player_act_bits = CharacterMacros.get_enum('playerActBits')
+        affected_bits = CharacterApi.get_enum('affectedBy')
+        player_act_bits = CharacterApi.get_enum('playerActBits')
 
         def _has_player_act_bit(char, bit_name: str) -> bool:
-            if CharacterMacros.is_npc(char) or not hasattr(player_act_bits, bit_name):
+            if CharacterApi.is_npc(char) or not hasattr(player_act_bits, bit_name):
                 return False
             act_value = char.status_flags.comm
-            return CharacterMacros.is_set(act_value, getattr(player_act_bits, bit_name).value)
+            return CharacterApi.is_set(act_value, getattr(player_act_bits, bit_name).value)
 
         def _is_affected(char, bit_name: str) -> bool:
             if not hasattr(affected_bits, bit_name):
                 return False
-            return CharacterMacros.is_affected(char, getattr(affected_bits, bit_name).value)
+            return CharacterApi.is_affected(char, getattr(affected_bits, bit_name).value)
 
         prefixes = []
         if _is_affected(target, "AFF_INVISIBLE"):
             prefixes.append("(Invis)")
-        GameParameters = CharacterMacros.get_enum("gameParameters")
+        GameParameters = CharacterApi.get_enum("gameParameters")
         if GenericUtil.to_int(getattr(target.status_flags, "invis_level", 0)) >= GenericUtil.to_int(GameParameters.HERO.value, 51):
             prefixes.append("(Wizi)")
         if _is_affected(target, "AFF_HIDE"):
@@ -47,9 +47,9 @@ class PlayerUtil:
             prefixes.append("(Translucent)")
         if _is_affected(target, "AFF_FAERIE_FIRE"):
             prefixes.append("(Pink Aura)")
-        if _is_affected(observer, "AFF_DETECT_EVIL") and CharacterMacros.is_evil(target):
+        if _is_affected(observer, "AFF_DETECT_EVIL") and CharacterApi.is_evil(target):
             prefixes.append("(Red Aura)")
-        if _is_affected(observer, "AFF_DETECT_GOOD") and CharacterMacros.is_good(target):
+        if _is_affected(observer, "AFF_DETECT_GOOD") and CharacterApi.is_good(target):
             prefixes.append("(Golden Aura)")
         if _is_affected(target, "AFF_SANCTUARY"):
             prefixes.append("(White Aura)")
@@ -70,12 +70,12 @@ class PlayerUtil:
             return f"{prefix}{long_desc}\r\n"
 
         name = (getattr(target, "name", "") or "").strip()
-        if CharacterMacros.is_npc(target):
+        if CharacterApi.is_npc(target):
             name = (getattr(target, "short_description", "") or name).strip()
         if not name:
             name = "Someone"
 
-        positions = CharacterMacros.get_enum("positions")
+        positions = CharacterApi.get_enum("positions")
 
         def _pos(name: str, default: int = -9999) -> int:
             if not hasattr(positions, name):
@@ -118,7 +118,7 @@ class PlayerUtil:
     @staticmethod
     def visible(character: Character, session_handler: SessionHandler) -> List[Character]:
         visible = []
-        observer_trust = GenericUtil.to_int(CharacterMacros.get_trust(character))
+        observer_trust = GenericUtil.to_int(CharacterApi.get_trust(character))
         for session in session_handler.get_playing_sessions():
             char = session.character
             if char is None:
@@ -169,7 +169,7 @@ class PlayerUtil:
             return None
 
         for char in room.characters.values():
-            if not CharacterMacros.can_see(character, char, room):
+            if not CharacterApi.can_see(character, char, room):
                 continue
 
             if char.room_id == room.id:
@@ -181,7 +181,7 @@ class PlayerUtil:
     @staticmethod
     def _get_mobile_target(character, victim: str, room: Room):
         mob = InterpUtil.find_nth_by_keyword(room.mobiles, victim)  # support for 1.mob_name; 2.mob_name, etc
-        if mob is not None and CharacterMacros.can_see(character, mob, room):
+        if mob is not None and CharacterApi.can_see(character, mob, room):
             return mob
         else:
             return None

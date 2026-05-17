@@ -4,7 +4,7 @@ from game.RegistryService import RegistryService
 from interp.Context import Context
 from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
-from item.ItemMacros import ItemMacros
+from api.ItemApi import ItemApi
 from player.Character import Character
 from server.messaging import MessageBus
 
@@ -30,35 +30,16 @@ class ItemHandler:
         if arg1 not in ("i", "in", "on"):
             return
 
-        room = self.room_registry.get(id=character.room_id)
+        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         arg2 = (context.parameters[1] if context.parameters and len(context.parameters) > 1 else "").strip().lower()
-        if not arg2:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("Look in what?\r\n"))
-            context.finish()
-            return
-
         obj = ItemUtil.find_item(character, room, arg2)
-        if obj is None:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("You do not see that here.\r\n"))
-            context.finish()
-            return
 
         if ItemUtil.is_drink_container(obj):
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(
-                ItemUtil.container_volume_description(obj)))
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(ItemUtil.container_volume_description(obj)))
             context.finish()
             return
 
-        if ItemUtil.is_container_like(obj):
-            if ItemMacros.is_container_closed(obj):
-                await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("It is closed.\r\n"))
-                context.finish()
-                return
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(ItemUtil.items_in_container(obj)))
-            context.finish()
-            return
-
-        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("That is not a container.\r\n"))
+        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(ItemUtil.items_in_container(obj)))
         context.finish()
 
     async def look_item_or_extra(self, character: Character, context: Context):

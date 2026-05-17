@@ -3,7 +3,7 @@ from enum import IntEnum
 from types import SimpleNamespace
 
 from game.GameData import GameData
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 from util.CommunicationsUtil import CommunicationsUtil
 
 
@@ -44,10 +44,10 @@ class TestCharacterMacrosTrain(unittest.TestCase):
         })
 
     def tearDown(self):
-        CharacterMacros.reset_for_tests()
+        CharacterApi.reset_for_tests()
 
     def _configure_with_flag_enums(self):
-        CharacterMacros.configure(
+        CharacterApi.configure(
             self._game_data(
                 enums={
                     "playerActBits": self._enum_map(_PlayerActBits),
@@ -58,7 +58,7 @@ class TestCharacterMacrosTrain(unittest.TestCase):
         )
 
     def test_get_max_train_uses_configured_pc_races(self):
-        CharacterMacros.configure(
+        CharacterApi.configure(
             self._game_data(
                 pc_races={
                     "human": {"max_stats": [18, 18, 18, 18, 18]},
@@ -68,11 +68,11 @@ class TestCharacterMacrosTrain(unittest.TestCase):
         )
         character = SimpleNamespace(race="human")
 
-        self.assertEqual(18, CharacterMacros.get_max_train(character, 0, 17))
-        self.assertEqual(18, CharacterMacros.get_max_train(character, 4, 13))
+        self.assertEqual(18, CharacterApi.get_max_train(character, 0, 17))
+        self.assertEqual(18, CharacterApi.get_max_train(character, 4, 13))
 
     def test_get_max_train_prefers_character_race_object(self):
-        CharacterMacros.configure(
+        CharacterApi.configure(
             self._game_data(
                 pc_races={"human": {"max_stats": [18, 18, 18, 18, 18]}},
             )
@@ -88,24 +88,24 @@ class TestCharacterMacrosTrain(unittest.TestCase):
             ),
         )
 
-        self.assertEqual(20, CharacterMacros.get_max_train(character, 0, 17))
-        self.assertEqual(21, CharacterMacros.get_max_train(character, 4, 13))
+        self.assertEqual(20, CharacterApi.get_max_train(character, 0, 17))
+        self.assertEqual(21, CharacterApi.get_max_train(character, 4, 13))
 
     def test_get_max_train_falls_back_when_race_missing(self):
-        CharacterMacros.configure(
+        CharacterApi.configure(
             self._game_data(
                 pc_races={"human": {"max_stats": [18, 18, 18, 18, 18]}},
             )
         )
         character = SimpleNamespace(race="unknown")
 
-        self.assertEqual(14, CharacterMacros.get_max_train(character, 0, 14))
+        self.assertEqual(14, CharacterApi.get_max_train(character, 0, 14))
 
     def test_toggle_player_act_keeps_status_flag_integer(self):
         self._configure_with_flag_enums()
         character = SimpleNamespace(status_flags=SimpleNamespace(act=0), role="player")
 
-        result = CharacterMacros.toggle_player_act(character, "PLR_AUTOEXIT", "off", "on")
+        result = CharacterApi.toggle_player_act(character, "PLR_AUTOEXIT", "off", "on")
 
         self.assertEqual("on", result)
         self.assertEqual(_PlayerActBits.PLR_AUTOEXIT.value, character.status_flags.act)
@@ -118,7 +118,7 @@ class TestCharacterMacrosTrain(unittest.TestCase):
             role="player",
         )
 
-        CharacterMacros.set_act_flags(character, _PlayerActBits.PLR_AUTOASSIST.value)
+        CharacterApi.set_act_flags(character, _PlayerActBits.PLR_AUTOASSIST.value)
 
         self.assertEqual(
             _PlayerActBits.PLR_AUTOEXIT.value | _PlayerActBits.PLR_AUTOASSIST.value,
@@ -129,7 +129,7 @@ class TestCharacterMacrosTrain(unittest.TestCase):
         self._configure_with_flag_enums()
         character = SimpleNamespace(status_flags=SimpleNamespace(comm=0))
 
-        result = CharacterMacros.toggle_comm(character, "COMM_BRIEF", "off", "on")
+        result = CharacterApi.toggle_comm(character, "COMM_BRIEF", "off", "on")
 
         self.assertEqual("on", result)
         self.assertEqual(_CommFlags.COMM_BRIEF.value, character.status_flags.comm)
@@ -139,7 +139,7 @@ class TestCharacterMacrosTrain(unittest.TestCase):
         self._configure_with_flag_enums()
         character = SimpleNamespace(status_flags=SimpleNamespace(comm=1))
 
-        CharacterMacros.set_comm_flags(character, _CommFlags.COMM_BRIEF.value)
+        CharacterApi.set_comm_flags(character, _CommFlags.COMM_BRIEF.value)
 
         self.assertEqual(1 | _CommFlags.COMM_BRIEF.value, character.status_flags.comm)
 
@@ -147,7 +147,7 @@ class TestCharacterMacrosTrain(unittest.TestCase):
         self._configure_with_flag_enums()
         character = SimpleNamespace(status_flags=SimpleNamespace(affected_by=0))
 
-        CharacterMacros.set_affected_by_name(character, _AffectedBy, "AFF_HIDE", True)
+        CharacterApi.set_affected_by_name(character, _AffectedBy, "AFF_HIDE", True)
 
         self.assertEqual(_AffectedBy.AFF_HIDE.value, character.status_flags.affected_by)
         self.assertIsInstance(character.status_flags.affected_by, int)
@@ -167,4 +167,4 @@ class TestCharacterMacrosTrain(unittest.TestCase):
             role="player",
         )
 
-        self.assertTrue(CharacterMacros.player_auto_assist(character))
+        self.assertTrue(CharacterApi.player_auto_assist(character))

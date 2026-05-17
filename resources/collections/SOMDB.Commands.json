@@ -17,11 +17,11 @@
         "maxArguments": 0,
         "checks": [
             {
-                "predicate": "lambda v: CharacterMacros.is_fighting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_fighting(v.context.character)",
                 "messageKey": "fighting"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_stunned(v.context.character)",
                 "messageKey": "stunned"
             }
         ],
@@ -111,11 +111,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOTELL')",
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOTELL')",
                 "messageKey": "noTell"
             },
             {
-                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
@@ -250,31 +250,31 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: CharacterMacros.is_dead(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_dead(v.context.character)",
                 "messageKey": "dead"
             },
             {
-                "predicate": "lambda v: CharacterMacros.position_value(v.context.character) in (CharacterMacros.pos_value('POS_MORTAL'), CharacterMacros.pos_value('POS_INCAP'))",
+                "predicate": "lambda v: CharacterApi.position_value(v.context.character) in (CharacterApi.pos_value('POS_MORTAL'), CharacterApi.pos_value('POS_INCAP'))",
                 "messageKey": "hurt"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_stunned(v.context.character)",
                 "messageKey": "stunned"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_sleeping(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_sleeping(v.context.character)",
                 "messageKey": "sleeping"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_resting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_resting(v.context.character)",
                 "messageKey": "resting"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_sitting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_sitting(v.context.character)",
                 "messageKey": "sitting"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_fighting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_fighting(v.context.character)",
                 "messageKey": "fighting"
             },
             {
@@ -343,31 +343,31 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: CharacterMacros.is_dead(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_dead(v.context.character)",
                 "messageKey": "dead"
             },
             {
-                "predicate": "lambda v: CharacterMacros.position_value(v.context.character) in (CharacterMacros.pos_value('POS_MORTAL'), CharacterMacros.pos_value('POS_INCAP'))",
+                "predicate": "lambda v: CharacterApi.position_value(v.context.character) in (CharacterApi.pos_value('POS_MORTAL'), CharacterApi.pos_value('POS_INCAP'))",
                 "messageKey": "hurt"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_stunned(v.context.character)",
                 "messageKey": "stunned"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_sleeping(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_sleeping(v.context.character)",
                 "messageKey": "sleeping"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_resting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_resting(v.context.character)",
                 "messageKey": "resting"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_sitting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_sitting(v.context.character)",
                 "messageKey": "sitting"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_fighting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_fighting(v.context.character)",
                 "messageKey": "fighting"
             },
             {
@@ -436,31 +436,31 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: CharacterMacros.is_dead(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_dead(v.context.character)",
                 "messageKey": "dead"
             },
             {
-                "predicate": "lambda v: CharacterMacros.position_value(v.context.character) in (CharacterMacros.pos_value('POS_MORTAL'), CharacterMacros.pos_value('POS_INCAP'))",
+                "predicate": "lambda v: CharacterApi.position_value(v.context.character) in (CharacterApi.pos_value('POS_MORTAL'), CharacterApi.pos_value('POS_INCAP'))",
                 "messageKey": "hurt"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_stunned(v.context.character)",
                 "messageKey": "stunned"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_sleeping(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_sleeping(v.context.character)",
                 "messageKey": "sleeping"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_resting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_resting(v.context.character)",
                 "messageKey": "resting"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_sitting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_sitting(v.context.character)",
                 "messageKey": "sitting"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_fighting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_fighting(v.context.character)",
                 "messageKey": "fighting"
             },
             {
@@ -529,31 +529,31 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: CharacterMacros.is_dead(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_dead(v.context.character)",
                 "messageKey": "dead"
             },
             {
-                "predicate": "lambda v: CharacterMacros.position_value(v.context.character) in (CharacterMacros.pos_value('POS_MORTAL'), CharacterMacros.pos_value('POS_INCAP'))",
+                "predicate": "lambda v: CharacterApi.position_value(v.context.character) in (CharacterApi.pos_value('POS_MORTAL'), CharacterApi.pos_value('POS_INCAP'))",
                 "messageKey": "hurt"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_stunned(v.context.character)",
                 "messageKey": "stunned"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_sleeping(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_sleeping(v.context.character)",
                 "messageKey": "sleeping"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_resting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_resting(v.context.character)",
                 "messageKey": "resting"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_sitting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_sitting(v.context.character)",
                 "messageKey": "sitting"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_fighting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_fighting(v.context.character)",
                 "messageKey": "fighting"
             },
             {
@@ -606,8 +606,9 @@
         "maxArguments": 2,
         "payload": {
             "toChar": {
+                "blind": "You can't see a thing!",
                 "stunned": "You can't see anything but stars!",
-                "sleeping": "You can't see anything, you're sleeping!",
+                "sleeping": "You can't see anything - you're sleeping!",
                 "dark": "It is pitch black ... ",
                 "noInTarget": "Look in what?",
                 "targetMissing": "You do not see that here.",
@@ -615,8 +616,7 @@
                 "isEmpty": "It is empty.",
                 "isClosed": "It is closed.",
                 "invalidDirection": "Nothing special there.",
-                "nonDescriptDirection": "Nothing special there.",
-                "hasHolylight": " [Room %s]",
+                "hasHolyLight": " [Room %s]",
                 "partiallyFilled": "It's %s-filled with a %l liquid.",
                 "singleTarget": "You only see one %t here.",
                 "multipleTargets": "You only see %q of those here.",
@@ -626,7 +626,45 @@
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: CharacterApi.is_stunned(v.context.character)",
+                "messageKey": "stunned"
+            },
+            {
+                "predicate": "lambda v: CharacterApi.is_sleeping(v.context.character)",
+                "messageKey": "sleeping"
+            },
+            {
+                "predicate": "lambda v: v.context.character.check_blind(CharacterApi)",
+                "messageKey": "blind"
+            },
+            {
+                "predicate": "lambda v: not CharacterApi.is_npc(char := v.context.character) and not CharacterApi.has_holy_light(char) and v.context.room.is_room_dark()",
+                "messageKey": "dark"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'look_mode', '') == 'in' and not getattr(v.context, 'look_in_target', None) and not str(getattr(v.context, 'look_in_argument', '') or '').strip()",
+                "messageKey": "noInTarget"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'look_mode', '') == 'unknown' or (getattr(v.context, 'look_mode', '') == 'in' and getattr(v.context, 'look_in_target', None) is None and bool(str(getattr(v.context, 'look_in_argument', '') or '').strip()))",
+                "messageKey": "targetMissing"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'look_mode', '') == 'in' and (obj := getattr(v.context, 'look_in_target', None)) is not None and ItemApi.is_container_closed(obj)",
+                "messageKey": "isClosed"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'look_mode', '') == 'in' and (obj := getattr(v.context, 'look_in_target', None)) is not None and not ItemUtil.is_drink_container(obj) and not ItemUtil.is_container_like(obj)",
+                "messageKey": "notContainer"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'look_mode', '') == 'direction' and ((pexit := getattr(v.context, 'look_direction_exit', None)) is None or (not bool(getattr(pexit, 'description', None)) and not bool((getattr(pexit, 'keyword', '') or '').strip())))",
+                "messageKey": "invalidDirection"
+            }
+        ]
     },
     {
         "_id": {
@@ -667,31 +705,31 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: CharacterMacros.is_dead(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_dead(v.context.character)",
                 "messageKey": "dead"
             },
             {
-                "predicate": "lambda v: CharacterMacros.position_value(v.context.character) in (CharacterMacros.pos_value('POS_MORTAL'), CharacterMacros.pos_value('POS_INCAP'))",
+                "predicate": "lambda v: CharacterApi.position_value(v.context.character) in (CharacterApi.pos_value('POS_MORTAL'), CharacterApi.pos_value('POS_INCAP'))",
                 "messageKey": "hurt"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_stunned(v.context.character)",
                 "messageKey": "stunned"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_sleeping(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_sleeping(v.context.character)",
                 "messageKey": "sleeping"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_resting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_resting(v.context.character)",
                 "messageKey": "resting"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_sitting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_sitting(v.context.character)",
                 "messageKey": "sitting"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_fighting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_fighting(v.context.character)",
                 "messageKey": "fighting"
             },
             {
@@ -760,31 +798,31 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: CharacterMacros.is_dead(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_dead(v.context.character)",
                 "messageKey": "dead"
             },
             {
-                "predicate": "lambda v: CharacterMacros.position_value(v.context.character) in (CharacterMacros.pos_value('POS_MORTAL'), CharacterMacros.pos_value('POS_INCAP'))",
+                "predicate": "lambda v: CharacterApi.position_value(v.context.character) in (CharacterApi.pos_value('POS_MORTAL'), CharacterApi.pos_value('POS_INCAP'))",
                 "messageKey": "hurt"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_stunned(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_stunned(v.context.character)",
                 "messageKey": "stunned"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_sleeping(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_sleeping(v.context.character)",
                 "messageKey": "sleeping"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_resting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_resting(v.context.character)",
                 "messageKey": "resting"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_sitting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_sitting(v.context.character)",
                 "messageKey": "sitting"
             },
             {
-                "predicate": "lambda v: CharacterMacros.is_fighting(v.context.character)",
+                "predicate": "lambda v: CharacterApi.is_fighting(v.context.character)",
                 "messageKey": "fighting"
             },
             {
@@ -859,16 +897,19 @@
             "toChar": {
                 "noArgument": "Cast which what where?",
                 "spellNotLearned": "You don't know any spells of that name.",
+                "roomMissing": "You are nowhere.",
                 "minimumPosition": "You can't concentrate enough.",
                 "noTarget": "Cast the spell on whom?",
                 "targetMissing": "They aren't here.",
                 "targetSelf": "You can't do that to yourself.",
-                "isSafe": "Not on that target.",
+                "targetSafe": "Not on that target.",
                 "isFollower": "You can't do that on your own follower.",
                 "invalidTarget": "You cannot cast this spell on another.",
                 "noInventoryTarget": "What should the spell be cast upon?",
                 "notCarrying": "You are not carrying that.",
                 "missingTarget": "Cast the spell on whom or what?",
+                "unsupportedTarget": "You can't cast that right now.",
+                "isSafe": "Not on that target.",
                 "isSafeSpell": "Not on that target.",
                 "canTDoOwn2": "You can't do that on your own follower.",
                 "targetNotVisible": "You don't see that here.",
@@ -877,7 +918,57 @@
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not bool(getattr(v.context, 'cast_spell_name', ''))",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: bool(getattr(v.context, 'cast_spell_name', '')) and getattr(v.context, 'cast_spell', None) is None",
+                "messageKey": "spellNotLearned"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'cast_spell', None) is not None and int(getattr(v.context.character, 'mana', 0) or 0) < int(getattr(v.context, 'cast_mana_cost', 0) or 0)",
+                "messageKey": "insufficientMana"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'cast_spell', None) is not None and getattr(v.context, 'cast_room', None) is None",
+                "messageKey": "roomMissing"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'cast_target_error', '') == 'invalid_target'",
+                "messageKey": "invalidTarget"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'cast_target_error', '') == 'no_target'",
+                "messageKey": "noTarget"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'cast_target_error', '') == 'no_inventory_target'",
+                "messageKey": "noInventoryTarget"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'cast_target_error', '') == 'not_carrying'",
+                "messageKey": "notCarrying"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'cast_target_error', '') == 'missing_target'",
+                "messageKey": "missingTarget"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'cast_target_error', '') == 'target_not_visible'",
+                "messageKey": "targetNotVisible"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'cast_target_error', '') == 'target_safe'",
+                "messageKey": "targetSafe"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'cast_target_error', '') == 'unsupported_target'",
+                "messageKey": "unsupportedTarget"
+            }
+        ]
     },
     {
         "_id": {
@@ -911,11 +1002,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOCHANNELS')",
                 "messageKey": "noChannels"
             }
         ]
@@ -1216,10 +1307,13 @@
         "payload": {
             "toChar": {
                 "noArgument": "Kill whom?",
+                "roomMissing": "You are nowhere.",
                 "targetMissing": "They aren't here.",
                 "playerTarget": "You must MURDER a player.",
                 "targetSelf": "You hit yourself.  Ouch!",
+                "targetSafe": "You cannot attack them.",
                 "noKillStealing": "Kill stealing is not permitted.",
+                "alreadyFighting": "You do the best you can!",
                 "busyFighting": "You do the best you can!",
                 "targetIsMaster": "$N is your beloved master."
             },
@@ -1318,11 +1412,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOCHANNELS')",
                 "messageKey": "noChannels"
             }
         ]
@@ -3028,11 +3122,11 @@
         "maxArguments": 0,
         "checks": [
             {
-                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_AFK')",
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_AFK')",
                 "messageKey": "enable"
             },
             {
-                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_AFK')",
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_AFK')",
                 "messageKey": "disable"
             }
         ],
@@ -3076,11 +3170,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOCHANNELS')",
                 "messageKey": "noChannels"
             }
         ]
@@ -3137,7 +3231,7 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOEMOTE')",
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOEMOTE')",
                 "messageKey": "noEmote"
             },
             {
@@ -3172,7 +3266,7 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOEMOTE')",
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOEMOTE')",
                 "messageKey": "noEmote"
             },
             {
@@ -3212,11 +3306,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOCHANNELS')",
                 "messageKey": "noChannels"
             }
         ]
@@ -3252,11 +3346,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOCHANNELS')",
                 "messageKey": "noChannels"
             }
         ]
@@ -3289,7 +3383,7 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOEMOTE')",
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOEMOTE')",
                 "messageKey": "noEmote"
             },
             {
@@ -3329,11 +3423,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOCHANNELS')",
                 "messageKey": "noChannels"
             }
         ]
@@ -3466,11 +3560,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOCHANNELS')",
                 "messageKey": "noChannels"
             }
         ]
@@ -3506,11 +3600,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
-                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOCHANNELS')",
+                "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOCHANNELS')",
                 "messageKey": "noChannels"
             }
         ]
@@ -3576,11 +3670,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOTELL')",
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOTELL')",
                 "messageKey": "noTell"
             },
             {
-                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
@@ -3660,11 +3754,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOSHOUT')",
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOSHOUT')",
                 "messageKey": "noShout"
             },
             {
-                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_QUIET')",
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
             },
             {
@@ -3718,7 +3812,7 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterMacros.get_enum('commFlags'), 'COMM_NOSHOUT')",
+                "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOSHOUT')",
                 "messageKey": "noShout"
             },
             {
@@ -3780,6 +3874,7 @@
                 "itemNotContainer": "You can't drink from that.",
                 "containerEmpty": "It is already empty.",
                 "tooFull": "You're too full to drink more.",
+                "full": "You are full.",
                 "quenched": "Your thirst is quenched.",
                 "alcohol": "You feel drunk.",
                 "poison": "You choke and gag.",
@@ -3794,11 +3889,11 @@
         },
         "checks": [
             {
-                "predicate": "lambda v: not v.context.drink_arg1",
+                "predicate": "lambda v: (not v.context.drink_arg1) and v.context.drink_item is None",
                 "messageKey": "noArgument"
             },
             {
-                "predicate": "lambda v: v.context.drink_item is None",
+                "predicate": "lambda v: bool(v.context.drink_arg1) and v.context.drink_item is None",
                 "messageKey": "itemMissing"
             },
             {
@@ -3806,8 +3901,16 @@
                 "messageKey": "itemNotContainer"
             },
             {
-                "predicate": "lambda v: v.context.drink_item is not None and GenericUtil.to_int(getattr(v.context.drink_item, 'value1', 0), 0) <= 0",
+                "predicate": "lambda v: v.context.drink_item is not None and (not ItemUtil.is_fountain(v.context.drink_item)) and GenericUtil.to_int(getattr(v.context.drink_item, 'value1', 0), 0) <= 0",
                 "messageKey": "containerEmpty"
+            },
+            {
+                "predicate": "lambda v: v.context.drink_item is not None and GenericUtil.to_int(getattr(getattr(v.context.character, 'status_flags', None), 'drunk', 0), 0) > 10",
+                "messageKey": "drunk"
+            },
+            {
+                "predicate": "lambda v: v.context.drink_item is not None and (not CharacterApi.is_npc(v.context.character)) and (not CharacterApi.is_immortal(v.context.character)) and GenericUtil.to_int(getattr(getattr(v.context.character, 'status_flags', None), 'hunger', 0), 0) > 45",
+                "messageKey": "tooFull"
             }
         ]
     },
@@ -3911,6 +4014,10 @@
             {
                 "predicate": "lambda v: v.context.eat_item is not None and not ItemUtil.is_edible(v.context.eat_item)",
                 "messageKey": "notEdible"
+            },
+            {
+                "predicate": "lambda v: v.context.eat_item is not None and (not CharacterApi.is_npc(v.context.character)) and (not CharacterApi.is_immortal(v.context.character)) and GenericUtil.to_int(getattr(getattr(v.context.character, 'status_flags', None), 'hunger', 0), 0) > 40",
+                "messageKey": "tooFull"
             }
         ]
     },
@@ -3986,8 +4093,12 @@
                 "messageKey": "itemMissing"
             },
             {
-                "predicate": "lambda v: v.context.fill_dest is not None and ((not ItemUtil.is_drink_container(v.context.fill_dest)) or (v.context.fill_src is not None and not ItemUtil.is_drink_container(v.context.fill_src)))",
+                "predicate": "lambda v: v.context.fill_dest is not None and (ItemUtil.is_fountain(v.context.fill_dest) or (not ItemUtil.is_drink_container(v.context.fill_dest)) or (v.context.fill_src is not None and not ItemUtil.is_drink_container(v.context.fill_src)))",
                 "messageKey": "notContainer"
+            },
+            {
+                "predicate": "lambda v: v.context.fill_dest is not None and GenericUtil.to_int(getattr(v.context.fill_dest, 'value0', 0), 0) > 0 and GenericUtil.to_int(getattr(v.context.fill_dest, 'value1', 0), 0) >= GenericUtil.to_int(getattr(v.context.fill_dest, 'value0', 0), 0)",
+                "messageKey": "containerFull"
             }
         ]
     },
@@ -4804,6 +4915,14 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
+                "noAccess": "Bashing? What's that?",
+                "roomMissing": "You are nowhere.",
+                "noTarget": "But you aren't fighting anyone!",
+                "targetMissing": "They aren't here.",
+                "targetSelf": "You try to bash your brains out, but fail.",
+                "targetDown": "You'll have to let them get back up first.",
+                "targetSafe": "You cannot attack them.",
+                "killSteal": "Kill stealing is not permitted.",
                 "bashingWhatS": "Bashing? What's that?",
                 "butArenTFighting": "But you aren't fighting anyone!",
                 "theyArenT": "They aren't here.",
@@ -4843,6 +4962,10 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
+                "noAccess": "You turn red in the face, but nothing happens.",
+                "alreadyActive": "You get a little madder.",
+                "calm": "You're feeling too mellow to berserk.",
+                "insufficientMana": "You can't get up enough energy.",
                 "turnRedFaceBut": "You turn red in the face, but nothing happens.",
                 "getLittleMadder": "You get a little madder.",
                 "reFeelingMellowBerserk": "You're feeling to mellow to berserk.",
@@ -4873,6 +4996,15 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
+                "noAccess": "You get your feet dirty.",
+                "roomMissing": "You are nowhere.",
+                "noTarget": "But you aren't in combat!",
+                "targetMissing": "They aren't here.",
+                "alreadyBlind": "They have already been blinded.",
+                "targetSelf": "Very funny.",
+                "targetSafe": "You cannot attack them.",
+                "killSteal": "Kill stealing is not permitted.",
+                "noTerrain": "There isn't any dirt to kick.",
                 "getFeetDirty": "You get your feet dirty.",
                 "butArenTCombat": "But you aren't in combat!",
                 "theyArenT": "They aren't here.",
@@ -4907,6 +5039,11 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
+                "noAccess": "You don't know how to disarm opponents.",
+                "requiresWeapon": "You must wield a weapon to disarm.",
+                "roomMissing": "You are nowhere.",
+                "noVictim": "You aren't fighting anyone.",
+                "victimUnarmed": "Your opponent is not wielding a weapon.",
                 "donTKnowHow": "You don't know how to disarm opponents.",
                 "mustWieldWeaponDisarm": "You must wield a weapon to disarm.",
                 "arenTFightingAnyone": "You aren't fighting anyone.",
@@ -4938,6 +5075,9 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
+                "notFighting": "You aren't fighting anyone.",
+                "roomMissing": "PANIC! You couldn't escape!",
+                "noDestination": "PANIC! You couldn't escape!",
                 "arenTFightingAnyone": "You aren't fighting anyone.",
                 "fleeFromCombat": "You flee from combat!",
                 "snuckAwaySafely": "You snuck away safely.",
@@ -4948,7 +5088,21 @@
                 "fled": "$n has fled!"
             },
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: getattr(v.context.character, 'fighting', None) is None",
+                "messageKey": "notFighting"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'flee_room', None) is None",
+                "messageKey": "roomMissing"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'flee_to_room', None) is None",
+                "messageKey": "noDestination"
+            }
+        ]
     },
     {
         "_id": {
@@ -4967,6 +5121,9 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
+                "noAccess": "You better leave the martial arts to fighters.",
+                "roomMissing": "You are nowhere.",
+                "noVictim": "You aren't fighting anyone.",
                 "betterLeaveMartialArts": "You better leave the martial arts to fighters.",
                 "arenTFightingAnyone": "You aren't fighting anyone."
             },
@@ -5014,6 +5171,13 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
+                "noArgument": "Murder whom?",
+                "targetSelf": "Suicide is a mortal sin.",
+                "roomMissing": "You are nowhere.",
+                "targetMissing": "They aren't here.",
+                "targetSafe": "You cannot attack them.",
+                "alreadyFighting": "You do the best you can!",
+                "busyFighting": "You do the best you can!",
                 "murderWhom": "Murder whom?",
                 "theyArenT": "They aren't here.",
                 "suicideMortalSin": "Suicide is a mortal sin.",
@@ -5023,7 +5187,17 @@
             },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "checks": [
+            {
+                "predicate": "lambda v: not InterpUtil.argument_text(v)",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'murder_victim', None) is v.context.character",
+                "messageKey": "targetSelf"
+            }
+        ]
     },
     {
         "_id": {
@@ -5042,6 +5216,14 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
+                "noAccess": "You don't know how to rescue others.",
+                "noArgument": "Rescue whom?",
+                "roomMissing": "You are nowhere.",
+                "targetMissing": "They aren't here.",
+                "targetSelf": "What about fleeing instead?",
+                "targetNpc": "Doesn't need your help!",
+                "targetNotFighting": "That person is not fighting right now.",
+                "killSteal": "Kill stealing is not permitted.",
                 "rescueWhom": "Rescue whom?",
                 "theyArenT": "They aren't here.",
                 "whatAboutFleeingInstead": "What about fleeing instead?",
@@ -5077,6 +5259,15 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
+                "noAccess": "Tripping?  What's that?",
+                "roomMissing": "You are nowhere.",
+                "noTarget": "But you aren't fighting anyone!",
+                "targetMissing": "They aren't here.",
+                "targetSafe": "You cannot attack them.",
+                "killSteal": "Kill stealing is not permitted.",
+                "targetSelf": "You fall flat on your face!",
+                "targetFlying": "Their feet aren't on the ground.",
+                "targetDown": "They are already down.",
                 "trippingWhatS": "Tripping?  What's that?",
                 "butArenTFighting": "But you aren't fighting anyone!",
                 "theyArenT": "They aren't here.",

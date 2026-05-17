@@ -79,8 +79,8 @@ class TestCombatInventoryRegressions(TestCase):
         attacker.fighting = victim
 
         positions = SimpleNamespace(POS_STANDING=SimpleNamespace(value=8))
-        with patch("fight.FightHandler.CharacterMacros.get_enum", return_value=positions), \
-             patch("fight.FightHandler.CharacterMacros.is_npc", return_value=False):
+        with patch("fight.FightHandler.CharacterApi.get_enum", return_value=positions), \
+             patch("fight.FightHandler.CharacterApi.is_npc", return_value=False):
             handler.stop_fighting(victim, both=True)
 
         self.assertIsNone(attacker.fighting)
@@ -163,8 +163,8 @@ class TestCombatInventoryRegressions(TestCase):
             POS_FIGHTING=SimpleNamespace(value=7),
         )
 
-        with patch("fight.FightHandler.CharacterMacros.get_enum", return_value=positions), \
-             patch("fight.FightHandler.CharacterMacros.is_npc", side_effect=lambda entity: entity is victim), \
+        with patch("fight.FightHandler.CharacterApi.get_enum", return_value=positions), \
+             patch("fight.FightHandler.CharacterApi.is_npc", side_effect=lambda entity: entity is victim), \
              patch.object(handler, "xp_compute", return_value=75), \
              patch("fight.FightHandler.CharacterAdvancement.gain_experience", wraps=CharacterAdvancement.gain_experience), \
              patch.object(handler, "raw_kill") as raw_kill:
@@ -230,10 +230,10 @@ class TestCombatInventoryRegressions(TestCase):
         )
         room.mobiles = {"mob1": victim}
 
-        with patch("fight.FightHandler.CharacterMacros.is_npc", return_value=True), \
+        with patch("fight.FightHandler.CharacterApi.is_npc", return_value=True), \
              patch.object(handler, "death_cry"), \
              patch.object(handler, "make_corpse"), \
-             patch("fight.FightHandler.CharacterMacros.get_enum", return_value=SimpleNamespace()):
+             patch("fight.FightHandler.CharacterApi.get_enum", return_value=SimpleNamespace()):
             handler.raw_kill(victim)
 
         self.assertEqual(3, proto.count)

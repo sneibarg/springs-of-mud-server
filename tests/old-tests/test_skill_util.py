@@ -42,9 +42,9 @@ class TestSkillUtil(unittest.TestCase):
             spell_registry=SimpleNamespace(get_or_none=Mock(return_value=None)),
         )
 
-        with patch("util.SkillUtil.CharacterMacros.is_npc", return_value=False), \
-                patch("util.SkillUtil.CharacterMacros.get_registry", return_value=registry), \
-                patch("util.SkillUtil.CharacterMacros.get_attribute_bonus", return_value={"learn": 18}), \
+        with patch("util.SkillUtil.CharacterApi.is_npc", return_value=False), \
+                patch("util.SkillUtil.CharacterApi.get_registry", return_value=registry), \
+                patch("util.SkillUtil.CharacterApi.get_attribute_bonus", return_value={"learn": 18}), \
                 patch("util.SkillUtil.random.randint", side_effect=[1, 1]), \
                 patch("util.SkillUtil.CharacterAdvancement.gain_experience") as gain_experience:
             SkillUtil.check_improve(character, "skill-id", True)
@@ -70,9 +70,9 @@ class TestSkillUtil(unittest.TestCase):
             spell_registry=SimpleNamespace(get_or_none=Mock(return_value=spell)),
         )
 
-        with patch("util.SkillUtil.CharacterMacros.is_npc", return_value=False), \
-                patch("util.SkillUtil.CharacterMacros.get_registry", return_value=registry), \
-                patch("util.SkillUtil.CharacterMacros.get_attribute_bonus", return_value={"learn": 20}), \
+        with patch("util.SkillUtil.CharacterApi.is_npc", return_value=False), \
+                patch("util.SkillUtil.CharacterApi.get_registry", return_value=registry), \
+                patch("util.SkillUtil.CharacterApi.get_attribute_bonus", return_value={"learn": 20}), \
                 patch("util.SkillUtil.random.randint", side_effect=[1, 1, 3]), \
                 patch("util.SkillUtil.CharacterAdvancement.gain_experience") as gain_experience:
             SkillUtil.check_improve(character, "spell-id", False)

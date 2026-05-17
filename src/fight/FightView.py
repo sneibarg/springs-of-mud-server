@@ -13,3 +13,34 @@ class FightView:
     skill: Any = None
     spell: Any = None
     extra: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def actor(self) -> Any:
+        return getattr(self.context, "character", None)
+
+    @property
+    def command(self) -> Any:
+        return getattr(self.context, "command", None)
+
+    @property
+    def room(self) -> Any:
+        if "room" in self.extra:
+            return self.extra.get("room")
+        return getattr(self.context, "room", None)
+
+    @property
+    def argument(self) -> str:
+        return str(self.extra.get("argument", "") or "")
+
+    @property
+    def current_fighting(self) -> Any:
+        actor = self.actor
+        return getattr(actor, "fighting", None) if actor is not None else None
+
+    @property
+    def safe(self) -> bool:
+        return bool(self.extra.get("safe", False))
+
+    @property
+    def safe_message(self) -> str:
+        return str(self.extra.get("safe_message", "") or "")

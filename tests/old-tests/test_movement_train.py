@@ -47,9 +47,9 @@ class TestMovementTrain(unittest.TestCase):
         context = SimpleNamespace(result="", parameters=[], finish=Mock())
         act_bits = SimpleNamespace(ACT_TRAIN=SimpleNamespace(value=8))
 
-        with patch("interp.commands.Movement.CharacterMacros.is_npc", return_value=False), \
-             patch("interp.commands.Movement.CharacterMacros.get_enum", return_value=act_bits), \
-             patch("interp.commands.Movement.CharacterMacros.is_set", side_effect=lambda flags, bit: (flags & bit) != 0):
+        with patch("interp.commands.Movement.CharacterApi.is_npc", return_value=False), \
+             patch("interp.commands.Movement.CharacterApi.get_enum", return_value=act_bits), \
+             patch("interp.commands.Movement.CharacterApi.is_set", side_effect=lambda flags, bit: (flags & bit) != 0):
             text = self.commands.do_train(character, context)
 
         self.assertIn("You have 3 training sessions.", text)
@@ -83,10 +83,10 @@ class TestMovementTrain(unittest.TestCase):
         context = SimpleNamespace(result="str", parameters=[], finish=Mock())
         act_bits = SimpleNamespace(ACT_TRAIN=SimpleNamespace(value=8))
 
-        with patch("interp.commands.Movement.CharacterMacros.is_npc", return_value=False), \
-             patch("interp.commands.Movement.CharacterMacros.get_enum", return_value=act_bits), \
-             patch("interp.commands.Movement.CharacterMacros.is_set", side_effect=lambda flags, bit: (flags & bit) != 0), \
-             patch("interp.commands.Movement.CharacterMacros.room_targets", return_value=[]):
+        with patch("interp.commands.Movement.CharacterApi.is_npc", return_value=False), \
+             patch("interp.commands.Movement.CharacterApi.get_enum", return_value=act_bits), \
+             patch("interp.commands.Movement.CharacterApi.is_set", side_effect=lambda flags, bit: (flags & bit) != 0), \
+             patch("interp.commands.Movement.CharacterApi.room_targets", return_value=[]):
             payload = self.commands.do_train(character, context)
 
         self.assertEqual(18, attributes.strength)
@@ -121,10 +121,10 @@ class TestMovementTrain(unittest.TestCase):
         context = SimpleNamespace(result="str", parameters=[], finish=Mock())
         act_bits = SimpleNamespace(ACT_TRAIN=SimpleNamespace(value=8))
 
-        with patch("interp.commands.Movement.CharacterMacros.is_npc", return_value=False), \
-             patch("interp.commands.Movement.CharacterMacros.get_enum", return_value=act_bits), \
-             patch("interp.commands.Movement.CharacterMacros.is_set", side_effect=lambda flags, bit: (flags & bit) != 0), \
-             patch("interp.commands.Movement.CharacterMacros.room_targets", return_value=[]):
+        with patch("interp.commands.Movement.CharacterApi.is_npc", return_value=False), \
+             patch("interp.commands.Movement.CharacterApi.get_enum", return_value=act_bits), \
+             patch("interp.commands.Movement.CharacterApi.is_set", side_effect=lambda flags, bit: (flags & bit) != 0), \
+             patch("interp.commands.Movement.CharacterApi.room_targets", return_value=[]):
             payload = self.commands.do_train(character, context)
 
         self.assertEqual(18, attributes.strength)
@@ -163,10 +163,10 @@ class TestMovementTrain(unittest.TestCase):
         context = SimpleNamespace(result="hp", parameters=[], finish=Mock())
         act_bits = SimpleNamespace(ACT_TRAIN=SimpleNamespace(value=8))
 
-        with patch("interp.commands.Movement.CharacterMacros.is_npc", return_value=False), \
-             patch("interp.commands.Movement.CharacterMacros.get_enum", return_value=act_bits), \
-             patch("interp.commands.Movement.CharacterMacros.is_set", side_effect=lambda flags, bit: (flags & bit) != 0), \
-             patch("interp.commands.Movement.CharacterMacros.room_targets", return_value=[]):
+        with patch("interp.commands.Movement.CharacterApi.is_npc", return_value=False), \
+             patch("interp.commands.Movement.CharacterApi.get_enum", return_value=act_bits), \
+             patch("interp.commands.Movement.CharacterApi.is_set", side_effect=lambda flags, bit: (flags & bit) != 0), \
+             patch("interp.commands.Movement.CharacterApi.room_targets", return_value=[]):
             payload = self.commands.do_train(character, context)
 
         self.assertEqual(0, attributes.trains)
@@ -192,8 +192,8 @@ class TestMovementTrain(unittest.TestCase):
         context = SimpleNamespace(result="str", parameters=[], finish=Mock())
         act_bits = SimpleNamespace(ACT_TRAIN=SimpleNamespace(value=8))
 
-        with patch("interp.commands.Movement.CharacterMacros.is_npc", return_value=False), \
-             patch("interp.commands.Movement.CharacterMacros.get_enum", return_value=act_bits):
+        with patch("interp.commands.Movement.CharacterApi.is_npc", return_value=False), \
+             patch("interp.commands.Movement.CharacterApi.get_enum", return_value=act_bits):
             text = self.commands.do_train(character, context)
 
         self.assertEqual("You can't do that here.\r\n", text)

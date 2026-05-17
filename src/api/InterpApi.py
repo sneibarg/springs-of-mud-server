@@ -7,14 +7,17 @@ from injector import inject
 
 from game.action import ActionCheck, ActionDefinition, ActionPlan, MessageRef
 from interp.InterpView import InterpView
-from interp.MovementApi import MovementApi
+from api.MovementApi import MovementApi
+from api.ItemApi import ItemApi
 from game.GamePayload import GamePayload
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
+from util.AreaUtil import AreaUtil
 from util.CommunicationsUtil import CommunicationsUtil
 from util.FightUtil import FightUtil
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
+from util.ItemUtil import ItemUtil
 from util.MovementUtil import MovementUtil
 
 
@@ -24,15 +27,25 @@ class InterpApi:
         self.__name__ = "InterpApi"
         self.logger = LoggerFactory.get_logger(self.__name__)
 
-    def run_action(self, context, action_name: str):
+    def run_action(self, context, action_name: str) -> dict[str, Any] | None:
         view = self.build_interp_view(context)
-        self.logger.debug(f"View payload: {view.context.command.payload}")
         definition = self._interp_action_definition(view, action_name)
-        self.logger.debug(f"Definition: {definition}")
         plan = self.evaluate_interp_action(view, definition)
-        self.logger.debug(f"Plan: {plan}")
         context.finish()
         return self.execute_interp_plan(view, plan)
+
+    def evaluate_checks_only(self, context, action_name: str):
+        view = self.build_interp_view(context)
+        definition = self._interp_check_definition(view, action_name)
+        plan = self.evaluate_interp_action(view, definition)
+        if not bool((plan.data or {}).get("blocked")):
+            return None
+        context.finish()
+        payload = self.render_plan_payload(view.payload, plan)
+        payload.update(dict(plan.data or {}))
+        if plan.messages:
+            payload["blocked_key"] = plan.messages[0].key
+        return payload
 
     @staticmethod
     def build_interp_view(context) -> InterpView:
@@ -41,7 +54,8 @@ class InterpApi:
 
     @staticmethod
     def evaluate_interp_action(view: InterpView, definition: ActionDefinition[InterpView]) -> ActionPlan:
-        for check in definition.checks:
+        for index, check in enumerate(definition.checks):
+            print(f"Checking check #{index+1} of {len(definition.checks)}; predicate: {view.context.command.checks[index]}")
             if check.predicate(view):
                 tokens = InterpApi._default_tokens(view)
                 tokens.update(dict(check.token_factory(view) or {}))
@@ -52,20 +66,19 @@ class InterpApi:
                 )
         return definition.plan_factory(view)
 
-    def execute_interp_plan(self, view: InterpView, plan: ActionPlan):
+    def execute_interp_plan(self, view: InterpView, plan: ActionPlan) -> dict[str, Any] | None:
         payload = self.render_plan_payload(view.payload, plan)
         payload.update(dict(plan.data or {}))
         return payload
 
     def render_plan_payload(self, payload_def: GamePayload, plan: ActionPlan) -> dict:
         payload: dict[str, Any] = {}
-        self.logger.info(f"Plan: {plan}")
         for msg in plan.messages:
             text = payload_def.render(msg.channel, msg.key, msg.fallback, **msg.tokens)
             if not text:
                 continue
-            payload[msg.channel] = InterpApi._ensure_message_break(text)
-        self.logger.debug(f"Plan payload: {payload}")
+            payload[msg.channel] = CommunicationsUtil.ensure_message_break(text)
+        self.logger.debug(f"Rendered plan payload: {payload}")
         return payload
 
     def render_message_key(self, context, message_key: str, channel: str = "", fallback: str = "", **tokens) -> dict:
@@ -78,18 +91,6 @@ class InterpApi:
             data={},
         )
         return self.render_plan_payload(view.payload, plan)
-
-    def _interp_action_definition(self, view: InterpView, action_name: str) -> ActionDefinition[InterpView]:
-        command = view.context.command
-        command_name = str(getattr(command, "name", "") or action_name).strip().lower()
-        if command is None:
-            raise KeyError(f"No interp action definition for '{command_name}'")
-
-        return ActionDefinition(
-            name=str(getattr(command, "name", "") or command_name),
-            checks=self._build_checks(command),
-            plan_factory=self._default_plan,
-        )
 
     def _build_checks(self, command) -> tuple[ActionCheck[InterpView], ...]:
         checks: list[ActionCheck[InterpView]] = []
@@ -108,13 +109,6 @@ class InterpApi:
                 )
             )
         return tuple(checks)
-
-    @staticmethod
-    def _ensure_message_break(text: str) -> str:
-        rendered = str(text or "")
-        if rendered and not rendered.endswith("\r\n"):
-            rendered += "\r\n"
-        return rendered
 
     @staticmethod
     def _default_plan(view: InterpView) -> ActionPlan:
@@ -178,11 +172,9 @@ class InterpApi:
         text = InterpApi._normalize_view_expression(source)
         if not text:
             return InterpApi._empty_tokens
-        globals_dict = {"__builtins__": {}}
-        globals_dict.update(InterpApi._lambda_locals())
-        func = eval(text, globals_dict, {})
-        if not callable(func):
-            raise TypeError(f"Interp check lambda must be callable: {text}")
+
+        globals_dict = InterpApi._lambda_locals()
+        func = eval(text, globals_dict)
         return func
 
     @staticmethod
@@ -261,6 +253,30 @@ class InterpApi:
     def reply_target_blocks_tells(view: InterpView) -> bool:
         return InterpApi._target_blocks_tells(InterpApi.reply_target(view))
 
+    def _interp_action_definition(self, view: InterpView, action_name: str) -> ActionDefinition[InterpView]:
+        command = view.context.command
+        command_name = str(getattr(command, "name", "") or action_name).strip().lower()
+        if command is None:
+            raise KeyError(f"No interp action definition for '{command_name}'")
+
+        return ActionDefinition(
+            name=str(getattr(command, "name", "") or command_name),
+            checks=self._build_checks(command),
+            plan_factory=self._default_plan,
+        )
+
+    def _interp_check_definition(self, view: InterpView, action_name: str) -> ActionDefinition[InterpView]:
+        command = view.context.command
+        command_name = str(getattr(command, "name", "") or action_name).strip().lower()
+        if command is None:
+            raise KeyError(f"No interp action definition for '{command_name}'")
+
+        return ActionDefinition(
+            name=str(getattr(command, "name", "") or command_name),
+            checks=self._build_checks(command),
+            plan_factory=lambda _view: ActionPlan(stop=False, data={"blocked": False}),
+        )
+
     @staticmethod
     def _player_handler(view: InterpView):
         context = getattr(view, "context", None)
@@ -279,7 +295,7 @@ class InterpApi:
     def _target_blocks_tells(target) -> bool:
         if target is None:
             return False
-        comm_flags = CharacterMacros.get_enum("commFlags")
+        comm_flags = CharacterApi.get_enum("commFlags")
         return any(
             CommunicationsUtil.has_comm(target, comm_flags, flag)
             for flag in ("COMM_DEAF", "COMM_QUIET", "COMM_NOTELL")
@@ -288,16 +304,22 @@ class InterpApi:
     @staticmethod
     def _lambda_locals() -> dict[str, Any]:
         return {
+            "__builtins__": __builtins__,
             "InterpApi": InterpApi,
-            "CharacterMacros": CharacterMacros,
+            "CharacterApi": CharacterApi,
             "CommunicationsUtil": CommunicationsUtil,
             "GenericUtil": GenericUtil,
             "MovementUtil": MovementUtil,
             "InterpUtil": InterpUtil,
             "FightUtil": FightUtil,
             "MovementApi": MovementApi,
+            "ItemApi": ItemApi,
+            "ItemUtil": ItemUtil,
+            "AreaUtil": AreaUtil,
             "bool": bool,
             "int": int,
+            "getattr": getattr,
             "max": max,
             "min": min,
+            "len": len
         }

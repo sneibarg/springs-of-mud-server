@@ -101,7 +101,7 @@ _stub_package("area")
 _stub_module("area.RoomRegistry", RoomRegistry=object)
 _stub_package("player")
 _stub_module("player.Character", Character=object)
-_stub_module("player.CharacterMacros", CharacterMacros=_CharacterMacros)
+_stub_module("player.CharacterApi", CharacterMacros=_CharacterMacros)
 _stub_package("server.session")
 _stub_module("server.session.SessionHandler", SessionHandler=object)
 _stub_package("interp")
@@ -149,7 +149,7 @@ class TestQuitCommandChecks(unittest.TestCase):
                         "messageKey": "fighting",
                     },
                     {
-                        "predicate": "lambda v: v.context.position < CharacterMacros.pos_value('POS_STUNNED')",
+                        "predicate": "lambda v: v.context.position < CharacterApi.pos_value('POS_STUNNED')",
                         "messageKey": "stunned",
                     },
                 ],

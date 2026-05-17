@@ -1,13 +1,13 @@
 from enum import IntEnum
 from typing import Any, Dict, List
 
-from game.GameMacros import GameMacros
+from api.GameApi import GameApi
 from item.Item import Item
 from player.Character import Character
 from util.GenericUtil import GenericUtil
 
 
-class ItemMacros(GameMacros):
+class ItemApi(GameApi):
     @classmethod
     def race_data(cls, race_name: str) -> dict:
         return cls._races_map().get(race_name, {})
@@ -63,7 +63,7 @@ class ItemMacros(GameMacros):
         take_bit = cls.enum_bit(wear_flags_enum, "ITEM_TAKE")
         if take_bit == 0:
             return False
-        wear_flags = GameMacros.flags_to_int(getattr(obj, "wear_flags", 0))
+        wear_flags = GameApi.flags_to_int(getattr(obj, "wear_flags", 0))
         return (wear_flags & take_bit) != 0
 
     @staticmethod

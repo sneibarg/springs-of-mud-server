@@ -49,7 +49,7 @@ class TestInfoPractice(unittest.TestCase):
         )
         context = SimpleNamespace(result="", parameters=[], finish=Mock())
 
-        with patch("interp.commands.Info.CharacterMacros.is_npc", return_value=False):
+        with patch("interp.commands.Info.CharacterApi.is_npc", return_value=False):
             text = self.commands.do_practice(character, context)
 
         self.assertIn("dagger", text)
@@ -78,12 +78,12 @@ class TestInfoPractice(unittest.TestCase):
         context = SimpleNamespace(result="dagger", parameters=[], finish=Mock())
         act_bits = SimpleNamespace(ACT_PRACTICE=SimpleNamespace(value=4))
 
-        with patch("interp.commands.Info.CharacterMacros.is_npc", return_value=False), \
-             patch("interp.commands.Info.CharacterMacros.is_awake", return_value=True), \
-             patch("interp.commands.Info.CharacterMacros.get_enum", return_value=act_bits), \
-             patch("interp.commands.Info.CharacterMacros.is_set", side_effect=lambda flags, bit: (flags & bit) != 0), \
-             patch("interp.commands.Info.CharacterMacros.get_attribute_bonus", return_value={"learn": 40}), \
-            patch("interp.commands.Info.CharacterMacros.room_targets", return_value=[]):
+        with patch("interp.commands.Info.CharacterApi.is_npc", return_value=False), \
+             patch("interp.commands.Info.CharacterApi.is_awake", return_value=True), \
+             patch("interp.commands.Info.CharacterApi.get_enum", return_value=act_bits), \
+             patch("interp.commands.Info.CharacterApi.is_set", side_effect=lambda flags, bit: (flags & bit) != 0), \
+             patch("interp.commands.Info.CharacterApi.get_attribute_bonus", return_value={"learn": 40}), \
+            patch("interp.commands.Info.CharacterApi.room_targets", return_value=[]):
             payload = self.commands.do_practice(character, context)
 
         self.assertEqual(1, attributes.practices)
@@ -106,10 +106,10 @@ class TestInfoPractice(unittest.TestCase):
         context = SimpleNamespace(result="bash", parameters=[], finish=Mock())
         act_bits = SimpleNamespace(ACT_PRACTICE=SimpleNamespace(value=4))
 
-        with patch("interp.commands.Info.CharacterMacros.is_npc", return_value=False), \
-             patch("interp.commands.Info.CharacterMacros.is_awake", return_value=True), \
-             patch("interp.commands.Info.CharacterMacros.get_enum", return_value=act_bits), \
-             patch("interp.commands.Info.CharacterMacros.is_set", side_effect=lambda flags, bit: (flags & bit) != 0):
+        with patch("interp.commands.Info.CharacterApi.is_npc", return_value=False), \
+             patch("interp.commands.Info.CharacterApi.is_awake", return_value=True), \
+             patch("interp.commands.Info.CharacterApi.get_enum", return_value=act_bits), \
+             patch("interp.commands.Info.CharacterApi.is_set", side_effect=lambda flags, bit: (flags & bit) != 0):
             text = self.commands.do_practice(character, context)
 
         self.assertEqual("You can't practice that.\r\n", text)
@@ -139,12 +139,12 @@ class TestInfoPractice(unittest.TestCase):
         context = SimpleNamespace(result="sword", parameters=[], finish=Mock())
         act_bits = SimpleNamespace(ACT_PRACTICE=SimpleNamespace(value=4))
 
-        with patch("interp.commands.Info.CharacterMacros.is_npc", return_value=False), \
-             patch("interp.commands.Info.CharacterMacros.is_awake", return_value=True), \
-             patch("interp.commands.Info.CharacterMacros.get_enum", return_value=act_bits), \
-             patch("interp.commands.Info.CharacterMacros.is_set", side_effect=lambda flags, bit: (flags & bit) != 0), \
-             patch("interp.commands.Info.CharacterMacros.get_attribute_bonus", return_value={"learn": 40}), \
-             patch("interp.commands.Info.CharacterMacros.room_targets", return_value=[]):
+        with patch("interp.commands.Info.CharacterApi.is_npc", return_value=False), \
+             patch("interp.commands.Info.CharacterApi.is_awake", return_value=True), \
+             patch("interp.commands.Info.CharacterApi.get_enum", return_value=act_bits), \
+             patch("interp.commands.Info.CharacterApi.is_set", side_effect=lambda flags, bit: (flags & bit) != 0), \
+             patch("interp.commands.Info.CharacterApi.get_attribute_bonus", return_value={"learn": 40}), \
+             patch("interp.commands.Info.CharacterApi.room_targets", return_value=[]):
             payload = self.commands.do_practice(character, context)
 
         self.assertEqual("You practice sword.\r\n", payload["to_char"])
@@ -166,7 +166,7 @@ class TestInfoPractice(unittest.TestCase):
         )
         context = SimpleNamespace(result="", parameters=[], finish=Mock())
 
-        with patch("interp.commands.Info.CharacterMacros.is_npc", return_value=False):
+        with patch("interp.commands.Info.CharacterApi.is_npc", return_value=False):
             text = self.commands.do_practice(character, context)
 
         self.assertIn("sword", text)
@@ -191,10 +191,10 @@ class TestInfoPractice(unittest.TestCase):
         context = SimpleNamespace(result="second attack", parameters=[], finish=Mock())
         act_bits = SimpleNamespace(ACT_PRACTICE=SimpleNamespace(value=4))
 
-        with patch("interp.commands.Info.CharacterMacros.is_npc", return_value=False), \
-             patch("interp.commands.Info.CharacterMacros.is_awake", return_value=True), \
-             patch("interp.commands.Info.CharacterMacros.get_enum", return_value=act_bits), \
-             patch("interp.commands.Info.CharacterMacros.is_set", side_effect=lambda flags, bit: (flags & bit) != 0):
+        with patch("interp.commands.Info.CharacterApi.is_npc", return_value=False), \
+             patch("interp.commands.Info.CharacterApi.is_awake", return_value=True), \
+             patch("interp.commands.Info.CharacterApi.get_enum", return_value=act_bits), \
+             patch("interp.commands.Info.CharacterApi.is_set", side_effect=lambda flags, bit: (flags & bit) != 0):
             text = self.commands.do_practice(character, context)
 
         self.assertEqual("You can't practice that.\r\n", text)

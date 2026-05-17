@@ -3,7 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
+from api.GameApi import GameApi
 from util.GenericUtil import GenericUtil
 from util.MovementUtil import MovementUtil
 
@@ -24,7 +25,7 @@ class MovementState:
     move_cost: int = 0
 
 
-class MovementApi:
+class MovementApi(GameApi):
     @staticmethod
     def move_state(subject, direction: str = "", room_registry=None) -> MovementState:
         character = MovementApi._character(subject)
@@ -36,17 +37,17 @@ class MovementApi:
             exit_obj = in_room.get_exit(door) if hasattr(in_room, "get_exit") else MovementUtil.find_exit(in_room, door)
 
         to_room = MovementApi._destination_room(exit_obj, subject, room_registry=room_registry)
-        exit_flags = CharacterMacros.get_enum("exitFlags")
-        room_flags = CharacterMacros.get_enum("roomFlags")
-        affected_bits = CharacterMacros.get_enum("affectedBy")
-        sector_types = CharacterMacros.get_enum("sectorTypes")
+        exit_flags = CharacterApi.get_enum("exitFlags")
+        room_flags = CharacterApi.get_enum("roomFlags")
+        affected_bits = CharacterApi.get_enum("affectedBy")
+        sector_types = CharacterApi.get_enum("sectorTypes")
 
         flags = GenericUtil.to_int(getattr(exit_obj, "exit_flags", 0), 0) if exit_obj is not None else 0
         ex_closed = MovementUtil.get_exit_flag(exit_flags, "EX_CLOSED", "CLOSED")
         ex_nopass = MovementUtil.get_exit_flag(exit_flags, "EX_NOPASS", "NOPASS")
         pass_door = bool(
             character is not None
-            and CharacterMacros.is_affected_by_name(character, affected_bits, "AFF_PASS_DOOR")
+            and CharacterApi.is_affected_by_name(character, affected_bits, "AFF_PASS_DOOR")
         )
         exit_closed = bool(
             exit_obj is not None
@@ -55,8 +56,8 @@ class MovementApi:
             and ((not pass_door) or (ex_nopass and (flags & ex_nopass) != 0))
         )
 
-        is_npc = bool(character is not None and CharacterMacros.is_npc(character))
-        is_flying = bool(character is not None and CharacterMacros.is_flying(character))
+        is_npc = bool(character is not None and CharacterApi.is_npc(character))
+        is_flying = bool(character is not None and CharacterApi.is_flying(character))
         air_blocked = False
         water_blocked = False
         move_cost = 0
@@ -65,7 +66,7 @@ class MovementApi:
             air_blocked = bool(
                 (in_room.is_air_room(sector_types) or to_room.is_air_room(sector_types))
                 and not is_flying
-                and not CharacterMacros.is_immortal(character)
+                and not CharacterApi.is_immortal(character)
             )
             water_blocked = bool(
                 (in_room.requires_boat(sector_types) or to_room.requires_boat(sector_types))
@@ -134,18 +135,18 @@ class MovementApi:
 
     @staticmethod
     def shows_movement_messages(character) -> bool:
-        affected_bits = CharacterMacros.get_enum("affectedBy")
+        affected_bits = CharacterApi.get_enum("affectedBy")
         return (
-            not CharacterMacros.is_affected_by_name(character, affected_bits, "AFF_SNEAK")
+            not CharacterApi.is_affected_by_name(character, affected_bits, "AFF_SNEAK")
             and GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0) < 51
         )
 
     @staticmethod
     def _movement_cost(character, in_room, to_room, is_flying: bool, affected_bits) -> int:
         move = (MovementUtil.sector_cost(in_room.sector_type) + MovementUtil.sector_cost(to_room.sector_type)) // 2
-        if is_flying or CharacterMacros.is_affected_by_name(character, affected_bits, "AFF_HASTE"):
+        if is_flying or CharacterApi.is_affected_by_name(character, affected_bits, "AFF_HASTE"):
             move //= 2
-        if CharacterMacros.is_affected_by_name(character, affected_bits, "AFF_SLOW"):
+        if CharacterApi.is_affected_by_name(character, affected_bits, "AFF_SLOW"):
             move *= 2
         return max(1, move)
 

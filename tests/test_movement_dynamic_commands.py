@@ -177,7 +177,7 @@ _stub_package("fight")
 _stub_module("fight.FightHandler", FightHandler=object)
 _stub_package("player")
 _stub_module("player.Character", Character=object)
-_stub_module("player.CharacterMacros", CharacterMacros=_CharacterMacros)
+_stub_module("player.CharacterApi", CharacterMacros=_CharacterMacros)
 _stub_package("interp")
 _stub_module("interp.Context", Context=_Context)
 
@@ -186,7 +186,7 @@ _load_module("interp.InterpView", "interp/InterpView.py")
 _load_module("interp.InterpCheck", "interp/InterpCheck.py")
 _load_module("interp.InterpActionDefinition", "interp/InterpActionDefinition.py")
 _load_module("interp.InterpPlan", "interp/InterpPlan.py")
-InterpApi = _load_module("interp.InterpApi", "interp/InterpApi.py").InterpApi
+InterpApi = _load_module("interp.InterpApi", "api/InterpApi.py").InterpApi
 MovementApi = sys.modules["interp.MovementApi"].MovementApi
 Movement = _load_module("interp.commands.Movement", "interp/commands/Movement.py").Movement
 

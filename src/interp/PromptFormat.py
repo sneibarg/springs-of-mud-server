@@ -5,7 +5,7 @@ import inspect
 from dataclasses import dataclass, asdict
 from typing import Callable, TYPE_CHECKING
 
-from game.GameMacros import GameMacros
+from api.GameApi import GameApi
 from server.protocol.Message import Message, MessageType
 
 if TYPE_CHECKING:
@@ -218,7 +218,7 @@ class PromptFormat:
 
     def render_prompt(self, status: SessionStatus, character: Character, room: Room, area: Area) -> Message:
         carriage_return = bool(getattr(character, "carriage_return", False) or self.carriage_return)
-        comm_raw = GameMacros.flags_to_int(getattr(getattr(character, "status_flags", None), "comm", 0))
+        comm_raw = GameApi.flags_to_int(getattr(getattr(character, "status_flags", None), "comm", 0))
         if comm_raw > 0:
             carriage_return = (comm_raw & 2048) == 0  # COMM_COMPACT
         parts = [self._tag_afk(status)]

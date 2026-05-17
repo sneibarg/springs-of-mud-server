@@ -3,17 +3,17 @@ from typing import Any
 from injector import inject
 
 from game.RegistryService import RegistryService
-from item.ItemMacros import ItemMacros
+from api.ItemApi import ItemApi
 from util.GenericUtil import GenericUtil
 from game.WeatherHandler import WeatherHandler
-from interp.InterpApi import InterpApi
+from api.InterpApi import InterpApi
 from util.InfoUtil import InfoUtil
 from interp.Context import Context
 from interp.HelpEntry import HelpEntry
 from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
 from player.Character import Character
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 from util.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
 from server.session.SessionHandler import SessionHandler
@@ -75,7 +75,7 @@ class Info:
         self.PlayerActBits = None
 
     def lazy_load(self):
-        self.PlayerActBits = CharacterMacros.get_enum('playerActBits')
+        self.PlayerActBits = CharacterApi.get_enum('playerActBits')
 
     def do_quit(self, context: Context):
         return self.interp_api.run_action(context, context.command.name)
@@ -83,7 +83,7 @@ class Info:
     def do_who(self, character: Character) -> str:
         who_list = [character] + PlayerUtil.visible(character, self.session_handler)
         lines = [
-            f"{CharacterMacros.who_line(character, c)}\r\n"
+            f"{CharacterApi.who_line(character, c)}\r\n"
             for c in who_list
         ]
         lines.append(f"Players found: {len(who_list)}\r\n")
@@ -93,7 +93,7 @@ class Info:
         arg_all = " ".join((argument or "").split()).lower()
         if not arg_all:
             arg_all = "summary"
-        q_words = [CharacterMacros.normalize_help_token(w) for w in arg_all.split()]
+        q_words = [CharacterApi.normalize_help_token(w) for w in arg_all.split()]
         q_words = [w for w in q_words if w]
         output_parts = []
         found = False
@@ -106,7 +106,7 @@ class Info:
             if help_id and help_id in emitted_help_ids:
                 continue
 
-            k_words = [CharacterMacros.normalize_help_token(w) for w in str(help_entry.keyword).split()]
+            k_words = [CharacterApi.normalize_help_token(w) for w in str(help_entry.keyword).split()]
             k_words = [w for w in k_words if w]
             if (not q_words or not k_words) or not all(any(k.startswith(q) for k in k_words) for q in q_words):
                 continue
@@ -135,7 +135,7 @@ class Info:
         return "".join(output_parts) if len(output_parts) > 0 else "No help on that word.\n\r"
 
     def look_target(self, character: Any, context: Context) -> str | None:
-        room = self.room_registry.get(id=character.room_id)
+        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         if room is None:
             return None
 
@@ -153,7 +153,7 @@ class Info:
             desc = "You see nothing special."
 
         lines = [desc, InfoUtil.target_condition_line(target)]
-        equip_lines = CharacterMacros.target_equipment_lines(target, EQUIP_SLOT_LABELS)
+        equip_lines = CharacterApi.target_equipment_lines(target, EQUIP_SLOT_LABELS)
         if equip_lines:
             lines.append("")
             lines.append(f"{(target.name or 'They')} is using:")
@@ -162,35 +162,41 @@ class Info:
         context.finish()
         return "\r\n".join(lines) + "\r\n"
 
-    async def do_look(self, character: Character, context: Context) -> str | None:
-        if not character.check_blind(CharacterMacros):
-            context.finish()
-            return "You can't see a thing!\n\r"
-
+    async def do_look(self, character: Character, context: Context) -> dict[str, Any] | None:
         room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         if room is None:
             context.finish()
             return None
 
-        arg1 = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip().lower()
-        if (not CharacterMacros.is_npc(character)
-                and not CharacterMacros.has_holy_light(character)
-                and room.is_room_dark()):
-            context.jump_to(1)  # show chars/mobs only
-            return "It is pitch black ...\n\r"
+        payload = self.interp_api.evaluate_checks_only(context, context.command.name)
+        if payload is not None:
+            return payload
 
-        if arg1 == "" or arg1 == "auto":
+        look_mode = str(getattr(context, "look_mode", "room") or "room")
+        if look_mode == "room":
             await context.room_handler().print_room(character.id, room)
-            if CharacterMacros.is_set(character.status_flags.act, self.PlayerActBits.PLR_AUTOEXIT.value):
+            if CharacterApi.is_set(character.status_flags.act, self.PlayerActBits.PLR_AUTOEXIT.value):
                 await context.room_handler().print_exits(character, room)
             context.jump_to(1)  # players + mobiles
             return None
 
-        if arg1 in ("i", "in", "on"):
+        if look_mode == "in":
             context.jump_to(2)
             return None
 
-        context.jump_to(3)
+        if look_mode == "target":
+            context.jump_to(3)
+            return None
+
+        if look_mode == "item_or_extra":
+            context.jump_to(4)
+            return None
+
+        if look_mode == "direction":
+            context.jump_to(5)
+            return None
+
+        context.finish()
         return None
 
     def do_scroll(self, character: Character, context: Context) -> str:
@@ -222,7 +228,7 @@ class Info:
         return self._render_message_key(context, "set", channel="to_char", n=lines).get("to_char", "")
 
     def do_wimpy(self, character: Character, context: Context) -> str:
-        if CharacterMacros.is_npc(character):
+        if CharacterApi.is_npc(character):
             context.finish()
             return ""
 
@@ -264,7 +270,7 @@ class Info:
         total_hours = total_seconds // 3600
         age_years = 17 + (total_seconds // 72000)
 
-        trust = CharacterMacros.get_trust(character)
+        trust = CharacterApi.get_trust(character)
         sex_text = str(getattr(character, "sex", "sexless") or "sexless").lower()
         if sex_text not in ("male", "female", "sexless"):
             sex_text = "sexless"
@@ -305,7 +311,7 @@ class Info:
         if hunger == 0:
             lines.append("You are hungry.")
 
-        position_line = CharacterMacros.score_position_line(attributes)
+        position_line = CharacterApi.score_position_line(attributes)
         lines.append(position_line)
 
         ac_pierce = character.armor_class.get_ac(character, 0)
@@ -321,8 +327,8 @@ class Info:
         lines.append(f"You are {InfoUtil.score_ac_phrase(ac_slash, 'slashing')}.")
         lines.append(f"You are {InfoUtil.score_ac_phrase(ac_magic, 'magic')}.")
 
-        if CharacterMacros.is_immortal(character):
-            holy = "on" if CharacterMacros.has_holy_light(character) else "off"
+        if CharacterApi.is_immortal(character):
+            holy = "on" if CharacterApi.has_holy_light(character) else "off"
             imm_text = f"Holy Light: {holy}"
             if GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0) > 0:
                 imm_text += f"  Invisible: level {character.status_flags.invis_level}"
@@ -332,16 +338,16 @@ class Info:
 
         if character.level >= 15:
             lines.append(
-                f"Hitroll: {CharacterMacros.get_hitroll(character)}  Damroll: {CharacterMacros.get_damroll(character)}."
+                f"Hitroll: {CharacterApi.get_hitroll(character)}  Damroll: {CharacterApi.get_damroll(character)}."
             )
 
         alignment = GenericUtil.to_int(getattr(attributes, "alignment", 0), 0)
         if character.level >= 10:
             lines.append(f"Alignment: {alignment}.")
         lines.append(f"You are {InfoUtil.score_alignment_word(alignment)}.")
-        if CharacterMacros.is_comm_enabled(character, "COMM_SHOW_AFFECTS"):
+        if CharacterApi.is_comm_enabled(character, "COMM_SHOW_AFFECTS"):
             lines.append("")
-            lines.append(CharacterMacros.format_affects(character).rstrip("\r\n"))
+            lines.append(CharacterApi.format_affects(character).rstrip("\r\n"))
         context.finish()
         return "\r\n".join(lines) + "\r\n"
 
@@ -376,7 +382,7 @@ class Info:
         return text
 
     def do_weather(self, character: Character, context: Context) -> str:
-        context.weather_outside = CharacterMacros.is_outside(character)
+        context.weather_outside = CharacterApi.is_outside(character)
         weather_info = self.weather_handler.weather_info
         context.weather_available = weather_info is not None
         payload = self.interp_api.run_action(context, context.command.name)
@@ -402,7 +408,7 @@ class Info:
             context.finish()
             return "None\r\n"
 
-        room_flags = CharacterMacros.get_enum("roomFlags")
+        room_flags = CharacterApi.get_enum("roomFlags")
         nowhere_bit = room_flags.ROOM_NOWHERE.value if room_flags and hasattr(room_flags, "ROOM_NOWHERE") else None
 
         if not arg:
@@ -410,7 +416,7 @@ class Info:
             found = False
             for session in self.session_handler.get_playing_sessions():
                 victim = session.character
-                if victim is None or CharacterMacros.is_npc(victim):
+                if victim is None or CharacterApi.is_npc(victim):
                     continue
                 if victim.id == character.id:
                     continue
@@ -419,9 +425,9 @@ class Info:
                     continue
                 if room.area_id != my_room.area_id:
                     continue
-                if nowhere_bit is not None and CharacterMacros.is_set(int(room.room_flags), nowhere_bit):
+                if nowhere_bit is not None and CharacterApi.is_set(int(room.room_flags), nowhere_bit):
                     continue
-                if not CharacterMacros.can_see(character, victim):
+                if not CharacterApi.can_see(character, victim):
                     continue
                 lines.append(f"{victim.name:<28} {room.name}\r\n")
                 found = True
@@ -439,7 +445,7 @@ class Info:
             room = self.room_registry.get_or_none(id=victim.room_id)
             if room is None or room.area_id != my_room.area_id:
                 continue
-            if not CharacterMacros.can_see(character, victim):
+            if not CharacterApi.can_see(character, victim):
                 continue
             victim_name = (victim.name or "").lower()
             if victim_name == wanted or victim_name.startswith(wanted):
@@ -452,7 +458,7 @@ class Info:
             for mob in room.mobiles.values():
                 if mob is None:
                     continue
-                if not CharacterMacros.can_see(character, mob):
+                if not CharacterApi.can_see(character, mob):
                     continue
                 mob_name = (getattr(mob, "name", "") or "").lower()
                 short_name = (getattr(mob, "short_description", "") or "").lower()
@@ -494,7 +500,7 @@ class Info:
         return msg + "\r\n"
 
     def do_title(self, character: Character, context: Context) -> str:
-        if CharacterMacros.is_npc(character):
+        if CharacterApi.is_npc(character):
             context.finish()
             return ""
 
@@ -564,7 +570,7 @@ class Info:
         }
 
     def do_worth(self, character: Character, context: Context) -> str:
-        if CharacterMacros.is_npc(character):
+        if CharacterApi.is_npc(character):
             context.finish()
             return f"You have {character.gold} gold and {character.silver} silver.\r\n"
 
@@ -579,15 +585,15 @@ class Info:
 
     def do_affects(self, character: Character, context: Context) -> str:
         context.finish()
-        return CharacterMacros.format_affects(character)
+        return CharacterApi.format_affects(character)
 
     def do_autolist(self, character: Character, context: Context) -> str:
-        if CharacterMacros.is_npc(character):
+        if CharacterApi.is_npc(character):
             context.finish()
             return ""
 
         act_bits = self.PlayerActBits
-        comm_bits = CharacterMacros.get_enum("commFlags")
+        comm_bits = CharacterApi.get_enum("commFlags")
         act = character.status_flags.act
         comm = character.status_flags.comm
 
@@ -597,7 +603,7 @@ class Info:
         def act_enabled(name: str) -> bool:
             if act_bits is None or not hasattr(act_bits, name):
                 return False
-            return CharacterMacros.is_set(act, getattr(act_bits, name).value)
+            return CharacterApi.is_set(act, getattr(act_bits, name).value)
 
         lines = [
             "   action     status\r\n",
@@ -613,24 +619,24 @@ class Info:
             def comm_enabled(name: str) -> bool:
                 if not hasattr(comm_bits, name):
                     return False
-                return CharacterMacros.is_set(comm, getattr(comm_bits, name).value)
+                return CharacterApi.is_set(comm, getattr(comm_bits, name).value)
             lines.extend([
                 f"compact mode   {on_off(comm_enabled('COMM_COMPACT'))}\r\n",
                 f"prompt         {on_off(comm_enabled('COMM_PROMPT'))}\r\n",
                 f"combine items  {on_off(comm_enabled('COMM_COMBINE'))}\r\n",
             ])
         if hasattr(act_bits, "PLR_CANLOOT"):
-            if not CharacterMacros.is_set(act, getattr(act_bits, "PLR_CANLOOT").value):
+            if not CharacterApi.is_set(act, getattr(act_bits, "PLR_CANLOOT").value):
                 lines.append("Your corpse is safe from thieves.\r\n")
             else:
                 lines.append("Your corpse may be looted.\r\n")
         if hasattr(act_bits, "PLR_NOSUMMON"):
-            if CharacterMacros.is_set(act, getattr(act_bits, "PLR_NOSUMMON").value):
+            if CharacterApi.is_set(act, getattr(act_bits, "PLR_NOSUMMON").value):
                 lines.append("You cannot be summoned.\r\n")
             else:
                 lines.append("You can be summoned.\r\n")
         if hasattr(act_bits, "PLR_NOFOLLOW"):
-            if CharacterMacros.is_set(act, getattr(act_bits, "PLR_NOFOLLOW").value):
+            if CharacterApi.is_set(act, getattr(act_bits, "PLR_NOFOLLOW").value):
                 lines.append("You do not welcome followers.\r\n")
             else:
                 lines.append("You accept followers.\r\n")
@@ -639,48 +645,48 @@ class Info:
         return "".join(lines)
 
     def do_autoassist(self, character: Character, context: Context) -> str:
-        CharacterMacros.toggle_player_act(character, "PLR_AUTOASSIST", "Autoassist removed.\r\n", "You will now assist when needed.\r\n")
+        CharacterApi.toggle_player_act(character, "PLR_AUTOASSIST", "Autoassist removed.\r\n", "You will now assist when needed.\r\n")
         context.finish()
         return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOASSIST") else "disable", channel="to_char").get("to_char", "")
 
     def do_autoexit(self, character: Character, context: Context) -> str:
-        CharacterMacros.toggle_player_act(character, "PLR_AUTOEXIT", "Exits will no longer be displayed.\r\n", "Exits will now be displayed.\r\n")
+        CharacterApi.toggle_player_act(character, "PLR_AUTOEXIT", "Exits will no longer be displayed.\r\n", "Exits will now be displayed.\r\n")
         context.finish()
         return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOEXIT") else "disable", channel="to_char").get("to_char", "")
 
     def do_autogold(self, character: Character, context: Context) -> str:
-        CharacterMacros.toggle_player_act(character, "PLR_AUTOGOLD", "Autogold removed.\r\n", "Automatic gold looting set.\r\n")
+        CharacterApi.toggle_player_act(character, "PLR_AUTOGOLD", "Autogold removed.\r\n", "Automatic gold looting set.\r\n")
         context.finish()
         return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOGOLD") else "disable", channel="to_char").get("to_char", "")
 
     def do_autoloot(self, character: Character, context: Context) -> str:
-        CharacterMacros.toggle_player_act(character, "PLR_AUTOLOOT", "Autolooting removed.\r\n", "Automatic corpse looting set.\r\n")
+        CharacterApi.toggle_player_act(character, "PLR_AUTOLOOT", "Autolooting removed.\r\n", "Automatic corpse looting set.\r\n")
         context.finish()
         return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOLOOT") else "disable", channel="to_char").get("to_char", "")
 
     def do_autosac(self, character: Character, context: Context) -> str:
-        CharacterMacros.toggle_player_act(character, "PLR_AUTOSAC", "Autosacrificing removed.\r\n", "Automatic corpse sacrificing set.\r\n")
+        CharacterApi.toggle_player_act(character, "PLR_AUTOSAC", "Autosacrificing removed.\r\n", "Automatic corpse sacrificing set.\r\n")
         context.finish()
         return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOSAC") else "disable", channel="to_char").get("to_char", "")
 
     def do_autosplit(self, character: Character, context: Context) -> str:
-        CharacterMacros.toggle_player_act(character, "PLR_AUTOSPLIT", "Autosplitting removed.\r\n", "Automatic gold splitting set.\r\n")
+        CharacterApi.toggle_player_act(character, "PLR_AUTOSPLIT", "Autosplitting removed.\r\n", "Automatic gold splitting set.\r\n")
         context.finish()
         return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOSPLIT") else "disable", channel="to_char").get("to_char", "")
 
     def do_brief(self, character: Character, context: Context) -> str:
-        CharacterMacros.toggle_comm(character, "COMM_BRIEF", "Full descriptions activated.\r\n", "Short descriptions activated.\r\n")
+        CharacterApi.toggle_comm(character, "COMM_BRIEF", "Full descriptions activated.\r\n", "Short descriptions activated.\r\n")
         context.finish()
         return self._render_message_key(context, "enable" if self._comm_enabled(character, "COMM_BRIEF") else "disable", channel="to_char").get("to_char", "")
 
     def do_compact(self, character: Character, context: Context) -> str:
-        CharacterMacros.toggle_comm(character, "COMM_COMPACT", "Compact mode removed.\r\n", "Compact mode set.\r\n")
-        comm_bits = CharacterMacros.get_enum("commFlags")
+        CharacterApi.toggle_comm(character, "COMM_COMPACT", "Compact mode removed.\r\n", "Compact mode set.\r\n")
+        comm_bits = CharacterApi.get_enum("commFlags")
         comm = character.status_flags.comm
         is_compact = (
-            comm_bits is not None
-            and hasattr(comm_bits, "COMM_COMPACT")
-            and CharacterMacros.is_set(comm, comm_bits.COMM_COMPACT.value)
+                comm_bits is not None
+                and hasattr(comm_bits, "COMM_COMPACT")
+                and CharacterApi.is_set(comm, comm_bits.COMM_COMPACT.value)
         )
         character.carriage_return = not is_compact
         if getattr(character, "prompt_format", None) is not None:
@@ -689,12 +695,12 @@ class Info:
         return self._render_message_key(context, "enable" if is_compact else "disable", channel="to_char").get("to_char", "")
 
     def do_combine(self, character: Character, context: Context) -> str:
-        CharacterMacros.toggle_comm(character, "COMM_COMBINE", "Long inventory selected.\r\n", "Combined inventory selected.\r\n")
+        CharacterApi.toggle_comm(character, "COMM_COMBINE", "Long inventory selected.\r\n", "Combined inventory selected.\r\n")
         context.finish()
         return self._render_message_key(context, "enable" if self._comm_enabled(character, "COMM_COMBINE") else "disable", channel="to_char").get("to_char", "")
 
     def do_noloot(self, character: Character, context: Context) -> str:
-        CharacterMacros.toggle_player_act(
+        CharacterApi.toggle_player_act(
             character,
             "PLR_CANLOOT",
             "Your corpse is now safe from thieves.\r\n",
@@ -704,7 +710,7 @@ class Info:
         return self._render_message_key(context, "disable" if self._player_act_enabled(character, "PLR_CANLOOT") else "enable", channel="to_char").get("to_char", "")
 
     def do_nofollow(self, character: Character, context: Context) -> str:
-        CharacterMacros.toggle_player_act(
+        CharacterApi.toggle_player_act(
             character,
             "PLR_NOFOLLOW",
             "You now accept followers.\r\n",
@@ -714,7 +720,7 @@ class Info:
         return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_NOFOLLOW") else "disable", channel="to_char").get("to_char", "")
 
     def do_nosummon(self, character: Character, context: Context) -> str:
-        CharacterMacros.toggle_player_act(
+        CharacterApi.toggle_player_act(
             character,
             "PLR_NOSUMMON",
             "You are now summonable.\r\n",
@@ -764,7 +770,7 @@ class Info:
             return payload.get("to_char", "")
 
         lines = [
-            f"{CharacterMacros.who_line(character, c)}\r\n"
+            f"{CharacterApi.who_line(character, c)}\r\n"
             for c in matches
         ]
         return "".join(lines)
@@ -777,7 +783,7 @@ class Info:
         return f"There are {count} players online.\r\n"
 
     def do_show(self, character: Character, context: Context) -> str:
-        CharacterMacros.toggle_comm(
+        CharacterApi.toggle_comm(
             character,
             "COMM_SHOW_AFFECTS",
             "Affects will no longer be shown in score.\r\n",
@@ -787,7 +793,7 @@ class Info:
         return self._render_message_key(context, "enable" if self._comm_enabled(character, "COMM_SHOW_AFFECTS") else "disable", channel="to_char").get("to_char", "")
 
     def do_practice(self, character: Character, context: Context) -> str | dict:
-        if CharacterMacros.is_npc(character):
+        if CharacterApi.is_npc(character):
             context.finish()
             return ""
 
@@ -823,11 +829,11 @@ class Info:
             return "".join(lines)
 
         context.practice_argument = raw
-        context.practice_is_awake = CharacterMacros.is_awake(character)
+        context.practice_is_awake = CharacterApi.is_awake(character)
         context.practice_sessions = practices
 
         room = self.room_registry.get_or_none(id=character.room_id)
-        act_bits = CharacterMacros.get_enum("actBits")
+        act_bits = CharacterApi.get_enum("actBits")
         trainer = None
         if room is not None:
             practice_bit = act_bits.ACT_PRACTICE.value if act_bits is not None and hasattr(act_bits, "ACT_PRACTICE") else 0
@@ -928,7 +934,7 @@ class Info:
             raw = " ".join(context.parameters).strip()
 
         if raw == "":
-            CharacterMacros.toggle_comm(character, "COMM_PROMPT", "You will no longer see prompts.\r\n", "You will now see prompts.\r\n")
+            CharacterApi.toggle_comm(character, "COMM_PROMPT", "You will no longer see prompts.\r\n", "You will now see prompts.\r\n")
             context.finish()
             return self._render_message_key(context, "enable" if self._comm_enabled(character, "COMM_PROMPT") else "disable", channel="to_char").get("to_char", "")
 
@@ -975,7 +981,7 @@ class Info:
         return self._render_message_key(context, "set", channel="to_char", s=shown).get("to_char", "")
 
     def do_equipment(self, character: Character, context: Context) -> str:
-        lines = CharacterMacros.target_equipment_lines(character, EQUIP_SLOT_LABELS)
+        lines = CharacterApi.target_equipment_lines(character, EQUIP_SLOT_LABELS)
         context.finish()
         if not lines:
             return "You are using:\r\nNothing.\r\n"
@@ -989,12 +995,12 @@ class Info:
         else:
             arg1 = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip().lower()
             arg2 = (context.parameters[1] if context.parameters and len(context.parameters) > 1 else "").strip().lower()
-        obj1 = CharacterMacros.find_owned_item(character, arg1) if arg1 else None
-        obj2 = CharacterMacros.find_owned_item(character, arg2) if arg2 else (ItemMacros.find_comparable_equipped_item(character, obj1) if obj1 is not None else None)
+        obj1 = CharacterApi.find_owned_item(character, arg1) if arg1 else None
+        obj2 = CharacterApi.find_owned_item(character, arg2) if arg2 else (ItemApi.find_comparable_equipped_item(character, obj1) if obj1 is not None else None)
         t1 = str(getattr(obj1, "item_type", "") or "").strip().lower() if obj1 is not None else ""
         t2 = str(getattr(obj2, "item_type", "") or "").strip().lower() if obj2 is not None else ""
-        v1 = ItemMacros.compare_value(obj1) if obj1 is not None else None
-        v2 = ItemMacros.compare_value(obj2) if obj2 is not None else None
+        v1 = ItemApi.compare_value(obj1) if obj1 is not None else None
+        v2 = ItemApi.compare_value(obj2) if obj2 is not None else None
         context.compare_arg1 = arg1
         context.compare_arg2 = arg2
         context.compare_obj1 = obj1
@@ -1005,7 +1011,7 @@ class Info:
         if payload.get("blocked"):
             return payload.get("to_char", "")
 
-        item_flags = CharacterMacros.get_enum("itemFlags")
+        item_flags = CharacterApi.get_enum("itemFlags")
         n1 = ItemUtil.format_obj_to_char(obj1, item_flags_enum=item_flags, f_short=True)
         n2 = ItemUtil.format_obj_to_char(obj2, item_flags_enum=item_flags, f_short=True)
 
@@ -1021,14 +1027,14 @@ class Info:
 
     @staticmethod
     def _player_act_enabled(character: Character, bit_name: str) -> bool:
-        player_act_bits = CharacterMacros.get_enum("playerActBits")
+        player_act_bits = CharacterApi.get_enum("playerActBits")
         if player_act_bits is None or not hasattr(player_act_bits, bit_name):
             return False
-        return CharacterMacros.is_set(character.status_flags.act, getattr(player_act_bits, bit_name).value)
+        return CharacterApi.is_set(character.status_flags.act, getattr(player_act_bits, bit_name).value)
 
     @staticmethod
     def _comm_enabled(character: Character, bit_name: str) -> bool:
-        comm_bits = CharacterMacros.get_enum("commFlags")
+        comm_bits = CharacterApi.get_enum("commFlags")
         if comm_bits is None or not hasattr(comm_bits, bit_name):
             return False
-        return CharacterMacros.is_set(character.status_flags.comm, getattr(comm_bits, bit_name).value)
+        return CharacterApi.is_set(character.status_flags.comm, getattr(comm_bits, bit_name).value)

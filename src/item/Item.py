@@ -8,7 +8,7 @@ from typing import Optional, List, TYPE_CHECKING
 
 from item.ExtraDescriptionData import ExtraDescriptionData
 from item.Effect import Effect
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
 from util.GenericUtil import GenericUtil
 
@@ -165,11 +165,11 @@ class Item:
         return None
 
     def weapon_too_heavy(self, character: Character) -> bool:
-        if CharacterMacros.is_npc(character):
+        if CharacterApi.is_npc(character):
             return False
         strength = max(0, GenericUtil.to_int(getattr(getattr(character, "character_attributes", None), "strength", 0), 0))
         try:
-            strength_bonus = CharacterMacros.get_attribute_bonus("strength", str(character.level))
+            strength_bonus = CharacterApi.get_attribute_bonus("strength", str(character.level))
         except RuntimeError:
             strength_bonus = {}
         wield_limit = GenericUtil.to_int(strength_bonus.get(str(strength), {}).get("wield", 0), 0) * 10
@@ -179,7 +179,7 @@ class Item:
         from util.ItemUtil import ItemUtil
 
         try:
-            weapon_flags = CharacterMacros.get_enum("weaponType")
+            weapon_flags = CharacterApi.get_enum("weaponType")
         except RuntimeError:
             return False
         if not hasattr(weapon_flags, "WEAPON_TWO_HANDS"):

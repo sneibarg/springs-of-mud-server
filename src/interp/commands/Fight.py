@@ -4,7 +4,7 @@ import random
 
 from injector import inject
 
-from fight.FightApi import FightApi
+from api.FightApi import FightApi
 from fight.FightHandler import FightHandler
 from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
@@ -12,11 +12,12 @@ from interp.Context import Context
 from item.Effect import Effect
 from player.Character import Character
 from player.CharacterAdvancement import CharacterAdvancement
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
+from api.InterpApi import InterpApi
 from server.LoggerFactory import LoggerFactory
 from skill import Skill
-from skill.SkillApi import SkillApi
-from skill.SpellApi import SpellApi
+from api.SkillApi import SkillApi
+from api.SpellApi import SpellApi
 from skill.SpellContext import SpellContext
 from util.EffectUtil import EffectUtil
 from util.FightUtil import FightUtil
@@ -29,7 +30,7 @@ from util.SkillUtil import SkillUtil
 
 class Fight:
     @inject
-    def __init__(self, registry_service: RegistryService, skill_api: SkillApi, fight_api: FightApi, weather_handler: WeatherHandler = None):
+    def __init__(self, registry_service: RegistryService, skill_api: SkillApi, fight_api: FightApi, interp_api: InterpApi = None, weather_handler: WeatherHandler = None):
         self.__name__ = "Fight"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -39,6 +40,7 @@ class Fight:
         self.spell_registry = getattr(registry_service, "spell_registry", None)
         self.fight_handler = fight_api.fight_handler
         self.fight_api = fight_api
+        self.interp_api = interp_api or InterpApi()
         self.weather_handler = weather_handler
         self.spell_api = SpellApi()
         self._handlers = {
@@ -61,7 +63,7 @@ class Fight:
         self.AffectBits = None
 
     def lazy_load(self):
-        self.AffectBits = CharacterMacros.get_enum("affectedBy")
+        self.AffectBits = CharacterApi.get_enum("affectedBy")
 
     def execute(self, character: Character, context: Context):
         name = (getattr(context.command, "name", "") or "").strip().lower()
@@ -77,60 +79,50 @@ class Fight:
 
     def do_murder(self, character: Character, context: Context):
         argument = FightUtil.parse_action_argument(context.result, context.parameters)
-        if not argument:
-            context.finish()
-            return {"to_char": "Murder whom?\r\n"}
-
-        if CharacterMacros.is_npc(character):
-            return self.do_kill(character, context)
-
         room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
-        if room is None:
-            context.finish()
-            return {"to_char": "You are nowhere.\r\n"}
-        victim = PlayerUtil.get_target(character, argument, room)
-        if victim is character:
-            context.finish()
-            return {"to_char": "Suicide is a mortal sin.\r\n"}
+        victim = PlayerUtil.get_target(character, argument, room) if room is not None and argument else None
+        context.murder_argument = argument
+        context.murder_room = room
+        context.murder_victim = victim
+        payload = self._evaluate_command_checks(context)
+        if payload is not None:
+            return payload
         return self.do_kill(character, context)
 
     def do_kill(self, character, context):
-        return self.fight_api.run_action(self, character, context, context.command.name)
+        return self.fight_api.run_action(self, context)
 
     def do_cast(self, character: Character, context: Context):
         spell_name, target_arg = FightUtil.parse_cast_argument(context.result, context.parameters)
-        if not spell_name:
-            context.finish()
-            return {"to_char": "Cast which what where?\r\n"}
-
-        spell = FightUtil.find_spell(self.spell_registry, spell_name)
-        if spell is None:
-            context.finish()
-            return {"to_char": "You don't know any spells of that name.\r\n"}
-
-        mana_cost = FightUtil.min_mana(spell)
-        if getattr(character, "mana", 0) < mana_cost:
-            context.finish()
-            return {"to_char": "You don't have enough mana.\r\n"}
-
+        spell = FightUtil.find_spell(self.spell_registry, spell_name) if spell_name else None
+        mana_cost = FightUtil.min_mana(spell) if spell is not None else 0
         room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
-        if room is None:
-            context.finish()
-            return {"to_char": "You are nowhere.\r\n"}
+        target = None
+        target_kind = ""
+        target_error = ""
+        if spell is not None and room is not None and getattr(character, "mana", 0) >= mana_cost:
+            target, target_kind, target_error = self._resolve_spell_target(character, room, spell, target_arg)
 
-        target, target_kind, error = self._resolve_spell_target(character, room, spell, target_arg)
-        if error:
-            context.finish()
-            return {"to_char": error}
+        context.cast_spell_name = spell_name
+        context.cast_target_arg = target_arg
+        context.cast_spell = spell
+        context.cast_mana_cost = mana_cost
+        context.cast_room = room
+        context.cast_target = target
+        context.cast_target_kind = target_kind
+        context.cast_target_error = target_error
+        payload = self._evaluate_command_checks(context)
+        if payload is not None:
+            return payload
 
         spell_context = SpellContext(
             actor=character,
-            spell=spell,
+            spell=context.cast_spell,
             handler=self,
-            room=room,
-            target=target,
+            room=context.cast_room,
+            target=context.cast_target,
             target_name=target_arg,
-            target_kind=target_kind,
+            target_kind=context.cast_target_kind,
             source="player",
             command_context=context,
         )
@@ -143,44 +135,24 @@ class Fight:
         return {"payloads": spell_context.payloads}
 
     def do_backstab(self, character: Character, context: Context):
-        return self.fight_api.run_action(self, character, context, context.command.name)
+        return self.fight_api.run_action(self, context)
 
     def do_bash(self, character: Character, context: Context):
-        skill = self.skill_registry.get(name="bash")
-        if not self._has_skill_access(character, skill):
-            context.finish()
-            return {"to_char": "Bashing? What's that?\r\n"}
+        view = self.fight_api.build_fight_view(context, skill_name="bash", current_target_fallback=True)
+        payload = self.fight_api.evaluate_checks_only_view(view)
+        if payload is not None:
+            return payload
 
-        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
-        if room is None:
-            context.finish()
-            return {"to_char": "You are nowhere.\r\n"}
-
-        victim, error = self._resolve_optional_target(character, room, context, "But you aren't fighting anyone!\r\n")
-        if error:
-            context.finish()
-            return {"to_char": error}
-        if self._position(victim) < self._pos("POS_FIGHTING"):
-            context.finish()
-            return {"to_char": "You'll have to let them get back up first.\r\n"}
-        if victim is character:
-            context.finish()
-            return {"to_char": "You try to bash your brains out, but fail.\r\n"}
-
-        safe, safe_msg = self.fight_handler.is_safe(character, victim, room=room)
-        if safe:
-            context.finish()
-            return {"to_char": safe_msg or "You cannot attack them.\r\n"}
-        if self._kill_steal_blocked(character, victim):
-            context.finish()
-            return {"to_char": "Kill stealing is not permitted.\r\n"}
+        skill = view.skill
+        room = view.room
+        victim = view.victim
 
         chance = self._combat_skill_chance(character, victim, skill, primary_stat="strength", defend_stat="dexterity", level_scale=2)
         self._set_wait(character, self._skill_beats(skill, 12))
         pre_corpse_ids = self._pre_corpse_ids(room)
         if random.randint(1, 100) <= chance:
             self._set_daze(victim, 24)
-            CharacterMacros.set_position(victim, "POS_RESTING")
+            CharacterApi.set_position(victim, "POS_RESTING")
             self._check_improve(character, skill, True, 1)
             result = self.fight_handler.damage(character, victim, random.randint(4, max(4, GenericUtil.to_int(getattr(character, "level", 1), 1))), dt="bash")
             payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
@@ -198,19 +170,12 @@ class Fight:
         return payload
 
     def do_berserk(self, character: Character, context: Context):
-        skill = self.skill_registry.get(name="berserk")
-        if not self._has_skill_access(character, skill):
-            context.finish()
-            return {"to_char": "You turn red in the face, but nothing happens.\r\n"}
-        if self._entity_has_effect_type(character, "skill.berserk") or CharacterMacros.is_affected_by_name(character, self.AffectBits, "AFF_BERSERK") or self._entity_has_effect_type(character, "spell.frenzy"):
-            context.finish()
-            return {"to_char": "You get a little madder.\r\n"}
-        if CharacterMacros.is_affected_by_name(character, self.AffectBits, "AFF_CALM"):
-            context.finish()
-            return {"to_char": "You're feeling too mellow to berserk.\r\n"}
-        if GenericUtil.to_int(getattr(character, "mana", 0), 0) < 50:
-            context.finish()
-            return {"to_char": "You can't get up enough energy.\r\n"}
+        view = self.fight_api.build_fight_view(context, skill_name="berserk")
+        payload = self.fight_api.evaluate_checks_only_view(view)
+        if payload is not None:
+            return payload
+
+        skill = view.skill
 
         chance = self.skill_api.get_rating(character, skill)
         if self._position(character) == self._pos("POS_FIGHTING"):
@@ -248,39 +213,16 @@ class Fight:
         return {"to_char": "Your pulse speeds up, but nothing happens.\r\n"}
 
     def do_dirt(self, character: Character, context: Context):
-        skill = self.skill_registry.get(name="dirt")
-        if not self._has_skill_access(character, skill):
-            context.finish()
-            return {"to_char": "You get your feet dirty.\r\n"}
+        view = self.fight_api.build_fight_view(context, skill_name="dirt kicking", current_target_fallback=True)
+        view.extra["terrain_adjustment"] = self._dirt_terrain_adjustment(view.room) if view.room is not None else None
+        payload = self.fight_api.evaluate_checks_only_view(view)
+        if payload is not None:
+            return payload
 
-        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
-        if room is None:
-            context.finish()
-            return {"to_char": "You are nowhere.\r\n"}
-
-        victim, error = self._resolve_optional_target(character, room, context, "But you aren't in combat!\r\n")
-        if error:
-            context.finish()
-            return {"to_char": error}
-        if CharacterMacros.is_affected_by_name(victim, self.AffectBits, "AFF_BLIND"):
-            context.finish()
-            return {"to_char": "They have already been blinded.\r\n"}
-        if victim is character:
-            context.finish()
-            return {"to_char": "Very funny.\r\n"}
-
-        safe, safe_msg = self.fight_handler.is_safe(character, victim, room=room)
-        if safe:
-            context.finish()
-            return {"to_char": safe_msg or "You cannot attack them.\r\n"}
-        if self._kill_steal_blocked(character, victim):
-            context.finish()
-            return {"to_char": "Kill stealing is not permitted.\r\n"}
-
-        terrain_adjustment = self._dirt_terrain_adjustment(room)
-        if terrain_adjustment is None:
-            context.finish()
-            return {"to_char": "There isn't any dirt to kick.\r\n"}
+        skill = view.skill
+        room = view.room
+        victim = view.victim
+        terrain_adjustment = view.extra.get("terrain_adjustment")
 
         chance = self._combat_skill_chance(character, victim, skill, primary_stat="dexterity", defend_stat="dexterity", level_scale=2)
         chance += terrain_adjustment
@@ -305,29 +247,18 @@ class Fight:
         return payload
 
     def do_disarm(self, character: Character, context: Context):
-        skill = self.skill_registry.get(name="disarm")
-        if not self._has_skill_access(character, skill):
-            context.finish()
-            return {"to_char": "You don't know how to disarm opponents.\r\n"}
-
+        view = self.fight_api.build_fight_view(context, skill_name="disarm", current_target_fallback=True)
         weapon = getattr(getattr(character, "equipped", None), "wielded", None)
         hand_to_hand = self.skill_api.get_rating(character, self.skill_registry.get(name="hand to hand"))
-        if weapon is None and hand_to_hand <= 0:
-            context.finish()
-            return {"to_char": "You must wield a weapon to disarm.\r\n"}
+        view.extra["hand_to_hand"] = hand_to_hand
+        payload = self.fight_api.evaluate_checks_only_view(view)
+        if payload is not None:
+            return payload
 
-        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
-        if room is None:
-            context.finish()
-            return {"to_char": "You are nowhere.\r\n"}
-        victim = getattr(character, "fighting", None)
-        if victim is None:
-            context.finish()
-            return {"to_char": "You aren't fighting anyone.\r\n"}
+        skill = view.skill
+        room = view.room
+        victim = view.victim
         obj = getattr(getattr(victim, "equipped", None), "wielded", None)
-        if obj is None:
-            context.finish()
-            return {"to_char": "Your opponent is not wielding a weapon.\r\n"}
 
         chance = self._combat_skill_chance(character, victim, skill, primary_stat="dexterity", defend_stat="strength", level_scale=2)
         if weapon is None and hand_to_hand > 0:
@@ -350,37 +281,31 @@ class Fight:
         return payload
 
     def do_flee(self, character: Character, context: Context):
-        victim = getattr(character, "fighting", None)
-        if victim is None:
-            if self._position(character) == self._pos("POS_FIGHTING"):
-                CharacterMacros.set_position(character, "POS_STANDING")
-            context.finish()
-            return {"to_char": "You aren't fighting anyone.\r\n"}
-
         was_in = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
-        if was_in is None:
-            context.finish()
-            return {"to_char": "PANIC! You couldn't escape!\r\n"}
-
         exits = list(getattr(was_in, "exits", []) or [])
-        random.shuffle(exits)
         to_room = None
-        for ex in exits[:6]:
-            candidate = self._flee_destination(character, was_in, ex)
-            if candidate is not None:
-                to_room = candidate
-                break
+        if was_in is not None:
+            random.shuffle(exits)
+            for ex in exits[:6]:
+                candidate = self._flee_destination(character, was_in, ex)
+                if candidate is not None:
+                    to_room = candidate
+                    break
 
-        if to_room is None:
-            context.finish()
-            return {"to_char": "PANIC! You couldn't escape!\r\n"}
+        context.flee_room = was_in
+        context.flee_to_room = to_room
+        payload = self._evaluate_command_checks(context)
+        if payload is not None:
+            if payload.get("blocked_key") == "not_fighting" and self._position(character) == self._pos("POS_FIGHTING"):
+                CharacterApi.set_position(character, "POS_STANDING")
+            return payload
 
         move_cost = self._movement_cost(character, was_in, to_room)
-        if not CharacterMacros.is_npc(character):
+        if not CharacterApi.is_npc(character):
             character.movement = max(0, GenericUtil.to_int(getattr(character, "movement", 0), 0) - move_cost)
 
         from_targets = was_in.player_targets(character)
-        if CharacterMacros.is_npc(character):
+        if CharacterApi.is_npc(character):
             was_in.remove_mobile_from_room(character)
             to_room.add_mobile_to_room(character)
         else:
@@ -391,7 +316,7 @@ class Fight:
         self.fight_handler.stop_fighting(character, both=True)
 
         exp_text = ""
-        if not CharacterMacros.is_npc(character):
+        if not CharacterApi.is_npc(character):
             CharacterAdvancement.gain_experience(character, -10)
             exp_text = "You lost 10 exp.\r\n"
 
@@ -407,39 +332,15 @@ class Fight:
         }
 
     def do_rescue(self, character: Character, context: Context):
-        skill = self.skill_registry.get(name="rescue")
-        if not self._has_skill_access(character, skill):
-            context.finish()
-            return {"to_char": "You don't know how to rescue others.\r\n"}
+        view = self.fight_api.build_fight_view(context, skill_name="rescue")
+        payload = self.fight_api.evaluate_checks_only_view(view)
+        if payload is not None:
+            return payload
 
-        argument = FightUtil.parse_action_argument(context.result, context.parameters)
-        if not argument:
-            context.finish()
-            return {"to_char": "Rescue whom?\r\n"}
-
-        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
-        if room is None:
-            context.finish()
-            return {"to_char": "You are nowhere.\r\n"}
-
-        victim = PlayerUtil.get_target(character, argument, room)
-        if victim is None:
-            context.finish()
-            return {"to_char": "They aren't here.\r\n"}
-        if victim is character:
-            context.finish()
-            return {"to_char": "What about fleeing instead?\r\n"}
-        if not CharacterMacros.is_npc(character) and CharacterMacros.is_npc(victim):
-            context.finish()
-            return {"to_char": "Doesn't need your help!\r\n"}
-        if getattr(character, "fighting", None) is victim:
-            context.finish()
-            return {"to_char": "Too late.\r\n"}
-
+        skill = view.skill
+        room = view.room
+        victim = view.victim
         foe = getattr(victim, "fighting", None)
-        if foe is None:
-            context.finish()
-            return {"to_char": "That person is not fighting right now.\r\n"}
 
         self._set_wait(character, self._skill_beats(skill, 12))
         if random.randint(1, 100) > max(1, self.skill_api.get_rating(character, skill)):
@@ -463,19 +364,14 @@ class Fight:
         }
 
     def do_kick(self, character: Character, context: Context):
-        skill = self.skill_registry.get(name="kick")
-        if not self._has_skill_access(character, skill):
-            context.finish()
-            return {"to_char": "You better leave the martial arts to fighters.\r\n"}
+        view = self.fight_api.build_fight_view(context, skill_name="kick", current_target_fallback=True)
+        payload = self.fight_api.evaluate_checks_only_view(view)
+        if payload is not None:
+            return payload
 
-        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
-        victim = getattr(character, "fighting", None)
-        if room is None:
-            context.finish()
-            return {"to_char": "You are nowhere.\r\n"}
-        if victim is None:
-            context.finish()
-            return {"to_char": "You aren't fighting anyone.\r\n"}
+        skill = view.skill
+        room = view.room
+        victim = view.victim
 
         self._set_wait(character, self._skill_beats(skill, 12))
         pre_corpse_ids = self._pre_corpse_ids(room)
@@ -489,45 +385,25 @@ class Fight:
         return self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
 
     def do_trip(self, character: Character, context: Context):
-        skill = self.skill_registry.get(name="trip")
-        if not self._has_skill_access(character, skill):
-            context.finish()
-            return {"to_char": "Tripping? What's that?\r\n"}
+        view = self.fight_api.build_fight_view(context, skill_name="trip", current_target_fallback=True)
+        payload = self.fight_api.evaluate_checks_only_view(view)
+        if payload is not None:
+            if payload.get("blocked_key") == "target_self":
+                self._set_wait(character, self._skill_beats(view.skill, 12) * 2)
+                payload["to_room"] = f"{character.name} trips over their own feet!\r\n"
+                payload["targets"] = view.room.player_targets(character) if view.room is not None else []
+            return payload
 
-        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
-        if room is None:
-            context.finish()
-            return {"to_char": "You are nowhere.\r\n"}
-
-        victim, error = self._resolve_optional_target(character, room, context, "But you aren't fighting anyone!\r\n")
-        if error:
-            context.finish()
-            return {"to_char": error}
-
-        safe, safe_msg = self.fight_handler.is_safe(character, victim, room=room)
-        if safe:
-            context.finish()
-            return {"to_char": safe_msg or "You cannot attack them.\r\n"}
-        if self._kill_steal_blocked(character, victim):
-            context.finish()
-            return {"to_char": "Kill stealing is not permitted.\r\n"}
-        if CharacterMacros.is_affected_by_name(victim, self.AffectBits, "AFF_FLYING"):
-            context.finish()
-            return {"to_char": "Their feet aren't on the ground.\r\n"}
-        if self._position(victim) < self._pos("POS_FIGHTING"):
-            context.finish()
-            return {"to_char": "They are already down.\r\n"}
-        if victim is character:
-            self._set_wait(character, self._skill_beats(skill, 12) * 2)
-            context.finish()
-            return {"to_char": "You fall flat on your face!\r\n", "to_room": f"{character.name} trips over their own feet!\r\n", "targets": room.player_targets(character)}
+        skill = view.skill
+        room = view.room
+        victim = view.victim
 
         chance = self._combat_skill_chance(character, victim, skill, primary_stat="dexterity", defend_stat="dexterity", level_scale=2)
         self._set_wait(character, self._skill_beats(skill, 12))
         pre_corpse_ids = self._pre_corpse_ids(room)
         if random.randint(1, 100) <= chance:
             self._set_daze(victim, 24)
-            CharacterMacros.set_position(victim, "POS_RESTING")
+            CharacterApi.set_position(victim, "POS_RESTING")
             size = max(1, GenericUtil.to_int(getattr(victim, "size", 1), 1))
             self._check_improve(character, skill, True, 1)
             result = self.fight_handler.damage(character, victim, random.randint(2, 2 + (2 * size)), dt="trip")
@@ -555,28 +431,28 @@ class Fight:
 
         if target_type == "CHAR_SELF":
             if argument and argument.lower() not in {"self", str(getattr(character, "name", "")).lower()}:
-                return None, "", "You cannot cast this spell on another.\r\n"
+                return None, "", "invalid_target"
             return character, "char", ""
 
         if target_type == "CHAR_DEFENSIVE":
             victim = PlayerUtil.get_target(character, argument, room) if argument else character
-            return (victim, "char", "") if victim is not None else (None, "", "Cast the spell on whom?\r\n")
+            return (victim, "char", "") if victim is not None else (None, "", "no_target")
 
         if target_type == "CHAR_OFFENSIVE":
             victim = PlayerUtil.get_target(character, argument, room) if argument else getattr(character, "fighting", None)
             if victim is None:
-                return None, "", "Cast the spell on whom?\r\n"
+                return None, "", "no_target"
             safe, safe_msg = self.fight_handler.is_safe(character, victim, room=room)
             if safe and victim is not character:
-                return None, "", safe_msg or "Not on that target.\r\n"
+                return None, "", "target_safe"
             return victim, "char", ""
 
         if target_type == "OBJ_INV":
             if not argument:
-                return None, "", "What should the spell be cast upon?\r\n"
+                return None, "", "no_inventory_target"
             obj = ItemUtil.find_inventory_item(character, argument)
             if obj is None:
-                return None, "", "You are not carrying that.\r\n"
+                return None, "", "not_carrying"
             return obj, "obj", ""
 
         if target_type == "OBJ_CHAR_DEF":
@@ -587,30 +463,33 @@ class Fight:
                 return victim, "char", ""
             obj = ItemUtil.find_inventory_item(character, argument)
             if obj is None:
-                return None, "", "You don't see that here.\r\n"
+                return None, "", "target_not_visible"
             return obj, "obj", ""
 
         if target_type == "OBJ_CHAR_OFF":
             if not argument:
                 victim = getattr(character, "fighting", None)
                 if victim is None:
-                    return None, "", "Cast the spell on whom or what?\r\n"
+                    return None, "", "missing_target"
                 return victim, "char", ""
             victim = PlayerUtil.get_target(character, argument, room)
             if victim is not None:
                 safe, safe_msg = self.fight_handler.is_safe(character, victim, room=room)
                 if safe and victim is not character:
-                    return None, "", safe_msg or "Not on that target.\r\n"
+                    return None, "", "target_safe"
                 return victim, "char", ""
             obj = ItemUtil.find_room_item(room, argument) or ItemUtil.find_inventory_item(character, argument)
             if obj is None:
-                return None, "", "You don't see that here.\r\n"
+                return None, "", "target_not_visible"
             return obj, "obj", ""
 
-        return None, "", "You can't cast that right now.\r\n"
+        return None, "", "unsupported_target"
+
+    def _evaluate_command_checks(self, context: Context):
+        return self.interp_api.evaluate_checks_only(context, context.command.name)
 
     def _has_skill_access(self, character: Character, skill: Skill) -> bool:
-        if CharacterMacros.is_npc(character):
+        if CharacterApi.is_npc(character):
             return True
         if GenericUtil.to_int(getattr(character, "level", 0), 0) < FightUtil.level_for_class(skill, character):
             return False
@@ -682,24 +561,24 @@ class Fight:
 
     @staticmethod
     def _position(entity) -> int:
-        return CharacterMacros.position_value(entity)
+        return CharacterApi.position_value(entity)
 
     @staticmethod
     def _pos(name: str) -> int:
-        return CharacterMacros.pos_value(name)
+        return CharacterApi.pos_value(name)
 
     def _combat_skill_chance(self, character: Character, victim, skill: Skill, primary_stat: str, defend_stat: str, level_scale: int = 1) -> int:
         chance = self.skill_api.get_rating(character, skill)
         chance += self._attribute(character, primary_stat, 10)
         chance -= self._attribute(victim, defend_stat, 10)
         chance += (GenericUtil.to_int(getattr(character, "level", 0), 0) - GenericUtil.to_int(getattr(victim, "level", 0), 0)) * level_scale
-        if CharacterMacros.is_affected_by_name(character, self.AffectBits, "AFF_HASTE"):
+        if CharacterApi.is_affected_by_name(character, self.AffectBits, "AFF_HASTE"):
             chance += 10
-        if CharacterMacros.is_affected_by_name(victim, self.AffectBits, "AFF_HASTE"):
+        if CharacterApi.is_affected_by_name(victim, self.AffectBits, "AFF_HASTE"):
             chance -= 20
-        if CharacterMacros.is_affected_by_name(character, self.AffectBits, "AFF_SLOW"):
+        if CharacterApi.is_affected_by_name(character, self.AffectBits, "AFF_SLOW"):
             chance -= 10
-        if CharacterMacros.is_affected_by_name(victim, self.AffectBits, "AFF_SLOW"):
+        if CharacterApi.is_affected_by_name(victim, self.AffectBits, "AFF_SLOW"):
             chance += 10
         if self._size(character) < self._size(victim):
             chance += (self._size(character) - self._size(victim)) * 10
@@ -744,10 +623,10 @@ class Fight:
     def _kill_steal_blocked(self, character, victim) -> bool:
         current = getattr(victim, "fighting", None)
         print(f"Checking kill steal block for {character.name} against {victim.name}, current: {current}")
-        return CharacterMacros.is_npc(victim) and current is not None and current is not character
+        return CharacterApi.is_npc(victim) and current is not None and current is not character
 
     def _disarm_payload(self, character, victim, room, obj) -> dict:
-        item_flags = CharacterMacros.get_enum("itemFlags")
+        item_flags = CharacterApi.get_enum("itemFlags")
         if hasattr(item_flags, "ITEM_NOREMOVE") and ItemUtil.has_flag(getattr(obj, "extra_flags", 0), item_flags.ITEM_NOREMOVE.value):
             return {
                 "to_char": "Their weapon won't budge!\r\n",
@@ -757,7 +636,7 @@ class Fight:
                 "targets": self._room_targets(room, character, victim),
             }
 
-        if not CharacterMacros.is_npc(victim):
+        if not CharacterApi.is_npc(victim):
             EffectUtil.remove_item_effects(victim, obj)
         victim.unequip_item("wielded")
 
@@ -780,18 +659,18 @@ class Fight:
         }
 
     def _movement_cost(self, character, in_room, to_room) -> int:
-        if CharacterMacros.is_npc(character):
+        if CharacterApi.is_npc(character):
             return 0
         move = (MovementUtil.sector_cost(getattr(in_room, "sector_type", 0)) + MovementUtil.sector_cost(getattr(to_room, "sector_type", 0))) // 2
-        if CharacterMacros.is_affected_by_name(character, self.AffectBits, "AFF_FLYING") or CharacterMacros.is_affected_by_name(character, self.AffectBits, "AFF_HASTE"):
+        if CharacterApi.is_affected_by_name(character, self.AffectBits, "AFF_FLYING") or CharacterApi.is_affected_by_name(character, self.AffectBits, "AFF_HASTE"):
             move //= 2
-        if CharacterMacros.is_affected_by_name(character, self.AffectBits, "AFF_SLOW"):
+        if CharacterApi.is_affected_by_name(character, self.AffectBits, "AFF_SLOW"):
             move *= 2
         return max(1, move)
 
     def _flee_destination(self, character, room, ex):
-        exit_flags = CharacterMacros.get_enum("exitFlags")
-        room_flags = CharacterMacros.get_enum("roomFlags")
+        exit_flags = CharacterApi.get_enum("exitFlags")
+        room_flags = CharacterApi.get_enum("roomFlags")
         if ex is None or getattr(ex, "to_room_vnum", None) is None:
             return None
         closed = MovementUtil.get_exit_flag(exit_flags, "EX_CLOSED", "CLOSED")
@@ -806,17 +685,17 @@ class Fight:
             return None
         if to_room.is_room_private(room_flags):
             return None
-        if not CharacterMacros.is_npc(character):
-            if (room.is_air_room(CharacterMacros.get_enum("sectorTypes")) or to_room.is_air_room(CharacterMacros.get_enum("sectorTypes"))) and not CharacterMacros.is_affected_by_name(character, self.AffectBits, "AFF_FLYING") and not CharacterMacros.is_immortal(character):
+        if not CharacterApi.is_npc(character):
+            if (room.is_air_room(CharacterApi.get_enum("sectorTypes")) or to_room.is_air_room(CharacterApi.get_enum("sectorTypes"))) and not CharacterApi.is_affected_by_name(character, self.AffectBits, "AFF_FLYING") and not CharacterApi.is_immortal(character):
                 return None
-            if (room.requires_boat(CharacterMacros.get_enum("sectorTypes")) or to_room.requires_boat(CharacterMacros.get_enum("sectorTypes"))) and not CharacterMacros.is_affected_by_name(character, self.AffectBits, "AFF_FLYING") and not character.has_boat():
+            if (room.requires_boat(CharacterApi.get_enum("sectorTypes")) or to_room.requires_boat(CharacterApi.get_enum("sectorTypes"))) and not CharacterApi.is_affected_by_name(character, self.AffectBits, "AFF_FLYING") and not character.has_boat():
                 return None
             if GenericUtil.to_int(getattr(character, "movement", 0), 0) < self._movement_cost(character, room, to_room):
                 return None
         return to_room
 
     def _dirt_terrain_adjustment(self, room) -> int | None:
-        sector_types = CharacterMacros.get_enum("sectorTypes")
+        sector_types = CharacterApi.get_enum("sectorTypes")
         inside = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_INSIDE", None), "value", -1), -1)
         city = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_CITY", None), "value", -1), -1)
         field = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_FIELD", None), "value", -1), -1)

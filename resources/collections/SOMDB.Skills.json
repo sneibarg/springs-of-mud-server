@@ -69,11 +69,11 @@
       },
       {
         "predicate": "lambda v: v.victim is v.actor",
-        "messageKey": "selfTarget"
+        "messageKey": "targetSelf"
       },
       {
         "predicate": "lambda v: v.safe",
-        "messageKey": "safeTarget"
+        "messageKey": "targetSafe"
       },
       {
         "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
@@ -132,11 +132,11 @@
       },
       {
         "predicate": "lambda v: v.victim is v.actor",
-        "messageKey": "selfTarget"
+        "messageKey": "targetSelf"
       },
       {
         "predicate": "lambda v: v.safe",
-        "messageKey": "safeTarget"
+        "messageKey": "targetSafe"
       },
       {
         "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
@@ -195,11 +195,11 @@
       },
       {
         "predicate": "lambda v: v.victim is v.actor",
-        "messageKey": "selfTarget"
+        "messageKey": "targetSelf"
       },
       {
         "predicate": "lambda v: v.safe",
-        "messageKey": "safeTarget"
+        "messageKey": "targetSafe"
       },
       {
         "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
@@ -258,11 +258,11 @@
       },
       {
         "predicate": "lambda v: v.victim is v.actor",
-        "messageKey": "selfTarget"
+        "messageKey": "targetSelf"
       },
       {
         "predicate": "lambda v: v.safe",
-        "messageKey": "safeTarget"
+        "messageKey": "targetSafe"
       },
       {
         "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
@@ -321,11 +321,11 @@
       },
       {
         "predicate": "lambda v: v.victim is v.actor",
-        "messageKey": "selfTarget"
+        "messageKey": "targetSelf"
       },
       {
         "predicate": "lambda v: v.safe",
-        "messageKey": "safeTarget"
+        "messageKey": "targetSafe"
       },
       {
         "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
@@ -413,11 +413,11 @@
       },
       {
         "predicate": "lambda v: v.victim is v.actor",
-        "messageKey": "selfTarget"
+        "messageKey": "targetSelf"
       },
       {
         "predicate": "lambda v: v.safe",
-        "messageKey": "safeTarget"
+        "messageKey": "targetSafe"
       },
       {
         "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
@@ -476,11 +476,11 @@
       },
       {
         "predicate": "lambda v: v.victim is v.actor",
-        "messageKey": "selfTarget"
+        "messageKey": "targetSelf"
       },
       {
         "predicate": "lambda v: v.safe",
-        "messageKey": "safeTarget"
+        "messageKey": "targetSafe"
       },
       {
         "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
@@ -539,11 +539,11 @@
       },
       {
         "predicate": "lambda v: v.victim is v.actor",
-        "messageKey": "selfTarget"
+        "messageKey": "targetSelf"
       },
       {
         "predicate": "lambda v: v.safe",
-        "messageKey": "safeTarget"
+        "messageKey": "targetSafe"
       },
       {
         "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
@@ -610,11 +610,11 @@
       },
       {
         "predicate": "lambda v: v.victim is v.actor",
-        "messageKey": "selfTarget"
+        "messageKey": "targetSelf"
       },
       {
         "predicate": "lambda v: v.safe",
-        "messageKey": "safeTarget"
+        "messageKey": "targetSafe"
       },
       {
         "predicate": "lambda v: kill_steal_blocked(v)",
@@ -661,7 +661,40 @@
     "nounDamage": "bash",
     "msgOff": "!Bash!",
     "msgObj": "",
-    "checks": []
+    "checks": [
+      {
+        "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
+        "messageKey": "noAccess"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: bool(v.argument) and v.victim is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: (not v.argument) and v.victim is None",
+        "messageKey": "noTarget"
+      },
+      {
+        "predicate": "lambda v: v.victim is v.actor",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: position_below(v.victim, 'POS_FIGHTING')",
+        "messageKey": "targetDown"
+      },
+      {
+        "predicate": "lambda v: v.safe",
+        "messageKey": "targetSafe"
+      },
+      {
+        "predicate": "lambda v: kill_steal_blocked(v)",
+        "messageKey": "killSteal"
+      }
+    ]
   },
   {
     "_id": {
@@ -689,7 +722,25 @@
     "beats": 24,
     "nounDamage": "",
     "msgOff": "You feel your pulse slow down.",
-    "msgObj": ""
+    "msgObj": "",
+    "checks": [
+      {
+        "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
+        "messageKey": "noAccess"
+      },
+      {
+        "predicate": "lambda v: has_effect_type(v.actor, 'skill.berserk') or has_affect(v.actor, 'AFF_BERSERK') or has_effect_type(v.actor, 'spell.frenzy')",
+        "messageKey": "alreadyActive"
+      },
+      {
+        "predicate": "lambda v: has_affect(v.actor, 'AFF_CALM')",
+        "messageKey": "calm"
+      },
+      {
+        "predicate": "lambda v: int(getattr(v.actor, 'mana', 0) or 0) < 50",
+        "messageKey": "insufficientMana"
+      }
+    ]
   },
   {
     "_id": {
@@ -718,7 +769,44 @@
     "nounDamage": "kicked dirt",
     "msgOff": "You rub the dirt out of your eyes.",
     "msgObj": "",
-    "checks": []
+    "checks": [
+      {
+        "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
+        "messageKey": "noAccess"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: bool(v.argument) and v.victim is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: (not v.argument) and v.victim is None",
+        "messageKey": "noTarget"
+      },
+      {
+        "predicate": "lambda v: has_affect(v.victim, 'AFF_BLIND')",
+        "messageKey": "alreadyBlind"
+      },
+      {
+        "predicate": "lambda v: v.victim is v.actor",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: v.safe",
+        "messageKey": "targetSafe"
+      },
+      {
+        "predicate": "lambda v: kill_steal_blocked(v)",
+        "messageKey": "killSteal"
+      },
+      {
+        "predicate": "lambda v: v.extra.get('terrain_adjustment') is None",
+        "messageKey": "noTerrain"
+      }
+    ]
   },
   {
     "_id": {
@@ -747,7 +835,28 @@
     "nounDamage": "",
     "msgOff": "!Disarm!",
     "msgObj": "",
-    "checks": []
+    "checks": [
+      {
+        "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
+        "messageKey": "noAccess"
+      },
+      {
+        "predicate": "lambda v: v.extra.get('weapon') is None and int(v.extra.get('hand_to_hand', 0) or 0) <= 0",
+        "messageKey": "requiresWeapon"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is None",
+        "messageKey": "noVictim"
+      },
+      {
+        "predicate": "lambda v: getattr(getattr(v.victim, 'equipped', None), 'wielded', None) is None",
+        "messageKey": "victimUnarmed"
+      }
+    ]
   },
   {
     "_id": {
@@ -877,11 +986,11 @@
       },
       {
         "predicate": "lambda v: v.victim is v.actor",
-        "messageKey": "selfTarget"
+        "messageKey": "targetSelf"
       },
       {
         "predicate": "lambda v: v.safe",
-        "messageKey": "safeTarget"
+        "messageKey": "targetSafe"
       },
       {
         "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
@@ -925,7 +1034,20 @@
     "nounDamage": "kick",
     "msgOff": "!Kick!",
     "msgObj": "",
-    "checks": []
+    "checks": [
+      {
+        "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
+        "messageKey": "noAccess"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is None",
+        "messageKey": "noVictim"
+      }
+    ]
   },
   {
     "_id": {
@@ -983,7 +1105,40 @@
     "nounDamage": "",
     "msgOff": "!Rescue!",
     "msgObj": "",
-    "checks": []
+    "checks": [
+      {
+        "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
+        "messageKey": "noAccess"
+      },
+      {
+        "predicate": "lambda v: not v.argument",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is v.actor",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: (not CharacterApi.is_npc(v.actor)) and CharacterApi.is_npc(v.victim)",
+        "messageKey": "targetNpc"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is v.victim",
+        "messageKey": "tooLate"
+      },
+      {
+        "predicate": "lambda v: getattr(v.victim, 'fighting', None) is None",
+        "messageKey": "targetNotFighting"
+      }
+    ]
   },
   {
     "_id": {
@@ -1012,7 +1167,44 @@
     "nounDamage": "trip",
     "msgOff": "!Trip!",
     "msgObj": "",
-    "checks": []
+    "checks": [
+      {
+        "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
+        "messageKey": "noAccess"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: bool(v.argument) and v.victim is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: (not v.argument) and v.victim is None",
+        "messageKey": "noTarget"
+      },
+      {
+        "predicate": "lambda v: v.safe",
+        "messageKey": "targetSafe"
+      },
+      {
+        "predicate": "lambda v: kill_steal_blocked(v)",
+        "messageKey": "killSteal"
+      },
+      {
+        "predicate": "lambda v: has_affect(v.victim, 'AFF_FLYING')",
+        "messageKey": "targetFlying"
+      },
+      {
+        "predicate": "lambda v: position_below(v.victim, 'POS_FIGHTING')",
+        "messageKey": "targetDown"
+      },
+      {
+        "predicate": "lambda v: v.victim is v.actor",
+        "messageKey": "targetSelf"
+      }
+    ]
   },
   {
     "_id": {

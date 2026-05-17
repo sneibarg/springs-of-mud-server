@@ -11,15 +11,16 @@ from util.InterpUtil import InterpUtil
 from util.MobileUtil import MobileUtil
 from util.EffectUtil import EffectUtil
 from util.ItemUtil import ItemUtil
-from item.ItemMacros import ItemMacros
+from api.ItemApi import ItemApi
+from api.InterpApi import InterpApi
 from player.Character import Character
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
 
 
 class Object:
     @inject
-    def __init__(self, registry_service: RegistryService, weather_handler=None):
+    def __init__(self, registry_service: RegistryService, weather_handler=None, interp_api=None):
         self.__name__ = "Object"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -27,6 +28,7 @@ class Object:
         self.mobile_registry = getattr(registry_service, "mobile_registry", None)
         self.shop_registry = getattr(registry_service, "shop_registry", None)
         self.weather_handler = weather_handler
+        self.interp_api = interp_api or InterpApi()
         self.item_types = None
         self.item_flags = None
         self.wear_flags = None
@@ -36,13 +38,13 @@ class Object:
         self.comm_flags = None
 
     def lazy_load(self):
-        self.item_types = CharacterMacros.get_enum("itemTypes")
-        self.item_flags = CharacterMacros.get_enum("itemFlags")
-        self.wear_flags = CharacterMacros.get_enum("wearFlags")
-        self.room_flags = CharacterMacros.get_enum("roomFlags")
-        self.act_bits = CharacterMacros.get_enum("actBits")
-        self.affected_bits = CharacterMacros.get_enum("affectedBy")
-        self.comm_flags = CharacterMacros.get_enum("commFlags")
+        self.item_types = CharacterApi.get_enum("itemTypes")
+        self.item_flags = CharacterApi.get_enum("itemFlags")
+        self.wear_flags = CharacterApi.get_enum("wearFlags")
+        self.room_flags = CharacterApi.get_enum("roomFlags")
+        self.act_bits = CharacterApi.get_enum("actBits")
+        self.affected_bits = CharacterApi.get_enum("affectedBy")
+        self.comm_flags = CharacterApi.get_enum("commFlags")
         if self.item_types is None or self.item_flags is None or self.wear_flags is None:
             raise ValueError("Failed to load shop and item enums")
 
@@ -238,7 +240,7 @@ class Object:
             context.finish()
             return {"to_char": error}
 
-        obj = CharacterMacros.find_owned_item(character, raw)
+        obj = CharacterApi.find_owned_item(character, raw)
         if obj is None:
             context.finish()
             return {"to_char": "You don't have that item.\r\n"}
@@ -296,7 +298,7 @@ class Object:
             context.finish()
             return {"to_char": error}
 
-        obj = CharacterMacros.find_owned_item(character, raw)
+        obj = CharacterApi.find_owned_item(character, raw)
         if obj is None:
             context.finish()
             return {"to_char": "You don't have that item.\r\n"}
@@ -332,7 +334,7 @@ class Object:
             if not ItemUtil.is_container_like(container):
                 context.finish()
                 return {"to_char": "That's not a container.\r\n"}
-            if ItemMacros.is_container_closed(container):
+            if ItemApi.is_container_closed(container):
                 context.finish()
                 return {"to_char": "It is closed.\r\n"}
             if arg1 == "all" or arg1.startswith("all."):
@@ -413,7 +415,7 @@ class Object:
         if not ItemUtil.is_container(container):
             context.finish()
             return {"to_char": "That's not a container.\r\n"}
-        if ItemMacros.is_container_closed(container):
+        if ItemApi.is_container_closed(container):
             context.finish()
             return {"to_char": "It is closed.\r\n"}
         if obj is container:
@@ -763,12 +765,12 @@ class Object:
 
         race_name = str(getattr(character, "race", "") or "").strip().lower()
         try:
-            race_data = CharacterMacros._pc_races_map().get(race_name, {})
+            race_data = CharacterApi._pc_races_map().get(race_name, {})
         except RuntimeError:
             race_data = {}
         raw_size = race_data.get("size")
         try:
-            size_enum = CharacterMacros.get_enum("size")
+            size_enum = CharacterApi.get_enum("size")
         except RuntimeError:
             size_enum = None
         if isinstance(raw_size, str) and size_enum is not None and hasattr(size_enum, raw_size):
@@ -781,7 +783,7 @@ class Object:
     @staticmethod
     def _large_size_value() -> int:
         try:
-            size_enum = CharacterMacros.get_enum("size")
+            size_enum = CharacterApi.get_enum("size")
         except RuntimeError:
             size_enum = None
         if size_enum is not None and hasattr(size_enum, "SIZE_LARGE"):
@@ -790,11 +792,11 @@ class Object:
 
     @staticmethod
     def _weapon_skill_feedback(character: Character, item) -> str:
-        if CharacterMacros.is_npc(character):
+        if CharacterApi.is_npc(character):
             return ""
 
         try:
-            weapon_class = CharacterMacros.get_enum("weaponClass")
+            weapon_class = CharacterApi.get_enum("weaponClass")
         except RuntimeError:
             weapon_class = None
         if weapon_class is None:
@@ -846,76 +848,201 @@ class Object:
             return f"You fumble and almost drop {short}.\r\n"
         return f"You don't even know which end is up on {short}.\r\n"
 
+    @staticmethod
+    def _ensure_message_break(text: str) -> str:
+        rendered = str(text or "")
+        if rendered and not rendered.endswith("\r\n"):
+            rendered += "\r\n"
+        return rendered
+
+    @staticmethod
+    def _render_command_message(context: Context, key: str, channel: str = "to_char", **tokens) -> str:
+        command = getattr(context, "command", None)
+        if command is None:
+            return ""
+        text = command.render_message(channel, key, **tokens)
+        return Object._ensure_message_break(text)
+
+    @staticmethod
+    def _condition_value(character: Character, name: str) -> int:
+        status_flags = getattr(character, "status_flags", None)
+        if status_flags is None or not hasattr(status_flags, name):
+            return -1
+        return GenericUtil.to_int(getattr(status_flags, name, -1), -1)
+
+    @staticmethod
+    def _gain_condition(character: Character, name: str, amount: int) -> int:
+        status_flags = getattr(character, "status_flags", None)
+        if status_flags is None or not hasattr(status_flags, name):
+            return -1
+        current = GenericUtil.to_int(getattr(status_flags, name, -1), -1)
+        if current == -1:
+            return -1
+        updated = max(0, min(48, current + int(amount)))
+        setattr(status_flags, name, updated)
+        return updated
+
     def do_drink(self, character: Character, context: Context):
         arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
-        room = self.room_registry.get_or_none(id=character.room_id)
+        room = getattr(context, "room", None)
+        if room is None:
+            room = self.room_registry.get_or_none(id=character.room_id)
         item = character.find_inventory_item(arg1) if arg1 else None
         if item is None:
             item = ItemUtil.find_room_item(room, arg1) if arg1 else None
-        if item is None:
-            context.finish()
-            return {"to_char": "Drink what?\r\n"}
-        if not ItemUtil.is_drink_container(item):
-            context.finish()
-            return {"to_char": "You can't drink from that.\r\n"}
-        value1 = GenericUtil.to_int(getattr(item, "value1", 0), 0)
-        if value1 <= 0:
-            context.finish()
-            return {"to_char": "It is already empty.\r\n"}
-        item.value1 = str(max(0, value1 - 1))
+        if item is None and not arg1:
+            item = ItemUtil.first_fountain(room)
+        context.drink_arg1 = arg1
+        context.drink_item = item
+        blocked = self.interp_api.evaluate_checks_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+
+        liquid_name = str(getattr(item, "value2", "") or "")
+        liquid_affect = list(getattr(item, "liquid_affect_data", []) or [])
+        serving_size = GenericUtil.to_int(liquid_affect[4], 0) if len(liquid_affect) > 4 else 0
+        if ItemUtil.is_fountain(item):
+            amount = max(1, serving_size * 3)
+        else:
+            value1 = GenericUtil.to_int(getattr(item, "value1", 0), 0)
+            amount = min(max(1, serving_size), value1)
+            if GenericUtil.to_int(getattr(item, "value0", 0), 0) > 0:
+                item.value1 = str(max(0, value1 - amount))
+
+        tokens = {
+            "c": character.name,
+            "p": ItemUtil.short(item),
+            "l": liquid_name,
+        }
+        payload = {
+            "to_char": self._render_command_message(context, "default", "to_char", **tokens),
+        }
+        if room is not None:
+            payload["to_room"] = self._render_command_message(context, "default", "to_room", **tokens)
+            payload["targets"] = room.player_targets(character)
+
+        if not CharacterApi.is_npc(character) and not CharacterApi.is_immortal(character):
+            drunk_gain = (amount * GenericUtil.to_int(liquid_affect[0], 0)) // 36 if len(liquid_affect) > 0 else 0
+            full_gain = (amount * GenericUtil.to_int(liquid_affect[1], 0)) // 4 if len(liquid_affect) > 1 else 0
+            thirst_gain = (amount * GenericUtil.to_int(liquid_affect[2], 0)) // 10 if len(liquid_affect) > 2 else 0
+            hunger_gain = (amount * GenericUtil.to_int(liquid_affect[3], 0)) // 2 if len(liquid_affect) > 3 else 0
+
+            drunk = self._gain_condition(character, "drunk", drunk_gain)
+            full = self._gain_condition(character, "hunger", full_gain)
+            if hunger_gain != 0:
+                full = self._gain_condition(character, "hunger", hunger_gain)
+            thirst = self._gain_condition(character, "thirst", thirst_gain)
+
+            if drunk > 10:
+                payload["to_char"] += self._render_command_message(context, "alcohol")
+            if full > 40:
+                payload["to_char"] += self._render_command_message(context, "full")
+            if thirst > 40:
+                payload["to_char"] += self._render_command_message(context, "quenched")
         context.finish()
-        return {"to_char": "You take a drink.\r\n"}
+        return payload
 
     def do_eat(self, character: Character, context: Context):
         arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
-        if not arg1:
-            context.finish()
-            return {"to_char": "Eat what?\r\n"}
         item = character.find_inventory_item(arg1)
-        if item is None:
-            context.finish()
-            return {"to_char": "You do not have that item.\r\n"}
+        context.eat_arg1 = arg1
+        context.eat_item = item
+        blocked = self.interp_api.evaluate_checks_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+
         item_type = (getattr(item, "item_type", "") or "").upper()
-        if "FOOD" not in item_type and "PILL" not in item_type:
-            context.finish()
-            return {"to_char": "That's not edible.\r\n"}
+        payload = {
+            "to_char": self._render_command_message(context, "default", "to_char", p=ItemUtil.short(item)),
+        }
+        room = self.room_registry.get_or_none(id=character.room_id)
+        if room is not None:
+            payload["to_room"] = self._render_command_message(context, "default", "to_room", c=character.name, p=ItemUtil.short(item))
+            payload["targets"] = room.player_targets(character)
+
+        if "FOOD" in item_type and not CharacterApi.is_npc(character):
+            hunger_before = self._condition_value(character, "hunger")
+            hunger_after = self._gain_condition(character, "hunger", GenericUtil.to_int(getattr(item, "value1", 0), 0))
+            self._gain_condition(character, "hunger", GenericUtil.to_int(getattr(item, "value0", 0), 0))
+            if hunger_before == 0 and hunger_after > 0:
+                payload["to_char"] += self._render_command_message(context, "satiated")
+            elif self._condition_value(character, "hunger") > 40:
+                payload["to_char"] += self._render_command_message(context, "full")
+
         slot = character.equipped_slot_of(item)
         if slot:
             EffectUtil.remove_item_effects(character, item)
             character.unequip_item(slot)
         character.remove_item(item)
         context.finish()
-        return {"to_char": "You eat it.\r\n"}
+        return payload
 
     def do_fill(self, character: Character, context: Context):
         arg1, rem = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = self.room_registry.get_or_none(id=character.room_id)
-        if not arg1:
-            context.finish()
-            return {"to_char": "Fill what?\r\n"}
         dest = character.find_inventory_item(arg1)
-        if dest is None:
-            context.finish()
-            return {"to_char": "You do not have that item.\r\n"}
         src_name = rem.split()[0] if rem else ""
         src = ItemUtil.find_container(character, room, src_name) if src_name else None
         if src is None:
             # fallback to first fountain in room
             src = ItemUtil.first_fountain(room)
+        context.fill_arg1 = arg1
+        context.fill_dest = dest
+        context.fill_src = src
+        blocked = self.interp_api.evaluate_checks_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+
         if src is None:
             context.finish()
             return {"to_char": "There is no source of liquid here.\r\n"}
-        if not ItemUtil.is_drink_container(dest) or not ItemUtil.is_drink_container(src):
+        if ItemUtil.is_fountain(dest) or not ItemUtil.is_drink_container(dest) or not ItemUtil.is_drink_container(src):
             context.finish()
             return {"to_char": "You can't fill that.\r\n"}
+
         dest_cap = GenericUtil.to_int(getattr(dest, "value0", 0), 0)
-        src_amt = GenericUtil.to_int(getattr(src, "value1", 0), 0)
-        if src_amt <= 0:
+        dest_amt = GenericUtil.to_int(getattr(dest, "value1", 0), 0)
+        if dest_cap > 0 and dest_amt >= dest_cap:
             context.finish()
-            return {"to_char": "It is empty.\r\n"}
-        dest.value1 = str(dest_cap if dest_cap > 0 else src_amt)
+            return {"to_char": "Your container is full.\r\n"}
+
+        src_liquid = str(getattr(src, "value2", "") or "")
+        if dest_amt > 0 and src_liquid and str(getattr(dest, "value2", "") or "") != src_liquid:
+            context.finish()
+            return {"to_char": "There is already another liquid in it.\r\n"}
+
+        if not ItemUtil.is_fountain(src):
+            src_amt = GenericUtil.to_int(getattr(src, "value1", 0), 0)
+            if src_amt <= 0:
+                context.finish()
+                return {"to_char": "It is empty.\r\n"}
+
+        if src_liquid:
+            dest.value2 = src_liquid
+        dest.value1 = str(dest_cap if dest_cap > 0 else GenericUtil.to_int(getattr(src, "value1", 0), 0))
         context.finish()
-        return {"to_char": "Ok.\r\n"}
+        payload = {
+            "to_char": self._render_command_message(
+                context,
+                "default",
+                "to_char",
+                t=ItemUtil.short(dest),
+                s=src_liquid,
+                T=ItemUtil.short(src),
+            ),
+        }
+        if room is not None:
+            payload["to_room"] = self._render_command_message(
+                context,
+                "default",
+                "to_room",
+                c=character.name,
+                t=ItemUtil.short(dest),
+                s=src_liquid,
+                T=ItemUtil.short(src),
+            )
+            payload["targets"] = room.player_targets(character)
+        return payload
 
     def do_pour(self, character: Character, context: Context):
         context.finish()
@@ -949,7 +1076,7 @@ class Object:
                 if hour < GenericUtil.to_int(shop.open_hour, 0):
                     return None, None, "Sorry, I am closed. Come back later.\r\n"
                 return None, None, "Sorry, I am closed. Come back tomorrow.\r\n"
-            if not CharacterMacros.can_see(mob, character, room):
+            if not CharacterApi.can_see(mob, character, room):
                 return None, None, "I don't trade with folks I can't see.\r\n"
             return mob, shop, ""
         return None, None, "You can't do that here.\r\n"
@@ -964,10 +1091,10 @@ class Object:
         if stock_room is None:
             return {"to_char": "You can't do that here.\r\n"}
 
-        pet_bit = CharacterMacros.enum_bit(self.act_bits, "ACT_PET")
+        pet_bit = CharacterApi.enum_bit(self.act_bits, "ACT_PET")
         lines = []
         for pet in stock_room.mobiles.values():
-            if pet_bit and not CharacterMacros.is_set(GenericUtil.to_int(getattr(getattr(pet, "status_flags", None), "act", 0), 0), pet_bit):
+            if pet_bit and not CharacterApi.is_set(GenericUtil.to_int(getattr(getattr(pet, "status_flags", None), "act", 0), 0), pet_bit):
                 continue
             level = GenericUtil.to_int(getattr(pet, "level", 0), 0)
             cost = 10 * level * level
@@ -980,7 +1107,7 @@ class Object:
         return {"to_char": "".join(lines)}
 
     def _buy_pet(self, character: Character, room, raw: str):
-        if CharacterMacros.is_npc(character):
+        if CharacterApi.is_npc(character):
             return {"to_char": "You can't do that here.\r\n"}
 
         selector, pet_name = InterpUtil.one_argument(raw)
@@ -1000,18 +1127,18 @@ class Object:
         if GenericUtil.to_int(getattr(character, "level", 0), 0) < GenericUtil.to_int(getattr(pet_proto, "level", 0), 0):
             return {"to_char": "You're not powerful enough to master this pet.\r\n"}
 
-        pet = MobileUtil.create_mobile(pet_proto, CharacterMacros._enums_map())
-        pet_bit = CharacterMacros.enum_bit(self.act_bits, "ACT_PET")
-        charm_bit = CharacterMacros.enum_bit(self.affected_bits, "AFF_CHARM")
+        pet = MobileUtil.create_mobile(pet_proto, CharacterApi._enums_map())
+        pet_bit = CharacterApi.enum_bit(self.act_bits, "ACT_PET")
+        charm_bit = CharacterApi.enum_bit(self.affected_bits, "AFF_CHARM")
         if pet_bit:
-            pet.status_flags.act = CharacterMacros.set_bit(GenericUtil.to_int(getattr(pet.status_flags, "act", 0), 0), pet_bit)
+            pet.status_flags.act = CharacterApi.set_bit(GenericUtil.to_int(getattr(pet.status_flags, "act", 0), 0), pet_bit)
         if charm_bit:
-            pet.status_flags.affected_by = CharacterMacros.set_bit(GenericUtil.to_int(getattr(pet.status_flags, "affected_by", 0), 0), charm_bit)
+            pet.status_flags.affected_by = CharacterApi.set_bit(GenericUtil.to_int(getattr(pet.status_flags, "affected_by", 0), 0), charm_bit)
 
         for comm_name in ("COMM_NOTELL", "COMM_NOSHOUT", "COMM_NOCHANNELS"):
-            bit = CharacterMacros.enum_bit(self.comm_flags, comm_name)
+            bit = CharacterApi.enum_bit(self.comm_flags, comm_name)
             if bit:
-                pet.status_flags.comm = CharacterMacros.set_bit(GenericUtil.to_int(getattr(pet.status_flags, "comm", 0), 0), bit)
+                pet.status_flags.comm = CharacterApi.set_bit(GenericUtil.to_int(getattr(pet.status_flags, "comm", 0), 0), bit)
 
         if pet_name:
             pet.name = f"{pet.name} {pet_name}".strip()
@@ -1033,10 +1160,10 @@ class Object:
 
     def _find_pet(self, stock_room, selector: str):
         number, keyword = InterpUtil.number_argument(selector)
-        pet_bit = CharacterMacros.enum_bit(self.act_bits, "ACT_PET")
+        pet_bit = CharacterApi.enum_bit(self.act_bits, "ACT_PET")
         count = 0
         for pet in stock_room.mobiles.values():
-            if pet_bit and not CharacterMacros.is_set(GenericUtil.to_int(getattr(getattr(pet, "status_flags", None), "act", 0), 0), pet_bit):
+            if pet_bit and not CharacterApi.is_set(GenericUtil.to_int(getattr(getattr(pet, "status_flags", None), "act", 0), 0), pet_bit):
                 continue
             if not self._matches_name(pet, keyword):
                 continue
@@ -1132,7 +1259,7 @@ class Object:
     def _normalize_purchased_item(self, item, cost: int):
         if GenericUtil.to_int(getattr(item, "timer", 0), 0) > 0 and not self._had_timer(item):
             item.timer = 0
-        item.extra_flags = CharacterMacros.unset_bit(GenericUtil.to_int(getattr(item, "extra_flags", 0), 0), CharacterMacros.enum_bit(self.item_flags, "ITEM_HAD_TIMER"))
+        item.extra_flags = CharacterApi.unset_bit(GenericUtil.to_int(getattr(item, "extra_flags", 0), 0), CharacterApi.enum_bit(self.item_flags, "ITEM_HAD_TIMER"))
         if GenericUtil.to_int(getattr(item, "cost", 0), 0) > cost:
             item.cost = cost
         if hasattr(item, "wear_loc"):
@@ -1140,8 +1267,8 @@ class Object:
 
     def _prepare_sold_item(self, item):
         if GenericUtil.to_int(getattr(item, "timer", 0), 0) > 0:
-            had_timer = CharacterMacros.enum_bit(self.item_flags, "ITEM_HAD_TIMER")
-            item.extra_flags = CharacterMacros.set_bit(GenericUtil.to_int(getattr(item, "extra_flags", 0), 0), had_timer)
+            had_timer = CharacterApi.enum_bit(self.item_flags, "ITEM_HAD_TIMER")
+            item.extra_flags = CharacterApi.set_bit(GenericUtil.to_int(getattr(item, "extra_flags", 0), 0), had_timer)
         else:
             item.timer = self._timer_roll()
         if hasattr(item, "wear_loc"):
@@ -1152,15 +1279,15 @@ class Object:
         return RandomNumberGenerator().number_range(50, 100)
 
     def _had_timer(self, item) -> bool:
-        bit = CharacterMacros.enum_bit(self.item_flags, "ITEM_HAD_TIMER")
+        bit = CharacterApi.enum_bit(self.item_flags, "ITEM_HAD_TIMER")
         return bit != 0 and ItemUtil.has_flag(getattr(item, "extra_flags", 0), bit)
 
     def _is_inventory_item(self, item) -> bool:
-        bit = CharacterMacros.enum_bit(self.item_flags, "ITEM_INVENTORY")
+        bit = CharacterApi.enum_bit(self.item_flags, "ITEM_INVENTORY")
         return bit != 0 and ItemUtil.has_flag(getattr(item, "extra_flags", 0), bit)
 
     def _is_sell_extract_item(self, item) -> bool:
-        bit = CharacterMacros.enum_bit(self.item_flags, "ITEM_SELL_EXTRACT")
+        bit = CharacterApi.enum_bit(self.item_flags, "ITEM_SELL_EXTRACT")
         return bit != 0 and ItemUtil.has_flag(getattr(item, "extra_flags", 0), bit)
 
     @staticmethod
@@ -1213,11 +1340,11 @@ class Object:
 
     @staticmethod
     def _carry_count(character: Character) -> int:
-        return len(CharacterMacros.owned_items(character))
+        return len(CharacterApi.owned_items(character))
 
     @staticmethod
     def _carry_weight(character: Character) -> int:
-        item_weight = sum(GenericUtil.to_int(getattr(item, "weight", 0), 0) for item in CharacterMacros.owned_items(character))
+        item_weight = sum(GenericUtil.to_int(getattr(item, "weight", 0), 0) for item in CharacterApi.owned_items(character))
         coin_weight = int((GenericUtil.to_int(character.silver, 0) / 10) + (GenericUtil.to_int(character.gold, 0) * 2 / 5))
         return item_weight + coin_weight
 

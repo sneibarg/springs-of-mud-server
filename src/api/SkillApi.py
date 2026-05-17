@@ -1,7 +1,7 @@
 from typing import Any
 from injector import inject
 
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
 from skill import Skill
 from skill.SkillRegistry import SkillRegistry
@@ -18,9 +18,9 @@ class SkillApi:
         self.CondBits = None
 
     def lazy_load(self):
-        self.ActBits = CharacterMacros.get_enum("actBits")
-        self.OffBits = CharacterMacros.get_enum("offenseTypes")
-        self.CondBits = CharacterMacros.get_enum("conditions")
+        self.ActBits = CharacterApi.get_enum("actBits")
+        self.OffBits = CharacterApi.get_enum("offenseTypes")
+        self.CondBits = CharacterApi.get_enum("conditions")
         self.logger.info("Loaded SkillApi enums.")
 
     def get_rating(self, char: Any, skill: Skill) -> int:
@@ -28,7 +28,7 @@ class SkillApi:
             return GenericUtil.to_int(char.level * 5 / 2)
 
         rating = 0
-        if not CharacterMacros.is_npc(char):
+        if not CharacterApi.is_npc(char):
             rating = char.skill_level(skill.name)
         else:
             # TO-DO: this function should never be called when a spell is being cast
@@ -36,34 +36,34 @@ class SkillApi:
                 rating = 40 + 2 * char.level
             elif skill.name in ("sneak", "hide"):
                 rating = char.level * 2 + 20
-            elif (skill.name == "dodge" and CharacterMacros.is_set(char.off_flags, self.OffBits.OFF_DODGE)) or \
-                    (skill.name == "parry" and CharacterMacros.is_set(char.off_flags, self.OffBits.OFF_PARRY)):
+            elif (skill.name == "dodge" and CharacterApi.is_set(char.off_flags, self.OffBits.OFF_DODGE)) or \
+                    (skill.name == "parry" and CharacterApi.is_set(char.off_flags, self.OffBits.OFF_PARRY)):
                 rating = char.level * 2
             elif skill.name == "shield block":
                 rating = 10 + 2 * char.level
             elif skill.name == "second attack" and \
-                    (CharacterMacros.is_set(char.act, self.ActBits.ACT_WARRIOR) or
-                     CharacterMacros.is_set(char.act, self.ActBits.ACT_THIEF)):
+                    (CharacterApi.is_set(char.act, self.ActBits.ACT_WARRIOR) or
+                     CharacterApi.is_set(char.act, self.ActBits.ACT_THIEF)):
                 rating = 10 + 3 * char.level
 
-            elif skill.name == "third attack" and CharacterMacros.is_set(char.act, self.ActBits.ACT_WARRIOR):
+            elif skill.name == "third attack" and CharacterApi.is_set(char.act, self.ActBits.ACT_WARRIOR):
                 rating = 4 * char.level - 40
             elif skill.name == "hand to hand":
                 rating = 40 + 2 * char.level
-            elif skill.name == "trip" and CharacterMacros.is_set(char.off_flags, self.OffBits.OFF_TRIP):
+            elif skill.name == "trip" and CharacterApi.is_set(char.off_flags, self.OffBits.OFF_TRIP):
                 rating = 10 + 3 * char.level
-            elif skill.name == "bash" and CharacterMacros.is_set(char.off_flags, self.OffBits.OFF_BASH):
+            elif skill.name == "bash" and CharacterApi.is_set(char.off_flags, self.OffBits.OFF_BASH):
                 rating = 10 + 3 * char.level
             elif skill.name == "disarm" and (
-                    CharacterMacros.is_set(char.off_flags, self.OffBits.OFF_DISARM) or
-                    CharacterMacros.is_set(char.act, self.ActBits.ACT_WARRIOR) or
-                    CharacterMacros.is_set(char.act, self.ActBits.ACT_THIEF)):
+                    CharacterApi.is_set(char.off_flags, self.OffBits.OFF_DISARM) or
+                    CharacterApi.is_set(char.act, self.ActBits.ACT_WARRIOR) or
+                    CharacterApi.is_set(char.act, self.ActBits.ACT_THIEF)):
                 rating = 20 + 3 * char.level
-            elif skill.name == "berserk" and CharacterMacros.is_set(char.off_flags, self.OffBits.OFF_BERSERK):
+            elif skill.name == "berserk" and CharacterApi.is_set(char.off_flags, self.OffBits.OFF_BERSERK):
                 rating = 3 * char.level
             elif skill.name == "kick":
                 rating = 10 + 3 * char.level
-            elif skill.name == "backstab" and CharacterMacros.is_set(char.act, self.ActBits.ACT_THIEF):
+            elif skill.name == "backstab" and CharacterApi.is_set(char.act, self.ActBits.ACT_THIEF):
                 rating = 20 + 2 * char.level
             elif skill.name == "rescue":
                 rating = 40 + char.level
@@ -79,7 +79,7 @@ class SkillApi:
                 else:
                     rating = 2 * rating // 3
 
-            if not CharacterMacros.is_npc(char) and char.status_flags.condition.drunk > 10:
+            if not CharacterApi.is_npc(char) and char.status_flags.condition.drunk > 10:
                 rating = 9 * rating // 10
 
             return max(0, min(100, rating))

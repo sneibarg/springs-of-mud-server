@@ -125,9 +125,9 @@ class BodyParts:
 
     @staticmethod
     def _victim_name(victim) -> str:
-        from player.CharacterMacros import CharacterMacros
+        from api.CharacterApi import CharacterApi
 
-        if CharacterMacros.is_npc(victim):
+        if CharacterApi.is_npc(victim):
             return str(getattr(victim, "short_description", "") or getattr(victim, "name", "someone"))
         return str(getattr(victim, "name", "someone"))
 

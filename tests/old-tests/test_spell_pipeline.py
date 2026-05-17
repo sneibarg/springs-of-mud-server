@@ -83,8 +83,8 @@ class TestSpellPipeline(unittest.TestCase):
         )
         context = SimpleNamespace(result="'unit spell'", parameters=[], finish=Mock())
 
-        with patch("interp.commands.Fight.CharacterMacros.is_npc", return_value=False), \
-             patch("skill.SpellApi.CharacterMacros.is_npc", return_value=False):
+        with patch("interp.commands.Fight.CharacterApi.is_npc", return_value=False), \
+             patch("skill.SpellApi.CharacterApi.is_npc", return_value=False):
             payload = commands.do_cast(character, context)
 
         self.assertEqual(7, character.mana)

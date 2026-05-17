@@ -1,14 +1,14 @@
 from enum import IntEnum
 from typing import Any, TYPE_CHECKING
 
-from game.GameMacros import GameMacros
+from api.GameApi import GameApi
 from game.RandomNumberGenerator import RandomNumberGenerator
 from item.ItemRegistry import ItemRegistry
 from util.GenericUtil import GenericUtil
 from item.ExtraDescriptionData import ExtraDescriptionData
-from item.ItemMacros import ItemMacros
+from api.ItemApi import ItemApi
 from player.Character import Character
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
 from item.Item import Item
 from item.Effect import Effect, AffectWhere
@@ -59,8 +59,8 @@ class ItemUtil:
     @staticmethod
     def normalize_item_data(item_data, liquids, skill_registry) -> Item:
         ItemUtil.convert_extra_and_wear_flags(item_data)
-        item_types = ItemMacros.get_enum("itemTypes")
-        damage_types = ItemMacros.get_enum("damageTypes")
+        item_types = ItemApi.get_enum("itemTypes")
+        damage_types = ItemApi.get_enum("damageTypes")
         ItemUtil.normalize_value_fields(item_data, item_types)
         ItemUtil.update_item_type(item_data, damage_types, item_types, liquids, skill_registry)
         ItemUtil.update_condition(item_data)
@@ -90,7 +90,7 @@ class ItemUtil:
                 if bitvector_raw.isdigit() or (bitvector_raw.startswith('-') and bitvector_raw[1:].isdigit()):
                     affect_data.bitvector = bitvector_raw
                 else:
-                    affect_data.bitvector = GameMacros.convert_flags(bitvector_raw)
+                    affect_data.bitvector = GameApi.convert_flags(bitvector_raw)
 
                 if affect_elements[1] == "A":
                     affect_data.where = AffectWhere.TO_AFFECTS.value
@@ -114,7 +114,7 @@ class ItemUtil:
             if isinstance(flag_value, int) or (isinstance(flag_value, str) and flag_value.lstrip('-').isdigit()):
                 continue
 
-            item_data[flag_field] = str(GameMacros.convert_flags(flag_value))
+            item_data[flag_field] = str(GameApi.convert_flags(flag_value))
 
     @staticmethod
     def read_flag(flag_value):
@@ -125,32 +125,32 @@ class ItemUtil:
         if not flag_str or flag_str.lstrip('-').isdigit():
             return flag_str if flag_str else '0'
 
-        return str(GameMacros.convert_flags(flag_str))
+        return str(GameApi.convert_flags(flag_str))
 
     @staticmethod
     def normalize_value_fields(item_data, ItemTypes: type[IntEnum]):
         item_type = item_data.get("itemType", "").strip().lower()
-        if item_type == ItemTypes.ITEM_WEAPON.name:
+        if ItemUtil._matches_item_type(item_type, "ITEM_WEAPON"):
             item_data['value1'] = GenericUtil.convert_numeric_to_string(item_data.get('value1', '0'))
             item_data['value2'] = GenericUtil.convert_numeric_to_string(item_data.get('value2', '0'))
             item_data['value4'] = ItemUtil.read_flag(item_data.get('value4', '0'))
-        elif item_type == ItemTypes.ITEM_WEAPON.name:
+        elif ItemUtil._matches_item_type(item_type, "ITEM_CONTAINER"):
             item_data['value0'] = GenericUtil.convert_numeric_to_string(item_data.get('value0', '0'))
             item_data['value1'] = ItemUtil.read_flag(item_data.get('value1', '0'))
             item_data['value2'] = GenericUtil.convert_numeric_to_string(item_data.get('value2', '0'))
             item_data['value3'] = GenericUtil.convert_numeric_to_string(item_data.get('value3', '0'))
             item_data['value4'] = GenericUtil.convert_numeric_to_string(item_data.get('value4', '0'))
-        elif item_type in [ItemTypes.ITEM_DRINK_CON.name, ItemTypes.ITEM_FOUNTAIN.name]:
+        elif ItemUtil._matches_item_type(item_type, "ITEM_DRINK_CON", "ITEM_FOUNTAIN"):
             item_data['value0'] = GenericUtil.convert_numeric_to_string(item_data.get('value0', '0'))
             item_data['value1'] = GenericUtil.convert_numeric_to_string(item_data.get('value1', '0'))
             item_data['value3'] = GenericUtil.convert_numeric_to_string(item_data.get('value3', '0'))
             item_data['value4'] = GenericUtil.convert_numeric_to_string(item_data.get('value4', '0'))
-        elif item_type in [ItemTypes.ITEM_WAND.name, ItemTypes.ITEM_STAFF.name]:
+        elif ItemUtil._matches_item_type(item_type, "ITEM_WAND", "ITEM_STAFF"):
             item_data['value0'] = GenericUtil.convert_numeric_to_string(item_data.get('value0', '0'))
             item_data['value1'] = GenericUtil.convert_numeric_to_string(item_data.get('value1', '0'))
             item_data['value2'] = GenericUtil.convert_numeric_to_string(item_data.get('value2', '0'))
             item_data['value4'] = GenericUtil.convert_numeric_to_string(item_data.get('value4', '0'))
-        elif item_type in [ItemTypes.ITEM_POTION.name, ItemTypes.ITEM_PILL.name, ItemTypes.ITEM_SCROLL.name]:
+        elif ItemUtil._matches_item_type(item_type, "ITEM_POTION", "ITEM_PILL", "ITEM_SCROLL"):
             item_data['value0'] = GenericUtil.convert_numeric_to_string(item_data.get('value0', '0'))
         else:
             for i in range(5):
@@ -160,14 +160,33 @@ class ItemUtil:
     @staticmethod
     def update_item_type(item_data, DamageTypes: type[IntEnum], ItemTypes: type[IntEnum], liquids, skill_registry):
         item_type = item_data.get("itemType", "").strip().lower()
-        if item_type == ItemTypes.ITEM_WEAPON.name:
+        if ItemUtil._matches_item_type(item_type, "ITEM_WEAPON"):
             ItemUtil.attack_type(DamageTypes, item_data)
-        elif item_type == ItemTypes.ITEM_FOUNTAIN.name:
+        elif ItemUtil._matches_item_type(item_type, "ITEM_DRINK_CON", "ITEM_FOUNTAIN"):
             ItemUtil.update_fountain(liquids, item_data)
-        elif item_type == ItemTypes.ITEM_STAFF.name:
+        elif ItemUtil._matches_item_type(item_type, "ITEM_STAFF"):
             ItemUtil.update_staff(skill_registry, item_data)
-        elif item_type == ItemTypes.ITEM_SCROLL.name:
+        elif ItemUtil._matches_item_type(item_type, "ITEM_SCROLL"):
             ItemUtil.update_scroll(skill_registry, item_data)
+
+    @staticmethod
+    def _matches_item_type(raw_item_type: str, *enum_names: str) -> bool:
+        item_type = str(raw_item_type or "").strip().lower()
+        if not item_type:
+            return False
+
+        aliases = {name.strip().lower() for name in enum_names if name}
+        try:
+            item_table = ItemApi._item_table_map()
+        except RuntimeError:
+            item_table = {}
+
+        for alias, config in item_table.items():
+            mapped_type = str((config or {}).get("type", "")).strip().upper()
+            if mapped_type in enum_names:
+                aliases.add(str(alias or "").strip().lower())
+
+        return item_type in aliases
 
     @staticmethod
     def update_fountain(liquids, item_data):
@@ -180,7 +199,7 @@ class ItemUtil:
             skill = skill_registry.get(name=skill_name)
             item_data['value3'] = str(skill)
         except Exception as e:
-            print(f"Failed to update staff skill: {e}")
+            logger.warning(f"Failed to update staff skill: {e}")
 
     @staticmethod
     def update_scroll(skill_registry, item_data):
@@ -191,7 +210,7 @@ class ItemUtil:
                     skill = skill_registry.get(name=skill_name)
                     item_data[skill_key] = str(skill)
             except Exception as e:
-                print(f"Failed to update scroll skill: {e}")
+                logger.warning(f"Failed to update scroll skill: {e}")
 
     # even if it's slower, it still loads all in the same second
     @staticmethod
@@ -295,6 +314,16 @@ class ItemUtil:
         return ("drink" in t) or ("fountain" in t)
 
     @staticmethod
+    def is_fountain(item) -> bool:
+        t = (getattr(item, "item_type", "") or "").strip().lower()
+        return "fountain" in t
+
+    @staticmethod
+    def is_edible(item) -> bool:
+        t = (getattr(item, "item_type", "") or "").strip().lower()
+        return ("food" in t) or ("pill" in t)
+
+    @staticmethod
     def is_container_like(item) -> bool:
         t = (item.item_type or "").strip().lower()
         return ("container" in t) or ("corpse" in t)
@@ -333,7 +362,7 @@ class ItemUtil:
             flags = int(getattr(obj, "extra_flags", 0) or 0)
         except (TypeError, ValueError):
             try:
-                flags = GameMacros.convert_flags(str(getattr(obj, "extra_flags", "0") or "0"))
+                flags = GameApi.convert_flags(str(getattr(obj, "extra_flags", "0") or "0"))
             except Exception:
                 flags = 0
         return (flags & int(flag_value)) != 0
@@ -435,29 +464,29 @@ class ItemUtil:
 
     @staticmethod
     def can_see_object(room: Room, character: Character, obj: Item) -> bool:
-        ItemFlags = CharacterMacros.get_enum('itemFlags')
-        ItemTypes = CharacterMacros.get_enum('itemTypes')
-        AffectBits = CharacterMacros.get_enum('affectedBy')
-        PlayerActBits = CharacterMacros.get_enum('playerActBits')
-        if not CharacterMacros.is_npc(character) and CharacterMacros.is_set(character.status_flags.act, PlayerActBits.PLR_HOLYLIGHT.value):
+        ItemFlags = CharacterApi.get_enum('itemFlags')
+        ItemTypes = CharacterApi.get_enum('itemTypes')
+        AffectBits = CharacterApi.get_enum('affectedBy')
+        PlayerActBits = CharacterApi.get_enum('playerActBits')
+        if not CharacterApi.is_npc(character) and CharacterApi.is_set(character.status_flags.act, PlayerActBits.PLR_HOLYLIGHT.value):
             return True
 
-        if CharacterMacros.is_set(GameMacros.convert_flags(obj.extra_flags), ItemFlags.ITEM_VIS_DEATH.value):
+        if CharacterApi.is_set(GameApi.convert_flags(obj.extra_flags), ItemFlags.ITEM_VIS_DEATH.value):
             return False
 
-        if CharacterMacros.is_affected(character, AffectBits.AFF_BLIND.value) and obj.item_type != ItemTypes.ITEM_POTION.value:
+        if CharacterApi.is_affected(character, AffectBits.AFF_BLIND.value) and obj.item_type != ItemTypes.ITEM_POTION.value:
             return False
 
         if obj.item_type == ItemTypes.ITEM_LIGHT.value and int(obj.value2) != 0:
             return True
 
-        if CharacterMacros.is_set(GameMacros.convert_flags(obj.extra_flags), ItemFlags.ITEM_INVIS.value and not CharacterMacros.is_affected(character, AffectBits.AFF_DETECT_INVIS.value)):
+        if CharacterApi.is_set(GameApi.convert_flags(obj.extra_flags), ItemFlags.ITEM_INVIS.value and not CharacterApi.is_affected(character, AffectBits.AFF_DETECT_INVIS.value)):
             return False
 
-        if CharacterMacros.is_set(GameMacros.convert_flags(obj.extra_flags), ItemFlags.ITEM_GLOW.value):
+        if CharacterApi.is_set(GameApi.convert_flags(obj.extra_flags), ItemFlags.ITEM_GLOW.value):
             return True
 
-        if room.is_room_dark() and not CharacterMacros.is_affected(character, AffectBits.AFF_DARK_VISION.value):
+        if room.is_room_dark() and not CharacterApi.is_affected(character, AffectBits.AFF_DARK_VISION.value):
             return False
 
         return True
@@ -475,7 +504,7 @@ class ItemUtil:
 
     @staticmethod
     def has_flag(raw_flags, bit_value: int) -> bool:
-        return (GameMacros.flags_to_int(raw_flags) & int(bit_value)) != 0
+        return (GameApi.flags_to_int(raw_flags) & int(bit_value)) != 0
 
     @staticmethod
     def ensure_equipped(character):
@@ -567,7 +596,7 @@ class ItemUtil:
             slot = forced.strip().lower()
             return slot if hasattr(equipped, slot) and getattr(equipped, slot) is None else None
 
-        flags = GameMacros.flags_to_int(getattr(item, "wear_flags", 0))
+        flags = GameApi.flags_to_int(getattr(item, "wear_flags", 0))
         for flag_name, slots in ItemUtil.WEAR_SLOT_ORDER.items():
             if wear_flags_enum is None or not hasattr(wear_flags_enum, flag_name):
                 continue

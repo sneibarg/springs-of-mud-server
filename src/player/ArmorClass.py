@@ -14,7 +14,7 @@ class ArmorClass:
         return cls(**data)
 
     def get_ac(self, char: Any, ac: int) -> int:
-        from player.CharacterMacros import CharacterMacros
+        from api.CharacterApi import CharacterApi
         key = ac
         if isinstance(ac, int):
             if ac == 0:
@@ -44,5 +44,5 @@ class ArmorClass:
         dex_value = 0
         if hasattr(char, "character_attributes"):
             dex_value = getattr(char.character_attributes, "dexterity", 0)
-        dex_defensive = CharacterMacros.get_attribute_bonus("dexterity", str(dex_value)).get("defensive", 0)
+        dex_defensive = CharacterApi.get_attribute_bonus("dexterity", str(dex_value)).get("defensive", 0)
         return int(base) + int(dex_defensive)

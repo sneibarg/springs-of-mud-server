@@ -289,10 +289,10 @@ class Character:
 
     def check_blind(self, character_macros) -> bool:
         if not character_macros.is_npc(self) and character_macros.has_holy_light(self):
-            return True
-        if character_macros.is_blind(self):
             return False
-        return True
+        if character_macros.is_blind(self):
+            return True
+        return False
 
     def learned(self) -> List[Any]:
         return [self.skills, self.spells]

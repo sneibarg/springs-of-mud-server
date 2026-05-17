@@ -5,13 +5,13 @@ import random
 
 from typing import Any
 
-from game.GameMacros import GameMacros
+from api.GameApi import GameApi
 from util.GenericUtil import GenericUtil
 from util.FightUtil import FightUtil
 from item.Effect import Effect
 from util.EffectUtil import EffectUtil
 from util.ItemUtil import ItemUtil
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 from util.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
 from skill.SpellContext import SpellContext
@@ -96,7 +96,7 @@ class SpellApi:
         visible_spell = SpellSpeech.utterance(spell_label, actor_name, translated=False)
         obscure_spell = SpellSpeech.utterance(spell_label, actor_name, translated=True)
 
-        if victim is not None and victim is not ctx.actor and not CharacterMacros.is_npc(victim):
+        if victim is not None and victim is not ctx.actor and not CharacterApi.is_npc(victim):
             self.send(
                 ctx,
                 to_victim=visible_spell if self._same_class(ctx.actor, victim) else obscure_spell,
@@ -140,7 +140,7 @@ class SpellApi:
         payload: dict[str, Any] = {}
         if to_char and ctx.is_player_source:
             payload["to_char"] = str(to_char)
-        if to_victim and target is not None and not CharacterMacros.is_npc(target):
+        if to_victim and target is not None and not CharacterApi.is_npc(target):
             payload["victim"] = target
             payload["to_victim"] = str(to_victim)
         if to_room:
@@ -385,7 +385,7 @@ class SpellApi:
             or self._mob_has_act(victim, "ACT_AGGRESSIVE")
             or self._mob_has_imm(victim, "IMM_SUMMON")
             or self._player_has_act(victim, "PLR_NOSUMMON")
-            or (CharacterMacros.is_npc(victim) and EffectUtil.saves_spell(ctx.level, victim, 0))
+            or (CharacterApi.is_npc(victim) and EffectUtil.saves_spell(ctx.level, victim, 0))
         ):
             return ctx.fail("You failed.\r\n")
         return self._move_character(
@@ -403,7 +403,7 @@ class SpellApi:
         current = self._find_room_for_entity(victim)
         room_registry = self._room_registry(ctx)
         temple = room_registry.get_or_none(vnum="3001") if room_registry is not None else None
-        if victim is None or CharacterMacros.is_npc(victim) or temple is None or current is None:
+        if victim is None or CharacterApi.is_npc(victim) or temple is None or current is None:
             return ctx.fail("You are completely lost.\r\n")
         if current.id == temple.id:
             return False
@@ -438,7 +438,7 @@ class SpellApi:
             or self._room_flag(ctx.room, "ROOM_NO_RECALL")
             or GenericUtil.to_int(getattr(victim, "level", 0), 0) >= ctx.level + 3
             or self._mob_has_imm(victim, "IMM_SUMMON")
-            or (CharacterMacros.is_npc(victim) and EffectUtil.saves_spell(ctx.level, victim, 0))
+            or (CharacterApi.is_npc(victim) and EffectUtil.saves_spell(ctx.level, victim, 0))
         ):
             return ctx.fail("You failed.\r\n")
         return self._move_character(
@@ -551,7 +551,7 @@ class SpellApi:
         if not fighters:
             return False
         for entity in fighters:
-            if (CharacterMacros.is_npc(entity) and (self._mob_has_imm(entity, "IMM_MAGIC") or self._mob_has_act(entity, "ACT_UNDEAD"))) or self._effect_active(entity, "AFF_CALM") or self._effect_active(entity, "AFF_BERSERK") or self._effect_active(entity, "spell.frenzy"):
+            if (CharacterApi.is_npc(entity) and (self._mob_has_imm(entity, "IMM_MAGIC") or self._mob_has_act(entity, "ACT_UNDEAD"))) or self._effect_active(entity, "AFF_CALM") or self._effect_active(entity, "AFF_BERSERK") or self._effect_active(entity, "spell.frenzy"):
                 return False
 
         count = len(fighters)
@@ -559,7 +559,7 @@ class SpellApi:
         mlevel = 0
         for entity in fighters:
             entity_level = GenericUtil.to_int(getattr(entity, "level", 0), 0)
-            mlevel += entity_level if CharacterMacros.is_npc(entity) else entity_level // 2
+            mlevel += entity_level if CharacterApi.is_npc(entity) else entity_level // 2
         chance = max(0, 4 * ctx.level - high_level + 2 * count)
         if random.randint(0, chance) < mlevel:
             return False
@@ -719,9 +719,9 @@ class SpellApi:
             return False
         if self.apply_affect_data(ctx):
             if hasattr(victim, "position"):
-                victim.position = CharacterMacros.pos_value("POS_SLEEPING")
+                victim.position = CharacterApi.pos_value("POS_SLEEPING")
             elif hasattr(getattr(victim, "character_attributes", None), "position"):
-                victim.character_attributes.position = CharacterMacros.pos_value("POS_SLEEPING")
+                victim.character_attributes.position = CharacterApi.pos_value("POS_SLEEPING")
             return True
         return False
 
@@ -860,7 +860,7 @@ class SpellApi:
         exclude_ids = {str(getattr(victim, "id", "") or "")}
         if from_room_line:
             self._queue_room_text(ctx, current, from_room_line, exclude_ids=exclude_ids)
-        if CharacterMacros.is_npc(victim):
+        if CharacterApi.is_npc(victim):
             current.mobiles.pop(str(getattr(victim, "id", "")), None)
             room.add_mobile_to_room(victim)
         else:
@@ -872,7 +872,7 @@ class SpellApi:
             self.send(ctx, to_victim=line, victim=victim)
         if to_room_line:
             self._queue_room_text(ctx, room, to_room_line, exclude_ids=exclude_ids)
-        if not CharacterMacros.is_npc(victim):
+        if not CharacterApi.is_npc(victim):
             payload = {"view_character": victim, "to_room_obj": room}
             if victim is ctx.actor:
                 payload["aggressive_rounds"] = self._fight_handler(ctx).aggressive_entry_rounds(victim, room)
@@ -939,7 +939,7 @@ class SpellApi:
     def _entity_name(entity) -> str:
         if entity is None:
             return "someone"
-        if CharacterMacros.is_npc(entity):
+        if CharacterApi.is_npc(entity):
             return str(getattr(entity, "short_description", "") or getattr(entity, "name", "someone"))
         return str(getattr(entity, "name", "someone"))
 
@@ -967,9 +967,9 @@ class SpellApi:
         return list(getattr(room, "characters", {}).values()) + list(getattr(room, "mobiles", {}).values())
 
     def _room_flag(self, room, flag_name: str) -> bool:
-        flags = CharacterMacros.get_enum("roomFlags")
-        bit = CharacterMacros.enum_bit(flags, flag_name)
-        return bit > 0 and CharacterMacros.is_set(GenericUtil.to_int(getattr(room, "room_flags", 0), 0), bit)
+        flags = CharacterApi.get_enum("roomFlags")
+        bit = CharacterApi.enum_bit(flags, flag_name)
+        return bit > 0 and CharacterApi.is_set(GenericUtil.to_int(getattr(room, "room_flags", 0), 0), bit)
 
     def _queue_room_text(self, ctx: SpellContext, room, text: str, exclude_ids: set[str] | None = None):
         if room is None or not text:
@@ -982,11 +982,11 @@ class SpellApi:
 
     @staticmethod
     def _same_side(actor, entity) -> bool:
-        return CharacterMacros.is_npc(actor) == CharacterMacros.is_npc(entity)
+        return CharacterApi.is_npc(actor) == CharacterApi.is_npc(entity)
 
     @staticmethod
     def _same_class(actor, entity) -> bool:
-        if actor is None or entity is None or CharacterMacros.is_npc(entity):
+        if actor is None or entity is None or CharacterApi.is_npc(entity):
             return False
         actor_class = str(getattr(getattr(actor, "character_class", None), "name", "") or "").strip().lower()
         entity_class = str(getattr(getattr(entity, "character_class", None), "name", "") or "").strip().lower()
@@ -994,7 +994,7 @@ class SpellApi:
 
     @staticmethod
     def _room_combatants(room) -> list[Any]:
-        fighting_pos = CharacterMacros.pos_value("POS_FIGHTING")
+        fighting_pos = CharacterApi.pos_value("POS_FIGHTING")
         fighters = []
         for entity in SpellApi._room_entities(room):
             position = GenericUtil.to_int(getattr(entity, "position", getattr(getattr(entity, "character_attributes", None), "position", 0)), 0)
@@ -1013,17 +1013,17 @@ class SpellApi:
         return items
 
     def _remove_curse_item(self, ctx: SpellContext, item, owner: Any = None, quiet: bool = False) -> bool:
-        item_flags = CharacterMacros.get_enum("itemFlags")
+        item_flags = CharacterApi.get_enum("itemFlags")
         nodrop = getattr(item_flags, "ITEM_NODROP", None)
         noremove = getattr(item_flags, "ITEM_NOREMOVE", None)
         nouncurse = getattr(item_flags, "ITEM_NOUNCURSE", None)
-        raw_flags = GameMacros.flags_to_int(getattr(item, "extra_flags", 0))
-        cursed = (nodrop is not None and GameMacros.is_set(raw_flags, nodrop.value)) or (noremove is not None and GameMacros.is_set(raw_flags, noremove.value))
+        raw_flags = GameApi.flags_to_int(getattr(item, "extra_flags", 0))
+        cursed = (nodrop is not None and GameApi.is_set(raw_flags, nodrop.value)) or (noremove is not None and GameApi.is_set(raw_flags, noremove.value))
         if not cursed:
             if quiet:
                 return False
             return ctx.fail(f"There doesn't seem to be a curse on {ItemUtil.short(item)}.\r\n")
-        if nouncurse is not None and GameMacros.is_set(raw_flags, nouncurse.value):
+        if nouncurse is not None and GameApi.is_set(raw_flags, nouncurse.value):
             if quiet:
                 return False
             return ctx.fail(f"The curse on {ItemUtil.short(item)} is beyond your power.\r\n")
@@ -1032,10 +1032,10 @@ class SpellApi:
                 return False
             return ctx.fail(f"The curse on {ItemUtil.short(item)} is beyond your power.\r\n")
         if nodrop is not None:
-            raw_flags = GameMacros.unset_bit(raw_flags, nodrop.value)
+            raw_flags = GameApi.unset_bit(raw_flags, nodrop.value)
         if noremove is not None:
-            raw_flags = GameMacros.unset_bit(raw_flags, noremove.value)
-        item.extra_flags = GameMacros.flags_to_letters(raw_flags)
+            raw_flags = GameApi.unset_bit(raw_flags, noremove.value)
+        item.extra_flags = GameApi.flags_to_letters(raw_flags)
         if quiet:
             return True
         if owner is not None and owner is not ctx.actor:
@@ -1048,34 +1048,34 @@ class SpellApi:
 
     @staticmethod
     def _mob_has_act(entity, flag_name: str) -> bool:
-        if entity is None or not CharacterMacros.is_npc(entity):
+        if entity is None or not CharacterApi.is_npc(entity):
             return False
-        act_bits = CharacterMacros.get_enum("actBits")
-        bit = CharacterMacros.enum_bit(act_bits, flag_name)
+        act_bits = CharacterApi.get_enum("actBits")
+        bit = CharacterApi.enum_bit(act_bits, flag_name)
         if bit <= 0:
             return False
         flags = GenericUtil.to_int(getattr(getattr(entity, "status_flags", None), "act", 0), 0)
-        return CharacterMacros.is_set(flags, bit)
+        return CharacterApi.is_set(flags, bit)
 
     @staticmethod
     def _mob_has_imm(entity, flag_name: str) -> bool:
-        if entity is None or not CharacterMacros.is_npc(entity):
+        if entity is None or not CharacterApi.is_npc(entity):
             return False
-        flag_letters = CharacterMacros.get_enum("flagLetters")
+        flag_letters = CharacterApi.get_enum("flagLetters")
         if not hasattr(flag_letters, flag_name):
             return False
         flags = GenericUtil.to_int(getattr(getattr(entity, "status_flags", None), "imm", 0), 0)
-        return CharacterMacros.is_set(flags, getattr(flag_letters, flag_name).value)
+        return CharacterApi.is_set(flags, getattr(flag_letters, flag_name).value)
 
     @staticmethod
     def _player_has_act(entity, flag_name: str) -> bool:
-        if entity is None or CharacterMacros.is_npc(entity):
+        if entity is None or CharacterApi.is_npc(entity):
             return False
-        act_bits = CharacterMacros.get_enum("playerActBits")
+        act_bits = CharacterApi.get_enum("playerActBits")
         if not hasattr(act_bits, flag_name):
             return False
-        flags = GenericUtil.to_int(CharacterMacros.convert_flags(getattr(getattr(entity, "status_flags", None), "act", "") or "0"), 0)
-        return CharacterMacros.is_set(flags, getattr(act_bits, flag_name).value)
+        flags = GenericUtil.to_int(CharacterApi.convert_flags(getattr(getattr(entity, "status_flags", None), "act", "") or "0"), 0)
+        return CharacterApi.is_set(flags, getattr(act_bits, flag_name).value)
 
     @staticmethod
     def _room_helper(ctx_or_entity):

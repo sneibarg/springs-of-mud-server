@@ -41,8 +41,8 @@ if "server.LoggerFactory" not in sys.modules:
     logger_factory.LoggerFactory = LoggerFactory
     sys.modules["server.LoggerFactory"] = logger_factory
 
-if "item.ItemMacros" not in sys.modules:
-    object_macros = types.ModuleType("item.ItemMacros")
+if "item.ItemApi" not in sys.modules:
+    object_macros = types.ModuleType("item.ItemApi")
 
     class ItemMacros:
         @staticmethod
@@ -50,7 +50,7 @@ if "item.ItemMacros" not in sys.modules:
             return int(value or 0)
 
     object_macros.ItemMacros = ItemMacros
-    sys.modules["item.ItemMacros"] = object_macros
+    sys.modules["item.ItemApi"] = object_macros
 
 from game.Equipped import Equipped
 

@@ -179,7 +179,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
             handler, registry_service, message_bus = self._handler([])
             registry_service.character_registry.all_characters.return_value = [offline]
 
-            with patch("game.UpdateHandler.CharacterMacros.is_immortal", return_value=False):
+            with patch("game.UpdateHandler.CharacterApi.is_immortal", return_value=False):
                 await handler.char_update()
 
             self.assertEqual(1, offline.status_flags.thirst)
@@ -196,7 +196,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
 
             handler, _, message_bus = self._handler([active])
 
-            with patch("game.UpdateHandler.CharacterMacros.is_immortal", return_value=False):
+            with patch("game.UpdateHandler.CharacterApi.is_immortal", return_value=False):
                 await handler.char_update()
 
             self.assertEqual(0, active.status_flags.thirst)
