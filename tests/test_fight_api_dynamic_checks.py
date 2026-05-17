@@ -125,7 +125,7 @@ class TestFightApiDynamicChecks(unittest.TestCase):
                 "slot": 0,
                 "minMana": 0,
                 "beats": 0,
-                "checks": [
+                "guards": [
                     {"predicate": "lambda v: not v.argument", "messageKey": "noArgument"},
                     {"predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim", "messageKey": "alreadyFighting"},
                 ],
@@ -201,7 +201,7 @@ class TestFightApiDynamicChecks(unittest.TestCase):
                 "slot": 0,
                 "minMana": 0,
                 "beats": 24,
-                "checks": [
+                "guards": [
                     {"predicate": "lambda v: v.victim is v.actor", "messageKey": "targetSelf"},
                 ],
                 "fightExecutor": "backstab",
@@ -222,7 +222,7 @@ class TestFightApiDynamicChecks(unittest.TestCase):
         )
 
         api = FightApi(Mock(), Mock(), Mock(), Mock())
-        rendered = api.evaluate_checks_only_view(view)
+        rendered = api.evaluate_guards_only_view(view)
 
         self.assertEqual("How can you sneak up on yourself?\r\n", rendered["to_char"])
 

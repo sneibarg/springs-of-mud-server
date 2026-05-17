@@ -165,7 +165,7 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
                     "toRoom": {"blockedEverywhere": "%c cannot do that."},
                     "toVictim": {},
                 },
-                "checks": [
+                "guards": [
                     {
                         "predicate": "lambda v: True",
                         "messageKey": "blockedEverywhere",

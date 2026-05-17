@@ -143,7 +143,7 @@ class TestQuitCommandChecks(unittest.TestCase):
                 "log": "LOG_NORMAL",
                 "pipeline": False,
                 "maxArguments": 0,
-                "checks": [
+                "guards": [
                     {
                         "predicate": "lambda v: v.context.current_fighting is not None",
                         "messageKey": "fighting",

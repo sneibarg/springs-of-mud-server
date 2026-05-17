@@ -139,7 +139,7 @@ class Fight:
 
     def do_bash(self, character: Character, context: Context):
         view = self.fight_api.build_fight_view(context, skill_name="bash", current_target_fallback=True)
-        payload = self.fight_api.evaluate_checks_only_view(view)
+        payload = self.fight_api.evaluate_guards_only_view(view)
         if payload is not None:
             return payload
 
@@ -171,7 +171,7 @@ class Fight:
 
     def do_berserk(self, character: Character, context: Context):
         view = self.fight_api.build_fight_view(context, skill_name="berserk")
-        payload = self.fight_api.evaluate_checks_only_view(view)
+        payload = self.fight_api.evaluate_guards_only_view(view)
         if payload is not None:
             return payload
 
@@ -215,7 +215,7 @@ class Fight:
     def do_dirt(self, character: Character, context: Context):
         view = self.fight_api.build_fight_view(context, skill_name="dirt kicking", current_target_fallback=True)
         view.extra["terrain_adjustment"] = self._dirt_terrain_adjustment(view.room) if view.room is not None else None
-        payload = self.fight_api.evaluate_checks_only_view(view)
+        payload = self.fight_api.evaluate_guards_only_view(view)
         if payload is not None:
             return payload
 
@@ -251,7 +251,7 @@ class Fight:
         weapon = getattr(getattr(character, "equipped", None), "wielded", None)
         hand_to_hand = self.skill_api.get_rating(character, self.skill_registry.get(name="hand to hand"))
         view.extra["hand_to_hand"] = hand_to_hand
-        payload = self.fight_api.evaluate_checks_only_view(view)
+        payload = self.fight_api.evaluate_guards_only_view(view)
         if payload is not None:
             return payload
 
@@ -333,7 +333,7 @@ class Fight:
 
     def do_rescue(self, character: Character, context: Context):
         view = self.fight_api.build_fight_view(context, skill_name="rescue")
-        payload = self.fight_api.evaluate_checks_only_view(view)
+        payload = self.fight_api.evaluate_guards_only_view(view)
         if payload is not None:
             return payload
 
@@ -365,7 +365,7 @@ class Fight:
 
     def do_kick(self, character: Character, context: Context):
         view = self.fight_api.build_fight_view(context, skill_name="kick", current_target_fallback=True)
-        payload = self.fight_api.evaluate_checks_only_view(view)
+        payload = self.fight_api.evaluate_guards_only_view(view)
         if payload is not None:
             return payload
 
@@ -386,7 +386,7 @@ class Fight:
 
     def do_trip(self, character: Character, context: Context):
         view = self.fight_api.build_fight_view(context, skill_name="trip", current_target_fallback=True)
-        payload = self.fight_api.evaluate_checks_only_view(view)
+        payload = self.fight_api.evaluate_guards_only_view(view)
         if payload is not None:
             if payload.get("blocked_key") == "target_self":
                 self._set_wait(character, self._skill_beats(view.skill, 12) * 2)
@@ -486,7 +486,7 @@ class Fight:
         return None, "", "unsupported_target"
 
     def _evaluate_command_checks(self, context: Context):
-        return self.interp_api.evaluate_checks_only(context, context.command.name)
+        return self.interp_api.evaluate_guards_only(context, context.command.name)
 
     def _has_skill_access(self, character: Character, skill: Skill) -> bool:
         if CharacterApi.is_npc(character):

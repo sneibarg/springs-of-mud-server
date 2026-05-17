@@ -168,7 +168,7 @@ class Info:
             context.finish()
             return None
 
-        payload = self.interp_api.evaluate_checks_only(context, context.command.name)
+        payload = self.interp_api.evaluate_guards_only(context, context.command.name)
         if payload is not None:
             return payload
 

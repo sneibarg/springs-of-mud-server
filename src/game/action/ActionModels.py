@@ -27,7 +27,7 @@ class MessageRef:
 
 
 @dataclass(frozen=True)
-class ActionCheck(Generic[V]):
+class ActionGuard(Generic[V]):
     predicate: Callable[[V], bool]
     message_key: str
     fallback: str = ""
@@ -50,8 +50,8 @@ class ActionPlan:
 @dataclass(frozen=True)
 class ActionDefinition(Generic[V]):
     name: str
-    checks: tuple[ActionCheck[V], ...]
+    guards: tuple[ActionGuard[V], ...]
     plan_factory: Callable[[V], ActionPlan] = _empty_plan
 
     def __post_init__(self):
-        object.__setattr__(self, "checks", tuple(self.checks or ()))
+        object.__setattr__(self, "guards", tuple(self.guards or ()))

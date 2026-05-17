@@ -894,7 +894,7 @@ class Object:
             item = ItemUtil.first_fountain(room)
         context.drink_arg1 = arg1
         context.drink_item = item
-        blocked = self.interp_api.evaluate_checks_only(context, context.command.name)
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
             return blocked
 
@@ -947,7 +947,7 @@ class Object:
         item = character.find_inventory_item(arg1)
         context.eat_arg1 = arg1
         context.eat_item = item
-        blocked = self.interp_api.evaluate_checks_only(context, context.command.name)
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
             return blocked
 
@@ -989,7 +989,7 @@ class Object:
         context.fill_arg1 = arg1
         context.fill_dest = dest
         context.fill_src = src
-        blocked = self.interp_api.evaluate_checks_only(context, context.command.name)
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
             return blocked
 

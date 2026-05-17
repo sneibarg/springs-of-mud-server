@@ -1,3 +1,3 @@
-from .ActionModels import ActionCheck, ActionDefinition, ActionPlan, MessageRef
+from .ActionModels import ActionGuard, ActionDefinition, ActionPlan, MessageRef
 
-__all__ = ["ActionCheck", "ActionDefinition", "ActionPlan", "MessageRef"]
+__all__ = ["ActionGuard", "ActionDefinition", "ActionPlan", "MessageRef"]

@@ -25,7 +25,7 @@ class Skill:
     min_mana: int
     beats: int
     payload: GamePayload = field(default_factory=GamePayload)
-    checks: list[dict[str, Any]] = field(default_factory=list)
+    guards: list[dict[str, Any]] = field(default_factory=list)
     fight_executor: str = ""
     fight_plan: dict[str, Any] = field(default_factory=dict)
 
@@ -45,7 +45,7 @@ class Skill:
         payload = GenericUtil.camel_to_snake_case(data)
         payload["id"] = cls._extract_id(data, payload)
         payload["payload"] = GamePayload.from_json(payload.get("payload"))
-        payload["checks"] = cls._normalize_checks(payload.get("checks"))
+        payload["guards"] = cls._normalize_checks(payload.get("guards"))
         payload["fight_plan"] = cls._normalize_mapping(payload.get("fight_plan"))
         payload.pop("_id", None)
         return cls(**payload)

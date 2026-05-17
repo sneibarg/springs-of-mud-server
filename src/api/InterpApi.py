@@ -5,7 +5,7 @@ from functools import lru_cache
 from typing import Any, Callable
 from injector import inject
 
-from game.action import ActionCheck, ActionDefinition, ActionPlan, MessageRef
+from game.action import ActionGuard, ActionDefinition, ActionPlan, MessageRef
 from interp.InterpView import InterpView
 from api.MovementApi import MovementApi
 from api.ItemApi import ItemApi
@@ -34,7 +34,7 @@ class InterpApi:
         context.finish()
         return self.execute_interp_plan(view, plan)
 
-    def evaluate_checks_only(self, context, action_name: str):
+    def evaluate_guards_only(self, context, action_name: str):
         view = self.build_interp_view(context)
         definition = self._interp_check_definition(view, action_name)
         plan = self.evaluate_interp_action(view, definition)
@@ -92,15 +92,15 @@ class InterpApi:
         )
         return self.render_plan_payload(view.payload, plan)
 
-    def _build_checks(self, command) -> tuple[ActionCheck[InterpView], ...]:
-        checks: list[ActionCheck[InterpView]] = []
-        for entry in list(getattr(command, "checks", []) or []):
+    def _build_checks(self, command) -> tuple[ActionGuard[InterpView], ...]:
+        guards: list[ActionGuard[InterpView]] = []
+        for entry in list(getattr(command, "guards", []) or []):
             predicate_src = str(entry.get("predicate", "") or "").strip()
             if not predicate_src:
                 continue
             token_factory_src = str(entry.get("token_factory", "") or "").strip()
-            checks.append(
-                ActionCheck(
+            guards.append(
+                ActionGuard(
                     predicate=self._compile_lambda(predicate_src),
                     channel=str(entry.get("channel", "") or "").strip(),
                     message_key=str(entry.get("message_key", "") or "").strip(),
@@ -108,7 +108,7 @@ class InterpApi:
                     token_factory=self._compile_lambda(token_factory_src) if token_factory_src else self._empty_tokens,
                 )
             )
-        return tuple(checks)
+        return tuple(guards)
 
     @staticmethod
     def _default_plan(view: InterpView) -> ActionPlan:

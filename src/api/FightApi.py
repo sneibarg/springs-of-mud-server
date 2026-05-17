@@ -9,7 +9,7 @@ from injector import inject
 from area.RoomRegistry import RoomRegistry
 from fight.FightHandler import FightHandler
 from fight.FightView import FightView
-from game.action import ActionCheck, ActionDefinition, ActionPlan, MessageRef
+from game.action import ActionGuard, ActionDefinition, ActionPlan, MessageRef
 from api.SkillApi import SkillApi
 from skill.SkillRegistry import SkillRegistry
 from api.CharacterApi import CharacterApi
@@ -37,11 +37,11 @@ class FightApi:
         context.finish()
         return self.execute_fight_plan(context, commands_handler, view, plan)
 
-    def evaluate_checks_only(self, context, *, skill_name: str | None = None, current_target_fallback: bool = False):
+    def evaluate_guards_only(self, context, *, skill_name: str | None = None, current_target_fallback: bool = False):
         view = self.build_fight_view(context, skill_name=skill_name, current_target_fallback=current_target_fallback)
-        return self.evaluate_checks_only_view(view)
+        return self.evaluate_guards_only_view(view)
 
-    def evaluate_checks_only_view(self, view: FightView):
+    def evaluate_guards_only_view(self, view: FightView):
         action_name = str(view.extra.get("command_name", "") or getattr(getattr(view, "command", None), "name", "") or "")
         definition = self._fight_action_definition(view, action_name, require_executor=False)
         plan = self.evaluate_fight_action(view, definition)
@@ -93,16 +93,16 @@ class FightApi:
 
     @staticmethod
     def evaluate_fight_action(view: FightView, definition: ActionDefinition[FightView]) -> ActionPlan:
-        for check in definition.checks:
-            if check.predicate(view):
+        for guard in definition.guards:
+            if guard.predicate(view):
                 return ActionPlan(
                     stop=True,
                     messages=(
                         MessageRef(
                             channel="to_char",
-                            key=check.message_key,
-                            fallback=view.safe_message or check.fallback,
-                            tokens=check.token_factory(view),
+                            key=guard.message_key,
+                            fallback=view.safe_message or guard.fallback,
+                            tokens=guard.token_factory(view),
                         ),
                     ),
                 )
@@ -266,15 +266,15 @@ class FightApi:
             return lowered
         return "hand to hand"
 
-    def _build_checks(self, skill) -> tuple[ActionCheck[FightView], ...]:
-        checks: list[ActionCheck[FightView]] = []
-        for entry in list(getattr(skill, "checks", []) or []):
+    def _build_checks(self, skill) -> tuple[ActionGuard[FightView], ...]:
+        guards: list[ActionGuard[FightView]] = []
+        for entry in list(getattr(skill, "guards", []) or []):
             predicate_src = str(entry.get("predicate", "") or "").strip()
             if not predicate_src:
                 continue
             token_factory_src = str(entry.get("token_factory", "") or "").strip()
             checks.append(
-                ActionCheck(
+                ActionGuard(
                     predicate=self._compile_lambda(predicate_src),
                     message_key=str(entry.get("message_key", "") or "").strip(),
                     fallback=str(entry.get("fallback", "") or ""),

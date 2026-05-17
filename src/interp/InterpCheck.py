@@ -1,3 +1,3 @@
-from game.action import ActionCheck as InterpCheck
+from game.action import ActionGuard as InterpCheck
 
 __all__ = ["InterpCheck"]

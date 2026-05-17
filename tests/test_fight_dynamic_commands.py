@@ -261,9 +261,9 @@ class TestFightDynamicCommands(unittest.TestCase):
             skills = {entry["name"]: entry for entry in json.load(handle)}
 
         for name in command_names:
-            self.assertTrue(commands[name].get("checks"), name)
+            self.assertTrue(commands[name].get("guards"), name)
         for name in skill_names:
-            self.assertTrue(skills[name].get("checks"), name)
+            self.assertTrue(skills[name].get("guards"), name)
 
     def test_do_flee_uses_command_check_and_stands_when_not_fighting(self):
         room = SimpleNamespace(id="room-1", exits=[], player_targets=lambda _character: [])

@@ -165,7 +165,7 @@ class TestFightApiData(unittest.TestCase):
                 "minMana": 0,
                 "beats": 0,
                 "payload": {"toChar": {"noArgument": "Kill whom?"}},
-                "checks": [
+                "guards": [
                     {
                         "predicate": "lambda v: not v.argument",
                         "messageKey": "noArgument",
@@ -180,8 +180,8 @@ class TestFightApiData(unittest.TestCase):
         self.assertEqual("skill-1", skill.id)
         self.assertIsInstance(skill.payload, GamePayload)
         self.assertEqual("Kill whom?", skill.payload.to_char["no_argument"])
-        self.assertEqual("no_argument", skill.checks[0]["message_key"])
-        self.assertEqual("lambda v: victim_name_tokens(v)", skill.checks[0]["token_factory"])
+        self.assertEqual("no_argument", skill.guards[0]["message_key"])
+        self.assertEqual("lambda v: victim_name_tokens(v)", skill.guards[0]["token_factory"])
         self.assertEqual("multi_hit", skill.fight_executor)
         self.assertEqual({"dt": "TYPE_UNDEFINED"}, skill.fight_plan)
 
@@ -202,7 +202,7 @@ class TestFightApiData(unittest.TestCase):
                 "slot": 0,
                 "minMana": 0,
                 "beats": 0,
-                "checks": [
+                "guards": [
                     {"predicate": "lambda v: not v.argument", "messageKey": "noArgument"},
                     {
                         "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
@@ -270,7 +270,7 @@ class TestFightApiData(unittest.TestCase):
                 "slot": 0,
                 "minMana": 0,
                 "beats": 24,
-                "checks": [
+                "guards": [
                     {
                         "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
                         "messageKey": "noAccess",

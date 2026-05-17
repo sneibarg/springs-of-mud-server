@@ -141,7 +141,7 @@ class _CharacterApi:
 
 
 class _InterpApi:
-    def evaluate_checks_only(self, context, _action_name):
+    def evaluate_guards_only(self, context, _action_name):
         name = str(getattr(getattr(context, "command", None), "name", "") or "").lower()
         if name == "drink":
             item = getattr(context, "drink_item", None)

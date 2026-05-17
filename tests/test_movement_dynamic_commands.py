@@ -269,7 +269,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
 
         self.assertIs(_MovementUtil, InterpApi._lambda_locals()["MovementUtil"])
         self.assertIs(MovementApi, InterpApi._lambda_locals()["MovementApi"])
-        self.assertTrue(callable(InterpApi._compile_lambda(command.checks[0]["predicate"])))
+        self.assertTrue(callable(InterpApi._compile_lambda(command.guards[0]["predicate"])))
 
     def test_direction_closed_uses_keyword_payload_token(self):
         commands, room_registry = self._commands()

@@ -81,7 +81,7 @@ class TestCommandData(unittest.TestCase):
                 "level": 0,
                 "maxArguments": 0,
                 "payload": {"toChar": {"noPractice": "You have no practice sessions left."}},
-                "checks": [
+                "guards": [
                     {
                         "predicate": "lambda v: not v.argument",
                         "messageKey": "noPractice",
@@ -93,8 +93,8 @@ class TestCommandData(unittest.TestCase):
 
         self.assertIsInstance(command.payload, GamePayload)
         self.assertEqual("You have no practice sessions left.", command.payload.to_char["no_practice"])
-        self.assertEqual("no_practice", command.checks[0]["message_key"])
-        self.assertEqual("lambda v: {'count': 0}", command.checks[0]["token_factory"])
+        self.assertEqual("no_practice", command.guards[0]["message_key"])
+        self.assertEqual("lambda v: {'count': 0}", command.guards[0]["token_factory"])
 
 
 if __name__ == "__main__":

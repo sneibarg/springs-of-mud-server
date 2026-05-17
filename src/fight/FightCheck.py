@@ -1,3 +1,3 @@
-from game.action import ActionCheck as FightCheck
+from game.action import ActionGuard as FightCheck
 
 __all__ = ["FightCheck"]

@@ -46,7 +46,7 @@ class Command:
         data['_id'] = GenericUtil.generate_mongo_id()
         data = GenericUtil.camel_to_snake_case(data)
         data["payload"] = GamePayload.from_json(data.get("payload"))
-        data["checks"] = cls._normalize_checks(data.get("checks"))
+        data["guards"] = cls._normalize_checks(data.get("guards"))
         return cls(**data)
 
     def render_message(self, channel: str, key: str, fallback: str = "", **values) -> str:
