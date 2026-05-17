@@ -15,7 +15,7 @@
         "log": "LOG_NORMAL",
         "pipeline": false,
         "maxArguments": 0,
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: CharacterApi.is_fighting(v.context.character)",
                 "messageKey": "fighting"
@@ -66,7 +66,7 @@
             },
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not InterpUtil.argument_text(v)",
                 "messageKey": "noArgument"
@@ -109,7 +109,7 @@
                 "default": "%c tells you '%s'"
             }
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOTELL')",
                 "messageKey": "noTell"
@@ -204,7 +204,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not v.context.examine_argument",
                 "messageKey": "noArgument"
@@ -248,7 +248,7 @@
             },
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: CharacterApi.is_dead(v.context.character)",
                 "messageKey": "dead"
@@ -341,7 +341,7 @@
             },
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: CharacterApi.is_dead(v.context.character)",
                 "messageKey": "dead"
@@ -434,7 +434,7 @@
             },
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: CharacterApi.is_dead(v.context.character)",
                 "messageKey": "dead"
@@ -527,7 +527,7 @@
             },
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: CharacterApi.is_dead(v.context.character)",
                 "messageKey": "dead"
@@ -627,7 +627,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: CharacterApi.is_stunned(v.context.character)",
                 "messageKey": "stunned"
@@ -703,7 +703,7 @@
             },
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: CharacterApi.is_dead(v.context.character)",
                 "messageKey": "dead"
@@ -796,7 +796,7 @@
             },
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: CharacterApi.is_dead(v.context.character)",
                 "messageKey": "dead"
@@ -919,7 +919,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not bool(getattr(v.context, 'cast_spell_name', ''))",
                 "messageKey": "noArgument"
@@ -1000,7 +1000,7 @@
                 "default": "%c auctions '%t'"
             }
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
@@ -1109,7 +1109,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not v.context.weather_outside",
                 "messageKey": "indoors"
@@ -1151,7 +1151,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not v.context.get_arg1",
                 "messageKey": "noArgument"
@@ -1410,7 +1410,7 @@
                 "default": "%c MUSIC: '%s'"
             }
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
@@ -1487,7 +1487,7 @@
             },
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: bool(v.context.practice_argument) and not v.context.practice_is_awake",
                 "messageKey": "isAsleep"
@@ -1748,7 +1748,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not v.context.equip_arg1",
                 "messageKey": "wearWieldHoldWhat"
@@ -1860,7 +1860,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not InterpUtil.argument_text(v)",
                 "messageKey": "noArgument"
@@ -1936,7 +1936,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not v.context.compare_arg1",
                 "messageKey": "noArgument"
@@ -1980,7 +1980,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not v.context.consider_argument",
                 "messageKey": "noArgument"
@@ -2106,7 +2106,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not v.context.weather_outside",
                 "messageKey": "indoors"
@@ -2434,7 +2434,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not InterpUtil.argument_text(v)",
                 "messageKey": "noArgument"
@@ -2464,7 +2464,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not v.context.weather_outside",
                 "messageKey": "indoors"
@@ -2498,7 +2498,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not v.context.whois_matches",
                 "messageKey": "targetMissing"
@@ -2972,7 +2972,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: bool(v.context.prompt_argument) and not v.context.prompt_format_available",
                 "messageKey": "promptUnavailable"
@@ -3006,7 +3006,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: bool(v.context.scroll_argument) and not v.context.scroll_is_numeric",
                 "messageKey": "noArgument"
@@ -3040,7 +3040,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not v.context.title_argument",
                 "messageKey": "noArgument"
@@ -3094,7 +3094,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: bool(v.context.wimpy_argument) and (not v.context.wimpy_is_numeric or v.context.wimpy_value < 0)",
                 "messageKey": "invalidWimpy"
@@ -3120,7 +3120,7 @@
         "log": "LOG_NORMAL",
         "pipeline": false,
         "maxArguments": 0,
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_AFK')",
                 "messageKey": "enable"
@@ -3168,7 +3168,7 @@
                 "default": "%c answers '%t'"
             }
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
@@ -3229,7 +3229,7 @@
             },
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOEMOTE')",
                 "messageKey": "noEmote"
@@ -3264,7 +3264,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOEMOTE')",
                 "messageKey": "noEmote"
@@ -3304,7 +3304,7 @@
                 "default": "%c gossips '%s'"
             }
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
@@ -3344,7 +3344,7 @@
                 "default": "%c gossips '%t'"
             }
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
@@ -3381,7 +3381,7 @@
             },
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOEMOTE')",
                 "messageKey": "noEmote"
@@ -3421,7 +3421,7 @@
                 "default": "%c grats '%t'"
             }
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
@@ -3458,7 +3458,7 @@
             },
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not InterpUtil.argument_text(v)",
                 "messageKey": "noArgument"
@@ -3558,7 +3558,7 @@
                 "default": "%c questions '%t'"
             }
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
@@ -3598,7 +3598,7 @@
                 "default": "%c quotes '%t'"
             }
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: bool(InterpUtil.argument_text(v)) and CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_QUIET')",
                 "messageKey": "quietMode"
@@ -3668,7 +3668,7 @@
                 "default": "%c tells you '%s'"
             }
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOTELL')",
                 "messageKey": "noTell"
@@ -3715,7 +3715,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not (v.context.character.context or {}).get('tell_buffer', [])",
                 "messageKey": "noTells"
@@ -3752,7 +3752,7 @@
                 "default": "%c shouts '%s'"
             }
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOSHOUT')",
                 "messageKey": "noShout"
@@ -3810,7 +3810,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_NOSHOUT')",
                 "messageKey": "noShout"
@@ -3887,7 +3887,7 @@
             },
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: (not v.context.drink_arg1) and v.context.drink_item is None",
                 "messageKey": "noArgument"
@@ -3951,7 +3951,7 @@
             },
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not v.context.drop_arg1",
                 "messageKey": "noArgument"
@@ -4002,7 +4002,7 @@
             },
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not v.context.eat_arg1",
                 "messageKey": "noArgument"
@@ -4083,7 +4083,7 @@
             },
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not v.context.fill_arg1",
                 "messageKey": "noArgument"
@@ -4144,7 +4144,7 @@
                 "itemReceived": "%c gives you %t"
             }
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not v.context.give_arg1 or not v.context.give_rem",
                 "messageKey": "noArgument"
@@ -4207,7 +4207,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not v.context.equip_arg1",
                 "messageKey": "noArgument"
@@ -4453,7 +4453,7 @@
             },
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not v.context.put_arg1 or not v.context.put_rem",
                 "messageKey": "noArgument"
@@ -4569,7 +4569,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not v.context.remove_arg1",
                 "messageKey": "noTarget"
@@ -4680,7 +4680,7 @@
                 "default": "%c sends up %t as a burnt offering."
             }
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: v.context.sacrifice_item is None",
                 "messageKey": "targetMissing"
@@ -4727,7 +4727,7 @@
                 "neverStocked": "%t looks uninterested in %t."
             }
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not v.context.value_raw",
                 "messageKey": "noArgument"
@@ -4816,7 +4816,7 @@
             },
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: (not v.context.wear_all) and not v.context.wear_arg1",
                 "messageKey": "noArgument"
@@ -5089,7 +5089,7 @@
             },
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: getattr(v.context.character, 'fighting', None) is None",
                 "messageKey": "notFighting"
@@ -5188,7 +5188,7 @@
             "toRoom": {},
             "toVictim": {}
         },
-        "checks": [
+        "guards": [
             {
                 "predicate": "lambda v: not InterpUtil.argument_text(v)",
                 "messageKey": "noArgument"

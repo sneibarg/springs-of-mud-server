@@ -27,7 +27,7 @@ class Command:
     log: Optional[str] = field(default=None)
     help: Optional[HelpEntry] = field(default=None)
     payload: GamePayload = field(default_factory=GamePayload)
-    checks: list[dict[str, Any]] = field(default_factory=list)
+    guards: list[dict[str, Any]] = field(default_factory=list)
 
     def __hash__(self):
         return hash(self.id)
