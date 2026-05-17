@@ -867,6 +867,20 @@
         "log": "LOG_NORMAL",
         "pipeline": false,
         "maxArguments": 0,
+        "guards": [
+            {
+                "predicate": "lambda v: len(v.context.parameters) == 0",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "",
+                "messageKey": "noSuchLocation"
+            },
+            {
+                "predicate": "lambda v: (room := v.context.room) is not None and room.is_private(CharacterApi.get_enum('roomFlags'))",
+                "messageKey": "privateRoom"
+            }
+        ],
         "payload": {
             "toChar": {
                 "noArgument": "At where what?",
@@ -992,7 +1006,7 @@
                 "disable": "Auction channel is now OFF.",
                 "quietMode": "You must turn off quiet mode first.",
                 "noChannels": "The gods have revoked your channel privileges.",
-                "default": "You acution '%s'"
+                "default": "You auction '%s'"
             },
             "toRoom": {},
             "toVictim": {},
@@ -1103,20 +1117,15 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "indoors": "You can't see the weather indoors.",
-                "unavailable": "The weather is unavailable."
+                "dark": "Too dark to tell."
             },
             "toRoom": {},
             "toVictim": {}
         },
         "guards": [
             {
-                "predicate": "lambda v: not v.context.weather_outside",
-                "messageKey": "indoors"
-            },
-            {
-                "predicate": "lambda v: not v.context.weather_available",
-                "messageKey": "unavailable"
+                "predicate": "",
+                "messageKey": "dark"
             }
         ]
     },
@@ -1134,59 +1143,90 @@
         "level": 0,
         "log": "LOG_NORMAL",
         "pipeline": false,
-        "maxArguments": 0,
+        "maxArguments": 2,
         "payload": {
             "toChar": {
                 "noArgument": "Get what?",
+                "default": "You get %t.",
+                "fromContainer": "You get %t from %T.",
                 "roomMissing": "You are nowhere.",
                 "targetMissing": "I see nothing here.",
                 "cannot": "You can't do that.",
+                "cannotTake": "You can't take that.",
+                "carryItems": "%t: you can't carry that many items.",
+                "carryWeight": "%t: you can't carry that much weight.",
                 "notContainer": "That's not a container.",
                 "isNewbiePit": "Don't be so greedy!",
                 "targetNotVisible": "I see no %t here.",
                 "closed": "The %t is closed.",
-                "invalidContainerTarget": "I see nothing like that in the %t.",
+                "invalidContainerTarget": "I see nothing like that in %t.",
                 "containerEmpty": "I see nothing in the %t."
             },
-            "toRoom": {},
+            "toRoom": {
+                "default": "%c gets %t.",
+                "fromContainer": "%c gets %t from %T."
+            },
             "toVictim": {}
         },
         "guards": [
             {
-                "predicate": "lambda v: not v.context.get_arg1",
+                "predicate": "lambda v: not bool(getattr(v.context, 'arg1', '') or InterpUtil.argument_text(v))",
                 "messageKey": "noArgument"
             },
             {
-                "predicate": "lambda v: v.context.get_room is None",
+                "predicate": "lambda v: v.context.room is None",
                 "messageKey": "roomMissing"
             },
             {
-                "predicate": "lambda v: bool(v.context.get_rem) and v.context.get_container is None",
-                "messageKey": "targetNotVisible",
-                "tokenFactory": "lambda v: {'t': v.context.get_container_name}"
+                "predicate": "lambda v: bool(getattr(v.context, 'get_all_from_container', False)) and ItemUtil.is_newbie_pit(v.context.container) and not CharacterApi.is_immortal(v.context.character)",
+                "messageKey": "isNewbiePit"
             },
             {
-                "predicate": "lambda v: v.context.get_container is not None and not ItemUtil.is_container_like(v.context.get_container)",
+                "predicate": "lambda v: bool(v.context.rem) and v.context.container is None",
+                "messageKey": "targetNotVisible",
+                "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
+            },
+            {
+                "predicate": "lambda v: v.context.container is not None and not ItemUtil.is_container_like(v.context.container)",
                 "messageKey": "notContainer"
             },
             {
-                "predicate": "lambda v: v.context.get_container is not None and ItemUtil.is_closed_container(v.context.get_container)",
+                "predicate": "lambda v: v.context.container is not None and ItemUtil.is_closed_container(v.context.container)",
                 "messageKey": "closed",
-                "tokenFactory": "lambda v: {'t': v.context.get_container_name}"
+                "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', getattr(v.context.container, 'name', ''))}"
             },
             {
-                "predicate": "lambda v: bool(v.context.get_rem) and not v.context.get_all_from_container and v.context.get_target_item is None",
-                "messageKey": "invalidContainerTarget",
-                "tokenFactory": "lambda v: {'t': v.context.get_container_name}"
-            },
-            {
-                "predicate": "lambda v: not bool(v.context.get_rem) and v.context.get_target_item is None",
+                "predicate": "lambda v: not bool(v.context.rem) and not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is None",
                 "messageKey": "targetNotVisible",
-                "tokenFactory": "lambda v: {'t': v.context.get_arg1}"
+                "tokenFactory": "lambda v: {'t': getattr(v.context, 'arg1', '')}"
             },
             {
-                "predicate": "lambda v: (not v.context.get_all_from_container) and v.context.get_target_item is not None and not v.context.get_item_takeable",
-                "messageKey": "cannot"
+                "predicate": "lambda v: not bool(v.context.rem) and bool(getattr(v.context, 'get_all', False)) and not bool(getattr(v.context, 'get_candidates', [])) and not bool(getattr(v.context, 'get_filter_name', ''))",
+                "messageKey": "targetMissing"
+            },
+            {
+                "predicate": "lambda v: not bool(v.context.rem) and bool(getattr(v.context, 'get_all', False)) and not bool(getattr(v.context, 'get_candidates', [])) and bool(getattr(v.context, 'get_filter_name', ''))",
+                "messageKey": "targetNotVisible",
+                "tokenFactory": "lambda v: {'t': getattr(v.context, 'get_filter_name', '')}"
+            },
+            {
+                "predicate": "lambda v: bool(v.context.rem) and v.context.container is not None and not bool(getattr(v.context, 'get_all_from_container', False)) and v.context.target_item is None",
+                "messageKey": "invalidContainerTarget",
+                "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
+            },
+            {
+                "predicate": "lambda v: bool(v.context.rem) and v.context.container is not None and bool(getattr(v.context, 'get_all_from_container', False)) and not bool(getattr(v.context, 'get_candidates', [])) and not bool(getattr(v.context, 'get_filter_name', ''))",
+                "messageKey": "containerEmpty",
+                "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
+            },
+            {
+                "predicate": "lambda v: bool(v.context.rem) and v.context.container is not None and bool(getattr(v.context, 'get_all_from_container', False)) and not bool(getattr(v.context, 'get_candidates', [])) and bool(getattr(v.context, 'get_filter_name', ''))",
+                "messageKey": "invalidContainerTarget",
+                "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
+            },
+            {
+                "predicate": "lambda v: not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is not None and not ItemUtil.item_takeable(v.context.target_item)",
+                "messageKey": "cannotTake"
             }
         ]
     },
@@ -1216,7 +1256,17 @@
                 "exit": "%c disappears in a swirling mist."
             },
             "toVictim": {}
-        }
+        },
+        "guards": [
+            {
+                "predicate": "lambda v: len(v.context.parameters) == 0",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "",
+                "messageKey": "noSuchLocation"
+            }
+        ]
     },
     {
         "_id": {
@@ -4624,26 +4674,92 @@
         "level": 0,
         "log": "LOG_NORMAL",
         "pipeline": false,
-        "maxArguments": 0,
+        "maxArguments": 2,
         "payload": {
             "toChar": {
-                "getWhat": "Get what?",
-                "iSeeNothing": "I see nothing here.",
-                "canTDo": "You can't do that.",
-                "sNotContainer": "That's not a container.",
-                "canTDo2": "You can't do that.",
-                "donTSoGreedy": "Don't be so greedy!",
-                "iSeeNo": "I see no $T here.",
-                "iSeeNo2": "I see no $T here.",
-                "iSeeNo3": "I see no $T here.",
-                "closed": "The $d is closed.",
-                "iSeeNothingLike": "I see nothing like that in the $T.",
-                "iSeeNothing2": "I see nothing in the $T.",
-                "iSeeNothingLike2": "I see nothing like that in the $T."
+                "noArgument": "Get what?",
+                "default": "You get %t.",
+                "fromContainer": "You get %t from %T.",
+                "roomMissing": "You are nowhere.",
+                "targetMissing": "I see nothing here.",
+                "cannot": "You can't do that.",
+                "cannotTake": "You can't take that.",
+                "carryItems": "%t: you can't carry that many items.",
+                "carryWeight": "%t: you can't carry that much weight.",
+                "notContainer": "That's not a container.",
+                "isNewbiePit": "Don't be so greedy!",
+                "targetNotVisible": "I see no %t here.",
+                "closed": "The %t is closed.",
+                "invalidContainerTarget": "I see nothing like that in %t.",
+                "containerEmpty": "I see nothing in the %t."
             },
-            "toRoom": {},
+            "toRoom": {
+                "default": "%c gets %t.",
+                "fromContainer": "%c gets %t from %T."
+            },
             "toVictim": {}
-        }
+        },
+        "guards": [
+            {
+                "predicate": "lambda v: not bool(getattr(v.context, 'arg1', '') or InterpUtil.argument_text(v))",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: v.context.room is None",
+                "messageKey": "roomMissing"
+            },
+            {
+                "predicate": "lambda v: bool(getattr(v.context, 'get_all_from_container', False)) and ItemUtil.is_newbie_pit(v.context.container) and not CharacterApi.is_immortal(v.context.character)",
+                "messageKey": "isNewbiePit"
+            },
+            {
+                "predicate": "lambda v: bool(v.context.rem) and v.context.container is None",
+                "messageKey": "targetNotVisible",
+                "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
+            },
+            {
+                "predicate": "lambda v: v.context.container is not None and not ItemUtil.is_container_like(v.context.container)",
+                "messageKey": "notContainer"
+            },
+            {
+                "predicate": "lambda v: v.context.container is not None and ItemUtil.is_closed_container(v.context.container)",
+                "messageKey": "closed",
+                "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', getattr(v.context.container, 'name', ''))}"
+            },
+            {
+                "predicate": "lambda v: not bool(v.context.rem) and not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is None",
+                "messageKey": "targetNotVisible",
+                "tokenFactory": "lambda v: {'t': getattr(v.context, 'arg1', '')}"
+            },
+            {
+                "predicate": "lambda v: not bool(v.context.rem) and bool(getattr(v.context, 'get_all', False)) and not bool(getattr(v.context, 'get_candidates', [])) and not bool(getattr(v.context, 'get_filter_name', ''))",
+                "messageKey": "targetMissing"
+            },
+            {
+                "predicate": "lambda v: not bool(v.context.rem) and bool(getattr(v.context, 'get_all', False)) and not bool(getattr(v.context, 'get_candidates', [])) and bool(getattr(v.context, 'get_filter_name', ''))",
+                "messageKey": "targetNotVisible",
+                "tokenFactory": "lambda v: {'t': getattr(v.context, 'get_filter_name', '')}"
+            },
+            {
+                "predicate": "lambda v: bool(v.context.rem) and v.context.container is not None and not bool(getattr(v.context, 'get_all_from_container', False)) and v.context.target_item is None",
+                "messageKey": "invalidContainerTarget",
+                "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
+            },
+            {
+                "predicate": "lambda v: bool(v.context.rem) and v.context.container is not None and bool(getattr(v.context, 'get_all_from_container', False)) and not bool(getattr(v.context, 'get_candidates', [])) and not bool(getattr(v.context, 'get_filter_name', ''))",
+                "messageKey": "containerEmpty",
+                "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
+            },
+            {
+                "predicate": "lambda v: bool(v.context.rem) and v.context.container is not None and bool(getattr(v.context, 'get_all_from_container', False)) and not bool(getattr(v.context, 'get_candidates', [])) and bool(getattr(v.context, 'get_filter_name', ''))",
+                "messageKey": "invalidContainerTarget",
+                "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
+            },
+            {
+                "predicate": "lambda v: not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is not None and not ItemUtil.item_takeable(v.context.target_item)",
+                "messageKey": "cannotTake"
+            }
+        ]
     },
     {
         "_id": {

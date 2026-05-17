@@ -683,7 +683,7 @@ class Fight:
         to_room = self.room_registry.get_or_none(vnum=str(getattr(ex, "to_room_vnum", "")))
         if to_room is None:
             return None
-        if to_room.is_room_private(room_flags):
+        if to_room.is_private(room_flags):
             return None
         if not CharacterApi.is_npc(character):
             if (room.is_air_room(CharacterApi.get_enum("sectorTypes")) or to_room.is_air_room(CharacterApi.get_enum("sectorTypes"))) and not CharacterApi.is_affected_by_name(character, self.AffectBits, "AFF_FLYING") and not CharacterApi.is_immortal(character):

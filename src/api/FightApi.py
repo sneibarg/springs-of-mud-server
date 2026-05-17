@@ -177,7 +177,7 @@ class FightApi:
         plan_data = dict(getattr(skill, "fight_plan", {}) or {})
         return ActionDefinition(
             name=str(getattr(skill, "name", "") or command_name),
-            checks=self._build_checks(skill),
+            guards=self._build_checks(skill),
             plan_factory=(lambda _view: ActionPlan(operation=executor, data=dict(plan_data)))
             if executor else (lambda _view: ActionPlan(stop=False, data={"blocked": False})),
         )
@@ -273,7 +273,7 @@ class FightApi:
             if not predicate_src:
                 continue
             token_factory_src = str(entry.get("token_factory", "") or "").strip()
-            checks.append(
+            guards.append(
                 ActionGuard(
                     predicate=self._compile_lambda(predicate_src),
                     message_key=str(entry.get("message_key", "") or "").strip(),
@@ -281,7 +281,7 @@ class FightApi:
                     token_factory=self._compile_lambda(token_factory_src) if token_factory_src else self._empty_tokens,
                 )
             )
-        return tuple(checks)
+        return tuple(guards)
 
     @staticmethod
     def _empty_tokens(_view: FightView) -> dict[str, Any]:

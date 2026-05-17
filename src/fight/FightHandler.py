@@ -1120,7 +1120,7 @@ class FightHandler:
 
         remaining = []
         for item in list(getattr(corpse, "contains", []) or []):
-            if ItemUtil.item_takeable(item, wear_flags):
+            if ItemUtil.item_takeable(item):
                 character.add_item(item)
             else:
                 remaining.append(item)
@@ -1130,7 +1130,7 @@ class FightHandler:
         if room is None or corpse is None or not ItemUtil.is_npc_corpse(corpse):
             return None
 
-        if not ItemUtil.item_takeable(corpse, self.WearFlags) or ItemUtil.is_nosac(corpse, self.ItemFlags):
+        if not ItemUtil.item_takeable(corpse) or ItemUtil.is_nosac(corpse, self.ItemFlags):
             return None
 
         room.remove_item_from_room(corpse)

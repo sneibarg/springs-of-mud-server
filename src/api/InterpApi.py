@@ -54,14 +54,14 @@ class InterpApi:
 
     @staticmethod
     def evaluate_interp_action(view: InterpView, definition: ActionDefinition[InterpView]) -> ActionPlan:
-        for index, check in enumerate(definition.checks):
-            print(f"Checking check #{index+1} of {len(definition.checks)}; predicate: {view.context.command.checks[index]}")
-            if check.predicate(view):
+        for index, guard in enumerate(definition.guards):
+            print(f"Checking guard #{index+1} of {len(definition.guards)}; predicate: {view.context.command.guards[index]}")
+            if guard.predicate(view):
                 tokens = InterpApi._default_tokens(view)
-                tokens.update(dict(check.token_factory(view) or {}))
+                tokens.update(dict(guard.token_factory(view) or {}))
                 return ActionPlan(
                     stop=True,
-                    messages=tuple(InterpApi._message_refs_for_key(view.payload, check.message_key, tokens=tokens, fallback=check.fallback, channel=check.channel)),
+                    messages=tuple(InterpApi._message_refs_for_key(view.payload, guard.message_key, tokens=tokens, fallback=guard.fallback, channel=guard.channel)),
                     data={"blocked": True},
                 )
         return definition.plan_factory(view)
@@ -92,7 +92,7 @@ class InterpApi:
         )
         return self.render_plan_payload(view.payload, plan)
 
-    def _build_checks(self, command) -> tuple[ActionGuard[InterpView], ...]:
+    def _build_guards(self, command) -> tuple[ActionGuard[InterpView], ...]:
         guards: list[ActionGuard[InterpView]] = []
         for entry in list(getattr(command, "guards", []) or []):
             predicate_src = str(entry.get("predicate", "") or "").strip()
@@ -261,7 +261,7 @@ class InterpApi:
 
         return ActionDefinition(
             name=str(getattr(command, "name", "") or command_name),
-            checks=self._build_checks(command),
+            guards=self._build_guards(command),
             plan_factory=self._default_plan,
         )
 
@@ -273,7 +273,7 @@ class InterpApi:
 
         return ActionDefinition(
             name=str(getattr(command, "name", "") or command_name),
-            checks=self._build_checks(command),
+            guards=self._build_guards(command),
             plan_factory=lambda _view: ActionPlan(stop=False, data={"blocked": False}),
         )
 

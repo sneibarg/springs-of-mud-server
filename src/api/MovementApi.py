@@ -84,7 +84,7 @@ class MovementApi(GameApi):
             to_room=to_room,
             exit_closed=exit_closed,
             exit_keyword=(getattr(exit_obj, "keyword", "") or "door") if exit_obj is not None else "door",
-            private_room=bool(to_room is not None and to_room.is_room_private(room_flags)),
+            private_room=bool(to_room is not None and to_room.is_private(room_flags)),
             air_blocked=air_blocked,
             water_blocked=water_blocked,
             insufficient_movement=insufficient_movement,

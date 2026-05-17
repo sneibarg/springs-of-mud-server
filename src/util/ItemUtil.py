@@ -609,8 +609,14 @@ class ItemUtil:
         return None
 
     @staticmethod
-    def item_takeable(item, wear_flags_enum) -> bool:
-        if wear_flags_enum is None or not hasattr(wear_flags_enum, "ITEM_TAKE"):
+    def is_newbie_pit(item) -> bool:
+        well_known_obj_vnums = CharacterApi.get_enum("wellKnownObjectVnums")
+        return item.vnum == well_known_obj_vnums.OBJ_VNUM_PIT.value
+
+    @staticmethod
+    def item_takeable(item) -> bool:
+        wear_flags_enum = CharacterApi.get_enum("wearFlags")
+        if not hasattr(wear_flags_enum, "ITEM_TAKE"):
             return True
         return ItemUtil.has_flag(getattr(item, "wear_flags", 0), wear_flags_enum.ITEM_TAKE.value)
 
@@ -660,6 +666,10 @@ class ItemUtil:
     def is_container(item) -> bool:
         item_type = (getattr(item, "item_type", "") or "").upper()
         return "ITEM_CONTAINER" in item_type or "CONTAINER" in item_type
+
+    @staticmethod
+    def is_closed_container(item) -> bool:
+        return ItemApi.is_container_closed(item)
 
     @staticmethod
     def short(item) -> str | object | Any:

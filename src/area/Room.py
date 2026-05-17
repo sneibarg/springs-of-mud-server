@@ -209,7 +209,7 @@ class Room:
             return target
         return self.find_visible_mobile(observer, query)
 
-    def is_room_private(self, room_flags) -> bool:
+    def is_private(self, room_flags) -> bool:
         private = GenericUtil.to_int(getattr(getattr(room_flags, "ROOM_PRIVATE", None), "value", 0), 0)
         solitary = GenericUtil.to_int(getattr(getattr(room_flags, "ROOM_SOLITARY", None), "value", 0), 0)
         flags = GenericUtil.to_int(getattr(self, "room_flags", 0), 0)

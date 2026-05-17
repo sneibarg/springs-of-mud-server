@@ -221,7 +221,7 @@ class _Room(SimpleNamespace):
     def add_player_to_room(self, character):
         self.added = character.id
 
-    def is_room_private(self, _room_flags):
+    def is_private(self, _room_flags):
         return bool(getattr(self, "private_room", False))
 
     def is_air_room(self, _sector_types):

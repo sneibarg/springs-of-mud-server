@@ -52,6 +52,7 @@ class Object:
         name = (getattr(context.command, "name", "") or "").strip().lower()
         handlers = {
             "get": self.do_get,
+            "take": self.do_get,
             "put": self.do_put,
             "drop": self.do_drop,
             "junk": self.do_junk,
@@ -316,83 +317,146 @@ class Object:
         return {"to_char": f"I'll give you {silver} silver and {gold} gold coins for {ItemUtil.short(obj)}.\r\n"}
 
     def do_get(self, character: Character, context: Context):
-        arg1, rem = ItemUtil.parse_raw_arguments(context.result, context.parameters)
-        room = self.room_registry.get_or_none(id=character.room_id)
-        if not arg1:
+        room = self._prepare_get_context(character, context)
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
             context.finish()
-            return {"to_char": "Get what?\r\n"}
-        if room is None:
-            context.finish()
-            return {"to_char": "You are nowhere.\r\n"}
+            return blocked
 
-        container = None
-        if rem:
-            container = ItemUtil.find_container(character, room, rem.split()[0])
-            if container is None:
-                context.finish()
-                return {"to_char": "I see no container here.\r\n"}
-            if not ItemUtil.is_container_like(container):
-                context.finish()
-                return {"to_char": "That's not a container.\r\n"}
-            if ItemApi.is_container_closed(container):
-                context.finish()
-                return {"to_char": "It is closed.\r\n"}
-            if arg1 == "all" or arg1.startswith("all."):
-                payload = self._get_all_from_container(character, room, container, arg1)
-                context.finish()
-                return payload
-            target_item = container.find_contained_item(arg1)
+        if context.get_all:
+            payload = self._get_many(character, room, context, context.get_candidates, context.container)
         else:
-            target_item = ItemUtil.find_room_item(room, arg1)
+            payload = self._get_one(character, room, context, context.target_item, context.container)
 
-        if target_item is None:
-            context.finish()
-            if container is not None:
-                return {"to_char": f"I see nothing like that in {ItemUtil.short(container)}.\r\n"}
-            return {"to_char": "I see nothing like that here.\r\n"}
-
-        if not ItemUtil.item_takeable(target_item, self.wear_flags):
-            context.finish()
-            return {"to_char": "You can't take that.\r\n"}
-
-        if container is not None:
-            container.remove_contained_item(target_item)
-        else:
-            room.remove_item_from_room(target_item)
-        character.add_item(target_item)
         context.finish()
-        return {
-            "to_char": f"You get {ItemUtil.short(target_item)}.\r\n",
-            "to_room": f"{character.name} gets {ItemUtil.short(target_item)}.\r\n",
-            "targets": room.player_targets(character),
-        }
+        return payload
 
-    def _get_all_from_container(self, character: Character, room, container, arg1: str):
-        wanted = ""
-        if arg1.startswith("all."):
-            wanted = arg1[4:].strip().lower()
+    def _prepare_get_context(self, character: Character, context: Context):
+        arg1, rem = ItemUtil.parse_raw_arguments(context.result, context.parameters)
+        room = getattr(context, "room", None)
+        if room is None:
+            room = self.room_registry.get_or_none(id=character.room_id)
 
-        picked = []
+        context.room = room
+        context.arg1 = arg1
+        context.rem = rem
+        context.container_name = rem.split()[0] if rem else ""
+        context.get_all = self._is_get_all_selector(arg1)
+        context.get_filter_name = self._get_selector_filter(arg1)
+        context.get_all_from_container = bool(context.get_all and context.container_name)
+        context.container = ItemUtil.find_container(character, room, context.container_name) if context.container_name else None
+        context.target_item = None
+        context.get_candidates = []
+        context.get_item_takeable = False
+
+        if context.container is not None:
+            if context.get_all:
+                context.get_candidates = self._get_matching_container_items(character, room, context.container, context.get_filter_name)
+            else:
+                context.target_item = ItemUtil.find_in_contains(context.container, arg1)
+        elif not context.container_name:
+            if context.get_all:
+                context.get_candidates = self._get_matching_room_items(character, room, context.get_filter_name)
+            else:
+                context.target_item = ItemUtil.find_room_item(room, arg1)
+
+        if context.target_item is not None:
+            context.get_item_takeable = ItemUtil.item_takeable(context.target_item)
+        return room
+
+    def _get_matching_room_items(self, character: Character, room, wanted: str) -> list:
+        if room is None:
+            return []
+        matches = []
+        for obj in list(getattr(room, "contents", {}).values()):
+            if not self._matches_name(obj, wanted):
+                continue
+            if not ItemUtil.can_see_object(room, character, obj):
+                continue
+            matches.append(obj)
+        return matches
+
+    def _get_matching_container_items(self, character: Character, room, container, wanted: str) -> list:
+        matches = []
         for obj in list(getattr(container, "contains", []) or []):
-            name = str(getattr(obj, "name", "") or "").strip().lower()
-            if wanted and wanted not in name.split() and not name.startswith(wanted):
+            if not self._matches_name(obj, wanted):
                 continue
-            if not ItemUtil.item_takeable(obj, self.wear_flags):
+            if room is not None and not ItemUtil.can_see_object(room, character, obj):
                 continue
-            container.remove_contained_item(obj)
-            character.add_item(obj)
-            picked.append(obj)
+            matches.append(obj)
+        return matches
 
-        if not picked:
-            if wanted:
-                return {"to_char": f"I see nothing like that in {ItemUtil.short(container)}.\r\n"}
-            return {"to_char": f"I see nothing in {ItemUtil.short(container)}.\r\n"}
+    def _get_many(self, character: Character, room, context: Context, items: list, container=None):
+        char_lines = []
+        room_lines = []
+        moved_any = False
 
-        return {
-            "to_char": "".join(f"You get {ItemUtil.short(obj)} from {ItemUtil.short(container)}.\r\n" for obj in picked),
-            "to_room": "".join(f"{character.name} gets {ItemUtil.short(obj)} from {ItemUtil.short(container)}.\r\n" for obj in picked),
-            "targets": room.player_targets(character),
-        }
+        for obj in list(items or []):
+            payload = self._get_one(character, room, context, obj, container)
+            if payload.get("to_char"):
+                char_lines.append(payload["to_char"])
+            if payload.get("to_room"):
+                room_lines.append(payload["to_room"])
+                moved_any = True
+
+        result = {"to_char": "".join(char_lines)}
+        if moved_any and room is not None:
+            result["to_room"] = "".join(room_lines)
+            result["targets"] = room.player_targets(character)
+        return result
+
+    def _get_one(self, character: Character, room, context: Context, item, container=None):
+        error = self._get_item_error(character, context, item)
+        if error:
+            return {"to_char": error}
+
+        item_short = ItemUtil.short(item)
+        if container is not None:
+            ItemUtil.remove_from_contains(container, item)
+            container_short = ItemUtil.short(container)
+            to_char = self._render_command_message(context, "from_container", t=item_short, T=container_short)
+            to_room = self._render_command_message(context, "from_container", channel="to_room", c=character.name, t=item_short, T=container_short)
+        else:
+            if room is not None:
+                room.remove_item_from_room(item)
+            to_char = self._render_command_message(context, "default", t=item_short)
+            to_room = self._render_command_message(context, "default", channel="to_room", c=character.name, t=item_short)
+
+        ItemUtil.add_to_inventory(character, item)
+        payload = {"to_char": to_char}
+        if room is not None:
+            payload["to_room"] = to_room
+            payload["targets"] = room.player_targets(character)
+        return payload
+
+    def _get_item_error(self, character: Character, context: Context, item) -> str:
+        if item is None:
+            return ""
+        item_short = ItemUtil.short(item)
+        if not ItemUtil.item_takeable(item):
+            return self._render_command_message(context, "cannot_take", t=item_short)
+
+        max_items = self._max_items(character)
+        if max_items > 0 and self._carry_count(character) + 1 > max_items:
+            return self._render_command_message(context, "carry_items", t=item_short)
+
+        max_weight = self._max_weight(character)
+        item_weight = GenericUtil.to_int(getattr(item, "weight", 0), 0)
+        if max_weight > 0 and self._carry_weight(character) + item_weight > max_weight:
+            return self._render_command_message(context, "carry_weight", t=item_short)
+        return ""
+
+    @staticmethod
+    def _is_get_all_selector(arg1: str) -> bool:
+        selector = str(arg1 or "").strip().lower()
+        return selector == "all" or selector.startswith("all.")
+
+    @staticmethod
+    def _get_selector_filter(arg1: str) -> str:
+        selector = str(arg1 or "").strip().lower()
+        if selector.startswith("all."):
+            return selector[4:].strip()
+        return ""
 
     def do_put(self, character: Character, context: Context):
         arg1, rem = ItemUtil.parse_raw_arguments(context.result, context.parameters)
@@ -531,7 +595,7 @@ class Object:
         if ItemUtil.is_pc_corpse(item) and list(getattr(item, "contains", []) or []):
             context.finish()
             return {"to_char": "Mota wouldn't like that.\r\n"}
-        if not ItemUtil.item_takeable(item, self.wear_flags) or ItemUtil.is_nosac(item, self.item_flags):
+        if not ItemUtil.item_takeable(item) or ItemUtil.is_nosac(item, self.item_flags):
             context.finish()
             return {"to_char": f"{ItemUtil.short(item)} is not an acceptable sacrifice.\r\n"}
 
