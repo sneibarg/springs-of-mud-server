@@ -513,6 +513,9 @@ class PlayerHandler:
             if payload:
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload))
             return
+        if payload.get("payloads"):
+            await self._emit_standard_payloads(character, payload.get("payloads", []), context=context)
+            return
         await self._emit_standard_payload(character, payload)
 
     async def do_communications_command(self, character: Character, context: Context):

@@ -19,6 +19,7 @@ from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
 from util.MovementUtil import MovementUtil
+from item.Item import Item
 
 
 class InterpApi:
@@ -314,6 +315,7 @@ class InterpApi:
             "FightUtil": FightUtil,
             "MovementApi": MovementApi,
             "ItemApi": ItemApi,
+            "Item": Item,
             "ItemUtil": ItemUtil,
             "AreaUtil": AreaUtil,
             "bool": bool,

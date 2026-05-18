@@ -165,6 +165,15 @@ class FightHandler:
         # Keep this permissive for now; detailed PK and charm rules migrate next.
         return False, ""
 
+    def is_safe_spell(self, attacker, victim, area: bool = False) -> bool:
+        if attacker is None or victim is None:
+            return True
+        if area and victim is attacker:
+            return True
+        room = self._find_room_for_entity(attacker)
+        safe, _message = self.is_safe(attacker, victim, room=room)
+        return safe
+
     #  TO-DO
     def check_killer(self, attacker, victim) -> None:
         return

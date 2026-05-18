@@ -29,7 +29,7 @@ def _stub_module(name: str, **attrs):
     return module
 
 
-for package_name in ("api", "game", "interp", "item", "player", "server", "util"):
+for package_name in ("api", "area", "fight", "game", "interp", "item", "player", "server", "skill", "util"):
     _stub_package(package_name)
 _stub_package("interp.commands")
 
@@ -180,6 +180,15 @@ class _InterpApi:
                 return {"to_char": context.command.render_message("to_char", "container_full") + "\r\n"}
         return None
 
+    def render_message_key(self, context, message_key: str, channel: str = "", fallback: str = "", **tokens):
+        payload = {}
+        channels = [channel] if channel else ["to_char", "to_room", "to_victim"]
+        for name in channels:
+            text = context.command.render_message(name, message_key, fallback=fallback, **tokens)
+            if text:
+                payload[name] = text + ("\r\n" if not text.endswith("\r\n") else "")
+        return payload
+
 
 class _Command:
     def __init__(self, name, payload):
@@ -202,9 +211,48 @@ class _Command:
         return text
 
 
+class _Item:
+    @staticmethod
+    def first_fountain(room):
+        return _ItemUtil.first_fountain(room)
+
+    @staticmethod
+    def inspect_fill(destination, source):
+        from types import SimpleNamespace
+
+        if source is None:
+            return SimpleNamespace(blocked_key="sourceMissing", liquid_name="")
+        if _ItemUtil.is_fountain(destination) or not _ItemUtil.is_drink_container(destination) or not _ItemUtil.is_drink_container(source):
+            return SimpleNamespace(blocked_key="notContainer", liquid_name="")
+
+        dest_capacity = _GenericUtil.to_int(getattr(destination, "value0", 0), 0)
+        dest_amount = _GenericUtil.to_int(getattr(destination, "value1", 0), 0)
+        if dest_capacity > 0 and dest_amount >= dest_capacity:
+            return SimpleNamespace(blocked_key="containerFull", liquid_name="")
+
+        source_liquid = str(getattr(source, "value2", "") or "")
+        dest_liquid = str(getattr(destination, "value2", "") or "")
+        if dest_amount > 0 and source_liquid and dest_liquid != source_liquid:
+            return SimpleNamespace(blocked_key="differentLiquid", liquid_name="")
+
+        if not _ItemUtil.is_fountain(source) and _GenericUtil.to_int(getattr(source, "value1", 0), 0) <= 0:
+            return SimpleNamespace(blocked_key="sourceEmpty", liquid_name="")
+        return SimpleNamespace(blocked_key="", liquid_name=source_liquid)
+
+    @staticmethod
+    def fill_from_source(destination, source):
+        result = _Item.inspect_fill(destination, source)
+        if result.blocked_key:
+            return result
+        destination.value2 = result.liquid_name
+        destination.value1 = str(_GenericUtil.to_int(getattr(destination, "value0", 0), 0))
+        return result
+
+
 _stub_module("server.LoggerFactory", LoggerFactory=_LoggerFactory)
+_stub_module("area.Shop", Shop=SimpleNamespace())
 _stub_module("game.Equipped", Equipped=object)
-_stub_module("item.Item", Item=object)
+_stub_module("item.Item", Item=_Item)
 _stub_module("game.RegistryService", RegistryService=object)
 _stub_module("interp.Context", Context=object)
 _stub_module("util.GenericUtil", GenericUtil=_GenericUtil)
@@ -212,10 +260,15 @@ _stub_module("util.InterpUtil", InterpUtil=SimpleNamespace())
 _stub_module("util.MobileUtil", MobileUtil=SimpleNamespace())
 _stub_module("util.EffectUtil", EffectUtil=SimpleNamespace())
 _stub_module("util.ItemUtil", ItemUtil=_ItemUtil)
+_stub_module("util.PlayerUtil", PlayerUtil=SimpleNamespace(get_target=lambda *_args, **_kwargs: None))
+_stub_module("util.SkillUtil", SkillUtil=SimpleNamespace(check_improve=lambda *_args, **_kwargs: None))
 _stub_module("api.ItemApi", ItemApi=SimpleNamespace(is_container_closed=lambda _obj: False))
 _stub_module("api.InterpApi", InterpApi=_InterpApi)
+_stub_module("api.SpellApi", SpellApi=object)
 _stub_module("player.Character", Character=object)
 _stub_module("api.CharacterApi", CharacterApi=_CharacterApi)
+_stub_module("fight.FightHandler", FightHandler=object)
+_stub_module("skill.SpellContext", SpellContext=object)
 
 
 spec = importlib.util.spec_from_file_location("test_object_module", OBJECT_PATH)
@@ -323,6 +376,7 @@ class TestObjectFountainCommands(unittest.TestCase):
             character=character,
             result=raw,
             parameters=[],
+            room=None,
             finish=Mock(),
             command=_Command(command_name, payloads[command_name]),
         )

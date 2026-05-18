@@ -623,8 +623,9 @@ class ItemUtil:
         return ItemUtil.has_flag(getattr(item, "wear_flags", 0), wear_flags_enum.ITEM_TAKE.value)
 
     @staticmethod
-    def is_nodrop(item, item_flags_enum) -> bool:
-        if item_flags_enum is None or not hasattr(item_flags_enum, "ITEM_NODROP"):
+    def is_nodrop(item) -> bool:
+        item_flags_enum = CharacterApi.get_enum("itemFlags")
+        if not hasattr(item_flags_enum, "ITEM_NODROP"):
             return False
         return ItemUtil.has_flag(getattr(item, "extra_flags", 0), item_flags_enum.ITEM_NODROP.value)
 

@@ -1085,7 +1085,13 @@ class SpellApi:
     @staticmethod
     def _fight_handler(ctx_or_entity):
         handler = getattr(ctx_or_entity, "handler", None)
-        return getattr(handler, "fight_commands", None) if handler is not None else None
+        if handler is None:
+            return None
+        return (
+            getattr(handler, "fight_commands", None)
+            or getattr(handler, "fight_handler", None)
+            or handler
+        )
 
     @staticmethod
     def _room_registry(ctx_or_entity):

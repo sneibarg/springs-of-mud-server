@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Callable, Optional
 
 if TYPE_CHECKING:
@@ -46,6 +46,14 @@ WEAR_SLOT_ORDER = {
     "ITEM_HOLD": ("held",),
     "ITEM_WEAR_FLOAT": ("floating_nearby",),
 }
+
+
+@dataclass
+class WearResult:
+    blocked_key: str = ""
+    blocked_tokens: dict = field(default_factory=dict)
+    shared_messages: list[tuple[str, dict]] = field(default_factory=list)
+    char_messages: list[tuple[str, dict]] = field(default_factory=list)
 
 
 @dataclass
@@ -162,6 +170,75 @@ class Equipped:
             requested = "light"
         return [slots for slots in groups if requested in slots]
 
+    @classmethod
+    def wear_item(cls, character, item, wear_flags_enum, item_flags, *, replace: bool,
+                  preferred_slot: str = "", forced_slot: str = "") -> WearResult:
+        from util.EffectUtil import EffectUtil
+        from util.ItemUtil import ItemUtil
+
+        result = WearResult()
+        item_short = ItemUtil.short(item)
+        item_level = int(getattr(item, "level", 0) or 0)
+        if int(getattr(character, "level", 0) or 0) < item_level:
+            result.blocked_key = "insufficientLevel"
+            result.blocked_tokens = {"d": item_level, "t": item_short}
+            return result
+
+        slot_groups = cls.wear_slot_groups_for_item(item, wear_flags_enum, preferred_slot=preferred_slot, forced_slot=forced_slot)
+        if not slot_groups:
+            result.blocked_key = "invalidTargetThere" if forced_slot else "invalidTarget"
+            return result
+
+        equipped = cls.ensure_on(character)
+        selected_slot, removal = equipped.resolve_wear_slot(
+            character,
+            slot_groups[0],
+            replace,
+            can_remove_item=lambda worn_item: cls._can_remove_item(worn_item, item_flags),
+            remove_item=cls._remove_item,
+        )
+        if removal.get("blocked_key"):
+            result.blocked_key = str(removal.get("blocked_key", "") or "")
+            result.blocked_tokens = dict(removal.get("tokens", {}) or {})
+            return result
+        if removal.get("key"):
+            result.shared_messages.append((removal["key"], dict(removal.get("tokens", {}) or {})))
+        if selected_slot is None:
+            return result
+
+        if selected_slot == "shield":
+            weapon = getattr(getattr(character, "equipped", None), "wielded", None)
+            if weapon is not None and int(character.size_value()) < int(character.large_size_value()) and bool(getattr(weapon, "is_two_handed_weapon", lambda: False)()):
+                result.blocked_key = "weaponTwoHanded"
+                return result
+
+        if selected_slot == "wielded":
+            if bool(getattr(item, "weapon_too_heavy", lambda _character: False)(character)):
+                result.blocked_key = "tooHeavy"
+                return result
+
+            shield = getattr(getattr(character, "equipped", None), "shield", None)
+            if shield is not None and int(character.size_value()) < int(character.large_size_value()) and bool(getattr(item, "is_two_handed_weapon", lambda: False)()):
+                result.blocked_key = "wearingShield"
+                return result
+
+        character.equip_item(item, selected_slot)
+        EffectUtil.apply_item_effects(character, item)
+        result.shared_messages.append(cls.slot_message(selected_slot, item_short))
+        skill_key = getattr(item, "weapon_skill_feedback_key", lambda _character: "")(character)
+        if selected_slot == "wielded" and skill_key:
+            result.char_messages.append((skill_key, {"t": item_short}))
+        return result
+
+    @classmethod
+    def wear_all(cls, character, wear_flags_enum, item_flags) -> WearResult:
+        result = WearResult()
+        for item in list(getattr(character, "loot", []) or []):
+            item_result = cls.wear_item(character, item, wear_flags_enum, item_flags, replace=False)
+            result.shared_messages.extend(item_result.shared_messages)
+            result.char_messages.extend(item_result.char_messages)
+        return result
+
     def resolve_wear_slot(self, character, slots: tuple[str, ...], replace: bool, *,
                           can_remove_item: Callable[[object], bool],
                           remove_item: Callable[[object, str, object], None]) -> tuple[str | None, dict]:
@@ -169,38 +246,64 @@ class Equipped:
             if getattr(self, slot, None) is None:
                 return slot, {}
 
-        combined_payload = {"to_char": "", "to_room": ""}
+        combined_payload: dict = {}
         if not replace:
             return None, combined_payload
 
         for slot in slots:
             removed, payload = self.remove_equipped_item(character, slot, replace=replace, can_remove_item=can_remove_item, remove_item=remove_item)
-            combined_payload["to_char"] += payload.get("to_char", "")
-            combined_payload["to_room"] += payload.get("to_room", "")
             if removed:
-                return slot, combined_payload
+                return slot, payload
+            if payload:
+                return None, payload
 
         return None, combined_payload
+
+    def find_remove_target(self, query: str) -> tuple[str, object | None]:
+        wanted = str(query or "").strip().lower()
+        if not wanted:
+            return "", None
+        if hasattr(self, wanted):
+            return wanted, getattr(self, wanted)
+
+        for slot, item in self.__dict__.items():
+            if item is None:
+                continue
+            name = str(getattr(item, "name", "") or "").strip().lower()
+            if name == wanted or name.startswith(wanted):
+                return slot, item
+        return "", None
 
     def remove_equipped_item(self, character, slot: str, *, replace: bool,
                              can_remove_item: Callable[[object], bool],
                              remove_item: Callable[[object, str, object], None]) -> tuple[bool, dict]:
         if not hasattr(self, slot):
-            return True, {"to_char": "", "to_room": ""}
+            return True, {}
 
         item = getattr(self, slot)
         if item is None:
-            return True, {"to_char": "", "to_room": ""}
+            return True, {}
         if not replace:
-            return False, {"to_char": "", "to_room": ""}
+            return False, {}
         if not can_remove_item(item):
-            return False, {"to_char": f"You can't remove {self.short(item)}.\r\n", "to_room": ""}
+            return False, {"blocked_key": "noRemove", "tokens": {"t": self.short(item)}}
 
         remove_item(character, slot, item)
-        return True, {
-            "to_char": f"You stop using {self.short(item)}.\r\n",
-            "to_room": f"{character.name} stops using {self.short(item)}.\r\n",
-        }
+        return True, {"key": "removed", "tokens": {"t": self.short(item)}}
+
+    @classmethod
+    def remove_item(cls, character, slot: str, item, item_flags) -> WearResult:
+        result = WearResult()
+        if item is None:
+            return result
+        if not cls._can_remove_item(item, item_flags):
+            result.blocked_key = "noRemove"
+            result.blocked_tokens = {"t": cls.short(item)}
+            return result
+
+        cls._remove_item(character, slot, item)
+        result.shared_messages.append(("removed", {"t": cls.short(item)}))
+        return result
 
     @staticmethod
     def build_wear_payload(character, room, to_char: str, to_room: str = "") -> dict:
@@ -236,6 +339,42 @@ class Equipped:
         }
         to_char, to_room = templates.get(slot, (f"You wear {short}.\r\n", f"{character.name} wears {short}.\r\n"))
         return cls.build_wear_payload(character, room, to_char, to_room)
+
+    @staticmethod
+    def slot_message(slot: str, item_short: str) -> tuple[str, dict]:
+        templates = {
+            "light": ("light", {"t": item_short}),
+            "finger1": ("finger", {"t": item_short, "s": "left"}),
+            "finger2": ("finger", {"t": item_short, "s": "right"}),
+            "neck1": ("neck", {"t": item_short}),
+            "neck2": ("neck", {"t": item_short}),
+            "torso": ("torso", {"t": item_short}),
+            "head": ("head", {"t": item_short}),
+            "legs": ("legs", {"t": item_short}),
+            "feet": ("feet", {"t": item_short}),
+            "hands": ("hands", {"t": item_short}),
+            "arms": ("arms", {"t": item_short}),
+            "body": ("aboutTorso", {"t": item_short}),
+            "waist": ("aboutWaist", {"t": item_short}),
+            "wrist1": ("wrist", {"t": item_short, "s": "left"}),
+            "wrist2": ("wrist", {"t": item_short, "s": "right"}),
+            "shield": ("shield", {"t": item_short}),
+            "wielded": ("wield", {"t": item_short}),
+            "held": ("hold", {"t": item_short}),
+            "floating_nearby": ("float", {"t": item_short}),
+        }
+        return templates.get(slot, ("invalidTarget", {}))
+
+    @staticmethod
+    def _can_remove_item(item, item_flags) -> bool:
+        return bool(getattr(item, "can_remove", lambda _item_flags: True)(item_flags))
+
+    @staticmethod
+    def _remove_item(character, slot: str, item) -> None:
+        from util.EffectUtil import EffectUtil
+
+        EffectUtil.remove_item_effects(character, item)
+        character.unequip_item(slot)
 
     @staticmethod
     def short(item) -> str:

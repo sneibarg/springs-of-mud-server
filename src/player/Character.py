@@ -98,6 +98,56 @@ class Character:
     def get_items(self) -> List[Item]:
         return self.loot
 
+    def carry_count(self) -> int:
+        return len(list(self.loot or []))
+
+    def carry_weight(self) -> int:
+        item_weight = sum(GenericUtil.to_int(getattr(item, "weight", 0), 0) for item in list(self.loot or []))
+        coin_weight = int((GenericUtil.to_int(self.silver, 0) / 10) + (GenericUtil.to_int(self.gold, 0) * 2 / 5))
+        return item_weight + coin_weight
+
+    def max_items(self) -> int:
+        return GenericUtil.to_int(getattr(getattr(self, "character_attributes", None), "max_items", 0), 0)
+
+    def max_weight(self) -> int:
+        return GenericUtil.to_int(getattr(getattr(self, "character_attributes", None), "max_weight", 0), 0)
+
+    def size_value(self) -> int:
+        direct_size = GenericUtil.to_int(getattr(self, "size", None), None)
+        if direct_size is not None:
+            return direct_size
+
+        from api.CharacterApi import CharacterApi
+
+        race_name = str(getattr(self, "race", "") or "").strip().lower()
+        try:
+            race_data = CharacterApi._pc_races_map().get(race_name, {})
+        except RuntimeError:
+            race_data = {}
+        raw_size = race_data.get("size")
+        try:
+            size_enum = CharacterApi.get_enum("size")
+        except RuntimeError:
+            size_enum = None
+        if isinstance(raw_size, str) and size_enum is not None and hasattr(size_enum, raw_size):
+            return int(getattr(size_enum, raw_size).value)
+        size_value = GenericUtil.to_int(raw_size, None)
+        if size_value is not None:
+            return size_value
+        return self.large_size_value() - 1
+
+    @staticmethod
+    def large_size_value() -> int:
+        from api.CharacterApi import CharacterApi
+
+        try:
+            size_enum = CharacterApi.get_enum("size")
+        except RuntimeError:
+            size_enum = None
+        if size_enum is not None and hasattr(size_enum, "SIZE_LARGE"):
+            return int(size_enum.SIZE_LARGE.value)
+        return 3
+
     def add_item(self, item: Item) -> None:
         with self.lock:
             if self.loot is None:

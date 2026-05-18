@@ -175,10 +175,38 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "roomMissing": "You can't do that here.",
+                "shopUnavailable": "You can't do that here.",
+                "shopClosedLater": "Sorry, I am closed. Come back later.",
+                "shopClosedTomorrow": "Sorry, I am closed. Come back tomorrow.",
+                "keeperCannotSee": "I don't trade with folks I can't see."
+            },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "guards": [
+            {
+                "predicate": "lambda v: getattr(v.context, 'room', None) is None",
+                "messageKey": "roomMissing"
+            },
+            {
+                "predicate": "lambda v: (not getattr(v.context, 'list_is_pet_shop', False)) and getattr(v.context, 'list_keeper_error', '') == 'shop_unavailable'",
+                "messageKey": "shopUnavailable"
+            },
+            {
+                "predicate": "lambda v: (not getattr(v.context, 'list_is_pet_shop', False)) and getattr(v.context, 'list_keeper_error', '') == 'shop_closed_later'",
+                "messageKey": "shopClosedLater"
+            },
+            {
+                "predicate": "lambda v: (not getattr(v.context, 'list_is_pet_shop', False)) and getattr(v.context, 'list_keeper_error', '') == 'shop_closed_tomorrow'",
+                "messageKey": "shopClosedTomorrow"
+            },
+            {
+                "predicate": "lambda v: (not getattr(v.context, 'list_is_pet_shop', False)) and getattr(v.context, 'list_keeper_error', '') == 'keeper_cannot_see'",
+                "messageKey": "keeperCannotSee"
+            }
+        ]
     },
     {
         "_id": {
@@ -1873,20 +1901,38 @@
         "maxArguments": 0,
         "payload": {
             "toChar": {
-                "wearWieldHoldWhat": "Wear, wield, or hold what?",
-                "doNotItem": "You do not have that item."
+                "noArgument": "Wear, wield, or hold what?",
+                "targetMissing": "You do not have that item.",
+                "invalidTarget": "You can't wield that.",
+                "insufficientLevel": "You must be level %d to use this object.",
+                "noRemove": "You can't remove %t.",
+                "removed": "You stop using %t.",
+                "tooHeavy": "It is too heavy for you to wield.",
+                "wearingShield": "You need two hands free for that weapon.",
+                "wield": "You wield %t.",
+                "skill100": "%t feels like a part of you!",
+                "skill85": "You feel quite confident with %t.",
+                "skill70": "You are skilled with %t.",
+                "skill50": "Your skill with %t is adequate.",
+                "skill25": "%t feels a little clumsy in your hands.",
+                "skill1": "You fumble and almost drop %t.",
+                "skill0": "You don't even know which end is up on %t."
             },
-            "toRoom": {},
+            "toRoom": {
+                "insufficientLevel": "%c tries to use %t, but is too inexperienced.",
+                "removed": "%c stops using %t.",
+                "wield": "%c wields %t."
+            },
             "toVictim": {}
         },
         "guards": [
             {
                 "predicate": "lambda v: not v.context.equip_arg1",
-                "messageKey": "wearWieldHoldWhat"
+                "messageKey": "noArgument"
             },
             {
                 "predicate": "lambda v: v.context.equip_item is None",
-                "messageKey": "doNotItem"
+                "messageKey": "targetMissing"
             }
         ]
     },
@@ -3976,12 +4022,22 @@
                 "itemBroken": "Your %t blazes bright and is gone."
             },
             "toRoom": {
-                "default": "$n brandishes $p.",
+                "default": "%c brandishes %t.",
                 "failure": "...and nothing happens.",
-                "itemBroken": "$n's $p blazes bright and is gone."
+                "itemBroken": "%c's %t blazes bright and is gone."
             },
             "toVictim": {}
-        }
+        },
+        "guards": [
+            {
+                "predicate": "lambda v: getattr(v.context, 'brandish_item', None) is None",
+                "messageKey": "wieldSlotEmpty"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'brandish_item', None) is not None and not Item.is_staff(v.context.brandish_item)",
+                "messageKey": "invalidWeapon"
+            }
+        ]
     },
     {
         "_id": {
@@ -4205,8 +4261,11 @@
             "toChar": {
                 "noArgument": "Fill what?",
                 "itemMissing": "You do not have that item.",
+                "sourceMissing": "There is no source of liquid here.",
                 "notContainer": "You can't fill that.",
-                "containerFull": "It is already full.",
+                "containerFull": "Your container is full.",
+                "differentLiquid": "There is already another liquid in it.",
+                "sourceEmpty": "It is empty.",
                 "default": "You fill %t with %s from %T."
             },
             "toRoom": {
@@ -4224,12 +4283,24 @@
                 "messageKey": "itemMissing"
             },
             {
-                "predicate": "lambda v: v.context.fill_dest is not None and (ItemUtil.is_fountain(v.context.fill_dest) or (not ItemUtil.is_drink_container(v.context.fill_dest)) or (v.context.fill_src is not None and not ItemUtil.is_drink_container(v.context.fill_src)))",
+                "predicate": "lambda v: getattr(v.context, 'fill_blocked_key', '') == 'sourceMissing'",
+                "messageKey": "sourceMissing"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'fill_blocked_key', '') == 'notContainer'",
                 "messageKey": "notContainer"
             },
             {
-                "predicate": "lambda v: v.context.fill_dest is not None and GenericUtil.to_int(getattr(v.context.fill_dest, 'value0', 0), 0) > 0 and GenericUtil.to_int(getattr(v.context.fill_dest, 'value1', 0), 0) >= GenericUtil.to_int(getattr(v.context.fill_dest, 'value0', 0), 0)",
+                "predicate": "lambda v: getattr(v.context, 'fill_blocked_key', '') == 'containerFull'",
                 "messageKey": "containerFull"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'fill_blocked_key', '') == 'differentLiquid'",
+                "messageKey": "differentLiquid"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'fill_blocked_key', '') == 'sourceEmpty'",
+                "messageKey": "sourceEmpty"
             }
         ]
     },
@@ -4254,7 +4325,7 @@
                 "giveZeroFunds": "Sorry, you can't do that.",
                 "targetMissing": "They aren't here.",
                 "insufficientFunds": "You haven't got that much.",
-                "fundsReceived": "You give %t %q %s.",
+                "fundsReceived": "You give %q %s to %t.",
                 "moneyChangerInsufficientFunds": "%t tells you 'I'm sorry, you did not give me enough to change.'",
                 "moneyChangerFundsReceived": "%t tells you 'Thank you, come again.'",
                 "itemMissing": "You do not have that item.",
@@ -4263,34 +4334,66 @@
                 "noDrop": "You can't let go of it.",
                 "targetHandsFull": "%t has %s hands full.",
                 "targetEncumbered": "%t can't carry that much weight.",
-                "targetCannotSee": "%n can't see it.",
-                "itemReceived": "You give %s to %t."
+                "targetCannotSee": "%t can't see it.",
+                "itemReceived": "You give %t to %T."
             },
             "toRoom": {
-                "fundsReceived": "%c gives $t some coins.",
-                "itemReceived": "%c gives %s to %t"
+                "fundsReceived": "%c gives %t some coins.",
+                "itemReceived": "%c gives %t to %T."
             },
             "toVictim": {
                 "fundsReceived": "%c gives you %q %s.",
-                "itemReceived": "%c gives you %t"
+                "itemReceived": "%c gives you %t."
             }
         },
         "guards": [
             {
-                "predicate": "lambda v: not v.context.give_arg1 or not v.context.give_rem",
+                "predicate": "lambda v: not v.context.arg1 or not v.context.rem",
                 "messageKey": "noArgument"
             },
             {
-                "predicate": "lambda v: v.context.give_victim is None",
+                "predicate": "lambda v: getattr(v.context, 'give_is_money', False) and (getattr(v.context, 'give_invalid_money', False) or not getattr(v.context, 'give_victim_name', ''))",
+                "messageKey": "giveZeroFunds"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'give_is_money', False) and getattr(v.context, 'victim', None) is None",
                 "messageKey": "targetMissing"
             },
             {
-                "predicate": "lambda v: v.context.give_item is None",
+                "predicate": "lambda v: getattr(v.context, 'give_is_money', False) and getattr(v.context, 'give_insufficient_funds', False)",
+                "messageKey": "insufficientFunds"
+            },
+            {
+                "predicate": "lambda v: (not getattr(v.context, 'give_is_money', False)) and getattr(v.context, 'item', None) is None",
                 "messageKey": "itemMissing"
             },
             {
-                "predicate": "lambda v: v.context.give_item is not None and v.context.give_no_drop",
+                "predicate": "lambda v: (not getattr(v.context, 'give_is_money', False)) and getattr(v.context, 'give_item_worn', False)",
+                "messageKey": "itemWorn"
+            },
+            {
+                "predicate": "lambda v: (not getattr(v.context, 'give_is_money', False)) and getattr(v.context, 'victim', None) is None",
+                "messageKey": "targetMissing"
+            },
+            {
+                "predicate": "lambda v: (not getattr(v.context, 'give_is_money', False)) and getattr(v.context, 'give_target_is_keeper', False)",
+                "messageKey": "targetKeeper"
+            },
+            {
+                "predicate": "lambda v: (not getattr(v.context, 'give_is_money', False)) and getattr(v.context, 'give_no_drop', False)",
                 "messageKey": "noDrop"
+            },
+            {
+                "predicate": "lambda v: (not getattr(v.context, 'give_is_money', False)) and getattr(v.context, 'give_target_hands_full', False)",
+                "messageKey": "targetHandsFull"
+            },
+            {
+                "predicate": "lambda v: (not getattr(v.context, 'give_is_money', False)) and getattr(v.context, 'give_target_encumbered', False)",
+                "messageKey": "targetEncumbered"
+            },
+            {
+                "predicate": "lambda v: (not getattr(v.context, 'give_is_money', False)) and getattr(v.context, 'give_target_cannot_see', False)",
+                "messageKey": "targetCannotSee"
             }
         ]
     },
@@ -4333,9 +4436,18 @@
         "payload": {
             "toChar": {
                 "noArgument": "Wear, wield, or hold what?",
-                "targetMissing": "You do not have that item."
+                "targetMissing": "You do not have that item.",
+                "invalidTarget": "You can't hold that.",
+                "insufficientLevel": "You must be level %d to use this object.",
+                "noRemove": "You can't remove %t.",
+                "removed": "You stop using %t.",
+                "hold": "You hold %t in your hand."
             },
-            "toRoom": {},
+            "toRoom": {
+                "insufficientLevel": "%c tries to use %t, but is too inexperienced.",
+                "removed": "%c stops using %t.",
+                "hold": "%c holds %t in their hand."
+            },
             "toVictim": {}
         },
         "guards": [
@@ -4365,10 +4477,38 @@
         "pipeline": false,
         "maxArguments": 0,
         "payload": {
-            "toChar": {},
+            "toChar": {
+                "roomMissing": "You can't do that here.",
+                "shopUnavailable": "You can't do that here.",
+                "shopClosedLater": "Sorry, I am closed. Come back later.",
+                "shopClosedTomorrow": "Sorry, I am closed. Come back tomorrow.",
+                "keeperCannotSee": "I don't trade with folks I can't see."
+            },
             "toRoom": {},
             "toVictim": {}
-        }
+        },
+        "guards": [
+            {
+                "predicate": "lambda v: getattr(v.context, 'room', None) is None",
+                "messageKey": "roomMissing"
+            },
+            {
+                "predicate": "lambda v: (not getattr(v.context, 'list_is_pet_shop', False)) and getattr(v.context, 'list_keeper_error', '') == 'shop_unavailable'",
+                "messageKey": "shopUnavailable"
+            },
+            {
+                "predicate": "lambda v: (not getattr(v.context, 'list_is_pet_shop', False)) and getattr(v.context, 'list_keeper_error', '') == 'shop_closed_later'",
+                "messageKey": "shopClosedLater"
+            },
+            {
+                "predicate": "lambda v: (not getattr(v.context, 'list_is_pet_shop', False)) and getattr(v.context, 'list_keeper_error', '') == 'shop_closed_tomorrow'",
+                "messageKey": "shopClosedTomorrow"
+            },
+            {
+                "predicate": "lambda v: (not getattr(v.context, 'list_is_pet_shop', False)) and getattr(v.context, 'list_keeper_error', '') == 'keeper_cannot_see'",
+                "messageKey": "keeperCannotSee"
+            }
+        ]
     },
     {
         "_id": {
@@ -4535,17 +4675,68 @@
                 "targetSelf": "You cannot change the laws of physics!",
                 "invalidLiquid": "They don't hold the same liquid.",
                 "missingLiquid": "There's nothing in %t to pour.",
-                "filled": "$p is already filled to the top.",
-                "toContainer": "You pour %s from %t into %T."
+                "filled": "%t is already filled to the top.",
+                "spillOut": "You invert %t, spilling %s all over the ground.",
+                "toContainer": "You pour %s from %t into %T.",
+                "forVictim": "You pour some %s for %t."
             },
             "toRoom": {
+                "spillOut": "%c inverts %t, spilling %s all over the ground.",
                 "toContainer": "%c pours %s from %t into %T.",
-                "notVictim": "%c pours some %s for %t."
+                "forVictim": "%c pours some %s for %t."
             },
             "toVictim": {
                 "default": "%c pours you some %s."
             }
-        }
+        },
+        "guards": [
+            {
+                "predicate": "lambda v: not getattr(v.context, 'pour_arg1', '') or not getattr(v.context, 'pour_target_arg', '')",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'pour_source', None) is None",
+                "messageKey": "targetMissing"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'notContainer'",
+                "messageKey": "notContainer"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'emptyTarget'",
+                "messageKey": "emptyTarget"
+            },
+            {
+                "predicate": "lambda v: (not getattr(v.context, 'pour_is_out', False)) and getattr(v.context, 'pour_target_item', None) is None and getattr(v.context, 'pour_target_character', None) is None",
+                "messageKey": "pourTargetMissing"
+            },
+            {
+                "predicate": "lambda v: (not getattr(v.context, 'pour_is_out', False)) and getattr(v.context, 'pour_target_character', None) is not None and getattr(v.context, 'pour_target_container', None) is None",
+                "messageKey": "targetContainerMissing"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'targetContainerInvalid'",
+                "messageKey": "targetContainerInvalid"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'targetSelf'",
+                "messageKey": "targetSelf"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'invalidLiquid'",
+                "messageKey": "invalidLiquid"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'missingLiquid'",
+                "messageKey": "missingLiquid",
+                "tokenFactory": "lambda v: {'t': ItemUtil.short(v.context.pour_source)}"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'filled'",
+                "messageKey": "filled",
+                "tokenFactory": "lambda v: {'t': ItemUtil.short(v.context.pour_target_container)}"
+            }
+        ]
     },
     {
         "_id": {
@@ -4644,7 +4835,25 @@
                 "quaffs": "%c quaffs %t."
             },
             "toVictim": {}
-        }
+        },
+        "guards": [
+            {
+                "predicate": "lambda v: not getattr(v.context, 'quaff_arg1', '')",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'quaff_item', None) is None",
+                "messageKey": "targetMissing"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'quaff_item', None) is not None and not Item.is_potion(v.context.quaff_item)",
+                "messageKey": "notPotion"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'quaff_item', None) is not None and int(getattr(v.context.character, 'level', 0) or 0) < int(getattr(v.context.quaff_item, 'level', 0) or 0)",
+                "messageKey": "insufficientLevel"
+            }
+        ]
     },
     {
         "_id": {
@@ -4674,7 +4883,25 @@
                 "recites": "%c recites %t."
             },
             "toVictim": {}
-        }
+        },
+        "guards": [
+            {
+                "predicate": "lambda v: getattr(v.context, 'recite_scroll', None) is None",
+                "messageKey": "scrollMissing"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'recite_scroll', None) is not None and not Item.is_scroll(v.context.recite_scroll)",
+                "messageKey": "notScroll"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'recite_scroll', None) is not None and int(getattr(v.context.character, 'level', 0) or 0) < int(getattr(v.context.recite_scroll, 'level', 0) or 0)",
+                "messageKey": "insufficientLevel"
+            },
+            {
+                "predicate": "lambda v: bool(getattr(v.context, 'recite_target_name', '')) and getattr(v.context, 'recite_target', None) is None",
+                "messageKey": "targetMissing"
+            }
+        ]
     },
     {
         "_id": {
@@ -4694,10 +4921,13 @@
         "payload": {
             "toChar": {
                 "noTarget": "Remove what?",
-                "targetMissing": "You do not have that item.",
-                "notWorn": "You aren't wearing that."
+                "notWorn": "You aren't wearing that.",
+                "noRemove": "You can't remove %t.",
+                "removed": "You stop using %t."
             },
-            "toRoom": {},
+            "toRoom": {
+                "removed": "%c stops using %t."
+            },
             "toVictim": {}
         },
         "guards": [
@@ -4708,6 +4938,11 @@
             {
                 "predicate": "lambda v: v.context.remove_item is None",
                 "messageKey": "notWorn"
+            },
+            {
+                "predicate": "lambda v: v.context.remove_item is not None and bool(getattr(v.context, 'remove_no_remove', False))",
+                "messageKey": "noRemove",
+                "tokenFactory": "lambda v: {'t': getattr(v.context, 'remove_item_short', '')}"
             }
         ]
     },
@@ -4961,7 +5196,9 @@
         },
         "name": "value",
         "role": "player",
-        "lambdas": [],
+        "lambdas": [
+            "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
+        ],
         "enabled": true,
         "position": "POS_RESTING",
         "level": 0,
@@ -4971,29 +5208,56 @@
         "payload": {
             "toChar": {
                 "noArgument": "Value what?",
-                "targetMissing": "%t tells you 'You don't have that item'.",
-                "noDrop": "You can't let go of it."
+                "roomMissing": "You can't do that here.",
+                "shopUnavailable": "You can't do that here.",
+                "shopClosedLater": "Sorry, I am closed. Come back later.",
+                "shopClosedTomorrow": "Sorry, I am closed. Come back tomorrow.",
+                "keeperCannotSee": "I don't trade with folks I can't see.",
+                "targetMissing": "You don't have that item.",
+                "noDrop": "You can't let go of it.",
+                "looksUninterested": "%s looks uninterested in %t.",
+                "default": "I'll give you %q silver and {g} gold coins for %t."
             },
             "toRoom": {},
-            "toVictim": {
-                "targetMissing": "%t tells you 'You don't have that item'.",
-                "itemInvisible": "%t doesn't see what you are offering.",
-                "neverStocked": "%t looks uninterested in %t."
-            }
+            "toVictim": {}
         },
         "guards": [
             {
-                "predicate": "lambda v: not v.context.value_raw",
+                "predicate": "lambda v: not bool(getattr(v.context, 'value_raw', ''))",
                 "messageKey": "noArgument"
             },
             {
-                "predicate": "lambda v: v.context.value_item is None",
-                "messageKey": "targetMissing",
-                "tokenFactory": "lambda v: {'t': v.context.value_keeper_name}"
+                "predicate": "lambda v: getattr(v.context, 'value_room', None) is None",
+                "messageKey": "roomMissing"
             },
             {
-                "predicate": "lambda v: v.context.value_item is not None and v.context.value_no_drop",
+                "predicate": "lambda v: getattr(v.context, 'value_keeper_error', '') == 'shop_unavailable'",
+                "messageKey": "shopUnavailable"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'value_keeper_error', '') == 'shop_closed_later'",
+                "messageKey": "shopClosedLater"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'value_keeper_error', '') == 'shop_closed_tomorrow'",
+                "messageKey": "shopClosedTomorrow"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'value_keeper_error', '') == 'keeper_cannot_see'",
+                "messageKey": "keeperCannotSee"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'value_item', None) is None",
+                "messageKey": "targetMissing"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'value_item', None) is not None and bool(getattr(v.context, 'value_no_drop', False))",
                 "messageKey": "noDrop"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'value_item', None) is not None and int(getattr(v.context, 'value_cost', 0) or 0) <= 0",
+                "messageKey": "looksUninterested",
+                "tokenFactory": "lambda v: {'s': getattr(v.context, 'value_keeper_name', 'The shopkeeper'), 't': getattr(v.context, 'value_item_short', '')}"
             }
         ]
     },
@@ -5017,7 +5281,10 @@
                 "noArgument": "Wear, wield, or hold what?",
                 "targetMissing": "You do not have that item.",
                 "invalidTarget": "You can't wear, wield, or hold that.",
+                "invalidTargetThere": "You can't wear that there.",
                 "insufficientLevel": "You must be level %d to use this object.",
+                "noRemove": "You can't remove %t.",
+                "removed": "You stop using %t.",
                 "light": "You light %t and hold it.",
                 "finger": "You wear %t on your %s finger.",
                 "fingersEquipped": "You already wear two rings.",
@@ -5037,6 +5304,7 @@
                 "shield": "You wear %t as a shield.",
                 "weaponTwoHanded": "Your hands are tied up with your weapon!",
                 "wearingShield": "You need two hands free for that weapon.",
+                "tooHeavy": "It is too heavy for you to wield.",
                 "wield": "You wield %t.",
                 "hold": "You hold %t in your hand.",
                 "float": "You release %t and it floats next to you.",
@@ -5050,6 +5318,7 @@
             },
             "toRoom": {
                 "insufficientLevel": "%c tries to use %t, but is too inexperienced.",
+                "removed": "%c stops using %t.",
                 "light": "%c lights %t and holds it.",
                 "finger": "%c wears %t on %s finger.",
                 "neck": "%c wears %t around their neck.",
@@ -5078,6 +5347,19 @@
             {
                 "predicate": "lambda v: (not v.context.wear_all) and v.context.wear_item is None",
                 "messageKey": "targetMissing"
+            },
+            {
+                "predicate": "lambda v: (not v.context.wear_all) and getattr(v.context, 'wear_item', None) is not None and bool(getattr(v.context, 'wear_invalid_target', False)) and bool(getattr(v.context, 'wear_forced_slot', ''))",
+                "messageKey": "invalidTargetThere"
+            },
+            {
+                "predicate": "lambda v: (not v.context.wear_all) and getattr(v.context, 'wear_item', None) is not None and bool(getattr(v.context, 'wear_invalid_target', False)) and not bool(getattr(v.context, 'wear_forced_slot', ''))",
+                "messageKey": "invalidTarget"
+            },
+            {
+                "predicate": "lambda v: (not v.context.wear_all) and getattr(v.context, 'wear_item', None) is not None and int(getattr(v.context.character, 'level', 0) or 0) < int(getattr(v.context, 'wear_item_level', 0) or 0)",
+                "messageKey": "insufficientLevel",
+                "tokenFactory": "lambda v: {'d': getattr(v.context, 'wear_item_level', 0), 't': getattr(v.context, 'wear_item_short', '')}"
             }
         ]
     },
@@ -5114,7 +5396,25 @@
             "toVictim": {
                 "zapsWith": "%c zaps you with %t."
             }
-        }
+        },
+        "guards": [
+            {
+                "predicate": "lambda v: (not getattr(v.context, 'zap_arg1', '')) and getattr(v.context.character, 'fighting', None) is None",
+                "messageKey": "noArgument"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'zap_item', None) is None",
+                "messageKey": "notHeld"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'zap_item', None) is not None and not Item.is_wand(v.context.zap_item)",
+                "messageKey": "notWand"
+            },
+            {
+                "predicate": "lambda v: getattr(v.context, 'zap_target', None) is None",
+                "messageKey": "targetMissing"
+            }
+        ]
     },
     {
         "_id": {

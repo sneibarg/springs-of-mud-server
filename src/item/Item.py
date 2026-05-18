@@ -18,6 +18,19 @@ if TYPE_CHECKING:
 
 
 @dataclass
+class FillResult:
+    blocked_key: str = ""
+    liquid_name: str = ""
+
+
+@dataclass
+class PourResult:
+    blocked_key: str = ""
+    liquid_name: str = ""
+    amount: int = 0
+
+
+@dataclass
 class Item:
     id: str
     area_id: str
@@ -99,6 +112,177 @@ class Item:
             if name == q or name.startswith(q):
                 return obj
         return None
+
+    @staticmethod
+    def is_drink_container(item) -> bool:
+        item_type = str(getattr(item, "item_type", "") or "").strip().lower()
+        return ("drink" in item_type) or ("fountain" in item_type)
+
+    @staticmethod
+    def is_fountain(item) -> bool:
+        item_type = str(getattr(item, "item_type", "") or "").strip().lower()
+        return "fountain" in item_type
+
+    @staticmethod
+    def _item_type(item) -> str:
+        return str(getattr(item, "item_type", "") or "").strip().lower()
+
+    @classmethod
+    def is_potion(cls, item) -> bool:
+        return "potion" in cls._item_type(item)
+
+    @classmethod
+    def is_scroll(cls, item) -> bool:
+        return "scroll" in cls._item_type(item)
+
+    @classmethod
+    def is_staff(cls, item) -> bool:
+        return "staff" in cls._item_type(item)
+
+    @classmethod
+    def is_wand(cls, item) -> bool:
+        return "wand" in cls._item_type(item)
+
+    @staticmethod
+    def spell_level(item) -> int:
+        return GenericUtil.to_int(getattr(item, "value0", 0), 0)
+
+    @staticmethod
+    def spell_refs(item, *slots: int) -> list:
+        refs = []
+        for slot in slots:
+            value = getattr(item, f"value{int(slot)}", "")
+            if str(value or "").strip():
+                refs.append(value)
+        return refs
+
+    @staticmethod
+    def charges(item) -> int:
+        return GenericUtil.to_int(getattr(item, "value2", 0), 0)
+
+    @staticmethod
+    def spend_charge(item) -> int:
+        remaining = Item.charges(item) - 1
+        item.value2 = str(remaining)
+        return remaining
+
+    @classmethod
+    def inspect_pour(cls, source, destination=None, *, pour_out: bool = False) -> PourResult:
+        result = PourResult()
+        if source is None:
+            result.blocked_key = "targetMissing"
+            return result
+        if cls.is_fountain(source) or not cls.is_drink_container(source):
+            result.blocked_key = "notContainer"
+            return result
+
+        source_amount = GenericUtil.to_int(getattr(source, "value1", 0), 0)
+        source_liquid = str(getattr(source, "value2", "") or "")
+        result.liquid_name = source_liquid
+
+        if pour_out:
+            if source_amount <= 0:
+                result.blocked_key = "emptyTarget"
+                return result
+            result.amount = source_amount
+            return result
+
+        if destination is None:
+            result.blocked_key = "pourTargetMissing"
+            return result
+        if cls.is_fountain(destination) or not cls.is_drink_container(destination):
+            result.blocked_key = "targetContainerInvalid"
+            return result
+        if destination is source:
+            result.blocked_key = "targetSelf"
+            return result
+
+        dest_amount = GenericUtil.to_int(getattr(destination, "value1", 0), 0)
+        dest_capacity = GenericUtil.to_int(getattr(destination, "value0", 0), 0)
+        dest_liquid = str(getattr(destination, "value2", "") or "")
+        if dest_amount > 0 and dest_liquid != source_liquid:
+            result.blocked_key = "invalidLiquid"
+            return result
+        if source_amount <= 0:
+            result.blocked_key = "missingLiquid"
+            return result
+        if dest_capacity > 0 and dest_amount >= dest_capacity:
+            result.blocked_key = "filled"
+            return result
+
+        result.amount = min(source_amount, max(0, dest_capacity - dest_amount))
+        return result
+
+    @classmethod
+    def pour(cls, source, destination=None, *, pour_out: bool = False) -> PourResult:
+        result = cls.inspect_pour(source, destination, pour_out=pour_out)
+        if result.blocked_key:
+            return result
+
+        if pour_out:
+            source.value1 = "0"
+            source.value3 = "0"
+            return result
+
+        dest_amount = GenericUtil.to_int(getattr(destination, "value1", 0), 0)
+        source_amount = GenericUtil.to_int(getattr(source, "value1", 0), 0)
+        destination.value1 = str(dest_amount + result.amount)
+        source.value1 = str(source_amount - result.amount)
+        destination.value2 = result.liquid_name
+        return result
+
+    @staticmethod
+    def first_fountain(room):
+        if room is None:
+            return None
+        for item in getattr(room, "contents", {}).values():
+            if Item.is_fountain(item):
+                return item
+        return None
+
+    @classmethod
+    def inspect_fill(cls, destination, source) -> FillResult:
+        result = FillResult()
+        if source is None:
+            result.blocked_key = "sourceMissing"
+            return result
+        if cls.is_fountain(destination) or not cls.is_drink_container(destination) or not cls.is_drink_container(source):
+            result.blocked_key = "notContainer"
+            return result
+
+        dest_capacity = GenericUtil.to_int(getattr(destination, "value0", 0), 0)
+        dest_amount = GenericUtil.to_int(getattr(destination, "value1", 0), 0)
+        if dest_capacity > 0 and dest_amount >= dest_capacity:
+            result.blocked_key = "containerFull"
+            return result
+
+        source_liquid = str(getattr(source, "value2", "") or "")
+        dest_liquid = str(getattr(destination, "value2", "") or "")
+        if dest_amount > 0 and source_liquid and dest_liquid != source_liquid:
+            result.blocked_key = "differentLiquid"
+            return result
+
+        if not cls.is_fountain(source):
+            source_amount = GenericUtil.to_int(getattr(source, "value1", 0), 0)
+            if source_amount <= 0:
+                result.blocked_key = "sourceEmpty"
+                return result
+
+        result.liquid_name = source_liquid
+        return result
+
+    @classmethod
+    def fill_from_source(cls, destination, source) -> FillResult:
+        result = cls.inspect_fill(destination, source)
+        if result.blocked_key:
+            return result
+
+        destination_capacity = GenericUtil.to_int(getattr(destination, "value0", 0), 0)
+        source_amount = GenericUtil.to_int(getattr(source, "value1", 0), 0)
+        if result.liquid_name:
+            destination.value2 = result.liquid_name
+        destination.value1 = str(destination_capacity if destination_capacity > 0 else source_amount)
+        return result
 
     def ensure_effects(self):
         with self.lock:
@@ -185,3 +369,67 @@ class Item:
         if not hasattr(weapon_flags, "WEAPON_TWO_HANDS"):
             return False
         return ItemUtil.has_flag(getattr(self, "value4", 0), weapon_flags.WEAPON_TWO_HANDS.value)
+
+    def can_remove(self, item_flags) -> bool:
+        from util.ItemUtil import ItemUtil
+
+        no_remove_bit = CharacterApi.enum_bit(item_flags, "ITEM_NOREMOVE")
+        if no_remove_bit == 0:
+            return True
+        return not ItemUtil.has_flag(getattr(self, "extra_flags", 0), no_remove_bit)
+
+    def weapon_skill_feedback_key(self, character: Character) -> str:
+        if CharacterApi.is_npc(character):
+            return ""
+
+        try:
+            weapon_class = CharacterApi.get_enum("weaponClass")
+        except RuntimeError:
+            weapon_class = None
+        if weapon_class is None:
+            return ""
+
+        skill_map = {
+            getattr(weapon_class, "WEAPON_SWORD", None): "sword",
+            getattr(weapon_class, "WEAPON_DAGGER", None): "dagger",
+            getattr(weapon_class, "WEAPON_SPEAR", None): "spear",
+            getattr(weapon_class, "WEAPON_MACE", None): "mace",
+            getattr(weapon_class, "WEAPON_AXE", None): "axe",
+            getattr(weapon_class, "WEAPON_FLAIL", None): "flail",
+            getattr(weapon_class, "WEAPON_WHIP", None): "whip",
+            getattr(weapon_class, "WEAPON_POLEARM", None): "polearm",
+        }
+        class_value = GenericUtil.to_int(getattr(self, "value0", 0), 0)
+        skill_name = ""
+        for enum_member, name in skill_map.items():
+            if enum_member is not None and class_value == int(enum_member.value):
+                skill_name = name
+                break
+        if not skill_name:
+            return ""
+
+        skill = 0
+        for entry in list(getattr(character, "skills", []) or []):
+            if isinstance(entry, dict):
+                entry_name = str(entry.get("name", "")).strip().lower()
+                entry_level = entry.get("level", 0)
+            else:
+                entry_name = str(getattr(entry, "name", "")).strip().lower()
+                entry_level = getattr(entry, "level", 0)
+            if entry_name == skill_name:
+                skill = max(0, min(100, GenericUtil.to_int(entry_level, 0)))
+                break
+
+        if skill >= 100:
+            return "skill100"
+        if skill > 85:
+            return "skill85"
+        if skill > 70:
+            return "skill70"
+        if skill > 50:
+            return "skill50"
+        if skill > 25:
+            return "skill25"
+        if skill > 1:
+            return "skill1"
+        return "skill0"
