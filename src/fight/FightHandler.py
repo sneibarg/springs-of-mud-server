@@ -1130,7 +1130,7 @@ class FightHandler:
         if room is None or corpse is None or not ItemUtil.is_npc_corpse(corpse):
             return None
 
-        if not ItemUtil.item_takeable(corpse) or ItemUtil.is_nosac(corpse, self.ItemFlags):
+        if not ItemUtil.item_takeable(corpse) or ItemUtil.is_nosac(corpse):
             return None
 
         room.remove_item_from_room(corpse)

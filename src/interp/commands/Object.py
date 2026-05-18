@@ -84,93 +84,19 @@ class Object:
         return fn(character, context)
 
     def do_buy(self, character: Character, context: Context):
-        room = self.room_registry.get_or_none(id=character.room_id)
-        raw = (context.result if isinstance(context.result, str) else "").strip()
-        if not raw and context.parameters:
-            raw = " ".join(context.parameters).strip()
-        if not raw:
+        room = self._prepare_buy_context(character, context)
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
             context.finish()
-            return {"to_char": "Buy what?\r\n"}
-        if room is None:
-            context.finish()
-            return {"to_char": "You can't do that here.\r\n"}
+            return blocked
 
-        if self._is_pet_shop(room):
-            payload = self._buy_pet(character, room, raw)
-            context.finish()
-            return payload
+        if context.buy_is_pet_shop:
+            payload = self._finish_buy_pet(character, room, context)
+        else:
+            payload = self._finish_buy_item(character, room, context)
 
-        keeper, shop, error = self._find_keeper(character, room)
-        if error:
-            context.finish()
-            return {"to_char": error}
-
-        quantity, selector = self._mult_argument(raw)
-        if quantity < 1 or quantity > 99:
-            context.finish()
-            return {"to_char": "Get real!\r\n"}
-
-        obj = self._get_keeper_stock_item(character, keeper, selector)
-        cost = 0 if obj is None else shop.buy_price(obj)
-        if obj is None or cost <= 0 or not ItemUtil.can_see_object(room, character, obj):
-            context.finish()
-            return {"to_char": "I don't sell that -- try 'list'.\r\n"}
-
-        if not self._is_inventory_item(obj):
-            available = self._available_stock_quantity(keeper, obj)
-            if available < quantity:
-                context.finish()
-                return {"to_char": "I don't have that many in stock.\r\n"}
-
-        total_cost = cost * quantity
-        if not self._can_afford(character, total_cost):
-            context.finish()
-            if quantity > 1:
-                return {"to_char": "You can't afford to buy that many.\r\n"}
-            return {"to_char": f"You can't afford to buy {ItemUtil.short(obj)}.\r\n"}
-
-        if GenericUtil.to_int(getattr(obj, "level", 0), 0) > GenericUtil.to_int(getattr(character, "level", 0), 0):
-            context.finish()
-            return {"to_char": f"You can't use {ItemUtil.short(obj)} yet.\r\n"}
-
-        if self._carry_count(character) + quantity > self._max_items(character):
-            context.finish()
-            return {"to_char": "You can't carry that many items.\r\n"}
-
-        if self._carry_weight(character) + (quantity * GenericUtil.to_int(getattr(obj, "weight", 0), 0)) > self._max_weight(character):
-            context.finish()
-            return {"to_char": "You can't carry that much weight.\r\n"}
-
-        purchased = []
-        current_obj = obj
-        for _ in range(quantity):
-            if self._is_inventory_item(current_obj):
-                item = ItemUtil.create_object(current_obj)
-            else:
-                item = current_obj
-                self._remove_keeper_item(keeper, item)
-                current_obj = self._find_matching_stock_item(keeper, item)
-
-            self._normalize_purchased_item(item, cost)
-            character.add_item(item)
-            purchased.append(item)
-
-        self._deduct_money(character, total_cost)
-        self._add_money(keeper, total_cost)
         context.finish()
-
-        item_label = ItemUtil.short(obj)
-        if quantity > 1:
-            return {
-                "to_char": f"You buy {item_label}[{quantity}] for {total_cost} silver.\r\n",
-                "to_room": f"{character.name} buys {item_label}[{quantity}].\r\n",
-                "targets": room.player_targets(character),
-            }
-        return {
-            "to_char": f"You buy {item_label} for {cost} silver.\r\n",
-            "to_room": f"{character.name} buys {item_label}.\r\n",
-            "targets": room.player_targets(character),
-        }
+        return payload
 
     def do_list(self, character: Character, context: Context):
         room = self.room_registry.get_or_none(id=character.room_id)
@@ -189,7 +115,7 @@ class Object:
         keeper, shop, error = self._find_keeper(character, room)
         if error:
             context.finish()
-            return {"to_char": error}
+            return self._keeper_error_payload(error)
 
         lines = []
         stock = self._keeper_visible_stock(character, keeper)
@@ -225,62 +151,28 @@ class Object:
         return {"to_char": "".join(lines)}
 
     def do_sell(self, character: Character, context: Context):
-        room = self.room_registry.get_or_none(id=character.room_id)
-        raw = (context.result if isinstance(context.result, str) else "").strip()
-        if not raw and context.parameters:
-            raw = " ".join(context.parameters).strip()
-        if not raw:
+        room = self._prepare_sell_context(character, context)
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
             context.finish()
-            return {"to_char": "Sell what?\r\n"}
-        if room is None:
-            context.finish()
-            return {"to_char": "You can't do that here.\r\n"}
+            return blocked
 
-        keeper, shop, error = self._find_keeper(character, room)
-        if error:
-            context.finish()
-            return {"to_char": error}
-
-        obj = CharacterApi.find_owned_item(character, raw)
-        if obj is None:
-            context.finish()
-            return {"to_char": "You don't have that item.\r\n"}
-        if ItemUtil.is_nodrop(obj, self.item_flags):
-            context.finish()
-            return {"to_char": "You can't let go of it.\r\n"}
-
-        cost = shop.sell_price(obj, getattr(keeper, "inventory", []) or [], self.item_types, self.item_flags)
-        if cost <= 0:
-            context.finish()
-            return {"to_char": f"{getattr(keeper, 'short_description', 'The shopkeeper')} looks uninterested in {ItemUtil.short(obj)}.\r\n"}
-        if self._money_value(keeper) < cost:
-            context.finish()
-            return {"to_char": f"I'm afraid I don't have enough wealth to buy {ItemUtil.short(obj)}.\r\n"}
-
-        slot = character.equipped_slot_of(obj)
+        obj = context.sell_obj
+        slot = ItemUtil.equipped_slot_of(character, obj)
         if slot:
             EffectUtil.remove_item_effects(character, obj)
-            character.unequip_item(slot)
+            ItemUtil.unequip_item(character, slot)
         character.remove_item(obj)
 
-        self._add_money(character, cost)
-        self._deduct_money(keeper, cost)
-        if self._is_trash_item(obj) or self._is_sell_extract_item(obj):
-            context.finish()
-            return {
-                "to_char": self._sell_message(obj, cost),
-                "to_room": f"{character.name} sells {ItemUtil.short(obj)}.\r\n",
-                "targets": room.player_targets(character),
-            }
+        self._add_money(character, context.sell_cost)
+        self._deduct_money(context.sell_keeper, context.sell_cost)
+        if not (self._is_trash_item(obj) or self._is_sell_extract_item(obj)):
+            self._prepare_sold_item(obj)
+            self._add_item_to_keeper(context.sell_keeper, obj)
 
-        self._prepare_sold_item(obj)
-        self._add_item_to_keeper(keeper, obj)
+        payload = self._sell_success_payload(character, room, context)
         context.finish()
-        return {
-            "to_char": self._sell_message(obj, cost),
-            "to_room": f"{character.name} sells {ItemUtil.short(obj)}.\r\n",
-            "targets": room.player_targets(character),
-        }
+        return payload
 
     def do_value(self, character: Character, context: Context):
         room = self.room_registry.get_or_none(id=character.room_id)
@@ -297,7 +189,7 @@ class Object:
         keeper, shop, error = self._find_keeper(character, room)
         if error:
             context.finish()
-            return {"to_char": error}
+            return self._keeper_error_payload(error)
 
         obj = CharacterApi.find_owned_item(character, raw)
         if obj is None:
@@ -459,90 +351,121 @@ class Object:
         return ""
 
     def do_put(self, character: Character, context: Context):
-        arg1, rem = ItemUtil.parse_raw_arguments(context.result, context.parameters)
-        room = self.room_registry.get_or_none(id=character.room_id)
-        if not arg1 or not rem:
+        room = self._prepare_put_context(character, context)
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
             context.finish()
-            return {"to_char": "Put what in what?\r\n"}
-        if room is None:
-            context.finish()
-            return {"to_char": "You are nowhere.\r\n"}
+            return blocked
 
-        obj = character.find_inventory_item(arg1)
-        if obj is None:
+        error = self._put_item_error(context.put_obj, context)
+        if error:
             context.finish()
-            return {"to_char": "You do not have that item.\r\n"}
-        container = ItemUtil.find_container(character, room, rem.split()[0])
-        if container is None:
-            context.finish()
-            return {"to_char": "I see no container here.\r\n"}
-        if not ItemUtil.is_container(container):
-            context.finish()
-            return {"to_char": "That's not a container.\r\n"}
-        if ItemApi.is_container_closed(container):
-            context.finish()
-            return {"to_char": "It is closed.\r\n"}
-        if obj is container:
-            context.finish()
-            return {"to_char": "You can't fold it into itself.\r\n"}
+            return {"to_char": error}
 
-        character.remove_item(obj)
-        container.add_contained_item(obj)
+        character.remove_item(context.put_obj)
+        context.put_container.add_contained_item(context.put_obj)
         context.finish()
+        key = "on" if context.put_relation == "on" else "in"
         return {
-            "to_char": f"You put {ItemUtil.short(obj)} in {ItemUtil.short(container)}.\r\n",
-            "to_room": f"{character.name} puts {ItemUtil.short(obj)} in {ItemUtil.short(container)}.\r\n",
+            "to_char": self._render_command_message(
+                context,
+                key,
+                t=ItemUtil.short(context.put_obj),
+                T=ItemUtil.short(context.put_container),
+            ),
+            "to_room": self._render_command_message(
+                context,
+                key,
+                channel="to_room",
+                c=character.name,
+                t=ItemUtil.short(context.put_obj),
+                T=ItemUtil.short(context.put_container),
+            ),
             "targets": room.player_targets(character),
         }
 
-    def do_drop(self, character: Character, context: Context):
-        arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
-        room = self.room_registry.get_or_none(id=character.room_id)
-        if not arg1:
-            context.finish()
-            return {"to_char": "Drop what?\r\n"}
+    def _prepare_put_context(self, character: Character, context: Context):
+        arg1, rem = ItemUtil.parse_raw_arguments(context.result, context.parameters)
+        room = getattr(context, "room", None)
         if room is None:
-            context.finish()
-            return {"to_char": "You are nowhere.\r\n"}
-        if arg1 == "all" or arg1.startswith("all."):
-            payload = self._drop_all(character, room, arg1)
-            context.finish()
-            return payload
-        item = character.find_inventory_item(arg1)
-        if item is None:
-            context.finish()
-            return {"to_char": "You do not have that item.\r\n"}
-        if ItemUtil.is_nodrop(item, self.item_flags):
-            context.finish()
-            return {"to_char": "You can't let go of it.\r\n"}
+            room = self.room_registry.get_or_none(id=character.room_id)
 
-        payload = self._drop_one(character, room, item)
+        context.room = room
+        context.put_room = room
+        context.put_arg1 = arg1
+        context.put_rem = rem
+        context.put_relation = self._put_relation(context)
+        context.put_container_name = rem.split()[0] if rem else ""
+        context.put_obj = character.find_inventory_item(arg1) if arg1 else None
+        context.put_container = ItemUtil.find_container(character, room, context.put_container_name) if context.put_container_name else None
+        return room
+
+    def _put_item_error(self, item, context: Context) -> str:
+        if item is None:
+            return ""
+        if ItemUtil.is_nodrop(item, self.item_flags):
+            return self._render_command_message(context, "target_no_drop", t=ItemUtil.short(item))
+        return ""
+
+    @staticmethod
+    def _put_relation(context: Context) -> str:
+        raw = (context.result if isinstance(context.result, str) else "").strip()
+        if not raw:
+            raw = " ".join(getattr(context, "parameters", []) or []).strip()
+        _arg1, rest = InterpUtil.one_argument(raw)
+        prep, _tail = InterpUtil.one_argument(rest)
+        return "on" if prep.strip().lower() == "on" else "in"
+
+    def do_drop(self, character: Character, context: Context):
+        room = self._prepare_drop_context(character, context)
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            context.finish()
+            return blocked
+
+        if context.drop_all:
+            payload = self._drop_all(character, room, context, context.arg1)
+        else:
+            payload = self._drop_one(character, room, context, context.drop_item)
         context.finish()
         return payload
 
-    def _drop_all(self, character: Character, room, arg1: str):
+    def _prepare_drop_context(self, character: Character, context: Context):
+        arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
+        room = getattr(context, "room", None)
+        if room is None:
+            room = self.room_registry.get_or_none(id=character.room_id)
+
+        context.arg1 = arg1
+        context.drop_room = room
+        context.drop_all = arg1 == "all" or arg1.startswith("all.")
+        context.drop_item = None if context.drop_all or not arg1 else character.find_inventory_item(arg1)
+        context.drop_no_drop = bool(context.drop_item is not None and ItemUtil.is_nodrop(context.drop_item, self.item_flags))
+        return room
+
+    def _drop_all(self, character: Character, room, context: Context, arg1: str):
         wanted = arg1[4:].strip().lower() if arg1.startswith("all.") else ""
         dropped = []
         room_lines = []
         char_lines = []
 
         for item in list(getattr(character, "loot", []) or []):
-            if character.equipped_slot_of(item):
+            if ItemUtil.equipped_slot_of(character, item):
                 continue
             if ItemUtil.is_nodrop(item, self.item_flags):
                 continue
             name = str(getattr(item, "name", "") or "").strip().lower()
             if wanted and wanted not in name.split() and not name.startswith(wanted):
                 continue
-            payload = self._drop_one(character, room, item)
+            payload = self._drop_one(character, room, context, item)
             dropped.append(item)
             char_lines.append(payload.get("to_char", ""))
             room_lines.append(payload.get("to_room", ""))
 
         if not dropped:
             if wanted:
-                return {"to_char": f"You are not carrying any {wanted}.\r\n"}
-            return {"to_char": "You are not carrying anything.\r\n"}
+                return {"to_char": self._render_command_message(context, "target_not_found", t=wanted)}
+            return {"to_char": self._render_command_message(context, "no_inventory")}
 
         return {
             "to_char": "".join(char_lines),
@@ -550,23 +473,26 @@ class Object:
             "targets": room.player_targets(character),
         }
 
-    def _drop_one(self, character: Character, room, item):
-        slot = character.equipped_slot_of(item)
+    def _drop_one(self, character: Character, room, context: Context, item):
+        slot = ItemUtil.equipped_slot_of(character, item)
         if slot:
             EffectUtil.remove_item_effects(character, item)
-            character.unequip_item(slot)
+            ItemUtil.unequip_item(character, slot)
         character.remove_item(item)
 
+        item_short = ItemUtil.short(item)
         if self._melts_on_drop(item):
             return {
-                "to_char": f"You drop {ItemUtil.short(item)}.\r\n{ItemUtil.short(item)} dissolves into smoke.\r\n",
-                "to_room": f"{character.name} drops {ItemUtil.short(item)}.\r\n{ItemUtil.short(item)} dissolves into smoke.\r\n",
+                "to_char": self._render_command_message(context, "default", t=item_short)
+                + self._render_command_message(context, "dissolved", t=item_short),
+                "to_room": self._render_command_message(context, "default", channel="to_room", c=character.name, t=item_short)
+                + self._render_command_message(context, "dissolved", channel="to_room", t=item_short),
             }
 
         room.add_item_to_room(item)
         return {
-            "to_char": f"You drop {ItemUtil.short(item)}.\r\n",
-            "to_room": f"{character.name} drops {ItemUtil.short(item)}.\r\n",
+            "to_char": self._render_command_message(context, "default", t=item_short),
+            "to_room": self._render_command_message(context, "default", channel="to_room", c=character.name, t=item_short),
         }
 
     def _melts_on_drop(self, item) -> bool:
@@ -574,44 +500,198 @@ class Object:
             return False
         return ItemUtil.has_flag(getattr(item, "extra_flags", 0), self.item_flags.ITEM_MELT_DROP.value)
 
+    def _prepare_buy_context(self, character: Character, context: Context):
+        raw = (context.result if isinstance(context.result, str) else "").strip()
+        if not raw and context.parameters:
+            raw = " ".join(context.parameters).strip()
+        room = getattr(context, "room", None)
+        if room is None:
+            room = self.room_registry.get_or_none(id=character.room_id)
+
+        context.room = room
+        context.buy_raw = raw
+        context.buy_room = room
+        context.buy_is_pet_shop = self._is_pet_shop(room)
+        context.buy_keeper = None
+        context.buy_shop = None
+        context.buy_keeper_error = ""
+        context.buy_quantity = 1
+        context.buy_selector = ""
+        context.buy_item = None
+        context.buy_item_short = ""
+        context.buy_cost = 0
+        context.buy_total_cost = 0
+        context.buy_available = 0
+        context.buy_stock_limited = False
+        context.buy_pet_name = ""
+        context.buy_pet_proto = None
+
+        if not raw or room is None:
+            return room
+
+        if context.buy_is_pet_shop:
+            selector, pet_name = InterpUtil.one_argument(raw)
+            stock_room = self._pet_stock_room(room)
+            pet_proto = self._find_pet(stock_room, selector) if stock_room is not None else None
+            context.buy_selector = selector
+            context.buy_pet_name = pet_name
+            context.buy_pet_proto = pet_proto
+            context.buy_item = pet_proto
+            context.buy_item_short = getattr(pet_proto, "short_description", "a pet") if pet_proto is not None else ""
+            context.buy_cost = 0 if pet_proto is None else 10 * GenericUtil.to_int(getattr(pet_proto, "level", 0), 0) ** 2
+            context.buy_total_cost = context.buy_cost
+            return room
+
+        keeper, shop, error = self._find_keeper(character, room)
+        context.buy_keeper = keeper
+        context.buy_shop = shop
+        context.buy_keeper_error = error
+        quantity, selector = self._mult_argument(raw)
+        context.buy_quantity = quantity
+        context.buy_selector = selector
+        if keeper is None or shop is None:
+            return room
+
+        obj = self._get_keeper_stock_item(character, keeper, selector)
+        cost = 0 if obj is None else shop.buy_price(obj)
+        context.buy_item = obj
+        context.buy_item_short = "" if obj is None else ItemUtil.short(obj)
+        context.buy_cost = cost
+        context.buy_total_cost = cost * max(0, quantity)
+        context.buy_stock_limited = bool(obj is not None and not self._is_inventory_item(obj))
+        if context.buy_stock_limited:
+            context.buy_available = self._available_stock_quantity(keeper, obj)
+        return room
+
+    def _finish_buy_item(self, character: Character, room, context: Context):
+        current_obj = context.buy_item
+        for _ in range(context.buy_quantity):
+            if self._is_inventory_item(current_obj):
+                item = ItemUtil.create_object(current_obj)
+            else:
+                item = current_obj
+                self._remove_keeper_item(context.buy_keeper, item)
+                current_obj = self._find_matching_stock_item(context.buy_keeper, item)
+
+            self._normalize_purchased_item(item, context.buy_cost)
+            character.add_item(item)
+
+        self._deduct_money(character, context.buy_total_cost)
+        self._add_money(context.buy_keeper, context.buy_total_cost)
+        if context.buy_quantity > 1:
+            return {
+                "to_char": self._render_command_message(context, "bulk_purchased", t=context.buy_item_short, d=context.buy_quantity, q=context.buy_total_cost),
+                "to_room": self._render_command_message(context, "bulk_purchased", channel="to_room", c=character.name, t=context.buy_item_short, d=context.buy_quantity),
+                "targets": room.player_targets(character),
+            }
+        return {
+            "to_char": self._render_command_message(context, "default", t=context.buy_item_short, q=context.buy_cost),
+            "to_room": self._render_command_message(context, "item_purchased", channel="to_room", c=character.name, t=context.buy_item_short),
+            "targets": room.player_targets(character),
+        }
+
+    def _finish_buy_pet(self, character: Character, room, context: Context):
+        pet = MobileUtil.create_mobile(context.buy_pet_proto, CharacterApi._enums_map())
+        pet_bit = CharacterApi.enum_bit(self.act_bits, "ACT_PET")
+        charm_bit = CharacterApi.enum_bit(self.affected_bits, "AFF_CHARM")
+        if pet_bit:
+            pet.status_flags.act = CharacterApi.set_bit(GenericUtil.to_int(getattr(pet.status_flags, "act", 0), 0), pet_bit)
+        if charm_bit:
+            pet.status_flags.affected_by = CharacterApi.set_bit(GenericUtil.to_int(getattr(pet.status_flags, "affected_by", 0), 0), charm_bit)
+
+        for comm_name in ("COMM_NOTELL", "COMM_NOSHOUT", "COMM_NOCHANNELS"):
+            bit = CharacterApi.enum_bit(self.comm_flags, comm_name)
+            if bit:
+                pet.status_flags.comm = CharacterApi.set_bit(GenericUtil.to_int(getattr(pet.status_flags, "comm", 0), 0), bit)
+
+        if context.buy_pet_name:
+            pet.name = f"{pet.name} {context.buy_pet_name}".strip()
+        pet.description = f"{getattr(pet, 'description', '')}A neck tag says 'I belong to {character.name}'.\r\n"
+        room.add_mobile_to_room(pet)
+        pet.leader = character
+        character.pet = pet
+        self._deduct_money(character, context.buy_cost)
+        return {
+            "to_char": self._render_command_message(context, "pet_purchased"),
+            "to_room": self._render_command_message(context, "pet_purchased", channel="to_room", c=character.name, t=getattr(pet, "short_description", "a pet")),
+            "targets": room.player_targets(character),
+        }
+
+    def _prepare_sell_context(self, character: Character, context: Context):
+        raw = (context.result if isinstance(context.result, str) else "").strip()
+        if not raw and context.parameters:
+            raw = " ".join(context.parameters).strip()
+        room = getattr(context, "room", None)
+        if room is None:
+            room = self.room_registry.get_or_none(id=character.room_id)
+
+        context.room = room
+        context.sell_raw = raw
+        context.sell_room = room
+        context.sell_keeper = None
+        context.sell_shop = None
+        context.sell_keeper_error = ""
+        context.sell_obj = None
+        context.sell_item_short = ""
+        context.sell_keeper_short = ""
+        context.sell_cost = 0
+        context.sell_gold = 0
+        context.sell_silver = 0
+        context.sell_suffix = "s"
+        context.sell_no_drop = False
+
+        if not raw or room is None:
+            return room
+
+        keeper, shop, error = self._find_keeper(character, room)
+        context.sell_keeper = keeper
+        context.sell_shop = shop
+        context.sell_keeper_error = error
+        if keeper is None or shop is None:
+            return room
+
+        obj = CharacterApi.find_owned_item(character, raw)
+        context.sell_obj = obj
+        if obj is None:
+            return room
+
+        context.sell_no_drop = ItemUtil.is_nodrop(obj, self.item_flags)
+        context.sell_item_short = ItemUtil.short(obj)
+        context.sell_keeper_short = getattr(keeper, "short_description", "The shopkeeper")
+        context.sell_cost = shop.sell_price(obj, getattr(keeper, "inventory", []) or [], self.item_types, self.item_flags)
+        context.sell_gold = context.sell_cost // 100
+        context.sell_silver = context.sell_cost - (context.sell_gold * 100)
+        context.sell_suffix = "" if context.sell_cost == 1 else "s"
+        return room
+
+    def _sell_success_payload(self, character: Character, room, context: Context):
+        return {
+            "to_char": self._render_command_message(context, "default", t=context.sell_item_short, q=context.sell_silver, g=context.sell_gold, sfx=context.sell_suffix),
+            "to_room": self._render_command_message(context, "sells", channel="to_room", c=character.name, t=context.sell_item_short),
+            "targets": room.player_targets(character),
+        }
+
     def do_junk(self, character: Character, context: Context):
         return self.destroy_carried(character, context, "Junk what?\r\n")
 
     def do_sacrifice(self, character: Character, context: Context):
-        arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
-        room = self.room_registry.get_or_none(id=character.room_id)
-        if not arg1 or arg1.lower() == str(getattr(character, "name", "") or "").strip().lower():
+        context.arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
+        print(f"SACRIFICE: {context.arg1=}")
+        room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
+        context.item = ItemUtil.find_room_item(room, context.arg1) if room is not None else None
+        context.item_name = ItemUtil.short(context.item) if context.item is not None else None
+        payload = self.interp_api.run_action(context, context.command.name)
+        if payload.get('blocked'):
             context.finish()
-            return {
-                "to_char": "Mota appreciates your offer and may accept it later.\r\n",
-                "to_room": f"{character.name} offers themselves to Mota, who graciously declines.\r\n",
-                "targets": room.player_targets(character),
-            }
+            return payload
 
-        item = ItemUtil.find_room_item(room, arg1) if room is not None else None
-        if item is None:
-            context.finish()
-            return {"to_char": "You can't find it.\r\n"}
-        if ItemUtil.is_pc_corpse(item) and list(getattr(item, "contains", []) or []):
-            context.finish()
-            return {"to_char": "Mota wouldn't like that.\r\n"}
-        if not ItemUtil.item_takeable(item) or ItemUtil.is_nosac(item, self.item_flags):
-            context.finish()
-            return {"to_char": f"{ItemUtil.short(item)} is not an acceptable sacrifice.\r\n"}
-
-        for occupant in list(getattr(room, "characters", {}).values()) + list(getattr(room, "mobiles", {}).values()) if room is not None else []:
-            if getattr(occupant, "on", None) is item:
-                name = getattr(occupant, "short_description", None) or getattr(occupant, "name", "Someone")
-                context.finish()
-                return {"to_char": f"{name} appears to be using {ItemUtil.short(item)}.\r\n"}
-
-        silver = ItemUtil.sacrifice_silver_value(item)
-        room.remove_item_from_room(item)
+        silver = ItemUtil.sacrifice_silver_value(context.item)
+        room.remove_item_from_room(context.item)
         character.silver = int(getattr(character, "silver", 0) or 0) + silver
         context.finish()
         return {
-            "to_char": ItemUtil.sacrifice_reward_message(silver),
-            "to_room": f"{character.name} sacrifices {ItemUtil.short(item)} to Mota.\r\n",
+            "to_char": context.command.payload.to_char.get('one_silver') if silver == 1 else context.command.payload.to_char.get('multiple_silver').replace("%d", str(silver)),
+            "to_room": context.command.payload.to_room["default"],
             "targets": room.player_targets(character),
         }
 
@@ -1130,7 +1210,7 @@ class Object:
 
     def _find_keeper(self, character: Character, room):
         if self.shop_registry is None:
-            return None, None, "You can't do that here.\r\n"
+            return None, None, "shop_unavailable"
         for mob in room.mobiles.values():
             shop = self.shop_registry.find_by_keeper_vnum(getattr(mob, "vnum", ""))
             if shop is None:
@@ -1138,12 +1218,21 @@ class Object:
             hour = GenericUtil.to_int(getattr(getattr(self.weather_handler, "time_info", None), "hour", -1), -1)
             if not shop.is_open_at(hour):
                 if hour < GenericUtil.to_int(shop.open_hour, 0):
-                    return None, None, "Sorry, I am closed. Come back later.\r\n"
-                return None, None, "Sorry, I am closed. Come back tomorrow.\r\n"
+                    return None, None, "shop_closed_later"
+                return None, None, "shop_closed_tomorrow"
             if not CharacterApi.can_see(mob, character, room):
-                return None, None, "I don't trade with folks I can't see.\r\n"
+                return None, None, "keeper_cannot_see"
             return mob, shop, ""
-        return None, None, "You can't do that here.\r\n"
+        return None, None, "shop_unavailable"
+
+    def _keeper_error_payload(self, error_key: str) -> dict:
+        messages = {
+            "shop_unavailable": "You can't do that here.\r\n",
+            "shop_closed_later": "Sorry, I am closed. Come back later.\r\n",
+            "shop_closed_tomorrow": "Sorry, I am closed. Come back tomorrow.\r\n",
+            "keeper_cannot_see": "I don't trade with folks I can't see.\r\n",
+        }
+        return {"to_char": messages.get(error_key, "You can't do that here.\r\n")}
 
     def _is_pet_shop(self, room) -> bool:
         if room is None or self.room_flags is None or not hasattr(self.room_flags, "ROOM_PET_SHOP"):

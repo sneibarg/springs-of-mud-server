@@ -610,6 +610,8 @@ class ItemUtil:
 
     @staticmethod
     def is_newbie_pit(item) -> bool:
+        if getattr(item, "vnum", None) is None:
+            return False
         well_known_obj_vnums = CharacterApi.get_enum("wellKnownObjectVnums")
         return item.vnum == well_known_obj_vnums.OBJ_VNUM_PIT.value
 
@@ -627,9 +629,12 @@ class ItemUtil:
         return ItemUtil.has_flag(getattr(item, "extra_flags", 0), item_flags_enum.ITEM_NODROP.value)
 
     @staticmethod
-    def is_nosac(item, item_flags_enum) -> bool:
-        if item_flags_enum is None or not hasattr(item_flags_enum, "ITEM_NO_SAC"):
+    def is_nosac(item) -> bool:
+        item_flags_enum = CharacterApi.get_enum("itemFlags")
+        if not hasattr(item_flags_enum, "ITEM_NO_SAC"):
+            print(f"is_nosac: {item_flags_enum} does not have ITEM_NO_SAC")
             return False
+        print(f"is_nosac: extra_flags={item.extra_flags}; NO_SAC={item_flags_enum.ITEM_NO_SAC.value}")
         return ItemUtil.has_flag(getattr(item, "extra_flags", 0), item_flags_enum.ITEM_NO_SAC.value)
 
     @staticmethod
@@ -715,4 +720,11 @@ class ItemUtil:
         for item in room.contents.values():
             if "FOUNTAIN" in ((getattr(item, "item_type", "") or "").upper()):
                 return item
+        return None
+
+    @staticmethod
+    def item_in_use(context) -> None:
+        for occupant in list(getattr(context.room, "characters", {}).values()) + list(getattr(context.room, "mobiles", {}).values()) if context.room is not None else []:
+            if getattr(occupant, "on", None) is context.item:
+                context.occupant_name = getattr(occupant, "short_description", None) or getattr(occupant, "name", "Someone")
         return None
