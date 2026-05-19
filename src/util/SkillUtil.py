@@ -120,6 +120,10 @@ class SkillUtil:
         return None
 
     @staticmethod
+    def find_learned_entry(character: Character, ability_name: str):
+        return SkillUtil._find_learned_entry(character, ability_name)
+
+    @staticmethod
     def _learned_level(entry) -> int:
         if entry is None:
             return 0
@@ -136,3 +140,25 @@ class SkillUtil:
             entry["level"] = normalized
             return
         setattr(entry, "level", normalized)
+
+    @staticmethod
+    def ensure_learned_entry(character: Character, ability_name: str, *, collection_name: str) -> dict:
+        collection_name = "spells" if str(collection_name or "").strip().lower() == "spells" else "skills"
+        entry = SkillUtil._find_learned_entry(character, ability_name)
+        if entry is not None:
+            return entry
+
+        collection = getattr(character, collection_name, None)
+        if collection is None:
+            collection = []
+            setattr(character, collection_name, collection)
+
+        entry = {"name": str(ability_name or "").strip(), "level": 0}
+        collection.append(entry)
+        return entry
+
+    @staticmethod
+    def set_character_learned_level(character: Character, ability_name: str, value: int, *, collection_name: str) -> dict:
+        entry = SkillUtil.ensure_learned_entry(character, ability_name, collection_name=collection_name)
+        SkillUtil._set_learned_level(entry, value)
+        return entry

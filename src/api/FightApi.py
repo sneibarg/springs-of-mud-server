@@ -14,6 +14,7 @@ from api.SkillApi import SkillApi
 from skill.SkillRegistry import SkillRegistry
 from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
+from util.CommunicationsUtil import CommunicationsUtil
 from util.GenericUtil import GenericUtil
 from util.FightUtil import FightUtil
 from util.PlayerUtil import PlayerUtil
@@ -157,7 +158,7 @@ class FightApi:
             text = payload_def.render(msg.channel, msg.key, msg.fallback, **msg.tokens)
             if not text:
                 continue
-            payload[msg.channel] = FightApi._ensure_message_break(text)
+            payload[msg.channel] = CommunicationsUtil.ensure_message_break(text)
         if "to_victim" in payload and victim is not None:
             payload["victim"] = victim
         if "to_room" in payload and targets is not None:
@@ -181,13 +182,6 @@ class FightApi:
             plan_factory=(lambda _view: ActionPlan(operation=executor, data=dict(plan_data)))
             if executor else (lambda _view: ActionPlan(stop=False, data={"blocked": False})),
         )
-
-    @staticmethod
-    def _ensure_message_break(text: str) -> str:
-        rendered = str(text or "")
-        if rendered and not rendered.endswith("\r\n"):
-            rendered += "\r\n"
-        return rendered
 
     @staticmethod
     def _token_victim_name(view: FightView) -> dict[str, Any]:

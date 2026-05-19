@@ -9,6 +9,7 @@ from game.action import ActionGuard, ActionDefinition, ActionPlan, MessageRef
 from interp.InterpView import InterpView
 from api.MovementApi import MovementApi
 from api.ItemApi import ItemApi
+from api.WizApi import WizApi
 from game.GamePayload import GamePayload
 from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
@@ -19,6 +20,7 @@ from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
 from util.MovementUtil import MovementUtil
+from util.WizUtil import WizUtil
 from item.Item import Item
 
 
@@ -318,6 +320,8 @@ class InterpApi:
             "Item": Item,
             "ItemUtil": ItemUtil,
             "AreaUtil": AreaUtil,
+            "WizApi": WizApi,
+            "WizUtil": WizUtil,
             "bool": bool,
             "int": int,
             "getattr": getattr,

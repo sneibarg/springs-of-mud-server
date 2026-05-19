@@ -339,6 +339,38 @@ class MobileUtil:
         return mob
 
     @staticmethod
+    def clone_mobile_instance(mob: Mobile, enums: dict[str, type[IntEnum]]) -> Mobile:
+        clone = MobileUtil.create_mobile(mob, enums)
+        clone.short_description = getattr(mob, "short_description", "")
+        clone.long_description = getattr(mob, "long_description", "")
+        clone.description = getattr(mob, "description", "")
+        clone.name = getattr(mob, "name", "")
+        clone.race = getattr(mob, "race", "")
+        clone.flags = getattr(mob, "flags", "")
+        clone.alignment = getattr(mob, "alignment", "")
+        clone.group = getattr(mob, "group", "")
+        clone.dam_type = getattr(mob, "dam_type", "")
+        clone.sex = getattr(mob, "sex", "")
+        clone.size = getattr(mob, "size", "")
+        clone.material = getattr(mob, "material", "")
+        clone.level = getattr(mob, "level", 0)
+        clone.hit_roll = getattr(mob, "hit_roll", 0)
+        clone.gold = getattr(mob, "gold", 0)
+        clone.silver = getattr(mob, "silver", 0)
+        clone.start_pos = getattr(mob, "start_pos", 0)
+        clone.default_pos = getattr(mob, "default_pos", 0)
+        clone.status_flags = StatusFlags.from_template(getattr(mob, "status_flags", None)) if getattr(mob, "status_flags", None) is not None else None
+        clone.inventory = []
+        for item in list(getattr(mob, "inventory", []) or []):
+            cloned = ItemUtil.clone_object_instance(item)
+            wear_loc = getattr(item, "wear_loc", None)
+            if wear_loc is not None:
+                MobileUtil.equip_item(clone, cloned, wear_loc)
+                continue
+            clone.inventory.append(cloned)
+        return clone
+
+    @staticmethod
     def add_inventory_item(mob: Mobile, item):
         if not hasattr(mob, "inventory") or getattr(mob, "inventory", None) is None:
             mob.inventory = []

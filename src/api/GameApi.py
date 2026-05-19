@@ -17,6 +17,7 @@ class GameApi:
     _races = None
     _item_table = None
     _attribute_bonuses = None
+    _classes = None
     _pc_races = None
     _titles = None
 
@@ -29,6 +30,7 @@ class GameApi:
         cls._races = None
         cls._item_table = None
         cls._attribute_bonuses = None
+        cls._classes = None
         cls._pc_races = None
         cls._titles = None
 
@@ -45,6 +47,7 @@ class GameApi:
             cls._configure_races(game_data)
             cls._configure_item_table(game_data)
             cls._configure_attribute_bonuses(game_data)
+            cls._configure_classes(game_data)
             cls._configure_pc_races(game_data)
             cls._configure_titles(game_data)
             cls._configure_internal_variables(game_data)
@@ -60,6 +63,7 @@ class GameApi:
             cls._races = None
             cls._item_table = None
             cls._attribute_bonuses = None
+            cls._classes = None
             cls._pc_races = None
             cls._titles = None
             cls._reset_internal_variables()
@@ -113,6 +117,10 @@ class GameApi:
         cls._attribute_bonuses = dict(game_data.attribute_bonuses or {})
 
     @classmethod
+    def _configure_classes(cls, game_data: GameData) -> None:
+        cls._classes = dict(game_data.classes or {})
+
+    @classmethod
     def _configure_pc_races(cls, game_data: GameData) -> None:
         cls._pc_races = dict(game_data.pc_races or {})
 
@@ -139,6 +147,11 @@ class GameApi:
     def _attribute_bonus_map(cls) -> dict:
         cls._require_configured()
         return cls._attribute_bonuses or {}
+
+    @classmethod
+    def _classes_map(cls) -> dict:
+        cls._require_configured()
+        return cls._classes or {}
 
     @classmethod
     def _pc_races_map(cls) -> dict:

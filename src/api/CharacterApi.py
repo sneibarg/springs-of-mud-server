@@ -64,6 +64,9 @@ class CharacterApi(GameApi):
     @classmethod
     def get_trust(cls, char: Any) -> int:
         from player.Character import Character
+        controller = (getattr(char, "context", {}) or {}).get("controller_original")
+        if controller is not None and controller is not char:
+            return cls.get_trust(controller)
         if type(char) is Character and char.trust > 0:
             return char.trust
         if cls.is_npc(char) and char.level >= cls.GameParameters.HERO.value:
@@ -337,6 +340,24 @@ class CharacterApi(GameApi):
             if str(key).lower() == class_lower:
                 return GenericUtil.to_int(value, default)
         return default
+
+    @classmethod
+    def class_names(cls) -> list[str]:
+        return sorted(str(name or "") for name in cls._classes_map().keys() if str(name or "").strip())
+
+    @classmethod
+    def class_data(cls, class_name: str) -> dict:
+        wanted = str(class_name or "").strip().lower()
+        if not wanted:
+            return {}
+        classes = cls._classes_map()
+        if wanted in classes:
+            return dict(classes.get(wanted) or {})
+        for key, value in classes.items():
+            label = str(key or "").strip().lower()
+            if label == wanted or label.startswith(wanted):
+                return dict(value or {})
+        return {}
 
     @classmethod
     def title_for_level(cls, character: Character, level: int | None = None) -> str:

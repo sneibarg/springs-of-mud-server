@@ -16,6 +16,8 @@ if TYPE_CHECKING:
 
 
 def build_prompt_map():
+    from api.CharacterApi import CharacterApi
+
     return {
         "%h": lambda c: c.hit,
         "%H": lambda c: c.max_hit,
@@ -30,8 +32,8 @@ def build_prompt_map():
         "%a": lambda c: c.alignment,
         "%r": lambda r: r.name if r and r.name else "",
         "%e": lambda r: r.get_formatted_exits() if r else "",
-        "%R": lambda c, r: r.vnum if c.is_immortal() and r else "",
-        "%z": lambda c, a: a.name if c.is_immortal() and a else "",
+        "%R": lambda c, r: r.vnum if r and CharacterApi.is_immortal(c) else "",
+        "%z": lambda c, a: a.name if a and CharacterApi.is_immortal(c) else "",
         "%c": lambda: "\n",
     }
 

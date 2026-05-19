@@ -67,6 +67,11 @@ class Context:
             return self.handler_service.get_handler("sh")
         return None
 
+    def wiz_handler(self):
+        if self.handler_service:
+            return self.handler_service.get_handler("wh")
+        return None
+
     def jump_to(self, index: int):
         self.next_index = index
 

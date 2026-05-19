@@ -46,7 +46,6 @@ class Fight:
         self._handlers = {
             "hit": self.do_kill,
             "kill": self.do_kill,
-            "murde": self.do_murde,
             "murder": self.do_murder,
             "cast": self.do_cast,
             "backstab": self.do_backstab,
@@ -73,10 +72,6 @@ class Fight:
         context.finish()
         return {"to_char": f"{name} is not implemented yet.\r\n"}
 
-    def do_murde(self, character: Character, context: Context):
-        context.finish()
-        return {"to_char": "If you want to MURDER, spell it out.\r\n"}
-
     def do_murder(self, character: Character, context: Context):
         argument = FightUtil.parse_action_argument(context.result, context.parameters)
         room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
@@ -84,7 +79,7 @@ class Fight:
         context.murder_argument = argument
         context.murder_room = room
         context.murder_victim = victim
-        payload = self._evaluate_command_checks(context)
+        payload = self.interp_api.evaluate_guards_only(context, context.command.name)
         if payload is not None:
             return payload
         return self.do_kill(character, context)
@@ -111,7 +106,7 @@ class Fight:
         context.cast_target = target
         context.cast_target_kind = target_kind
         context.cast_target_error = target_error
-        payload = self._evaluate_command_checks(context)
+        payload = self.interp_api.evaluate_guards_only(context, context.command.name)
         if payload is not None:
             return payload
 
@@ -155,17 +150,16 @@ class Fight:
             CharacterApi.set_position(victim, "POS_RESTING")
             self._check_improve(character, skill, True, 1)
             result = self.fight_handler.damage(character, victim, random.randint(4, max(4, GenericUtil.to_int(getattr(character, "level", 1), 1))), dt="bash")
-            payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
-            self._prepend_payload(
-                payload,
-                "You slam into them and send them flying!\r\n",
-                f"{self._target_name(character)} sends you sprawling with a powerful bash!\r\n",
-                f"{self._target_name(character)} sends {self._target_name(victim)} sprawling with a powerful bash.\r\n",
-            )
+            round_payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
+            payload = {
+                "payloads": [
+                    self._command_payload("success", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens),
+                    round_payload,
+                ]
+            }
         else:
             self._check_improve(character, skill, False, 1)
-            result = self.fight_handler.damage(character, victim, 0, dt="bash")
-            payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
+            payload = self.fight_handler.build_round_payload(character, victim, room, self.fight_handler.damage(character, victim, 0, dt="bash"), pre_corpse_ids)
         context.finish()
         return payload
 
@@ -199,18 +193,14 @@ class Fight:
             EffectUtil.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_AC", modifier=ac_penalty, bitvector="0"))
             room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
             context.finish()
-            return {
-                "to_char": "Your pulse races as you are consumed by rage!\r\n",
-                "to_room": f"{character.name} gets a wild look in their eyes.\r\n",
-                "targets": room.player_targets(character),
-            }
+            return {"payloads": [self._command_payload("success", targets=room.player_targets(character), token_factory=self._actor_tokens)]}
 
         self._set_wait(character, self._skill_beats(skill, 12) * 3)
         character.mana = max(0, GenericUtil.to_int(getattr(character, "mana", 0), 0) - 25)
         character.movement = max(0, GenericUtil.to_int(getattr(character, "movement", 0), 0) // 2)
         self._check_improve(character, skill, False, 2)
         context.finish()
-        return {"to_char": "Your pulse speeds up, but nothing happens.\r\n"}
+        return {"payloads": [self._command_payload("failed")]}
 
     def do_dirt(self, character: Character, context: Context):
         view = self.fight_api.build_fight_view(context, skill_name="dirt kicking", current_target_fallback=True)
@@ -232,17 +222,16 @@ class Fight:
             EffectUtil.affect_to_char(victim, Effect(where="TO_AFFECTS", type="skill.dirt", level=getattr(character, "level", 0), duration=0, location="APPLY_HITROLL", modifier=-4, bitvector="AFF_BLIND"))
             self._check_improve(character, skill, True, 2)
             result = self.fight_handler.damage(character, victim, random.randint(2, 5), dt="dirt")
-            payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
-            self._prepend_payload(
-                payload,
-                "You kick dirt in their eyes!\r\n",
-                f"{self._target_name(character)} kicks dirt in your eyes!\r\nYou can't see a thing!\r\n",
-                f"{self._target_name(victim)} is blinded by dirt in their eyes!\r\n",
-            )
+            round_payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
+            payload = {
+                "payloads": [
+                    self._command_payload("success", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens),
+                    round_payload,
+                ]
+            }
         else:
             self._check_improve(character, skill, False, 2)
-            result = self.fight_handler.damage(character, victim, 0, dt="dirt")
-            payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
+            payload = self.fight_handler.build_round_payload(character, victim, room, self.fight_handler.damage(character, victim, 0, dt="dirt"), pre_corpse_ids)
         context.finish()
         return payload
 
@@ -267,16 +256,10 @@ class Fight:
         self._set_wait(character, self._skill_beats(skill, 12))
         if random.randint(1, 100) <= chance:
             self._check_improve(character, skill, True, 1)
-            payload = self._disarm_payload(character, victim, room, obj)
+            payload = {"payloads": [self._disarm_payload(character, victim, room, obj)]}
         else:
             self._check_improve(character, skill, False, 1)
-            payload = {
-                "to_char": f"You fail to disarm {self._target_name(victim)}.\r\n",
-                "to_victim": f"{self._target_name(character)} tries to disarm you, but fails.\r\n",
-                "to_room": f"{self._target_name(character)} tries to disarm {self._target_name(victim)}, but fails.\r\n",
-                "victim": victim,
-                "targets": self._room_targets(room, character, victim),
-            }
+            payload = {"payloads": [self._command_payload("failed", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)]}
         context.finish()
         return payload
 
@@ -294,7 +277,7 @@ class Fight:
 
         context.flee_room = was_in
         context.flee_to_room = to_room
-        payload = self._evaluate_command_checks(context)
+        payload = self.interp_api.evaluate_guards_only(context, context.command.name)
         if payload is not None:
             if payload.get("blocked_key") == "not_fighting" and self._position(character) == self._pos("POS_FIGHTING"):
                 CharacterApi.set_position(character, "POS_STANDING")
@@ -318,18 +301,18 @@ class Fight:
         exp_text = ""
         if not CharacterApi.is_npc(character):
             CharacterAdvancement.gain_experience(character, -10)
-            exp_text = "You lost 10 exp.\r\n"
+            exp_text = "lost_exp"
 
         context.finish()
-        return {
-            "to_char": f"You flee from combat!\r\n{exp_text}",
-            "from_room_message": f"{character.name} has fled!\r\n",
-            "from_room_targets": from_targets,
-            "to_room_targets": to_room.player_targets(character),
-            "to_room_message": f"{character.name} has arrived.\r\n",
-            "to_room_obj": to_room,
-            "aggressive_rounds": self.fight_handler.aggressive_entry_rounds(character, to_room),
-        }
+        payloads = [
+            self._command_payload("flee", channel="to_char"),
+            self._command_payload("departed", channel="to_room", targets=from_targets, token_factory=self._actor_tokens),
+            self._command_payload("arrived", channel="to_room", targets=to_room.player_targets(character), token_factory=self._actor_tokens),
+            {"to_room_obj": to_room, "aggressive_rounds": self.fight_handler.aggressive_entry_rounds(character, to_room)},
+        ]
+        if exp_text:
+            payloads.insert(1, self._command_payload(exp_text, channel="to_char"))
+        return {"payloads": payloads}
 
     def do_rescue(self, character: Character, context: Context):
         view = self.fight_api.build_fight_view(context, skill_name="rescue")
@@ -346,7 +329,7 @@ class Fight:
         if random.randint(1, 100) > max(1, self.skill_api.get_rating(character, skill)):
             self._check_improve(character, skill, False, 1)
             context.finish()
-            return {"to_char": "You fail the rescue.\r\n"}
+            return {"payloads": [self._command_payload("failed")]}
 
         self._check_improve(character, skill, True, 1)
         self.fight_handler.stop_fighting(foe, both=False)
@@ -355,13 +338,7 @@ class Fight:
         self.fight_handler.set_fighting(character, foe, room.id)
         self.fight_handler.set_fighting(foe, character, room.id)
         context.finish()
-        return {
-            "to_char": f"You rescue {self._target_name(victim)}!\r\n",
-            "to_victim": f"{self._target_name(character)} rescues you!\r\n",
-            "to_room": f"{self._target_name(character)} rescues {self._target_name(victim)}!\r\n",
-            "victim": victim,
-            "targets": self._room_targets(room, character, victim),
-        }
+        return {"payloads": [self._command_payload("success", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)]}
 
     def do_kick(self, character: Character, context: Context):
         view = self.fight_api.build_fight_view(context, skill_name="kick", current_target_fallback=True)
@@ -390,8 +367,10 @@ class Fight:
         if payload is not None:
             if payload.get("blocked_key") == "target_self":
                 self._set_wait(character, self._skill_beats(view.skill, 12) * 2)
-                payload["to_room"] = f"{character.name} trips over their own feet!\r\n"
-                payload["targets"] = view.room.player_targets(character) if view.room is not None else []
+                payload["payloads"] = [
+                    {key: value for key, value in payload.items() if key != "payloads"},
+                    self._command_payload("self_room", channel="to_room", targets=view.room.player_targets(character) if view.room is not None else [], token_factory=self._actor_tokens),
+                ]
             return payload
 
         skill = view.skill
@@ -407,17 +386,16 @@ class Fight:
             size = max(1, GenericUtil.to_int(getattr(victim, "size", 1), 1))
             self._check_improve(character, skill, True, 1)
             result = self.fight_handler.damage(character, victim, random.randint(2, 2 + (2 * size)), dt="trip")
-            payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
-            self._prepend_payload(
-                payload,
-                f"You trip {self._target_name(victim)} and they go down!\r\n",
-                f"{self._target_name(character)} trips you and you go down!\r\n",
-                f"{self._target_name(character)} trips {self._target_name(victim)}, sending them to the ground.\r\n",
-            )
+            round_payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
+            payload = {
+                "payloads": [
+                    self._command_payload("success", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens),
+                    round_payload,
+                ]
+            }
         else:
             self._check_improve(character, skill, False, 1)
-            result = self.fight_handler.damage(character, victim, 0, dt="trip")
-            payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
+            payload = self.fight_handler.build_round_payload(character, victim, room, self.fight_handler.damage(character, victim, 0, dt="trip"), pre_corpse_ids)
         context.finish()
         return payload
 
@@ -485,9 +463,6 @@ class Fight:
 
         return None, "", "unsupported_target"
 
-    def _evaluate_command_checks(self, context: Context):
-        return self.interp_api.evaluate_guards_only(context, context.command.name)
-
     def _has_skill_access(self, character: Character, skill: Skill) -> bool:
         if CharacterApi.is_npc(character):
             return True
@@ -516,14 +491,6 @@ class Fight:
     @staticmethod
     def _target_name(target) -> str:
         return FightHandler._combat_target_name(target)
-
-    @staticmethod
-    def _prepend_payload(payload: dict, to_char: str = "", to_victim: str = "", to_room: str = "") -> dict:
-        payload["to_char"] = str(to_char or "") + str(payload.get("to_char", "") or "")
-        if "victim" in payload:
-            payload["to_victim"] = str(to_victim or "") + str(payload.get("to_victim", "") or "")
-        payload["to_room"] = str(to_room or "") + str(payload.get("to_room", "") or "")
-        return payload
 
     @staticmethod
     def _pre_corpse_ids(room) -> set[str]:
@@ -628,13 +595,7 @@ class Fight:
     def _disarm_payload(self, character, victim, room, obj) -> dict:
         item_flags = CharacterApi.get_enum("itemFlags")
         if hasattr(item_flags, "ITEM_NOREMOVE") and ItemUtil.has_flag(getattr(obj, "extra_flags", 0), item_flags.ITEM_NOREMOVE.value):
-            return {
-                "to_char": "Their weapon won't budge!\r\n",
-                "to_victim": f"{self._target_name(character)} tries to disarm you, but your weapon won't budge!\r\n",
-                "to_room": f"{self._target_name(character)} tries to disarm {self._target_name(victim)}, but fails.\r\n",
-                "victim": victim,
-                "targets": self._room_targets(room, character, victim),
-            }
+            return self._command_payload("no_remove", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)
 
         if not CharacterApi.is_npc(victim):
             EffectUtil.remove_item_effects(victim, obj)
@@ -650,13 +611,35 @@ class Fight:
             victim.remove_item(obj)
             room.add_item_to_room(obj)
 
+        return self._command_payload("success", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)
+
+    @staticmethod
+    def _actor_tokens(*, character: Character, context: Context, payload: dict) -> dict:
+        return {"actor_name": str(getattr(character, "name", "") or "")}
+
+    @staticmethod
+    def _actor_victim_tokens(*, character: Character, context: Context, payload: dict) -> dict:
+        victim = payload.get("victim")
         return {
-            "to_char": f"You disarm {self._target_name(victim)}!\r\n",
-            "to_victim": f"{self._target_name(character)} disarms you and sends your weapon flying!\r\n",
-            "to_room": f"{self._target_name(character)} disarms {self._target_name(victim)}!\r\n",
-            "victim": victim,
-            "targets": self._room_targets(room, character, victim),
+            "actor_name": str(getattr(character, "name", "") or ""),
+            "victim_name": Fight._target_name(victim),
         }
+
+    @staticmethod
+    def _command_payload(message_key: str, *, victim=None, targets=None, token_factory=None, channel: str = "", tokens: dict | None = None, **extra) -> dict:
+        payload = {"message_key": str(message_key or "")}
+        if channel:
+            payload["channel"] = channel
+        if victim is not None:
+            payload["victim"] = victim
+        if targets is not None:
+            payload["targets"] = list(targets)
+        if callable(token_factory):
+            payload["token_factory"] = token_factory
+        if tokens:
+            payload["tokens"] = dict(tokens)
+        payload.update(extra)
+        return payload
 
     def _movement_cost(self, character, in_room, to_room) -> int:
         if CharacterApi.is_npc(character):

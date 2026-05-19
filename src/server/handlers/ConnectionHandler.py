@@ -131,6 +131,7 @@ class ConnectionHandler:
     async def _game_loop(self, connection: TelnetConnection, session, player, character) -> None:
         while not connection.is_closed() and (session.is_playing() or session.is_idle()):
             try:
+                character = session.character or character
                 if not session.is_idle() and self.session_handler.is_session_idle(session):
                     session.status = SessionStatus.IDLING
 
@@ -138,16 +139,21 @@ class ConnectionHandler:
                 if message is None:
                     break
                 session.update_activity()
+                character = session.character or character
                 area, room = self._get_area_and_room(character)
                 if message.type == MessageType.GAME and session.metadata.get("paging_active", False):
                     await self._continue_paging(connection, session)
                     if not session.metadata.get("paging_active", False):
+                        character = session.character or character
                         area, room = self._get_area_and_room(character)
                         await self.message_bus.send_prompt(character, area, room)
                     continue
 
                 if message.type == MessageType.GAME:
+                    character = session.character or character
                     await self.command_handler.handle_command(player, character, message.get('text', ''))
+                    character = session.character or character
+                    area, room = self._get_area_and_room(character)
                     await self.message_bus.send_prompt(character, area, room)
             except Exception as e:
                 self.logger.error(f"Error in game loop: {e}", exc_info=True)

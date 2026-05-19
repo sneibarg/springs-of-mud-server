@@ -5,6 +5,7 @@ from interp.SocialHandler import SocialHandler
 from mobile.MobileHandler import MobileHandler
 from item.ItemHandler import ItemHandler
 from player.PlayerHandler import PlayerHandler
+from game.WizHandler import WizHandler
 from server.LoggerFactory import LoggerFactory
 
 
@@ -14,7 +15,8 @@ class HandlerService:
                  room_handler: RoomHandler,
                  mobile_handler: MobileHandler,
                  item_handler: ItemHandler,
-                 social_handler: SocialHandler):
+                 social_handler: SocialHandler,
+                 wiz_handler: WizHandler):
         self.__name__ = "HandlerService"
         self.logger = LoggerFactory.get_logger(__name__)
         self.player_handler = player_handler
@@ -22,12 +24,14 @@ class HandlerService:
         self.mobile_handler = mobile_handler
         self.item_handler = item_handler
         self.social_handler = social_handler
+        self.wiz_handler = wiz_handler
         self.safe_handlers = {
             'ph': self.player_handler,
             'rh': self.room_handler,
             'mh': self.mobile_handler,
             'ih': self.item_handler,
             'sh': self.social_handler,
+            'wh': self.wiz_handler,
         }
 
     def get_handler(self, key: str):

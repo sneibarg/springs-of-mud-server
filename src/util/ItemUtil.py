@@ -435,6 +435,39 @@ class ItemUtil:
         return item
 
     @staticmethod
+    def clone_object_instance(obj: Item):
+        clone = ItemUtil.create_object(obj)
+        clone.short_description = getattr(obj, "short_description", "")
+        clone.long_description = getattr(obj, "long_description", "")
+        clone.name = getattr(obj, "name", "")
+        clone.description = getattr(obj, "description", "")
+        clone.material = getattr(obj, "material", "")
+        clone.item_type = getattr(obj, "item_type", "")
+        clone.extra_flags = getattr(obj, "extra_flags", 0)
+        clone.wear_flags = getattr(obj, "wear_flags", 0)
+        clone.value0 = getattr(obj, "value0", "0")
+        clone.value1 = getattr(obj, "value1", "0")
+        clone.value2 = getattr(obj, "value2", "0")
+        clone.value3 = getattr(obj, "value3", "0")
+        clone.value4 = getattr(obj, "value4", "0")
+        clone.condition = getattr(obj, "condition", "")
+        clone.level = getattr(obj, "level", 0)
+        clone.weight = getattr(obj, "weight", 0)
+        clone.cost = getattr(obj, "cost", 0)
+        clone.timer = getattr(obj, "timer", None)
+        clone.enchanted = bool(getattr(obj, "enchanted", False))
+        clone.damage_type = getattr(obj, "damage_type", None)
+        clone.weapon_type = getattr(obj, "weapon_type", None)
+        clone.liquid_color = getattr(obj, "liquid_color", None)
+        clone.liquid_affect_data = list(getattr(obj, "liquid_affect_data", []) or []) if getattr(obj, "liquid_affect_data", None) is not None else None
+        clone.extra_descr = list(getattr(obj, "extra_descr", []) or [])
+        clone.affect_data = list(getattr(obj, "affect_data", []) or [])
+        clone.extra_description = getattr(obj, "extra_description", None)
+        clone.effects = list(getattr(obj, "effects", []) or []) if getattr(obj, "effects", None) is not None else None
+        clone.contains = [ItemUtil.clone_object_instance(item) for item in list(getattr(obj, "contains", []) or [])]
+        return clone
+
+    @staticmethod
     def find_world_object_instance(room_registry, target_vnum: str):
         def _walk(items, in_room: bool):
             for obj in items:

@@ -21,6 +21,7 @@ from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
 from skill.SpellContext import SpellContext
 from util.FightUtil import FightUtil
+from util.CommunicationsUtil import CommunicationsUtil
 from util.PlayerUtil import PlayerUtil
 from util.SkillUtil import SkillUtil
 
@@ -1136,13 +1137,6 @@ class Object:
         context.finish()
         return payload
 
-    @staticmethod
-    def _ensure_message_break(text: str) -> str:
-        rendered = str(text or "")
-        if rendered and not rendered.endswith("\r\n"):
-            rendered += "\r\n"
-        return rendered
-
     def _prepare_remove_context(self, character: Character, context: Context):
         arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = getattr(context, "room", None)
@@ -1166,7 +1160,7 @@ class Object:
         if command is None:
             return ""
         text = command.render_message(channel, key, **tokens)
-        return Object._ensure_message_break(text)
+        return CommunicationsUtil.ensure_message_break(text)
 
     @staticmethod
     def _condition_value(character: Character, name: str) -> int:

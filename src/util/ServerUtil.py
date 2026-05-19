@@ -8,6 +8,7 @@ from area.RoomHandler import RoomHandler
 from area.SpecialService import SpecialService
 from api.FightApi import FightApi
 from game.HandlerService import HandlerService
+from game.WizHandler import WizHandler
 from interp.commands.Fight import Fight
 from interp.commands.Communications import Communications
 from api.InterpApi import InterpApi
@@ -105,6 +106,7 @@ class ServerUtil:
                                            [SocialHandler, Communications, Fight, Info,
                                             Movement, Object, Wiz, AreaHandler,
                                             RoomHandler, FightHandler, ItemHandler, MobileHandler, PlayerHandler,
+                                            WizHandler,
                                             InterpHandler, NoteHandler, WeatherHandler, UpdateHandler])
         logger.info(f"All game handlers have been bound.")
 

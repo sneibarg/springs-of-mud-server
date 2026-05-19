@@ -5,7 +5,7 @@ import types
 import unittest
 from copy import deepcopy
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import AsyncMock, Mock
 
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -173,6 +173,8 @@ class _Context(SimpleNamespace):
 _stub_module("injector", inject=lambda target: target)
 _stub_package("server")
 _stub_module("server.LoggerFactory", LoggerFactory=_LoggerFactory)
+_stub_package("interp")
+_stub_module("interp.Context", Context=_Context)
 _stub_package("util")
 _load_module("util.GenericUtil", "util/GenericUtil.py")
 _load_module("util.FightUtil", "util/FightUtil.py")
@@ -182,7 +184,8 @@ _stub_module("util.MovementUtil", MovementUtil=_MovementUtil)
 _stub_module("util.ItemUtil", ItemUtil=SimpleNamespace(find_inventory_item=lambda *_args, **_kwargs: None, find_room_item=lambda *_args, **_kwargs: None, has_flag=lambda *_args, **_kwargs: False))
 _stub_module("util.EffectUtil", EffectUtil=_EffectUtil)
 _stub_module("util.SkillUtil", SkillUtil=_SkillUtil)
-_stub_module("util.CommunicationsUtil", CommunicationsUtil=SimpleNamespace(has_comm=lambda *_args, **_kwargs: False, split_first=lambda text: (text.split(maxsplit=1)[0], text.split(maxsplit=1)[1] if len(text.split(maxsplit=1)) > 1 else "") if text else ("", "")))
+_stub_module("util.CommunicationsUtil", CommunicationsUtil=SimpleNamespace(has_comm=lambda *_args, **_kwargs: False, split_first=lambda text: (text.split(maxsplit=1)[0], text.split(maxsplit=1)[1] if len(text.split(maxsplit=1)) > 1 else "") if text else ("", ""), ensure_message_break=lambda text: text if not text or text.endswith("\r\n") else text + "\r\n"))
+_stub_module("util.AreaUtil", AreaUtil=SimpleNamespace())
 _stub_package("game")
 _load_module("game.GamePayload", "game/GamePayload.py")
 _load_module("game.action", "game/action/__init__.py")
@@ -190,14 +193,15 @@ _stub_module("game.RegistryService", RegistryService=object)
 _stub_module("game.WeatherHandler", WeatherHandler=object)
 _stub_package("area")
 _stub_module("area.RoomRegistry", RoomRegistry=object)
-_stub_package("interp")
-_stub_module("interp.Context", Context=_Context)
 _load_module("interp.HelpEntry", "interp/HelpEntry.py")
 Command = _load_module("interp.Command", "interp/Command.py").Command
 _load_module("interp.InterpView", "interp/InterpView.py")
 _stub_module("api.CharacterApi", CharacterApi=_CharacterApi)
 _stub_module("api.MovementApi", MovementApi=SimpleNamespace())
+_stub_module("api.ItemApi", ItemApi=SimpleNamespace())
 _stub_module("api.SkillApi", SkillApi=object)
+_stub_package("item")
+_stub_module("item.Item", Item=SimpleNamespace)
 InterpApi = _load_module("api.InterpApi", "api/InterpApi.py").InterpApi
 _stub_package("fight")
 _stub_module("fight.FightHandler", FightHandler=_FightHandler)
@@ -205,7 +209,6 @@ _load_module("fight.FightView", "fight/FightView.py")
 _stub_package("skill")
 _stub_module("skill.SkillRegistry", SkillRegistry=object)
 FightApi = _load_module("api.FightApi", "api/FightApi.py").FightApi
-_stub_package("item")
 _stub_module("item.Effect", Effect=SimpleNamespace)
 _stub_package("player")
 _stub_module("player.Character", Character=object)
@@ -215,6 +218,13 @@ sys.modules["skill"].Skill = Skill
 _stub_module("skill.SpellContext", SpellContext=SimpleNamespace)
 _stub_module("api.SpellApi", SpellApi=lambda: SimpleNamespace(execute_lambdas=lambda *_args, **_kwargs: None, queue_cast_announcement=lambda *_args, **_kwargs: None, start_offensive_combat=lambda *_args, **_kwargs: None))
 Fight = _load_module("interp.commands.Fight", "interp/commands/Fight.py").Fight
+_stub_module("interp.commands.Info", Info=object)
+_stub_module("interp.commands.Movement", Movement=object)
+_stub_module("interp.commands.Communications", Communications=object)
+_stub_module("interp.commands.Object", Object=object)
+_stub_module("interp.commands.Wiz", Wiz=object)
+_stub_module("server.messaging", MessageBus=object)
+PlayerHandler = _load_module("player.PlayerHandler", "player/PlayerHandler.py").PlayerHandler
 
 
 def _load_command(name: str) -> Command:
@@ -334,8 +344,44 @@ class TestFightDynamicCommands(unittest.TestCase):
         self.assertTrue(payload["blocked"])
         self.assertEqual("target_self", payload["blocked_key"])
         self.assertEqual("You fall flat on your face!\r\n", payload["to_char"])
-        self.assertEqual("Hero trips over their own feet!\r\n", payload["to_room"])
+        self.assertEqual("self_room", payload["payloads"][1]["message_key"])
+        self.assertEqual("to_room", payload["payloads"][1]["channel"])
         self.assertEqual(48, character.status_flags.pulse_wait)
+
+
+class TestFightPayloadEmission(unittest.IsolatedAsyncioTestCase):
+    async def test_emit_standard_payloads_renders_command_message_keys(self):
+        delivered = []
+
+        async def send_to_character(character_id, message):
+            delivered.append(("char", character_id, message))
+
+        async def send_to_room(message, targets):
+            delivered.append(("room", [target.id for target in targets], message))
+
+        handler = PlayerHandler.__new__(PlayerHandler)
+        handler.message_bus = SimpleNamespace(
+            text_to_message=lambda text: text,
+            send_to_character=send_to_character,
+            send_to_room=send_to_room,
+        )
+        handler.fight_handler = SimpleNamespace(emit_round_payload=AsyncMock())
+        handler._show_room_to_character = AsyncMock()
+
+        character = SimpleNamespace(id="char-1", name="Hero")
+        victim = SimpleNamespace(id="char-2", name="Rogue")
+        watcher = SimpleNamespace(id="char-3")
+        context = _Context(character=character, command=_load_command("rescue"), done=False)
+
+        await handler._emit_standard_payloads(
+            character,
+            [Fight._command_payload("success", victim=victim, targets=[watcher], token_factory=Fight._actor_victim_tokens)],
+            context=context,
+        )
+
+        self.assertIn(("char", "char-1", "You rescue Rogue!\r\n"), delivered)
+        self.assertIn(("char", "char-2", "Hero rescues you!\r\n"), delivered)
+        self.assertIn(("room", ["char-3"], "Hero rescues Rogue!\r\n"), delivered)
 
 
 if __name__ == "__main__":
