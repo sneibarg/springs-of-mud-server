@@ -70,15 +70,13 @@ This repository is not trying to be the whole platform. The broader architecture
 
 The design goal is to let the game become more editable by designers and operators over time.
 
-Instead of requiring a programmer to modify combat text, command metadata, help entries, rooms, resets, or skill definitions in source code, the platform is moving toward a model where those concerns are stored as content and managed through external tools. The intended end state is a game designer user interface that can enhance and customize the world for non-engineers.
+`springs-of-mud-designer` is a Vite plus React front-end for game administration, enhancement, and customization. The classic ROM experience was driven by finding a coder who could add various code snippets to a vanilla repository. Online creation (OLC) was one such popular snippet that allowed trusted players to design new areas.
 
-That low-code/no-code direction drives several architecture decisions in this repo:
+As such, the SOM Designer will enable a dynamic gameplay experience.
 
-- content is loaded from APIs rather than embedded locally
-- dynamic enum instantiation preserves the classic C-style bitfield computation used throughout ROM2.4
-- commands and checks can be described as data
-- runtime state is maintained in registries that can be refreshed from service data
-- the server is focused on execution, orchestration, and simulation rather than authoring workflows
+- dynamic enum instantiation preserves the classic C-style bitfield computation used throughout ROM2.4 enabling gameplay tuning
+- commands, skills, and spells are handled in a dynamic and functional way, enabling the designer API to create tune new and existing commands, skills, and spells
+- runtime state is maintained in registries that can be refreshed from service data, allowing the server to be administered online without the need for restarts
 
 ## Repository Layout
 
