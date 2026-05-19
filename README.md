@@ -54,7 +54,7 @@ The tests in `tests/` make that direction especially clear: many of them validat
 
 ### 4. Python runtime paired with external content services
 
-This repository is not trying to be the whole platform by itself. The broader architecture integrates with `som-server-modulith`: a Spring Boot Modulith backend that owns content persistence and administrative CRUD workflows. In practice, this server reads endpoint locations from `resources/server.yml` and consumes REST APIs for:
+This repository is not trying to be the whole platform by itself. The broader architecture integrates with `som-server-modulith`: a Spring Boot Modulith backend that owns content persistence and administrative CRUD workflows. REST APIs are consumed for:
 
 - game data and enums
 - players and characters
