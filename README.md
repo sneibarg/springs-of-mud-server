@@ -62,8 +62,6 @@ This repository is not trying to be the whole platform by itself. The broader ar
 - rooms, areas, items, mobiles, shops, resets, and special functions
 - skills, spells, socials, and notes
 
-That boundary is important: the Python server is optimized for simulation and player interaction, while content storage and editorial workflows can evolve independently.
-
 ### 5. Message-oriented runtime behavior
 
 `MessageBus` provides a central path for sending output to one character, a room, an area, or the whole active player set. That keeps prompt rendering, paging, room output, and combat/event text on a common delivery path instead of scattering socket writes across the codebase.
@@ -81,8 +79,6 @@ That low-code/no-code direction drives several architecture decisions in this re
 - commands and checks can be described as data
 - runtime state is maintained in registries that can be refreshed from service data
 - the server is focused on execution, orchestration, and simulation rather than authoring workflows
-
-In short: this server is the gameplay engine, not the authoring tool. The authoring experience is expected to live on top of the APIs and data model that feed it.
 
 ## Repository Layout
 
