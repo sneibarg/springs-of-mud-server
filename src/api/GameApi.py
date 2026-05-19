@@ -3,7 +3,6 @@ from threading import RLock
 from typing import Any
 
 from game.GameData import GameData
-
 from util.GenericUtil import GenericUtil
 
 
@@ -20,6 +19,16 @@ class GameApi:
     _classes = None
     _pc_races = None
     _titles = None
+
+    def __getattr__(self, name):
+        if name.startswith('_'):
+            raise AttributeError(f"Private attribute '{name}' is not accessible")
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+
+    def __setattr__(self, name, value):
+        if name.startswith('_') and name != '_internal_data':
+            raise AttributeError(f"Cannot set private attribute '{name}'")
+        super().__setattr__(name, value)
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
