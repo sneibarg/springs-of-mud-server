@@ -54,12 +54,12 @@ The tests in `tests/` make that direction especially clear: many of them validat
 
 ### 4. Python runtime paired with external content services
 
-This repository is not trying to be the whole platform by itself. The broader architecture assumes a companion backend that owns persisted content and administrative CRUD workflows. In practice, this server reads endpoint locations from `resources/server.yml` and consumes REST APIs for:
+This repository is not trying to be the whole platform by itself. The broader architecture integrates with `som-server-modulith`: a Spring Boot Modulith backend that owns content persistence and administrative CRUD workflows. In practice, this server reads endpoint locations from `resources/server.yml` and consumes REST APIs for:
 
 - game data and enums
 - players and characters
 - commands and helps
-- rooms, areas, items, mobiles, shops, resets, and specials
+- rooms, areas, items, mobiles, shops, resets, and special functions
 - skills, spells, socials, and notes
 
 That boundary is important: the Python server is optimized for simulation and player interaction, while content storage and editorial workflows can evolve independently.
@@ -77,6 +77,7 @@ Instead of requiring a programmer to modify combat text, command metadata, help 
 That low-code/no-code direction drives several architecture decisions in this repo:
 
 - content is loaded from APIs rather than embedded locally
+- dynamic enum instantiation preserves the classic C-style bitfield computation used throughout ROM2.4
 - commands and checks can be described as data
 - runtime state is maintained in registries that can be refreshed from service data
 - the server is focused on execution, orchestration, and simulation rather than authoring workflows
