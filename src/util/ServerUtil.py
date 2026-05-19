@@ -149,7 +149,6 @@ class ServerUtil:
         CharacterApi.configure(game_data)
         MovementApi.configure(game_data)
         CommunicationsApi.configure(game_data)
-        print(f"Game data has been bound: {game_data}")
 
     @staticmethod
     def _bind_api_instances(injector):
