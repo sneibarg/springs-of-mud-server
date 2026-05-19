@@ -20,11 +20,6 @@ class BitField:
         raw_bit = getattr(bit, "value", bit)
         return BitField.coerce(value) & ~int(raw_bit)
 
-    @staticmethod
-    def is_set(value, bit) -> bool:
-        raw_bit = getattr(bit, "value", bit)
-        return (BitField.coerce(value) & int(raw_bit)) != 0
-
 
 @dataclass(slots=True)
 class StatusFlags:

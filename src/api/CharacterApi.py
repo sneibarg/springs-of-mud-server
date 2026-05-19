@@ -7,7 +7,6 @@ from player.Character import Character
 from api.GameApi import GameApi
 from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
-from server.LoggerFactory import LoggerFactory
 
 
 if TYPE_CHECKING:
@@ -43,12 +42,6 @@ class CharacterApi(GameApi):
         cls.PlayerActBits = cls.get_enum("playerActBits")
         cls.OffenseTypes = cls.get_enum("offenseTypes")
         cls.SectorTypes = cls.get_enum("sectorTypes")
-
-    @classmethod
-    def _logger_obj(cls):
-        if cls._logger is None:
-            cls._logger = LoggerFactory.get_logger(__name__)
-        return cls._logger
 
     @classmethod
     def _registry(cls):

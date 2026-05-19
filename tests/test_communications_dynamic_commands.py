@@ -79,14 +79,16 @@ class _CharacterMacros:
         return False
 
 
+sys.modules["api.CharacterApi"] = SimpleNamespace(CharacterApi=_CharacterMacros)
 sys.modules["player.CharacterApi"] = SimpleNamespace(CharacterMacros=_CharacterMacros)
 sys.modules["player.Character"] = SimpleNamespace(Character=object)
 sys.modules["game.RegistryService"] = SimpleNamespace(RegistryService=object)
 sys.modules["player.CharacterService"] = SimpleNamespace(CharacterService=object)
 sys.modules["server.session.SessionHandler"] = SimpleNamespace(SessionHandler=object)
 
+from api.CommunicationsApi import BufferedMessage, CommunicationsApi
+from api.InterpApi import InterpApi
 from interp.Command import Command
-from interp.InterpApi import InterpApi
 from interp.commands.Communications import Communications
 
 
@@ -146,6 +148,9 @@ def _character(name: str, character_id: str) -> SimpleNamespace:
 
 
 class TestCommunicationsDynamicCommands(unittest.TestCase):
+    def setUp(self):
+        CommunicationsApi._tell_buffer = {}
+
     def test_interp_api_check_emits_all_payload_channels_for_message_key(self):
         command = Command.from_json(
             {
@@ -254,6 +259,64 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
         payload = communications.do_save(actor, context)
 
         self.assertEqual("Save failed.\r\n", payload["to_char"])
+
+    def test_do_tell_buffers_victim_message_in_communications_api(self):
+        actor = _character("Actor", "actor")
+        victim = _character("Victim", "victim")
+        registry_service = SimpleNamespace(
+            character_registry=_LookupRegistry({victim.id: victim}),
+            room_registry=Mock(),
+        )
+        session_handler = Mock()
+        session_handler.get_playing_sessions.return_value = [SimpleNamespace(character=victim)]
+        character_service = Mock()
+
+        communications = Communications(registry_service, session_handler, character_service)
+        communications.lazy_load()
+
+        context = _Context(
+            character=actor,
+            command=_load_command("tell"),
+            result="Victim hello there",
+            parameters=[],
+            done=False,
+        )
+
+        payload = communications.do_tell(actor, context)
+
+        self.assertEqual("You tell Victim 'hello there'\r\n", payload["to_char"])
+        history = CommunicationsApi.get_tell_buffer(victim)
+        self.assertEqual(1, len(history))
+        self.assertEqual("Actor", history[0].sender)
+        self.assertEqual("Actor tells you 'hello there'\r\n", history[0].message)
+
+    def test_do_replay_reads_tells_from_communications_api_buffer(self):
+        actor = _character("Actor", "actor")
+        registry_service = SimpleNamespace(
+            character_registry=_LookupRegistry(),
+            room_registry=Mock(),
+        )
+        session_handler = Mock()
+        character_service = Mock()
+        CommunicationsApi._tell_buffer[actor.name] = [
+            BufferedMessage(sender="Victim", message="Victim tells you 'hello'\r\n")
+        ]
+
+        communications = Communications(registry_service, session_handler, character_service)
+        communications.lazy_load()
+
+        context = _Context(
+            character=actor,
+            command=_load_command("replay"),
+            result="",
+            parameters=[],
+            done=False,
+        )
+
+        payload = communications.do_replay(actor, context)
+
+        self.assertEqual("Victim tells you 'hello'\r\n", payload["to_char"])
+        self.assertEqual([], CommunicationsApi.get_tell_buffer(actor))
 
 
 if __name__ == "__main__":

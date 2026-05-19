@@ -65,4 +65,3 @@ class TestStatusFlags(unittest.TestCase):
     def test_bitfield_utility_methods_operate_on_integers(self):
         self.assertEqual(5, BitField.set_bit(1, 4))
         self.assertEqual(1, BitField.unset_bit(5, 4))
-        self.assertTrue(BitField.is_set(5, 4))

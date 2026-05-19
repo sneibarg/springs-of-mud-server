@@ -1,5 +1,6 @@
 from injector import singleton, Injector
 
+from api.CommunicationsApi import CommunicationsApi
 from api.MovementApi import MovementApi
 from area.ShopService import ShopService
 from area.AreaHandler import AreaHandler
@@ -147,6 +148,8 @@ class ServerUtil:
         MobileApi.configure(game_data)
         CharacterApi.configure(game_data)
         MovementApi.configure(game_data)
+        CommunicationsApi.configure(game_data)
+        print(f"Game data has been bound: {game_data}")
 
     @staticmethod
     def _bind_api_instances(injector):

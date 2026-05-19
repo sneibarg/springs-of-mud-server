@@ -75,7 +75,7 @@ The design goal is to let the game become more editable by designers and operato
 As such, the SOM Designer will enable a dynamic gameplay experience.
 
 - dynamic enum instantiation preserves the classic C-style bitfield computation used throughout ROM2.4 enabling gameplay tuning
-- commands, skills, and spells are handled in a dynamic and functional way, enabling the designer API to create tune new and existing commands, skills, and spells
+- commands, skills, and spells are handled in a dynamic and functional way, enabling the designer API to create and tune new and existing commands, skills, and spells
 - runtime state is maintained in registries that can be refreshed from service data, allowing the server to be administered online without the need for restarts
 
 ## Repository Layout

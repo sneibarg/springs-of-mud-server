@@ -4,6 +4,7 @@ import random
 
 from injector import inject
 
+from api.CommunicationsApi import CommunicationsApi
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from api.InterpApi import InterpApi
@@ -38,6 +39,7 @@ class Communications:
         self.session_handler = session_handler
         self.character_service = character_service
         self.interp_api = interp_api or InterpApi()
+        self.communications_api = CommunicationsApi
         self.comm_flags = None
 
     def lazy_load(self):
@@ -146,9 +148,8 @@ class Communications:
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload
-        history = (character.context or {}).get("tell_buffer", [])
-        character.context["tell_buffer"] = []
-        return {"to_char": "".join(history)}
+        history = self.communications_api.get_tell_buffer(character)
+        return {"to_char": "".join(entry.message for entry in history)}
 
     def do_say(self, character: Character, context: Context):
         payload = self.interp_api.run_action(context, context.command.name)
@@ -182,11 +183,13 @@ class Communications:
 
     def do_tell(self, character: Character, context: Context):
         target_name, message = CommunicationsUtil.split_first(CommunicationsUtil.parse_argument(context.result, context.parameters))
+        context.tell_target_name = target_name
+        context.tell_target = CharacterApi.find_playing_character(target_name, self.session_handler)
         context.interp_tokens = {"t": target_name, "s": message}
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload
-        victim = CharacterApi.find_playing_character(target_name, self.session_handler)
+        victim = getattr(context, "tell_target", None)
         if victim is None:
             return self._blocked_message(context, "target_missing")
         return self._deliver_tell(character, context, victim, message)
@@ -336,7 +339,7 @@ class Communications:
 
         payload = self._render_message_key(context, "default")
         payload["victim"] = victim
-        CommunicationsUtil.append_tell_buffer(victim, payload.get("to_victim", ""))
+        self.communications_api.append_tell_buffer(victim, character, payload.get("to_victim", ""))
         if CommunicationsUtil.has_comm(victim, self.comm_flags, "COMM_AFK"):
             payload["to_char"] = payload.get("to_char", "") + self._render_message_key(context, "target_afk", channel="to_char").get("to_char", "")
         return payload

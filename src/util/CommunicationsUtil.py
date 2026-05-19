@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from api.GameApi import GameApi
-from api.CharacterApi import CharacterApi
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
 
@@ -35,26 +34,6 @@ class CommunicationsUtil:
             character.status_flags.set_flag("comm", bit)
             return
         character.status_flags.unset_flag("comm", bit)
-
-    @staticmethod
-    def append_tell_buffer(character, line: str):
-        if getattr(character, "context", None) is None:
-            character.context = {}
-        history = character.context.get("tell_buffer", [])
-        if not isinstance(history, list):
-            history = []
-        history.append(line)
-        character.context["tell_buffer"] = history[-50:]
-
-    @staticmethod
-    def target_blocks_tells(target) -> bool:
-        if target is None:
-            return False
-        comm_flags = CharacterApi.get_enum("commFlags")
-        return any(
-            CommunicationsUtil.has_comm(target, comm_flags, flag)
-            for flag in ("COMM_DEAF", "COMM_QUIET", "COMM_NOTELL")
-        )
 
     @staticmethod
     def ensure_message_break(text: str) -> str:

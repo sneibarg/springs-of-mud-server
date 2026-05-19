@@ -123,13 +123,13 @@
         "messageKey": "noArgument"
       },
       {
-        "predicate": "lambda v: InterpApi.tell_target(v) is None",
+        "predicate": "lambda v: CommunicationsApi.tell_target(v) is None",
         "messageKey": "targetMissing"
       },
       {
-        "predicate": "lambda v: InterpApi.tell_target_blocks_tells(v)",
+        "predicate": "lambda v: CommunicationsApi.tell_target_blocks_tells(v)",
         "messageKey": "targetDeaf",
-        "tokenFactory": "lambda v: InterpApi.tell_target_tokens(v)"
+        "tokenFactory": "lambda v: CommunicationsApi.tell_target_tokens(v)"
       }
     ]
   },
@@ -3862,13 +3862,13 @@
         "messageKey": "replyWhat"
       },
       {
-        "predicate": "lambda v: InterpApi.reply_target(v) is None",
+        "predicate": "lambda v: CommunicationsApi.reply_target(v) is None",
         "messageKey": "targetMissing"
       },
       {
-        "predicate": "lambda v: InterpApi.reply_target_blocks_tells(v)",
+        "predicate": "lambda v: CommunicationsApi.reply_target_blocks_tells(v)",
         "messageKey": "targetDeaf",
-        "tokenFactory": "lambda v: InterpApi.reply_target_tokens(v)"
+        "tokenFactory": "lambda v: CommunicationsApi.reply_target_tokens(v)"
       }
     ]
   },
@@ -3897,7 +3897,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not (v.context.character.context or {}).get('tell_buffer', [])",
+        "predicate": "lambda v: not CommunicationsApi.has_buffered_tells(v.context.character)",
         "messageKey": "noTells"
       }
     ]

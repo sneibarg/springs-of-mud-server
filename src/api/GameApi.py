@@ -3,6 +3,7 @@ from threading import RLock
 from typing import Any
 
 from game.GameData import GameData
+from server.LoggerFactory import LoggerFactory
 from util.GenericUtil import GenericUtil
 
 
@@ -19,6 +20,7 @@ class GameApi:
     _classes = None
     _pc_races = None
     _titles = None
+    _logger = None
 
     def __getattr__(self, name):
         if name.startswith('_'):
@@ -93,6 +95,12 @@ class GameApi:
     def _require_configured(cls) -> None:
         if not cls._configured:
             raise RuntimeError(f"{cls.__name__} has not been configured.")
+
+    @classmethod
+    def _logger_obj(cls):
+        if cls._logger is None:
+            cls._logger = LoggerFactory.get_logger(__name__)
+        return cls._logger
 
     @classmethod
     def _configure_enums(cls, game_data: GameData) -> None:

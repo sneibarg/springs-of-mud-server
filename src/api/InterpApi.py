@@ -7,11 +7,12 @@ from injector import inject
 
 from game.action import ActionGuard, ActionDefinition, ActionPlan, MessageRef
 from interp.InterpView import InterpView
+from api.CommunicationsApi import CommunicationsApi
 from api.MovementApi import MovementApi
 from api.ItemApi import ItemApi
 from api.WizApi import WizApi
-from game.GamePayload import GamePayload
 from api.CharacterApi import CharacterApi
+from game.GamePayload import GamePayload
 from server.LoggerFactory import LoggerFactory
 from util.AreaUtil import AreaUtil
 from util.CommunicationsUtil import CommunicationsUtil
@@ -189,72 +190,17 @@ class InterpApi:
             "v.command": "v.context.command",
             "v.current_fighting": "v.context.character.fighting",
             "v.position": "v.context.character.character_attributes.position",
+            "InterpApi.tell_target(": "CommunicationsApi.tell_target(",
+            "InterpApi.tell_target_tokens(": "CommunicationsApi.tell_target_tokens(",
+            "InterpApi.tell_target_blocks_tells(": "CommunicationsApi.tell_target_blocks_tells(",
+            "InterpApi.reply_target(": "CommunicationsApi.reply_target(",
+            "InterpApi.reply_target_tokens(": "CommunicationsApi.reply_target_tokens(",
+            "InterpApi.reply_target_blocks_tells(": "CommunicationsApi.reply_target_blocks_tells(",
+            "not (v.context.character.context or {}).get('tell_buffer', [])": "not CommunicationsApi.has_buffered_tells(v.context.character)",
         }
         for old, new in replacements.items():
             text = text.replace(old, new)
         return text
-
-    @staticmethod
-    def tell_target_name(view: InterpView) -> str:
-        context = view.context
-        override = str(getattr(context, "tell_target_name", "") or "").strip()
-        if override:
-            return override
-        target, _message = CommunicationsUtil.split_first(InterpUtil.argument_text(view))
-        return target
-
-    @staticmethod
-    def tell_target(view: InterpView):
-        context = view.context
-        override = getattr(context, "tell_target", None)
-        if override is not None:
-            return override
-
-        player_handler = InterpApi._player_handler(view)
-        communications = getattr(player_handler, "communications_commands", None)
-        if communications is None or not hasattr(communications, "_find_playing_character"):
-            return None
-        return communications._find_playing_character(InterpApi.tell_target_name(view))
-
-    @staticmethod
-    def tell_target_tokens(view: InterpView) -> dict[str, Any]:
-        return InterpApi._target_tokens(InterpApi.tell_target(view), fallback_name=InterpApi.tell_target_name(view))
-
-    @staticmethod
-    def tell_target_blocks_tells(view: InterpView) -> bool:
-        return InterpApi._target_blocks_tells(InterpApi.tell_target(view))
-
-    @staticmethod
-    def reply_target_id(view: InterpView):
-        return (getattr(view.context.character, "context", {}) or {}).get("reply_to", "")
-
-    @staticmethod
-    def reply_target(view: InterpView):
-        context = view.context
-        override = getattr(context, "reply_target", None)
-        if override is not None:
-            return override
-
-        target_id = InterpApi.reply_target_id(view)
-        if not target_id:
-            return None
-
-        player_handler = InterpApi._player_handler(view)
-        registry = getattr(player_handler, "character_registry", None)
-        if registry is None:
-            communications = getattr(player_handler, "communications_commands", None)
-            registry = getattr(communications, "character_registry", None)
-        if registry is None or not hasattr(registry, "get_or_none"):
-            return None
-        return registry.get_or_none(id=target_id)
-
-    @staticmethod
-    def reply_target_tokens(view: InterpView) -> dict[str, Any]:
-        return InterpApi._target_tokens(InterpApi.reply_target(view))
-
-    @staticmethod
-    def reply_target_blocks_tells(view: InterpView) -> bool:
-        return InterpApi._target_blocks_tells(InterpApi.reply_target(view))
 
     def _interp_action_definition(self, view: InterpView, action_name: str) -> ActionDefinition[InterpView]:
         command = view.context.command
@@ -281,30 +227,6 @@ class InterpApi:
         )
 
     @staticmethod
-    def _player_handler(view: InterpView):
-        context = getattr(view, "context", None)
-        if context is None or not hasattr(context, "player_handler"):
-            return None
-        return context.player_handler()
-
-    @staticmethod
-    def _target_tokens(target, fallback_name: str = "") -> dict[str, Any]:
-        name = str(getattr(target, "name", "") or fallback_name or "")
-        if not name:
-            return {}
-        return {"t": name, "v": name}
-
-    @staticmethod
-    def _target_blocks_tells(target) -> bool:
-        if target is None:
-            return False
-        comm_flags = CharacterApi.get_enum("commFlags")
-        return any(
-            CommunicationsUtil.has_comm(target, comm_flags, flag)
-            for flag in ("COMM_DEAF", "COMM_QUIET", "COMM_NOTELL")
-        )
-
-    @staticmethod
     def _lambda_locals() -> dict[str, Any]:
         return {
             "__builtins__": __builtins__,
@@ -316,6 +238,7 @@ class InterpApi:
             "InterpUtil": InterpUtil,
             "FightUtil": FightUtil,
             "MovementApi": MovementApi,
+            "CommunicationsApi": CommunicationsApi,
             "ItemApi": ItemApi,
             "Item": Item,
             "ItemUtil": ItemUtil,
