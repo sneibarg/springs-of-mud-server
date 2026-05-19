@@ -1,6 +1,8 @@
 # springs-of-mud-server
 
-`springs-of-mud-server` is the real-time Python server for *Springs of MUD*, a modernized MUD platform that keeps the live simulation loop close to the player connection while pushing most game content and configuration into data-driven services.
+`springs-of-mud-server` is the real-time Python server for *Springs of MUD*, a modernized MUD platform designed by Springy Pythonic Solutions to be a re-imagining of the classic Rivers of MUD (ROM) experience.
+
+In the 90s, when ROM MUDs became popular, they were a place for players to enjoy a fantasy Dungeons and Dragons-like experience, join clans, and meet new friends. Some MUDs were strictly for role-playing, while others were more focused on combat, exploration, and player-versus-player. Coders were often sought by game owners and implementers for their expertise earned through rite of passage.
 
 The project is intentionally being shaped as a low-code/no-code foundation. The long-term product direction is not "developers edit source files to change the game." It is "game designers use tools to define commands, content, rules, and world data without needing to be software engineers." This server exists to execute that content reliably at runtime.
 
