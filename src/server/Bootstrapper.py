@@ -166,19 +166,16 @@ class Bootstrapper:
             registry_service=injector.get(RegistryService),
         )
 
-        to_load = [GameService, PlayerService, CharacterService, ShopService, ResetService,
-                   SpecialService, RoomService, AreaService, SkillService, SpellService,
-                   ItemService, SocialService, MobileService, HelpService, InterpService, NoteService]
+        to_load = [GameService, PlayerService, CharacterService, ShopService, ResetService, SpecialService,
+                   RoomService, AreaService, SkillService, SpellService, ItemService, SocialService, MobileService,
+                   HelpService, InterpService, NoteService]
 
         for service in to_load:
             injector.get(service)
 
-        injector.get(Fight).lazy_load()
-        injector.get(SkillApi).lazy_load()
-        injector.get(UpdateHandler)
+        injector.get(GameService).set_update_handler(injector.get(UpdateHandler))
         injector.get(FightHandler).set_mobile_handler(injector.get(MobileHandler))
         injector.get(AreaHandler).initialize_world()
-        injector.get(GameService).set_update_handler(injector.get(UpdateHandler))
 
         service_list = "; ".join(s.__name__ for s in to_load)
         logger.info(f"The following services have been started: {service_list}.")

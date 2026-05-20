@@ -2,6 +2,7 @@ from typing import Any
 from injector import inject
 
 from api.CharacterApi import CharacterApi
+from game.EnumProvider import EnumProvider
 from server.LoggerFactory import LoggerFactory
 from skill import Skill
 from skill.SkillRegistry import SkillRegistry
@@ -10,18 +11,13 @@ from util.GenericUtil import GenericUtil
 
 class SkillApi:
     @inject
-    def __init__(self, skill_registry: SkillRegistry):
+    def __init__(self, skill_registry: SkillRegistry, enum_provider: EnumProvider):
+        self.__name__ = "SkillApi"
         self.skill_registry = skill_registry
-        self.logger = LoggerFactory.get_logger("SkillApi")
-        self.ActBits = None
-        self.OffBits = None
-        self.CondBits = None
-
-    def lazy_load(self):
-        self.ActBits = CharacterApi.get_enum("actBits")
-        self.OffBits = CharacterApi.get_enum("offenseTypes")
-        self.CondBits = CharacterApi.get_enum("conditions")
-        self.logger.info("Loaded SkillApi enums.")
+        self.ActBits = enum_provider.get("actBits")
+        self.OffBits = enum_provider.get("offenseTypes")
+        self.CondBits = enum_provider.get("conditions")
+        self.logger = LoggerFactory.get_logger(self.__name__)
 
     def get_rating(self, char: Any, skill: Skill) -> int:
         if skill is None:

@@ -6,6 +6,7 @@ from injector import inject
 
 from api.FightApi import FightApi
 from fight.FightHandler import FightHandler
+from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
 from interp.Context import Context
@@ -30,7 +31,12 @@ from util.SkillUtil import SkillUtil
 
 class Fight:
     @inject
-    def __init__(self, registry_service: RegistryService, skill_api: SkillApi, fight_api: FightApi, interp_api: InterpApi = None, weather_handler: WeatherHandler = None):
+    def __init__(self, registry_service: RegistryService,
+                 enum_provider: EnumProvider,
+                 skill_api: SkillApi,
+                 fight_api: FightApi,
+                 interp_api: InterpApi = None,
+                 weather_handler: WeatherHandler = None):
         self.__name__ = "Fight"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -59,10 +65,7 @@ class Fight:
             "rescue": self.do_rescue,
             "trip": self.do_trip,
         }
-        self.AffectBits = None
-
-    def lazy_load(self):
-        self.AffectBits = CharacterApi.get_enum("affectedBy")
+        self.AffectBits = enum_provider.get("affectedBy")
 
     def execute(self, character: Character, context: Context):
         name = (getattr(context.command, "name", "") or "").strip().lower()
