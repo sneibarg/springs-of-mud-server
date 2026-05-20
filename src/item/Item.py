@@ -52,7 +52,6 @@ class Item:
     weight: int
     cost: int
     affect_data: list
-    extra_descr: list
     contains: list
     count: int = 0
     room_data: dict[str, Room] = field(default_factory=dict)
@@ -112,6 +111,17 @@ class Item:
             if name == q or name.startswith(q):
                 return obj
         return None
+
+    @classmethod
+    def from_json(cls, data):
+        if isinstance(data, str):
+            data = json.loads(data)
+        from util.GenericUtil import GenericUtil
+        data = GenericUtil.camel_to_snake_case(data)
+        data['contains'] = []
+        extra_description = data.get('extra_description')
+        data['extra_description'] = cls._normalize_extra_description(extra_description)
+        return cls(**data)
 
     @staticmethod
     def is_drink_container(item) -> bool:
@@ -319,30 +329,17 @@ class Item:
             if room.id in self.room_data:
                 del self.room_data[room.id]
 
-    @classmethod
-    def from_json(cls, data):
-        if isinstance(data, str):
-            data = json.loads(data)
-        from util.GenericUtil import GenericUtil
-        data = GenericUtil.camel_to_snake_case(data)
-        data['contains'] = []
-        data['extra_description'] = cls._normalize_extra_description(
-            data.get('extra_description'),
-            data.get('extra_descr'),
-        )
-        return cls(**data)
-
     @staticmethod
-    def _normalize_extra_description(extra_description, extra_descr):
+    def _normalize_extra_description(extra_description):
         if extra_description:
             try:
                 return ExtraDescriptionData.from_json(extra_description)
             except (TypeError, ValueError):
                 return None
 
-        if isinstance(extra_descr, list) and len(extra_descr) >= 2:
-            keyword = str(extra_descr[0] or "").strip()
-            description = str(extra_descr[1] or "")
+        if isinstance(extra_description, list) and len(extra_description) >= 2:
+            keyword = str(extra_description[0] or "").strip()
+            description = str(extra_description[1] or "")
             if keyword or description:
                 return ExtraDescriptionData(valid=True, keyword=keyword, description=description)
 

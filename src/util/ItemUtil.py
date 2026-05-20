@@ -1,3 +1,5 @@
+from copy import deepcopy
+from dataclasses import asdict
 from enum import IntEnum
 from typing import Any, TYPE_CHECKING
 
@@ -216,7 +218,7 @@ class ItemUtil:
     @staticmethod
     def attack_type(damage_types, item_data):
         damage_type = item_data['value3']
-        if damage_type in ['blast', 'pound', 'crush', 'suction', 'beating', 'charge', 'slap', 'punch', 'peckb', 'smash', 'thwack']:
+        if damage_type in ['blast', 'pound', 'crush', 'suction', 'beating', 'charge', 'slap', 'punch', 'peck', 'peckb', 'smash', 'thwack']:
             item_data['damage_type'] = damage_types.DAM_BASH.value
         elif damage_type in ['slash', 'whip', 'claw', 'grep', 'cleave', 'chop', 'slice']:
             item_data['damage_type'] = damage_types.DAM_SLASH.value
@@ -271,7 +273,7 @@ class ItemUtil:
 
     @staticmethod
     def update_extra_descr(item):
-        if len(item.extra_descr) > 0:
+        if item.extra_description is not None and len(item.extra_description) > 0:
             item.extra_description = ExtraDescriptionData(valid=True, keyword=item.extra_descr[0], description=item.extra_descr[1])
 
     @staticmethod
@@ -391,46 +393,24 @@ class ItemUtil:
             logger.error("create_object: NULL pObjIndex.")
             raise ValueError("Cannot create item from None index")
 
-        extra_descr = list(getattr(pObjIndex, "extra_descr", []) or [])
-        affect_data = list(getattr(pObjIndex, "affect_data", []) or [])
-        item = Item.from_json(
-            {
-                "id": GenericUtil.generate_mongo_id(),
-                "area_id": pObjIndex.area_id,
-                "vnum": pObjIndex.vnum,
-                "name": pObjIndex.name,
-                "short_description": pObjIndex.short_description,
-                "long_description": pObjIndex.long_description,
-                "item_type": pObjIndex.item_type,
-                "material": pObjIndex.material,
-                "extra_flags": pObjIndex.extra_flags,
-                "wear_flags": pObjIndex.wear_flags,
-                "value0": pObjIndex.value0,
-                "value1": pObjIndex.value1,
-                "value2": pObjIndex.value2,
-                "value3": pObjIndex.value3,
-                "value4": pObjIndex.value4,
-                "weight": pObjIndex.weight,
-                "condition": pObjIndex.condition,
-                "affect_data": affect_data,
-                "extra_descr": extra_descr,
-                "contains": [],
-                "level": pObjIndex.level,
-                "cost": pObjIndex.cost,
-            }
-        )
-        item.enchanted = False
+        data = asdict(pObjIndex)
+        data["id"] = GenericUtil.generate_mongo_id()
+        data["contains"] = []
+        data["enchanted"] = False
+
+        for field in ("extra_description", "affect_data"):
+            if field in data and data[field] is not None:
+                data[field] = deepcopy(data[field])
+
+        item = Item.from_json(data)
         ItemUtil.update_extra_descr(item)
 
-        item_type = (item.item_type or "").strip().lower()
-        if "light" in item_type and str(item.value2) == "999":
+        item_type = (getattr(item, "item_type", "") or "").strip().lower()
+        if "light" in item_type and str(getattr(item, "value2", None)) == "999":
             item.value2 = "-1"
         elif "jukebox" in item_type:
-            item.value0 = "-1"
-            item.value1 = "-1"
-            item.value2 = "-1"
-            item.value3 = "-1"
-            item.value4 = "-1"
+            for v in ("value0", "value1", "value2", "value3", "value4"):
+                setattr(item, v, "-1")
 
         return item
 

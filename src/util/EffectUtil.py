@@ -266,20 +266,20 @@ class EffectUtil:
         return default
 
     @staticmethod
-    def affect_modify(entity, effect: Effect, add: bool):
+    def affect_modify(entity, effect: dict, add: bool):
         where_enum = CharacterApi.get_enum("whereAffect")
         apply_types = CharacterApi.get_enum("applyTypes")
         affected_by = CharacterApi.get_enum("affectedBy")
         item_flags = CharacterApi.get_enum("itemFlags")
         weapon_type = CharacterApi.get_enum("weaponType")
 
-        where = EffectUtil.enum_value(where_enum, effect.where, EffectUtil.enum_value(where_enum, "TO_AFFECTS", 0))
-        location = EffectUtil.enum_value(apply_types, effect.location, 0)
-        modifier = GenericUtil.to_int(effect.modifier, 0)
+        where = EffectUtil.enum_value(where_enum, effect.get('where'), EffectUtil.enum_value(where_enum, "TO_AFFECTS", 0))
+        location = EffectUtil.enum_value(apply_types, effect.get('location'), 0)
+        modifier = GenericUtil.to_int(effect.get('modifier'), 0)
         if not add:
             modifier = -modifier
 
-        raw_bit = effect.bitvector
+        raw_bit = effect.get('bitvector')
         if where == EffectUtil.enum_value(where_enum, "TO_AFFECTS", -1):
             bit = EffectUtil.enum_value(affected_by, raw_bit, 0)
             if bit != 0:
