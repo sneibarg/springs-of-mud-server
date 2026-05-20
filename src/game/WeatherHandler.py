@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from injector import inject
 from api.CharacterApi import CharacterApi
+from game.EnumProvider import EnumProvider
 from player.CharacterRegistry import CharacterRegistry
 from game.RandomNumberGenerator import RandomNumberGenerator
 from server.LoggerFactory import LoggerFactory
@@ -29,22 +30,14 @@ class TimeInfo:
 
 class WeatherHandler:
     @inject
-    def __init__(self, message_bus: MessageBus, character_registry: CharacterRegistry):
+    def __init__(self, message_bus: MessageBus, character_registry: CharacterRegistry, enum_provider: EnumProvider):
         self.__name__ = "WeatherHandler"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.message_bus = message_bus
         self.character_registry = character_registry
-        self.weather_info = None
-        self.time_info = None
-        self.constants = None
-        self.session_handler = None
-        self.TimeAndWeatherEnum = None
-
-    def lazy_load(self):
-        self.TimeAndWeatherEnum = CharacterApi.get_enum('timeAndWeather')
+        self.TimeAndWeatherEnum = enum_provider.get("timeAndWeather")
         self.weather_info = WeatherInfo(mmhg=1000, change=0, sky=self.TimeAndWeatherEnum.SKY_CLOUDLESS, sunlight=self.TimeAndWeatherEnum.SUN_LIGHT)
         self.time_info = TimeInfo(hour=0, day=1, month=1, year=1)
-        self.logger.info(f"WeatherHandler online.")
 
     # every 60 seconds is one game hour.
     async def update(self):

@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Any
 from injector import inject
 
+from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
 from api.ItemApi import ItemApi
 from util.GenericUtil import GenericUtil
@@ -61,7 +62,11 @@ EQUIP_SLOT_LABELS = [
 class Info:
     @inject
     def __init__(self,
-                 registry_service: RegistryService, session_handler: SessionHandler, weather_handler: WeatherHandler, interp_api: InterpApi = None):
+                 registry_service: RegistryService,
+                 session_handler: SessionHandler,
+                 weather_handler: WeatherHandler,
+                 enum_provider: EnumProvider,
+                 interp_api: InterpApi = None):
         self.__name__ = "Info"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.interp_registry = registry_service.interp_registry
@@ -72,10 +77,7 @@ class Info:
         self.weather_handler = weather_handler
         self.interp_api = interp_api or InterpApi()
         self.server_boot_time = datetime.now().ctime()
-        self.PlayerActBits = None
-
-    def lazy_load(self):
-        self.PlayerActBits = CharacterApi.get_enum('playerActBits')
+        self.PlayerActBits = enum_provider.get("playerActBits")
 
     def do_quit(self, context: Context):
         return self.interp_api.run_action(context, context.command.name)

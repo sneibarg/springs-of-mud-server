@@ -8,6 +8,7 @@ from area.AreaHandler import AreaHandler
 from fight.CombatRegistry import CombatRegistry
 from fight.FightHandler import FightHandler
 from api.GameApi import GameApi
+from game.EnumProvider import EnumProvider
 from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
@@ -30,7 +31,8 @@ class UpdateHandler:
                  message_bus: MessageBus,
                  registry_service: RegistryService,
                  character_service: CharacterService,
-                 session_handler: SessionHandler):
+                 session_handler: SessionHandler,
+                 enum_provider: EnumProvider):
         self.weather_handler = weather_handler
         self.area_handler = area_handler
         self.mobile_handler = mobile_handler
@@ -52,26 +54,12 @@ class UpdateHandler:
         self.pulse_music = 0  # maybe we skip migrating music
         self.save_cycle = 30
         self.save_number = 0
-        self.GameParametersEnum = None
-        self.PositionsEnum = None
-        self.ItemTypes = None
-        self.WearLocation = None
-        self.WearFlags = None
-
-    def set_enums(self, enums: dict[str, IntEnum]):
-        def _macro_enum(enum_name: str):
-            try:
-                return CharacterApi.get_enum(enum_name)
-            except RuntimeError:
-                return None
-
-        self.enums = enums
-        self.GameParametersEnum = _macro_enum("gameParameters") or enums.get('gameParameters')
-        self.PositionsEnum = _macro_enum("positions") or enums.get('positions')
-        self.ItemTypes = _macro_enum("itemTypes") or enums.get('itemTypes')
-        self.WearLocation = _macro_enum("wearLocation") or enums.get('wearLocation')
-        self.WearFlags = _macro_enum("wearFlags") or enums.get('wearFlags')
-        self.mobile_handler.set_enums(enums)
+        self.enum_provider = enum_provider
+        self.GameParametersEnum = enum_provider.get("gameParameters")
+        self.PositionsEnum = enum_provider.get("positions")
+        self.ItemTypes = enum_provider.get("itemTypes")
+        self.WearLocation = enum_provider.get("wearLocation")
+        self.WearFlags = enum_provider.get("wearFlags")
 
     async def handle_updates(self):
         self.pulse_area -= 1

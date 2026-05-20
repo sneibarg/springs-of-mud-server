@@ -218,7 +218,7 @@ class ItemUtil:
     @staticmethod
     def attack_type(damage_types, item_data):
         damage_type = item_data['value3']
-        if damage_type in ['blast', 'pound', 'crush', 'suction', 'beating', 'charge', 'slap', 'punch', 'peck', 'peckb', 'smash', 'thwack']:
+        if damage_type in ['blast', 'pound', 'crush', 'suction', 'beating', 'charge', 'slap', 'punch', 'peckb', 'smash', 'thwack']:
             item_data['damage_type'] = damage_types.DAM_BASH.value
         elif damage_type in ['slash', 'whip', 'claw', 'grep', 'cleave', 'chop', 'slice']:
             item_data['damage_type'] = damage_types.DAM_SLASH.value
@@ -398,6 +398,7 @@ class ItemUtil:
         data["contains"] = []
         data["enchanted"] = False
 
+        # Deep copy mutable fields to prevent shared references
         for field in ("extra_description", "affect_data"):
             if field in data and data[field] is not None:
                 data[field] = deepcopy(data[field])

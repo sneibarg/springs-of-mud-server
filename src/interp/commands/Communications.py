@@ -5,6 +5,7 @@ import random
 from injector import inject
 
 from api.CommunicationsApi import CommunicationsApi
+from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from api.InterpApi import InterpApi
@@ -30,6 +31,7 @@ class Communications:
                  registry_service: RegistryService,
                  session_handler: SessionHandler,
                  character_service: CharacterService,
+                 enum_provider: EnumProvider,
                  interp_api: InterpApi = None):
         self.__name__ = "Communications"
         self.logger = LoggerFactory.get_logger(self.__name__)
@@ -40,10 +42,7 @@ class Communications:
         self.character_service = character_service
         self.interp_api = interp_api or InterpApi()
         self.communications_api = CommunicationsApi
-        self.comm_flags = None
-
-    def lazy_load(self):
-        self.comm_flags = CharacterApi.get_enum("commFlags")
+        self.comm_flags = enum_provider.get("commFlags")
 
     def execute(self, character: Character, context: Context):
         name = (getattr(context.command, "name", "") or "").strip().lower()

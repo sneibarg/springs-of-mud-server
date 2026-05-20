@@ -1,12 +1,9 @@
 from injector import Injector, singleton
 
 from api.CharacterApi import CharacterApi
-from api.CommunicationsApi import CommunicationsApi
 from api.FightApi import FightApi
+from api.GameApi import GameApi
 from api.InterpApi import InterpApi
-from api.ItemApi import ItemApi
-from api.MobileApi import MobileApi
-from api.MovementApi import MovementApi
 from api.SkillApi import SkillApi
 from area.AreaHandler import AreaHandler
 from area.AreaRegistry import AreaRegistry
@@ -22,6 +19,7 @@ from area.SpecialRegistry import SpecialRegistry
 from area.SpecialService import SpecialService
 from fight.FightHandler import FightHandler
 from fight.CombatRegistry import CombatRegistry
+from game.EnumProvider import EnumProvider
 from game.GameData import GameData
 from game.GameService import GameService
 from game.HandlerService import HandlerService
@@ -71,21 +69,22 @@ from skill.SpellRegistry import SpellRegistry
 from skill.SpellService import SpellService
 from server.LoggerFactory import LoggerFactory
 
-logger = LoggerFactory.get_logger("ServerBootstrap")
+logger = LoggerFactory.get_logger("Bootstrapper")
 
 
-class ServerBootstrap:
+class Bootstrapper:
     @staticmethod
     def create_injector(service_config: ServiceConfig) -> Injector:
         injector = Injector()
         injector.binder.bind(ServiceConfig, to=service_config, scope=singleton)
+        injector.binder.bind(GameService, scope=singleton)
 
-        ServerBootstrap._bind_network(injector)
-        ServerBootstrap._bind_registries(injector)
-        ServerBootstrap._bind_handlers(injector)
-        ServerBootstrap._bind_apis(injector)
-        ServerBootstrap._bind_game_data(injector)
-        ServerBootstrap._bind_game_services(injector, service_config)
+        Bootstrapper._bind_game_data(injector)
+        Bootstrapper._bind_network(injector)
+        Bootstrapper._bind_registries(injector)
+        Bootstrapper._bind_handlers(injector)
+        Bootstrapper._bind_apis(injector)
+        Bootstrapper._bind_game_services(injector, service_config)
 
         injector.binder.bind(ConnectionHandler, scope=singleton)
         injector.binder.bind(
@@ -111,7 +110,7 @@ class ServerBootstrap:
 
     @staticmethod
     def _bind_registries(injector: Injector):
-        ServerBootstrap._bind_singleton_classes(injector, [
+        Bootstrapper._bind_singleton_classes(injector, [
             NoteRegistry, PlayerRegistry, CharacterRegistry, MobileRegistry,
             RoomRegistry, ItemRegistry, SkillRegistry, SpellRegistry,
             HelpRegistry, InterpRegistry, SocialRegistry, ShopRegistry,
@@ -122,7 +121,7 @@ class ServerBootstrap:
 
     @staticmethod
     def _bind_handlers(injector: Injector):
-        ServerBootstrap._bind_singleton_classes(injector, [
+        Bootstrapper._bind_singleton_classes(injector, [
             SocialHandler, Communications, Fight, Info, Movement, Object, Wiz,
             AreaHandler, RoomHandler, FightHandler, ItemHandler, MobileHandler,
             PlayerHandler, WizHandler, InterpHandler, NoteHandler,
@@ -138,86 +137,48 @@ class ServerBootstrap:
 
     @staticmethod
     def _bind_game_services(injector: Injector, service_config: ServiceConfig):
-        ServerBootstrap._bind_singleton_classes(injector, [
-            GameService, SkillService, SpellService, PlayerService,
-            CharacterService, HelpService, InterpService, AreaService,
-            RoomService, MobileService, AuthenticationService,
-            SocialService, NoteService, HandlerService
+        Bootstrapper._bind_singleton_classes(injector, [
+            SkillService, SpellService, PlayerService,
+            CharacterService, HelpService, InterpService,
+            AreaService, RoomService, MobileService,
+            AuthenticationService, SocialService, NoteService, HandlerService
         ])
 
-        injector.binder.bind(
-            ItemService,
-            to=ItemService(
-                service_config,
-                injector.get(ItemRegistry),
-                injector.get(SkillRegistry),
-                injector.get(GameService).game_data
-            ),
-            scope=singleton
-        )
+        injector.binder.bind(ItemService, to=ItemService(service_config, injector.get(ItemRegistry), injector.get(SkillRegistry), injector.get(GameService).game_data), scope=singleton)
 
     @staticmethod
     def _bind_game_data(injector: Injector):
-        game_data = injector.get(GameService).game_data
+        game_service = injector.get(GameService)
+        game_data = game_service.game_data
+        enum_provider = EnumProvider(game_service.enums)
+
+        injector.binder.bind(EnumProvider, to=enum_provider, scope=singleton)
         injector.binder.bind(GameData, to=game_data, scope=singleton)
 
+        GameApi.configure(game_data, enum_provider)
         BodyForm.configure(game_data)
         BodyParts.configure(game_data)
-        ItemApi.configure(game_data)
-        MobileApi.configure(game_data)
-        CharacterApi.configure(game_data)
-        MovementApi.configure(game_data)
-        CommunicationsApi.configure(game_data)
 
     @staticmethod
-    def lazy_load_all(injector: Injector) -> None:
-        CharacterApi.set_registry(injector.get(RegistryService))
-        CharacterApi.lazy_load(injector.get(WeatherHandler))
+    def lazy_load(injector: Injector) -> None:
+        CharacterApi.lazy_load(
+            injector.get(WeatherHandler),
+            registry_service=injector.get(RegistryService),
+        )
 
-        game_service = injector.get(GameService)
-        player_service = injector.get(PlayerService)
-        character_service = injector.get(CharacterService)
-        shop_service = injector.get(ShopService)
-        reset_service = injector.get(ResetService)
-        special_service = injector.get(SpecialService)
-        room_service = injector.get(RoomService)
-        area_service = injector.get(AreaService)
-        skill_service = injector.get(SkillService)
-        spell_service = injector.get(SpellService)
-        item_service = injector.get(ItemService)
-        social_service = injector.get(SocialService)
-        mobile_service = injector.get(MobileService)
-        help_service = injector.get(HelpService)
-        interp_service = injector.get(InterpService)
-        note_service = injector.get(NoteService)
+        to_load = [GameService, PlayerService, CharacterService, ShopService, ResetService,
+                   SpecialService, RoomService, AreaService, SkillService, SpellService,
+                   ItemService, SocialService, MobileService, HelpService, InterpService, NoteService]
+
+        for service in to_load:
+            injector.get(service)
 
         injector.get(Fight).lazy_load()
         injector.get(SkillApi).lazy_load()
-
-        update_handler = injector.get(UpdateHandler)
-        fight_handler = injector.get(FightHandler)
-        fight_handler.lazy_load()
-        fight_handler.set_mobile_handler(injector.get(MobileHandler))
-
-        injector.get(Wiz).lazy_load()
-        injector.get(Movement).lazy_load()
-        injector.get(Info).lazy_load()
-        injector.get(Object).lazy_load()
-        injector.get(Communications).lazy_load()
-        enums = injector.get(GameService).enums
-        area_handler = injector.get(AreaHandler)
-        area_handler.set_enums(injector.get(GameService).enums)
-        area_handler.initialize_world()
-        update_handler.set_enums(enums)
-        area_handler.set_enums(enums)
-
-        injector.get(WeatherHandler).lazy_load()
+        injector.get(UpdateHandler)
+        injector.get(FightHandler).set_mobile_handler(injector.get(MobileHandler))
+        injector.get(AreaHandler).initialize_world()
         injector.get(GameService).set_update_handler(injector.get(UpdateHandler))
 
-        services = (
-            game_service, player_service, room_service, area_service, skill_service, spell_service, item_service,
-            help_service, mobile_service, interp_service, social_service, note_service, character_service, shop_service,
-            reset_service, special_service
-        )
-        service_list = "; ".join(s.__name__ for s in services)
+        service_list = "; ".join(s.__name__ for s in to_load)
         logger.info(f"The following services have been started: {service_list}.")

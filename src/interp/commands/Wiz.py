@@ -6,6 +6,7 @@ from api.CharacterApi import CharacterApi
 from api.InterpApi import InterpApi
 from api.WizSetApi import WizSetApi
 from area.Room import Room
+from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
 from game.WizHandler import WizHandler
 from interp.Context import Context
@@ -25,7 +26,8 @@ class Wiz:
                  registry_service: RegistryService,
                  wiz_handler: WizHandler,
                  interp_api: InterpApi,
-                 wiz_set_api: WizSetApi):
+                 wiz_set_api: WizSetApi,
+                 enum_provider: EnumProvider):
         self.__name__ = "Wiz"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -39,22 +41,13 @@ class Wiz:
         self.mobile_registry = registry_service.mobile_registry
         self.interp_registry = registry_service.interp_registry
         self.special_registry = registry_service.special_registry
-        self.PlayerActBitsEnum = None
-        self.CommFlagsEnum = None
-        self.WiznetFlagsEnum = None
-        self.PositionsEnum = None
-        self.ActBitsEnum = None
-        self.ItemFlagsEnum = None
-        self.GameParameters = None
-
-    def lazy_load(self):
-        self.PlayerActBitsEnum = CharacterApi.get_enum("playerActBits")
-        self.CommFlagsEnum = CharacterApi.get_enum("commFlags")
-        self.WiznetFlagsEnum = CharacterApi.get_enum("wiznetFlags")
-        self.PositionsEnum = CharacterApi.get_enum("positions")
-        self.ActBitsEnum = CharacterApi.get_enum("actBits")
-        self.ItemFlagsEnum = CharacterApi.get_enum("itemFlags")
-        self.GameParameters = CharacterApi.get_enum("gameParameters")
+        self.PlayerActBitsEnum = enum_provider.get("playerActBits")
+        self.CommFlagsEnum = enum_provider.get("commFlags")
+        self.WiznetFlagsEnum = enum_provider.get("wiznetFlags")
+        self.PositionsEnum = enum_provider.get("positions")
+        self.ActBitsEnum = enum_provider.get("actBits")
+        self.ItemFlagsEnum = enum_provider.get("itemFlags")
+        self.GameParameters = enum_provider.get("gameParameters")
 
     def execute(self, character: Character, context: Context):
         command_name = (getattr(context.command, "name", "") or "").strip().lower()

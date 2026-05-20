@@ -4,6 +4,7 @@ from injector import inject
 from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
 from area.ShopRegistry import ShopRegistry
+from game.EnumProvider import EnumProvider
 from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
 from game.RegistryService import RegistryService
@@ -28,7 +29,8 @@ class MobileHandler:
                  room_registry: RoomRegistry,
                  shop_registry: ShopRegistry,
                  fight_handler: FightHandler,
-                 weather_handler: WeatherHandler):
+                 weather_handler: WeatherHandler,
+                 enum_provider: EnumProvider):
         self.__name__ = "MobileHandler"
         self.message_bus = message_bus
         self.registry_service = registry_service
@@ -43,22 +45,14 @@ class MobileHandler:
         self.logger = LoggerFactory.get_logger(__name__)
         self.rng = RandomNumberGenerator()
         self.spell_api = SpellApi()
-        self.act_bits = None
-        self.affected_bits = None
-        self.positions = None
-        self.room_flags = None
-        self.exit_flags = None
-        self.wear_flags = None
+        self.act_bits = enum_provider.get("actBits")
+        self.affected_bits = enum_provider.get("affectedBy")
+        self.positions = enum_provider.get("positions")
+        self.room_flags = enum_provider.get("roomFlags")
+        self.exit_flags = enum_provider.get("exitFlags")
+        self.wear_flags = enum_provider.get("wearFlags")
         self._special_library_cache = None
         self.kill_table: dict[int, KillTable] = {}
-
-    def set_enums(self, enums: dict):
-        self.act_bits = CharacterApi.get_enum("actBits")
-        self.affected_bits = CharacterApi.get_enum("affectedBy")
-        self.positions = CharacterApi.get_enum("positions")
-        self.room_flags = CharacterApi.get_enum("roomFlags")
-        self.exit_flags = CharacterApi.get_enum("exitFlags")
-        self.wear_flags = CharacterApi.get_enum("wearFlags")
         self.rebuild_kill_table()
 
     def rebuild_kill_table(self) -> None:

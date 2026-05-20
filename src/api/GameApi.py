@@ -2,6 +2,7 @@ from enum import IntEnum
 from threading import RLock
 from typing import Any
 
+from game.EnumProvider import EnumProvider
 from game.GameData import GameData
 from server.LoggerFactory import LoggerFactory
 from util.GenericUtil import GenericUtil
@@ -10,82 +11,54 @@ from util.GenericUtil import GenericUtil
 class GameApi:
     _lock = RLock()
     _configured = False
-    _shared_enums = None
-    _shared_enums_source = None
     _game_data = None
-    _enums = None
-    _races = None
-    _item_table = None
-    _attribute_bonuses = None
-    _classes = None
-    _pc_races = None
-    _titles = None
+    _enums: dict[str, type[IntEnum]] = {}
+    _enum_provider = None
+    _races = {}
+    _item_table = {}
+    _attribute_bonuses = {}
+    _classes = {}
+    _pc_races = {}
+    _titles = {}
     _logger = None
-
-    def __getattr__(self, name):
-        if name.startswith('_'):
-            raise AttributeError(f"Private attribute '{name}' is not accessible")
-        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
-
-    def __setattr__(self, name, value):
-        if name.startswith('_') and name != '_internal_data':
-            raise AttributeError(f"Cannot set private attribute '{name}'")
-        super().__setattr__(name, value)
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         cls._lock = RLock()
-        cls._configured = False
-        cls._game_data = None
-        cls._enums = None
-        cls._races = None
-        cls._item_table = None
-        cls._attribute_bonuses = None
-        cls._classes = None
-        cls._pc_races = None
-        cls._titles = None
-
-    def __new__(cls, *args, **kwargs):
-        raise RuntimeError(
-            f"{cls.__name__} may not be instantiated. Use {cls.__name__}.<method>(...)."
-        )
+        cls._logger = None
 
     @classmethod
-    def configure(cls, game_data: GameData) -> None:
-        with cls._lock:
-            cls._game_data = game_data
-            cls._configure_enums(game_data)
-            cls._configure_races(game_data)
-            cls._configure_item_table(game_data)
-            cls._configure_attribute_bonuses(game_data)
-            cls._configure_classes(game_data)
-            cls._configure_pc_races(game_data)
-            cls._configure_titles(game_data)
-            cls._configure_internal_variables(game_data)
-            cls._configured = True
+    def configure(cls, game_data: GameData, enum_provider: EnumProvider | None = None) -> None:
+        with GameApi._lock:
+            provider = enum_provider or GameApi._build_enum_provider(game_data)
+            GameApi._game_data = game_data
+            GameApi._enum_provider = provider
+            GameApi._enums = {
+                name: provider.get(name)
+                for name in provider.all_names()
+            }
+            GameApi._configure_races(game_data)
+            GameApi._configure_item_table(game_data)
+            GameApi._configure_attribute_bonuses(game_data)
+            GameApi._configure_classes(game_data)
+            GameApi._configure_pc_races(game_data)
+            GameApi._configure_titles(game_data)
+            GameApi._configured = True
 
     @classmethod
     def reset_for_tests(cls) -> None:
-        with cls._lock:
-            prior_game_data = cls._game_data
-            cls._configured = False
-            cls._game_data = None
-            cls._enums = None
-            cls._races = None
-            cls._item_table = None
-            cls._attribute_bonuses = None
-            cls._classes = None
-            cls._pc_races = None
-            cls._titles = None
+        with GameApi._lock:
+            GameApi._configured = False
+            GameApi._game_data = None
+            GameApi._enum_provider = None
+            GameApi._enums = {}
+            GameApi._races = {}
+            GameApi._item_table = {}
+            GameApi._attribute_bonuses = {}
+            GameApi._classes = {}
+            GameApi._pc_races = {}
+            GameApi._titles = {}
             cls._reset_internal_variables()
-
-        if GameApi._shared_enums_source is prior_game_data:
-            GameApi._shared_enums = None
-            GameApi._shared_enums_source = None
-
-    @classmethod
-    def _configure_internal_variables(cls, game_data: GameData) -> None:
-        return None
 
     @classmethod
     def _reset_internal_variables(cls) -> None:
@@ -93,7 +66,7 @@ class GameApi:
 
     @classmethod
     def _require_configured(cls) -> None:
-        if not cls._configured:
+        if not GameApi._configured:
             raise RuntimeError(f"{cls.__name__} has not been configured.")
 
     @classmethod
@@ -103,86 +76,83 @@ class GameApi:
         return cls._logger
 
     @classmethod
-    def _configure_enums(cls, game_data: GameData) -> None:
-        cls._enums = cls._shared_enums_for(game_data)
-
-    @classmethod
-    def _shared_enums_for(cls, game_data: GameData) -> dict[str, type[IntEnum]]:
-        if GameApi._shared_enums_source is not game_data:
-            GameApi._shared_enums = {
-                enum_name: GenericUtil.build_int_enum(enum_name, member_map)
-                for enum_name, member_map in game_data.enums.items()
-            }
-            GameApi._shared_enums_source = game_data
-        return GameApi._shared_enums or {}
-
-    @classmethod
-    def register_shared_enums(cls, game_data: GameData, enums: dict[str, type[IntEnum]]) -> None:
-        GameApi._shared_enums = enums
-        GameApi._shared_enums_source = game_data
-
-    @classmethod
     def _configure_races(cls, game_data: GameData) -> None:
-        cls._races = dict(game_data.races or {})
+        GameApi._races = dict(game_data.races or {})
 
     @classmethod
     def _configure_item_table(cls, game_data: GameData) -> None:
-        cls._item_table = dict(game_data.item_table or {})
+        GameApi._item_table = dict(game_data.item_table or {})
 
     @classmethod
     def _configure_attribute_bonuses(cls, game_data: GameData) -> None:
-        cls._attribute_bonuses = dict(game_data.attribute_bonuses or {})
+        GameApi._attribute_bonuses = dict(game_data.attribute_bonuses or {})
 
     @classmethod
     def _configure_classes(cls, game_data: GameData) -> None:
-        cls._classes = dict(game_data.classes or {})
+        GameApi._classes = dict(game_data.classes or {})
 
     @classmethod
     def _configure_pc_races(cls, game_data: GameData) -> None:
-        cls._pc_races = dict(game_data.pc_races or {})
+        GameApi._pc_races = dict(game_data.pc_races or {})
 
     @classmethod
     def _configure_titles(cls, game_data: GameData) -> None:
-        cls._titles = dict(game_data.titles or {})
+        GameApi._titles = dict(game_data.titles or {})
+
+    @staticmethod
+    def _build_enum_provider(game_data: GameData) -> EnumProvider:
+        enums = {}
+        for enum_name, member_map in dict(getattr(game_data, "enums", {}) or {}).items():
+            enums[enum_name] = GenericUtil.build_int_enum(enum_name, member_map)
+        return EnumProvider(enums)
 
     @classmethod
     def _enums_map(cls) -> dict[str, type[IntEnum]]:
         cls._require_configured()
-        return cls._enums or {}
+        return GameApi._enums
 
     @classmethod
     def _races_map(cls) -> dict:
         cls._require_configured()
-        return cls._races or {}
+        return GameApi._races
 
     @classmethod
     def _item_table_map(cls) -> dict:
         cls._require_configured()
-        return cls._item_table or {}
+        return GameApi._item_table
 
     @classmethod
     def _attribute_bonus_map(cls) -> dict:
         cls._require_configured()
-        return cls._attribute_bonuses or {}
+        return GameApi._attribute_bonuses
 
     @classmethod
     def _classes_map(cls) -> dict:
         cls._require_configured()
-        return cls._classes or {}
+        return GameApi._classes
 
     @classmethod
     def _pc_races_map(cls) -> dict:
         cls._require_configured()
-        return cls._pc_races or {}
+        return GameApi._pc_races
 
     @classmethod
     def _titles_map(cls) -> dict:
         cls._require_configured()
-        return cls._titles or {}
+        return GameApi._titles
 
     @classmethod
     def get_enum(cls, enum_name: str) -> type[IntEnum] | Any | None:
-        return cls._enums_map().get(enum_name)
+        cls._require_configured()
+        if GameApi._enum_provider is None or not GameApi._enum_provider.contains(enum_name):
+            return None
+        return GameApi._enum_provider.get(enum_name)
+
+    @classmethod
+    def load_enums(cls, **aliases: str) -> None:
+        cls._require_configured()
+        for attr_name, enum_name in aliases.items():
+            setattr(cls, attr_name, cls.get_enum(enum_name))
 
     @staticmethod
     def is_set(flag: int, bit) -> bool:

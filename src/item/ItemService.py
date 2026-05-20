@@ -1,10 +1,11 @@
 from typing import Optional
 
 import requests
+
 from injector import inject
 
 from game.GameData import GameData
-from item import Item
+from item.Item import Item
 from item.ItemRegistry import ItemRegistry
 from util.ItemUtil import ItemUtil
 from server.LoggerFactory import LoggerFactory
@@ -19,16 +20,15 @@ class ItemService:
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.items_endpoint = config.items_endpoint
         self.game_data = game_data
-        self.enums = self.game_data.enums
         self.item_registry = item_registry
         self.skill_registry = skill_registry
         self.load_items()
 
-    def reload_mobiles(self) -> None:
-        self.logger.info("Reloading all mobiles...")
+    def reload_items(self) -> None:
+        self.logger.info("Reloading all items...")
         self.item_registry.reset()
         self.load_items()
-        self.logger.info("Mobiles reload completed.")
+        self.logger.info("Item reload completed.")
 
     def load_items(self):
         self._fetch_and_register(self.items_endpoint, "all items")

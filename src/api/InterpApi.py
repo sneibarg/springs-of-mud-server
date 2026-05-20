@@ -51,15 +51,14 @@ class InterpApi:
             payload["blocked_key"] = plan.messages[0].key
         return payload
 
-    @staticmethod
-    def build_interp_view(context) -> InterpView:
-        payload = getattr(getattr(context, "command", None), "payload", None)
-        return InterpView(context=context, payload=GamePayload.from_json(payload))
+    def build_interp_view(self, context) -> InterpView:
+        game_payload = GamePayload.from_json(getattr(getattr(context, "command", None), "payload", None))
+        self.logger.debug(f"build_interp_view: GamePayload={game_payload}")
+        return InterpView(context=context, payload=game_payload)
 
-    @staticmethod
-    def evaluate_interp_action(view: InterpView, definition: ActionDefinition[InterpView]) -> ActionPlan:
+    def evaluate_interp_action(self, view: InterpView, definition: ActionDefinition[InterpView]) -> ActionPlan:
         for index, guard in enumerate(definition.guards):
-            print(f"Checking guard #{index+1} of {len(definition.guards)}; predicate: {view.context.command.guards[index]}")
+            self.logger.debug(f"Checking guard #{index+1} of {len(definition.guards)}; predicate: {view.context.command.guards[index]}")
             if guard.predicate(view):
                 tokens = InterpApi._default_tokens(view)
                 tokens.update(dict(guard.token_factory(view) or {}))

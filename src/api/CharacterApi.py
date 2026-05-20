@@ -31,17 +31,21 @@ class CharacterApi(GameApi):
         cls._registry_service = registry_service
 
     @classmethod
-    def lazy_load(cls, weather_handler) -> None:
+    def lazy_load(cls, weather_handler, registry_service=None) -> None:
+        if registry_service is not None:
+            cls._registry_service = registry_service
         cls._weather_handler = weather_handler
-        cls.TimeAndWeather = cls.get_enum("timeAndWeather")
-        cls.GameParameters = cls.get_enum("gameParameters")
-        cls.AffectedBits = cls.get_enum("affectedBy")
-        cls.positions = cls.get_enum("positions")
-        cls.RoomFlags = cls.get_enum("roomFlags")
-        cls.CommFlags = cls.get_enum("commFlags")
-        cls.PlayerActBits = cls.get_enum("playerActBits")
-        cls.OffenseTypes = cls.get_enum("offenseTypes")
-        cls.SectorTypes = cls.get_enum("sectorTypes")
+        cls.load_enums(
+            TimeAndWeather="timeAndWeather",
+            GameParameters="gameParameters",
+            AffectedBits="affectedBy",
+            positions="positions",
+            RoomFlags="roomFlags",
+            CommFlags="commFlags",
+            PlayerActBits="playerActBits",
+            OffenseTypes="offenseTypes",
+            SectorTypes="sectorTypes",
+        )
 
     @classmethod
     def _registry(cls):

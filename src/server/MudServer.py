@@ -65,13 +65,13 @@ class MudServer:
 
     def _start_services(self):
         from player.PlayerService import PlayerService
-        from server.Bootstrap import ServerBootstrap
+        from server.Bootstrapper import Bootstrapper
 
-        self.injector = ServerBootstrap.create_injector(self.service_config)
+        self.injector = Bootstrapper.create_injector(self.service_config)
         self.player_service = self.injector.get(PlayerService)
         self.connection_handler = self.injector.get(ConnectionHandler)
 
-        ServerBootstrap.lazy_load_all(self.injector)
+        Bootstrapper.lazy_load(self.injector)
 
     def _load_player_one(self):
         try:

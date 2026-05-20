@@ -4,6 +4,7 @@ from enum import IntEnum
 from typing import Tuple
 
 from api.GameApi import GameApi
+from game.EnumProvider import EnumProvider
 from game.Equipped import Equipped, WEAR_LOC_TO_EQUIPPED_SLOT
 from util.GenericUtil import GenericUtil
 from mobile.Mobile import Mobile
@@ -206,10 +207,10 @@ class MobileUtil:
         return dam_type[rng.dice(0, 2)]
 
     @staticmethod
-    def _apply_mob_stat_bonuses(mob: Mobile, enums: dict[str, type[IntEnum]]):
-        act_bits = enums.get('actBits')
-        off_bits = enums.get('offenseTypes')
-
+    def _apply_mob_stat_bonuses(mob: Mobile, enum_provider: EnumProvider):
+        act_bits = enum_provider.get('actBits')
+        off_bits = enum_provider.get('offenseTypes')
+        size_enum = enum_provider.get('size')
         mob.character_attributes.strength = min(25, 11 + mob.level // 4)
         mob.character_attributes.intelligence = min(25, 11 + mob.level // 4)
         mob.character_attributes.wisdom = min(25, 11 + mob.level // 4)
@@ -237,15 +238,15 @@ class MobileUtil:
             mob.character_attributes.dexterity += 2
 
         size_key = "SIZE_" + mob.size.upper()
-        size_bonus = enums["size"][size_key] - 2
+        size_bonus = size_enum[size_key] - 2
         mob.character_attributes.strength += size_bonus
         mob.character_attributes.constitution += size_bonus // 2
 
     #  aff_type needs to be replaced with the result of skill_lookup("haste") etc.
     @staticmethod
-    def _apply_affected_by(mob: Mobile, enums: dict[str, type[IntEnum]]):
-        affect_bits = enums.get('affectedBy')
-        apply_types = enums.get('applyTypes')
+    def _apply_affected_by(mob: Mobile, enum_provider: EnumProvider):
+        affect_bits = enum_provider.get('affectedBy')
+        apply_types = enum_provider.get('applyTypes')
         if CharacterApi.is_affected(mob, affect_bits.AFF_SANCTUARY):
             sanctuary = MobileUtil._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, 0, apply_types.APPLY_NONE.value, affect_bits.AFF_SANCTUARY.value)
         if CharacterApi.is_affected(mob, affect_bits.AFF_HASTE):
@@ -261,7 +262,7 @@ class MobileUtil:
         return Effect(valid=True, level=level, where=where, type=aff_type, duration=duration, modifier=modifier, location=location, bitvector=bitvector)
 
     @staticmethod
-    def create_mobile(pMobIndex: Mobile, enums: dict[str, type[IntEnum]]) -> Mobile:
+    def create_mobile(pMobIndex: Mobile, enum_provider: EnumProvider) -> Mobile:
         from player.CharacterAttributes import CharacterAttributes
         if pMobIndex is None:
             logger.error("create_mobile: NULL pMobIndex.")
@@ -332,8 +333,8 @@ class MobileUtil:
             mob.size = pMobIndex.size
             mob.material = pMobIndex.material
 
-            MobileUtil._apply_mob_stat_bonuses(mob, enums)
-            MobileUtil._apply_affected_by(mob, enums)
+            MobileUtil._apply_mob_stat_bonuses(mob, enum_provider)
+            MobileUtil._apply_affected_by(mob, enum_provider)
 
         mob.position = mob.start_pos
         return mob

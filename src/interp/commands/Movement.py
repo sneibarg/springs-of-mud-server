@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from injector import inject
 
+from game.EnumProvider import EnumProvider
 from game.GameData import GameData
 from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
@@ -22,6 +23,7 @@ class Movement:
                  registry_service: RegistryService,
                  game_data: GameData,
                  fight_handler: FightHandler,
+                 enum_provider: EnumProvider,
                  interp_api: InterpApi = None):
         self.__name__ = "Movement"
         self.logger = LoggerFactory.get_logger(self.__name__)
@@ -30,18 +32,11 @@ class Movement:
         self.game_data = game_data
         self.fight_handler = fight_handler
         self.interp_api = interp_api or InterpApi()
-        self.exit_flags = None
-        self.room_flags = None
-        self.affected_bits = None
-        self.act_bits = None
-        self.sector_types = None
-
-    def lazy_load(self):
-        self.exit_flags = CharacterApi.get_enum("exitFlags")
-        self.room_flags = CharacterApi.get_enum("roomFlags")
-        self.affected_bits = CharacterApi.get_enum("affectedBy")
-        self.act_bits = CharacterApi.get_enum("actBits")
-        self.sector_types = CharacterApi.get_enum("sectorTypes")
+        self.exit_flags = enum_provider.get("exitFlags")
+        self.room_flags = enum_provider.get("roomFlags")
+        self.affected_bits = enum_provider.get("affectedBy")
+        self.act_bits = enum_provider.get("actBits")
+        self.sector_types = enum_provider.get("sectorTypes")
 
     def move_char(self, character: Character, direction: str, context: Context):
         state = MovementApi.move_state(context, direction=direction, room_registry=self.room_registry)

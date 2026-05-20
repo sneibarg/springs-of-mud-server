@@ -15,7 +15,7 @@ class GameService:
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.game_data_endpoint = config.game_data_endpoint
         self.update_handler = None
-        self.game_data = self._load_game_data()
+        self.game_data = self._fetch_game_data()
         self.enums = dict()
         self._load_enums()
         self.last_time: TimeVal = gettimeofday()
@@ -37,7 +37,7 @@ class GameService:
         await self.update_handler.handle_updates()
         stall_until_last_time(self.last_time, self.enums['gameParameters']['PULSE_PER_SECOND'])
 
-    def _load_game_data(self):
+    def _fetch_game_data(self):
         try:
             url = self.game_data_endpoint
             response = requests.get(url).json()[0]
@@ -51,4 +51,3 @@ class GameService:
         for enum_name in self.game_data.enums:
             member_map = self.game_data.enums.get(enum_name)
             self.enums[enum_name] = GenericUtil.build_int_enum(enum_name, member_map)
-        GameApi.register_shared_enums(self.game_data, self.enums)

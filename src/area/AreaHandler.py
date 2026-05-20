@@ -1,6 +1,7 @@
 from enum import IntEnum
 from injector import inject
 
+from game.EnumProvider import EnumProvider
 from util.AreaUtil import AreaUtil
 from area.Reset import Reset
 from area.Area import Area
@@ -28,7 +29,8 @@ class AreaHandler:
                  room_registry: RoomRegistry,
                  item_registry: ItemRegistry,
                  mobile_registry: MobileRegistry,
-                 shop_registry: ShopRegistry | None = None):
+                 shop_registry: ShopRegistry,
+                 enum_provider: EnumProvider):
         self.__name__ = "AreaHandler"
         self.logger = LoggerFactory.get_logger(__name__)
         self.message_bus = message_bus
@@ -37,17 +39,10 @@ class AreaHandler:
         self.item_registry = item_registry
         self.mobile_registry = mobile_registry
         self.shop_registry = shop_registry
-        self.enums = None
-        self.WellKnownRoomVnums = None
-        self.ExitFlags = None
-        self.ItemFlags = None
-
-    def set_enums(self, enums: dict[str, IntEnum]):
-        self.enums = enums
-
-        self.WellKnownRoomVnums = enums.get('wellKnownRoomVnums')
-        self.ExitFlags = enums.get('exitFlags')
-        self.ItemFlags = enums.get('itemFlags')
+        self.enum_provider = enum_provider
+        self.WellKnownRoomVnums = enum_provider.get("wellKnownRoomVnums")
+        self.ExitFlags = enum_provider.get("exitFlags")
+        self.ItemFlags = enum_provider.get("itemFlags")
 
     def area_update(self):
         for area in self.area_registry.all_areas():
@@ -129,7 +124,7 @@ class AreaHandler:
         if room_count >= room_max:
             last = False
             return last, None
-        mob = MobileUtil.create_mobile(template_mob, self.enums)
+        mob = MobileUtil.create_mobile(template_mob, self.enum_provider)
         for special in getattr(template_mob, "specials", []) or []:
             if str(getattr(special, "mob_vnum", "") or "") == str(mob.vnum):
                 mob.special_name = str(getattr(special, "name", "") or "")

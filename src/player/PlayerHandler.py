@@ -505,9 +505,7 @@ class PlayerHandler:
                 await connection.close()
 
     async def do_object_command(self, character: Character, context: Context):
-        print(f"Executing object command for character {character.name}; context: {context}")
         payload = self.object_commands.execute(character, context)
-        print(f"Object command payload: {payload}")
         if payload is None:
             return
         if isinstance(payload, str):

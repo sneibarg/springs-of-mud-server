@@ -6,6 +6,7 @@ from injector import inject
 
 from area.Shop import Shop
 from fight.FightHandler import FightHandler
+from game.EnumProvider import EnumProvider
 from game.Equipped import Equipped
 from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
@@ -28,7 +29,12 @@ from util.SkillUtil import SkillUtil
 
 class Object:
     @inject
-    def __init__(self, registry_service: RegistryService, weather_handler=None, interp_api=None, spell_api=None, fight_handler: FightHandler = None):
+    def __init__(self, registry_service: RegistryService,
+                 enum_provider: EnumProvider,
+                 weather_handler=None,
+                 interp_api=None,
+                 spell_api=None,
+                 fight_handler: FightHandler = None):
         self.__name__ = "Object"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -41,24 +47,13 @@ class Object:
         self.interp_api = interp_api or InterpApi()
         self.spell_api = spell_api or SpellApi()
         self.fight_handler = fight_handler
-        self.item_types = None
-        self.item_flags = None
-        self.wear_flags = None
-        self.room_flags = None
-        self.act_bits = None
-        self.affected_bits = None
-        self.comm_flags = None
-
-    def lazy_load(self):
-        self.item_types = CharacterApi.get_enum("itemTypes")
-        self.item_flags = CharacterApi.get_enum("itemFlags")
-        self.wear_flags = CharacterApi.get_enum("wearFlags")
-        self.room_flags = CharacterApi.get_enum("roomFlags")
-        self.act_bits = CharacterApi.get_enum("actBits")
-        self.affected_bits = CharacterApi.get_enum("affectedBy")
-        self.comm_flags = CharacterApi.get_enum("commFlags")
-        if self.item_types is None or self.item_flags is None or self.wear_flags is None:
-            raise ValueError("Failed to load shop and item enums")
+        self.item_types = enum_provider.get("itemTypes")
+        self.item_flags = enum_provider.get("itemFlags")
+        self.wear_flags = enum_provider.get("wearFlags")
+        self.room_flags = enum_provider.get("roomFlags")
+        self.act_bits = enum_provider.get("actBits")
+        self.affected_bits = enum_provider.get("affectedBy")
+        self.comm_flags = enum_provider.get("commFlags")
 
     def execute(self, character: Character, context: Context):
         name = (getattr(context.command, "name", "") or "").strip().lower()
@@ -1229,7 +1224,8 @@ class Object:
             if hunger_gain != 0:
                 full = self._gain_condition(character, "hunger", hunger_gain)
             thirst = self._gain_condition(character, "thirst", thirst_gain)
-
+            self.logger.debug(f"Drunk: {drunk}, Full: {full}, Thirst: {thirst}")
+            self.logger.debug(f"drunk_gain: {drunk_gain}; thirst_gain: {thirst_gain}; full_gain: {full_gain}; hunger_gain: {hunger_gain}")
             if drunk > 10:
                 payload["to_char"] += self._render_command_message(context, "alcohol")
             if full > 40:

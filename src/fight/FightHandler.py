@@ -8,6 +8,7 @@ from area.RoomRegistry import RoomRegistry
 from fight.CombatEvent import CombatEvent
 from fight.CombatRegistry import CombatRegistry
 from api.MobileApi import MobileApi
+from game.EnumProvider import EnumProvider
 from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
 from util.InfoUtil import InfoUtil
@@ -62,8 +63,13 @@ class FightHandler:
     }
 
     @inject
-    def __init__(self, message_bus: MessageBus, combat_registry: CombatRegistry, area_registry: AreaRegistry,
-                 room_registry: RoomRegistry, item_registry: ItemRegistry, mobile_registry: MobileRegistry):
+    def __init__(self, message_bus: MessageBus,
+                 combat_registry: CombatRegistry,
+                 area_registry: AreaRegistry,
+                 room_registry: RoomRegistry,
+                 item_registry: ItemRegistry,
+                 mobile_registry: MobileRegistry,
+                 enum_provider: EnumProvider):
         self.__name__ = "FightHandler"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.message_bus = message_bus
@@ -73,29 +79,17 @@ class FightHandler:
         self.item_registry = item_registry
         self.mobile_registry = mobile_registry
         self.rng = RandomNumberGenerator()
-        self.PositionsEnum = None
-        self.WellKnownObjectVnums = None
-        self.OffenseTypes = None
-        self.AffectBits = None
-        self.ActBits = None
-        self.RoomFlags = None
-        self.WearFlags = None
-        self.ItemFlags = None
-        self.WeaponClass = None
+        self.PositionsEnum = enum_provider.get("positions")
+        self.WellKnownObjectVnums = enum_provider.get("wellKnownObjectVnums")
+        self.OffenseTypes = enum_provider.get("offenseTypes")
+        self.AffectBits = enum_provider.get("affectedBy")
+        self.ActBits = enum_provider.get("actBits")
+        self.RoomFlags = enum_provider.get("roomFlags")
+        self.WearFlags = enum_provider.get("wearFlags")
+        self.ItemFlags = enum_provider.get("itemFlags")
+        self.WeaponClass = enum_provider.get("weaponClass")
         self.mobile_handler = None
         self.logger.info("Initialized FightHandler instance.")
-
-    def lazy_load(self):
-        self.PositionsEnum = CharacterApi.get_enum("positions")
-        self.WellKnownObjectVnums = CharacterApi.get_enum("wellKnownObjectVnums")
-        self.OffenseTypes = CharacterApi.get_enum("offenseTypes")
-        self.AffectBits = CharacterApi.get_enum("affectedBy")
-        self.ActBits = CharacterApi.get_enum("actBits")
-        self.RoomFlags = CharacterApi.get_enum("roomFlags")
-        self.WearFlags = CharacterApi.get_enum("wearFlags")
-        self.ItemFlags = CharacterApi.get_enum("itemFlags")
-        self.WeaponClass = CharacterApi.get_enum("weaponClass")
-        self.logger.info("Loaded FightHandler enums.")
 
     def set_mobile_handler(self, mobile_handler) -> None:
         self.mobile_handler = mobile_handler
