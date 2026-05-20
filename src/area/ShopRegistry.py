@@ -17,3 +17,9 @@ class ShopRegistry(Registry[Shop]):
 
     def all_shops_by_area_id(self, area_id: str) -> list[Shop]:
         return [shop for shop in self._items if shop.area_id == area_id]
+
+    def find_by_keeper_vnum(self, keeper_vnum: str | int) -> Shop | None:
+        for shop in self._items:
+            if shop.matches_keeper_vnum(keeper_vnum):
+                return shop
+        return None

@@ -17,7 +17,7 @@
       "thief": 99,
       "warrior": 99
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -45,7 +45,7 @@
       "thief": 5,
       "warrior": 4
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -53,7 +53,42 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "!Axe!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": [
+      {
+        "predicate": "lambda v: not v.argument",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is v.actor",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: v.safe",
+        "messageKey": "targetSafe"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
+        "messageKey": "alreadyFighting",
+        "tokenFactory": "lambda v: victim_name_tokens(v)"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is not v.victim",
+        "messageKey": "busyFighting"
+      }
+    ],
+    "fightExecutor": "multi_hit",
+    "fightPlan": {
+      "dt": "TYPE_UNDEFINED"
+    }
   },
   {
     "_id": {
@@ -73,7 +108,7 @@
       "thief": 2,
       "warrior": 2
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -81,7 +116,42 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "!Dagger!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": [
+      {
+        "predicate": "lambda v: not v.argument",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is v.actor",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: v.safe",
+        "messageKey": "targetSafe"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
+        "messageKey": "alreadyFighting",
+        "tokenFactory": "lambda v: victim_name_tokens(v)"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is not v.victim",
+        "messageKey": "busyFighting"
+      }
+    ],
+    "fightExecutor": "multi_hit",
+    "fightPlan": {
+      "dt": "TYPE_UNDEFINED"
+    }
   },
   {
     "_id": {
@@ -101,7 +171,7 @@
       "thief": 6,
       "warrior": 4
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -109,7 +179,42 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "!Flail!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": [
+      {
+        "predicate": "lambda v: not v.argument",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is v.actor",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: v.safe",
+        "messageKey": "targetSafe"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
+        "messageKey": "alreadyFighting",
+        "tokenFactory": "lambda v: victim_name_tokens(v)"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is not v.victim",
+        "messageKey": "busyFighting"
+      }
+    ],
+    "fightExecutor": "multi_hit",
+    "fightPlan": {
+      "dt": "TYPE_UNDEFINED"
+    }
   },
   {
     "_id": {
@@ -129,7 +234,7 @@
       "thief": 3,
       "warrior": 3
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -137,7 +242,42 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "!Mace!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": [
+      {
+        "predicate": "lambda v: not v.argument",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is v.actor",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: v.safe",
+        "messageKey": "targetSafe"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
+        "messageKey": "alreadyFighting",
+        "tokenFactory": "lambda v: victim_name_tokens(v)"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is not v.victim",
+        "messageKey": "busyFighting"
+      }
+    ],
+    "fightExecutor": "multi_hit",
+    "fightPlan": {
+      "dt": "TYPE_UNDEFINED"
+    }
   },
   {
     "_id": {
@@ -157,7 +297,7 @@
       "thief": 6,
       "warrior": 4
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -165,7 +305,42 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "!Polearm!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": [
+      {
+        "predicate": "lambda v: not v.argument",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is v.actor",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: v.safe",
+        "messageKey": "targetSafe"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
+        "messageKey": "alreadyFighting",
+        "tokenFactory": "lambda v: victim_name_tokens(v)"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is not v.victim",
+        "messageKey": "busyFighting"
+      }
+    ],
+    "fightExecutor": "multi_hit",
+    "fightPlan": {
+      "dt": "TYPE_UNDEFINED"
+    }
   },
   {
     "_id": {
@@ -185,7 +360,7 @@
       "thief": 6,
       "warrior": 2
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -193,7 +368,8 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "!Shield!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": []
   },
   {
     "_id": {
@@ -213,7 +389,7 @@
       "thief": 4,
       "warrior": 3
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -221,7 +397,42 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "!Spear!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": [
+      {
+        "predicate": "lambda v: not v.argument",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is v.actor",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: v.safe",
+        "messageKey": "targetSafe"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
+        "messageKey": "alreadyFighting",
+        "tokenFactory": "lambda v: victim_name_tokens(v)"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is not v.victim",
+        "messageKey": "busyFighting"
+      }
+    ],
+    "fightExecutor": "multi_hit",
+    "fightPlan": {
+      "dt": "TYPE_UNDEFINED"
+    }
   },
   {
     "_id": {
@@ -241,7 +452,7 @@
       "thief": 3,
       "warrior": 2
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -249,7 +460,42 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "!Sword!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": [
+      {
+        "predicate": "lambda v: not v.argument",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is v.actor",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: v.safe",
+        "messageKey": "targetSafe"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
+        "messageKey": "alreadyFighting",
+        "tokenFactory": "lambda v: victim_name_tokens(v)"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is not v.victim",
+        "messageKey": "busyFighting"
+      }
+    ],
+    "fightExecutor": "multi_hit",
+    "fightPlan": {
+      "dt": "TYPE_UNDEFINED"
+    }
   },
   {
     "_id": {
@@ -269,7 +515,7 @@
       "thief": 5,
       "warrior": 4
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -277,7 +523,42 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "!Whip!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": [
+      {
+        "predicate": "lambda v: not v.argument",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is v.actor",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: v.safe",
+        "messageKey": "targetSafe"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
+        "messageKey": "alreadyFighting",
+        "tokenFactory": "lambda v: victim_name_tokens(v)"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is not v.victim",
+        "messageKey": "busyFighting"
+      }
+    ],
+    "fightExecutor": "multi_hit",
+    "fightPlan": {
+      "dt": "TYPE_UNDEFINED"
+    }
   },
   {
     "_id": {
@@ -297,7 +578,7 @@
       "thief": 5,
       "warrior": 0
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -305,7 +586,53 @@
     "beats": 24,
     "nounDamage": "backstab",
     "msgOff": "!Backstab!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": [
+      {
+        "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
+        "messageKey": "noAccess"
+      },
+      {
+        "predicate": "lambda v: not v.argument",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None",
+        "messageKey": "alreadyFighting"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is v.actor",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: v.safe",
+        "messageKey": "targetSafe"
+      },
+      {
+        "predicate": "lambda v: kill_steal_blocked(v)",
+        "messageKey": "killSteal"
+      },
+      {
+        "predicate": "lambda v: not is_weapon_wielded(v)",
+        "messageKey": "requiresWeapon"
+      },
+      {
+        "predicate": "lambda v: target_too_hurt(v)",
+        "messageKey": "targetTooHurt"
+      }
+    ],
+    "fightExecutor": "backstab",
+    "fightPlan": {
+      "dt": "backstab"
+    }
   },
   {
     "_id": {
@@ -325,7 +652,7 @@
       "thief": 0,
       "warrior": 4
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -333,7 +660,41 @@
     "beats": 24,
     "nounDamage": "bash",
     "msgOff": "!Bash!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": [
+      {
+        "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
+        "messageKey": "noAccess"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: bool(v.argument) and v.victim is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: (not v.argument) and v.victim is None",
+        "messageKey": "noTarget"
+      },
+      {
+        "predicate": "lambda v: v.victim is v.actor",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: position_below(v.victim, 'POS_FIGHTING')",
+        "messageKey": "targetDown"
+      },
+      {
+        "predicate": "lambda v: v.safe",
+        "messageKey": "targetSafe"
+      },
+      {
+        "predicate": "lambda v: kill_steal_blocked(v)",
+        "messageKey": "killSteal"
+      }
+    ]
   },
   {
     "_id": {
@@ -353,7 +714,7 @@
       "thief": 0,
       "warrior": 5
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -361,7 +722,25 @@
     "beats": 24,
     "nounDamage": "",
     "msgOff": "You feel your pulse slow down.",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": [
+      {
+        "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
+        "messageKey": "noAccess"
+      },
+      {
+        "predicate": "lambda v: has_effect_type(v.actor, 'skill.berserk') or has_affect(v.actor, 'AFF_BERSERK') or has_effect_type(v.actor, 'spell.frenzy')",
+        "messageKey": "alreadyActive"
+      },
+      {
+        "predicate": "lambda v: has_affect(v.actor, 'AFF_CALM')",
+        "messageKey": "calm"
+      },
+      {
+        "predicate": "lambda v: int(getattr(v.actor, 'mana', 0) or 0) < 50",
+        "messageKey": "insufficientMana"
+      }
+    ]
   },
   {
     "_id": {
@@ -381,7 +760,7 @@
       "thief": 4,
       "warrior": 4
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -389,7 +768,45 @@
     "beats": 24,
     "nounDamage": "kicked dirt",
     "msgOff": "You rub the dirt out of your eyes.",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": [
+      {
+        "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
+        "messageKey": "noAccess"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: bool(v.argument) and v.victim is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: (not v.argument) and v.victim is None",
+        "messageKey": "noTarget"
+      },
+      {
+        "predicate": "lambda v: has_affect(v.victim, 'AFF_BLIND')",
+        "messageKey": "alreadyBlind"
+      },
+      {
+        "predicate": "lambda v: v.victim is v.actor",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: v.safe",
+        "messageKey": "targetSafe"
+      },
+      {
+        "predicate": "lambda v: kill_steal_blocked(v)",
+        "messageKey": "killSteal"
+      },
+      {
+        "predicate": "lambda v: v.extra.get('terrain_adjustment') is None",
+        "messageKey": "noTerrain"
+      }
+    ]
   },
   {
     "_id": {
@@ -409,7 +826,7 @@
       "thief": 6,
       "warrior": 4
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -417,7 +834,29 @@
     "beats": 24,
     "nounDamage": "",
     "msgOff": "!Disarm!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": [
+      {
+        "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
+        "messageKey": "noAccess"
+      },
+      {
+        "predicate": "lambda v: v.extra.get('weapon') is None and int(v.extra.get('hand_to_hand', 0) or 0) <= 0",
+        "messageKey": "requiresWeapon"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is None",
+        "messageKey": "noVictim"
+      },
+      {
+        "predicate": "lambda v: getattr(getattr(v.victim, 'equipped', None), 'wielded', None) is None",
+        "messageKey": "victimUnarmed"
+      }
+    ]
   },
   {
     "_id": {
@@ -437,7 +876,7 @@
       "thief": 4,
       "warrior": 6
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -445,7 +884,8 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "!Dodge!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": []
   },
   {
     "_id": {
@@ -465,7 +905,7 @@
       "thief": 5,
       "warrior": 3
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -473,7 +913,8 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "!Enhanced Damage!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": []
   },
   {
     "_id": {
@@ -493,7 +934,7 @@
       "thief": 4,
       "warrior": 0
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "RESTING",
     "slot": 0,
@@ -521,7 +962,7 @@
       "thief": 6,
       "warrior": 4
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -529,7 +970,42 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "!Hand to Hand!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": [
+      {
+        "predicate": "lambda v: not v.argument",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is v.actor",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: v.safe",
+        "messageKey": "targetSafe"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is v.victim",
+        "messageKey": "alreadyFighting",
+        "tokenFactory": "lambda v: victim_name_tokens(v)"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is not None and v.current_fighting is not v.victim",
+        "messageKey": "busyFighting"
+      }
+    ],
+    "fightExecutor": "multi_hit",
+    "fightPlan": {
+      "dt": "TYPE_UNDEFINED"
+    }
   },
   {
     "_id": {
@@ -549,7 +1025,7 @@
       "thief": 6,
       "warrior": 3
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "CHAR_OFFENSIVE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -557,7 +1033,21 @@
     "beats": 12,
     "nounDamage": "kick",
     "msgOff": "!Kick!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": [
+      {
+        "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
+        "messageKey": "noAccess"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is None",
+        "messageKey": "noVictim"
+      }
+    ]
   },
   {
     "_id": {
@@ -577,7 +1067,7 @@
       "thief": 6,
       "warrior": 4
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -585,7 +1075,8 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "!Parry!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": []
   },
   {
     "_id": {
@@ -605,7 +1096,7 @@
       "thief": 0,
       "warrior": 4
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -613,7 +1104,41 @@
     "beats": 12,
     "nounDamage": "",
     "msgOff": "!Rescue!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": [
+      {
+        "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
+        "messageKey": "noAccess"
+      },
+      {
+        "predicate": "lambda v: not v.argument",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: v.victim is v.actor",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: (not CharacterApi.is_npc(v.actor)) and CharacterApi.is_npc(v.victim)",
+        "messageKey": "targetNpc"
+      },
+      {
+        "predicate": "lambda v: v.current_fighting is v.victim",
+        "messageKey": "tooLate"
+      },
+      {
+        "predicate": "lambda v: getattr(v.victim, 'fighting', None) is None",
+        "messageKey": "targetNotFighting"
+      }
+    ]
   },
   {
     "_id": {
@@ -633,7 +1158,7 @@
       "thief": 4,
       "warrior": 8
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -641,7 +1166,45 @@
     "beats": 24,
     "nounDamage": "trip",
     "msgOff": "!Trip!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": [
+      {
+        "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
+        "messageKey": "noAccess"
+      },
+      {
+        "predicate": "lambda v: v.room is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: bool(v.argument) and v.victim is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: (not v.argument) and v.victim is None",
+        "messageKey": "noTarget"
+      },
+      {
+        "predicate": "lambda v: v.safe",
+        "messageKey": "targetSafe"
+      },
+      {
+        "predicate": "lambda v: kill_steal_blocked(v)",
+        "messageKey": "killSteal"
+      },
+      {
+        "predicate": "lambda v: has_affect(v.victim, 'AFF_FLYING')",
+        "messageKey": "targetFlying"
+      },
+      {
+        "predicate": "lambda v: position_below(v.victim, 'POS_FIGHTING')",
+        "messageKey": "targetDown"
+      },
+      {
+        "predicate": "lambda v: v.victim is v.actor",
+        "messageKey": "targetSelf"
+      }
+    ]
   },
   {
     "_id": {
@@ -661,7 +1224,7 @@
       "thief": 5,
       "warrior": 3
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -669,7 +1232,8 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "!Second Attack!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": []
   },
   {
     "_id": {
@@ -689,7 +1253,7 @@
       "thief": 10,
       "warrior": 4
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "FIGHTING",
     "slot": 0,
@@ -697,7 +1261,8 @@
     "beats": 0,
     "nounDamage": "",
     "msgOff": "!Third Attack!",
-    "msgObj": ""
+    "msgObj": "",
+    "guards": []
   },
   {
     "_id": {
@@ -717,7 +1282,7 @@
       "thief": 6,
       "warrior": 4
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "SLEEPING",
     "slot": 0,
@@ -745,7 +1310,7 @@
       "thief": 3,
       "warrior": 6
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "RESTING",
     "slot": 0,
@@ -773,7 +1338,7 @@
       "thief": 4,
       "warrior": 6
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "RESTING",
     "slot": 0,
@@ -801,7 +1366,7 @@
       "thief": 4,
       "warrior": 8
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "RESTING",
     "slot": 0,
@@ -829,7 +1394,7 @@
       "thief": 8,
       "warrior": 8
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "SLEEPING",
     "slot": 0,
@@ -857,7 +1422,7 @@
       "thief": 3,
       "warrior": 6
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -885,7 +1450,7 @@
       "thief": 4,
       "warrior": 8
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -913,7 +1478,7 @@
       "thief": 4,
       "warrior": 6
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -941,7 +1506,7 @@
       "thief": 4,
       "warrior": 0
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -969,7 +1534,7 @@
       "thief": 5,
       "warrior": 8
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -997,7 +1562,7 @@
       "thief": 5,
       "warrior": 8
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -1025,7 +1590,7 @@
       "thief": 5,
       "warrior": 8
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,
@@ -1053,7 +1618,7 @@
       "thief": 2,
       "warrior": 2
     },
-    "handlerId": "spell.none",
+    "handlerId": "skill.none",
     "target": "IGNORE",
     "minPosition": "STANDING",
     "slot": 0,

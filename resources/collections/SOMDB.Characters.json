@@ -3,11 +3,27 @@
     "$oid": "697e4a9edf39f7359b41cbfe"
   },
   "accountId": "62d2ff6699c3578abe7941c9",
-  "roomId": "69eed198334481660fc862ce",
-  "areaId": "69eed19c402e68556a29f838",
+  "roomId": "69f7cce663b6394f1949cec8",
+  "areaId": "69f7ccea20db0261aa9b07f3",
   "name": "Fizban",
   "title": "the Fabulous",
-  "race": "Human",
+  "characterRace": {
+    "whoName": "Human",
+    "points": 0,
+    "classMult": 100,
+    "skills": [""],
+    "strength": 13,
+    "maxStrength": 18,
+    "intelligence": 13,
+    "maxIntelligence": 18,
+    "wisdom": 13,
+    "maxWisdom": 18,
+    "dexterity": 13,
+    "maxDexterity": 18,
+    "constitution": 13,
+    "maxConstitution": 18,
+    "size": "SIZE_MEDIUM"
+  },
   "guild": "",
   "role": "admin",
   "sex": "male",
@@ -22,9 +38,23 @@
   "gold": 1000000,
   "silver": 1000000,
   "characterFlags": {
-    "act": "GQRT",
-    "comm": "NOP",
-    "affectedBy": ""
+    "autoAssist": false,
+    "autoExit": false,
+    "autoLoot": false,
+    "autoSacrifice": false,
+    "autoGold": false,
+    "autoSplit": false,
+    "holyLight": false,
+    "canLoot": false,
+    "noSummon": false,
+    "noFollow": false,
+    "color": false,
+    "permit": false,
+    "log": false,
+    "deny": false,
+    "freeze": false,
+    "thief": false,
+    "killer": false
   },
   "armorClass": {
     "piercing": 100,
@@ -50,42 +80,24 @@
     "accumulated_experience": 0,
     "experience_per_level": 1000
   },
-  "temporalMechanics": {
+  "statusFlags": {
+    "act": 0,
+    "comm": 0,
+    "affectedBy": 0,
+    "off": 0,
+    "imm": 0,
+    "res": 0,
+    "vuln": 0,
+    "form": 0,
+    "parts": 0,
+    "invisLevel": 0,
+    "incogLevel": 0,
     "played": 0,
     "logon": 0,
     "pulseWait": 0,
     "pulseDaze": 0
   },
   "inventory": [
-    {
-      "id": "69bb43ab02aefb5f71e23098",
-      "area_id": "69bb43abe40ee67ebd4177e0",
-      "vnum": "9586",
-      "name": "sledge hammer",
-      "short_description": "a sledge hammer",
-      "long_description": "A sledge hammer lies here.",
-      "material": "oldstyle",
-      "item_type": "weapon",
-      "extra_flags": "0",
-      "wear_flags": "AN",
-      "value0": "4117",
-      "value1": "2",
-      "value2": "7",
-      "value3": "266369",
-      "value4": "32",
-      "weight": 240,
-      "condition": "100",
-      "level": 10,
-      "cost": 660,
-      "affect_data": [],
-      "extra_descr": [],
-      "damage_type": null,
-      "weapon_type": null,
-      "liquid_color": null,
-      "liquid_affect_data": null,
-      "effects": null,
-      "extra_description": null
-    }
   ],
   "promptFormat": {
     "hp": true,
@@ -128,10 +140,26 @@
   "name": "Janky",
   "title": "the Newcomer",
   "description": "",
-  "race": "Dwarf",
+  "characterRace": {
+    "whoName": "Dwarf",
+    "points": 8,
+    "classMult": 125,
+    "skills": ["berserk"],
+    "strength": 14,
+    "maxStrength": 20,
+    "intelligence": 12,
+    "maxIntelligence": 16,
+    "wisdom": 14,
+    "maxWisdom": 19,
+    "dexterity": 10,
+    "maxDexterity": 14,
+    "constitution": 15,
+    "maxConstitution": 21,
+    "size": "SIZE_MEDIUM"
+  },
   "sex": "male",
-  "roomId": "69eed1987ddf6bfdb82a1431",
-  "areaId": "69eed1a20b7c6714fa49a23f",
+  "roomId": "69f7cce663b6394f1949cec8",
+  "areaId": "69f7ccea20db0261aa9b07f3",
   "guild": "",
   "role": "player",
   "equipped": {
@@ -159,7 +187,7 @@
         "A,17,-1",
         "A,20,-1"
       ],
-      "extraDescr": [
+      "extraDescription": [
         "banner",
         "This is the official Merc war banner to see you through the darkest realm!"
       ],
@@ -186,7 +214,7 @@
       "weight": 50,
       "cost": 0,
       "affectData": [],
-      "extraDescr": [
+      "extraDescription": [
         "vest",
         "You see a vest of great but cheap craftsmanship.  Stamped on the side is:\nMerc Industries"
       ],
@@ -215,7 +243,7 @@
       "affectData": [
         "A,18,1"
       ],
-      "extraDescr": [
+      "extraDescription": [
         "sword",
         "You see a sword of great but cheap craftsmanship.  Imprinted on the side is:\nMerc Industries"
       ],
@@ -242,7 +270,7 @@
       "weight": 30,
       "cost": 0,
       "affectData": [],
-      "extraDescr": [
+      "extraDescription": [
         "shield",
         "You see a shield of great but cheap craftsmanship.  Imprinted on the side is:\nMerc Industries"
       ],
@@ -282,9 +310,23 @@
     "defaultGroup": "thief default"
   },
   "characterFlags": {
-    "act": "",
-    "comm": "",
-    "affectedBy": ""
+    "autoAssist": false,
+    "autoExit": false,
+    "autoLoot": false,
+    "autoSacrifice": false,
+    "autoGold": false,
+    "autoSplit": false,
+    "holyLight": false,
+    "canLoot": false,
+    "noSummon": false,
+    "noFollow": false,
+    "color": false,
+    "permit": false,
+    "log": false,
+    "deny": false,
+    "freeze": false,
+    "thief": false,
+    "killer": false
   },
   "armorClass": {
     "piercing": 100,
@@ -306,11 +348,22 @@
     "trains": 3,
     "practices": 5,
     "points": 63,
-    "experience": 0,
-    "accumulatedExperience": 0,
+    "experience": 2718,
+    "accumulatedExperience": 2718,
     "experiencePerLevel": 2875
   },
-  "temporalMechanics": {
+  "statusFlags": {
+    "act": 0,
+    "comm": 0,
+    "affectedBy": 0,
+    "off": 0,
+    "imm": 0,
+    "res": 0,
+    "vuln": 0,
+    "form": 0,
+    "parts": 0,
+    "invisLevel": 0,
+    "incogLevel": 0,
     "played": 0,
     "logon": 0,
     "pulseWait": 0,
@@ -413,7 +466,5 @@
   "gold": 0,
   "silver": 0,
   "trust": 0,
-  "invisLevel": 0,
-  "incogLevel": 0,
   "_class": "org.springy.som.modulith.domain.character.internal.CharacterDocument"
 }]

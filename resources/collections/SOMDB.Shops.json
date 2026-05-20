@@ -1,297 +1,8 @@
 [{
   "_id": {
-    "$oid": "69eed19b3b0152e1b0bfcf2b"
+    "$oid": "69f7cce99c2d6382f27946c2"
   },
-  "areaId": "69eed19bd1136f861d212410",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19bd104dc3db42a884a"
-  },
-  "areaId": "69eed19b695dc5ad6069a2c4",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19bfc572005c1d8b22e"
-  },
-  "areaId": "69eed19bc906794ae5ff7419",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c5c9feec2f83b83bd"
-  },
-  "areaId": "69eed19cb80e273102e1c3ab",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c7dbd3f803751fe89"
-  },
-  "areaId": "69eed19c371f22d22dc46dc7",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19ecbcca5bbb5bb87c9"
-  },
-  "areaId": "69eed19e385d69b0a7b7b284",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c9bcb00444006802b"
-  },
-  "areaId": "69eed19c8dd858b31c135c08",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19cd18ea59884398864"
-  },
-  "areaId": "69eed19cd6bffaf3b79ebf73",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c93725c875eff8799"
-  },
-  "areaId": "69eed19cd730ea3d249e5560",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19cbbc28cbddad89e17"
-  },
-  "areaId": "69eed19c2df6fe9d0e222bac",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19be7384242943bae2a"
-  },
-  "areaId": "69eed19b4a89150eff00b711",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a06ebbbbc8fd92e32c"
-  },
-  "areaId": "69eed1a062f19586c1f8dd2c",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c7bb5e206a10e4473"
-  },
-  "areaId": "69eed19c8857fcb90952343b",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b1d78ccf152dfbb21"
-  },
-  "areaId": "69eed19b5095d873bffb4d25",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c33f3a36226144d6b"
-  },
-  "areaId": "69eed19cb8e293b36ac5f3c9",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19bf5c83eb3784163b9"
-  },
-  "areaId": "69eed19b6f6e98e919299741",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a15c9793cc1bae8065"
-  },
-  "areaId": "69eed1a1a077e0985ad54631",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b9cf51625b06d0129"
-  },
-  "areaId": "69eed19b08af38aee978e619",
+  "areaId": "69f7cce9c6b0c2d810b453f8",
   "keeper": 6503,
   "buyType0": 0,
   "buyType1": 0,
@@ -307,94 +18,27 @@
 },
 {
   "_id": {
-    "$oid": "69eed19b73f617bd797c2983"
+    "$oid": "69f7cce9e1b1a35300d715b1"
   },
-  "areaId": "69eed19b7f2098fdd326d188",
-  "keeper": 0,
+  "areaId": "69f7cce9c6b0c2d810b453f8",
+  "keeper": 6504,
   "buyType0": 0,
   "buyType1": 0,
   "buyType2": 0,
   "buyType3": 0,
   "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
+  "profitBuy": 150,
+  "profitSell": 50,
   "openHour": 0,
-  "closeHour": 0,
+  "closeHour": 23,
+  "comment": "the baker",
   "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
 },
 {
   "_id": {
-    "$oid": "69eed19b17d5d68f0385eb1a"
+    "$oid": "69f7cce9625028d46c741772"
   },
-  "areaId": "69eed19b7f4f7bcfe59921b8",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c85d4f31b531ed6db"
-  },
-  "areaId": "69eed19ca712b9cf8be79df9",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c30f0523308bdcd23"
-  },
-  "areaId": "69eed19c1c3e0089b76bcfcf",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c436d01af5f857bd3"
-  },
-  "areaId": "69eed19ceaf6738fb089acd8",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19b377bafb9793ef61b"
-  },
-  "areaId": "69eed19b298440fca78d6422",
+  "areaId": "69f7cce9aa229980d5bc075a",
   "keeper": 9238,
   "buyType0": 0,
   "buyType1": 0,
@@ -410,94 +54,9 @@
 },
 {
   "_id": {
-    "$oid": "69eed19bc8b71b43b9bda097"
+    "$oid": "69f7cced59503a726a9a69cb"
   },
-  "areaId": "69eed19bf157cd4be4682c69",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a15850847fefd7c14d"
-  },
-  "areaId": "69eed1a1cd33b95e290dc9bf",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19cb760f21321320ba0"
-  },
-  "areaId": "69eed19c1972a6eeda7de104",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c9a7adae019011e9b"
-  },
-  "areaId": "69eed19c7a4f8bf205bcebc0",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19c6b7e74c7141dd5e3"
-  },
-  "areaId": "69eed19c1f1e48a5e1f9034c",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a040992276596b6f89"
-  },
-  "areaId": "69eed1a0e1f1c8d99c7ddd5b",
+  "areaId": "69f7ccededabbd6f488a7599",
   "keeper": 306,
   "buyType0": 1,
   "buyType1": 10,
@@ -513,43 +72,27 @@
 },
 {
   "_id": {
-    "$oid": "69eed19cecbade084a441f83"
+    "$oid": "69f7cced982757277c405412"
   },
-  "areaId": "69eed19cd3542ef8ddbfd979",
-  "keeper": 0,
+  "areaId": "69f7ccededabbd6f488a7599",
+  "keeper": 308,
   "buyType0": 0,
   "buyType1": 0,
   "buyType2": 0,
   "buyType3": 0,
   "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
+  "profitBuy": 110,
+  "profitSell": 100,
   "openHour": 0,
-  "closeHour": 0,
+  "closeHour": 23,
+  "comment": "the Innkeeper",
   "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
 },
 {
   "_id": {
-    "$oid": "69eed1a535392438fc3047b1"
+    "$oid": "69f7ccecd90d97004ad8a3ac"
   },
-  "areaId": "69eed1a57b65a0b17c8d8233",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19fcce0611baf93e480"
-  },
-  "areaId": "69eed19f27ab69c92230013e",
+  "areaId": "69f7ccec4a417c4f1a777e94",
   "keeper": 915,
   "buyType0": 1,
   "buyType1": 8,
@@ -565,9 +108,9 @@
 },
 {
   "_id": {
-    "$oid": "69eed19c06f57c2f2d8413e5"
+    "$oid": "69f7ccea1c8339bd323dc6dd"
   },
-  "areaId": "69eed19cc9cf03f87ba5c39b",
+  "areaId": "69f7cceafb6601cea69c9394",
   "keeper": 5310,
   "buyType0": 0,
   "buyType1": 0,
@@ -583,43 +126,99 @@
 },
 {
   "_id": {
-    "$oid": "69eed1a4dd43c3c483003f0d"
+    "$oid": "69f7ccea46b1c9b38405f80c"
   },
-  "areaId": "69eed1a463e6fd5316564c95",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
+  "areaId": "69f7cceafb6601cea69c9394",
+  "keeper": 5311,
+  "buyType0": 5,
+  "buyType1": 17,
+  "buyType2": 19,
   "buyType3": 0,
   "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
+  "profitBuy": 110,
+  "profitSell": 90,
+  "openHour": 6,
+  "closeHour": 20,
+  "comment": "George the Butcher",
   "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
 },
 {
   "_id": {
-    "$oid": "69eed1a1fd8cac99d1b286df"
+    "$oid": "69f7cceae743dfb0d881fab4"
   },
-  "areaId": "69eed1a13788e71b8b83162f",
-  "keeper": 0,
-  "buyType0": 0,
+  "areaId": "69f7cceafb6601cea69c9394",
+  "keeper": 5312,
+  "buyType0": 19,
   "buyType1": 0,
   "buyType2": 0,
   "buyType3": 0,
   "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
+  "profitBuy": 110,
+  "profitSell": 90,
+  "openHour": 7,
+  "closeHour": 19,
+  "comment": "Farmer Betty",
   "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
 },
 {
   "_id": {
-    "$oid": "69eed1a239fea46ffac7fcf2"
+    "$oid": "69f7ccea7025e04f894a5ea1"
   },
-  "areaId": "69eed1a20b7c6714fa49a23f",
+  "areaId": "69f7cceafb6601cea69c9394",
+  "keeper": 5313,
+  "buyType0": 5,
+  "buyType1": 9,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 130,
+  "profitSell": 70,
+  "openHour": 5,
+  "closeHour": 21,
+  "comment": "Thaellor the dwarf",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea16a4a061d3950a56"
+  },
+  "areaId": "69f7cceafb6601cea69c9394",
+  "keeper": 5314,
+  "buyType0": 1,
+  "buyType1": 8,
+  "buyType2": 12,
+  "buyType3": 13,
+  "buyType4": 22,
+  "profitBuy": 135,
+  "profitSell": 65,
+  "openHour": 8,
+  "closeHour": 18,
+  "comment": "Ben the Smith",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7cceabcca569bae45fa62"
+  },
+  "areaId": "69f7cceafb6601cea69c9394",
+  "keeper": 5317,
+  "buyType0": 2,
+  "buyType1": 3,
+  "buyType2": 4,
+  "buyType3": 10,
+  "buyType4": 0,
+  "profitBuy": 120,
+  "profitSell": 50,
+  "openHour": 9,
+  "closeHour": 17,
+  "comment": "an old wizard",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccef9d0c2f5017f49367"
+  },
+  "areaId": "69f7ccef4b2e6b2e4fd66bfd",
   "keeper": 3717,
   "buyType0": 1,
   "buyType1": 15,
@@ -635,26 +234,9 @@
 },
 {
   "_id": {
-    "$oid": "69eed19ce31d31b4d0c98d2b"
+    "$oid": "69f7ccf147843d883fe52ab9"
   },
-  "areaId": "69eed19cc5b0d9078a034a72",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed1a4925abdaafba42f82"
-  },
-  "areaId": "69eed1a4d358eb2c97fcc630",
+  "areaId": "69f7ccf135953a2b5c2eaf0a",
   "keeper": 1113,
   "buyType0": 17,
   "buyType1": 0,
@@ -670,26 +252,81 @@
 },
 {
   "_id": {
-    "$oid": "69eed19c60e8f09018356fb2"
+    "$oid": "69f7ccf1ff29332ca06fc5f4"
   },
-  "areaId": "69eed19c1ed601b0ce8373ac",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
+  "areaId": "69f7ccf135953a2b5c2eaf0a",
+  "keeper": 1118,
+  "buyType0": 13,
+  "buyType1": 5,
+  "buyType2": 15,
+  "buyType3": 1,
+  "buyType4": 17,
+  "profitBuy": 150,
+  "profitSell": 50,
   "openHour": 0,
-  "closeHour": 0,
+  "closeHour": 23,
+  "comment": "the shopkeeper",
   "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
 },
 {
   "_id": {
-    "$oid": "69eed19e8f0b0077ff4de2fc"
+    "$oid": "69f7ccf1aae38be280184c33"
   },
-  "areaId": "69eed19ec9a912a9aec6ec10",
+  "areaId": "69f7ccf135953a2b5c2eaf0a",
+  "keeper": 1119,
+  "buyType0": 13,
+  "buyType1": 5,
+  "buyType2": 15,
+  "buyType3": 1,
+  "buyType4": 17,
+  "profitBuy": 150,
+  "profitSell": 50,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the grocer",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccf15ba1fce0a9a5b518"
+  },
+  "areaId": "69f7ccf135953a2b5c2eaf0a",
+  "keeper": 1120,
+  "buyType0": 9,
+  "buyType1": 5,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 150,
+  "profitSell": 50,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the blacksmith",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccf1e467f33dc1910c9b"
+  },
+  "areaId": "69f7ccf135953a2b5c2eaf0a",
+  "keeper": 1130,
+  "buyType0": 17,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 150,
+  "profitSell": 50,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the Innkeeper",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccebf2a48c622ecbcc9f"
+  },
+  "areaId": "69f7cceb6c5cb36ee6985a56",
   "keeper": 604,
   "buyType0": 5,
   "buyType1": 9,
@@ -705,77 +342,99 @@
 },
 {
   "_id": {
-    "$oid": "69eed1a420641dcef4259a9f"
+    "$oid": "69f7cceb2790db26d929bfcf"
   },
-  "areaId": "69eed1a42cef2d37cdf67529",
-  "keeper": 0,
-  "buyType0": 0,
+  "areaId": "69f7cceb6c5cb36ee6985a56",
+  "keeper": 605,
+  "buyType0": 9,
   "buyType1": 0,
   "buyType2": 0,
   "buyType3": 0,
   "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
+  "profitBuy": 120,
+  "profitSell": 80,
   "openHour": 0,
-  "closeHour": 0,
+  "closeHour": 23,
+  "comment": "Sam",
   "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
 },
 {
   "_id": {
-    "$oid": "69eed1a6cc3be95edea7268e"
+    "$oid": "69f7ccebcac5c4668e4651d9"
   },
-  "areaId": "69eed1a614cbee898063c394",
-  "keeper": 0,
+  "areaId": "69f7cceb6c5cb36ee6985a56",
+  "keeper": 606,
+  "buyType0": 8,
+  "buyType1": 12,
+  "buyType2": 13,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 120,
+  "profitSell": 80,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "Madam Tracy",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7cceb4c44e52c9d5e1c16"
+  },
+  "areaId": "69f7cceb6c5cb36ee6985a56",
+  "keeper": 607,
   "buyType0": 0,
-  "buyType1": 0,
+  "buyType1": 19,
   "buyType2": 0,
   "buyType3": 0,
   "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
+  "profitBuy": 120,
+  "profitSell": 10,
   "openHour": 0,
-  "closeHour": 0,
+  "closeHour": 23,
+  "comment": "Marty",
   "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
 },
 {
   "_id": {
-    "$oid": "69eed1a6dd188bd340996fd6"
+    "$oid": "69f7cceb99e1e686c680485b"
   },
-  "areaId": "69eed1a69d2a573dda16f36e",
-  "keeper": 0,
+  "areaId": "69f7cceb6c5cb36ee6985a56",
+  "keeper": 608,
   "buyType0": 0,
-  "buyType1": 0,
+  "buyType1": 17,
+  "buyType2": 19,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 120,
+  "profitSell": 10,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "Farmer Elizabeth",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7cceb8d4a3d50cedaa5bc"
+  },
+  "areaId": "69f7cceb6c5cb36ee6985a56",
+  "keeper": 622,
+  "buyType0": 0,
+  "buyType1": 17,
   "buyType2": 0,
   "buyType3": 0,
   "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
+  "profitBuy": 120,
+  "profitSell": 10,
   "openHour": 0,
-  "closeHour": 0,
+  "closeHour": 23,
+  "comment": "Nyles the Bartender",
   "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
 },
 {
   "_id": {
-    "$oid": "69eed1a32a6dcb24ffd17edd"
+    "$oid": "69f7cce931833231153e7861"
   },
-  "areaId": "69eed1a39c9520c302bbe817",
-  "keeper": 0,
-  "buyType0": 0,
-  "buyType1": 0,
-  "buyType2": 0,
-  "buyType3": 0,
-  "buyType4": 0,
-  "profitBuy": 0,
-  "profitSell": 0,
-  "openHour": 0,
-  "closeHour": 0,
-  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
-},
-{
-  "_id": {
-    "$oid": "69eed19ceaeec11c4221db23"
-  },
-  "areaId": "69eed19cd5a3aaffb7619bb5",
+  "areaId": "69f7cce989168a430fdf3e95",
   "keeper": 1305,
   "buyType0": 17,
   "buyType1": 19,
@@ -791,9 +450,27 @@
 },
 {
   "_id": {
-    "$oid": "69eed19c002ca6fa95dafd3a"
+    "$oid": "69f7cce935c791c04c06f548"
   },
-  "areaId": "69eed19c402e68556a29f838",
+  "areaId": "69f7cce989168a430fdf3e95",
+  "keeper": 1306,
+  "buyType0": 2,
+  "buyType1": 3,
+  "buyType2": 4,
+  "buyType3": 10,
+  "buyType4": 21,
+  "profitBuy": 250,
+  "profitSell": 30,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "Tatorious",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7cceadb14c5d0ec1fc4bd"
+  },
+  "areaId": "69f7ccea20db0261aa9b07f3",
   "keeper": 3000,
   "buyType0": 2,
   "buyType1": 3,
@@ -809,9 +486,117 @@
 },
 {
   "_id": {
-    "$oid": "69eed1a5c7616bd2b7d0dca8"
+    "$oid": "69f7ccead7a9bd6741126143"
   },
-  "areaId": "69eed1a577c921afc7f2f48a",
+  "areaId": "69f7ccea20db0261aa9b07f3",
+  "keeper": 3001,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 110,
+  "profitSell": 100,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the baker",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7cceaaa851f13f9ac69c6"
+  },
+  "areaId": "69f7ccea20db0261aa9b07f3",
+  "keeper": 3002,
+  "buyType0": 1,
+  "buyType1": 8,
+  "buyType2": 13,
+  "buyType3": 15,
+  "buyType4": 19,
+  "profitBuy": 150,
+  "profitSell": 40,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the grocer",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7cceaa917928753a4faa2"
+  },
+  "areaId": "69f7ccea20db0261aa9b07f3",
+  "keeper": 3003,
+  "buyType0": 5,
+  "buyType1": 6,
+  "buyType2": 7,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 120,
+  "profitSell": 40,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the weaponsmith",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea145cdc023545aef1"
+  },
+  "areaId": "69f7ccea20db0261aa9b07f3",
+  "keeper": 3004,
+  "buyType0": 9,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 100,
+  "profitSell": 50,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the armourer",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea36340f18b91711e3"
+  },
+  "areaId": "69f7ccea20db0261aa9b07f3",
+  "keeper": 3006,
+  "buyType0": 22,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 120,
+  "profitSell": 90,
+  "openHour": 6,
+  "closeHour": 22,
+  "comment": "the captain",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccead849617ca4fcb2de"
+  },
+  "areaId": "69f7ccea20db0261aa9b07f3",
+  "keeper": 3008,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 100,
+  "profitSell": 100,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the pet shop boy",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccf27bba3bf366e4168e"
+  },
+  "areaId": "69f7ccf2352a1805fe00cbfb",
   "keeper": 10451,
   "buyType0": 0,
   "buyType1": 0,
@@ -827,9 +612,243 @@
 },
 {
   "_id": {
-    "$oid": "69eed19c0d18c85dd183b796"
+    "$oid": "69f7cceaab06be9e5d9373be"
   },
-  "areaId": "69eed19ccfa29b0b50659171",
+  "areaId": "69f7ccea20db0261aa9b07f3",
+  "keeper": 3009,
+  "buyType0": 8,
+  "buyType1": 30,
+  "buyType2": 32,
+  "buyType3": 33,
+  "buyType4": 0,
+  "profitBuy": 110,
+  "profitSell": 100,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the jeweller",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccf269c1b66b8af9069a"
+  },
+  "areaId": "69f7ccf2352a1805fe00cbfb",
+  "keeper": 10454,
+  "buyType0": 2,
+  "buyType1": 3,
+  "buyType2": 4,
+  "buyType3": 10,
+  "buyType4": 0,
+  "profitBuy": 225,
+  "profitSell": 15,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the Stanley",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea4544534dde734597"
+  },
+  "areaId": "69f7ccea20db0261aa9b07f3",
+  "keeper": 3010,
+  "buyType0": 9,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 110,
+  "profitSell": 50,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the leather worker",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea13a4c12684635e86"
+  },
+  "areaId": "69f7ccea20db0261aa9b07f3",
+  "keeper": 3040,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 110,
+  "profitSell": 100,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the bartender",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7cceaa586d507957bedc6"
+  },
+  "areaId": "69f7ccea20db0261aa9b07f3",
+  "keeper": 3042,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 100,
+  "profitSell": 100,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the waiter",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7cceab585e63443992776"
+  },
+  "areaId": "69f7ccea20db0261aa9b07f3",
+  "keeper": 3043,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 110,
+  "profitSell": 100,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the waiter",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7cceac21b3e6dea6b1f4e"
+  },
+  "areaId": "69f7ccea20db0261aa9b07f3",
+  "keeper": 3044,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 170,
+  "profitSell": 100,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the waiter",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea2c79d044c530f08c"
+  },
+  "areaId": "69f7ccea20db0261aa9b07f3",
+  "keeper": 3045,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 150,
+  "profitSell": 100,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the waiter",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea47d1456cdf2b4926"
+  },
+  "areaId": "69f7ccea20db0261aa9b07f3",
+  "keeper": 3046,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 100,
+  "profitSell": 90,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "Filthy",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7cceae3895774c2fe6c3a"
+  },
+  "areaId": "69f7ccea20db0261aa9b07f3",
+  "keeper": 3070,
+  "buyType0": 10,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 1000,
+  "profitSell": 100,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the ancient potion-brewer",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea578a44b1e231d4de"
+  },
+  "areaId": "69f7ccea20db0261aa9b07f3",
+  "keeper": 3100,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 110,
+  "profitSell": 90,
+  "openHour": 6,
+  "closeHour": 23,
+  "comment": "the maid",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea39f30d3acd221243"
+  },
+  "areaId": "69f7ccea20db0261aa9b07f3",
+  "keeper": 3150,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 100,
+  "profitSell": 100,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "Esme",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea67b6adeb3700c508"
+  },
+  "areaId": "69f7ccea20db0261aa9b07f3",
+  "keeper": 3160,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 100,
+  "profitSell": 100,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "Melancholy",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea61553cf6ff25c703"
+  },
+  "areaId": "69f7cceaca1f02dcac6f5732",
   "keeper": 9505,
   "buyType0": 0,
   "buyType1": 0,
@@ -841,5 +860,257 @@
   "openHour": 0,
   "closeHour": 23,
   "comment": "the withered mage/bartender",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea8ea0d6132dea6ef6"
+  },
+  "areaId": "69f7cceaca1f02dcac6f5732",
+  "keeper": 9510,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 110,
+  "profitSell": 90,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the baker",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7cceac6e4787a946c5341"
+  },
+  "areaId": "69f7cceaca1f02dcac6f5732",
+  "keeper": 9511,
+  "buyType0": 1,
+  "buyType1": 8,
+  "buyType2": 12,
+  "buyType3": 13,
+  "buyType4": 15,
+  "profitBuy": 200,
+  "profitSell": 100,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the shopkeeper",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7cceac05555252eab7891"
+  },
+  "areaId": "69f7cceaca1f02dcac6f5732",
+  "keeper": 9513,
+  "buyType0": 8,
+  "buyType1": 11,
+  "buyType2": 9,
+  "buyType3": 16,
+  "buyType4": 21,
+  "profitBuy": 200,
+  "profitSell": 40,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "Ahkeem the tailor",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea94d876c2e3e395d2"
+  },
+  "areaId": "69f7cceaca1f02dcac6f5732",
+  "keeper": 9514,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 150,
+  "profitSell": 40,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "Vera the veggie lady",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea560c85696aefcf7f"
+  },
+  "areaId": "69f7cceaca1f02dcac6f5732",
+  "keeper": 9515,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 100,
+  "profitSell": 50,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "Butch the meatcutter",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea106814304f7ef1f6"
+  },
+  "areaId": "69f7cceaca1f02dcac6f5732",
+  "keeper": 9516,
+  "buyType0": 9,
+  "buyType1": 11,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 150,
+  "profitSell": 10,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "Abdul the armorer",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea6d2fce68d1642a00"
+  },
+  "areaId": "69f7cceaca1f02dcac6f5732",
+  "keeper": 9517,
+  "buyType0": 5,
+  "buyType1": 6,
+  "buyType2": 7,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 130,
+  "profitSell": 10,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "Igor the weaponsmith",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea877719f415697d84"
+  },
+  "areaId": "69f7cceaca1f02dcac6f5732",
+  "keeper": 9518,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 150,
+  "profitSell": 40,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "Cassandra",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7cceaf5983b8b4f5ba06f"
+  },
+  "areaId": "69f7cceaca1f02dcac6f5732",
+  "keeper": 9565,
+  "buyType0": 22,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 131,
+  "profitSell": 86,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the shipwright",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea1c32ce3b8884e8a0"
+  },
+  "areaId": "69f7cceaca1f02dcac6f5732",
+  "keeper": 9566,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 250,
+  "profitSell": 50,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "the blacksmith",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccead5e2a9d64846ef4d"
+  },
+  "areaId": "69f7cceaca1f02dcac6f5732",
+  "keeper": 9579,
+  "buyType0": 10,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 187,
+  "profitSell": 25,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "Elvira",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7cceaa75b3fdb6ffd0ad8"
+  },
+  "areaId": "69f7cceaca1f02dcac6f5732",
+  "keeper": 9580,
+  "buyType0": 2,
+  "buyType1": 3,
+  "buyType2": 4,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 170,
+  "profitSell": 30,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "Braheem",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7cceaa04bfea14fe53650"
+  },
+  "areaId": "69f7cceaca1f02dcac6f5732",
+  "keeper": 9583,
+  "buyType0": 0,
+  "buyType1": 0,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 110,
+  "profitSell": 90,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "Patch the bartender",
+  "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
+},
+{
+  "_id": {
+    "$oid": "69f7ccea7730e918f9d7d442"
+  },
+  "areaId": "69f7cceaca1f02dcac6f5732",
+  "keeper": 9584,
+  "buyType0": 9,
+  "buyType1": 11,
+  "buyType2": 0,
+  "buyType3": 0,
+  "buyType4": 0,
+  "profitBuy": 105,
+  "profitSell": 15,
+  "openHour": 0,
+  "closeHour": 23,
+  "comment": "Stitch, the leather dude.",
   "_class": "org.springy.som.modulith.domain.shop.internal.ShopDocument"
 }]

@@ -7,7 +7,7 @@ from game.HandlerService import HandlerService
 from game.RegistryService import RegistryService
 from interp.Command import Command
 from interp.Context import Context
-from interp.InterpUtil import InterpUtil
+from util.InterpUtil import InterpUtil
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 from server.connection.ConnectionManager import ConnectionManager
@@ -25,16 +25,10 @@ class InterpHandler:
         self.handler_service = handler_service
         self.social_registry = registry_service.social_registry
         self.interp_registry = registry_service.interp_registry
+        self.room_registry = registry_service.room_registry
         self.social_handler = self.handler_service.social_handler
         self.connection_manager = injector.get(ConnectionManager)
         self.command_not_found_message = self.message_bus.text_to_message("Huh?\r\n")
-
-    def get_message(self, cmd):
-        command = self.interp_registry.get_or_none(name=cmd.lower())
-        if command is None or command.message is None:
-            self.logger.error(f"Issue with command {cmd} in registry; message is {command.message if command else 'None'}")
-            return None
-        return command.message
 
     @staticmethod
     async def _execute_lambda(func, context) -> Context:
@@ -88,10 +82,8 @@ class InterpHandler:
 
         arguments = InterpUtil.build_arguments(command, parameters)
         connection = self.connection_manager.get_connection_by_character(character.id)
-        context = Context(character=character, handler_service=self.handler_service, conn=connection, command=command, parameters=arguments, result=parameters)
-        if len(arguments) < command.max_arguments and command.usage != "":
-            await self.handle_usage(command, context)
-            return None
+        room = self.room_registry.get_or_none(id=character.room_id)
+        context = Context(character=character, handler_service=self.handler_service, conn=connection, command=command, parameters=arguments, result=parameters, room=room)
 
         if command.pipeline:
             await self._handle_pipeline(command, context)
@@ -125,17 +117,5 @@ class InterpHandler:
             await self.message_bus.send_to_character(character.id, self.command_not_found_message)
             return None
 
-        self.logger.debug(f"CMD: {cmd.name}, PARAMETERS: {parameters}, USAGE: {str(player.usage)}")
+        self.logger.info(f"CMD: {cmd.name}, PARAMETERS: {parameters}, USAGE: {str(player.usage)}")
         return await self._call_lambda(character, cmd.name, self.interp_registry.all_commands(), parameters)
-
-    async def handle_usage(self, cmd: Command, context: Context):
-        usage = getattr(cmd, "usage", None)
-        if isinstance(usage, str) and cmd.usage.strip():
-            usage_function = eval(cmd.usage)
-            if not callable(usage_function):
-                self.logger.error("NOT_CALLABLE: " + str(usage_function))
-                return None
-            if not inspect.iscoroutinefunction(usage_function):
-                self.logger.error("NOT_ASYNC: " + str(usage_function))
-            await usage_function(context)
-        return None

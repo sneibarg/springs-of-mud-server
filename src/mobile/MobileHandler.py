@@ -2,23 +2,22 @@ import inspect
 
 from injector import inject
 from area.AreaRegistry import AreaRegistry
-from area.RoomHelper import RoomHelper
 from area.RoomRegistry import RoomRegistry
 from area.ShopRegistry import ShopRegistry
-from game.GenericUtil import GenericUtil
+from game.EnumProvider import EnumProvider
+from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
 from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
 from fight.FightHandler import FightHandler
 from mobile.Mobile import Mobile
 from mobile.KillTable import KillTable
-from mobile.MobileApi import MobileApi, MobileContext
-from mobile.MobileHelper import MobileHelper
+from api.MobileApi import MobileApi, MobileContext
 from player.Character import Character
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
 from server.messaging import MessageBus
-from skill.SpellApi import SpellApi
+from api.SpellApi import SpellApi
 
 
 class MobileHandler:
@@ -29,18 +28,15 @@ class MobileHandler:
                  area_registry: AreaRegistry,
                  room_registry: RoomRegistry,
                  shop_registry: ShopRegistry,
-                 room_helper: RoomHelper,
-                 mobile_helper: MobileHelper,
                  fight_handler: FightHandler,
-                 weather_handler: WeatherHandler):
+                 weather_handler: WeatherHandler,
+                 enum_provider: EnumProvider):
         self.__name__ = "MobileHandler"
         self.message_bus = message_bus
         self.registry_service = registry_service
         self.area_registry = area_registry
         self.room_registry = room_registry
         self.shop_registry = shop_registry
-        self.room_helper = room_helper
-        self.mobile_helper = mobile_helper
         self.fight_handler = fight_handler
         self.weather_handler = weather_handler
         self.skill_registry = registry_service.skill_registry
@@ -48,24 +44,15 @@ class MobileHandler:
         self.special_registry = registry_service.special_registry
         self.logger = LoggerFactory.get_logger(__name__)
         self.rng = RandomNumberGenerator()
-        self.mobile_api = MobileApi()
         self.spell_api = SpellApi()
-        self.act_bits = None
-        self.affected_bits = None
-        self.positions = None
-        self.room_flags = None
-        self.exit_flags = None
-        self.wear_flags = None
+        self.act_bits = enum_provider.get("actBits")
+        self.affected_bits = enum_provider.get("affectedBy")
+        self.positions = enum_provider.get("positions")
+        self.room_flags = enum_provider.get("roomFlags")
+        self.exit_flags = enum_provider.get("exitFlags")
+        self.wear_flags = enum_provider.get("wearFlags")
         self._special_library_cache = None
         self.kill_table: dict[int, KillTable] = {}
-
-    def set_enums(self, enums: dict):
-        self.act_bits = CharacterMacros.get_enum("actBits")
-        self.affected_bits = CharacterMacros.get_enum("affectedBy")
-        self.positions = CharacterMacros.get_enum("positions")
-        self.room_flags = CharacterMacros.get_enum("roomFlags")
-        self.exit_flags = CharacterMacros.get_enum("exitFlags")
-        self.wear_flags = CharacterMacros.get_enum("wearFlags")
         self.rebuild_kill_table()
 
     def rebuild_kill_table(self) -> None:
@@ -86,7 +73,8 @@ class MobileHandler:
         entry.killed += 1
 
     async def print_mobiles_in_room(self, character: Character):
-        message = self.mobile_helper.get_mobiles_in_room(character)
+        room = self.room_registry.get_or_none(id=getattr(character, "room_id", ""))
+        message = room.get_mobiles_in_room(character)
         if message:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message))
 
@@ -95,7 +83,6 @@ class MobileHandler:
             self.logger.warning("Act bits not initialized, skipping mobile update")
             return
 
-        shop_keepers = {str(getattr(shop, "keeper", "")) for shop in self.shop_registry.all_shops()}
         snapshots = []
         for room in self.room_registry.all_rooms():
             if room is None:
@@ -110,14 +97,14 @@ class MobileHandler:
             if mob is None or room is None or getattr(mob, "id", None) not in room.mobiles:
                 self.logger.debug(f"mobile_update skipping snapshot because mob or resolved room is invalid: mob={self._actor_label(mob)}, room={self._room_label(room)}")
                 continue
-            if CharacterMacros.mobile_is_charmed(mob):
+            if MobileApi.mobile_is_charmed(mob):
                 self.logger.debug(f"mobile_update skipping {self._actor_label(mob)} in {self._room_label(room)} because it is charmed")
                 continue
             if self._skip_in_empty_area(room, mob):
                 self.logger.debug(f"mobile_update skipping {self._actor_label(mob)} in {self._room_label(room)} because the area is empty and ACT_UPDATE_ALWAYS is not set")
                 continue
 
-            self._update_shop_money(mob, shop_keepers)
+            self._update_shop_money(mob)
 
             special_performed = await self.execute_special_function(mob, room)
             self.logger.debug(
@@ -127,7 +114,7 @@ class MobileHandler:
             if special_performed:
                 continue
 
-            if not CharacterMacros.mobile_is_standing(mob):
+            if not MobileApi.mobile_is_standing(mob):
                 self.logger.debug(f"mobile_update skipping generic specials for {self._actor_label(mob)} in {self._room_label(room)} because position is not standing")
                 continue
 
@@ -146,10 +133,11 @@ class MobileHandler:
         area = self.area_registry.get_or_none(id=getattr(room, "area_id", ""))
         if area is None or not getattr(area, "empty", False):
             return False
-        return not CharacterMacros.mobile_has_act(mob, self.act_bits, "ACT_UPDATE_ALWAYS")
+        return not MobileApi.mobile_has_act(mob, self.act_bits, "ACT_UPDATE_ALWAYS")
 
-    def _update_shop_money(self, mob: Mobile, shop_keepers: set[str]):
-        if str(getattr(mob, "vnum", "")) not in shop_keepers:
+    def _update_shop_money(self, mob: Mobile):
+        shop = self.shop_registry.find_by_keeper_vnum(getattr(mob, "vnum", ""))
+        if shop is None:
             return
         wealth = GenericUtil.to_int(getattr(mob, "wealth", 0), 0)
         if wealth <= 0:
@@ -284,7 +272,7 @@ class MobileHandler:
         return bool(context.performed)
 
     async def _handle_payload(self, payload: dict):
-        if payload.get("to_victim") and payload.get("victim") is not None and not CharacterMacros.is_npc(payload["victim"]):
+        if payload.get("to_victim") and payload.get("victim") is not None and not CharacterApi.is_npc(payload["victim"]):
             await self.message_bus.send_to_character(payload["victim"].id, self.message_bus.text_to_message(payload["to_victim"]))
         if payload.get("to_room"):
             targets = payload.get("targets", [])
@@ -314,10 +302,9 @@ class MobileHandler:
     def _resolve_room_for_mobile(self, room, mob: Mobile):
         if mob is None:
             return None
-        current_room = self.mobile_api.require_in_room
         try:
             resolved = MobileContext(actor=mob, room=room, handler=self)
-            current_room(resolved)
+            MobileApi.require_in_room(resolved)
             if resolved.room is not room:
                 self.logger.debug(
                     f"_resolve_room_for_mobile changed room for {self._actor_label(mob)} from "
@@ -364,7 +351,7 @@ class MobileHandler:
 
     def _enum_bit(self, enum_obj, *names: str) -> int:
         for name in names:
-            value = CharacterMacros.enum_bit(enum_obj, name)
+            value = CharacterApi.enum_bit(enum_obj, name)
             if value:
                 return value
         return 0

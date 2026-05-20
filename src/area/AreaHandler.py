@@ -1,19 +1,21 @@
 from enum import IntEnum
 from injector import inject
 
-from area.AreaUtil import AreaUtil
+from game.EnumProvider import EnumProvider
+from util.AreaUtil import AreaUtil
 from area.Reset import Reset
 from area.Area import Area
 from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
-from game.GenericUtil import GenericUtil
+from area.ShopRegistry import ShopRegistry
+from util.GenericUtil import GenericUtil
 from mobile.Mobile import Mobile
-from mobile.MobileUtil import MobileUtil
+from util.MobileUtil import MobileUtil
 from mobile.MobileRegistry import MobileRegistry
-from object import Item
-from object.ItemUtil import ItemUtil
+from item import Item
+from util.ItemUtil import ItemUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
-from object.ItemRegistry import ItemRegistry
+from item.ItemRegistry import ItemRegistry
 from server.messaging import MessageBus
 from server.LoggerFactory import LoggerFactory
 
@@ -26,7 +28,9 @@ class AreaHandler:
                  area_registry: AreaRegistry,
                  room_registry: RoomRegistry,
                  item_registry: ItemRegistry,
-                 mobile_registry: MobileRegistry):
+                 mobile_registry: MobileRegistry,
+                 shop_registry: ShopRegistry,
+                 enum_provider: EnumProvider):
         self.__name__ = "AreaHandler"
         self.logger = LoggerFactory.get_logger(__name__)
         self.message_bus = message_bus
@@ -34,15 +38,11 @@ class AreaHandler:
         self.room_registry = room_registry
         self.item_registry = item_registry
         self.mobile_registry = mobile_registry
-        self.enums = None
-        self.WellKnownRoomVnums = None
-        self.ExitFlags = None
-
-    def set_enums(self, enums: dict[str, IntEnum]):
-        self.enums = enums
-
-        self.WellKnownRoomVnums = enums.get('wellKnownRoomVnums')
-        self.ExitFlags = enums.get('exitFlags')
+        self.shop_registry = shop_registry
+        self.enum_provider = enum_provider
+        self.WellKnownRoomVnums = enum_provider.get("wellKnownRoomVnums")
+        self.ExitFlags = enum_provider.get("exitFlags")
+        self.ItemFlags = enum_provider.get("itemFlags")
 
     def area_update(self):
         for area in self.area_registry.all_areas():
@@ -78,9 +78,9 @@ class AreaHandler:
             elif reset.command == "P":
                 last = self._do_put_reset(last, reset, area)
             elif reset.command == "G":
-                pass  #  Skipped by ROM2.4b2
+                last = self._do_mob_item_reset(last, reset, mob)
             elif reset.command == "E":
-                last = self._do_equip_reset(last, reset, mob)
+                last = self._do_mob_item_reset(last, reset, mob)
             elif reset.command == "D":
                 last = self._do_door_reset(last, reset)
             elif reset.command == "R":
@@ -112,25 +112,26 @@ class AreaHandler:
         template_mob: Mobile = self.mobile_registry.get(vnum=str(mob_vnum))
         if template_mob is None:
             return False, None
-        if template_mob.count >= area_max:
+        room = self.room_registry.get(vnum=room_vnum)
+        if room is None:
+            return False, None
+
+        area_count = self._count_live_mobiles(str(mob_vnum), area_id=str(getattr(room, "area_id", "") or ""))
+        room_count = self._count_live_mobiles(str(mob_vnum), room=room)
+        if area_count >= area_max:
             last = False
             return last, None
-        room = self.room_registry.get(vnum=room_vnum)
-        for mob_name in room.mobiles:
-            template_mob.count += 1
-            if room.mobiles[mob_name].count >= room_max:
-                last = False
-                break
-        if template_mob.count >= room_max:
+        if room_count >= room_max:
+            last = False
             return last, None
-        mob = MobileUtil.create_mobile(template_mob, self.enums)
+        mob = MobileUtil.create_mobile(template_mob, self.enum_provider)
         for special in getattr(template_mob, "specials", []) or []:
             if str(getattr(special, "mob_vnum", "") or "") == str(mob.vnum):
                 mob.special_name = str(getattr(special, "name", "") or "")
                 mob.special_function = list(getattr(special, "special_function", []) or [])
                 break
         room.add_mobile_to_room(mob)
-        return last, mob
+        return True, mob
 
     def _do_put_reset(self, last: bool, reset: Reset, area: Area) -> bool:
         obj_vnum = str(reset.arg1 or "")
@@ -161,7 +162,8 @@ class AreaHandler:
             return False
         if (not obj_to_in_room) and (not last):
             return False
-        if getattr(template_obj, "count", 0) >= limit and rng.number_range(0, 4) != 0:
+        live_count = self._count_live_items(obj_vnum)
+        if live_count >= limit and rng.number_range(0, 4) != 0:
             return False
 
         count = ItemUtil.count_obj_list(obj_vnum, getattr(obj_to, "contains", []) or [])
@@ -172,14 +174,15 @@ class AreaHandler:
             obj = ItemUtil.create_object(template_obj)
             obj_to.contains.append(obj)
             count += 1
-            if getattr(template_obj, "count", 0) >= limit:
+            live_count += 1
+            if live_count >= limit:
                 break
 
-        # ROM: fix object lock state from prototype.
+        # ROM: fix item lock state from prototype.
         obj_to.value1 = template_target.value1
         return True
 
-    def _do_equip_reset(self, last: bool, reset: Reset, mob: Mobile | None) -> bool:
+    def _do_mob_item_reset(self, last: bool, reset: Reset, mob: Mobile | None) -> bool:
         obj_vnum = str(reset.arg1 or "")
         if not obj_vnum:
             return False
@@ -191,6 +194,18 @@ class AreaHandler:
         if mob is None:
             return False
 
+        if self._is_shopkeeper(mob):
+            obj = ItemUtil.create_object(template_obj)
+            inventory_bit = GenericUtil.to_int(getattr(getattr(self.ItemFlags, "ITEM_INVENTORY", None), "value", 0), 0)
+            if inventory_bit:
+                obj.extra_flags = GenericUtil.to_int(getattr(obj, "extra_flags", 0), 0) | inventory_bit
+            wear_loc = GenericUtil.to_int(reset.arg3, -1)
+            if reset.command == "E" and wear_loc >= 0:
+                MobileUtil.equip_item(mob, obj, wear_loc)
+            else:
+                MobileUtil.add_inventory_item(mob, obj)
+            return True
+
         arg2 = GenericUtil.to_int(reset.arg2, 0)
         if arg2 > 50:
             limit = 6
@@ -199,7 +214,7 @@ class AreaHandler:
         else:
             limit = arg2
 
-        if getattr(template_obj, "count", 0) >= limit and rng.number_range(0, 4) != 0:
+        if self._count_live_items(obj_vnum) >= limit and rng.number_range(0, 4) != 0:
             return last
 
         obj = ItemUtil.create_object(template_obj)
@@ -210,6 +225,11 @@ class AreaHandler:
             MobileUtil.add_inventory_item(mob, obj)
         return True
 
+    def _is_shopkeeper(self, mob: Mobile | None) -> bool:
+        if mob is None or self.shop_registry is None:
+            return False
+        return self.shop_registry.find_by_keeper_vnum(getattr(mob, "vnum", "")) is not None
+
     def _do_door_reset(self, last: bool, reset: Reset) -> bool:
         room_vnum = str(reset.arg1 or "")
         direction = GenericUtil.to_int(reset.arg2, -1)
@@ -217,7 +237,7 @@ class AreaHandler:
         room = self.room_registry.get_or_none(vnum=room_vnum)
         if room is None:
             return last
-        exit_obj = AreaUtil.get_exit_by_direction(room, direction)
+        exit_obj = room.get_exit(direction) if hasattr(room, "get_exit") else AreaUtil.get_exit_by_direction(room, direction)
         if exit_obj is None:
             return last
         AreaUtil.apply_door_reset(exit_obj, lock_state, self.ExitFlags)
@@ -230,3 +250,60 @@ class AreaHandler:
         if room is None:
             return
         AreaUtil.randomize_room_exits(room, max_exits, rng)
+
+    def _count_live_mobiles(self, mob_vnum: str, room=None, area_id: str = "") -> int:
+        wanted_vnum = str(mob_vnum or "")
+        if not wanted_vnum:
+            return 0
+
+        rooms = [room] if room is not None else list(self.room_registry.all_rooms())
+        count = 0
+        for candidate_room in rooms:
+            if candidate_room is None:
+                continue
+            if area_id and str(getattr(candidate_room, "area_id", "") or "") != area_id:
+                continue
+            for mob in getattr(candidate_room, "mobiles", {}).values():
+                if str(getattr(mob, "vnum", "") or "") == wanted_vnum:
+                    count += 1
+        return count
+
+    def _count_live_items(self, obj_vnum: str) -> int:
+        wanted_vnum = str(obj_vnum or "")
+        if not wanted_vnum:
+            return 0
+
+        count = 0
+        for item in self._iter_unique_world_items():
+            if str(getattr(item, "vnum", "") or "") == wanted_vnum:
+                count += 1
+        return count
+
+    def _iter_unique_world_items(self):
+        seen: set[int] = set()
+
+        def walk(items):
+            for item in list(items or []):
+                if item is None:
+                    continue
+                key = id(item)
+                if key in seen:
+                    continue
+                seen.add(key)
+                yield item
+                yield from walk(getattr(item, "contains", []) or [])
+
+        for room in self.room_registry.all_rooms():
+            if room is None:
+                continue
+            yield from walk(getattr(room, "contents", {}).values())
+            for character in getattr(room, "characters", {}).values():
+                yield from walk(getattr(character, "loot", []) or [])
+                equipped = getattr(character, "equipped", None)
+                if equipped is not None:
+                    yield from walk(getattr(equipped, "__dict__", {}).values())
+            for mob in getattr(room, "mobiles", {}).values():
+                yield from walk(getattr(mob, "inventory", []) or [])
+                equipped = getattr(mob, "equipped", None)
+                if equipped is not None:
+                    yield from walk(getattr(equipped, "__dict__", {}).values())

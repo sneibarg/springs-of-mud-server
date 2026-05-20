@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-from mobile.MobileMacros import MobileMacros
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 
 
 @dataclass
@@ -21,10 +22,11 @@ class MobileContext:
         self.aliases.setdefault("room", self.room)
 
     def __getattr__(self, item: str):
-        api = getattr(self.handler, "mobile_api", None)
-        if api is not None and hasattr(api, item):
+        from api.MobileApi import MobileApi
+
+        if hasattr(MobileApi, item):
             def _call(*args, **kwargs):
-                return getattr(api, item)(self, *args, **kwargs)
+                return getattr(MobileApi, item)(self, *args, **kwargs)
             return _call
         raise AttributeError(item)
 
@@ -68,7 +70,7 @@ class MobileContext:
         return eval(str(expression), {"__builtins__": {}}, self.eval_locals())
 
     def is_npc(self, entity) -> bool:
-        return CharacterMacros.is_npc(entity)
+        return CharacterApi.is_npc(entity)
 
     def same_special(self, entity) -> bool:
         return str(getattr(entity, "special_name", "") or "").strip().lower() == str(getattr(self.actor, "special_name", "") or "").strip().lower()
@@ -79,4 +81,4 @@ class MobileContext:
 
     def room_players(self, exclude_ids: Optional[set[str]] = None) -> list[Any]:
         exclude = {str(value) for value in (exclude_ids or set())}
-        return [player for player in MobileMacros.room_players(self.room) if str(getattr(player, "id", "")) not in exclude]
+        return [player for player in self.room.players_in_room().values() if str(getattr(player, "id", "")) not in exclude]

@@ -11,7 +11,7 @@ from player.CharacterRegistry import CharacterRegistry
 from mobile.MobileRegistry import MobileRegistry
 from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
-from object.ItemRegistry import ItemRegistry
+from item.ItemRegistry import ItemRegistry
 from skill.SkillRegistry import SkillRegistry
 from skill.SpellRegistry import SpellRegistry
 

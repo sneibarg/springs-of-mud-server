@@ -1,0 +1,43 @@
+from __future__ import annotations
+
+from api.GameApi import GameApi
+from util.GenericUtil import GenericUtil
+from util.InterpUtil import InterpUtil
+
+
+class CommunicationsUtil:
+    @staticmethod
+    def parse_argument(raw_result, parameters) -> str:
+        text = (raw_result if isinstance(raw_result, str) else "").strip()
+        if text:
+            return text
+        return " ".join(parameters or []).strip()
+
+    @staticmethod
+    def split_first(argument: str) -> tuple[str, str]:
+        first, rest = InterpUtil.one_argument(argument or "")
+        return first, rest.strip()
+
+    @staticmethod
+    def has_comm(character, comm_flags, name: str) -> bool:
+        if comm_flags is None or not hasattr(comm_flags, name):
+            return False
+        raw = GenericUtil.to_int(getattr(character.status_flags, "comm", 0), 0)
+        return GameApi.is_set(raw, int(getattr(comm_flags, name).value))
+
+    @staticmethod
+    def set_comm(character, comm_flags, name: str, enabled: bool):
+        if comm_flags is None or not hasattr(comm_flags, name):
+            return
+        bit = int(getattr(comm_flags, name).value)
+        if enabled:
+            character.status_flags.set_flag("comm", bit)
+            return
+        character.status_flags.unset_flag("comm", bit)
+
+    @staticmethod
+    def ensure_message_break(text: str) -> str:
+        rendered = str(text or "")
+        if rendered and not rendered.endswith("\r\n"):
+            rendered += "\r\n"
+        return rendered

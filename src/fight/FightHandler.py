@@ -1,72 +1,124 @@
 import random
 
-from typing import List
+from typing import Any
 from injector import inject
 
-from area.RoomHelper import RoomHelper
 from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
 from fight.CombatEvent import CombatEvent
 from fight.CombatRegistry import CombatRegistry
-from game.GenericUtil import GenericUtil
+from api.MobileApi import MobileApi
+from game.EnumProvider import EnumProvider
+from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
-from interp.commands.InfoUtil import InfoUtil
+from util.InfoUtil import InfoUtil
 from mobile.MobileRegistry import MobileRegistry
-from object.BodyForm import BodyForm
-from object.BodyParts import BodyParts
-from object.EffectUtil import EffectUtil
-from object.ItemRegistry import ItemRegistry
-from object.ItemUtil import ItemUtil
-from player.Character import Character
-from player.CharacterMacros import CharacterMacros
+from item.BodyForm import BodyForm
+from item.BodyParts import BodyParts
+from util.EffectUtil import EffectUtil
+from item.ItemRegistry import ItemRegistry
+from util.ItemUtil import ItemUtil
+from player.CharacterAdvancement import CharacterAdvancement
+from api.CharacterApi import CharacterApi
+from util.SkillUtil import SkillUtil
 from server.LoggerFactory import LoggerFactory
 from server.messaging.MessageBus import MessageBus
 
 
 class FightHandler:
+    ATTACK_DAMAGE_TYPES = {
+        "none": "DAM_BASH",
+        "slice": "DAM_SLASH",
+        "stab": "DAM_PIERCE",
+        "slash": "DAM_SLASH",
+        "whip": "DAM_SLASH",
+        "claw": "DAM_SLASH",
+        "blast": "DAM_BASH",
+        "pound": "DAM_BASH",
+        "crush": "DAM_BASH",
+        "grep": "DAM_SLASH",
+        "bite": "DAM_PIERCE",
+        "pierce": "DAM_PIERCE",
+        "suction": "DAM_BASH",
+        "beating": "DAM_BASH",
+        "digestion": "DAM_ACID",
+        "charge": "DAM_BASH",
+        "slap": "DAM_BASH",
+        "punch": "DAM_BASH",
+        "wrath": "DAM_ENERGY",
+        "magic": "DAM_ENERGY",
+        "divine": "DAM_HOLY",
+        "cleave": "DAM_SLASH",
+        "scratch": "DAM_PIERCE",
+        "peck": "DAM_PIERCE",
+        "peckb": "DAM_BASH",
+        "chop": "DAM_SLASH",
+        "sting": "DAM_PIERCE",
+        "smash": "DAM_BASH",
+        "backstab": "DAM_PIERCE",
+        "bash": "DAM_BASH",
+        "kick": "DAM_BASH",
+        "trip": "DAM_BASH",
+        "dirt": "DAM_BASH",
+    }
+
     @inject
-    def __init__(
-        self,
-        message_bus: MessageBus,
-        combat_registry: CombatRegistry,
-        area_registry: AreaRegistry,
-        room_registry: RoomRegistry,
-        room_helper: RoomHelper,
-        item_registry: ItemRegistry,
-        mobile_registry: MobileRegistry,
-    ):
+    def __init__(self, message_bus: MessageBus,
+                 combat_registry: CombatRegistry,
+                 area_registry: AreaRegistry,
+                 room_registry: RoomRegistry,
+                 item_registry: ItemRegistry,
+                 mobile_registry: MobileRegistry,
+                 enum_provider: EnumProvider):
         self.__name__ = "FightHandler"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.message_bus = message_bus
         self.combat_registry = combat_registry
         self.area_registry = area_registry
         self.room_registry = room_registry
-        self.room_helper = room_helper
         self.item_registry = item_registry
         self.mobile_registry = mobile_registry
         self.rng = RandomNumberGenerator()
-        self.PositionsEnum = None
+        self.PositionsEnum = enum_provider.get("positions")
+        self.WellKnownObjectVnums = enum_provider.get("wellKnownObjectVnums")
+        self.OffenseTypes = enum_provider.get("offenseTypes")
+        self.AffectBits = enum_provider.get("affectedBy")
+        self.ActBits = enum_provider.get("actBits")
+        self.RoomFlags = enum_provider.get("roomFlags")
+        self.WearFlags = enum_provider.get("wearFlags")
+        self.ItemFlags = enum_provider.get("itemFlags")
+        self.WeaponClass = enum_provider.get("weaponClass")
         self.mobile_handler = None
         self.logger.info("Initialized FightHandler instance.")
-
-    def lazy_load(self):
-        self.PositionsEnum = CharacterMacros.get_enum("positions")
 
     def set_mobile_handler(self, mobile_handler) -> None:
         self.mobile_handler = mobile_handler
 
-    def get_combat_event_by_id(self, event_id: str) -> CombatEvent:
-        return self.combat_registry.get_or_none(id=event_id)
+    async def emit_round_payload(self, attacker, payload: dict) -> list:
+        prompted: list = []
+        if not isinstance(payload, dict):
+            return prompted
 
-    def get_combat_event_by_room(self, room_id: str) -> List[CombatEvent]:
-        return self.combat_registry.get_by_room(room_id)
+        if payload.get("to_char") and not CharacterApi.is_npc(attacker):
+            await self.message_bus.send_to_character(attacker.id, self.message_bus.text_to_message(payload["to_char"]))
+            prompted.append(attacker)
+        if payload.get("to_victim") and payload.get("victim") is not None and not CharacterApi.is_npc(payload["victim"]):
+            await self.message_bus.send_to_character(payload["victim"].id, self.message_bus.text_to_message(payload["to_victim"]))
+            prompted.append(payload["victim"])
+        if payload.get("to_room"):
+            targets = payload.get("targets", [])
+            if len(targets) > 0:
+                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room"]), targets)
+        return prompted
 
     @staticmethod
     def _entity_position_value(entity) -> int:
         attrs = getattr(entity, "character_attributes", None)
-        if attrs is not None:
+        if attrs is not None and hasattr(attrs, "position"):
             return GenericUtil.to_int(getattr(attrs, "position", 0), 0)
-        return GenericUtil.to_int(getattr(entity, "position", getattr(entity, "start_pos", 0)), 0)
+        if hasattr(entity, "position"):
+            return GenericUtil.to_int(getattr(entity, "position", 0), 0)
+        return GenericUtil.to_int(getattr(entity, "start_pos", 0), 0)
 
     def is_safe(self, attacker, victim, room=None) -> tuple[bool, str]:
         if attacker is None or victim is None:
@@ -83,22 +135,22 @@ class FightHandler:
             if self._entity_position_value(victim) <= int(self.PositionsEnum.POS_DEAD.value):
                 return True, "They are already dead.\r\n"
 
-        room_flags = CharacterMacros.get_enum("roomFlags")
+        room_flags = CharacterApi.get_enum("roomFlags")
         if room is not None and hasattr(room_flags, "ROOM_SAFE"):
-            if CharacterMacros.is_set(int(getattr(room, "room_flags", 0)), int(room_flags.ROOM_SAFE.value)):
+            if CharacterApi.is_set(int(getattr(room, "room_flags", 0)), int(room_flags.ROOM_SAFE.value)):
                 return True, "Not in this room.\r\n"
 
-        if CharacterMacros.is_npc(victim):
-            act_bits = CharacterMacros.get_enum("actBits")
-            mob_act = GenericUtil.to_int(getattr(getattr(victim, "mobile_flags", None), "act", 0), 0)
+        if CharacterApi.is_npc(victim):
+            act_bits = CharacterApi.get_enum("actBits")
+            mob_act = GenericUtil.to_int(getattr(getattr(victim, "status_flags", None), "act", 0), 0)
             protected_bits = ("ACT_TRAIN", "ACT_PRACTICE", "ACT_IS_HEALER", "ACT_IS_CHANGER")
             for bit_name in protected_bits:
-                bit = CharacterMacros.enum_bit(act_bits, bit_name)
-                if bit and CharacterMacros.is_set(mob_act, bit):
+                bit = CharacterApi.enum_bit(act_bits, bit_name)
+                if bit and CharacterApi.is_set(mob_act, bit):
                     return True, "I don't think Mota would approve.\r\n"
-            if not CharacterMacros.is_npc(attacker):
-                pet_bit = CharacterMacros.enum_bit(act_bits, "ACT_PET")
-                if pet_bit and CharacterMacros.is_set(mob_act, pet_bit):
+            if not CharacterApi.is_npc(attacker):
+                pet_bit = CharacterApi.enum_bit(act_bits, "ACT_PET")
+                if pet_bit and CharacterApi.is_set(mob_act, pet_bit):
                     return True, "But they look so cute and cuddly...\r\n"
 
         if getattr(victim, "fighting", None) is not None and getattr(victim, "fighting", None) is not attacker:
@@ -108,33 +160,52 @@ class FightHandler:
         return False, ""
 
     def is_safe_spell(self, attacker, victim, area: bool = False) -> bool:
-        safe, _ = self.is_safe(attacker, victim)
+        if attacker is None or victim is None:
+            return True
+        if area and victim is attacker:
+            return True
+        room = self._find_room_for_entity(attacker)
+        safe, _message = self.is_safe(attacker, victim, room=room)
         return safe
 
+    #  TO-DO
     def check_killer(self, attacker, victim) -> None:
-        # Placeholder for PLR_KILLER/PLR_THIEF semantics during deeper migration.
         return
 
-    @staticmethod
-    def check_parry(attacker, victim) -> bool:
-        dex = GenericUtil.to_int(getattr(getattr(victim, "character_attributes", None), "dexterity", 10), 10)
-        chance = max(0, min(25, dex // 2))
-        return random.randint(1, 100) <= chance
-
-    @staticmethod
-    def check_shield_block(attacker, victim) -> bool:
-        equipped = getattr(victim, "equipped", None)
-        has_shield = equipped is not None and getattr(equipped, "shield", None) is not None
-        if not has_shield:
+    def check_parry(self, attacker, victim) -> bool:
+        if not CharacterApi.is_awake(victim):
             return False
-        dex = GenericUtil.to_int(getattr(getattr(victim, "character_attributes", None), "dexterity", 10), 10)
-        chance = max(0, min(20, dex // 2))
+        skill = self._defense_skill_percent(victim, "parry")
+        if skill <= 0:
+            return False
+
+        stats = getattr(victim, "character_attributes", None)
+        dex = GenericUtil.to_int(getattr(stats, "dexterity", 10), 10)
+        chance = max(0, min(60, skill // 2 + dex // 4))
         return random.randint(1, 100) <= chance
 
-    @staticmethod
-    def check_dodge(attacker, victim) -> bool:
-        dex = GenericUtil.to_int(getattr(getattr(victim, "character_attributes", None), "dexterity", 10), 10)
-        chance = max(0, min(30, dex))
+    def check_shield_block(self, attacker, victim) -> bool:
+        if not CharacterApi.is_awake(victim) or victim.equipped is None or not victim.equipped.is_shield_equipped():
+            return False
+        skill = self._defense_skill_percent(victim, "shield block")
+        if skill <= 0:
+            return False
+
+        stats = getattr(victim, "character_attributes", None)
+        dex = GenericUtil.to_int(getattr(stats, "dexterity", 10), 10)
+        chance = max(0, min(50, skill // 2 + dex // 4))
+        return random.randint(1, 100) <= chance
+
+    def check_dodge(self, attacker, victim) -> bool:
+        if not CharacterApi.is_awake(victim):
+            return False
+        skill = self._defense_skill_percent(victim, "dodge")
+        if skill <= 0:
+            return False
+
+        stats = getattr(victim, "character_attributes", None)
+        dex = GenericUtil.to_int(getattr(stats, "dexterity", 10), 10)
+        chance = max(0, min(65, skill // 2 + dex // 3))
         return random.randint(1, 100) <= chance
 
     def update_pos(self, victim) -> None:
@@ -142,17 +213,29 @@ class FightHandler:
         if hit > 0:
             return
 
-        if hasattr(self.PositionsEnum, "POS_DEAD") and hit <= -11:
-            self._set_position(victim, int(self.PositionsEnum.POS_DEAD.value))
+        try:
+            positions_enum = CharacterApi.get_enum("positions")
+        except RuntimeError:
+            positions_enum = self.PositionsEnum
+        if positions_enum is None:
             return
-        if hasattr(self.PositionsEnum, "POS_MORTAL") and hit <= -6:
-            self._set_position(victim, int(self.PositionsEnum.POS_MORTAL.value))
+
+        if CharacterApi.is_npc(victim):
+            if hasattr(positions_enum, "POS_DEAD"):
+                self._set_position(victim, int(positions_enum.POS_DEAD.value))
             return
-        if hasattr(self.PositionsEnum, "POS_INCAP") and hit <= -3:
-            self._set_position(victim, int(self.PositionsEnum.POS_INCAP.value))
+
+        if hasattr(positions_enum, "POS_DEAD") and hit <= -11:
+            self._set_position(victim, int(positions_enum.POS_DEAD.value))
             return
-        if hasattr(self.PositionsEnum, "POS_STUNNED"):
-            self._set_position(victim, int(self.PositionsEnum.POS_STUNNED.value))
+        if hasattr(positions_enum, "POS_MORTAL") and hit <= -6:
+            self._set_position(victim, int(positions_enum.POS_MORTAL.value))
+            return
+        if hasattr(positions_enum, "POS_INCAP") and hit <= -3:
+            self._set_position(victim, int(positions_enum.POS_INCAP.value))
+            return
+        if hasattr(positions_enum, "POS_STUNNED"):
+            self._set_position(victim, int(positions_enum.POS_STUNNED.value))
 
     @staticmethod
     def _set_position(entity, position_value: int) -> None:
@@ -162,7 +245,7 @@ class FightHandler:
             return
         setattr(entity, "position", position_value)
 
-    def set_fighting(self, attacker, defender, room_id: str) -> CombatEvent | None:
+    def set_fighting(self, attacker: Any, defender: Any, room_id: str) -> CombatEvent | None:
         if attacker is None or defender is None:
             return None
         if getattr(attacker, "fighting", None) is not None:
@@ -200,7 +283,7 @@ class FightHandler:
 
     def aggressive_entry_rounds(self, character, room=None) -> list[tuple[object, dict]]:
         room = room or self._find_room_for_entity(character)
-        if character is None or room is None or CharacterMacros.is_npc(character) or CharacterMacros.is_immortal(character):
+        if character is None or room is None or CharacterApi.is_npc(character) or CharacterApi.is_immortal(character):
             return []
 
         area = self.area_registry.get_or_none(id=getattr(room, "area_id", ""))
@@ -256,23 +339,6 @@ class FightHandler:
                 payload = self.build_round_payload(aggressor, victim, room, result, pre_corpse_ids)
                 rounds.append((aggressor, payload))
         return rounds
-
-    async def emit_round_payload(self, attacker, payload: dict) -> list:
-        prompted: list = []
-        if not isinstance(payload, dict):
-            return prompted
-
-        if payload.get("to_char") and not CharacterMacros.is_npc(attacker):
-            await self.message_bus.send_to_character(attacker.id, self.message_bus.text_to_message(payload["to_char"]))
-            prompted.append(attacker)
-        if payload.get("to_victim") and payload.get("victim") is not None and not CharacterMacros.is_npc(payload["victim"]):
-            await self.message_bus.send_to_character(payload["victim"].id, self.message_bus.text_to_message(payload["to_victim"]))
-            prompted.append(payload["victim"])
-        if payload.get("to_room"):
-            targets = payload.get("targets", [])
-            if len(targets) > 0:
-                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room"]), targets)
-        return prompted
 
     def dam_message(self, attacker, victim, dam: int, dt: str = "TYPE_HIT", immune: bool = False) -> dict:
         thresholds = [
@@ -345,13 +411,12 @@ class FightHandler:
             self.death_cry(victim, room)
             self.make_corpse(victim, room)
 
-        if CharacterMacros.is_npc(victim):
+        if CharacterApi.is_npc(victim):
             if room is not None:
                 room.mobiles.pop(str(getattr(victim, "id", "") or ""), None)
 
             proto = self.mobile_registry.get_or_none(vnum=str(getattr(victim, "vnum", "") or ""))
             if proto is not None:
-                proto.count = max(0, GenericUtil.to_int(getattr(proto, "count", 0), 0) - 1)
                 proto.killed = GenericUtil.to_int(getattr(proto, "killed", 0), 0) + 1
             if self.mobile_handler is not None:
                 self.mobile_handler.record_mobile_kill(victim)
@@ -363,58 +428,28 @@ class FightHandler:
         if victim is None or room is None:
             return
 
-        well_known = CharacterMacros.get_enum("wellKnownObjectVnums")
         parts = self._entity_parts(victim)
-        roll = random.randint(0, 15)
-        body_part_vnum = None
-
-        if roll == 2 and CharacterMacros.is_set(parts, int(BodyParts.PART_GUTS.value)):
-            body_part_vnum = getattr(well_known, "OBJ_VNUM_GUTS", None)
-        elif roll == 3 and CharacterMacros.is_set(parts, int(BodyParts.PART_HEAD.value)):
-            body_part_vnum = getattr(well_known, "OBJ_VNUM_SEVERED_HEAD", None)
-        elif roll == 4 and CharacterMacros.is_set(parts, int(BodyParts.PART_HEART.value)):
-            body_part_vnum = getattr(well_known, "OBJ_VNUM_TORN_HEART", None)
-        elif roll == 5 and CharacterMacros.is_set(parts, int(BodyParts.PART_ARMS.value)):
-            body_part_vnum = getattr(well_known, "OBJ_VNUM_SLICED_ARM", None)
-        elif roll == 6 and CharacterMacros.is_set(parts, int(BodyParts.PART_LEGS.value)):
-            body_part_vnum = getattr(well_known, "OBJ_VNUM_SLICED_LEG", None)
-        elif roll == 7 and CharacterMacros.is_set(parts, int(BodyParts.PART_BRAINS.value)):
-            body_part_vnum = getattr(well_known, "OBJ_VNUM_BRAINS", None)
-
-        if body_part_vnum is None:
-            return
-
-        proto = self.item_registry.get_or_none(vnum=str(int(body_part_vnum.value)))
-        if proto is None:
-            return
-
-        part_item = ItemUtil.create_object(proto)
-        part_item.timer = random.randint(4, 7)
-
-        victim_name = self._corpse_name(victim)
-        part_item.short_description = self._format_template(getattr(part_item, "short_description", ""), victim_name)
-        part_item.long_description = self._format_template(getattr(part_item, "long_description", ""), victim_name)
-
-        item_type = str(getattr(part_item, "item_type", "") or "").lower()
         form = self._entity_form(victim)
-        if "food" in item_type:
-            if CharacterMacros.is_set(form, int(BodyForm.FORM_POISON.value)):
-                part_item.value3 = "1"
-            elif not CharacterMacros.is_set(form, int(BodyForm.FORM_EDIBLE.value)):
-                part_item.item_type = "trash"
-
-        room.add_item_to_room(part_item)
+        BodyParts.maybe_create_death_cry_part(victim, room, self.item_registry, self.WellKnownObjectVnums, form_flags=form, parts_flags=parts)
 
     def make_corpse(self, victim, room) -> None:
         if victim is None or room is None:
             return
 
-        well_known = CharacterMacros.get_enum("wellKnownObjectVnums")
-        if CharacterMacros.is_npc(victim):
-            corpse_vnum_member = getattr(well_known, "OBJ_VNUM_CORPSE_NPC", None)
+        money = None
+        if CharacterApi.is_npc(victim):
+            corpse_vnum_member = getattr(self.WellKnownObjectVnums, "OBJ_VNUM_CORPSE_NPC", None)
             timer_min, timer_max = 3, 6
+            if victim.gold > 0:
+                money = ItemUtil.create_money(victim.gold, victim.silver, self.item_registry, self.WellKnownObjectVnums)
+                victim.gold = 0
+                victim.silver = 0
         else:
-            corpse_vnum_member = getattr(well_known, "OBJ_VNUM_CORPSE_PC", None)
+            corpse_vnum_member = getattr(self.WellKnownObjectVnums, "OBJ_VNUM_CORPSE_PC", None)
+            if victim.gold > 1 or victim.silver > 1:
+                money = ItemUtil.create_money(victim.gold, victim.silver, self.item_registry, self.WellKnownObjectVnums)
+                victim.gold -= victim.gold / 2
+                victim.silver -= victim.silver / 2
             timer_min, timer_max = 25, 40
 
         if corpse_vnum_member is None:
@@ -440,6 +475,8 @@ class FightHandler:
             else:
                 corpse.contains.append(item)
 
+        if money is not None:
+            corpse.contains.append(money)
         room.add_item_to_room(corpse)
 
     def xp_compute(self, gch, victim, total_levels: int) -> int:
@@ -475,10 +512,10 @@ class FightHandler:
         victim_align = self._get_alignment(victim)
         align = victim_align - gch_align
 
-        act_bits = CharacterMacros.get_enum("actBits")
-        no_align_bit = CharacterMacros.enum_bit(act_bits, "ACT_NOALIGN")
-        victim_act = GenericUtil.to_int(getattr(getattr(victim, "mobile_flags", None), "act", 0), 0)
-        no_align = no_align_bit > 0 and CharacterMacros.is_set(victim_act, no_align_bit)
+        act_bits = CharacterApi.get_enum("actBits")
+        no_align_bit = CharacterApi.enum_bit(act_bits, "ACT_NOALIGN")
+        victim_act = GenericUtil.to_int(getattr(getattr(victim, "status_flags", None), "act", 0), 0)
+        no_align = no_align_bit > 0 and CharacterApi.is_set(victim_act, no_align_bit)
 
         if not no_align:
             total = max(1, GenericUtil.to_int(total_levels, gch_level))
@@ -577,12 +614,20 @@ class FightHandler:
         xp = xp * gch_level // max(1, total_levels - 1)
         return max(0, xp)
 
-    def damage(self, attacker, victim, dam: int, dt: str = "TYPE_HIT", dam_type: str = "NONE", show: bool = True) -> dict:
+    def damage(self, attacker, victim, dam: int, dt: str = "TYPE_HIT", dam_type: str = "NONE", show: bool = True, weapon_hit: bool = False) -> dict:
         if victim is None:
             return {"to_char": "", "to_victim": "", "to_room": "", "killed": False}
 
+        applied = max(0, GenericUtil.to_int(dam, 0))
+        dam_type_name = self._normalize_damage_type_name(dam_type)
+
+        if applied > 35:
+            applied = (applied - 35) // 2 + 35
+        if applied > 80:
+            applied = (applied - 80) // 2 + 80
+
         if attacker is not None and victim is not attacker:
-            positions_enum = CharacterMacros.get_enum("positions")
+            positions_enum = CharacterApi.get_enum("positions")
             pos_stunned = int(getattr(positions_enum, "POS_STUNNED").value) if hasattr(positions_enum, "POS_STUNNED") else -1
 
             if self._entity_position_value(victim) > pos_stunned and getattr(victim, "fighting", None) is None:
@@ -594,27 +639,72 @@ class FightHandler:
                 if room is not None:
                     self.set_fighting(attacker, victim, room.id)
 
+        if applied > 1 and not CharacterApi.is_npc(victim):
+            victim_flags = getattr(victim, "status_flags", None)
+            if GenericUtil.to_int(getattr(victim_flags, "drunk", 0), 0) > 10:
+                applied = 9 * applied // 10
+
+        if applied > 1 and CharacterApi.is_affected(victim, CharacterApi.enum_bit(self.AffectBits, "AFF_SANCTUARY")):
+            applied //= 2
+
+        if applied > 1 and attacker is not None:
+            protected = (
+                                CharacterApi.is_affected(victim, CharacterApi.enum_bit(self.AffectBits, "AFF_PROTECT_EVIL")) and CharacterApi.is_evil(attacker)
+            ) or (
+                                CharacterApi.is_affected(victim, CharacterApi.enum_bit(self.AffectBits, "AFF_PROTECT_GOOD")) and CharacterApi.is_good(attacker)
+            )
+            if protected:
+                applied -= applied // 4
+
+        if weapon_hit and attacker is not None and victim is not attacker:
+            if self.check_parry(attacker, victim) or self.check_dodge(attacker, victim) or self.check_shield_block(attacker, victim):
+                msg = self.dam_message(attacker, victim, 0, dt=dt, immune=False)
+                msg["killed"] = False
+                msg["xp_gain"] = 0
+                msg["level_up_messages"] = ""
+                return msg
+
+        immunity = self._check_immunity(victim, dam_type_name)
+        immune = immunity == "IS_IMMUNE"
+        if immune:
+            applied = 0
+        elif immunity == "IS_RESISTANT":
+            applied -= applied // 3
+        elif immunity == "IS_VULNERABLE":
+            applied += applied // 2
+
+        if show:
+            msg = self.dam_message(attacker, victim, applied, dt=dt, immune=immune)
+        else:
+            msg = {"to_char": "", "to_victim": "", "to_room": ""}
+
+        if applied == 0:
+            msg["killed"] = False
+            msg["xp_gain"] = 0
+            msg["level_up_messages"] = ""
+            return msg
+
         original_hit = GenericUtil.to_int(getattr(victim, "hit", 0), 0)
-        applied = max(0, GenericUtil.to_int(dam, 0))
         setattr(victim, "hit", original_hit - applied)
         self.update_pos(victim)
 
         killed = False
         xp_gain = 0
-        positions_enum = CharacterMacros.get_enum("positions")
+        advancement = None
+        positions_enum = CharacterApi.get_enum("positions")
         if hasattr(positions_enum, "POS_DEAD"):
             if self._entity_position_value(victim) <= int(positions_enum.POS_DEAD.value):
                 killed = True
                 xp_gain = 0
-                if attacker is not None and not CharacterMacros.is_npc(attacker) and CharacterMacros.is_npc(victim):
+                if attacker is not None and not CharacterApi.is_npc(attacker) and CharacterApi.is_npc(victim):
                     attacker_level = max(1, GenericUtil.to_int(getattr(attacker, "level", 1), 1))
                     xp_gain = self.xp_compute(attacker, victim, attacker_level)
-                    self._award_experience(attacker, xp_gain)
+                    advancement = CharacterAdvancement.gain_experience(attacker, xp_gain)
                 self.raw_kill(victim)
 
-        msg = self.dam_message(attacker, victim, applied, dt=dt, immune=False)
         msg["killed"] = killed
         msg["xp_gain"] = xp_gain if killed else 0
+        msg["level_up_messages"] = advancement.level_up_messages if advancement is not None else ""
         return msg
 
     def one_hit(self, attacker, victim, dt: str = "TYPE_HIT") -> dict:
@@ -623,7 +713,7 @@ class FightHandler:
         if victim is attacker:
             return {"to_char": "", "to_victim": "", "to_room": "", "killed": False}
 
-        positions_enum = CharacterMacros.get_enum("positions")
+        positions_enum = CharacterApi.get_enum("positions")
         if hasattr(positions_enum, "POS_DEAD"):
             if self._entity_position_value(victim) <= int(positions_enum.POS_DEAD.value):
                 return {"to_char": "", "to_victim": "", "to_room": "", "killed": False}
@@ -634,11 +724,28 @@ class FightHandler:
             return {"to_char": "", "to_victim": "", "to_room": "", "killed": False}
 
         attack_verb = self._attack_verb(attacker, dt)
-        if self.check_dodge(attacker, victim) or self.check_parry(attacker, victim) or self.check_shield_block(attacker, victim):
-            return self.damage(attacker, victim, 0, dt=attack_verb)
+        dam_type = self._attack_damage_type(attacker, dt, attack_verb)
+        weapon = self._wielded_weapon(attacker)
+        skill = self._weapon_skill_total(attacker, weapon)
 
-        dam = self._attack_damage(attacker)
-        return self.damage(attacker, victim, dam, dt=attack_verb)
+        thac0 = self._thac0(attacker, dt, skill)
+        victim_ac = self._victim_ac_for_damage_type(victim, dam_type)
+        if victim_ac < -15:
+            victim_ac = (victim_ac + 15) // 5 - 15
+
+        if not self._can_see_for_hit_roll(attacker, victim, attacker_room):
+            victim_ac -= 4
+        if self._entity_position_value(victim) < self._position_value("POS_FIGHTING"):
+            victim_ac += 4
+        if self._entity_position_value(victim) < self._position_value("POS_RESTING"):
+            victim_ac += 6
+
+        diceroll = self._to_hit_roll()
+        if diceroll == 0 or (diceroll != 19 and diceroll < thac0 - victim_ac):
+            return self.damage(attacker, victim, 0, dt=attack_verb, dam_type=dam_type, weapon_hit=True)
+
+        dam = self._attack_damage(attacker, victim=victim, dt=dt, weapon=weapon, skill=skill)
+        return self.damage(attacker, victim, dam, dt=attack_verb, dam_type=dam_type, weapon_hit=True)
 
     def mob_hit(self, attacker, victim, dt: str = "TYPE_HIT") -> dict:
         payload = self.one_hit(attacker, victim, dt=dt)
@@ -654,8 +761,8 @@ class FightHandler:
                 if getattr(entity, "fighting", None) is attacker:
                     payload = self._merge_attack_payloads(payload, self.one_hit(attacker, entity, dt=dt))
 
-        if self._entity_has_affect(attacker, "AFF_HASTE") or (
-            self._mob_has_off(attacker, "OFF_FAST") and not self._entity_has_affect(attacker, "AFF_SLOW")
+        if CharacterApi.is_affected(attacker, CharacterApi.enum_bit(self.AffectBits, "AFF_HASTE")) or (
+            self._mob_has_off(attacker, "OFF_FAST") and not CharacterApi.is_affected(attacker, CharacterApi.enum_bit(self.AffectBits, "AFF_SLOW"))
         ):
             payload = self._merge_attack_payloads(payload, self.one_hit(attacker, victim, dt=dt))
 
@@ -663,7 +770,7 @@ class FightHandler:
             return payload
 
         chance = self._skill_percent(attacker, "second attack") // 2
-        if self._entity_has_affect(attacker, "AFF_SLOW") and not self._mob_has_off(attacker, "OFF_FAST"):
+        if CharacterApi.is_affected(attacker, CharacterApi.enum_bit(self.AffectBits, "AFF_SLOW")) and not self._mob_has_off(attacker, "OFF_FAST"):
             chance //= 2
         if random.randint(1, 100) < max(0, chance):
             payload = self._merge_attack_payloads(payload, self.one_hit(attacker, victim, dt=dt))
@@ -671,7 +778,7 @@ class FightHandler:
                 return payload
 
         chance = self._skill_percent(attacker, "third attack") // 4
-        if self._entity_has_affect(attacker, "AFF_SLOW") and not self._mob_has_off(attacker, "OFF_FAST"):
+        if CharacterApi.is_affected(attacker, CharacterApi.enum_bit(self.AffectBits, "AFF_SLOW")) and not self._mob_has_off(attacker, "OFF_FAST"):
             chance = 0
         if random.randint(1, 100) < max(0, chance):
             payload = self._merge_attack_payloads(payload, self.one_hit(attacker, victim, dt=dt))
@@ -683,26 +790,26 @@ class FightHandler:
             return {"to_char": "", "to_victim": "", "to_room": "", "killed": False}
 
         self._decrement_combat_timers(attacker)
-        positions_enum = CharacterMacros.get_enum("positions")
+        positions_enum = CharacterApi.get_enum("positions")
         if hasattr(positions_enum, "POS_RESTING"):
             if self._entity_position_value(attacker) < int(positions_enum.POS_RESTING.value):
                 return {"to_char": "", "to_victim": "", "to_room": "", "killed": False}
 
-        if CharacterMacros.is_npc(attacker):
+        if CharacterApi.is_npc(attacker):
             return self.mob_hit(attacker, victim, dt=dt)
 
         payload = self.one_hit(attacker, victim, dt=dt)
         if getattr(attacker, "fighting", None) is not victim:
             return payload
 
-        if self._entity_has_affect(attacker, "AFF_HASTE"):
+        if CharacterApi.is_affected(attacker, CharacterApi.enum_bit(self.AffectBits, "AFF_HASTE")):
             payload = self._merge_attack_payloads(payload, self.one_hit(attacker, victim, dt=dt))
 
         if getattr(attacker, "fighting", None) is not victim or self._is_backstab_attack(dt):
             return payload
 
         chance = self._skill_percent(attacker, "second attack") // 2
-        if self._entity_has_affect(attacker, "AFF_SLOW"):
+        if CharacterApi.is_affected(attacker, CharacterApi.enum_bit(self.AffectBits, "AFF_SLOW")):
             chance //= 2
         if random.randint(1, 100) < max(0, chance):
             payload = self._merge_attack_payloads(payload, self.one_hit(attacker, victim, dt=dt))
@@ -710,15 +817,37 @@ class FightHandler:
                 return payload
 
         chance = self._skill_percent(attacker, "third attack") // 4
-        if self._entity_has_affect(attacker, "AFF_SLOW"):
+        if CharacterApi.is_affected(attacker, CharacterApi.enum_bit(self.AffectBits, "AFF_SLOW")):
             chance = 0
         if random.randint(1, 100) < max(0, chance):
             payload = self._merge_attack_payloads(payload, self.one_hit(attacker, victim, dt=dt))
 
         return payload
 
+    # TO-DO
     def check_assist(self, attacker, victim) -> None:
-        # Placeholder for ROM assist logic migration.
+        from mobile.Mobile import Mobile
+        if type(attacker) is Mobile:
+            return None
+        room = self.room_registry.get(id=attacker.room_id)
+        for char in room.people():
+            if (not CharacterApi.is_npc(attacker) and
+                    CharacterApi.is_npc(char) and
+                    MobileApi.mobile_will_assist(char) and
+                    char.level + 6 > victim.level):
+                # questionable TO-DO: do_function->do_emote
+                self.message_bus.send_to_room(self.message_bus.text_to_message(f"{char.name} screams and attacks!"), room.players_in_room())
+                self.multi_hit(char, victim, dt="TYPE_UNDEFINED")
+                continue
+            if (not CharacterApi.is_npc(attacker) or
+                    CharacterApi.is_affected(attacker, self.AffectBits.AFF_CHARM.value)):
+
+                if ((not CharacterApi.is_npc(char) and CharacterApi.player_auto_assist(char)) or
+                    CharacterApi.is_affected(char, self.AffectBits.AFF_CHARM.value)) and \
+                        CharacterApi.is_same_group(attacker, char) and \
+                        not self.is_safe(char, victim):
+                    self.multi_hit(char, victim, dt="TYPE_UNDEFINED")
+                continue
         return
 
     def build_round_payload(self, attacker, victim, room, result: dict, pre_corpse_ids=None) -> dict:
@@ -730,36 +859,37 @@ class FightHandler:
             "targets": [ch for ch in room.characters.values() if ch.id not in (attacker_id, victim_id)],
         }
 
-        if not CharacterMacros.is_npc(victim):
+        if not CharacterApi.is_npc(victim):
             payload["victim"] = victim
             payload["to_victim"] = result.get("to_victim", "")
 
         if not result.get("killed"):
-            if not CharacterMacros.is_npc(attacker) and CharacterMacros.is_npc(victim):
+            if not CharacterApi.is_npc(attacker) and CharacterApi.is_npc(victim):
                 payload["to_char"] = self._append_condition_line(payload["to_char"], victim)
-            elif CharacterMacros.is_npc(attacker) and not CharacterMacros.is_npc(victim):
+            elif CharacterApi.is_npc(attacker) and not CharacterApi.is_npc(victim):
                 payload["to_victim"] = self._append_condition_line(payload.get("to_victim", ""), attacker)
 
         if not result.get("killed"):
             return payload
 
-        if not CharacterMacros.is_npc(attacker):
+        if not CharacterApi.is_npc(attacker):
             victim_name = self._combat_target_name(victim)
             payload["to_char"] = (payload["to_char"] or "") + f"{victim_name} is DEAD!!\r\n"
             xp_gain = int(result.get("xp_gain", 0) or 0)
             payload["to_char"] = (payload["to_char"] or "") + f"You receive {xp_gain} experience points.\r\n"
+            payload["to_char"] = (payload["to_char"] or "") + str(result.get("level_up_messages", "") or "")
             payload["to_char"] = (payload["to_char"] or "") + f"You hear {victim_name}'s death cry.\r\n"
 
             corpse = self._find_latest_corpse(room, victim, pre_corpse_ids)
             if corpse is not None and self._player_act_enabled(attacker, "PLR_AUTOLOOT"):
-                for item in list(getattr(corpse, "contains", []) or []):
-                    attacker.loot.append(item)
-                corpse.contains = []
+                self._autoloot_corpse(attacker, corpse)
 
             if corpse is not None and self._player_act_enabled(attacker, "PLR_AUTOSAC"):
-                room.contents.pop(getattr(corpse, "id", ""), None)
-                attacker.silver = int(getattr(attacker, "silver", 0) or 0) + 1
-                payload["to_char"] = (payload["to_char"] or "") + "Mota gives you one silver coin for your sacrifice.\r\n"
+                if not (self._player_act_enabled(attacker, "PLR_AUTOLOOT") and list(getattr(corpse, "contains", []) or [])):
+                    sacrifice = self._autosacrifice_corpse(attacker, corpse, room)
+                    if sacrifice is not None:
+                        payload["to_char"] = (payload["to_char"] or "") + sacrifice.get("to_char", "")
+                        payload["to_room"] = (payload["to_room"] or "") + sacrifice.get("to_room", "")
 
         return payload
 
@@ -783,7 +913,7 @@ class FightHandler:
 
     @staticmethod
     def _corpse_name(entity) -> str:
-        if CharacterMacros.is_npc(entity):
+        if CharacterApi.is_npc(entity):
             return str(getattr(entity, "short_description", "") or getattr(entity, "name", "someone"))
         return str(getattr(entity, "name", "someone"))
 
@@ -806,45 +936,28 @@ class FightHandler:
             item.timer = random.randint(1000, 2500)
 
     def _entity_form(self, entity) -> int:
-        if CharacterMacros.is_npc(entity):
-            form = getattr(getattr(entity, "mobile_flags", None), "form", None)
+        if CharacterApi.is_npc(entity):
+            form = getattr(getattr(entity, "status_flags", None), "form", None)
             if form is None:
                 form = getattr(entity, "form", 0)
             return GenericUtil.to_int(form, 0)
 
-        return int(
-            BodyForm.FORM_EDIBLE
-            | BodyForm.FORM_SENTIENT
-            | BodyForm.FORM_BIPED
-            | BodyForm.FORM_MAMMAL
-        )
+        return int(BodyForm.default_player_form())
 
     def _entity_parts(self, entity) -> int:
-        if CharacterMacros.is_npc(entity):
-            parts = getattr(getattr(entity, "mobile_flags", None), "parts", None)
+        if CharacterApi.is_npc(entity):
+            parts = getattr(getattr(entity, "status_flags", None), "parts", None)
             if parts is None:
                 parts = getattr(entity, "parts", 0)
             return GenericUtil.to_int(parts, 0)
 
-        return int(
-            BodyParts.PART_HEAD
-            | BodyParts.PART_ARMS
-            | BodyParts.PART_LEGS
-            | BodyParts.PART_HEART
-            | BodyParts.PART_BRAINS
-            | BodyParts.PART_GUTS
-            | BodyParts.PART_HANDS
-            | BodyParts.PART_FEET
-            | BodyParts.PART_FINGERS
-            | BodyParts.PART_EAR
-            | BodyParts.PART_EYE
-        )
+        return int(BodyParts.default_player_parts())
 
     def _extract_owned_items(self, entity) -> list:
         items: list = []
         seen = set()
 
-        bag_attr = "inventory" if CharacterMacros.is_npc(entity) else "loot"
+        bag_attr = "inventory" if CharacterApi.is_npc(entity) else "loot"
         bag = getattr(entity, bag_attr, None)
         if bag is None:
             bag = []
@@ -874,8 +987,8 @@ class FightHandler:
 
     @staticmethod
     def _is_floating_item(item) -> bool:
-        wear_location_enum = CharacterMacros.get_enum("wearLocation")
-        wear_float = CharacterMacros.enum_bit(wear_location_enum, "WEAR_FLOAT")
+        wear_location_enum = CharacterApi.get_enum("wearLocation")
+        wear_float = CharacterApi.enum_bit(wear_location_enum, "WEAR_FLOAT")
 
         wear_loc = GenericUtil.to_int(getattr(item, "wear_loc", -1), -1)
         if wear_float > 0 and wear_loc == wear_float:
@@ -892,7 +1005,7 @@ class FightHandler:
         attrs = getattr(entity, "character_attributes", None)
         if attrs is not None:
             return GenericUtil.to_int(getattr(attrs, "alignment", 0), 0)
-        perm = getattr(entity, "perm_stat", None)
+        perm = getattr(entity, "character_attributes", None)
         if perm is not None:
             return GenericUtil.to_int(getattr(perm, "alignment", 0), 0)
         return GenericUtil.to_int(getattr(entity, "alignment", 0), 0)
@@ -903,7 +1016,7 @@ class FightHandler:
         if attrs is not None:
             attrs.alignment = int(value)
             return
-        perm = getattr(entity, "perm_stat", None)
+        perm = getattr(entity, "character_attributes", None)
         if perm is not None:
             perm.alignment = int(value)
             return
@@ -933,13 +1046,13 @@ class FightHandler:
 
     @staticmethod
     def _player_act_enabled(character, flag_name: str) -> bool:
-        if CharacterMacros.is_npc(character):
+        if CharacterApi.is_npc(character):
             return False
-        player_bits = CharacterMacros.get_enum("playerActBits")
-        bit = CharacterMacros.enum_bit(player_bits, flag_name)
+        player_bits = CharacterApi.get_enum("playerActBits")
+        bit = CharacterApi.enum_bit(player_bits, flag_name)
         if bit <= 0:
             return False
-        return CharacterMacros.is_set(CharacterMacros.get_act_flags(character), bit)
+        return CharacterApi.is_set(character.status_flags.act, bit)
 
     @staticmethod
     def _find_latest_corpse(room, victim, pre_corpse_ids=None):
@@ -964,7 +1077,7 @@ class FightHandler:
     def _combat_target_name(target) -> str:
         if target is None:
             return "someone"
-        if CharacterMacros.is_npc(target):
+        if CharacterApi.is_npc(target):
             return str(getattr(target, "short_description", "") or getattr(target, "name", "someone"))
         return str(getattr(target, "name", "someone"))
 
@@ -1002,6 +1115,36 @@ class FightHandler:
         return merged
 
     @staticmethod
+    def _autoloot_corpse(character, corpse) -> None:
+        try:
+            wear_flags = CharacterApi.get_enum("wearFlags")
+        except RuntimeError:
+            wear_flags = None
+
+        remaining = []
+        for item in list(getattr(corpse, "contains", []) or []):
+            if ItemUtil.item_takeable(item):
+                character.add_item(item)
+            else:
+                remaining.append(item)
+        corpse.contains = remaining
+
+    def _autosacrifice_corpse(self, attacker, corpse, room) -> dict | None:
+        if room is None or corpse is None or not ItemUtil.is_npc_corpse(corpse):
+            return None
+
+        if not ItemUtil.item_takeable(corpse) or ItemUtil.is_nosac(corpse):
+            return None
+
+        room.remove_item_from_room(corpse)
+        silver = ItemUtil.sacrifice_silver_value(corpse)
+        attacker.silver = int(getattr(attacker, "silver", 0) or 0) + silver
+        return {
+            "to_char": ItemUtil.sacrifice_reward_message(silver),
+            "to_room": f"{attacker.name} sacrifices {ItemUtil.short(corpse)} to Mota.\r\n",
+        }
+
+    @staticmethod
     def _is_backstab_attack(dt: str) -> bool:
         text = str(dt or "").strip().lower()
         return text == "backstab" or text == "gsn_backstab"
@@ -1015,56 +1158,58 @@ class FightHandler:
 
     @staticmethod
     def _decrement_combat_timers(entity) -> None:
-        if CharacterMacros.is_npc(entity):
+        if CharacterApi.is_npc(entity):
             if hasattr(entity, "pulse_wait"):
                 entity.pulse_wait = max(0, GenericUtil.to_int(getattr(entity, "pulse_wait", 0), 0) - 12)
             if hasattr(entity, "pulse_daze"):
                 entity.pulse_daze = max(0, GenericUtil.to_int(getattr(entity, "pulse_daze", 0), 0) - 12)
             return
 
-        temporal = getattr(entity, "temporal_mechanics", None)
-        if temporal is None:
+        status_flags = getattr(entity, "status_flags", None)
+        if status_flags is None:
             return
-        temporal.pulse_wait = max(0, GenericUtil.to_int(getattr(temporal, "pulse_wait", 0), 0) - 12)
-        temporal.pulse_daze = max(0, GenericUtil.to_int(getattr(temporal, "pulse_daze", 0), 0) - 12)
+        status_flags.pulse_wait = max(0, GenericUtil.to_int(getattr(status_flags, "pulse_wait", 0), 0) - 12)
+        status_flags.pulse_daze = max(0, GenericUtil.to_int(getattr(status_flags, "pulse_daze", 0), 0) - 12)
 
-    @staticmethod
-    def _entity_has_affect(entity, affect_name: str) -> bool:
-        try:
-            affect_bits = CharacterMacros.get_enum("affectedBy")
-        except RuntimeError:
+    def _entity_has_affect(self, entity, affect_name: str) -> bool:
+        if getattr(entity, "status_flags", None) is None:
             return False
-        bit = CharacterMacros.enum_bit(affect_bits, affect_name)
+        bit = CharacterApi.enum_bit(self.AffectBits, affect_name)
         if bit <= 0:
             return False
-        return CharacterMacros.is_affected(entity, bit)
+        return CharacterApi.is_affected(entity, bit)
 
     @staticmethod
     def _mob_has_off(entity, off_name: str) -> bool:
         try:
-            off_bits = CharacterMacros.get_enum("offenseTypes")
+            off_bits = CharacterApi.get_enum("offenseTypes")
         except RuntimeError:
             return False
-        bit = CharacterMacros.enum_bit(off_bits, off_name)
+        bit = CharacterApi.enum_bit(off_bits, off_name)
         if bit <= 0:
             return False
-        flags = GenericUtil.to_int(getattr(getattr(entity, "mobile_flags", None), "off", 0), 0)
-        return CharacterMacros.is_set(flags, bit)
+        flags = GenericUtil.to_int(getattr(getattr(entity, "status_flags", None), "off", 0), 0)
+        return CharacterApi.is_set(flags, bit)
 
     def _skill_percent(self, entity, skill_name: str) -> int:
         wanted = str(skill_name or "").strip().lower()
         if not wanted:
             return 0
 
-        if not CharacterMacros.is_npc(entity):
+        if not CharacterApi.is_npc(entity):
             for skill in list(getattr(entity, "skills", []) or []):
-                name = str(skill.get("name", "") or "").strip().lower()
+                if isinstance(skill, dict):
+                    name = str(skill.get("name", "") or "").strip().lower()
+                    level = skill.get("level", 0)
+                else:
+                    name = str(getattr(skill, "name", "") or "").strip().lower()
+                    level = getattr(skill, "level", 0)
                 if name == wanted:
-                    return max(0, min(100, GenericUtil.to_int(skill.get("level", 0), 0)))
+                    return max(0, min(100, GenericUtil.to_int(level, 0)))
             return 0
 
         level = max(0, GenericUtil.to_int(getattr(entity, "level", 0), 0))
-        act_bits = CharacterMacros.get_enum("actBits")
+        act_bits = CharacterApi.get_enum("actBits")
         if wanted == "second attack":
             is_warrior = self._mob_has_act(entity, act_bits, "ACT_WARRIOR")
             is_thief = self._mob_has_act(entity, act_bits, "ACT_THIEF")
@@ -1073,40 +1218,54 @@ class FightHandler:
             return max(0, min(100, 4 * level - 40)) if self._mob_has_act(entity, act_bits, "ACT_WARRIOR") else 0
         return 0
 
+    def _defense_skill_percent(self, entity, skill_name: str) -> int:
+        wanted = str(skill_name or "").strip().lower()
+        if not wanted:
+            return 0
+
+        if not CharacterApi.is_npc(entity):
+            return self._skill_percent(entity, wanted)
+
+        level = max(0, GenericUtil.to_int(getattr(entity, "level", 0), 0))
+        if wanted == "shield block":
+            return max(0, min(100, 10 + 2 * level))
+        if wanted == "dodge":
+            return max(0, min(100, 2 * level)) if self._mob_has_off(entity, "OFF_DODGE") else 0
+        if wanted == "parry":
+            return max(0, min(100, 2 * level)) if self._mob_has_off(entity, "OFF_PARRY") else 0
+        return 0
+
     @staticmethod
     def _mob_has_act(entity, act_bits, act_name: str) -> bool:
-        bit = CharacterMacros.enum_bit(act_bits, act_name)
+        bit = CharacterApi.enum_bit(act_bits, act_name)
         if bit <= 0:
             return False
-        flags = GenericUtil.to_int(getattr(getattr(entity, "mobile_flags", None), "act", 0), 0)
-        return CharacterMacros.is_set(flags, bit)
+        flags = GenericUtil.to_int(getattr(getattr(entity, "status_flags", None), "act", 0), 0)
+        return CharacterApi.is_set(flags, bit)
 
     def _should_aggress(self, aggressor, witness, room) -> bool:
         if aggressor is None or witness is None or room is None:
             return False
-        if not CharacterMacros.is_npc(aggressor):
+        if not CharacterApi.is_npc(aggressor):
             return False
 
-        act_bits = CharacterMacros.get_enum("actBits")
-        room_flags = CharacterMacros.get_enum("roomFlags")
-        mob_act = GenericUtil.to_int(getattr(getattr(aggressor, "mobile_flags", None), "act", 0), 0)
+        mob_act = GenericUtil.to_int(getattr(getattr(aggressor, "status_flags", None), "act", 0), 0)
         room_bits = GenericUtil.to_int(getattr(room, "room_flags", 0), 0)
-
-        if not self._mob_has_act(aggressor, act_bits, "ACT_AGGRESSIVE"):
+        if not CharacterApi.is_set(mob_act, CharacterApi.enum_bit(self.ActBits, "ACT_AGGRESSIVE")):
             return False
-        if CharacterMacros.enum_bit(room_flags, "ROOM_SAFE") and CharacterMacros.is_set(room_bits, CharacterMacros.enum_bit(room_flags, "ROOM_SAFE")):
+        if CharacterApi.enum_bit(self.RoomFlags, "ROOM_SAFE") and CharacterApi.is_set(room_bits, CharacterApi.enum_bit(self.RoomFlags, "ROOM_SAFE")):
             return False
-        if self._entity_has_affect(aggressor, "AFF_CALM"):
+        if CharacterApi.is_affected(aggressor, CharacterApi.enum_bit(self.AffectBits, "AFF_CALM")):
             return False
-        if getattr(aggressor, "fighting", None) is not None:
+        if CharacterApi.is_set(aggressor.start_pos, CharacterApi.enum_bit(self.PositionsEnum, "POS_FIGHTING")):
             return False
-        if CharacterMacros.mobile_is_charmed(aggressor):
+        if MobileApi.mobile_is_charmed(aggressor):
             return False
-        if not CharacterMacros.is_awake(aggressor):
+        if not CharacterApi.is_awake(aggressor):
             return False
-        if self._mob_has_act(aggressor, act_bits, "ACT_WIMPY") and CharacterMacros.is_awake(witness):
+        if self._mob_has_act(aggressor, self.ActBits, "ACT_WIMPY") and CharacterApi.is_awake(witness):
             return False
-        if not CharacterMacros.can_see(aggressor, witness, self.room_helper):
+        if not CharacterApi.can_see(aggressor, witness, room):
             return False
         if self.rng.number_bits(1) == 0:
             return False
@@ -1116,19 +1275,19 @@ class FightHandler:
         if aggressor is None or room is None:
             return None
 
-        act_bits = CharacterMacros.get_enum("actBits")
+        act_bits = CharacterApi.get_enum("actBits")
         victim = None
         count = 0
         for candidate in list(getattr(room, "characters", {}).values()):
-            if CharacterMacros.is_npc(candidate):
+            if CharacterApi.is_npc(candidate):
                 continue
-            if CharacterMacros.is_immortal(candidate):
+            if CharacterApi.is_immortal(candidate):
                 continue
             if GenericUtil.to_int(getattr(aggressor, "level", 0), 0) < GenericUtil.to_int(getattr(candidate, "level", 0), 0) - 5:
                 continue
-            if self._mob_has_act(aggressor, act_bits, "ACT_WIMPY") and CharacterMacros.is_awake(candidate):
+            if self._mob_has_act(aggressor, act_bits, "ACT_WIMPY") and CharacterApi.is_awake(candidate):
                 continue
-            if not CharacterMacros.can_see(aggressor, candidate, self.room_helper):
+            if not CharacterApi.can_see(aggressor, candidate, room):
                 continue
             if self.rng.number_range(0, count) == 0:
                 victim = candidate
@@ -1160,25 +1319,326 @@ class FightHandler:
             return dam_type
         return "punch"
 
-    def _attack_damage(self, attacker) -> int:
-        weapon = self._wielded_weapon(attacker)
+    def _attack_damage(self, attacker, victim=None, dt: str = "TYPE_HIT", weapon=None, skill: int | None = None) -> int:
+        weapon = weapon or self._wielded_weapon(attacker)
+        skill = self._weapon_skill_total(attacker, weapon) if skill is None else max(0, skill)
+
+        if CharacterApi.is_npc(attacker) and weapon is None:
+            damage_dice = getattr(attacker, "damage_dice", None)
+            if damage_dice is not None:
+                number = max(0, GenericUtil.to_int(getattr(damage_dice, "number", 0), 0))
+                dtype = max(0, GenericUtil.to_int(getattr(damage_dice, "type", 0), 0))
+                bonus = max(0, GenericUtil.to_int(getattr(damage_dice, "bonus", 0), 0))
+                rolled = self.rng.dice(number, dtype) + bonus
+                if rolled > 0:
+                    return rolled
+
+        if CharacterApi.is_npc(attacker) and weapon is None:
+            level = max(1, GenericUtil.to_int(getattr(attacker, "level", 1), 1))
+            return max(1, self.rng.number_range(level // 2, (level * 3) // 2))
+
         if weapon is not None:
             dice_count = max(1, GenericUtil.to_int(getattr(weapon, "value1", 1), 1))
             dice_size = max(1, GenericUtil.to_int(getattr(weapon, "value2", 1), 1))
-            dam = sum(random.randint(1, dice_size) for _ in range(dice_count))
-            strength = GenericUtil.to_int(getattr(getattr(attacker, "character_attributes", None), "strength", 10), 10)
-            bonus = max(0, (strength - 10) // 4)
-            return max(1, dam + bonus)
+            dam = self.rng.dice(dice_count, dice_size) * skill // 100
 
-        level = GenericUtil.to_int(getattr(attacker, "level", 1), 1)
-        strength = GenericUtil.to_int(getattr(getattr(attacker, "character_attributes", None), "strength", 10), 10)
-        base = max(1, level // 2)
-        bonus = max(0, (strength - 10) // 2)
-        return random.randint(base, base + 4 + bonus)
+            equipped = getattr(attacker, "equipped", None)
+            if equipped is not None and getattr(equipped, "shield", None) is None:
+                dam = dam * 11 // 10
+
+            if self._weapon_has_flag(weapon, "WEAPON_SHARP"):
+                percent = self.rng.number_percent()
+                if percent <= skill // 8:
+                    dam = 2 * dam + (dam * 2 * percent // 100)
+        else:
+            level = max(1, GenericUtil.to_int(getattr(attacker, "level", 1), 1))
+            low = 1 + (4 * skill // 100)
+            high = max(low, (2 * level // 3) * skill // 100)
+            dam = self.rng.number_range(low, high)
+
+        enhanced_skill = self._skill_percent(attacker, "enhanced damage")
+        if enhanced_skill > 0:
+            diceroll = self.rng.number_percent()
+            if diceroll <= enhanced_skill:
+                self._check_improve(attacker, "enhanced damage", True, 6)
+                dam += 2 * (dam * diceroll // 300)
+
+        if victim is not None:
+            if not self._entity_is_awake(victim):
+                dam *= 2
+            elif self._entity_position_value(victim) < self._position_value("POS_FIGHTING"):
+                dam = dam * 3 // 2
+
+        if self._is_backstab_attack(dt) and weapon is not None:
+            is_dagger = self._weapon_skill_name(weapon) == "dagger"
+            level = max(1, GenericUtil.to_int(getattr(attacker, "level", 1), 1))
+            dam *= 2 + (level // 8 if is_dagger else level // 10)
+
+        dam += self._current_damroll(attacker) * min(100, skill) // 100
+        return max(1, dam)
+
+    @staticmethod
+    def _normalize_damage_type_name(dam_type: str | None) -> str:
+        text = str(dam_type or "").strip().upper()
+        if not text or text == "NONE":
+            return "DAM_NONE"
+        if text.startswith("DAM_"):
+            return text
+        return f"DAM_{text}"
+
+    def _attack_damage_type(self, attacker, raw_dt: str, attack_verb: str) -> str:
+        source = str(attack_verb or "").strip().lower()
+        if self._is_backstab_attack(raw_dt):
+            weapon = self._wielded_weapon(attacker)
+            if weapon is not None:
+                source = str(getattr(weapon, "value3", "") or "").strip().lower()
+            elif not source:
+                source = str(getattr(attacker, "dam_type", "") or "").strip().lower()
+        if not source or source in ("type_hit", "type_undefined", "type hit", "type undefined"):
+            source = str(getattr(attacker, "dam_type", "") or "").strip().lower()
+        return self._normalize_damage_type_name(self.ATTACK_DAMAGE_TYPES.get(source, "DAM_BASH"))
+
+    def _weapon_skill_name(self, weapon) -> str:
+        if weapon is None:
+            return "hand to hand"
+
+        raw = getattr(weapon, "value0", None)
+        token = str(raw or "").strip()
+        numeric = GenericUtil.to_int(raw, None)
+        if numeric is not None:
+            for enum_name, skill_name in self.WeaponClass.items():
+                member = getattr(self.WeaponClass, enum_name, None)
+                if member is not None and int(member.value) == numeric:
+                    return skill_name
+        upper_token = token.upper()
+        if self.WeaponClass.__contains__(upper_token):
+            return self.WeaponClass[upper_token]
+
+        lowered = token.lower()
+        if lowered in self.WeaponClass.__members__.values():
+            return lowered
+        return ""
+
+    def _weapon_skill_total(self, attacker, weapon) -> int:
+        skill_name = self._weapon_skill_name(weapon)
+        if CharacterApi.is_npc(attacker):
+            level = max(0, GenericUtil.to_int(getattr(attacker, "level", 0), 0))
+            if not skill_name:
+                skill = 3 * level
+            elif skill_name == "hand to hand":
+                skill = 40 + 2 * level
+            else:
+                skill = 40 + (5 * level) // 2
+        else:
+            if not skill_name:
+                skill = 3 * max(0, GenericUtil.to_int(getattr(attacker, "level", 0), 0))
+            else:
+                skill = self._skill_percent(attacker, skill_name)
+        return 20 + max(0, min(100, skill))
+
+    def _thac0(self, attacker, dt: str, skill: int) -> int:
+        level = max(0, GenericUtil.to_int(getattr(attacker, "level", 0), 0))
+        if CharacterApi.is_npc(attacker):
+            thac0_00 = 20
+            thac0_32 = -4
+            act_bits = CharacterApi.get_enum("actBits")
+            if self._mob_has_act(attacker, act_bits, "ACT_WARRIOR"):
+                thac0_32 = -10
+            elif self._mob_has_act(attacker, act_bits, "ACT_THIEF"):
+                thac0_32 = -4
+            elif self._mob_has_act(attacker, act_bits, "ACT_CLERIC"):
+                thac0_32 = 2
+            elif self._mob_has_act(attacker, act_bits, "ACT_MAGE"):
+                thac0_32 = 6
+        else:
+            character_class = getattr(attacker, "character_class", None)
+            thac0_00 = GenericUtil.to_int(getattr(character_class, "thac000", 20), 20)
+            thac0_32 = GenericUtil.to_int(getattr(character_class, "thac032", -4), -4)
+
+        thac0 = self._interpolate(level, thac0_00, thac0_32)
+        if thac0 < 0:
+            thac0 //= 2
+        if thac0 < -5:
+            thac0 = -5 + (thac0 + 5) // 2
+
+        thac0 -= self._current_hitroll(attacker) * skill // 100
+        thac0 += 5 * (100 - skill) // 100
+
+        if self._is_backstab_attack(dt):
+            thac0 -= 10 * (100 - self._skill_percent(attacker, "backstab")) // 100
+        return thac0
+
+    @staticmethod
+    def _interpolate(level: int, value_00: int, value_32: int) -> int:
+        return value_00 + level * (value_32 - value_00) // 32
+
+    def _victim_ac_for_damage_type(self, victim, dam_type: str) -> int:
+        armor = getattr(victim, "armor_class", None)
+        if armor is None:
+            return 0
+
+        category = self._normalize_damage_type_name(dam_type)
+        if category == "DAM_PIERCE":
+            base = getattr(armor, "piercing", getattr(armor, "pierce", 0))
+        elif category == "DAM_BASH":
+            base = getattr(armor, "bashing", getattr(armor, "bash", 0))
+        elif category == "DAM_SLASH":
+            base = getattr(armor, "slashing", getattr(armor, "slash", 0))
+        else:
+            base = getattr(armor, "magic", getattr(armor, "exotic", 0))
+
+        stats = getattr(victim, "character_attributes", None) or getattr(victim, "character_attributes", None)
+        dexterity = GenericUtil.to_int(getattr(stats, "dexterity", 0), 0)
+        defensive = GenericUtil.to_int(
+            CharacterApi.get_attribute_bonus("dexterity", str(dexterity)).get("defensive", 0),
+            0,
+        )
+        return (GenericUtil.to_int(base, 0) + defensive) // 10
+
+    def _can_see_for_hit_roll(self, attacker, victim, room) -> bool:
+        if room is None:
+            return True
+        try:
+            return CharacterApi.can_see(attacker, victim, room)
+        except Exception:
+            return True
+
+    def _to_hit_roll(self) -> int:
+        diceroll = 20
+        while diceroll >= 20:
+            diceroll = self.rng.number_bits(5)
+        return diceroll
+
+    @staticmethod
+    def _position_value(name: str) -> int:
+        try:
+            positions = CharacterApi.get_enum("positions")
+        except RuntimeError:
+            return 0
+        member = getattr(positions, name, None)
+        return int(member.value) if member is not None else 0
+
+    def _check_improve(self, attacker, skill_name: str, success: bool, multiplier: int) -> None:
+        if CharacterApi.is_npc(attacker):
+            return
+        try:
+            registry = CharacterApi.get_registry()
+        except RuntimeError:
+            return
+        skill_registry = getattr(registry, "skill_registry", None)
+        if skill_registry is None:
+            return
+        all_skills = getattr(skill_registry, "all_skills", None)
+        if not callable(all_skills):
+            return
+        wanted = str(skill_name or "").strip().lower()
+        for skill in all_skills():
+            if str(getattr(skill, "name", "") or "").strip().lower() == wanted:
+                skill_id = str(getattr(skill, "id", "") or "").strip()
+                if skill_id:
+                    SkillUtil.check_improve(attacker, skill_id, success, multiplier)
+                return
+
+    @staticmethod
+    def _entity_is_awake(entity) -> bool:
+        try:
+            return CharacterApi.is_awake(entity)
+        except Exception:
+            return True
+
+    @staticmethod
+    def _weapon_has_flag(weapon, flag_name: str) -> bool:
+        if weapon is None:
+            return False
+        try:
+            weapon_flags = CharacterApi.get_enum("weaponType")
+        except RuntimeError:
+            return False
+        flag = getattr(weapon_flags, flag_name, None)
+        if flag is None:
+            return False
+        return ItemUtil.has_flag(getattr(weapon, "value4", 0), int(flag.value))
+
+    @staticmethod
+    def _dynamic_combat_bonus(entity, *names: str) -> int:
+        total = 0
+        for name in names:
+            value = getattr(entity, name, None)
+            if value is not None:
+                total += GenericUtil.to_int(value, 0)
+        return total
+
+    def _current_hitroll(self, entity) -> int:
+        return self._strength_combat_bonus(entity, "tohit") + self._dynamic_combat_bonus(entity, "hit_roll", "hitroll")
+
+    def _current_damroll(self, entity) -> int:
+        return self._strength_combat_bonus(entity, "todam") + self._dynamic_combat_bonus(entity, "dam_roll", "damroll")
+
+    @staticmethod
+    def _strength_combat_bonus(entity, key: str) -> int:
+        stats = getattr(entity, "character_attributes", None) or getattr(entity, "character_attributes", None)
+        strength = GenericUtil.to_int(getattr(stats, "strength", 0), 0)
+        return GenericUtil.to_int(CharacterApi.get_attribute_bonus("strength", str(strength)).get(key, 0), 0)
+
+    def _check_immunity(self, victim, dam_type: str) -> str:
+        dam_type_name = self._normalize_damage_type_name(dam_type)
+        if dam_type_name == "DAM_NONE":
+            return "IS_NORMAL"
+
+        imm_flags = GenericUtil.to_int(getattr(getattr(victim, "status_flags", None), "imm", 0), 0)
+        res_flags = GenericUtil.to_int(getattr(getattr(victim, "status_flags", None), "res", 0), 0)
+        vuln_flags = GenericUtil.to_int(getattr(getattr(victim, "status_flags", None), "vuln", 0), 0)
+
+        try:
+            imm_enum = CharacterApi.get_enum("mobImmunity")
+            res_enum = CharacterApi.get_enum("mobResistance")
+            vuln_enum = CharacterApi.get_enum("mobVulnerability")
+        except RuntimeError:
+            return "IS_NORMAL"
+
+        if dam_type_name in ("DAM_BASH", "DAM_PIERCE", "DAM_SLASH"):
+            if CharacterApi.is_set(imm_flags, CharacterApi.enum_bit(imm_enum, "IMM_WEAPON")):
+                default = "IS_IMMUNE"
+            elif CharacterApi.is_set(res_flags, CharacterApi.enum_bit(res_enum, "RES_WEAPON")):
+                default = "IS_RESISTANT"
+            elif CharacterApi.is_set(vuln_flags, CharacterApi.enum_bit(vuln_enum, "VULN_WEAPON")):
+                default = "IS_VULNERABLE"
+            else:
+                default = "IS_NORMAL"
+        else:
+            if CharacterApi.is_set(imm_flags, CharacterApi.enum_bit(imm_enum, "IMM_MAGIC")):
+                default = "IS_IMMUNE"
+            elif CharacterApi.is_set(res_flags, CharacterApi.enum_bit(res_enum, "RES_MAGIC")):
+                default = "IS_RESISTANT"
+            elif CharacterApi.is_set(vuln_flags, CharacterApi.enum_bit(vuln_enum, "VULN_MAGIC")):
+                default = "IS_VULNERABLE"
+            else:
+                default = "IS_NORMAL"
+
+        bit_suffix = dam_type_name.replace("DAM_", "")
+        imm_bit = CharacterApi.enum_bit(imm_enum, f"IMM_{bit_suffix}")
+        res_bit = CharacterApi.enum_bit(res_enum, f"RES_{bit_suffix}")
+        vuln_bit = CharacterApi.enum_bit(vuln_enum, f"VULN_{bit_suffix}")
+
+        immune = None
+        if imm_bit > 0 and CharacterApi.is_set(imm_flags, imm_bit):
+            immune = "IS_IMMUNE"
+        elif res_bit > 0 and CharacterApi.is_set(res_flags, res_bit):
+            immune = "IS_RESISTANT"
+
+        if vuln_bit > 0 and CharacterApi.is_set(vuln_flags, vuln_bit):
+            if immune == "IS_IMMUNE":
+                immune = "IS_RESISTANT"
+            elif immune == "IS_RESISTANT":
+                immune = "IS_NORMAL"
+            else:
+                immune = "IS_VULNERABLE"
+
+        return immune or default
 
     @staticmethod
     def _set_fighting_position(entity) -> None:
-        positions_enum = CharacterMacros.get_enum("positions")
+        positions_enum = CharacterApi.get_enum("positions")
         if not hasattr(positions_enum, "POS_FIGHTING"):
             return
         fight_pos = int(positions_enum.POS_FIGHTING.value)
@@ -1189,34 +1649,14 @@ class FightHandler:
         setattr(entity, "position", fight_pos)
 
     def _set_default_combat_position(self, entity) -> None:
-        positions_enum = CharacterMacros.get_enum("positions")
+        positions_enum = CharacterApi.get_enum("positions")
         stand_pos = int(getattr(positions_enum, "POS_STANDING").value) if hasattr(positions_enum, "POS_STANDING") else 0
-        if CharacterMacros.is_npc(entity):
+        if CharacterApi.is_npc(entity):
             default_pos = GenericUtil.to_int(getattr(entity, "default_pos", stand_pos), stand_pos)
             self._set_position(entity, default_pos)
         else:
             self._set_position(entity, stand_pos)
         self.update_pos(entity)
-
-    @staticmethod
-    def _award_experience(character, xp_gain: int) -> None:
-        if character is None:
-            return
-
-        xp_gain = max(0, GenericUtil.to_int(xp_gain, 0))
-        attrs = getattr(character, "character_attributes", None)
-        if attrs is None or xp_gain <= 0:
-            return
-
-        current_xp = GenericUtil.to_int(getattr(attrs, "experience", 0), 0) + xp_gain
-        accumulated_xp = GenericUtil.to_int(getattr(attrs, "accumulated_experience", 0), 0) + xp_gain
-        xp_per_level = GenericUtil.to_int(getattr(attrs, "experience_per_level", 0), 0)
-
-        if xp_per_level > 0 and current_xp >= xp_per_level:
-            current_xp %= xp_per_level
-
-        attrs.experience = current_xp
-        attrs.accumulated_experience = accumulated_xp
 
     def _restore_player_after_death(self, victim, room) -> None:
         temple_room = self.room_registry.get_or_none(vnum="3001")
@@ -1231,8 +1671,8 @@ class FightHandler:
             if armor is not None and hasattr(armor, field_name):
                 setattr(armor, field_name, 100)
 
-        positions_enum = CharacterMacros.get_enum("positions")
-        if positions_enum is not None and hasattr(positions_enum, "POS_RESTING"):
+        positions_enum = CharacterApi.get_enum("positions")
+        if hasattr(positions_enum, "POS_RESTING"):
             self._set_position(victim, int(positions_enum.POS_RESTING.value))
 
         victim.hit = max(1, GenericUtil.to_int(getattr(victim, "hit", 0), 0))

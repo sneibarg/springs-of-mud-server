@@ -4,6 +4,8 @@ from skill.Spell import Spell
 
 
 class SpellRegistry(Registry[Spell]):
+    lookup_attrs = ('name', 'id')
+
     def __init__(self):
         super().__init__()
 

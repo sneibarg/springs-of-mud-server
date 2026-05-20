@@ -5,7 +5,7 @@ from injector import inject
 from area.Exit import Exit
 from area.Room import Room
 from area.RoomRegistry import RoomRegistry
-from object.ExtraDescriptionData import ExtraDescriptionData
+from item.ExtraDescriptionData import ExtraDescriptionData
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 
@@ -37,7 +37,7 @@ class RoomService:
         try:
             response = requests.get(url, timeout=10)
             response.raise_for_status()
-            from game.GenericUtil import GenericUtil
+            from util.GenericUtil import GenericUtil
             data = response.json()
             if isinstance(data, list):
                 for room_data in data:

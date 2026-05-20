@@ -4,6 +4,8 @@ from skill.Skill import Skill
 
 
 class SkillRegistry(Registry[Skill]):
+    lookup_attrs = ('name', 'id')
+
     def __init__(self):
         super().__init__()
 

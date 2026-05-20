@@ -1,5 +1,6 @@
 import requests
 
+from api.GameApi import GameApi
 from injector import inject
 from game.GameData import GameData
 from server.LoggerFactory import LoggerFactory
@@ -14,7 +15,7 @@ class GameService:
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.game_data_endpoint = config.game_data_endpoint
         self.update_handler = None
-        self.game_data = self._load_game_data()
+        self.game_data = self._fetch_game_data()
         self.enums = dict()
         self._load_enums()
         self.last_time: TimeVal = gettimeofday()
@@ -32,11 +33,11 @@ class GameService:
     async def _game_loop_iteration(self):
         self.last_time = gettimeofday()
         current_time = self.last_time.tv_sec
-        self.logger.debug(f"Current time: {current_time}; Pulses per second: {self.game_data.constants.pulses['perSecond']}")
+        self.logger.debug(f"Current time: {current_time}; Pulses per second: {self.enums['gameParameters']['PULSE_PER_SECOND']}")
         await self.update_handler.handle_updates()
-        stall_until_last_time(self.last_time, self.game_data.constants.pulses['perSecond'])
+        stall_until_last_time(self.last_time, self.enums['gameParameters']['PULSE_PER_SECOND'])
 
-    def _load_game_data(self):
+    def _fetch_game_data(self):
         try:
             url = self.game_data_endpoint
             response = requests.get(url).json()[0]
@@ -46,7 +47,7 @@ class GameService:
             raise RuntimeError(f"Failed to load game data: {e}")
 
     def _load_enums(self):
-        from game.GenericUtil import GenericUtil
+        from util.GenericUtil import GenericUtil
         for enum_name in self.game_data.enums:
             member_map = self.game_data.enums.get(enum_name)
             self.enums[enum_name] = GenericUtil.build_int_enum(enum_name, member_map)

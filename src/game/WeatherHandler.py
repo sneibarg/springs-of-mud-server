@@ -1,9 +1,8 @@
 from dataclasses import dataclass
-from enum import IntEnum
 
 from injector import inject
-from game.GameData import Constants
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
+from game.EnumProvider import EnumProvider
 from player.CharacterRegistry import CharacterRegistry
 from game.RandomNumberGenerator import RandomNumberGenerator
 from server.LoggerFactory import LoggerFactory
@@ -31,23 +30,14 @@ class TimeInfo:
 
 class WeatherHandler:
     @inject
-    def __init__(self, message_bus: MessageBus, character_registry: CharacterRegistry):
+    def __init__(self, message_bus: MessageBus, character_registry: CharacterRegistry, enum_provider: EnumProvider):
         self.__name__ = "WeatherHandler"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.message_bus = message_bus
         self.character_registry = character_registry
-        self.weather_info = None
-        self.time_info = None
-        self.constants = None
-        self.session_handler = None
-        self.TimeAndWeatherEnum = None
-
-    def lazy_load(self, constants: Constants):
-        self.TimeAndWeatherEnum = CharacterMacros.get_enum('timeAndWeather')
-        self.constants = constants
+        self.TimeAndWeatherEnum = enum_provider.get("timeAndWeather")
         self.weather_info = WeatherInfo(mmhg=1000, change=0, sky=self.TimeAndWeatherEnum.SKY_CLOUDLESS, sunlight=self.TimeAndWeatherEnum.SUN_LIGHT)
         self.time_info = TimeInfo(hour=0, day=1, month=1, year=1)
-        self.logger.info(f"WeatherHandler online.")
 
     # every 60 seconds is one game hour.
     async def update(self):
@@ -73,17 +63,10 @@ class WeatherHandler:
 
     def _indoors(self) -> list:
         indoors = []
-        for character in self.character_registry.all_characters():
-            if not self._is_player_outdoors(character.id) and CharacterMacros.is_awake(character):
+        for character in self.message_bus.get_active_players():
+            if not CharacterApi.is_outside(character) and CharacterApi.is_awake(character):
                 indoors.append(character.id)
         return indoors
-
-    def _is_player_outdoors(self, character_id: str) -> bool:
-        character = self.character_registry.get(id=character_id)
-        self.logger.debug(f"Checking if player {character_id} is outdoors: {character}")
-        if character:
-            return CharacterMacros.is_outside(char=character)
-        return False
 
     def _time_change(self):
         time_message: str = ""

@@ -7,6 +7,7 @@ import requests
 from injector import inject
 from player.Character import Character
 from player.CharacterRegistry import CharacterRegistry
+from player.CharacterRace import CharacterRace
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 
@@ -103,7 +104,7 @@ class CharacterService:
             "description": getattr(character, "description", ""),
             "cloaked": bool(getattr(character, "cloaked", False)),
             "guild": getattr(character, "guild", ""),
-            "race": getattr(character, "race", ""),
+            "characterRace": cls._serialize_character_race(getattr(character, "character_race", None)),
             "name": getattr(character, "name", ""),
             "areaId": getattr(character, "area_id", ""),
             "roomId": getattr(character, "room_id", ""),
@@ -123,14 +124,11 @@ class CharacterService:
             "effects": cls._serialize_value(getattr(character, "effects", [])),
             "skills": cls._serialize_value(getattr(character, "skills", [])),
             "spells": cls._serialize_value(getattr(character, "spells", [])),
-            "characterFlags": cls._serialize_value(getattr(character, "character_flags", None)),
+            "statusFlags": cls._serialize_value(getattr(character, "status_flags", None)),
             "characterAttributes": cls._serialize_value(getattr(character, "character_attributes", None)),
-            "temporalMechanics": cls._serialize_value(getattr(character, "temporal_mechanics", None)),
             "armorClass": cls._serialize_value(getattr(character, "armor_class", None)),
             "characterClass": cls._serialize_value(getattr(character, "character_class", None)),
             "promptFormat": cls._serialize_prompt_format(getattr(character, "prompt_format", None)),
-            "invisLevel": getattr(character, "invis_level", 0),
-            "incogLevel": getattr(character, "incog_level", 0),
             "equipped": cls._serialize_value(getattr(character, "equipped", None)),
         }
 
@@ -139,6 +137,27 @@ class CharacterService:
         if hasattr(character, "get_items"):
             return list(character.get_items())
         return list(getattr(character, "inventory", []) or [])
+
+    @staticmethod
+    def _serialize_character_race(character_race: CharacterRace | None) -> dict[str, Any]:
+        race = CharacterRace.from_json(character_race)
+        return {
+            "whoName": race.who_name,
+            "points": race.points,
+            "classMult": race.class_mult,
+            "skills": list(race.skills),
+            "strength": race.strength,
+            "maxStrength": race.max_strength,
+            "intelligence": race.intelligence,
+            "maxIntelligence": race.max_intelligence,
+            "wisdom": race.wisdom,
+            "maxWisdom": race.max_wisdom,
+            "dexterity": race.dexterity,
+            "maxDexterity": race.max_dexterity,
+            "constitution": race.constitution,
+            "maxConstitution": race.max_constitution,
+            "size": race.size,
+        }
 
     @classmethod
     def _serialize_value(cls, value: Any) -> Any:

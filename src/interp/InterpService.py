@@ -1,10 +1,10 @@
-import json
-from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import requests
 
 from injector import inject
+
+from game.GamePayload import GamePayload
 from interp.Command import Command
 from interp.InterpRegistry import InterpRegistry
 from interp.HelpRegistry import HelpRegistry
@@ -42,6 +42,7 @@ class InterpService:
         return self._fetch_and_register(url, f"command '{command_name}'")
 
     def _fetch_and_register(self, url: str, description: str) -> int:
+        from util.GenericUtil import GenericUtil
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         data = response.json()
@@ -49,6 +50,7 @@ class InterpService:
             if isinstance(data, list):
                 for command_data in data:
                     command = Command.from_json(command_data)
+                    command.payload = GamePayload.from_json(GenericUtil.camel_to_snake_case(command_data.get("payload")))
                     self._assign_help_to_command(command)
                     self.interp_registry.register(command)
                 self.logger.info(f"Loaded {len(self.interp_registry.all_commands())} {description}.")
@@ -79,7 +81,8 @@ class InterpService:
                     self._help_token_index[normalized] = help_entry
 
     def _assign_help_to_command(self, command: Command) -> None:
-        command.help = None
+        if command.help is not None:
+            return
         command_name = str(getattr(command, "name", "") or "").strip().lower()
         if not command_name:
             return
@@ -98,7 +101,7 @@ class InterpService:
         return token
 
     def _build_summary_command(self) -> Command:
-        from game.GenericUtil import GenericUtil
+        from util.GenericUtil import GenericUtil
         summary_id = GenericUtil.generate_mongo_id()
         summary_cmd = Command(_id=summary_id, id=summary_id, max_arguments=0, level=0, name='summary', shortcuts="", message="", skill_id="", position="", usage="", role="", enabled=True, lambdas=[], function=[], help=self.help_registry.get(keyword='summary'))
         return summary_cmd

@@ -1,5 +1,3 @@
-import json
-
 from dataclasses import dataclass
 
 
@@ -24,7 +22,7 @@ class CharacterAttributes:
 
     @classmethod
     def from_json(cls, data) -> CharacterAttributes:
-        from game.GenericUtil import GenericUtil
+        from util.GenericUtil import GenericUtil
         return cls(**GenericUtil.camel_to_snake_case(data))
 
     @classmethod

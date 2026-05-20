@@ -25,6 +25,23 @@ class Context:
     count: Optional[int] = 0  # used for counting items; result of number_argument
     room: Optional[Room] = None
 
+    @property
+    def argument(self) -> str:
+        if isinstance(self.result, str):
+            return self.result.strip()
+        if self.parameters:
+            return " ".join(self.parameters).strip()
+        return ""
+
+    @property
+    def current_fighting(self):
+        return getattr(self.character, "fighting", None)
+
+    @property
+    def position(self) -> int:
+        from api.CharacterApi import CharacterApi
+        return CharacterApi.position_value(self.character)
+
     def mobile_handler(self):
         if self.handler_service:
             return self.handler_service.get_handler("mh")
@@ -48,6 +65,11 @@ class Context:
     def social_handler(self):
         if self.handler_service:
             return self.handler_service.get_handler("sh")
+        return None
+
+    def wiz_handler(self):
+        if self.handler_service:
+            return self.handler_service.get_handler("wh")
         return None
 
     def jump_to(self, index: int):

@@ -5,7 +5,7 @@ import inspect
 from dataclasses import dataclass, asdict
 from typing import Callable, TYPE_CHECKING
 
-from game.GameMacros import GameMacros
+from api.GameApi import GameApi
 from server.protocol.Message import Message, MessageType
 
 if TYPE_CHECKING:
@@ -16,6 +16,8 @@ if TYPE_CHECKING:
 
 
 def build_prompt_map():
+    from api.CharacterApi import CharacterApi
+
     return {
         "%h": lambda c: c.hit,
         "%H": lambda c: c.max_hit,
@@ -30,8 +32,8 @@ def build_prompt_map():
         "%a": lambda c: c.alignment,
         "%r": lambda r: r.name if r and r.name else "",
         "%e": lambda r: r.get_formatted_exits() if r else "",
-        "%R": lambda c, r: r.vnum if c.is_immortal() and r else "",
-        "%z": lambda c, a: a.name if c.is_immortal() and a else "",
+        "%R": lambda c, r: r.vnum if r and CharacterApi.is_immortal(c) else "",
+        "%z": lambda c, a: a.name if a and CharacterApi.is_immortal(c) else "",
         "%c": lambda: "\n",
     }
 
@@ -218,8 +220,7 @@ class PromptFormat:
 
     def render_prompt(self, status: SessionStatus, character: Character, room: Room, area: Area) -> Message:
         carriage_return = bool(getattr(character, "carriage_return", False) or self.carriage_return)
-        comm_letters = getattr(getattr(character, "character_flags", None), "comm", "")
-        comm_raw = GameMacros.letters_to_flags(comm_letters)
+        comm_raw = GameApi.flags_to_int(getattr(getattr(character, "status_flags", None), "comm", 0))
         if comm_raw > 0:
             carriage_return = (comm_raw & 2048) == 0  # COMM_COMPACT
         parts = [self._tag_afk(status)]

@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 
 
 @dataclass
@@ -15,6 +15,7 @@ class SpellContext:
     target: Any = None
     target_name: str = ""
     target_kind: str = ""
+    cast_level: int | None = None
     source: str = "player"
     command_context: Any = None
     payloads: list[dict] = field(default_factory=list)
@@ -44,6 +45,8 @@ class SpellContext:
 
     @property
     def level(self) -> int:
+        if self.cast_level is not None:
+            return int(self.cast_level or 0)
         return int(getattr(self.actor, "level", 0) or 0)
 
     def finish(self):
@@ -64,7 +67,7 @@ class SpellContext:
     def fail(self, text: str = "") -> bool:
         self.failed = True
         self.done = True
-        if text and self.source == "player" and not CharacterMacros.is_npc(self.actor):
+        if text and self.source == "player" and not CharacterApi.is_npc(self.actor):
             self.queue_payload({"to_char": text})
         return False
 
@@ -101,7 +104,7 @@ class SpellContext:
 
     @property
     def is_player_source(self) -> bool:
-        return self.source == "player" and not CharacterMacros.is_npc(self.actor)
+        return self.source == "player" and not CharacterApi.is_npc(self.actor)
 
     def is_character_target(self) -> bool:
         target = self.target

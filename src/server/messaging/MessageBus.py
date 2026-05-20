@@ -3,8 +3,7 @@ from injector import inject
 
 from area.Area import Area
 from area.Room import Room
-from game.GameMacros import GameMacros
-from game.GenericUtil import GenericUtil
+from util.GenericUtil import GenericUtil
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 from server.connection.ConnectionManager import ConnectionManager
@@ -61,6 +60,7 @@ class MessageBus:
                 return False
         else:
             self.logger.warning(f"No active connection found for character {character_id}")
+            self.logger.warning(f"Message would have been: {message.type.name} {message.data}")
         return False
 
     async def send_to_room(self, message: Message, in_room: List[Character]) -> None:
@@ -83,7 +83,7 @@ class MessageBus:
         if session and session.metadata.get("paging_active", False):
             return True
 
-        comm_raw = GameMacros.letters_to_flags(getattr(getattr(character, "character_flags", None), "comm", ""))
+        comm_raw = GenericUtil.to_int(getattr(getattr(character, "status_flags", None), "comm", 0), 0)
         if comm_raw > 0 and (comm_raw & 8192) == 0:  # COMM_PROMPT
             return True
 
@@ -105,13 +105,19 @@ class MessageBus:
     async def broadcast(self, message: Message, exclude_character_ids: Optional[List[str]] = None) -> int:
         exclude = exclude_character_ids or []
         count = 0
-        sessions = self.session_handler.get_active_sessions()
-        for session in sessions:
-            if session.character and session.character.id not in exclude:
-                if await self.send_to_character(session.character.id, message):
+        for character in self.get_active_players():
+            if character and character.id not in exclude:
+                if await self.send_to_character(character.id, message):
                     count += 1
 
         return count
+
+    def get_active_players(self) -> List[Character]:
+        active_players = []
+        for session in self.session_handler.get_playing_sessions():
+            if session.character:
+                active_players.append(session.character)
+        return active_players
 
     @staticmethod
     def _split_into_pages(text: str, max_lines: int) -> list[str]:
@@ -127,12 +133,6 @@ class MessageBus:
         if session is None:
             return
         session.metadata["last_trailing_breaks"] = MessageBus._message_trailing_breaks(message)
-
-    @staticmethod
-    def _last_trailing_breaks(session) -> int:
-        if session is None:
-            return 0
-        return GenericUtil.to_int(session.metadata.get("last_trailing_breaks", 0), 0)
 
     @staticmethod
     def _message_trailing_breaks(message: Message) -> int:

@@ -3,7 +3,7 @@ import requests
 from typing import Optional
 from injector import inject
 from mobile.Mobile import Mobile
-from mobile.MobileUtil import MobileUtil
+from util.MobileUtil import MobileUtil
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 from fight.FightHandler import FightHandler
@@ -39,7 +39,6 @@ class MobileService:
         return self._fetch_and_register(url, f"social '{mobile_name}'")
 
     def _fetch_and_register(self, url: str, description: str) -> Optional[Mobile]:
-        npc_flag = MobileUtil.resolve_npc_flag(self.game_data)
         try:
             response = requests.get(url, timeout=10)
             response.raise_for_status()
@@ -47,7 +46,7 @@ class MobileService:
             if isinstance(data, list):
                 count = 0
                 for raw_mobile in data:
-                    mobile = self._build_mobile(raw_mobile, npc_flag)
+                    mobile = self._build_mobile(raw_mobile)
                     if mobile is None:
                         self.logger.error(f"Failed to build mobile for {raw_mobile}")
                         continue
@@ -56,13 +55,12 @@ class MobileService:
                 self.logger.info(f"Loaded {count} {description}.")
                 return None
             else:
-                mobile = self._build_mobile(data, npc_flag)
+                mobile = self._build_mobile(data)
                 if mobile is None:
                     return None
                 self.mobile_registry.register(mobile)
                 self.logger.info(f"Loaded {description}.")
                 return mobile
-
         except requests.RequestException as e:
             self.logger.error(f"Failed to fetch {description} from {url}: {e}")
             return None
@@ -70,15 +68,12 @@ class MobileService:
             self.logger.error(f"Unexpected error processing {description}: {e}", exc_info=True)
             return None
 
-    def _build_mobile(self, raw_mobile, npc_flag) -> Optional[Mobile]:
-        from game.GenericUtil import GenericUtil
-        converted_mobile = GenericUtil.camel_to_snake_case(raw_mobile)
-        converted_mobile['form'] = MobileUtil.convert_form(converted_mobile['race'], converted_mobile['form'])
-        converted_mobile['parts'] = MobileUtil.convert_parts(converted_mobile['race'], converted_mobile['parts'])
+    def _build_mobile(self, raw_mobile) -> Optional[Mobile]:
+        from util.GenericUtil import GenericUtil
 
+        converted_mobile = GenericUtil.camel_to_snake_case(raw_mobile)
         mobile_id = MobileUtil.resolve_mobile_id(converted_mobile, raw_mobile)
         if mobile_id is None:
             return None
 
-        mobile, _ = MobileUtil.build_mobile(mobile_id, self.game_data.races, converted_mobile, npc_flag, self.enums)
-        return mobile
+        return MobileUtil.build_mobile(mobile_id, self.game_data.races, converted_mobile)

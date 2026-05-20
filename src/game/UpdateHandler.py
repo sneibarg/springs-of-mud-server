@@ -7,16 +7,16 @@ from injector import inject
 from area.AreaHandler import AreaHandler
 from fight.CombatRegistry import CombatRegistry
 from fight.FightHandler import FightHandler
-from game.GameMacros import GameMacros
-from game.GenericUtil import GenericUtil
+from api.GameApi import GameApi
+from game.EnumProvider import EnumProvider
+from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
 from mobile.MobileHandler import MobileHandler
-from object.EffectUtil import EffectUtil
+from util.EffectUtil import EffectUtil
 from player.Character import Character
-from player.CharacterMacros import CharacterMacros
+from api.CharacterApi import CharacterApi
 from player.CharacterService import CharacterService
-from player.PlayerHelper import PlayerHelper
 from server.messaging.MessageBus import MessageBus
 from server.session.SessionHandler import SessionHandler
 
@@ -24,7 +24,6 @@ from server.session.SessionHandler import SessionHandler
 class UpdateHandler:
     @inject
     def __init__(self,
-                 player_helper: PlayerHelper,
                  weather_handler: WeatherHandler,
                  area_handler: AreaHandler,
                  mobile_handler: MobileHandler,
@@ -32,8 +31,8 @@ class UpdateHandler:
                  message_bus: MessageBus,
                  registry_service: RegistryService,
                  character_service: CharacterService,
-                 session_handler: SessionHandler):
-        self.player_helper = player_helper
+                 session_handler: SessionHandler,
+                 enum_provider: EnumProvider):
         self.weather_handler = weather_handler
         self.area_handler = area_handler
         self.mobile_handler = mobile_handler
@@ -55,26 +54,12 @@ class UpdateHandler:
         self.pulse_music = 0  # maybe we skip migrating music
         self.save_cycle = 30
         self.save_number = 0
-        self.GameParametersEnum = None
-        self.PositionsEnum = None
-        self.ItemTypes = None
-        self.WearLocation = None
-        self.WearFlags = None
-
-    def set_enums(self, enums: dict[str, IntEnum]):
-        def _macro_enum(enum_name: str):
-            try:
-                return CharacterMacros.get_enum(enum_name)
-            except RuntimeError:
-                return None
-
-        self.enums = enums
-        self.GameParametersEnum = _macro_enum("gameParameters") or enums.get('gameParameters')
-        self.PositionsEnum = _macro_enum("positions") or enums.get('positions')
-        self.ItemTypes = _macro_enum("itemTypes") or enums.get('itemTypes')
-        self.WearLocation = _macro_enum("wearLocation") or enums.get('wearLocation')
-        self.WearFlags = _macro_enum("wearFlags") or enums.get('wearFlags')
-        self.mobile_handler.set_enums(enums)
+        self.enum_provider = enum_provider
+        self.GameParametersEnum = enum_provider.get("gameParameters")
+        self.PositionsEnum = enum_provider.get("positions")
+        self.ItemTypes = enum_provider.get("itemTypes")
+        self.WearLocation = enum_provider.get("wearLocation")
+        self.WearFlags = enum_provider.get("wearFlags")
 
     async def handle_updates(self):
         self.pulse_area -= 1
@@ -108,7 +93,7 @@ class UpdateHandler:
         for room in self.room_registry.all_rooms():
             if room is None:
                 continue
-            for attacker in self._entities_in_room(room):
+            for attacker in room.people():
                 defender = getattr(attacker, "fighting", None)
                 if defender is None:
                     continue
@@ -117,7 +102,7 @@ class UpdateHandler:
                 if not attacker_id or not defender_id:
                     self.fight_handler.stop_fighting(attacker, both=False)
                     continue
-                if self._find_entity_in_room(room, defender_id) is None:
+                if room.find_entity_in_room(defender_id) is None:
                     self.fight_handler.stop_fighting(attacker, both=False)
                     continue
                 key = (attacker_id, defender_id, str(room.id))
@@ -128,7 +113,7 @@ class UpdateHandler:
 
     async def _violence_update(self):
         try:
-            positions_enum = CharacterMacros.get_enum("positions")
+            positions_enum = CharacterApi.get_enum("positions")
         except RuntimeError:
             positions_enum = self.PositionsEnum
         if positions_enum is None:
@@ -139,8 +124,8 @@ class UpdateHandler:
         decorated_events = []
         for index, event in enumerate(events):
             room = self.room_registry.get_or_none(id=event.room_id)
-            attacker = self._find_entity_in_room(room, event.attacker_id) if room is not None else None
-            decorated_events.append((0 if (attacker is not None and CharacterMacros.is_npc(attacker)) else 1, index, event))
+            attacker = room.find_entity_in_room(event.attacker_id) if room is not None else None
+            decorated_events.append((0 if (attacker is not None and CharacterApi.is_npc(attacker)) else 1, index, event))
 
         for _, _, event in sorted(decorated_events, key=lambda item: (item[0], item[1])):
             room = self.room_registry.get_or_none(id=event.room_id)
@@ -148,18 +133,18 @@ class UpdateHandler:
                 self.combat_registry.remove_by_id(event.id)
                 continue
 
-            attacker = self._find_entity_in_room(room, event.attacker_id)
-            defender = self._find_entity_in_room(room, event.defender_id)
+            attacker = room.find_entity_in_room(event.attacker_id)
+            defender = room.find_entity_in_room(event.defender_id)
             if attacker is None or defender is None:
                 self.combat_registry.remove_by_id(event.id)
                 continue
 
-            if not CharacterMacros.is_awake(attacker):
+            if not CharacterApi.is_awake(attacker):
                 self.fight_handler.stop_fighting(attacker, both=False)
                 continue
 
             # ROM fight.c parity: if awake and in same room then multi_hit(), else stop_fighting().
-            if self._find_entity_in_room(room, event.defender_id) is None:
+            if room.find_entity_in_room(event.defender_id) is None:
                 self.fight_handler.stop_fighting(attacker, both=False)
                 continue
 
@@ -181,10 +166,10 @@ class UpdateHandler:
         if not isinstance(payload, dict):
             return prompted
 
-        if payload.get("to_char") and not CharacterMacros.is_npc(attacker):
+        if payload.get("to_char") and not CharacterApi.is_npc(attacker):
             await self.message_bus.send_to_character(attacker.id, self.message_bus.text_to_message(payload["to_char"]))
             prompted.append(attacker)
-        if payload.get("to_victim") and payload.get("victim") is not None and not CharacterMacros.is_npc(payload["victim"]):
+        if payload.get("to_victim") and payload.get("victim") is not None and not CharacterApi.is_npc(payload["victim"]):
             await self.message_bus.send_to_character(payload["victim"].id, self.message_bus.text_to_message(payload["to_victim"]))
             prompted.append(payload["victim"])
         if payload.get("to_room"):
@@ -209,31 +194,14 @@ class UpdateHandler:
             if room is not None and area is not None:
                 await self.message_bus.send_prompt(character, area, room)
 
-    @staticmethod
-    def _entities_in_room(room) -> list:
-        entities = []
-        entities.extend(list(room.characters.values()))
-        entities.extend(list(room.mobiles.values()))
-        return entities
-
-    @staticmethod
-    def _find_entity_in_room(room, entity_id: str):
-        wanted = str(entity_id or "")
-        if not wanted:
-            return None
-        if wanted in room.characters:
-            return room.characters[wanted]
-        if wanted in room.mobiles:
-            return room.mobiles[wanted]
-        return None
-
     async def char_update(self):
         if self.PositionsEnum is None:
             return
 
         self._advance_save_counter()
         pos_stunned = self.PositionsEnum.POS_STUNNED.value
-        for ch in self.character_registry.all_characters():
+        for ch in self._active_player_characters():
+            await self._tick_conditions(ch)
             attrs = getattr(ch, "character_attributes", None)
             if attrs is None:
                 continue
@@ -308,6 +276,70 @@ class UpdateHandler:
         if self.save_cycle <= 0:
             return 0
         return sum(str(character_id).encode("utf-8")) % self.save_cycle
+
+    async def _tick_conditions(self, entity) -> None:
+        if not isinstance(entity, Character):
+            return
+        if CharacterApi.is_npc(entity) or CharacterApi.is_immortal(entity):
+            return
+
+        await self._gain_condition(entity, "drunk", -1)
+        await self._gain_condition(entity, "thirst", -1)
+        await self._gain_condition(entity, "hunger", -2 if self._is_large_race(entity) else -1)
+
+    async def _gain_condition(self, character: Character, condition_name: str, value: int) -> None:
+        if value == 0:
+            return
+
+        status_flags = getattr(character, "status_flags", None)
+        if status_flags is None or not hasattr(status_flags, condition_name):
+            return
+
+        current = GenericUtil.to_int(getattr(status_flags, condition_name, -1), -1)
+        if current == -1:
+            return
+
+        updated = max(0, min(48, current + value))
+        setattr(status_flags, condition_name, updated)
+        if updated != 0:
+            return
+
+        message = None
+        if condition_name == "hunger":
+            message = "You are hungry.\r\n"
+        elif condition_name == "thirst":
+            message = "You are thirsty.\r\n"
+        elif condition_name == "drunk" and current != 0:
+            message = "You are sober.\r\n"
+
+        if message:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message))
+
+    def _is_large_race(self, character: Character) -> bool:
+        race = getattr(character, "character_race", None)
+        raw_size = getattr(race, "size", getattr(character, "size", None))
+        if raw_size is None:
+            return False
+
+        try:
+            size_enum = CharacterApi.get_enum("size")
+        except RuntimeError:
+            size_enum = None
+
+        if isinstance(raw_size, str):
+            normalized = raw_size.strip().upper()
+            if size_enum is not None and hasattr(size_enum, normalized):
+                raw_size = getattr(size_enum, normalized).value
+            else:
+                return normalized in {"SIZE_LARGE", "SIZE_HUGE", "SIZE_GIANT"}
+
+        size_value = GenericUtil.to_int(raw_size, None)
+        if size_value is None:
+            return False
+
+        if size_enum is not None and hasattr(size_enum, "SIZE_MEDIUM"):
+            return size_value > int(size_enum.SIZE_MEDIUM.value)
+        return size_value >= 3
 
     @staticmethod
     def _tick_regen(entity):
@@ -518,7 +550,7 @@ class UpdateHandler:
                 msg_off = self._lookup_effect_message(getattr(effect, "type", ""), "msg_off")
                 if msg_off:
                     await self.message_bus.send_to_character(entity.id, self.message_bus.text_to_message(f"{msg_off}\r\n"))
-            EffectUtil.affect_remove(entity, effect, self.enums)
+            EffectUtil.affect_remove(entity, effect)
 
     async def _tick_item_effects(self, item):
         effects = list(EffectUtil.ensure_effects(item))
@@ -543,7 +575,7 @@ class UpdateHandler:
                 msg_obj = self._lookup_effect_message(getattr(effect, "type", ""), "msg_obj")
                 if msg_obj:
                     await self._emit_obj_effect_message(item, msg_obj)
-            EffectUtil.affect_remove_obj(item, effect, self.enums)
+            EffectUtil.affect_remove_obj(item, effect)
 
     def _lookup_effect_message(self, effect_type, field_name: str) -> str:
         want = str(effect_type or "").strip().lower()
@@ -577,7 +609,7 @@ class UpdateHandler:
             await self.message_bus.send_to_character(parent.id, self.message_bus.text_to_message(text + "\r\n"))
             return
         if room is not None:
-            in_room = self.player_helper.players_in_room(parent, room)
+            in_room = room.players_in_room()
             message = self.message_bus.text_to_message(text + "\r\n")
             await self.message_bus.send_to_room(message, in_room)
 
@@ -606,8 +638,8 @@ class UpdateHandler:
     def _can_wear_float(self, item) -> bool:
         if self.WearFlags is None or not hasattr(self.WearFlags, "ITEM_WEAR_FLOAT"):
             return False
-        wear_raw = GameMacros.flags_to_int(getattr(item, "wear_flags", 0))
-        return GameMacros.is_set(wear_raw, self.WearFlags.ITEM_WEAR_FLOAT.value)
+        wear_raw = GameApi.flags_to_int(getattr(item, "wear_flags", 0))
+        return GameApi.is_set(wear_raw, self.WearFlags.ITEM_WEAR_FLOAT.value)
 
     async def _emit_item_decay_message(self, message: str, item, parent_kind: str, parent, room, is_float: bool):
         text = self._format_item_message(message, item)
@@ -617,12 +649,12 @@ class UpdateHandler:
         message = self.message_bus.text_to_message(text + "\r\n")
         if parent_kind in ["char_loot", "char_equipped"]:
             await self.message_bus.send_to_character(parent.id, self.message_bus.text_to_message(text + "\r\n"))
-            in_room = self.player_helper.players_in_room(parent, room)
+            in_room = room.players_in_room()
             if is_float and room is not None:
                 await self.message_bus.send_to_room(message, in_room)
             return
         if room is not None:
-            in_room = self.player_helper.players_in_room(parent, room)
+            in_room = room.players_in_room()
             await self.message_bus.send_to_room(message, in_room)
 
     @staticmethod

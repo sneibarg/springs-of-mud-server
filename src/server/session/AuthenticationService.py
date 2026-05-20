@@ -1,14 +1,18 @@
-from typing import Optional, Tuple
+from __future__ import annotations
+
+from typing import Optional, Tuple, TYPE_CHECKING
 from injector import inject
 
 from player.CharacterRegistry import CharacterRegistry
 from player.Player import Player
-from player.Character import Character
 from player.PlayerRegistry import PlayerRegistry
 from server.connection.Connection import Connection
 from server.protocol.Message import Message, MessageType
 from server.session.SessionState import SessionState, SessionStatus
 from server.LoggerFactory import LoggerFactory
+
+if TYPE_CHECKING:
+    from player.Character import Character
 
 
 class AuthenticationService:
