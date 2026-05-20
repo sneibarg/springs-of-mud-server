@@ -1,6 +1,4 @@
 import asyncio
-import random
-
 from enum import IntEnum
 
 from injector import inject
@@ -9,11 +7,11 @@ from fight.CombatRegistry import CombatRegistry
 from fight.FightHandler import FightHandler
 from api.GameApi import GameApi
 from game.EnumProvider import EnumProvider
+from item.EffectHandler import EffectHandler
 from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
 from mobile.MobileHandler import MobileHandler
-from util.EffectUtil import EffectUtil
 from player.Character import Character
 from api.CharacterApi import CharacterApi
 from player.CharacterService import CharacterService
@@ -32,7 +30,8 @@ class UpdateHandler:
                  registry_service: RegistryService,
                  character_service: CharacterService,
                  session_handler: SessionHandler,
-                 enum_provider: EnumProvider):
+                 enum_provider: EnumProvider,
+                 effect_handler: EffectHandler):
         self.weather_handler = weather_handler
         self.area_handler = area_handler
         self.mobile_handler = mobile_handler
@@ -40,13 +39,13 @@ class UpdateHandler:
         self.message_bus = message_bus
         self.character_service = character_service
         self.session_handler = session_handler
+        self.effect_handler = effect_handler
         self.character_registry = registry_service.character_registry
         self.area_registry = registry_service.area_registry
         self.room_registry = registry_service.room_registry
         self.skill_registry = registry_service.skill_registry
         self.spell_registry = registry_service.spell_registry
         self.combat_registry: CombatRegistry = registry_service.combat_registry
-        self.enums: dict[str, IntEnum] = {}
         self.pulse_area = 0
         self.pulse_mobile = 0
         self.pulse_violence = 0
@@ -528,54 +527,20 @@ class UpdateHandler:
         return None
 
     async def _tick_effects(self, entity):
-        effects = list(EffectUtil.ensure_effects(entity))
-        for idx, effect in enumerate(effects):
-            duration = GenericUtil.to_int(getattr(effect, "duration", 0), 0)
-            if duration > 0:
-                effect.duration = duration - 1
-                level = GenericUtil.to_int(getattr(effect, "level", 0), 0)
-                if level > 0 and random.randint(0, 4) == 0:
-                    effect.level = level - 1
-                continue
-            if duration < 0:
-                continue
-
-            next_effect = effects[idx + 1] if idx + 1 < len(effects) else None
-            suppress_msg = (
-                next_effect is not None
-                and str(getattr(next_effect, "type", "")).strip().lower() == str(getattr(effect, "type", "")).strip().lower()
-                and GenericUtil.to_int(getattr(next_effect, "duration", 0), 0) > 0
-            )
-            if type(entity) is Character and not suppress_msg:
-                msg_off = self._lookup_effect_message(getattr(effect, "type", ""), "msg_off")
-                if msg_off:
-                    await self.message_bus.send_to_character(entity.id, self.message_bus.text_to_message(f"{msg_off}\r\n"))
-            EffectUtil.affect_remove(entity, effect)
+        result = self.effect_handler.tick_effects(entity)
+        if type(entity) is not Character:
+            return
+        for effect in result.expired_effects:
+            msg_off = self._lookup_effect_message(getattr(effect, "type", ""), "msg_off")
+            if msg_off:
+                await self.message_bus.send_to_character(entity.id, self.message_bus.text_to_message(f"{msg_off}\r\n"))
 
     async def _tick_item_effects(self, item):
-        effects = list(EffectUtil.ensure_effects(item))
-        for idx, effect in enumerate(effects):
-            duration = GenericUtil.to_int(getattr(effect, "duration", 0), 0)
-            if duration > 0:
-                effect.duration = duration - 1
-                level = GenericUtil.to_int(getattr(effect, "level", 0), 0)
-                if level > 0 and random.randint(0, 4) == 0:
-                    effect.level = level - 1
-                continue
-            if duration < 0:
-                continue
-
-            next_effect = effects[idx + 1] if idx + 1 < len(effects) else None
-            suppress_msg = (
-                next_effect is not None
-                and str(getattr(next_effect, "type", "")).strip().lower() == str(getattr(effect, "type", "")).strip().lower()
-                and GenericUtil.to_int(getattr(next_effect, "duration", 0), 0) > 0
-            )
-            if not suppress_msg:
-                msg_obj = self._lookup_effect_message(getattr(effect, "type", ""), "msg_obj")
-                if msg_obj:
-                    await self._emit_obj_effect_message(item, msg_obj)
-            EffectUtil.affect_remove_obj(item, effect)
+        result = self.effect_handler.tick_effects(item)
+        for effect in result.expired_effects:
+            msg_obj = self._lookup_effect_message(getattr(effect, "type", ""), "msg_obj")
+            if msg_obj:
+                await self._emit_obj_effect_message(item, msg_obj)
 
     def _lookup_effect_message(self, effect_type, field_name: str) -> str:
         want = str(effect_type or "").strip().lower()

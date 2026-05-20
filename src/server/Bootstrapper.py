@@ -46,6 +46,7 @@ from interp.commands.Object import Object
 from interp.commands.Wiz import Wiz
 from item.BodyForm import BodyForm
 from item.BodyParts import BodyParts
+from item.EffectHandler import EffectHandler
 from item.ItemHandler import ItemHandler
 from item.ItemRegistry import ItemRegistry
 from item.ItemService import ItemService
@@ -68,6 +69,7 @@ from skill.SkillService import SkillService
 from skill.SpellRegistry import SpellRegistry
 from skill.SpellService import SpellService
 from server.LoggerFactory import LoggerFactory
+from util.EffectUtil import EffectUtil
 
 logger = LoggerFactory.get_logger("Bootstrapper")
 
@@ -85,6 +87,7 @@ class Bootstrapper:
         Bootstrapper._bind_handlers(injector)
         Bootstrapper._bind_apis(injector)
         Bootstrapper._bind_game_services(injector, service_config)
+        EffectUtil.configure(injector.get(EffectHandler))
 
         injector.binder.bind(ConnectionHandler, scope=singleton)
         injector.binder.bind(
@@ -123,7 +126,7 @@ class Bootstrapper:
     def _bind_handlers(injector: Injector):
         Bootstrapper._bind_singleton_classes(injector, [
             SocialHandler, Communications, Fight, Info, Movement, Object, Wiz,
-            AreaHandler, RoomHandler, FightHandler, ItemHandler, MobileHandler,
+            AreaHandler, RoomHandler, FightHandler, ItemHandler, MobileHandler, EffectHandler,
             PlayerHandler, WizHandler, InterpHandler, NoteHandler,
             WeatherHandler, UpdateHandler
         ])

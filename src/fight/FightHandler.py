@@ -13,9 +13,9 @@ from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
 from util.InfoUtil import InfoUtil
 from mobile.MobileRegistry import MobileRegistry
+from item.EffectHandler import EffectHandler
 from item.BodyForm import BodyForm
 from item.BodyParts import BodyParts
-from util.EffectUtil import EffectUtil
 from item.ItemRegistry import ItemRegistry
 from util.ItemUtil import ItemUtil
 from player.CharacterAdvancement import CharacterAdvancement
@@ -69,7 +69,8 @@ class FightHandler:
                  room_registry: RoomRegistry,
                  item_registry: ItemRegistry,
                  mobile_registry: MobileRegistry,
-                 enum_provider: EnumProvider):
+                 enum_provider: EnumProvider,
+                 effect_handler: EffectHandler):
         self.__name__ = "FightHandler"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.message_bus = message_bus
@@ -78,6 +79,7 @@ class FightHandler:
         self.room_registry = room_registry
         self.item_registry = item_registry
         self.mobile_registry = mobile_registry
+        self.effect_handler = effect_handler
         self.rng = RandomNumberGenerator()
         self.PositionsEnum = enum_provider.get("positions")
         self.WellKnownObjectVnums = enum_provider.get("wellKnownObjectVnums")
@@ -1663,8 +1665,8 @@ class FightHandler:
         if room is not None:
             room.characters.pop(str(getattr(victim, "id", "") or ""), None)
 
-        for effect in list(EffectUtil.ensure_effects(victim)):
-            EffectUtil.affect_remove(victim, effect)
+        for effect in list(self.effect_handler.ensure_effects(victim)):
+            self.effect_handler.remove_effect(victim, effect)
 
         armor = getattr(victim, "armor_class", None)
         for field_name in ("piercing", "bashing", "slashing", "magic"):

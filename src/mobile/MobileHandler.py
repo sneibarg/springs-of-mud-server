@@ -10,6 +10,7 @@ from game.RandomNumberGenerator import RandomNumberGenerator
 from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
 from fight.FightHandler import FightHandler
+from item.EffectHandler import EffectHandler
 from mobile.Mobile import Mobile
 from mobile.KillTable import KillTable
 from api.MobileApi import MobileApi, MobileContext
@@ -30,7 +31,8 @@ class MobileHandler:
                  shop_registry: ShopRegistry,
                  fight_handler: FightHandler,
                  weather_handler: WeatherHandler,
-                 enum_provider: EnumProvider):
+                 enum_provider: EnumProvider,
+                 effect_handler: EffectHandler):
         self.__name__ = "MobileHandler"
         self.message_bus = message_bus
         self.registry_service = registry_service
@@ -44,7 +46,8 @@ class MobileHandler:
         self.special_registry = registry_service.special_registry
         self.logger = LoggerFactory.get_logger(__name__)
         self.rng = RandomNumberGenerator()
-        self.spell_api = SpellApi()
+        self.effect_handler = effect_handler
+        self.spell_api = SpellApi(effect_handler=effect_handler)
         self.act_bits = enum_provider.get("actBits")
         self.affected_bits = enum_provider.get("affectedBy")
         self.positions = enum_provider.get("positions")

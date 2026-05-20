@@ -11,6 +11,7 @@ from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
 from interp.Context import Context
 from item.Effect import Effect
+from item.EffectHandler import EffectHandler
 from player.Character import Character
 from player.CharacterAdvancement import CharacterAdvancement
 from api.CharacterApi import CharacterApi
@@ -36,7 +37,8 @@ class Fight:
                  skill_api: SkillApi,
                  fight_api: FightApi,
                  interp_api: InterpApi = None,
-                 weather_handler: WeatherHandler = None):
+                 weather_handler: WeatherHandler = None,
+                 effect_handler: EffectHandler = None):
         self.__name__ = "Fight"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -48,7 +50,8 @@ class Fight:
         self.fight_api = fight_api
         self.interp_api = interp_api or InterpApi()
         self.weather_handler = weather_handler
-        self.spell_api = SpellApi()
+        self.effect_handler = effect_handler or EffectUtil.handler()
+        self.spell_api = SpellApi(effect_handler=self.effect_handler)
         self._handlers = {
             "hit": self.do_kill,
             "kill": self.do_kill,
@@ -191,9 +194,9 @@ class Fight:
             character.movement = max(0, GenericUtil.to_int(getattr(character, "movement", 0), 0) // 2)
             character.hit = min(GenericUtil.to_int(getattr(character, "max_hit", 0), 0), GenericUtil.to_int(getattr(character, "hit", 0), 0) + GenericUtil.to_int(getattr(character, "level", 0), 0) * 2)
             self._check_improve(character, skill, True, 2)
-            EffectUtil.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_HITROLL", modifier=bonus, bitvector="AFF_BERSERK"))
-            EffectUtil.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_DAMROLL", modifier=bonus, bitvector="0"))
-            EffectUtil.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_AC", modifier=ac_penalty, bitvector="0"))
+            self.effect_handler.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_HITROLL", modifier=bonus, bitvector="AFF_BERSERK"))
+            self.effect_handler.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_DAMROLL", modifier=bonus, bitvector="0"))
+            self.effect_handler.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_AC", modifier=ac_penalty, bitvector="0"))
             room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
             context.finish()
             return {"payloads": [self._command_payload("success", targets=room.player_targets(character), token_factory=self._actor_tokens)]}
@@ -222,7 +225,7 @@ class Fight:
         self._set_wait(character, self._skill_beats(skill, 12))
         pre_corpse_ids = self._pre_corpse_ids(room)
         if random.randint(1, 100) <= chance:
-            EffectUtil.affect_to_char(victim, Effect(where="TO_AFFECTS", type="skill.dirt", level=getattr(character, "level", 0), duration=0, location="APPLY_HITROLL", modifier=-4, bitvector="AFF_BLIND"))
+            self.effect_handler.affect_to_char(victim, Effect(where="TO_AFFECTS", type="skill.dirt", level=getattr(character, "level", 0), duration=0, location="APPLY_HITROLL", modifier=-4, bitvector="AFF_BLIND"))
             self._check_improve(character, skill, True, 2)
             result = self.fight_handler.damage(character, victim, random.randint(2, 5), dt="dirt")
             round_payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
@@ -601,7 +604,7 @@ class Fight:
             return self._command_payload("no_remove", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)
 
         if not CharacterApi.is_npc(victim):
-            EffectUtil.remove_item_effects(victim, obj)
+            self.effect_handler.remove_item_effects(victim, obj)
         victim.unequip_item("wielded")
 
         keep_inventory = False

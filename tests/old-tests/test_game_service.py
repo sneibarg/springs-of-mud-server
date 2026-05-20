@@ -319,7 +319,7 @@ class TestGameService(unittest.IsolatedAsyncioTestCase):
 
         service = GameService(self.mock_service_config)
 
-        self.assertEqual(service.game_data.enums['gameParameters']['PULSE_PER_SECOND'], 8)
+        self.assertEqual(service.GameParametersEnum.PULSE_PER_SECOND.value, 8)
 
 
 if __name__ == "__main__":

@@ -8,6 +8,7 @@ from area.Shop import Shop
 from fight.FightHandler import FightHandler
 from game.EnumProvider import EnumProvider
 from game.Equipped import Equipped
+from item.EffectHandler import EffectHandler
 from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
@@ -34,7 +35,8 @@ class Object:
                  weather_handler=None,
                  interp_api=None,
                  spell_api=None,
-                 fight_handler: FightHandler = None):
+                 fight_handler: FightHandler = None,
+                 effect_handler: EffectHandler = None):
         self.__name__ = "Object"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -45,7 +47,8 @@ class Object:
         self.spell_registry = getattr(registry_service, "spell_registry", None)
         self.weather_handler = weather_handler
         self.interp_api = interp_api or InterpApi()
-        self.spell_api = spell_api or SpellApi()
+        self.effect_handler = effect_handler or EffectUtil.handler()
+        self.spell_api = spell_api or SpellApi(effect_handler=self.effect_handler)
         self.fight_handler = fight_handler
         self.item_types = enum_provider.get("itemTypes")
         self.item_flags = enum_provider.get("itemFlags")
@@ -150,7 +153,7 @@ class Object:
             context.finish()
             return blocked
 
-        context.sell_shop.complete_sale(character, context.sell_keeper, context.sell_obj, context.sell_cost, self.item_flags)
+        context.sell_shop.complete_sale(character, context.sell_keeper, context.sell_obj, context.sell_cost, self.item_flags, effect_handler=self.effect_handler)
 
         payload = self._sell_success_payload(character, room, context)
         context.finish()
@@ -440,7 +443,7 @@ class Object:
     def _drop_one(self, character: Character, room, context: Context, item):
         slot = ItemUtil.equipped_slot_of(character, item)
         if slot:
-            EffectUtil.remove_item_effects(character, item)
+            self.effect_handler.remove_item_effects(character, item)
             ItemUtil.unequip_item(character, slot)
         character.remove_item(item)
 
@@ -704,7 +707,7 @@ class Object:
             return {"to_char": "You can't let go of it.\r\n"}
         slot = character.equipped_slot_of(item)
         if slot:
-            EffectUtil.remove_item_effects(character, item)
+            self.effect_handler.remove_item_effects(character, item)
             character.unequip_item(slot)
         character.remove_item(item)
         context.finish()
@@ -1029,7 +1032,7 @@ class Object:
             return blocked
 
         if context.wear_all:
-            result = Equipped.wear_all(character, self.wear_flags, self.item_flags)
+            result = Equipped.wear_all(character, self.wear_flags, self.item_flags, effect_handler=self.effect_handler)
         else:
             result = Equipped.wear_item(
                 character,
@@ -1038,6 +1041,7 @@ class Object:
                 self.item_flags,
                 replace=True,
                 forced_slot=context.wear_forced_slot,
+                effect_handler=self.effect_handler,
             )
         payload = self._equipment_result_payload(character, room, context, result)
         context.finish()
@@ -1063,6 +1067,7 @@ class Object:
             self.item_flags,
             replace=True,
             preferred_slot=slot,
+            effect_handler=self.effect_handler,
         )
         payload = self._equipment_result_payload(character, room, context, result)
         context.finish()
@@ -1127,7 +1132,7 @@ class Object:
             context.finish()
             return blocked
 
-        result = Equipped.remove_item(character, context.remove_slot, context.remove_item, self.item_flags)
+        result = Equipped.remove_item(character, context.remove_slot, context.remove_item, self.item_flags, effect_handler=self.effect_handler)
         payload = self._equipment_result_payload(character, room, context, result)
         context.finish()
         return payload
@@ -1264,7 +1269,7 @@ class Object:
 
         slot = character.equipped_slot_of(item)
         if slot:
-            EffectUtil.remove_item_effects(character, item)
+            self.effect_handler.remove_item_effects(character, item)
             character.unequip_item(slot)
         character.remove_item(item)
         context.finish()

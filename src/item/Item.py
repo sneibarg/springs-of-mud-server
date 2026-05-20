@@ -294,31 +294,6 @@ class Item:
         destination.value1 = str(destination_capacity if destination_capacity > 0 else source_amount)
         return result
 
-    def ensure_effects(self):
-        with self.lock:
-            if self.effects is None:
-                self.effects = []
-            return self.effects
-
-    def apply_effect(self, effect):
-        from util.EffectUtil import EffectUtil
-
-        with self.lock:
-            self.ensure_effects().append(effect)
-            EffectUtil.affect_modify(self, effect, True)
-        return effect
-
-    def remove_effect(self, effect) -> bool:
-        from util.EffectUtil import EffectUtil
-
-        with self.lock:
-            effects = self.ensure_effects()
-            if effect not in effects:
-                return False
-            EffectUtil.affect_modify(self, effect, False)
-            effects.remove(effect)
-        return True
-
     def add_item_to_room(self, room: Room):
         with self.lock:
             if room.id not in self.room_data:

@@ -77,6 +77,42 @@ class Character:
             return self.id == other.id
         return False
 
+    @classmethod
+    def from_json(cls, data):
+        from util.GenericUtil import GenericUtil
+        from game.Equipped import Equipped
+        from item.Item import Item
+        payload = GenericUtil.camel_to_snake_case(data)
+        prompt_format = payload.get('prompt_format')
+        character_class = payload.get('character_class')
+        armor_class = payload.get('armor_class')
+        character_attributes = payload.get('character_attributes')
+        status_flags = payload.get('status_flags')
+        character_race = payload.get('character_race', payload.get('race'))
+        equipped_data = payload.get('equipped')
+
+        payload['status_flags'] = StatusFlags.from_json(status_flags)
+        payload['character_attributes'] = CharacterAttributes.from_json(character_attributes)
+        payload['armor_class'] = ArmorClass.from_json(armor_class)
+        payload['prompt_format'] = PromptFormat.from_template(prompt_format)
+        payload['character_class'] = CharacterClass.from_json(character_class)
+        payload['character_race'] = CharacterRace.from_json(character_race, character_class=payload['character_class'])
+        payload.pop('race', None)
+
+        if isinstance(equipped_data, dict):
+            normalized_equipped = GenericUtil.camel_to_snake_case(equipped_data)
+            equipped = Equipped()
+            for slot, item_data in normalized_equipped.items():
+                if not hasattr(equipped, slot) or item_data is None:
+                    continue
+                if isinstance(item_data, Item):
+                    setattr(equipped, slot, item_data)
+                    continue
+                if isinstance(item_data, (dict, str)):
+                    setattr(equipped, slot, Item.from_json(item_data))
+            payload['equipped'] = equipped
+        return cls(**payload)
+
     def load_inventory(self):
         from item.Item import Item
         with self.lock:
@@ -204,50 +240,6 @@ class Character:
 
         return Equipped.unequip_item(self, slot_name)
 
-    def ensure_effects(self):
-        with self.lock:
-            if self.effects is None:
-                self.effects = []
-            return self.effects
-
-    def apply_effect(self, effect):
-        from util.EffectUtil import EffectUtil
-
-        with self.lock:
-            self.ensure_effects().append(effect)
-            EffectUtil.affect_modify(self, effect, True)
-        return effect
-
-    def remove_effect(self, effect) -> bool:
-        from util.EffectUtil import EffectUtil
-
-        with self.lock:
-            effects = self.ensure_effects()
-            if effect not in effects:
-                return False
-            where = getattr(effect, "where", 0)
-            vector = getattr(effect, "bitvector", 0)
-            EffectUtil.affect_modify(self, effect, False)
-            effects.remove(effect)
-            EffectUtil.affect_check(self, where, vector)
-        return True
-
-    def join_effect(self, effect):
-        from util.EffectUtil import EffectUtil
-
-        new_effect = EffectUtil.as_effect(effect)
-        matched = None
-        for old in list(self.ensure_effects()):
-            if str(getattr(old, "type", "")).strip().lower() == str(getattr(new_effect, "type", "")).strip().lower():
-                matched = old
-                break
-        if matched is not None:
-            new_effect.level = (GenericUtil.to_int(new_effect.level, 0) + GenericUtil.to_int(matched.level, 0)) // 2
-            new_effect.duration = GenericUtil.to_int(new_effect.duration, 0) + GenericUtil.to_int(matched.duration, 0)
-            new_effect.modifier = GenericUtil.to_int(new_effect.modifier, 0) + GenericUtil.to_int(matched.modifier, 0)
-            self.remove_effect(matched)
-        return self.apply_effect(new_effect)
-
     @property
     def race(self) -> str:
         if self.character_race is None:
@@ -290,42 +282,6 @@ class Character:
         attrs = getattr(self, "character_attributes", None)
         if attrs is not None:
             attrs.experience_per_level = value
-
-    @classmethod
-    def from_json(cls, data):
-        from util.GenericUtil import GenericUtil
-        from game.Equipped import Equipped
-        from item.Item import Item
-        payload = GenericUtil.camel_to_snake_case(data)
-        prompt_format = payload.get('prompt_format')
-        character_class = payload.get('character_class')
-        armor_class = payload.get('armor_class')
-        character_attributes = payload.get('character_attributes')
-        status_flags = payload.get('status_flags')
-        character_race = payload.get('character_race', payload.get('race'))
-        equipped_data = payload.get('equipped')
-
-        payload['status_flags'] = StatusFlags.from_json(status_flags)
-        payload['character_attributes'] = CharacterAttributes.from_json(character_attributes)
-        payload['armor_class'] = ArmorClass.from_json(armor_class)
-        payload['prompt_format'] = PromptFormat.from_template(prompt_format)
-        payload['character_class'] = CharacterClass.from_json(character_class)
-        payload['character_race'] = CharacterRace.from_json(character_race, character_class=payload['character_class'])
-        payload.pop('race', None)
-
-        if isinstance(equipped_data, dict):
-            normalized_equipped = GenericUtil.camel_to_snake_case(equipped_data)
-            equipped = Equipped()
-            for slot, item_data in normalized_equipped.items():
-                if not hasattr(equipped, slot) or item_data is None:
-                    continue
-                if isinstance(item_data, Item):
-                    setattr(equipped, slot, item_data)
-                    continue
-                if isinstance(item_data, (dict, str)):
-                    setattr(equipped, slot, Item.from_json(item_data))
-            payload['equipped'] = equipped
-        return cls(**payload)
 
     def get_age(self) -> int:
         return int(17 + (self.status_flags.played + datetime.now().timestamp() - self.status_flags.logon) / 72000)
