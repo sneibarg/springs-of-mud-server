@@ -44,7 +44,7 @@ The project consistently separates responsibilities:
 - **handlers** apply gameplay behavior and side effects
 - **APIs** expose reusable gameplay logic for commands and rules
 
-Dependency injection is assembled in `src/util/ServerUtil.py` using `injector`, which keeps startup explicit and makes the runtime graph easier to reason about.
+Dependency injection is assembled in `src/server/Bootstrapper.py` using `injector`, which keeps startup explicit and makes the runtime graph easier to reason about.
 
 ### 3. Data-driven content instead of hard-coded game behavior
 
