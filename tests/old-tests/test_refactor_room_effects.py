@@ -83,24 +83,5 @@ class TestRefactorRoomEffects(unittest.TestCase):
         self.assertEqual(2, EffectUtil._eval_expr("level / 8", level=20))
         self.assertEqual(7, EffectUtil._eval_expr("__import__('os').system('echo hacked')", level=20, default=7))
 
-    def test_effect_util_delegates_entity_mutation_to_domain_hooks(self):
-        calls = []
-        entity = SimpleNamespace(
-            apply_effect=lambda effect: calls.append(("apply", effect.type)),
-            remove_effect=lambda effect: calls.append(("remove", effect.type)),
-            join_effect=lambda effect: calls.append(("join", effect.type)),
-        )
-        effect = Effect(type="spell.test", duration=5)
-
-        EffectUtil.affect_to_char(entity, effect)
-        EffectUtil.affect_remove(entity, effect)
-        EffectUtil.affect_join(entity, effect)
-
-        self.assertEqual(
-            [("apply", "spell.test"), ("remove", "spell.test"), ("join", "spell.test")],
-            calls,
-        )
-
-
 if __name__ == "__main__":
     unittest.main()

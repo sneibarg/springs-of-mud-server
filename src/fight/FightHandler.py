@@ -510,8 +510,8 @@ class FightHandler:
             base_exp = 160 + 20 * (level_range - 4)
 
         # Alignment adjustment follows ROM semantics.
-        gch_align = self._get_alignment(gch)
-        victim_align = self._get_alignment(victim)
+        gch_align = gch.get_alignment()
+        victim_align = victim.get_alignment()
         align = victim_align - gch_align
 
         act_bits = CharacterApi.get_enum("actBits")
@@ -532,7 +532,7 @@ class FightHandler:
             else:
                 change = (gch_align * base_exp // 500) * gch_level // total
                 gch_align = gch_align - change
-            self._set_alignment(gch, gch_align)
+            gch.set_alignment(gch_align)
 
         if no_align:
             xp = base_exp
@@ -868,8 +868,8 @@ class FightHandler:
         if not result.get("killed"):
             if not CharacterApi.is_npc(attacker) and CharacterApi.is_npc(victim):
                 payload["to_char"] = self._append_condition_line(payload["to_char"], victim)
-            elif CharacterApi.is_npc(attacker) and not CharacterApi.is_npc(victim):
-                payload["to_victim"] = self._append_condition_line(payload.get("to_victim", ""), attacker)
+            # elif CharacterApi.is_npc(attacker) and not CharacterApi.is_npc(victim):
+            #     payload["to_victim"] = self._append_condition_line(payload.get("to_victim", ""), attacker)
 
         if not result.get("killed"):
             return payload
@@ -1001,28 +1001,6 @@ class FightHandler:
             return True
 
         return False
-
-    @staticmethod
-    def _get_alignment(entity) -> int:
-        attrs = getattr(entity, "character_attributes", None)
-        if attrs is not None:
-            return GenericUtil.to_int(getattr(attrs, "alignment", 0), 0)
-        perm = getattr(entity, "character_attributes", None)
-        if perm is not None:
-            return GenericUtil.to_int(getattr(perm, "alignment", 0), 0)
-        return GenericUtil.to_int(getattr(entity, "alignment", 0), 0)
-
-    @staticmethod
-    def _set_alignment(entity, value: int) -> None:
-        attrs = getattr(entity, "character_attributes", None)
-        if attrs is not None:
-            attrs.alignment = int(value)
-            return
-        perm = getattr(entity, "character_attributes", None)
-        if perm is not None:
-            perm.alignment = int(value)
-            return
-        setattr(entity, "alignment", int(value))
 
     @staticmethod
     def _entity_in_room(room, entity) -> bool:

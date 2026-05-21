@@ -309,3 +309,23 @@ class Character:
                 if item.id == learned_id:
                     return item
         return None
+
+    def get_alignment(self):
+        attrs = getattr(self, "character_attributes", None)
+        if attrs is not None:
+            return GenericUtil.to_int(getattr(attrs, "alignment", 0), 0)
+        perm = getattr(self, "character_attributes", None)
+        if perm is not None:
+            return GenericUtil.to_int(getattr(perm, "alignment", 0), 0)
+        return GenericUtil.to_int(getattr(self, "alignment", 0), 0)
+
+    def set_alignment(self, value: int) -> None:
+        attrs = getattr(self, "character_attributes", None)
+        if attrs is not None:
+            attrs.alignment = int(value)
+            return
+        perm = getattr(self, "character_attributes", None)
+        if perm is not None:
+            perm.alignment = int(value)
+            return
+        setattr(self, "alignment", int(value))

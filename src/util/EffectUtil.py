@@ -188,50 +188,6 @@ class EffectUtil:
         return default
 
     @staticmethod
-    def ensure_effects(entity):
-        return EffectUtil.handler().ensure_effects(entity)
-
-    @staticmethod
-    def as_effect(affect_like, source: str = ""):
-        return EffectUtil.handler().as_effect(affect_like, source=source)
-
-    @staticmethod
-    def affect_find(effects, effect_type):
-        return EffectUtil.handler().affect_find(effects, effect_type)
-
-    @staticmethod
-    def affect_to_char(character, effect):
-        return EffectUtil.handler().affect_to_char(character, effect)
-
-    @staticmethod
-    def affect_to_obj(obj, effect):
-        return EffectUtil.handler().affect_to_obj(obj, effect)
-
-    @staticmethod
-    def affect_remove(character, effect):
-        return EffectUtil.handler().affect_remove(character, effect)
-
-    @staticmethod
-    def affect_remove_obj(obj, effect):
-        return EffectUtil.handler().affect_remove_obj(obj, effect)
-
-    @staticmethod
-    def affect_strip(character, effect_type):
-        return EffectUtil.handler().affect_strip(character, effect_type)
-
-    @staticmethod
-    def affect_join(character, effect):
-        return EffectUtil.handler().affect_join(character, effect)
-
-    @staticmethod
-    def effect_from_spell_affect(spell, affect_like, caster_level: int, source: str = ""):
-        return EffectUtil.handler().effect_from_spell_affect(spell, affect_like, caster_level, source=source)
-
-    @staticmethod
-    def apply_spell_effects(caster, victim, spell):
-        return EffectUtil.handler().apply_spell_effects(caster, victim, spell)
-
-    @staticmethod
     def apply_item_effects(character, item):
         return EffectUtil.handler().apply_item_effects(character, item)
 
