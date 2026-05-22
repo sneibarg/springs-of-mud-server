@@ -1,5 +1,7 @@
 from typing import Any
 
+from interp.Context import Context
+
 
 class InfoUtil:
     @staticmethod
@@ -99,3 +101,17 @@ class InfoUtil:
         if alignment > -900:
             return "demonic"
         return "satanic"
+
+    @staticmethod
+    def look_register_match(context: Context) -> bool:
+        context.count += 1
+        return context.count == context.number
+
+    @staticmethod
+    def look_keyword_matches(token: str, keyword: str) -> bool:
+        t = (token or "").strip().lower()
+        k = (keyword or "").strip().lower()
+        if not t or not k:
+            return False
+        words = [w for w in k.split() if w]
+        return any(w == t or w.startswith(t) for w in words)

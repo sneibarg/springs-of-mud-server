@@ -2,6 +2,7 @@ from injector import inject
 
 from game.RegistryService import RegistryService
 from interp.Context import Context
+from util.InfoUtil import InfoUtil
 from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
 from api.ItemApi import ItemApi
@@ -64,22 +65,22 @@ class ItemHandler:
             if isinstance(extra, dict):
                 extra_keyword = extra.get("keyword")
                 extra_description = extra.get("description")
-            if extra and context.look_keyword_matches(token, extra_keyword or ""):
-                if context.look_register_match():
+            if extra and InfoUtil.look_keyword_matches(token, extra_keyword or ""):
+                if InfoUtil.look_register_match(context):
                     await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message((extra_description or "") + "\r\n"))
                     context.finish()
                     return
 
-            if context.look_keyword_matches(token, item.name or ""):
-                if context.look_register_match():
+            if InfoUtil.look_keyword_matches(token, item.name or ""):
+                if InfoUtil.look_register_match(context):
                     text = (item.long_description or item.short_description or item.name or "You see nothing special.") + "\r\n"
                     await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
                     context.finish()
                     return
 
         room_extra = getattr(room, "extra_description", None)
-        if room_extra and context.look_keyword_matches(token, room_extra.keyword or ""):
-            if context.look_register_match():
+        if room_extra and InfoUtil.look_keyword_matches(token, room_extra.keyword or ""):
+            if InfoUtil.look_register_match(context):
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(
                     (room_extra.description or "") + "\r\n"))
                 context.finish()

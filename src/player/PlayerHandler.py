@@ -141,10 +141,10 @@ class PlayerHandler:
             extra_keyword = getattr(extra, "keyword", None) if extra is not None else None
             if isinstance(extra, dict):
                 extra_keyword = extra.get("keyword")
-            if extra and Context.look_keyword_matches(wanted, extra_keyword or ""):
+            if extra and InfoUtil.look_keyword_matches(wanted, extra_keyword or ""):
                 return True
 
-            if Context.look_keyword_matches(wanted, getattr(item, "name", "") or ""):
+            if InfoUtil.look_keyword_matches(wanted, getattr(item, "name", "") or ""):
                 return True
 
         room_extra = getattr(room, "extra_description", None)
@@ -152,7 +152,7 @@ class PlayerHandler:
             room_extra_keyword = room_extra.get("keyword")
         else:
             room_extra_keyword = getattr(room_extra, "keyword", "")
-        return bool(room_extra and Context.look_keyword_matches(wanted, room_extra_keyword or ""))
+        return bool(room_extra and InfoUtil.look_keyword_matches(wanted, room_extra_keyword or ""))
 
     async def do_scroll(self, character: Character, context: Context):
         text = self.info_commands.do_scroll(character, context)

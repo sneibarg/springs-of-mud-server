@@ -188,16 +188,8 @@ class EffectUtil:
         return default
 
     @staticmethod
-    def apply_item_effects(character, item):
-        return EffectUtil.handler().apply_item_effects(character, item)
-
-    @staticmethod
     def remove_item_effects(character, item):
         return EffectUtil.handler().remove_item_effects(character, item)
-
-    @staticmethod
-    def check_dispel(dis_level: int, victim, effect_type) -> bool:
-        return EffectUtil.handler().check_dispel(dis_level, victim, effect_type)
 
     @staticmethod
     def is_affected(character, effect_type) -> bool:

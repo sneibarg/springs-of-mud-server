@@ -982,7 +982,7 @@ class Object:
         for collection_name in ("characters", "mobiles"):
             collection = getattr(room, collection_name, {}) or {}
             for entity in collection.values():
-                if Context.look_keyword_matches(query, getattr(entity, "name", "")):
+                if InfoUtil.look_keyword_matches(query, getattr(entity, "name", "")):
                     return entity
         return None
 

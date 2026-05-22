@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any, TYPE_CHECKING
 
 from interp.PromptFormat import PromptFormat
+from game.Equipped import Equipped
 from game.StatusFlags import StatusFlags
 from player.CharacterClass import CharacterClass
 from player.ArmorClass import ArmorClass
@@ -80,7 +81,6 @@ class Character:
     @classmethod
     def from_json(cls, data):
         from util.GenericUtil import GenericUtil
-        from game.Equipped import Equipped
         from item.Item import Item
         payload = GenericUtil.camel_to_snake_case(data)
         prompt_format = payload.get('prompt_format')
@@ -143,10 +143,10 @@ class Character:
         return item_weight + coin_weight
 
     def max_items(self) -> int:
-        return GenericUtil.to_int(getattr(getattr(self, "character_attributes", None), "max_items", 0), 0)
+        return self.character_attributes.max_items
 
     def max_weight(self) -> int:
-        return GenericUtil.to_int(getattr(getattr(self, "character_attributes", None), "max_weight", 0), 0)
+        return self.character_attributes.max_weight
 
     def size_value(self) -> int:
         direct_size = GenericUtil.to_int(getattr(self, "size", None), None)
@@ -220,8 +220,6 @@ class Character:
         return GenericUtil.to_int(key, -1) >= 0 and self.has_item_vnum(key)
 
     def ensure_equipped(self):
-        from game.Equipped import Equipped
-
         return Equipped.ensure_on(self)
 
     def equipped_slot_of(self, item: Item) -> Optional[str]:
@@ -231,13 +229,9 @@ class Character:
         return equipped.slot_of(item)
 
     def equip_item(self, item: Item, slot_name: str):
-        from game.Equipped import Equipped
-
         return Equipped.equip_item(self, item, slot_name)
 
     def unequip_item(self, slot_name: str):
-        from game.Equipped import Equipped
-
         return Equipped.unequip_item(self, slot_name)
 
     @property
@@ -291,13 +285,6 @@ class Character:
             item_type = str(getattr(item, "item_type", "") or "").lower()
             if "boat" in item_type:
                 return True
-        return False
-
-    def check_blind(self, character_macros) -> bool:
-        if not character_macros.is_npc(self) and character_macros.has_holy_light(self):
-            return False
-        if character_macros.is_blind(self):
-            return True
         return False
 
     def learned(self) -> List[Any]:

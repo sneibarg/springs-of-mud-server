@@ -665,7 +665,7 @@
         "messageKey": "sleeping"
       },
       {
-        "predicate": "lambda v: v.context.character.check_blind(CharacterApi)",
+        "predicate": "lambda v: CharacterApi.is_blind(v.context.character)",
         "messageKey": "blind"
       },
       {
