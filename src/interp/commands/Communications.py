@@ -10,7 +10,6 @@ from game.RegistryService import RegistryService
 from interp.Context import Context
 from api.InterpApi import InterpApi
 from util.CommunicationsUtil import CommunicationsUtil
-from player.Character import Character
 from api.CharacterApi import CharacterApi
 from player.CharacterService import CharacterService
 from server.LoggerFactory import LoggerFactory
@@ -87,6 +86,8 @@ class Communications:
         return fn(context)
 
     def do_channels(self, context: Context):
+        character = context.character
+
         def on_off(bit_name: str) -> str:
             return "OFF" if CommunicationsUtil.has_comm(character, self.comm_flags, bit_name) else "ON"
 
@@ -104,7 +105,8 @@ class Communications:
             f"quiet mode     {'ON' if CommunicationsUtil.has_comm(character, self.comm_flags, 'COMM_QUIET') else 'OFF'}",
         ]
         if CharacterApi.is_immortal(character):
-            lines.insert(8, f"god channel    {'OFF' if CommunicationsUtil.has_comm(character, self.comm_flags, 'COMM_NOWIZ') else 'ON'}")
+            lines.insert(8,
+                         f"god channel    {'OFF' if CommunicationsUtil.has_comm(character, self.comm_flags, 'COMM_NOWIZ') else 'ON'}")
         if CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_AFK"):
             lines.append("You are AFK.")
         if CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_NOSHOUT"):
@@ -152,7 +154,8 @@ class Communications:
         if payload.get("blocked"):
             return payload
         history = self.communications_api.get_tell_buffer(character)
-        return {"to_char": "".join(entry.message for entry in history)}
+        missed_tells = "".join(entry.format_message() for entry in history)
+        return missed_tells
 
     def do_say(self, context: Context):
         character = context.character
@@ -190,7 +193,8 @@ class Communications:
 
     def do_tell(self, context: Context):
         character = context.character
-        target_name, message = CommunicationsUtil.split_first(CommunicationsUtil.parse_argument(context.result, context.parameters))
+        target_name, message = CommunicationsUtil.split_first(
+            CommunicationsUtil.parse_argument(context.result, context.parameters))
         context.tell_target_name = target_name
         context.tell_target = CharacterApi.find_playing_character(target_name, self.session_handler)
         context.interp_tokens = {"t": target_name, "s": message}
@@ -242,22 +246,28 @@ class Communications:
         return payload
 
     def do_gossip(self, context: Context):
-        return self._channel(context, "COMM_NOGOSSIP", "gossip", "Gossip channel is now ON.\r\n", "Gossip channel is now OFF.\r\n")
+        return self._channel(context, "COMM_NOGOSSIP", "gossip", "Gossip channel is now ON.\r\n",
+                             "Gossip channel is now OFF.\r\n")
 
     def do_auction(self, context: Context):
-        return self._channel(context, "COMM_NOAUCTION", "auction", "Auction channel is now ON.\r\n", "Auction channel is now OFF.\r\n")
+        return self._channel(context, "COMM_NOAUCTION", "auction", "Auction channel is now ON.\r\n",
+                             "Auction channel is now OFF.\r\n")
 
     def do_music(self, context: Context):
-        return self._channel(context, "COMM_NOMUSIC", "music", "Music channel is now ON.\r\n", "Music channel is now OFF.\r\n")
+        return self._channel(context, "COMM_NOMUSIC", "music", "Music channel is now ON.\r\n",
+                             "Music channel is now OFF.\r\n")
 
     def do_question(self, context: Context):
-        return self._channel(context, "COMM_NOQUESTION", "question", "Q/A channel is now ON.\r\n", "Q/A channel is now OFF.\r\n")
+        return self._channel(context, "COMM_NOQUESTION", "question", "Q/A channel is now ON.\r\n",
+                             "Q/A channel is now OFF.\r\n")
 
     def do_quote(self, context: Context):
-        return self._channel(context, "COMM_NOQUOTE", "quote", "Quote channel is now ON.\r\n", "Quote channel is now OFF.\r\n")
+        return self._channel(context, "COMM_NOQUOTE", "quote", "Quote channel is now ON.\r\n",
+                             "Quote channel is now OFF.\r\n")
 
     def do_grats(self, context: Context):
-        return self._channel( context, "COMM_NOGRATS", "grats", "Grats channel is now ON.\r\n", "Grats channel is now OFF.\r\n")
+        return self._channel(context, "COMM_NOGRATS", "grats", "Grats channel is now ON.\r\n",
+                             "Grats channel is now OFF.\r\n")
 
     def do_gtell(self, context: Context):
         character = context.character
@@ -265,7 +275,8 @@ class Communications:
         if payload.get("blocked"):
             return payload
         room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
-        payload.setdefault("to_room", f"{character.name} tells the group '{CommunicationsUtil.parse_argument(context.result, context.parameters)}'\r\n")
+        payload.setdefault("to_room",
+                           f"{character.name} tells the group '{CommunicationsUtil.parse_argument(context.result, context.parameters)}'\r\n")
         payload["targets"] = room.player_targets(character)
         return payload
 
@@ -355,7 +366,9 @@ class Communications:
         payload["victim"] = victim
         self.communications_api.append_tell_buffer(victim, character, payload.get("to_victim", ""))
         if CommunicationsUtil.has_comm(victim, self.comm_flags, "COMM_AFK"):
-            payload["to_char"] = payload.get("to_char", "") + self._render_message_key(context, "target_afk", channel="to_char").get("to_char", "")
+            payload["to_char"] = payload.get("to_char", "") + self._render_message_key(context, "target_afk",
+                                                                                       channel="to_char").get("to_char",
+                                                                                                              "")
         return payload
 
     def _render_message_key(self, context: Context, message_key: str, channel: str = "", **tokens):

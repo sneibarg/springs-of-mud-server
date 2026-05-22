@@ -15,6 +15,9 @@ class BufferedMessage:
     sender: str
     message: str
 
+    def format_message(self):
+        return CommunicationsUtil.ensure_message_break(f"{self.sender} tells you '{self.message}'")
+
 
 class CommunicationsApi(GameApi):
     _registry_service = None
