@@ -136,3 +136,8 @@ class InterpUtil:
         if text:
             return text
         return " ".join(getattr(context, "parameters", []) or []).strip()
+
+    @staticmethod
+    def normalize_help_token(value: str) -> str:
+        token = str(value or "").strip().lower()
+        return token.strip("~`'\".,;:!?()[]{}<>")

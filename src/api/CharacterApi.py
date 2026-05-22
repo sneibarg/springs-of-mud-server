@@ -159,11 +159,6 @@ class CharacterApi(GameApi):
         return max(char.status_flags.pulse_daze, npulse)
 
     @staticmethod
-    def normalize_help_token(value: str) -> str:
-        token = str(value or "").strip().lower()
-        return token.strip("~`'\".,;:!?()[]{}<>")
-
-    @staticmethod
     def assign_act_flags(character: Character, value: int) -> None:
         character.status_flags.assign_bitfield("act", GenericUtil.to_int(value, 0))
 
@@ -489,59 +484,6 @@ class CharacterApi(GameApi):
         cls.set_comm_flags(victim, bit)
         context.finish()
         return {"to_char": f"{label} set.\r\n", "victim": victim, "to_victim": "The gods have revoked your privileges.\r\n"}
-
-    @staticmethod
-    def channel_payload(character: Character,
-                        context: Any,
-                        off_flag: str,
-                        verb: str,
-                        on_msg: str,
-                        off_msg: str,
-                        comm_flags,
-                        session_handler,
-                        parse_argument_fn,
-                        has_comm_fn,
-                        set_comm_fn):
-        text = parse_argument_fn(context.result, context.parameters)
-        if not text:
-            is_off = has_comm_fn(character, comm_flags, off_flag)
-            set_comm_fn(character, comm_flags, off_flag, not is_off)
-            context.finish()
-            return {"to_char": on_msg if is_off else off_msg}
-
-        if has_comm_fn(character, comm_flags, "COMM_QUIET"):
-            context.finish()
-            return {"to_char": "You must turn off quiet mode first.\r\n"}
-        if has_comm_fn(character, comm_flags, "COMM_NOCHANNELS"):
-            context.finish()
-            return {"to_char": "The gods have revoked your channel privileges.\r\n"}
-
-        set_comm_fn(character, comm_flags, off_flag, False)
-        channel_map = {
-            "gossip": "COMM_NOGOSSIP",
-            "auction": "COMM_NOAUCTION",
-            "music": "COMM_NOMUSIC",
-            "question": "COMM_NOQUESTION",
-            "quote": "COMM_NOQUOTE",
-            "grats": "COMM_NOGRATS",
-        }
-        targets = []
-        for session in session_handler.get_playing_sessions():
-            victim = session.character
-            if victim is None or victim.id == character.id:
-                continue
-            if has_comm_fn(victim, comm_flags, "COMM_QUIET"):
-                continue
-            if has_comm_fn(victim, comm_flags, channel_map[verb]):
-                continue
-            targets.append(victim)
-
-        context.finish()
-        return {
-            "to_char": f"You {verb} '{text}'\r\n",
-            "global_message": f"{character.name} {verb}s '{text}'\r\n",
-            "global_targets": targets,
-        }
 
     @classmethod
     def wiz_do_mload(cls, context: Any, vnum_text: str, mobile_registry, room_registry):

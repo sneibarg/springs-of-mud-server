@@ -95,7 +95,7 @@ class Info:
         arg_all = " ".join((argument or "").split()).lower()
         if not arg_all:
             arg_all = "summary"
-        q_words = [CharacterApi.normalize_help_token(w) for w in arg_all.split()]
+        q_words = [InterpUtil.normalize_help_token(w) for w in arg_all.split()]
         q_words = [w for w in q_words if w]
         output_parts = []
         found = False
@@ -108,7 +108,7 @@ class Info:
             if help_id and help_id in emitted_help_ids:
                 continue
 
-            k_words = [CharacterApi.normalize_help_token(w) for w in str(help_entry.keyword).split()]
+            k_words = [InterpUtil.normalize_help_token(w) for w in str(help_entry.keyword).split()]
             k_words = [w for w in k_words if w]
             if (not q_words or not k_words) or not all(any(k.startswith(q) for k in k_words) for q in q_words):
                 continue
