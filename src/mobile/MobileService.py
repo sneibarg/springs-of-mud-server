@@ -50,6 +50,7 @@ class MobileService:
                     if mobile is None:
                         self.logger.error(f"Failed to build mobile for {raw_mobile}")
                         continue
+                    print(f"Mobile: {mobile}")
                     self.mobile_registry.register(mobile)
                     count += 1
                 self.logger.info(f"Loaded {count} {description}.")

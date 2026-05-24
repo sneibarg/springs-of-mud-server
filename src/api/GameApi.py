@@ -154,8 +154,10 @@ class GameApi:
         for attr_name, enum_name in aliases.items():
             setattr(cls, attr_name, cls.get_enum(enum_name))
 
-    @staticmethod
-    def is_set(flag: int, bit) -> bool:
+    @classmethod
+    def is_set(cls, flag: int, bit) -> bool:
+        if type(flag) is str:
+            flag = GameApi.flags_to_int(flag)
         if hasattr(bit, "value"):
             return (flag & bit.value) != 0
         return (flag & bit) != 0

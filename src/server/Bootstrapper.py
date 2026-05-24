@@ -23,9 +23,9 @@ from game.EnumProvider import EnumProvider
 from game.GameData import GameData
 from game.GameService import GameService
 from game.HandlerService import HandlerService
-from game.NoteHandler import NoteHandler
-from game.NoteRegistry import NoteRegistry
-from game.NoteService import NoteService
+from notes.NoteHandler import NoteHandler
+from notes.NoteRegistry import NoteRegistry
+from notes.NoteService import NoteService
 from game.RegistryService import RegistryService
 from game.UpdateHandler import UpdateHandler
 from game.WeatherHandler import WeatherHandler

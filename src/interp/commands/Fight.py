@@ -5,6 +5,7 @@ import random
 from injector import inject
 
 from api.FightApi import FightApi
+from api.GameApi import GameApi
 from fight.FightHandler import FightHandler
 from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
@@ -24,7 +25,6 @@ from skill.SpellContext import SpellContext
 from util.EffectUtil import EffectUtil
 from util.FightUtil import FightUtil
 from util.GenericUtil import GenericUtil
-from util.ItemUtil import ItemUtil
 from util.MovementUtil import MovementUtil
 from util.PlayerUtil import PlayerUtil
 from util.SkillUtil import SkillUtil
@@ -600,7 +600,7 @@ class Fight:
 
     def _disarm_payload(self, character, victim, room, obj) -> dict:
         item_flags = CharacterApi.get_enum("itemFlags")
-        if hasattr(item_flags, "ITEM_NOREMOVE") and ItemUtil.has_flag(getattr(obj, "extra_flags", 0), item_flags.ITEM_NOREMOVE.value):
+        if hasattr(item_flags, "ITEM_NOREMOVE") and GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_NOREMOVE.value):
             return self._command_payload("no_remove", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)
 
         if not CharacterApi.is_npc(victim):
@@ -608,9 +608,9 @@ class Fight:
         victim.unequip_item("wielded")
 
         keep_inventory = False
-        if hasattr(item_flags, "ITEM_NODROP") and ItemUtil.has_flag(getattr(obj, "extra_flags", 0), item_flags.ITEM_NODROP.value):
+        if hasattr(item_flags, "ITEM_NODROP") and GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_NODROP.value):
             keep_inventory = True
-        if hasattr(item_flags, "ITEM_INVENTORY") and ItemUtil.has_flag(getattr(obj, "extra_flags", 0), item_flags.ITEM_INVENTORY.value):
+        if hasattr(item_flags, "ITEM_INVENTORY") and GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_INVENTORY.value):
             keep_inventory = True
 
         if not keep_inventory:

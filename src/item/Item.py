@@ -112,6 +112,16 @@ class Item:
                 return obj
         return None
 
+    def add_item_to_room(self, room: Room):
+        with self.lock:
+            if room.id not in self.room_data:
+                self.room_data[room.id] = room
+
+    def remove_item_from_room(self, room: Room):
+        with self.lock:
+            if room.id in self.room_data:
+                del self.room_data[room.id]
+
     @classmethod
     def from_json(cls, data):
         if isinstance(data, str):
@@ -294,16 +304,6 @@ class Item:
         destination.value1 = str(destination_capacity if destination_capacity > 0 else source_amount)
         return result
 
-    def add_item_to_room(self, room: Room):
-        with self.lock:
-            if room.id not in self.room_data:
-                self.room_data[room.id] = room
-
-    def remove_item_from_room(self, room: Room):
-        with self.lock:
-            if room.id in self.room_data:
-                del self.room_data[room.id]
-
     @staticmethod
     def _normalize_extra_description(extra_description):
         if extra_description:
@@ -340,7 +340,7 @@ class Item:
             return False
         if not hasattr(weapon_flags, "WEAPON_TWO_HANDS"):
             return False
-        return ItemUtil.has_flag(getattr(self, "value4", 0), weapon_flags.WEAPON_TWO_HANDS.value)
+        return GameApi.is_set(getattr(self, "value4", 0), weapon_flags.WEAPON_TWO_HANDS.value)
 
     def can_remove(self, item_flags) -> bool:
         from util.ItemUtil import ItemUtil
@@ -348,7 +348,7 @@ class Item:
         no_remove_bit = CharacterApi.enum_bit(item_flags, "ITEM_NOREMOVE")
         if no_remove_bit == 0:
             return True
-        return not ItemUtil.has_flag(getattr(self, "extra_flags", 0), no_remove_bit)
+        return not GameApi.is_set(getattr(self, "extra_flags", 0), no_remove_bit)
 
     def weapon_skill_feedback_key(self, character: Character) -> str:
         if CharacterApi.is_npc(character):

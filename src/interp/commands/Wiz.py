@@ -4,6 +4,7 @@ from injector import inject
 
 from api.CharacterApi import CharacterApi
 from api.InterpApi import InterpApi
+from api.ItemApi import ItemApi
 from api.WizSetApi import WizSetApi
 from area.Room import Room
 from game.EnumProvider import EnumProvider
@@ -429,7 +430,7 @@ class Wiz:
                     continue
                 room.remove_mobile_from_room(victim)
             for obj in list(room.contents.values()):
-                if nopurge_item and ItemUtil.has_flag(getattr(obj, "extra_flags", 0), nopurge_item):
+                if nopurge_item and GameApi.is_set(getattr(obj, "extra_flags", 0), nopurge_item):
                     continue
                 room.remove_item_from_room(obj)
             context.finish()

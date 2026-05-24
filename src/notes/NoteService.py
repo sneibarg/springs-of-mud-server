@@ -1,8 +1,8 @@
 import requests
 
 from injector import inject
-from game.InGameNote import InGameNote
-from game.NoteRegistry import NoteRegistry
+from notes.InGameNote import InGameNote
+from notes.NoteRegistry import NoteRegistry
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 

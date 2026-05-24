@@ -3,6 +3,8 @@ import random
 from typing import Any
 from injector import inject
 
+from api.GameApi import GameApi
+from api.ItemApi import ItemApi
 from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
 from fight.CombatEvent import CombatEvent
@@ -1537,7 +1539,7 @@ class FightHandler:
         flag = getattr(weapon_flags, flag_name, None)
         if flag is None:
             return False
-        return ItemUtil.has_flag(getattr(weapon, "value4", 0), int(flag.value))
+        return GameApi.is_set(getattr(weapon, "value4", 0), int(flag.value))
 
     @staticmethod
     def _dynamic_combat_bonus(entity, *names: str) -> int:

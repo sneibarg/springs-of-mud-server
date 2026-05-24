@@ -5,7 +5,6 @@ from interp.Context import Context
 from util.InfoUtil import InfoUtil
 from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
-from api.ItemApi import ItemApi
 from player.Character import Character
 from server.messaging import MessageBus
 

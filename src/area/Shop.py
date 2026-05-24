@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from enum import IntEnum
 from api.CharacterApi import CharacterApi
+from api.GameApi import GameApi
+from api.ItemApi import ItemApi
 from util.MobileUtil import MobileUtil
 from util.InterpUtil import InterpUtil
 from util.EffectUtil import EffectUtil
@@ -75,7 +77,7 @@ class Shop:
     def is_pet_shop(room, room_flags) -> bool:
         if room is None or room_flags is None or not hasattr(room_flags, "ROOM_PET_SHOP"):
             return False
-        return ItemUtil.has_flag(getattr(room, "room_flags", 0), room_flags.ROOM_PET_SHOP.value)
+        return ItemApi.is_set(getattr(room, "room_flags", 0), room_flags.ROOM_PET_SHOP.value)
 
     @staticmethod
     def pet_price(pet) -> int:
@@ -367,15 +369,15 @@ class Shop:
 
     def had_timer(self, item, item_flags) -> bool:
         bit = CharacterApi.enum_bit(item_flags, "ITEM_HAD_TIMER")
-        return bit != 0 and ItemUtil.has_flag(getattr(item, "extra_flags", 0), bit)
+        return bit != 0 and GameApi.is_set(getattr(item, "extra_flags", 0), bit)
 
     def is_inventory_item(self, item, item_flags) -> bool:
         bit = CharacterApi.enum_bit(item_flags, "ITEM_INVENTORY")
-        return bit != 0 and ItemUtil.has_flag(getattr(item, "extra_flags", 0), bit)
+        return bit != 0 and GameApi.is_set(getattr(item, "extra_flags", 0), bit)
 
     def is_sell_extract_item(self, item, item_flags) -> bool:
         bit = CharacterApi.enum_bit(item_flags, "ITEM_SELL_EXTRACT")
-        return bit != 0 and ItemUtil.has_flag(getattr(item, "extra_flags", 0), bit)
+        return bit != 0 and GameApi.is_set(getattr(item, "extra_flags", 0), bit)
 
     @staticmethod
     def is_trash_item(item) -> bool:

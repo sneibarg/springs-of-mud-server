@@ -281,7 +281,7 @@ class Object:
             to_char = self._render_command_message(context, "default", t=item_short)
             to_room = self._render_command_message(context, "default", channel="to_room", c=character.name, t=item_short)
 
-        ItemUtil.add_to_inventory(character, item)
+        character.add_item(item)
         payload = {"to_char": to_char}
         if room is not None:
             payload["to_room"] = to_room
@@ -465,7 +465,7 @@ class Object:
     def _melts_on_drop(self, item) -> bool:
         if not hasattr(self.item_flags, "ITEM_MELT_DROP"):
             return False
-        return ItemUtil.has_flag(getattr(item, "extra_flags", 0), self.item_flags.ITEM_MELT_DROP.value)
+        return GameApi.is_set(getattr(item, "extra_flags", 0), self.item_flags.ITEM_MELT_DROP.value)
 
     def _prepare_buy_context(self, character: Character, context: Context):
         raw = (context.result if isinstance(context.result, str) else "").strip()
@@ -834,7 +834,7 @@ class Object:
         victim = context.victim
         item_short = context.give_item_short
         character.remove_item(item)
-        ItemUtil.add_to_inventory(victim, item)
+        victim.add_item(item)
 
         payload = {
             "to_char": self._render_command_message(context, "item_received", t=item_short, T=getattr(victim, "name", "")),

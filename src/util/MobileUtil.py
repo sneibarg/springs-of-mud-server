@@ -146,6 +146,7 @@ class MobileUtil:
         sex_value = mobile_data.get("sex")
         return {
             "area_id": str(mobile_data.get("area_id", "") or ""),
+            "room_id": str(mobile_data.get("room_id", "") or ""),
             "vnum": str(mobile_data.get("vnum", mobile_id) or mobile_id),
             "name": player_name,
             "short_description": str(mobile_data.get("short_description", "") or ""),
@@ -270,6 +271,7 @@ class MobileUtil:
 
         mob = Mobile.from_json({
             "area_id": pMobIndex.area_id,
+            "room_id": getattr(pMobIndex, "room_id", ""),
             "vnum": pMobIndex.vnum,
             "id": GenericUtil.generate_mongo_id(),
             "name": pMobIndex.name,

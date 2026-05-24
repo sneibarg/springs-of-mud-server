@@ -1,73 +1,50 @@
 from __future__ import annotations
 
-import threading
-
-from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, List, Optional, Any, TYPE_CHECKING
+from dataclasses import dataclass, field
+from typing import List, Optional, Any, TYPE_CHECKING
 
-from interp.PromptFormat import PromptFormat
+from game.AnimateEntity import AnimateEntity
 from game.Equipped import Equipped
-from game.StatusFlags import StatusFlags
-from player.CharacterClass import CharacterClass
 from player.ArmorClass import ArmorClass
+from player.CharacterClass import CharacterClass
 from player.CharacterFlags import CharacterFlags
 from player.CharacterRace import CharacterRace
 from player.CharacterAttributes import CharacterAttributes
-from server.LoggerFactory import LoggerFactory
+from interp.PromptFormat import PromptFormat
+from game.StatusFlags import StatusFlags
 from util.GenericUtil import GenericUtil
 
 if TYPE_CHECKING:
-    from game.Equipped import Equipped
     from item.Item import Item
 
 
 @dataclass
-class Character:
-    id: str
+class Character(AnimateEntity):
     account_id: str
     title: str
     description: str
     cloaked: bool
     guild: str
-    name: str
-    area_id: str
-    room_id: str
-    guild: str
     role: str
-    sex: str
-    cloaked: bool
-    level: int
     hit: int
     max_hit: int
     mana: int
     max_mana: int
     movement: int
     max_movement: int
-    gold: int
-    silver: int
     trust: int
-    inventory: List[Any]
-    effects: List[Any]
-    skills: List[dict]
-    spells: List[dict]
-    status_flags: StatusFlags
-    character_flags: CharacterFlags
-    character_attributes: CharacterAttributes
-    armor_class: ArmorClass
     character_class: CharacterClass
     prompt_format: PromptFormat
+    character_flags: CharacterFlags | None = None
     character_race: CharacterRace | None = None
-    leader: Optional[Any] = None
-    fighting: Optional[Any] = None
-    equipped: Optional[Equipped] = None
-    context: Dict[str, object] = field(default_factory=dict)
+    skills: List[dict] = field(default_factory=list)
+    spells: List[dict] = field(default_factory=list)
     loot: List[Item] = field(default_factory=list)
-    lock: threading.RLock = field(default_factory=threading.RLock)
     carriage_return: bool = True
 
     def __post_init__(self):
-        self.logger = LoggerFactory.get_logger(__name__)
+        super().__post_init__()
         self.load_inventory()
 
     def __hash__(self):
@@ -84,6 +61,7 @@ class Character:
         from item.Item import Item
         payload = GenericUtil.camel_to_snake_case(data)
         prompt_format = payload.get('prompt_format')
+        character_flags = payload.get('character_flags')
         character_class = payload.get('character_class')
         armor_class = payload.get('armor_class')
         character_attributes = payload.get('character_attributes')
@@ -91,10 +69,12 @@ class Character:
         character_race = payload.get('character_race', payload.get('race'))
         equipped_data = payload.get('equipped')
 
+        payload.setdefault('room_id', "")
         payload['status_flags'] = StatusFlags.from_json(status_flags)
         payload['character_attributes'] = CharacterAttributes.from_json(character_attributes)
         payload['armor_class'] = ArmorClass.from_json(armor_class)
         payload['prompt_format'] = PromptFormat.from_template(prompt_format)
+        payload['character_flags'] = CharacterFlags.from_json(character_flags) if character_flags else None
         payload['character_class'] = CharacterClass.from_json(character_class)
         payload['character_race'] = CharacterRace.from_json(character_race, character_class=payload['character_class'])
         payload.pop('race', None)
@@ -116,8 +96,9 @@ class Character:
     def load_inventory(self):
         from item.Item import Item
         with self.lock:
-            for item in self.inventory:
-                self.loot.append(Item.from_json(item))
+            self.loot = []
+            for item in list(self.inventory or []):
+                self.loot.append(item if isinstance(item, Item) else Item.from_json(item))
 
     def skill_level(self, skill_name: str) -> int:
         for skill in self.skills:
@@ -184,32 +165,6 @@ class Character:
             return int(size_enum.SIZE_LARGE.value)
         return 3
 
-    def add_item(self, item: Item) -> None:
-        with self.lock:
-            if self.loot is None:
-                self.loot = []
-            if item not in self.loot:
-                self.loot.append(item)
-
-    def remove_item(self, item: Item) -> bool:
-        with self.lock:
-            loot = self.loot or []
-            try:
-                loot.remove(item)
-                return True
-            except ValueError:
-                return False
-
-    def find_inventory_item(self, wanted: str) -> Optional[Item]:
-        q = (wanted or "").strip().lower()
-        if not q:
-            return None
-        for item in list(self.loot or []):
-            name = (getattr(item, "name", "") or "").lower()
-            if name == q or name.startswith(q):
-                return item
-        return None
-
     def has_item_vnum(self, vnum: str | int) -> bool:
         wanted = str(vnum or "")
         if not wanted:
@@ -227,12 +182,6 @@ class Character:
         if equipped is None:
             return None
         return equipped.slot_of(item)
-
-    def equip_item(self, item: Item, slot_name: str):
-        return Equipped.equip_item(self, item, slot_name)
-
-    def unequip_item(self, slot_name: str):
-        return Equipped.unequip_item(self, slot_name)
 
     @property
     def race(self) -> str:
@@ -296,23 +245,3 @@ class Character:
                 if item.id == learned_id:
                     return item
         return None
-
-    def get_alignment(self):
-        attrs = getattr(self, "character_attributes", None)
-        if attrs is not None:
-            return GenericUtil.to_int(getattr(attrs, "alignment", 0), 0)
-        perm = getattr(self, "character_attributes", None)
-        if perm is not None:
-            return GenericUtil.to_int(getattr(perm, "alignment", 0), 0)
-        return GenericUtil.to_int(getattr(self, "alignment", 0), 0)
-
-    def set_alignment(self, value: int) -> None:
-        attrs = getattr(self, "character_attributes", None)
-        if attrs is not None:
-            attrs.alignment = int(value)
-            return
-        perm = getattr(self, "character_attributes", None)
-        if perm is not None:
-            perm.alignment = int(value)
-            return
-        setattr(self, "alignment", int(value))

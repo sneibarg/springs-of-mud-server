@@ -517,10 +517,6 @@ class ItemUtil:
         return a1, f"{a2} {rest2}".strip()
 
     @staticmethod
-    def has_flag(raw_flags, bit_value: int) -> bool:
-        return (GameApi.flags_to_int(raw_flags) & int(bit_value)) != 0
-
-    @staticmethod
     def ensure_equipped(character):
         if hasattr(character, "ensure_equipped"):
             return character.ensure_equipped()
@@ -557,29 +553,6 @@ class ItemUtil:
         return ItemUtil.find_inventory_item(character, wanted) or ItemUtil.find_room_item(room, wanted)
 
     @staticmethod
-    def remove_from_inventory(character, item):
-        if hasattr(character, "remove_item"):
-            character.remove_item(item)
-            return
-        loot = getattr(character, "loot", None)
-        if loot is None:
-            return
-        try:
-            loot.remove(item)
-        except ValueError:
-            pass
-
-    @staticmethod
-    def add_to_inventory(character, item):
-        if hasattr(character, "add_item"):
-            character.add_item(item)
-            return
-        if getattr(character, "loot", None) is None:
-            character.loot = []
-        if item not in character.loot:
-            character.loot.append(item)
-
-    @staticmethod
     def equipped_slot_of(character, item):
         if hasattr(character, "equipped_slot_of"):
             return character.equipped_slot_of(item)
@@ -590,12 +563,6 @@ class ItemUtil:
             if equipped_item is item:
                 return slot
         return None
-
-    @staticmethod
-    def equip_item(character, item, slot_name: str):
-        if hasattr(character, "equip_item"):
-            return character.equip_item(item, slot_name)
-        return Equipped.equip_item(character, item, slot_name)
 
     @staticmethod
     def unequip_item(character, slot_name: str):
@@ -634,14 +601,14 @@ class ItemUtil:
         wear_flags_enum = CharacterApi.get_enum("wearFlags")
         if not hasattr(wear_flags_enum, "ITEM_TAKE"):
             return True
-        return ItemUtil.has_flag(getattr(item, "wear_flags", 0), wear_flags_enum.ITEM_TAKE.value)
+        return GameApi.is_set(getattr(item, "wear_flags", 0), wear_flags_enum.ITEM_TAKE.value)
 
     @staticmethod
     def is_nodrop(item) -> bool:
         item_flags_enum = CharacterApi.get_enum("itemFlags")
         if not hasattr(item_flags_enum, "ITEM_NODROP"):
             return False
-        return ItemUtil.has_flag(getattr(item, "extra_flags", 0), item_flags_enum.ITEM_NODROP.value)
+        return GameApi.is_set(getattr(item, "extra_flags", 0), item_flags_enum.ITEM_NODROP.value)
 
     @staticmethod
     def is_nosac(item) -> bool:
@@ -650,7 +617,7 @@ class ItemUtil:
             print(f"is_nosac: {item_flags_enum} does not have ITEM_NO_SAC")
             return False
         print(f"is_nosac: extra_flags={item.extra_flags}; NO_SAC={item_flags_enum.ITEM_NO_SAC.value}")
-        return ItemUtil.has_flag(getattr(item, "extra_flags", 0), item_flags_enum.ITEM_NO_SAC.value)
+        return GameApi.is_set(getattr(item, "extra_flags", 0), item_flags_enum.ITEM_NO_SAC.value)
 
     @staticmethod
     def item_type_name(item) -> str:
