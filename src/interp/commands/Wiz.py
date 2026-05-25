@@ -552,7 +552,7 @@ class Wiz:
     def do_load(self, character: Character, context: Context):
         raw = WizUtil.argument_text(context.result, context.parameters)
         kind, rest = WizUtil.split_argument(raw)
-        room = self.room_registry.get_or_none(id=character.room_id)
+        room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
         if room is None:
             context.finish()
             return self._command_payload("room_missing")

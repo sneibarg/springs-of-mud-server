@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-
 from api.CharacterApi import CharacterApi
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
@@ -170,37 +168,3 @@ class WizApi:
         if session is None:
             return False
         return bool(session.metadata.get("snoop_by_session_id"))
-
-    @classmethod
-    def wiz_do_mload(cls, context: Any, vnum_text: str, mobile_registry, room_registry):
-        from util.MobileUtil import MobileUtil
-
-        vnum = (vnum_text or "").strip()
-        proto = mobile_registry.get_or_none(vnum=vnum)
-        if proto is None:
-            context.finish()
-            return {"to_char": "No mobile has that vnum.\r\n"}
-
-        mob = MobileUtil.create_mobile(proto, cls.enum_provider())
-        room = room_registry.get_or_none(id=context.character.room_id)
-        if room is not None:
-            room.add_mobile_to_room(mob)
-        context.finish()
-        return {"to_char": "Mobile loaded.\r\n"}
-
-    @staticmethod
-    def wiz_do_oload(context: Any, vnum_text: str, item_registry, room_registry):
-        from util.ItemUtil import ItemUtil
-
-        vnum = (vnum_text or "").strip()
-        proto = item_registry.get_or_none(vnum=vnum)
-        if proto is None:
-            context.finish()
-            return {"to_char": "No item has that vnum.\r\n"}
-
-        obj = ItemUtil.create_object(proto)
-        room = room_registry.get_or_none(id=context.character.room_id)
-        if room is not None:
-            room.add_item_to_room(obj)
-        context.finish()
-        return {"to_char": "Object loaded.\r\n"}
