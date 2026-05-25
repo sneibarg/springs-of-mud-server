@@ -1097,26 +1097,20 @@ class FightHandler:
         merged["xp_gain"] = GenericUtil.to_int(merged.get("xp_gain", 0), 0) + GenericUtil.to_int(extra.get("xp_gain", 0), 0)
         return merged
 
-    @staticmethod
-    def _autoloot_corpse(character, corpse) -> None:
-        try:
-            wear_flags = CharacterApi.get_enum("wearFlags")
-        except RuntimeError:
-            wear_flags = None
-
+    def _autoloot_corpse(self, character, corpse) -> None:
         remaining = []
         for item in list(getattr(corpse, "contains", []) or []):
-            if ItemUtil.item_takeable(item):
+            if ItemApi.item_takeable(item, self.WearFlags):
                 character.add_item(item)
             else:
                 remaining.append(item)
         corpse.contains = remaining
 
     def _autosacrifice_corpse(self, attacker, corpse, room) -> dict | None:
-        if room is None or corpse is None or not ItemUtil.is_npc_corpse(corpse):
+        if room is None or corpse is None or not Item.is_npc_corpse(corpse):
             return None
 
-        if not ItemUtil.item_takeable(corpse) or ItemUtil.is_nosac(corpse):
+        if not ItemApi.item_takeable(corpse, self.WearFlags) or ItemApi.has_item_flag(corpse, self.ItemFlags, "ITEM_NO_SAC"):
             return None
 
         room.remove_item_from_room(corpse)

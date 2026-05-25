@@ -11,6 +11,7 @@ from api.InterpApi import InterpApi
 from util.InfoUtil import InfoUtil
 from interp.Context import Context
 from interp.HelpEntry import HelpEntry
+from item.Item import Item
 from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
 from player.Character import Character
@@ -750,8 +751,8 @@ class Info:
         context.done = False
 
         room = self.room_registry.get_or_none(id=character.room_id)
-        obj = ItemUtil.find_item(character, room, arg) if room is not None else None
-        look_in = bool(obj is not None and (ItemUtil.is_container_like(obj) or ItemUtil.is_drink_container(obj)))
+        obj = (character.find_inventory_item(arg) if arg else None) or (None if room is None else room.find_room_item(arg))
+        look_in = bool(obj is not None and (Item.is_container_like(obj) or Item.is_drink_container(obj)))
         return {"argument": arg, "look_in": look_in}
 
     def do_whois(self, character: Character, context: Context) -> str:

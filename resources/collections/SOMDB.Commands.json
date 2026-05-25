@@ -1333,7 +1333,7 @@
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
       },
       {
-        "predicate": "lambda v: not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is not None and not ItemUtil.item_takeable(v.context.target_item)",
+        "predicate": "lambda v: not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is not None and not ItemApi.item_takeable(v.context.target_item, getattr(v.handler, 'wear_flags', None))",
         "messageKey": "cannotTake"
       }
     ]
@@ -5122,7 +5122,7 @@
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
       },
       {
-        "predicate": "lambda v: not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is not None and not ItemUtil.item_takeable(v.context.target_item)",
+        "predicate": "lambda v: not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is not None and not ItemApi.item_takeable(v.context.target_item, getattr(v.handler, 'wear_flags', None))",
         "messageKey": "cannotTake"
       }
     ]

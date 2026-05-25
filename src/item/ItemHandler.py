@@ -2,6 +2,7 @@ from injector import inject
 
 from game.RegistryService import RegistryService
 from interp.Context import Context
+from item.Item import Item
 from util.InfoUtil import InfoUtil
 from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
@@ -32,14 +33,17 @@ class ItemHandler:
 
         room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         arg2 = (context.parameters[1] if context.parameters and len(context.parameters) > 1 else "").strip().lower()
-        obj = ItemUtil.find_item(character, room, arg2)
+        obj = character.find_inventory_item(arg2) or (None if room is None else room.find_room_item(arg2))
 
-        if ItemUtil.is_drink_container(obj):
+        if Item.is_drink_container(obj):
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(ItemUtil.container_volume_description(obj)))
             context.finish()
             return
 
-        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(ItemUtil.items_in_container(obj)))
+        contents = "" if obj is None else obj.contents()
+        text = f"{getattr(obj, 'name', '')} holds\r\n"
+        text += contents if contents else "\tNothing.\r\n"
+        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
         context.finish()
 
     async def look_item_or_extra(self, character: Character, context: Context):

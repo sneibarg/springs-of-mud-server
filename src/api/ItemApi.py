@@ -32,6 +32,13 @@ class ItemApi(GameApi):
         return cls.is_set(int(obj.extra_flags), stat)
 
     @classmethod
+    def has_item_flag(cls, obj: Item, item_flags_enum, *flag_names: str) -> bool:
+        bit = cls.enum_bit(item_flags_enum, *flag_names)
+        if bit == 0:
+            return False
+        return cls.is_obj_stat(obj, bit)
+
+    @classmethod
     def is_weapon_stat(cls, obj: Item, stat: int) -> bool:
         return cls.is_set(int(obj.value4), stat)
 
@@ -62,7 +69,7 @@ class ItemApi(GameApi):
     def item_takeable(cls, obj: Any, wear_flags_enum) -> bool:
         take_bit = cls.enum_bit(wear_flags_enum, "ITEM_TAKE")
         if take_bit == 0:
-            return False
+            return True
         wear_flags = GameApi.flags_to_int(getattr(obj, "wear_flags", 0))
         return (wear_flags & take_bit) != 0
 

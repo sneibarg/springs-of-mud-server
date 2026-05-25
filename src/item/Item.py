@@ -128,15 +128,34 @@ class Item:
         if isinstance(data, str):
             data = json.loads(data)
         from util.GenericUtil import GenericUtil
-        from util.ItemUtil import ItemUtil
         data = GenericUtil.camel_to_snake_case(data)
         data['contains'] = []
         extra_descr = data.pop('extra_descr', None)
         item = cls(**data)
         if extra_descr is not None:
             item.extra_descr = extra_descr
-        ItemUtil.update_extra_descr(item)
+        cls.update_extra_description(item)
         return item
+
+    @staticmethod
+    def update_extra_description(item):
+        extra_descr = list(getattr(item, "extra_descr", []) or [])
+        if len(extra_descr) >= 2:
+            keyword = str(extra_descr[0] or "").strip()
+            description = str(extra_descr[1] or "")
+            item.extra_description = ExtraDescriptionData(valid=True, keyword=keyword, description=description) if (keyword or description) else None
+            return item.extra_description
+
+        extra_description = getattr(item, "extra_description", None)
+        if extra_description:
+            try:
+                item.extra_description = ExtraDescriptionData.from_json(extra_description)
+            except (TypeError, ValueError):
+                item.extra_description = None
+            return item.extra_description
+
+        item.extra_description = None
+        return None
 
     @staticmethod
     def is_drink_container(item) -> bool:
@@ -149,8 +168,38 @@ class Item:
         return "fountain" in item_type
 
     @staticmethod
+    def is_edible(item) -> bool:
+        item_type = str(getattr(item, "item_type", "") or "").strip().lower()
+        return ("food" in item_type) or ("pill" in item_type)
+
+    @staticmethod
     def _item_type(item) -> str:
         return str(getattr(item, "item_type", "") or "").strip().lower()
+
+    @classmethod
+    def item_type_name(cls, item) -> str:
+        return cls._item_type(item).upper()
+
+    @classmethod
+    def is_container_like(cls, item) -> bool:
+        item_type = cls._item_type(item)
+        return ("container" in item_type) or ("corpse" in item_type)
+
+    @classmethod
+    def is_container(cls, item) -> bool:
+        return "container" in cls._item_type(item)
+
+    @classmethod
+    def is_pc_corpse(cls, item) -> bool:
+        return cls.item_type_name(item) == "ITEM_CORPSE_PC"
+
+    @classmethod
+    def is_npc_corpse(cls, item) -> bool:
+        return cls.item_type_name(item) == "ITEM_CORPSE_NPC"
+
+    @classmethod
+    def is_corpse(cls, item) -> bool:
+        return cls.item_type_name(item) in {"ITEM_CORPSE_NPC", "ITEM_CORPSE_PC"}
 
     @classmethod
     def is_potion(cls, item) -> bool:

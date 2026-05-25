@@ -105,7 +105,7 @@ class PlayerHandler:
         if arg1 in ("i", "in", "on"):
             context.look_mode = "in"
             context.look_in_argument = (context.parameters[1] if context.parameters and len(context.parameters) > 1 else "").strip().lower()
-            context.look_in_target = ItemUtil.find_item(character, room, context.look_in_argument)
+            context.look_in_target = character.find_inventory_item(context.look_in_argument) or room.find_room_item(context.look_in_argument)
             return
 
         target = PlayerUtil.get_target(character, arg1, room)

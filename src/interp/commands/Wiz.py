@@ -48,6 +48,7 @@ class Wiz:
         self.PositionsEnum = enum_provider.get("positions")
         self.ActBitsEnum = enum_provider.get("actBits")
         self.ItemFlagsEnum = enum_provider.get("itemFlags")
+        self.WearFlagsEnum = enum_provider.get("wearFlags")
         self.GameParameters = enum_provider.get("gameParameters")
 
     def execute(self, character: Character, context: Context):
@@ -593,9 +594,9 @@ class Wiz:
                 return self._command_payload("no_such_object")
             obj = ItemUtil.create_object(proto)
             obj.level = level
-            if ItemUtil.item_takeable(obj) and not CharacterApi.is_npc(character):
+            if ItemApi.item_takeable(obj, self.WearFlagsEnum) and not CharacterApi.is_npc(character):
                 character.add_item(obj)
-            elif ItemUtil.item_takeable(obj) and CharacterApi.is_npc(character):
+            elif ItemApi.item_takeable(obj, self.WearFlagsEnum) and CharacterApi.is_npc(character):
                 MobileUtil.add_inventory_item(character, obj)
             else:
                 room.add_item_to_room(obj)
@@ -816,11 +817,11 @@ class Wiz:
         obj = None
         mob = None
         if arg1 in ("object", "obj"):
-            obj = ItemUtil.find_item(character, room, rest)
+            obj = character.find_inventory_item(rest) or (None if room is None else room.find_room_item(rest))
         elif arg1 in ("mobile", "character", "mob"):
             mob = None if room is None else room.find_visible_target(character, rest)
         else:
-            obj = ItemUtil.find_item(character, room, raw)
+            obj = character.find_inventory_item(raw) or (None if room is None else room.find_room_item(raw))
             mob = None if room is None else room.find_visible_target(character, raw)
         if obj is None and mob is None:
             context.finish()
