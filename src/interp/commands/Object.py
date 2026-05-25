@@ -204,7 +204,7 @@ class Object:
         context.get_all = self._is_get_all_selector(arg1)
         context.get_filter_name = self._get_selector_filter(arg1)
         context.get_all_from_container = bool(context.get_all and context.container_name)
-        context.container = ItemUtil.find_container(character, room, context.container_name) if context.container_name else None
+        context.container = character.find_inventory_item(context.container_name) or (None if room is None else room.find_room_item(context.container_name)) if context.container_name else None
         context.target_item = None
         context.get_candidates = []
         context.get_item_takeable = False
@@ -365,7 +365,7 @@ class Object:
         context.put_relation = self._put_relation(context)
         context.put_container_name = rem.split()[0] if rem else ""
         context.put_obj = character.find_inventory_item(arg1) if arg1 else None
-        context.put_container = ItemUtil.find_container(character, room, context.put_container_name) if context.put_container_name else None
+        context.put_container = character.find_inventory_item(context.put_container_name) or (None if room is None else room.find_room_item(context.put_container_name)) if context.put_container_name else None
         return room
 
     def _put_item_error(self, item, context: Context) -> str:
@@ -418,7 +418,7 @@ class Object:
         char_lines = []
 
         for item in list(getattr(character, "loot", []) or []):
-            if ItemUtil.equipped_slot_of(character, item):
+            if character.equipped_slot_of(item):
                 continue
             if ItemApi.has_item_flag(item, self.item_flags, "ITEM_NODROP"):
                 continue
@@ -442,7 +442,7 @@ class Object:
         }
 
     def _drop_one(self, character: Character, room, context: Context, item):
-        slot = ItemUtil.equipped_slot_of(character, item)
+        slot = character.equipped_slot_of(item)
         if slot:
             self.effect_handler.remove_item_effects(character, item)
             ItemUtil.unequip_item(character, slot)
@@ -806,7 +806,7 @@ class Object:
         context.item = item
         context.give_item = item
         context.give_item_short = item_short
-        context.give_item_worn = bool(item is not None and ItemUtil.equipped_slot_of(character, item))
+        context.give_item_worn = bool(item is not None and character.equipped_slot_of(item))
         context.give_target_is_keeper = self._is_shopkeeper(victim)
         context.give_no_drop = bool(item is not None and ItemApi.has_item_flag(item, self.item_flags, "ITEM_NODROP"))
         context.interp_tokens = {
@@ -1304,7 +1304,7 @@ class Object:
 
         dest = character.find_inventory_item(arg1) if arg1 else None
         src_name = rem.split()[0] if rem else ""
-        src = ItemUtil.find_container(character, room, src_name) if src_name else None
+        src = character.find_inventory_item(src_name) or (None if room is None else room.find_room_item(src_name)) if src_name else None
         if src is None:
             src = Item.first_fountain(room)
 

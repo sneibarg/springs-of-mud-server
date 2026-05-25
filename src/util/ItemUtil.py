@@ -463,28 +463,6 @@ class ItemUtil:
         return a1, f"{a2} {rest2}".strip()
 
     @staticmethod
-    def ensure_equipped(character):
-        if hasattr(character, "ensure_equipped"):
-            return character.ensure_equipped()
-        return Equipped.ensure_on(character)
-
-    @staticmethod
-    def find_container(character, room, wanted: str):
-        return character.find_inventory_item(wanted) or (None if room is None else room.find_room_item(wanted))
-
-    @staticmethod
-    def equipped_slot_of(character, item):
-        if hasattr(character, "equipped_slot_of"):
-            return character.equipped_slot_of(item)
-        equipped = getattr(character, "equipped", None)
-        if equipped is None:
-            return None
-        for slot, equipped_item in equipped.__dict__.items():
-            if equipped_item is item:
-                return slot
-        return None
-
-    @staticmethod
     def unequip_item(character, slot_name: str):
         if hasattr(character, "unequip_item"):
             return character.unequip_item(slot_name)

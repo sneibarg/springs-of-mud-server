@@ -90,6 +90,15 @@ class AnimateEntity:
                 return item
         return None
 
+    def ensure_equipped(self):
+        return Equipped.ensure_on(self)
+
+    def equipped_slot_of(self, item: Item) -> Optional[str]:
+        equipped = getattr(self, "equipped", None)
+        if equipped is None:
+            return None
+        return equipped.slot_of(item)
+
     def equip_item(self, item: Item, slot_name: str):
         return Equipped.equip_item(self, item, slot_name)
 

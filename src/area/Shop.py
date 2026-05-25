@@ -290,7 +290,7 @@ class Shop:
         return self._charge_adjusted_price(item, price)
 
     def complete_sale(self, seller, keeper, item, cost: int, item_flags, effect_handler=None):
-        slot = ItemUtil.equipped_slot_of(seller, item)
+        slot = seller.equipped_slot_of(item)
         if slot:
             if effect_handler is not None:
                 effect_handler.remove_item_effects(seller, item)

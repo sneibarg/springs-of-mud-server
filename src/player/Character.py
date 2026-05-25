@@ -176,15 +176,6 @@ class Character(AnimateEntity):
     def has_key(self, key: int) -> bool:
         return GenericUtil.to_int(key, -1) >= 0 and self.has_item_vnum(key)
 
-    def ensure_equipped(self):
-        return Equipped.ensure_on(self)
-
-    def equipped_slot_of(self, item: Item) -> Optional[str]:
-        equipped = getattr(self, "equipped", None)
-        if equipped is None:
-            return None
-        return equipped.slot_of(item)
-
     @property
     def race(self) -> str:
         if self.character_race is None:
