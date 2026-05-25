@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from enum import IntEnum
 from api.CharacterApi import CharacterApi
+from api.GameApi import GameApi
+from api.ItemApi import ItemApi
+from item.Item import Item
 from util.MobileUtil import MobileUtil
 from util.InterpUtil import InterpUtil
 from util.EffectUtil import EffectUtil
@@ -75,7 +78,7 @@ class Shop:
     def is_pet_shop(room, room_flags) -> bool:
         if room is None or room_flags is None or not hasattr(room_flags, "ROOM_PET_SHOP"):
             return False
-        return ItemUtil.has_flag(getattr(room, "room_flags", 0), room_flags.ROOM_PET_SHOP.value)
+        return ItemApi.is_set(getattr(room, "room_flags", 0), room_flags.ROOM_PET_SHOP.value)
 
     @staticmethod
     def pet_price(pet) -> int:
@@ -168,7 +171,7 @@ class Shop:
                 if self.is_inventory_item(item, item_flags):
                     lines.append(
                         f"[{GenericUtil.to_int(getattr(item, 'level', 0), 0):>2} "
-                        f"{cost:>5} -- ] {ItemUtil.short(item)}\r\n"
+                        f"{cost:>5} -- ] {Item.short(item)}\r\n"
                     )
                     index += 1
                     continue
@@ -178,7 +181,7 @@ class Shop:
                     count += 1
                 lines.append(
                     f"[{GenericUtil.to_int(getattr(item, 'level', 0), 0):>2} "
-                    f"{cost:>5} {count:>2} ] {ItemUtil.short(item)}\r\n"
+                    f"{cost:>5} {count:>2} ] {Item.short(item)}\r\n"
                 )
                 index += count
                 continue
@@ -238,7 +241,7 @@ class Shop:
 
     @classmethod
     def complete_pet_purchase(cls, buyer, room, pet_proto, pet_name: str, cost: int, act_bits, affected_bits, comm_flags):
-        pet = MobileUtil.create_mobile(pet_proto, CharacterApi._enums_map())
+        pet = MobileUtil.create_mobile(pet_proto, CharacterApi.enum_provider())
         pet_bit = CharacterApi.enum_bit(act_bits, "ACT_PET")
         charm_bit = CharacterApi.enum_bit(affected_bits, "AFF_CHARM")
         if pet_bit:
@@ -286,10 +289,13 @@ class Shop:
 
         return self._charge_adjusted_price(item, price)
 
-    def complete_sale(self, seller, keeper, item, cost: int, item_flags):
-        slot = ItemUtil.equipped_slot_of(seller, item)
+    def complete_sale(self, seller, keeper, item, cost: int, item_flags, effect_handler=None):
+        slot = seller.equipped_slot_of(item)
         if slot:
-            EffectUtil.remove_item_effects(seller, item)
+            if effect_handler is not None:
+                effect_handler.remove_item_effects(seller, item)
+            else:
+                EffectUtil.remove_item_effects(seller, item)
             ItemUtil.unequip_item(seller, slot)
         seller.remove_item(item)
 
@@ -300,7 +306,7 @@ class Shop:
             self.add_item_to_keeper(keeper, item, item_flags)
 
     def quote_value(self, item, keeper, item_types, item_flags) -> "ValueQuote":
-        item_short = ItemUtil.short(item) if item is not None else ""
+        item_short = Item.short(item) if item is not None else ""
         keeper_name = getattr(keeper, "short_description", "The shopkeeper") if keeper is not None else "The shopkeeper"
         cost = self.sell_price(item, getattr(keeper, "inventory", []) or [], item_types, item_flags)
         gold = cost // 100
@@ -364,15 +370,15 @@ class Shop:
 
     def had_timer(self, item, item_flags) -> bool:
         bit = CharacterApi.enum_bit(item_flags, "ITEM_HAD_TIMER")
-        return bit != 0 and ItemUtil.has_flag(getattr(item, "extra_flags", 0), bit)
+        return bit != 0 and GameApi.is_set(getattr(item, "extra_flags", 0), bit)
 
     def is_inventory_item(self, item, item_flags) -> bool:
         bit = CharacterApi.enum_bit(item_flags, "ITEM_INVENTORY")
-        return bit != 0 and ItemUtil.has_flag(getattr(item, "extra_flags", 0), bit)
+        return bit != 0 and GameApi.is_set(getattr(item, "extra_flags", 0), bit)
 
     def is_sell_extract_item(self, item, item_flags) -> bool:
         bit = CharacterApi.enum_bit(item_flags, "ITEM_SELL_EXTRACT")
-        return bit != 0 and ItemUtil.has_flag(getattr(item, "extra_flags", 0), bit)
+        return bit != 0 and GameApi.is_set(getattr(item, "extra_flags", 0), bit)
 
     @staticmethod
     def is_trash_item(item) -> bool:

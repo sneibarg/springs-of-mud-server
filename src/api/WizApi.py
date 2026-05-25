@@ -1,21 +1,14 @@
 from __future__ import annotations
 
 from api.CharacterApi import CharacterApi
+from player.Character import Character
+from util.AreaUtil import AreaUtil
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
 from util.WizUtil import WizUtil
 
 
 class WizApi:
-    @staticmethod
-    def argument(view) -> str:
-        return InterpUtil.argument_text(view)
-
-    @staticmethod
-    def first_argument(view) -> str:
-        arg, _rest = WizUtil.split_argument(WizApi.argument(view))
-        return arg
-
     @staticmethod
     def current_prefix(view) -> str:
         return str((getattr(view.context.character, "context", {}) or {}).get("prefix", "") or "")
@@ -31,9 +24,15 @@ class WizApi:
         return None if player_handler is None else getattr(player_handler, "character_registry", None)
 
     @staticmethod
+    def restore_character(victim: Character):
+        victim.hit = int(getattr(victim, "max_hit", 0))
+        victim.mana = int(getattr(victim, "max_mana", 0))
+        victim.movement = int(getattr(victim, "max_movement", 0))
+
+    @staticmethod
     def location(view):
-        return CharacterApi.find_location(
-            WizApi.argument(view),
+        return AreaUtil.find_location(
+            InterpUtil.argument_text(view),
             WizApi.room_registry(view),
             WizApi.character_registry(view),
             WizUtil.name_matches,
@@ -41,7 +40,7 @@ class WizApi:
 
     @staticmethod
     def explicit_level_out_of_range(view, attr_name: str) -> bool:
-        arg = WizApi.argument(view)
+        arg = InterpUtil.argument_text(view)
         if not arg:
             return False
         if not arg.lstrip("-").isdigit():
@@ -63,7 +62,7 @@ class WizApi:
 
     @staticmethod
     def poof_missing_name(view) -> bool:
-        arg = WizApi.argument(view)
+        arg = InterpUtil.argument_text(view)
         if not arg:
             return False
         return str(getattr(view.context.character, "name", "") or "") not in arg
@@ -79,7 +78,7 @@ class WizApi:
         return WizUtil.find_world_entity(
             WizApi.character_registry(view),
             WizApi.room_registry(view),
-            WizApi.argument(view),
+            InterpUtil.argument_text(view),
         )
 
     @staticmethod
@@ -87,7 +86,7 @@ class WizApi:
         return WizUtil.find_world_entity(
             WizApi.character_registry(view),
             WizApi.room_registry(view),
-            WizApi.argument(view),
+            InterpUtil.argument_text(view),
             include_mobiles=False,
         )
 
@@ -96,7 +95,7 @@ class WizApi:
         return WizUtil.find_world_entity(
             WizApi.character_registry(view),
             WizApi.room_registry(view),
-            WizApi.argument(view),
+            InterpUtil.argument_text(view),
             include_players=True,
             include_mobiles=True,
         )
@@ -137,7 +136,7 @@ class WizApi:
         return room is not None and WizApi.room_private_for_actor(view, room, implementor_only=True)
 
     @staticmethod
-    def snoop_failed(view) -> bool:
+    def snoop_failed(view) -> bool | int:
         target = WizApi.snoop_target(view)
         if target is None:
             return False
@@ -145,7 +144,7 @@ class WizApi:
             return False
         comm_flags = CharacterApi.get_enum("commFlags")
         snoop_proof = CharacterApi.enum_bit(comm_flags, "COMM_SNOOP_PROOF")
-        return CharacterApi.get_trust(target) >= CharacterApi.get_trust(view.context.character) or (
+        return (CharacterApi.get_trust(target) >= CharacterApi.get_trust(view.context.character)) or (
             snoop_proof and CharacterApi.is_set(getattr(target.status_flags, "comm", 0), snoop_proof)
         )
 

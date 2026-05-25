@@ -43,21 +43,6 @@ class TestCombatInventoryRegressions(TestCase):
             mobile_registry=Mock(),
         )
 
-    def test_equip_moves_item_out_of_inventory_and_unequip_returns_it(self):
-        item = SimpleNamespace(id="item1", name="sword")
-        character = SimpleNamespace(loot=[item], equipped=Equipped())
-
-        ItemUtil.equip_item(character, item, "wielded")
-
-        self.assertNotIn(item, character.loot)
-        self.assertIs(character.equipped.wielded, item)
-
-        returned = ItemUtil.unequip_item(character, "wielded")
-
-        self.assertIs(returned, item)
-        self.assertIn(item, character.loot)
-        self.assertIsNone(character.equipped.wielded)
-
     def test_stop_fighting_clears_reciprocal_target_without_registry_event(self):
         combat_registry = Mock()
         combat_registry.get_by_combatant.return_value = []

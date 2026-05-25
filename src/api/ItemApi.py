@@ -10,7 +10,26 @@ from util.GenericUtil import GenericUtil
 class ItemApi(GameApi):
     @classmethod
     def race_data(cls, race_name: str) -> dict:
-        return cls._races_map().get(race_name, {})
+        return cls.races_map().get(race_name, {})
+
+    @classmethod
+    def lazy_load(cls) -> None:
+        cls.load_enums(
+            TimeAndWeather="timeAndWeather",
+            GameParameters="gameParameters",
+            AffectedBits="affectedBy",
+            positions="positions",
+            RoomFlags="roomFlags",
+            CommFlags="commFlags",
+            PlayerActBits="playerActBits",
+            OffenseTypes="offenseTypes",
+            SectorTypes="sectorTypes",
+            ItemFlags="itemFlags",
+        )
+
+    @classmethod
+    def is_no_sac(cls, item: Item):
+        cls.has_item_flag(item, cls.ItemFlags, "ITEM_NO_SAC")
 
     @classmethod
     def is_container_closed(cls, item) -> bool:
@@ -32,18 +51,25 @@ class ItemApi(GameApi):
         return cls.is_set(int(obj.extra_flags), stat)
 
     @classmethod
+    def has_item_flag(cls, obj: Item, item_flags_enum, *flag_names: str) -> bool:
+        bit = cls.enum_bit(item_flags_enum, *flag_names)
+        if bit == 0:
+            return False
+        return cls.is_obj_stat(obj, bit)
+
+    @classmethod
     def is_weapon_stat(cls, obj: Item, stat: int) -> bool:
         return cls.is_set(int(obj.value4), stat)
 
     @classmethod
     def weight_multiplier(cls, obj: Item) -> int:
         item_types = cls.get_enum("itemTypes")
-        item_table = cls._item_table_map()
+        item_table = cls.item_table_map()
         return int(obj.value3) if item_table[obj.item_type] == item_types.ITEM_CONTAINER.name else 100
 
     @classmethod
     def decode_form_and_parts(cls, race_name: str, BodyForm: type[IntEnum], BodyParts: type[IntEnum]) -> Dict[str, List[str]]:
-        race = cls._races_map().get(race_name)
+        race = cls.races_map().get(race_name)
         if not race:
             return {"form": [], "parts": []}
 
@@ -62,7 +88,7 @@ class ItemApi(GameApi):
     def item_takeable(cls, obj: Any, wear_flags_enum) -> bool:
         take_bit = cls.enum_bit(wear_flags_enum, "ITEM_TAKE")
         if take_bit == 0:
-            return False
+            return True
         wear_flags = GameApi.flags_to_int(getattr(obj, "wear_flags", 0))
         return (wear_flags & take_bit) != 0
 

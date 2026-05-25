@@ -20,6 +20,23 @@ class MobileApi(GameApi):
     _logger = None
 
     @classmethod
+    def lazy_load(cls, weather_handler, registry_service=None) -> None:
+        if registry_service is not None:
+            cls._registry_service = registry_service
+        cls._weather_handler = weather_handler
+        cls.load_enums(
+            TimeAndWeather="timeAndWeather",
+            GameParameters="gameParameters",
+            AffectedBits="affectedBy",
+            positions="positions",
+            RoomFlags="roomFlags",
+            CommFlags="commFlags",
+            PlayerActBits="playerActBits",
+            OffenseTypes="offenseTypes",
+            SectorTypes="sectorTypes",
+        )
+
+    @classmethod
     def _reset_internal_variables(cls) -> None:
         cls._logger = None
 

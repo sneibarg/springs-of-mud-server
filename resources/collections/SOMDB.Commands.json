@@ -272,7 +272,8 @@
         "insufficientMovement": "You are too exhausted."
       },
       "toRoom": {
-        "default": "%c leaves west."
+        "default": "%c leaves west.",
+        "arrived": "%c has arrived."
       },
       "toVictim": {}
     },
@@ -365,7 +366,8 @@
         "insufficientMovement": "You are too exhausted."
       },
       "toRoom": {
-        "default": "%c leaves east."
+        "default": "%c leaves east.",
+        "arrived": "%c has arrived."
       },
       "toVictim": {}
     },
@@ -458,7 +460,8 @@
         "insufficientMovement": "You are too exhausted."
       },
       "toRoom": {
-        "default": "%c leaves north."
+        "default": "%c leaves north.",
+        "arrived": "%c has arrived."
       },
       "toVictim": {}
     },
@@ -551,7 +554,8 @@
         "insufficientMovement": "You are too exhausted."
       },
       "toRoom": {
-        "default": "%c leaves south."
+        "default": "%c leaves south.",
+        "arrived": "%c has arrived."
       },
       "toVictim": {}
     },
@@ -665,7 +669,7 @@
         "messageKey": "sleeping"
       },
       {
-        "predicate": "lambda v: v.context.character.check_blind(CharacterApi)",
+        "predicate": "lambda v: CharacterApi.is_blind(v.context.character)",
         "messageKey": "blind"
       },
       {
@@ -685,7 +689,7 @@
         "messageKey": "isClosed"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'look_mode', '') == 'in' and (obj := getattr(v.context, 'look_in_target', None)) is not None and not ItemUtil.is_drink_container(obj) and not ItemUtil.is_container_like(obj)",
+        "predicate": "lambda v: getattr(v.context, 'look_mode', '') == 'in' and (obj := getattr(v.context, 'look_in_target', None)) is not None and not Item.is_drink_container(obj) and not Item.is_container_like(obj)",
         "messageKey": "notContainer"
       },
       {
@@ -727,7 +731,8 @@
         "insufficientMovement": "You are too exhausted."
       },
       "toRoom": {
-        "default": "%c leaves up."
+        "default": "%c leaves up.",
+        "arrived": "%c has arrived."
       },
       "toVictim": {}
     },
@@ -820,7 +825,8 @@
         "insufficientMovement": "You are too exhausted."
       },
       "toRoom": {
-        "default": "%c leaves down."
+        "default": "%c leaves down.",
+        "arrived": "%c has arrived."
       },
       "toVictim": {}
     },
@@ -1295,11 +1301,11 @@
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
       },
       {
-        "predicate": "lambda v: v.context.container is not None and not ItemUtil.is_container_like(v.context.container)",
+        "predicate": "lambda v: v.context.container is not None and not Item.is_container_like(v.context.container)",
         "messageKey": "notContainer"
       },
       {
-        "predicate": "lambda v: v.context.container is not None and ItemUtil.is_closed_container(v.context.container)",
+        "predicate": "lambda v: v.context.container is not None and ItemApi.is_closed_container(v.context.container)",
         "messageKey": "closed",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', getattr(v.context.container, 'name', ''))}"
       },
@@ -1333,7 +1339,7 @@
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
       },
       {
-        "predicate": "lambda v: not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is not None and not ItemUtil.item_takeable(v.context.target_item)",
+        "predicate": "lambda v: not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is not None and not ItemApi.item_takeable(v.context.target_item, getattr(v.handler, 'wear_flags', None))",
         "messageKey": "cannotTake"
       }
     ]
@@ -1367,7 +1373,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -1819,6 +1825,7 @@
         "maybeShouldFinishFighting": "Maybe you should finish fighting first?",
         "donTSee": "You don't see that here.",
         "canTSeemFind": "You can't seem to find a place to stand.",
+        "canTDoThatRightNow": "You can't do that right now.",
         "canTWakeUp": "You can't wake up!",
         "wakeStandUp": "You wake and stand up.",
         "standUp": "You stand up.",
@@ -1860,6 +1867,7 @@
     "payload": {
       "toChar": {
         "noArgument": "Unlock what?",
+        "missingDoor": "I see no door here.",
         "canTDo": "You can't do that.",
         "itSNotClosed": "It's not closed.",
         "itCanTUnlocked": "It can't be unlocked.",
@@ -1881,10 +1889,37 @@
       "toRoom": {
         "unlocks": "$n unlocks $p.",
         "unlocks2": "$n unlocks $p.",
-        "unlocks3": "$n unlocks the $d."
+        "unlocks3": "$n unlocks the $d.",
+        "unlocksExit": "%c unlocks the %t."
       },
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: MovementApi.missing_argument(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: MovementApi.invalid_door(v)",
+        "messageKey": "missingDoor"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_not_closed(v)",
+        "messageKey": "itSNotClosed"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_cannot_unlock(v)",
+        "messageKey": "itCanTUnlocked"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_missing_key(v)",
+        "messageKey": "missingKey"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_already_unlocked(v)",
+        "messageKey": "itSAlreadyUnlocked"
+      }
+    ]
   },
   {
     "_id": {
@@ -4087,7 +4122,7 @@
         "messageKey": "itemMissing"
       },
       {
-        "predicate": "lambda v: v.context.drink_item is not None and not ItemUtil.is_drink_container(v.context.drink_item)",
+        "predicate": "lambda v: v.context.drink_item is not None and not Item.is_drink_container(v.context.drink_item)",
         "messageKey": "itemNotContainer"
       },
       {
@@ -4531,6 +4566,7 @@
     "payload": {
       "toChar": {
         "noArgument": "Lock what?",
+        "missingDoor": "I see no door here.",
         "invalidTarget": "You can't do that.",
         "openTarget": "It's not closed.",
         "noLock": "It can't be locked.",
@@ -4545,7 +4581,53 @@
         "exitLocked": "%c locks the %t."
       },
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: MovementApi.missing_argument(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: MovementApi.has_target_item(v) and not MovementApi.is_container_target(v)",
+        "messageKey": "notContainer"
+      },
+      {
+        "predicate": "lambda v: MovementApi.has_target_item(v) and MovementApi.container_not_closed(v)",
+        "messageKey": "openTarget"
+      },
+      {
+        "predicate": "lambda v: MovementApi.has_target_item(v) and MovementApi.container_cannot_lock(v)",
+        "messageKey": "noLock"
+      },
+      {
+        "predicate": "lambda v: MovementApi.has_target_item(v) and MovementApi.container_missing_key(v)",
+        "messageKey": "noKey"
+      },
+      {
+        "predicate": "lambda v: MovementApi.has_target_item(v) and MovementApi.container_already_locked(v)",
+        "messageKey": "locked"
+      },
+      {
+        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.invalid_door(v)",
+        "messageKey": "missingDoor"
+      },
+      {
+        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.door_not_closed(v)",
+        "messageKey": "openTarget"
+      },
+      {
+        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.door_cannot_lock(v)",
+        "messageKey": "noLock"
+      },
+      {
+        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.door_missing_key(v)",
+        "messageKey": "noKey"
+      },
+      {
+        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.door_already_locked(v)",
+        "messageKey": "locked"
+      }
+    ]
   },
   {
     "_id": {
@@ -4565,6 +4647,7 @@
     "payload": {
       "toChar": {
         "noArgument": "Open what?",
+        "missingDoor": "I see no door here.",
         "invalidTarget": "You can't do that.",
         "open": "It's already open.",
         "locked": "It's locked.",
@@ -4576,10 +4659,28 @@
       "toRoom": {
         "openPortal": "%c opens %t.",
         "openContainer": "%c opens %t.",
-        "openDoor": "$n opens the $d."
+        "openDoor": "%c opens the %t."
       },
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: MovementApi.missing_argument(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: MovementApi.invalid_door(v)",
+        "messageKey": "missingDoor"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_already_open(v)",
+        "messageKey": "open"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_locked(v)",
+        "messageKey": "locked"
+      }
+    ]
   },
   {
     "_id": {
@@ -4600,21 +4701,58 @@
     "payload": {
       "toChar": {
         "noArgument": "Close what?",
+        "missingDoor": "I see no door here.",
         "invalidTarget": "You can't do that.",
         "closed": "It's already closed.",
         "notContainer": "That's not a container.",
         "closeDoor": "Ok.",
         "closePortal": "You close %t.",
-        "closeContainer": "You close %t.",
-        "closes": "The $d closes."
+        "closeContainer": "You close %t."
       },
       "toRoom": {
         "closeContainer": "%c closes %t.",
         "closePortal": "%c closes %t.",
         "closeDoor": "%c closes the %t."
       },
+      "toDestination": {
+          "closes": "The %t closes."
+      },
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: MovementApi.missing_argument(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: MovementApi.has_target_item(v) and not MovementApi.is_container_target(v)",
+        "messageKey": "notContainer"
+      },
+      {
+        "predicate": "lambda v: MovementApi.has_target_item(v) and MovementApi.container_not_closeable(v)",
+        "messageKey": "invalidTarget"
+      },
+      {
+        "predicate": "lambda v: MovementApi.has_target_item(v) and MovementApi.container_already_closed(v)",
+        "messageKey": "closed"
+      },
+      {
+        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.is_portal(v) and MovementApi.invalid_portal(v)",
+        "messageKey": "invalidTarget"
+      },
+      {
+        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.is_portal(v) and MovementApi.portal_already_closed(v)",
+        "messageKey": "closed"
+      },
+      {
+        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.invalid_door(v)",
+        "messageKey": "missingDoor"
+      },
+      {
+        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.door_already_closed(v)",
+        "messageKey": "closed"
+      }
+    ]
   },
   {
     "_id": {
@@ -4634,6 +4772,7 @@
     "payload": {
       "toChar": {
         "noArgument": "Pick what?",
+        "missingDoor": "I see no door here.",
         "failed": "You failed.",
         "canTDo": "You can't do that.",
         "open": "It's not closed.",
@@ -4649,7 +4788,29 @@
         "doorPicked": "%c picks the %t"
       },
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: MovementApi.missing_argument(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: MovementApi.invalid_door(v)",
+        "messageKey": "missingDoor"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_not_closed(v)",
+        "messageKey": "open"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_already_unlocked(v)",
+        "messageKey": "notLocked"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_pickproof(v)",
+        "messageKey": "failed"
+      }
+    ]
   },
   {
     "_id": {
@@ -5084,7 +5245,7 @@
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
       },
       {
-        "predicate": "lambda v: v.context.container is not None and not ItemUtil.is_container_like(v.context.container)",
+        "predicate": "lambda v: v.context.container is not None and not Item.is_container_like(v.context.container)",
         "messageKey": "notContainer"
       },
       {
@@ -5122,7 +5283,7 @@
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
       },
       {
-        "predicate": "lambda v: not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is not None and not ItemUtil.item_takeable(v.context.target_item)",
+        "predicate": "lambda v: not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is not None and not ItemApi.item_takeable(v.context.target_item, getattr(v.handler, 'wear_flags', None))",
         "messageKey": "cannotTake"
       }
     ]
@@ -5177,11 +5338,11 @@
         "messageKey": "targetSelf"
       },
       {
-        "predicate": "lambda v: ItemUtil.is_pc_corpse(v.context.item) and list(getattr(v.context.item, 'contains', []) or [])",
+        "predicate": "lambda v: Item.is_pc_corpse(v.context.item) and list(getattr(v.context.item, 'contains', []) or [])",
         "messageKey": "pcCorpse"
       },
       {
-        "predicate": "lambda v: ItemUtil.is_nosac(v.context.item)",
+        "predicate": "lambda v: ItemApi.is_no_sac(v.context.item)",
         "messageKey": "noSacrifice",
         "tokenFactory": "lambda v: {'t': v.context.item_name}"
       },
@@ -6319,7 +6480,7 @@
         "inventoryFull": "You have your hands full.",
         "encumbered": "You can't carry that much weight.",
         "targetSelf": "That's pointless.",
-        "noKillStealing": "Kill stealing is not permitted.\\n\\rYou'd better not -- you might get hit.",
+        "noKillStealing": "Kill stealing is not permitted.\n\rYou'd better not -- you might get hit.",
         "failed": "Oops.",
         "failedCoins": "You couldn't get any coins.",
         "thief": "*** You are now a THIEF!! ***",
@@ -6362,10 +6523,12 @@
         "noTrainer": "You can't do that here.",
         "insufficientSessions": "You don't have enough training sessions.",
         "trainingSessions": "You have %d training sessions.",
+        "trainOptions": "You can train: %t.",
         "nothingLeftTrain": "You have nothing left to train, you %s!",
         "durabilityIncreases": "Your durability increases!",
         "powerIncreases": "Your power increases!",
         "alreadyAtMaximum": "Your %t is already at maximum.",
+        "invalidState": "You can't do that.",
         "increases": "Your %t increases!"
       },
       "toRoom": {
@@ -6419,10 +6582,13 @@
         "isAsleep": "You are asleep yourself!",
         "targetMissing": "They aren't here.",
         "targetAwake": "%t is already awake.",
-        "affectSleep": "You can't wake %t!"
+        "affectSleep": "You can't wake %t!",
+        "wakeTarget": "You wake %t."
       },
       "toRoom": {},
-      "toVictim": {}
+      "toVictim": {
+        "wakeTarget": "%c wakes you."
+      }
     }
   },
   {
@@ -6686,7 +6852,7 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "syntax": "Syntax:\\n\\r  flag mob  <name> <field> <flags>\\n\\r\\n\\r  flag char <name> <field> <flags>\\n\\r  mob  flags: act,aff,off,imm,res,vuln,form,part\\n\\r  char flags: plr,comm,aff,imm,res,vuln,\\n\\r  +: add flag, -: remove flag, = set equal to\\n\\r  otherwise flag toggles the flags listed.",
+        "syntax": "Syntax:\n\r  flag mob  <name> <field> <flags>\n\r\n\r  flag char <name> <field> <flags>\n\r  mob  flags: act,aff,off,imm,res,vuln,form,part\n\r  char flags: plr,comm,aff,imm,res,vuln,\n\r  +: add flag, -: remove flag, = set equal to\n\r  otherwise flag toggles the flags listed.",
         "noTarget": "What do you wish to set flags on?",
         "noFlag": "You need to specify a flag to set.",
         "noArgument": "Which flags do you wish to change?",
@@ -6739,7 +6905,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -6852,11 +7018,11 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "syntax": "Syntax:\\n\\r  set mob   <name> <field> <value>\\n\\r  set obj   <name> <field> <value>\\n\\r  set room  <room> <field> <value>\\n\\r  set skill <name> <spell or skill> <value>",
-        "skillSyntax": "Syntax:\\n\\r  set skill <name> <spell or skill> <value>\\n\\r  set skill <name> all <value>\\n\\r   (use the name of the skill, not the number)",
-        "mobileSyntax": "Syntax:\\n\\r  set char <name> <field> <value>\\n\\r  Field being one of:\\n\\r    str int wis dex con sex class level\\n\\r    race group gold silver hp mana move prac\\n\\r    align train thirst hunger drunk full",
-        "objectSyntax": "Syntax:\\n\\r  set obj <object> <field> <value>\\n\\r  Field being one of:\\n\\r    value0 value1 value2 value3 value4 (v1-v4)\\n\\r    extra wear level weight cost timer",
-        "roomSyntax": "Syntax:\\n\\r  set room <location> <field> <value>\\n\\r  Field being one of:\\n\\r    flags sector",
+        "syntax": "Syntax:\n\r  set mob   <name> <field> <value>\n\r  set obj   <name> <field> <value>\n\r  set room  <room> <field> <value>\n\r  set skill <name> <spell or skill> <value>",
+        "skillSyntax": "Syntax:\n\r  set skill <name> <spell or skill> <value>\n\r  set skill <name> all <value>\n\r   (use the name of the skill, not the number)",
+        "mobileSyntax": "Syntax:\n\r  set char <name> <field> <value>\n\r  Field being one of:\n\r    str int wis dex con sex class level\n\r    race group gold silver hp mana move prac\n\r    align train thirst hunger drunk full",
+        "objectSyntax": "Syntax:\n\r  set obj <object> <field> <value>\n\r  Field being one of:\n\r    value0 value1 value2 value3 value4 (v1-v4)\n\r    extra wear level weight cost timer",
+        "roomSyntax": "Syntax:\n\r  set room <location> <field> <value>\n\r  Field being one of:\n\r    flags sector",
         "targetMissing": "They aren't here.",
         "noNPCs": "Not on NPC's.",
         "npcInvalid": "Not on NPC's.",
@@ -6888,7 +7054,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "syntax"
       }
     ]
@@ -6992,7 +7158,7 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "syntax": "Syntax:\\n\\r  load mob <vnum>\\n\\r  load obj <vnum> <level>",
+        "syntax": "Syntax:\n\r  load mob <vnum>\n\r  load obj <vnum> <level>",
         "mobileSyntax": "Syntax: load mob <vnum>.",
         "objectSyntax": "Syntax: load obj <vnum> <level>.",
         "oloadSyntax": "Syntax: oload <vnum> <level>.",
@@ -7074,7 +7240,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -7122,7 +7288,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -7171,7 +7337,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -7223,7 +7389,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -7358,7 +7524,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: WizApi.argument(v).strip().lower() not in (\"\", \"room\", \"all\") and WizApi.world_target(v) is None",
+        "predicate": "lambda v: InterpUtil.argument_text(v).strip().lower() not in (\"\", \"room\", \"all\") and WizApi.world_target(v) is None",
         "messageKey": "targetMissing"
       }
     ]
@@ -7667,15 +7833,15 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
-        "predicate": "lambda v: WizApi.argument(v).strip().lower() != \"all\" and WizApi.world_target(v) is None",
+        "predicate": "lambda v: InterpUtil.argument_text(v).strip().lower() != \"all\" and WizApi.world_target(v) is None",
         "messageKey": "targetMissing"
       },
       {
-        "predicate": "lambda v: WizApi.argument(v).strip().lower() != \"all\" and CharacterApi.is_npc(WizApi.world_target(v))",
+        "predicate": "lambda v: InterpUtil.argument_text(v).strip().lower() != \"all\" and CharacterApi.is_npc(WizApi.world_target(v))",
         "messageKey": "noNPCs"
       }
     ]
@@ -7920,7 +8086,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -7966,7 +8132,7 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "syntax": "Syntax:\\n\\r  stat <name>\\n\\r  stat obj <name>\\n\\r  stat mob <name>\\n\\r  stat room <number>",
+        "syntax": "Syntax:\n\r  stat <name>\n\r  stat obj <name>\n\r  stat mob <name>\n\r  stat room <number>",
         "noSuchTarget": "Nothing by that name found anywhere.",
         "roomMissing": "No room."
       },
@@ -7991,7 +8157,7 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "syntax": "Syntax:\\n\\r  string char <name> <field> <string>\\n\\r    fields: name short long desc title spec\\n\\r  string obj  <name> <field> <string>\\n\\r    fields: name short long extended",
+        "syntax": "Syntax:\n\r  string char <name> <field> <string>\n\r    fields: name short long desc title spec\n\r  string obj  <name> <field> <string>\n\r    fields: name short long extended",
         "targetMissing": "They aren't here.",
         "pcInvalid": "Not on PCs.",
         "npcInvalid": "Not on NPCs.",
@@ -8033,7 +8199,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -8103,7 +8269,7 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "syntax": "Syntax:\\n\\r  vnum obj <name>\\n\\r  vnum <mob> <name>\\n\\r  vnum skill <skill or spell>"
+        "syntax": "Syntax:\n\r  vnum obj <name>\n\r  vnum <mob> <name>\n\r  vnum skill <skill or spell>"
       },
       "toRoom": {},
       "toVictim": {}
@@ -8166,7 +8332,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       }
     ]
@@ -8278,7 +8444,7 @@
         "messageKey": "noEmote"
       },
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -8315,7 +8481,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v) and not WizApi.current_prefix(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v) and not WizApi.current_prefix(v)",
         "messageKey": "noArgument"
       }
     ]

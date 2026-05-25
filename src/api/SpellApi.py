@@ -6,6 +6,8 @@ import random
 from typing import Any
 
 from api.GameApi import GameApi
+from item.EffectHandler import EffectHandler
+from item.Item import Item
 from util.GenericUtil import GenericUtil
 from util.FightUtil import FightUtil
 from item.Effect import Effect
@@ -53,9 +55,10 @@ class SpellApi:
         "spell.weaken",
     )
 
-    def __init__(self):
+    def __init__(self, effect_handler: EffectHandler | None = None):
         self.__name__ = "SpellApi"
         self.logger = LoggerFactory.get_logger(self.__name__)
+        self.effect_handler = effect_handler or EffectUtil.handler()
 
     def execute_lambdas(self, ctx: SpellContext) -> bool:
         lambdas = list(getattr(ctx.spell, "lambdas", []) or [])
@@ -184,7 +187,7 @@ class SpellApi:
         victim = ctx.resolve(target) if target is not None else ctx.target
         if victim is None:
             return False
-        EffectUtil.apply_spell_effects(ctx.actor, victim, ctx.spell)
+        self.effect_handler.apply_spell_effects(ctx.actor, victim, ctx.spell)
         return ctx.mark_performed()
 
     def remove_effects(self, ctx: SpellContext, *effect_names: str, target: Any = None):
@@ -194,8 +197,8 @@ class SpellApi:
         for effect_name in effect_names:
             normalized = str(effect_name or "").strip().lower()
             handler_id = normalized if normalized.startswith("spell.") else FightUtil.spell_handler_name(normalized.replace("_", " "))
-            EffectUtil.affect_strip(victim, handler_id)
-            EffectUtil.affect_strip(victim, normalized)
+            self.effect_handler.affect_strip(victim, handler_id)
+            self.effect_handler.affect_strip(victim, normalized)
         return ctx.mark_performed()
 
     def dispel_effects(self, ctx: SpellContext, *effect_names: str, target: Any = None):
@@ -204,7 +207,7 @@ class SpellApi:
             return False
         removed = False
         for effect_name in effect_names:
-            removed = EffectUtil.check_dispel(ctx.level, victim, str(effect_name or "").strip().lower()) or removed
+            removed = self.effect_handler.check_dispel(ctx.level, victim, str(effect_name or "").strip().lower()) or removed
         if removed:
             ctx.mark_performed()
         return removed
@@ -526,7 +529,7 @@ class SpellApi:
         for entity in self._room_entities(room):
             if getattr(entity, "fighting", None) is not None or not self._same_side(ctx.actor, entity) or self._effect_active(entity, "AFF_INVISIBLE") or self._effect_active(entity, "spell.invis"):
                 continue
-            EffectUtil.apply_spell_effects(ctx.actor, entity, ctx.spell)
+            self.effect_handler.apply_spell_effects(ctx.actor, entity, ctx.spell)
             affected = True
         return ctx.mark_performed() if affected else False
 
@@ -568,7 +571,7 @@ class SpellApi:
             self.send(ctx, to_victim="A wave of calm passes over you.\r\n", victim=entity)
             if getattr(entity, "fighting", None) is not None:
                 self._fight_handler(ctx).stop_fighting(entity, both=False)
-            EffectUtil.apply_spell_effects(ctx.actor, entity, ctx.spell)
+            self.effect_handler.apply_spell_effects(ctx.actor, entity, ctx.spell)
         return ctx.mark_performed()
 
     def chain_lightning(self, ctx: SpellContext):
@@ -649,9 +652,9 @@ class SpellApi:
         for victim in self._room_entities(room):
             if victim is ctx.actor:
                 continue
-            EffectUtil.affect_strip(victim, "spell.invis")
-            EffectUtil.affect_strip(victim, "AFF_HIDE")
-            EffectUtil.apply_spell_effects(ctx.actor, victim, ctx.spell)
+            self.effect_handler.affect_strip(victim, "spell.invis")
+            self.effect_handler.affect_strip(victim, "AFF_HIDE")
+            self.effect_handler.apply_spell_effects(ctx.actor, victim, ctx.spell)
         return ctx.mark_performed()
 
     def dispel_magic(self, ctx: SpellContext):
@@ -660,7 +663,7 @@ class SpellApi:
             return False
         removed = False
         for effect_name in self.DISPEL_EFFECTS:
-            removed = EffectUtil.check_dispel(ctx.level, victim, effect_name) or removed
+            removed = self.effect_handler.check_dispel(ctx.level, victim, effect_name) or removed
         if not removed:
             self.send(ctx, to_char="Spell failed.\r\n")
         return ctx.mark_performed() if removed else False
@@ -700,7 +703,7 @@ class SpellApi:
             bitvector="AFF_POISON",
             apply_to="char",
         )
-        EffectUtil.affect_join(victim, effect)
+        self.effect_handler.affect_join(victim, effect)
         return ctx.mark_performed()
 
     def charm_person(self, ctx: SpellContext):
@@ -755,7 +758,7 @@ class SpellApi:
                     bitvector="0",
                     apply_to="char",
                 )
-                EffectUtil.affect_join(victim, effect)
+                self.effect_handler.affect_join(victim, effect)
             return True
         return False
 
@@ -916,9 +919,9 @@ class SpellApi:
             bitvector="0",
             apply_to="item",
         )
-        EffectUtil.affect_to_obj(obj, effect)
+        self.effect_handler.affect_to_obj(obj, effect)
         if weapon:
-            EffectUtil.affect_to_obj(
+            self.effect_handler.affect_to_obj(
                 obj,
                 Effect(
                     where="TO_OBJECT",
@@ -1022,15 +1025,15 @@ class SpellApi:
         if not cursed:
             if quiet:
                 return False
-            return ctx.fail(f"There doesn't seem to be a curse on {ItemUtil.short(item)}.\r\n")
+            return ctx.fail(f"There doesn't seem to be a curse on {Item.short(item)}.\r\n")
         if nouncurse is not None and GameApi.is_set(raw_flags, nouncurse.value):
             if quiet:
                 return False
-            return ctx.fail(f"The curse on {ItemUtil.short(item)} is beyond your power.\r\n")
+            return ctx.fail(f"The curse on {Item.short(item)} is beyond your power.\r\n")
         if EffectUtil.saves_dispel(ctx.level + 2, GenericUtil.to_int(getattr(item, "level", 0), 0), 0):
             if quiet:
                 return False
-            return ctx.fail(f"The curse on {ItemUtil.short(item)} is beyond your power.\r\n")
+            return ctx.fail(f"The curse on {Item.short(item)} is beyond your power.\r\n")
         if nodrop is not None:
             raw_flags = GameApi.unset_bit(raw_flags, nodrop.value)
         if noremove is not None:
@@ -1039,11 +1042,11 @@ class SpellApi:
         if quiet:
             return True
         if owner is not None and owner is not ctx.actor:
-            self.send(ctx, to_victim=f"Your {ItemUtil.short(item)} glows blue.\r\n", victim=owner)
-            self.send(ctx, to_room=f"{self._entity_name(owner)}'s {ItemUtil.short(item)} glows blue.\r\n", victim=owner)
+            self.send(ctx, to_victim=f"Your {Item.short(item)} glows blue.\r\n", victim=owner)
+            self.send(ctx, to_room=f"{self._entity_name(owner)}'s {Item.short(item)} glows blue.\r\n", victim=owner)
         else:
-            self.send(ctx, to_char=f"{ItemUtil.short(item)} glows blue.\r\n")
-            self.send(ctx, to_room=f"{ItemUtil.short(item)} glows blue.\r\n")
+            self.send(ctx, to_char=f"{Item.short(item)} glows blue.\r\n")
+            self.send(ctx, to_room=f"{Item.short(item)} glows blue.\r\n")
         return ctx.mark_performed()
 
     @staticmethod

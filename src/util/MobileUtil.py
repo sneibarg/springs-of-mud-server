@@ -16,6 +16,7 @@ from item.Effect import AffectWhere, Effect
 from api.ItemApi import ItemApi
 from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
+from util.ItemUtil import ItemUtil
 
 logger = LoggerFactory.get_logger('MobileUtil')
 rng = RandomNumberGenerator()
@@ -146,6 +147,7 @@ class MobileUtil:
         sex_value = mobile_data.get("sex")
         return {
             "area_id": str(mobile_data.get("area_id", "") or ""),
+            "room_id": str(mobile_data.get("room_id", "") or ""),
             "vnum": str(mobile_data.get("vnum", mobile_id) or mobile_id),
             "name": player_name,
             "short_description": str(mobile_data.get("short_description", "") or ""),
@@ -217,24 +219,24 @@ class MobileUtil:
         mob.character_attributes.dexterity = min(25, 11 + mob.level // 4)
         mob.character_attributes.constitution = min(25, 11 + mob.level // 4)
 
-        if GameApi.is_set(mob.status_flags.act, act_bits.ACT_WARRIOR.value):
+        if GameApi.is_set(mob.status_flags.act, act_bits.ACT_WARRIOR):
             mob.character_attributes.strength += 3
             mob.character_attributes.intelligence -= 1
             mob.character_attributes.constitution += 2
-        elif GameApi.is_set(mob.status_flags.act, act_bits.ACT_THIEF.value):
+        elif GameApi.is_set(mob.status_flags.act, act_bits.ACT_THIEF):
             mob.character_attributes.dexterity += 3
             mob.character_attributes.intelligence += 1
             mob.character_attributes.wisdom -= 1
-        elif GameApi.is_set(mob.status_flags.act, act_bits.ACT_CLERIC.value):
+        elif GameApi.is_set(mob.status_flags.act, act_bits.ACT_CLERIC):
             mob.character_attributes.wisdom += 3
             mob.character_attributes.dexterity -= 1
             mob.character_attributes.strength += 1
-        elif GameApi.is_set(mob.status_flags.act, act_bits.ACT_MAGE.value):
+        elif GameApi.is_set(mob.status_flags.act, act_bits.ACT_MAGE):
             mob.character_attributes.intelligence += 3
             mob.character_attributes.strength -= 1
             mob.character_attributes.dexterity += 1
 
-        if GameApi.is_set(mob.status_flags.off, off_bits.OFF_FAST.value):
+        if GameApi.is_set(mob.status_flags.off, off_bits.OFF_FAST):
             mob.character_attributes.dexterity += 2
 
         size_key = "SIZE_" + mob.size.upper()
@@ -270,6 +272,7 @@ class MobileUtil:
 
         mob = Mobile.from_json({
             "area_id": pMobIndex.area_id,
+            "room_id": getattr(pMobIndex, "room_id", ""),
             "vnum": pMobIndex.vnum,
             "id": GenericUtil.generate_mongo_id(),
             "name": pMobIndex.name,
@@ -340,8 +343,8 @@ class MobileUtil:
         return mob
 
     @staticmethod
-    def clone_mobile_instance(mob: Mobile, enums: dict[str, type[IntEnum]]) -> Mobile:
-        clone = MobileUtil.create_mobile(mob, enums)
+    def clone_mobile_instance(mob: Mobile, enum_provider: EnumProvider) -> Mobile:
+        clone = MobileUtil.create_mobile(mob, enum_provider)
         clone.short_description = getattr(mob, "short_description", "")
         clone.long_description = getattr(mob, "long_description", "")
         clone.description = getattr(mob, "description", "")

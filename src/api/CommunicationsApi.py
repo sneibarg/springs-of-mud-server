@@ -15,6 +15,9 @@ class BufferedMessage:
     sender: str
     message: str
 
+    def format_message(self):
+        return CommunicationsUtil.ensure_message_break(f"{self.sender} tells you '{self.message}'")
+
 
 class CommunicationsApi(GameApi):
     _registry_service = None
@@ -28,14 +31,6 @@ class CommunicationsApi(GameApi):
     def reset_for_tests(cls) -> None:
         with cls._lock:
             cls._configured = False
-            cls._game_data = None
-            cls._enums = None
-            cls._races = None
-            cls._item_table = None
-            cls._attribute_bonuses = None
-            cls._classes = None
-            cls._pc_races = None
-            cls._titles = None
             cls._reset_internal_variables()
 
     @classmethod

@@ -3,6 +3,8 @@ import random
 from typing import Any
 from injector import inject
 
+from api.GameApi import GameApi
+from api.ItemApi import ItemApi
 from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
 from fight.CombatEvent import CombatEvent
@@ -13,9 +15,10 @@ from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
 from util.InfoUtil import InfoUtil
 from mobile.MobileRegistry import MobileRegistry
+from item.EffectHandler import EffectHandler
 from item.BodyForm import BodyForm
 from item.BodyParts import BodyParts
-from util.EffectUtil import EffectUtil
+from item.Item import Item
 from item.ItemRegistry import ItemRegistry
 from util.ItemUtil import ItemUtil
 from player.CharacterAdvancement import CharacterAdvancement
@@ -69,7 +72,8 @@ class FightHandler:
                  room_registry: RoomRegistry,
                  item_registry: ItemRegistry,
                  mobile_registry: MobileRegistry,
-                 enum_provider: EnumProvider):
+                 enum_provider: EnumProvider,
+                 effect_handler: EffectHandler):
         self.__name__ = "FightHandler"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.message_bus = message_bus
@@ -78,6 +82,7 @@ class FightHandler:
         self.room_registry = room_registry
         self.item_registry = item_registry
         self.mobile_registry = mobile_registry
+        self.effect_handler = effect_handler
         self.rng = RandomNumberGenerator()
         self.PositionsEnum = enum_provider.get("positions")
         self.WellKnownObjectVnums = enum_provider.get("wellKnownObjectVnums")
@@ -508,8 +513,8 @@ class FightHandler:
             base_exp = 160 + 20 * (level_range - 4)
 
         # Alignment adjustment follows ROM semantics.
-        gch_align = self._get_alignment(gch)
-        victim_align = self._get_alignment(victim)
+        gch_align = gch.get_alignment()
+        victim_align = victim.get_alignment()
         align = victim_align - gch_align
 
         act_bits = CharacterApi.get_enum("actBits")
@@ -530,7 +535,7 @@ class FightHandler:
             else:
                 change = (gch_align * base_exp // 500) * gch_level // total
                 gch_align = gch_align - change
-            self._set_alignment(gch, gch_align)
+            gch.set_alignment(gch_align)
 
         if no_align:
             xp = base_exp
@@ -866,8 +871,8 @@ class FightHandler:
         if not result.get("killed"):
             if not CharacterApi.is_npc(attacker) and CharacterApi.is_npc(victim):
                 payload["to_char"] = self._append_condition_line(payload["to_char"], victim)
-            elif CharacterApi.is_npc(attacker) and not CharacterApi.is_npc(victim):
-                payload["to_victim"] = self._append_condition_line(payload.get("to_victim", ""), attacker)
+            # elif CharacterApi.is_npc(attacker) and not CharacterApi.is_npc(victim):
+            #     payload["to_victim"] = self._append_condition_line(payload.get("to_victim", ""), attacker)
 
         if not result.get("killed"):
             return payload
@@ -1001,28 +1006,6 @@ class FightHandler:
         return False
 
     @staticmethod
-    def _get_alignment(entity) -> int:
-        attrs = getattr(entity, "character_attributes", None)
-        if attrs is not None:
-            return GenericUtil.to_int(getattr(attrs, "alignment", 0), 0)
-        perm = getattr(entity, "character_attributes", None)
-        if perm is not None:
-            return GenericUtil.to_int(getattr(perm, "alignment", 0), 0)
-        return GenericUtil.to_int(getattr(entity, "alignment", 0), 0)
-
-    @staticmethod
-    def _set_alignment(entity, value: int) -> None:
-        attrs = getattr(entity, "character_attributes", None)
-        if attrs is not None:
-            attrs.alignment = int(value)
-            return
-        perm = getattr(entity, "character_attributes", None)
-        if perm is not None:
-            perm.alignment = int(value)
-            return
-        setattr(entity, "alignment", int(value))
-
-    @staticmethod
     def _entity_in_room(room, entity) -> bool:
         entity_id = str(getattr(entity, "id", "") or "")
         if not entity_id:
@@ -1114,26 +1097,20 @@ class FightHandler:
         merged["xp_gain"] = GenericUtil.to_int(merged.get("xp_gain", 0), 0) + GenericUtil.to_int(extra.get("xp_gain", 0), 0)
         return merged
 
-    @staticmethod
-    def _autoloot_corpse(character, corpse) -> None:
-        try:
-            wear_flags = CharacterApi.get_enum("wearFlags")
-        except RuntimeError:
-            wear_flags = None
-
+    def _autoloot_corpse(self, character, corpse) -> None:
         remaining = []
         for item in list(getattr(corpse, "contains", []) or []):
-            if ItemUtil.item_takeable(item):
+            if ItemApi.item_takeable(item, self.WearFlags):
                 character.add_item(item)
             else:
                 remaining.append(item)
         corpse.contains = remaining
 
     def _autosacrifice_corpse(self, attacker, corpse, room) -> dict | None:
-        if room is None or corpse is None or not ItemUtil.is_npc_corpse(corpse):
+        if room is None or corpse is None or not Item.is_npc_corpse(corpse):
             return None
 
-        if not ItemUtil.item_takeable(corpse) or ItemUtil.is_nosac(corpse):
+        if not ItemApi.item_takeable(corpse, self.WearFlags) or ItemApi.has_item_flag(corpse, self.ItemFlags, "ITEM_NO_SAC"):
             return None
 
         room.remove_item_from_room(corpse)
@@ -1141,7 +1118,7 @@ class FightHandler:
         attacker.silver = int(getattr(attacker, "silver", 0) or 0) + silver
         return {
             "to_char": ItemUtil.sacrifice_reward_message(silver),
-            "to_room": f"{attacker.name} sacrifices {ItemUtil.short(corpse)} to Mota.\r\n",
+            "to_room": f"{attacker.name} sacrifices {Item.short(corpse)} to Mota.\r\n",
         }
 
     @staticmethod
@@ -1557,7 +1534,7 @@ class FightHandler:
         flag = getattr(weapon_flags, flag_name, None)
         if flag is None:
             return False
-        return ItemUtil.has_flag(getattr(weapon, "value4", 0), int(flag.value))
+        return GameApi.is_set(getattr(weapon, "value4", 0), int(flag.value))
 
     @staticmethod
     def _dynamic_combat_bonus(entity, *names: str) -> int:
@@ -1663,8 +1640,8 @@ class FightHandler:
         if room is not None:
             room.characters.pop(str(getattr(victim, "id", "") or ""), None)
 
-        for effect in list(EffectUtil.ensure_effects(victim)):
-            EffectUtil.affect_remove(victim, effect)
+        for effect in list(self.effect_handler.ensure_effects(victim)):
+            self.effect_handler.remove_effect(victim, effect)
 
         armor = getattr(victim, "armor_class", None)
         for field_name in ("piercing", "bashing", "slashing", "magic"):

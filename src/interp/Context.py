@@ -78,19 +78,5 @@ class Context:
     def finish(self):
         self.done = True
 
-    def look_register_match(self) -> bool:
-        self.count += 1
-        return self.count == self.number
-
     async def disconnect(self):
         await self.conn.close()
-
-    @staticmethod
-    def look_keyword_matches(token: str, keyword: str) -> bool:
-        t = (token or "").strip().lower()
-        k = (keyword or "").strip().lower()
-        if not t or not k:
-            return False
-        words = [w for w in k.split() if w]
-        return any(w == t or w.startswith(t) for w in words)
-

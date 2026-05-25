@@ -77,11 +77,22 @@ class _CharacterMacros:
 
     @staticmethod
     def get_enum(_name: str):
+        if _name == "exitFlags":
+            return SimpleNamespace(
+                EX_CLOSED=SimpleNamespace(value=1),
+                EX_NOPASS=SimpleNamespace(value=2),
+                EX_LOCKED=SimpleNamespace(value=4),
+                EX_PICKPROOF=SimpleNamespace(value=8),
+            )
+        if _name == "roomFlags":
+            return SimpleNamespace(ROOM_NO_RECALL=SimpleNamespace(value=1))
+        if _name == "containerState":
+            return SimpleNamespace(
+                CONT_CLOSEABLE=SimpleNamespace(value=1),
+                CONT_CLOSED=SimpleNamespace(value=4),
+                CONT_LOCKED=SimpleNamespace(value=8),
+            )
         return SimpleNamespace()
-
-    @staticmethod
-    def movement_position_block_message(character) -> str:
-        return str(getattr(character, "position_block", "") or "")
 
     @staticmethod
     def is_affected_by_name(character, _bits, name: str) -> bool:
@@ -149,10 +160,6 @@ class _MovementUtil:
         return None if room is None else room.get_exit(direction)
 
     @staticmethod
-    def get_exit_flag(_enum_obj, primary: str, _fallback: str = "") -> int:
-        return {"EX_CLOSED": 1, "EX_NOPASS": 2}.get(primary, 0)
-
-    @staticmethod
     def sector_cost(_sector_type) -> int:
         return 1
 
@@ -169,17 +176,41 @@ _stub_package("util")
 _load_module("util.GenericUtil", "util/GenericUtil.py")
 _stub_module("util.MovementUtil", MovementUtil=_MovementUtil)
 _stub_module("util.MobileUtil", MobileUtil=SimpleNamespace(is_train_trainer=lambda *_args, **_kwargs: False))
+_stub_module("util.AreaUtil", AreaUtil=SimpleNamespace())
+_stub_module("util.CommunicationsUtil", CommunicationsUtil=SimpleNamespace(
+    ensure_message_break=lambda text: text if str(text).endswith("\r\n") else f"{text}\r\n",
+    split_first=lambda text: tuple(((text or "").split(maxsplit=1) + ["", ""])[:2]),
+))
+_stub_module("util.FightUtil", FightUtil=SimpleNamespace())
+_stub_module("util.InterpUtil", InterpUtil=SimpleNamespace(argument_text=lambda view: str(getattr(view.context, "result", "") or "")))
+_stub_module("util.ItemUtil", ItemUtil=SimpleNamespace())
+_stub_module("util.WizUtil", WizUtil=SimpleNamespace())
 _stub_package("game")
 _stub_module("game.GameData", GameData=object)
 _stub_module("game.RegistryService", RegistryService=object)
 _load_module("game.GamePayload", "game/GamePayload.py")
+_stub_package("area")
+_stub_module("area.Room", Room=object)
 _stub_package("fight")
 _stub_module("fight.FightHandler", FightHandler=object)
 _stub_package("player")
 _stub_module("player.Character", Character=object)
 _stub_module("player.CharacterApi", CharacterMacros=_CharacterMacros)
+_stub_package("api")
+_stub_module("api.CharacterApi", CharacterApi=_CharacterMacros)
+_stub_module("api.CommunicationsApi", CommunicationsApi=SimpleNamespace())
+_stub_module("api.ItemApi", ItemApi=SimpleNamespace())
+_stub_module("api.WizApi", WizApi=SimpleNamespace())
 _stub_package("interp")
 _stub_module("interp.Context", Context=_Context)
+_stub_package("item")
+_stub_module(
+    "item.Item",
+    Item=SimpleNamespace(
+        short=lambda item: getattr(item, "short_description", "") or getattr(item, "name", "") or "it",
+        is_container=lambda item: "container" in str(getattr(item, "item_type", "") or "").lower(),
+    ),
+)
 
 Command = _load_module("interp.Command", "interp/Command.py").Command
 _load_module("interp.InterpView", "interp/InterpView.py")
@@ -187,7 +218,7 @@ _load_module("interp.InterpCheck", "interp/InterpCheck.py")
 _load_module("interp.InterpActionDefinition", "interp/InterpActionDefinition.py")
 _load_module("interp.InterpPlan", "interp/InterpPlan.py")
 InterpApi = _load_module("interp.InterpApi", "api/InterpApi.py").InterpApi
-MovementApi = sys.modules["interp.MovementApi"].MovementApi
+MovementApi = sys.modules["api.MovementApi"].MovementApi
 Movement = _load_module("interp.commands.Movement", "interp/commands/Movement.py").Movement
 
 
@@ -211,6 +242,27 @@ class _Exit(SimpleNamespace):
 class _Room(SimpleNamespace):
     def get_exit(self, direction: int):
         return self.exits.get(direction)
+
+    def find_door(self, arg: str) -> int:
+        direction = _MovementUtil.direction_index(arg)
+        if direction >= 0:
+            return direction if self.get_exit(direction) is not None else -1
+        wanted = (arg or "").strip().lower()
+        for direction, ex in getattr(self, "exits", {}).items():
+            keyword = str(getattr(ex, "keyword", "") or "").lower()
+            if wanted == keyword or wanted in keyword.split():
+                return int(direction)
+        return -1
+
+    def find_room_item(self, wanted: str):
+        q = (wanted or "").strip().lower()
+        if not q:
+            return None
+        for item in getattr(self, "contents", {}).values():
+            name = str(getattr(item, "name", "") or "").lower()
+            if name == q or name.startswith(q):
+                return item
+        return None
 
     def player_targets(self, _character):
         return []
@@ -238,9 +290,10 @@ class TestMovementDynamicCommands(unittest.TestCase):
             registry_service=registry_service,
             game_data=SimpleNamespace(),
             fight_handler=SimpleNamespace(aggressive_entry_rounds=lambda *_args, **_kwargs: []),
+            enum_provider=SimpleNamespace(get=lambda _name: SimpleNamespace()),
         )
-        commands.exit_flags = SimpleNamespace()
-        commands.room_flags = SimpleNamespace()
+        commands.exit_flags = _CharacterMacros.get_enum("exitFlags")
+        commands.room_flags = _CharacterMacros.get_enum("roomFlags")
         commands.affected_bits = SimpleNamespace()
         commands.act_bits = SimpleNamespace()
         commands.sector_types = SimpleNamespace()
@@ -340,9 +393,161 @@ class TestMovementDynamicCommands(unittest.TestCase):
 
         self.assertEqual("room-2", character.room_id)
         self.assertEqual(4, character.movement)
-        self.assertEqual("Tester leaves north.\r\n", payload["from_room_message"])
-        self.assertEqual("Tester has arrived.\r\n", payload["to_room_message"])
-        self.assertFalse(hasattr(context, "move_cost"))
+        self.assertEqual("default", payload["payloads"][0]["message_key"])
+        self.assertEqual("arrived", payload["payloads"][1]["message_key"])
+        self.assertEqual("to_room", payload["payloads"][0]["channel"])
+        self.assertEqual("to_room", payload["payloads"][1]["channel"])
+        self.assertEqual("Tester leaves north.", context.command.render_message("to_room", payload["payloads"][0]["message_key"], **payload["payloads"][0]["tokens"]))
+        self.assertEqual("Tester has arrived.", context.command.render_message("to_room", payload["payloads"][1]["message_key"], **payload["payloads"][1]["tokens"]))
+        self.assertIs(destination, payload["payloads"][1]["to_room_obj"])
+
+    def test_open_invalid_door_uses_guard_payload(self):
+        commands, room_registry = self._commands()
+        room = _Room(id="room-1", exits={}, sector_type="field")
+        room_registry.get_or_none = lambda **kwargs: room if kwargs.get("id") == "room-1" else None
+        character = SimpleNamespace(
+            id="char-1",
+            name="Tester",
+            room_id="room-1",
+            movement=5,
+            character_attributes=SimpleNamespace(position="POS_STANDING"),
+            status_flags=SimpleNamespace(invis_level=0),
+            effects={},
+        )
+        context = _Context(
+            character=character,
+            command=_load_command("open"),
+            result="gate",
+            parameters=[],
+            done=False,
+            room=room,
+            player_handler=lambda: SimpleNamespace(room_registry=room_registry),
+        )
+
+        payload = commands.do_open(character, context)
+
+        self.assertEqual("I see no door here.\r\n", payload["to_char"])
+
+    def test_open_success_returns_standard_payload_message_key(self):
+        commands, room_registry = self._commands()
+        exit_obj = _Exit(direction=0, to_room_id="room-2", exit_flags=1, keyword="gate")
+        current_room = _Room(id="room-1", exits={0: exit_obj}, sector_type="field")
+        destination = _Room(id="room-2", exits={2: _Exit(direction=2, to_room_id="room-1", exit_flags=1, keyword="gate")}, sector_type="field")
+
+        def _get_or_none(**kwargs):
+            if kwargs.get("id") == "room-1":
+                return current_room
+            if kwargs.get("id") == "room-2":
+                return destination
+            return None
+
+        room_registry.get_or_none = _get_or_none
+        character = SimpleNamespace(
+            id="char-1",
+            name="Tester",
+            room_id="room-1",
+            movement=5,
+            character_attributes=SimpleNamespace(position="POS_STANDING"),
+            status_flags=SimpleNamespace(invis_level=0),
+            effects={},
+        )
+        context = _Context(
+            character=character,
+            command=_load_command("open"),
+            result="gate",
+            parameters=[],
+            done=False,
+            room=current_room,
+            player_handler=lambda: SimpleNamespace(room_registry=room_registry),
+        )
+
+        payload = commands.do_open(character, context)
+
+        self.assertEqual("open_door", payload["message_key"])
+        self.assertEqual("Ok.", context.command.render_message("to_char", payload["message_key"], **payload["tokens"]))
+        self.assertEqual("Tester opens the gate.", context.command.render_message("to_room", payload["message_key"], **payload["tokens"]))
+        self.assertEqual(0, exit_obj.exit_flags)
+
+    def test_close_container_returns_container_payload(self):
+        commands, room_registry = self._commands()
+        room = _Room(id="room-1", exits={}, sector_type="field", contents={})
+        room_registry.get_or_none = lambda **kwargs: room if kwargs.get("id") == "room-1" else None
+        chest = SimpleNamespace(
+            id="obj-1",
+            name="chest wooden",
+            short_description="a wooden chest",
+            item_type="container",
+            value1="1",
+            value2="-1",
+        )
+        character = SimpleNamespace(
+            id="char-1",
+            name="Tester",
+            room_id="room-1",
+            movement=5,
+            loot=[chest],
+            character_attributes=SimpleNamespace(position="POS_STANDING"),
+            status_flags=SimpleNamespace(invis_level=0),
+            effects={},
+            find_inventory_item=lambda wanted: chest if wanted == "chest" else None,
+        )
+        context = _Context(
+            character=character,
+            command=_load_command("close"),
+            result="chest",
+            parameters=[],
+            done=False,
+            room=room,
+            player_handler=lambda: SimpleNamespace(room_registry=room_registry),
+        )
+
+        payload = commands.do_close(character, context)
+
+        self.assertEqual("close_container", payload["message_key"])
+        self.assertEqual("You close a wooden chest.", context.command.render_message("to_char", payload["message_key"], **payload["tokens"]))
+        self.assertEqual("%c closes %t.".replace("%c", "Tester").replace("%t", "a wooden chest"), context.command.render_message("to_room", payload["message_key"], **payload["tokens"]))
+        self.assertEqual("5", chest.value1)
+
+    def test_lock_container_returns_container_payload(self):
+        commands, room_registry = self._commands()
+        room = _Room(id="room-1", exits={}, sector_type="field", contents={})
+        room_registry.get_or_none = lambda **kwargs: room if kwargs.get("id") == "room-1" else None
+        chest = SimpleNamespace(
+            id="obj-2",
+            name="chest iron",
+            short_description="an iron chest",
+            item_type="container",
+            value1="5",
+            value2="123",
+        )
+        character = SimpleNamespace(
+            id="char-1",
+            name="Tester",
+            room_id="room-1",
+            movement=5,
+            loot=[chest, SimpleNamespace(vnum="123")],
+            character_attributes=SimpleNamespace(position="POS_STANDING"),
+            status_flags=SimpleNamespace(invis_level=0),
+            effects={},
+            find_inventory_item=lambda wanted: chest if wanted == "chest" else None,
+            has_key=lambda key: key == 123,
+        )
+        context = _Context(
+            character=character,
+            command=_load_command("lock"),
+            result="chest",
+            parameters=[],
+            done=False,
+            room=room,
+            player_handler=lambda: SimpleNamespace(room_registry=room_registry),
+        )
+
+        payload = commands.do_lock(character, context)
+
+        self.assertEqual("container_locked", payload["message_key"])
+        self.assertEqual("You lock an iron chest.", context.command.render_message("to_char", payload["message_key"], **payload["tokens"]))
+        self.assertEqual("%c locks %t.".replace("%c", "Tester").replace("%t", "an iron chest"), context.command.render_message("to_room", payload["message_key"], **payload["tokens"]))
+        self.assertEqual("13", chest.value1)
 
 
 if __name__ == "__main__":

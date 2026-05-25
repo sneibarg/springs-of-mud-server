@@ -8,6 +8,7 @@ from game.RegistryService import RegistryService
 from game.WizHandler import WizHandler
 from player.CharacterClass import CharacterClass
 from player.CharacterRace import CharacterRace
+from util.AreaUtil import AreaUtil
 from util.GenericUtil import GenericUtil
 from util.SkillUtil import SkillUtil
 from util.WizUtil import WizUtil
@@ -134,7 +135,7 @@ class WizSetApi:
                 context.finish()
                 return self._payload("invalid_class", tokens={"s": " ".join(CharacterApi.class_names())})
             victim.character_class = CharacterClass.from_json({"name": value_text, **class_data})
-            race_data = CharacterApi._pc_races_map().get(str(getattr(victim, "race", "") or "").strip().lower(), {})
+            race_data = CharacterApi.pc_races_map().get(str(getattr(victim, "race", "") or "").strip().lower(), {})
             if race_data:
                 victim.character_race = CharacterRace.from_json(race_data, character_class=victim.character_class)
             context.finish()
@@ -288,7 +289,7 @@ class WizSetApi:
             return self._payload("room_syntax")
 
         location_name, field_name, value_text = parts
-        location = CharacterApi.find_location(location_name, self.room_registry, self.character_registry, WizUtil.name_matches)
+        location = AreaUtil.find_location(location_name, self.room_registry, self.character_registry, WizUtil.name_matches)
         if location is None:
             context.finish()
             return self._payload("no_such_location")
@@ -346,7 +347,7 @@ class WizSetApi:
             context.finish()
             return self._payload("invalid_race")
 
-        race_data = CharacterApi._pc_races_map().get(race_key, {})
+        race_data = CharacterApi.pc_races_map().get(race_key, {})
         victim.character_race = CharacterRace.from_json(race_data, character_class=getattr(victim, "character_class", None))
         context.finish()
         return {"to_char": ""}
@@ -392,9 +393,9 @@ class WizSetApi:
         prefix = ""
         maps = []
         if include_mobile:
-            maps.append(CharacterApi._races_map())
+            maps.append(CharacterApi.races_map())
         if include_pc:
-            maps.append(CharacterApi._pc_races_map())
+            maps.append(CharacterApi.pc_races_map())
 
         for mapping in maps:
             for key in mapping.keys():

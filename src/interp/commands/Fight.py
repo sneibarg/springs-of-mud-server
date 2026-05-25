@@ -5,11 +5,15 @@ import random
 from injector import inject
 
 from api.FightApi import FightApi
+from api.GameApi import GameApi
+from api.MovementApi import MovementApi
 from fight.FightHandler import FightHandler
+from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
 from interp.Context import Context
 from item.Effect import Effect
+from item.EffectHandler import EffectHandler
 from player.Character import Character
 from player.CharacterAdvancement import CharacterAdvancement
 from api.CharacterApi import CharacterApi
@@ -22,7 +26,6 @@ from skill.SpellContext import SpellContext
 from util.EffectUtil import EffectUtil
 from util.FightUtil import FightUtil
 from util.GenericUtil import GenericUtil
-from util.ItemUtil import ItemUtil
 from util.MovementUtil import MovementUtil
 from util.PlayerUtil import PlayerUtil
 from util.SkillUtil import SkillUtil
@@ -30,7 +33,13 @@ from util.SkillUtil import SkillUtil
 
 class Fight:
     @inject
-    def __init__(self, registry_service: RegistryService, skill_api: SkillApi, fight_api: FightApi, interp_api: InterpApi = None, weather_handler: WeatherHandler = None):
+    def __init__(self, registry_service: RegistryService,
+                 enum_provider: EnumProvider,
+                 skill_api: SkillApi,
+                 fight_api: FightApi,
+                 interp_api: InterpApi = None,
+                 weather_handler: WeatherHandler = None,
+                 effect_handler: EffectHandler = None):
         self.__name__ = "Fight"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -42,7 +51,8 @@ class Fight:
         self.fight_api = fight_api
         self.interp_api = interp_api or InterpApi()
         self.weather_handler = weather_handler
-        self.spell_api = SpellApi()
+        self.effect_handler = effect_handler or EffectUtil.handler()
+        self.spell_api = SpellApi(effect_handler=self.effect_handler)
         self._handlers = {
             "hit": self.do_kill,
             "kill": self.do_kill,
@@ -59,10 +69,7 @@ class Fight:
             "rescue": self.do_rescue,
             "trip": self.do_trip,
         }
-        self.AffectBits = None
-
-    def lazy_load(self):
-        self.AffectBits = CharacterApi.get_enum("affectedBy")
+        self.AffectBits = enum_provider.get("affectedBy")
 
     def execute(self, character: Character, context: Context):
         name = (getattr(context.command, "name", "") or "").strip().lower()
@@ -188,9 +195,9 @@ class Fight:
             character.movement = max(0, GenericUtil.to_int(getattr(character, "movement", 0), 0) // 2)
             character.hit = min(GenericUtil.to_int(getattr(character, "max_hit", 0), 0), GenericUtil.to_int(getattr(character, "hit", 0), 0) + GenericUtil.to_int(getattr(character, "level", 0), 0) * 2)
             self._check_improve(character, skill, True, 2)
-            EffectUtil.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_HITROLL", modifier=bonus, bitvector="AFF_BERSERK"))
-            EffectUtil.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_DAMROLL", modifier=bonus, bitvector="0"))
-            EffectUtil.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_AC", modifier=ac_penalty, bitvector="0"))
+            self.effect_handler.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_HITROLL", modifier=bonus, bitvector="AFF_BERSERK"))
+            self.effect_handler.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_DAMROLL", modifier=bonus, bitvector="0"))
+            self.effect_handler.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_AC", modifier=ac_penalty, bitvector="0"))
             room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
             context.finish()
             return {"payloads": [self._command_payload("success", targets=room.player_targets(character), token_factory=self._actor_tokens)]}
@@ -219,7 +226,7 @@ class Fight:
         self._set_wait(character, self._skill_beats(skill, 12))
         pre_corpse_ids = self._pre_corpse_ids(room)
         if random.randint(1, 100) <= chance:
-            EffectUtil.affect_to_char(victim, Effect(where="TO_AFFECTS", type="skill.dirt", level=getattr(character, "level", 0), duration=0, location="APPLY_HITROLL", modifier=-4, bitvector="AFF_BLIND"))
+            self.effect_handler.affect_to_char(victim, Effect(where="TO_AFFECTS", type="skill.dirt", level=getattr(character, "level", 0), duration=0, location="APPLY_HITROLL", modifier=-4, bitvector="AFF_BLIND"))
             self._check_improve(character, skill, True, 2)
             result = self.fight_handler.damage(character, victim, random.randint(2, 5), dt="dirt")
             round_payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
@@ -428,7 +435,7 @@ class Fight:
         if target_type == "OBJ_INV":
             if not argument:
                 return None, "", "no_inventory_target"
-            obj = ItemUtil.find_inventory_item(character, argument)
+            obj = character.find_inventory_item(argument)
             if obj is None:
                 return None, "", "not_carrying"
             return obj, "obj", ""
@@ -439,7 +446,7 @@ class Fight:
             victim = PlayerUtil.get_target(character, argument, room)
             if victim is not None:
                 return victim, "char", ""
-            obj = ItemUtil.find_inventory_item(character, argument)
+            obj = character.find_inventory_item(argument)
             if obj is None:
                 return None, "", "target_not_visible"
             return obj, "obj", ""
@@ -456,7 +463,7 @@ class Fight:
                 if safe and victim is not character:
                     return None, "", "target_safe"
                 return victim, "char", ""
-            obj = ItemUtil.find_room_item(room, argument) or ItemUtil.find_inventory_item(character, argument)
+            obj = (None if room is None else room.find_room_item(argument)) or character.find_inventory_item(argument)
             if obj is None:
                 return None, "", "target_not_visible"
             return obj, "obj", ""
@@ -594,17 +601,17 @@ class Fight:
 
     def _disarm_payload(self, character, victim, room, obj) -> dict:
         item_flags = CharacterApi.get_enum("itemFlags")
-        if hasattr(item_flags, "ITEM_NOREMOVE") and ItemUtil.has_flag(getattr(obj, "extra_flags", 0), item_flags.ITEM_NOREMOVE.value):
+        if hasattr(item_flags, "ITEM_NOREMOVE") and GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_NOREMOVE.value):
             return self._command_payload("no_remove", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)
 
         if not CharacterApi.is_npc(victim):
-            EffectUtil.remove_item_effects(victim, obj)
+            self.effect_handler.remove_item_effects(victim, obj)
         victim.unequip_item("wielded")
 
         keep_inventory = False
-        if hasattr(item_flags, "ITEM_NODROP") and ItemUtil.has_flag(getattr(obj, "extra_flags", 0), item_flags.ITEM_NODROP.value):
+        if hasattr(item_flags, "ITEM_NODROP") and GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_NODROP.value):
             keep_inventory = True
-        if hasattr(item_flags, "ITEM_INVENTORY") and ItemUtil.has_flag(getattr(obj, "extra_flags", 0), item_flags.ITEM_INVENTORY.value):
+        if hasattr(item_flags, "ITEM_INVENTORY") and GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_INVENTORY.value):
             keep_inventory = True
 
         if not keep_inventory:
@@ -656,7 +663,7 @@ class Fight:
         room_flags = CharacterApi.get_enum("roomFlags")
         if ex is None or getattr(ex, "to_room_vnum", None) is None:
             return None
-        closed = MovementUtil.get_exit_flag(exit_flags, "EX_CLOSED", "CLOSED")
+        closed = MovementApi.flag_value(exit_flags, "EX_CLOSED", "CLOSED")
         flags = GenericUtil.to_int(getattr(ex, "exit_flags", 0), 0)
         if closed and (flags & closed) != 0:
             return None

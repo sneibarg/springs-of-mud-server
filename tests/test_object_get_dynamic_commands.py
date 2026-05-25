@@ -136,6 +136,21 @@ class _ItemApi:
         return int(raw or 0)
 
     @staticmethod
+    def has_item_flag(item, item_flags_enum, *flag_names) -> bool:
+        for name in flag_names:
+            member = getattr(item_flags_enum, name, None)
+            if member is not None:
+                return (int(getattr(item, "extra_flags", 0) or 0) & int(getattr(member, "value", 0) or 0)) != 0
+        return False
+
+    @staticmethod
+    def item_takeable(item, wear_flags_enum) -> bool:
+        take_flag = getattr(getattr(wear_flags_enum, "ITEM_TAKE", None), "value", 0)
+        if not take_flag:
+            return True
+        return (int(getattr(item, "wear_flags", 0) or 0) & int(take_flag)) != 0
+
+    @staticmethod
     def is_container_closed(item) -> bool:
         return bool(getattr(item, "closed", False))
 
@@ -280,6 +295,11 @@ class _Context(SimpleNamespace):
         self.done = True
 
 
+class _SpellApi:
+    def __init__(self, *_args, **_kwargs):
+        return None
+
+
 for package_name in ("api", "area", "fight", "game", "interp", "item", "player", "server", "skill", "util"):
     _stub_package(package_name)
 _stub_package("interp.commands")
@@ -294,7 +314,8 @@ _stub_module("util.AreaUtil", AreaUtil=SimpleNamespace())
 _stub_module("util.FightUtil", FightUtil=SimpleNamespace())
 _stub_module("util.MovementUtil", MovementUtil=SimpleNamespace())
 _stub_module("util.MobileUtil", MobileUtil=SimpleNamespace())
-_stub_module("util.EffectUtil", EffectUtil=SimpleNamespace(apply_item_effects=lambda *_args, **_kwargs: None, remove_item_effects=lambda *_args, **_kwargs: None))
+_effect_handler = SimpleNamespace(apply_item_effects=lambda *_args, **_kwargs: None, remove_item_effects=lambda *_args, **_kwargs: None)
+_stub_module("util.EffectUtil", EffectUtil=SimpleNamespace(handler=lambda: _effect_handler, apply_item_effects=_effect_handler.apply_item_effects, remove_item_effects=_effect_handler.remove_item_effects))
 _stub_module("util.ItemUtil", ItemUtil=_ItemUtil)
 _stub_module(
     "util.PlayerUtil",
@@ -318,7 +339,7 @@ _stub_module("item.Item", Item=object)
 _stub_module("player.Character", Character=object)
 _stub_module("fight.FightHandler", FightHandler=object)
 _stub_module("skill.SpellContext", SpellContext=object)
-_stub_module("api.SpellApi", SpellApi=object)
+_stub_module("api.SpellApi", SpellApi=_SpellApi)
 
 _load_module("util.GenericUtil", "util/GenericUtil.py")
 GamePayload = _load_module("game.GamePayload", "game/GamePayload.py").GamePayload
@@ -384,6 +405,14 @@ class _Room(SimpleNamespace):
 
 
 class _Container(SimpleNamespace):
+    def find_contained_item(self, wanted):
+        query = str(wanted or "").strip().lower()
+        for item in list(getattr(self, "contains", []) or []):
+            name = str(getattr(item, "name", "") or "").lower()
+            if name == query or name.startswith(query):
+                return item
+        return None
+
     def remove_contained_item(self, item):
         self.contains.remove(item)
 
@@ -401,8 +430,10 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             skill_registry=skill_registry,
             spell_registry=spell_registry,
         )
+        enum_provider = SimpleNamespace(get=lambda _name: SimpleNamespace())
         commands = Object(
             registry_service=registry_service,
+            enum_provider=enum_provider,
             interp_api=InterpApi(),
             weather_handler=weather_handler,
             spell_api=spell_api,
@@ -417,6 +448,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         )
         commands.act_bits = SimpleNamespace(ACT_IS_CHANGER=SimpleNamespace(value=1))
         commands.wear_flags = SimpleNamespace(
+            ITEM_TAKE=SimpleNamespace(value=1 << 0),
             ITEM_WEAR_BODY=SimpleNamespace(value=1 << 0),
             ITEM_WIELD=SimpleNamespace(value=1 << 1),
             ITEM_HOLD=SimpleNamespace(value=1 << 2),

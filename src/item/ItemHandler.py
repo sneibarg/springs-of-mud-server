@@ -2,9 +2,10 @@ from injector import inject
 
 from game.RegistryService import RegistryService
 from interp.Context import Context
+from item.Item import Item
+from util.InfoUtil import InfoUtil
 from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
-from api.ItemApi import ItemApi
 from player.Character import Character
 from server.messaging import MessageBus
 
@@ -32,14 +33,17 @@ class ItemHandler:
 
         room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         arg2 = (context.parameters[1] if context.parameters and len(context.parameters) > 1 else "").strip().lower()
-        obj = ItemUtil.find_item(character, room, arg2)
+        obj = character.find_inventory_item(arg2) or (None if room is None else room.find_room_item(arg2))
 
-        if ItemUtil.is_drink_container(obj):
+        if Item.is_drink_container(obj):
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(ItemUtil.container_volume_description(obj)))
             context.finish()
             return
 
-        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(ItemUtil.items_in_container(obj)))
+        contents = "" if obj is None else obj.contents()
+        text = f"{getattr(obj, 'name', '')} holds\r\n"
+        text += contents if contents else "\tNothing.\r\n"
+        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
         context.finish()
 
     async def look_item_or_extra(self, character: Character, context: Context):
@@ -64,22 +68,22 @@ class ItemHandler:
             if isinstance(extra, dict):
                 extra_keyword = extra.get("keyword")
                 extra_description = extra.get("description")
-            if extra and context.look_keyword_matches(token, extra_keyword or ""):
-                if context.look_register_match():
+            if extra and InfoUtil.look_keyword_matches(token, extra_keyword or ""):
+                if InfoUtil.look_register_match(context):
                     await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message((extra_description or "") + "\r\n"))
                     context.finish()
                     return
 
-            if context.look_keyword_matches(token, item.name or ""):
-                if context.look_register_match():
+            if InfoUtil.look_keyword_matches(token, item.name or ""):
+                if InfoUtil.look_register_match(context):
                     text = (item.long_description or item.short_description or item.name or "You see nothing special.") + "\r\n"
                     await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
                     context.finish()
                     return
 
         room_extra = getattr(room, "extra_description", None)
-        if room_extra and context.look_keyword_matches(token, room_extra.keyword or ""):
-            if context.look_register_match():
+        if room_extra and InfoUtil.look_keyword_matches(token, room_extra.keyword or ""):
+            if InfoUtil.look_register_match(context):
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(
                     (room_extra.description or "") + "\r\n"))
                 context.finish()

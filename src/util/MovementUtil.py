@@ -33,45 +33,6 @@ class MovementUtil:
         return None
 
     @staticmethod
-    def find_door(room, arg: str) -> int:
-        if room is not None and hasattr(room, "find_door"):
-            return room.find_door(arg)
-        direction = MovementUtil.direction_index(arg)
-        if direction >= 0:
-            return direction if MovementUtil.find_exit(room, direction) is not None else -1
-
-        wanted = (arg or "").strip().lower()
-        if not wanted or room is None:
-            return -1
-        for ex in room.exits:
-            keyword = (getattr(ex, "keyword", "") or "").lower()
-            if wanted == keyword or wanted in keyword.split():
-                return int(getattr(ex, "direction", -1))
-        return -1
-
-    @staticmethod
-    def has_key(character, key: int) -> bool:
-        if hasattr(character, "has_key"):
-            return character.has_key(key)
-        if key is None or GenericUtil.to_int(key, -1) < 0:
-            return False
-        wanted = str(key)
-        for item in list(getattr(character, "loot", []) or []):
-            if str(getattr(item, "vnum", "")) == wanted:
-                return True
-        return False
-
-    @staticmethod
-    def get_exit_flag(exit_flags_enum, *names: str) -> int:
-        if exit_flags_enum is None:
-            return 0
-        for name in names:
-            member = getattr(exit_flags_enum, name, None)
-            if member is not None:
-                return int(member.value)
-        return 0
-
-    @staticmethod
     def sector_cost(sector_type: int) -> int:
         idx = GenericUtil.to_int(sector_type, 0)
         idx = max(0, min(idx, len(MovementUtil.MOVEMENT_LOSS) - 1))

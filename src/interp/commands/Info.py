@@ -5,12 +5,14 @@ from injector import inject
 from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
 from api.ItemApi import ItemApi
+from util.EffectUtil import EffectUtil
 from util.GenericUtil import GenericUtil
 from game.WeatherHandler import WeatherHandler
 from api.InterpApi import InterpApi
 from util.InfoUtil import InfoUtil
 from interp.Context import Context
 from interp.HelpEntry import HelpEntry
+from item.Item import Item
 from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
 from player.Character import Character
@@ -85,7 +87,7 @@ class Info:
     def do_who(self, character: Character) -> str:
         who_list = [character] + PlayerUtil.visible(character, self.session_handler)
         lines = [
-            f"{CharacterApi.who_line(character, c)}\r\n"
+            f"{InfoUtil.who_line(character, c)}\r\n"
             for c in who_list
         ]
         lines.append(f"Players found: {len(who_list)}\r\n")
@@ -95,7 +97,7 @@ class Info:
         arg_all = " ".join((argument or "").split()).lower()
         if not arg_all:
             arg_all = "summary"
-        q_words = [CharacterApi.normalize_help_token(w) for w in arg_all.split()]
+        q_words = [InterpUtil.normalize_help_token(w) for w in arg_all.split()]
         q_words = [w for w in q_words if w]
         output_parts = []
         found = False
@@ -108,7 +110,7 @@ class Info:
             if help_id and help_id in emitted_help_ids:
                 continue
 
-            k_words = [CharacterApi.normalize_help_token(w) for w in str(help_entry.keyword).split()]
+            k_words = [InterpUtil.normalize_help_token(w) for w in str(help_entry.keyword).split()]
             k_words = [w for w in k_words if w]
             if (not q_words or not k_words) or not all(any(k.startswith(q) for k in k_words) for q in q_words):
                 continue
@@ -155,7 +157,7 @@ class Info:
             desc = "You see nothing special."
 
         lines = [desc, InfoUtil.target_condition_line(target)]
-        equip_lines = CharacterApi.target_equipment_lines(target, EQUIP_SLOT_LABELS)
+        equip_lines = InfoUtil.target_equipment_lines(target, EQUIP_SLOT_LABELS)
         if equip_lines:
             lines.append("")
             lines.append(f"{(target.name or 'They')} is using:")
@@ -313,7 +315,7 @@ class Info:
         if hunger == 0:
             lines.append("You are hungry.")
 
-        position_line = CharacterApi.score_position_line(attributes)
+        position_line = InfoUtil.score_position_line(attributes)
         lines.append(position_line)
 
         ac_pierce = character.armor_class.get_ac(character, 0)
@@ -349,7 +351,7 @@ class Info:
         lines.append(f"You are {InfoUtil.score_alignment_word(alignment)}.")
         if CharacterApi.is_comm_enabled(character, "COMM_SHOW_AFFECTS"):
             lines.append("")
-            lines.append(CharacterApi.format_affects(character).rstrip("\r\n"))
+            lines.append(EffectUtil.format_affects(character).rstrip("\r\n"))
         context.finish()
         return "\r\n".join(lines) + "\r\n"
 
@@ -587,7 +589,7 @@ class Info:
 
     def do_affects(self, character: Character, context: Context) -> str:
         context.finish()
-        return CharacterApi.format_affects(character)
+        return EffectUtil.format_affects(character)
 
     def do_autolist(self, character: Character, context: Context) -> str:
         if CharacterApi.is_npc(character):
@@ -750,8 +752,8 @@ class Info:
         context.done = False
 
         room = self.room_registry.get_or_none(id=character.room_id)
-        obj = ItemUtil.find_item(character, room, arg) if room is not None else None
-        look_in = bool(obj is not None and (ItemUtil.is_container_like(obj) or ItemUtil.is_drink_container(obj)))
+        obj = (character.find_inventory_item(arg) if arg else None) or (None if room is None else room.find_room_item(arg))
+        look_in = bool(obj is not None and (Item.is_container_like(obj) or Item.is_drink_container(obj)))
         return {"argument": arg, "look_in": look_in}
 
     def do_whois(self, character: Character, context: Context) -> str:
@@ -772,7 +774,7 @@ class Info:
             return payload.get("to_char", "")
 
         lines = [
-            f"{CharacterApi.who_line(character, c)}\r\n"
+            f"{InfoUtil.who_line(character, c)}\r\n"
             for c in matches
         ]
         return "".join(lines)
@@ -983,7 +985,7 @@ class Info:
         return self._render_message_key(context, "set", channel="to_char", s=shown).get("to_char", "")
 
     def do_equipment(self, character: Character, context: Context) -> str:
-        lines = CharacterApi.target_equipment_lines(character, EQUIP_SLOT_LABELS)
+        lines = InfoUtil.target_equipment_lines(character, EQUIP_SLOT_LABELS)
         context.finish()
         if not lines:
             return "You are using:\r\nNothing.\r\n"
@@ -997,8 +999,8 @@ class Info:
         else:
             arg1 = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip().lower()
             arg2 = (context.parameters[1] if context.parameters and len(context.parameters) > 1 else "").strip().lower()
-        obj1 = CharacterApi.find_owned_item(character, arg1) if arg1 else None
-        obj2 = CharacterApi.find_owned_item(character, arg2) if arg2 else (ItemApi.find_comparable_equipped_item(character, obj1) if obj1 is not None else None)
+        obj1 = character.find_owned_item(arg1) if arg1 else None
+        obj2 = character.find_owned_item(arg2) if arg2 else (ItemApi.find_comparable_equipped_item(character, obj1) if obj1 is not None else None)
         t1 = str(getattr(obj1, "item_type", "") or "").strip().lower() if obj1 is not None else ""
         t2 = str(getattr(obj2, "item_type", "") or "").strip().lower() if obj2 is not None else ""
         v1 = ItemApi.compare_value(obj1) if obj1 is not None else None

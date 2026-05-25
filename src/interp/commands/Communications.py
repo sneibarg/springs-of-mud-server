@@ -10,7 +10,6 @@ from game.RegistryService import RegistryService
 from interp.Context import Context
 from api.InterpApi import InterpApi
 from util.CommunicationsUtil import CommunicationsUtil
-from player.Character import Character
 from api.CharacterApi import CharacterApi
 from player.CharacterService import CharacterService
 from server.LoggerFactory import LoggerFactory
@@ -44,7 +43,7 @@ class Communications:
         self.communications_api = CommunicationsApi
         self.comm_flags = enum_provider.get("commFlags")
 
-    def execute(self, character: Character, context: Context):
+    def execute(self, context: Context):
         name = (getattr(context.command, "name", "") or "").strip().lower()
         handlers = {
             "say": self.do_say,
@@ -84,9 +83,11 @@ class Communications:
         if fn is None:
             context.finish()
             return {"to_char": f"{name} is not implemented yet.\r\n"}
-        return fn(character, context)
+        return fn(context)
 
-    def do_channels(self, character: Character, context: Context):
+    def do_channels(self, context: Context):
+        character = context.character
+
         def on_off(bit_name: str) -> str:
             return "OFF" if CommunicationsUtil.has_comm(character, self.comm_flags, bit_name) else "ON"
 
@@ -104,7 +105,8 @@ class Communications:
             f"quiet mode     {'ON' if CommunicationsUtil.has_comm(character, self.comm_flags, 'COMM_QUIET') else 'OFF'}",
         ]
         if CharacterApi.is_immortal(character):
-            lines.insert(8, f"god channel    {'OFF' if CommunicationsUtil.has_comm(character, self.comm_flags, 'COMM_NOWIZ') else 'ON'}")
+            lines.insert(8,
+                         f"god channel    {'OFF' if CommunicationsUtil.has_comm(character, self.comm_flags, 'COMM_NOWIZ') else 'ON'}")
         if CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_AFK"):
             lines.append("You are AFK.")
         if CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_NOSHOUT"):
@@ -121,19 +123,22 @@ class Communications:
         context.finish()
         return {"to_char": "\r\n".join(lines) + "\r\n"}
 
-    def do_deaf(self, character: Character, context: Context):
+    def do_deaf(self, context: Context):
+        character = context.character
         enabled = CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_DEAF")
         CommunicationsUtil.set_comm(character, self.comm_flags, "COMM_DEAF", not enabled)
         context.finish()
         return self._render_message_key(context, "disable" if enabled else "enable")
 
-    def do_quiet(self, character: Character, context: Context):
+    def do_quiet(self, context: Context):
+        character = context.character
         enabled = CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_QUIET")
         CommunicationsUtil.set_comm(character, self.comm_flags, "COMM_QUIET", not enabled)
         context.finish()
         return self._render_message_key(context, "disable" if enabled else "enable")
 
-    def do_afk(self, character: Character, context: Context):
+    def do_afk(self, context: Context):
+        character = context.character
         payload = self.interp_api.run_action(context, context.command.name)
         if "enable" in payload:
             enabled = True
@@ -143,35 +148,41 @@ class Communications:
         context.finish()
         return self._render_message_key(context, "disable" if enabled else "enable")
 
-    def do_replay(self, character: Character, context: Context):
+    def do_replay(self, context: Context):
+        character = context.character
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload
         history = self.communications_api.get_tell_buffer(character)
-        return {"to_char": "".join(entry.message for entry in history)}
+        missed_tells = "".join(entry.format_message() for entry in history)
+        return missed_tells
 
-    def do_say(self, character: Character, context: Context):
+    def do_say(self, context: Context):
+        character = context.character
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload
-        room = self.room_registry.get_or_none(id=character.room_id)
+        room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
         payload["targets"] = room.player_targets(character)
         return payload
 
-    def do_emote(self, character: Character, context: Context):
+    def do_emote(self, context: Context):
+        character = context.character
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload
-        room = self.room_registry.get_or_none(id=character.room_id)
+        room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
         payload["targets"] = self._room_targets(character, room)
         return payload
 
-    def do_pmote(self, character: Character, context: Context):
+    def do_pmote(self, context: Context):
+        character = context.character
         # Minimal pass-through; per-target rewriting can be added in parity pass.
         return self.do_emote(character, context)
 
-    def do_pose(self, character: Character, context: Context):
-        room = self.room_registry.get_or_none(id=character.room_id)
+    def do_pose(self, context: Context):
+        character = context.character
+        room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
         text = random.choice(self.POSES)
         context.finish()
         return {
@@ -180,8 +191,10 @@ class Communications:
             "targets": self._room_targets(character, room),
         }
 
-    def do_tell(self, character: Character, context: Context):
-        target_name, message = CommunicationsUtil.split_first(CommunicationsUtil.parse_argument(context.result, context.parameters))
+    def do_tell(self, context: Context):
+        character = context.character
+        target_name, message = CommunicationsUtil.split_first(
+            CommunicationsUtil.parse_argument(context.result, context.parameters))
         context.tell_target_name = target_name
         context.tell_target = CharacterApi.find_playing_character(target_name, self.session_handler)
         context.interp_tokens = {"t": target_name, "s": message}
@@ -193,7 +206,8 @@ class Communications:
             return self._blocked_message(context, "target_missing")
         return self._deliver_tell(character, context, victim, message)
 
-    def do_reply(self, character: Character, context: Context):
+    def do_reply(self, context: Context):
+        character = context.character
         message = CommunicationsUtil.parse_argument(context.result, context.parameters)
         reply_to = (character.context or {}).get("reply_to", "")
         victim = self.character_registry.get_or_none(id=reply_to)
@@ -206,14 +220,16 @@ class Communications:
             return self._blocked_message(context, "target_missing")
         return self._deliver_tell(character, context, victim, message)
 
-    def do_shout(self, character: Character, context: Context):
+    def do_shout(self, context: Context):
+        character = context.character
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload
         payload["area_id"] = character.area_id
         return payload
 
-    def do_yell(self, character: Character, context: Context):
+    def do_yell(self, context: Context):
+        character = context.character
         text = CommunicationsUtil.parse_argument(context.result, context.parameters)
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
@@ -229,44 +245,52 @@ class Communications:
         payload["global_targets"] = targets
         return payload
 
-    def do_gossip(self, character: Character, context: Context):
-        return self._channel(character, context, "COMM_NOGOSSIP", "gossip", "Gossip channel is now ON.\r\n", "Gossip channel is now OFF.\r\n")
+    def do_gossip(self, context: Context):
+        return self._channel(context, "COMM_NOGOSSIP", "gossip", "Gossip channel is now ON.\r\n",
+                             "Gossip channel is now OFF.\r\n")
 
-    def do_auction(self, character: Character, context: Context):
-        return self._channel(character, context, "COMM_NOAUCTION", "auction", "Auction channel is now ON.\r\n", "Auction channel is now OFF.\r\n")
+    def do_auction(self, context: Context):
+        return self._channel(context, "COMM_NOAUCTION", "auction", "Auction channel is now ON.\r\n",
+                             "Auction channel is now OFF.\r\n")
 
-    def do_music(self, character: Character, context: Context):
-        return self._channel(character, context, "COMM_NOMUSIC", "music", "Music channel is now ON.\r\n", "Music channel is now OFF.\r\n")
+    def do_music(self, context: Context):
+        return self._channel(context, "COMM_NOMUSIC", "music", "Music channel is now ON.\r\n",
+                             "Music channel is now OFF.\r\n")
 
-    def do_question(self, character: Character, context: Context):
-        return self._channel(character, context, "COMM_NOQUESTION", "question", "Q/A channel is now ON.\r\n", "Q/A channel is now OFF.\r\n")
+    def do_question(self, context: Context):
+        return self._channel(context, "COMM_NOQUESTION", "question", "Q/A channel is now ON.\r\n",
+                             "Q/A channel is now OFF.\r\n")
 
-    def do_quote(self, character: Character, context: Context):
-        return self._channel(character, context, "COMM_NOQUOTE", "quote", "Quote channel is now ON.\r\n", "Quote channel is now OFF.\r\n")
+    def do_quote(self, context: Context):
+        return self._channel(context, "COMM_NOQUOTE", "quote", "Quote channel is now ON.\r\n",
+                             "Quote channel is now OFF.\r\n")
 
-    def do_grats(self, character: Character, context: Context):
-        return self._channel(character, context, "COMM_NOGRATS", "grats", "Grats channel is now ON.\r\n", "Grats channel is now OFF.\r\n")
+    def do_grats(self, context: Context):
+        return self._channel(context, "COMM_NOGRATS", "grats", "Grats channel is now ON.\r\n",
+                             "Grats channel is now OFF.\r\n")
 
-    def do_gtell(self, character: Character, context: Context):
-        # Group system parity can be refined once group mechanics are fully migrated.
+    def do_gtell(self, context: Context):
+        character = context.character
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload
-        room = self.room_registry.get(id=character.room_id)
-        payload.setdefault("to_room", f"{character.name} tells the group '{CommunicationsUtil.parse_argument(context.result, context.parameters)}'\r\n")
+        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
+        payload.setdefault("to_room",
+                           f"{character.name} tells the group '{CommunicationsUtil.parse_argument(context.result, context.parameters)}'\r\n")
         payload["targets"] = room.player_targets(character)
         return payload
 
-    def do_bug(self, character: Character, context: Context):
+    def do_bug(self, context: Context):
         return self.interp_api.run_action(context, context.command.name)
 
-    def do_typo(self, character: Character, context: Context):
+    def do_typo(self, context: Context):
         return self.interp_api.run_action(context, context.command.name)
 
-    def do_rent(self, character: Character, context: Context):
+    def do_rent(self, context: Context):
         return self.interp_api.run_action(context, context.command.name)
 
-    def do_save(self, character: Character, context: Context):
+    def do_save(self, context: Context):
+        character = context.character
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload
@@ -274,23 +298,24 @@ class Communications:
             return payload
         return self._render_message_key(context, "failed")
 
-    def do_follow(self, character: Character, context: Context):
+    def do_follow(self, context: Context):
         context.finish()
         return {"to_char": "Follow is not implemented yet.\r\n"}
 
-    def do_order(self, character: Character, context: Context):
+    def do_order(self, context: Context):
         context.finish()
         return {"to_char": "Order is not implemented yet.\r\n"}
 
-    def do_group(self, character: Character, context: Context):
+    def do_group(self, context: Context):
         context.finish()
         return {"to_char": "Group is not implemented yet.\r\n"}
 
-    def do_split(self, character: Character, context: Context):
+    def do_split(self, context: Context):
         context.finish()
         return {"to_char": "Split is not implemented yet.\r\n"}
 
-    def _channel(self, character: Character, context: Context, off_flag: str, verb: str, _on_msg: str, _off_msg: str):
+    def _channel(self, context: Context, off_flag: str, verb: str, _on_msg: str, _off_msg: str):
+        character = context.character
         text = CommunicationsUtil.parse_argument(context.result, context.parameters)
         if not text:
             is_off = CommunicationsUtil.has_comm(character, self.comm_flags, off_flag)
@@ -326,7 +351,8 @@ class Communications:
         payload["global_targets"] = targets
         return payload
 
-    def _deliver_tell(self, character: Character, context: Context, victim, message: str) -> dict:
+    def _deliver_tell(self, context: Context, victim, message: str) -> dict:
+        character = context.character
         if getattr(character, "context", None) is None:
             character.context = {}
         if getattr(victim, "context", None) is None:
@@ -340,7 +366,9 @@ class Communications:
         payload["victim"] = victim
         self.communications_api.append_tell_buffer(victim, character, payload.get("to_victim", ""))
         if CommunicationsUtil.has_comm(victim, self.comm_flags, "COMM_AFK"):
-            payload["to_char"] = payload.get("to_char", "") + self._render_message_key(context, "target_afk", channel="to_char").get("to_char", "")
+            payload["to_char"] = payload.get("to_char", "") + self._render_message_key(context, "target_afk",
+                                                                                       channel="to_char").get("to_char",
+                                                                                                              "")
         return payload
 
     def _render_message_key(self, context: Context, message_key: str, channel: str = "", **tokens):

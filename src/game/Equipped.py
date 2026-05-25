@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Callable, Optional
-
-if TYPE_CHECKING:
-    from item.Item import Item
+from typing import Callable, Optional
+from item.Item import Item
 
 WEAR_LOC_TO_EQUIPPED_SLOT = {
     0: "light",
@@ -172,12 +170,9 @@ class Equipped:
 
     @classmethod
     def wear_item(cls, character, item, wear_flags_enum, item_flags, *, replace: bool,
-                  preferred_slot: str = "", forced_slot: str = "") -> WearResult:
-        from util.EffectUtil import EffectUtil
-        from util.ItemUtil import ItemUtil
-
+                  preferred_slot: str = "", forced_slot: str = "", effect_handler=None) -> WearResult:
         result = WearResult()
-        item_short = ItemUtil.short(item)
+        item_short = Item.short(item)
         item_level = int(getattr(item, "level", 0) or 0)
         if int(getattr(character, "level", 0) or 0) < item_level:
             result.blocked_key = "insufficientLevel"
@@ -195,7 +190,7 @@ class Equipped:
             slot_groups[0],
             replace,
             can_remove_item=lambda worn_item: cls._can_remove_item(worn_item, item_flags),
-            remove_item=cls._remove_item,
+            remove_item=lambda owner, slot_name, worn_item: cls._remove_item(owner, slot_name, worn_item, effect_handler=effect_handler),
         )
         if removal.get("blocked_key"):
             result.blocked_key = str(removal.get("blocked_key", "") or "")
@@ -223,7 +218,8 @@ class Equipped:
                 return result
 
         character.equip_item(item, selected_slot)
-        EffectUtil.apply_item_effects(character, item)
+        if effect_handler is not None:
+            effect_handler.apply_item_effects(character, item)
         result.shared_messages.append(cls.slot_message(selected_slot, item_short))
         skill_key = getattr(item, "weapon_skill_feedback_key", lambda _character: "")(character)
         if selected_slot == "wielded" and skill_key:
@@ -231,10 +227,10 @@ class Equipped:
         return result
 
     @classmethod
-    def wear_all(cls, character, wear_flags_enum, item_flags) -> WearResult:
+    def wear_all(cls, character, wear_flags_enum, item_flags, *, effect_handler=None) -> WearResult:
         result = WearResult()
         for item in list(getattr(character, "loot", []) or []):
-            item_result = cls.wear_item(character, item, wear_flags_enum, item_flags, replace=False)
+            item_result = cls.wear_item(character, item, wear_flags_enum, item_flags, replace=False, effect_handler=effect_handler)
             result.shared_messages.extend(item_result.shared_messages)
             result.char_messages.extend(item_result.char_messages)
         return result
@@ -286,23 +282,23 @@ class Equipped:
         if not replace:
             return False, {}
         if not can_remove_item(item):
-            return False, {"blocked_key": "noRemove", "tokens": {"t": self.short(item)}}
+            return False, {"blocked_key": "noRemove", "tokens": {"t": Item.short(item)}}
 
         remove_item(character, slot, item)
-        return True, {"key": "removed", "tokens": {"t": self.short(item)}}
+        return True, {"key": "removed", "tokens": {"t": Item.short(item)}}
 
     @classmethod
-    def remove_item(cls, character, slot: str, item, item_flags) -> WearResult:
+    def remove_item(cls, character, slot: str, item, item_flags, *, effect_handler=None) -> WearResult:
         result = WearResult()
         if item is None:
             return result
         if not cls._can_remove_item(item, item_flags):
             result.blocked_key = "noRemove"
-            result.blocked_tokens = {"t": cls.short(item)}
+            result.blocked_tokens = {"t": Item.short(item)}
             return result
 
-        cls._remove_item(character, slot, item)
-        result.shared_messages.append(("removed", {"t": cls.short(item)}))
+        cls._remove_item(character, slot, item, effect_handler=effect_handler)
+        result.shared_messages.append(("removed", {"t": Item.short(item)}))
         return result
 
     @staticmethod
@@ -315,7 +311,7 @@ class Equipped:
 
     @classmethod
     def slot_wear_payload(cls, character, room, item, slot: str) -> dict:
-        short = cls.short(item)
+        short = Item.short(item)
         templates = {
             "light": (f"You light {short} and hold it.\r\n", f"{character.name} lights {short} and holds it.\r\n"),
             "finger1": (f"You wear {short} on your left finger.\r\n", f"{character.name} wears {short} on their left finger.\r\n"),
@@ -370,12 +366,8 @@ class Equipped:
         return bool(getattr(item, "can_remove", lambda _item_flags: True)(item_flags))
 
     @staticmethod
-    def _remove_item(character, slot: str, item) -> None:
-        from util.EffectUtil import EffectUtil
-
-        EffectUtil.remove_item_effects(character, item)
+    def _remove_item(character, slot: str, item, *, effect_handler=None) -> None:
+        if effect_handler is not None:
+            effect_handler.remove_item_effects(character, item)
         character.unequip_item(slot)
 
-    @staticmethod
-    def short(item) -> str:
-        return getattr(item, "short_description", None) or getattr(item, "name", "it")

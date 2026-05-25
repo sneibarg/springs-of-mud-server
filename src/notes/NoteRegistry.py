@@ -1,7 +1,7 @@
 import threading
 
 from typing import Optional, List
-from game.InGameNote import InGameNote
+from notes.InGameNote import InGameNote
 from server.LoggerFactory import LoggerFactory
 
 

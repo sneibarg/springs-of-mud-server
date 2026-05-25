@@ -211,6 +211,11 @@ class _Command:
         return text
 
 
+class _SpellApi:
+    def __init__(self, *_args, **_kwargs):
+        return None
+
+
 class _Item:
     @staticmethod
     def first_fountain(room):
@@ -258,13 +263,13 @@ _stub_module("interp.Context", Context=object)
 _stub_module("util.GenericUtil", GenericUtil=_GenericUtil)
 _stub_module("util.InterpUtil", InterpUtil=SimpleNamespace())
 _stub_module("util.MobileUtil", MobileUtil=SimpleNamespace())
-_stub_module("util.EffectUtil", EffectUtil=SimpleNamespace())
+_stub_module("util.EffectUtil", EffectUtil=SimpleNamespace(handler=lambda: SimpleNamespace()))
 _stub_module("util.ItemUtil", ItemUtil=_ItemUtil)
 _stub_module("util.PlayerUtil", PlayerUtil=SimpleNamespace(get_target=lambda *_args, **_kwargs: None))
 _stub_module("util.SkillUtil", SkillUtil=SimpleNamespace(check_improve=lambda *_args, **_kwargs: None))
 _stub_module("api.ItemApi", ItemApi=SimpleNamespace(is_container_closed=lambda _obj: False))
 _stub_module("api.InterpApi", InterpApi=_InterpApi)
-_stub_module("api.SpellApi", SpellApi=object)
+_stub_module("api.SpellApi", SpellApi=_SpellApi)
 _stub_module("player.Character", Character=object)
 _stub_module("api.CharacterApi", CharacterApi=_CharacterApi)
 _stub_module("fight.FightHandler", FightHandler=object)
@@ -288,7 +293,8 @@ class TestObjectFountainCommands(unittest.TestCase):
             mobile_registry=None,
             shop_registry=None,
         )
-        commands = Object(registry_service=registry_service)
+        enum_provider = SimpleNamespace(get=lambda _name: SimpleNamespace())
+        commands = Object(registry_service=registry_service, enum_provider=enum_provider)
         commands.item_flags = SimpleNamespace()
         commands.wear_flags = SimpleNamespace()
         return commands

@@ -3,17 +3,21 @@ from __future__ import annotations
 from injector import inject
 
 from api.CharacterApi import CharacterApi
+from api.GameApi import GameApi
 from api.InterpApi import InterpApi
+from api.ItemApi import ItemApi
+from api.WizApi import WizApi
 from api.WizSetApi import WizSetApi
 from area.Room import Room
+from fight.FightHandler import FightHandler
 from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
 from game.WizHandler import WizHandler
 from interp.Context import Context
 from item.ExtraDescriptionData import ExtraDescriptionData
-from mobile.Mobile import Mobile
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
+from util.AreaUtil import AreaUtil
 from util.GenericUtil import GenericUtil
 from util.ItemUtil import ItemUtil
 from util.MobileUtil import MobileUtil
@@ -27,6 +31,7 @@ class Wiz:
                  wiz_handler: WizHandler,
                  interp_api: InterpApi,
                  wiz_set_api: WizSetApi,
+                 fight_handler: FightHandler,
                  enum_provider: EnumProvider):
         self.__name__ = "Wiz"
         self.logger = LoggerFactory.get_logger(self.__name__)
@@ -34,6 +39,7 @@ class Wiz:
         self.wiz_handler = wiz_handler
         self.interp_api = interp_api
         self.wiz_set_api = wiz_set_api
+        self.fight_handler = fight_handler
         self.character_registry = registry_service.character_registry
         self.room_registry = registry_service.room_registry
         self.area_registry = registry_service.area_registry
@@ -47,6 +53,7 @@ class Wiz:
         self.PositionsEnum = enum_provider.get("positions")
         self.ActBitsEnum = enum_provider.get("actBits")
         self.ItemFlagsEnum = enum_provider.get("itemFlags")
+        self.WearFlagsEnum = enum_provider.get("wearFlags")
         self.GameParameters = enum_provider.get("gameParameters")
 
     def execute(self, character: Character, context: Context):
@@ -91,6 +98,7 @@ class Wiz:
             "memory": self.do_memory,
             "set": self.do_set,
             "snoop": self.do_snoop,
+            "slay": self.do_slay,
             "string": self.do_string,
             "switch": self.do_switch,
             "clone": self.do_clone,
@@ -263,7 +271,7 @@ class Wiz:
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
             return blocked
-        room = CharacterApi.find_location(WizUtil.argument_text(context.result, context.parameters), self.room_registry, self.character_registry, WizUtil.name_matches)
+        room = AreaUtil.find_location(WizUtil.argument_text(context.result, context.parameters), self.room_registry, self.character_registry, WizUtil.name_matches)
         from_room = WizUtil.move_entity(self.room_registry, character, room)
         if from_room is None or room is None:
             context.finish()
@@ -288,7 +296,7 @@ class Wiz:
         if victim is None:
             context.finish()
             return {"to_char": "They aren't here.\r\n"}
-        room = self.room_registry.get_or_none(id=character.room_id) if not destination else CharacterApi.find_location(destination, self.room_registry, self.character_registry, WizUtil.name_matches)
+        room = self.room_registry.get_or_none(id=character.room_id) if not destination else AreaUtil.find_location(destination, self.room_registry, self.character_registry, WizUtil.name_matches)
         if room is None:
             context.finish()
             return {"to_char": "No such location.\r\n"}
@@ -389,7 +397,7 @@ class Wiz:
         room = self.room_registry.get_or_none(id=character.room_id)
         if arg in ("", "room"):
             for target in ([] if room is None else list(room.characters.values()) + list(room.mobiles.values())):
-                CharacterApi.restore_character(target)
+                WizApi.restore_character(target)
             context.finish()
             return {
                 "to_char": "Room restored.\r\n",
@@ -402,14 +410,14 @@ class Wiz:
             for session in self.wiz_handler.session_handler.get_playing_sessions():
                 victim = session.character
                 if victim is not None and not CharacterApi.is_npc(victim):
-                    CharacterApi.restore_character(victim)
+                    WizApi.restore_character(victim)
             context.finish()
             return self._command_payload("active_players")
         victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, arg)
         if victim is None:
             context.finish()
             return self._command_payload("target_missing")
-        CharacterApi.restore_character(victim)
+        WizApi.restore_character(victim)
         context.finish()
         return self._command_payload("default", victim=victim, wiznet_flag="WIZ_RESTORE", wiznet_skip_flag="WIZ_SECURE", wiznet_min_level=CharacterApi.get_trust(character))
 
@@ -429,7 +437,7 @@ class Wiz:
                     continue
                 room.remove_mobile_from_room(victim)
             for obj in list(room.contents.values()):
-                if nopurge_item and ItemUtil.has_flag(getattr(obj, "extra_flags", 0), nopurge_item):
+                if nopurge_item and GameApi.is_set(getattr(obj, "extra_flags", 0), nopurge_item):
                     continue
                 room.remove_item_from_room(obj)
             context.finish()
@@ -546,7 +554,7 @@ class Wiz:
     def do_load(self, character: Character, context: Context):
         raw = WizUtil.argument_text(context.result, context.parameters)
         kind, rest = WizUtil.split_argument(raw)
-        room = self.room_registry.get_or_none(id=character.room_id)
+        room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
         if room is None:
             context.finish()
             return self._command_payload("room_missing")
@@ -560,7 +568,7 @@ class Wiz:
             if proto is None:
                 context.finish()
                 return self._command_payload("no_such_mobile")
-            mob = MobileUtil.create_mobile(proto, CharacterApi._enums_map())
+            mob = MobileUtil.create_mobile(proto, CharacterApi.enum_provider())
             room.add_mobile_to_room(mob)
             context.finish()
             return {
@@ -592,9 +600,9 @@ class Wiz:
                 return self._command_payload("no_such_object")
             obj = ItemUtil.create_object(proto)
             obj.level = level
-            if ItemUtil.item_takeable(obj) and not CharacterApi.is_npc(character):
+            if ItemApi.item_takeable(obj, self.WearFlagsEnum) and not CharacterApi.is_npc(character):
                 character.add_item(obj)
-            elif ItemUtil.item_takeable(obj) and CharacterApi.is_npc(character):
+            elif ItemApi.item_takeable(obj, self.WearFlagsEnum) and CharacterApi.is_npc(character):
                 MobileUtil.add_inventory_item(character, obj)
             else:
                 room.add_item_to_room(obj)
@@ -709,6 +717,35 @@ class Wiz:
         context.finish()
         return self._command_payload("default", tokens={"t": WizUtil.display_name(target)}, wiznet_flag="WIZ_SNOOPS", wiznet_skip_flag="WIZ_SECURE", wiznet_min_level=CharacterApi.get_trust(character))
 
+    def do_slay(self, character: Character, context: Context):
+        argument = WizUtil.argument_text(context.result, context.parameters).strip()
+        if not argument:
+            context.finish()
+            return self._command_payload("no_argument")
+
+        room = self.room_registry.get_or_none(id=character.room_id)
+        victim = None if room is None else room.find_visible_target(character, argument)
+        if victim is None:
+            context.finish()
+            return self._command_payload("target_missing")
+
+        if victim == character:
+            context.finish()
+            return self._command_payload("target_self")
+
+        if not CharacterApi.is_npc(victim) and GenericUtil.to_int(getattr(victim, "level", 0), 0) >= CharacterApi.get_trust(character):
+            context.finish()
+            return self._command_payload("failed")
+
+        targets = []
+        if room is not None:
+            victim_id = str(getattr(victim, "id", "") or "")
+            targets = [viewer for viewer in room.player_targets(character) if str(getattr(viewer, "id", "") or "") != victim_id]
+
+        self.fight_handler.raw_kill(victim)
+        context.finish()
+        return self._command_payload("default", victim=victim, targets=targets, tokens={"t": WizUtil.display_name(victim)})
+
     def do_string(self, _character: Character, context: Context):
         raw = WizUtil.argument_text(context.result, context.parameters)
         parts = raw.split(maxsplit=3)
@@ -815,11 +852,11 @@ class Wiz:
         obj = None
         mob = None
         if arg1 in ("object", "obj"):
-            obj = ItemUtil.find_item(character, room, rest)
+            obj = character.find_inventory_item(rest) or (None if room is None else room.find_room_item(rest))
         elif arg1 in ("mobile", "character", "mob"):
             mob = None if room is None else room.find_visible_target(character, rest)
         else:
-            obj = ItemUtil.find_item(character, room, raw)
+            obj = character.find_inventory_item(raw) or (None if room is None else room.find_room_item(raw))
             mob = None if room is None else room.find_visible_target(character, raw)
         if obj is None and mob is None:
             context.finish()
@@ -847,7 +884,7 @@ class Wiz:
         if not WizUtil.can_clone_mobile(character, mob):
             context.finish()
             return self._command_payload("insufficient_level")
-        clone = MobileUtil.clone_mobile_instance(mob, CharacterApi._enums_map())
+        clone = MobileUtil.clone_mobile_instance(mob, CharacterApi.enum_provider())
         if room is not None:
             room.add_mobile_to_room(clone)
         context.finish()

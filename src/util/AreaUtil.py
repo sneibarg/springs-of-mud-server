@@ -1,5 +1,7 @@
 from enum import IntEnum
 
+from api.CharacterApi import CharacterApi
+
 
 class DirectionEnum(IntEnum):
     NORTH = 0
@@ -133,3 +135,31 @@ class AreaUtil:
                 exit_obj.direction = direction
                 rebuilt.append(exit_obj)
         room.exits = rebuilt
+
+    @staticmethod
+    def find_location(arg: str, room_registry, character_registry, name_matches_fn):
+        value = (arg or "").strip()
+        if value.isdigit():
+            room = room_registry.get_or_none(vnum=value)
+            if room is not None:
+                return room
+
+        victim = CharacterApi.find_character_world(value, character_registry, name_matches_fn, allow_self=False)
+        if victim is not None:
+            return room_registry.get_or_none(id=victim.room_id)
+
+        q = value.lower()
+        for room in room_registry.all_rooms():
+            if room is None:
+                continue
+            for mob in room.mobiles.values():
+                mob_name = f"{getattr(mob, 'name', '')} {getattr(mob, 'short_description', '')}".strip()
+                if name_matches_fn(q, mob_name):
+                    return room
+
+        for room in room_registry.all_rooms():
+            if room is None:
+                continue
+            if name_matches_fn(value, getattr(room, "name", "")):
+                return room
+        return None

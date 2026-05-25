@@ -6,9 +6,9 @@ import threading
 from dataclasses import dataclass, field
 from typing import Optional, List, TYPE_CHECKING
 
+from api.GameApi import GameApi
 from item.ExtraDescriptionData import ExtraDescriptionData
 from item.Effect import Effect
-from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
 from util.GenericUtil import GenericUtil
 
@@ -85,7 +85,7 @@ class Item:
         return text
 
     def short(self) -> str:
-        return self.short_description or self.name or "it"
+        return getattr(self, "short_description", None) or getattr(self, "name", None) or "it"
 
     def add_contained_item(self, item) -> None:
         with self.lock:
@@ -112,6 +112,16 @@ class Item:
                 return obj
         return None
 
+    def add_item_to_room(self, room: Room):
+        with self.lock:
+            if room.id not in self.room_data:
+                self.room_data[room.id] = room
+
+    def remove_item_from_room(self, room: Room):
+        with self.lock:
+            if room.id in self.room_data:
+                del self.room_data[room.id]
+
     @classmethod
     def from_json(cls, data):
         if isinstance(data, str):
@@ -119,9 +129,36 @@ class Item:
         from util.GenericUtil import GenericUtil
         data = GenericUtil.camel_to_snake_case(data)
         data['contains'] = []
-        extra_description = data.get('extra_description')
-        data['extra_description'] = cls._normalize_extra_description(extra_description)
-        return cls(**data)
+        data['effects'] = [
+            effect if isinstance(effect, Effect) else Effect.from_json(effect)
+            for effect in list(data.get('effects', []) or [])
+        ]
+        extra_descr = data.pop('extra_descr', None)
+        item = cls(**data)
+        if extra_descr is not None:
+            item.extra_descr = extra_descr
+        cls.update_extra_description(item)
+        return item
+
+    @staticmethod
+    def update_extra_description(item):
+        extra_descr = list(getattr(item, "extra_descr", []) or [])
+        if len(extra_descr) >= 2:
+            keyword = str(extra_descr[0] or "").strip()
+            description = str(extra_descr[1] or "")
+            item.extra_description = ExtraDescriptionData(valid=True, keyword=keyword, description=description) if (keyword or description) else None
+            return item.extra_description
+
+        extra_description = getattr(item, "extra_description", None)
+        if extra_description:
+            try:
+                item.extra_description = ExtraDescriptionData.from_json(extra_description)
+            except (TypeError, ValueError):
+                item.extra_description = None
+            return item.extra_description
+
+        item.extra_description = None
+        return None
 
     @staticmethod
     def is_drink_container(item) -> bool:
@@ -134,8 +171,38 @@ class Item:
         return "fountain" in item_type
 
     @staticmethod
+    def is_edible(item) -> bool:
+        item_type = str(getattr(item, "item_type", "") or "").strip().lower()
+        return ("food" in item_type) or ("pill" in item_type)
+
+    @staticmethod
     def _item_type(item) -> str:
         return str(getattr(item, "item_type", "") or "").strip().lower()
+
+    @classmethod
+    def item_type_name(cls, item) -> str:
+        return cls._item_type(item).upper()
+
+    @classmethod
+    def is_container_like(cls, item) -> bool:
+        item_type = cls._item_type(item)
+        return ("container" in item_type) or ("corpse" in item_type)
+
+    @classmethod
+    def is_container(cls, item) -> bool:
+        return "container" in cls._item_type(item)
+
+    @classmethod
+    def is_pc_corpse(cls, item) -> bool:
+        return cls.item_type_name(item) == "ITEM_CORPSE_PC"
+
+    @classmethod
+    def is_npc_corpse(cls, item) -> bool:
+        return cls.item_type_name(item) == "ITEM_CORPSE_NPC"
+
+    @classmethod
+    def is_corpse(cls, item) -> bool:
+        return cls.item_type_name(item) in {"ITEM_CORPSE_NPC", "ITEM_CORPSE_PC"}
 
     @classmethod
     def is_potion(cls, item) -> bool:
@@ -294,58 +361,8 @@ class Item:
         destination.value1 = str(destination_capacity if destination_capacity > 0 else source_amount)
         return result
 
-    def ensure_effects(self):
-        with self.lock:
-            if self.effects is None:
-                self.effects = []
-            return self.effects
-
-    def apply_effect(self, effect):
-        from util.EffectUtil import EffectUtil
-
-        with self.lock:
-            self.ensure_effects().append(effect)
-            EffectUtil.affect_modify(self, effect, True)
-        return effect
-
-    def remove_effect(self, effect) -> bool:
-        from util.EffectUtil import EffectUtil
-
-        with self.lock:
-            effects = self.ensure_effects()
-            if effect not in effects:
-                return False
-            EffectUtil.affect_modify(self, effect, False)
-            effects.remove(effect)
-        return True
-
-    def add_item_to_room(self, room: Room):
-        with self.lock:
-            if room.id not in self.room_data:
-                self.room_data[room.id] = room
-
-    def remove_item_from_room(self, room: Room):
-        with self.lock:
-            if room.id in self.room_data:
-                del self.room_data[room.id]
-
-    @staticmethod
-    def _normalize_extra_description(extra_description):
-        if extra_description:
-            try:
-                return ExtraDescriptionData.from_json(extra_description)
-            except (TypeError, ValueError):
-                return None
-
-        if isinstance(extra_description, list) and len(extra_description) >= 2:
-            keyword = str(extra_description[0] or "").strip()
-            description = str(extra_description[1] or "")
-            if keyword or description:
-                return ExtraDescriptionData(valid=True, keyword=keyword, description=description)
-
-        return None
-
     def weapon_too_heavy(self, character: Character) -> bool:
+        from api.CharacterApi import CharacterApi
         if CharacterApi.is_npc(character):
             return False
         strength = max(0, GenericUtil.to_int(getattr(getattr(character, "character_attributes", None), "strength", 0), 0))
@@ -357,25 +374,24 @@ class Item:
         return 0 < wield_limit < GenericUtil.to_int(getattr(self, "weight", 0), 0)
 
     def is_two_handed_weapon(self) -> bool:
-        from util.ItemUtil import ItemUtil
-
+        from api.CharacterApi import CharacterApi
         try:
             weapon_flags = CharacterApi.get_enum("weaponType")
         except RuntimeError:
             return False
         if not hasattr(weapon_flags, "WEAPON_TWO_HANDS"):
             return False
-        return ItemUtil.has_flag(getattr(self, "value4", 0), weapon_flags.WEAPON_TWO_HANDS.value)
+        return GameApi.is_set(getattr(self, "value4", 0), weapon_flags.WEAPON_TWO_HANDS.value)
 
     def can_remove(self, item_flags) -> bool:
-        from util.ItemUtil import ItemUtil
-
+        from api.CharacterApi import CharacterApi
         no_remove_bit = CharacterApi.enum_bit(item_flags, "ITEM_NOREMOVE")
         if no_remove_bit == 0:
             return True
-        return not ItemUtil.has_flag(getattr(self, "extra_flags", 0), no_remove_bit)
+        return not GameApi.is_set(getattr(self, "extra_flags", 0), no_remove_bit)
 
     def weapon_skill_feedback_key(self, character: Character) -> str:
+        from api.CharacterApi import CharacterApi
         if CharacterApi.is_npc(character):
             return ""
 

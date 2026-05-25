@@ -1,13 +1,11 @@
-from copy import deepcopy
 from dataclasses import asdict
 from enum import IntEnum
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from api.GameApi import GameApi
 from game.RandomNumberGenerator import RandomNumberGenerator
 from item.ItemRegistry import ItemRegistry
 from util.GenericUtil import GenericUtil
-from item.ExtraDescriptionData import ExtraDescriptionData
 from api.ItemApi import ItemApi
 from player.Character import Character
 from api.CharacterApi import CharacterApi
@@ -71,8 +69,6 @@ class ItemUtil:
         if len(item.affect_data) > 0:
             item.effects = []
             ItemUtil.update_affect_data(item)
-
-        ItemUtil.update_extra_descr(item)
         return item
 
     @staticmethod
@@ -179,7 +175,7 @@ class ItemUtil:
 
         aliases = {name.strip().lower() for name in enum_names if name}
         try:
-            item_table = ItemApi._item_table_map()
+            item_table = ItemApi.item_table_map()
         except RuntimeError:
             item_table = {}
 
@@ -198,10 +194,10 @@ class ItemUtil:
     def update_staff(skill_registry, item_data):
         try:
             skill_name = item_data['value3']
-            skill = skill_registry.get(name=skill_name)
-            item_data['value3'] = str(skill)
+            skill = ItemUtil.resolve_item_skill(skill_registry, skill_name)
+            item_data['value3'] = skill
         except Exception as e:
-            logger.warning(f"Failed to update staff skill: {e}")
+            logger.warning(f"Failed to update staff skill: {e}; vnum={item_data['vnum']}")
 
     @staticmethod
     def update_scroll(skill_registry, item_data):
@@ -209,10 +205,35 @@ class ItemUtil:
             try:
                 skill_name = item_data[skill_key]
                 if skill_name != "":
-                    skill = skill_registry.get(name=skill_name)
-                    item_data[skill_key] = str(skill)
+                    skill = ItemUtil.resolve_item_skill(skill_registry, skill_name)
+                    item_data[skill_key] = skill
             except Exception as e:
-                logger.warning(f"Failed to update scroll skill: {e}")
+                logger.warning(f"Failed to update scroll skill: {e}; vnum={item_data['vnum']}")
+
+    @staticmethod
+    def resolve_item_skill(skill_registry, skill_name):
+        candidates: list[str] = []
+        primary = str(skill_name or "").strip()
+        if primary:
+            candidates.append(primary)
+            trimmed = primary.rstrip(". ").strip()
+            if trimmed and trimmed not in candidates:
+                candidates.append(trimmed)
+
+        registries = skill_registry if isinstance(skill_registry, (list, tuple)) else [skill_registry]
+        last_error = None
+        for candidate in candidates:
+            for registry in registries:
+                if registry is None or not hasattr(registry, "get"):
+                    continue
+                try:
+                    return registry.get(name=candidate)
+                except Exception as exc:
+                    last_error = exc
+
+        if last_error is not None:
+            raise last_error
+        raise LookupError(f"No item skill registered with name={primary}")
 
     # even if it's slower, it still loads all in the same second
     @staticmethod
@@ -272,11 +293,6 @@ class ItemUtil:
             item_data["condition"] = "100"
 
     @staticmethod
-    def update_extra_descr(item):
-        if item.extra_description is not None and len(item.extra_description) > 0:
-            item.extra_description = ExtraDescriptionData(valid=True, keyword=item.extra_descr[0], description=item.extra_descr[1])
-
-    @staticmethod
     def container_volume_description(obj: Item):
         try:
             cap = max(0, int(obj.value0))
@@ -299,51 +315,6 @@ class ItemUtil:
             color = getattr(obj, "liquid_color", None) or "unknown"
             text = f"It's {fill}filled with a {color} liquid.\r\n"
         return text
-
-    @staticmethod
-    def items_in_container(obj: Item) -> str:
-        text = f"{obj.name} holds\r\n"
-        contents = obj.contents()
-        if contents:
-            text = text + contents
-        else:
-            text = text + f"\tNothing.\r\n"
-        return text
-
-    @staticmethod
-    def is_drink_container(item) -> bool:
-        t = (item.item_type or "").strip().lower()
-        return ("drink" in t) or ("fountain" in t)
-
-    @staticmethod
-    def is_fountain(item) -> bool:
-        t = (getattr(item, "item_type", "") or "").strip().lower()
-        return "fountain" in t
-
-    @staticmethod
-    def is_edible(item) -> bool:
-        t = (getattr(item, "item_type", "") or "").strip().lower()
-        return ("food" in t) or ("pill" in t)
-
-    @staticmethod
-    def is_container_like(item) -> bool:
-        t = (item.item_type or "").strip().lower()
-        return ("container" in t) or ("corpse" in t)
-
-    @staticmethod
-    def find_item(character: Character, room: Room, name: str):
-        wanted = (name or "").strip().lower()
-        if not wanted:
-            return None
-        for item in character.get_items():
-            nm = (item.name or "").lower()
-            if nm == wanted or nm.startswith(wanted):
-                return item
-        for item in room.contents.values():
-            nm = (item.name or "").lower()
-            if nm == wanted or nm.startswith(wanted):
-                return item
-        return None
 
     @staticmethod
     def room_items(room: Room) -> list:
@@ -398,13 +369,7 @@ class ItemUtil:
         data["contains"] = []
         data["enchanted"] = False
 
-        # Deep copy mutable fields to prevent shared references
-        for field in ("extra_description", "affect_data"):
-            if field in data and data[field] is not None:
-                data[field] = deepcopy(data[field])
-
         item = Item.from_json(data)
-        ItemUtil.update_extra_descr(item)
 
         item_type = (getattr(item, "item_type", "") or "").strip().lower()
         if "light" in item_type and str(getattr(item, "value2", None)) == "999":
@@ -418,33 +383,14 @@ class ItemUtil:
     @staticmethod
     def clone_object_instance(obj: Item):
         clone = ItemUtil.create_object(obj)
-        clone.short_description = getattr(obj, "short_description", "")
-        clone.long_description = getattr(obj, "long_description", "")
-        clone.name = getattr(obj, "name", "")
         clone.description = getattr(obj, "description", "")
-        clone.material = getattr(obj, "material", "")
-        clone.item_type = getattr(obj, "item_type", "")
-        clone.extra_flags = getattr(obj, "extra_flags", 0)
-        clone.wear_flags = getattr(obj, "wear_flags", 0)
-        clone.value0 = getattr(obj, "value0", "0")
-        clone.value1 = getattr(obj, "value1", "0")
-        clone.value2 = getattr(obj, "value2", "0")
-        clone.value3 = getattr(obj, "value3", "0")
-        clone.value4 = getattr(obj, "value4", "0")
-        clone.condition = getattr(obj, "condition", "")
-        clone.level = getattr(obj, "level", 0)
-        clone.weight = getattr(obj, "weight", 0)
-        clone.cost = getattr(obj, "cost", 0)
-        clone.timer = getattr(obj, "timer", None)
+        for field_name in ("value0", "value1", "value2", "value3", "value4"):
+            setattr(clone, field_name, getattr(obj, field_name, "0"))
         clone.enchanted = bool(getattr(obj, "enchanted", False))
-        clone.damage_type = getattr(obj, "damage_type", None)
-        clone.weapon_type = getattr(obj, "weapon_type", None)
-        clone.liquid_color = getattr(obj, "liquid_color", None)
-        clone.liquid_affect_data = list(getattr(obj, "liquid_affect_data", []) or []) if getattr(obj, "liquid_affect_data", None) is not None else None
         clone.extra_descr = list(getattr(obj, "extra_descr", []) or [])
-        clone.affect_data = list(getattr(obj, "affect_data", []) or [])
-        clone.extra_description = getattr(obj, "extra_description", None)
-        clone.effects = list(getattr(obj, "effects", []) or []) if getattr(obj, "effects", None) is not None else None
+        Item.update_extra_description(clone)
+        effects = getattr(obj, "effects", None)
+        clone.effects = list(effects or []) if effects is not None else None
         clone.contains = [ItemUtil.clone_object_instance(item) for item in list(getattr(obj, "contains", []) or [])]
         return clone
 
@@ -517,110 +463,10 @@ class ItemUtil:
         return a1, f"{a2} {rest2}".strip()
 
     @staticmethod
-    def has_flag(raw_flags, bit_value: int) -> bool:
-        return (GameApi.flags_to_int(raw_flags) & int(bit_value)) != 0
-
-    @staticmethod
-    def ensure_equipped(character):
-        if hasattr(character, "ensure_equipped"):
-            return character.ensure_equipped()
-        return Equipped.ensure_on(character)
-
-    @staticmethod
-    def find_inventory_item(character, wanted: str):
-        if hasattr(character, "find_inventory_item"):
-            return character.find_inventory_item(wanted)
-        q = (wanted or "").strip().lower()
-        if not q:
-            return None
-        for item in list(getattr(character, "loot", []) or []):
-            name = (getattr(item, "name", "") or "").lower()
-            if name == q or name.startswith(q):
-                return item
-        return None
-
-    @staticmethod
-    def find_room_item(room, wanted: str):
-        if room is None:
-            return None
-        q = (wanted or "").strip().lower()
-        if not q:
-            return None
-        for item in room.contents.values():
-            name = (getattr(item, "name", "") or "").lower()
-            if name == q or name.startswith(q):
-                return item
-        return None
-
-    @staticmethod
-    def find_container(character, room, wanted: str):
-        return ItemUtil.find_inventory_item(character, wanted) or ItemUtil.find_room_item(room, wanted)
-
-    @staticmethod
-    def remove_from_inventory(character, item):
-        if hasattr(character, "remove_item"):
-            character.remove_item(item)
-            return
-        loot = getattr(character, "loot", None)
-        if loot is None:
-            return
-        try:
-            loot.remove(item)
-        except ValueError:
-            pass
-
-    @staticmethod
-    def add_to_inventory(character, item):
-        if hasattr(character, "add_item"):
-            character.add_item(item)
-            return
-        if getattr(character, "loot", None) is None:
-            character.loot = []
-        if item not in character.loot:
-            character.loot.append(item)
-
-    @staticmethod
-    def equipped_slot_of(character, item):
-        if hasattr(character, "equipped_slot_of"):
-            return character.equipped_slot_of(item)
-        equipped = getattr(character, "equipped", None)
-        if equipped is None:
-            return None
-        for slot, equipped_item in equipped.__dict__.items():
-            if equipped_item is item:
-                return slot
-        return None
-
-    @staticmethod
-    def equip_item(character, item, slot_name: str):
-        if hasattr(character, "equip_item"):
-            return character.equip_item(item, slot_name)
-        return Equipped.equip_item(character, item, slot_name)
-
-    @staticmethod
     def unequip_item(character, slot_name: str):
         if hasattr(character, "unequip_item"):
             return character.unequip_item(slot_name)
         return Equipped.unequip_item(character, slot_name)
-
-    @staticmethod
-    def find_wear_slot(character, item, wear_flags_enum, forced: str = ""):
-        equipped = ItemUtil.ensure_equipped(character)
-        if forced:
-            slot = forced.strip().lower()
-            return slot if hasattr(equipped, slot) and getattr(equipped, slot) is None else None
-
-        flags = GameApi.flags_to_int(getattr(item, "wear_flags", 0))
-        for flag_name, slots in ItemUtil.WEAR_SLOT_ORDER.items():
-            if wear_flags_enum is None or not hasattr(wear_flags_enum, flag_name):
-                continue
-            bit = getattr(wear_flags_enum, flag_name).value
-            if (flags & bit) == 0:
-                continue
-            for slot in slots:
-                if getattr(equipped, slot) is None:
-                    return slot
-        return None
 
     @staticmethod
     def is_newbie_pit(item) -> bool:
@@ -630,49 +476,9 @@ class ItemUtil:
         return item.vnum == well_known_obj_vnums.OBJ_VNUM_PIT.value
 
     @staticmethod
-    def item_takeable(item) -> bool:
-        wear_flags_enum = CharacterApi.get_enum("wearFlags")
-        if not hasattr(wear_flags_enum, "ITEM_TAKE"):
-            return True
-        return ItemUtil.has_flag(getattr(item, "wear_flags", 0), wear_flags_enum.ITEM_TAKE.value)
-
-    @staticmethod
-    def is_nodrop(item) -> bool:
-        item_flags_enum = CharacterApi.get_enum("itemFlags")
-        if not hasattr(item_flags_enum, "ITEM_NODROP"):
-            return False
-        return ItemUtil.has_flag(getattr(item, "extra_flags", 0), item_flags_enum.ITEM_NODROP.value)
-
-    @staticmethod
-    def is_nosac(item) -> bool:
-        item_flags_enum = CharacterApi.get_enum("itemFlags")
-        if not hasattr(item_flags_enum, "ITEM_NO_SAC"):
-            print(f"is_nosac: {item_flags_enum} does not have ITEM_NO_SAC")
-            return False
-        print(f"is_nosac: extra_flags={item.extra_flags}; NO_SAC={item_flags_enum.ITEM_NO_SAC.value}")
-        return ItemUtil.has_flag(getattr(item, "extra_flags", 0), item_flags_enum.ITEM_NO_SAC.value)
-
-    @staticmethod
-    def item_type_name(item) -> str:
-        return str(getattr(item, "item_type", "") or "").strip().upper()
-
-    @staticmethod
-    def is_pc_corpse(item) -> bool:
-        return ItemUtil.item_type_name(item) == "ITEM_CORPSE_PC"
-
-    @staticmethod
-    def is_npc_corpse(item) -> bool:
-        return ItemUtil.item_type_name(item) == "ITEM_CORPSE_NPC"
-
-    @staticmethod
-    def is_corpse(item) -> bool:
-        item_type = ItemUtil.item_type_name(item)
-        return item_type in {"ITEM_CORPSE_NPC", "ITEM_CORPSE_PC"}
-
-    @staticmethod
     def sacrifice_silver_value(item) -> int:
         silver = max(1, GenericUtil.to_int(getattr(item, "level", 1), 0) * 3)
-        if not ItemUtil.is_corpse(item):
+        if not Item.is_corpse(item):
             silver = min(silver, max(0, GenericUtil.to_int(getattr(item, "cost", 0), 0)))
         return max(3, silver)
 
@@ -681,61 +487,6 @@ class ItemUtil:
         if GenericUtil.to_int(silver, 0) == 1:
             return "Mota gives you one silver coin for your sacrifice.\r\n"
         return f"Mota gives you {GenericUtil.to_int(silver, 0)} silver coins for your sacrifice.\r\n"
-
-    @staticmethod
-    def is_container(item) -> bool:
-        item_type = (getattr(item, "item_type", "") or "").upper()
-        return "ITEM_CONTAINER" in item_type or "CONTAINER" in item_type
-
-    @staticmethod
-    def is_closed_container(item) -> bool:
-        return ItemApi.is_container_closed(item)
-
-    @staticmethod
-    def short(item) -> str | object | Any:
-        short_fn = getattr(item, "short", None)
-        if callable(short_fn):
-            return short_fn()
-        return getattr(item, "short_description", None) or getattr(item, "name", "it")
-
-    @staticmethod
-    def add_to_contains(container, obj):
-        if hasattr(container, "add_contained_item"):
-            container.add_contained_item(obj)
-            return
-        if getattr(container, "contains", None) is None:
-            container.contains = []
-        container.contains.append(obj)
-
-    @staticmethod
-    def remove_from_contains(container, obj):
-        if hasattr(container, "remove_contained_item"):
-            container.remove_contained_item(obj)
-            return
-        try:
-            container.contains.remove(obj)
-        except Exception:
-            pass
-
-    @staticmethod
-    def find_in_contains(container, wanted: str):
-        if hasattr(container, "find_contained_item"):
-            return container.find_contained_item(wanted)
-        q = (wanted or "").strip().lower()
-        for obj in list(getattr(container, "contains", []) or []):
-            name = (getattr(obj, "name", "") or "").lower()
-            if name == q or name.startswith(q):
-                return obj
-        return None
-
-    @staticmethod
-    def first_fountain(room):
-        if room is None:
-            return None
-        for item in room.contents.values():
-            if "FOUNTAIN" in ((getattr(item, "item_type", "") or "").upper()):
-                return item
-        return None
 
     @staticmethod
     def item_in_use(context) -> None:

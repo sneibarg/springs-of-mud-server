@@ -8,6 +8,7 @@ from area.Shop import Shop
 from fight.FightHandler import FightHandler
 from game.EnumProvider import EnumProvider
 from game.Equipped import Equipped
+from item.EffectHandler import EffectHandler
 from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
@@ -15,6 +16,7 @@ from util.InterpUtil import InterpUtil
 from util.EffectUtil import EffectUtil
 from util.ItemUtil import ItemUtil
 from api.InterpApi import InterpApi
+from api.ItemApi import ItemApi
 from api.SpellApi import SpellApi
 from player.Character import Character
 from item.Item import Item
@@ -34,7 +36,8 @@ class Object:
                  weather_handler=None,
                  interp_api=None,
                  spell_api=None,
-                 fight_handler: FightHandler = None):
+                 fight_handler: FightHandler = None,
+                 effect_handler: EffectHandler = None):
         self.__name__ = "Object"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -45,7 +48,8 @@ class Object:
         self.spell_registry = getattr(registry_service, "spell_registry", None)
         self.weather_handler = weather_handler
         self.interp_api = interp_api or InterpApi()
-        self.spell_api = spell_api or SpellApi()
+        self.effect_handler = effect_handler or EffectUtil.handler()
+        self.spell_api = spell_api or SpellApi(effect_handler=self.effect_handler)
         self.fight_handler = fight_handler
         self.item_types = enum_provider.get("itemTypes")
         self.item_flags = enum_provider.get("itemFlags")
@@ -150,7 +154,7 @@ class Object:
             context.finish()
             return blocked
 
-        context.sell_shop.complete_sale(character, context.sell_keeper, context.sell_obj, context.sell_cost, self.item_flags)
+        context.sell_shop.complete_sale(character, context.sell_keeper, context.sell_obj, context.sell_cost, self.item_flags, effect_handler=self.effect_handler)
 
         payload = self._sell_success_payload(character, room, context)
         context.finish()
@@ -200,7 +204,7 @@ class Object:
         context.get_all = self._is_get_all_selector(arg1)
         context.get_filter_name = self._get_selector_filter(arg1)
         context.get_all_from_container = bool(context.get_all and context.container_name)
-        context.container = ItemUtil.find_container(character, room, context.container_name) if context.container_name else None
+        context.container = character.find_inventory_item(context.container_name) or (None if room is None else room.find_room_item(context.container_name)) if context.container_name else None
         context.target_item = None
         context.get_candidates = []
         context.get_item_takeable = False
@@ -209,15 +213,15 @@ class Object:
             if context.get_all:
                 context.get_candidates = self._get_matching_container_items(character, room, context.container, context.get_filter_name)
             else:
-                context.target_item = ItemUtil.find_in_contains(context.container, arg1)
+                context.target_item = context.container.find_contained_item(arg1) if hasattr(context.container, "find_contained_item") else None
         elif not context.container_name:
             if context.get_all:
                 context.get_candidates = self._get_matching_room_items(character, room, context.get_filter_name)
             else:
-                context.target_item = ItemUtil.find_room_item(room, arg1)
+                context.target_item = room.find_room_item(arg1)
 
         if context.target_item is not None:
-            context.get_item_takeable = ItemUtil.item_takeable(context.target_item)
+            context.get_item_takeable = ItemApi.item_takeable(context.target_item, self.wear_flags)
         return room
 
     def _get_matching_room_items(self, character: Character, room, wanted: str) -> list:
@@ -266,10 +270,10 @@ class Object:
         if error:
             return {"to_char": error}
 
-        item_short = ItemUtil.short(item)
+        item_short = Item.short(item)
         if container is not None:
-            ItemUtil.remove_from_contains(container, item)
-            container_short = ItemUtil.short(container)
+            container.remove_contained_item(item)
+            container_short = Item.short(container)
             to_char = self._render_command_message(context, "from_container", t=item_short, T=container_short)
             to_room = self._render_command_message(context, "from_container", channel="to_room", c=character.name, t=item_short, T=container_short)
         else:
@@ -278,7 +282,7 @@ class Object:
             to_char = self._render_command_message(context, "default", t=item_short)
             to_room = self._render_command_message(context, "default", channel="to_room", c=character.name, t=item_short)
 
-        ItemUtil.add_to_inventory(character, item)
+        character.add_item(item)
         payload = {"to_char": to_char}
         if room is not None:
             payload["to_room"] = to_room
@@ -288,8 +292,8 @@ class Object:
     def _get_item_error(self, character: Character, context: Context, item) -> str:
         if item is None:
             return ""
-        item_short = ItemUtil.short(item)
-        if not ItemUtil.item_takeable(item):
+        item_short = Item.short(item)
+        if not ItemApi.item_takeable(item, self.wear_flags):
             return self._render_command_message(context, "cannot_take", t=item_short)
 
         max_items = character.max_items()
@@ -334,16 +338,16 @@ class Object:
             "to_char": self._render_command_message(
                 context,
                 key,
-                t=ItemUtil.short(context.put_obj),
-                T=ItemUtil.short(context.put_container),
+                t=Item.short(context.put_obj),
+                T=Item.short(context.put_container),
             ),
             "to_room": self._render_command_message(
                 context,
                 key,
                 channel="to_room",
                 c=character.name,
-                t=ItemUtil.short(context.put_obj),
-                T=ItemUtil.short(context.put_container),
+                t=Item.short(context.put_obj),
+                T=Item.short(context.put_container),
             ),
             "targets": room.player_targets(character),
         }
@@ -361,14 +365,14 @@ class Object:
         context.put_relation = self._put_relation(context)
         context.put_container_name = rem.split()[0] if rem else ""
         context.put_obj = character.find_inventory_item(arg1) if arg1 else None
-        context.put_container = ItemUtil.find_container(character, room, context.put_container_name) if context.put_container_name else None
+        context.put_container = character.find_inventory_item(context.put_container_name) or (None if room is None else room.find_room_item(context.put_container_name)) if context.put_container_name else None
         return room
 
     def _put_item_error(self, item, context: Context) -> str:
         if item is None:
             return ""
-        if ItemUtil.is_nodrop(item):
-            return self._render_command_message(context, "target_no_drop", t=ItemUtil.short(item))
+        if ItemApi.has_item_flag(item, self.item_flags, "ITEM_NODROP"):
+            return self._render_command_message(context, "target_no_drop", t=Item.short(item))
         return ""
 
     @staticmethod
@@ -404,7 +408,7 @@ class Object:
         context.drop_room = room
         context.drop_all = arg1 == "all" or arg1.startswith("all.")
         context.drop_item = None if context.drop_all or not arg1 else character.find_inventory_item(arg1)
-        context.drop_no_drop = bool(context.drop_item is not None and ItemUtil.is_nodrop(context.drop_item))
+        context.drop_no_drop = bool(context.drop_item is not None and ItemApi.has_item_flag(context.drop_item, self.item_flags, "ITEM_NODROP"))
         return room
 
     def _drop_all(self, character: Character, room, context: Context, arg1: str):
@@ -414,9 +418,9 @@ class Object:
         char_lines = []
 
         for item in list(getattr(character, "loot", []) or []):
-            if ItemUtil.equipped_slot_of(character, item):
+            if character.equipped_slot_of(item):
                 continue
-            if ItemUtil.is_nodrop(item):
+            if ItemApi.has_item_flag(item, self.item_flags, "ITEM_NODROP"):
                 continue
             name = str(getattr(item, "name", "") or "").strip().lower()
             if wanted and wanted not in name.split() and not name.startswith(wanted):
@@ -438,13 +442,13 @@ class Object:
         }
 
     def _drop_one(self, character: Character, room, context: Context, item):
-        slot = ItemUtil.equipped_slot_of(character, item)
+        slot = character.equipped_slot_of(item)
         if slot:
-            EffectUtil.remove_item_effects(character, item)
+            self.effect_handler.remove_item_effects(character, item)
             ItemUtil.unequip_item(character, slot)
         character.remove_item(item)
 
-        item_short = ItemUtil.short(item)
+        item_short = Item.short(item)
         if self._melts_on_drop(item):
             return {
                 "to_char": self._render_command_message(context, "default", t=item_short)
@@ -462,7 +466,7 @@ class Object:
     def _melts_on_drop(self, item) -> bool:
         if not hasattr(self.item_flags, "ITEM_MELT_DROP"):
             return False
-        return ItemUtil.has_flag(getattr(item, "extra_flags", 0), self.item_flags.ITEM_MELT_DROP.value)
+        return GameApi.is_set(getattr(item, "extra_flags", 0), self.item_flags.ITEM_MELT_DROP.value)
 
     def _prepare_buy_context(self, character: Character, context: Context):
         raw = (context.result if isinstance(context.result, str) else "").strip()
@@ -519,7 +523,7 @@ class Object:
         obj = shop.get_keeper_stock_item(keeper, room, character, selector)
         cost = 0 if obj is None else shop.buy_price(obj)
         context.buy_item = obj
-        context.buy_item_short = "" if obj is None else ItemUtil.short(obj)
+        context.buy_item_short = "" if obj is None else Item.short(obj)
         context.buy_cost = cost
         context.buy_total_cost = cost * max(0, quantity)
         context.buy_stock_limited = bool(obj is not None and not shop.is_inventory_item(obj, self.item_flags))
@@ -598,13 +602,13 @@ class Object:
         if keeper is None or shop is None:
             return room
 
-        obj = CharacterApi.find_owned_item(character, raw)
+        obj = character.find_owned_item(raw)
         context.sell_obj = obj
         if obj is None:
             return room
 
-        context.sell_no_drop = ItemUtil.is_nodrop(obj)
-        context.sell_item_short = ItemUtil.short(obj)
+        context.sell_no_drop = ItemApi.has_item_flag(obj, self.item_flags, "ITEM_NODROP")
+        context.sell_item_short = Item.short(obj)
         context.sell_keeper_short = getattr(keeper, "short_description", "The shopkeeper")
         context.sell_cost = shop.sell_price(obj, getattr(keeper, "inventory", []) or [], self.item_types, self.item_flags)
         context.sell_gold = context.sell_cost // 100
@@ -653,13 +657,13 @@ class Object:
         if keeper is None or shop is None:
             return room
 
-        obj = CharacterApi.find_owned_item(character, raw)
+        obj = character.find_owned_item(raw)
         context.value_item = obj
         if obj is None:
             return room
 
-        context.value_no_drop = ItemUtil.is_nodrop(obj)
-        context.value_item_short = ItemUtil.short(obj)
+        context.value_no_drop = ItemApi.has_item_flag(obj, self.item_flags, "ITEM_NODROP")
+        context.value_item_short = Item.short(obj)
         quote = shop.quote_value(obj, keeper, self.item_types, self.item_flags)
         context.value_cost = quote.cost
         context.value_gold = quote.gold
@@ -671,10 +675,9 @@ class Object:
 
     def do_sacrifice(self, character: Character, context: Context):
         context.arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
-        print(f"SACRIFICE: {context.arg1=}")
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
-        context.item = ItemUtil.find_room_item(room, context.arg1) if room is not None else None
-        context.item_name = ItemUtil.short(context.item) if context.item is not None else None
+        context.item = room.find_room_item(context.arg1) if room is not None else None
+        context.item_name = Item.short(context.item) if context.item is not None else None
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get('blocked'):
             context.finish()
@@ -699,12 +702,12 @@ class Object:
         if item is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
-        if ItemUtil.is_nodrop(item):
+        if ItemApi.has_item_flag(item, self.item_flags, "ITEM_NODROP"):
             context.finish()
             return {"to_char": "You can't let go of it.\r\n"}
         slot = character.equipped_slot_of(item)
         if slot:
-            EffectUtil.remove_item_effects(character, item)
+            self.effect_handler.remove_item_effects(character, item)
             character.unequip_item(slot)
         character.remove_item(item)
         context.finish()
@@ -795,16 +798,16 @@ class Object:
         victim_name, _ = InterpUtil.one_argument(rem)
         item = character.find_inventory_item(arg1) if arg1 else None
         victim = self._find_give_target(room, victim_name)
-        item_short = ItemUtil.short(item) if item is not None else ""
+        item_short = Item.short(item) if item is not None else ""
 
         context.give_victim_name = victim_name
         context.victim = victim
         context.item = item
         context.give_item = item
         context.give_item_short = item_short
-        context.give_item_worn = bool(item is not None and ItemUtil.equipped_slot_of(character, item))
+        context.give_item_worn = bool(item is not None and character.equipped_slot_of(item))
         context.give_target_is_keeper = self._is_shopkeeper(victim)
-        context.give_no_drop = bool(item is not None and ItemUtil.is_nodrop(item))
+        context.give_no_drop = bool(item is not None and ItemApi.has_item_flag(item, self.item_flags, "ITEM_NODROP"))
         context.interp_tokens = {
             "t": getattr(victim, "name", ""),
             "s": self._possessive_name(victim),
@@ -831,7 +834,7 @@ class Object:
         victim = context.victim
         item_short = context.give_item_short
         character.remove_item(item)
-        ItemUtil.add_to_inventory(victim, item)
+        victim.add_item(item)
 
         payload = {
             "to_char": self._render_command_message(context, "item_received", t=item_short, T=getattr(victim, "name", "")),
@@ -979,7 +982,7 @@ class Object:
         for collection_name in ("characters", "mobiles"):
             collection = getattr(room, collection_name, {}) or {}
             for entity in collection.values():
-                if Context.look_keyword_matches(query, getattr(entity, "name", "")):
+                if InfoUtil.look_keyword_matches(query, getattr(entity, "name", "")):
                     return entity
         return None
 
@@ -1029,7 +1032,7 @@ class Object:
             return blocked
 
         if context.wear_all:
-            result = Equipped.wear_all(character, self.wear_flags, self.item_flags)
+            result = Equipped.wear_all(character, self.wear_flags, self.item_flags, effect_handler=self.effect_handler)
         else:
             result = Equipped.wear_item(
                 character,
@@ -1038,6 +1041,7 @@ class Object:
                 self.item_flags,
                 replace=True,
                 forced_slot=context.wear_forced_slot,
+                effect_handler=self.effect_handler,
             )
         payload = self._equipment_result_payload(character, room, context, result)
         context.finish()
@@ -1063,6 +1067,7 @@ class Object:
             self.item_flags,
             replace=True,
             preferred_slot=slot,
+            effect_handler=self.effect_handler,
         )
         payload = self._equipment_result_payload(character, room, context, result)
         context.finish()
@@ -1080,7 +1085,7 @@ class Object:
         context.wear_forced_slot = "" if preferred_slot else (rem.split()[0] if rem else "")
         context.wear_invalid_target = False
         context.wear_invalid_message_key = "invalidTarget"
-        context.wear_item_short = "" if item is None else ItemUtil.short(item)
+        context.wear_item_short = "" if item is None else Item.short(item)
         context.wear_item_level = 0 if item is None else GenericUtil.to_int(getattr(item, "level", 0), 0)
 
         context.equip_arg1 = arg1
@@ -1127,7 +1132,7 @@ class Object:
             context.finish()
             return blocked
 
-        result = Equipped.remove_item(character, context.remove_slot, context.remove_item, self.item_flags)
+        result = Equipped.remove_item(character, context.remove_slot, context.remove_item, self.item_flags, effect_handler=self.effect_handler)
         payload = self._equipment_result_payload(character, room, context, result)
         context.finish()
         return payload
@@ -1145,7 +1150,7 @@ class Object:
         context.remove_arg1 = arg1
         context.remove_slot = slot
         context.remove_item = item
-        context.remove_item_short = "" if item is None else ItemUtil.short(item)
+        context.remove_item_short = "" if item is None else Item.short(item)
         context.remove_no_remove = bool(item is not None and not getattr(item, "can_remove", lambda _item_flags: True)(self.item_flags))
         return room
 
@@ -1181,9 +1186,9 @@ class Object:
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
         item = character.find_inventory_item(arg1) if arg1 else None
         if item is None:
-            item = ItemUtil.find_room_item(room, arg1) if arg1 else None
+            item = room.find_room_item(arg1) if room is not None and arg1 else None
         if item is None and not arg1:
-            item = ItemUtil.first_fountain(room)
+            item = Item.first_fountain(room)
         context.drink_arg1 = arg1
         context.drink_item = item
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
@@ -1193,7 +1198,7 @@ class Object:
         liquid_name = str(getattr(item, "value2", "") or "")
         liquid_affect = list(getattr(item, "liquid_affect_data", []) or [])
         serving_size = GenericUtil.to_int(liquid_affect[4], 0) if len(liquid_affect) > 4 else 0
-        if ItemUtil.is_fountain(item):
+        if Item.is_fountain(item):
             amount = max(1, serving_size * 3)
         else:
             value1 = GenericUtil.to_int(getattr(item, "value1", 0), 0)
@@ -1203,7 +1208,7 @@ class Object:
 
         tokens = {
             "c": character.name,
-            "p": ItemUtil.short(item),
+            "p": Item.short(item),
             "l": liquid_name,
         }
         payload = {
@@ -1246,11 +1251,11 @@ class Object:
 
         item_type = (getattr(item, "item_type", "") or "").upper()
         payload = {
-            "to_char": self._render_command_message(context, "default", "to_char", p=ItemUtil.short(item)),
+            "to_char": self._render_command_message(context, "default", "to_char", p=Item.short(item)),
         }
         room = self.room_registry.get_or_none(id=character.room_id)
         if room is not None:
-            payload["to_room"] = self._render_command_message(context, "default", "to_room", c=character.name, p=ItemUtil.short(item))
+            payload["to_room"] = self._render_command_message(context, "default", "to_room", c=character.name, p=Item.short(item))
             payload["targets"] = room.player_targets(character)
 
         if "FOOD" in item_type and not CharacterApi.is_npc(character):
@@ -1264,7 +1269,7 @@ class Object:
 
         slot = character.equipped_slot_of(item)
         if slot:
-            EffectUtil.remove_item_effects(character, item)
+            self.effect_handler.remove_item_effects(character, item)
             character.unequip_item(slot)
         character.remove_item(item)
         context.finish()
@@ -1298,7 +1303,7 @@ class Object:
 
         dest = character.find_inventory_item(arg1) if arg1 else None
         src_name = rem.split()[0] if rem else ""
-        src = ItemUtil.find_container(character, room, src_name) if src_name else None
+        src = character.find_inventory_item(src_name) or (None if room is None else room.find_room_item(src_name)) if src_name else None
         if src is None:
             src = Item.first_fountain(room)
 
@@ -1307,8 +1312,8 @@ class Object:
         context.fill_rem = rem
         context.fill_dest = dest
         context.fill_src = src
-        context.fill_dest_short = "" if dest is None else ItemUtil.short(dest)
-        context.fill_src_short = "" if src is None else ItemUtil.short(src)
+        context.fill_dest_short = "" if dest is None else Item.short(dest)
+        context.fill_src_short = "" if src is None else Item.short(src)
         context.fill_blocked_key = ""
         if dest is not None:
             preview = Item.inspect_fill(dest, src)
@@ -1328,7 +1333,7 @@ class Object:
             payload = self.interp_api.render_message_key(
                 context,
                 "spill_out",
-                t=ItemUtil.short(context.pour_source),
+                t=Item.short(context.pour_source),
                 s=result.liquid_name,
                 c=character.name,
             )
@@ -1358,8 +1363,8 @@ class Object:
                 context,
                 "to_container",
                 s=result.liquid_name,
-                t=ItemUtil.short(context.pour_source),
-                T=ItemUtil.short(context.pour_target_container),
+                t=Item.short(context.pour_source),
+                T=Item.short(context.pour_target_container),
                 c=character.name,
             )
 
@@ -1378,7 +1383,7 @@ class Object:
         preview = None
 
         if target_arg and target_arg.lower() != "out":
-            target_item = ItemUtil.find_item(character, room, target_arg)
+            target_item = character.find_inventory_item(target_arg) or (None if room is None else room.find_room_item(target_arg))
             if target_item is None:
                 target_character = PlayerUtil.get_target(character, target_arg, room)
                 if target_character is not None:
@@ -1414,8 +1419,8 @@ class Object:
             return blocked
 
         payloads = [{
-            "to_char": self._render_command_message(context, "quaff", t=ItemUtil.short(item)),
-            "to_room": self._render_command_message(context, "quaffs", channel="to_room", c=character.name, t=ItemUtil.short(item)),
+            "to_char": self._render_command_message(context, "quaff", t=Item.short(item)),
+            "to_room": self._render_command_message(context, "quaffs", channel="to_room", c=character.name, t=Item.short(item)),
             "targets": room.player_targets(character) if room is not None else [],
         }]
         for spell_ref in Item.spell_refs(item, 1, 2, 3):
@@ -1432,7 +1437,7 @@ class Object:
         target_name = rem.split()[0] if rem else ""
         target = character if not target_name else PlayerUtil.get_target(character, target_name, room)
         if target is None and target_name:
-            target = ItemUtil.find_item(character, room, target_name)
+            target = character.find_inventory_item(target_name) or (None if room is None else room.find_room_item(target_name))
 
         context.room = room
         context.recite_arg1 = arg1
@@ -1444,8 +1449,8 @@ class Object:
             return blocked
 
         payloads = [{
-            "to_char": self._render_command_message(context, "recite", t=ItemUtil.short(scroll)),
-            "to_room": self._render_command_message(context, "recites", channel="to_room", c=character.name, t=ItemUtil.short(scroll)),
+            "to_char": self._render_command_message(context, "recite", t=Item.short(scroll)),
+            "to_room": self._render_command_message(context, "recites", channel="to_room", c=character.name, t=Item.short(scroll)),
             "targets": room.player_targets(character) if room is not None else [],
         }]
         if not self._item_skill_check(character, "scrolls"):
@@ -1482,13 +1487,13 @@ class Object:
         payloads: list[dict] = []
         if Item.charges(staff) > 0:
             payloads.append({
-                "to_char": self._render_command_message(context, "default", t=ItemUtil.short(staff)),
-                "to_room": self._render_command_message(context, "default", channel="to_room", c=character.name, t=ItemUtil.short(staff)),
+                "to_char": self._render_command_message(context, "default", t=Item.short(staff)),
+                "to_room": self._render_command_message(context, "default", channel="to_room", c=character.name, t=Item.short(staff)),
                 "targets": room.player_targets(character) if room is not None else [],
             })
             if int(getattr(character, "level", 0) or 0) < int(getattr(staff, "level", 0) or 0) or not self._item_skill_check(character, "staves"):
                 self._improve_item_skill(character, "staves", False)
-                failure = self.interp_api.render_message_key(context, "failure", t=ItemUtil.short(staff))
+                failure = self.interp_api.render_message_key(context, "failure", t=Item.short(staff))
                 if room is not None and failure.get("to_room"):
                     failure["targets"] = room.player_targets(character)
                 payloads.append(failure)
@@ -1510,7 +1515,7 @@ class Object:
                 self._improve_item_skill(character, "staves", True)
 
         if Item.spend_charge(staff) <= 0:
-            broken = self.interp_api.render_message_key(context, "item_broken", t=ItemUtil.short(staff), c=character.name)
+            broken = self.interp_api.render_message_key(context, "item_broken", t=Item.short(staff), c=character.name)
             if room is not None and broken.get("to_room"):
                 broken["targets"] = room.player_targets(character)
             payloads.append(broken)
@@ -1524,7 +1529,7 @@ class Object:
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
         wand = getattr(character.ensure_equipped(), "held", None)
         victim = getattr(character, "fighting", None) if not arg1 else PlayerUtil.get_target(character, arg1, room)
-        obj = None if victim is not None else (ItemUtil.find_item(character, room, arg1) if arg1 else None)
+        obj = None if victim is not None else ((character.find_inventory_item(arg1) if arg1 else None) or (None if room is None else room.find_room_item(arg1)))
 
         context.room = room
         context.zap_arg1 = arg1
@@ -1543,22 +1548,22 @@ class Object:
                 room_targets = room.player_targets(character) if room is not None else []
                 room_targets = [viewer for viewer in room_targets if getattr(viewer, "id", "") != getattr(victim, "id", "")]
                 payloads.append({
-                    "to_char": self._render_command_message(context, "default", t=getattr(victim, "name", ""), T=ItemUtil.short(wand)),
-                    "to_room": self._render_command_message(context, "default", channel="to_room", c=character.name, t=getattr(victim, "name", ""), T=ItemUtil.short(wand)),
-                    "to_victim": self._render_command_message(context, "zaps_with", channel="to_victim", c=character.name, t=ItemUtil.short(wand)),
+                    "to_char": self._render_command_message(context, "default", t=getattr(victim, "name", ""), T=Item.short(wand)),
+                    "to_room": self._render_command_message(context, "default", channel="to_room", c=character.name, t=getattr(victim, "name", ""), T=Item.short(wand)),
+                    "to_victim": self._render_command_message(context, "zaps_with", channel="to_victim", c=character.name, t=Item.short(wand)),
                     "victim": victim,
                     "targets": room_targets,
                 })
             else:
                 payloads.append({
-                    "to_char": self._render_command_message(context, "default", t=ItemUtil.short(obj), T=ItemUtil.short(wand)),
-                    "to_room": self._render_command_message(context, "default", channel="to_room", c=character.name, t=ItemUtil.short(obj), T=ItemUtil.short(wand)),
+                    "to_char": self._render_command_message(context, "default", t=Item.short(obj), T=Item.short(wand)),
+                    "to_room": self._render_command_message(context, "default", channel="to_room", c=character.name, t=Item.short(obj), T=Item.short(wand)),
                     "targets": room.player_targets(character) if room is not None else [],
                 })
 
             if int(getattr(character, "level", 0) or 0) < int(getattr(wand, "level", 0) or 0) or not self._item_skill_check(character, "wands"):
                 self._improve_item_skill(character, "wands", False)
-                failure = self.interp_api.render_message_key(context, "failed", t=ItemUtil.short(wand), c=character.name)
+                failure = self.interp_api.render_message_key(context, "failed", t=Item.short(wand), c=character.name)
                 if room is not None and failure.get("to_room"):
                     failure["targets"] = room.player_targets(character)
                 payloads.append(failure)
@@ -1578,7 +1583,7 @@ class Object:
                 self._improve_item_skill(character, "wands", True)
 
         if Item.spend_charge(wand) <= 0:
-            broken = self.interp_api.render_message_key(context, "item_broken", t=ItemUtil.short(wand), c=character.name)
+            broken = self.interp_api.render_message_key(context, "item_broken", t=Item.short(wand), c=character.name)
             if room is not None and broken.get("to_room"):
                 broken["targets"] = room.player_targets(character)
             payloads.append(broken)
