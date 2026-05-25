@@ -685,7 +685,7 @@
         "messageKey": "isClosed"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'look_mode', '') == 'in' and (obj := getattr(v.context, 'look_in_target', None)) is not None and not ItemUtil.is_drink_container(obj) and not ItemUtil.is_container_like(obj)",
+        "predicate": "lambda v: getattr(v.context, 'look_mode', '') == 'in' and (obj := getattr(v.context, 'look_in_target', None)) is not None and not Item.is_drink_container(obj) and not Item.is_container_like(obj)",
         "messageKey": "notContainer"
       },
       {
@@ -1295,11 +1295,11 @@
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
       },
       {
-        "predicate": "lambda v: v.context.container is not None and not ItemUtil.is_container_like(v.context.container)",
+        "predicate": "lambda v: v.context.container is not None and not Item.is_container_like(v.context.container)",
         "messageKey": "notContainer"
       },
       {
-        "predicate": "lambda v: v.context.container is not None and ItemUtil.is_closed_container(v.context.container)",
+        "predicate": "lambda v: v.context.container is not None and ItemApi.is_closed_container(v.context.container)",
         "messageKey": "closed",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', getattr(v.context.container, 'name', ''))}"
       },
@@ -4087,7 +4087,7 @@
         "messageKey": "itemMissing"
       },
       {
-        "predicate": "lambda v: v.context.drink_item is not None and not ItemUtil.is_drink_container(v.context.drink_item)",
+        "predicate": "lambda v: v.context.drink_item is not None and not Item.is_drink_container(v.context.drink_item)",
         "messageKey": "itemNotContainer"
       },
       {
@@ -5084,7 +5084,7 @@
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
       },
       {
-        "predicate": "lambda v: v.context.container is not None and not ItemUtil.is_container_like(v.context.container)",
+        "predicate": "lambda v: v.context.container is not None and not Item.is_container_like(v.context.container)",
         "messageKey": "notContainer"
       },
       {
@@ -5177,11 +5177,11 @@
         "messageKey": "targetSelf"
       },
       {
-        "predicate": "lambda v: ItemUtil.is_pc_corpse(v.context.item) and list(getattr(v.context.item, 'contains', []) or [])",
+        "predicate": "lambda v: Item.is_pc_corpse(v.context.item) and list(getattr(v.context.item, 'contains', []) or [])",
         "messageKey": "pcCorpse"
       },
       {
-        "predicate": "lambda v: ItemUtil.is_nosac(v.context.item)",
+        "predicate": "lambda v: ItemApi.is_no_sac(v.context.item)",
         "messageKey": "noSacrifice",
         "tokenFactory": "lambda v: {'t': v.context.item_name}"
       },

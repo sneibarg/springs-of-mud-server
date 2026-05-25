@@ -4,6 +4,7 @@ from api.CharacterApi import CharacterApi
 from api.FightApi import FightApi
 from api.GameApi import GameApi
 from api.InterpApi import InterpApi
+from api.ItemApi import ItemApi
 from api.MobileApi import MobileApi
 from api.SkillApi import SkillApi
 from area.AreaHandler import AreaHandler
@@ -165,6 +166,7 @@ class Bootstrapper:
     def lazy_load(injector: Injector) -> None:
         CharacterApi.lazy_load(injector.get(WeatherHandler), registry_service=injector.get(RegistryService))
         MobileApi.lazy_load(injector.get(WeatherHandler), registry_service=injector.get(RegistryService))
+        ItemApi.lazy_load()
 
         to_load = [GameService, PlayerService, CharacterService, ShopService, ResetService, SpecialService,
                    RoomService, AreaService, SkillService, SpellService, ItemService, SocialService, MobileService,

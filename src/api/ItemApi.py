@@ -13,6 +13,25 @@ class ItemApi(GameApi):
         return cls.races_map().get(race_name, {})
 
     @classmethod
+    def lazy_load(cls) -> None:
+        cls.load_enums(
+            TimeAndWeather="timeAndWeather",
+            GameParameters="gameParameters",
+            AffectedBits="affectedBy",
+            positions="positions",
+            RoomFlags="roomFlags",
+            CommFlags="commFlags",
+            PlayerActBits="playerActBits",
+            OffenseTypes="offenseTypes",
+            SectorTypes="sectorTypes",
+            ItemFlags="itemFlags",
+        )
+
+    @classmethod
+    def is_no_sac(cls, item: Item):
+        cls.has_item_flag(item, cls.ItemFlags, "ITEM_NO_SAC")
+
+    @classmethod
     def is_container_closed(cls, item) -> bool:
         try:
             flags = int(item.value1)

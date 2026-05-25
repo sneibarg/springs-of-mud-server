@@ -15,6 +15,7 @@ from interp.commands.Wiz import Wiz
 from player.Character import Character
 from api.CharacterApi import CharacterApi
 from util.GenericUtil import GenericUtil
+from util.InfoUtil import InfoUtil
 from util.InterpUtil import InterpUtil
 from util.CommunicationsUtil import CommunicationsUtil
 from util.ItemUtil import ItemUtil

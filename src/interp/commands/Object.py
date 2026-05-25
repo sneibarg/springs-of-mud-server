@@ -675,7 +675,6 @@ class Object:
 
     def do_sacrifice(self, character: Character, context: Context):
         context.arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
-        print(f"SACRIFICE: {context.arg1=}")
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
         context.item = room.find_room_item(context.arg1) if room is not None else None
         context.item_name = Item.short(context.item) if context.item is not None else None

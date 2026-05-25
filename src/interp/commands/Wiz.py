@@ -8,6 +8,7 @@ from api.InterpApi import InterpApi
 from api.ItemApi import ItemApi
 from api.WizSetApi import WizSetApi
 from area.Room import Room
+from fight.FightHandler import FightHandler
 from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
 from game.WizHandler import WizHandler
@@ -28,6 +29,7 @@ class Wiz:
                  wiz_handler: WizHandler,
                  interp_api: InterpApi,
                  wiz_set_api: WizSetApi,
+                 fight_handler: FightHandler,
                  enum_provider: EnumProvider):
         self.__name__ = "Wiz"
         self.logger = LoggerFactory.get_logger(self.__name__)
@@ -35,6 +37,7 @@ class Wiz:
         self.wiz_handler = wiz_handler
         self.interp_api = interp_api
         self.wiz_set_api = wiz_set_api
+        self.fight_handler = fight_handler
         self.character_registry = registry_service.character_registry
         self.room_registry = registry_service.room_registry
         self.area_registry = registry_service.area_registry
@@ -93,6 +96,7 @@ class Wiz:
             "memory": self.do_memory,
             "set": self.do_set,
             "snoop": self.do_snoop,
+            "slay": self.do_slay,
             "string": self.do_string,
             "switch": self.do_switch,
             "clone": self.do_clone,
@@ -710,6 +714,35 @@ class Wiz:
         self.wiz_handler.start_snoop(character, target)
         context.finish()
         return self._command_payload("default", tokens={"t": WizUtil.display_name(target)}, wiznet_flag="WIZ_SNOOPS", wiznet_skip_flag="WIZ_SECURE", wiznet_min_level=CharacterApi.get_trust(character))
+
+    def do_slay(self, character: Character, context: Context):
+        argument = WizUtil.argument_text(context.result, context.parameters).strip()
+        if not argument:
+            context.finish()
+            return self._command_payload("no_argument")
+
+        room = self.room_registry.get_or_none(id=character.room_id)
+        victim = None if room is None else room.find_visible_target(character, argument)
+        if victim is None:
+            context.finish()
+            return self._command_payload("target_missing")
+
+        if victim == character:
+            context.finish()
+            return self._command_payload("target_self")
+
+        if not CharacterApi.is_npc(victim) and GenericUtil.to_int(getattr(victim, "level", 0), 0) >= CharacterApi.get_trust(character):
+            context.finish()
+            return self._command_payload("failed")
+
+        targets = []
+        if room is not None:
+            victim_id = str(getattr(victim, "id", "") or "")
+            targets = [viewer for viewer in room.player_targets(character) if str(getattr(viewer, "id", "") or "") != victim_id]
+
+        self.fight_handler.raw_kill(victim)
+        context.finish()
+        return self._command_payload("default", victim=victim, targets=targets, tokens={"t": WizUtil.display_name(victim)})
 
     def do_string(self, _character: Character, context: Context):
         raw = WizUtil.argument_text(context.result, context.parameters)

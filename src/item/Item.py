@@ -362,6 +362,7 @@ class Item:
         return result
 
     def weapon_too_heavy(self, character: Character) -> bool:
+        from api.CharacterApi import CharacterApi
         if CharacterApi.is_npc(character):
             return False
         strength = max(0, GenericUtil.to_int(getattr(getattr(character, "character_attributes", None), "strength", 0), 0))
@@ -373,6 +374,7 @@ class Item:
         return 0 < wield_limit < GenericUtil.to_int(getattr(self, "weight", 0), 0)
 
     def is_two_handed_weapon(self) -> bool:
+        from api.CharacterApi import CharacterApi
         try:
             weapon_flags = CharacterApi.get_enum("weaponType")
         except RuntimeError:
@@ -382,6 +384,7 @@ class Item:
         return GameApi.is_set(getattr(self, "value4", 0), weapon_flags.WEAPON_TWO_HANDS.value)
 
     def can_remove(self, item_flags) -> bool:
+        from api.CharacterApi import CharacterApi
         no_remove_bit = CharacterApi.enum_bit(item_flags, "ITEM_NOREMOVE")
         if no_remove_bit == 0:
             return True
