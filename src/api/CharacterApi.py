@@ -222,105 +222,6 @@ class CharacterApi(GameApi):
             return "You are not affected by any spells.\r\n"
         return "You are affected by the following spells:\r\n" + "".join(lines)
 
-    @classmethod
-    def target_equipment_lines(cls, target: Any, equip_slot_labels: list[tuple[str, str]]) -> list[str]:
-        from util.ItemUtil import ItemUtil
-
-        item_flags = cls.enums().get("itemFlags")
-        lines: list[str] = []
-        equipped = getattr(target, "equipped", None)
-
-        for slot, label in equip_slot_labels:
-            obj = None
-            if equipped is not None:
-                obj = equipped.get(slot) if isinstance(equipped, dict) else getattr(equipped, slot, None)
-
-            if obj is None:
-                for item in list(getattr(target, "loot", []) or []):
-                    wear_location = str(getattr(item, "wear_location", "") or "").strip().lower()
-                    if wear_location == slot:
-                        obj = item
-                        break
-
-            if obj is None:
-                continue
-
-            if isinstance(obj, dict):
-                from item.Item import Item
-                obj = Item.from_json(obj)
-
-            item_text = ItemUtil.format_obj_to_char(obj, item_flags_enum=item_flags, f_short=True)
-            lines.append(f"{label}{item_text}")
-
-        return lines
-
-    @classmethod
-    def who_line(cls, viewer: Character, target: Character) -> str:
-        trust = GenericUtil.to_int(cls.get_trust(viewer), 0)
-        incog_level = GenericUtil.to_int(getattr(target.status_flags, "incog_level", 0), 0)
-        invis_level = GenericUtil.to_int(getattr(target.status_flags, "invis_level", 0), 0)
-
-        flags = []
-        if 0 < incog_level <= trust:
-            flags.append("(Incog)")
-        if 0 < invis_level <= trust:
-            flags.append("(Wizi)")
-
-        flag_text = (" " + " ".join(flags)) if flags else ""
-        class_name = getattr(getattr(target, "character_class", None), "name", "") or ""
-        class_name = class_name[0:3]
-        max_level = cls.GameParameters.MAX_LEVEL.value
-        if target.level == max_level:
-            class_name = "IMP"
-        elif target.level == max_level - 1:
-            class_name = "CRE"
-        elif target.level == max_level - 2:
-            class_name = "SUP"
-        elif target.level == max_level - 3:
-            class_name = "DEI"
-        elif target.level == max_level - 4:
-            class_name = "GOD"
-        elif target.level == max_level - 5:
-            class_name = "IMM"
-        elif target.level == max_level - 6:
-            class_name = "DEM"
-        elif target.level == max_level - 7:
-            class_name = "ANG"
-        elif target.level == max_level - 8:
-            class_name = "AVA"
-        else:
-            class_name = class_name.capitalize()
-
-        return f"[{target.level}    {target.race}    {class_name}]{flag_text} {target.name} {target.title}"
-
-    @staticmethod
-    def owned_items(character: Character) -> list:
-        seen = set()
-        items = []
-        for item in list(getattr(character, "loot", []) or []):
-            item_id = id(item)
-            if item is not None and item_id not in seen:
-                items.append(item)
-                seen.add(item_id)
-        equipped = getattr(character, "equipped", None)
-        for item in getattr(equipped, "__dict__", {}).values() if equipped is not None else []:
-            item_id = id(item)
-            if item is not None and item_id not in seen:
-                items.append(item)
-                seen.add(item_id)
-        return items
-
-    @staticmethod
-    def find_owned_item(character: Character, wanted: str):
-        key = (wanted or "").strip().lower()
-        if not key:
-            return None
-        for item in CharacterApi.owned_items(character):
-            name = (getattr(item, "name", "") or "").lower()
-            if name == key or name.startswith(key):
-                return item
-        return None
-
     @staticmethod
     def skill_value_for_class(values: dict, class_name: str, default: int = 0) -> int:
         if not isinstance(values, dict):
@@ -374,35 +275,6 @@ class CharacterApi(GameApi):
             return str(getattr(character, "title", "") or "")
         return f"the {title}"
 
-    @classmethod
-    def score_position_line(cls, attributes: Any) -> str:
-        position_value = GenericUtil.to_int(getattr(attributes, "position", 0), 0)
-        pos_dead = cls.positions.POS_DEAD.value if cls.positions and hasattr(cls.positions, "POS_DEAD") else -1
-        pos_mortal = cls.positions.POS_MORTAL.value if cls.positions and hasattr(cls.positions, "POS_MORTAL") else -1
-        pos_incap = cls.positions.POS_INCAP.value if cls.positions and hasattr(cls.positions, "POS_INCAP") else -1
-        pos_stunned = cls.positions.POS_STUNNED.value if cls.positions and hasattr(cls.positions, "POS_STUNNED") else -1
-        pos_sleeping = cls.positions.POS_SLEEPING.value if cls.positions and hasattr(cls.positions, "POS_SLEEPING") else -1
-        pos_resting = cls.positions.POS_RESTING.value if cls.positions and hasattr(cls.positions, "POS_RESTING") else -1
-        pos_sitting = cls.positions.POS_SITTING.value if cls.positions and hasattr(cls.positions, "POS_SITTING") else -1
-        pos_fighting = cls.positions.POS_FIGHTING.value if cls.positions and hasattr(cls.positions, "POS_FIGHTING") else -1
-        if position_value == pos_dead:
-            return "You are DEAD!!"
-        if position_value == pos_mortal:
-            return "You are mortally wounded."
-        if position_value == pos_incap:
-            return "You are incapacitated."
-        if position_value == pos_stunned:
-            return "You are stunned."
-        if position_value == pos_sleeping:
-            return "You are sleeping."
-        if position_value == pos_resting:
-            return "You are resting."
-        if position_value == pos_sitting:
-            return "You are sitting."
-        if position_value == pos_fighting:
-            return "You are fighting."
-        return "You are standing."
-
     @staticmethod
     def find_playing_character(name: str, session_handler):
         wanted = (name or "").strip().lower()
@@ -416,12 +288,6 @@ class CharacterApi(GameApi):
             if n == wanted or n.startswith(wanted):
                 return ch
         return None
-
-    @staticmethod
-    def restore_character(victim: Character):
-        victim.hit = int(getattr(victim, "max_hit", 0))
-        victim.mana = int(getattr(victim, "max_mana", 0))
-        victim.movement = int(getattr(victim, "max_movement", 0))
 
     @staticmethod
     def find_character_world(arg: str, character_registry, name_matches_fn, allow_self: bool = False):
@@ -473,25 +339,6 @@ class CharacterApi(GameApi):
         standing = cls.pos_value("POS_STANDING")
         default_pos = standing if standing >= 0 else 0
         return GenericUtil.to_int(raw, default_pos)
-
-    @classmethod
-    def movement_position_block_message(cls, character: Character) -> str:
-        pos = cls.position_value(character)
-        if pos == cls.pos_value("POS_DEAD"):
-            return "Lie still; you are DEAD.\r\n"
-        if pos in (cls.pos_value("POS_MORTAL"), cls.pos_value("POS_INCAP")):
-            return "You are hurt far too bad for that.\r\n"
-        if pos == cls.pos_value("POS_STUNNED"):
-            return "You are too stunned to do that.\r\n"
-        if pos == cls.pos_value("POS_SLEEPING"):
-            return "In your dreams, or what?\r\n"
-        if pos == cls.pos_value("POS_RESTING"):
-            return "Nah... You feel too relaxed...\r\n"
-        if pos == cls.pos_value("POS_SITTING"):
-            return "Better stand up first.\r\n"
-        if pos == cls.pos_value("POS_FIGHTING"):
-            return "No way! You are still fighting!\r\n"
-        return ""
 
     @classmethod
     def set_position(cls, character: Character, pos_name: str):

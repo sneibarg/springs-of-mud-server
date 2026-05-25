@@ -104,3 +104,29 @@ class AnimateEntity:
 
     def unequip_item(self, slot_name: str):
         return Equipped.unequip_item(self, slot_name)
+
+    def owned_items(self) -> list:
+        seen = set()
+        items = []
+        for item in list(getattr(self, "loot", []) or []):
+            item_id = id(item)
+            if item is not None and item_id not in seen:
+                items.append(item)
+                seen.add(item_id)
+        equipped = getattr(self, "equipped", None)
+        for item in getattr(equipped, "__dict__", {}).values() if equipped is not None else []:
+            item_id = id(item)
+            if item is not None and item_id not in seen:
+                items.append(item)
+                seen.add(item_id)
+        return items
+
+    def find_owned_item(self, wanted: str):
+        key = (wanted or "").strip().lower()
+        if not key:
+            return None
+        for item in self.owned_items():
+            name = (getattr(item, "name", "") or "").lower()
+            if name == key or name.startswith(key):
+                return item
+        return None

@@ -602,7 +602,7 @@ class Object:
         if keeper is None or shop is None:
             return room
 
-        obj = CharacterApi.find_owned_item(character, raw)
+        obj = character.find_owned_item(raw)
         context.sell_obj = obj
         if obj is None:
             return room
@@ -657,7 +657,7 @@ class Object:
         if keeper is None or shop is None:
             return room
 
-        obj = CharacterApi.find_owned_item(character, raw)
+        obj = character.find_owned_item(raw)
         context.value_item = obj
         if obj is None:
             return room

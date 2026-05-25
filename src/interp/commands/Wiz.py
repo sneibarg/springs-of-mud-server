@@ -6,6 +6,7 @@ from api.CharacterApi import CharacterApi
 from api.GameApi import GameApi
 from api.InterpApi import InterpApi
 from api.ItemApi import ItemApi
+from api.WizApi import WizApi
 from api.WizSetApi import WizSetApi
 from area.Room import Room
 from fight.FightHandler import FightHandler
@@ -396,7 +397,7 @@ class Wiz:
         room = self.room_registry.get_or_none(id=character.room_id)
         if arg in ("", "room"):
             for target in ([] if room is None else list(room.characters.values()) + list(room.mobiles.values())):
-                CharacterApi.restore_character(target)
+                WizApi.restore_character(target)
             context.finish()
             return {
                 "to_char": "Room restored.\r\n",
@@ -409,14 +410,14 @@ class Wiz:
             for session in self.wiz_handler.session_handler.get_playing_sessions():
                 victim = session.character
                 if victim is not None and not CharacterApi.is_npc(victim):
-                    CharacterApi.restore_character(victim)
+                    WizApi.restore_character(victim)
             context.finish()
             return self._command_payload("active_players")
         victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, arg)
         if victim is None:
             context.finish()
             return self._command_payload("target_missing")
-        CharacterApi.restore_character(victim)
+        WizApi.restore_character(victim)
         context.finish()
         return self._command_payload("default", victim=victim, wiznet_flag="WIZ_RESTORE", wiznet_skip_flag="WIZ_SECURE", wiznet_min_level=CharacterApi.get_trust(character))
 

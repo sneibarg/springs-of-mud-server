@@ -1,6 +1,9 @@
 from typing import Any
 
+from api.CharacterApi import CharacterApi
 from interp.Context import Context
+from player.Character import Character
+from util.GenericUtil import GenericUtil
 
 
 class InfoUtil:
@@ -115,3 +118,94 @@ class InfoUtil:
             return False
         words = [w for w in k.split() if w]
         return any(w == t or w.startswith(t) for w in words)
+
+    @staticmethod
+    def who_line(viewer: Character, target: Character) -> str:
+        trust = GenericUtil.to_int(CharacterApi.get_trust(viewer), 0)
+        incog_level = GenericUtil.to_int(getattr(target.status_flags, "incog_level", 0), 0)
+        invis_level = GenericUtil.to_int(getattr(target.status_flags, "invis_level", 0), 0)
+
+        flags = []
+        if 0 < incog_level <= trust:
+            flags.append("(Incog)")
+        if 0 < invis_level <= trust:
+            flags.append("(Wizi)")
+
+        flag_text = (" " + " ".join(flags)) if flags else ""
+        class_name = getattr(getattr(target, "character_class", None), "name", "") or ""
+        class_name = class_name[0:3]
+        max_level = CharacterApi.get_enum("gameParameters").MAX_LEVEL.value
+        if target.level == max_level:
+            class_name = "IMP"
+        elif target.level == max_level - 1:
+            class_name = "CRE"
+        elif target.level == max_level - 2:
+            class_name = "SUP"
+        elif target.level == max_level - 3:
+            class_name = "DEI"
+        elif target.level == max_level - 4:
+            class_name = "GOD"
+        elif target.level == max_level - 5:
+            class_name = "IMM"
+        elif target.level == max_level - 6:
+            class_name = "DEM"
+        elif target.level == max_level - 7:
+            class_name = "ANG"
+        elif target.level == max_level - 8:
+            class_name = "AVA"
+        else:
+            class_name = class_name.capitalize()
+
+        return f"[{target.level}    {target.race}    {class_name}]{flag_text} {target.name} {target.title}"
+    
+    @staticmethod
+    def score_position_line(attributes: Any) -> str:
+        position_value = GenericUtil.to_int(getattr(attributes, "position", 0), 0)
+        positions = CharacterApi.get_enum("positions")
+        if position_value == positions.POS_DEAD.value:
+            return "You are DEAD!!"
+        if position_value == positions.POS_MORTAL.value:
+            return "You are mortally wounded."
+        if position_value == positions.POS_INCAP.value:
+            return "You are incapacitated."
+        if position_value == positions.POS_STUNNED.value:
+            return "You are stunned."
+        if position_value == positions.POS_SLEEPING.value:
+            return "You are sleeping."
+        if position_value == positions.POS_RESTING.value:
+            return "You are resting."
+        if position_value == positions.POS_SITTING.value:
+            return "You are sitting."
+        if position_value == positions.POS_FIGHTING.value:
+            return "You are fighting."
+        return "You are standing."
+
+    @staticmethod
+    def target_equipment_lines(target: Any, equip_slot_labels: list[tuple[str, str]]) -> list[str]:
+        from util.ItemUtil import ItemUtil
+        item_flags = CharacterApi.get_enum("itemFlags")
+        lines: list[str] = []
+        equipped = getattr(target, "equipped", None)
+        for slot, label in equip_slot_labels:
+            obj = None
+            if equipped is not None:
+                obj = equipped.get(slot) if isinstance(equipped, dict) else getattr(equipped, slot, None)
+
+            if obj is None:
+                for item in list(getattr(target, "loot", []) or []):
+                    wear_location = str(getattr(item, "wear_location", "") or "").strip().lower()
+                    if wear_location == slot:
+                        obj = item
+                        break
+
+            if obj is None:
+                continue
+
+            if isinstance(obj, dict):
+                from item.Item import Item
+                obj = Item.from_json(obj)
+
+            item_text = ItemUtil.format_obj_to_char(obj, item_flags_enum=item_flags, f_short=True)
+            lines.append(f"{label}{item_text}")
+
+        return lines

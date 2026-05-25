@@ -4,6 +4,7 @@ import ast
 import random
 
 from api.CharacterApi import CharacterApi
+from player.Character import Character
 from util.GenericUtil import GenericUtil
 
 
@@ -218,3 +219,16 @@ class EffectUtil:
             save += victim_level // 2
         save = max(5, min(95, save))
         return random.randint(1, 100) < save
+
+    @staticmethod
+    def format_affects(character: Character) -> str:
+        AffectedBits = CharacterApi.get_enum("affectedBy")
+        raw = GenericUtil.to_int(getattr(character.status_flags, "affected_by", 0), 0)
+        lines = []
+        for name, member in AffectedBits.__members__.items():
+            if CharacterApi.is_set(raw, member.value):
+                pretty = name.replace("AFF_", "").replace("_", " ").lower()
+                lines.append(f"Spell: {pretty}\r\n")
+        if not lines:
+            return "You are not affected by any spells.\r\n"
+        return "You are affected by the following spells:\r\n" + "".join(lines)

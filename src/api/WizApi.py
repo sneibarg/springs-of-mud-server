@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from api.CharacterApi import CharacterApi
+from player.Character import Character
 from util.AreaUtil import AreaUtil
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
@@ -21,6 +22,12 @@ class WizApi:
     def character_registry(view):
         player_handler = view.context.player_handler()
         return None if player_handler is None else getattr(player_handler, "character_registry", None)
+
+    @staticmethod
+    def restore_character(victim: Character):
+        victim.hit = int(getattr(victim, "max_hit", 0))
+        victim.mana = int(getattr(victim, "max_mana", 0))
+        victim.movement = int(getattr(victim, "max_movement", 0))
 
     @staticmethod
     def location(view):

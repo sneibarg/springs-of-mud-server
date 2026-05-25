@@ -95,10 +95,6 @@ class _CharacterMacros:
         return SimpleNamespace()
 
     @staticmethod
-    def movement_position_block_message(character) -> str:
-        return str(getattr(character, "position_block", "") or "")
-
-    @staticmethod
     def is_affected_by_name(character, _bits, name: str) -> bool:
         return bool(getattr(character, "effects", {}).get(name, False))
 
