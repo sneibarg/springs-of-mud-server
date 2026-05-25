@@ -3,6 +3,7 @@ from enum import IntEnum
 from api.CharacterApi import CharacterApi
 from api.GameApi import GameApi
 from api.ItemApi import ItemApi
+from item.Item import Item
 from util.MobileUtil import MobileUtil
 from util.InterpUtil import InterpUtil
 from util.EffectUtil import EffectUtil
@@ -170,7 +171,7 @@ class Shop:
                 if self.is_inventory_item(item, item_flags):
                     lines.append(
                         f"[{GenericUtil.to_int(getattr(item, 'level', 0), 0):>2} "
-                        f"{cost:>5} -- ] {ItemUtil.short(item)}\r\n"
+                        f"{cost:>5} -- ] {Item.short(item)}\r\n"
                     )
                     index += 1
                     continue
@@ -180,7 +181,7 @@ class Shop:
                     count += 1
                 lines.append(
                     f"[{GenericUtil.to_int(getattr(item, 'level', 0), 0):>2} "
-                    f"{cost:>5} {count:>2} ] {ItemUtil.short(item)}\r\n"
+                    f"{cost:>5} {count:>2} ] {Item.short(item)}\r\n"
                 )
                 index += count
                 continue
@@ -240,7 +241,7 @@ class Shop:
 
     @classmethod
     def complete_pet_purchase(cls, buyer, room, pet_proto, pet_name: str, cost: int, act_bits, affected_bits, comm_flags):
-        pet = MobileUtil.create_mobile(pet_proto, CharacterApi._enums_map())
+        pet = MobileUtil.create_mobile(pet_proto, CharacterApi.enums())
         pet_bit = CharacterApi.enum_bit(act_bits, "ACT_PET")
         charm_bit = CharacterApi.enum_bit(affected_bits, "AFF_CHARM")
         if pet_bit:
@@ -305,7 +306,7 @@ class Shop:
             self.add_item_to_keeper(keeper, item, item_flags)
 
     def quote_value(self, item, keeper, item_types, item_flags) -> "ValueQuote":
-        item_short = ItemUtil.short(item) if item is not None else ""
+        item_short = Item.short(item) if item is not None else ""
         keeper_name = getattr(keeper, "short_description", "The shopkeeper") if keeper is not None else "The shopkeeper"
         cost = self.sell_price(item, getattr(keeper, "inventory", []) or [], item_types, item_flags)
         gold = cost // 100

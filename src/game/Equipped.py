@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Callable, Optional
-
-if TYPE_CHECKING:
-    from item.Item import Item
+from typing import Callable, Optional
+from item.Item import Item
 
 WEAR_LOC_TO_EQUIPPED_SLOT = {
     0: "light",
@@ -173,10 +171,8 @@ class Equipped:
     @classmethod
     def wear_item(cls, character, item, wear_flags_enum, item_flags, *, replace: bool,
                   preferred_slot: str = "", forced_slot: str = "", effect_handler=None) -> WearResult:
-        from util.ItemUtil import ItemUtil
-
         result = WearResult()
-        item_short = ItemUtil.short(item)
+        item_short = Item.short(item)
         item_level = int(getattr(item, "level", 0) or 0)
         if int(getattr(character, "level", 0) or 0) < item_level:
             result.blocked_key = "insufficientLevel"
@@ -286,10 +282,10 @@ class Equipped:
         if not replace:
             return False, {}
         if not can_remove_item(item):
-            return False, {"blocked_key": "noRemove", "tokens": {"t": self.short(item)}}
+            return False, {"blocked_key": "noRemove", "tokens": {"t": Item.short(item)}}
 
         remove_item(character, slot, item)
-        return True, {"key": "removed", "tokens": {"t": self.short(item)}}
+        return True, {"key": "removed", "tokens": {"t": Item.short(item)}}
 
     @classmethod
     def remove_item(cls, character, slot: str, item, item_flags, *, effect_handler=None) -> WearResult:
@@ -298,11 +294,11 @@ class Equipped:
             return result
         if not cls._can_remove_item(item, item_flags):
             result.blocked_key = "noRemove"
-            result.blocked_tokens = {"t": cls.short(item)}
+            result.blocked_tokens = {"t": Item.short(item)}
             return result
 
         cls._remove_item(character, slot, item, effect_handler=effect_handler)
-        result.shared_messages.append(("removed", {"t": cls.short(item)}))
+        result.shared_messages.append(("removed", {"t": Item.short(item)}))
         return result
 
     @staticmethod
@@ -315,7 +311,7 @@ class Equipped:
 
     @classmethod
     def slot_wear_payload(cls, character, room, item, slot: str) -> dict:
-        short = cls.short(item)
+        short = Item.short(item)
         templates = {
             "light": (f"You light {short} and hold it.\r\n", f"{character.name} lights {short} and holds it.\r\n"),
             "finger1": (f"You wear {short} on your left finger.\r\n", f"{character.name} wears {short} on their left finger.\r\n"),
@@ -375,6 +371,3 @@ class Equipped:
             effect_handler.remove_item_effects(character, item)
         character.unequip_item(slot)
 
-    @staticmethod
-    def short(item) -> str:
-        return getattr(item, "short_description", None) or getattr(item, "name", "it")

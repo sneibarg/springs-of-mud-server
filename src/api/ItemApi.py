@@ -10,7 +10,7 @@ from util.GenericUtil import GenericUtil
 class ItemApi(GameApi):
     @classmethod
     def race_data(cls, race_name: str) -> dict:
-        return cls._races_map().get(race_name, {})
+        return cls.races_map().get(race_name, {})
 
     @classmethod
     def is_container_closed(cls, item) -> bool:
@@ -38,12 +38,12 @@ class ItemApi(GameApi):
     @classmethod
     def weight_multiplier(cls, obj: Item) -> int:
         item_types = cls.get_enum("itemTypes")
-        item_table = cls._item_table_map()
+        item_table = cls.item_table_map()
         return int(obj.value3) if item_table[obj.item_type] == item_types.ITEM_CONTAINER.name else 100
 
     @classmethod
     def decode_form_and_parts(cls, race_name: str, BodyForm: type[IntEnum], BodyParts: type[IntEnum]) -> Dict[str, List[str]]:
-        race = cls._races_map().get(race_name)
+        race = cls.races_map().get(race_name)
         if not race:
             return {"form": [], "parts": []}
 

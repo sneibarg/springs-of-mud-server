@@ -434,7 +434,7 @@ class Fight:
         if target_type == "OBJ_INV":
             if not argument:
                 return None, "", "no_inventory_target"
-            obj = ItemUtil.find_inventory_item(character, argument)
+            obj = character.find_inventory_item(argument)
             if obj is None:
                 return None, "", "not_carrying"
             return obj, "obj", ""
@@ -445,7 +445,7 @@ class Fight:
             victim = PlayerUtil.get_target(character, argument, room)
             if victim is not None:
                 return victim, "char", ""
-            obj = ItemUtil.find_inventory_item(character, argument)
+            obj = character.find_inventory_item(argument)
             if obj is None:
                 return None, "", "target_not_visible"
             return obj, "obj", ""
@@ -462,7 +462,7 @@ class Fight:
                 if safe and victim is not character:
                     return None, "", "target_safe"
                 return victim, "char", ""
-            obj = ItemUtil.find_room_item(room, argument) or ItemUtil.find_inventory_item(character, argument)
+            obj = (None if room is None else room.find_room_item(argument)) or character.find_inventory_item(argument)
             if obj is None:
                 return None, "", "target_not_visible"
             return obj, "obj", ""

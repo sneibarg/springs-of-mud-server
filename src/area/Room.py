@@ -164,10 +164,13 @@ class Room:
             return self.mobiles[wanted]
         return None
 
-    def find_item_in_room(self, arg: str, name_matches_fn):
-        q = (arg or "").strip().lower()
+    def find_room_item(self, wanted: str):
+        q = (wanted or "").strip().lower()
+        if not q:
+            return None
         for item in self.contents.values():
-            if name_matches_fn(q, getattr(item, "name", "")):
+            name = (getattr(item, "name", "") or "").lower()
+            if name == q or name.startswith(q):
                 return item
         return None
 
@@ -247,7 +250,7 @@ class Room:
 
     def format_room_description(self) -> str:
         body = str(self.description or "").strip()
-        return f"{self.name}\r\n{body}"
+        return f"{self.name}\r\n\t\t{body}"
 
     def get_players_in_room(self, character: Character) -> str:
         text = ""

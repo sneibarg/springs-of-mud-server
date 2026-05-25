@@ -18,6 +18,7 @@ from mobile.MobileRegistry import MobileRegistry
 from item.EffectHandler import EffectHandler
 from item.BodyForm import BodyForm
 from item.BodyParts import BodyParts
+from item.Item import Item
 from item.ItemRegistry import ItemRegistry
 from util.ItemUtil import ItemUtil
 from player.CharacterAdvancement import CharacterAdvancement
@@ -1123,7 +1124,7 @@ class FightHandler:
         attacker.silver = int(getattr(attacker, "silver", 0) or 0) + silver
         return {
             "to_char": ItemUtil.sacrifice_reward_message(silver),
-            "to_room": f"{attacker.name} sacrifices {ItemUtil.short(corpse)} to Mota.\r\n",
+            "to_room": f"{attacker.name} sacrifices {Item.short(corpse)} to Mota.\r\n",
         }
 
     @staticmethod

@@ -6,15 +6,16 @@ import threading
 from dataclasses import dataclass, field
 from typing import Optional, List, TYPE_CHECKING
 
+from api.GameApi import GameApi
 from item.ExtraDescriptionData import ExtraDescriptionData
 from item.Effect import Effect
-from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
 from util.GenericUtil import GenericUtil
 
 if TYPE_CHECKING:
     from area.Room import Room
     from player.Character import Character
+    from api.CharacterApi import CharacterApi
 
 
 @dataclass
@@ -85,7 +86,7 @@ class Item:
         return text
 
     def short(self) -> str:
-        return self.short_description or self.name or "it"
+        return getattr(self, "short_description", None) or getattr(self, "name", None) or "it"
 
     def add_contained_item(self, item) -> None:
         with self.lock:
@@ -127,11 +128,15 @@ class Item:
         if isinstance(data, str):
             data = json.loads(data)
         from util.GenericUtil import GenericUtil
+        from util.ItemUtil import ItemUtil
         data = GenericUtil.camel_to_snake_case(data)
         data['contains'] = []
-        extra_description = data.get('extra_description')
-        data['extra_description'] = cls._normalize_extra_description(extra_description)
-        return cls(**data)
+        extra_descr = data.pop('extra_descr', None)
+        item = cls(**data)
+        if extra_descr is not None:
+            item.extra_descr = extra_descr
+        ItemUtil.update_extra_descr(item)
+        return item
 
     @staticmethod
     def is_drink_container(item) -> bool:
@@ -304,22 +309,6 @@ class Item:
         destination.value1 = str(destination_capacity if destination_capacity > 0 else source_amount)
         return result
 
-    @staticmethod
-    def _normalize_extra_description(extra_description):
-        if extra_description:
-            try:
-                return ExtraDescriptionData.from_json(extra_description)
-            except (TypeError, ValueError):
-                return None
-
-        if isinstance(extra_description, list) and len(extra_description) >= 2:
-            keyword = str(extra_description[0] or "").strip()
-            description = str(extra_description[1] or "")
-            if keyword or description:
-                return ExtraDescriptionData(valid=True, keyword=keyword, description=description)
-
-        return None
-
     def weapon_too_heavy(self, character: Character) -> bool:
         if CharacterApi.is_npc(character):
             return False
@@ -332,8 +321,6 @@ class Item:
         return 0 < wield_limit < GenericUtil.to_int(getattr(self, "weight", 0), 0)
 
     def is_two_handed_weapon(self) -> bool:
-        from util.ItemUtil import ItemUtil
-
         try:
             weapon_flags = CharacterApi.get_enum("weaponType")
         except RuntimeError:
@@ -343,8 +330,6 @@ class Item:
         return GameApi.is_set(getattr(self, "value4", 0), weapon_flags.WEAPON_TWO_HANDS.value)
 
     def can_remove(self, item_flags) -> bool:
-        from util.ItemUtil import ItemUtil
-
         no_remove_bit = CharacterApi.enum_bit(item_flags, "ITEM_NOREMOVE")
         if no_remove_bit == 0:
             return True

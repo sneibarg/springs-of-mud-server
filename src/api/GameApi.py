@@ -30,13 +30,8 @@ class GameApi:
     @classmethod
     def configure(cls, game_data: GameData, enum_provider: EnumProvider | None = None) -> None:
         with GameApi._lock:
-            provider = enum_provider or GameApi._build_enum_provider(game_data)
             GameApi._game_data = game_data
-            GameApi._enum_provider = provider
-            GameApi._enums = {
-                name: provider.get(name)
-                for name in provider.all_names()
-            }
+            GameApi._enum_provider = enum_provider
             GameApi._configure_races(game_data)
             GameApi._configure_item_table(game_data)
             GameApi._configure_attribute_bonuses(game_data)
@@ -99,45 +94,38 @@ class GameApi:
     def _configure_titles(cls, game_data: GameData) -> None:
         GameApi._titles = dict(game_data.titles or {})
 
-    @staticmethod
-    def _build_enum_provider(game_data: GameData) -> EnumProvider:
-        enums = {}
-        for enum_name, member_map in dict(getattr(game_data, "enums", {}) or {}).items():
-            enums[enum_name] = GenericUtil.build_int_enum(enum_name, member_map)
-        return EnumProvider(enums)
-
     @classmethod
-    def _enums_map(cls) -> dict[str, type[IntEnum]]:
+    def enums(cls) -> dict[str, type[IntEnum]]:
         cls._require_configured()
         return GameApi._enums
 
     @classmethod
-    def _races_map(cls) -> dict:
+    def races_map(cls) -> dict:
         cls._require_configured()
         return GameApi._races
 
     @classmethod
-    def _item_table_map(cls) -> dict:
+    def item_table_map(cls) -> dict:
         cls._require_configured()
         return GameApi._item_table
 
     @classmethod
-    def _attribute_bonus_map(cls) -> dict:
+    def attribute_bonus_map(cls) -> dict:
         cls._require_configured()
         return GameApi._attribute_bonuses
 
     @classmethod
-    def _classes_map(cls) -> dict:
+    def classes_map(cls) -> dict:
         cls._require_configured()
         return GameApi._classes
 
     @classmethod
-    def _pc_races_map(cls) -> dict:
+    def pc_races_map(cls) -> dict:
         cls._require_configured()
         return GameApi._pc_races
 
     @classmethod
-    def _titles_map(cls) -> dict:
+    def titles(cls) -> dict:
         cls._require_configured()
         return GameApi._titles
 

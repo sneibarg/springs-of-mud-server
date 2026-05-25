@@ -6,6 +6,7 @@ from typing import List, Optional, Any, TYPE_CHECKING
 
 from game.AnimateEntity import AnimateEntity
 from game.Equipped import Equipped
+from interp.Context import Context
 from player.ArmorClass import ArmorClass
 from player.CharacterClass import CharacterClass
 from player.CharacterFlags import CharacterFlags
@@ -41,6 +42,7 @@ class Character(AnimateEntity):
     skills: List[dict] = field(default_factory=list)
     spells: List[dict] = field(default_factory=list)
     loot: List[Item] = field(default_factory=list)
+    context: Optional[Context] = None
     carriage_return: bool = True
 
     def __post_init__(self):
@@ -138,7 +140,7 @@ class Character(AnimateEntity):
 
         race_name = str(getattr(self, "race", "") or "").strip().lower()
         try:
-            race_data = CharacterApi._pc_races_map().get(race_name, {})
+            race_data = CharacterApi.pc_races_map().get(race_name, {})
         except RuntimeError:
             race_data = {}
         raw_size = race_data.get("size")

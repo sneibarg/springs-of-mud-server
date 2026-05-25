@@ -561,7 +561,7 @@ class Wiz:
             if proto is None:
                 context.finish()
                 return self._command_payload("no_such_mobile")
-            mob = MobileUtil.create_mobile(proto, CharacterApi._enums_map())
+            mob = MobileUtil.create_mobile(proto, CharacterApi.enums())
             room.add_mobile_to_room(mob)
             context.finish()
             return {
@@ -848,7 +848,7 @@ class Wiz:
         if not WizUtil.can_clone_mobile(character, mob):
             context.finish()
             return self._command_payload("insufficient_level")
-        clone = MobileUtil.clone_mobile_instance(mob, CharacterApi._enums_map())
+        clone = MobileUtil.clone_mobile_instance(mob, CharacterApi.enums())
         if room is not None:
             room.add_mobile_to_room(clone)
         context.finish()

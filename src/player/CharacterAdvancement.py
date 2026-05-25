@@ -151,7 +151,7 @@ class CharacterAdvancement:
     @staticmethod
     def _attribute_bonus(table_name: str, stat_value: int, key: str, default: int = 0) -> int:
         try:
-            bonuses = CharacterApi._attribute_bonus_map()
+            bonuses = CharacterApi.attribute_bonus_map()
         except Exception:
             return default
         table = bonuses.get(str(table_name or "").lower(), {})

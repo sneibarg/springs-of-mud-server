@@ -72,7 +72,7 @@ class CharacterApi(GameApi):
 
     @classmethod
     def get_attribute_bonus(cls, attr_name: str, attr_level: str):
-        bonus_table = cls._attribute_bonus_map().get(attr_name, {})
+        bonus_table = cls.attribute_bonus_map().get(attr_name, {})
         if not bonus_table:
             return {}
 
@@ -226,7 +226,7 @@ class CharacterApi(GameApi):
     def target_equipment_lines(cls, target: Any, equip_slot_labels: list[tuple[str, str]]) -> list[str]:
         from util.ItemUtil import ItemUtil
 
-        item_flags = cls._enums_map().get("itemFlags")
+        item_flags = cls.enums().get("itemFlags")
         lines: list[str] = []
         equipped = getattr(target, "equipped", None)
 
@@ -335,14 +335,14 @@ class CharacterApi(GameApi):
 
     @classmethod
     def class_names(cls) -> list[str]:
-        return sorted(str(name or "") for name in cls._classes_map().keys() if str(name or "").strip())
+        return sorted(str(name or "") for name in cls.classes_map().keys() if str(name or "").strip())
 
     @classmethod
     def class_data(cls, class_name: str) -> dict:
         wanted = str(class_name or "").strip().lower()
         if not wanted:
             return {}
-        classes = cls._classes_map()
+        classes = cls.classes_map()
         if wanted in classes:
             return dict(classes.get(wanted) or {})
         for key, value in classes.items():
@@ -354,7 +354,7 @@ class CharacterApi(GameApi):
     @classmethod
     def title_for_level(cls, character: Character, level: int | None = None) -> str:
         try:
-            titles = cls._titles_map()
+            titles = cls.titles()
         except Exception:
             return str(getattr(character, "title", "") or "")
 
@@ -495,7 +495,7 @@ class CharacterApi(GameApi):
             context.finish()
             return {"to_char": "No mobile has that vnum.\r\n"}
 
-        mob = MobileUtil.create_mobile(proto, cls._enums_map(), cls)
+        mob = MobileUtil.create_mobile(proto, cls.enums(), cls)
         room = room_registry.get_or_none(id=context.character.room_id)
         if room is not None:
             room.add_mobile_to_room(mob)
@@ -703,7 +703,7 @@ class CharacterApi(GameApi):
                 return value
 
         race_name = str(getattr(character, "race", "") or "").strip().lower()
-        race_data = cls._pc_races_map().get(race_name, {})
+        race_data = cls.pc_races_map().get(race_name, {})
         max_stats = race_data.get("max_stats", [])
         if isinstance(max_stats, list) and 0 <= stat_index < len(max_stats):
             return GenericUtil.to_int(max_stats[stat_index], current_value)
