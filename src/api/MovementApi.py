@@ -25,6 +25,21 @@ class MovementState:
     move_cost: int = 0
 
 
+@dataclass(frozen=True)
+class DoorState:
+    argument: str = ""
+    room: Any = None
+    door: int = -1
+    exit_obj: Any = None
+    flags: int = 0
+    keyword: str = "door"
+    key: int = -1
+    has_key: bool = False
+    closed_flag: int = 0
+    locked_flag: int = 0
+    pickproof_flag: int = 0
+
+
 class MovementApi(GameApi):
     @staticmethod
     def move_state(subject, direction: str = "", room_registry=None) -> MovementState:
@@ -43,8 +58,8 @@ class MovementApi(GameApi):
         sector_types = CharacterApi.get_enum("sectorTypes")
 
         flags = GenericUtil.to_int(getattr(exit_obj, "exit_flags", 0), 0) if exit_obj is not None else 0
-        ex_closed = MovementUtil.get_exit_flag(exit_flags, "EX_CLOSED", "CLOSED")
-        ex_nopass = MovementUtil.get_exit_flag(exit_flags, "EX_NOPASS", "NOPASS")
+        ex_closed = MovementApi.flag_value(exit_flags, "EX_CLOSED", "CLOSED")
+        ex_nopass = MovementApi.flag_value(exit_flags, "EX_NOPASS", "NOPASS")
         pass_door = bool(
             character is not None
             and CharacterApi.is_affected_by_name(character, affected_bits, "AFF_PASS_DOOR")
@@ -92,6 +107,30 @@ class MovementApi(GameApi):
         )
 
     @staticmethod
+    def door_state(subject, room_registry=None, exit_flags=None) -> DoorState:
+        character = MovementApi._character(subject)
+        room = MovementApi._room(subject, room_registry=room_registry)
+        argument = MovementApi.argument_text(subject)
+        door = MovementUtil.find_door(room, argument)
+        exit_obj = MovementUtil.find_exit(room, door) if door >= 0 else None
+        flags = GenericUtil.to_int(getattr(exit_obj, "exit_flags", 0), 0) if exit_obj is not None else 0
+        exit_flags = exit_flags or CharacterApi.get_enum("exitFlags")
+        key = GenericUtil.to_int(getattr(exit_obj, "key", -1), -1) if exit_obj is not None else -1
+        return DoorState(
+            argument=argument,
+            room=room,
+            door=door,
+            exit_obj=exit_obj,
+            flags=flags,
+            keyword=(getattr(exit_obj, "keyword", "") or "door") if exit_obj is not None else "door",
+            key=key,
+            has_key=MovementApi.has_key(character, key),
+            closed_flag=MovementApi.flag_value(exit_flags, "EX_CLOSED", "CLOSED"),
+            locked_flag=MovementApi.flag_value(exit_flags, "EX_LOCKED", "LOCKED"),
+            pickproof_flag=MovementApi.flag_value(exit_flags, "EX_PICKPROOF", "PICKPROOF"),
+        )
+
+    @staticmethod
     def invalid_exit(view) -> bool:
         state = MovementApi.move_state(view)
         return state.exit_obj is None or state.to_room is None
@@ -119,6 +158,68 @@ class MovementApi(GameApi):
     @staticmethod
     def insufficient_movement(view) -> bool:
         return MovementApi.move_state(view).insufficient_movement
+
+    @staticmethod
+    def missing_argument(view) -> bool:
+        return not MovementApi.argument_text(view)
+
+    @staticmethod
+    def invalid_door(view) -> bool:
+        state = MovementApi.door_state(view)
+        return state.exit_obj is None
+
+    @staticmethod
+    def door_already_open(view) -> bool:
+        state = MovementApi.door_state(view)
+        return state.exit_obj is not None and state.closed_flag and not MovementApi.has_flag(state.flags, state.closed_flag)
+
+    @staticmethod
+    def door_locked(view) -> bool:
+        state = MovementApi.door_state(view)
+        return state.exit_obj is not None and state.locked_flag and MovementApi.has_flag(state.flags, state.locked_flag)
+
+    @staticmethod
+    def door_already_closed(view) -> bool:
+        state = MovementApi.door_state(view)
+        return state.exit_obj is not None and state.closed_flag and MovementApi.has_flag(state.flags, state.closed_flag)
+
+    @staticmethod
+    def door_not_closed(view) -> bool:
+        state = MovementApi.door_state(view)
+        return state.exit_obj is not None and state.closed_flag and not MovementApi.has_flag(state.flags, state.closed_flag)
+
+    @staticmethod
+    def door_cannot_lock(view) -> bool:
+        state = MovementApi.door_state(view)
+        return state.exit_obj is not None and state.key < 0
+
+    @staticmethod
+    def door_cannot_unlock(view) -> bool:
+        return MovementApi.door_cannot_lock(view)
+
+    @staticmethod
+    def door_missing_key(view) -> bool:
+        state = MovementApi.door_state(view)
+        return state.exit_obj is not None and state.key >= 0 and not state.has_key
+
+    @staticmethod
+    def door_already_locked(view) -> bool:
+        state = MovementApi.door_state(view)
+        return state.exit_obj is not None and state.locked_flag and MovementApi.has_flag(state.flags, state.locked_flag)
+
+    @staticmethod
+    def door_already_unlocked(view) -> bool:
+        state = MovementApi.door_state(view)
+        return state.exit_obj is not None and state.locked_flag and not MovementApi.has_flag(state.flags, state.locked_flag)
+
+    @staticmethod
+    def door_pickproof(view) -> bool:
+        state = MovementApi.door_state(view)
+        return state.exit_obj is not None and state.pickproof_flag and MovementApi.has_flag(state.flags, state.pickproof_flag)
+
+    @staticmethod
+    def door_tokens(view) -> dict[str, Any]:
+        return {"t": MovementApi.door_state(view).keyword}
 
     @staticmethod
     def leave_message(character, direction: str) -> str | None:
@@ -149,6 +250,99 @@ class MovementApi(GameApi):
         if CharacterApi.is_affected_by_name(character, affected_bits, "AFF_SLOW"):
             move *= 2
         return max(1, move)
+
+    @staticmethod
+    def has_key(character, key: int) -> bool:
+        if character is None or key is None or GenericUtil.to_int(key, -1) < 0:
+            return False
+        if hasattr(character, "has_key"):
+            return bool(character.has_key(key))
+        wanted = str(key)
+        for item in list(getattr(character, "loot", []) or []):
+            if str(getattr(item, "vnum", "")) == wanted:
+                return True
+        return False
+
+    @staticmethod
+    def flag_value(enum_obj, *names: str) -> int:
+        if enum_obj is None:
+            return 0
+        for name in names:
+            member = getattr(enum_obj, name, None)
+            if member is not None:
+                return int(member.value)
+        return 0
+
+    @staticmethod
+    def has_flag(value: int, mask: int) -> bool:
+        return bool(mask and (GenericUtil.to_int(value, 0) & mask) != 0)
+
+    @staticmethod
+    def set_flag(value: int, mask: int) -> int:
+        return GenericUtil.to_int(value, 0) | GenericUtil.to_int(mask, 0)
+
+    @staticmethod
+    def clear_flag(value: int, mask: int) -> int:
+        return GenericUtil.to_int(value, 0) & ~GenericUtil.to_int(mask, 0)
+
+    @staticmethod
+    def update_exit_flags(room_registry, room, exit_obj, *, set_mask: int = 0, clear_mask: int = 0):
+        if exit_obj is None:
+            return
+
+        flags = GenericUtil.to_int(getattr(exit_obj, "exit_flags", 0), 0)
+        if clear_mask:
+            flags = MovementApi.clear_flag(flags, clear_mask)
+        if set_mask:
+            flags = MovementApi.set_flag(flags, set_mask)
+        exit_obj.exit_flags = flags
+        MovementApi._mirror_exit_flags(room_registry, room, exit_obj, set_mask=set_mask, clear_mask=clear_mask)
+
+    @staticmethod
+    def open_exit(room_registry, room, exit_obj, exit_flags):
+        MovementApi.update_exit_flags(
+            room_registry,
+            room,
+            exit_obj,
+            clear_mask=MovementApi.flag_value(exit_flags, "EX_CLOSED", "CLOSED"),
+        )
+
+    @staticmethod
+    def close_exit(room_registry, room, exit_obj, exit_flags):
+        MovementApi.update_exit_flags(
+            room_registry,
+            room,
+            exit_obj,
+            set_mask=MovementApi.flag_value(exit_flags, "EX_CLOSED", "CLOSED"),
+        )
+
+    @staticmethod
+    def lock_exit(room_registry, room, exit_obj, exit_flags):
+        MovementApi.update_exit_flags(
+            room_registry,
+            room,
+            exit_obj,
+            set_mask=MovementApi.flag_value(exit_flags, "EX_LOCKED", "LOCKED"),
+        )
+
+    @staticmethod
+    def unlock_exit(room_registry, room, exit_obj, exit_flags):
+        MovementApi.update_exit_flags(
+            room_registry,
+            room,
+            exit_obj,
+            clear_mask=MovementApi.flag_value(exit_flags, "EX_LOCKED", "LOCKED"),
+        )
+
+    @staticmethod
+    def argument_text(subject) -> str:
+        context = MovementApi._context(subject)
+        text = getattr(context, "result", "")
+        argument = text.strip().lower() if isinstance(text, str) else ""
+        parameters = list(getattr(context, "parameters", []) or [])
+        if not argument and parameters:
+            argument = str(parameters[0] or "").strip().lower()
+        return argument
 
     @staticmethod
     def _character(subject):
@@ -225,17 +419,19 @@ class MovementApi(GameApi):
         return None
 
     @staticmethod
-    def mirror_exit_flag(room_registry, room, ex, rev_dir_map, find_exit_fn, set_mask: int = 0, clear_mask: int = 0):
+    def _mirror_exit_flags(room_registry, room, ex, *, set_mask: int = 0, clear_mask: int = 0):
+        if room_registry is None or room is None or ex is None:
+            return
         to_room = room_registry.get_or_none(id=getattr(ex, "to_room_id", None))
         if to_room is None:
             return
-        rev = rev_dir_map[int(getattr(ex, "direction", 0))]
-        rev_exit = find_exit_fn(to_room, rev)
+        rev = MovementUtil.REV_DIR[int(getattr(ex, "direction", 0))]
+        rev_exit = MovementUtil.find_exit(to_room, rev)
         if rev_exit is None or getattr(rev_exit, "to_room_id", None) != room.id:
             return
         flags = GenericUtil.to_int(getattr(rev_exit, "exit_flags", 0), 0)
         if clear_mask:
-            flags &= ~clear_mask
+            flags = MovementApi.clear_flag(flags, clear_mask)
         if set_mask:
-            flags |= set_mask
+            flags = MovementApi.set_flag(flags, set_mask)
         rev_exit.exit_flags = flags

@@ -272,7 +272,8 @@
         "insufficientMovement": "You are too exhausted."
       },
       "toRoom": {
-        "default": "%c leaves west."
+        "default": "%c leaves west.",
+        "arrived": "%c has arrived."
       },
       "toVictim": {}
     },
@@ -365,7 +366,8 @@
         "insufficientMovement": "You are too exhausted."
       },
       "toRoom": {
-        "default": "%c leaves east."
+        "default": "%c leaves east.",
+        "arrived": "%c has arrived."
       },
       "toVictim": {}
     },
@@ -458,7 +460,8 @@
         "insufficientMovement": "You are too exhausted."
       },
       "toRoom": {
-        "default": "%c leaves north."
+        "default": "%c leaves north.",
+        "arrived": "%c has arrived."
       },
       "toVictim": {}
     },
@@ -551,7 +554,8 @@
         "insufficientMovement": "You are too exhausted."
       },
       "toRoom": {
-        "default": "%c leaves south."
+        "default": "%c leaves south.",
+        "arrived": "%c has arrived."
       },
       "toVictim": {}
     },
@@ -727,7 +731,8 @@
         "insufficientMovement": "You are too exhausted."
       },
       "toRoom": {
-        "default": "%c leaves up."
+        "default": "%c leaves up.",
+        "arrived": "%c has arrived."
       },
       "toVictim": {}
     },
@@ -820,7 +825,8 @@
         "insufficientMovement": "You are too exhausted."
       },
       "toRoom": {
-        "default": "%c leaves down."
+        "default": "%c leaves down.",
+        "arrived": "%c has arrived."
       },
       "toVictim": {}
     },
@@ -1819,6 +1825,7 @@
         "maybeShouldFinishFighting": "Maybe you should finish fighting first?",
         "donTSee": "You don't see that here.",
         "canTSeemFind": "You can't seem to find a place to stand.",
+        "canTDoThatRightNow": "You can't do that right now.",
         "canTWakeUp": "You can't wake up!",
         "wakeStandUp": "You wake and stand up.",
         "standUp": "You stand up.",
@@ -1860,6 +1867,7 @@
     "payload": {
       "toChar": {
         "noArgument": "Unlock what?",
+        "missingDoor": "I see no door here.",
         "canTDo": "You can't do that.",
         "itSNotClosed": "It's not closed.",
         "itCanTUnlocked": "It can't be unlocked.",
@@ -1881,10 +1889,37 @@
       "toRoom": {
         "unlocks": "$n unlocks $p.",
         "unlocks2": "$n unlocks $p.",
-        "unlocks3": "$n unlocks the $d."
+        "unlocks3": "$n unlocks the $d.",
+        "unlocksExit": "%c unlocks the %t."
       },
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: MovementApi.missing_argument(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: MovementApi.invalid_door(v)",
+        "messageKey": "missingDoor"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_not_closed(v)",
+        "messageKey": "itSNotClosed"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_cannot_unlock(v)",
+        "messageKey": "itCanTUnlocked"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_missing_key(v)",
+        "messageKey": "missingKey"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_already_unlocked(v)",
+        "messageKey": "itSAlreadyUnlocked"
+      }
+    ]
   },
   {
     "_id": {
@@ -4531,6 +4566,7 @@
     "payload": {
       "toChar": {
         "noArgument": "Lock what?",
+        "missingDoor": "I see no door here.",
         "invalidTarget": "You can't do that.",
         "openTarget": "It's not closed.",
         "noLock": "It can't be locked.",
@@ -4545,7 +4581,33 @@
         "exitLocked": "%c locks the %t."
       },
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: MovementApi.missing_argument(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: MovementApi.invalid_door(v)",
+        "messageKey": "missingDoor"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_not_closed(v)",
+        "messageKey": "openTarget"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_cannot_lock(v)",
+        "messageKey": "noLock"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_missing_key(v)",
+        "messageKey": "noKey"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_already_locked(v)",
+        "messageKey": "locked"
+      }
+    ]
   },
   {
     "_id": {
@@ -4565,6 +4627,7 @@
     "payload": {
       "toChar": {
         "noArgument": "Open what?",
+        "missingDoor": "I see no door here.",
         "invalidTarget": "You can't do that.",
         "open": "It's already open.",
         "locked": "It's locked.",
@@ -4576,10 +4639,28 @@
       "toRoom": {
         "openPortal": "%c opens %t.",
         "openContainer": "%c opens %t.",
-        "openDoor": "$n opens the $d."
+        "openDoor": "%c opens the %t."
       },
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: MovementApi.missing_argument(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: MovementApi.invalid_door(v)",
+        "messageKey": "missingDoor"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_already_open(v)",
+        "messageKey": "open"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_locked(v)",
+        "messageKey": "locked"
+      }
+    ]
   },
   {
     "_id": {
@@ -4600,6 +4681,7 @@
     "payload": {
       "toChar": {
         "noArgument": "Close what?",
+        "missingDoor": "I see no door here.",
         "invalidTarget": "You can't do that.",
         "closed": "It's already closed.",
         "notContainer": "That's not a container.",
@@ -4614,7 +4696,21 @@
         "closeDoor": "%c closes the %t."
       },
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: MovementApi.missing_argument(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: MovementApi.invalid_door(v)",
+        "messageKey": "missingDoor"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_already_closed(v)",
+        "messageKey": "closed"
+      }
+    ]
   },
   {
     "_id": {
@@ -4634,6 +4730,7 @@
     "payload": {
       "toChar": {
         "noArgument": "Pick what?",
+        "missingDoor": "I see no door here.",
         "failed": "You failed.",
         "canTDo": "You can't do that.",
         "open": "It's not closed.",
@@ -4649,7 +4746,29 @@
         "doorPicked": "%c picks the %t"
       },
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: MovementApi.missing_argument(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: MovementApi.invalid_door(v)",
+        "messageKey": "missingDoor"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_not_closed(v)",
+        "messageKey": "open"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_already_unlocked(v)",
+        "messageKey": "notLocked"
+      },
+      {
+        "predicate": "lambda v: MovementApi.door_pickproof(v)",
+        "messageKey": "failed"
+      }
+    ]
   },
   {
     "_id": {
@@ -6362,10 +6481,12 @@
         "noTrainer": "You can't do that here.",
         "insufficientSessions": "You don't have enough training sessions.",
         "trainingSessions": "You have %d training sessions.",
+        "trainOptions": "You can train: %t.",
         "nothingLeftTrain": "You have nothing left to train, you %s!",
         "durabilityIncreases": "Your durability increases!",
         "powerIncreases": "Your power increases!",
         "alreadyAtMaximum": "Your %t is already at maximum.",
+        "invalidState": "You can't do that.",
         "increases": "Your %t increases!"
       },
       "toRoom": {
@@ -6419,10 +6540,13 @@
         "isAsleep": "You are asleep yourself!",
         "targetMissing": "They aren't here.",
         "targetAwake": "%t is already awake.",
-        "affectSleep": "You can't wake %t!"
+        "affectSleep": "You can't wake %t!",
+        "wakeTarget": "You wake %t."
       },
       "toRoom": {},
-      "toVictim": {}
+      "toVictim": {
+        "wakeTarget": "%c wakes you."
+      }
     }
   },
   {

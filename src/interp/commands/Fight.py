@@ -6,6 +6,7 @@ from injector import inject
 
 from api.FightApi import FightApi
 from api.GameApi import GameApi
+from api.MovementApi import MovementApi
 from fight.FightHandler import FightHandler
 from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
@@ -662,7 +663,7 @@ class Fight:
         room_flags = CharacterApi.get_enum("roomFlags")
         if ex is None or getattr(ex, "to_room_vnum", None) is None:
             return None
-        closed = MovementUtil.get_exit_flag(exit_flags, "EX_CLOSED", "CLOSED")
+        closed = MovementApi.flag_value(exit_flags, "EX_CLOSED", "CLOSED")
         flags = GenericUtil.to_int(getattr(ex, "exit_flags", 0), 0)
         if closed and (flags & closed) != 0:
             return None
