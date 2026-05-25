@@ -10,6 +10,7 @@ from interp.Context import Context
 from api.InterpApi import InterpApi
 from api.MovementApi import MovementApi
 from fight.FightHandler import FightHandler
+from item.Item import Item
 from util.MobileUtil import MobileUtil
 from player.Character import Character
 from api.CharacterApi import CharacterApi
@@ -110,9 +111,21 @@ class Movement:
         )
 
     def do_close(self, character: Character, context: Context) -> dict:
+        room = self._room(character, context)
+        context.target_item = MovementApi.target_item(context)
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
             return blocked
+
+        target_item = getattr(context, "target_item", None)
+        if target_item is not None:
+            MovementApi.close_container(target_item)
+            context.finish()
+            return self._command_payload(
+                "close_container",
+                targets=self._room_targets(room, character),
+                tokens=self._actor_item_tokens(character, Item.short(target_item)),
+            )
 
         state = MovementApi.door_state(context, room_registry=self.room_registry, exit_flags=self.exit_flags)
         room = state.room
@@ -126,9 +139,21 @@ class Movement:
         )
 
     def do_lock(self, character: Character, context: Context) -> dict:
+        room = self._room(character, context)
+        context.target_item = MovementApi.target_item(context)
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
             return blocked
+
+        target_item = getattr(context, "target_item", None)
+        if target_item is not None:
+            MovementApi.lock_container(target_item)
+            context.finish()
+            return self._command_payload(
+                "container_locked",
+                targets=self._room_targets(room, character),
+                tokens=self._actor_item_tokens(character, Item.short(target_item)),
+            )
 
         state = MovementApi.door_state(context, room_registry=self.room_registry, exit_flags=self.exit_flags)
         room = state.room
@@ -512,6 +537,10 @@ class Movement:
     @staticmethod
     def _actor_door_tokens(character: Character, keyword: str) -> dict:
         return {"c": str(getattr(character, "name", "") or ""), "t": str(keyword or "door")}
+
+    @staticmethod
+    def _actor_item_tokens(character: Character, short_name: str) -> dict:
+        return {"c": str(getattr(character, "name", "") or ""), "t": str(short_name or "it")}
 
     @staticmethod
     def _command_payload(message_key: str, *, victim=None, targets=None, channel: str = "", tokens: dict | None = None, **extra) -> dict:

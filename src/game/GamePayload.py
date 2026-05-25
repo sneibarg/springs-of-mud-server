@@ -15,6 +15,7 @@ class _SafeTokens(dict):
 class GamePayload:
     to_char: dict[str, str] = field(default_factory=dict)
     to_room: dict[str, str] = field(default_factory=dict)
+    to_destination: dict[str, str] = field(default_factory=dict)
     to_victim: dict[str, str] = field(default_factory=dict)
     to_area: dict[str, str] = field(default_factory=dict)
     to_world: dict[str, str] = field(default_factory=dict)
@@ -30,6 +31,7 @@ class GamePayload:
         return cls(
             to_char=cls._normalize_message_keys(normalized.get("to_char", {})),
             to_room=cls._normalize_message_keys(normalized.get("to_room", {})),
+            to_destination=cls._normalize_message_keys(normalized.get("to_destination", {})),
             to_victim=cls._normalize_message_keys(normalized.get("to_victim", normalized.get("to_victim", {}))),
             to_area=cls._normalize_message_keys(normalized.get("to_area", {})),
             to_world=cls._normalize_message_keys(normalized.get("to_world", {})),

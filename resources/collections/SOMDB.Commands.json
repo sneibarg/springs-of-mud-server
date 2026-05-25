@@ -4588,23 +4588,43 @@
         "messageKey": "noArgument"
       },
       {
-        "predicate": "lambda v: MovementApi.invalid_door(v)",
-        "messageKey": "missingDoor"
+        "predicate": "lambda v: MovementApi.has_target_item(v) and not MovementApi.is_container_target(v)",
+        "messageKey": "notContainer"
       },
       {
-        "predicate": "lambda v: MovementApi.door_not_closed(v)",
+        "predicate": "lambda v: MovementApi.has_target_item(v) and MovementApi.container_not_closed(v)",
         "messageKey": "openTarget"
       },
       {
-        "predicate": "lambda v: MovementApi.door_cannot_lock(v)",
+        "predicate": "lambda v: MovementApi.has_target_item(v) and MovementApi.container_cannot_lock(v)",
         "messageKey": "noLock"
       },
       {
-        "predicate": "lambda v: MovementApi.door_missing_key(v)",
+        "predicate": "lambda v: MovementApi.has_target_item(v) and MovementApi.container_missing_key(v)",
         "messageKey": "noKey"
       },
       {
-        "predicate": "lambda v: MovementApi.door_already_locked(v)",
+        "predicate": "lambda v: MovementApi.has_target_item(v) and MovementApi.container_already_locked(v)",
+        "messageKey": "locked"
+      },
+      {
+        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.invalid_door(v)",
+        "messageKey": "missingDoor"
+      },
+      {
+        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.door_not_closed(v)",
+        "messageKey": "openTarget"
+      },
+      {
+        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.door_cannot_lock(v)",
+        "messageKey": "noLock"
+      },
+      {
+        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.door_missing_key(v)",
+        "messageKey": "noKey"
+      },
+      {
+        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.door_already_locked(v)",
         "messageKey": "locked"
       }
     ]
@@ -4687,13 +4707,15 @@
         "notContainer": "That's not a container.",
         "closeDoor": "Ok.",
         "closePortal": "You close %t.",
-        "closeContainer": "You close %t.",
-        "closes": "The $d closes."
+        "closeContainer": "You close %t."
       },
       "toRoom": {
         "closeContainer": "%c closes %t.",
         "closePortal": "%c closes %t.",
         "closeDoor": "%c closes the %t."
+      },
+      "toDestination": {
+          "closes": "The %t closes."
       },
       "toVictim": {}
     },
@@ -4703,11 +4725,31 @@
         "messageKey": "noArgument"
       },
       {
-        "predicate": "lambda v: MovementApi.invalid_door(v)",
+        "predicate": "lambda v: MovementApi.has_target_item(v) and not MovementApi.is_container_target(v)",
+        "messageKey": "notContainer"
+      },
+      {
+        "predicate": "lambda v: MovementApi.has_target_item(v) and MovementApi.container_not_closeable(v)",
+        "messageKey": "invalidTarget"
+      },
+      {
+        "predicate": "lambda v: MovementApi.has_target_item(v) and MovementApi.container_already_closed(v)",
+        "messageKey": "closed"
+      },
+      {
+        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.is_portal(v) and MovementApi.invalid_portal(v)",
+        "messageKey": "invalidTarget"
+      },
+      {
+        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.is_portal(v) and MovementApi.portal_already_closed(v)",
+        "messageKey": "closed"
+      },
+      {
+        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.invalid_door(v)",
         "messageKey": "missingDoor"
       },
       {
-        "predicate": "lambda v: MovementApi.door_already_closed(v)",
+        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.door_already_closed(v)",
         "messageKey": "closed"
       }
     ]

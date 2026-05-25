@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from api.CharacterApi import CharacterApi
 from api.GameApi import GameApi
+from item.Item import Item
 from util.GenericUtil import GenericUtil
 from util.MovementUtil import MovementUtil
+
+if TYPE_CHECKING:
+    from area.Room import Room
 
 
 @dataclass(frozen=True)
@@ -38,6 +42,19 @@ class DoorState:
     closed_flag: int = 0
     locked_flag: int = 0
     pickproof_flag: int = 0
+
+
+@dataclass(frozen=True)
+class ContainerState:
+    argument: str = ""
+    item: Any = None
+    flags: int = 0
+    short: str = "container"
+    key: int = -1
+    has_key: bool = False
+    closeable_flag: int = 0
+    closed_flag: int = 0
+    locked_flag: int = 0
 
 
 class MovementApi(GameApi):
@@ -109,9 +126,9 @@ class MovementApi(GameApi):
     @staticmethod
     def door_state(subject, room_registry=None, exit_flags=None) -> DoorState:
         character = MovementApi._character(subject)
-        room = MovementApi._room(subject, room_registry=room_registry)
+        room: Room | None = MovementApi._room(subject, room_registry=room_registry)
         argument = MovementApi.argument_text(subject)
-        door = MovementUtil.find_door(room, argument)
+        door = -1 if room is None else room.find_door(argument)
         exit_obj = MovementUtil.find_exit(room, door) if door >= 0 else None
         flags = GenericUtil.to_int(getattr(exit_obj, "exit_flags", 0), 0) if exit_obj is not None else 0
         exit_flags = exit_flags or CharacterApi.get_enum("exitFlags")
@@ -128,6 +145,25 @@ class MovementApi(GameApi):
             closed_flag=MovementApi.flag_value(exit_flags, "EX_CLOSED", "CLOSED"),
             locked_flag=MovementApi.flag_value(exit_flags, "EX_LOCKED", "LOCKED"),
             pickproof_flag=MovementApi.flag_value(exit_flags, "EX_PICKPROOF", "PICKPROOF"),
+        )
+
+    @staticmethod
+    def container_state(subject) -> ContainerState:
+        character = MovementApi._character(subject)
+        item = MovementApi.target_item(subject)
+        flags = GenericUtil.to_int(getattr(item, "value1", 0), 0) if item is not None else 0
+        key = GenericUtil.to_int(getattr(item, "value2", -1), -1) if item is not None else -1
+        container_state = CharacterApi.get_enum("containerState")
+        return ContainerState(
+            argument=MovementApi.argument_text(subject),
+            item=item,
+            flags=flags,
+            short=Item.short(item) if item is not None else "container",
+            key=key,
+            has_key=MovementApi.has_key(character, key),
+            closeable_flag=MovementApi.flag_value(container_state, "CONT_CLOSEABLE"),
+            closed_flag=MovementApi.flag_value(container_state, "CONT_CLOSED"),
+            locked_flag=MovementApi.flag_value(container_state, "CONT_LOCKED"),
         )
 
     @staticmethod
@@ -169,6 +205,49 @@ class MovementApi(GameApi):
         return state.exit_obj is None
 
     @staticmethod
+    def has_target_item(view) -> bool:
+        return MovementApi.target_item(view) is not None
+
+    @staticmethod
+    def is_container_target(view) -> bool:
+        item = MovementApi.target_item(view)
+        return item is not None and Item.is_container(item)
+
+    @staticmethod
+    def container_not_closeable(view) -> bool:
+        state = MovementApi.container_state(view)
+        return state.item is not None and state.closeable_flag != 0 and not MovementApi.has_flag(state.flags, state.closeable_flag)
+
+    @staticmethod
+    def container_already_closed(view) -> bool:
+        state = MovementApi.container_state(view)
+        return state.item is not None and state.closed_flag != 0 and MovementApi.has_flag(state.flags, state.closed_flag)
+
+    @staticmethod
+    def container_not_closed(view) -> bool:
+        state = MovementApi.container_state(view)
+        return state.item is not None and state.closed_flag != 0 and not MovementApi.has_flag(state.flags, state.closed_flag)
+
+    @staticmethod
+    def container_cannot_lock(view) -> bool:
+        state = MovementApi.container_state(view)
+        return state.item is not None and state.key < 0
+
+    @staticmethod
+    def container_missing_key(view) -> bool:
+        state = MovementApi.container_state(view)
+        return state.item is not None and state.key >= 0 and not state.has_key
+
+    @staticmethod
+    def container_already_locked(view) -> bool:
+        state = MovementApi.container_state(view)
+        return state.item is not None and state.locked_flag != 0 and MovementApi.has_flag(state.flags, state.locked_flag)
+
+    @staticmethod
+    def container_tokens(view) -> dict[str, Any]:
+        return {"t": MovementApi.container_state(view).short}
+
+    @staticmethod
     def door_already_open(view) -> bool:
         state = MovementApi.door_state(view)
         return state.exit_obj is not None and state.closed_flag and not MovementApi.has_flag(state.flags, state.closed_flag)
@@ -187,6 +266,15 @@ class MovementApi(GameApi):
     def door_not_closed(view) -> bool:
         state = MovementApi.door_state(view)
         return state.exit_obj is not None and state.closed_flag and not MovementApi.has_flag(state.flags, state.closed_flag)
+
+    # TO-DO with portals
+    @staticmethod
+    def invalid_portal(view):
+        pass
+
+    @staticmethod
+    def is_portal(view):
+        pass
 
     @staticmethod
     def door_cannot_lock(view) -> bool:
@@ -317,6 +405,14 @@ class MovementApi(GameApi):
         )
 
     @staticmethod
+    def close_container(item):
+        if item is None:
+            return
+        container_state = CharacterApi.get_enum("containerState")
+        flags = GenericUtil.to_int(getattr(item, "value1", 0), 0)
+        item.value1 = str(MovementApi.set_flag(flags, MovementApi.flag_value(container_state, "CONT_CLOSED")))
+
+    @staticmethod
     def lock_exit(room_registry, room, exit_obj, exit_flags):
         MovementApi.update_exit_flags(
             room_registry,
@@ -324,6 +420,14 @@ class MovementApi(GameApi):
             exit_obj,
             set_mask=MovementApi.flag_value(exit_flags, "EX_LOCKED", "LOCKED"),
         )
+
+    @staticmethod
+    def lock_container(item):
+        if item is None:
+            return
+        container_state = CharacterApi.get_enum("containerState")
+        flags = GenericUtil.to_int(getattr(item, "value1", 0), 0)
+        item.value1 = str(MovementApi.set_flag(flags, MovementApi.flag_value(container_state, "CONT_LOCKED")))
 
     @staticmethod
     def unlock_exit(room_registry, room, exit_obj, exit_flags):
@@ -345,6 +449,26 @@ class MovementApi(GameApi):
         return argument
 
     @staticmethod
+    def target_item(subject):
+        context = MovementApi._context(subject)
+        item = getattr(context, "target_item", None)
+        if item is not None:
+            return item
+
+        room = MovementApi._room(subject)
+        character = MovementApi._character(subject)
+        argument = MovementApi.argument_text(subject)
+        if not argument:
+            return None
+
+        inventory_item = None if character is None else character.find_inventory_item(argument)
+        room_item = None if room is None else room.find_room_item(argument)
+        item = inventory_item or room_item
+        if context is not None:
+            context.target_item = item
+        return item
+
+    @staticmethod
     def _character(subject):
         context = MovementApi._context(subject)
         if context is None:
@@ -364,7 +488,7 @@ class MovementApi(GameApi):
         return str(getattr(command, "name", "") or "").strip().lower()
 
     @staticmethod
-    def _room(subject, room_registry=None):
+    def _room(subject, room_registry=None) -> Room | None:
         context = MovementApi._context(subject)
         room = getattr(context, "room", None)
         if room is not None:
