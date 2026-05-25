@@ -128,6 +128,74 @@ class TestItemUtilNormalization(unittest.TestCase):
         self.assertEqual([0, 1, 10, 0, 16], item.liquid_affect_data)
         self.assertEqual("clear", item.liquid_color)
 
+    def test_staff_spell_uses_spell_registry_before_skill_registry(self):
+        spell = SimpleNamespace(name="energy drain", handler_id="spell.energy_drain")
+        spell_registry = SimpleNamespace(get=lambda **kwargs: spell if kwargs.get("name") == "energy drain" else (_ for _ in ()).throw(KeyError(kwargs.get("name"))))
+        skill_registry = SimpleNamespace(get=lambda **kwargs: (_ for _ in ()).throw(KeyError(kwargs.get("name"))))
+        item_data = {
+            "id": "item-3",
+            "areaId": "area-1",
+            "vnum": "2250",
+            "name": "staff black",
+            "shortDescription": "a black staff",
+            "longDescription": "A black staff lies here.",
+            "material": "wood",
+            "itemType": "staff",
+            "extraFlags": "0",
+            "wearFlags": "0",
+            "value0": "30",
+            "value1": "3",
+            "value2": "3",
+            "value3": "energy drain",
+            "value4": "0",
+            "level": 30,
+            "weight": 5,
+            "cost": 0,
+            "condition": "P",
+            "affectData": [],
+            "extraDescr": [],
+        }
+
+        item = ItemUtil.normalize_item_data(item_data, self.liquids, (spell_registry, skill_registry))
+
+        self.assertIs(spell, item.value3)
+
+    def test_scroll_spell_resolution_tolerates_trailing_period(self):
+        armor = SimpleNamespace(name="armor", handler_id="spell.armor")
+        bless = SimpleNamespace(name="bless", handler_id="spell.bless")
+        shield = SimpleNamespace(name="shield", handler_id="spell.shield")
+        spells = {"armor": armor, "bless": bless, "shield": shield}
+        spell_registry = SimpleNamespace(get=lambda **kwargs: spells[kwargs.get("name")])
+        item_data = {
+            "id": "item-4",
+            "areaId": "area-1",
+            "vnum": "7701",
+            "name": "scroll violet",
+            "shortDescription": "a violet scroll",
+            "longDescription": "A violet scroll lies here.",
+            "material": "paper",
+            "itemType": "scroll",
+            "extraFlags": "0",
+            "wearFlags": "0",
+            "value0": "15",
+            "value1": "armor.",
+            "value2": "bless",
+            "value3": "shield",
+            "value4": "",
+            "level": 15,
+            "weight": 1,
+            "cost": 0,
+            "condition": "P",
+            "affectData": [],
+            "extraDescr": [],
+        }
+
+        item = ItemUtil.normalize_item_data(item_data, self.liquids, (spell_registry,))
+
+        self.assertIs(armor, item.value1)
+        self.assertIs(bless, item.value2)
+        self.assertIs(shield, item.value3)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -194,8 +194,8 @@ class ItemUtil:
     def update_staff(skill_registry, item_data):
         try:
             skill_name = item_data['value3']
-            skill = skill_registry.get(name=skill_name)
-            item_data['value3'] = str(skill)
+            skill = ItemUtil.resolve_item_skill(skill_registry, skill_name)
+            item_data['value3'] = skill
         except Exception as e:
             logger.warning(f"Failed to update staff skill: {e}; vnum={item_data['vnum']}")
 
@@ -205,10 +205,35 @@ class ItemUtil:
             try:
                 skill_name = item_data[skill_key]
                 if skill_name != "":
-                    skill = skill_registry.get(name=skill_name)
-                    item_data[skill_key] = str(skill)
+                    skill = ItemUtil.resolve_item_skill(skill_registry, skill_name)
+                    item_data[skill_key] = skill
             except Exception as e:
                 logger.warning(f"Failed to update scroll skill: {e}; vnum={item_data['vnum']}")
+
+    @staticmethod
+    def resolve_item_skill(skill_registry, skill_name):
+        candidates: list[str] = []
+        primary = str(skill_name or "").strip()
+        if primary:
+            candidates.append(primary)
+            trimmed = primary.rstrip(". ").strip()
+            if trimmed and trimmed not in candidates:
+                candidates.append(trimmed)
+
+        registries = skill_registry if isinstance(skill_registry, (list, tuple)) else [skill_registry]
+        last_error = None
+        for candidate in candidates:
+            for registry in registries:
+                if registry is None or not hasattr(registry, "get"):
+                    continue
+                try:
+                    return registry.get(name=candidate)
+                except Exception as exc:
+                    last_error = exc
+
+        if last_error is not None:
+            raise last_error
+        raise LookupError(f"No item skill registered with name={primary}")
 
     # even if it's slower, it still loads all in the same second
     @staticmethod

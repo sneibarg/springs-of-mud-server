@@ -143,11 +143,9 @@ class Bootstrapper:
         Bootstrapper._bind_singleton_classes(injector, [
             SkillService, SpellService, PlayerService,
             CharacterService, HelpService, InterpService,
-            AreaService, RoomService, MobileService,
+            AreaService, RoomService, MobileService, ItemService,
             AuthenticationService, SocialService, NoteService, HandlerService
         ])
-
-        injector.binder.bind(ItemService, to=ItemService(service_config, injector.get(ItemRegistry), injector.get(SkillRegistry), injector.get(GameService).game_data), scope=singleton)
 
     @staticmethod
     def _bind_game_data(injector: Injector):
