@@ -518,7 +518,7 @@ class PlayerHandler:
         await self._emit_standard_payload(character, payload)
 
     async def do_communications_command(self, character: Character, context: Context):
-        payload = self.communications_commands.execute(character, context)
+        payload = self.communications_commands.execute(context)
         if payload is None:
             return
         if isinstance(payload, str):

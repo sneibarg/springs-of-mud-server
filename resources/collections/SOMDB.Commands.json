@@ -1367,7 +1367,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -6319,7 +6319,7 @@
         "inventoryFull": "You have your hands full.",
         "encumbered": "You can't carry that much weight.",
         "targetSelf": "That's pointless.",
-        "noKillStealing": "Kill stealing is not permitted.\\n\\rYou'd better not -- you might get hit.",
+        "noKillStealing": "Kill stealing is not permitted.\n\rYou'd better not -- you might get hit.",
         "failed": "Oops.",
         "failedCoins": "You couldn't get any coins.",
         "thief": "*** You are now a THIEF!! ***",
@@ -6686,7 +6686,7 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "syntax": "Syntax:\\n\\r  flag mob  <name> <field> <flags>\\n\\r\\n\\r  flag char <name> <field> <flags>\\n\\r  mob  flags: act,aff,off,imm,res,vuln,form,part\\n\\r  char flags: plr,comm,aff,imm,res,vuln,\\n\\r  +: add flag, -: remove flag, = set equal to\\n\\r  otherwise flag toggles the flags listed.",
+        "syntax": "Syntax:\n\r  flag mob  <name> <field> <flags>\n\r\n\r  flag char <name> <field> <flags>\n\r  mob  flags: act,aff,off,imm,res,vuln,form,part\n\r  char flags: plr,comm,aff,imm,res,vuln,\n\r  +: add flag, -: remove flag, = set equal to\n\r  otherwise flag toggles the flags listed.",
         "noTarget": "What do you wish to set flags on?",
         "noFlag": "You need to specify a flag to set.",
         "noArgument": "Which flags do you wish to change?",
@@ -6739,7 +6739,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -6852,11 +6852,11 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "syntax": "Syntax:\\n\\r  set mob   <name> <field> <value>\\n\\r  set obj   <name> <field> <value>\\n\\r  set room  <room> <field> <value>\\n\\r  set skill <name> <spell or skill> <value>",
-        "skillSyntax": "Syntax:\\n\\r  set skill <name> <spell or skill> <value>\\n\\r  set skill <name> all <value>\\n\\r   (use the name of the skill, not the number)",
-        "mobileSyntax": "Syntax:\\n\\r  set char <name> <field> <value>\\n\\r  Field being one of:\\n\\r    str int wis dex con sex class level\\n\\r    race group gold silver hp mana move prac\\n\\r    align train thirst hunger drunk full",
-        "objectSyntax": "Syntax:\\n\\r  set obj <object> <field> <value>\\n\\r  Field being one of:\\n\\r    value0 value1 value2 value3 value4 (v1-v4)\\n\\r    extra wear level weight cost timer",
-        "roomSyntax": "Syntax:\\n\\r  set room <location> <field> <value>\\n\\r  Field being one of:\\n\\r    flags sector",
+        "syntax": "Syntax:\n\r  set mob   <name> <field> <value>\n\r  set obj   <name> <field> <value>\n\r  set room  <room> <field> <value>\n\r  set skill <name> <spell or skill> <value>",
+        "skillSyntax": "Syntax:\n\r  set skill <name> <spell or skill> <value>\n\r  set skill <name> all <value>\n\r   (use the name of the skill, not the number)",
+        "mobileSyntax": "Syntax:\n\r  set char <name> <field> <value>\n\r  Field being one of:\n\r    str int wis dex con sex class level\n\r    race group gold silver hp mana move prac\n\r    align train thirst hunger drunk full",
+        "objectSyntax": "Syntax:\n\r  set obj <object> <field> <value>\n\r  Field being one of:\n\r    value0 value1 value2 value3 value4 (v1-v4)\n\r    extra wear level weight cost timer",
+        "roomSyntax": "Syntax:\n\r  set room <location> <field> <value>\n\r  Field being one of:\n\r    flags sector",
         "targetMissing": "They aren't here.",
         "noNPCs": "Not on NPC's.",
         "npcInvalid": "Not on NPC's.",
@@ -6888,7 +6888,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "syntax"
       }
     ]
@@ -6992,7 +6992,7 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "syntax": "Syntax:\\n\\r  load mob <vnum>\\n\\r  load obj <vnum> <level>",
+        "syntax": "Syntax:\n\r  load mob <vnum>\n\r  load obj <vnum> <level>",
         "mobileSyntax": "Syntax: load mob <vnum>.",
         "objectSyntax": "Syntax: load obj <vnum> <level>.",
         "oloadSyntax": "Syntax: oload <vnum> <level>.",
@@ -7074,7 +7074,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -7122,7 +7122,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -7171,7 +7171,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -7223,7 +7223,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -7358,7 +7358,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: WizApi.argument(v).strip().lower() not in (\"\", \"room\", \"all\") and WizApi.world_target(v) is None",
+        "predicate": "lambda v: InterpUtil.argument_text(v).strip().lower() not in (\"\", \"room\", \"all\") and WizApi.world_target(v) is None",
         "messageKey": "targetMissing"
       }
     ]
@@ -7667,15 +7667,15 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
-        "predicate": "lambda v: WizApi.argument(v).strip().lower() != \"all\" and WizApi.world_target(v) is None",
+        "predicate": "lambda v: InterpUtil.argument_text(v).strip().lower() != \"all\" and WizApi.world_target(v) is None",
         "messageKey": "targetMissing"
       },
       {
-        "predicate": "lambda v: WizApi.argument(v).strip().lower() != \"all\" and CharacterApi.is_npc(WizApi.world_target(v))",
+        "predicate": "lambda v: InterpUtil.argument_text(v).strip().lower() != \"all\" and CharacterApi.is_npc(WizApi.world_target(v))",
         "messageKey": "noNPCs"
       }
     ]
@@ -7920,7 +7920,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -7966,7 +7966,7 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "syntax": "Syntax:\\n\\r  stat <name>\\n\\r  stat obj <name>\\n\\r  stat mob <name>\\n\\r  stat room <number>",
+        "syntax": "Syntax:\n\r  stat <name>\n\r  stat obj <name>\n\r  stat mob <name>\n\r  stat room <number>",
         "noSuchTarget": "Nothing by that name found anywhere.",
         "roomMissing": "No room."
       },
@@ -7991,7 +7991,7 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "syntax": "Syntax:\\n\\r  string char <name> <field> <string>\\n\\r    fields: name short long desc title spec\\n\\r  string obj  <name> <field> <string>\\n\\r    fields: name short long extended",
+        "syntax": "Syntax:\n\r  string char <name> <field> <string>\n\r    fields: name short long desc title spec\n\r  string obj  <name> <field> <string>\n\r    fields: name short long extended",
         "targetMissing": "They aren't here.",
         "pcInvalid": "Not on PCs.",
         "npcInvalid": "Not on NPCs.",
@@ -8033,7 +8033,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -8103,7 +8103,7 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "syntax": "Syntax:\\n\\r  vnum obj <name>\\n\\r  vnum <mob> <name>\\n\\r  vnum skill <skill or spell>"
+        "syntax": "Syntax:\n\r  vnum obj <name>\n\r  vnum <mob> <name>\n\r  vnum skill <skill or spell>"
       },
       "toRoom": {},
       "toVictim": {}
@@ -8166,7 +8166,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       }
     ]
@@ -8278,7 +8278,7 @@
         "messageKey": "noEmote"
       },
       {
-        "predicate": "lambda v: not WizApi.argument(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -8315,7 +8315,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not WizApi.argument(v) and not WizApi.current_prefix(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v) and not WizApi.current_prefix(v)",
         "messageKey": "noArgument"
       }
     ]

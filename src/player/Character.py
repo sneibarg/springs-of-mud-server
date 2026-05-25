@@ -60,6 +60,7 @@ class Character(AnimateEntity):
     @classmethod
     def from_json(cls, data):
         from util.GenericUtil import GenericUtil
+        from item.Effect import Effect
         from item.Item import Item
         payload = GenericUtil.camel_to_snake_case(data)
         prompt_format = payload.get('prompt_format')
@@ -80,6 +81,10 @@ class Character(AnimateEntity):
         payload['character_class'] = CharacterClass.from_json(character_class)
         payload['character_race'] = CharacterRace.from_json(character_race, character_class=payload['character_class'])
         payload.pop('race', None)
+        payload['effects'] = [
+            effect if isinstance(effect, Effect) else Effect.from_json(effect)
+            for effect in list(payload.get('effects', []) or [])
+        ]
 
         if isinstance(equipped_data, dict):
             normalized_equipped = GenericUtil.camel_to_snake_case(equipped_data)

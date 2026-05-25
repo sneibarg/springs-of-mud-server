@@ -3,6 +3,7 @@ from __future__ import annotations
 from injector import inject
 
 from api.CharacterApi import CharacterApi
+from api.GameApi import GameApi
 from api.InterpApi import InterpApi
 from api.ItemApi import ItemApi
 from api.WizSetApi import WizSetApi
@@ -12,7 +13,6 @@ from game.RegistryService import RegistryService
 from game.WizHandler import WizHandler
 from interp.Context import Context
 from item.ExtraDescriptionData import ExtraDescriptionData
-from mobile.Mobile import Mobile
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 from util.GenericUtil import GenericUtil
@@ -562,7 +562,7 @@ class Wiz:
             if proto is None:
                 context.finish()
                 return self._command_payload("no_such_mobile")
-            mob = MobileUtil.create_mobile(proto, CharacterApi.enums())
+            mob = MobileUtil.create_mobile(proto, CharacterApi.enum_provider())
             room.add_mobile_to_room(mob)
             context.finish()
             return {
@@ -849,7 +849,7 @@ class Wiz:
         if not WizUtil.can_clone_mobile(character, mob):
             context.finish()
             return self._command_payload("insufficient_level")
-        clone = MobileUtil.clone_mobile_instance(mob, CharacterApi.enums())
+        clone = MobileUtil.clone_mobile_instance(mob, CharacterApi.enum_provider())
         if room is not None:
             room.add_mobile_to_room(clone)
         context.finish()

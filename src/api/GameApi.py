@@ -100,6 +100,13 @@ class GameApi:
         return GameApi._enums
 
     @classmethod
+    def enum_provider(cls) -> EnumProvider:
+        cls._require_configured()
+        if GameApi._enum_provider is None:
+            raise RuntimeError("Enum provider is not configured.")
+        return GameApi._enum_provider
+
+    @classmethod
     def races_map(cls) -> dict:
         cls._require_configured()
         return GameApi._races

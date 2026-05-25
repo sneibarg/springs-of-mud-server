@@ -464,62 +464,6 @@ class CharacterApi(GameApi):
         return None
 
     @classmethod
-    def wiz_toggle_comm_on_target(cls, context: Any, argument: str, bit_name: str, label: str, comm_flags, find_character_world_fn):
-        victim = find_character_world_fn((argument or "").strip())
-        if victim is None:
-            context.finish()
-            return {"to_char": f"{label.lower()} whom?\r\n"}
-
-        bit = cls.enum_bit(comm_flags, bit_name)
-        if bit == 0:
-            context.finish()
-            return {"to_char": "This feature is unavailable.\r\n"}
-
-        raw = GenericUtil.to_int(getattr(victim.status_flags, "comm", 0), 0)
-        if cls.is_set(raw, bit):
-            cls.unset_comm_flags(victim, bit)
-            context.finish()
-            return {"to_char": f"{label} removed.\r\n", "victim": victim, "to_victim": "The gods have restored your privileges.\r\n"}
-
-        cls.set_comm_flags(victim, bit)
-        context.finish()
-        return {"to_char": f"{label} set.\r\n", "victim": victim, "to_victim": "The gods have revoked your privileges.\r\n"}
-
-    @classmethod
-    def wiz_do_mload(cls, context: Any, vnum_text: str, mobile_registry, room_registry):
-        from util.MobileUtil import MobileUtil
-
-        vnum = (vnum_text or "").strip()
-        proto = mobile_registry.get_or_none(vnum=vnum)
-        if proto is None:
-            context.finish()
-            return {"to_char": "No mobile has that vnum.\r\n"}
-
-        mob = MobileUtil.create_mobile(proto, cls.enums(), cls)
-        room = room_registry.get_or_none(id=context.character.room_id)
-        if room is not None:
-            room.add_mobile_to_room(mob)
-        context.finish()
-        return {"to_char": "Mobile loaded.\r\n"}
-
-    @staticmethod
-    def wiz_do_oload(context: Any, vnum_text: str, item_registry, room_registry):
-        from util.ItemUtil import ItemUtil
-
-        vnum = (vnum_text or "").strip()
-        proto = item_registry.get_or_none(vnum=vnum)
-        if proto is None:
-            context.finish()
-            return {"to_char": "No item has that vnum.\r\n"}
-
-        obj = ItemUtil.create_object(proto)
-        room = room_registry.get_or_none(id=context.character.room_id)
-        if room is not None:
-            room.add_item_to_room(obj)
-        context.finish()
-        return {"to_char": "Object loaded.\r\n"}
-
-    @classmethod
     def is_affected_by_name(cls, character: Character, affected_bits, bit_name: str) -> bool:
         if affected_bits is None or not hasattr(affected_bits, bit_name):
             return False
@@ -716,6 +660,16 @@ class CharacterApi(GameApi):
         return cls.is_set(char.status_flags.act, cls.PlayerActBits.PLR_AUTOASSIST.value)
 
     @classmethod
+    def is_same_group(cls, ach: Any, bch: Any) -> bool:
+        if ach is None or bch is None:
+            return False
+        if ach.leader is not None:
+            ach = ach.leader
+        if bch.leader is not None:
+            bch = bch.leader
+        return ach == bch
+
+    @classmethod
     def will_npc_assist(cls, rch: Mobile, ch: Character) -> bool | str | Any | Any:
         if not CharacterApi.is_npc(rch):
             return False
@@ -729,13 +683,3 @@ class CharacterApi(GameApi):
                  CharacterApi.same_alignment(rch, ch)) or
                 (rch.vnum == ch.vnum and CharacterApi.is_set(off, cls.OffenseTypes.ASSIST_VNUM.value))
         )
-
-    @classmethod
-    def is_same_group(cls, ach: Any, bch: Any) -> bool:
-        if ach is None or bch is None:
-            return False
-        if ach.leader is not None:
-            ach = ach.leader
-        if bch.leader is not None:
-            bch = bch.leader
-        return ach == bch

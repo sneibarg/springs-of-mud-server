@@ -15,7 +15,6 @@ from util.GenericUtil import GenericUtil
 if TYPE_CHECKING:
     from area.Room import Room
     from player.Character import Character
-    from api.CharacterApi import CharacterApi
 
 
 @dataclass
@@ -130,6 +129,10 @@ class Item:
         from util.GenericUtil import GenericUtil
         data = GenericUtil.camel_to_snake_case(data)
         data['contains'] = []
+        data['effects'] = [
+            effect if isinstance(effect, Effect) else Effect.from_json(effect)
+            for effect in list(data.get('effects', []) or [])
+        ]
         extra_descr = data.pop('extra_descr', None)
         item = cls(**data)
         if extra_descr is not None:
@@ -385,6 +388,7 @@ class Item:
         return not GameApi.is_set(getattr(self, "extra_flags", 0), no_remove_bit)
 
     def weapon_skill_feedback_key(self, character: Character) -> str:
+        from api.CharacterApi import CharacterApi
         if CharacterApi.is_npc(character):
             return ""
 

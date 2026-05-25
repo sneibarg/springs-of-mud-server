@@ -241,7 +241,7 @@ class Shop:
 
     @classmethod
     def complete_pet_purchase(cls, buyer, room, pet_proto, pet_name: str, cost: int, act_bits, affected_bits, comm_flags):
-        pet = MobileUtil.create_mobile(pet_proto, CharacterApi.enums())
+        pet = MobileUtil.create_mobile(pet_proto, CharacterApi.enum_provider())
         pet_bit = CharacterApi.enum_bit(act_bits, "ACT_PET")
         charm_bit = CharacterApi.enum_bit(affected_bits, "AFF_CHARM")
         if pet_bit:

@@ -106,6 +106,11 @@ class EffectHandler:
             if source:
                 effect.source = source
             return effect
+        if isinstance(affect_like, (dict, str)):
+            effect = Effect.from_json(affect_like)
+            if source:
+                effect.source = source
+            return effect
         return Effect(
             where=getattr(affect_like, "where", 0),
             type=getattr(affect_like, "type", ""),
@@ -118,22 +123,26 @@ class EffectHandler:
             source=source,
         )
 
-    @staticmethod
-    def ensure_effects(entity) -> list[Effect]:
+    def ensure_effects(self, entity) -> list[Effect]:
         effects = getattr(entity, "effects", None)
         if effects is None:
             effects = []
             setattr(entity, "effects", effects)
+            return effects
+        for index, effect in enumerate(list(effects)):
+            if isinstance(effect, Effect):
+                continue
+            effects[index] = self.as_effect(effect)
         return effects
 
-    def affect_modify(self, entity, effect: dict, add: bool) -> None:
-        where = EffectUtil.enum_value(self.where_enum, effect.get('where'), EffectUtil.enum_value(self.where_enum, "TO_AFFECTS", 0))
-        location = EffectUtil.enum_value(self.apply_types, effect.get('location'), 0)
-        modifier = GenericUtil.to_int(effect.get('modifier'), 0)
+    def affect_modify(self, entity, effect: Effect, add: bool) -> None:
+        where = EffectUtil.enum_value(self.where_enum, getattr(effect, "where", None), EffectUtil.enum_value(self.where_enum, "TO_AFFECTS", 0))
+        location = EffectUtil.enum_value(self.apply_types, getattr(effect, "location", None), 0)
+        modifier = GenericUtil.to_int(getattr(effect, "modifier", 0), 0)
         if not add:
             modifier = -modifier
 
-        raw_bit = effect.get('bitvector')
+        raw_bit = getattr(effect, "bitvector", 0)
         if where == EffectUtil.enum_value(self.where_enum, "TO_AFFECTS", -1):
             bit = EffectUtil.enum_value(self.affected_by, raw_bit, 0)
             if bit != 0:
