@@ -223,3 +223,19 @@ class MovementApi(GameApi):
             if registry is not None:
                 return registry
         return None
+
+    @staticmethod
+    def mirror_exit_flag(room_registry, room, ex, rev_dir_map, find_exit_fn, set_mask: int = 0, clear_mask: int = 0):
+        to_room = room_registry.get_or_none(id=getattr(ex, "to_room_id", None))
+        if to_room is None:
+            return
+        rev = rev_dir_map[int(getattr(ex, "direction", 0))]
+        rev_exit = find_exit_fn(to_room, rev)
+        if rev_exit is None or getattr(rev_exit, "to_room_id", None) != room.id:
+            return
+        flags = GenericUtil.to_int(getattr(rev_exit, "exit_flags", 0), 0)
+        if clear_mask:
+            flags &= ~clear_mask
+        if set_mask:
+            flags |= set_mask
+        rev_exit.exit_flags = flags

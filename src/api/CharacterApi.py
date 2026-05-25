@@ -436,34 +436,6 @@ class CharacterApi(GameApi):
         return None
 
     @classmethod
-    def find_location(cls, arg: str, room_registry, character_registry, name_matches_fn):
-        value = (arg or "").strip()
-        if value.isdigit():
-            room = room_registry.get_or_none(vnum=value)
-            if room is not None:
-                return room
-
-        victim = cls.find_character_world(value, character_registry, name_matches_fn, allow_self=False)
-        if victim is not None:
-            return room_registry.get_or_none(id=victim.room_id)
-
-        q = value.lower()
-        for room in room_registry.all_rooms():
-            if room is None:
-                continue
-            for mob in room.mobiles.values():
-                mob_name = f"{getattr(mob, 'name', '')} {getattr(mob, 'short_description', '')}".strip()
-                if name_matches_fn(q, mob_name):
-                    return room
-
-        for room in room_registry.all_rooms():
-            if room is None:
-                continue
-            if name_matches_fn(value, getattr(room, "name", "")):
-                return room
-        return None
-
-    @classmethod
     def is_affected_by_name(cls, character: Character, affected_bits, bit_name: str) -> bool:
         if affected_bits is None or not hasattr(affected_bits, bit_name):
             return False
@@ -566,22 +538,6 @@ class CharacterApi(GameApi):
     @classmethod
     def is_flying(cls, char: Character) -> bool:
         return char.character_attributes.position == cls.pos_value("POS_FLYING")
-
-    @staticmethod
-    def mirror_exit_flag(room_registry, room, ex, rev_dir_map, find_exit_fn, set_mask: int = 0, clear_mask: int = 0):
-        to_room = room_registry.get_or_none(id=getattr(ex, "to_room_id", None))
-        if to_room is None:
-            return
-        rev = rev_dir_map[int(getattr(ex, "direction", 0))]
-        rev_exit = find_exit_fn(to_room, rev)
-        if rev_exit is None or getattr(rev_exit, "to_room_id", None) != room.id:
-            return
-        flags = GenericUtil.to_int(getattr(rev_exit, "exit_flags", 0), 0)
-        if clear_mask:
-            flags &= ~clear_mask
-        if set_mask:
-            flags |= set_mask
-        rev_exit.exit_flags = flags
 
     @classmethod
     def has_holy_light(cls, character) -> bool:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from api.CharacterApi import CharacterApi
+from util.AreaUtil import AreaUtil
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
 from util.WizUtil import WizUtil
@@ -23,7 +24,7 @@ class WizApi:
 
     @staticmethod
     def location(view):
-        return CharacterApi.find_location(
+        return AreaUtil.find_location(
             InterpUtil.argument_text(view),
             WizApi.room_registry(view),
             WizApi.character_registry(view),

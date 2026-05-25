@@ -8,6 +8,7 @@ from game.RegistryService import RegistryService
 from game.WizHandler import WizHandler
 from player.CharacterClass import CharacterClass
 from player.CharacterRace import CharacterRace
+from util.AreaUtil import AreaUtil
 from util.GenericUtil import GenericUtil
 from util.SkillUtil import SkillUtil
 from util.WizUtil import WizUtil
@@ -288,7 +289,7 @@ class WizSetApi:
             return self._payload("room_syntax")
 
         location_name, field_name, value_text = parts
-        location = CharacterApi.find_location(location_name, self.room_registry, self.character_registry, WizUtil.name_matches)
+        location = AreaUtil.find_location(location_name, self.room_registry, self.character_registry, WizUtil.name_matches)
         if location is None:
             context.finish()
             return self._payload("no_such_location")

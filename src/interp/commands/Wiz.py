@@ -16,6 +16,7 @@ from interp.Context import Context
 from item.ExtraDescriptionData import ExtraDescriptionData
 from player.Character import Character
 from server.LoggerFactory import LoggerFactory
+from util.AreaUtil import AreaUtil
 from util.GenericUtil import GenericUtil
 from util.ItemUtil import ItemUtil
 from util.MobileUtil import MobileUtil
@@ -269,7 +270,7 @@ class Wiz:
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
             return blocked
-        room = CharacterApi.find_location(WizUtil.argument_text(context.result, context.parameters), self.room_registry, self.character_registry, WizUtil.name_matches)
+        room = AreaUtil.find_location(WizUtil.argument_text(context.result, context.parameters), self.room_registry, self.character_registry, WizUtil.name_matches)
         from_room = WizUtil.move_entity(self.room_registry, character, room)
         if from_room is None or room is None:
             context.finish()
@@ -294,7 +295,7 @@ class Wiz:
         if victim is None:
             context.finish()
             return {"to_char": "They aren't here.\r\n"}
-        room = self.room_registry.get_or_none(id=character.room_id) if not destination else CharacterApi.find_location(destination, self.room_registry, self.character_registry, WizUtil.name_matches)
+        room = self.room_registry.get_or_none(id=character.room_id) if not destination else AreaUtil.find_location(destination, self.room_registry, self.character_registry, WizUtil.name_matches)
         if room is None:
             context.finish()
             return {"to_char": "No such location.\r\n"}

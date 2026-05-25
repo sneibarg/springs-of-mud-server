@@ -112,7 +112,7 @@ class Movement:
             return {"to_char": "It's locked.\r\n"}
 
         ex.exit_flags = flags & ~ex_closed if ex_closed else flags
-        CharacterApi.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, set_mask=ex_closed)
+        MovementApi.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, set_mask=ex_closed)
         context.finish()
         return {"to_char": "Ok.\r\n", "to_room": f"{character.name} opens the {ex.keyword or 'door'}.\r\n", "targets": room.player_targets(character)}
 
@@ -138,7 +138,7 @@ class Movement:
             return {"to_char": "It's already closed.\r\n"}
 
         ex.exit_flags = flags | ex_closed if ex_closed else flags
-        CharacterApi.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, set_mask=ex_closed)
+        MovementApi.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, set_mask=ex_closed)
         context.finish()
         return {"to_char": "Ok.\r\n", "to_room": f"{character.name} closes the {ex.keyword or 'door'}.\r\n", "targets": room.player_targets(character)}
 
@@ -176,7 +176,7 @@ class Movement:
             return {"to_char": "It's already locked.\r\n"}
 
         ex.exit_flags = flags | ex_locked if ex_locked else flags
-        CharacterApi.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, set_mask=ex_locked)
+        MovementApi.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, set_mask=ex_locked)
         context.finish()
         return {"to_char": "*Click*\r\n", "to_room": f"{character.name} locks the {ex.keyword or 'door'}.\r\n", "targets": room.player_targets(character)}
 
@@ -214,7 +214,7 @@ class Movement:
             return {"to_char": "It's already unlocked.\r\n"}
 
         ex.exit_flags = flags & ~ex_locked if ex_locked else flags
-        CharacterApi.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, clear_mask=ex_locked)
+        MovementApi.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, clear_mask=ex_locked)
         context.finish()
         return {"to_char": "*Click*\r\n", "to_room": f"{character.name} unlocks the {ex.keyword or 'door'}.\r\n", "targets": room.player_targets(character)}
 
@@ -249,7 +249,7 @@ class Movement:
             return {"to_char": "You failed.\r\n"}
 
         ex.exit_flags = flags & ~ex_locked if ex_locked else flags
-        CharacterApi.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, clear_mask=ex_locked)
+        MovementApi.mirror_exit_flag(self.room_registry, room, ex, MovementUtil.REV_DIR, MovementUtil.find_exit, clear_mask=ex_locked)
         context.finish()
         return {"to_char": "*Click*\r\n", "to_room": f"{character.name} picks the {ex.keyword or 'door'}.\r\n", "targets": room.player_targets(character)}
 
