@@ -170,9 +170,8 @@ class Item:
         item_type = str(getattr(item, "item_type", "") or "").strip().lower()
         return "fountain" in item_type
 
-    @staticmethod
-    def is_edible(item) -> bool:
-        item_type = str(getattr(item, "item_type", "") or "").strip().lower()
+    def is_edible(self) -> bool:
+        item_type = str(getattr(self, "item_type", "") or "").strip().lower()
         return ("food" in item_type) or ("pill" in item_type)
 
     @staticmethod

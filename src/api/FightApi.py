@@ -18,6 +18,7 @@ from util.CommunicationsUtil import CommunicationsUtil
 from util.GenericUtil import GenericUtil
 from util.FightUtil import FightUtil
 from util.PlayerUtil import PlayerUtil
+from util.SkillUtil import SkillUtil
 
 
 class FightApi:
@@ -111,6 +112,7 @@ class FightApi:
 
     def execute_fight_plan(self, context, fight_commands, view: FightView, plan: ActionPlan):
         if not plan.operation:
+            print(f"No plan operation for {view.context.command.name}")
             room = view.room
             return self.render_plan_payload(
                 view.context.command.payload,
@@ -239,26 +241,7 @@ class FightApi:
         return self.skill_registry.get_or_none(name=command_name)
 
     def _active_melee_skill_name(self, weapon) -> str:
-        if weapon is None:
-            return "hand to hand"
-
-        raw = getattr(weapon, "value0", None)
-        token = str(raw or "").strip()
-        weapon_class = CharacterApi.get_enum("weaponClass")
-        numeric = GenericUtil.to_int(raw, None)
-        if numeric is not None:
-            for enum_name, skill_name in self.fight_handler.WeaponClass.__members__.items():
-                member = getattr(weapon_class, enum_name, None)
-                if member is not None and int(member.value) == numeric:
-                    return skill_name
-        upper_token = token.upper()
-        if self.fight_handler.WeaponClass.__contains__(upper_token):
-            return self.fight_handler.WeaponClass[upper_token]
-
-        lowered = token.lower()
-        if lowered in self.fight_handler.WeaponClass.__members__.values():
-            return lowered
-        return "hand to hand"
+        return SkillUtil.active_melee_skill_name(weapon, self.fight_handler.WeaponClass)
 
     def _build_checks(self, skill) -> tuple[ActionGuard[FightView], ...]:
         guards: list[ActionGuard[FightView]] = []

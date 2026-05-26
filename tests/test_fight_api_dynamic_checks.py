@@ -81,6 +81,18 @@ class _CharacterApi:
         return 7 if name == "POS_FIGHTING" else 0
 
 
+class _SkillUtil:
+    @staticmethod
+    def weapon_skill_name(weapon, _weapon_class_names=None):
+        if weapon is None:
+            return "hand to hand"
+        return "dagger" if getattr(weapon, "value0", None) == 1 else ""
+
+    @staticmethod
+    def active_melee_skill_name(weapon, weapon_class_names=None):
+        return _SkillUtil.weapon_skill_name(weapon, weapon_class_names) or "hand to hand"
+
+
 _stub_module("injector", inject=lambda target: target)
 _stub_package("server")
 _stub_module("server.LoggerFactory", LoggerFactory=_LoggerFactory)
@@ -88,6 +100,7 @@ _stub_package("util")
 _load_module("util.GenericUtil", "util/GenericUtil.py")
 _load_module("util.FightUtil", "util/FightUtil.py")
 _stub_module("util.PlayerUtil", PlayerUtil=SimpleNamespace(get_target=lambda *_args, **_kwargs: None))
+_stub_module("util.SkillUtil", SkillUtil=_SkillUtil)
 _stub_package("game")
 _load_module("game.GamePayload", "game/GamePayload.py")
 _load_module("game.action", "game/action/__init__.py")

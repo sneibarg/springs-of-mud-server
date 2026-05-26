@@ -8,6 +8,13 @@ from api.CharacterApi import CharacterApi
 
 class SkillUtil:
     @staticmethod
+    def _weapon_enum_skill_name(enum_name: str) -> str:
+        text = str(enum_name or "").strip().lower()
+        if text.startswith("weapon_"):
+            text = text[len("weapon_"):]
+        return "hand to hand" if text == "exotic" else text
+
+    @staticmethod
     def is_practice_trainer(mob, practice_bit: int) -> bool:
         mob_flags = GenericUtil.to_int(getattr(getattr(mob, "status_flags", None), "act", 0), 0)
         if practice_bit and CharacterApi.is_set(mob_flags, practice_bit):
@@ -123,6 +130,52 @@ class SkillUtil:
         rating = max(1, GenericUtil.to_int(rating, 1))
         gain = learn_bonus // rating
         return max(1, gain)
+
+    @staticmethod
+    def practice_meta_id(meta_or_name) -> str:
+        meta = SkillUtil._resolve_practice_meta(meta_or_name)
+        return str(getattr(meta, "id", "") or "").strip()
+
+    @staticmethod
+    def check_improve_by_name(ch: Character, ability_name: str, success: bool, multiplier: int = 1) -> None:
+        ability_id = SkillUtil.practice_meta_id(ability_name)
+        if not ability_id:
+            return
+        SkillUtil.check_improve(ch, ability_id, success, multiplier)
+
+    @staticmethod
+    def weapon_skill_name(weapon, weapon_class_names=None) -> str:
+        if weapon is None:
+            return "hand to hand"
+
+        raw = getattr(weapon, "value0", None)
+        token = str(raw or "").strip()
+        members = getattr(weapon_class_names, "__members__", {}) or {}
+
+        try:
+            weapon_class = CharacterApi.get_enum("weaponClass")
+        except RuntimeError:
+            weapon_class = None
+
+        numeric = GenericUtil.to_int(raw, None)
+        if numeric is not None and weapon_class is not None:
+            for enum_name in members.keys():
+                member = getattr(weapon_class, enum_name, None)
+                if member is not None and int(getattr(member, "value", member)) == numeric:
+                    return SkillUtil._weapon_enum_skill_name(enum_name)
+
+        upper_token = token.upper()
+        if upper_token in members:
+            return SkillUtil._weapon_enum_skill_name(upper_token)
+
+        lowered = token.lower()
+        if lowered in {SkillUtil._weapon_enum_skill_name(name) for name in members.keys()}:
+            return lowered
+        return ""
+
+    @staticmethod
+    def active_melee_skill_name(weapon, weapon_class_names=None) -> str:
+        return SkillUtil.weapon_skill_name(weapon, weapon_class_names) or "hand to hand"
 
     @staticmethod
     def check_improve(ch: Character, skill_id: str, success: bool, multiplier: int = 1) -> None:

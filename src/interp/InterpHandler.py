@@ -117,5 +117,5 @@ class InterpHandler:
             await self.message_bus.send_to_character(character.id, self.command_not_found_message)
             return None
 
-        self.logger.info(f"CMD: {cmd.name}, PARAMETERS: {parameters}, USAGE: {str(player.usage)}")
+        self.logger.debug(f"CMD: {cmd.name}, PARAMETERS: {parameters}, USAGE: {str(player.usage)}")
         return await self._call_lambda(character, cmd.name, self.interp_registry.all_commands(), parameters)

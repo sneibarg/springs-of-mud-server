@@ -4237,7 +4237,7 @@
         "messageKey": "itemMissing"
       },
       {
-        "predicate": "lambda v: v.context.eat_item is not None and not ItemUtil.is_edible(v.context.eat_item)",
+        "predicate": "lambda v: v.context.eat_item is not None and not v.context.eat_item.is_edible()",
         "messageKey": "notEdible"
       },
       {

@@ -72,7 +72,11 @@ class _AffectBits(IntEnum):
 
 class _Positions(IntEnum):
     POS_DEAD = 0
+    POS_MORTAL = 1
+    POS_INCAP = 2
     POS_STUNNED = 3
+    POS_STANDING = 8
+    POS_RESTING = 6
     POS_FIGHTING = 7
 
 
@@ -110,7 +114,15 @@ class _CharacterApi:
     def get_enum(name):
         if name == "actBits":
             return _ActBits
+        if name == "weaponClass":
+            return SimpleNamespace(WEAPON_DAGGER=SimpleNamespace(value=1))
         return SimpleNamespace()
+
+    @staticmethod
+    def get_attribute_bonus(attr_name, value):
+        if attr_name == "strength" and str(value) == "14":
+            return {"tohit": 0, "todam": 1}
+        return {"tohit": 0, "todam": 0, "defensive": 0}
 
 
 class _MobileApi:
@@ -124,6 +136,9 @@ class _RandomNumberGenerator:
         return 1
 
     def number_range(self, _start, _end):
+        return 0
+
+    def dice(self, _num_dice, _num_sides):
         return 0
 
 
@@ -157,7 +172,37 @@ _load_module("util.GenericUtil", "util/GenericUtil.py")
 _load_module("util.FightUtil", "util/FightUtil.py")
 _stub_module("util.InfoUtil", InfoUtil=SimpleNamespace())
 _stub_module("util.ItemUtil", ItemUtil=SimpleNamespace())
-_stub_module("util.SkillUtil", SkillUtil=SimpleNamespace(learned_level=lambda *_args, **_kwargs: 0, find_learned_entry=lambda *_args, **_kwargs: None, check_improve=lambda *_args, **_kwargs: None))
+
+
+class _SkillUtil:
+    @staticmethod
+    def learned_level(*_args, **_kwargs):
+        return 0
+
+    @staticmethod
+    def find_learned_entry(*_args, **_kwargs):
+        return None
+
+    @staticmethod
+    def check_improve(*_args, **_kwargs):
+        return None
+
+    @staticmethod
+    def check_improve_by_name(*_args, **_kwargs):
+        return None
+
+    @staticmethod
+    def weapon_skill_name(weapon, _weapon_class_names=None):
+        if weapon is None:
+            return "hand to hand"
+        return "dagger" if getattr(weapon, "value0", None) == 1 else ""
+
+    @staticmethod
+    def active_melee_skill_name(weapon, weapon_class_names=None):
+        return _SkillUtil.weapon_skill_name(weapon, weapon_class_names) or "hand to hand"
+
+
+_stub_module("util.SkillUtil", SkillUtil=_SkillUtil)
 
 FightHandler = _load_module("fight.FightHandler", "fight/FightHandler.py").FightHandler
 
@@ -165,12 +210,16 @@ FightHandler = _load_module("fight.FightHandler", "fight/FightHandler.py").Fight
 class TestFightHandlerAggression(unittest.TestCase):
     def _handler(self, room):
         handler = FightHandler.__new__(FightHandler)
+        handler.logger = _Logger()
         handler.area_registry = SimpleNamespace(get_or_none=lambda **_kwargs: None)
         handler.combat_registry = SimpleNamespace(upsert=Mock())
+        handler.room_registry = SimpleNamespace(get=lambda **_kwargs: room, get_or_none=lambda **_kwargs: room)
         handler.PositionsEnum = _Positions
         handler.ActBits = _ActBits
         handler.RoomFlags = _RoomFlags
         handler.AffectBits = _AffectBits
+        handler.WeaponClass = type("WeaponClass", (), {"__members__": {"WEAPON_DAGGER": "dagger"}})
+        handler.WeaponTypes = SimpleNamespace(WEAPON_SHARP=SimpleNamespace(value=1))
         handler.rng = _RandomNumberGenerator()
         handler.attacks = {
             "none": {"message": "hit", "damage_type": -1},
@@ -258,8 +307,99 @@ class TestFightHandlerAggression(unittest.TestCase):
         attacker = SimpleNamespace(dam_type="none")
 
         damage_type = handler._attack_damage_type(attacker, "TYPE_UNDEFINED", "")
-
         self.assertEqual("DAM_NONE", damage_type)
+
+    def test_one_hit_improves_weapon_skill_on_hit(self):
+        victim = self._mob("mob-1")
+        victim.room_id = "room-1"
+        victim.hit = 20
+        victim.max_hit = 20
+        victim.position = 8
+        victim.default_pos = 8
+        victim.start_pos = 8
+        attacker = self._player("char-1")
+        attacker.name = "Tester"
+        attacker.room_id = "room-1"
+        attacker.equipped = SimpleNamespace(wielded=SimpleNamespace(item_type="weapon", value0=1, value3="stab"))
+        room = SimpleNamespace(id="room-1", area_id="area-1", room_flags=0, mobiles={"mob-1": victim}, characters={"char-1": attacker})
+        handler = self._handler(room)
+
+        calls = []
+        with unittest.mock.patch.object(
+            _SkillUtil,
+            "check_improve_by_name",
+            side_effect=lambda *_args: calls.append(_args[1:]),
+        ), unittest.mock.patch.object(handler, "_thac0", return_value=1), \
+                unittest.mock.patch.object(handler, "_victim_ac_for_damage_type", return_value=0), \
+                unittest.mock.patch.object(handler, "_attack_damage", return_value=7), \
+                unittest.mock.patch.object(handler, "_to_hit_roll", return_value=19), \
+                unittest.mock.patch.object(handler, "damage", return_value={"to_char": "", "to_victim": "", "to_room": "", "killed": False}):
+            handler.one_hit(attacker, victim, dt="TYPE_HIT")
+
+        self.assertEqual([("dagger", True, 5)], calls)
+
+    def test_one_hit_improves_weapon_skill_on_miss(self):
+        victim = self._mob("mob-1")
+        victim.room_id = "room-1"
+        victim.hit = 20
+        victim.max_hit = 20
+        victim.position = 8
+        victim.default_pos = 8
+        victim.start_pos = 8
+        attacker = self._player("char-1")
+        attacker.name = "Tester"
+        attacker.room_id = "room-1"
+        attacker.equipped = SimpleNamespace(wielded=SimpleNamespace(item_type="weapon", value0=1, value3="stab"))
+        room = SimpleNamespace(id="room-1", area_id="area-1", room_flags=0, mobiles={"mob-1": victim}, characters={"char-1": attacker})
+        handler = self._handler(room)
+
+        calls = []
+        with unittest.mock.patch.object(
+            _SkillUtil,
+            "check_improve_by_name",
+            side_effect=lambda *_args: calls.append(_args[1:]),
+        ), unittest.mock.patch.object(handler, "_thac0", return_value=20), \
+                unittest.mock.patch.object(handler, "_victim_ac_for_damage_type", return_value=0), \
+                unittest.mock.patch.object(handler, "_to_hit_roll", return_value=0), \
+                unittest.mock.patch.object(handler, "damage", return_value={"to_char": "", "to_victim": "", "to_room": "", "killed": False}):
+            handler.one_hit(attacker, victim, dt="TYPE_HIT")
+
+        self.assertEqual([("dagger", False, 5)], calls)
+
+    def test_update_pos_keeps_npc_alive_when_hit_points_remain(self):
+        handler = self._handler(SimpleNamespace())
+        victim = self._mob("mob-1")
+        victim.hit = 34
+        victim.fighting = self._player("char-1")
+
+        handler.update_pos(victim)
+
+        self.assertEqual(8, victim.character_attributes.position)
+
+    def test_update_pos_kills_npc_only_when_zero_or_less_hit_points(self):
+        handler = self._handler(SimpleNamespace())
+        victim = self._mob("mob-1")
+        victim.hit = 0
+
+        handler.update_pos(victim)
+
+        self.assertEqual(_Positions.POS_DEAD, victim.character_attributes.position)
+
+    def test_attack_damage_adds_unscaled_damroll_for_players(self):
+        handler = self._handler(SimpleNamespace())
+        attacker = self._player("char-1")
+        attacker.level = 6
+        attacker.character_attributes = SimpleNamespace(position=8, strength=14)
+        attacker.equipped = SimpleNamespace(
+            wielded=SimpleNamespace(item_type="weapon", value0="sword", value1="1", value2="6", value3="slash", value4="0"),
+            shield=SimpleNamespace(),
+        )
+
+        with unittest.mock.patch.object(sys.modules["fight.FightHandler"].GameApi, "is_set", return_value=False, create=True), \
+                unittest.mock.patch.object(handler.rng, "dice", return_value=2):
+            damage = handler._attack_damage(attacker, skill=60)
+
+        self.assertEqual(2, damage)
 
     def test_attack_damage_type_defaults_unknown_attack_to_bash(self):
         handler = self._handler(SimpleNamespace())
