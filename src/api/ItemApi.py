@@ -48,7 +48,11 @@ class ItemApi(GameApi):
 
     @classmethod
     def is_obj_stat(cls, obj: Item, stat: int) -> bool:
-        return cls.is_set(int(obj.extra_flags), stat)
+        if obj.extra_flags.isalpha():
+            extra_flags = GameApi.flags_to_int(obj.extra_flags)
+        else:
+            extra_flags = int(obj.extra_flags)
+        return cls.is_set(extra_flags, stat)
 
     @classmethod
     def has_item_flag(cls, obj: Item, item_flags_enum, *flag_names: str) -> bool:

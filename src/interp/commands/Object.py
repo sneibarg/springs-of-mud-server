@@ -4,6 +4,7 @@ import random
 
 from injector import inject
 
+from api.GameApi import GameApi
 from area.Shop import Shop
 from fight.FightHandler import FightHandler
 from game.EnumProvider import EnumProvider
