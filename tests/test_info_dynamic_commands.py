@@ -167,6 +167,14 @@ class _CharacterMacros:
 
 class _SkillUtil:
     @staticmethod
+    def _entry_name(entry) -> str:
+        return str(entry.get("name", "") or "").strip() if isinstance(entry, dict) else str(getattr(entry, "name", "") or "").strip()
+
+    @staticmethod
+    def _entry_level(entry) -> int:
+        return int(entry.get("level", 0)) if isinstance(entry, dict) else int(getattr(entry, "level", 0))
+
+    @staticmethod
     def is_practice_trainer(mob, practice_bit: int) -> bool:
         flags = int(getattr(getattr(mob, "mobile_flags", None), "act", 0))
         return (flags & practice_bit) != 0 or "practice" in str(getattr(mob, "long_description", "") or "").lower()
@@ -174,10 +182,64 @@ class _SkillUtil:
     @staticmethod
     def find_character_skill(entries, raw: str):
         wanted = str(raw or "").strip().lower()
+        prefix_match = None
         for entry in entries:
-            if str(entry.get("name", "")).strip().lower() == wanted:
+            name = _SkillUtil._entry_name(entry).lower()
+            if name == wanted:
                 return entry
+            if prefix_match is None and name.startswith(wanted):
+                prefix_match = entry
+        return prefix_match
+
+    @staticmethod
+    def learned_entry_name(entry) -> str:
+        return _SkillUtil._entry_name(entry)
+
+    @staticmethod
+    def learned_level(entry) -> int:
+        return _SkillUtil._entry_level(entry)
+
+    @staticmethod
+    def practice_meta(_ability_name: str):
         return None
+
+    @staticmethod
+    def practice_visible(character, meta_or_name) -> bool:
+        meta = meta_or_name
+        if isinstance(meta_or_name, str):
+            meta = _SkillUtil.practice_meta(meta_or_name)
+        if meta is None:
+            return True
+        level_map = getattr(meta, "level_by_class", {}) or {}
+        class_name = str(getattr(getattr(character, "character_class", None), "name", "") or "").strip().lower()
+        required = int(level_map.get(class_name, level_map.get("mage", 99)))
+        return int(getattr(character, "level", 0)) >= required
+
+    @staticmethod
+    def practice_rating(character, meta_or_name) -> int:
+        meta = meta_or_name
+        if isinstance(meta_or_name, str):
+            meta = _SkillUtil.practice_meta(meta_or_name)
+        if meta is None:
+            return 1
+        rating_map = getattr(meta, "rating_by_class", {}) or {}
+        class_name = str(getattr(getattr(character, "character_class", None), "name", "") or "").strip().lower()
+        return int(rating_map.get(class_name, rating_map.get("mage", 0)))
+
+    @staticmethod
+    def visible_learned_entries(character):
+        entries = []
+        for entry in list(getattr(character, "skills", []) or []) + list(getattr(character, "spells", []) or []):
+            if _SkillUtil._entry_level(entry) < 1:
+                continue
+            if not _SkillUtil.practice_visible(character, _SkillUtil._entry_name(entry)):
+                continue
+            entries.append(entry)
+        return entries
+
+    @staticmethod
+    def find_learned_entry(character, raw: str):
+        return _SkillUtil.find_character_skill(_SkillUtil.visible_learned_entries(character), raw)
 
     @staticmethod
     def practice_adept(character) -> int:
@@ -307,7 +369,8 @@ class TestInfoDynamicCommands(unittest.TestCase):
         )
         session_handler = SimpleNamespace(get_playing_sessions=lambda: [])
         weather_handler = SimpleNamespace(time_info=None, weather_info=None)
-        commands = Info(registry_service, session_handler, weather_handler)
+        enum_provider = SimpleNamespace(get=_CharacterMacros.get_enum)
+        commands = Info(registry_service, session_handler, weather_handler, enum_provider)
         commands.PlayerActBits = _CharacterMacros.get_enum("playerActBits")
         return commands, room_registry, registry_service, session_handler, weather_handler
 

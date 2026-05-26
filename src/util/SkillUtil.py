@@ -24,14 +24,14 @@ class SkillUtil:
         return False
 
     @staticmethod
-    def find_character_skill(skills: list[dict], wanted: str) -> dict | None:
+    def find_character_skill(skills: list, wanted: str):
         query = str(wanted or "").strip().lower()
         if not query:
             return None
 
         prefix_match = None
         for skill in skills or []:
-            skill_name = str(skill.get("name", "") or "").strip().lower()
+            skill_name = SkillUtil.learned_entry_name(skill).lower()
             if not skill_name:
                 continue
             if skill_name == query:
@@ -48,6 +48,71 @@ class SkillUtil:
     def practice_adept(character: Character) -> int:
         adept = GenericUtil.to_int(getattr(getattr(character, "character_class", None), "skill_adept", 75), 75)
         return adept if adept > 0 else 75
+
+    @staticmethod
+    def practice_meta(ability_name: str):
+        wanted = str(ability_name or "").strip().lower()
+        if not wanted:
+            return None
+
+        try:
+            registry = CharacterApi.get_registry()
+        except RuntimeError:
+            return None
+
+        skill_registry = getattr(registry, "skill_registry", None)
+        if skill_registry is not None:
+            all_skills = getattr(skill_registry, "all_skills", None)
+            if callable(all_skills):
+                for skill in all_skills():
+                    if str(getattr(skill, "name", "") or "").strip().lower() == wanted:
+                        return skill
+
+        spell_registry = getattr(registry, "spell_registry", None)
+        if spell_registry is not None:
+            all_spells = getattr(spell_registry, "all_spells", None)
+            if callable(all_spells):
+                for spell in all_spells():
+                    if str(getattr(spell, "name", "") or "").strip().lower() == wanted:
+                        return spell
+
+        return None
+
+    @staticmethod
+    def _resolve_practice_meta(meta_or_name):
+        if meta_or_name is None:
+            return None
+        if isinstance(meta_or_name, str):
+            return SkillUtil.practice_meta(meta_or_name)
+        return meta_or_name
+
+    @staticmethod
+    def practice_level_requirement(character: Character, meta_or_name) -> int:
+        meta = SkillUtil._resolve_practice_meta(meta_or_name)
+        if meta is None:
+            return 0
+        class_name = SkillUtil.practice_class_name(character)
+        level_map = getattr(meta, "level_by_class", {}) or {}
+        fallback = CharacterApi.skill_value_for_class(level_map, "mage", 99)
+        return max(0, CharacterApi.skill_value_for_class(level_map, class_name, fallback))
+
+    @staticmethod
+    def practice_visible(character: Character, meta_or_name) -> bool:
+        meta = SkillUtil._resolve_practice_meta(meta_or_name)
+        if meta is None:
+            return True
+        required_level = SkillUtil.practice_level_requirement(character, meta)
+        return GenericUtil.to_int(getattr(character, "level", 0), 0) >= required_level
+
+    @staticmethod
+    def practice_rating(character: Character, meta_or_name) -> int:
+        meta = SkillUtil._resolve_practice_meta(meta_or_name)
+        if meta is None:
+            return 1
+        class_name = SkillUtil.practice_class_name(character)
+        rating_map = getattr(meta, "rating_by_class", {}) or {}
+        fallback = CharacterApi.skill_value_for_class(rating_map, "mage", 0)
+        return max(0, CharacterApi.skill_value_for_class(rating_map, class_name, fallback))
 
     @staticmethod
     def practice_gain(character: Character, rating: int) -> int:
@@ -71,9 +136,8 @@ class SkillUtil:
         if ability is None:
             return
 
-        class_name = SkillUtil.practice_class_name(ch)
-        required_level = CharacterApi.skill_value_for_class(getattr(ability, "level_by_class", {}) or {}, class_name, 99)
-        rating = max(0, CharacterApi.skill_value_for_class(getattr(ability, "rating_by_class", {}) or {}, class_name, 0))
+        required_level = SkillUtil.practice_level_requirement(ch, ability)
+        rating = SkillUtil.practice_rating(ch, ability)
         learned_entry = SkillUtil._find_learned_entry(ch, str(getattr(ability, "name", "") or ""))
         learned = SkillUtil._learned_level(learned_entry)
         adept = SkillUtil.practice_adept(ch)
@@ -120,8 +184,38 @@ class SkillUtil:
         return None
 
     @staticmethod
+    def visible_learned_entries(character: Character) -> list:
+        visible_entries = []
+        for collection_name in ("skills", "spells"):
+            for entry in list(getattr(character, collection_name, []) or []):
+                if SkillUtil._learned_level(entry) < 1:
+                    continue
+                name = SkillUtil.learned_entry_name(entry)
+                if not name or not SkillUtil.practice_visible(character, name):
+                    continue
+                visible_entries.append(entry)
+        return visible_entries
+
+    @staticmethod
     def find_learned_entry(character: Character, ability_name: str):
-        return SkillUtil._find_learned_entry(character, ability_name)
+        if character is None:
+            return None
+        entry = SkillUtil.find_character_skill(SkillUtil.visible_learned_entries(character), ability_name)
+        if SkillUtil._learned_level(entry) < 1:
+            return None
+        return entry
+
+    @staticmethod
+    def learned_entry_name(entry) -> str:
+        if entry is None:
+            return ""
+        if isinstance(entry, dict):
+            return str(entry.get("name", "") or "").strip()
+        return str(getattr(entry, "name", "") or "").strip()
+
+    @staticmethod
+    def learned_level(entry) -> int:
+        return SkillUtil._learned_level(entry)
 
     @staticmethod
     def _learned_level(entry) -> int:

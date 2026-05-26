@@ -124,6 +124,7 @@ class AreaHandler:
         if room_count >= room_max:
             last = False
             return last, None
+        template_mob.room_id = room.id
         mob = MobileUtil.create_mobile(template_mob, self.enum_provider)
         for special in getattr(template_mob, "specials", []) or []:
             if str(getattr(special, "mob_vnum", "") or "") == str(mob.vnum):
