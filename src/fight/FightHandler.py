@@ -5,26 +5,26 @@ from injector import inject
 
 from api.GameApi import GameApi
 from api.ItemApi import ItemApi
-
-from fight.CombatEvent import CombatEvent
+from api.CharacterApi import CharacterApi
 from api.MobileApi import MobileApi
+from fight.CombatEvent import CombatEvent
 from game import GameData
 from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
-from player.Character import Character
-from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
-from util.InfoUtil import InfoUtil
 from item.EffectHandler import EffectHandler
 from item.BodyForm import BodyForm
 from item.BodyParts import BodyParts
 from item.Item import Item
-from util.ItemUtil import ItemUtil
+from player.Character import Character
 from player.CharacterAdvancement import CharacterAdvancement
-from api.CharacterApi import CharacterApi
-from util.SkillUtil import SkillUtil
 from server.LoggerFactory import LoggerFactory
 from server.messaging.MessageBus import MessageBus
+from util.GenericUtil import GenericUtil
+from util.InfoUtil import InfoUtil
+from util.ItemUtil import ItemUtil
+from util.FightUtil import FightUtil
+from util.SkillUtil import SkillUtil
 
 
 class FightHandler:
@@ -351,9 +351,6 @@ class FightHandler:
         return {"to_char": to_char, "to_victim": to_victim, "to_room": to_room}
 
     def raw_kill(self, victim) -> None:
-        if victim is None:
-            return
-
         room = self._find_room_for_entity(victim)
         self.stop_fighting(victim, both=True)
 
@@ -362,14 +359,11 @@ class FightHandler:
             self.make_corpse(victim, room)
 
         if CharacterApi.is_npc(victim):
-            if room is not None:
-                room.mobiles.pop(str(getattr(victim, "id", "") or ""), None)
-
-            proto = self.mobile_registry.get_or_none(vnum=str(getattr(victim, "vnum", "") or ""))
+            room.mobiles.pop(victim.id)
+            proto = self.mobile_registry.get_or_none(vnum=victim.vnum)
             if proto is not None:
                 proto.killed = GenericUtil.to_int(getattr(proto, "killed", 0), 0) + 1
-            if self.mobile_handler is not None:
-                self.mobile_handler.record_mobile_kill(victim)
+            self.mobile_handler.record_mobile_kill(victim)
             return
 
         self._restore_player_after_death(victim, room)
@@ -383,8 +377,6 @@ class FightHandler:
         BodyParts.maybe_create_death_cry_part(victim, room, self.item_registry, self.WellKnownObjectVnums, form_flags=form, parts_flags=parts)
 
     def make_corpse(self, victim, room) -> None:
-        if victim is None or room is None:
-            return
         vnum = self.WellKnownObjectVnums.OBJ_VNUM_CORPSE_PC.value if type(victim) is Character else self.WellKnownObjectVnums.OBJ_VNUM_CORPSE_NPC.value
         money, timer_max, timer_min = self._corpse_timer_and_money(victim)
         corpse = ItemUtil.create_object(self.item_registry.get(vnum=str(vnum)))
@@ -571,7 +563,7 @@ class FightHandler:
             self._error_payload()
 
         applied = max(0, GenericUtil.to_int(dam, 0))
-        dam_type_name = self._normalize_damage_type_name(dam_type)
+        dam_type_name = FightUtil.normalize_damage_type_name(dam_type)
 
         print(f"Damage calculation 1: dam={dam}, applied={applied}, dam_type={dam_type}")
         if applied > 35:
@@ -655,18 +647,18 @@ class FightHandler:
             return None
 
         attacker.fighting = defender
-        self._set_fighting_position(attacker)
+        FightUtil.set_fighting_position(attacker, self.PositionsEnum)
         return self.combat_registry.upsert(getattr(attacker, "id", ""), getattr(defender, "id", ""), room_id)
 
     def _set_fighting(self, attacker, victim: Any | None):
         if attacker is not None and victim is not attacker:
-            if self._entity_position_value(victim) > self.PositionsEnum.POS_STUNNED and getattr(victim, "fighting",
-                                                                                                None) is None:
+            victim_fighting = getattr(victim, "fighting", None)
+            attacker_fighting = getattr(attacker, "fighting", None)
+            if self._entity_position_value(victim) > self.PositionsEnum.POS_STUNNED and victim_fighting is None:
                 room = self._find_room_for_entity(victim)
                 if room is not None:
                     self.set_fighting(victim, attacker, room.id)
-            if self._entity_position_value(victim) > self.PositionsEnum.POS_STUNNED and getattr(attacker, "fighting",
-                                                                                                None) is None:
+            if self._entity_position_value(victim) > self.PositionsEnum.POS_STUNNED and attacker_fighting is None:
                 room = self._find_room_for_entity(attacker) or self._find_room_for_entity(victim)
                 if room is not None:
                     self.set_fighting(attacker, victim, room.id)
@@ -852,7 +844,7 @@ class FightHandler:
         return payload
 
     def _find_room_for_entity(self, entity):
-        entity_id = str(getattr(entity, "id", "") or "")
+        entity_id = getattr(entity, "id", "")
         if not entity_id:
             return None
 
@@ -1242,15 +1234,6 @@ class FightHandler:
         dam += self._current_damroll(attacker) * min(100, skill) // 100
         return max(1, dam)
 
-    @staticmethod
-    def _normalize_damage_type_name(dam_type: str | None) -> str:
-        text = str(dam_type or "").strip().upper()
-        if not text or text == "NONE":
-            return "DAM_NONE"
-        if text.startswith("DAM_"):
-            return text
-        return f"DAM_{text}"
-
     def _attack_damage_type(self, attacker, raw_dt: str, attack_verb: str) -> str:
         source = str(attack_verb or "").strip().lower()
         if self._is_backstab_attack(raw_dt):
@@ -1261,7 +1244,7 @@ class FightHandler:
                 source = str(getattr(attacker, "dam_type", "") or "").strip().lower()
         if not source or source in ("type_hit", "type_undefined", "type hit", "type undefined"):
             source = str(getattr(attacker, "dam_type", "") or "").strip().lower()
-        return self._normalize_damage_type_name(self.attacks.get(source, "DAM_BASH")['damage_type'])
+        return FightUtil.normalize_damage_type_name(self.attacks.get(source, "DAM_BASH")['damage_type'])
 
     def _weapon_skill_name(self, weapon) -> str:
         if weapon is None:
@@ -1342,7 +1325,7 @@ class FightHandler:
         if armor is None:
             return 0
 
-        category = self._normalize_damage_type_name(dam_type)
+        category = FightUtil.normalize_damage_type_name(dam_type)
         if category == "DAM_PIERCE":
             base = getattr(armor, "piercing", getattr(armor, "pierce", 0))
         elif category == "DAM_BASH":
@@ -1396,7 +1379,7 @@ class FightHandler:
         return GenericUtil.to_int(CharacterApi.get_attribute_bonus("strength", str(strength)).get(key, 0), 0)
 
     def _check_immunity(self, victim, dam_type: str) -> str:
-        dam_type_name = self._normalize_damage_type_name(dam_type)
+        dam_type_name = FightUtil.normalize_damage_type_name(dam_type)
         if dam_type_name == "DAM_NONE":
             return "IS_NORMAL"
 
@@ -1445,18 +1428,6 @@ class FightHandler:
             else:
                 default = "IS_NORMAL"
         return default
-
-    @staticmethod
-    def _set_fighting_position(entity) -> None:
-        positions_enum = CharacterApi.get_enum("positions")
-        if not hasattr(positions_enum, "POS_FIGHTING"):
-            return
-        fight_pos = int(positions_enum.POS_FIGHTING.value)
-        attrs = getattr(entity, "character_attributes", None)
-        if attrs is not None:
-            attrs.position = fight_pos
-            return
-        setattr(entity, "position", fight_pos)
 
     def _set_default_combat_position(self, entity) -> None:
         if CharacterApi.is_npc(entity):

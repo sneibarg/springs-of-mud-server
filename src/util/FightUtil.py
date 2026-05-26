@@ -73,3 +73,20 @@ class FightUtil:
             if str(getattr(skill, "name", "") or "").strip().lower() == wanted:
                 return skill
         return None
+
+    @staticmethod
+    def normalize_damage_type_name(dam_type: str | None) -> str:
+        text = str(dam_type or "").strip().upper()
+        if not text or text == "NONE":
+            return "DAM_NONE"
+        if text.startswith("DAM_"):
+            return text
+        return f"DAM_{text}"
+
+    @staticmethod
+    def set_fighting_position(entity, PositionsEnum) -> None:
+        attrs = getattr(entity, "character_attributes", None)
+        if attrs is not None:
+            attrs.position = PositionsEnum.POS_FIGHTING.value
+            return
+        setattr(entity, "position", PositionsEnum.POS_FIGHTING.value)
