@@ -269,7 +269,6 @@ class TestFightControl(unittest.TestCase):
                  {"to_char": "first\r\n", "to_victim": "", "to_room": "", "killed": False},
                  {"to_char": "second\r\n", "to_victim": "", "to_room": "", "killed": False},
              ]), \
-             patch.object(handler, "_entity_has_affect", return_value=False), \
              patch("fight.FightHandler.random.randint", return_value=1):
             payload = handler.multi_hit(attacker, victim, dt="TYPE_UNDEFINED")
 

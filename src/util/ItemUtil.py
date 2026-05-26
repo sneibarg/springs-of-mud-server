@@ -26,7 +26,7 @@ class ItemUtil:
     WEAR_SLOT_ORDER = WEAR_SLOT_ORDER
 
     @staticmethod
-    def create_money(gold: int, silver: int, item_registry: ItemRegistry, WellKnownObjEnums: IntEnum) -> Item:
+    def create_money(gold: int, silver: int, item_registry: ItemRegistry, WellKnownObjEnums: type[IntEnum]) -> Item:
         if gold < 0 or silver < 0 or (gold == 0 and silver == 0):
             gold = max(1, gold)
             silver = max(1, silver)
