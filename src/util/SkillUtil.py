@@ -4,6 +4,9 @@ from player.CharacterAdvancement import CharacterAdvancement
 from util.GenericUtil import GenericUtil
 from player.Character import Character
 from api.CharacterApi import CharacterApi
+from server.LoggerFactory import LoggerFactory
+
+logger = LoggerFactory.get_logger(__name__)
 
 
 class SkillUtil:
@@ -189,24 +192,17 @@ class SkillUtil:
         if ability is None:
             return
 
-        required_level = SkillUtil.practice_level_requirement(ch, ability)
         rating = SkillUtil.practice_rating(ch, ability)
         learned_entry = SkillUtil._find_learned_entry(ch, str(getattr(ability, "name", "") or ""))
         learned = SkillUtil._learned_level(learned_entry)
         adept = SkillUtil.practice_adept(ch)
-
-        if ch.level < required_level or rating == 0 or learned <= 0 or learned >= adept:
-            return
-
-        intelligence = GenericUtil.to_int(getattr(getattr(ch, "character_attributes", None), "intelligence", 0), 0)
-        learn_bonus = GenericUtil.to_int(
-            CharacterApi.get_attribute_bonus("intelligence", str(intelligence)).get("learn", 0), 0
-        )
-
+        intelligence = ch.character_attributes.intelligence
+        learn_bonus = GenericUtil.to_int(CharacterApi.get_attribute_bonus("intelligence", str(intelligence)).get("learn", 0), 0)
         multiplier = max(1, GenericUtil.to_int(multiplier, 1))
-        chance = (10 * learn_bonus) // (multiplier * rating * 4) + GenericUtil.to_int(ch.level, 0)
-
-        if random.randint(1, 1000) > chance:
+        chance = (10 * learn_bonus) // (multiplier * rating * 4) + ch.level
+        random_integer = random.randint(1, 1000)
+        logger.debug(f"Skill {getattr(ability, 'name', '')} for {ch.name} (level {ch.level}, adept {adept}) - chance: {chance}; random_integer={random_integer} learn_bonus={learn_bonus}; rating={rating} learned={learned}; multiplier={multiplier}; success={success}")
+        if random_integer > chance:
             return
 
         if success:
@@ -219,6 +215,7 @@ class SkillUtil:
             if random.randint(1, 100) < chance:
                 SkillUtil._set_learned_level(learned_entry, min(learned + random.randint(1, 3), adept))
                 CharacterAdvancement.gain_experience(ch, 2 * rating)
+        logger.debug(f"Random chance SUCCESS - actual chance: {chance}")
 
     @staticmethod
     def _find_learned_entry(character: Character, ability_name: str):

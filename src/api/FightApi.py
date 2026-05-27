@@ -112,7 +112,6 @@ class FightApi:
 
     def execute_fight_plan(self, context, fight_commands, view: FightView, plan: ActionPlan):
         if not plan.operation:
-            print(f"No plan operation for {view.context.command.name}")
             room = view.room
             return self.render_plan_payload(
                 view.context.command.payload,
