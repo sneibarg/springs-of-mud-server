@@ -286,7 +286,7 @@ class Info:
         max_weight = GenericUtil.to_int(getattr(attributes, "max_weight", 0), 0)
 
         lines = [
-            f"You are {character.name}{character.title}, level {character.level}, {age_years} years old ({total_hours} hours).",
+            f"You are {character.name} {character.title}, level {character.level}, {age_years} years old ({total_hours} hours).",
         ]
         if trust != character.level:
             lines.append(f"You are trusted at level {trust}.")
@@ -339,16 +339,14 @@ class Info:
             lines.append(imm_text)
 
         if character.level >= 15:
-            lines.append(
-                f"Hitroll: {CharacterApi.get_hitroll(character)}  Damroll: {CharacterApi.get_damroll(character)}."
-            )
+            lines.append(f"Hitroll: {CharacterApi.get_hitroll(character)}  Damroll: {CharacterApi.get_damroll(character)}.")
 
         alignment = GenericUtil.to_int(getattr(attributes, "alignment", 0), 0)
         if character.level >= 10:
-            lines.append(f"Alignment: {alignment}.")
-        lines.append(f"You are {InfoUtil.score_alignment_word(alignment)}.")
+            lines.append(f"Alignment: {alignment}. You are {InfoUtil.score_alignment_word(alignment)}.")
+        else:
+            lines.append(f"You are {InfoUtil.score_alignment_word(alignment)}.")
         if CharacterApi.is_comm_enabled(character, "COMM_SHOW_AFFECTS"):
-            lines.append("")
             lines.append(EffectUtil.format_affects(character).rstrip("\r\n"))
         context.finish()
         return "\r\n".join(lines) + "\r\n"

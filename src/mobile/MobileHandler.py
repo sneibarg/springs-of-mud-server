@@ -220,10 +220,8 @@ class MobileHandler:
     async def _execute_lambda_sequence(self, context: MobileContext, lambdas: list[str]):
         for lambda_str in lambdas:
             try:
-                self.logger.debug(
-                    f"_execute_lambda_sequence evaluating {context.special_name!r} for "
-                    f"{self._actor_label(context.actor)} in {self._room_label(context.room)}: {lambda_str}"
-                )
+                message = f"_execute_lambda_sequence evaluating {context.special_name!r} for {self._actor_label(context.actor)} in {self._room_label(context.room)}: {lambda_str}"
+                self.logger.debug(message)
                 func = eval(lambda_str)
                 if not callable(func):
                     self.logger.debug(f"_execute_lambda_sequence skipping non-callable lambda for {self._actor_label(context.actor)}: {lambda_str}")
@@ -231,24 +229,18 @@ class MobileHandler:
                 result = func(context)
                 if inspect.isawaitable(result):
                     await result
-                    self.logger.debug(
-                        f"_execute_lambda_sequence awaited lambda for {self._actor_label(context.actor)}: "
-                        f"performed={context.performed}, done={context.done}"
-                    )
+                    message = f"_execute_lambda_sequence awaited lambda for {self._actor_label(context.actor)}: performed={context.performed}, done={context.done}"
+                    self.logger.debug(message)
                 else:
-                    self.logger.debug(
-                        f"_execute_lambda_sequence lambda returned for {self._actor_label(context.actor)}: "
-                        f"result={result!r}, performed={context.performed}, done={context.done}"
-                    )
+                    message = f"_execute_lambda_sequence lambda returned for {self._actor_label(context.actor)}: result={result!r}, performed={context.performed}, done={context.done}"
+                    self.logger.debug(message)
             except Exception as exc:
                 self.logger.error(f"Mobile special failed for {context.special_name or getattr(context.actor, 'special_name', '')}: {lambda_str} | {exc}", exc_info=True)
                 break
             await self._flush_context_payloads(context)
             if context.done:
-                self.logger.debug(
-                    f"_execute_lambda_sequence stopping early for {self._actor_label(context.actor)} "
-                    f"because context.done is set for special {context.special_name!r}"
-                )
+                message = f"_execute_lambda_sequence stopping early for {self._actor_label(context.actor)} because context.done is set for special {context.special_name!r}"
+                self.logger.debug(message)
                 break
 
     async def _flush_context_payloads(self, context: MobileContext):
@@ -351,10 +343,3 @@ class MobileHandler:
         vnum = str(getattr(room, "vnum", "") or "").strip()
         room_id = str(getattr(room, "id", "") or "").strip()
         return f"{name or 'unnamed-room'} [vnum={vnum}, id={room_id}]"
-
-    def _enum_bit(self, enum_obj, *names: str) -> int:
-        for name in names:
-            value = CharacterApi.enum_bit(enum_obj, name)
-            if value:
-                return value
-        return 0
