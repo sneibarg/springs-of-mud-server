@@ -73,3 +73,42 @@ class FightUtil:
             if str(getattr(skill, "name", "") or "").strip().lower() == wanted:
                 return skill
         return None
+
+    @staticmethod
+    def normalize_damage_type_name(dam_type: str | None) -> str:
+        text = str(dam_type or "").strip().upper()
+        if not text or text == "NONE":
+            return "DAM_NONE"
+        if text.startswith("DAM_"):
+            return text
+        return f"DAM_{text}"
+
+    @staticmethod
+    def set_fighting_position(entity, PositionsEnum) -> None:
+        attrs = getattr(entity, "character_attributes", None)
+        if attrs is not None:
+            attrs.position = PositionsEnum.POS_FIGHTING.value
+            return
+        setattr(entity, "position", PositionsEnum.POS_FIGHTING.value)
+
+    @staticmethod
+    def entity_position_value(entity) -> int:
+        attrs = getattr(entity, "character_attributes", None)
+        if attrs is not None and hasattr(attrs, "position"):
+            return GenericUtil.to_int(getattr(attrs, "position", 0), 0)
+        if hasattr(entity, "position"):
+            return GenericUtil.to_int(getattr(entity, "position", 0), 0)
+        return GenericUtil.to_int(getattr(entity, "start_pos", 0), 0)
+
+    @staticmethod
+    def dynamic_combat_bonus(entity, *names: str) -> int:
+        total = 0
+        for name in names:
+            value = getattr(entity, name, None)
+            if value is not None:
+                total += GenericUtil.to_int(value, 0)
+        return total
+
+    @staticmethod
+    def interpolate(level: int, value_00: int, value_32: int) -> int:
+        return value_00 + level * (value_32 - value_00) // 32

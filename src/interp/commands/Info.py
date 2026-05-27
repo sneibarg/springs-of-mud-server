@@ -73,8 +73,6 @@ class Info:
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.interp_registry = registry_service.interp_registry
         self.room_registry = registry_service.room_registry
-        self.skill_registry = registry_service.skill_registry
-        self.spell_registry = getattr(registry_service, "spell_registry", None)
         self.session_handler = session_handler
         self.weather_handler = weather_handler
         self.interp_api = interp_api or InterpApi()
@@ -288,7 +286,7 @@ class Info:
         max_weight = GenericUtil.to_int(getattr(attributes, "max_weight", 0), 0)
 
         lines = [
-            f"You are {character.name}{character.title}, level {character.level}, {age_years} years old ({total_hours} hours).",
+            f"You are {character.name} {character.title}, level {character.level}, {age_years} years old ({total_hours} hours).",
         ]
         if trust != character.level:
             lines.append(f"You are trusted at level {trust}.")
@@ -341,16 +339,14 @@ class Info:
             lines.append(imm_text)
 
         if character.level >= 15:
-            lines.append(
-                f"Hitroll: {CharacterApi.get_hitroll(character)}  Damroll: {CharacterApi.get_damroll(character)}."
-            )
+            lines.append(f"Hitroll: {CharacterApi.get_hitroll(character)}  Damroll: {CharacterApi.get_damroll(character)}.")
 
         alignment = GenericUtil.to_int(getattr(attributes, "alignment", 0), 0)
         if character.level >= 10:
-            lines.append(f"Alignment: {alignment}.")
-        lines.append(f"You are {InfoUtil.score_alignment_word(alignment)}.")
+            lines.append(f"Alignment: {alignment}. You are {InfoUtil.score_alignment_word(alignment)}.")
+        else:
+            lines.append(f"You are {InfoUtil.score_alignment_word(alignment)}.")
         if CharacterApi.is_comm_enabled(character, "COMM_SHOW_AFFECTS"):
-            lines.append("")
             lines.append(EffectUtil.format_affects(character).rstrip("\r\n"))
         context.finish()
         return "\r\n".join(lines) + "\r\n"
@@ -805,21 +801,15 @@ class Info:
         if not raw and context.parameters:
             raw = " ".join(context.parameters).strip().lower()
 
-        skills = list(getattr(character, "skills", []) or [])
-        spells = list(getattr(character, "spells", []) or [])
-        practice_entries = skills + spells
         attributes = getattr(character, "character_attributes", None)
         practices = GenericUtil.to_int(getattr(attributes, "practices", 0), 0) if attributes is not None else 0
 
         if not raw:
             lines = []
             known_skills = []
-            for skill in practice_entries:
-                name = str(skill.get("name", "") or "").strip()
-                level = GenericUtil.to_int(skill.get("level", 0), 0)
-                meta = self._practice_meta(name)
-                if not name or level < 1 or not self._practice_visible(character, meta):
-                    continue
+            for skill in SkillUtil.visible_learned_entries(character):
+                name = SkillUtil.learned_entry_name(skill)
+                level = SkillUtil.learned_level(skill)
                 known_skills.append((name, level))
 
             for i, (name, level) in enumerate(known_skills):
@@ -848,15 +838,16 @@ class Info:
 
         context.practice_trainer = trainer
 
-        practiced_skill = SkillUtil.find_character_skill(practice_entries, raw)
-        practice_meta = self._practice_meta(raw if practiced_skill is None else practiced_skill.get("name", raw))
-        learned = GenericUtil.to_int(practiced_skill.get("level", 0), 0) if practiced_skill is not None else 0
+        practiced_skill = SkillUtil.find_learned_entry(character, raw)
+        practice_name = SkillUtil.learned_entry_name(practiced_skill) or raw
+        practice_meta = SkillUtil.practice_meta(practice_name)
+        learned = SkillUtil.learned_level(practiced_skill)
         context.practice_skill = practiced_skill
-        context.practice_skill_name = str(practiced_skill.get("name", raw) or raw) if practiced_skill is not None else raw
+        context.practice_skill_name = practice_name
         context.practice_learned = learned
-        context.practice_visible = bool(practiced_skill is not None and learned >= 1 and self._practice_visible(character, practice_meta))
+        context.practice_visible = practiced_skill is not None
 
-        rating = self._practice_rating(character, practice_meta)
+        rating = SkillUtil.practice_rating(character, practice_meta)
         context.practice_rating = rating
 
         adept = SkillUtil.practice_adept(character)
@@ -888,49 +879,6 @@ class Info:
             "to_room": self._render_message_key(context, "learned", channel="to_room", s=skill_name).get("to_room", ""),
             "targets": targets,
         }
-
-    def _practice_meta(self, skill_name: str):
-        wanted = str(skill_name or "").strip().lower()
-        if not wanted:
-            return None
-
-        if self.skill_registry is not None:
-            for skill in self.skill_registry.all_skills():
-                if str(getattr(skill, "name", "") or "").strip().lower() == wanted:
-                    return skill
-
-        if self.spell_registry is not None:
-            for spell in self.spell_registry.all_spells():
-                if str(getattr(spell, "name", "") or "").strip().lower() == wanted:
-                    return spell
-
-        return None
-
-    @staticmethod
-    def _practice_class_name(character: Character) -> str:
-        return str(getattr(getattr(character, "character_class", None), "name", "") or "").strip().lower()
-
-    def _practice_visible(self, character: Character, meta) -> bool:
-        if meta is None:
-            return True
-        required_level = self._practice_level_requirement(character, meta)
-        return GenericUtil.to_int(getattr(character, "level", 0), 0) >= required_level
-
-    def _practice_level_requirement(self, character: Character, meta) -> int:
-        class_name = self._practice_class_name(character)
-        level_map = getattr(meta, "level_by_class", {}) or {}
-        if class_name in level_map:
-            return max(0, GenericUtil.to_int(level_map.get(class_name), 99))
-        return max(0, GenericUtil.to_int(level_map.get("mage", 99), 99))
-
-    def _practice_rating(self, character: Character, meta) -> int:
-        if meta is None:
-            return 1
-        class_name = self._practice_class_name(character)
-        rating_map = getattr(meta, "rating_by_class", {}) or {}
-        if class_name in rating_map:
-            return max(0, GenericUtil.to_int(rating_map.get(class_name), 0))
-        return max(0, GenericUtil.to_int(rating_map.get("mage", 0), 0))
 
     def do_prompt(self, character: Character, context: Context) -> str:
         raw = (context.result if isinstance(context.result, str) else "").strip()

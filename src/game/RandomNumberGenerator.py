@@ -9,8 +9,7 @@ class RandomNumberGenerator:
 
     @staticmethod
     def number_bits(width: int) -> int:
-        max_value = (1 << width) - 1  # 2^width - 1
-        return random.randint(0, max_value)
+        return RandomNumberGenerator.number_mm() & ((1 << width) - 1)
 
     @staticmethod
     def number_mm() -> int:  # Marsaglia-Multicarry random number generator.

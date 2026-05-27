@@ -1,0 +1,9 @@
+# Force all .py files to be treated as Python (and detectable)
+*.py linguist-language=Python linguist-detectable
+
+# If Python files are in an ignored folder (e.g., examples or docs)
+examples/** linguist-documentation=false
+docs/** -linguist-documentation
+
+# Make the whole repo prioritize Python if needed
+**/*.py linguist-detectable=true

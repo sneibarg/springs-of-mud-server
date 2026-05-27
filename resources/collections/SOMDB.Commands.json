@@ -1173,11 +1173,11 @@
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'buy_item_short', '')}"
       },
       {
-        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and int(getattr(getattr(v.context.character, 'character_attributes', None), 'max_items', 0) or 0) > 0 and (len(CharacterApi.owned_items(v.context.character)) + int(getattr(v.context, 'buy_quantity', 0) or 0)) > int(getattr(getattr(v.context.character, 'character_attributes', None), 'max_items', 0) or 0)",
+        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and int(getattr(getattr(v.context.character, 'character_attributes', None), 'max_items', 0) or 0) > 0 and (len(v.context.character.owned_items()) + int(getattr(v.context, 'buy_quantity', 0) or 0)) > int(getattr(getattr(v.context.character, 'character_attributes', None), 'max_items', 0) or 0)",
         "messageKey": "quantityExceedsAllowed"
       },
       {
-        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and int(getattr(getattr(v.context.character, 'character_attributes', None), 'max_weight', 0) or 0) > 0 and (sum(int(getattr(item, 'weight', 0) or 0) for item in CharacterApi.owned_items(v.context.character)) + int((int(getattr(v.context.character, 'silver', 0) or 0) / 10) + (int(getattr(v.context.character, 'gold', 0) or 0) * 2 / 5)) + (int(getattr(v.context, 'buy_quantity', 0) or 0) * int(getattr(getattr(v.context, 'buy_item', None), 'weight', 0) or 0))) > int(getattr(getattr(v.context.character, 'character_attributes', None), 'max_weight', 0) or 0)",
+        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and int(getattr(getattr(v.context.character, 'character_attributes', None), 'max_weight', 0) or 0) > 0 and (sum(int(getattr(item, 'weight', 0) or 0) for item in v.context.character.owned_items()) + int((int(getattr(v.context.character, 'silver', 0) or 0) / 10) + (int(getattr(v.context.character, 'gold', 0) or 0) * 2 / 5)) + (int(getattr(v.context, 'buy_quantity', 0) or 0) * int(getattr(getattr(v.context, 'buy_item', None), 'weight', 0) or 0))) > int(getattr(getattr(v.context.character, 'character_attributes', None), 'max_weight', 0) or 0)",
         "messageKey": "weightExceedsAllowed"
       }
     ]
@@ -1305,7 +1305,7 @@
         "messageKey": "notContainer"
       },
       {
-        "predicate": "lambda v: v.context.container is not None and ItemApi.is_closed_container(v.context.container)",
+        "predicate": "lambda v: v.context.container is not None and ItemApi.is_container_closed(v.context.container)",
         "messageKey": "closed",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', getattr(v.context.container, 'name', ''))}"
       },
@@ -4237,7 +4237,7 @@
         "messageKey": "itemMissing"
       },
       {
-        "predicate": "lambda v: v.context.eat_item is not None and not ItemUtil.is_edible(v.context.eat_item)",
+        "predicate": "lambda v: v.context.eat_item is not None and not v.context.eat_item.is_edible()",
         "messageKey": "notEdible"
       },
       {
@@ -4962,7 +4962,7 @@
         "messageKey": "notContainer"
       },
       {
-        "predicate": "lambda v: v.context.put_container is not None and ItemUtil.is_closed_container(v.context.put_container)",
+        "predicate": "lambda v: v.context.put_container is not None and ItemApi.is_container_closed(v.context.put_container)",
         "messageKey": "closed",
         "tokenFactory": "lambda v: {'t': v.context.put_container_name}"
       },
@@ -5249,7 +5249,7 @@
         "messageKey": "notContainer"
       },
       {
-        "predicate": "lambda v: v.context.container is not None and ItemUtil.is_closed_container(v.context.container)",
+        "predicate": "lambda v: v.context.container is not None and ItemApi.is_container_closed(v.context.container)",
         "messageKey": "closed",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', getattr(v.context.container, 'name', ''))}"
       },

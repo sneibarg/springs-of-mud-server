@@ -153,6 +153,20 @@ class _SkillUtil:
     def check_improve(_character, _skill_id, _success, _multiplier=1):
         return None
 
+    @staticmethod
+    def check_improve_by_name(_character, _skill_name, _success, _multiplier=1):
+        return None
+
+    @staticmethod
+    def weapon_skill_name(weapon, _weapon_class_names=None):
+        if weapon is None:
+            return "hand to hand"
+        return "dagger" if getattr(weapon, "value0", None) == 1 else ""
+
+    @staticmethod
+    def active_melee_skill_name(weapon, weapon_class_names=None):
+        return _SkillUtil.weapon_skill_name(weapon, weapon_class_names) or "hand to hand"
+
 
 class _FightHandler:
     @staticmethod

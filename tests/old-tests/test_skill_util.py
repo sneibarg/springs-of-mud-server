@@ -80,6 +80,55 @@ class TestSkillUtil(unittest.TestCase):
         self.assertEqual(52, character.spells[0]["level"])
         gain_experience.assert_called_once_with(character, 8)
 
+    def test_find_learned_entry_hides_skill_until_practice_level(self):
+        character = SimpleNamespace(
+            level=1,
+            character_class=self._character_class("thief", skill_adept=75),
+            skills=[
+                {"name": "second attack", "level": 100},
+                {"name": "sword", "level": 25},
+            ],
+            spells=[],
+        )
+        registry = SimpleNamespace(
+            skill_registry=SimpleNamespace(
+                all_skills=Mock(return_value=[
+                    SimpleNamespace(name="second attack", level_by_class={"thief": 12}, rating_by_class={"thief": 5}),
+                    SimpleNamespace(name="sword", level_by_class={"thief": 1}, rating_by_class={"thief": 3}),
+                ])
+            ),
+            spell_registry=SimpleNamespace(all_spells=Mock(return_value=[])),
+        )
+
+        with patch("util.SkillUtil.CharacterApi.get_registry", return_value=registry):
+            self.assertIsNone(SkillUtil.find_learned_entry(character, "second attack"))
+            visible = SkillUtil.find_learned_entry(character, "sword")
+
+        self.assertIsNotNone(visible)
+        self.assertEqual("sword", visible["name"])
+
+    def test_find_learned_entry_supports_visible_prefix_match(self):
+        character = SimpleNamespace(
+            level=20,
+            character_class=self._character_class("warrior", skill_adept=75),
+            skills=[{"name": "shield block", "level": 61}],
+            spells=[],
+        )
+        registry = SimpleNamespace(
+            skill_registry=SimpleNamespace(
+                all_skills=Mock(return_value=[
+                    SimpleNamespace(name="shield block", level_by_class={"warrior": 1}, rating_by_class={"warrior": 3}),
+                ])
+            ),
+            spell_registry=SimpleNamespace(all_spells=Mock(return_value=[])),
+        )
+
+        with patch("util.SkillUtil.CharacterApi.get_registry", return_value=registry):
+            entry = SkillUtil.find_learned_entry(character, "shield bl")
+
+        self.assertIsNotNone(entry)
+        self.assertEqual(61, entry["level"])
+
 
 if __name__ == "__main__":
     unittest.main()

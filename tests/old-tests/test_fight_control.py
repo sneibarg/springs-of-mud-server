@@ -269,11 +269,49 @@ class TestFightControl(unittest.TestCase):
                  {"to_char": "first\r\n", "to_victim": "", "to_room": "", "killed": False},
                  {"to_char": "second\r\n", "to_victim": "", "to_room": "", "killed": False},
              ]), \
-             patch.object(handler, "_entity_has_affect", return_value=False), \
              patch("fight.FightHandler.random.randint", return_value=1):
             payload = handler.multi_hit(attacker, victim, dt="TYPE_UNDEFINED")
 
         self.assertEqual("first\r\nsecond\r\n", payload["to_char"])
+
+    def test_multi_hit_ignores_second_attack_before_skill_is_visible(self):
+        handler = FightHandler(
+            message_bus=Mock(),
+            combat_registry=Mock(),
+            room_registry=Mock(),
+            item_registry=Mock(),
+            mobile_registry=Mock(),
+        )
+        attacker = SimpleNamespace(
+            fighting=None,
+            level=1,
+            character_class=SimpleNamespace(name="thief", skill_adept=75),
+            skills=[{"name": "second attack", "level": 100}],
+            spells=[],
+            stats_flags=SimpleNamespace(pulse_wait=0, pulse_daze=0),
+            character_attributes=SimpleNamespace(position=8),
+        )
+        victim = SimpleNamespace(id="mob1")
+        attacker.fighting = victim
+        registry = SimpleNamespace(
+            skill_registry=SimpleNamespace(
+                all_skills=Mock(return_value=[
+                    SimpleNamespace(name="second attack", level_by_class={"thief": 12}, rating_by_class={"thief": 5}),
+                ])
+            ),
+            spell_registry=SimpleNamespace(all_spells=Mock(return_value=[])),
+        )
+
+        with patch("fight.FightHandler.CharacterApi.get_enum", return_value=SimpleNamespace(POS_RESTING=SimpleNamespace(value=5))), \
+             patch("fight.FightHandler.CharacterApi.is_npc", return_value=False), \
+             patch("util.SkillUtil.CharacterApi.get_registry", return_value=registry), \
+             patch.object(handler, "one_hit", return_value={"to_char": "first\r\n", "to_victim": "", "to_room": "", "killed": False}) as one_hit, \
+             patch.object(handler, "_entity_has_affect", return_value=False), \
+             patch("fight.FightHandler.random.randint", return_value=1):
+            payload = handler.multi_hit(attacker, victim, dt="TYPE_UNDEFINED")
+
+        self.assertEqual("first\r\n", payload["to_char"])
+        self.assertEqual(1, one_hit.call_count)
 
     def test_mob_hit_uses_off_fast_extra_attack(self):
         handler = FightHandler(
