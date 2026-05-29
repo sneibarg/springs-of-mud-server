@@ -502,10 +502,5 @@ class ItemUtil:
     def combine_items(items: list) -> dict:
         combined = {}
         for item in items:
-            total = len(combined.get(item.vnum, [])) + 1
-            if total == 1:
-                combined[item.vnum] = []
-                combined[item.vnum].append(item)
-                continue
-            combined[item.vnum].append(item)
+            combined.setdefault(item.vnum, []).append(item)
         return combined
