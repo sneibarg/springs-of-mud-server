@@ -142,6 +142,28 @@ class _RandomNumberGenerator:
         return 0
 
 
+class _Character:
+    @staticmethod
+    def learned_entry_name(entry) -> str:
+        return str(entry.get("name", "") or "").strip() if isinstance(entry, dict) else str(getattr(entry, "name", "") or "").strip()
+
+    @staticmethod
+    def learned_entry_level(entry) -> int:
+        return int(entry.get("level", 0)) if isinstance(entry, dict) else int(getattr(entry, "level", 0))
+
+    @staticmethod
+    def get_learned(character, learned_name, *, visible_only: bool = False, collection_name: str = "", **_kwargs):
+        wanted = str(learned_name or "").strip().lower()
+        collections = [getattr(character, collection_name, [])] if collection_name else [getattr(character, "skills", []), getattr(character, "spells", [])]
+        for collection in collections:
+            for entry in list(collection or []):
+                if visible_only and _Character.learned_entry_level(entry) < 1:
+                    continue
+                if _Character.learned_entry_name(entry).lower() == wanted:
+                    return entry
+        return None
+
+
 _stub_module("injector", inject=lambda target: target)
 _stub_package("api")
 _stub_module("api.GameApi", GameApi=SimpleNamespace())
@@ -161,7 +183,7 @@ _stub_module("item.BodyForm", BodyForm=object)
 _stub_module("item.BodyParts", BodyParts=object)
 _stub_module("item.Item", Item=object)
 _stub_package("player")
-_stub_module("player.Character", Character=object)
+_stub_module("player.Character", Character=_Character)
 _stub_module("player.CharacterAdvancement", CharacterAdvancement=object)
 _stub_package("server")
 _stub_module("server.LoggerFactory", LoggerFactory=_LoggerFactory)
@@ -175,6 +197,10 @@ _stub_module("util.ItemUtil", ItemUtil=SimpleNamespace())
 
 
 class _SkillUtil:
+    @staticmethod
+    def practice_visible(_character, _meta_or_name) -> bool:
+        return True
+
     @staticmethod
     def learned_level(*_args, **_kwargs):
         return 0

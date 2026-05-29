@@ -807,9 +807,9 @@ class Info:
         if not raw:
             lines = []
             known_skills = []
-            for skill in SkillUtil.visible_learned_entries(character):
-                name = SkillUtil.learned_entry_name(skill)
-                level = SkillUtil.learned_level(skill)
+            for skill in Character.visible_learned_entries(character, SkillUtil.practice_visible):
+                name = Character.learned_entry_name(skill)
+                level = Character.learned_entry_level(skill)
                 known_skills.append((name, level))
 
             for i, (name, level) in enumerate(known_skills):
@@ -838,10 +838,10 @@ class Info:
 
         context.practice_trainer = trainer
 
-        practiced_skill = SkillUtil.find_learned_entry(character, raw)
-        practice_name = SkillUtil.learned_entry_name(practiced_skill) or raw
+        practiced_skill = Character.get_learned(character, raw, prefix=True, visible_only=True, visible_fn=SkillUtil.practice_visible)
+        practice_name = Character.learned_entry_name(practiced_skill) or raw
         practice_meta = SkillUtil.practice_meta(practice_name)
-        learned = SkillUtil.learned_level(practiced_skill)
+        learned = Character.learned_entry_level(practiced_skill)
         context.practice_skill = practiced_skill
         context.practice_skill_name = practice_name
         context.practice_learned = learned
@@ -864,7 +864,7 @@ class Info:
         skill_name = context.practice_skill_name
 
         if new_level < adept:
-            practiced_skill["level"] = new_level
+            Character.set_learned(character, skill_name, new_level)
             context.finish()
             return {
                 **self._render_message_key(context, "practice", s=skill_name),

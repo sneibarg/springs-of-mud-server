@@ -250,6 +250,61 @@ class _SkillUtil:
         return 5
 
 
+class _Character:
+    @staticmethod
+    def learned_entry_name(entry) -> str:
+        return _SkillUtil.learned_entry_name(entry)
+
+    @staticmethod
+    def learned_entry_level(entry) -> int:
+        return _SkillUtil.learned_level(entry)
+
+    @staticmethod
+    def visible_learned_entries(character, visible_fn=None, *, collection_name: str = ""):
+        entries = []
+        collections = [getattr(character, collection_name, [])] if collection_name else [getattr(character, "skills", []), getattr(character, "spells", [])]
+        for collection in collections:
+            for entry in list(collection or []):
+                if _Character.learned_entry_level(entry) < 1:
+                    continue
+                name = _Character.learned_entry_name(entry)
+                if callable(visible_fn) and not visible_fn(character, name):
+                    continue
+                entries.append(entry)
+        return entries
+
+    @staticmethod
+    def get_learned(character, learned_name, *, prefix: bool = False, visible_only: bool = False, visible_fn=None, collection_name: str = ""):
+        entries = _Character.visible_learned_entries(character, visible_fn, collection_name=collection_name) if visible_only else (
+            [entry for collection in ([getattr(character, collection_name, [])] if collection_name else [getattr(character, "skills", []), getattr(character, "spells", [])]) for entry in list(collection or [])]
+        )
+        wanted = str(learned_name or "").strip().lower()
+        prefix_match = None
+        for entry in entries:
+            name = _Character.learned_entry_name(entry).lower()
+            if name == wanted:
+                return entry
+            if prefix and prefix_match is None and name.startswith(wanted):
+                prefix_match = entry
+        return prefix_match
+
+    @staticmethod
+    def set_learned(character, learned_name, learned_level, *, collection_name: str = "", create: bool = False):
+        entry = _Character.get_learned(character, learned_name, collection_name=collection_name)
+        if entry is None:
+            if not create:
+                raise ValueError(learned_name)
+            collection_key = "spells" if collection_name == "spells" else "skills"
+            collection = getattr(character, collection_key, None)
+            if collection is None:
+                collection = []
+                setattr(character, collection_key, collection)
+            entry = {"name": str(learned_name or "").strip(), "level": 0}
+            collection.append(entry)
+        entry["level"] = int(learned_level)
+        return entry
+
+
 class _ItemMacros:
     @staticmethod
     def find_comparable_equipped_item(_character, obj1):
@@ -328,7 +383,7 @@ _stub_module("game.WeatherHandler", WeatherHandler=object)
 _stub_package("item")
 _stub_module("item.ItemApi", ItemMacros=_ItemMacros)
 _stub_package("player")
-_stub_module("player.Character", Character=object)
+_stub_module("player.Character", Character=_Character)
 _stub_module("player.CharacterApi", CharacterMacros=_CharacterMacros)
 _stub_package("server.session")
 _stub_module("server.session.SessionHandler", SessionHandler=object)

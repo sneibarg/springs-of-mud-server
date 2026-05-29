@@ -375,7 +375,8 @@ class FightHandler:
         money, timer_max, timer_min = self._corpse_timer_and_money(victim)
         corpse = ItemUtil.create_object(self.item_registry.get(vnum=str(vnum)))
         corpse.timer = random.randint(timer_min, timer_max)
-        corpse.level = GenericUtil.to_int(getattr(victim, "level", 0), 0)
+        print(f"Victim level: {victim.level}")
+        corpse.level = GenericUtil.to_int(victim.level)
         corpse.cost = 0
         victim_name = self._corpse_name(victim)
         corpse.short_description = self._format_template(getattr(corpse, "short_description", ""), victim_name)
@@ -1071,7 +1072,9 @@ class FightHandler:
             return 0
 
         if not CharacterApi.is_npc(entity):
-            return SkillUtil.learned_level(SkillUtil.find_learned_entry(entity, skill_name))
+            return Character.learned_entry_level(
+                Character.get_learned(entity, skill_name, visible_only=True, visible_fn=SkillUtil.practice_visible)
+            )
 
         level = entity.level
         if wanted == "second attack":

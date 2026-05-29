@@ -201,7 +201,7 @@ class Item:
 
     @classmethod
     def is_corpse(cls, item) -> bool:
-        return cls.item_type_name(item) in {"ITEM_CORPSE_NPC", "ITEM_CORPSE_PC"}
+        return cls.item_type_name(item) in {"NPC_CORPSE", "CORPSE_PC"}
 
     @classmethod
     def is_potion(cls, item) -> bool:

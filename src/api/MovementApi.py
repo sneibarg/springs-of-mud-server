@@ -154,11 +154,12 @@ class MovementApi(GameApi):
         flags = GenericUtil.to_int(getattr(item, "value1", 0), 0) if item is not None else 0
         key = GenericUtil.to_int(getattr(item, "value2", -1), -1) if item is not None else -1
         container_state = CharacterApi.get_enum("containerState")
+        short = "container" if item is None else item.short()
         return ContainerState(
             argument=MovementApi.argument_text(subject),
             item=item,
             flags=flags,
-            short=Item.short(item) if item is not None else "container",
+            short=short,
             key=key,
             has_key=MovementApi.has_key(character, key),
             closeable_flag=MovementApi.flag_value(container_state, "CONT_CLOSEABLE"),

@@ -1,5 +1,6 @@
 import random
 
+from game.RandomNumberGenerator import RandomNumberGenerator
 from player.CharacterAdvancement import CharacterAdvancement
 from util.GenericUtil import GenericUtil
 from player.Character import Character
@@ -7,9 +8,11 @@ from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
 
 logger = LoggerFactory.get_logger(__name__)
-
+rng = RandomNumberGenerator()
 
 class SkillUtil:
+    _IMPROVE_MESSAGES_ATTR = "_skill_improve_messages"
+
     @staticmethod
     def _weapon_enum_skill_name(enum_name: str) -> str:
         text = str(enum_name or "").strip().lower()
@@ -32,23 +35,6 @@ class SkillUtil:
             return True
 
         return False
-
-    @staticmethod
-    def find_character_skill(skills: list, wanted: str):
-        query = str(wanted or "").strip().lower()
-        if not query:
-            return None
-
-        prefix_match = None
-        for skill in skills or []:
-            skill_name = SkillUtil.learned_entry_name(skill).lower()
-            if not skill_name:
-                continue
-            if skill_name == query:
-                return skill
-            if prefix_match is None and skill_name.startswith(query):
-                prefix_match = skill
-        return prefix_match
 
     @staticmethod
     def practice_class_name(character: Character) -> str:
@@ -186,123 +172,58 @@ class SkillUtil:
             return
 
         registry = CharacterApi.get_registry()
+        collection_name = "skills"
         ability = getattr(registry, "skill_registry", None).get_or_none(id=skill_id) if getattr(registry, "skill_registry", None) is not None else None
         if ability is None and getattr(registry, "spell_registry", None) is not None:
             ability = registry.spell_registry.get_or_none(id=skill_id)
+            collection_name = "spells"
         if ability is None:
             return
 
         rating = SkillUtil.practice_rating(ch, ability)
-        learned_entry = SkillUtil._find_learned_entry(ch, str(getattr(ability, "name", "") or ""))
-        learned = SkillUtil._learned_level(learned_entry)
+        learned_entry = Character.get_learned(ch, ability.name, collection_name=collection_name)
+        learned = Character.learned_entry_level(learned_entry)
         adept = SkillUtil.practice_adept(ch)
         intelligence = ch.character_attributes.intelligence
         learn_bonus = GenericUtil.to_int(CharacterApi.get_attribute_bonus("intelligence", str(intelligence)).get("learn", 0), 0)
         multiplier = max(1, GenericUtil.to_int(multiplier, 1))
         chance = (10 * learn_bonus) // (multiplier * rating * 4) + ch.level
         random_integer = random.randint(1, 1000)
-        logger.debug(f"Skill {getattr(ability, 'name', '')} for {ch.name} (level {ch.level}, adept {adept}) - chance: {chance}; random_integer={random_integer} learn_bonus={learn_bonus}; rating={rating} learned={learned}; multiplier={multiplier}; success={success}")
+        logger.info(f"Skill {getattr(ability, 'name', '')} for {ch.name} (level {ch.level}, adept {adept}) - chance: {chance}; random_integer={random_integer} learn_bonus={learn_bonus}; rating={rating} learned={learned}; multiplier={multiplier}; success={success}")
         if random_integer > chance:
             return
 
         if success:
             chance = max(5, min(adept - learned, 95))
-            if random.randint(1, 100) < chance:
-                SkillUtil._set_learned_level(learned_entry, min(learned + 1, adept))
-                CharacterAdvancement.gain_experience(ch, 2 * rating)
+            if rng.number_percent() < chance:
+                improved = min(learned + 1, adept)
+                Character.set_learned(ch, getattr(ability, "name", ""), improved, collection_name=collection_name, create=True)
+                if improved > learned:
+                    SkillUtil._queue_improve_message(ch, f"You have become better at {getattr(ability, 'name', '')}!\r\n")
+                    CharacterAdvancement.gain_experience(ch, 2 * rating)
         else:
             chance = max(5, min(learned // 2, 30))
-            if random.randint(1, 100) < chance:
-                SkillUtil._set_learned_level(learned_entry, min(learned + random.randint(1, 3), adept))
-                CharacterAdvancement.gain_experience(ch, 2 * rating)
-        logger.debug(f"Random chance SUCCESS - actual chance: {chance}")
+            if rng.number_percent() < chance:
+                improved = min(learned + random.randint(1, 3), adept)
+                Character.set_learned(ch, getattr(ability, "name", ""), improved, collection_name=collection_name, create=True)
+                if improved > learned:
+                    SkillUtil._queue_improve_message(ch, f"You learn from your mistakes, and your {getattr(ability, 'name', '')} skill improves.\r\n")
+                    CharacterAdvancement.gain_experience(ch, 2 * rating)
+        logger.info(f"Random chance SUCCESS - actual chance: {chance}")
 
     @staticmethod
-    def _find_learned_entry(character: Character, ability_name: str):
-        wanted = str(ability_name or "").strip().lower()
-        if not wanted:
-            return None
-
-        for collection_name in ("skills", "spells"):
-            for entry in list(getattr(character, collection_name, []) or []):
-                if isinstance(entry, dict):
-                    name = str(entry.get("name", "") or "").strip().lower()
-                else:
-                    name = str(getattr(entry, "name", "") or "").strip().lower()
-                if name == wanted:
-                    return entry
-        return None
+    def _queue_improve_message(character: Character, message: str) -> None:
+        if character is None or not message:
+            return
+        messages = list(getattr(character, SkillUtil._IMPROVE_MESSAGES_ATTR, []) or [])
+        messages.append(str(message))
+        setattr(character, SkillUtil._IMPROVE_MESSAGES_ATTR, messages)
 
     @staticmethod
-    def visible_learned_entries(character: Character) -> list:
-        visible_entries = []
-        for collection_name in ("skills", "spells"):
-            for entry in list(getattr(character, collection_name, []) or []):
-                if SkillUtil._learned_level(entry) < 1:
-                    continue
-                name = SkillUtil.learned_entry_name(entry)
-                if not name or not SkillUtil.practice_visible(character, name):
-                    continue
-                visible_entries.append(entry)
-        return visible_entries
-
-    @staticmethod
-    def find_learned_entry(character: Character, ability_name: str):
+    def take_improve_messages(character: Character) -> str:
         if character is None:
-            return None
-        entry = SkillUtil.find_character_skill(SkillUtil.visible_learned_entries(character), ability_name)
-        if SkillUtil._learned_level(entry) < 1:
-            return None
-        return entry
-
-    @staticmethod
-    def learned_entry_name(entry) -> str:
-        if entry is None:
             return ""
-        if isinstance(entry, dict):
-            return str(entry.get("name", "") or "").strip()
-        return str(getattr(entry, "name", "") or "").strip()
+        messages = list(getattr(character, SkillUtil._IMPROVE_MESSAGES_ATTR, []) or [])
+        setattr(character, SkillUtil._IMPROVE_MESSAGES_ATTR, [])
+        return "".join(messages)
 
-    @staticmethod
-    def learned_level(entry) -> int:
-        return SkillUtil._learned_level(entry)
-
-    @staticmethod
-    def _learned_level(entry) -> int:
-        if entry is None:
-            return 0
-        if isinstance(entry, dict):
-            return max(0, min(100, GenericUtil.to_int(entry.get("level", 0), 0)))
-        return max(0, min(100, GenericUtil.to_int(getattr(entry, "level", 0), 0)))
-
-    @staticmethod
-    def _set_learned_level(entry, value: int) -> None:
-        if entry is None:
-            return
-        normalized = max(0, min(100, GenericUtil.to_int(value, 0)))
-        if isinstance(entry, dict):
-            entry["level"] = normalized
-            return
-        setattr(entry, "level", normalized)
-
-    @staticmethod
-    def ensure_learned_entry(character: Character, ability_name: str, *, collection_name: str) -> dict:
-        collection_name = "spells" if str(collection_name or "").strip().lower() == "spells" else "skills"
-        entry = SkillUtil._find_learned_entry(character, ability_name)
-        if entry is not None:
-            return entry
-
-        collection = getattr(character, collection_name, None)
-        if collection is None:
-            collection = []
-            setattr(character, collection_name, collection)
-
-        entry = {"name": str(ability_name or "").strip(), "level": 0}
-        collection.append(entry)
-        return entry
-
-    @staticmethod
-    def set_character_learned_level(character: Character, ability_name: str, value: int, *, collection_name: str) -> dict:
-        entry = SkillUtil.ensure_learned_entry(character, ability_name, collection_name=collection_name)
-        SkillUtil._set_learned_level(entry, value)
-        return entry

@@ -477,9 +477,12 @@ class ItemUtil:
 
     @staticmethod
     def sacrifice_silver_value(item) -> int:
-        silver = max(1, GenericUtil.to_int(getattr(item, "level", 1), 0) * 3)
+        silver = max(1, GenericUtil.to_int(item.level * 3))
+        print(f"Item level: {getattr(item, 'level', 1)}, Item cost: {getattr(item, 'cost', 0)}, silver: {silver}")
         if not Item.is_corpse(item):
-            silver = min(silver, max(0, GenericUtil.to_int(getattr(item, "cost", 0), 0)))
+            print(f"Item level: {getattr(item, 'level', 1)}, Item cost: {getattr(item, 'cost', 0)}, silver: {silver}")
+            silver = min(silver, GenericUtil.to_int(item.cost))
+        print(f"Item level: {getattr(item, 'level', 1)}, Item cost: {getattr(item, 'cost', 0)}, silver: {silver}")
         return max(3, silver)
 
     @staticmethod
@@ -494,3 +497,15 @@ class ItemUtil:
             if getattr(occupant, "on", None) is context.item:
                 context.occupant_name = getattr(occupant, "short_description", None) or getattr(occupant, "name", "Someone")
         return None
+
+    @staticmethod
+    def combine_items(items: list) -> dict:
+        combined = {}
+        for item in items:
+            total = len(combined.get(item.vnum, [])) + 1
+            if total == 1:
+                combined[item.vnum] = []
+                combined[item.vnum].append(item)
+                continue
+            combined[item.vnum].append(item)
+        return combined
