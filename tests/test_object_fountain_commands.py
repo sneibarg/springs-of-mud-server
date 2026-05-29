@@ -267,6 +267,7 @@ _stub_module("util.EffectUtil", EffectUtil=SimpleNamespace(handler=lambda: Simpl
 _stub_module("util.ItemUtil", ItemUtil=_ItemUtil)
 _stub_module("util.PlayerUtil", PlayerUtil=SimpleNamespace(get_target=lambda *_args, **_kwargs: None))
 _stub_module("util.SkillUtil", SkillUtil=SimpleNamespace(check_improve=lambda *_args, **_kwargs: None))
+_stub_module("skill.Ability", Ability=SimpleNamespace(check_improve=lambda *_args, **_kwargs: None))
 _stub_module("api.ItemApi", ItemApi=SimpleNamespace(is_container_closed=lambda _obj: False))
 _stub_module("api.InterpApi", InterpApi=_InterpApi)
 _stub_module("api.SpellApi", SpellApi=_SpellApi)

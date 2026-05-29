@@ -229,6 +229,8 @@ class _SkillUtil:
 
 
 _stub_module("util.SkillUtil", SkillUtil=_SkillUtil)
+_stub_package("skill")
+_stub_module("skill.Ability", Ability=_SkillUtil)
 
 FightHandler = _load_module("fight.FightHandler", "fight/FightHandler.py").FightHandler
 

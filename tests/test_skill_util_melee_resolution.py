@@ -124,7 +124,13 @@ _stub_package("api")
 _stub_module("api.CharacterApi", CharacterApi=_CharacterApi)
 _stub_package("util")
 _load_module("util.GenericUtil", "util/GenericUtil.py")
+_stub_package("game")
+_load_module("game.GamePayload", "game/GamePayload.py")
+_stub_module("game.RandomNumberGenerator", RandomNumberGenerator=lambda: SimpleNamespace(number_percent=lambda: 1))
+_stub_package("skill")
+_ability_module = _load_module("skill.Ability", "skill/Ability.py")
 _skill_util_module = _load_module("util.SkillUtil", "util/SkillUtil.py")
+Ability = _ability_module.Ability
 SkillUtil = _skill_util_module.SkillUtil
 
 
@@ -153,9 +159,9 @@ class TestSkillUtilMeleeResolution(unittest.TestCase):
             spell_registry=SimpleNamespace(all_spells=Mock(return_value=[])),
         )
 
-        with patch.object(_skill_util_module.CharacterApi, "get_registry", return_value=registry), \
-                patch.object(SkillUtil, "check_improve") as check_improve:
-            SkillUtil.check_improve_by_name(character, "dagger", True, 5)
+        with patch.object(_ability_module.CharacterApi, "get_registry", return_value=registry), \
+                patch.object(Ability, "check_improve") as check_improve:
+            Ability.check_improve_by_name(character, "dagger", True, 5)
 
         check_improve.assert_called_once_with(character, "skill-dagger", True, 5)
 
@@ -174,14 +180,14 @@ class TestSkillUtilMeleeResolution(unittest.TestCase):
             spell_registry=SimpleNamespace(get_or_none=Mock(return_value=None)),
         )
 
-        with patch.object(_skill_util_module.CharacterApi, "get_registry", return_value=registry), \
-                patch.object(_skill_util_module.CharacterAdvancement, "gain_experience"), \
-                patch.object(_skill_util_module.random, "randint", side_effect=[1, 1]):
-            SkillUtil.check_improve(character, "skill-sword", True)
+        with patch.object(_ability_module.CharacterApi, "get_registry", return_value=registry), \
+                patch.object(_ability_module.CharacterAdvancement, "gain_experience"), \
+                patch.object(_ability_module.random, "randint", side_effect=[1, 1]):
+            Ability.check_improve(character, "skill-sword", True)
 
         self.assertEqual(41, character.skills[0]["level"])
-        self.assertEqual("You have become better at sword!\r\n", SkillUtil.take_improve_messages(character))
-        self.assertEqual("", SkillUtil.take_improve_messages(character))
+        self.assertEqual("You have become better at sword!\r\n", Ability.take_improve_messages(character))
+        self.assertEqual("", Ability.take_improve_messages(character))
 
     def test_check_improve_queues_failure_message(self):
         character = SimpleNamespace(
@@ -198,15 +204,15 @@ class TestSkillUtilMeleeResolution(unittest.TestCase):
             spell_registry=SimpleNamespace(get_or_none=Mock(return_value=ability)),
         )
 
-        with patch.object(_skill_util_module.CharacterApi, "get_registry", return_value=registry), \
-                patch.object(_skill_util_module.CharacterAdvancement, "gain_experience"), \
-                patch.object(_skill_util_module.random, "randint", side_effect=[1, 1, 3]):
-            SkillUtil.check_improve(character, "spell-magic-missile", False)
+        with patch.object(_ability_module.CharacterApi, "get_registry", return_value=registry), \
+                patch.object(_ability_module.CharacterAdvancement, "gain_experience"), \
+                patch.object(_ability_module.random, "randint", side_effect=[1, 1, 3]):
+            Ability.check_improve(character, "spell-magic-missile", False)
 
         self.assertEqual(52, character.spells[0]["level"])
         self.assertEqual(
             "You learn from your mistakes, and your magic missile skill improves.\r\n",
-            SkillUtil.take_improve_messages(character),
+            Ability.take_improve_messages(character),
         )
 
     def test_check_improve_creates_missing_skill_entry_before_incrementing(self):
@@ -224,14 +230,14 @@ class TestSkillUtilMeleeResolution(unittest.TestCase):
             spell_registry=SimpleNamespace(get_or_none=Mock(return_value=None)),
         )
 
-        with patch.object(_skill_util_module.CharacterApi, "get_registry", return_value=registry), \
-                patch.object(_skill_util_module.CharacterAdvancement, "gain_experience"), \
-                patch.object(_skill_util_module.random, "randint", side_effect=[1]), \
-                patch.object(_skill_util_module.rng, "number_percent", return_value=1):
-            SkillUtil.check_improve(character, "skill-sword", True)
+        with patch.object(_ability_module.CharacterApi, "get_registry", return_value=registry), \
+                patch.object(_ability_module.CharacterAdvancement, "gain_experience"), \
+                patch.object(_ability_module.random, "randint", side_effect=[1]), \
+                patch.object(_ability_module.rng, "number_percent", return_value=1):
+            Ability.check_improve(character, "skill-sword", True)
 
         self.assertEqual([{"name": "sword", "level": 1}], character.skills)
-        self.assertEqual("You have become better at sword!\r\n", SkillUtil.take_improve_messages(character))
+        self.assertEqual("You have become better at sword!\r\n", Ability.take_improve_messages(character))
 
 
 if __name__ == "__main__":

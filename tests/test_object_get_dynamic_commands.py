@@ -333,6 +333,7 @@ _stub_module(
     ),
 )
 _stub_module("util.SkillUtil", SkillUtil=SimpleNamespace(check_improve=lambda *_args, **_kwargs: None))
+_stub_module("skill.Ability", Ability=SimpleNamespace(check_improve=lambda *_args, **_kwargs: None))
 _stub_module("game.RegistryService", RegistryService=object)
 _stub_module("interp.Context", Context=_Context)
 _stub_module("item.Item", Item=object)

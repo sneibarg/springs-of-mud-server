@@ -18,6 +18,7 @@ from item.BodyParts import BodyParts
 from item.Item import Item
 from player.Character import Character
 from player.CharacterAdvancement import CharacterAdvancement
+from skill.Ability import Ability
 from server.LoggerFactory import LoggerFactory
 from server.messaging.MessageBus import MessageBus
 from util.GenericUtil import GenericUtil
@@ -375,7 +376,6 @@ class FightHandler:
         money, timer_max, timer_min = self._corpse_timer_and_money(victim)
         corpse = ItemUtil.create_object(self.item_registry.get(vnum=str(vnum)))
         corpse.timer = random.randint(timer_min, timer_max)
-        print(f"Victim level: {victim.level}")
         corpse.level = GenericUtil.to_int(victim.level)
         corpse.cost = 0
         victim_name = self._corpse_name(victim)
@@ -685,13 +685,13 @@ class FightHandler:
 
         roll = self._to_hit_roll()
         if roll == 0 or (roll != 19 and roll < thac0 - victim_ac):
-            SkillUtil.check_improve_by_name(attacker, improve_skill, False, 5)
+            Ability.check_improve_by_name(attacker, improve_skill, False, 5)
             self.logger.info(
                 f"Miss: {attacker.name}, dam: {0}, roll: {roll}, thac0: {thac0}, victim_ac: {victim_ac}, weapon: {getattr(weapon, 'name', None)}, dam_type: {dam_type}, skill_name: {improve_skill}, skill: {skill}, base_skill: {base_skill}")
             return self.damage(attacker, victim, 0, dt=attack_verb, dam_type=dam_type, weapon_hit=True)
         else:
             dam = self._attack_damage(attacker, victim=victim, dt=dt, weapon=weapon, skill=skill)
-            SkillUtil.check_improve_by_name(attacker, improve_skill, True, 5)
+            Ability.check_improve_by_name(attacker, improve_skill, True, 5)
             self.logger.info(
                 f"Hit: {attacker.name}, dam: {dam}, roll: {roll}, thac0: {thac0}, victim_ac: {victim_ac}, weapon: {getattr(weapon, 'name', None)}, dam_type: {dam_type}, skill_name: {improve_skill}, skill: {skill}, base_skill: {base_skill}")
             return self.damage(attacker, victim, dam, dt=attack_verb, dam_type=dam_type, weapon_hit=True)
@@ -1073,7 +1073,7 @@ class FightHandler:
 
         if not CharacterApi.is_npc(entity):
             return Character.learned_entry_level(
-                Character.get_learned(entity, skill_name, visible_only=True, visible_fn=SkillUtil.practice_visible)
+                Character.get_learned(entity, skill_name, visible_only=True, visible_fn=Ability.practice_visible)
             )
 
         level = entity.level
@@ -1369,7 +1369,7 @@ class FightHandler:
         return roll
 
     def _check_improve(self, attacker, skill_name: str, success: bool, multiplier: int) -> None:
-        SkillUtil.check_improve_by_name(attacker, skill_name, success, multiplier)
+        Ability.check_improve_by_name(attacker, skill_name, success, multiplier)
 
     def _current_hitroll(self, entity) -> int:
         return self._strength_combat_bonus(entity, "tohit") + FightUtil.dynamic_combat_bonus(entity, "hit_roll",

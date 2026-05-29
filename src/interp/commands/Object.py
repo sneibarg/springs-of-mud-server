@@ -24,11 +24,11 @@ from player.Character import Character
 from item.Item import Item
 from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
+from skill.Ability import Ability
 from skill.SpellContext import SpellContext
 from util.FightUtil import FightUtil
 from util.CommunicationsUtil import CommunicationsUtil
 from util.PlayerUtil import PlayerUtil
-from util.SkillUtil import SkillUtil
 
 
 class Object:
@@ -1612,7 +1612,7 @@ class Object:
         skill = self.skill_registry.get_or_none(name=skill_name)
         if skill is None:
             return
-        SkillUtil.check_improve(character, getattr(skill, "id", ""), success, 2)
+        Ability.check_improve(character, getattr(skill, "id", ""), success, 2)
 
     def _cast_item_spell(self, character: Character, room, item, spell_ref, *, target=None, target_name: str = "", target_kind: str = "") -> list[dict]:
         spell = spell_ref

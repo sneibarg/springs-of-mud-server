@@ -15,7 +15,38 @@ if TYPE_CHECKING:
 
 
 class PlayerUtil:
-    pass
+    @staticmethod
+    def format_train_options(character: Character) -> str:
+        attrs = getattr(character, "character_attributes", None)
+        if attrs is None:
+            return "You can train: hp mana.\r\n"
+
+        trainable_stats = (
+            ("str", "strength", 0),
+            ("int", "intelligence", 1),
+            ("wis", "wisdom", 2),
+            ("dex", "dexterity", 3),
+            ("con", "constitution", 4),
+        )
+        options = [
+            short_name
+            for short_name, attr_name, stat_index in trainable_stats
+            if (current := GenericUtil.to_int(getattr(attrs, attr_name, 0), 0))
+               < CharacterApi.get_max_train(character, stat_index, current)
+        ]
+
+        options.extend(["hp", "mana"])
+        if options:
+            return f"You can train: {' '.join(options)}.\r\n"
+
+        sex = str(getattr(character, "sex", "") or "").strip().lower()
+        if sex in ("2", "female"):
+            ending = "hot babe"
+        elif sex in ("1", "male"):
+            ending = "big stud"
+        else:
+            ending = "wild thing"
+        return f"You have nothing left to train, you {ending}!\r\n"
 
     @staticmethod
     def format_visible_character_line(observer: Any, target: Any) -> str:

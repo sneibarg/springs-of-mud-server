@@ -478,11 +478,8 @@ class ItemUtil:
     @staticmethod
     def sacrifice_silver_value(item) -> int:
         silver = max(1, GenericUtil.to_int(item.level * 3))
-        print(f"Item level: {getattr(item, 'level', 1)}, Item cost: {getattr(item, 'cost', 0)}, silver: {silver}")
         if not Item.is_corpse(item):
-            print(f"Item level: {getattr(item, 'level', 1)}, Item cost: {getattr(item, 'cost', 0)}, silver: {silver}")
             silver = min(silver, GenericUtil.to_int(item.cost))
-        print(f"Item level: {getattr(item, 'level', 1)}, Item cost: {getattr(item, 'cost', 0)}, silver: {silver}")
         return max(3, silver)
 
     @staticmethod

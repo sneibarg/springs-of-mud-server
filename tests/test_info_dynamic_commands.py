@@ -150,6 +150,14 @@ class _CharacterMacros:
         return bool(getattr(character, "is_outside", False))
 
     @staticmethod
+    def get_registry():
+        raise RuntimeError("not configured")
+
+    @staticmethod
+    def get_attribute_bonus(_stat, _value):
+        return {"learn": 5}
+
+    @staticmethod
     def who_line(_viewer, target) -> str:
         return str(getattr(target, "name", ""))
 
@@ -357,6 +365,11 @@ class _InterpUtil:
             return parts[0], ""
         return parts[0], parts[1]
 
+    @staticmethod
+    def argument_text(view):
+        context = getattr(view, "context", view)
+        return str(getattr(context, "result", "") or "")
+
 
 class _Context(SimpleNamespace):
     def finish(self):
@@ -367,6 +380,9 @@ class _Context(SimpleNamespace):
 
 
 _stub_module("injector", inject=lambda target: target)
+_stub_package("api")
+_stub_module("api.CharacterApi", CharacterApi=_CharacterMacros)
+_stub_module("api.ItemApi", ItemApi=_ItemMacros)
 _stub_package("server")
 _stub_module("server.LoggerFactory", LoggerFactory=_LoggerFactory)
 _stub_package("util")
@@ -376,15 +392,20 @@ _stub_module("util.InterpUtil", InterpUtil=_InterpUtil)
 _stub_module("util.ItemUtil", ItemUtil=_ItemUtil)
 _stub_module("util.PlayerUtil", PlayerUtil=_PlayerUtil)
 _stub_module("util.SkillUtil", SkillUtil=_SkillUtil)
+_stub_module("util.MobileUtil", MobileUtil=SimpleNamespace(is_practice_trainer=_SkillUtil.is_practice_trainer))
 _stub_package("game")
 _load_module("game.GamePayload", "game/GamePayload.py")
+_stub_module("game.RandomNumberGenerator", RandomNumberGenerator=lambda: SimpleNamespace(number_percent=lambda: 1))
 _stub_module("game.RegistryService", RegistryService=object)
 _stub_module("game.WeatherHandler", WeatherHandler=object)
 _stub_package("item")
 _stub_module("item.ItemApi", ItemMacros=_ItemMacros)
 _stub_package("player")
 _stub_module("player.Character", Character=_Character)
+_stub_module("player.CharacterAdvancement", CharacterAdvancement=SimpleNamespace(gain_experience=lambda *_args, **_kwargs: None))
 _stub_module("player.CharacterApi", CharacterMacros=_CharacterMacros)
+_stub_package("skill")
+_load_module("skill.Ability", "skill/Ability.py")
 _stub_package("server.session")
 _stub_module("server.session.SessionHandler", SessionHandler=object)
 _stub_package("interp")
@@ -480,6 +501,10 @@ class TestInfoDynamicCommands(unittest.TestCase):
                 SimpleNamespace(name="vest", item_type="armor", compare_value=8),
             ],
             status_flags=_StatusFlags(),
+        )
+        character.find_owned_item = lambda wanted: next(
+            (item for item in character.inventory if item.name == wanted),
+            None,
         )
         context = _Context(character=character, command=_load_command("compare"), result="sword vest", parameters=[], done=False)
 

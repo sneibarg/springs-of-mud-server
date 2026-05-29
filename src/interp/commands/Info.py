@@ -15,12 +15,13 @@ from interp.HelpEntry import HelpEntry
 from item.Item import Item
 from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
+from util.MobileUtil import MobileUtil
 from player.Character import Character
 from api.CharacterApi import CharacterApi
+from skill.Ability import Ability
 from util.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
 from server.session.SessionHandler import SessionHandler
-from util.SkillUtil import SkillUtil
 
 DAY_NAME = [
     "the Moon", "the Bull", "Deception", "Thunder", "Freedom",
@@ -807,7 +808,7 @@ class Info:
         if not raw:
             lines = []
             known_skills = []
-            for skill in Character.visible_learned_entries(character, SkillUtil.practice_visible):
+            for skill in Character.visible_learned_entries(character, Ability.practice_visible):
                 name = Character.learned_entry_name(skill)
                 level = Character.learned_entry_level(skill)
                 known_skills.append((name, level))
@@ -832,32 +833,32 @@ class Info:
         if room is not None:
             practice_bit = act_bits.ACT_PRACTICE.value if act_bits is not None and hasattr(act_bits, "ACT_PRACTICE") else 0
             for mob in room.mobiles.values():
-                if SkillUtil.is_practice_trainer(mob, practice_bit):
+                if MobileUtil.is_practice_trainer(mob, practice_bit):
                     trainer = mob
                     break
 
         context.practice_trainer = trainer
 
-        practiced_skill = Character.get_learned(character, raw, prefix=True, visible_only=True, visible_fn=SkillUtil.practice_visible)
+        practiced_skill = Character.get_learned(character, raw, prefix=True, visible_only=True, visible_fn=Ability.practice_visible)
         practice_name = Character.learned_entry_name(practiced_skill) or raw
-        practice_meta = SkillUtil.practice_meta(practice_name)
+        practice_meta = Ability.practice_meta(practice_name)
         learned = Character.learned_entry_level(practiced_skill)
         context.practice_skill = practiced_skill
         context.practice_skill_name = practice_name
         context.practice_learned = learned
         context.practice_visible = practiced_skill is not None
 
-        rating = SkillUtil.practice_rating(character, practice_meta)
+        rating = Ability.practice_rating(character, practice_meta)
         context.practice_rating = rating
 
-        adept = SkillUtil.practice_adept(character)
+        adept = Ability.practice_adept(character)
         context.practice_adept = adept
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload.get("to_char", "")
 
         attributes.practices = max(0, practices - 1)
-        gain = SkillUtil.practice_gain(character, rating)
+        gain = Ability.practice_gain(character, rating)
         new_level = learned + gain
         room = self.room_registry.get_or_none(id=character.room_id)
         targets = room.player_targets(character)

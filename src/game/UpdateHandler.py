@@ -17,7 +17,7 @@ from api.CharacterApi import CharacterApi
 from player.CharacterService import CharacterService
 from server.messaging.MessageBus import MessageBus
 from server.session.SessionHandler import SessionHandler
-from util.SkillUtil import SkillUtil
+from skill.Ability import Ability
 
 
 class UpdateHandler:
@@ -165,10 +165,10 @@ class UpdateHandler:
         prompted: list[Character] = []
         if not isinstance(payload, dict):
             return prompted
-        payload["to_char"] = f"{payload.get('to_char', '')}{SkillUtil.take_improve_messages(attacker)}"
+        payload["to_char"] = f"{payload.get('to_char', '')}{Ability.take_improve_messages(attacker)}"
         victim = payload.get("victim")
         if victim is not None:
-            payload["to_victim"] = f"{payload.get('to_victim', '')}{SkillUtil.take_improve_messages(victim)}"
+            payload["to_victim"] = f"{payload.get('to_victim', '')}{Ability.take_improve_messages(victim)}"
 
         if payload.get("to_char") and not CharacterApi.is_npc(attacker):
             await self.message_bus.send_to_character(attacker.id, self.message_bus.text_to_message(payload["to_char"]))

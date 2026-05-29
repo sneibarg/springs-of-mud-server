@@ -19,6 +19,7 @@ from player.CharacterAdvancement import CharacterAdvancement
 from api.CharacterApi import CharacterApi
 from api.InterpApi import InterpApi
 from server.LoggerFactory import LoggerFactory
+from skill.Ability import Ability
 from skill import Skill
 from api.SkillApi import SkillApi
 from api.SpellApi import SpellApi
@@ -28,7 +29,6 @@ from util.FightUtil import FightUtil
 from util.GenericUtil import GenericUtil
 from util.MovementUtil import MovementUtil
 from util.PlayerUtil import PlayerUtil
-from util.SkillUtil import SkillUtil
 
 
 class Fight:
@@ -486,7 +486,7 @@ class Fight:
         skill_id = str(getattr(skill_meta, "id", "") or "").strip()
         if not skill_id:
             return
-        SkillUtil.check_improve(character, skill_id, success, multiplier)
+        Ability.check_improve(character, skill_id, success, multiplier)
 
     @staticmethod
     def _room_targets(room, *excluded):

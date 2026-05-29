@@ -21,7 +21,7 @@ from util.InterpUtil import InterpUtil
 from util.CommunicationsUtil import CommunicationsUtil
 from util.ItemUtil import ItemUtil
 from util.PlayerUtil import PlayerUtil
-from util.SkillUtil import SkillUtil
+from skill.Ability import Ability
 from server.messaging import MessageBus
 from server.LoggerFactory import LoggerFactory
 
@@ -613,10 +613,10 @@ class PlayerHandler:
     async def _emit_standard_payload(self, character: Character, payload: dict, context: Context | None = None):
         payload = self._resolve_standard_payload(character, payload, context=context)
         if isinstance(payload, dict):
-            payload["to_char"] = f"{payload.get('to_char', '')}{SkillUtil.take_improve_messages(character)}"
+            payload["to_char"] = f"{payload.get('to_char', '')}{Ability.take_improve_messages(character)}"
             victim = payload.get("victim")
             if victim is not None:
-                payload["to_victim"] = f"{payload.get('to_victim', '')}{SkillUtil.take_improve_messages(victim)}"
+                payload["to_victim"] = f"{payload.get('to_victim', '')}{Ability.take_improve_messages(victim)}"
         if payload.get("to_char"):
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
         if payload.get("to_victim") and payload.get("victim") is not None:

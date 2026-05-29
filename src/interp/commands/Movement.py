@@ -12,6 +12,7 @@ from api.MovementApi import MovementApi
 from fight.FightHandler import FightHandler
 from item.Item import Item
 from util.MobileUtil import MobileUtil
+from util.PlayerUtil import PlayerUtil
 from player.Character import Character
 from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
@@ -378,39 +379,6 @@ class Movement:
             ]
         }
 
-    @staticmethod
-    def _format_train_options(character: Character) -> str:
-        attrs = getattr(character, "character_attributes", None)
-        if attrs is None:
-            return "You can train: hp mana.\r\n"
-
-        trainable_stats = (
-            ("str", "strength", 0),
-            ("int", "intelligence", 1),
-            ("wis", "wisdom", 2),
-            ("dex", "dexterity", 3),
-            ("con", "constitution", 4),
-        )
-        options = [
-            short_name
-            for short_name, attr_name, stat_index in trainable_stats
-            if (current := GenericUtil.to_int(getattr(attrs, attr_name, 0), 0))
-               < CharacterApi.get_max_train(character, stat_index, current)
-        ]
-
-        options.extend(["hp", "mana"])
-        if options:
-            return f"You can train: {' '.join(options)}.\r\n"
-
-        sex = str(getattr(character, "sex", "") or "").strip().lower()
-        if sex in ("2", "female"):
-            ending = "hot babe"
-        elif sex in ("1", "male"):
-            ending = "big stud"
-        else:
-            ending = "wild thing"
-        return f"You have nothing left to train, you {ending}!\r\n"
-
     def do_train(self, character: Character, context: Context) -> dict | None:
         if CharacterApi.is_npc(character):
             context.finish()
@@ -513,7 +481,7 @@ class Movement:
         )
 
     def _train_options_payload(self, character: Character) -> dict:
-        options = self._format_train_options(character).strip()
+        options = PlayerUtil.format_train_options(character).strip()
         if options.startswith("You have nothing left to train, you ") and options.endswith("!"):
             ending = options.removeprefix("You have nothing left to train, you ").removesuffix("!")
             return self._command_payload("nothing_left_train", channel="to_char", tokens={"s": ending})

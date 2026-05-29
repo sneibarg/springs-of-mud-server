@@ -416,3 +416,19 @@ class MobileUtil:
             "training students",
         )
         return any(phrase in description_text for phrase in trainer_phrases)
+
+    @staticmethod
+    def is_practice_trainer(mob, practice_bit: int) -> bool:
+        mob_flags = GenericUtil.to_int(getattr(getattr(mob, "status_flags", None), "act", 0), 0)
+        if practice_bit and CharacterApi.is_set(mob_flags, practice_bit):
+            return True
+
+        special_name = str(getattr(mob, "special_name", "") or "").strip().lower()
+        if special_name == "spec_cast_adept":
+            return True
+
+        long_description = str(getattr(mob, "long_description", "") or "").strip().lower()
+        if "help you practice" in long_description or "ready to help you practice" in long_description:
+            return True
+
+        return False
