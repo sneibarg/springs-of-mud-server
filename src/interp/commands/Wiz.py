@@ -393,18 +393,27 @@ class Wiz:
         return self._command_payload("removed" if enabled else "set", victim=victim, wiznet_flag="WIZ_PENALTIES", wiznet_skip_flag="WIZ_SECURE")
 
     def do_restore(self, character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
         arg = WizUtil.argument_text(context.result, context.parameters).strip().lower()
-        room = self.room_registry.get_or_none(id=character.room_id)
+        room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
         if arg in ("", "room"):
             for target in ([] if room is None else list(room.characters.values()) + list(room.mobiles.values())):
                 WizApi.restore_character(target)
             context.finish()
             return {
-                "to_char": "Room restored.\r\n",
-                "to_wiznet": f"{character.name} restored room {getattr(room, 'vnum', '')}.\r\n",
-                "wiznet_flag": "WIZ_RESTORE",
-                "wiznet_skip_flag": "WIZ_SECURE",
-                "wiznet_min_level": CharacterApi.get_trust(character),
+                "payloads": [
+                    self._command_payload("room"),
+                    self._command_payload(
+                        "default",
+                        channel="to_wiznet",
+                        tokens={"t": f"room {getattr(room, 'vnum', '')}"},
+                        wiznet_flag="WIZ_RESTORE",
+                        wiznet_skip_flag="WIZ_SECURE",
+                        wiznet_min_level=CharacterApi.get_trust(character),
+                    ),
+                ]
             }
         if arg == "all" and CharacterApi.get_trust(character) >= self.GameParameters.MAX_LEVEL.value - 1:
             for session in self.wiz_handler.session_handler.get_playing_sessions():
@@ -413,13 +422,28 @@ class Wiz:
                     WizApi.restore_character(victim)
             context.finish()
             return self._command_payload("active_players")
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, arg)
+        victim = character if arg == "self" else WizUtil.find_world_entity(self.character_registry, self.room_registry, arg)
         if victim is None:
             context.finish()
             return self._command_payload("target_missing")
         WizApi.restore_character(victim)
         context.finish()
-        return self._command_payload("default", victim=victim, wiznet_flag="WIZ_RESTORE", wiznet_skip_flag="WIZ_SECURE", wiznet_min_level=CharacterApi.get_trust(character))
+        if victim == character:
+            return self._command_payload(
+                "default",
+                tokens={"t": WizUtil.display_name(victim)},
+                wiznet_flag="WIZ_RESTORE",
+                wiznet_skip_flag="WIZ_SECURE",
+                wiznet_min_level=CharacterApi.get_trust(character),
+            )
+        return self._command_payload(
+            "default",
+            victim=victim,
+            token_factory=self._actor_target_tokens,
+            wiznet_flag="WIZ_RESTORE",
+            wiznet_skip_flag="WIZ_SECURE",
+            wiznet_min_level=CharacterApi.get_trust(character),
+        )
 
     def do_purge(self, character: Character, context: Context):
         argument = WizUtil.argument_text(context.result, context.parameters).strip()
@@ -911,6 +935,14 @@ class Wiz:
     def _command_text(self, context: Context, message_key: str, *, channel: str = "to_char", fallback: str = "", **tokens) -> str:
         payload = self.interp_api.render_message_key(context, message_key, channel=channel, fallback=fallback, **tokens)
         return str(payload.get(channel, "") or "")
+
+    @staticmethod
+    def _actor_target_tokens(*, character, payload, **_kwargs) -> dict:
+        victim = payload.get("victim")
+        return {
+            "c": getattr(character, "name", ""),
+            "t": WizUtil.display_name(victim),
+        }
 
     @staticmethod
     def _poof_text(character, key: str, default: str) -> str:

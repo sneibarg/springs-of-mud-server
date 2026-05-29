@@ -2,6 +2,7 @@ from dataclasses import fields
 from typing import Any
 from injector import inject
 
+from api.InterpApi import InterpApi
 from fight.FightHandler import FightHandler
 from game.WizHandler import WizHandler
 from game.RegistryService import RegistryService
@@ -28,6 +29,7 @@ from server.LoggerFactory import LoggerFactory
 class PlayerHandler:
     @inject
     def __init__(self, message_bus: MessageBus,
+                 interp_api: InterpApi,
                  registry_service: RegistryService,
                  fight_handler: FightHandler,
                  wiz_handler: WizHandler,
@@ -39,6 +41,7 @@ class PlayerHandler:
                  wiz_commands: Wiz):
         self.__name__ = "PlayerHandler"
         self.message_bus = message_bus
+        self.interp_api = interp_api
         self.character_registry = registry_service.character_registry
         self.room_registry = registry_service.room_registry
         self.fight_handler = fight_handler
@@ -439,42 +442,8 @@ class PlayerHandler:
 
     async def do_wiz_command(self, character: Character, context: Context):
         payload = self.wiz_commands.execute(character, context)
-        if payload is None:
-            return
-        if isinstance(payload, str):
-            if payload:
-                await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload))
-            return
-        viewer = payload.get("view_character", getattr(context, "character", character))
-        if payload.get("payloads"):
-            await self._emit_standard_payloads(viewer, payload.get("payloads", []), context=context)
-        else:
-            await self._emit_standard_payload(viewer, payload, context=context)
-        if payload.get("room_message"):
-            targets = payload.get("room_targets", [])
-            if len(targets) > 0:
-                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["room_message"]), targets)
-        if payload.get("global_message"):
-            targets = payload.get("global_targets", [])
-            if len(targets) > 0:
-                if isinstance(targets[0], str):
-                    for target_id in targets:
-                        await self.message_bus.send_to_character(target_id, self.message_bus.text_to_message(payload["global_message"]))
-                else:
-                    await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["global_message"]), targets)
-        if payload.get("broadcast_message"):
-            exclude_ids = payload.get("exclude_character_ids", [])
-            await self.message_bus.broadcast(self.message_bus.text_to_message(payload["broadcast_message"]), exclude_ids)
-        for target in payload.get("target_messages", []):
-            target_id = str(target.get("id", "") or "")
-            text = str(target.get("text", "") or "")
-            if target_id and text:
-                await self.message_bus.send_to_character(target_id, self.message_bus.text_to_message(text))
-        if payload.get("disconnect_character") is not None:
-            session = self.wiz_handler.current_session(payload["disconnect_character"])
-            connection = None if session is None else self.message_bus.connection_manager.get_connection(session.session_id)
-            if connection is not None:
-                await connection.close()
+        viewer = getattr(payload, "get", lambda *_args, **_kwargs: getattr(context, "character", character))("view_character", getattr(context, "character", character))
+        await self._handle_standard_command_payload(viewer, context, payload)
 
     async def do_object_command(self, character: Character, context: Context):
         payload = self.object_commands.execute(character, context)
@@ -667,6 +636,31 @@ class PlayerHandler:
             for target in targets:
                 text = self.wiz_handler.decorate_wiznet_text(target, payload["to_wiznet"])
                 await self.message_bus.send_to_character(target.id, self.message_bus.text_to_message(text))
+        if payload.get("room_message"):
+            targets = payload.get("room_targets", [])
+            if len(targets) > 0:
+                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["room_message"]), targets)
+        if payload.get("global_message"):
+            targets = payload.get("global_targets", [])
+            if len(targets) > 0:
+                if isinstance(targets[0], str):
+                    for target_id in targets:
+                        await self.message_bus.send_to_character(target_id, self.message_bus.text_to_message(payload["global_message"]))
+                else:
+                    await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["global_message"]), targets)
+        if payload.get("broadcast_message"):
+            exclude_ids = payload.get("exclude_character_ids", [])
+            await self.message_bus.broadcast(self.message_bus.text_to_message(payload["broadcast_message"]), exclude_ids)
+        for target in payload.get("target_messages", []):
+            target_id = str(target.get("id", "") or "")
+            text = str(target.get("text", "") or "")
+            if target_id and text:
+                await self.message_bus.send_to_character(target_id, self.message_bus.text_to_message(text))
+        if payload.get("disconnect_character") is not None:
+            session = self.wiz_handler.current_session(payload["disconnect_character"])
+            connection = None if session is None else self.message_bus.connection_manager.get_connection(session.session_id)
+            if connection is not None:
+                await connection.close()
         if context is not None:
             if payload.get("from_room_message"):
                 targets = payload.get("from_room_targets", [])
@@ -710,9 +704,7 @@ class PlayerHandler:
         }
         fallback = str(payload.get("fallback", "") or "")
         for channel in self._payload_channels_for_message(getattr(command, "payload", None), message_key, channel=str(payload.get("channel", "") or "")):
-            text = command.render_message(channel, message_key, fallback=fallback, **tokens)
-            if text:
-                rendered[channel] = CommunicationsUtil.ensure_message_break(text)
+            rendered.update(self.interp_api.render_message_key(context, message_key, channel=channel, fallback=fallback, **tokens))
         return rendered
 
     @staticmethod

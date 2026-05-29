@@ -13,6 +13,7 @@ from item.EffectHandler import EffectHandler
 from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
+from util.InfoUtil import InfoUtil
 from util.InterpUtil import InterpUtil
 from util.EffectUtil import EffectUtil
 from util.ItemUtil import ItemUtil
@@ -849,7 +850,7 @@ class Object:
                 t=item_short,
                 T=getattr(victim, "name", ""),
             )
-            payload["targets"] = room.player_targets(character)
+            payload["targets"] = room.to_not_victim(victim)
         if not CharacterApi.is_npc(victim):
             payload["to_victim"] = self._render_command_message(
                 context,
@@ -888,7 +889,10 @@ class Object:
                 q=amount,
                 s=currency,
             )
-            payload["targets"] = room.player_targets(character)
+            payload["targets"] = [
+                viewer for viewer in room.player_targets(character)
+                if getattr(viewer, "id", "") != getattr(victim, "id", "")
+            ]
         if not CharacterApi.is_npc(victim):
             payload["to_victim"] = self._render_command_message(
                 context,

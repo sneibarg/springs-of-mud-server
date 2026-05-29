@@ -1051,6 +1051,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("You give a ruby to Receiver.\r\n", payload["to_char"])
         self.assertEqual("Tester gives a ruby to Receiver.\r\n", payload["to_room"])
         self.assertEqual("Tester gives you a ruby.\r\n", payload["to_victim"])
+        self.assertEqual([], payload["targets"])
         self.assertIn(gem, victim.loot)
         self.assertNotIn(gem, character.loot)
 
@@ -1083,6 +1084,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("You give 25 silver to Receiver.\r\n", payload["to_char"])
         self.assertEqual("Tester gives Receiver some coins.\r\n", payload["to_room"])
         self.assertEqual("Tester gives you 25 silver.\r\n", payload["to_victim"])
+        self.assertEqual([], payload["targets"])
         self.assertEqual(50, character.silver)
         self.assertEqual(25, victim.silver)
 

@@ -147,6 +147,10 @@ class Room:
         with self.lock:
             return [ch for ch in self.characters.values() if ch.id != character.id]
 
+    def to_not_victim(self, victim: Character) -> List[Character]:
+        with self.lock:
+            return [ch for ch in self.characters.values() if victim.id != ch.id]
+
     def find_character_in_room(self, arg: str, name_matches_fn):
         q = (arg or "").strip().lower()
         for ch in self.characters.values():

@@ -75,10 +75,13 @@ class WizApi:
 
     @staticmethod
     def world_target(view):
+        argument = InterpUtil.argument_text(view).strip().lower()
+        if argument == "self":
+            return view.context.character
         return WizUtil.find_world_entity(
             WizApi.character_registry(view),
             WizApi.room_registry(view),
-            InterpUtil.argument_text(view),
+            argument,
         )
 
     @staticmethod

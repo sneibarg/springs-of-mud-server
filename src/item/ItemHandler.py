@@ -116,13 +116,10 @@ class ItemHandler:
             for vnum in item_totals:
                 the_item = item_totals[vnum]
                 if 10 > len(the_item) > 1:
-                    print(f"ONE: ({len(the_item):<1})\t{the_item[0].short()}\r\n")
                     msg = msg + f"({len(the_item):<1})\t{the_item[0].short()}\r\n"
                 elif len(the_item) > 10:
-                    print(f"TWO: ({len(the_item)})\t{the_item[0].short()}\r\n")
                     msg = msg + f"({len(the_item)})\t{the_item[0].short()}\r\n"
                 else:
-                    print(f"THREE: \t{the_item[0].short()}\r\n")
                     msg = msg + f"\t{the_item[0].short()}\r\n"
         else:
             for item in items:
