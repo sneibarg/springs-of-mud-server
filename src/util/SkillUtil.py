@@ -1,6 +1,7 @@
 from util.GenericUtil import GenericUtil
 from api.CharacterApi import CharacterApi
 
+
 class SkillUtil:
     @staticmethod
     def _weapon_enum_skill_name(enum_name: str) -> str:

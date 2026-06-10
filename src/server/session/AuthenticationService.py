@@ -23,22 +23,6 @@ class AuthenticationService:
         self.character_registry = character_registry
         self.logger = LoggerFactory.get_logger(self.__name__)
 
-    def _get_account(self, account_name: str) -> Player | None:
-        try:
-            account = self.player_registry.get_player_by_name(account_name)
-            if account:
-                return account
-        except Exception as e:
-            self.logger.error(f"Failed to get account: {e}")
-        return None
-
-    @staticmethod
-    def _find_character(character_list: list, character_name: str) -> Optional[Character]:
-        for character in character_list:
-            if character_name.upper() in character['name'].upper():
-                return character
-        return None
-
     async def authenticate_with_payload(self, connection: Connection, session: SessionState, payload: dict) -> Tuple[bool, Optional[str], Optional[Character]]:
         session.status = SessionStatus.AUTHENTICATING
         account_id = payload.get('accountId')

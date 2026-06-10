@@ -559,9 +559,16 @@ class UpdateHandler:
                 str(getattr(spell, "id", "") or "").strip().lower(),
             ]
             if want in candidates:
-                return str(getattr(spell, field_name, "") or "")
+                return self._display_effect_message(getattr(spell, field_name, ""))
 
         return ""
+
+    @staticmethod
+    def _display_effect_message(message) -> str:
+        text = str(message or "").strip()
+        if len(text) >= 2 and text.startswith("!") and text.endswith("!"):
+            return ""
+        return text
 
     async def _emit_obj_effect_message(self, item, message: str):
         location = self._locate_item(item)

@@ -24,8 +24,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "",
-    "msgObj": ""
+    "payload": {
+      "toChar": {
+        "msgOff": "",
+        "msgObj": ""
+      }
+    }
   },
   {
     "_id": {
@@ -52,8 +56,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "!Axe!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Axe!",
+        "msgObj": ""
+      }
+    },
     "guards": [
       {
         "predicate": "lambda v: not v.argument",
@@ -115,8 +123,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "!Dagger!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Dagger!",
+        "msgObj": ""
+      }
+    },
     "guards": [
       {
         "predicate": "lambda v: not v.argument",
@@ -178,8 +190,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "!Flail!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Flail!",
+        "msgObj": ""
+      }
+    },
     "guards": [
       {
         "predicate": "lambda v: not v.argument",
@@ -241,8 +257,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "!Mace!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Mace!",
+        "msgObj": ""
+      }
+    },
     "guards": [
       {
         "predicate": "lambda v: not v.argument",
@@ -304,8 +324,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "!Polearm!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Polearm!",
+        "msgObj": ""
+      }
+    },
     "guards": [
       {
         "predicate": "lambda v: not v.argument",
@@ -367,8 +391,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "!Shield!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Shield!",
+        "msgObj": ""
+      }
+    },
     "guards": []
   },
   {
@@ -396,8 +424,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "!Spear!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Spear!",
+        "msgObj": ""
+      }
+    },
     "guards": [
       {
         "predicate": "lambda v: not v.argument",
@@ -459,8 +491,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "!Sword!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Sword!",
+        "msgObj": ""
+      }
+    },
     "guards": [
       {
         "predicate": "lambda v: not v.argument",
@@ -522,8 +558,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "!Whip!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Whip!",
+        "msgObj": ""
+      }
+    },
     "guards": [
       {
         "predicate": "lambda v: not v.argument",
@@ -585,8 +625,12 @@
     "minMana": 0,
     "beats": 24,
     "nounDamage": "backstab",
-    "msgOff": "!Backstab!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Backstab!",
+        "msgObj": ""
+      }
+    },
     "guards": [
       {
         "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
@@ -659,8 +703,12 @@
     "minMana": 0,
     "beats": 24,
     "nounDamage": "bash",
-    "msgOff": "!Bash!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Bash!",
+        "msgObj": ""
+      }
+    },
     "guards": [
       {
         "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
@@ -721,8 +769,12 @@
     "minMana": 0,
     "beats": 24,
     "nounDamage": "",
-    "msgOff": "You feel your pulse slow down.",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "You feel your pulse slow down.",
+        "msgObj": ""
+      }
+    },
     "guards": [
       {
         "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
@@ -767,8 +819,12 @@
     "minMana": 0,
     "beats": 24,
     "nounDamage": "kicked dirt",
-    "msgOff": "You rub the dirt out of your eyes.",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "You rub the dirt out of your eyes.",
+        "msgObj": ""
+      }
+    },
     "guards": [
       {
         "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
@@ -833,8 +889,12 @@
     "minMana": 0,
     "beats": 24,
     "nounDamage": "",
-    "msgOff": "!Disarm!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Disarm!",
+        "msgObj": ""
+      }
+    },
     "guards": [
       {
         "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
@@ -883,8 +943,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "!Dodge!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Dodge!",
+        "msgObj": ""
+      }
+    },
     "guards": []
   },
   {
@@ -912,8 +976,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "!Enhanced Damage!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Enhanced Damage!",
+        "msgObj": ""
+      }
+    },
     "guards": []
   },
   {
@@ -941,8 +1009,12 @@
     "minMana": 0,
     "beats": 36,
     "nounDamage": "",
-    "msgOff": "!Envenom!",
-    "msgObj": ""
+    "payload": {
+      "toChar": {
+        "msgOff": "!Envenom!",
+        "msgObj": ""
+      }
+    }
   },
   {
     "_id": {
@@ -969,8 +1041,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "!Hand to Hand!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Hand to Hand!",
+        "msgObj": ""
+      }
+    },
     "guards": [
       {
         "predicate": "lambda v: not v.argument",
@@ -1032,8 +1108,12 @@
     "minMana": 0,
     "beats": 12,
     "nounDamage": "kick",
-    "msgOff": "!Kick!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Kick!",
+        "msgObj": ""
+      }
+    },
     "guards": [
       {
         "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
@@ -1074,8 +1154,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "!Parry!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Parry!",
+        "msgObj": ""
+      }
+    },
     "guards": []
   },
   {
@@ -1103,8 +1187,12 @@
     "minMana": 0,
     "beats": 12,
     "nounDamage": "",
-    "msgOff": "!Rescue!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Rescue!",
+        "msgObj": ""
+      }
+    },
     "guards": [
       {
         "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
@@ -1165,8 +1253,12 @@
     "minMana": 0,
     "beats": 24,
     "nounDamage": "trip",
-    "msgOff": "!Trip!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Trip!",
+        "msgObj": ""
+      }
+    },
     "guards": [
       {
         "predicate": "lambda v: not bool(v.extra.get('has_skill_access', False))",
@@ -1231,8 +1323,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "!Second Attack!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Second Attack!",
+        "msgObj": ""
+      }
+    },
     "guards": []
   },
   {
@@ -1260,8 +1356,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "!Third Attack!",
-    "msgObj": "",
+    "payload": {
+      "toChar": {
+        "msgOff": "!Third Attack!",
+        "msgObj": ""
+      }
+    },
     "guards": []
   },
   {
@@ -1289,8 +1389,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "!Fast Healing!",
-    "msgObj": ""
+    "payload": {
+      "toChar": {
+        "msgOff": "!Fast Healing!",
+        "msgObj": ""
+      }
+    }
   },
   {
     "_id": {
@@ -1317,8 +1421,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "!Haggle!",
-    "msgObj": ""
+    "payload": {
+      "toChar": {
+        "msgOff": "!Haggle!",
+        "msgObj": ""
+      }
+    }
   },
   {
     "_id": {
@@ -1345,8 +1453,12 @@
     "minMana": 0,
     "beats": 12,
     "nounDamage": "",
-    "msgOff": "!Hide!",
-    "msgObj": ""
+    "payload": {
+      "toChar": {
+        "msgOff": "!Hide!",
+        "msgObj": ""
+      }
+    }
   },
   {
     "_id": {
@@ -1373,8 +1485,12 @@
     "minMana": 0,
     "beats": 36,
     "nounDamage": "",
-    "msgOff": "!Lore!",
-    "msgObj": ""
+    "payload": {
+      "toChar": {
+        "msgOff": "!Lore!",
+        "msgObj": ""
+      }
+    }
   },
   {
     "_id": {
@@ -1401,8 +1517,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "Meditation",
-    "msgObj": ""
+    "payload": {
+      "toChar": {
+        "msgOff": "Meditation",
+        "msgObj": ""
+      }
+    }
   },
   {
     "_id": {
@@ -1429,8 +1549,12 @@
     "minMana": 0,
     "beats": 0,
     "nounDamage": "",
-    "msgOff": "!Peek!",
-    "msgObj": ""
+    "payload": {
+      "toChar": {
+        "msgOff": "!Peek!",
+        "msgObj": ""
+      }
+    }
   },
   {
     "_id": {
@@ -1457,8 +1581,12 @@
     "minMana": 0,
     "beats": 12,
     "nounDamage": "",
-    "msgOff": "!Pick!",
-    "msgObj": ""
+    "payload": {
+      "toChar": {
+        "msgOff": "!Pick!",
+        "msgObj": ""
+      }
+    }
   },
   {
     "_id": {
@@ -1485,8 +1613,12 @@
     "minMana": 0,
     "beats": 12,
     "nounDamage": "",
-    "msgOff": "You no longer feel stealthy.",
-    "msgObj": ""
+    "payload": {
+      "toChar": {
+        "msgOff": "You no longer feel stealthy.",
+        "msgObj": ""
+      }
+    }
   },
   {
     "_id": {
@@ -1513,8 +1645,12 @@
     "minMana": 0,
     "beats": 24,
     "nounDamage": "",
-    "msgOff": "!Steal!",
-    "msgObj": ""
+    "payload": {
+      "toChar": {
+        "msgOff": "!Steal!",
+        "msgObj": ""
+      }
+    }
   },
   {
     "_id": {
@@ -1541,8 +1677,12 @@
     "minMana": 0,
     "beats": 24,
     "nounDamage": "",
-    "msgOff": "!Scrolls!",
-    "msgObj": ""
+    "payload": {
+      "toChar": {
+        "msgOff": "!Scrolls!",
+        "msgObj": ""
+      }
+    }
   },
   {
     "_id": {
@@ -1569,8 +1709,12 @@
     "minMana": 0,
     "beats": 12,
     "nounDamage": "",
-    "msgOff": "!Staves!",
-    "msgObj": ""
+    "payload": {
+      "toChar": {
+        "msgOff": "!Staves!",
+        "msgObj": ""
+      }
+    }
   },
   {
     "_id": {
@@ -1597,8 +1741,12 @@
     "minMana": 0,
     "beats": 12,
     "nounDamage": "",
-    "msgOff": "!Wands!",
-    "msgObj": ""
+    "payload": {
+      "toChar": {
+        "msgOff": "!Wands!",
+        "msgObj": ""
+      }
+    }
   },
   {
     "_id": {
@@ -1625,7 +1773,11 @@
     "minMana": 0,
     "beats": 12,
     "nounDamage": "",
-    "msgOff": "!Recall!",
-    "msgObj": ""
+    "payload": {
+      "toChar": {
+        "msgOff": "!Recall!",
+        "msgObj": ""
+      }
+    }
   }
 ]

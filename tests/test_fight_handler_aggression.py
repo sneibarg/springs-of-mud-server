@@ -455,6 +455,26 @@ class TestFightHandlerAggression(unittest.TestCase):
 
         self.assertEqual("DAM_SLASH", damage_type)
 
+    def test_build_round_payload_uses_room_player_targets_for_observers(self):
+        attacker = self._player("char-1")
+        victim = self._player("char-2")
+        watcher = self._player("char-3")
+        room = SimpleNamespace(
+            id="room-1",
+            characters={"char-1": attacker, "char-2": victim, "char-3": watcher},
+            player_targets=lambda character: [ch for ch in [attacker, victim, watcher] if ch.id != character.id],
+        )
+        handler = self._handler(room)
+
+        payload = handler.build_round_payload(
+            attacker,
+            victim,
+            room,
+            {"to_char": "You hit.\r\n", "to_victim": "Tester hits you.\r\n", "to_room": "Tester hits Victim.\r\n"},
+        )
+
+        self.assertEqual([watcher], payload["targets"])
+
 
 if __name__ == "__main__":
     unittest.main()

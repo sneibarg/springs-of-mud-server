@@ -44,6 +44,14 @@ class SpellContext:
         raise AttributeError(item)
 
     @property
+    def command(self):
+        return self.spell
+
+    @property
+    def character(self):
+        return self.actor
+
+    @property
     def level(self) -> int:
         if self.cast_level is not None:
             return int(self.cast_level or 0)
@@ -94,6 +102,20 @@ class SpellContext:
             return self.aliases[alias_or_value]
         return alias_or_value
 
+    def payload_tokens(self) -> dict[str, str]:
+        target_name = self._target_name(self.target)
+        actor_name = self._entity_name(self.actor)
+        return {
+            "actor": actor_name,
+            "victim": target_name,
+            "target": target_name,
+            "item": target_name,
+            "c": actor_name,
+            "t": target_name,
+            "n": target_name,
+            "p": target_name,
+        }
+
     @property
     def victim(self):
         return self.target if self.is_character_target() else None
@@ -113,3 +135,18 @@ class SpellContext:
     def is_object_target(self) -> bool:
         target = self.target
         return target is not None and hasattr(target, "item_type")
+
+    def _target_name(self, target: Any) -> str:
+        if target is None:
+            return ""
+        if self.is_object_target():
+            return str(getattr(target, "short_description", "") or getattr(target, "name", "something"))
+        return self._entity_name(target)
+
+    @staticmethod
+    def _entity_name(entity: Any) -> str:
+        if entity is None:
+            return "someone"
+        if CharacterApi.is_npc(entity):
+            return str(getattr(entity, "short_description", "") or getattr(entity, "name", "someone"))
+        return str(getattr(entity, "name", "someone"))

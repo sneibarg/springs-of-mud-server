@@ -271,8 +271,8 @@ class EffectHandler:
             if getattr(effect, "source", "") == source:
                 self.remove_effect(character, effect)
 
-    def check_dispel(self, dis_level: int, victim, effect_type) -> bool:
-        removed = False
+    def dispel_effects(self, dis_level: int, victim, effect_type) -> list[Effect]:
+        removed_effects: list[Effect] = []
         want = str(effect_type).strip().lower()
         for effect in list(self.ensure_effects(victim)):
             if str(getattr(effect, "type", "")).strip().lower() != want:
@@ -283,10 +283,13 @@ class EffectHandler:
                 GenericUtil.to_int(getattr(effect, "duration", 0), 0),
             ):
                 self.remove_effect(victim, effect)
-                removed = True
+                removed_effects.append(effect)
             else:
                 effect.level = max(0, GenericUtil.to_int(getattr(effect, "level", 0), 0) - 1)
-        return removed
+        return removed_effects
+
+    def check_dispel(self, dis_level: int, victim, effect_type) -> bool:
+        return bool(self.dispel_effects(dis_level, victim, effect_type))
 
     def tick_effects(self, entity) -> EffectTickResult:
         expired_effects: list[Effect] = []

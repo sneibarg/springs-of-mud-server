@@ -43,6 +43,7 @@ class PlayerHandler:
         self.message_bus = message_bus
         self.interp_api = interp_api
         self.character_registry = registry_service.character_registry
+        self.area_registry = registry_service.area_registry
         self.room_registry = registry_service.room_registry
         self.fight_handler = fight_handler
         self.wiz_handler = wiz_handler
@@ -537,6 +538,22 @@ class PlayerHandler:
             return
         await self._emit_standard_payloads(character, [payload], context=context)
 
+    async def _send_prompt(self, character: Character, context: Context, prefer_context_room: bool = True):
+        room = context.room if prefer_context_room and context is not None and context.room is not None else None
+        if room is None:
+            room_registry = getattr(self, "room_registry", None)
+            if room_registry is None:
+                return
+            room = room_registry.get_or_none(id=getattr(character, "room_id", ""))
+        if room is None:
+            return
+        area_id = getattr(room, "area_id", getattr(character, "area_id", ""))
+        area_registry = getattr(self, "area_registry", None)
+        area = area_registry.get_or_none(id=area_id) if area_id and area_registry is not None else None
+        if area is None:
+            return
+        await self.message_bus.send_prompt(character, area, room)
+
     async def print_players_in_room(self, character: Character):
         room = self.room_registry.get(id=character.room_id)
         if room is None:
@@ -610,7 +627,8 @@ class PlayerHandler:
             return
         await self._emit_standard_payload(character, payload, context=context)
 
-    async def _emit_standard_payload(self, character: Character, payload: dict, context: Context | None = None):
+    async def _emit_standard_payload(self, character: Character, payload: dict, context: Context | None = None, prompt_victims: bool = True) -> list[Character]:
+        prompt_targets: list[Character] = []
         payload = self._resolve_standard_payload(character, payload, context=context)
         if isinstance(payload, dict):
             payload["to_char"] = f"{payload.get('to_char', '')}{Ability.take_improve_messages(character)}"
@@ -620,7 +638,13 @@ class PlayerHandler:
         if payload.get("to_char"):
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
         if payload.get("to_victim") and payload.get("victim") is not None:
-            await self.message_bus.send_to_character(payload["victim"].id, self.message_bus.text_to_message(payload["to_victim"]))
+            victim = payload["victim"]
+            await self.message_bus.send_to_character(victim.id, self.message_bus.text_to_message(payload["to_victim"]))
+            if victim is not character and not CharacterApi.is_npc(victim):
+                if prompt_victims:
+                    await self._send_prompt(victim, context, prefer_context_room=False)
+                else:
+                    prompt_targets.append(victim)
         if payload.get("to_room"):
             targets = payload.get("targets", [])
             if len(targets) > 0:
@@ -677,10 +701,15 @@ class PlayerHandler:
                 if viewer is character:
                     for attacker, fight_payload in payload.get("aggressive_rounds", []):
                         await self.fight_handler.emit_round_payload(attacker, fight_payload)
+        return prompt_targets
 
     async def _emit_standard_payloads(self, character: Character, payloads: list[dict], context: Context | None = None):
+        prompt_targets: dict[str, Character] = {}
         for payload in payloads:
-            await self._emit_standard_payload(character, payload, context=context)
+            for target in await self._emit_standard_payload(character, payload, context=context, prompt_victims=False):
+                prompt_targets[str(getattr(target, "id", id(target)))] = target
+        for target in prompt_targets.values():
+            await self._send_prompt(target, context, prefer_context_room=False)
 
     def _resolve_standard_payload(self, character: Character, payload, context: Context | None = None):
         if not isinstance(payload, dict) or context is None:

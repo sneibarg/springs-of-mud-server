@@ -225,10 +225,21 @@ class EffectUtil:
         AffectedBits = CharacterApi.get_enum("affectedBy")
         raw = GenericUtil.to_int(getattr(character.status_flags, "affected_by", 0), 0)
         lines = []
+        seen = set()
         for name, member in AffectedBits.__members__.items():
             if CharacterApi.is_set(raw, member.value):
                 pretty = name.replace("AFF_", "").replace("_", " ").lower()
+                seen.add(pretty)
                 lines.append(f"Spell: {pretty}\r\n")
+        for effect in list(getattr(character, "effects", []) or []):
+            effect_type = str(getattr(effect, "type", "") or "").strip()
+            if not effect_type or effect_type.lstrip("-").isdigit():
+                continue
+            pretty = effect_type.removeprefix("spell.").removeprefix("skill.").replace("_", " ").lower()
+            if pretty in seen:
+                continue
+            seen.add(pretty)
+            lines.append(f"Spell: {pretty}\r\n")
         if not lines:
             return "You are not affected by any spells.\r\n"
         return "You are affected by the following spells:\r\n" + "".join(lines)

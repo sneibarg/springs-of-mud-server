@@ -808,10 +808,11 @@ class FightHandler:
     def build_round_payload(self, attacker, victim, room, result: dict, pre_corpse_ids=None) -> dict:
         attacker_id = str(getattr(attacker, "id", "") or "")
         victim_id = str(getattr(victim, "id", "") or "")
+        targets = room.player_targets(attacker) if hasattr(room, "player_targets") else list(room.characters.values())
         payload = {
             "to_char": result.get("to_char", ""),
             "to_room": result.get("to_room", ""),
-            "targets": [ch for ch in room.characters.values() if ch.id not in (attacker_id, victim_id)],
+            "targets": [ch for ch in targets if str(getattr(ch, "id", "") or "") not in (attacker_id, victim_id)],
         }
 
         if not CharacterApi.is_npc(victim):

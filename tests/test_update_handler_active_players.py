@@ -70,10 +70,25 @@ def build_character_data(character_id: str = "char_001") -> dict:
         "effects": [],
         "skills": [],
         "spells": [],
-        "characterFlags": {
-            "act": "",
-            "comm": "",
-            "affectedBy": "",
+        "statusFlags": {
+            "act": 0,
+            "comm": 0,
+            "affectedBy": 0,
+            "off": 0,
+            "imm": 0,
+            "res": 0,
+            "vuln": 0,
+            "form": 0,
+            "parts": 0,
+            "hunger": 48,
+            "thirst": 48,
+            "drunk": 0,
+            "invisLevel": 0,
+            "incogLevel": 0,
+            "played": 0,
+            "logon": 0,
+            "pulseWait": 0,
+            "pulseDaze": 0,
         },
         "characterAttributes": {
             "strength": 13,
@@ -151,11 +166,14 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         message_bus = Mock()
         message_bus.text_to_message.side_effect = lambda text: text
         message_bus.send_to_character = AsyncMock()
+        message_bus.send_to_room = AsyncMock()
 
         session_handler = Mock()
         session_handler.get_playing_sessions.return_value = [
             SimpleNamespace(character=character) for character in playing_characters
         ]
+        effect_handler = Mock()
+        effect_handler.tick_effects.return_value = SimpleNamespace(expired_effects=[])
 
         handler = UpdateHandler(
             weather_handler=Mock(),
@@ -166,6 +184,8 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
             registry_service=registry_service,
             character_service=Mock(),
             session_handler=session_handler,
+            enum_provider=Mock(get=Mock(return_value=None)),
+            effect_handler=effect_handler,
         )
         handler.PositionsEnum = Positions
         return handler, registry_service, message_bus
@@ -185,6 +205,43 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
             self.assertEqual(1, offline.status_flags.thirst)
             self.assertEqual(1, offline.status_flags.hunger)
             message_bus.send_to_character.assert_not_awaited()
+
+        asyncio.run(run_test())
+
+    def test_tick_effects_sends_msg_off_and_ignores_placeholder_messages(self):
+        async def run_test():
+            active = Character.from_json(build_character_data("active_char"))
+            armor = SimpleNamespace(handler_id="spell.armor", name="armor", id="armor-id", msg_off="You feel less armored.", msg_obj="")
+            teleport = SimpleNamespace(handler_id="spell.teleport", name="teleport", id="teleport-id", msg_off="!Teleport!", msg_obj="")
+            expired = [
+                SimpleNamespace(type="spell.armor"),
+                SimpleNamespace(type="spell.teleport"),
+            ]
+
+            handler, registry_service, message_bus = self._handler([active])
+            registry_service.spell_registry.all_spells.return_value = [armor, teleport]
+            handler.effect_handler.tick_effects.return_value = SimpleNamespace(expired_effects=expired)
+
+            await handler._tick_effects(active)
+
+            message_bus.send_to_character.assert_awaited_once_with("active_char", "You feel less armored.\r\n")
+
+        asyncio.run(run_test())
+
+    def test_tick_item_effects_sends_msg_obj_to_holder(self):
+        async def run_test():
+            holder = SimpleNamespace(id="char_001")
+            item = SimpleNamespace(id="item_001", name="sword", short_description="a bright sword")
+            spell = SimpleNamespace(handler_id="spell.bless", name="bless", id="bless-id", msg_off="", msg_obj="$p's holy aura fades.")
+
+            handler, registry_service, message_bus = self._handler([])
+            registry_service.spell_registry.all_spells.return_value = [spell]
+            handler.effect_handler.tick_effects.return_value = SimpleNamespace(expired_effects=[SimpleNamespace(type="spell.bless")])
+            handler._locate_item = Mock(return_value={"kind": "char_loot", "parent": holder, "room": None})
+
+            await handler._tick_item_effects(item)
+
+            message_bus.send_to_character.assert_awaited_once_with("char_001", "a bright sword's holy aura fades.\r\n")
 
         asyncio.run(run_test())
 
