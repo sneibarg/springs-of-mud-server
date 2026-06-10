@@ -481,6 +481,7 @@ class Wiz:
                 if nopurge_act and CharacterApi.is_set(getattr(victim.status_flags, "act", 0), nopurge_act):
                     continue
                 room.remove_mobile_from_room(victim)
+                self._unregister_live_character(victim)
             for obj in list(room.contents.values()):
                 if nopurge_item and GameApi.is_set(getattr(obj, "extra_flags", 0), nopurge_item):
                     continue
@@ -512,6 +513,7 @@ class Wiz:
         victim_room = WizUtil.room_of_entity(self.room_registry, victim)
         if victim_room is not None:
             victim_room.remove_mobile_from_room(victim)
+        self._unregister_live_character(victim)
         context.finish()
         return {"room_message": f"{character.name} purges {WizUtil.display_name(victim)}.\r\n", "room_targets": [] if victim_room is None else victim_room.players_in_room()}
 
@@ -615,6 +617,7 @@ class Wiz:
                 return self._command_payload("no_such_mobile")
             mob = MobileUtil.create_mobile(proto, CharacterApi.enum_provider())
             room.add_mobile_to_room(mob)
+            self._register_live_character(mob)
             context.finish()
             return {
                 **self._command_payload("default", tokens={"t": mob.short_description}),
@@ -932,6 +935,7 @@ class Wiz:
         clone = MobileUtil.clone_mobile_instance(mob, CharacterApi.enum_provider())
         if room is not None:
             room.add_mobile_to_room(clone)
+            self._register_live_character(clone)
         context.finish()
         return {
             **self._command_payload("default", wiznet_flag="WIZ_LOAD", wiznet_skip_flag="WIZ_SECURE", wiznet_min_level=CharacterApi.get_trust(character), tokens={"t": clone.short_description}),
@@ -977,6 +981,17 @@ class Wiz:
             viewer for viewer in room.player_targets(character)
             if CharacterApi.get_trust(viewer) >= GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0)
         ]
+
+    def _register_live_character(self, character) -> None:
+        self.character_registry.register(character)
+
+    def _unregister_live_character(self, character) -> None:
+        try:
+            self.character_registry.unregister(item=character)
+        except TypeError:
+            self.character_registry.unregister(character)
+        except KeyError:
+            return
 
     @staticmethod
     def _stat_character_text(target) -> str:

@@ -196,7 +196,7 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
         session_handler.get_playing_sessions.return_value = []
         character_service = Mock()
 
-        communications = Communications(registry_service, session_handler, character_service)
+        communications = Communications(registry_service, session_handler, character_service, SimpleNamespace(get=lambda _name: SimpleNamespace()), InterpApi())
         communications.lazy_load()
 
         player_handler = SimpleNamespace(communications_commands=communications, character_registry=registry_service.character_registry)
@@ -225,7 +225,7 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
         session_handler = Mock()
         character_service = Mock()
 
-        communications = Communications(registry_service, session_handler, character_service)
+        communications = Communications(registry_service, session_handler, character_service, SimpleNamespace(get=lambda _name: SimpleNamespace()), InterpApi())
         communications.lazy_load()
 
         player_handler = SimpleNamespace(communications_commands=communications, character_registry=registry_service.character_registry)
@@ -253,7 +253,7 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
         character_service = Mock()
         character_service.save_character.return_value = False
 
-        communications = Communications(registry_service, session_handler, character_service)
+        communications = Communications(registry_service, session_handler, character_service, SimpleNamespace(get=lambda _name: SimpleNamespace()), InterpApi())
         context = _Context(character=actor, command=_load_command("save"), result="", parameters=[], done=False)
 
         payload = communications.do_save(actor, context)
@@ -271,7 +271,7 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
         session_handler.get_playing_sessions.return_value = [SimpleNamespace(character=victim)]
         character_service = Mock()
 
-        communications = Communications(registry_service, session_handler, character_service)
+        communications = Communications(registry_service, session_handler, character_service, SimpleNamespace(get=lambda _name: SimpleNamespace()), InterpApi())
         communications.lazy_load()
 
         context = _Context(
@@ -302,7 +302,7 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
             BufferedMessage(sender="Victim", message="Victim tells you 'hello'\r\n")
         ]
 
-        communications = Communications(registry_service, session_handler, character_service)
+        communications = Communications(registry_service, session_handler, character_service, SimpleNamespace(get=lambda _name: SimpleNamespace()), InterpApi())
         communications.lazy_load()
 
         context = _Context(

@@ -46,8 +46,10 @@ class _LoggerFactory:
 def _load_spell_api():
     module_name = "_test_spell_api_module"
     replacements = {
+        "api": _module("api"),
         "api.GameApi": _module("api.GameApi", GameApi=SimpleNamespace()),
         "api.CharacterApi": _module("api.CharacterApi", CharacterApi=_CharacterApi),
+        "api.InterpApi": _module("api.InterpApi", InterpApi=object),
         "item.EffectHandler": _module("item.EffectHandler", EffectHandler=object),
         "item.Item": _module("item.Item", Item=_Item),
         "item.Effect": _module("item.Effect", Effect=object),

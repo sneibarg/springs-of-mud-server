@@ -297,7 +297,11 @@ class CharacterApi(GameApi):
         if not allow_self and q == "self":
             return None
         for ch in character_registry.all_characters():
-            if name_matches_fn(q, getattr(ch, "name", "")):
+            names = [
+                getattr(ch, "name", ""),
+                getattr(ch, "short_description", ""),
+            ]
+            if any(name_matches_fn(q, name) for name in names):
                 return ch
         return None
 

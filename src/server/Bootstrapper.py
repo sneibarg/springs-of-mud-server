@@ -7,6 +7,7 @@ from api.InterpApi import InterpApi
 from api.ItemApi import ItemApi
 from api.MobileApi import MobileApi
 from api.SkillApi import SkillApi
+from api.SpellApi import SpellApi
 from area.AreaHandler import AreaHandler
 from area.AreaRegistry import AreaRegistry
 from area.AreaService import AreaService
@@ -78,6 +79,12 @@ logger = LoggerFactory.get_logger("Bootstrapper")
 
 class Bootstrapper:
     @staticmethod
+    def bootstrap(service_config: ServiceConfig) -> Injector:
+        injector = Bootstrapper.create_injector(service_config)
+        Bootstrapper.lazy_load(injector)
+        return injector
+
+    @staticmethod
     def create_injector(service_config: ServiceConfig) -> Injector:
         injector = Injector()
         injector.binder.bind(ServiceConfig, to=service_config, scope=singleton)
@@ -139,6 +146,7 @@ class Bootstrapper:
         injector.binder.bind(SkillApi, scope=singleton)
         injector.binder.bind(FightApi, scope=singleton)
         injector.binder.bind(InterpApi, scope=singleton)
+        injector.binder.bind(SpellApi, scope=singleton)
 
     @staticmethod
     def _bind_game_services(injector: Injector, service_config: ServiceConfig):

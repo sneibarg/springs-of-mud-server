@@ -32,7 +32,8 @@ class MobileHandler:
                  fight_handler: FightHandler,
                  weather_handler: WeatherHandler,
                  enum_provider: EnumProvider,
-                 effect_handler: EffectHandler):
+                 effect_handler: EffectHandler,
+                 spell_api: SpellApi):
         self.__name__ = "MobileHandler"
         self.message_bus = message_bus
         self.registry_service = registry_service
@@ -47,7 +48,7 @@ class MobileHandler:
         self.logger = LoggerFactory.get_logger(__name__)
         self.rng = RandomNumberGenerator()
         self.effect_handler = effect_handler
-        self.spell_api = SpellApi(effect_handler=effect_handler)
+        self.spell_api = spell_api
         self.act_bits = enum_provider.get("actBits")
         self.affected_bits = enum_provider.get("affectedBy")
         self.positions = enum_provider.get("positions")

@@ -24,7 +24,6 @@ from skill import Skill
 from api.SkillApi import SkillApi
 from api.SpellApi import SpellApi
 from skill.SpellContext import SpellContext
-from util.EffectUtil import EffectUtil
 from util.FightUtil import FightUtil
 from util.GenericUtil import GenericUtil
 from util.MovementUtil import MovementUtil
@@ -37,22 +36,23 @@ class Fight:
                  enum_provider: EnumProvider,
                  skill_api: SkillApi,
                  fight_api: FightApi,
-                 interp_api: InterpApi = None,
-                 weather_handler: WeatherHandler = None,
-                 effect_handler: EffectHandler = None):
+                 interp_api: InterpApi,
+                 weather_handler: WeatherHandler,
+                 effect_handler: EffectHandler,
+                 spell_api: SpellApi):
         self.__name__ = "Fight"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.skill_api = skill_api
         self.room_registry = registry_service.room_registry
         self.skill_registry = registry_service.skill_registry
-        self.spell_registry = getattr(registry_service, "spell_registry", None)
+        self.spell_registry = registry_service.spell_registry
         self.fight_handler = fight_api.fight_handler
         self.fight_api = fight_api
-        self.interp_api = interp_api or InterpApi()
+        self.interp_api = interp_api
         self.weather_handler = weather_handler
-        self.effect_handler = effect_handler or EffectUtil.handler()
-        self.spell_api = SpellApi(effect_handler=self.effect_handler)
+        self.effect_handler = effect_handler
+        self.spell_api = spell_api
         self._handlers = {
             "hit": self.do_kill,
             "kill": self.do_kill,

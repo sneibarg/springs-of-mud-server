@@ -25,14 +25,14 @@ class Movement:
                  game_data: GameData,
                  fight_handler: FightHandler,
                  enum_provider: EnumProvider,
-                 interp_api: InterpApi = None):
+                 interp_api: InterpApi):
         self.__name__ = "Movement"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.room_registry = registry_service.room_registry
         self.game_data = game_data
         self.fight_handler = fight_handler
-        self.interp_api = interp_api or InterpApi()
+        self.interp_api = interp_api
         self.exit_flags = enum_provider.get("exitFlags")
         self.room_flags = enum_provider.get("roomFlags")
         self.affected_bits = enum_provider.get("affectedBy")

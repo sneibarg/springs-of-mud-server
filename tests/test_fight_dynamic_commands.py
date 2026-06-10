@@ -306,7 +306,7 @@ class TestFightDynamicCommands(unittest.TestCase):
         )
         fight_handler = Mock()
         fight_api = FightApi(registry_service.room_registry, registry_service.skill_registry, Mock(), fight_handler)
-        commands = Fight(registry_service, Mock(), Mock(), fight_api, InterpApi())
+        commands = Fight(registry_service, Mock(), Mock(), fight_api, InterpApi(), Mock(), Mock(), Mock())
 
         character = SimpleNamespace(
             name="Hero",
@@ -344,7 +344,7 @@ class TestFightDynamicCommands(unittest.TestCase):
         fight_handler = Mock()
         fight_handler.is_safe.return_value = (False, "")
         fight_api = FightApi(registry_service.room_registry, skill_registry, skill_api, fight_handler)
-        commands = Fight(registry_service, Mock(), skill_api, fight_api, InterpApi())
+        commands = Fight(registry_service, Mock(), skill_api, fight_api, InterpApi(), Mock(), Mock(), Mock())
 
         character = SimpleNamespace(
             name="Hero",

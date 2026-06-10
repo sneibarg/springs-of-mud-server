@@ -69,14 +69,14 @@ class Info:
                  session_handler: SessionHandler,
                  weather_handler: WeatherHandler,
                  enum_provider: EnumProvider,
-                 interp_api: InterpApi = None):
+                 interp_api: InterpApi):
         self.__name__ = "Info"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.interp_registry = registry_service.interp_registry
         self.room_registry = registry_service.room_registry
         self.session_handler = session_handler
         self.weather_handler = weather_handler
-        self.interp_api = interp_api or InterpApi()
+        self.interp_api = interp_api
         self.server_boot_time = datetime.now().ctime()
         self.PlayerActBits = enum_provider.get("playerActBits")
 

@@ -417,7 +417,7 @@ _load_module("interp.InterpView", "interp/InterpView.py")
 _load_module("interp.InterpCheck", "interp/InterpCheck.py")
 _load_module("interp.InterpActionDefinition", "interp/InterpActionDefinition.py")
 _load_module("interp.InterpPlan", "interp/InterpPlan.py")
-_load_module("interp.InterpApi", "api/InterpApi.py")
+InterpApi = _load_module("interp.InterpApi", "api/InterpApi.py").InterpApi
 Info = _load_module("interp.commands.Info", "interp/commands/Info.py").Info
 
 
@@ -446,7 +446,7 @@ class TestInfoDynamicCommands(unittest.TestCase):
         session_handler = SimpleNamespace(get_playing_sessions=lambda: [])
         weather_handler = SimpleNamespace(time_info=None, weather_info=None)
         enum_provider = SimpleNamespace(get=_CharacterMacros.get_enum)
-        commands = Info(registry_service, session_handler, weather_handler, enum_provider)
+        commands = Info(registry_service, session_handler, weather_handler, enum_provider, InterpApi())
         commands.PlayerActBits = _CharacterMacros.get_enum("playerActBits")
         return commands, room_registry, registry_service, session_handler, weather_handler
 

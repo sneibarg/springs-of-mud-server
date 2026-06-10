@@ -5,6 +5,9 @@ import random
 
 from typing import Any
 
+from injector import inject
+
+from api.InterpApi import InterpApi
 from api.GameApi import GameApi
 from item.EffectHandler import EffectHandler
 from item.Item import Item
@@ -60,13 +63,11 @@ class SpellApi:
         "spell.weaken",
     )
 
-    def __init__(self, effect_handler: EffectHandler | None = None, interp_api: Any = None):
+    @inject
+    def __init__(self, effect_handler: EffectHandler, interp_api: InterpApi):
         self.__name__ = "SpellApi"
         self.logger = LoggerFactory.get_logger(self.__name__)
-        self.effect_handler = effect_handler or EffectUtil.handler()
-        if interp_api is None:
-            from api.InterpApi import InterpApi
-            interp_api = InterpApi()
+        self.effect_handler = effect_handler
         self.interp_api = interp_api
 
     def execute_lambdas(self, ctx: SpellContext) -> bool:

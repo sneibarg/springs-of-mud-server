@@ -31,7 +31,7 @@ class Communications:
                  session_handler: SessionHandler,
                  character_service: CharacterService,
                  enum_provider: EnumProvider,
-                 interp_api: InterpApi = None):
+                 interp_api: InterpApi):
         self.__name__ = "Communications"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -39,7 +39,7 @@ class Communications:
         self.room_registry = registry_service.room_registry
         self.session_handler = session_handler
         self.character_service = character_service
-        self.interp_api = interp_api or InterpApi()
+        self.interp_api = interp_api
         self.communications_api = CommunicationsApi
         self.comm_flags = enum_provider.get("commFlags")
 

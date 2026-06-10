@@ -354,6 +354,7 @@ class FightHandler:
 
         if CharacterApi.is_npc(victim):
             room.mobiles.pop(victim.id)
+            self._unregister_live_character(victim)
             proto = self.mobile_registry.get_or_none(vnum=victim.vnum)
             if proto is not None:
                 proto.killed = GenericUtil.to_int(getattr(proto, "killed", 0), 0) + 1
@@ -1477,3 +1478,11 @@ class FightHandler:
     @staticmethod
     def _error_payload():
         return {"to_char": "", "to_victim": "", "to_room": "", "killed": False}
+
+    def _unregister_live_character(self, character) -> None:
+        try:
+            self.registry_service.character_registry.unregister(item=character)
+        except TypeError:
+            self.registry_service.character_registry.unregister(character)
+        except KeyError:
+            return

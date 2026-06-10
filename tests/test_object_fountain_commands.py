@@ -291,11 +291,21 @@ class TestObjectFountainCommands(unittest.TestCase):
         room_registry.get_or_none.return_value = room
         registry_service = SimpleNamespace(
             room_registry=room_registry,
-            mobile_registry=None,
-            shop_registry=None,
+            mobile_registry=SimpleNamespace(),
+            shop_registry=SimpleNamespace(find_by_keeper_vnum=lambda *_args, **_kwargs: None),
+            skill_registry=SimpleNamespace(get_or_none=lambda **_kwargs: None),
+            spell_registry=SimpleNamespace(get_or_none=lambda **_kwargs: None, all_spells=lambda: []),
         )
         enum_provider = SimpleNamespace(get=lambda _name: SimpleNamespace())
-        commands = Object(registry_service=registry_service, enum_provider=enum_provider)
+        commands = Object(
+            registry_service=registry_service,
+            enum_provider=enum_provider,
+            weather_handler=SimpleNamespace(time_info=None),
+            interp_api=_InterpApi(),
+            spell_api=Mock(),
+            fight_handler=Mock(),
+            effect_handler=Mock(),
+        )
         commands.item_flags = SimpleNamespace()
         commands.wear_flags = SimpleNamespace()
         return commands

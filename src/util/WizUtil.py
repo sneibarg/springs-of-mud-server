@@ -26,7 +26,18 @@ class WizUtil:
         c = (candidate or "").strip().lower()
         if not q or not c:
             return False
-        return c == q or c.startswith(q)
+        if c == q or c.startswith(q):
+            return True
+        return any(token == q or token.startswith(q) for token in c.split())
+
+    @staticmethod
+    def entity_names(entity) -> list[str]:
+        if entity is None:
+            return []
+        return [
+            str(getattr(entity, "name", "") or ""),
+            str(getattr(entity, "short_description", "") or ""),
+        ]
 
     @staticmethod
     def room_of_entity(room_registry, entity):
@@ -71,20 +82,19 @@ class WizUtil:
         wanted = (query or "").strip().lower()
         if not wanted:
             return None
-        if include_players and character_registry is not None:
-            for character in character_registry.all_characters():
-                if WizUtil.name_matches(wanted, getattr(character, "name", "")):
-                    return character
+        if (include_players or include_mobiles) and character_registry is not None:
+            for entity in character_registry.all_characters():
+                is_mobile = CharacterApi.is_npc(entity)
+                if (is_mobile and not include_mobiles) or ((not is_mobile) and not include_players):
+                    continue
+                if any(WizUtil.name_matches(wanted, name) for name in WizUtil.entity_names(entity)):
+                    return entity
         if include_mobiles and room_registry is not None:
             for room in room_registry.all_rooms():
                 if room is None:
                     continue
                 for mobile in room.mobiles.values():
-                    names = [
-                        str(getattr(mobile, "name", "") or ""),
-                        str(getattr(mobile, "short_description", "") or ""),
-                    ]
-                    if any(WizUtil.name_matches(wanted, name) for name in names):
+                    if any(WizUtil.name_matches(wanted, name) for name in WizUtil.entity_names(mobile)):
                         return mobile
         return None
 

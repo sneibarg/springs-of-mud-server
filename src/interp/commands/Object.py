@@ -9,13 +9,13 @@ from area.Shop import Shop
 from fight.FightHandler import FightHandler
 from game.EnumProvider import EnumProvider
 from game.Equipped import Equipped
+from game.WeatherHandler import WeatherHandler
 from item.EffectHandler import EffectHandler
 from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from util.InfoUtil import InfoUtil
 from util.InterpUtil import InterpUtil
-from util.EffectUtil import EffectUtil
 from util.ItemUtil import ItemUtil
 from api.InterpApi import InterpApi
 from api.ItemApi import ItemApi
@@ -35,23 +35,23 @@ class Object:
     @inject
     def __init__(self, registry_service: RegistryService,
                  enum_provider: EnumProvider,
-                 weather_handler=None,
-                 interp_api=None,
-                 spell_api=None,
-                 fight_handler: FightHandler = None,
-                 effect_handler: EffectHandler = None):
+                 weather_handler: WeatherHandler,
+                 interp_api: InterpApi,
+                 spell_api: SpellApi,
+                 fight_handler: FightHandler,
+                 effect_handler: EffectHandler):
         self.__name__ = "Object"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
-        self.room_registry = getattr(registry_service, "room_registry", None)
-        self.mobile_registry = getattr(registry_service, "mobile_registry", None)
-        self.shop_registry = getattr(registry_service, "shop_registry", None)
-        self.skill_registry = getattr(registry_service, "skill_registry", None)
-        self.spell_registry = getattr(registry_service, "spell_registry", None)
+        self.room_registry = registry_service.room_registry
+        self.mobile_registry = registry_service.mobile_registry
+        self.shop_registry = registry_service.shop_registry
+        self.skill_registry = registry_service.skill_registry
+        self.spell_registry = registry_service.spell_registry
         self.weather_handler = weather_handler
-        self.interp_api = interp_api or InterpApi()
-        self.effect_handler = effect_handler or EffectUtil.handler()
-        self.spell_api = spell_api or SpellApi(effect_handler=self.effect_handler)
+        self.interp_api = interp_api
+        self.effect_handler = effect_handler
+        self.spell_api = spell_api
         self.fight_handler = fight_handler
         self.item_types = enum_provider.get("itemTypes")
         self.item_flags = enum_provider.get("itemFlags")
@@ -999,7 +999,7 @@ class Object:
         return None
 
     def _is_shopkeeper(self, victim) -> bool:
-        if victim is None or self.shop_registry is None:
+        if victim is None:
             return False
         return self.shop_registry.find_by_keeper_vnum(getattr(victim, "vnum", "")) is not None
 
@@ -1614,8 +1614,6 @@ class Object:
         return random.randint(1, 100) < threshold
 
     def _improve_item_skill(self, character: Character, skill_name: str, success: bool):
-        if self.skill_registry is None or not hasattr(self.skill_registry, "get_or_none"):
-            return
         skill = self.skill_registry.get_or_none(name=skill_name)
         if skill is None:
             return
@@ -1654,8 +1652,6 @@ class Object:
         character.remove_item(item)
 
     def _find_keeper(self, character: Character, room):
-        if self.shop_registry is None:
-            return None, None, "shop_unavailable"
         for mob in room.mobiles.values():
             shop = self.shop_registry.find_by_keeper_vnum(getattr(mob, "vnum", ""))
             if shop is None:

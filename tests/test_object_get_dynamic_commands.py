@@ -450,10 +450,10 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         )
         registry_service = SimpleNamespace(
             room_registry=room_registry,
-            mobile_registry=None,
+            mobile_registry=SimpleNamespace(),
             shop_registry=shop_registry,
-            skill_registry=skill_registry,
-            spell_registry=spell_registry,
+            skill_registry=skill_registry or SimpleNamespace(get_or_none=lambda **_kwargs: None),
+            spell_registry=spell_registry or SimpleNamespace(get_or_none=lambda **_kwargs: None, all_spells=lambda: []),
         )
         enum_provider = SimpleNamespace(get=lambda _name: SimpleNamespace())
         commands = Object(
@@ -461,8 +461,9 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             enum_provider=enum_provider,
             interp_api=InterpApi(),
             weather_handler=weather_handler,
-            spell_api=spell_api,
-            fight_handler=fight_handler,
+            spell_api=spell_api or SimpleNamespace(),
+            fight_handler=fight_handler or SimpleNamespace(),
+            effect_handler=_effect_handler,
         )
         commands.item_types = SimpleNamespace(ITEM_WEAPON=SimpleNamespace(value=5))
         commands.item_flags = SimpleNamespace(
