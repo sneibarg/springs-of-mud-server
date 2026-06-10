@@ -71,6 +71,7 @@ class Wiz:
             "gecho": self.do_gecho,
             "zecho": self.do_zecho,
             "pecho": self.do_pecho,
+            "at": self.do_at,
             "goto": self.do_goto,
             "transfer": self.do_transfer,
             "teleport": self.do_transfer,
@@ -267,6 +268,26 @@ class Wiz:
         context.finish()
         return self._command_payload("default", victim=victim, tokens={"s": message})
 
+    def do_at(self, character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+
+        location_arg, nested_command = WizUtil.split_argument(WizUtil.argument_text(context.result, context.parameters))
+        room = AreaUtil.find_location(location_arg, self.room_registry, self.character_registry, WizUtil.name_matches)
+        if room is None:
+            context.finish()
+            return self._command_payload("no_such_location")
+
+        original = self.room_registry.get_or_none(id=character.room_id)
+        WizUtil.move_entity(self.room_registry, character, room)
+        context.finish()
+        return {
+            "interpret_at": nested_command,
+            "at_original_room": original,
+            "at_on": getattr(character, "on", None),
+        }
+
     def do_goto(self, character: Character, context: Context):
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
@@ -313,8 +334,8 @@ class Wiz:
             "from_room_message": f"{WizUtil.display_name(victim)} disappears in a mushroom cloud.\r\n",
             "to_room_targets": room.player_targets(victim) if not CharacterApi.is_npc(victim) else room.players_in_room(),
             "to_room_message": f"{WizUtil.display_name(victim)} arrives from a puff of smoke.\r\n",
-            "to_room_obj": room,
-            "view_character": victim,
+            "to_room_obj": None if CharacterApi.is_npc(victim) else room,
+            "view_character": character if CharacterApi.is_npc(victim) else victim,
         }
 
     def do_return(self, character: Character, context: Context):

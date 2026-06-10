@@ -180,6 +180,7 @@ class UpdateHandler:
             targets = payload.get("targets", [])
             if len(targets) > 0:
                 await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room"]), targets)
+                prompted.extend(target for target in targets if not CharacterApi.is_npc(target))
         return prompted
 
     async def _aggr_update(self):

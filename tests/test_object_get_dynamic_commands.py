@@ -154,6 +154,10 @@ class _ItemApi:
     def is_container_closed(item) -> bool:
         return bool(getattr(item, "closed", False))
 
+    @staticmethod
+    def is_no_sac(item) -> bool:
+        return bool(getattr(item, "no_sac", False))
+
 
 class _CommunicationsUtil:
     @staticmethod
@@ -209,6 +213,17 @@ class _ItemUtil:
         if found is not None:
             return found
         return _ItemUtil.find_room_item(room, query)
+
+    @staticmethod
+    def item_in_use(_context):
+        return False
+
+    @staticmethod
+    def sacrifice_silver_value(item) -> int:
+        silver = max(1, int(getattr(item, "level", 0) or 0) * 3)
+        if "corpse" not in str(getattr(item, "item_type", "") or "").lower():
+            silver = min(silver, int(getattr(item, "cost", 0) or 0))
+        return max(3, silver)
 
     @staticmethod
     def find_item(character, room, wanted):
@@ -367,6 +382,7 @@ class _Command:
             to_char={_snake(key): value for key, value in (payload.get("payload", {}).get("toChar", {}) or {}).items()},
             to_room={_snake(key): value for key, value in (payload.get("payload", {}).get("toRoom", {}) or {}).items()},
             to_victim={_snake(key): value for key, value in (payload.get("payload", {}).get("toVictim", {}) or {}).items()},
+            to_wiznet={_snake(key): value for key, value in (payload.get("payload", {}).get("toWiznet", {}) or {}).items()},
         )
         self.guards = []
         for entry in list(payload.get("guards", []) or []):
@@ -400,6 +416,14 @@ class _Room(SimpleNamespace):
 
     def remove_item_from_room(self, item):
         self.contents.pop(item.id, None)
+
+    def find_room_item(self, wanted):
+        query = str(wanted or "").strip().lower()
+        for item in list(getattr(self, "contents", {}).values()):
+            name = str(getattr(item, "name", "") or "").lower()
+            if name == query or name.startswith(query):
+                return item
+        return None
 
     def player_targets(self, character):
         return [ch for ch in list(getattr(self, "characters", {}).values()) if getattr(ch, "id", None) != getattr(character, "id", None)]
@@ -1088,6 +1112,28 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual([], payload["targets"])
         self.assertEqual(50, character.silver)
         self.assertEqual(25, victim.silver)
+
+    def test_sacrifice_uses_payload_templates_for_room_message(self):
+        watcher = self._build_character(name="Watcher")
+        idol = SimpleNamespace(
+            id="obj-16",
+            name="idol stone",
+            short_description="a stone idol",
+            item_type="treasure",
+            level=4,
+            cost=30,
+        )
+        room = _Room(id="room-1", contents={idol.id: idol}, mobiles={}, characters={watcher.id: watcher})
+        character = self._build_character()
+
+        payload = self._commands(room).do_sacrifice(character, self._build_context("idol", room, character, "sacrifice"))
+
+        self.assertEqual("Mota gives you 12 silver coins for your sacrifice.\r\n", payload["to_char"])
+        self.assertEqual("Tester sacrifices a stone idol to Mota.\r\n", payload["to_room"])
+        self.assertEqual("Tester sends up a stone idol as a burnt offering.\r\n", payload["to_wiznet"])
+        self.assertEqual([watcher], payload["targets"])
+        self.assertNotIn(idol.id, room.contents)
+        self.assertEqual(12, character.silver)
 
     def test_give_funds_insufficient_uses_guard_payload(self):
         victim = self._build_character(name="Receiver")

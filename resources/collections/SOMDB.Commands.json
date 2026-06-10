@@ -903,15 +903,15 @@
     "maxArguments": 0,
     "guards": [
       {
-        "predicate": "lambda v: len(v.context.parameters) == 0",
+        "predicate": "lambda v: WizApi.at_missing_argument(v)",
         "messageKey": "noArgument"
       },
       {
-        "predicate": "",
+        "predicate": "lambda v: WizApi.at_location(v) is None",
         "messageKey": "noSuchLocation"
       },
       {
-        "predicate": "lambda v: (room := v.context.room) is not None and room.is_private(CharacterApi.get_enum('roomFlags'))",
+        "predicate": "lambda v: WizApi.at_private(v)",
         "messageKey": "privateRoom"
       }
     ],

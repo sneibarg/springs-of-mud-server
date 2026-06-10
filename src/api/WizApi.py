@@ -39,6 +39,25 @@ class WizApi:
         )
 
     @staticmethod
+    def at_argument_parts(view) -> tuple[str, str]:
+        return InterpUtil.one_argument(InterpUtil.argument_text(view))
+
+    @staticmethod
+    def at_missing_argument(view) -> bool:
+        location_arg, nested_command = WizApi.at_argument_parts(view)
+        return not location_arg or not nested_command
+
+    @staticmethod
+    def at_location(view):
+        location_arg, _nested_command = WizApi.at_argument_parts(view)
+        return AreaUtil.find_location(
+            location_arg,
+            WizApi.room_registry(view),
+            WizApi.character_registry(view),
+            WizUtil.name_matches,
+        )
+
+    @staticmethod
     def explicit_level_out_of_range(view, attr_name: str) -> bool:
         arg = InterpUtil.argument_text(view)
         if not arg:
@@ -58,6 +77,11 @@ class WizApi:
     @staticmethod
     def goto_private(view) -> bool:
         room = WizApi.location(view)
+        return room is not None and WizApi.room_private_for_actor(view, room)
+
+    @staticmethod
+    def at_private(view) -> bool:
+        room = WizApi.at_location(view)
         return room is not None and WizApi.room_private_for_actor(view, room)
 
     @staticmethod

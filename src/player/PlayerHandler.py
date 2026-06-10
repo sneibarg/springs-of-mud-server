@@ -1,3 +1,5 @@
+import inspect
+
 from dataclasses import fields
 from typing import Any
 from injector import inject
@@ -45,6 +47,8 @@ class PlayerHandler:
         self.character_registry = registry_service.character_registry
         self.area_registry = registry_service.area_registry
         self.room_registry = registry_service.room_registry
+        self.interp_registry = registry_service.interp_registry
+        self.social_registry = registry_service.social_registry
         self.fight_handler = fight_handler
         self.wiz_handler = wiz_handler
         self.communications_commands = communications_commands
@@ -443,8 +447,99 @@ class PlayerHandler:
 
     async def do_wiz_command(self, character: Character, context: Context):
         payload = self.wiz_commands.execute(character, context)
+        if isinstance(payload, dict) and payload.get("interpret_at"):
+            await self._handle_at_payload(character, context, payload)
+            return
         viewer = getattr(payload, "get", lambda *_args, **_kwargs: getattr(context, "character", character))("view_character", getattr(context, "character", character))
         await self._handle_standard_command_payload(viewer, context, payload)
+
+    async def _handle_at_payload(self, character: Character, context: Context, payload: dict):
+        try:
+            await self._interpret_nested_command(character, context, str(payload.get("interpret_at", "") or ""))
+        finally:
+            if self._character_in_any_room(character):
+                self._restore_at_character(character, payload.get("at_original_room"), payload.get("at_on"))
+
+    async def _interpret_nested_command(self, character: Character, context: Context, raw_command: str):
+        cmd, parameters = InterpUtil.extract_parameters(self.interp_registry, raw_command)
+        if cmd is None:
+            social = self.social_registry.get_or_none(name=raw_command.lower())
+            if social is not None and context.social_handler() is not None:
+                await context.social_handler().handle_social(character, raw_command, social)
+                return
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("Huh?\r\n"))
+            return
+
+        nested_context = Context(
+            character=character,
+            handler_service=context.handler_service,
+            conn=context.conn,
+            command=cmd,
+            parameters=InterpUtil.build_arguments(cmd, parameters),
+            result=parameters,
+            room=self.room_registry.get_or_none(id=character.room_id),
+        )
+        await self._execute_nested_lambdas(cmd, nested_context)
+
+    async def _execute_nested_lambdas(self, command, context: Context):
+        lambdas = getattr(command, "lambdas", None) or []
+        if not command.pipeline:
+            for lambda_string in lambdas:
+                if not isinstance(lambda_string, str) or not lambda_string.strip():
+                    continue
+                await self._execute_nested_lambda(eval(lambda_string), context)
+            return
+
+        index = 0
+        while index < len(lambdas):
+            lambda_string = lambdas[index]
+            if not isinstance(lambda_string, str) or not lambda_string.strip():
+                index += 1
+                continue
+            await self._execute_nested_lambda(eval(lambda_string), context)
+            if context.done:
+                break
+            if isinstance(context.next_index, int) and context.next_index >= 0:
+                index = context.next_index
+                context.next_index = None
+                continue
+            index += 1
+
+    @staticmethod
+    async def _execute_nested_lambda(func, context: Context):
+        if not callable(func):
+            return
+        result = func(context)
+        if inspect.isawaitable(result):
+            context.result = await result
+        else:
+            context.result = result
+
+    def _character_in_any_room(self, character: Character) -> bool:
+        character_id = str(getattr(character, "id", "") or "")
+        if not character_id:
+            return False
+        for room in self.room_registry.all_rooms():
+            if character_id in getattr(room, "characters", {}) or character_id in getattr(room, "mobiles", {}):
+                return True
+        return False
+
+    def _restore_at_character(self, character: Character, original_room, original_on):
+        if original_room is None:
+            return
+        character_id = str(getattr(character, "id", "") or "")
+        for room in self.room_registry.all_rooms():
+            if character_id in getattr(room, "characters", {}):
+                room.remove_player_from_room(character)
+            if character_id in getattr(room, "mobiles", {}):
+                room.remove_mobile_from_room(character)
+        if CharacterApi.is_npc(character):
+            original_room.add_mobile_to_room(character)
+        else:
+            original_room.add_player_to_room(character)
+        character.room_id = original_room.id
+        character.area_id = original_room.area_id
+        setattr(character, "on", original_on)
 
     async def do_object_command(self, character: Character, context: Context):
         payload = self.object_commands.execute(character, context)
@@ -699,8 +794,12 @@ class PlayerHandler:
                 viewer = payload.get("view_character", character)
                 await self._show_room_to_character(viewer, to_room, context)
                 if viewer is character:
+                    prompted_characters: dict[str, Character] = {}
                     for attacker, fight_payload in payload.get("aggressive_rounds", []):
-                        await self.fight_handler.emit_round_payload(attacker, fight_payload)
+                        prompted = await self.fight_handler.emit_round_payload(attacker, fight_payload)
+                        prompted_characters.update({target.id: target for target in prompted})
+                    for target in prompted_characters.values():
+                        await self._send_prompt(target, context, prefer_context_room=False)
         return prompt_targets
 
     async def _emit_standard_payloads(self, character: Character, payloads: list[dict], context: Context | None = None):

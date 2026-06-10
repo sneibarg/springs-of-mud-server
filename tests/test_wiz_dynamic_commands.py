@@ -10,6 +10,7 @@ COMMANDS_PATH = os.path.join(ROOT, "resources", "collections", "SOMDB.Commands.j
 class TestWizDynamicCommandMetadata(unittest.TestCase):
     def test_migrated_wiz_commands_have_guards(self):
         expected = {
+            "at",
             "clone",
             "freeze",
             "goto",
@@ -55,6 +56,16 @@ class TestWizDynamicCommandMetadata(unittest.TestCase):
             "privateRoom",
         }
         self.assertTrue(expected_keys.issubset(payload.keys()))
+
+    def test_at_command_metadata_uses_destination_guards(self):
+        with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:
+            commands = {entry["name"]: entry for entry in json.load(handle)}
+
+        guards = commands["at"]["guards"]
+        predicates = [entry.get("predicate", "") for entry in guards]
+        self.assertIn("lambda v: WizApi.at_missing_argument(v)", predicates)
+        self.assertIn("lambda v: WizApi.at_location(v) is None", predicates)
+        self.assertIn("lambda v: WizApi.at_private(v)", predicates)
 
 
 if __name__ == "__main__":

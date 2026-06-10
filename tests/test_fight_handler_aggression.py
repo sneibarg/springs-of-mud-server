@@ -1,11 +1,12 @@
 import importlib.util
+import asyncio
 import sys
 import types
 import unittest
 from enum import IntEnum
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import AsyncMock, Mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -474,6 +475,32 @@ class TestFightHandlerAggression(unittest.TestCase):
         )
 
         self.assertEqual([watcher], payload["targets"])
+
+    def test_emit_round_payload_returns_room_observers_for_prompt(self):
+        attacker = self._player("char-1")
+        victim = self._mob("mob-1")
+        watcher = self._player("char-2")
+        handler = self._handler(SimpleNamespace())
+        handler.message_bus = SimpleNamespace(
+            text_to_message=lambda text: text,
+            send_to_character=AsyncMock(),
+            send_to_room=AsyncMock(),
+        )
+
+        prompted = asyncio.run(
+            handler.emit_round_payload(
+                attacker,
+                {
+                    "to_char": "You hit.\r\n",
+                    "to_room": "Tester hits mob.\r\n",
+                    "targets": [watcher],
+                    "victim": victim,
+                },
+            )
+        )
+
+        self.assertEqual([attacker, watcher], prompted)
+        handler.message_bus.send_to_room.assert_awaited_once_with("Tester hits mob.\r\n", [watcher])
 
 
 if __name__ == "__main__":

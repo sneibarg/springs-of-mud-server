@@ -686,14 +686,21 @@ class Object:
             return payload
 
         silver = ItemUtil.sacrifice_silver_value(context.item)
+        item_name = Item.short(context.item)
         room.remove_item_from_room(context.item)
         character.silver = int(getattr(character, "silver", 0) or 0) + silver
         context.finish()
-        return {
-            "to_char": context.command.payload.to_char.get('one_silver') if silver == 1 else context.command.payload.to_char.get('multiple_silver').replace("%d", str(silver)),
-            "to_room": context.command.payload.to_room["default"],
-            "targets": room.player_targets(character),
-        }
+        payload = self.interp_api.render_message_key(context, "default", c=character.name, t=item_name)
+        reward = self.interp_api.render_message_key(
+            context,
+            "one_silver" if silver == 1 else "multiple_silver",
+            channel="to_char",
+            d=silver,
+        )
+        payload.update(reward)
+        if room is not None and payload.get("to_room"):
+            payload["targets"] = room.player_targets(character)
+        return payload
 
     def destroy_carried(self, character: Character, context: Context, empty_msg: str, success_msg: str = "Ok.\r\n"):
         arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
