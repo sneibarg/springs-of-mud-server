@@ -392,7 +392,7 @@ class Movement:
         act_bits = self.act_bits or CharacterApi.get_enum("actBits")
         trainer_found = False
         if room is not None:
-            train_bit = act_bits.ACT_TRAIN.value if act_bits is not None and hasattr(act_bits, "ACT_TRAIN") else 0
+            train_bit = act_bits.ACT_TRAIN.value if act_bits is not None else 0
             for mob in room.mobiles.values():
                 if MobileUtil.is_train_trainer(mob, train_bit):
                     trainer_found = True

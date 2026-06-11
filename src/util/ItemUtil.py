@@ -347,11 +347,11 @@ class ItemUtil:
 
         labels = []
         if item_flags_enum is not None:
-            if hasattr(item_flags_enum, "ITEM_INVIS") and ItemUtil._is_item_flag_set(obj, item_flags_enum.ITEM_INVIS.value):
+            if ItemUtil._is_item_flag_set(obj, item_flags_enum.ITEM_INVIS.value):
                 labels.append("(Invis)")
-            if hasattr(item_flags_enum, "ITEM_GLOW") and ItemUtil._is_item_flag_set(obj, item_flags_enum.ITEM_GLOW.value):
+            if ItemUtil._is_item_flag_set(obj, item_flags_enum.ITEM_GLOW.value):
                 labels.append("(Glowing)")
-            if hasattr(item_flags_enum, "ITEM_HUM") and ItemUtil._is_item_flag_set(obj, item_flags_enum.ITEM_HUM.value):
+            if ItemUtil._is_item_flag_set(obj, item_flags_enum.ITEM_HUM.value):
                 labels.append("(Humming)")
 
         base = (obj.short_description if f_short else obj.long_description) or obj.name or "something"

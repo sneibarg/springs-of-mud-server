@@ -85,9 +85,8 @@ class AreaUtil:
         if exit_flags_enum is None:
             return 0
         for name in names:
-            member = getattr(exit_flags_enum, name, None)
-            if member is not None:
-                return int(member.value)
+            if name in exit_flags_enum.__members__:
+                return int(exit_flags_enum[name].value)
         return 0
 
     @staticmethod

@@ -378,8 +378,6 @@ class Item:
             weapon_flags = CharacterApi.get_enum("weaponType")
         except RuntimeError:
             return False
-        if not hasattr(weapon_flags, "WEAPON_TWO_HANDS"):
-            return False
         return GameApi.is_set(self.value4, weapon_flags.WEAPON_TWO_HANDS.value)
 
     def can_remove(self, item_flags) -> bool:
@@ -402,14 +400,14 @@ class Item:
             return ""
 
         skill_map = {
-            getattr(weapon_class, "WEAPON_SWORD", None): "sword",
-            getattr(weapon_class, "WEAPON_DAGGER", None): "dagger",
-            getattr(weapon_class, "WEAPON_SPEAR", None): "spear",
-            getattr(weapon_class, "WEAPON_MACE", None): "mace",
-            getattr(weapon_class, "WEAPON_AXE", None): "axe",
-            getattr(weapon_class, "WEAPON_FLAIL", None): "flail",
-            getattr(weapon_class, "WEAPON_WHIP", None): "whip",
-            getattr(weapon_class, "WEAPON_POLEARM", None): "polearm",
+            weapon_class.WEAPON_SWORD: "sword",
+            weapon_class.WEAPON_DAGGER: "dagger",
+            weapon_class.WEAPON_SPEAR: "spear",
+            weapon_class.WEAPON_MACE: "mace",
+            weapon_class.WEAPON_AXE: "axe",
+            weapon_class.WEAPON_FLAIL: "flail",
+            weapon_class.WEAPON_WHIP: "whip",
+            weapon_class.WEAPON_POLEARM: "polearm",
         }
         class_value = GenericUtil.to_int(self.value0, 0)
         skill_name = ""

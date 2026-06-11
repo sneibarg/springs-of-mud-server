@@ -186,15 +186,15 @@ class CharacterApi(GameApi):
 
     @classmethod
     def is_comm_enabled(cls, character: Character, bit_name: str) -> bool:
-        return cls.is_set(character.status_flags.comm, getattr(cls.CommFlags, bit_name).value)
+        return cls.is_set(character.status_flags.comm, cls.CommFlags[bit_name].value)
 
     @classmethod
     def toggle_player_act(cls, character: Character, bit_name: str, off_text: str, on_text: str) -> str:
         if cls.is_npc(character):
             return ""
-        if not hasattr(cls.PlayerActBits, bit_name):
+        if bit_name not in cls.PlayerActBits.__members__:
             return ""
-        bit_value = getattr(cls.PlayerActBits, bit_name).value
+        bit_value = cls.PlayerActBits[bit_name].value
         act = character.status_flags.act
         if cls.is_set(act, bit_value):
             cls.unset_act_flags(character, bit_value)
@@ -204,7 +204,7 @@ class CharacterApi(GameApi):
 
     @classmethod
     def toggle_comm(cls, character: Character, bit_name: str, off_text: str, on_text: str) -> str:
-        bit_value = getattr(cls.CommFlags, bit_name).value
+        bit_value = cls.CommFlags[bit_name].value
         comm = character.status_flags.comm
         if cls.is_set(comm, bit_value):
             cls.unset_comm_flags(character, bit_value)
@@ -308,16 +308,16 @@ class CharacterApi(GameApi):
 
     @classmethod
     def is_affected_by_name(cls, character: Character, affected_bits, bit_name: str) -> bool:
-        if affected_bits is None or not hasattr(affected_bits, bit_name):
+        if affected_bits is None or bit_name not in affected_bits.__members__:
             return False
-        bit = getattr(affected_bits, bit_name).value
+        bit = affected_bits[bit_name].value
         return cls.is_set(character.status_flags.affected_by, bit)
 
     @classmethod
     def set_affected_by_name(cls, character: Character, affected_bits, bit_name: str, enabled: bool):
-        if affected_bits is None or not hasattr(affected_bits, bit_name):
+        if affected_bits is None or bit_name not in affected_bits.__members__:
             return
-        bit = getattr(affected_bits, bit_name).value
+        bit = affected_bits[bit_name].value
         if enabled:
             character.status_flags.set_flag("affected_by", bit)
             return
@@ -325,9 +325,9 @@ class CharacterApi(GameApi):
 
     @classmethod
     def pos_value(cls, name: str) -> int:
-        if not hasattr(cls.positions, name):
+        if name not in cls.positions.__members__:
             return -1
-        return int(getattr(cls.positions, name).value)
+        return int(cls.positions[name].value)
 
     @classmethod
     def position_value(cls, character: Character) -> int:
@@ -339,17 +339,17 @@ class CharacterApi(GameApi):
             name = raw.strip().upper()
             if name and not name.startswith("POS_"):
                 name = f"POS_{name}"
-            if hasattr(cls.positions, name):
-                return int(getattr(cls.positions, name).value)
+            if name in cls.positions.__members__:
+                return int(cls.positions[name].value)
         standing = cls.pos_value("POS_STANDING")
         default_pos = standing if standing >= 0 else 0
         return GenericUtil.to_int(raw, default_pos)
 
     @classmethod
     def set_position(cls, character: Character, pos_name: str):
-        if not hasattr(cls.positions, pos_name):
+        if pos_name not in cls.positions.__members__:
             return
-        value = int(getattr(cls.positions, pos_name).value)
+        value = int(cls.positions[pos_name].value)
         attrs = character.character_attributes
         if attrs is not None:
             attrs.position = value
@@ -393,8 +393,6 @@ class CharacterApi(GameApi):
 
     @classmethod
     def has_holy_light(cls, character) -> bool:
-        if not hasattr(cls.PlayerActBits, "PLR_HOLYLIGHT"):
-            return False
         return cls.is_set(
             GenericUtil.to_int(character.status_flags.act, 0),
             cls.PlayerActBits.PLR_HOLYLIGHT.value,

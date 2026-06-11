@@ -175,12 +175,12 @@ class FightHandler:
 
     def update_pos(self, victim) -> None:
         hit = GenericUtil.to_int(victim.hit, 0)
-        pos_stunned = int(getattr(getattr(self.PositionsEnum, "POS_STUNNED", 0), "value", getattr(self.PositionsEnum, "POS_STUNNED", 0)))
-        pos_fighting = int(getattr(getattr(self.PositionsEnum, "POS_FIGHTING", pos_stunned), "value", getattr(self.PositionsEnum, "POS_FIGHTING", pos_stunned)))
-        pos_standing = int(getattr(getattr(self.PositionsEnum, "POS_STANDING", pos_fighting), "value", getattr(self.PositionsEnum, "POS_STANDING", pos_fighting)))
-        pos_dead = int(getattr(getattr(self.PositionsEnum, "POS_DEAD", 0), "value", getattr(self.PositionsEnum, "POS_DEAD", 0)))
-        pos_mortal = int(getattr(getattr(self.PositionsEnum, "POS_MORTAL", pos_stunned), "value", getattr(self.PositionsEnum, "POS_MORTAL", pos_stunned)))
-        pos_incap = int(getattr(getattr(self.PositionsEnum, "POS_INCAP", pos_stunned), "value", getattr(self.PositionsEnum, "POS_INCAP", pos_stunned)))
+        pos_stunned = int(self.PositionsEnum.POS_STUNNED.value)
+        pos_fighting = int(self.PositionsEnum.POS_FIGHTING.value)
+        pos_standing = int(self.PositionsEnum.POS_STANDING.value)
+        pos_dead = int(self.PositionsEnum.POS_DEAD.value)
+        pos_mortal = int(self.PositionsEnum.POS_MORTAL.value)
+        pos_incap = int(self.PositionsEnum.POS_INCAP.value)
 
         if hit > 0:
             if FightUtil.entity_position_value(victim) <= pos_stunned:
@@ -1462,8 +1462,7 @@ class FightHandler:
                 setattr(armor, field_name, 100)
 
         positions_enum = CharacterApi.get_enum("positions")
-        if hasattr(positions_enum, "POS_RESTING"):
-            self._set_position(victim, int(positions_enum.POS_RESTING.value))
+        self._set_position(victim, int(positions_enum.POS_RESTING.value))
 
         victim.hit = max(1, GenericUtil.to_int(getattr(victim, "hit", 0), 0))
         victim.mana = max(1, GenericUtil.to_int(getattr(victim, "mana", 0), 0))

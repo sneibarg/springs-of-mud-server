@@ -76,7 +76,7 @@ class Shop:
 
     @staticmethod
     def is_pet_shop(room, room_flags) -> bool:
-        if room is None or room_flags is None or not hasattr(room_flags, "ROOM_PET_SHOP"):
+        if room is None or room_flags is None:
             return False
         return ItemApi.is_set(room.room_flags, room_flags.ROOM_PET_SHOP.value)
 
@@ -135,9 +135,9 @@ class Shop:
         if item is None or item_types is None:
             return False
         item_type_name = str(item.item_type or "").strip().upper()
-        if not item_type_name or not hasattr(item_types, item_type_name):
+        if not item_type_name or item_type_name not in item_types.__members__:
             return False
-        item_type_value = int(getattr(item_types, item_type_name).value)
+        item_type_value = int(item_types[item_type_name].value)
         return item_type_value in self.buy_types
 
     def buy_price(self, item) -> int:
@@ -271,10 +271,10 @@ class Shop:
         sell_extract_bit = 0
         inventory_bit = 0
         if item_flags is not None:
-            if hasattr(item_flags, "ITEM_SELL_EXTRACT"):
-                sell_extract_bit = int(getattr(item_flags, "ITEM_SELL_EXTRACT").value)
-            if hasattr(item_flags, "ITEM_INVENTORY"):
-                inventory_bit = int(getattr(item_flags, "ITEM_INVENTORY").value)
+            if "ITEM_SELL_EXTRACT" in item_flags.__members__:
+                sell_extract_bit = int(item_flags.ITEM_SELL_EXTRACT.value)
+            if "ITEM_INVENTORY" in item_flags.__members__:
+                inventory_bit = int(item_flags.ITEM_INVENTORY.value)
 
         item_extra_flags = GenericUtil.to_int(item.extra_flags, 0)
         if sell_extract_bit == 0 or (item_extra_flags & sell_extract_bit) == 0:

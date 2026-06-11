@@ -208,8 +208,8 @@ class WizHandler:
         if game_parameters is None:
             return 0
         level_name = self.WIZNET_LEVELS.get(str(field_name or "").strip().upper(), "")
-        if level_name and hasattr(game_parameters, level_name):
-            return int(getattr(game_parameters, level_name).value)
+        if level_name and level_name in game_parameters.__members__:
+            return int(game_parameters[level_name].value)
         return 0
 
     def render_sockets(self, actor, argument: str) -> str:

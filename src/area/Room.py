@@ -217,8 +217,8 @@ class Room:
         return self.find_visible_mobile(observer, query)
 
     def is_private(self, room_flags) -> bool:
-        private = GenericUtil.to_int(getattr(getattr(room_flags, "ROOM_PRIVATE", None), "value", 0), 0)
-        solitary = GenericUtil.to_int(getattr(getattr(room_flags, "ROOM_SOLITARY", None), "value", 0), 0)
+        private = GenericUtil.to_int(room_flags.ROOM_PRIVATE.value, 0)
+        solitary = GenericUtil.to_int(room_flags.ROOM_SOLITARY.value, 0)
         flags = GenericUtil.to_int(self.room_flags, 0)
         if private and (flags & private) and len(self.characters) >= 2:
             return True
@@ -229,14 +229,12 @@ class Room:
     def is_air_room(self, sector_types) -> bool:
         if sector_types is None:
             return False
-        air = getattr(sector_types, "SECT_AIR", None)
-        return air is not None and GenericUtil.to_int(self.sector_type, 0) == int(air.value)
+        return GenericUtil.to_int(self.sector_type, 0) == int(sector_types.SECT_AIR.value)
 
     def requires_boat(self, sector_types) -> bool:
         if sector_types is None:
             return False
-        no_swim = getattr(sector_types, "SECT_WATER_NOSWIM", None)
-        return no_swim is not None and GenericUtil.to_int(self.sector_type, 0) == int(no_swim.value)
+        return GenericUtil.to_int(self.sector_type, 0) == int(sector_types.SECT_WATER_NOSWIM.value)
 
     def is_room_dark(self) -> bool:
         if self.light > 0:

@@ -1134,16 +1134,16 @@ class SpellApi:
 
     def _remove_curse_item(self, ctx: SpellContext, item, owner: Any = None, quiet: bool = False) -> bool:
         item_flags = CharacterApi.get_enum("itemFlags")
-        nodrop = getattr(item_flags, "ITEM_NODROP", None)
-        noremove = getattr(item_flags, "ITEM_NOREMOVE", None)
-        nouncurse = getattr(item_flags, "ITEM_NOUNCURSE", None)
+        nodrop = item_flags.ITEM_NODROP
+        noremove = item_flags.ITEM_NOREMOVE
+        nouncurse = item_flags.ITEM_NOUNCURSE
         raw_flags = GameApi.flags_to_int(getattr(item, "extra_flags", 0))
-        cursed = (nodrop is not None and GameApi.is_set(raw_flags, nodrop.value)) or (noremove is not None and GameApi.is_set(raw_flags, noremove.value))
+        cursed = GameApi.is_set(raw_flags, nodrop.value) or GameApi.is_set(raw_flags, noremove.value)
         if not cursed:
             if quiet:
                 return False
             return ctx.fail(f"There doesn't seem to be a curse on {Item.short(item)}.\r\n")
-        if nouncurse is not None and GameApi.is_set(raw_flags, nouncurse.value):
+        if GameApi.is_set(raw_flags, nouncurse.value):
             if quiet:
                 return False
             return ctx.fail(f"The curse on {Item.short(item)} is beyond your power.\r\n")
@@ -1151,10 +1151,8 @@ class SpellApi:
             if quiet:
                 return False
             return ctx.fail(f"The curse on {Item.short(item)} is beyond your power.\r\n")
-        if nodrop is not None:
-            raw_flags = GameApi.unset_bit(raw_flags, nodrop.value)
-        if noremove is not None:
-            raw_flags = GameApi.unset_bit(raw_flags, noremove.value)
+        raw_flags = GameApi.unset_bit(raw_flags, nodrop.value)
+        raw_flags = GameApi.unset_bit(raw_flags, noremove.value)
         item.extra_flags = GameApi.flags_to_letters(raw_flags)
         if quiet:
             return True
@@ -1182,20 +1180,20 @@ class SpellApi:
         if entity is None or not CharacterApi.is_npc(entity):
             return False
         flag_letters = CharacterApi.get_enum("flagLetters")
-        if not hasattr(flag_letters, flag_name):
+        if flag_name not in flag_letters.__members__:
             return False
         flags = GenericUtil.to_int(getattr(getattr(entity, "status_flags", None), "imm", 0), 0)
-        return CharacterApi.is_set(flags, getattr(flag_letters, flag_name).value)
+        return CharacterApi.is_set(flags, flag_letters[flag_name].value)
 
     @staticmethod
     def _player_has_act(entity, flag_name: str) -> bool:
         if entity is None or CharacterApi.is_npc(entity):
             return False
         act_bits = CharacterApi.get_enum("playerActBits")
-        if not hasattr(act_bits, flag_name):
+        if flag_name not in act_bits.__members__:
             return False
         flags = GenericUtil.to_int(CharacterApi.convert_flags(getattr(getattr(entity, "status_flags", None), "act", "") or "0"), 0)
-        return CharacterApi.is_set(flags, getattr(act_bits, flag_name).value)
+        return CharacterApi.is_set(flags, act_bits[flag_name].value)
 
     @staticmethod
     def _room_helper(ctx_or_entity):

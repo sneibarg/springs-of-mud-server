@@ -17,7 +17,7 @@ class SkillUtil:
 
         raw = getattr(weapon, "value0", None)
         token = str(raw or "").strip()
-        members = getattr(weapon_class_names, "__members__", {}) or {}
+        members = weapon_class_names.__members__ if weapon_class_names is not None else {}
 
         try:
             weapon_class = CharacterApi.get_enum("weaponClass")
@@ -26,9 +26,15 @@ class SkillUtil:
 
         numeric = GenericUtil.to_int(raw, None)
         if numeric is not None and weapon_class is not None:
+            try:
+                weapon_class_members = weapon_class.__members__
+            except AttributeError:
+                weapon_class_members = weapon_class.__dict__
             for enum_name in members.keys():
-                member = getattr(weapon_class, enum_name, None)
-                if member is not None and int(getattr(member, "value", member)) == numeric:
+                if enum_name not in weapon_class_members:
+                    continue
+                member = weapon_class_members[enum_name]
+                if int(member.value) == numeric:
                     return SkillUtil._weapon_enum_skill_name(enum_name)
 
         upper_token = token.upper()

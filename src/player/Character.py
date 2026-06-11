@@ -143,8 +143,8 @@ class Character(AnimateEntity):
             size_enum = CharacterApi.get_enum("size")
         except RuntimeError:
             size_enum = None
-        if isinstance(raw_size, str) and size_enum is not None and hasattr(size_enum, raw_size):
-            return int(getattr(size_enum, raw_size).value)
+        if isinstance(raw_size, str) and size_enum is not None and raw_size in size_enum.__members__:
+            return int(size_enum[raw_size].value)
         size_value = GenericUtil.to_int(raw_size, None)
         if size_value is not None:
             return size_value
@@ -158,7 +158,7 @@ class Character(AnimateEntity):
             size_enum = CharacterApi.get_enum("size")
         except RuntimeError:
             size_enum = None
-        if size_enum is not None and hasattr(size_enum, "SIZE_LARGE"):
+        if size_enum is not None:
             return int(size_enum.SIZE_LARGE.value)
         return 3
 

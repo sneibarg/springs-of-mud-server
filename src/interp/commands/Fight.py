@@ -601,7 +601,7 @@ class Fight:
 
     def _disarm_payload(self, character, victim, room, obj) -> dict:
         item_flags = CharacterApi.get_enum("itemFlags")
-        if hasattr(item_flags, "ITEM_NOREMOVE") and GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_NOREMOVE.value):
+        if GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_NOREMOVE.value):
             return self._command_payload("no_remove", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)
 
         if not CharacterApi.is_npc(victim):
@@ -609,9 +609,9 @@ class Fight:
         victim.unequip_item("wielded")
 
         keep_inventory = False
-        if hasattr(item_flags, "ITEM_NODROP") and GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_NODROP.value):
+        if GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_NODROP.value):
             keep_inventory = True
-        if hasattr(item_flags, "ITEM_INVENTORY") and GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_INVENTORY.value):
+        if GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_INVENTORY.value):
             keep_inventory = True
 
         if not keep_inventory:
@@ -686,14 +686,14 @@ class Fight:
 
     def _dirt_terrain_adjustment(self, room) -> int | None:
         sector_types = CharacterApi.get_enum("sectorTypes")
-        inside = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_INSIDE", None), "value", -1), -1)
-        city = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_CITY", None), "value", -1), -1)
-        field = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_FIELD", None), "value", -1), -1)
-        mountain = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_MOUNTAIN", None), "value", -1), -1)
-        water_swim = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_WATER_SWIM", None), "value", -1), -1)
-        water_noswim = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_WATER_NOSWIM", None), "value", -1), -1)
-        air = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_AIR", None), "value", -1), -1)
-        desert = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_DESERT", None), "value", -1), -1)
+        inside = GenericUtil.to_int(sector_types.SECT_INSIDE.value, -1)
+        city = GenericUtil.to_int(sector_types.SECT_CITY.value, -1)
+        field = GenericUtil.to_int(sector_types.SECT_FIELD.value, -1)
+        mountain = GenericUtil.to_int(sector_types.SECT_MOUNTAIN.value, -1)
+        water_swim = GenericUtil.to_int(sector_types.SECT_WATER_SWIM.value, -1)
+        water_noswim = GenericUtil.to_int(sector_types.SECT_WATER_NOSWIM.value, -1)
+        air = GenericUtil.to_int(sector_types.SECT_AIR.value, -1)
+        desert = GenericUtil.to_int(sector_types.SECT_DESERT.value, -1)
         sector = GenericUtil.to_int(getattr(room, "sector_type", 0), 0)
         if sector in (water_swim, water_noswim, air):
             return None

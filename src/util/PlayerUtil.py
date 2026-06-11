@@ -54,15 +54,15 @@ class PlayerUtil:
         player_act_bits = CharacterApi.get_enum('playerActBits')
 
         def _has_player_act_bit(char, bit_name: str) -> bool:
-            if CharacterApi.is_npc(char) or not hasattr(player_act_bits, bit_name):
+            if CharacterApi.is_npc(char) or bit_name not in player_act_bits.__members__:
                 return False
             act_value = char.status_flags.comm
-            return CharacterApi.is_set(act_value, getattr(player_act_bits, bit_name).value)
+            return CharacterApi.is_set(act_value, player_act_bits[bit_name].value)
 
         def _is_affected(char, bit_name: str) -> bool:
-            if not hasattr(affected_bits, bit_name):
+            if bit_name not in affected_bits.__members__:
                 return False
-            return CharacterApi.is_affected(char, getattr(affected_bits, bit_name).value)
+            return CharacterApi.is_affected(char, affected_bits[bit_name].value)
 
         prefixes = []
         if _is_affected(target, "AFF_INVISIBLE"):
@@ -109,9 +109,9 @@ class PlayerUtil:
         positions = CharacterApi.get_enum("positions")
 
         def _pos(name: str, default: int = -9999) -> int:
-            if not hasattr(positions, name):
+            if name not in positions.__members__:
                 return default
-            return GenericUtil.to_int(getattr(positions, name).value, default)
+            return GenericUtil.to_int(positions[name].value, default)
 
         if target_pos == _pos("POS_DEAD"):
             suffix = " is DEAD!!"

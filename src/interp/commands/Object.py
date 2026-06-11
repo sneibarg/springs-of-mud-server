@@ -466,8 +466,6 @@ class Object:
         }
 
     def _melts_on_drop(self, item) -> bool:
-        if not hasattr(self.item_flags, "ITEM_MELT_DROP"):
-            return False
         return GameApi.is_set(getattr(item, "extra_flags", 0), self.item_flags.ITEM_MELT_DROP.value)
 
     def _prepare_buy_context(self, character: Character, context: Context):

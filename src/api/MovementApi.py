@@ -357,9 +357,8 @@ class MovementApi(GameApi):
         if enum_obj is None:
             return 0
         for name in names:
-            member = getattr(enum_obj, name, None)
-            if member is not None:
-                return int(member.value)
+            if name in enum_obj.__members__:
+                return int(enum_obj[name].value)
         return 0
 
     @staticmethod

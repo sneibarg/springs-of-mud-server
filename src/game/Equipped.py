@@ -155,9 +155,9 @@ class Equipped:
 
         flags = ItemApi.flags_to_int(item.wear_flags)
         for flag_name, slots in WEAR_SLOT_ORDER.items():
-            if wear_flags_enum is None or not hasattr(wear_flags_enum, flag_name):
+            if wear_flags_enum is None or flag_name not in wear_flags_enum.__members__:
                 continue
-            if (flags & getattr(wear_flags_enum, flag_name).value) == 0:
+            if (flags & wear_flags_enum[flag_name].value) == 0:
                 continue
             groups.append(tuple(slots))
 

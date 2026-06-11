@@ -333,8 +333,8 @@ class UpdateHandler:
 
         if isinstance(raw_size, str):
             normalized = raw_size.strip().upper()
-            if size_enum is not None and hasattr(size_enum, normalized):
-                raw_size = getattr(size_enum, normalized).value
+            if size_enum is not None and normalized in size_enum.__members__:
+                raw_size = size_enum[normalized].value
             else:
                 return normalized in {"SIZE_LARGE", "SIZE_HUGE", "SIZE_GIANT"}
 
@@ -342,7 +342,7 @@ class UpdateHandler:
         if size_value is None:
             return False
 
-        if size_enum is not None and hasattr(size_enum, "SIZE_MEDIUM"):
+        if size_enum is not None:
             return size_value > int(size_enum.SIZE_MEDIUM.value)
         return size_value >= 3
 

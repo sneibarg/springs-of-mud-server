@@ -206,7 +206,7 @@ class AreaHandler:
 
         if self._is_shopkeeper(mob):
             obj = ItemUtil.create_object(template_obj)
-            inventory_bit = GenericUtil.to_int(getattr(getattr(self.ItemFlags, "ITEM_INVENTORY", None), "value", 0), 0)
+            inventory_bit = GenericUtil.to_int(self.ItemFlags.ITEM_INVENTORY.value, 0)
             if inventory_bit:
                 obj.extra_flags = GenericUtil.to_int(getattr(obj, "extra_flags", 0), 0) | inventory_bit
             wear_loc = GenericUtil.to_int(reset.arg3, -1)

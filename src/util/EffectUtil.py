@@ -184,8 +184,8 @@ class EffectUtil:
         if int_value is not None:
             return int_value
         key = str(raw_value).strip().upper()
-        if enum_type is not None and hasattr(enum_type, key):
-            return int(getattr(enum_type, key).value)
+        if enum_type is not None and key in enum_type.__members__:
+            return int(enum_type[key].value)
         return default
 
     @staticmethod
@@ -197,8 +197,9 @@ class EffectUtil:
         affected_by = CharacterApi.get_enum("affectedBy")
         if CharacterApi.is_affected(character, effect_type):
             return True
-        if hasattr(affected_by, str(effect_type)):
-            bit = getattr(affected_by, str(effect_type)).value
+        effect_name = str(effect_type)
+        if effect_name in affected_by.__members__:
+            bit = affected_by[effect_name].value
             return CharacterApi.is_affected(character, bit)
         return False
 

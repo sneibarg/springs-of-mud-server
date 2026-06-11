@@ -59,8 +59,8 @@ class EffectHandler:
 
         def location_name(*candidates):
             for candidate in candidates:
-                if apply_types is not None and hasattr(apply_types, candidate):
-                    return int(getattr(apply_types, candidate).value)
+                if apply_types is not None and candidate in apply_types.__members__:
+                    return int(apply_types[candidate].value)
             return None
 
         attrs = getattr(entity, "character_attributes", None)

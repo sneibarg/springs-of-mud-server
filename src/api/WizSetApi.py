@@ -145,7 +145,7 @@ class WizSetApi:
             if not CharacterApi.is_npc(victim):
                 context.finish()
                 return self._payload("pc_invalid")
-            max_level = GenericUtil.to_int(getattr(CharacterApi.get_enum("gameParameters"), "MAX_LEVEL", 0).value if hasattr(CharacterApi.get_enum("gameParameters"), "MAX_LEVEL") else 0, 0)
+            max_level = GenericUtil.to_int(CharacterApi.get_enum("gameParameters").MAX_LEVEL.value, 0)
             if value < 0 or value > max_level:
                 context.finish()
                 return self._payload("level_range", tokens={"d": max_level})

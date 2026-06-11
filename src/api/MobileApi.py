@@ -513,7 +513,7 @@ class MobileApi(GameApi):
     def pickpocket_room_player(cls, ctx: MobileContext, discovery_bits: int = 5, immortal_level: str = "LEVEL_IMMORTAL", require_visibility: bool = True, awake_discovery_check: bool = True, gold_cap: str = "", silver_cap: str = ""):
         game_parameters = CharacterApi.get_enum("gameParameters")
         imm_name = str(immortal_level or "").strip().upper()
-        imm_value = int(getattr(getattr(game_parameters, imm_name, None), "value", 100))
+        imm_value = int(game_parameters[imm_name].value)
         for victim in ctx.room.players_in_room().values():
             if GenericUtil.to_int(victim.level, 0) >= imm_value:
                 continue

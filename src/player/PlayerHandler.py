@@ -855,7 +855,7 @@ class PlayerHandler:
             return
         await context.room_handler().print_room(viewer.id, room)
         autoexit_bit = None
-        if self.info_commands.PlayerActBits is not None and hasattr(self.info_commands.PlayerActBits, "PLR_AUTOEXIT"):
+        if self.info_commands.PlayerActBits is not None:
             autoexit_bit = self.info_commands.PlayerActBits.PLR_AUTOEXIT.value
         if autoexit_bit is not None:
             act = viewer.status_flags.act
