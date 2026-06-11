@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from typing import Any, Optional, TYPE_CHECKING
 
 from game.Equipped import Equipped
+from player.CharacterAttributes import CharacterAttributes
 from server.LoggerFactory import LoggerFactory
 from util.GenericUtil import GenericUtil
 
@@ -29,7 +30,7 @@ class AnimateEntity:
     inventory: list[Any] = field(default_factory=list, kw_only=True)
     effects: list[Any] = field(default_factory=list, kw_only=True)
     status_flags: Optional[Any] = field(default=None, kw_only=True)
-    character_attributes: Optional[Any] = field(default=None, kw_only=True)
+    character_attributes: Optional[CharacterAttributes] = field(default=None, kw_only=True)
     armor_class: Optional[Any] = field(default=None, kw_only=True)
     lock: threading.RLock = field(default_factory=threading.RLock, kw_only=True)
 
@@ -40,10 +41,7 @@ class AnimateEntity:
             self.lock = threading.RLock()
 
     def get_alignment(self) -> int:
-        attrs = self.character_attributes
-        if attrs is not None:
-            return GenericUtil.to_int(attrs.alignment, 0)
-        return GenericUtil.to_int(getattr(self, "alignment", 0), 0)
+        return GenericUtil.to_int(self.character_attributes.alignment, 0)
 
     def set_alignment(self, value: int) -> None:
         attrs = self.character_attributes
