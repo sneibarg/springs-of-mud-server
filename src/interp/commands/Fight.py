@@ -72,7 +72,7 @@ class Fight:
         self.AffectBits = enum_provider.get("affectedBy")
 
     def execute(self, character: Character, context: Context):
-        name = (getattr(context.command, "name", "") or "").strip().lower()
+        name = (context.command.name or "").strip().lower()
         handler = self._handlers.get(name)
         if handler is not None:
             return handler(character, context)

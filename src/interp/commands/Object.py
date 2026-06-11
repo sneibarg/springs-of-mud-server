@@ -62,7 +62,7 @@ class Object:
         self.comm_flags = enum_provider.get("commFlags")
 
     def execute(self, character: Character, context: Context):
-        name = (getattr(context.command, "name", "") or "").strip().lower()
+        name = (context.command.name or "").strip().lower()
         handlers = {
             "get": self.do_get,
             "take": self.do_get,

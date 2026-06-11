@@ -39,13 +39,13 @@ class AnimateEntity:
             self.lock = threading.RLock()
 
     def get_alignment(self) -> int:
-        attrs = getattr(self, "character_attributes", None)
+        attrs = self.character_attributes
         if attrs is not None:
             return GenericUtil.to_int(getattr(attrs, "alignment", 0), 0)
         return GenericUtil.to_int(getattr(self, "alignment", 0), 0)
 
     def set_alignment(self, value: int) -> None:
-        attrs = getattr(self, "character_attributes", None)
+        attrs = self.character_attributes
         if attrs is not None:
             attrs.alignment = int(value)
             return
@@ -85,7 +85,7 @@ class AnimateEntity:
         if not q:
             return None
         for item in list(self._item_collection()):
-            name = (getattr(item, "name", "") or "").lower()
+            name = (item.name or "").lower()
             if name == q or name.startswith(q):
                 return item
         return None
@@ -94,7 +94,7 @@ class AnimateEntity:
         return Equipped.ensure_on(self)
 
     def equipped_slot_of(self, item: Item) -> Optional[str]:
-        equipped = getattr(self, "equipped", None)
+        equipped = self.equipped
         if equipped is None:
             return None
         return equipped.slot_of(item)
@@ -126,7 +126,7 @@ class AnimateEntity:
         if not key:
             return None
         for item in self.owned_items():
-            name = (getattr(item, "name", "") or "").lower()
+            name = (item.name or "").lower()
             if name == key or name.startswith(key):
                 return item
         return None

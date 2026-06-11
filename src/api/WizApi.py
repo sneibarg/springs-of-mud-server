@@ -11,23 +11,23 @@ from util.WizUtil import WizUtil
 class WizApi:
     @staticmethod
     def current_prefix(view) -> str:
-        return str((getattr(view.context.character, "context", {}) or {}).get("prefix", "") or "")
+        return str((view.context.character.context or {}).get("prefix", "") or "")
 
     @staticmethod
     def room_registry(view):
         player_handler = view.context.player_handler()
-        return None if player_handler is None else getattr(player_handler, "room_registry", None)
+        return None if player_handler is None else player_handler.room_registry
 
     @staticmethod
     def character_registry(view):
         player_handler = view.context.player_handler()
-        return None if player_handler is None else getattr(player_handler, "character_registry", None)
+        return None if player_handler is None else player_handler.character_registry
 
     @staticmethod
     def restore_character(victim: Character):
-        victim.hit = int(getattr(victim, "max_hit", 0))
-        victim.mana = int(getattr(victim, "max_mana", 0))
-        victim.movement = int(getattr(victim, "max_movement", 0))
+        victim.hit = int(victim.max_hit)
+        victim.mana = int(victim.max_mana)
+        victim.movement = int(victim.max_movement)
 
     @staticmethod
     def location(view):
@@ -89,13 +89,13 @@ class WizApi:
         arg = InterpUtil.argument_text(view)
         if not arg:
             return False
-        return str(getattr(view.context.character, "name", "") or "") not in arg
+        return str(view.context.character.name or "") not in arg
 
     @staticmethod
     def smote_noemote(view) -> bool:
         comm_flags = CharacterApi.get_enum("commFlags")
         bit = CharacterApi.enum_bit(comm_flags, "COMM_NOEMOTE")
-        return bit and CharacterApi.is_set(getattr(view.context.character.status_flags, "comm", 0), bit)
+        return bit and CharacterApi.is_set(view.context.character.status_flags.comm, bit)
 
     @staticmethod
     def world_target(view):
@@ -172,7 +172,7 @@ class WizApi:
         comm_flags = CharacterApi.get_enum("commFlags")
         snoop_proof = CharacterApi.enum_bit(comm_flags, "COMM_SNOOP_PROOF")
         return (CharacterApi.get_trust(target) >= CharacterApi.get_trust(view.context.character)) or (
-            snoop_proof and CharacterApi.is_set(getattr(target.status_flags, "comm", 0), snoop_proof)
+            snoop_proof and CharacterApi.is_set(target.status_flags.comm, snoop_proof)
         )
 
     @staticmethod

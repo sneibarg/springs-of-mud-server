@@ -35,7 +35,7 @@ class Context:
 
     @property
     def current_fighting(self):
-        return getattr(self.character, "fighting", None)
+        return self.character.fighting
 
     @property
     def position(self) -> int:

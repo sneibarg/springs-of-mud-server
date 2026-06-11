@@ -188,6 +188,11 @@ class _StatusFlags(SimpleNamespace):
 
 
 class _Context(SimpleNamespace):
+    def __init__(self, **kwargs):
+        kwargs.setdefault("result", "")
+        kwargs.setdefault("parameters", [])
+        super().__init__(**kwargs)
+
     def finish(self):
         self.done = True
 
@@ -357,6 +362,7 @@ class TestFightDynamicCommands(unittest.TestCase):
             level=20,
             character_class=SimpleNamespace(name="warrior"),
             affects=set(),
+            equipped=None,
         )
         room.targets["hero"] = character
         context = _Context(character=character, command=_load_command("trip"), room=room, result="hero", parameters=[], done=False)

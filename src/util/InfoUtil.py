@@ -9,8 +9,8 @@ from util.GenericUtil import GenericUtil
 class InfoUtil:
     @staticmethod
     def target_condition_line(target: Any) -> str:
-        hit = getattr(target, "hit")
-        max_hit = getattr(target, "max_hit")
+        hit = target.hit
+        max_hit = target.max_hit
         try:
             hit = int(hit)
             max_hit = int(max_hit)
@@ -24,7 +24,7 @@ class InfoUtil:
 
         name = (
             getattr(target, "short_description", None)
-            or getattr(target, "name", None)
+            or target.name
             or "They"
         )
         if percent >= 100:
@@ -122,8 +122,8 @@ class InfoUtil:
     @staticmethod
     def who_line(viewer: Character, target: Character) -> str:
         trust = GenericUtil.to_int(CharacterApi.get_trust(viewer), 0)
-        incog_level = GenericUtil.to_int(getattr(target.status_flags, "incog_level", 0), 0)
-        invis_level = GenericUtil.to_int(getattr(target.status_flags, "invis_level", 0), 0)
+        incog_level = GenericUtil.to_int(target.status_flags.incog_level, 0)
+        invis_level = GenericUtil.to_int(target.status_flags.invis_level, 0)
 
         flags = []
         if 0 < incog_level <= trust:
@@ -132,7 +132,7 @@ class InfoUtil:
             flags.append("(Wizi)")
 
         flag_text = (" " + " ".join(flags)) if flags else ""
-        class_name = getattr(getattr(target, "character_class", None), "name", "") or ""
+        class_name = target.character_class.name or ""
         class_name = class_name[0:3]
         max_level = CharacterApi.get_enum("gameParameters").MAX_LEVEL.value
         if target.level == max_level:
@@ -185,7 +185,7 @@ class InfoUtil:
         from util.ItemUtil import ItemUtil
         item_flags = CharacterApi.get_enum("itemFlags")
         lines: list[str] = []
-        equipped = getattr(target, "equipped", None)
+        equipped = target.equipped
         for slot, label in equip_slot_labels:
             obj = None
             if equipped is not None:

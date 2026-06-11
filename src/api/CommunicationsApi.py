@@ -90,10 +90,9 @@ class CommunicationsApi(GameApi):
             return override
 
         player_handler = cls._player_handler(view)
-        communications = getattr(player_handler, "communications_commands", None)
-        session_handler = getattr(communications, "session_handler", None)
-        if session_handler is None:
+        if player_handler is None:
             return None
+        session_handler = player_handler.communications_commands.session_handler
         return CharacterApi.find_playing_character(cls.tell_target_name(view), session_handler)
 
     @classmethod
@@ -106,7 +105,7 @@ class CommunicationsApi(GameApi):
 
     @staticmethod
     def reply_target_id(view: InterpView):
-        return (getattr(view.context.character, "context", {}) or {}).get("reply_to", "")
+        return (view.context.character.context or {}).get("reply_to", "")
 
     @classmethod
     def reply_target(cls, view: InterpView):
@@ -120,12 +119,9 @@ class CommunicationsApi(GameApi):
             return None
 
         player_handler = cls._player_handler(view)
-        registry = getattr(player_handler, "character_registry", None)
-        if registry is None:
-            communications = getattr(player_handler, "communications_commands", None)
-            registry = getattr(communications, "character_registry", None)
-        if registry is None or not hasattr(registry, "get_or_none"):
+        if player_handler is None:
             return None
+        registry = player_handler.character_registry
         return registry.get_or_none(id=target_id)
 
     @classmethod
@@ -138,10 +134,7 @@ class CommunicationsApi(GameApi):
 
     @staticmethod
     def _player_handler(view: InterpView):
-        context: Context | Any = getattr(view, "context", None)
-        if context is None or not hasattr(context, "player_handler"):
-            return None
-        return context.player_handler()
+        return view.context.player_handler()
 
     @classmethod
     def _target_blocks_tells(cls, target) -> bool:
@@ -155,7 +148,7 @@ class CommunicationsApi(GameApi):
 
     @staticmethod
     def _target_tokens(target, fallback_name: str = "") -> dict[str, Any]:
-        name = str(getattr(target, "name", "") or fallback_name or "")
+        name = str(("" if target is None else target.name) or fallback_name or "")
         if not name:
             return {}
         return {"t": name, "v": name}

@@ -372,6 +372,11 @@ class _InterpUtil:
 
 
 class _Context(SimpleNamespace):
+    def __init__(self, **kwargs):
+        kwargs.setdefault("result", "")
+        kwargs.setdefault("parameters", [])
+        super().__init__(**kwargs)
+
     def finish(self):
         self.done = True
 
@@ -452,7 +457,7 @@ class TestInfoDynamicCommands(unittest.TestCase):
 
     def test_scroll_invalid_number_uses_command_check(self):
         commands, _room_registry, _registry_service, _session_handler, _weather_handler = self._commands()
-        character = SimpleNamespace(context={}, status_flags=_StatusFlags(), prompt_format=None)
+        character = SimpleNamespace(name="Tester", context={}, status_flags=_StatusFlags(), prompt_format=None)
         context = _Context(character=character, command=_load_command("scroll"), result="abc", parameters=[], done=False)
 
         text = commands.do_scroll(character, context)
@@ -461,7 +466,7 @@ class TestInfoDynamicCommands(unittest.TestCase):
 
     def test_scroll_default_renders_payload_tokens(self):
         commands, _room_registry, _registry_service, _session_handler, _weather_handler = self._commands()
-        character = SimpleNamespace(context={"scroll_lines": 18}, status_flags=_StatusFlags(), prompt_format=None)
+        character = SimpleNamespace(name="Tester", context={"scroll_lines": 18}, status_flags=_StatusFlags(), prompt_format=None)
         context = _Context(character=character, command=_load_command("scroll"), result="", parameters=[], done=False)
 
         text = commands.do_scroll(character, context)
@@ -475,6 +480,7 @@ class TestInfoDynamicCommands(unittest.TestCase):
         )
         commands.skill_registry = registry_service.skill_registry
         character = SimpleNamespace(
+            name="Tester",
             room_id="room-1",
             status_flags=_StatusFlags(),
             skills=[{"name": "dagger", "level": 10}],
@@ -496,6 +502,7 @@ class TestInfoDynamicCommands(unittest.TestCase):
     def test_compare_incompatible_items_uses_command_check(self):
         commands, _room_registry, _registry_service, _session_handler, _weather_handler = self._commands()
         character = SimpleNamespace(
+            name="Tester",
             inventory=[
                 SimpleNamespace(name="sword", item_type="weapon", compare_value=10),
                 SimpleNamespace(name="vest", item_type="armor", compare_value=8),
@@ -516,7 +523,7 @@ class TestInfoDynamicCommands(unittest.TestCase):
         commands, _room_registry, _registry_service, _session_handler, weather_handler = self._commands()
         weather_handler.weather_info = SimpleNamespace(sky=0, change=0)
         commands.weather_handler = weather_handler
-        character = SimpleNamespace(is_outside=False, status_flags=_StatusFlags())
+        character = SimpleNamespace(name="Tester", is_outside=False, status_flags=_StatusFlags())
         context = _Context(character=character, command=_load_command("weather"), result="", parameters=[], done=False)
 
         text = commands.do_weather(character, context)
@@ -525,7 +532,7 @@ class TestInfoDynamicCommands(unittest.TestCase):
 
     def test_show_toggle_renders_command_payload(self):
         commands, _room_registry, _registry_service, _session_handler, _weather_handler = self._commands()
-        character = SimpleNamespace(status_flags=_StatusFlags(comm=0))
+        character = SimpleNamespace(name="Tester", status_flags=_StatusFlags(comm=0))
         context = _Context(character=character, command=_load_command("show"), result="", parameters=[], done=False)
 
         text = commands.do_show(character, context)

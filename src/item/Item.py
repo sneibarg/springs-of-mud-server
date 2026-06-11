@@ -85,7 +85,7 @@ class Item:
         return text
 
     def short(self) -> str:
-        return getattr(self, "short_description", None) or getattr(self, "name", None) or "it"
+        return self.short_description or self.name or "it"
 
     def add_contained_item(self, item) -> None:
         with self.lock:

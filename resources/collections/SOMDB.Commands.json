@@ -4126,7 +4126,7 @@
         "messageKey": "itemNotContainer"
       },
       {
-        "predicate": "lambda v: v.context.drink_item is not None and (not ItemUtil.is_fountain(v.context.drink_item)) and GenericUtil.to_int(getattr(v.context.drink_item, 'value1', 0), 0) <= 0",
+        "predicate": "lambda v: v.context.drink_item is not None and (not Item.is_fountain(v.context.drink_item)) and GenericUtil.to_int(getattr(v.context.drink_item, 'value1', 0), 0) <= 0",
         "messageKey": "containerEmpty"
       },
       {

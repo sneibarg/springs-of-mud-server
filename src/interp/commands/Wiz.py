@@ -57,7 +57,7 @@ class Wiz:
         self.GameParameters = enum_provider.get("gameParameters")
 
     def execute(self, character: Character, context: Context):
-        command_name = (getattr(context.command, "name", "") or "").strip().lower()
+        command_name = (context.command.name or "").strip().lower()
         handlers = {
             "wizhelp": self.do_wizhelp,
             "wiznet": self.do_wiznet,

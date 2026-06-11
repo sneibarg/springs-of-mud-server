@@ -22,7 +22,7 @@ class CommunicationsUtil:
     def has_comm(character, comm_flags, name: str) -> bool:
         if comm_flags is None or not hasattr(comm_flags, name):
             return False
-        raw = GenericUtil.to_int(getattr(character.status_flags, "comm", 0), 0)
+        raw = GenericUtil.to_int(character.status_flags.comm, 0)
         return GameApi.is_set(raw, int(getattr(comm_flags, name).value))
 
     @staticmethod

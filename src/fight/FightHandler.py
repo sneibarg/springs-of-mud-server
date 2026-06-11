@@ -118,7 +118,7 @@ class FightHandler:
                                                                                                         "ACT_PET")):
                 return True, "But they look so cute and cuddly...\r\n"
 
-        if getattr(victim, "fighting", None) is not None and getattr(victim, "fighting", None) is not attacker:
+        if victim.fighting is not None and victim.fighting is not attacker:
             return True, "Kill stealing is not permitted.\r\n"
 
         # Keep this permissive for now; detailed PK and charm rules migrate next.
@@ -174,7 +174,7 @@ class FightHandler:
         return random.randint(1, 100) <= chance
 
     def update_pos(self, victim) -> None:
-        hit = GenericUtil.to_int(getattr(victim, "hit", 0), 0)
+        hit = GenericUtil.to_int(victim.hit, 0)
         pos_stunned = int(getattr(getattr(self.PositionsEnum, "POS_STUNNED", 0), "value", getattr(self.PositionsEnum, "POS_STUNNED", 0)))
         pos_fighting = int(getattr(getattr(self.PositionsEnum, "POS_FIGHTING", pos_stunned), "value", getattr(self.PositionsEnum, "POS_FIGHTING", pos_stunned)))
         pos_standing = int(getattr(getattr(self.PositionsEnum, "POS_STANDING", pos_fighting), "value", getattr(self.PositionsEnum, "POS_STANDING", pos_fighting)))
@@ -184,7 +184,7 @@ class FightHandler:
 
         if hit > 0:
             if FightUtil.entity_position_value(victim) <= pos_stunned:
-                self._set_position(victim, pos_fighting if getattr(victim, "fighting", None) is not None else pos_standing)
+                self._set_position(victim, pos_fighting if victim.fighting is not None else pos_standing)
             return
 
         if CharacterApi.is_npc(victim) or hit <= -11:
@@ -212,10 +212,10 @@ class FightHandler:
             return
 
         participants = [combatant]
-        opponent = getattr(combatant, "fighting", None)
+        opponent = combatant.fighting
         if both and opponent is not None and opponent not in participants:
             participants.append(opponent)
-        combatant_id = str(getattr(combatant, "id", "") or "")
+        combatant_id = str(combatant.id or "")
         if both and combatant_id:
             for event in list(self.combat_registry.get_by_combatant(combatant_id)):
                 room = self.room_registry.get_or_none(id=event.room_id)
@@ -225,7 +225,7 @@ class FightHandler:
                     entity = self._find_entity_in_room_by_id(room, entity_id)
                     if entity is None or entity in participants:
                         continue
-                    if entity is combatant or getattr(entity, "fighting", None) is combatant:
+                    if entity is combatant or entity.fighting is combatant:
                         participants.append(entity)
 
         for participant in participants:
@@ -1037,7 +1037,7 @@ class FightHandler:
 
         room.remove_item_from_room(corpse)
         silver = ItemUtil.sacrifice_silver_value(corpse)
-        attacker.silver = int(getattr(attacker, "silver", 0) or 0) + silver
+        attacker.silver = int(attacker.silver or 0) + silver
         return {
             "to_char": ItemUtil.sacrifice_reward_message(silver),
             "to_room": f"{attacker.name} sacrifices {Item.short(corpse)} to Mota.\r\n",

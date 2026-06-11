@@ -44,7 +44,7 @@ class Communications:
         self.comm_flags = enum_provider.get("commFlags")
 
     def execute(self, context: Context):
-        name = (getattr(context.command, "name", "") or "").strip().lower()
+        name = (context.command.name or "").strip().lower()
         handlers = {
             "say": self.do_say,
             "tell": self.do_tell,
@@ -201,10 +201,10 @@ class Communications:
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload
-        victim = getattr(context, "tell_target", None)
+        victim = context.tell_target
         if victim is None:
             return self._blocked_message(context, "target_missing")
-        return self._deliver_tell(character, context, victim, message)
+        return self._deliver_tell(context, victim, message)
 
     def do_reply(self, context: Context):
         character = context.character
@@ -212,13 +212,13 @@ class Communications:
         reply_to = (character.context or {}).get("reply_to", "")
         victim = self.character_registry.get_or_none(id=reply_to)
         context.reply_target = victim
-        context.interp_tokens = {"s": message, "t": getattr(victim, "name", "")}
+        context.interp_tokens = {"s": message, "t": "" if victim is None else victim.name}
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload
         if victim is None:
             return self._blocked_message(context, "target_missing")
-        return self._deliver_tell(character, context, victim, message)
+        return self._deliver_tell(context, victim, message)
 
     def do_shout(self, context: Context):
         character = context.character
@@ -239,7 +239,7 @@ class Communications:
             victim = session.character
             if victim is None or victim.id == character.id:
                 continue
-            if str(getattr(victim, "area_id", "")) == str(character.area_id):
+            if str(victim.area_id) == str(character.area_id):
                 targets.append(victim)
         payload["global_message"] = f"{character.name} yells '{text}'\r\n"
         payload["global_targets"] = targets
@@ -353,9 +353,9 @@ class Communications:
 
     def _deliver_tell(self, context: Context, victim, message: str) -> dict:
         character = context.character
-        if getattr(character, "context", None) is None:
+        if character.context is None:
             character.context = {}
-        if getattr(victim, "context", None) is None:
+        if victim.context is None:
             victim.context = {}
 
         character.context["reply_to"] = victim.id

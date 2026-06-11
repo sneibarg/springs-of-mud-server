@@ -119,7 +119,7 @@ class AreaHandler:
         if room is None:
             return False, None
 
-        area_count = self._count_live_mobiles(str(mob_vnum), area_id=str(getattr(room, "area_id", "") or ""))
+        area_count = self._count_live_mobiles(str(mob_vnum), area_id=str(room.area_id or ""))
         room_count = self._count_live_mobiles(str(mob_vnum), room=room)
         if area_count >= area_max:
             last = False
@@ -238,7 +238,7 @@ class AreaHandler:
     def _is_shopkeeper(self, mob: Mobile | None) -> bool:
         if mob is None:
             return False
-        return self.shop_registry.find_by_keeper_vnum(getattr(mob, "vnum", "")) is not None
+        return self.shop_registry.find_by_keeper_vnum(mob.vnum) is not None
 
     def _do_door_reset(self, last: bool, reset: Reset) -> bool:
         room_vnum = str(reset.arg1 or "")
@@ -263,7 +263,7 @@ class AreaHandler:
 
     def _count_live_mobiles(self, mob_vnum: str, room=None, area_id: str = "") -> int:
         wanted_vnum = str(mob_vnum or "")
-        if not wanted_vnum:
+        if not wanted_vnum or wanted_vnum == "None" or wanted_vnum == "":
             return 0
 
         rooms = [room] if room is not None else list(self.room_registry.all_rooms())
@@ -271,7 +271,7 @@ class AreaHandler:
         for candidate_room in rooms:
             if candidate_room is None:
                 continue
-            if area_id and str(getattr(candidate_room, "area_id", "") or "") != area_id:
+            if area_id and str(candidate_room.area_id or "") != area_id:
                 continue
             for mob in getattr(candidate_room, "mobiles", {}).values():
                 if str(getattr(mob, "vnum", "") or "") == wanted_vnum:
