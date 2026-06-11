@@ -31,18 +31,18 @@ class ArmorClass:
         if isinstance(key, str):
             normalized_key = key.lower()
             if normalized_key in ("pierce", "piercing"):
-                base = getattr(self, "piercing", getattr(self, "pierce", 0))
+                base = self.piercing
             elif normalized_key == "bash":
-                base = getattr(self, "bashing", getattr(self, "bash", 0))
+                base = self.bashing
             elif normalized_key == "slash":
-                base = getattr(self, "slashing", getattr(self, "slash", 0))
+                base = self.slashing
             else:
-                base = getattr(self, "magic", getattr(self, "exotic", 0))
+                base = self.magic
         else:
             base = 0
 
         dex_value = 0
-        if hasattr(char, "character_attributes"):
-            dex_value = getattr(char.character_attributes, "dexterity", 0)
+        if char is not None and char.character_attributes is not None:
+            dex_value = char.character_attributes.dexterity
         dex_defensive = CharacterApi.get_attribute_bonus("dexterity", str(dex_value)).get("defensive", 0)
         return int(base) + int(dex_defensive)

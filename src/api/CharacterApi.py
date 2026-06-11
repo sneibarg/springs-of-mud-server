@@ -61,7 +61,9 @@ class CharacterApi(GameApi):
     @classmethod
     def get_trust(cls, char: Any) -> int:
         from player.Character import Character
-        controller = (getattr(char, "context", {}) or {}).get("controller_original")
+        controller = None
+        if type(char) is Character and char.context is not None:
+            controller = (char.context or {}).get("controller_original")
         if controller is not None and controller is not char:
             return cls.get_trust(controller)
         if type(char) is Character and char.trust > 0:
@@ -212,7 +214,7 @@ class CharacterApi(GameApi):
 
     @classmethod
     def format_affects(cls, character: Character) -> str:
-        raw = GenericUtil.to_int(getattr(character.status_flags, "affected_by", 0), 0)
+        raw = GenericUtil.to_int(character.status_flags.affected_by, 0)
         lines = []
         for name, member in cls.AffectedBits.__members__.items():
             if cls.is_set(raw, member.value):
@@ -257,22 +259,22 @@ class CharacterApi(GameApi):
         try:
             titles = cls.titles()
         except Exception:
-            return str(getattr(character, "title", "") or "")
+            return str(character.title or "")
 
-        class_name = str(getattr(getattr(character, "character_class", None), "name", "") or "").strip().lower()
+        class_name = str(character.character_class.name or "").strip().lower()
         if not class_name:
-            return str(getattr(character, "title", "") or "")
+            return str(character.title or "")
 
         class_titles = titles.get(class_name, {})
-        title_row = class_titles.get(str(GenericUtil.to_int(level if level is not None else getattr(character, "level", 0), 0)), {})
+        title_row = class_titles.get(str(GenericUtil.to_int(level if level is not None else character.level, 0)), {})
         if not isinstance(title_row, dict):
-            return str(getattr(character, "title", "") or "")
+            return str(character.title or "")
 
-        sex = str(getattr(character, "sex", "") or "").strip().lower()
+        sex = str(character.sex or "").strip().lower()
         sex_key = "female" if sex in ("2", "f", "female") else "male"
         title = str(title_row.get(sex_key, title_row.get("male", title_row.get("female", ""))) or "").strip()
         if not title:
-            return str(getattr(character, "title", "") or "")
+            return str(character.title or "")
         return f"the {title}"
 
     @staticmethod
@@ -297,10 +299,9 @@ class CharacterApi(GameApi):
         if not allow_self and q == "self":
             return None
         for ch in character_registry.all_characters():
-            names = [
-                getattr(ch, "name", ""),
-                getattr(ch, "short_description", ""),
-            ]
+            names = [ch.name]
+            if type(ch) is Mobile:
+                names.append(ch.short_description)
             if any(name_matches_fn(q, name) for name in names):
                 return ch
         return None
@@ -330,10 +331,10 @@ class CharacterApi(GameApi):
 
     @classmethod
     def position_value(cls, character: Character) -> int:
-        attrs = getattr(character, "character_attributes", None)
-        raw = getattr(attrs, "position", None)
-        if raw is None:
-            raw = getattr(character, "position", None)
+        attrs = character.character_attributes
+        raw = attrs.position if attrs is not None else None
+        if raw is None and "position" in character.__dict__:
+            raw = character.__dict__["position"]
         if isinstance(raw, str):
             name = raw.strip().upper()
             if name and not name.startswith("POS_"):
@@ -349,7 +350,7 @@ class CharacterApi(GameApi):
         if not hasattr(cls.positions, pos_name):
             return
         value = int(getattr(cls.positions, pos_name).value)
-        attrs = getattr(character, "character_attributes", None)
+        attrs = character.character_attributes
         if attrs is not None:
             attrs.position = value
         setattr(character, "position", value)
@@ -440,20 +441,23 @@ class CharacterApi(GameApi):
 
     @classmethod
     def get_max_train(cls, character: Character, stat_index: int, current_value: int) -> int:
-        race_obj = getattr(character, "character_race", None)
-        race_fields = (
-            "max_strength",
-            "max_intelligence",
-            "max_wisdom",
-            "max_dexterity",
-            "max_constitution",
-        )
-        if race_obj is not None and 0 <= stat_index < len(race_fields):
-            value = GenericUtil.to_int(getattr(race_obj, race_fields[stat_index], 0), 0)
+        race_obj = character.character_race
+        if race_obj is not None:
+            max_values = (
+                race_obj.max_strength,
+                race_obj.max_intelligence,
+                race_obj.max_wisdom,
+                race_obj.max_dexterity,
+                race_obj.max_constitution,
+            )
+        else:
+            max_values = ()
+        if 0 <= stat_index < len(max_values):
+            value = GenericUtil.to_int(max_values[stat_index], 0)
             if value > 0:
                 return value
 
-        race_name = str(getattr(character, "race", "") or "").strip().lower()
+        race_name = str(character.race or "").strip().lower()
         race_data = cls.pc_races_map().get(race_name, {})
         max_stats = race_data.get("max_stats", [])
         if isinstance(max_stats, list) and 0 <= stat_index < len(max_stats):

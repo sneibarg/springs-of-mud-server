@@ -87,7 +87,7 @@ class Equipped:
 
     @staticmethod
     def ensure_on(character):
-        if getattr(character, "equipped", None) is None:
+        if character.equipped is None:
             character.equipped = Equipped()
         return character.equipped
 
@@ -138,7 +138,7 @@ class Equipped:
 
     @staticmethod
     def is_light_item(item) -> bool:
-        return str(getattr(item, "item_type", "") or "").strip().lower() == "light"
+        return str(item.item_type or "").strip().lower() == "light"
 
     def is_shield_equipped(self) -> bool:
         return self.shield is None
@@ -153,7 +153,7 @@ class Equipped:
         if cls.is_light_item(item):
             groups.append(("light",))
 
-        flags = ItemApi.flags_to_int(getattr(item, "wear_flags", 0))
+        flags = ItemApi.flags_to_int(item.wear_flags)
         for flag_name, slots in WEAR_SLOT_ORDER.items():
             if wear_flags_enum is None or not hasattr(wear_flags_enum, flag_name):
                 continue
@@ -173,8 +173,8 @@ class Equipped:
                   preferred_slot: str = "", forced_slot: str = "", effect_handler=None) -> WearResult:
         result = WearResult()
         item_short = Item.short(item)
-        item_level = int(getattr(item, "level", 0) or 0)
-        if int(getattr(character, "level", 0) or 0) < item_level:
+        item_level = int(item.level or 0)
+        if int(character.level or 0) < item_level:
             result.blocked_key = "insufficientLevel"
             result.blocked_tokens = {"d": item_level, "t": item_short}
             return result
@@ -202,18 +202,18 @@ class Equipped:
             return result
 
         if selected_slot == "shield":
-            weapon = getattr(getattr(character, "equipped", None), "wielded", None)
-            if weapon is not None and int(character.size_value()) < int(character.large_size_value()) and bool(getattr(weapon, "is_two_handed_weapon", lambda: False)()):
+            weapon = character.equipped.wielded
+            if weapon is not None and int(character.size_value()) < int(character.large_size_value()) and bool(weapon.is_two_handed_weapon()):
                 result.blocked_key = "weaponTwoHanded"
                 return result
 
         if selected_slot == "wielded":
-            if bool(getattr(item, "weapon_too_heavy", lambda _character: False)(character)):
+            if bool(item.weapon_too_heavy(character)):
                 result.blocked_key = "tooHeavy"
                 return result
 
-            shield = getattr(getattr(character, "equipped", None), "shield", None)
-            if shield is not None and int(character.size_value()) < int(character.large_size_value()) and bool(getattr(item, "is_two_handed_weapon", lambda: False)()):
+            shield = character.equipped.shield
+            if shield is not None and int(character.size_value()) < int(character.large_size_value()) and bool(item.is_two_handed_weapon()):
                 result.blocked_key = "wearingShield"
                 return result
 
@@ -221,7 +221,7 @@ class Equipped:
         if effect_handler is not None:
             effect_handler.apply_item_effects(character, item)
         result.shared_messages.append(cls.slot_message(selected_slot, item_short))
-        skill_key = getattr(item, "weapon_skill_feedback_key", lambda _character: "")(character)
+        skill_key = item.weapon_skill_feedback_key(character)
         if selected_slot == "wielded" and skill_key:
             result.char_messages.append((skill_key, {"t": item_short}))
         return result
@@ -229,7 +229,7 @@ class Equipped:
     @classmethod
     def wear_all(cls, character, wear_flags_enum, item_flags, *, effect_handler=None) -> WearResult:
         result = WearResult()
-        for item in list(getattr(character, "loot", []) or []):
+        for item in list(character.loot or []):
             item_result = cls.wear_item(character, item, wear_flags_enum, item_flags, replace=False, effect_handler=effect_handler)
             result.shared_messages.extend(item_result.shared_messages)
             result.char_messages.extend(item_result.char_messages)
@@ -265,7 +265,7 @@ class Equipped:
         for slot, item in self.__dict__.items():
             if item is None:
                 continue
-            name = str(getattr(item, "name", "") or "").strip().lower()
+            name = str(item.name or "").strip().lower()
             if name == wanted or name.startswith(wanted):
                 return slot, item
         return "", None
@@ -363,7 +363,7 @@ class Equipped:
 
     @staticmethod
     def _can_remove_item(item, item_flags) -> bool:
-        return bool(getattr(item, "can_remove", lambda _item_flags: True)(item_flags))
+        return bool(item.can_remove(item_flags))
 
     @staticmethod
     def _remove_item(character, slot: str, item, *, effect_handler=None) -> None:

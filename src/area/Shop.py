@@ -78,18 +78,18 @@ class Shop:
     def is_pet_shop(room, room_flags) -> bool:
         if room is None or room_flags is None or not hasattr(room_flags, "ROOM_PET_SHOP"):
             return False
-        return ItemApi.is_set(getattr(room, "room_flags", 0), room_flags.ROOM_PET_SHOP.value)
+        return ItemApi.is_set(room.room_flags, room_flags.ROOM_PET_SHOP.value)
 
     @staticmethod
     def pet_price(pet) -> int:
         if pet is None:
             return 0
-        level = GenericUtil.to_int(getattr(pet, "level", 0), 0)
+        level = GenericUtil.to_int(pet.level, 0)
         return 10 * level * level
 
     @staticmethod
     def pet_stock_room(room, room_registry):
-        current_vnum = GenericUtil.to_int(getattr(room, "vnum", 0), 0)
+        current_vnum = GenericUtil.to_int(room.vnum, 0)
         next_vnum = 9706 if current_vnum == 9621 else current_vnum + 1
         return room_registry.get_or_none(vnum=str(next_vnum))
 
@@ -101,7 +101,7 @@ class Shop:
         pet_bit = CharacterApi.enum_bit(act_bits, "ACT_PET")
         count = 0
         for pet in stock_room.mobiles.values():
-            if pet_bit and not CharacterApi.is_set(GenericUtil.to_int(getattr(getattr(pet, "status_flags", None), "act", 0), 0), pet_bit):
+            if pet_bit and not CharacterApi.is_set(GenericUtil.to_int(pet.status_flags.act, 0), pet_bit):
                 continue
             if not cls.matches_name(pet, keyword):
                 continue
@@ -119,13 +119,13 @@ class Shop:
         pet_bit = CharacterApi.enum_bit(act_bits, "ACT_PET")
         lines = []
         for pet in stock_room.mobiles.values():
-            if pet_bit and not CharacterApi.is_set(GenericUtil.to_int(getattr(getattr(pet, "status_flags", None), "act", 0), 0), pet_bit):
+            if pet_bit and not CharacterApi.is_set(GenericUtil.to_int(pet.status_flags.act, 0), pet_bit):
                 continue
-            level = GenericUtil.to_int(getattr(pet, "level", 0), 0)
+            level = GenericUtil.to_int(pet.level, 0)
             cost = cls.pet_price(pet)
             if not lines:
                 lines.append("Pets for sale:\r\n")
-            lines.append(f"[{level:>2}] {cost:>8} - {getattr(pet, 'short_description', 'a pet')}\r\n")
+            lines.append(f"[{level:>2}] {cost:>8} - {pet.short_description or 'a pet'}\r\n")
 
         if not lines:
             return {"to_char": "Sorry, we're out of pets right now.\r\n"}
@@ -134,7 +134,7 @@ class Shop:
     def buys_item(self, item, item_types) -> bool:
         if item is None or item_types is None:
             return False
-        item_type_name = str(getattr(item, "item_type", "") or "").strip().upper()
+        item_type_name = str(item.item_type or "").strip().upper()
         if not item_type_name or not hasattr(item_types, item_type_name):
             return False
         item_type_value = int(getattr(item_types, item_type_name).value)
@@ -143,13 +143,13 @@ class Shop:
     def buy_price(self, item) -> int:
         if item is None:
             return 0
-        base_cost = GenericUtil.to_int(getattr(item, "cost", 0), 0)
+        base_cost = GenericUtil.to_int(item.cost, 0)
         price = base_cost * GenericUtil.to_int(self.profit_buy, 0) // 100
         return self._charge_adjusted_price(item, price)
 
     def keeper_visible_stock(self, keeper, room, character) -> list:
         stock = []
-        for item in list(getattr(keeper, "inventory", []) or []):
+        for item in list(keeper.inventory or []):
             if self._is_item_worn(item):
                 continue
             if not ItemUtil.can_see_object(room, character, item):
@@ -170,7 +170,7 @@ class Shop:
                     lines.append("[Lv Price Qty] Item\r\n")
                 if self.is_inventory_item(item, item_flags):
                     lines.append(
-                        f"[{GenericUtil.to_int(getattr(item, 'level', 0), 0):>2} "
+                        f"[{GenericUtil.to_int(item.level, 0):>2} "
                         f"{cost:>5} -- ] {Item.short(item)}\r\n"
                     )
                     index += 1
@@ -180,7 +180,7 @@ class Shop:
                 while index + count < len(stock) and self._same_stock_item(item, stock[index + count]):
                     count += 1
                 lines.append(
-                    f"[{GenericUtil.to_int(getattr(item, 'level', 0), 0):>2} "
+                    f"[{GenericUtil.to_int(item.level, 0):>2} "
                     f"{cost:>5} {count:>2} ] {Item.short(item)}\r\n"
                 )
                 index += count
@@ -210,7 +210,7 @@ class Shop:
     def available_stock_quantity(self, keeper, item) -> int:
         count = 0
         matched = False
-        for stocked in list(getattr(keeper, "inventory", []) or []):
+        for stocked in list(keeper.inventory or []):
             if self._is_item_worn(stocked):
                 continue
             if not matched:
@@ -245,18 +245,18 @@ class Shop:
         pet_bit = CharacterApi.enum_bit(act_bits, "ACT_PET")
         charm_bit = CharacterApi.enum_bit(affected_bits, "AFF_CHARM")
         if pet_bit:
-            pet.status_flags.act = CharacterApi.set_bit(GenericUtil.to_int(getattr(pet.status_flags, "act", 0), 0), pet_bit)
+            pet.status_flags.act = CharacterApi.set_bit(GenericUtil.to_int(pet.status_flags.act, 0), pet_bit)
         if charm_bit:
-            pet.status_flags.affected_by = CharacterApi.set_bit(GenericUtil.to_int(getattr(pet.status_flags, "affected_by", 0), 0), charm_bit)
+            pet.status_flags.affected_by = CharacterApi.set_bit(GenericUtil.to_int(pet.status_flags.affected_by, 0), charm_bit)
 
         for comm_name in ("COMM_NOTELL", "COMM_NOSHOUT", "COMM_NOCHANNELS"):
             bit = CharacterApi.enum_bit(comm_flags, comm_name)
             if bit:
-                pet.status_flags.comm = CharacterApi.set_bit(GenericUtil.to_int(getattr(pet.status_flags, "comm", 0), 0), bit)
+                pet.status_flags.comm = CharacterApi.set_bit(GenericUtil.to_int(pet.status_flags.comm, 0), bit)
 
         if pet_name:
             pet.name = f"{pet.name} {pet_name}".strip()
-        pet.description = f"{getattr(pet, 'description', '')}A neck tag says 'I belong to {buyer.name}'.\r\n"
+        pet.description = f"{pet.description or ''}A neck tag says 'I belong to {buyer.name}'.\r\n"
         room.add_mobile_to_room(pet)
         pet.leader = buyer
         buyer.pet = pet
@@ -267,7 +267,7 @@ class Shop:
         if item is None or not self.buys_item(item, item_types):
             return 0
 
-        price = GenericUtil.to_int(getattr(item, "cost", 0), 0) * GenericUtil.to_int(self.profit_sell, 0) // 100
+        price = GenericUtil.to_int(item.cost, 0) * GenericUtil.to_int(self.profit_sell, 0) // 100
         sell_extract_bit = 0
         inventory_bit = 0
         if item_flags is not None:
@@ -276,12 +276,12 @@ class Shop:
             if hasattr(item_flags, "ITEM_INVENTORY"):
                 inventory_bit = int(getattr(item_flags, "ITEM_INVENTORY").value)
 
-        item_extra_flags = GenericUtil.to_int(getattr(item, "extra_flags", 0), 0)
+        item_extra_flags = GenericUtil.to_int(item.extra_flags, 0)
         if sell_extract_bit == 0 or (item_extra_flags & sell_extract_bit) == 0:
             for stocked in list(keeper_inventory or []):
                 if not self._same_stock_item(item, stocked):
                     continue
-                stocked_flags = GenericUtil.to_int(getattr(stocked, "extra_flags", 0), 0)
+                stocked_flags = GenericUtil.to_int(stocked.extra_flags, 0)
                 if inventory_bit and (stocked_flags & inventory_bit) != 0:
                     price //= 2
                 else:
@@ -307,14 +307,14 @@ class Shop:
 
     def quote_value(self, item, keeper, item_types, item_flags) -> "ValueQuote":
         item_short = Item.short(item) if item is not None else ""
-        keeper_name = getattr(keeper, "short_description", "The shopkeeper") if keeper is not None else "The shopkeeper"
-        cost = self.sell_price(item, getattr(keeper, "inventory", []) or [], item_types, item_flags)
+        keeper_name = keeper.short_description if keeper is not None and keeper.short_description else "The shopkeeper"
+        cost = self.sell_price(item, keeper.inventory if keeper is not None else [], item_types, item_flags)
         gold = cost // 100
         silver = cost - (gold * 100)
         return ValueQuote(cost=cost, gold=gold, silver=silver, item_short=item_short, keeper_name=keeper_name)
 
     def find_matching_stock_item(self, keeper, wanted):
-        for stocked in list(getattr(keeper, "inventory", []) or []):
+        for stocked in list(keeper.inventory or []):
             if self._is_item_worn(stocked):
                 continue
             if self._same_stock_item(wanted, stocked):
@@ -322,7 +322,7 @@ class Shop:
         return wanted
 
     def remove_keeper_item(self, keeper, item):
-        inventory = getattr(keeper, "inventory", None)
+        inventory = keeper.inventory
         if inventory is None:
             return
         try:
@@ -331,7 +331,7 @@ class Shop:
             return
 
     def add_item_to_keeper(self, keeper, item, item_flags):
-        inventory = getattr(keeper, "inventory", None)
+        inventory = keeper.inventory
         if inventory is None:
             keeper.inventory = []
             inventory = keeper.inventory
@@ -341,28 +341,28 @@ class Shop:
                 continue
             if self.is_inventory_item(stocked, item_flags):
                 return None
-            item.cost = GenericUtil.to_int(getattr(stocked, "cost", getattr(item, "cost", 0)), 0)
+            item.cost = GenericUtil.to_int(stocked.cost if stocked.cost is not None else item.cost, 0)
             inventory.insert(index + 1, item)
             return item
         inventory.insert(0, item)
         return item
 
     def normalize_purchased_item(self, item, cost: int, item_flags):
-        if GenericUtil.to_int(getattr(item, "timer", 0), 0) > 0 and not self.had_timer(item, item_flags):
+        if GenericUtil.to_int(item.timer, 0) > 0 and not self.had_timer(item, item_flags):
             item.timer = 0
         item.extra_flags = CharacterApi.unset_bit(
-            GenericUtil.to_int(getattr(item, "extra_flags", 0), 0),
+            GenericUtil.to_int(item.extra_flags, 0),
             CharacterApi.enum_bit(item_flags, "ITEM_HAD_TIMER"),
         )
-        if GenericUtil.to_int(getattr(item, "cost", 0), 0) > cost:
+        if GenericUtil.to_int(item.cost, 0) > cost:
             item.cost = cost
         if hasattr(item, "wear_loc"):
             item.wear_loc = -1
 
     def prepare_sold_item(self, item, item_flags):
-        if GenericUtil.to_int(getattr(item, "timer", 0), 0) > 0:
+        if GenericUtil.to_int(item.timer, 0) > 0:
             had_timer = CharacterApi.enum_bit(item_flags, "ITEM_HAD_TIMER")
-            item.extra_flags = CharacterApi.set_bit(GenericUtil.to_int(getattr(item, "extra_flags", 0), 0), had_timer)
+            item.extra_flags = CharacterApi.set_bit(GenericUtil.to_int(item.extra_flags, 0), had_timer)
         else:
             item.timer = self._timer_roll()
         if hasattr(item, "wear_loc"):
@@ -370,19 +370,19 @@ class Shop:
 
     def had_timer(self, item, item_flags) -> bool:
         bit = CharacterApi.enum_bit(item_flags, "ITEM_HAD_TIMER")
-        return bit != 0 and GameApi.is_set(getattr(item, "extra_flags", 0), bit)
+        return bit != 0 and GameApi.is_set(item.extra_flags, bit)
 
     def is_inventory_item(self, item, item_flags) -> bool:
         bit = CharacterApi.enum_bit(item_flags, "ITEM_INVENTORY")
-        return bit != 0 and GameApi.is_set(getattr(item, "extra_flags", 0), bit)
+        return bit != 0 and GameApi.is_set(item.extra_flags, bit)
 
     def is_sell_extract_item(self, item, item_flags) -> bool:
         bit = CharacterApi.enum_bit(item_flags, "ITEM_SELL_EXTRACT")
-        return bit != 0 and GameApi.is_set(getattr(item, "extra_flags", 0), bit)
+        return bit != 0 and GameApi.is_set(item.extra_flags, bit)
 
     @staticmethod
     def is_trash_item(item) -> bool:
-        return str(getattr(item, "item_type", "") or "").strip().upper() == "ITEM_TRASH"
+        return str(item.item_type or "").strip().upper() == "ITEM_TRASH"
 
     def same_stock_item(self, left, right) -> bool:
         return self._same_stock_item(left, right)
@@ -392,8 +392,8 @@ class Shop:
         return (
             left is not None
             and right is not None
-            and str(getattr(left, "vnum", "") or "") == str(getattr(right, "vnum", "") or "")
-            and str(getattr(left, "short_description", "") or "") == str(getattr(right, "short_description", "") or "")
+            and str(left.vnum or "") == str(right.vnum or "")
+            and str(left.short_description or "") == str(right.short_description or "")
         )
 
     @staticmethod
@@ -401,7 +401,7 @@ class Shop:
         query = str(wanted or "").strip().lower()
         if not query:
             return True
-        name = str(getattr(entity, "name", "") or "").strip().lower()
+        name = str(entity.name or "").strip().lower()
         words = [word for word in name.split() if word]
         return name == query or name.startswith(query) or query in words or any(word.startswith(query) for word in words)
 
@@ -412,7 +412,7 @@ class Shop:
 
     @staticmethod
     def _money_value(entity) -> int:
-        return (GenericUtil.to_int(getattr(entity, "gold", 0), 0) * 100) + GenericUtil.to_int(getattr(entity, "silver", 0), 0)
+        return (GenericUtil.to_int(entity.gold, 0) * 100) + GenericUtil.to_int(entity.silver, 0)
 
     @staticmethod
     def _add_money(entity, amount: int):
@@ -434,12 +434,12 @@ class Shop:
     @staticmethod
     def _charge_adjusted_price(item, base_price: int) -> int:
         price = max(0, GenericUtil.to_int(base_price, 0))
-        item_type_name = str(getattr(item, "item_type", "") or "").strip().upper()
+        item_type_name = str(item.item_type or "").strip().upper()
         if item_type_name not in {"ITEM_STAFF", "ITEM_WAND"}:
             return price
 
-        max_charges = GenericUtil.to_int(getattr(item, "value1", 0), 0)
-        current_charges = GenericUtil.to_int(getattr(item, "value2", 0), 0)
+        max_charges = GenericUtil.to_int(item.value1, 0)
+        current_charges = GenericUtil.to_int(item.value2, 0)
         if max_charges <= 0:
             return price // 4
         return price * current_charges // max_charges

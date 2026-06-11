@@ -120,7 +120,7 @@ class Character(AnimateEntity):
         return len(list(self.loot or []))
 
     def carry_weight(self) -> int:
-        item_weight = sum(GenericUtil.to_int(getattr(item, "weight", 0), 0) for item in list(self.loot or []))
+        item_weight = sum(GenericUtil.to_int(item.weight, 0) for item in list(self.loot or []))
         coin_weight = int((GenericUtil.to_int(self.silver, 0) / 10) + (GenericUtil.to_int(self.gold, 0) * 2 / 5))
         return item_weight + coin_weight
 
@@ -131,13 +131,9 @@ class Character(AnimateEntity):
         return self.character_attributes.max_weight
 
     def size_value(self) -> int:
-        direct_size = GenericUtil.to_int(getattr(self, "size", None), None)
-        if direct_size is not None:
-            return direct_size
-
         from api.CharacterApi import CharacterApi
 
-        race_name = str(getattr(self, "race", "") or "").strip().lower()
+        race_name = str(self.race or "").strip().lower()
         try:
             race_data = CharacterApi.pc_races_map().get(race_name, {})
         except RuntimeError:
@@ -170,7 +166,7 @@ class Character(AnimateEntity):
         wanted = str(vnum or "")
         if not wanted:
             return False
-        return any(str(getattr(item, "vnum", "")) == wanted for item in list(self.loot or []))
+        return any(str(item.vnum) == wanted for item in list(self.loot or []))
 
     def has_key(self, key: int) -> bool:
         return GenericUtil.to_int(key, -1) >= 0 and self.has_item_vnum(key)
@@ -179,7 +175,7 @@ class Character(AnimateEntity):
     def race(self) -> str:
         if self.character_race is None:
             return ""
-        return str(getattr(self.character_race, "who_name", "") or "")
+        return str(self.character_race.who_name or "")
 
     @race.setter
     def race(self, value: str) -> None:
@@ -187,34 +183,34 @@ class Character(AnimateEntity):
 
     @property
     def experience(self) -> int:
-        attrs = getattr(self, "character_attributes", None)
-        return 0 if attrs is None else getattr(attrs, "experience", 0)
+        attrs = self.character_attributes
+        return 0 if attrs is None else attrs.experience
 
     @experience.setter
     def experience(self, value: int) -> None:
-        attrs = getattr(self, "character_attributes", None)
+        attrs = self.character_attributes
         if attrs is not None:
             attrs.experience = value
 
     @property
     def accumulated_experience(self) -> int:
-        attrs = getattr(self, "character_attributes", None)
-        return 0 if attrs is None else getattr(attrs, "accumulated_experience", 0)
+        attrs = self.character_attributes
+        return 0 if attrs is None else attrs.accumulated_experience
 
     @accumulated_experience.setter
     def accumulated_experience(self, value: int) -> None:
-        attrs = getattr(self, "character_attributes", None)
+        attrs = self.character_attributes
         if attrs is not None:
             attrs.accumulated_experience = value
 
     @property
     def experience_per_level(self) -> int:
-        attrs = getattr(self, "character_attributes", None)
-        return 0 if attrs is None else getattr(attrs, "experience_per_level", 0)
+        attrs = self.character_attributes
+        return 0 if attrs is None else attrs.experience_per_level
 
     @experience_per_level.setter
     def experience_per_level(self, value: int) -> None:
-        attrs = getattr(self, "character_attributes", None)
+        attrs = self.character_attributes
         if attrs is not None:
             attrs.experience_per_level = value
 
@@ -223,7 +219,7 @@ class Character(AnimateEntity):
 
     def has_boat(self) -> bool:
         for item in list(self.loot or []):
-            item_type = str(getattr(item, "item_type", "") or "").lower()
+            item_type = str(item.item_type or "").lower()
             if "boat" in item_type:
                 return True
         return False
@@ -237,7 +233,7 @@ class Character(AnimateEntity):
             return ""
         if isinstance(entry, dict):
             return str(entry.get("name", "") or "").strip()
-        return str(getattr(entry, "name", "") or "").strip()
+        return str(entry.name or "").strip()
 
     @staticmethod
     def learned_entry_level(entry) -> int:
@@ -245,7 +241,7 @@ class Character(AnimateEntity):
             return 0
         if isinstance(entry, dict):
             return max(0, min(100, GenericUtil.to_int(entry.get("level", 0), 0)))
-        return max(0, min(100, GenericUtil.to_int(getattr(entry, "level", 0), 0)))
+        return max(0, min(100, GenericUtil.to_int(entry.level, 0)))
 
     @staticmethod
     def _set_learned_entry_level(entry, learned_level: int) -> None:
@@ -260,14 +256,13 @@ class Character(AnimateEntity):
     @staticmethod
     def learned_entries(character, *, collection_name: str = "") -> List[Any]:
         collection_key = str(collection_name or "").strip().lower()
-        if collection_key in {"skills", "spells"}:
-            return list(getattr(character, collection_key, []) or [])
+        if collection_key == "skills":
+            return list(character.skills or [])
+        if collection_key == "spells":
+            return list(character.spells or [])
 
         entries: list[Any] = []
-        collections = character.learned() if callable(getattr(character, "learned", None)) else [
-            getattr(character, "skills", []),
-            getattr(character, "spells", []),
-        ]
+        collections = character.learned()
         for learned in list(collections or []):
             entries.extend(list(learned or []))
         return entries
@@ -318,10 +313,13 @@ class Character(AnimateEntity):
             raise ValueError(f"Learned skill with ID {learned_name} not found")
 
         collection_key = "spells" if str(collection_name or "").strip().lower() == "spells" else "skills"
-        collection = getattr(character, collection_key, None)
+        collection = character.spells if collection_key == "spells" else character.skills
         if collection is None:
             collection = []
-            setattr(character, collection_key, collection)
+            if collection_key == "spells":
+                character.spells = collection
+            else:
+                character.skills = collection
 
         entry = {"name": str(learned_name or "").strip(), "level": 0}
         collection.append(entry)

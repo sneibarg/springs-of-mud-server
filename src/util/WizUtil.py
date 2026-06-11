@@ -4,6 +4,7 @@ import re
 from typing import Any
 
 from api.CharacterApi import CharacterApi
+from mobile import Mobile
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
 
@@ -34,10 +35,10 @@ class WizUtil:
     def entity_names(entity) -> list[str]:
         if entity is None:
             return []
-        return [
-            str(entity.name),
-            str(entity.short_description),
-        ]
+        if type(entity) is Mobile:
+            return [str(entity.name), str(entity.short_description)]
+        else:
+            return [str(entity.name)]
 
     @staticmethod
     def room_of_entity(room_registry, entity):

@@ -34,14 +34,15 @@ class AnimateEntity:
     lock: threading.RLock = field(default_factory=threading.RLock, kw_only=True)
 
     def __post_init__(self):
-        self.logger = LoggerFactory.get_logger(getattr(self, "__name__", self.__class__.__name__))
+        logger_name = self.__dict__["__name__"] if "__name__" in self.__dict__ else self.__class__.__name__
+        self.logger = LoggerFactory.get_logger(logger_name)
         if self.lock is None:
             self.lock = threading.RLock()
 
     def get_alignment(self) -> int:
         attrs = self.character_attributes
         if attrs is not None:
-            return GenericUtil.to_int(getattr(attrs, "alignment", 0), 0)
+            return GenericUtil.to_int(attrs.alignment, 0)
         return GenericUtil.to_int(getattr(self, "alignment", 0), 0)
 
     def set_alignment(self, value: int) -> None:

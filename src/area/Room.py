@@ -79,7 +79,7 @@ class Room:
 
     def get_exit(self, direction: int):
         for ex in self.exits:
-            if int(getattr(ex, "direction", -1)) == int(direction):
+            if int(ex.direction) == int(direction):
                 return ex
         return None
 
@@ -88,7 +88,7 @@ class Room:
         if direction < 0:
             return None
         exit_obj = self.get_exit(direction)
-        return None if exit_obj is None else getattr(exit_obj, "to_room_id", None)
+        return None if exit_obj is None else exit_obj.to_room_id
 
     def find_door(self, arg: str) -> int:
         direction = self.direction_index(arg)
@@ -99,9 +99,9 @@ class Room:
         if not wanted:
             return -1
         for ex in self.exits:
-            keyword = (getattr(ex, "keyword", "") or "").lower()
+            keyword = (ex.keyword or "").lower()
             if wanted == keyword or wanted in keyword.split():
-                return int(getattr(ex, "direction", -1))
+                return int(ex.direction)
         return -1
 
     def add_player_to_room(self, character: Character):
@@ -154,7 +154,7 @@ class Room:
     def find_character_in_room(self, arg: str, name_matches_fn):
         q = (arg or "").strip().lower()
         for ch in self.characters.values():
-            if name_matches_fn(q, getattr(ch, "name", "")):
+            if name_matches_fn(q, ch.name):
                 return ch
         return None
 
@@ -173,7 +173,7 @@ class Room:
         if not q:
             return None
         for item in self.contents.values():
-            name = (getattr(item, "name", "") or "").lower()
+            name = (item.name or "").lower()
             if name == q or name.startswith(q):
                 return item
         return None
@@ -188,9 +188,9 @@ class Room:
         for char in self.characters.values():
             if not CharacterApi.can_see(observer, char, self):
                 continue
-            if getattr(char, "room_id", None) != self.id:
+            if char.room_id != self.id:
                 continue
-            name = (getattr(char, "name", "") or "").strip().lower()
+            name = (char.name or "").strip().lower()
             if name == query or name.startswith(query):
                 return char
         return None
@@ -219,10 +219,10 @@ class Room:
     def is_private(self, room_flags) -> bool:
         private = GenericUtil.to_int(getattr(getattr(room_flags, "ROOM_PRIVATE", None), "value", 0), 0)
         solitary = GenericUtil.to_int(getattr(getattr(room_flags, "ROOM_SOLITARY", None), "value", 0), 0)
-        flags = GenericUtil.to_int(getattr(self, "room_flags", 0), 0)
-        if private and (flags & private) and len(getattr(self, "characters", {})) >= 2:
+        flags = GenericUtil.to_int(self.room_flags, 0)
+        if private and (flags & private) and len(self.characters) >= 2:
             return True
-        if solitary and (flags & solitary) and len(getattr(self, "characters", {})) >= 1:
+        if solitary and (flags & solitary) and len(self.characters) >= 1:
             return True
         return False
 
@@ -230,13 +230,13 @@ class Room:
         if sector_types is None:
             return False
         air = getattr(sector_types, "SECT_AIR", None)
-        return air is not None and GenericUtil.to_int(getattr(self, "sector_type", 0), 0) == int(air.value)
+        return air is not None and GenericUtil.to_int(self.sector_type, 0) == int(air.value)
 
     def requires_boat(self, sector_types) -> bool:
         if sector_types is None:
             return False
         no_swim = getattr(sector_types, "SECT_WATER_NOSWIM", None)
-        return no_swim is not None and GenericUtil.to_int(getattr(self, "sector_type", 0), 0) == int(no_swim.value)
+        return no_swim is not None and GenericUtil.to_int(self.sector_type, 0) == int(no_swim.value)
 
     def is_room_dark(self) -> bool:
         if self.light > 0:

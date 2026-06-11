@@ -83,7 +83,7 @@ class MessageBus:
         if session and session.metadata.get("paging_active", False):
             return True
 
-        comm_raw = GenericUtil.to_int(getattr(getattr(character, "status_flags", None), "comm", 0), 0)
+        comm_raw = GenericUtil.to_int(character.status_flags.comm, 0)
         if comm_raw > 0 and (comm_raw & 8192) == 0:  # COMM_PROMPT
             return True
 
@@ -137,7 +137,7 @@ class MessageBus:
     @staticmethod
     def _message_trailing_breaks(message: Message) -> int:
         text = ""
-        if isinstance(getattr(message, "data", None), dict):
+        if isinstance(message.data, dict):
             text = str(message.data.get("text", "") or "")
         if not text.endswith("\r\n"):
             text += "\r\n"

@@ -95,7 +95,12 @@ class CharacterRace:
     def _class_mult_for_class(values: Any, character_class: Any) -> int:
         if not isinstance(values, list):
             return int(values or 100)
-        class_name = str(getattr(character_class, "name", character_class) or "").strip().lower()
+        if character_class is None:
+            class_name = ""
+        elif isinstance(character_class, str):
+            class_name = character_class.strip().lower()
+        else:
+            class_name = str(character_class.name or "").strip().lower()
         class_index = {
             "mage": 0,
             "cleric": 1,

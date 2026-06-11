@@ -105,11 +105,11 @@ class Ability:
 
     @staticmethod
     def practice_class_name(character: Character) -> str:
-        return str(getattr(getattr(character, "character_class", None), "name", "") or "").strip().lower()
+        return str(character.character_class.name or "").strip().lower()
 
     @staticmethod
     def practice_adept(character: Character) -> int:
-        adept = GenericUtil.to_int(getattr(getattr(character, "character_class", None), "skill_adept", 75), 75)
+        adept = GenericUtil.to_int(character.character_class.skill_adept, 75)
         return adept if adept > 0 else 75
 
     @staticmethod
@@ -123,21 +123,17 @@ class Ability:
         except RuntimeError:
             return None
 
-        skill_registry = getattr(registry, "skill_registry", None)
+        skill_registry = registry.skill_registry
         if skill_registry is not None:
-            all_skills = getattr(skill_registry, "all_skills", None)
-            if callable(all_skills):
-                for skill in all_skills():
-                    if str(getattr(skill, "name", "") or "").strip().lower() == wanted:
-                        return skill
+            for skill in skill_registry.all_skills():
+                if str(skill.name or "").strip().lower() == wanted:
+                    return skill
 
-        spell_registry = getattr(registry, "spell_registry", None)
+        spell_registry = registry.spell_registry
         if spell_registry is not None:
-            all_spells = getattr(spell_registry, "all_spells", None)
-            if callable(all_spells):
-                for spell in all_spells():
-                    if str(getattr(spell, "name", "") or "").strip().lower() == wanted:
-                        return spell
+            for spell in spell_registry.all_spells():
+                if str(spell.name or "").strip().lower() == wanted:
+                    return spell
 
         return None
 
@@ -155,7 +151,7 @@ class Ability:
         if meta is None:
             return 0
         class_name = Ability.practice_class_name(character)
-        level_map = getattr(meta, "level_by_class", {}) or {}
+        level_map = meta.level_by_class or {}
         fallback = CharacterApi.skill_value_for_class(level_map, "mage", 99)
         return max(0, CharacterApi.skill_value_for_class(level_map, class_name, fallback))
 
@@ -165,7 +161,7 @@ class Ability:
         if meta is None:
             return True
         required_level = Ability.practice_level_requirement(character, meta)
-        return GenericUtil.to_int(getattr(character, "level", 0), 0) >= required_level
+        return GenericUtil.to_int(character.level, 0) >= required_level
 
     @staticmethod
     def practice_rating(character: Character, meta_or_name) -> int:
@@ -173,13 +169,13 @@ class Ability:
         if meta is None:
             return 1
         class_name = Ability.practice_class_name(character)
-        rating_map = getattr(meta, "rating_by_class", {}) or {}
+        rating_map = meta.rating_by_class or {}
         fallback = CharacterApi.skill_value_for_class(rating_map, "mage", 0)
         return max(0, CharacterApi.skill_value_for_class(rating_map, class_name, fallback))
 
     @staticmethod
     def practice_gain(character: Character, rating: int) -> int:
-        intelligence = GenericUtil.to_int(getattr(getattr(character, "character_attributes", None), "intelligence", 0), 0)
+        intelligence = GenericUtil.to_int(character.character_attributes.intelligence, 0)
         learn_bonus = GenericUtil.to_int(
             CharacterApi.get_attribute_bonus("intelligence", str(intelligence)).get("learn", 0), 0)
         rating = max(1, GenericUtil.to_int(rating, 1))
@@ -189,7 +185,7 @@ class Ability:
     @staticmethod
     def practice_meta_id(meta_or_name) -> str:
         meta = Ability._resolve_practice_meta(meta_or_name)
-        return str(getattr(meta, "id", "") or "").strip()
+        return "" if meta is None else str(meta.id or "").strip()
 
     @staticmethod
     def check_improve_by_name(ch: Character, ability_name: str, success: bool, multiplier: int = 1) -> None:
@@ -205,8 +201,8 @@ class Ability:
 
         registry = CharacterApi.get_registry()
         collection_name = "skills"
-        ability = getattr(registry, "skill_registry", None).get_or_none(id=ability_id) if getattr(registry, "skill_registry", None) is not None else None
-        if ability is None and getattr(registry, "spell_registry", None) is not None:
+        ability = registry.skill_registry.get_or_none(id=ability_id) if registry.skill_registry is not None else None
+        if ability is None and registry.spell_registry is not None:
             ability = registry.spell_registry.get_or_none(id=ability_id)
             collection_name = "spells"
         if ability is None:
@@ -221,7 +217,7 @@ class Ability:
         multiplier = max(1, GenericUtil.to_int(multiplier, 1))
         chance = (10 * learn_bonus) // (multiplier * rating * 4) + ch.level
         random_integer = random.randint(1, 1000)
-        logger.info(f"Skill {getattr(ability, 'name', '')} for {ch.name} (level {ch.level}, adept {adept}) - chance: {chance}; random_integer={random_integer} learn_bonus={learn_bonus}; rating={rating} learned={learned}; multiplier={multiplier}; success={success}")
+        logger.info(f"Skill {ability.name} for {ch.name} (level {ch.level}, adept {adept}) - chance: {chance}; random_integer={random_integer} learn_bonus={learn_bonus}; rating={rating} learned={learned}; multiplier={multiplier}; success={success}")
         if random_integer > chance:
             return
 
@@ -229,17 +225,17 @@ class Ability:
             chance = max(5, min(adept - learned, 95))
             if rng.number_percent() < chance:
                 improved = min(learned + 1, adept)
-                Character.set_learned(ch, getattr(ability, "name", ""), improved, collection_name=collection_name, create=True)
+                Character.set_learned(ch, ability.name, improved, collection_name=collection_name, create=True)
                 if improved > learned:
-                    Ability._queue_improve_message(ch, f"You have become better at {getattr(ability, 'name', '')}!\r\n")
+                    Ability._queue_improve_message(ch, f"You have become better at {ability.name}!\r\n")
                     CharacterAdvancement.gain_experience(ch, 2 * rating)
         else:
             chance = max(5, min(learned // 2, 30))
             if rng.number_percent() < chance:
                 improved = min(learned + random.randint(1, 3), adept)
-                Character.set_learned(ch, getattr(ability, "name", ""), improved, collection_name=collection_name, create=True)
+                Character.set_learned(ch, ability.name, improved, collection_name=collection_name, create=True)
                 if improved > learned:
-                    Ability._queue_improve_message(ch, f"You learn from your mistakes, and your {getattr(ability, 'name', '')} skill improves.\r\n")
+                    Ability._queue_improve_message(ch, f"You learn from your mistakes, and your {ability.name} skill improves.\r\n")
                     CharacterAdvancement.gain_experience(ch, 2 * rating)
         logger.info(f"Random chance SUCCESS - actual chance: {chance}")
 

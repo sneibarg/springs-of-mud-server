@@ -94,43 +94,43 @@ class PromptFormat:
     def current_prompt_text(self) -> str:
         parts: list[str] = []
 
-        if getattr(self, "health", False):
-            parts.append("%h/%H" if getattr(self, "max_health", False) else "%hhp")
-        elif getattr(self, "max_health", False):
+        if self.health:
+            parts.append("%h/%H" if self.max_health else "%hhp")
+        elif self.max_health:
             parts.append("%H")
 
-        if getattr(self, "mana", False):
-            parts.append("%m/%M" if getattr(self, "max_mana", False) else "%mm")
-        elif getattr(self, "max_mana", False):
+        if self.mana:
+            parts.append("%m/%M" if self.max_mana else "%mm")
+        elif self.max_mana:
             parts.append("%M")
 
-        if getattr(self, "movement", False):
-            parts.append("%v/%V" if getattr(self, "max_movement", False) else "%vmv")
-        elif getattr(self, "max_movement", False):
+        if self.movement:
+            parts.append("%v/%V" if self.max_movement else "%vmv")
+        elif self.max_movement:
             parts.append("%V")
 
-        if getattr(self, "experience", False):
-            parts.append("%x/%X" if getattr(self, "accumulated_experience", False) else "%xxp")
-        elif getattr(self, "accumulated_experience", False):
+        if self.experience:
+            parts.append("%x/%X" if self.accumulated_experience else "%xxp")
+        elif self.accumulated_experience:
             parts.append("%X")
 
-        if getattr(self, "gold", False):
+        if self.gold:
             parts.append("%g")
-        if getattr(self, "silver", False):
+        if self.silver:
             parts.append("%s")
-        if getattr(self, "alignment", False):
+        if self.alignment:
             parts.append("%a")
-        if getattr(self, "room_name", False):
+        if self.room_name:
             parts.append("%r")
-        if getattr(self, "exits", False):
+        if self.exits:
             parts.append("%e")
-        if getattr(self, "room_vnum", False):
+        if self.room_vnum:
             parts.append("%R")
-        if getattr(self, "area_name", False):
+        if self.area_name:
             parts.append("%z")
 
         text = "<" + " ".join(parts) + ">"
-        if getattr(self, "carriage_return", False):
+        if self.carriage_return:
             text += "%c"
         return text
 
@@ -219,8 +219,8 @@ class PromptFormat:
             parts.append(str(self._call_prompt_lambda(prompt_map["%z"], character, room, area)))
 
     def render_prompt(self, status: SessionStatus, character: Character, room: Room, area: Area) -> Message:
-        carriage_return = bool(getattr(character, "carriage_return", False) or self.carriage_return)
-        comm_raw = GameApi.flags_to_int(getattr(getattr(character, "status_flags", None), "comm", 0))
+        carriage_return = bool(character.carriage_return or self.carriage_return)
+        comm_raw = GameApi.flags_to_int(character.status_flags.comm)
         if comm_raw > 0:
             carriage_return = (comm_raw & 2048) == 0  # COMM_COMPACT
         parts = [self._tag_afk(status)]

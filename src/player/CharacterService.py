@@ -36,7 +36,7 @@ class CharacterService:
         return self._fetch_and_register(url, f"character '{character_name}'")
 
     def save_character(self, character: Character) -> bool:
-        character_id = str(getattr(character, "id", "") or "")
+        character_id = str(character.id or "")
         if not character_id:
             self.logger.error("Refusing to save character without an id.")
             return False
@@ -99,44 +99,42 @@ class CharacterService:
     def _serialize_character(cls, character: Character) -> dict[str, Any]:
         return {
             "id": character.id,
-            "accountId": getattr(character, "account_id", ""),
-            "title": getattr(character, "title", ""),
-            "description": getattr(character, "description", ""),
-            "cloaked": bool(getattr(character, "cloaked", False)),
-            "guild": getattr(character, "guild", ""),
-            "characterRace": cls._serialize_character_race(getattr(character, "character_race", None)),
-            "name": getattr(character, "name", ""),
-            "areaId": getattr(character, "area_id", ""),
-            "roomId": getattr(character, "room_id", ""),
-            "role": getattr(character, "role", ""),
-            "sex": getattr(character, "sex", ""),
-            "level": getattr(character, "level", 0),
-            "hit": getattr(character, "hit", 0),
-            "maxHit": getattr(character, "max_hit", 0),
-            "mana": getattr(character, "mana", 0),
-            "maxMana": getattr(character, "max_mana", 0),
-            "movement": getattr(character, "movement", 0),
-            "maxMovement": getattr(character, "max_movement", 0),
-            "gold": getattr(character, "gold", 0),
-            "silver": getattr(character, "silver", 0),
-            "trust": getattr(character, "trust", 0),
+            "accountId": character.account_id,
+            "title": character.title,
+            "description": character.description,
+            "cloaked": bool(character.cloaked),
+            "guild": character.guild,
+            "characterRace": cls._serialize_character_race(character.character_race),
+            "name": character.name,
+            "areaId": character.area_id,
+            "roomId": character.room_id,
+            "role": character.role,
+            "sex": character.sex,
+            "level": character.level,
+            "hit": character.hit,
+            "maxHit": character.max_hit,
+            "mana": character.mana,
+            "maxMana": character.max_mana,
+            "movement": character.movement,
+            "maxMovement": character.max_movement,
+            "gold": character.gold,
+            "silver": character.silver,
+            "trust": character.trust,
             "inventory": [cls._serialize_value(item) for item in cls._inventory_items(character)],
-            "effects": cls._serialize_value(getattr(character, "effects", [])),
-            "skills": cls._serialize_value(getattr(character, "skills", [])),
-            "spells": cls._serialize_value(getattr(character, "spells", [])),
-            "statusFlags": cls._serialize_value(getattr(character, "status_flags", None)),
-            "characterAttributes": cls._serialize_value(getattr(character, "character_attributes", None)),
-            "armorClass": cls._serialize_value(getattr(character, "armor_class", None)),
-            "characterClass": cls._serialize_value(getattr(character, "character_class", None)),
-            "promptFormat": cls._serialize_prompt_format(getattr(character, "prompt_format", None)),
-            "equipped": cls._serialize_value(getattr(character, "equipped", None)),
+            "effects": cls._serialize_value(character.effects),
+            "skills": cls._serialize_value(character.skills),
+            "spells": cls._serialize_value(character.spells),
+            "statusFlags": cls._serialize_value(character.status_flags),
+            "characterAttributes": cls._serialize_value(character.character_attributes),
+            "armorClass": cls._serialize_value(character.armor_class),
+            "characterClass": cls._serialize_value(character.character_class),
+            "promptFormat": cls._serialize_prompt_format(character.prompt_format),
+            "equipped": cls._serialize_value(character.equipped),
         }
 
     @staticmethod
     def _inventory_items(character: Character) -> list[Any]:
-        if hasattr(character, "get_items"):
-            return list(character.get_items())
-        return list(getattr(character, "inventory", []) or [])
+        return list(character.get_items())
 
     @staticmethod
     def _serialize_character_race(character_race: CharacterRace | None) -> dict[str, Any]:
@@ -190,22 +188,22 @@ class CharacterService:
             return {}
 
         return {
-            "hp": bool(getattr(prompt_format, "health", False)),
-            "max_hp": bool(getattr(prompt_format, "max_health", False)),
-            "mana": bool(getattr(prompt_format, "mana", False)),
-            "max_mana": bool(getattr(prompt_format, "max_mana", False)),
-            "movement": bool(getattr(prompt_format, "movement", False)),
-            "max_movement": bool(getattr(prompt_format, "max_movement", False)),
-            "xp": bool(getattr(prompt_format, "experience", False)),
-            "max_xp": bool(getattr(prompt_format, "accumulated_experience", False)),
-            "gold": bool(getattr(prompt_format, "gold", False)),
-            "silver": bool(getattr(prompt_format, "silver", False)),
-            "alignment": bool(getattr(prompt_format, "alignment", False)),
-            "room_name": bool(getattr(prompt_format, "room_name", False)),
-            "exits": bool(getattr(prompt_format, "exits", False)),
-            "room_vnum": bool(getattr(prompt_format, "room_vnum", False)),
-            "area_name": bool(getattr(prompt_format, "area_name", False)),
-            "carriage_return": bool(getattr(prompt_format, "carriage_return", False)),
+            "hp": bool(prompt_format.health),
+            "max_hp": bool(prompt_format.max_health),
+            "mana": bool(prompt_format.mana),
+            "max_mana": bool(prompt_format.max_mana),
+            "movement": bool(prompt_format.movement),
+            "max_movement": bool(prompt_format.max_movement),
+            "xp": bool(prompt_format.experience),
+            "max_xp": bool(prompt_format.accumulated_experience),
+            "gold": bool(prompt_format.gold),
+            "silver": bool(prompt_format.silver),
+            "alignment": bool(prompt_format.alignment),
+            "room_name": bool(prompt_format.room_name),
+            "exits": bool(prompt_format.exits),
+            "room_vnum": bool(prompt_format.room_vnum),
+            "area_name": bool(prompt_format.area_name),
+            "carriage_return": bool(prompt_format.carriage_return),
         }
 
     @staticmethod
