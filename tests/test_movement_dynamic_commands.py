@@ -291,6 +291,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
             game_data=SimpleNamespace(),
             fight_handler=SimpleNamespace(aggressive_entry_rounds=lambda *_args, **_kwargs: []),
             enum_provider=SimpleNamespace(get=lambda _name: SimpleNamespace()),
+            interp_api=InterpApi(),
         )
         commands.exit_flags = _CharacterMacros.get_enum("exitFlags")
         commands.room_flags = _CharacterMacros.get_enum("roomFlags")

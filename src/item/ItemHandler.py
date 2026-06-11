@@ -1,8 +1,10 @@
 from injector import inject
 
+from api.CharacterApi import CharacterApi
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from item.Item import Item
+from util.CommunicationsUtil import CommunicationsUtil
 from util.InfoUtil import InfoUtil
 from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
@@ -109,6 +111,17 @@ class ItemHandler:
     async def print_inventory(self, character: Character):
         items = character.get_items()
         msg = "\r\n\nYou are carrying:\r\n"
-        for item in items:
-            msg = msg + "\t" + item.name + "\r\n"
+        if CommunicationsUtil.has_comm(character, CharacterApi.get_enum("commFlags"), "COMM_COMBINE"):
+            item_totals = ItemUtil.combine_items(items)
+            for vnum in item_totals:
+                the_item = item_totals[vnum]
+                if 10 > len(the_item) > 1:
+                    msg = msg + f"({len(the_item):<1})\t{the_item[0].short()}\r\n"
+                elif len(the_item) > 10:
+                    msg = msg + f"({len(the_item)})\t{the_item[0].short()}\r\n"
+                else:
+                    msg = msg + f"\t{the_item[0].short()}\r\n"
+        else:
+            for item in items:
+                msg = msg + "\t" + Item.short(item) + "\r\n"
         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(msg))

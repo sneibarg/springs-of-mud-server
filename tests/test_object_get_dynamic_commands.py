@@ -154,6 +154,10 @@ class _ItemApi:
     def is_container_closed(item) -> bool:
         return bool(getattr(item, "closed", False))
 
+    @staticmethod
+    def is_no_sac(item) -> bool:
+        return bool(getattr(item, "no_sac", False))
+
 
 class _CommunicationsUtil:
     @staticmethod
@@ -209,6 +213,17 @@ class _ItemUtil:
         if found is not None:
             return found
         return _ItemUtil.find_room_item(room, query)
+
+    @staticmethod
+    def item_in_use(_context):
+        return False
+
+    @staticmethod
+    def sacrifice_silver_value(item) -> int:
+        silver = max(1, int(getattr(item, "level", 0) or 0) * 3)
+        if "corpse" not in str(getattr(item, "item_type", "") or "").lower():
+            silver = min(silver, int(getattr(item, "cost", 0) or 0))
+        return max(3, silver)
 
     @staticmethod
     def find_item(character, room, wanted):
@@ -333,6 +348,7 @@ _stub_module(
     ),
 )
 _stub_module("util.SkillUtil", SkillUtil=SimpleNamespace(check_improve=lambda *_args, **_kwargs: None))
+_stub_module("skill.Ability", Ability=SimpleNamespace(check_improve=lambda *_args, **_kwargs: None))
 _stub_module("game.RegistryService", RegistryService=object)
 _stub_module("interp.Context", Context=_Context)
 _stub_module("item.Item", Item=object)
@@ -366,6 +382,7 @@ class _Command:
             to_char={_snake(key): value for key, value in (payload.get("payload", {}).get("toChar", {}) or {}).items()},
             to_room={_snake(key): value for key, value in (payload.get("payload", {}).get("toRoom", {}) or {}).items()},
             to_victim={_snake(key): value for key, value in (payload.get("payload", {}).get("toVictim", {}) or {}).items()},
+            to_wiznet={_snake(key): value for key, value in (payload.get("payload", {}).get("toWiznet", {}) or {}).items()},
         )
         self.guards = []
         for entry in list(payload.get("guards", []) or []):
@@ -400,6 +417,14 @@ class _Room(SimpleNamespace):
     def remove_item_from_room(self, item):
         self.contents.pop(item.id, None)
 
+    def find_room_item(self, wanted):
+        query = str(wanted or "").strip().lower()
+        for item in list(getattr(self, "contents", {}).values()):
+            name = str(getattr(item, "name", "") or "").lower()
+            if name == query or name.startswith(query):
+                return item
+        return None
+
     def player_targets(self, character):
         return [ch for ch in list(getattr(self, "characters", {}).values()) if getattr(ch, "id", None) != getattr(character, "id", None)]
 
@@ -425,10 +450,10 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         )
         registry_service = SimpleNamespace(
             room_registry=room_registry,
-            mobile_registry=None,
+            mobile_registry=SimpleNamespace(),
             shop_registry=shop_registry,
-            skill_registry=skill_registry,
-            spell_registry=spell_registry,
+            skill_registry=skill_registry or SimpleNamespace(get_or_none=lambda **_kwargs: None),
+            spell_registry=spell_registry or SimpleNamespace(get_or_none=lambda **_kwargs: None, all_spells=lambda: []),
         )
         enum_provider = SimpleNamespace(get=lambda _name: SimpleNamespace())
         commands = Object(
@@ -436,8 +461,9 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             enum_provider=enum_provider,
             interp_api=InterpApi(),
             weather_handler=weather_handler,
-            spell_api=spell_api,
-            fight_handler=fight_handler,
+            spell_api=spell_api or SimpleNamespace(),
+            fight_handler=fight_handler or SimpleNamespace(),
+            effect_handler=_effect_handler,
         )
         commands.item_types = SimpleNamespace(ITEM_WEAPON=SimpleNamespace(value=5))
         commands.item_flags = SimpleNamespace(
@@ -1051,6 +1077,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("You give a ruby to Receiver.\r\n", payload["to_char"])
         self.assertEqual("Tester gives a ruby to Receiver.\r\n", payload["to_room"])
         self.assertEqual("Tester gives you a ruby.\r\n", payload["to_victim"])
+        self.assertEqual([], payload["targets"])
         self.assertIn(gem, victim.loot)
         self.assertNotIn(gem, character.loot)
 
@@ -1083,8 +1110,31 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("You give 25 silver to Receiver.\r\n", payload["to_char"])
         self.assertEqual("Tester gives Receiver some coins.\r\n", payload["to_room"])
         self.assertEqual("Tester gives you 25 silver.\r\n", payload["to_victim"])
+        self.assertEqual([], payload["targets"])
         self.assertEqual(50, character.silver)
         self.assertEqual(25, victim.silver)
+
+    def test_sacrifice_uses_payload_templates_for_room_message(self):
+        watcher = self._build_character(name="Watcher")
+        idol = SimpleNamespace(
+            id="obj-16",
+            name="idol stone",
+            short_description="a stone idol",
+            item_type="treasure",
+            level=4,
+            cost=30,
+        )
+        room = _Room(id="room-1", contents={idol.id: idol}, mobiles={}, characters={watcher.id: watcher})
+        character = self._build_character()
+
+        payload = self._commands(room).do_sacrifice(character, self._build_context("idol", room, character, "sacrifice"))
+
+        self.assertEqual("Mota gives you 12 silver coins for your sacrifice.\r\n", payload["to_char"])
+        self.assertEqual("Tester sacrifices a stone idol to Mota.\r\n", payload["to_room"])
+        self.assertEqual("Tester sends up a stone idol as a burnt offering.\r\n", payload["to_wiznet"])
+        self.assertEqual([watcher], payload["targets"])
+        self.assertNotIn(idol.id, room.contents)
+        self.assertEqual(12, character.silver)
 
     def test_give_funds_insufficient_uses_guard_payload(self):
         victim = self._build_character(name="Receiver")

@@ -57,7 +57,7 @@ class Wiz:
         self.GameParameters = enum_provider.get("gameParameters")
 
     def execute(self, character: Character, context: Context):
-        command_name = (getattr(context.command, "name", "") or "").strip().lower()
+        command_name = (context.command.name or "").strip().lower()
         handlers = {
             "wizhelp": self.do_wizhelp,
             "wiznet": self.do_wiznet,
@@ -71,6 +71,7 @@ class Wiz:
             "gecho": self.do_gecho,
             "zecho": self.do_zecho,
             "pecho": self.do_pecho,
+            "at": self.do_at,
             "goto": self.do_goto,
             "transfer": self.do_transfer,
             "teleport": self.do_transfer,
@@ -267,6 +268,26 @@ class Wiz:
         context.finish()
         return self._command_payload("default", victim=victim, tokens={"s": message})
 
+    def do_at(self, character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+
+        location_arg, nested_command = WizUtil.split_argument(WizUtil.argument_text(context.result, context.parameters))
+        room = AreaUtil.find_location(location_arg, self.room_registry, self.character_registry, WizUtil.name_matches)
+        if room is None:
+            context.finish()
+            return self._command_payload("no_such_location")
+
+        original = self.room_registry.get_or_none(id=character.room_id)
+        WizUtil.move_entity(self.room_registry, character, room)
+        context.finish()
+        return {
+            "interpret_at": nested_command,
+            "at_original_room": original,
+            "at_on": getattr(character, "on", None),
+        }
+
     def do_goto(self, character: Character, context: Context):
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
@@ -313,8 +334,8 @@ class Wiz:
             "from_room_message": f"{WizUtil.display_name(victim)} disappears in a mushroom cloud.\r\n",
             "to_room_targets": room.player_targets(victim) if not CharacterApi.is_npc(victim) else room.players_in_room(),
             "to_room_message": f"{WizUtil.display_name(victim)} arrives from a puff of smoke.\r\n",
-            "to_room_obj": room,
-            "view_character": victim,
+            "to_room_obj": None if CharacterApi.is_npc(victim) else room,
+            "view_character": character if CharacterApi.is_npc(victim) else victim,
         }
 
     def do_return(self, character: Character, context: Context):
@@ -393,18 +414,27 @@ class Wiz:
         return self._command_payload("removed" if enabled else "set", victim=victim, wiznet_flag="WIZ_PENALTIES", wiznet_skip_flag="WIZ_SECURE")
 
     def do_restore(self, character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
         arg = WizUtil.argument_text(context.result, context.parameters).strip().lower()
-        room = self.room_registry.get_or_none(id=character.room_id)
+        room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
         if arg in ("", "room"):
             for target in ([] if room is None else list(room.characters.values()) + list(room.mobiles.values())):
                 WizApi.restore_character(target)
             context.finish()
             return {
-                "to_char": "Room restored.\r\n",
-                "to_wiznet": f"{character.name} restored room {getattr(room, 'vnum', '')}.\r\n",
-                "wiznet_flag": "WIZ_RESTORE",
-                "wiznet_skip_flag": "WIZ_SECURE",
-                "wiznet_min_level": CharacterApi.get_trust(character),
+                "payloads": [
+                    self._command_payload("room"),
+                    self._command_payload(
+                        "default",
+                        channel="to_wiznet",
+                        tokens={"t": f"room {getattr(room, 'vnum', '')}"},
+                        wiznet_flag="WIZ_RESTORE",
+                        wiznet_skip_flag="WIZ_SECURE",
+                        wiznet_min_level=CharacterApi.get_trust(character),
+                    ),
+                ]
             }
         if arg == "all" and CharacterApi.get_trust(character) >= self.GameParameters.MAX_LEVEL.value - 1:
             for session in self.wiz_handler.session_handler.get_playing_sessions():
@@ -413,13 +443,28 @@ class Wiz:
                     WizApi.restore_character(victim)
             context.finish()
             return self._command_payload("active_players")
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, arg)
+        victim = character if arg == "self" else WizUtil.find_world_entity(self.character_registry, self.room_registry, arg)
         if victim is None:
             context.finish()
             return self._command_payload("target_missing")
         WizApi.restore_character(victim)
         context.finish()
-        return self._command_payload("default", victim=victim, wiznet_flag="WIZ_RESTORE", wiznet_skip_flag="WIZ_SECURE", wiznet_min_level=CharacterApi.get_trust(character))
+        if victim == character:
+            return self._command_payload(
+                "default",
+                tokens={"t": WizUtil.display_name(victim)},
+                wiznet_flag="WIZ_RESTORE",
+                wiznet_skip_flag="WIZ_SECURE",
+                wiznet_min_level=CharacterApi.get_trust(character),
+            )
+        return self._command_payload(
+            "default",
+            victim=victim,
+            token_factory=self._actor_target_tokens,
+            wiznet_flag="WIZ_RESTORE",
+            wiznet_skip_flag="WIZ_SECURE",
+            wiznet_min_level=CharacterApi.get_trust(character),
+        )
 
     def do_purge(self, character: Character, context: Context):
         argument = WizUtil.argument_text(context.result, context.parameters).strip()
@@ -436,6 +481,7 @@ class Wiz:
                 if nopurge_act and CharacterApi.is_set(getattr(victim.status_flags, "act", 0), nopurge_act):
                     continue
                 room.remove_mobile_from_room(victim)
+                self._unregister_live_character(victim)
             for obj in list(room.contents.values()):
                 if nopurge_item and GameApi.is_set(getattr(obj, "extra_flags", 0), nopurge_item):
                     continue
@@ -467,6 +513,7 @@ class Wiz:
         victim_room = WizUtil.room_of_entity(self.room_registry, victim)
         if victim_room is not None:
             victim_room.remove_mobile_from_room(victim)
+        self._unregister_live_character(victim)
         context.finish()
         return {"room_message": f"{character.name} purges {WizUtil.display_name(victim)}.\r\n", "room_targets": [] if victim_room is None else victim_room.players_in_room()}
 
@@ -570,6 +617,7 @@ class Wiz:
                 return self._command_payload("no_such_mobile")
             mob = MobileUtil.create_mobile(proto, CharacterApi.enum_provider())
             room.add_mobile_to_room(mob)
+            self._register_live_character(mob)
             context.finish()
             return {
                 **self._command_payload("default", tokens={"t": mob.short_description}),
@@ -887,6 +935,7 @@ class Wiz:
         clone = MobileUtil.clone_mobile_instance(mob, CharacterApi.enum_provider())
         if room is not None:
             room.add_mobile_to_room(clone)
+            self._register_live_character(clone)
         context.finish()
         return {
             **self._command_payload("default", wiznet_flag="WIZ_LOAD", wiznet_skip_flag="WIZ_SECURE", wiznet_min_level=CharacterApi.get_trust(character), tokens={"t": clone.short_description}),
@@ -913,6 +962,14 @@ class Wiz:
         return str(payload.get(channel, "") or "")
 
     @staticmethod
+    def _actor_target_tokens(*, character, payload, **_kwargs) -> dict:
+        victim = payload.get("victim")
+        return {
+            "c": getattr(character, "name", ""),
+            "t": WizUtil.display_name(victim),
+        }
+
+    @staticmethod
     def _poof_text(character, key: str, default: str) -> str:
         return str((getattr(character, "context", {}) or {}).get(key, "") or default)
 
@@ -924,6 +981,17 @@ class Wiz:
             viewer for viewer in room.player_targets(character)
             if CharacterApi.get_trust(viewer) >= GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0)
         ]
+
+    def _register_live_character(self, character) -> None:
+        self.character_registry.register(character)
+
+    def _unregister_live_character(self, character) -> None:
+        try:
+            self.character_registry.unregister(item=character)
+        except TypeError:
+            self.character_registry.unregister(character)
+        except KeyError:
+            return
 
     @staticmethod
     def _stat_character_text(target) -> str:

@@ -80,9 +80,8 @@ class RoomHandler:
         show_description = True
         if character is not None:
             comm_flags = CharacterApi.get_enum("commFlags")
-            if hasattr(comm_flags, "COMM_BRIEF"):
-                if CharacterApi.is_set(character.status_flags.comm, comm_flags.COMM_BRIEF.value):
-                    show_description = False
+            if CharacterApi.is_set(character.status_flags.comm, comm_flags.COMM_BRIEF.value):
+                show_description = False
 
         if show_description:
             message = self.message_bus.text_to_message(room.format_room_description())

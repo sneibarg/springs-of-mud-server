@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from typing import Any, Optional, TYPE_CHECKING
 
 from game.Equipped import Equipped
+from player.CharacterAttributes import CharacterAttributes
 from server.LoggerFactory import LoggerFactory
 from util.GenericUtil import GenericUtil
 
@@ -29,23 +30,21 @@ class AnimateEntity:
     inventory: list[Any] = field(default_factory=list, kw_only=True)
     effects: list[Any] = field(default_factory=list, kw_only=True)
     status_flags: Optional[Any] = field(default=None, kw_only=True)
-    character_attributes: Optional[Any] = field(default=None, kw_only=True)
+    character_attributes: Optional[CharacterAttributes] = field(default=None, kw_only=True)
     armor_class: Optional[Any] = field(default=None, kw_only=True)
     lock: threading.RLock = field(default_factory=threading.RLock, kw_only=True)
 
     def __post_init__(self):
-        self.logger = LoggerFactory.get_logger(getattr(self, "__name__", self.__class__.__name__))
+        logger_name = self.__dict__["__name__"] if "__name__" in self.__dict__ else self.__class__.__name__
+        self.logger = LoggerFactory.get_logger(logger_name)
         if self.lock is None:
             self.lock = threading.RLock()
 
     def get_alignment(self) -> int:
-        attrs = getattr(self, "character_attributes", None)
-        if attrs is not None:
-            return GenericUtil.to_int(getattr(attrs, "alignment", 0), 0)
-        return GenericUtil.to_int(getattr(self, "alignment", 0), 0)
+        return GenericUtil.to_int(self.character_attributes.alignment, 0)
 
     def set_alignment(self, value: int) -> None:
-        attrs = getattr(self, "character_attributes", None)
+        attrs = self.character_attributes
         if attrs is not None:
             attrs.alignment = int(value)
             return
@@ -85,7 +84,7 @@ class AnimateEntity:
         if not q:
             return None
         for item in list(self._item_collection()):
-            name = (getattr(item, "name", "") or "").lower()
+            name = (item.name or "").lower()
             if name == q or name.startswith(q):
                 return item
         return None
@@ -94,7 +93,7 @@ class AnimateEntity:
         return Equipped.ensure_on(self)
 
     def equipped_slot_of(self, item: Item) -> Optional[str]:
-        equipped = getattr(self, "equipped", None)
+        equipped = self.equipped
         if equipped is None:
             return None
         return equipped.slot_of(item)
@@ -126,7 +125,7 @@ class AnimateEntity:
         if not key:
             return None
         for item in self.owned_items():
-            name = (getattr(item, "name", "") or "").lower()
+            name = (item.name or "").lower()
             if name == key or name.startswith(key):
                 return item
         return None

@@ -272,7 +272,7 @@ class MobileUtil:
 
         mob = Mobile.from_json({
             "area_id": pMobIndex.area_id,
-            "room_id": getattr(pMobIndex, "room_id", ""),
+            "room_id": pMobIndex.room_id,
             "vnum": pMobIndex.vnum,
             "id": GenericUtil.generate_mongo_id(),
             "name": pMobIndex.name,
@@ -345,29 +345,29 @@ class MobileUtil:
     @staticmethod
     def clone_mobile_instance(mob: Mobile, enum_provider: EnumProvider) -> Mobile:
         clone = MobileUtil.create_mobile(mob, enum_provider)
-        clone.short_description = getattr(mob, "short_description", "")
-        clone.long_description = getattr(mob, "long_description", "")
-        clone.description = getattr(mob, "description", "")
-        clone.name = getattr(mob, "name", "")
-        clone.race = getattr(mob, "race", "")
-        clone.flags = getattr(mob, "flags", "")
-        clone.alignment = getattr(mob, "alignment", "")
-        clone.group = getattr(mob, "group", "")
-        clone.dam_type = getattr(mob, "dam_type", "")
-        clone.sex = getattr(mob, "sex", "")
-        clone.size = getattr(mob, "size", "")
-        clone.material = getattr(mob, "material", "")
-        clone.level = getattr(mob, "level", 0)
-        clone.hit_roll = getattr(mob, "hit_roll", 0)
-        clone.gold = getattr(mob, "gold", 0)
-        clone.silver = getattr(mob, "silver", 0)
-        clone.start_pos = getattr(mob, "start_pos", 0)
-        clone.default_pos = getattr(mob, "default_pos", 0)
-        clone.status_flags = StatusFlags.from_template(getattr(mob, "status_flags", None)) if getattr(mob, "status_flags", None) is not None else None
+        clone.short_description = mob.short_description
+        clone.long_description = mob.long_description
+        clone.description = mob.description
+        clone.name = mob.name
+        clone.race = mob.race
+        clone.flags = mob.flags
+        clone.alignment = mob.alignment
+        clone.group = mob.group
+        clone.dam_type = mob.dam_type
+        clone.sex = mob.sex
+        clone.size = mob.size
+        clone.material = mob.material
+        clone.level = mob.level
+        clone.hit_roll = mob.hit_roll
+        clone.gold = mob.gold
+        clone.silver = mob.silver
+        clone.start_pos = mob.start_pos
+        clone.default_pos = mob.default_pos
+        clone.status_flags = StatusFlags.from_template(mob.status_flags) if mob.status_flags is not None else None
         clone.inventory = []
-        for item in list(getattr(mob, "inventory", []) or []):
+        for item in list(mob.inventory):
             cloned = ItemUtil.clone_object_instance(item)
-            wear_loc = getattr(item, "wear_loc", None)
+            wear_loc = item.wear_loc
             if wear_loc is not None:
                 MobileUtil.equip_item(clone, cloned, wear_loc)
                 continue
@@ -376,14 +376,14 @@ class MobileUtil:
 
     @staticmethod
     def add_inventory_item(mob: Mobile, item):
-        if not hasattr(mob, "inventory") or getattr(mob, "inventory", None) is None:
+        if mob.inventory is None:
             mob.inventory = []
         mob.inventory.append(item)
 
     @staticmethod
     def equip_item(mob: Mobile, item, wear_loc: int):
         MobileUtil.add_inventory_item(mob, item)
-        if not hasattr(mob, "equipped") or getattr(mob, "equipped", None) is None:
+        if mob.equipped is None:
             mob.equipped = Equipped()
 
         slot = WEAR_LOC_TO_EQUIPPED_SLOT.get(int(wear_loc))
@@ -393,18 +393,18 @@ class MobileUtil:
 
     @staticmethod
     def is_train_trainer(mob, train_bit: int) -> bool:
-        mob_flags = GenericUtil.to_int(getattr(getattr(mob, "status_flags", None), "act", 0), 0)
+        mob_flags = GenericUtil.to_int(mob.status_flags.act, 0)
         if train_bit and CharacterApi.is_set(mob_flags, train_bit):
             return True
 
-        special_name = str(getattr(mob, "special_name", "") or "").strip().lower()
+        special_name = str(mob.special_name).strip().lower()
         if special_name == "spec_cast_adept":
             return True
 
         description_text = " ".join(
             [
-                str(getattr(mob, "long_description", "") or "").strip().lower(),
-                str(getattr(mob, "description", "") or "").strip().lower(),
+                str(mob.long_description.strip().lower()),
+                str(mob.description.strip().lower())
             ]
         )
         trainer_phrases = (
@@ -416,3 +416,19 @@ class MobileUtil:
             "training students",
         )
         return any(phrase in description_text for phrase in trainer_phrases)
+
+    @staticmethod
+    def is_practice_trainer(mob, practice_bit: int) -> bool:
+        mob_flags = GenericUtil.to_int(mob.status_flags.act, 0)
+        if practice_bit and CharacterApi.is_set(mob_flags, practice_bit):
+            return True
+
+        special_name = str(mob.special_name).strip().lower()
+        if special_name == "spec_cast_adept":
+            return True
+
+        long_description = str(mob.long_description).strip().lower()
+        if "help you practice" in long_description or "ready to help you practice" in long_description:
+            return True
+
+        return False

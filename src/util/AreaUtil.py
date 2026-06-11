@@ -85,21 +85,17 @@ class AreaUtil:
         if exit_flags_enum is None:
             return 0
         for name in names:
-            member = getattr(exit_flags_enum, name, None)
-            if member is not None:
-                return int(member.value)
+            if name in exit_flags_enum.__members__:
+                return int(exit_flags_enum[name].value)
         return 0
 
     @staticmethod
     def apply_door_reset(exit_obj, lock_state: int, exit_flags_enum):
         if exit_obj is None:
             return
-        is_door = AreaUtil._exit_flag_value(exit_flags_enum, "IS_DOOR", "EX_ISDOOR")
         closed = AreaUtil._exit_flag_value(exit_flags_enum, "CLOSED", "EX_CLOSED")
         locked = AreaUtil._exit_flag_value(exit_flags_enum, "LOCKED", "EX_LOCKED")
         flags = int(getattr(exit_obj, "exit_flags", 0) or 0)
-        if is_door and (flags & is_door) == 0:
-            return
 
         if lock_state == 0:
             flags &= ~closed

@@ -44,7 +44,7 @@ class FightApi:
         return self.evaluate_guards_only_view(view)
 
     def evaluate_guards_only_view(self, view: FightView):
-        action_name = str(view.extra.get("command_name", "") or getattr(getattr(view, "command", None), "name", "") or "")
+        action_name = str(view.extra.get("command_name", "") or view.command.name or "")
         definition = self._fight_action_definition(view, action_name, require_executor=False)
         plan = self.evaluate_fight_action(view, definition)
         if not plan.stop or not plan.messages:
@@ -66,8 +66,8 @@ class FightApi:
         argument = FightUtil.parse_action_argument(context.result, context.parameters)
         victim = PlayerUtil.get_target(context.character, argument, room) if room is not None and argument else None
         if victim is None and current_target_fallback and not argument:
-            victim = getattr(context.character, "fighting", None)
-        weapon = getattr(getattr(context.character, "equipped", None), "wielded", None)
+            victim = context.character.fighting
+        weapon = None if context.character.equipped is None else context.character.equipped.wielded
         skill = self.skill_registry.get_or_none(name=skill_name) if skill_name else self._resolve_action_skill(context.command.name, weapon)
         skill_percent = self.skill_api.get_rating(context.character, skill) if skill is not None else 0
         has_skill_access = True if skill is None else self._has_skill_access(context.character, skill)
@@ -112,7 +112,6 @@ class FightApi:
 
     def execute_fight_plan(self, context, fight_commands, view: FightView, plan: ActionPlan):
         if not plan.operation:
-            print(f"No plan operation for {view.context.command.name}")
             room = view.room
             return self.render_plan_payload(
                 view.context.command.payload,
@@ -124,9 +123,9 @@ class FightApi:
         if plan.operation == "multi_hit":
             victim = view.victim
             room = view.room
-            if getattr(view.actor, "fighting", None) is None:
+            if view.actor.fighting is None:
                 self.fight_handler.set_fighting(view.actor, victim, room.id)
-            if getattr(victim, "fighting", None) is None:
+            if victim.fighting is None:
                 self.fight_handler.set_fighting(victim, view.actor, room.id)
             pre_corpse_ids = fight_commands._pre_corpse_ids(room)
             result = self.fight_handler.multi_hit(view.actor, victim, dt=plan.data.get("dt", "TYPE_UNDEFINED"))
@@ -173,13 +172,13 @@ class FightApi:
         if skill is None:
             raise KeyError(f"No fight action definition for '{command_name}'")
 
-        executor = str(getattr(skill, "fight_executor", "") or "").strip().lower()
+        executor = str(skill.fight_executor or "").strip().lower()
         if require_executor and not executor:
-            raise KeyError(f"Skill '{getattr(skill, 'name', command_name)}' does not define a fight executor")
+            raise KeyError(f"Skill '{skill.name or command_name}' does not define a fight executor")
 
-        plan_data = dict(getattr(skill, "fight_plan", {}) or {})
+        plan_data = dict(skill.fight_plan or {})
         return ActionDefinition(
-            name=str(getattr(skill, "name", "") or command_name),
+            name=str(skill.name or command_name),
             guards=self._build_checks(skill),
             plan_factory=(lambda _view: ActionPlan(operation=executor, data=dict(plan_data)))
             if executor else (lambda _view: ActionPlan(stop=False, data={"blocked": False})),
@@ -189,7 +188,7 @@ class FightApi:
     def _token_victim_name(view: FightView) -> dict[str, Any]:
         victim_name = ""
         if view.victim is not None:
-            victim_name = str(getattr(view.victim, "name", "") or "")
+            victim_name = str(view.victim.name or "")
         return {"victim_name": victim_name}
 
     @staticmethod
@@ -202,7 +201,7 @@ class FightApi:
         victim = view.victim
         if victim is None:
             return False
-        return GenericUtil.to_int(getattr(victim, "hit", 0), 0) < max(1, GenericUtil.to_int(getattr(victim, "max_hit", 0), 0) // 3)
+        return GenericUtil.to_int(victim.hit, 0) < max(1, GenericUtil.to_int(victim.max_hit, 0) // 3)
 
     @staticmethod
     def _has_affect(entity, affect_name: str) -> bool:
@@ -231,7 +230,7 @@ class FightApi:
         victim = view.victim
         if victim is None:
             return False
-        current = getattr(victim, "fighting", None)
+        current = victim.fighting
         return CharacterApi.is_npc(victim) and current is not None and current is not view.actor
 
     def _resolve_action_skill(self, command_name: str, weapon) -> Any:
@@ -245,7 +244,7 @@ class FightApi:
 
     def _build_checks(self, skill) -> tuple[ActionGuard[FightView], ...]:
         guards: list[ActionGuard[FightView]] = []
-        for entry in list(getattr(skill, "guards", []) or []):
+        for entry in list(skill.guards or []):
             predicate_src = str(entry.get("predicate", "") or "").strip()
             if not predicate_src:
                 continue
@@ -313,6 +312,6 @@ class FightApi:
             return True
         if skill is None:
             return False
-        if GenericUtil.to_int(getattr(character, "level", 0), 0) < FightUtil.level_for_class(skill, character):
+        if GenericUtil.to_int(character.level, 0) < FightUtil.level_for_class(skill, character):
             return False
         return self.skill_api.get_rating(character, skill) > 0

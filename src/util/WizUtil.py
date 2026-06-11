@@ -4,6 +4,7 @@ import re
 from typing import Any
 
 from api.CharacterApi import CharacterApi
+from mobile import Mobile
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
 
@@ -26,13 +27,24 @@ class WizUtil:
         c = (candidate or "").strip().lower()
         if not q or not c:
             return False
-        return c == q or c.startswith(q)
+        if c == q or c.startswith(q):
+            return True
+        return any(token == q or token.startswith(q) for token in c.split())
+
+    @staticmethod
+    def entity_names(entity) -> list[str]:
+        if entity is None:
+            return []
+        if type(entity) is Mobile:
+            return [str(entity.name), str(entity.short_description)]
+        else:
+            return [str(entity.name)]
 
     @staticmethod
     def room_of_entity(room_registry, entity):
         if room_registry is None or entity is None:
             return None
-        return room_registry.get_or_none(id=getattr(entity, "room_id", ""))
+        return room_registry.get_or_none(id=entity.room_id)
 
     @staticmethod
     def move_entity(room_registry, entity, to_room):
@@ -63,28 +75,27 @@ class WizUtil:
         if entity is None:
             return ""
         if CharacterApi.is_npc(entity):
-            return str(getattr(entity, "short_description", "") or getattr(entity, "name", "") or "")
-        return str(getattr(entity, "name", "") or "")
+            return str(entity.short_description) if entity.short_description != "" else str(entity.name)
+        return str(entity.name)
 
     @staticmethod
     def find_world_entity(character_registry, room_registry, query: str, *, include_players: bool = True, include_mobiles: bool = True):
         wanted = (query or "").strip().lower()
         if not wanted:
             return None
-        if include_players and character_registry is not None:
-            for character in character_registry.all_characters():
-                if WizUtil.name_matches(wanted, getattr(character, "name", "")):
-                    return character
+        if (include_players or include_mobiles) and character_registry is not None:
+            for entity in character_registry.all_characters():
+                is_mobile = CharacterApi.is_npc(entity)
+                if (is_mobile and not include_mobiles) or ((not is_mobile) and not include_players):
+                    continue
+                if any(WizUtil.name_matches(wanted, name) for name in WizUtil.entity_names(entity)):
+                    return entity
         if include_mobiles and room_registry is not None:
             for room in room_registry.all_rooms():
                 if room is None:
                     continue
                 for mobile in room.mobiles.values():
-                    names = [
-                        str(getattr(mobile, "name", "") or ""),
-                        str(getattr(mobile, "short_description", "") or ""),
-                    ]
-                    if any(WizUtil.name_matches(wanted, name) for name in names):
+                    if any(WizUtil.name_matches(wanted, name) for name in WizUtil.entity_names(mobile)):
                         return mobile
         return None
 
@@ -95,8 +106,8 @@ class WizUtil:
             return None
         if character_registry is not None:
             for character in character_registry.all_characters():
-                for item in list(getattr(character, "loot", []) or []):
-                    if WizUtil.name_matches(wanted, getattr(item, "name", "")):
+                for item in list(character.loot):
+                    if WizUtil.name_matches(wanted, item.name):
                         return item
                     found = WizUtil._find_nested_item(item, wanted)
                     if found is not None:
@@ -104,7 +115,7 @@ class WizUtil:
         if room_registry is not None:
             for room in room_registry.all_rooms():
                 for item in room.contents.values():
-                    if WizUtil.name_matches(wanted, getattr(item, "name", "")):
+                    if WizUtil.name_matches(wanted, item.name):
                         return item
                     found = WizUtil._find_nested_item(item, wanted)
                     if found is not None:
@@ -113,8 +124,8 @@ class WizUtil:
 
     @staticmethod
     def _find_nested_item(item, wanted: str):
-        for child in list(getattr(item, "contains", []) or []):
-            if WizUtil.name_matches(wanted, getattr(child, "name", "")):
+        for child in list(item.contains):
+            if WizUtil.name_matches(wanted, child.name):
                 return child
             found = WizUtil._find_nested_item(child, wanted)
             if found is not None:
@@ -125,8 +136,8 @@ class WizUtil:
     def count_extra_descriptions(obj) -> int:
         if obj is None:
             return 0
-        count = 1 if getattr(obj, "extra_description", None) else 0
-        for item in list(getattr(obj, "contains", []) or []):
+        count = 1 if obj.extra_description is not None else 0
+        for item in list(obj.contains):
             count += WizUtil.count_extra_descriptions(item)
         return count
 
@@ -134,12 +145,12 @@ class WizUtil:
     def count_active_effects(registry_service) -> int:
         count = 0
         for character in list(registry_service.character_registry.all_characters() or []):
-            count += len(list(getattr(character, "effects", []) or []))
+            count += len(list(character.effects or []))
         for room in list(registry_service.room_registry.all_rooms() or []):
-            for mobile in list(getattr(room, "mobiles", {}).values()):
-                count += len(list(getattr(mobile, "effects", []) or []))
-            for item in list(getattr(room, "contents", {}).values()):
-                count += len(list(getattr(item, "effects", []) or []))
+            for mobile in room.mobiles.values():
+                count += len(list(mobile.effects))
+            for item in room.contents.values():
+                count += len(list(item.effects))
         return count
 
     @staticmethod
@@ -166,8 +177,8 @@ class WizUtil:
     def can_clone_object(actor, obj) -> bool:
         game_parameters = CharacterApi.get_enum("gameParameters")
         trust = CharacterApi.get_trust(actor)
-        level = GenericUtil.to_int(getattr(obj, "level", 0), 0)
-        cost = GenericUtil.to_int(getattr(obj, "cost", 0), 0)
+        level = GenericUtil.to_int(obj.level, 0)
+        cost = GenericUtil.to_int(obj.cost, 0)
         return (
             trust >= game_parameters.GOD.value
             or (trust >= game_parameters.IMMORTAL.value and level <= 20 and cost <= 1000)
@@ -180,7 +191,7 @@ class WizUtil:
     def can_clone_mobile(actor, mob) -> bool:
         game_parameters = CharacterApi.get_enum("gameParameters")
         trust = CharacterApi.get_trust(actor)
-        level = GenericUtil.to_int(getattr(mob, "level", 0), 0)
+        level = GenericUtil.to_int(mob.level, 0)
         return (
             trust >= game_parameters.GOD.value
             or (trust >= game_parameters.IMMORTAL.value and level <= 20)

@@ -16,17 +16,17 @@ class FightView:
 
     @property
     def actor(self) -> Any:
-        return getattr(self.context, "character", None)
+        return self.context.character
 
     @property
     def command(self) -> Any:
-        return getattr(self.context, "command", None)
+        return self.context.command
 
     @property
     def room(self) -> Any:
         if "room" in self.extra:
             return self.extra.get("room")
-        return getattr(self.context, "room", None)
+        return self.context.room
 
     @property
     def argument(self) -> str:

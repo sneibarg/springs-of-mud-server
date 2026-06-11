@@ -14,6 +14,7 @@ from mobile.MobileContext import MobileContext
 from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
 from skill.SpellContext import SpellContext
+from util.MobileUtil import MobileUtil
 
 
 class MobileApi(GameApi):
@@ -53,19 +54,18 @@ class MobileApi(GameApi):
             return "unknown-mobile"
         short_desc = str(getattr(actor, "short_description", "") or "").strip()
         vnum = str(getattr(actor, "vnum", "") or "").strip()
-        actor_id = str(getattr(actor, "id", "") or "").strip()
         if short_desc:
-            return f"{short_desc} [vnum={vnum}, id={actor_id}]"
+            return f"{short_desc} [vnum={vnum}, id={actor.id}]"
         name = str(getattr(actor, "name", "unknown-mobile") or "unknown-mobile").strip()
-        return f"{name} [vnum={vnum}, id={actor_id}]"
+        return f"{name} [vnum={vnum}, id={actor.id}]"
 
     @staticmethod
     def _room_label(room) -> str:
         if room is None:
             return "no-room"
-        name = str(getattr(room, "name", "") or "").strip()
-        vnum = str(getattr(room, "vnum", "") or "").strip()
-        room_id = str(getattr(room, "id", "") or "").strip()
+        name = str(room.name).strip()
+        vnum = str(room.vnum).strip()
+        room_id = str(room.id).strip()
         return f"{name or 'unnamed-room'} [vnum={vnum}, id={room_id}]"
 
     @classmethod
@@ -128,7 +128,7 @@ class MobileApi(GameApi):
         for player in ctx.room.player_in_room().values():
             if exclude_self and player is ctx.actor:
                 continue
-            if max_level is not None and GenericUtil.to_int(getattr(player, "level", 0), 0) > GenericUtil.to_int(max_level, 0):
+            if max_level is not None and GenericUtil.to_int(player.level, 0) > GenericUtil.to_int(max_level, 0):
                 continue
             if not CharacterApi.can_see(ctx.actor, player, ctx.handler.room_helper):
                 continue
@@ -216,7 +216,7 @@ class MobileApi(GameApi):
             return False
         choices = []
         for spell_name, min_level, message in weighted_spells:
-            if GenericUtil.to_int(getattr(ctx.actor, "level", 0), 0) >= GenericUtil.to_int(min_level, 0):
+            if GenericUtil.to_int(ctx.actor.level, 0) >= GenericUtil.to_int(min_level, 0):
                 choices.append(((spell_name, message), 1))
         if miss_weight > 0:
             choices.append((None, GenericUtil.to_int(miss_weight, 0)))
@@ -235,7 +235,7 @@ class MobileApi(GameApi):
             return False
         choices = []
         for spell_name, min_level, weight in weighted_spells:
-            if GenericUtil.to_int(getattr(ctx.actor, "level", 0), 0) >= GenericUtil.to_int(min_level, 0):
+            if GenericUtil.to_int(ctx.actor.level, 0) >= GenericUtil.to_int(min_level, 0):
                 choices.append((spell_name, weight))
         chosen = MobileApi.choose_weighted(choices)
         if not chosen:
@@ -270,7 +270,7 @@ class MobileApi(GameApi):
         if victim is None and "{victim" in str(text):
             return False
         formatted = str(text or "").format(victim=victim, crime=crime)
-        ctx.queue_payload({"area_message": f"{formatted}\r\n", "area_id": getattr(ctx.actor, "area_id", "")})
+        ctx.queue_payload({"area_message": f"{formatted}\r\n", "area_id": ctx.actor.area_id})
         return ctx.mark_performed()
 
     @staticmethod
@@ -288,7 +288,7 @@ class MobileApi(GameApi):
         result = ctx.handler.fight_handler.multi_hit(ctx.actor, victim, dt="TYPE_UNDEFINED")
         payload = {
             "to_room": result.get("to_room", ""),
-            "targets": [player for player in ctx.room.players_in_room().values() if str(getattr(player, "id", "")) != str(getattr(victim, "id", ""))],
+            "targets": [player for player in ctx.room.players_in_room().values() if str(player.id) != str(victim.id)],
         }
         if not CharacterApi.is_npc(victim):
             payload["victim"] = victim
@@ -316,7 +316,7 @@ class MobileApi(GameApi):
                 continue
             if getattr(entity, "fighting", None) is None or getattr(entity, "fighting", None) is ctx.actor:
                 continue
-            alignment = GenericUtil.to_int(getattr(entity, "alignment", getattr(getattr(entity, "character_attributes", None), "alignment", 0)), 0)
+            alignment = GenericUtil.to_int(entity.character_attributes.alignment, 0)
             if alignment < max_evil:
                 max_evil = alignment
                 best = entity
@@ -336,15 +336,15 @@ class MobileApi(GameApi):
     def select_room_npc_by_group(ctx: MobileContext, alias: str, group_vnum: str, exclude_vnum: str = "", where: str = "", randomize: bool = False):
         excluded = str(exclude_vnum or "").strip().upper()
         if excluded == "MOB_VNUM_PATROLMAN":
-            for mob in list(getattr(ctx.room, "mobiles", {}).values()):
-                if str(getattr(mob, "vnum", "") or "") == "2106":
+            for mob in ctx.room.mobiles.values():
+                if str(mob.vnum) == "2106":
                     ctx.set_alias(alias, None)
                     return None
 
         wanted_group = MobileApi.group_vnum(group_vnum)
         selected = None
         count = 0
-        for mob in list(getattr(ctx.room, "mobiles", {}).values()):
+        for mob in ctx.room.mobiles.values():
             if mob is ctx.actor:
                 continue
             if str(getattr(mob, "group", "") or "") != wanted_group:
@@ -375,13 +375,13 @@ class MobileApi(GameApi):
     @staticmethod
     def select_room_item(ctx: MobileContext, alias: str, where: str = ""):
         chosen = None
-        for obj in list(getattr(ctx.room, "contents", {}).values()):
+        for obj in ctx.room.contents.values():
             proxy = SimpleNamespace(
                 obj=obj,
                 can_take=ItemApi.item_takeable(obj, ctx.handler.wear_flags),
                 can_loot=True,
-                item_type=str(getattr(obj, "item_type", "") or ""),
-                cost=GenericUtil.to_int(getattr(obj, "cost", 0), 0),
+                item_type=str(obj.item_type),
+                cost=GenericUtil.to_int(obj.cost, 0),
             )
             if where and not ctx.eval_bool(where, candidate=proxy):
                 continue
@@ -406,23 +406,23 @@ class MobileApi(GameApi):
         actor_label = cls._actor_label(ctx.actor)
         room_label = cls._room_label(ctx.room)
         cls._logger_obj().debug(f"{actor_label}: checking for npc corpse to devour in {room_label}")
-        for corpse in list(getattr(ctx.room, "contents", {}).values()):
-            item_type = str(getattr(corpse, "item_type", "") or "").strip().lower()
+        for corpse in ctx.room.contents.values():
+            item_type = str(corpse.item_type).strip().lower()
             if item_type not in {"npc_corpse", "item_corpse_npc", "corpse_npc"}:
                 continue
             cls._logger_obj().debug(
-                f"{actor_label}: devouring corpse {getattr(corpse, 'short_description', '') or getattr(corpse, 'name', 'corpse')} "
-                f"[id={getattr(corpse, 'id', '')}] in {room_label}"
+                f"{actor_label}: devouring corpse {getattr(corpse, 'short_description', '') or corpse.name} "
+                f"[id={corpse.id}] in {room_label}"
             )
             if room_message:
                 cls._queue_room_message(ctx, MobileApi.render_act(room_message, ctx.actor) + "\r\n")
             if spill_contents:
-                item_count = len(list(getattr(corpse, "contains", []) or []))
+                item_count = len(corpse.contains)
                 cls._logger_obj().debug(f"{actor_label}: spilling {item_count} corpse item(s) into {room_label}")
-                for item in list(getattr(corpse, "contains", []) or []):
+                for item in corpse.contains:
                     ctx.room.add_item_to_room(item)
                 corpse.contains = []
-            ctx.room.contents.pop(str(getattr(corpse, "id", "") or ""), None)
+            ctx.room.contents.pop(str(corpse.id))
             cls._logger_obj().debug(f"{actor_label}: corpse devoured and removed from {room_label}")
             return ctx.mark_performed()
         cls._logger_obj().debug(f"{actor_label}: no npc corpse available to devour in {room_label}")
@@ -503,7 +503,7 @@ class MobileApi(GameApi):
             return False
         _to_char, to_room, to_victim = messages
         if to_room:
-            cls._queue_room_message(ctx, MobileApi.render_act(to_room, ctx.actor, victim) + "\r\n", exclude_ids={str(getattr(victim, "id", ""))})
+            cls._queue_room_message(ctx, MobileApi.render_act(to_room, ctx.actor, victim) + "\r\n", exclude_ids={str(victim.id)})
         if not CharacterApi.is_npc(victim) and to_victim:
             ctx.queue_payload({"victim": victim, "to_victim": MobileApi.render_act(to_victim, ctx.actor, victim) + "\r\n"})
         cls.cast_spell(ctx, "poison", target=victim)
@@ -513,38 +513,38 @@ class MobileApi(GameApi):
     def pickpocket_room_player(cls, ctx: MobileContext, discovery_bits: int = 5, immortal_level: str = "LEVEL_IMMORTAL", require_visibility: bool = True, awake_discovery_check: bool = True, gold_cap: str = "", silver_cap: str = ""):
         game_parameters = CharacterApi.get_enum("gameParameters")
         imm_name = str(immortal_level or "").strip().upper()
-        imm_value = int(getattr(getattr(game_parameters, imm_name, None), "value", 100))
+        imm_value = int(game_parameters[imm_name].value)
         for victim in ctx.room.players_in_room().values():
-            if GenericUtil.to_int(getattr(victim, "level", 0), 0) >= imm_value:
+            if GenericUtil.to_int(victim.level, 0) >= imm_value:
                 continue
             if ctx.handler.rng.number_bits(GenericUtil.to_int(discovery_bits, 0)) != 0:
                 continue
             if require_visibility and not CharacterApi.can_see(ctx.actor, victim, ctx.handler.room_helper):
                 continue
-            if awake_discovery_check and CharacterApi.is_awake(victim) and ctx.handler.rng.number_range(0, max(0, GenericUtil.to_int(getattr(ctx.actor, "level", 0), 0))) == 0:
+            if awake_discovery_check and CharacterApi.is_awake(victim) and ctx.handler.rng.number_range(0, max(0, GenericUtil.to_int(ctx.actor.level, 0))) == 0:
                 ctx.queue_payload({"victim": victim, "to_victim": f"You discover {MobileApi.render_mobile_name(ctx.actor)}'s hands in your wallet!\r\n"})
                 cls._queue_room_message(ctx, f"{MobileApi.render_mobile_name(victim)} discovers {MobileApi.render_mobile_name(ctx.actor)}'s hands in {MobileApi.render_mobile_name(victim)}'s wallet!\r\n", exclude_ids={str(getattr(victim, 'id', ''))})
                 return ctx.mark_performed()
 
-            gold_roll = min(ctx.handler.rng.number_range(1, 20), max(1, GenericUtil.to_int(getattr(ctx.actor, "level", 0), 0) // 2))
-            gold = GenericUtil.to_int(getattr(victim, "gold", 0), 0) * gold_roll // 100
+            gold_roll = min(ctx.handler.rng.number_range(1, 20), max(1, GenericUtil.to_int(ctx.actor.level, 0) // 2))
+            gold = GenericUtil.to_int(victim.gold, 0) * gold_roll // 100
             if gold_cap:
                 try:
                     gold = min(gold, int(eval(str(gold_cap), {"__builtins__": {}}, ctx.eval_locals(victim=victim))))
                 except Exception:
                     pass
-            victim.gold = max(0, GenericUtil.to_int(getattr(victim, "gold", 0), 0) - gold)
-            ctx.actor.gold = GenericUtil.to_int(getattr(ctx.actor, "gold", 0), 0) + gold
+            victim.gold = max(0, GenericUtil.to_int(victim.gold, 0) - gold)
+            ctx.actor.gold = GenericUtil.to_int(ctx.actor.gold, 0) + gold
 
-            silver_roll = min(ctx.handler.rng.number_range(1, 20), max(1, GenericUtil.to_int(getattr(ctx.actor, "level", 0), 0) // 2))
-            silver = GenericUtil.to_int(getattr(victim, "silver", 0), 0) * silver_roll // 100
+            silver_roll = min(ctx.handler.rng.number_range(1, 20), max(1, GenericUtil.to_int(ctx.actor.level, 0) // 2))
+            silver = GenericUtil.to_int(victim.silver, 0) * silver_roll // 100
             if silver_cap:
                 try:
                     silver = min(silver, int(eval(str(silver_cap), {"__builtins__": {}}, ctx.eval_locals(victim=victim))))
                 except Exception:
                     pass
-            victim.silver = max(0, GenericUtil.to_int(getattr(victim, "silver", 0), 0) - silver)
-            ctx.actor.silver = GenericUtil.to_int(getattr(ctx.actor, "silver", 0), 0) + silver
+            victim.silver = max(0, GenericUtil.to_int(victim.silver, 0) - silver)
+            ctx.actor.silver = GenericUtil.to_int(ctx.actor.silver, 0) + silver
             return ctx.mark_performed()
         return False
 
@@ -554,7 +554,7 @@ class MobileApi(GameApi):
             return False
         minimum, maximum = level_window
         for victim in ctx.room.players_in_room().values():
-            delta = GenericUtil.to_int(getattr(victim, "level", 0), 0) - GenericUtil.to_int(getattr(ctx.actor, "level", 0), 0)
+            delta = GenericUtil.to_int(victim.level, 0) - GenericUtil.to_int(ctx.actor.level, 0)
             if delta < GenericUtil.to_int(minimum, 0) or delta > GenericUtil.to_int(maximum, 0):
                 continue
             ctx.set_alias("victim", victim)
@@ -568,12 +568,12 @@ class MobileApi(GameApi):
             return False
         action = MobileApi.choose_weighted([("purse", purse_weight), ("flee", flee_weight), ("idle", idle_weight)])
         if action == "purse":
-            stolen = int(GenericUtil.to_int(getattr(victim, "gold", 0), 0) * float(coin_purse_fraction))
-            victim.gold = max(0, GenericUtil.to_int(getattr(victim, "gold", 0), 0) - stolen)
-            ctx.actor.gold = GenericUtil.to_int(getattr(ctx.actor, "gold", 0), 0) + stolen
+            stolen = int(GenericUtil.to_int(victim.gold, 0) * float(coin_purse_fraction))
+            victim.gold = max(0, GenericUtil.to_int(victim.gold, 0) - stolen)
+            ctx.actor.gold = GenericUtil.to_int(ctx.actor.gold, 0) + stolen
             if not CharacterApi.is_npc(victim):
                 ctx.queue_payload({"victim": victim, "to_victim": "Someone rips apart your coin purse, spilling your gold!\r\n"})
-            cls._queue_room_message(ctx, f"{MobileApi.render_mobile_name(victim)}'s coin purse is ripped apart!\r\n", exclude_ids={str(getattr(victim, 'id', ''))})
+            cls._queue_room_message(ctx, f"{MobileApi.render_mobile_name(victim)}'s coin purse is ripped apart!\r\n", exclude_ids={str(victim.id)})
             return ctx.mark_performed()
         if action == "flee":
             ctx.handler.fight_handler.stop_fighting(ctx.actor, both=False)
@@ -592,7 +592,7 @@ class MobileApi(GameApi):
                 continue
             candidate = entity
             if choose == "higher_level_combatant":
-                candidate = entity if GenericUtil.to_int(getattr(entity, "level", 0), 0) > GenericUtil.to_int(getattr(defender, "level", 0), 0) else defender
+                candidate = entity if GenericUtil.to_int(entity.level, 0) > GenericUtil.to_int(defender.level, 0) else defender
             if randomize:
                 if ctx.handler.rng.number_range(0, count) == 0:
                     victim = candidate
@@ -612,14 +612,13 @@ class MobileApi(GameApi):
 
     @classmethod
     def blow_patrol_whistle(cls, ctx: MobileContext, item_vnum: str, slots: list[str]):
-        equipped = getattr(ctx.actor, "equipped", None)
-        if equipped is None:
+        if ctx.actor.equipped is None:
             return False
         found = None
         for slot in slots:
             attr = str(slot or "").strip().lower()
-            item = getattr(equipped, attr, None)
-            if item is not None and str(getattr(item, "vnum", "") or "") == "2116":
+            item = getattr(ctx.actor.equipped, attr, None)
+            if item is not None and str(item.vnum) == "2116":
                 found = item
                 break
         if found is None:
@@ -629,7 +628,7 @@ class MobileApi(GameApi):
         for room in ctx.handler.room_registry.all_rooms():
             if room is None or room is ctx.room:
                 continue
-            if getattr(room, "area_id", "") != getattr(ctx.room, "area_id", ""):
+            if room.area_id != ctx.room.area_id:
                 continue
             targets.extend(list(getattr(room, "characters", {}).values()))
         if targets:
@@ -643,7 +642,7 @@ class MobileApi(GameApi):
         if not MobileApi.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_SCAVENGER"):
             cls._logger_obj().debug(f"{actor_label}: scavenge skipped in {room_label} because ACT_SCAVENGER is not set")
             return False
-        if not getattr(ctx.room, "contents", {}):
+        if not ctx.room.contents:
             cls._logger_obj().debug(f"{actor_label}: scavenge skipped in {room_label} because the room has no contents")
             return False
         scavenge_roll = ctx.handler.rng.number_bits(6)
@@ -656,7 +655,7 @@ class MobileApi(GameApi):
         for obj in list(ctx.room.contents.values()):
             if not ItemApi.item_takeable(obj, ctx.handler.wear_flags):
                 continue
-            cost = GenericUtil.to_int(getattr(obj, "cost", 0), 0)
+            cost = GenericUtil.to_int(obj.cost, 0)
             if cost > max_cost:
                 max_cost = cost
                 obj_best = obj
@@ -693,8 +692,8 @@ class MobileApi(GameApi):
         actor_label = cls._actor_label(ctx.actor)
         room_label = cls._room_label(ctx.room)
         pexit = None
-        for ex in getattr(ctx.room, "exits", []) or []:
-            if GenericUtil.to_int(getattr(ex, "direction", -1), -1) == GenericUtil.to_int(door, -1):
+        for ex in ctx.room.exits or []:
+            if GenericUtil.to_int(ex.direction, -1) == GenericUtil.to_int(door, -1):
                 pexit = ex
                 break
         if pexit is None:
@@ -716,7 +715,7 @@ class MobileApi(GameApi):
             cls._logger_obj().debug(f"{actor_label}: move blocked from {room_label} to {cls._room_label(to_room)} because ROOM_NO_MOB is set")
             return False
 
-        if MobileApi.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_STAY_AREA") and getattr(to_room, "area_id", "") != getattr(ctx.room, "area_id", ""):
+        if MobileApi.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_STAY_AREA") and to_room.area_id != ctx.room.area_id:
             cls._logger_obj().debug(f"{actor_label}: move blocked from {room_label} to {cls._room_label(to_room)} because ACT_STAY_AREA is set")
             return False
 
@@ -769,7 +768,7 @@ class MobileApi(GameApi):
         actor_name = MobileApi.render_mobile_name(ctx.actor)
         payload = {
             "room_message": f"{actor_name} casts {spell_label}" + (".\r\n" if area or victim is None else f" on {MobileApi.render_mobile_name(victim)}.\r\n"),
-            "room_targets": ctx.room_players(exclude_ids={str(getattr(victim, 'id', ''))} if victim is not None else set()),
+            "room_targets": ctx.room_players(exclude_ids={str(victim.id)} if victim is not None else set()),
         }
         if victim is not None and not CharacterApi.is_npc(victim):
             payload["victim"] = victim
@@ -792,18 +791,18 @@ class MobileApi(GameApi):
 
     @staticmethod
     def resolve_room(room_registry, entity) -> Any:
-        room_id = str(getattr(entity, "room_id", "") or "")
+        room_id = str(entity.room_id)
         if room_id:
             room = room_registry.get_or_none(id=room_id)
             if room is not None:
                 return room
-        entity_id = str(getattr(entity, "id", "") or "")
+        entity_id = str(entity.id)
         if not entity_id:
             return None
         for room in room_registry.all_rooms():
             if room is None:
                 continue
-            if entity_id in getattr(room, "mobiles", {}) or entity_id in getattr(room, "characters", {}):
+            if entity_id in room.mobiles or entity_id in room.characters:
                 return room
         return None
 
@@ -811,12 +810,12 @@ class MobileApi(GameApi):
     def resolve_exit_destination(room_registry, exit_obj):
         if exit_obj is None:
             return None
-        to_room_vnum = getattr(exit_obj, "to_room_vnum", None)
+        to_room_vnum = exit_obj.to_room_vnum
         if to_room_vnum not in (None, "", "0", 0):
             room = room_registry.get_or_none(vnum=str(to_room_vnum))
             if room is not None:
                 return room
-        to_room_id = str(getattr(exit_obj, "to_room_id", "") or "")
+        to_room_id = str(exit_obj.to_room_id)
         if to_room_id:
             return room_registry.get_or_none(id=to_room_id)
         return None
@@ -825,17 +824,17 @@ class MobileApi(GameApi):
     def move_mobile(room, to_room, mob) -> bool:
         if room is None or to_room is None or mob is None:
             return False
-        room.mobiles.pop(str(getattr(mob, "id", "") or ""), None)
-        to_room.mobiles[str(getattr(mob, "id", "") or "")] = mob
-        setattr(mob, "room_id", getattr(to_room, "id", ""))
-        setattr(mob, "area_id", getattr(to_room, "area_id", ""))
+        room.mobiles.pop(str(mob.id))
+        to_room.mobiles[str(mob.id)] = mob
+        mob.room_id = to_room.id
+        mob.area_id = to_room.area_id
         return True
 
     @staticmethod
     def give_room_item_to_mobile(room, mob, item) -> bool:
         if room is None or mob is None or item is None:
             return False
-        room.contents.pop(str(getattr(item, "id", "") or ""), None)
+        room.contents.pop(str(item.id))
         MobileUtil.add_inventory_item(mob, item)
         return True
 

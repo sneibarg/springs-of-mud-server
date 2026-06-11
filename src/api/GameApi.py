@@ -221,8 +221,8 @@ class GameApi:
         if enum_obj is None:
             return 0
         for name in names:
-            if hasattr(enum_obj, name):
-                return int(getattr(enum_obj, name).value)
+            if name in enum_obj.__members__:
+                return int(enum_obj[name].value)
         return 0
 
     @staticmethod

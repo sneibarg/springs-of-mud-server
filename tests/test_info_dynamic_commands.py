@@ -150,6 +150,14 @@ class _CharacterMacros:
         return bool(getattr(character, "is_outside", False))
 
     @staticmethod
+    def get_registry():
+        raise RuntimeError("not configured")
+
+    @staticmethod
+    def get_attribute_bonus(_stat, _value):
+        return {"learn": 5}
+
+    @staticmethod
     def who_line(_viewer, target) -> str:
         return str(getattr(target, "name", ""))
 
@@ -250,6 +258,61 @@ class _SkillUtil:
         return 5
 
 
+class _Character:
+    @staticmethod
+    def learned_entry_name(entry) -> str:
+        return _SkillUtil.learned_entry_name(entry)
+
+    @staticmethod
+    def learned_entry_level(entry) -> int:
+        return _SkillUtil.learned_level(entry)
+
+    @staticmethod
+    def visible_learned_entries(character, visible_fn=None, *, collection_name: str = ""):
+        entries = []
+        collections = [getattr(character, collection_name, [])] if collection_name else [getattr(character, "skills", []), getattr(character, "spells", [])]
+        for collection in collections:
+            for entry in list(collection or []):
+                if _Character.learned_entry_level(entry) < 1:
+                    continue
+                name = _Character.learned_entry_name(entry)
+                if callable(visible_fn) and not visible_fn(character, name):
+                    continue
+                entries.append(entry)
+        return entries
+
+    @staticmethod
+    def get_learned(character, learned_name, *, prefix: bool = False, visible_only: bool = False, visible_fn=None, collection_name: str = ""):
+        entries = _Character.visible_learned_entries(character, visible_fn, collection_name=collection_name) if visible_only else (
+            [entry for collection in ([getattr(character, collection_name, [])] if collection_name else [getattr(character, "skills", []), getattr(character, "spells", [])]) for entry in list(collection or [])]
+        )
+        wanted = str(learned_name or "").strip().lower()
+        prefix_match = None
+        for entry in entries:
+            name = _Character.learned_entry_name(entry).lower()
+            if name == wanted:
+                return entry
+            if prefix and prefix_match is None and name.startswith(wanted):
+                prefix_match = entry
+        return prefix_match
+
+    @staticmethod
+    def set_learned(character, learned_name, learned_level, *, collection_name: str = "", create: bool = False):
+        entry = _Character.get_learned(character, learned_name, collection_name=collection_name)
+        if entry is None:
+            if not create:
+                raise ValueError(learned_name)
+            collection_key = "spells" if collection_name == "spells" else "skills"
+            collection = getattr(character, collection_key, None)
+            if collection is None:
+                collection = []
+                setattr(character, collection_key, collection)
+            entry = {"name": str(learned_name or "").strip(), "level": 0}
+            collection.append(entry)
+        entry["level"] = int(learned_level)
+        return entry
+
+
 class _ItemMacros:
     @staticmethod
     def find_comparable_equipped_item(_character, obj1):
@@ -302,8 +365,18 @@ class _InterpUtil:
             return parts[0], ""
         return parts[0], parts[1]
 
+    @staticmethod
+    def argument_text(view):
+        context = getattr(view, "context", view)
+        return str(getattr(context, "result", "") or "")
+
 
 class _Context(SimpleNamespace):
+    def __init__(self, **kwargs):
+        kwargs.setdefault("result", "")
+        kwargs.setdefault("parameters", [])
+        super().__init__(**kwargs)
+
     def finish(self):
         self.done = True
 
@@ -312,6 +385,9 @@ class _Context(SimpleNamespace):
 
 
 _stub_module("injector", inject=lambda target: target)
+_stub_package("api")
+_stub_module("api.CharacterApi", CharacterApi=_CharacterMacros)
+_stub_module("api.ItemApi", ItemApi=_ItemMacros)
 _stub_package("server")
 _stub_module("server.LoggerFactory", LoggerFactory=_LoggerFactory)
 _stub_package("util")
@@ -321,15 +397,20 @@ _stub_module("util.InterpUtil", InterpUtil=_InterpUtil)
 _stub_module("util.ItemUtil", ItemUtil=_ItemUtil)
 _stub_module("util.PlayerUtil", PlayerUtil=_PlayerUtil)
 _stub_module("util.SkillUtil", SkillUtil=_SkillUtil)
+_stub_module("util.MobileUtil", MobileUtil=SimpleNamespace(is_practice_trainer=_SkillUtil.is_practice_trainer))
 _stub_package("game")
 _load_module("game.GamePayload", "game/GamePayload.py")
+_stub_module("game.RandomNumberGenerator", RandomNumberGenerator=lambda: SimpleNamespace(number_percent=lambda: 1))
 _stub_module("game.RegistryService", RegistryService=object)
 _stub_module("game.WeatherHandler", WeatherHandler=object)
 _stub_package("item")
 _stub_module("item.ItemApi", ItemMacros=_ItemMacros)
 _stub_package("player")
-_stub_module("player.Character", Character=object)
+_stub_module("player.Character", Character=_Character)
+_stub_module("player.CharacterAdvancement", CharacterAdvancement=SimpleNamespace(gain_experience=lambda *_args, **_kwargs: None))
 _stub_module("player.CharacterApi", CharacterMacros=_CharacterMacros)
+_stub_package("skill")
+_load_module("skill.Ability", "skill/Ability.py")
 _stub_package("server.session")
 _stub_module("server.session.SessionHandler", SessionHandler=object)
 _stub_package("interp")
@@ -341,7 +422,7 @@ _load_module("interp.InterpView", "interp/InterpView.py")
 _load_module("interp.InterpCheck", "interp/InterpCheck.py")
 _load_module("interp.InterpActionDefinition", "interp/InterpActionDefinition.py")
 _load_module("interp.InterpPlan", "interp/InterpPlan.py")
-_load_module("interp.InterpApi", "api/InterpApi.py")
+InterpApi = _load_module("interp.InterpApi", "api/InterpApi.py").InterpApi
 Info = _load_module("interp.commands.Info", "interp/commands/Info.py").Info
 
 
@@ -370,13 +451,13 @@ class TestInfoDynamicCommands(unittest.TestCase):
         session_handler = SimpleNamespace(get_playing_sessions=lambda: [])
         weather_handler = SimpleNamespace(time_info=None, weather_info=None)
         enum_provider = SimpleNamespace(get=_CharacterMacros.get_enum)
-        commands = Info(registry_service, session_handler, weather_handler, enum_provider)
+        commands = Info(registry_service, session_handler, weather_handler, enum_provider, InterpApi())
         commands.PlayerActBits = _CharacterMacros.get_enum("playerActBits")
         return commands, room_registry, registry_service, session_handler, weather_handler
 
     def test_scroll_invalid_number_uses_command_check(self):
         commands, _room_registry, _registry_service, _session_handler, _weather_handler = self._commands()
-        character = SimpleNamespace(context={}, status_flags=_StatusFlags(), prompt_format=None)
+        character = SimpleNamespace(name="Tester", context={}, status_flags=_StatusFlags(), prompt_format=None)
         context = _Context(character=character, command=_load_command("scroll"), result="abc", parameters=[], done=False)
 
         text = commands.do_scroll(character, context)
@@ -385,7 +466,7 @@ class TestInfoDynamicCommands(unittest.TestCase):
 
     def test_scroll_default_renders_payload_tokens(self):
         commands, _room_registry, _registry_service, _session_handler, _weather_handler = self._commands()
-        character = SimpleNamespace(context={"scroll_lines": 18}, status_flags=_StatusFlags(), prompt_format=None)
+        character = SimpleNamespace(name="Tester", context={"scroll_lines": 18}, status_flags=_StatusFlags(), prompt_format=None)
         context = _Context(character=character, command=_load_command("scroll"), result="", parameters=[], done=False)
 
         text = commands.do_scroll(character, context)
@@ -399,6 +480,7 @@ class TestInfoDynamicCommands(unittest.TestCase):
         )
         commands.skill_registry = registry_service.skill_registry
         character = SimpleNamespace(
+            name="Tester",
             room_id="room-1",
             status_flags=_StatusFlags(),
             skills=[{"name": "dagger", "level": 10}],
@@ -420,11 +502,16 @@ class TestInfoDynamicCommands(unittest.TestCase):
     def test_compare_incompatible_items_uses_command_check(self):
         commands, _room_registry, _registry_service, _session_handler, _weather_handler = self._commands()
         character = SimpleNamespace(
+            name="Tester",
             inventory=[
                 SimpleNamespace(name="sword", item_type="weapon", compare_value=10),
                 SimpleNamespace(name="vest", item_type="armor", compare_value=8),
             ],
             status_flags=_StatusFlags(),
+        )
+        character.find_owned_item = lambda wanted: next(
+            (item for item in character.inventory if item.name == wanted),
+            None,
         )
         context = _Context(character=character, command=_load_command("compare"), result="sword vest", parameters=[], done=False)
 
@@ -436,7 +523,7 @@ class TestInfoDynamicCommands(unittest.TestCase):
         commands, _room_registry, _registry_service, _session_handler, weather_handler = self._commands()
         weather_handler.weather_info = SimpleNamespace(sky=0, change=0)
         commands.weather_handler = weather_handler
-        character = SimpleNamespace(is_outside=False, status_flags=_StatusFlags())
+        character = SimpleNamespace(name="Tester", is_outside=False, status_flags=_StatusFlags())
         context = _Context(character=character, command=_load_command("weather"), result="", parameters=[], done=False)
 
         text = commands.do_weather(character, context)
@@ -445,7 +532,7 @@ class TestInfoDynamicCommands(unittest.TestCase):
 
     def test_show_toggle_renders_command_payload(self):
         commands, _room_registry, _registry_service, _session_handler, _weather_handler = self._commands()
-        character = SimpleNamespace(status_flags=_StatusFlags(comm=0))
+        character = SimpleNamespace(name="Tester", status_flags=_StatusFlags(comm=0))
         context = _Context(character=character, command=_load_command("show"), result="", parameters=[], done=False)
 
         text = commands.do_show(character, context)

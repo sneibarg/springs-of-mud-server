@@ -15,12 +15,13 @@ from interp.HelpEntry import HelpEntry
 from item.Item import Item
 from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
+from util.MobileUtil import MobileUtil
 from player.Character import Character
 from api.CharacterApi import CharacterApi
+from skill.Ability import Ability
 from util.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
 from server.session.SessionHandler import SessionHandler
-from util.SkillUtil import SkillUtil
 
 DAY_NAME = [
     "the Moon", "the Bull", "Deception", "Thunder", "Freedom",
@@ -68,14 +69,14 @@ class Info:
                  session_handler: SessionHandler,
                  weather_handler: WeatherHandler,
                  enum_provider: EnumProvider,
-                 interp_api: InterpApi = None):
+                 interp_api: InterpApi):
         self.__name__ = "Info"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.interp_registry = registry_service.interp_registry
         self.room_registry = registry_service.room_registry
         self.session_handler = session_handler
         self.weather_handler = weather_handler
-        self.interp_api = interp_api or InterpApi()
+        self.interp_api = interp_api
         self.server_boot_time = datetime.now().ctime()
         self.PlayerActBits = enum_provider.get("playerActBits")
 
@@ -409,7 +410,7 @@ class Info:
             return "None\r\n"
 
         room_flags = CharacterApi.get_enum("roomFlags")
-        nowhere_bit = room_flags.ROOM_NOWHERE.value if room_flags and hasattr(room_flags, "ROOM_NOWHERE") else None
+        nowhere_bit = room_flags.ROOM_NOWHERE.value if room_flags is not None else None
 
         if not arg:
             lines = ["Players near you:\r\n"]
@@ -601,9 +602,9 @@ class Info:
             return "ON" if value else "OFF"
 
         def act_enabled(name: str) -> bool:
-            if act_bits is None or not hasattr(act_bits, name):
+            if act_bits is None or name not in act_bits.__members__:
                 return False
-            return CharacterApi.is_set(act, getattr(act_bits, name).value)
+            return CharacterApi.is_set(act, act_bits[name].value)
 
         lines = [
             "   action     status\r\n",
@@ -617,26 +618,26 @@ class Info:
         ]
         if comm_bits is not None:
             def comm_enabled(name: str) -> bool:
-                if not hasattr(comm_bits, name):
+                if name not in comm_bits.__members__:
                     return False
-                return CharacterApi.is_set(comm, getattr(comm_bits, name).value)
+                return CharacterApi.is_set(comm, comm_bits[name].value)
             lines.extend([
                 f"compact mode   {on_off(comm_enabled('COMM_COMPACT'))}\r\n",
                 f"prompt         {on_off(comm_enabled('COMM_PROMPT'))}\r\n",
                 f"combine items  {on_off(comm_enabled('COMM_COMBINE'))}\r\n",
             ])
-        if hasattr(act_bits, "PLR_CANLOOT"):
-            if not CharacterApi.is_set(act, getattr(act_bits, "PLR_CANLOOT").value):
+        if "PLR_CANLOOT" in act_bits.__members__:
+            if not CharacterApi.is_set(act, act_bits.PLR_CANLOOT.value):
                 lines.append("Your corpse is safe from thieves.\r\n")
             else:
                 lines.append("Your corpse may be looted.\r\n")
-        if hasattr(act_bits, "PLR_NOSUMMON"):
-            if CharacterApi.is_set(act, getattr(act_bits, "PLR_NOSUMMON").value):
+        if "PLR_NOSUMMON" in act_bits.__members__:
+            if CharacterApi.is_set(act, act_bits.PLR_NOSUMMON.value):
                 lines.append("You cannot be summoned.\r\n")
             else:
                 lines.append("You can be summoned.\r\n")
-        if hasattr(act_bits, "PLR_NOFOLLOW"):
-            if CharacterApi.is_set(act, getattr(act_bits, "PLR_NOFOLLOW").value):
+        if "PLR_NOFOLLOW" in act_bits.__members__:
+            if CharacterApi.is_set(act, act_bits.PLR_NOFOLLOW.value):
                 lines.append("You do not welcome followers.\r\n")
             else:
                 lines.append("You accept followers.\r\n")
@@ -685,7 +686,6 @@ class Info:
         comm = character.status_flags.comm
         is_compact = (
                 comm_bits is not None
-                and hasattr(comm_bits, "COMM_COMPACT")
                 and CharacterApi.is_set(comm, comm_bits.COMM_COMPACT.value)
         )
         character.carriage_return = not is_compact
@@ -807,9 +807,9 @@ class Info:
         if not raw:
             lines = []
             known_skills = []
-            for skill in SkillUtil.visible_learned_entries(character):
-                name = SkillUtil.learned_entry_name(skill)
-                level = SkillUtil.learned_level(skill)
+            for skill in Character.visible_learned_entries(character, Ability.practice_visible):
+                name = Character.learned_entry_name(skill)
+                level = Character.learned_entry_level(skill)
                 known_skills.append((name, level))
 
             for i, (name, level) in enumerate(known_skills):
@@ -830,41 +830,41 @@ class Info:
         act_bits = CharacterApi.get_enum("actBits")
         trainer = None
         if room is not None:
-            practice_bit = act_bits.ACT_PRACTICE.value if act_bits is not None and hasattr(act_bits, "ACT_PRACTICE") else 0
+            practice_bit = act_bits.ACT_PRACTICE.value if act_bits is not None else 0
             for mob in room.mobiles.values():
-                if SkillUtil.is_practice_trainer(mob, practice_bit):
+                if MobileUtil.is_practice_trainer(mob, practice_bit):
                     trainer = mob
                     break
 
         context.practice_trainer = trainer
 
-        practiced_skill = SkillUtil.find_learned_entry(character, raw)
-        practice_name = SkillUtil.learned_entry_name(practiced_skill) or raw
-        practice_meta = SkillUtil.practice_meta(practice_name)
-        learned = SkillUtil.learned_level(practiced_skill)
+        practiced_skill = Character.get_learned(character, raw, prefix=True, visible_only=True, visible_fn=Ability.practice_visible)
+        practice_name = Character.learned_entry_name(practiced_skill) or raw
+        practice_meta = Ability.practice_meta(practice_name)
+        learned = Character.learned_entry_level(practiced_skill)
         context.practice_skill = practiced_skill
         context.practice_skill_name = practice_name
         context.practice_learned = learned
         context.practice_visible = practiced_skill is not None
 
-        rating = SkillUtil.practice_rating(character, practice_meta)
+        rating = Ability.practice_rating(character, practice_meta)
         context.practice_rating = rating
 
-        adept = SkillUtil.practice_adept(character)
+        adept = Ability.practice_adept(character)
         context.practice_adept = adept
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload.get("to_char", "")
 
         attributes.practices = max(0, practices - 1)
-        gain = SkillUtil.practice_gain(character, rating)
+        gain = Ability.practice_gain(character, rating)
         new_level = learned + gain
         room = self.room_registry.get_or_none(id=character.room_id)
         targets = room.player_targets(character)
         skill_name = context.practice_skill_name
 
         if new_level < adept:
-            practiced_skill["level"] = new_level
+            Character.set_learned(character, skill_name, new_level)
             context.finish()
             return {
                 **self._render_message_key(context, "practice", s=skill_name),
@@ -980,13 +980,25 @@ class Info:
     @staticmethod
     def _player_act_enabled(character: Character, bit_name: str) -> bool:
         player_act_bits = CharacterApi.get_enum("playerActBits")
-        if player_act_bits is None or not hasattr(player_act_bits, bit_name):
+        if player_act_bits is None:
             return False
-        return CharacterApi.is_set(character.status_flags.act, getattr(player_act_bits, bit_name).value)
+        try:
+            bits = player_act_bits.__members__
+        except AttributeError:
+            bits = player_act_bits.__dict__
+        if bit_name not in bits:
+            return False
+        return CharacterApi.is_set(character.status_flags.act, bits[bit_name].value)
 
     @staticmethod
     def _comm_enabled(character: Character, bit_name: str) -> bool:
         comm_bits = CharacterApi.get_enum("commFlags")
-        if comm_bits is None or not hasattr(comm_bits, bit_name):
+        if comm_bits is None:
             return False
-        return CharacterApi.is_set(character.status_flags.comm, getattr(comm_bits, bit_name).value)
+        try:
+            bits = comm_bits.__members__
+        except AttributeError:
+            bits = comm_bits.__dict__
+        if bit_name not in bits:
+            return False
+        return CharacterApi.is_set(character.status_flags.comm, bits[bit_name].value)

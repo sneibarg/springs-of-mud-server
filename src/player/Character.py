@@ -108,16 +108,10 @@ class Character(AnimateEntity):
                 self.loot.append(item if isinstance(item, Item) else Item.from_json(item))
 
     def skill_level(self, skill_name: str) -> int:
-        for skill in self.skills:
-            if skill_name == skill['name']:
-                return skill['level']
-        return 1
+        return Character.learned_entry_level(Character.get_learned(self, skill_name, collection_name="skills")) or 1
 
     def spell_level(self, spell_name: str) -> int:
-        for spell in self.spells:
-            if spell_name == spell['name']:
-                return spell['level']
-        return 1
+        return Character.learned_entry_level(Character.get_learned(self, spell_name, collection_name="spells")) or 1
 
     def get_items(self) -> List[Item]:
         return self.loot
@@ -126,7 +120,7 @@ class Character(AnimateEntity):
         return len(list(self.loot or []))
 
     def carry_weight(self) -> int:
-        item_weight = sum(GenericUtil.to_int(getattr(item, "weight", 0), 0) for item in list(self.loot or []))
+        item_weight = sum(GenericUtil.to_int(item.weight, 0) for item in list(self.loot or []))
         coin_weight = int((GenericUtil.to_int(self.silver, 0) / 10) + (GenericUtil.to_int(self.gold, 0) * 2 / 5))
         return item_weight + coin_weight
 
@@ -137,13 +131,9 @@ class Character(AnimateEntity):
         return self.character_attributes.max_weight
 
     def size_value(self) -> int:
-        direct_size = GenericUtil.to_int(getattr(self, "size", None), None)
-        if direct_size is not None:
-            return direct_size
-
         from api.CharacterApi import CharacterApi
 
-        race_name = str(getattr(self, "race", "") or "").strip().lower()
+        race_name = str(self.race or "").strip().lower()
         try:
             race_data = CharacterApi.pc_races_map().get(race_name, {})
         except RuntimeError:
@@ -153,8 +143,8 @@ class Character(AnimateEntity):
             size_enum = CharacterApi.get_enum("size")
         except RuntimeError:
             size_enum = None
-        if isinstance(raw_size, str) and size_enum is not None and hasattr(size_enum, raw_size):
-            return int(getattr(size_enum, raw_size).value)
+        if isinstance(raw_size, str) and size_enum is not None and raw_size in size_enum.__members__:
+            return int(size_enum[raw_size].value)
         size_value = GenericUtil.to_int(raw_size, None)
         if size_value is not None:
             return size_value
@@ -168,7 +158,7 @@ class Character(AnimateEntity):
             size_enum = CharacterApi.get_enum("size")
         except RuntimeError:
             size_enum = None
-        if size_enum is not None and hasattr(size_enum, "SIZE_LARGE"):
+        if size_enum is not None:
             return int(size_enum.SIZE_LARGE.value)
         return 3
 
@@ -176,7 +166,7 @@ class Character(AnimateEntity):
         wanted = str(vnum or "")
         if not wanted:
             return False
-        return any(str(getattr(item, "vnum", "")) == wanted for item in list(self.loot or []))
+        return any(str(item.vnum) == wanted for item in list(self.loot or []))
 
     def has_key(self, key: int) -> bool:
         return GenericUtil.to_int(key, -1) >= 0 and self.has_item_vnum(key)
@@ -185,7 +175,7 @@ class Character(AnimateEntity):
     def race(self) -> str:
         if self.character_race is None:
             return ""
-        return str(getattr(self.character_race, "who_name", "") or "")
+        return str(self.character_race.who_name or "")
 
     @race.setter
     def race(self, value: str) -> None:
@@ -193,34 +183,34 @@ class Character(AnimateEntity):
 
     @property
     def experience(self) -> int:
-        attrs = getattr(self, "character_attributes", None)
-        return 0 if attrs is None else getattr(attrs, "experience", 0)
+        attrs = self.character_attributes
+        return 0 if attrs is None else attrs.experience
 
     @experience.setter
     def experience(self, value: int) -> None:
-        attrs = getattr(self, "character_attributes", None)
+        attrs = self.character_attributes
         if attrs is not None:
             attrs.experience = value
 
     @property
     def accumulated_experience(self) -> int:
-        attrs = getattr(self, "character_attributes", None)
-        return 0 if attrs is None else getattr(attrs, "accumulated_experience", 0)
+        attrs = self.character_attributes
+        return 0 if attrs is None else attrs.accumulated_experience
 
     @accumulated_experience.setter
     def accumulated_experience(self, value: int) -> None:
-        attrs = getattr(self, "character_attributes", None)
+        attrs = self.character_attributes
         if attrs is not None:
             attrs.accumulated_experience = value
 
     @property
     def experience_per_level(self) -> int:
-        attrs = getattr(self, "character_attributes", None)
-        return 0 if attrs is None else getattr(attrs, "experience_per_level", 0)
+        attrs = self.character_attributes
+        return 0 if attrs is None else attrs.experience_per_level
 
     @experience_per_level.setter
     def experience_per_level(self, value: int) -> None:
-        attrs = getattr(self, "character_attributes", None)
+        attrs = self.character_attributes
         if attrs is not None:
             attrs.experience_per_level = value
 
@@ -229,7 +219,7 @@ class Character(AnimateEntity):
 
     def has_boat(self) -> bool:
         for item in list(self.loot or []):
-            item_type = str(getattr(item, "item_type", "") or "").lower()
+            item_type = str(item.item_type or "").lower()
             if "boat" in item_type:
                 return True
         return False
@@ -237,9 +227,101 @@ class Character(AnimateEntity):
     def learned(self) -> List[Any]:
         return [self.skills, self.spells]
 
-    def get_learned(self, learned_id):
-        for learned in self.learned():
-            for item in learned:
-                if item.id == learned_id:
-                    return item
-        return None
+    @staticmethod
+    def learned_entry_name(entry) -> str:
+        if entry is None:
+            return ""
+        if isinstance(entry, dict):
+            return str(entry.get("name", "") or "").strip()
+        return str(entry.name or "").strip()
+
+    @staticmethod
+    def learned_entry_level(entry) -> int:
+        if entry is None:
+            return 0
+        if isinstance(entry, dict):
+            return max(0, min(100, GenericUtil.to_int(entry.get("level", 0), 0)))
+        return max(0, min(100, GenericUtil.to_int(entry.level, 0)))
+
+    @staticmethod
+    def _set_learned_entry_level(entry, learned_level: int) -> None:
+        if entry is None:
+            return
+        normalized = max(0, min(100, GenericUtil.to_int(learned_level, 0)))
+        if isinstance(entry, dict):
+            entry["level"] = normalized
+            return
+        setattr(entry, "level", normalized)
+
+    @staticmethod
+    def learned_entries(character, *, collection_name: str = "") -> List[Any]:
+        collection_key = str(collection_name or "").strip().lower()
+        if collection_key == "skills":
+            return list(character.skills or [])
+        if collection_key == "spells":
+            return list(character.spells or [])
+
+        entries: list[Any] = []
+        collections = character.learned()
+        for learned in list(collections or []):
+            entries.extend(list(learned or []))
+        return entries
+
+    @staticmethod
+    def visible_learned_entries(character, visible_fn=None, *, collection_name: str = "") -> List[Any]:
+        entries = []
+        for entry in Character.learned_entries(character, collection_name=collection_name):
+            if Character.learned_entry_level(entry) < 1:
+                continue
+            name = Character.learned_entry_name(entry)
+            if not name:
+                continue
+            if callable(visible_fn) and not visible_fn(character, name):
+                continue
+            entries.append(entry)
+        return entries
+
+    @staticmethod
+    def get_learned(character, learned_name, *, prefix: bool = False, visible_only: bool = False, visible_fn=None,
+                    collection_name: str = ""):
+        wanted = str(learned_name or "").strip().lower()
+        if not wanted:
+            return None
+
+        entries = Character.visible_learned_entries(character, visible_fn, collection_name=collection_name) \
+            if visible_only else Character.learned_entries(character, collection_name=collection_name)
+
+        prefix_match = None
+        for item in entries:
+            name = Character.learned_entry_name(item).lower()
+            if not name:
+                continue
+            if name == wanted:
+                return item
+            if prefix and prefix_match is None and name.startswith(wanted):
+                prefix_match = item
+        return prefix_match
+
+    @staticmethod
+    def set_learned(character, learned_name, learned_level, *, collection_name: str = "", create: bool = False):
+        entry = Character.get_learned(character, learned_name, collection_name=collection_name)
+        if entry is not None:
+            Character._set_learned_entry_level(entry, learned_level)
+            return entry
+
+        if not create:
+            raise ValueError(f"Learned skill with ID {learned_name} not found")
+
+        collection_key = "spells" if str(collection_name or "").strip().lower() == "spells" else "skills"
+        collection = character.spells if collection_key == "spells" else character.skills
+        if collection is None:
+            collection = []
+            if collection_key == "spells":
+                character.spells = collection
+            else:
+                character.skills = collection
+
+        entry = {"name": str(learned_name or "").strip(), "level": 0}
+        collection.append(entry)
+        Character._set_learned_entry_level(entry, learned_level)
+        return entry

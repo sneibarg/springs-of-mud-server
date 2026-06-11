@@ -9,12 +9,13 @@ from area.Shop import Shop
 from fight.FightHandler import FightHandler
 from game.EnumProvider import EnumProvider
 from game.Equipped import Equipped
+from game.WeatherHandler import WeatherHandler
 from item.EffectHandler import EffectHandler
 from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
+from util.InfoUtil import InfoUtil
 from util.InterpUtil import InterpUtil
-from util.EffectUtil import EffectUtil
 from util.ItemUtil import ItemUtil
 from api.InterpApi import InterpApi
 from api.ItemApi import ItemApi
@@ -23,34 +24,34 @@ from player.Character import Character
 from item.Item import Item
 from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
+from skill.Ability import Ability
 from skill.SpellContext import SpellContext
 from util.FightUtil import FightUtil
 from util.CommunicationsUtil import CommunicationsUtil
 from util.PlayerUtil import PlayerUtil
-from util.SkillUtil import SkillUtil
 
 
 class Object:
     @inject
     def __init__(self, registry_service: RegistryService,
                  enum_provider: EnumProvider,
-                 weather_handler=None,
-                 interp_api=None,
-                 spell_api=None,
-                 fight_handler: FightHandler = None,
-                 effect_handler: EffectHandler = None):
+                 weather_handler: WeatherHandler,
+                 interp_api: InterpApi,
+                 spell_api: SpellApi,
+                 fight_handler: FightHandler,
+                 effect_handler: EffectHandler):
         self.__name__ = "Object"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
-        self.room_registry = getattr(registry_service, "room_registry", None)
-        self.mobile_registry = getattr(registry_service, "mobile_registry", None)
-        self.shop_registry = getattr(registry_service, "shop_registry", None)
-        self.skill_registry = getattr(registry_service, "skill_registry", None)
-        self.spell_registry = getattr(registry_service, "spell_registry", None)
+        self.room_registry = registry_service.room_registry
+        self.mobile_registry = registry_service.mobile_registry
+        self.shop_registry = registry_service.shop_registry
+        self.skill_registry = registry_service.skill_registry
+        self.spell_registry = registry_service.spell_registry
         self.weather_handler = weather_handler
-        self.interp_api = interp_api or InterpApi()
-        self.effect_handler = effect_handler or EffectUtil.handler()
-        self.spell_api = spell_api or SpellApi(effect_handler=self.effect_handler)
+        self.interp_api = interp_api
+        self.effect_handler = effect_handler
+        self.spell_api = spell_api
         self.fight_handler = fight_handler
         self.item_types = enum_provider.get("itemTypes")
         self.item_flags = enum_provider.get("itemFlags")
@@ -61,7 +62,7 @@ class Object:
         self.comm_flags = enum_provider.get("commFlags")
 
     def execute(self, character: Character, context: Context):
-        name = (getattr(context.command, "name", "") or "").strip().lower()
+        name = (context.command.name or "").strip().lower()
         handlers = {
             "get": self.do_get,
             "take": self.do_get,
@@ -465,8 +466,6 @@ class Object:
         }
 
     def _melts_on_drop(self, item) -> bool:
-        if not hasattr(self.item_flags, "ITEM_MELT_DROP"):
-            return False
         return GameApi.is_set(getattr(item, "extra_flags", 0), self.item_flags.ITEM_MELT_DROP.value)
 
     def _prepare_buy_context(self, character: Character, context: Context):
@@ -685,14 +684,21 @@ class Object:
             return payload
 
         silver = ItemUtil.sacrifice_silver_value(context.item)
+        item_name = Item.short(context.item)
         room.remove_item_from_room(context.item)
         character.silver = int(getattr(character, "silver", 0) or 0) + silver
         context.finish()
-        return {
-            "to_char": context.command.payload.to_char.get('one_silver') if silver == 1 else context.command.payload.to_char.get('multiple_silver').replace("%d", str(silver)),
-            "to_room": context.command.payload.to_room["default"],
-            "targets": room.player_targets(character),
-        }
+        payload = self.interp_api.render_message_key(context, "default", c=character.name, t=item_name)
+        reward = self.interp_api.render_message_key(
+            context,
+            "one_silver" if silver == 1 else "multiple_silver",
+            channel="to_char",
+            d=silver,
+        )
+        payload.update(reward)
+        if room is not None and payload.get("to_room"):
+            payload["targets"] = room.player_targets(character)
+        return payload
 
     def destroy_carried(self, character: Character, context: Context, empty_msg: str, success_msg: str = "Ok.\r\n"):
         arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
@@ -849,7 +855,7 @@ class Object:
                 t=item_short,
                 T=getattr(victim, "name", ""),
             )
-            payload["targets"] = room.player_targets(character)
+            payload["targets"] = room.to_not_victim(victim)
         if not CharacterApi.is_npc(victim):
             payload["to_victim"] = self._render_command_message(
                 context,
@@ -888,7 +894,10 @@ class Object:
                 q=amount,
                 s=currency,
             )
-            payload["targets"] = room.player_targets(character)
+            payload["targets"] = [
+                viewer for viewer in room.player_targets(character)
+                if getattr(viewer, "id", "") != getattr(victim, "id", "")
+            ]
         if not CharacterApi.is_npc(victim):
             payload["to_victim"] = self._render_command_message(
                 context,
@@ -988,7 +997,7 @@ class Object:
         return None
 
     def _is_shopkeeper(self, victim) -> bool:
-        if victim is None or self.shop_registry is None:
+        if victim is None:
             return False
         return self.shop_registry.find_by_keeper_vnum(getattr(victim, "vnum", "")) is not None
 
@@ -1603,12 +1612,10 @@ class Object:
         return random.randint(1, 100) < threshold
 
     def _improve_item_skill(self, character: Character, skill_name: str, success: bool):
-        if self.skill_registry is None or not hasattr(self.skill_registry, "get_or_none"):
-            return
         skill = self.skill_registry.get_or_none(name=skill_name)
         if skill is None:
             return
-        SkillUtil.check_improve(character, getattr(skill, "id", ""), success, 2)
+        Ability.check_improve(character, getattr(skill, "id", ""), success, 2)
 
     def _cast_item_spell(self, character: Character, room, item, spell_ref, *, target=None, target_name: str = "", target_kind: str = "") -> list[dict]:
         spell = spell_ref
@@ -1643,8 +1650,6 @@ class Object:
         character.remove_item(item)
 
     def _find_keeper(self, character: Character, room):
-        if self.shop_registry is None:
-            return None, None, "shop_unavailable"
         for mob in room.mobiles.values():
             shop = self.shop_registry.find_by_keeper_vnum(getattr(mob, "vnum", ""))
             if shop is None:

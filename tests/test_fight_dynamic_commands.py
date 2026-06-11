@@ -140,6 +140,10 @@ class _MovementUtil:
 
 class _EffectUtil:
     @staticmethod
+    def handler():
+        return SimpleNamespace()
+
+    @staticmethod
     def affect_to_char(_character, _effect):
         return None
 
@@ -149,6 +153,10 @@ class _EffectUtil:
 
 
 class _SkillUtil:
+    @staticmethod
+    def take_improve_messages(_character):
+        return ""
+
     @staticmethod
     def check_improve(_character, _skill_id, _success, _multiplier=1):
         return None
@@ -180,6 +188,11 @@ class _StatusFlags(SimpleNamespace):
 
 
 class _Context(SimpleNamespace):
+    def __init__(self, **kwargs):
+        kwargs.setdefault("result", "")
+        kwargs.setdefault("parameters", [])
+        super().__init__(**kwargs)
+
     def finish(self):
         self.done = True
 
@@ -214,6 +227,8 @@ _stub_module("api.CharacterApi", CharacterApi=_CharacterApi)
 _stub_module("api.MovementApi", MovementApi=SimpleNamespace())
 _stub_module("api.ItemApi", ItemApi=SimpleNamespace())
 _stub_module("api.SkillApi", SkillApi=object)
+_stub_package("player")
+_stub_module("player.Character", Character=object)
 _stub_package("item")
 _stub_module("item.Item", Item=SimpleNamespace)
 InterpApi = _load_module("api.InterpApi", "api/InterpApi.py").InterpApi
@@ -224,13 +239,11 @@ _stub_package("skill")
 _stub_module("skill.SkillRegistry", SkillRegistry=object)
 FightApi = _load_module("api.FightApi", "api/FightApi.py").FightApi
 _stub_module("item.Effect", Effect=SimpleNamespace)
-_stub_package("player")
-_stub_module("player.Character", Character=object)
 _stub_module("player.CharacterAdvancement", CharacterAdvancement=SimpleNamespace(gain_experience=lambda *_args, **_kwargs: None))
 Skill = _load_module("skill.Skill", "skill/Skill.py").Skill
 sys.modules["skill"].Skill = Skill
 _stub_module("skill.SpellContext", SpellContext=SimpleNamespace)
-_stub_module("api.SpellApi", SpellApi=lambda: SimpleNamespace(execute_lambdas=lambda *_args, **_kwargs: None, queue_cast_announcement=lambda *_args, **_kwargs: None, start_offensive_combat=lambda *_args, **_kwargs: None))
+_stub_module("api.SpellApi", SpellApi=lambda **_kwargs: SimpleNamespace(execute_lambdas=lambda *_args, **_kwargs: None, queue_cast_announcement=lambda *_args, **_kwargs: None, start_offensive_combat=lambda *_args, **_kwargs: None))
 Fight = _load_module("interp.commands.Fight", "interp/commands/Fight.py").Fight
 _stub_module("interp.commands.Info", Info=object)
 _stub_module("interp.commands.Movement", Movement=object)
@@ -298,7 +311,7 @@ class TestFightDynamicCommands(unittest.TestCase):
         )
         fight_handler = Mock()
         fight_api = FightApi(registry_service.room_registry, registry_service.skill_registry, Mock(), fight_handler)
-        commands = Fight(registry_service, Mock(), fight_api, InterpApi())
+        commands = Fight(registry_service, Mock(), Mock(), fight_api, InterpApi(), Mock(), Mock(), Mock())
 
         character = SimpleNamespace(
             name="Hero",
@@ -336,7 +349,7 @@ class TestFightDynamicCommands(unittest.TestCase):
         fight_handler = Mock()
         fight_handler.is_safe.return_value = (False, "")
         fight_api = FightApi(registry_service.room_registry, skill_registry, skill_api, fight_handler)
-        commands = Fight(registry_service, skill_api, fight_api, InterpApi())
+        commands = Fight(registry_service, Mock(), skill_api, fight_api, InterpApi(), Mock(), Mock(), Mock())
 
         character = SimpleNamespace(
             name="Hero",
@@ -349,6 +362,7 @@ class TestFightDynamicCommands(unittest.TestCase):
             level=20,
             character_class=SimpleNamespace(name="warrior"),
             affects=set(),
+            equipped=None,
         )
         room.targets["hero"] = character
         context = _Context(character=character, command=_load_command("trip"), room=room, result="hero", parameters=[], done=False)
@@ -364,6 +378,65 @@ class TestFightDynamicCommands(unittest.TestCase):
 
 
 class TestFightPayloadEmission(unittest.IsolatedAsyncioTestCase):
+    async def test_emit_standard_payload_without_victim_skips_to_victim_render(self):
+        delivered = []
+
+        async def send_to_character(character_id, message):
+            delivered.append((character_id, message))
+
+        handler = PlayerHandler.__new__(PlayerHandler)
+        handler.message_bus = SimpleNamespace(
+            text_to_message=lambda text: text,
+            send_to_character=send_to_character,
+            send_to_room=AsyncMock(),
+            broadcast=AsyncMock(),
+            connection_manager=SimpleNamespace(get_connection=lambda *_args, **_kwargs: None),
+        )
+        handler.wiz_handler = SimpleNamespace(
+            wiznet_targets=lambda *_args, **_kwargs: [],
+            current_session=lambda *_args, **_kwargs: None,
+        )
+        handler.fight_handler = SimpleNamespace(emit_round_payload=AsyncMock())
+        handler._show_room_to_character = AsyncMock()
+        handler.interp_api = InterpApi()
+
+        character = SimpleNamespace(id="char-1", name="Hero")
+        context = _Context(character=character, command=_load_command("restore"), done=False)
+
+        await handler._emit_standard_payload(character, {"message_key": "default", "tokens": {"t": "Hero"}}, context=context)
+
+        self.assertEqual([("char-1", "Ok.\r\n")], delivered)
+
+    async def test_emit_standard_payload_uses_interp_api_default_tokens(self):
+        delivered = []
+
+        async def send_to_character(character_id, message):
+            delivered.append((character_id, message))
+
+        handler = PlayerHandler.__new__(PlayerHandler)
+        handler.message_bus = SimpleNamespace(
+            text_to_message=lambda text: text,
+            send_to_character=send_to_character,
+            send_to_room=AsyncMock(),
+            broadcast=AsyncMock(),
+            connection_manager=SimpleNamespace(get_connection=lambda *_args, **_kwargs: None),
+        )
+        handler.wiz_handler = SimpleNamespace(
+            wiznet_targets=lambda *_args, **_kwargs: [],
+            current_session=lambda *_args, **_kwargs: None,
+        )
+        handler.fight_handler = SimpleNamespace(emit_round_payload=AsyncMock())
+        handler._show_room_to_character = AsyncMock()
+        handler.interp_api = InterpApi()
+
+        character = SimpleNamespace(id="char-1", name="Hero")
+        context = _Context(character=character, command=_load_command("restore"), done=False)
+
+        await handler._emit_standard_payload(character, {"message_key": "default", "victim": character}, context=context)
+
+        self.assertIn(("char-1", "Ok.\r\n"), delivered)
+        self.assertIn(("char-1", "Hero has restored you.\r\n"), delivered)
+
     async def test_emit_standard_payloads_renders_command_message_keys(self):
         delivered = []
 
@@ -379,6 +452,7 @@ class TestFightPayloadEmission(unittest.IsolatedAsyncioTestCase):
             send_to_character=send_to_character,
             send_to_room=send_to_room,
         )
+        handler.interp_api = InterpApi()
         handler.fight_handler = SimpleNamespace(emit_round_payload=AsyncMock())
         handler._show_room_to_character = AsyncMock()
 

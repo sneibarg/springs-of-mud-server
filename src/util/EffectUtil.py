@@ -184,8 +184,8 @@ class EffectUtil:
         if int_value is not None:
             return int_value
         key = str(raw_value).strip().upper()
-        if enum_type is not None and hasattr(enum_type, key):
-            return int(getattr(enum_type, key).value)
+        if enum_type is not None and key in enum_type.__members__:
+            return int(enum_type[key].value)
         return default
 
     @staticmethod
@@ -197,8 +197,9 @@ class EffectUtil:
         affected_by = CharacterApi.get_enum("affectedBy")
         if CharacterApi.is_affected(character, effect_type):
             return True
-        if hasattr(affected_by, str(effect_type)):
-            bit = getattr(affected_by, str(effect_type)).value
+        effect_name = str(effect_type)
+        if effect_name in affected_by.__members__:
+            bit = affected_by[effect_name].value
             return CharacterApi.is_affected(character, bit)
         return False
 
@@ -225,10 +226,21 @@ class EffectUtil:
         AffectedBits = CharacterApi.get_enum("affectedBy")
         raw = GenericUtil.to_int(getattr(character.status_flags, "affected_by", 0), 0)
         lines = []
+        seen = set()
         for name, member in AffectedBits.__members__.items():
             if CharacterApi.is_set(raw, member.value):
                 pretty = name.replace("AFF_", "").replace("_", " ").lower()
+                seen.add(pretty)
                 lines.append(f"Spell: {pretty}\r\n")
+        for effect in list(getattr(character, "effects", []) or []):
+            effect_type = str(getattr(effect, "type", "") or "").strip()
+            if not effect_type or effect_type.lstrip("-").isdigit():
+                continue
+            pretty = effect_type.removeprefix("spell.").removeprefix("skill.").replace("_", " ").lower()
+            if pretty in seen:
+                continue
+            seen.add(pretty)
+            lines.append(f"Spell: {pretty}\r\n")
         if not lines:
             return "You are not affected by any spells.\r\n"
         return "You are affected by the following spells:\r\n" + "".join(lines)

@@ -1,7 +1,10 @@
+import inspect
+
 from dataclasses import fields
 from typing import Any
 from injector import inject
 
+from api.InterpApi import InterpApi
 from fight.FightHandler import FightHandler
 from game.WizHandler import WizHandler
 from game.RegistryService import RegistryService
@@ -20,6 +23,7 @@ from util.InterpUtil import InterpUtil
 from util.CommunicationsUtil import CommunicationsUtil
 from util.ItemUtil import ItemUtil
 from util.PlayerUtil import PlayerUtil
+from skill.Ability import Ability
 from server.messaging import MessageBus
 from server.LoggerFactory import LoggerFactory
 
@@ -27,6 +31,7 @@ from server.LoggerFactory import LoggerFactory
 class PlayerHandler:
     @inject
     def __init__(self, message_bus: MessageBus,
+                 interp_api: InterpApi,
                  registry_service: RegistryService,
                  fight_handler: FightHandler,
                  wiz_handler: WizHandler,
@@ -38,8 +43,12 @@ class PlayerHandler:
                  wiz_commands: Wiz):
         self.__name__ = "PlayerHandler"
         self.message_bus = message_bus
+        self.interp_api = interp_api
         self.character_registry = registry_service.character_registry
+        self.area_registry = registry_service.area_registry
         self.room_registry = registry_service.room_registry
+        self.interp_registry = registry_service.interp_registry
+        self.social_registry = registry_service.social_registry
         self.fight_handler = fight_handler
         self.wiz_handler = wiz_handler
         self.communications_commands = communications_commands
@@ -438,42 +447,99 @@ class PlayerHandler:
 
     async def do_wiz_command(self, character: Character, context: Context):
         payload = self.wiz_commands.execute(character, context)
-        if payload is None:
+        if isinstance(payload, dict) and payload.get("interpret_at"):
+            await self._handle_at_payload(character, context, payload)
             return
-        if isinstance(payload, str):
-            if payload:
-                await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload))
+        viewer = getattr(payload, "get", lambda *_args, **_kwargs: getattr(context, "character", character))("view_character", getattr(context, "character", character))
+        await self._handle_standard_command_payload(viewer, context, payload)
+
+    async def _handle_at_payload(self, character: Character, context: Context, payload: dict):
+        try:
+            await self._interpret_nested_command(character, context, str(payload.get("interpret_at", "") or ""))
+        finally:
+            if self._character_in_any_room(character):
+                self._restore_at_character(character, payload.get("at_original_room"), payload.get("at_on"))
+
+    async def _interpret_nested_command(self, character: Character, context: Context, raw_command: str):
+        cmd, parameters = InterpUtil.extract_parameters(self.interp_registry, raw_command)
+        if cmd is None:
+            social = self.social_registry.get_or_none(name=raw_command.lower())
+            if social is not None and context.social_handler() is not None:
+                await context.social_handler().handle_social(character, raw_command, social)
+                return
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message("Huh?\r\n"))
             return
-        viewer = payload.get("view_character", getattr(context, "character", character))
-        if payload.get("payloads"):
-            await self._emit_standard_payloads(viewer, payload.get("payloads", []), context=context)
+
+        nested_context = Context(
+            character=character,
+            handler_service=context.handler_service,
+            conn=context.conn,
+            command=cmd,
+            parameters=InterpUtil.build_arguments(cmd, parameters),
+            result=parameters,
+            room=self.room_registry.get_or_none(id=character.room_id),
+        )
+        await self._execute_nested_lambdas(cmd, nested_context)
+
+    async def _execute_nested_lambdas(self, command, context: Context):
+        lambdas = getattr(command, "lambdas", None) or []
+        if not command.pipeline:
+            for lambda_string in lambdas:
+                if not isinstance(lambda_string, str) or not lambda_string.strip():
+                    continue
+                await self._execute_nested_lambda(eval(lambda_string), context)
+            return
+
+        index = 0
+        while index < len(lambdas):
+            lambda_string = lambdas[index]
+            if not isinstance(lambda_string, str) or not lambda_string.strip():
+                index += 1
+                continue
+            await self._execute_nested_lambda(eval(lambda_string), context)
+            if context.done:
+                break
+            if isinstance(context.next_index, int) and context.next_index >= 0:
+                index = context.next_index
+                context.next_index = None
+                continue
+            index += 1
+
+    @staticmethod
+    async def _execute_nested_lambda(func, context: Context):
+        if not callable(func):
+            return
+        result = func(context)
+        if inspect.isawaitable(result):
+            context.result = await result
         else:
-            await self._emit_standard_payload(viewer, payload, context=context)
-        if payload.get("room_message"):
-            targets = payload.get("room_targets", [])
-            if len(targets) > 0:
-                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["room_message"]), targets)
-        if payload.get("global_message"):
-            targets = payload.get("global_targets", [])
-            if len(targets) > 0:
-                if isinstance(targets[0], str):
-                    for target_id in targets:
-                        await self.message_bus.send_to_character(target_id, self.message_bus.text_to_message(payload["global_message"]))
-                else:
-                    await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["global_message"]), targets)
-        if payload.get("broadcast_message"):
-            exclude_ids = payload.get("exclude_character_ids", [])
-            await self.message_bus.broadcast(self.message_bus.text_to_message(payload["broadcast_message"]), exclude_ids)
-        for target in payload.get("target_messages", []):
-            target_id = str(target.get("id", "") or "")
-            text = str(target.get("text", "") or "")
-            if target_id and text:
-                await self.message_bus.send_to_character(target_id, self.message_bus.text_to_message(text))
-        if payload.get("disconnect_character") is not None:
-            session = self.wiz_handler.current_session(payload["disconnect_character"])
-            connection = None if session is None else self.message_bus.connection_manager.get_connection(session.session_id)
-            if connection is not None:
-                await connection.close()
+            context.result = result
+
+    def _character_in_any_room(self, character: Character) -> bool:
+        character_id = str(getattr(character, "id", "") or "")
+        if not character_id:
+            return False
+        for room in self.room_registry.all_rooms():
+            if character_id in getattr(room, "characters", {}) or character_id in getattr(room, "mobiles", {}):
+                return True
+        return False
+
+    def _restore_at_character(self, character: Character, original_room, original_on):
+        if original_room is None:
+            return
+        character_id = str(getattr(character, "id", "") or "")
+        for room in self.room_registry.all_rooms():
+            if character_id in getattr(room, "characters", {}):
+                room.remove_player_from_room(character)
+            if character_id in getattr(room, "mobiles", {}):
+                room.remove_mobile_from_room(character)
+        if CharacterApi.is_npc(character):
+            original_room.add_mobile_to_room(character)
+        else:
+            original_room.add_player_to_room(character)
+        character.room_id = original_room.id
+        character.area_id = original_room.area_id
+        setattr(character, "on", original_on)
 
     async def do_object_command(self, character: Character, context: Context):
         payload = self.object_commands.execute(character, context)
@@ -567,6 +633,22 @@ class PlayerHandler:
             return
         await self._emit_standard_payloads(character, [payload], context=context)
 
+    async def _send_prompt(self, character: Character, context: Context, prefer_context_room: bool = True):
+        room = context.room if prefer_context_room and context is not None and context.room is not None else None
+        if room is None:
+            room_registry = getattr(self, "room_registry", None)
+            if room_registry is None:
+                return
+            room = room_registry.get_or_none(id=getattr(character, "room_id", ""))
+        if room is None:
+            return
+        area_id = getattr(room, "area_id", getattr(character, "area_id", ""))
+        area_registry = getattr(self, "area_registry", None)
+        area = area_registry.get_or_none(id=area_id) if area_id and area_registry is not None else None
+        if area is None:
+            return
+        await self.message_bus.send_prompt(character, area, room)
+
     async def print_players_in_room(self, character: Character):
         room = self.room_registry.get(id=character.room_id)
         if room is None:
@@ -640,12 +722,24 @@ class PlayerHandler:
             return
         await self._emit_standard_payload(character, payload, context=context)
 
-    async def _emit_standard_payload(self, character: Character, payload: dict, context: Context | None = None):
+    async def _emit_standard_payload(self, character: Character, payload: dict, context: Context | None = None, prompt_victims: bool = True) -> list[Character]:
+        prompt_targets: list[Character] = []
         payload = self._resolve_standard_payload(character, payload, context=context)
+        if isinstance(payload, dict):
+            payload["to_char"] = f"{payload.get('to_char', '')}{Ability.take_improve_messages(character)}"
+            victim = payload.get("victim")
+            if victim is not None:
+                payload["to_victim"] = f"{payload.get('to_victim', '')}{Ability.take_improve_messages(victim)}"
         if payload.get("to_char"):
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
         if payload.get("to_victim") and payload.get("victim") is not None:
-            await self.message_bus.send_to_character(payload["victim"].id, self.message_bus.text_to_message(payload["to_victim"]))
+            victim = payload["victim"]
+            await self.message_bus.send_to_character(victim.id, self.message_bus.text_to_message(payload["to_victim"]))
+            if victim is not character and not CharacterApi.is_npc(victim):
+                if prompt_victims:
+                    await self._send_prompt(victim, context, prefer_context_room=False)
+                else:
+                    prompt_targets.append(victim)
         if payload.get("to_room"):
             targets = payload.get("targets", [])
             if len(targets) > 0:
@@ -661,6 +755,31 @@ class PlayerHandler:
             for target in targets:
                 text = self.wiz_handler.decorate_wiznet_text(target, payload["to_wiznet"])
                 await self.message_bus.send_to_character(target.id, self.message_bus.text_to_message(text))
+        if payload.get("room_message"):
+            targets = payload.get("room_targets", [])
+            if len(targets) > 0:
+                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["room_message"]), targets)
+        if payload.get("global_message"):
+            targets = payload.get("global_targets", [])
+            if len(targets) > 0:
+                if isinstance(targets[0], str):
+                    for target_id in targets:
+                        await self.message_bus.send_to_character(target_id, self.message_bus.text_to_message(payload["global_message"]))
+                else:
+                    await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["global_message"]), targets)
+        if payload.get("broadcast_message"):
+            exclude_ids = payload.get("exclude_character_ids", [])
+            await self.message_bus.broadcast(self.message_bus.text_to_message(payload["broadcast_message"]), exclude_ids)
+        for target in payload.get("target_messages", []):
+            target_id = str(target.get("id", "") or "")
+            text = str(target.get("text", "") or "")
+            if target_id and text:
+                await self.message_bus.send_to_character(target_id, self.message_bus.text_to_message(text))
+        if payload.get("disconnect_character") is not None:
+            session = self.wiz_handler.current_session(payload["disconnect_character"])
+            connection = None if session is None else self.message_bus.connection_manager.get_connection(session.session_id)
+            if connection is not None:
+                await connection.close()
         if context is not None:
             if payload.get("from_room_message"):
                 targets = payload.get("from_room_targets", [])
@@ -675,12 +794,21 @@ class PlayerHandler:
                 viewer = payload.get("view_character", character)
                 await self._show_room_to_character(viewer, to_room, context)
                 if viewer is character:
+                    prompted_characters: dict[str, Character] = {}
                     for attacker, fight_payload in payload.get("aggressive_rounds", []):
-                        await self.fight_handler.emit_round_payload(attacker, fight_payload)
+                        prompted = await self.fight_handler.emit_round_payload(attacker, fight_payload)
+                        prompted_characters.update({target.id: target for target in prompted})
+                    for target in prompted_characters.values():
+                        await self._send_prompt(target, context, prefer_context_room=False)
+        return prompt_targets
 
     async def _emit_standard_payloads(self, character: Character, payloads: list[dict], context: Context | None = None):
+        prompt_targets: dict[str, Character] = {}
         for payload in payloads:
-            await self._emit_standard_payload(character, payload, context=context)
+            for target in await self._emit_standard_payload(character, payload, context=context, prompt_victims=False):
+                prompt_targets[str(getattr(target, "id", id(target)))] = target
+        for target in prompt_targets.values():
+            await self._send_prompt(target, context, prefer_context_room=False)
 
     def _resolve_standard_payload(self, character: Character, payload, context: Context | None = None):
         if not isinstance(payload, dict) or context is None:
@@ -704,9 +832,7 @@ class PlayerHandler:
         }
         fallback = str(payload.get("fallback", "") or "")
         for channel in self._payload_channels_for_message(getattr(command, "payload", None), message_key, channel=str(payload.get("channel", "") or "")):
-            text = command.render_message(channel, message_key, fallback=fallback, **tokens)
-            if text:
-                rendered[channel] = CommunicationsUtil.ensure_message_break(text)
+            rendered.update(self.interp_api.render_message_key(context, message_key, channel=channel, fallback=fallback, **tokens))
         return rendered
 
     @staticmethod
@@ -729,7 +855,7 @@ class PlayerHandler:
             return
         await context.room_handler().print_room(viewer.id, room)
         autoexit_bit = None
-        if self.info_commands.PlayerActBits is not None and hasattr(self.info_commands.PlayerActBits, "PLR_AUTOEXIT"):
+        if self.info_commands.PlayerActBits is not None:
             autoexit_bit = self.info_commands.PlayerActBits.PLR_AUTOEXIT.value
         if autoexit_bit is not None:
             act = viewer.status_flags.act

@@ -17,6 +17,7 @@ from api.CharacterApi import CharacterApi
 from player.CharacterService import CharacterService
 from server.messaging.MessageBus import MessageBus
 from server.session.SessionHandler import SessionHandler
+from skill.Ability import Ability
 
 
 class UpdateHandler:
@@ -164,6 +165,10 @@ class UpdateHandler:
         prompted: list[Character] = []
         if not isinstance(payload, dict):
             return prompted
+        payload["to_char"] = f"{payload.get('to_char', '')}{Ability.take_improve_messages(attacker)}"
+        victim = payload.get("victim")
+        if victim is not None:
+            payload["to_victim"] = f"{payload.get('to_victim', '')}{Ability.take_improve_messages(victim)}"
 
         if payload.get("to_char") and not CharacterApi.is_npc(attacker):
             await self.message_bus.send_to_character(attacker.id, self.message_bus.text_to_message(payload["to_char"]))
@@ -175,6 +180,7 @@ class UpdateHandler:
             targets = payload.get("targets", [])
             if len(targets) > 0:
                 await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room"]), targets)
+                prompted.extend(target for target in targets if not CharacterApi.is_npc(target))
         return prompted
 
     async def _aggr_update(self):
@@ -327,8 +333,8 @@ class UpdateHandler:
 
         if isinstance(raw_size, str):
             normalized = raw_size.strip().upper()
-            if size_enum is not None and hasattr(size_enum, normalized):
-                raw_size = getattr(size_enum, normalized).value
+            if size_enum is not None and normalized in size_enum.__members__:
+                raw_size = size_enum[normalized].value
             else:
                 return normalized in {"SIZE_LARGE", "SIZE_HUGE", "SIZE_GIANT"}
 
@@ -336,7 +342,7 @@ class UpdateHandler:
         if size_value is None:
             return False
 
-        if size_enum is not None and hasattr(size_enum, "SIZE_MEDIUM"):
+        if size_enum is not None:
             return size_value > int(size_enum.SIZE_MEDIUM.value)
         return size_value >= 3
 
@@ -554,9 +560,16 @@ class UpdateHandler:
                 str(getattr(spell, "id", "") or "").strip().lower(),
             ]
             if want in candidates:
-                return str(getattr(spell, field_name, "") or "")
+                return self._display_effect_message(getattr(spell, field_name, ""))
 
         return ""
+
+    @staticmethod
+    def _display_effect_message(message) -> str:
+        text = str(message or "").strip()
+        if len(text) >= 2 and text.startswith("!") and text.endswith("!"):
+            return ""
+        return text
 
     async def _emit_obj_effect_message(self, item, message: str):
         location = self._locate_item(item)

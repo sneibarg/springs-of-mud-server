@@ -1,11 +1,12 @@
 import importlib.util
+import asyncio
 import sys
 import types
 import unittest
 from enum import IntEnum
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import AsyncMock, Mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -142,6 +143,28 @@ class _RandomNumberGenerator:
         return 0
 
 
+class _Character:
+    @staticmethod
+    def learned_entry_name(entry) -> str:
+        return str(entry.get("name", "") or "").strip() if isinstance(entry, dict) else str(getattr(entry, "name", "") or "").strip()
+
+    @staticmethod
+    def learned_entry_level(entry) -> int:
+        return int(entry.get("level", 0)) if isinstance(entry, dict) else int(getattr(entry, "level", 0))
+
+    @staticmethod
+    def get_learned(character, learned_name, *, visible_only: bool = False, collection_name: str = "", **_kwargs):
+        wanted = str(learned_name or "").strip().lower()
+        collections = [getattr(character, collection_name, [])] if collection_name else [getattr(character, "skills", []), getattr(character, "spells", [])]
+        for collection in collections:
+            for entry in list(collection or []):
+                if visible_only and _Character.learned_entry_level(entry) < 1:
+                    continue
+                if _Character.learned_entry_name(entry).lower() == wanted:
+                    return entry
+        return None
+
+
 _stub_module("injector", inject=lambda target: target)
 _stub_package("api")
 _stub_module("api.GameApi", GameApi=SimpleNamespace())
@@ -161,7 +184,7 @@ _stub_module("item.BodyForm", BodyForm=object)
 _stub_module("item.BodyParts", BodyParts=object)
 _stub_module("item.Item", Item=object)
 _stub_package("player")
-_stub_module("player.Character", Character=object)
+_stub_module("player.Character", Character=_Character)
 _stub_module("player.CharacterAdvancement", CharacterAdvancement=object)
 _stub_package("server")
 _stub_module("server.LoggerFactory", LoggerFactory=_LoggerFactory)
@@ -175,6 +198,10 @@ _stub_module("util.ItemUtil", ItemUtil=SimpleNamespace())
 
 
 class _SkillUtil:
+    @staticmethod
+    def practice_visible(_character, _meta_or_name) -> bool:
+        return True
+
     @staticmethod
     def learned_level(*_args, **_kwargs):
         return 0
@@ -203,6 +230,8 @@ class _SkillUtil:
 
 
 _stub_module("util.SkillUtil", SkillUtil=_SkillUtil)
+_stub_package("skill")
+_stub_module("skill.Ability", Ability=_SkillUtil)
 
 FightHandler = _load_module("fight.FightHandler", "fight/FightHandler.py").FightHandler
 
@@ -426,6 +455,52 @@ class TestFightHandlerAggression(unittest.TestCase):
         damage_type = handler._attack_damage_type(attacker, "TYPE_UNDEFINED", "")
 
         self.assertEqual("DAM_SLASH", damage_type)
+
+    def test_build_round_payload_uses_room_player_targets_for_observers(self):
+        attacker = self._player("char-1")
+        victim = self._player("char-2")
+        watcher = self._player("char-3")
+        room = SimpleNamespace(
+            id="room-1",
+            characters={"char-1": attacker, "char-2": victim, "char-3": watcher},
+            player_targets=lambda character: [ch for ch in [attacker, victim, watcher] if ch.id != character.id],
+        )
+        handler = self._handler(room)
+
+        payload = handler.build_round_payload(
+            attacker,
+            victim,
+            room,
+            {"to_char": "You hit.\r\n", "to_victim": "Tester hits you.\r\n", "to_room": "Tester hits Victim.\r\n"},
+        )
+
+        self.assertEqual([watcher], payload["targets"])
+
+    def test_emit_round_payload_returns_room_observers_for_prompt(self):
+        attacker = self._player("char-1")
+        victim = self._mob("mob-1")
+        watcher = self._player("char-2")
+        handler = self._handler(SimpleNamespace())
+        handler.message_bus = SimpleNamespace(
+            text_to_message=lambda text: text,
+            send_to_character=AsyncMock(),
+            send_to_room=AsyncMock(),
+        )
+
+        prompted = asyncio.run(
+            handler.emit_round_payload(
+                attacker,
+                {
+                    "to_char": "You hit.\r\n",
+                    "to_room": "Tester hits mob.\r\n",
+                    "targets": [watcher],
+                    "victim": victim,
+                },
+            )
+        )
+
+        self.assertEqual([attacker, watcher], prompted)
+        handler.message_bus.send_to_room.assert_awaited_once_with("Tester hits mob.\r\n", [watcher])
 
 
 if __name__ == "__main__":

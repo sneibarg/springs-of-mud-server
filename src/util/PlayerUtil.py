@@ -15,7 +15,38 @@ if TYPE_CHECKING:
 
 
 class PlayerUtil:
-    pass
+    @staticmethod
+    def format_train_options(character: Character) -> str:
+        attrs = character.character_attributes
+        if attrs is None:
+            return "You can train: hp mana.\r\n"
+
+        trainable_stats = (
+            ("str", "strength", 0),
+            ("int", "intelligence", 1),
+            ("wis", "wisdom", 2),
+            ("dex", "dexterity", 3),
+            ("con", "constitution", 4),
+        )
+        options = [
+            short_name
+            for short_name, attr_name, stat_index in trainable_stats
+            if (current := GenericUtil.to_int(getattr(attrs, attr_name, 0), 0))
+               < CharacterApi.get_max_train(character, stat_index, current)
+        ]
+
+        options.extend(["hp", "mana"])
+        if options:
+            return f"You can train: {' '.join(options)}.\r\n"
+
+        sex = str(character.sex or "").strip().lower()
+        if sex in ("2", "female"):
+            ending = "hot babe"
+        elif sex in ("1", "male"):
+            ending = "big stud"
+        else:
+            ending = "wild thing"
+        return f"You have nothing left to train, you {ending}!\r\n"
 
     @staticmethod
     def format_visible_character_line(observer: Any, target: Any) -> str:
@@ -23,21 +54,21 @@ class PlayerUtil:
         player_act_bits = CharacterApi.get_enum('playerActBits')
 
         def _has_player_act_bit(char, bit_name: str) -> bool:
-            if CharacterApi.is_npc(char) or not hasattr(player_act_bits, bit_name):
+            if CharacterApi.is_npc(char) or bit_name not in player_act_bits.__members__:
                 return False
             act_value = char.status_flags.comm
-            return CharacterApi.is_set(act_value, getattr(player_act_bits, bit_name).value)
+            return CharacterApi.is_set(act_value, player_act_bits[bit_name].value)
 
         def _is_affected(char, bit_name: str) -> bool:
-            if not hasattr(affected_bits, bit_name):
+            if bit_name not in affected_bits.__members__:
                 return False
-            return CharacterApi.is_affected(char, getattr(affected_bits, bit_name).value)
+            return CharacterApi.is_affected(char, affected_bits[bit_name].value)
 
         prefixes = []
         if _is_affected(target, "AFF_INVISIBLE"):
             prefixes.append("(Invis)")
         GameParameters = CharacterApi.get_enum("gameParameters")
-        if GenericUtil.to_int(getattr(target.status_flags, "invis_level", 0)) >= GenericUtil.to_int(GameParameters.HERO.value, 51):
+        if GenericUtil.to_int(target.status_flags.invis_level) >= GenericUtil.to_int(GameParameters.HERO.value, 51):
             prefixes.append("(Wizi)")
         if _is_affected(target, "AFF_HIDE"):
             prefixes.append("(Hide)")
@@ -78,9 +109,9 @@ class PlayerUtil:
         positions = CharacterApi.get_enum("positions")
 
         def _pos(name: str, default: int = -9999) -> int:
-            if not hasattr(positions, name):
+            if name not in positions.__members__:
                 return default
-            return GenericUtil.to_int(getattr(positions, name).value, default)
+            return GenericUtil.to_int(positions[name].value, default)
 
         if target_pos == _pos("POS_DEAD"):
             suffix = " is DEAD!!"
@@ -98,14 +129,14 @@ class PlayerUtil:
             suffix = " is sitting here."
         elif target_pos == _pos("POS_FIGHTING"):
             suffix = " is here, fighting "
-            fighting = getattr(target, "fighting", None)
+            fighting = target.fighting
             if fighting is None:
                 suffix += "thin air??"
             elif fighting == observer:
                 suffix += "YOU!"
             else:
-                fight_name = getattr(fighting, "name", "someone who left??")
-                if getattr(fighting, "room_id", None) == getattr(target, "room_id", None):
+                fight_name = fighting.name
+                if fighting.room_id == target.room_id:
                     suffix += f"{fight_name}."
                 else:
                     suffix += "someone who left??"
@@ -128,8 +159,8 @@ class PlayerUtil:
             if char.cloaked and character.role == "player":
                 continue
 
-            invis_level = GenericUtil.to_int(getattr(char.status_flags, "invis_level", 0))
-            incog_level = GenericUtil.to_int(getattr(char.status_flags, "incog_level", 0))
+            invis_level = GenericUtil.to_int(char.status_flags.invis_level)
+            incog_level = GenericUtil.to_int(char.status_flags.incog_level)
             if observer_trust < invis_level:
                 continue
             if observer_trust < incog_level:

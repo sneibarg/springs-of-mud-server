@@ -94,7 +94,7 @@ class BodyParts:
                 continue
             if not cls.has(parts_flags, cls.value(part_name)):
                 return None
-            selected_vnum = getattr(well_known_object_vnums, vnum_name, None)
+            selected_vnum = well_known_object_vnums[vnum_name] if vnum_name in well_known_object_vnums.__members__ else None
             break
 
         if selected_vnum is None:

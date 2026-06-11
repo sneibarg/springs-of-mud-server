@@ -20,16 +20,16 @@ class CommunicationsUtil:
 
     @staticmethod
     def has_comm(character, comm_flags, name: str) -> bool:
-        if comm_flags is None or not hasattr(comm_flags, name):
+        if comm_flags is None or name not in comm_flags.__members__:
             return False
-        raw = GenericUtil.to_int(getattr(character.status_flags, "comm", 0), 0)
-        return GameApi.is_set(raw, int(getattr(comm_flags, name).value))
+        raw = GenericUtil.to_int(character.status_flags.comm, 0)
+        return GameApi.is_set(raw, int(comm_flags[name].value))
 
     @staticmethod
     def set_comm(character, comm_flags, name: str, enabled: bool):
-        if comm_flags is None or not hasattr(comm_flags, name):
+        if comm_flags is None or name not in comm_flags.__members__:
             return
-        bit = int(getattr(comm_flags, name).value)
+        bit = int(comm_flags[name].value)
         if enabled:
             character.status_flags.set_flag("comm", bit)
             return

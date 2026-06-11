@@ -16,6 +16,7 @@ from item import Item
 from util.ItemUtil import ItemUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
 from item.ItemRegistry import ItemRegistry
+from player.CharacterRegistry import CharacterRegistry
 from server.messaging import MessageBus
 from server.LoggerFactory import LoggerFactory
 
@@ -30,7 +31,8 @@ class AreaHandler:
                  item_registry: ItemRegistry,
                  mobile_registry: MobileRegistry,
                  shop_registry: ShopRegistry,
-                 enum_provider: EnumProvider):
+                 enum_provider: EnumProvider,
+                 character_registry: CharacterRegistry):
         self.__name__ = "AreaHandler"
         self.logger = LoggerFactory.get_logger(__name__)
         self.message_bus = message_bus
@@ -40,6 +42,7 @@ class AreaHandler:
         self.mobile_registry = mobile_registry
         self.shop_registry = shop_registry
         self.enum_provider = enum_provider
+        self.character_registry = character_registry
         self.WellKnownRoomVnums = enum_provider.get("wellKnownRoomVnums")
         self.ExitFlags = enum_provider.get("exitFlags")
         self.ItemFlags = enum_provider.get("itemFlags")
@@ -116,7 +119,7 @@ class AreaHandler:
         if room is None:
             return False, None
 
-        area_count = self._count_live_mobiles(str(mob_vnum), area_id=str(getattr(room, "area_id", "") or ""))
+        area_count = self._count_live_mobiles(str(mob_vnum), area_id=str(room.area_id or ""))
         room_count = self._count_live_mobiles(str(mob_vnum), room=room)
         if area_count >= area_max:
             last = False
@@ -132,7 +135,13 @@ class AreaHandler:
                 mob.special_function = list(getattr(special, "special_function", []) or [])
                 break
         room.add_mobile_to_room(mob)
+        self._register_live_character(mob)
         return True, mob
+
+    def _register_live_character(self, character) -> None:
+        if character is None:
+            return
+        self.character_registry.register(character)
 
     def _do_put_reset(self, last: bool, reset: Reset, area: Area) -> bool:
         obj_vnum = str(reset.arg1 or "")
@@ -197,7 +206,7 @@ class AreaHandler:
 
         if self._is_shopkeeper(mob):
             obj = ItemUtil.create_object(template_obj)
-            inventory_bit = GenericUtil.to_int(getattr(getattr(self.ItemFlags, "ITEM_INVENTORY", None), "value", 0), 0)
+            inventory_bit = GenericUtil.to_int(self.ItemFlags.ITEM_INVENTORY.value, 0)
             if inventory_bit:
                 obj.extra_flags = GenericUtil.to_int(getattr(obj, "extra_flags", 0), 0) | inventory_bit
             wear_loc = GenericUtil.to_int(reset.arg3, -1)
@@ -227,9 +236,9 @@ class AreaHandler:
         return True
 
     def _is_shopkeeper(self, mob: Mobile | None) -> bool:
-        if mob is None or self.shop_registry is None:
+        if mob is None:
             return False
-        return self.shop_registry.find_by_keeper_vnum(getattr(mob, "vnum", "")) is not None
+        return self.shop_registry.find_by_keeper_vnum(mob.vnum) is not None
 
     def _do_door_reset(self, last: bool, reset: Reset) -> bool:
         room_vnum = str(reset.arg1 or "")
@@ -254,7 +263,7 @@ class AreaHandler:
 
     def _count_live_mobiles(self, mob_vnum: str, room=None, area_id: str = "") -> int:
         wanted_vnum = str(mob_vnum or "")
-        if not wanted_vnum:
+        if not wanted_vnum or wanted_vnum == "None" or wanted_vnum == "":
             return 0
 
         rooms = [room] if room is not None else list(self.room_registry.all_rooms())
@@ -262,7 +271,7 @@ class AreaHandler:
         for candidate_room in rooms:
             if candidate_room is None:
                 continue
-            if area_id and str(getattr(candidate_room, "area_id", "") or "") != area_id:
+            if area_id and str(candidate_room.area_id or "") != area_id:
                 continue
             for mob in getattr(candidate_room, "mobiles", {}).values():
                 if str(getattr(mob, "vnum", "") or "") == wanted_vnum:

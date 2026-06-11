@@ -6,11 +6,11 @@ from api.CharacterApi import CharacterApi
 from api.GameApi import GameApi
 from game.RegistryService import RegistryService
 from game.WizHandler import WizHandler
+from player.Character import Character
 from player.CharacterClass import CharacterClass
 from player.CharacterRace import CharacterRace
 from util.AreaUtil import AreaUtil
 from util.GenericUtil import GenericUtil
-from util.SkillUtil import SkillUtil
 from util.WizUtil import WizUtil
 
 
@@ -85,9 +85,9 @@ class WizSetApi:
 
         if str(skill_name or "").strip().lower() == "all":
             for skill in sorted(self.skill_registry.all_skills(), key=lambda entry: str(getattr(entry, "name", "") or "").lower()):
-                SkillUtil.set_character_learned_level(victim, getattr(skill, "name", ""), value, collection_name="skills")
+                Character.set_learned(victim, getattr(skill, "name", ""), value, collection_name="skills", create=True)
             for spell in sorted(self.spell_registry.all_spells(), key=lambda entry: str(getattr(entry, "name", "") or "").lower()):
-                SkillUtil.set_character_learned_level(victim, getattr(spell, "name", ""), value, collection_name="spells")
+                Character.set_learned(victim, getattr(spell, "name", ""), value, collection_name="spells", create=True)
             context.finish()
             return {"to_char": ""}
 
@@ -96,7 +96,7 @@ class WizSetApi:
             context.finish()
             return self._payload("unknown_skill")
 
-        SkillUtil.set_character_learned_level(victim, getattr(ability, "name", skill_name), value, collection_name=collection_name)
+        Character.set_learned(victim, getattr(ability, "name", skill_name), value, collection_name=collection_name, create=True)
         context.finish()
         return {"to_char": ""}
 
@@ -145,7 +145,7 @@ class WizSetApi:
             if not CharacterApi.is_npc(victim):
                 context.finish()
                 return self._payload("pc_invalid")
-            max_level = GenericUtil.to_int(getattr(CharacterApi.get_enum("gameParameters"), "MAX_LEVEL", 0).value if hasattr(CharacterApi.get_enum("gameParameters"), "MAX_LEVEL") else 0, 0)
+            max_level = GenericUtil.to_int(CharacterApi.get_enum("gameParameters").MAX_LEVEL.value, 0)
             if value < 0 or value > max_level:
                 context.finish()
                 return self._payload("level_range", tokens={"d": max_level})

@@ -19,16 +19,15 @@ from player.CharacterAdvancement import CharacterAdvancement
 from api.CharacterApi import CharacterApi
 from api.InterpApi import InterpApi
 from server.LoggerFactory import LoggerFactory
+from skill.Ability import Ability
 from skill import Skill
 from api.SkillApi import SkillApi
 from api.SpellApi import SpellApi
 from skill.SpellContext import SpellContext
-from util.EffectUtil import EffectUtil
 from util.FightUtil import FightUtil
 from util.GenericUtil import GenericUtil
 from util.MovementUtil import MovementUtil
 from util.PlayerUtil import PlayerUtil
-from util.SkillUtil import SkillUtil
 
 
 class Fight:
@@ -37,22 +36,23 @@ class Fight:
                  enum_provider: EnumProvider,
                  skill_api: SkillApi,
                  fight_api: FightApi,
-                 interp_api: InterpApi = None,
-                 weather_handler: WeatherHandler = None,
-                 effect_handler: EffectHandler = None):
+                 interp_api: InterpApi,
+                 weather_handler: WeatherHandler,
+                 effect_handler: EffectHandler,
+                 spell_api: SpellApi):
         self.__name__ = "Fight"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.skill_api = skill_api
         self.room_registry = registry_service.room_registry
         self.skill_registry = registry_service.skill_registry
-        self.spell_registry = getattr(registry_service, "spell_registry", None)
+        self.spell_registry = registry_service.spell_registry
         self.fight_handler = fight_api.fight_handler
         self.fight_api = fight_api
-        self.interp_api = interp_api or InterpApi()
+        self.interp_api = interp_api
         self.weather_handler = weather_handler
-        self.effect_handler = effect_handler or EffectUtil.handler()
-        self.spell_api = SpellApi(effect_handler=self.effect_handler)
+        self.effect_handler = effect_handler
+        self.spell_api = spell_api
         self._handlers = {
             "hit": self.do_kill,
             "kill": self.do_kill,
@@ -72,7 +72,7 @@ class Fight:
         self.AffectBits = enum_provider.get("affectedBy")
 
     def execute(self, character: Character, context: Context):
-        name = (getattr(context.command, "name", "") or "").strip().lower()
+        name = (context.command.name or "").strip().lower()
         handler = self._handlers.get(name)
         if handler is not None:
             return handler(character, context)
@@ -486,7 +486,7 @@ class Fight:
         skill_id = str(getattr(skill_meta, "id", "") or "").strip()
         if not skill_id:
             return
-        SkillUtil.check_improve(character, skill_id, success, multiplier)
+        Ability.check_improve(character, skill_id, success, multiplier)
 
     @staticmethod
     def _room_targets(room, *excluded):
@@ -601,7 +601,7 @@ class Fight:
 
     def _disarm_payload(self, character, victim, room, obj) -> dict:
         item_flags = CharacterApi.get_enum("itemFlags")
-        if hasattr(item_flags, "ITEM_NOREMOVE") and GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_NOREMOVE.value):
+        if GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_NOREMOVE.value):
             return self._command_payload("no_remove", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)
 
         if not CharacterApi.is_npc(victim):
@@ -609,9 +609,9 @@ class Fight:
         victim.unequip_item("wielded")
 
         keep_inventory = False
-        if hasattr(item_flags, "ITEM_NODROP") and GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_NODROP.value):
+        if GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_NODROP.value):
             keep_inventory = True
-        if hasattr(item_flags, "ITEM_INVENTORY") and GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_INVENTORY.value):
+        if GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_INVENTORY.value):
             keep_inventory = True
 
         if not keep_inventory:
@@ -686,14 +686,14 @@ class Fight:
 
     def _dirt_terrain_adjustment(self, room) -> int | None:
         sector_types = CharacterApi.get_enum("sectorTypes")
-        inside = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_INSIDE", None), "value", -1), -1)
-        city = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_CITY", None), "value", -1), -1)
-        field = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_FIELD", None), "value", -1), -1)
-        mountain = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_MOUNTAIN", None), "value", -1), -1)
-        water_swim = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_WATER_SWIM", None), "value", -1), -1)
-        water_noswim = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_WATER_NOSWIM", None), "value", -1), -1)
-        air = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_AIR", None), "value", -1), -1)
-        desert = GenericUtil.to_int(getattr(getattr(sector_types, "SECT_DESERT", None), "value", -1), -1)
+        inside = GenericUtil.to_int(sector_types.SECT_INSIDE.value, -1)
+        city = GenericUtil.to_int(sector_types.SECT_CITY.value, -1)
+        field = GenericUtil.to_int(sector_types.SECT_FIELD.value, -1)
+        mountain = GenericUtil.to_int(sector_types.SECT_MOUNTAIN.value, -1)
+        water_swim = GenericUtil.to_int(sector_types.SECT_WATER_SWIM.value, -1)
+        water_noswim = GenericUtil.to_int(sector_types.SECT_WATER_NOSWIM.value, -1)
+        air = GenericUtil.to_int(sector_types.SECT_AIR.value, -1)
+        desert = GenericUtil.to_int(sector_types.SECT_DESERT.value, -1)
         sector = GenericUtil.to_int(getattr(room, "sector_type", 0), 0)
         if sector in (water_swim, water_noswim, air):
             return None

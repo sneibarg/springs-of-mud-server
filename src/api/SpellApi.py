@@ -5,6 +5,9 @@ import random
 
 from typing import Any
 
+from injector import inject
+
+from api.InterpApi import InterpApi
 from api.GameApi import GameApi
 from item.EffectHandler import EffectHandler
 from item.Item import Item
@@ -18,6 +21,11 @@ from util.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
 from skill.SpellContext import SpellContext
 from skill.SpellSpeech import SpellSpeech
+
+
+class _SafeFormatTokens(dict):
+    def __missing__(self, key):
+        return ""
 
 
 class SpellApi:
@@ -55,10 +63,12 @@ class SpellApi:
         "spell.weaken",
     )
 
-    def __init__(self, effect_handler: EffectHandler | None = None):
+    @inject
+    def __init__(self, effect_handler: EffectHandler, interp_api: InterpApi):
         self.__name__ = "SpellApi"
         self.logger = LoggerFactory.get_logger(self.__name__)
-        self.effect_handler = effect_handler or EffectUtil.handler()
+        self.effect_handler = effect_handler
+        self.interp_api = interp_api
 
     def execute_lambdas(self, ctx: SpellContext) -> bool:
         lambdas = list(getattr(ctx.spell, "lambdas", []) or [])
@@ -163,15 +173,33 @@ class SpellApi:
                 ctx.queue_payload(payload)
         return True
 
-    def stop_if_affected(self, ctx: SpellContext, effect_name: str, message: str = "", target: Any = None):
+    def stop_if_affected(self, ctx: SpellContext, effect_name: str, message: str = "", target_message: str = "", target: Any = None):
         victim = ctx.resolve(target) if target is not None else ctx.target
         if victim is None or not self._effect_active(victim, effect_name):
             return False
-        if message:
-            ctx.fail(message)
+        message_ref = target_message if victim is not ctx.actor and target_message else message
+        if message_ref:
+            ctx.fail(self._render_spell_to_char(ctx, message_ref))
         else:
             ctx.stop()
         return True
+
+    def _render_spell_to_char(self, ctx: SpellContext, message_ref: str) -> str:
+        text = str(message_ref or "")
+        tokens = ctx.payload_tokens() if callable(getattr(ctx, "payload_tokens", None)) else {}
+        message_key = next(iter(GenericUtil.camel_to_snake_case({text: ""}).keys()), text)
+        rendered = self.interp_api.render_message_key(ctx, message_key, channel="to_char", **tokens)
+        if isinstance(rendered, dict) and rendered.get("to_char"):
+            return str(rendered["to_char"])
+        spell = getattr(ctx, "spell", None)
+        if spell is not None and callable(getattr(spell, "message", None)):
+            direct = spell.message("to_char", message_key, **tokens)
+            if direct:
+                return direct
+        try:
+            return text.format_map(_SafeFormatTokens(tokens))
+        except (KeyError, ValueError):
+            return text
 
     def stop_if_saved(self, ctx: SpellContext, level_adjust: int = 0, target: Any = None, message: str = ""):
         victim = ctx.resolve(target) if target is not None else ctx.victim
@@ -188,7 +216,36 @@ class SpellApi:
         if victim is None:
             return False
         self.effect_handler.apply_spell_effects(ctx.actor, victim, ctx.spell)
+        self._queue_apply_affect_messages(ctx, victim)
         return ctx.mark_performed()
+
+    def _queue_apply_affect_messages(self, ctx: SpellContext, victim: Any) -> None:
+        payload = self.interp_api.evaluate_guards_only(ctx, getattr(ctx.spell, "name", "spell"))
+        if not isinstance(payload, dict):
+            return
+
+        routed = {
+            key: value
+            for key, value in payload.items()
+            if key not in {"blocked", "blocked_key"}
+        }
+
+        if victim is ctx.actor and routed.get("to_victim"):
+            routed["to_char"] = routed.pop("to_victim")
+        elif routed.get("to_victim"):
+            routed["victim"] = victim
+
+        if routed.get("to_room"):
+            exclude = {str(getattr(ctx.actor, "id", "") or "")}
+            if not ctx.is_object_target():
+                exclude.add(str(getattr(victim, "id", "") or ""))
+            targets = self._room_players(ctx.room, exclude_ids=exclude)
+            if targets:
+                routed["targets"] = targets
+            else:
+                routed.pop("to_room", None)
+
+        ctx.queue_payload(routed)
 
     def remove_effects(self, ctx: SpellContext, *effect_names: str, target: Any = None):
         victim = ctx.resolve(target) if target is not None else ctx.victim
@@ -205,12 +262,70 @@ class SpellApi:
         victim = ctx.resolve(target) if target is not None else ctx.victim
         if victim is None:
             return False
-        removed = False
+        removed_effects = []
         for effect_name in effect_names:
-            removed = self.effect_handler.check_dispel(ctx.level, victim, str(effect_name or "").strip().lower()) or removed
-        if removed:
+            removed_effects.extend(self.effect_handler.dispel_effects(ctx.level, victim, str(effect_name or "").strip().lower()))
+        if removed_effects:
+            self._queue_removed_effect_messages(ctx, victim, removed_effects)
             ctx.mark_performed()
-        return removed
+        return bool(removed_effects)
+
+    def _queue_removed_effect_messages(self, ctx: SpellContext, victim: Any, effects: list[Effect]) -> None:
+        for effect in effects:
+            ability = self._ability_for_effect(ctx, getattr(effect, "type", ""))
+            if ability is None:
+                continue
+            text = self._display_effect_message(self._ability_message(ability, "to_char", "msg_off", ctx, victim))
+            if not text:
+                continue
+            if not text.endswith(("\r\n", "\n\r", "\n")):
+                text = f"{text}\r\n"
+            if victim is ctx.actor:
+                ctx.queue_payload({"to_char": text})
+            else:
+                ctx.queue_payload({"victim": victim, "to_victim": text})
+
+    def _ability_for_effect(self, ctx: SpellContext, effect_type: Any):
+        want = str(effect_type or "").strip().lower()
+        if not want:
+            return None
+
+        registry = getattr(getattr(ctx, "handler", None), "spell_registry", None)
+        if registry is None:
+            return None
+        all_spells = getattr(registry, "all_spells", None)
+        spells = all_spells() if callable(all_spells) else []
+        for spell in spells:
+            candidates = [
+                str(getattr(spell, "handler_id", "") or "").strip().lower(),
+                str(getattr(spell, "name", "") or "").strip().lower(),
+                str(getattr(spell, "id", "") or "").strip().lower(),
+            ]
+            if want in candidates:
+                return spell
+        return None
+
+    def _ability_message(self, ability: Any, channel: str, key: str, ctx: SpellContext, target: Any) -> str:
+        tokens = ctx.payload_tokens() if callable(getattr(ctx, "payload_tokens", None)) else {}
+        target_name = self._entity_name(target)
+        tokens.update(
+            {
+                "victim": target_name,
+                "target": target_name,
+                "t": target_name,
+                "n": target_name,
+            }
+        )
+        if callable(getattr(ability, "message", None)):
+            return str(ability.message(channel, key, **tokens) or "")
+        return ""
+
+    @staticmethod
+    def _display_effect_message(message) -> str:
+        text = str(message or "").strip()
+        if len(text) >= 2 and text.startswith("!") and text.endswith("!"):
+            return ""
+        return text
 
     def damage_expr(
         self,
@@ -661,12 +776,14 @@ class SpellApi:
         victim = ctx.victim
         if victim is None:
             return False
-        removed = False
+        removed_effects = []
         for effect_name in self.DISPEL_EFFECTS:
-            removed = self.effect_handler.check_dispel(ctx.level, victim, effect_name) or removed
-        if not removed:
+            removed_effects.extend(self.effect_handler.dispel_effects(ctx.level, victim, effect_name))
+        if removed_effects:
+            self._queue_removed_effect_messages(ctx, victim, removed_effects)
+        else:
             self.send(ctx, to_char="Spell failed.\r\n")
-        return ctx.mark_performed() if removed else False
+        return ctx.mark_performed() if removed_effects else False
 
     def cancellation(self, ctx: SpellContext):
         return self.dispel_magic(ctx)
@@ -1017,16 +1134,16 @@ class SpellApi:
 
     def _remove_curse_item(self, ctx: SpellContext, item, owner: Any = None, quiet: bool = False) -> bool:
         item_flags = CharacterApi.get_enum("itemFlags")
-        nodrop = getattr(item_flags, "ITEM_NODROP", None)
-        noremove = getattr(item_flags, "ITEM_NOREMOVE", None)
-        nouncurse = getattr(item_flags, "ITEM_NOUNCURSE", None)
+        nodrop = item_flags.ITEM_NODROP
+        noremove = item_flags.ITEM_NOREMOVE
+        nouncurse = item_flags.ITEM_NOUNCURSE
         raw_flags = GameApi.flags_to_int(getattr(item, "extra_flags", 0))
-        cursed = (nodrop is not None and GameApi.is_set(raw_flags, nodrop.value)) or (noremove is not None and GameApi.is_set(raw_flags, noremove.value))
+        cursed = GameApi.is_set(raw_flags, nodrop.value) or GameApi.is_set(raw_flags, noremove.value)
         if not cursed:
             if quiet:
                 return False
             return ctx.fail(f"There doesn't seem to be a curse on {Item.short(item)}.\r\n")
-        if nouncurse is not None and GameApi.is_set(raw_flags, nouncurse.value):
+        if GameApi.is_set(raw_flags, nouncurse.value):
             if quiet:
                 return False
             return ctx.fail(f"The curse on {Item.short(item)} is beyond your power.\r\n")
@@ -1034,10 +1151,8 @@ class SpellApi:
             if quiet:
                 return False
             return ctx.fail(f"The curse on {Item.short(item)} is beyond your power.\r\n")
-        if nodrop is not None:
-            raw_flags = GameApi.unset_bit(raw_flags, nodrop.value)
-        if noremove is not None:
-            raw_flags = GameApi.unset_bit(raw_flags, noremove.value)
+        raw_flags = GameApi.unset_bit(raw_flags, nodrop.value)
+        raw_flags = GameApi.unset_bit(raw_flags, noremove.value)
         item.extra_flags = GameApi.flags_to_letters(raw_flags)
         if quiet:
             return True
@@ -1065,20 +1180,20 @@ class SpellApi:
         if entity is None or not CharacterApi.is_npc(entity):
             return False
         flag_letters = CharacterApi.get_enum("flagLetters")
-        if not hasattr(flag_letters, flag_name):
+        if flag_name not in flag_letters.__members__:
             return False
         flags = GenericUtil.to_int(getattr(getattr(entity, "status_flags", None), "imm", 0), 0)
-        return CharacterApi.is_set(flags, getattr(flag_letters, flag_name).value)
+        return CharacterApi.is_set(flags, flag_letters[flag_name].value)
 
     @staticmethod
     def _player_has_act(entity, flag_name: str) -> bool:
         if entity is None or CharacterApi.is_npc(entity):
             return False
         act_bits = CharacterApi.get_enum("playerActBits")
-        if not hasattr(act_bits, flag_name):
+        if flag_name not in act_bits.__members__:
             return False
         flags = GenericUtil.to_int(CharacterApi.convert_flags(getattr(getattr(entity, "status_flags", None), "act", "") or "0"), 0)
-        return CharacterApi.is_set(flags, getattr(act_bits, flag_name).value)
+        return CharacterApi.is_set(flags, act_bits[flag_name].value)
 
     @staticmethod
     def _room_helper(ctx_or_entity):

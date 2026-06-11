@@ -903,15 +903,15 @@
     "maxArguments": 0,
     "guards": [
       {
-        "predicate": "lambda v: len(v.context.parameters) == 0",
+        "predicate": "lambda v: WizApi.at_missing_argument(v)",
         "messageKey": "noArgument"
       },
       {
-        "predicate": "",
+        "predicate": "lambda v: WizApi.at_location(v) is None",
         "messageKey": "noSuchLocation"
       },
       {
-        "predicate": "lambda v: (room := v.context.room) is not None and room.is_private(CharacterApi.get_enum('roomFlags'))",
+        "predicate": "lambda v: WizApi.at_private(v)",
         "messageKey": "privateRoom"
       }
     ],
@@ -4126,7 +4126,7 @@
         "messageKey": "itemNotContainer"
       },
       {
-        "predicate": "lambda v: v.context.drink_item is not None and (not ItemUtil.is_fountain(v.context.drink_item)) and GenericUtil.to_int(getattr(v.context.drink_item, 'value1', 0), 0) <= 0",
+        "predicate": "lambda v: v.context.drink_item is not None and (not Item.is_fountain(v.context.drink_item)) and GenericUtil.to_int(getattr(v.context.drink_item, 'value1', 0), 0) <= 0",
         "messageKey": "containerEmpty"
       },
       {
@@ -7519,7 +7519,7 @@
         "default": "%c has restored you."
       },
       "toWiznet": {
-        "default": "%c has restored %s."
+        "default": "%c has restored %t."
       }
     },
     "guards": [

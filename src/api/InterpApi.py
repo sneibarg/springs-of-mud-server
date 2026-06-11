@@ -52,7 +52,7 @@ class InterpApi:
         return payload
 
     def build_interp_view(self, context) -> InterpView:
-        game_payload = GamePayload.from_json(getattr(getattr(context, "command", None), "payload", None))
+        game_payload = GamePayload.from_json(context.command.payload)
         self.logger.debug(f"build_interp_view: GamePayload={game_payload}")
         return InterpView(context=context, payload=game_payload)
 
@@ -97,7 +97,7 @@ class InterpApi:
 
     def _build_guards(self, command) -> tuple[ActionGuard[InterpView], ...]:
         guards: list[ActionGuard[InterpView]] = []
-        for entry in list(getattr(command, "guards", []) or []):
+        for entry in list(command.guards or []):
             predicate_src = str(entry.get("predicate", "") or "").strip()
             if not predicate_src:
                 continue
@@ -152,11 +152,11 @@ class InterpApi:
 
     @staticmethod
     def _default_tokens(view: InterpView) -> dict[str, Any]:
-        actor = getattr(view.context, "character", None)
+        actor = view.context.character
         argument = InterpUtil.argument_text(view)
         target, message = CommunicationsUtil.split_first(argument)
         tokens = {
-            "c": str(getattr(actor, "name", "") or ""),
+            "c": str(actor.name or ""),
             "s": message or argument,
             "e": argument,
             "t": target or argument,
@@ -203,24 +203,24 @@ class InterpApi:
 
     def _interp_action_definition(self, view: InterpView, action_name: str) -> ActionDefinition[InterpView]:
         command = view.context.command
-        command_name = str(getattr(command, "name", "") or action_name).strip().lower()
         if command is None:
-            raise KeyError(f"No interp action definition for '{command_name}'")
+            raise KeyError(f"No interp action definition for '{action_name}'")
+        command_name = str(command.name or action_name).strip().lower()
 
         return ActionDefinition(
-            name=str(getattr(command, "name", "") or command_name),
+            name=str(command.name or command_name),
             guards=self._build_guards(command),
             plan_factory=self._default_plan,
         )
 
     def _interp_check_definition(self, view: InterpView, action_name: str) -> ActionDefinition[InterpView]:
         command = view.context.command
-        command_name = str(getattr(command, "name", "") or action_name).strip().lower()
         if command is None:
-            raise KeyError(f"No interp action definition for '{command_name}'")
+            raise KeyError(f"No interp action definition for '{action_name}'")
+        command_name = str(command.name or action_name).strip().lower()
 
         return ActionDefinition(
-            name=str(getattr(command, "name", "") or command_name),
+            name=str(command.name or command_name),
             guards=self._build_guards(command),
             plan_factory=lambda _view: ActionPlan(stop=False, data={"blocked": False}),
         )

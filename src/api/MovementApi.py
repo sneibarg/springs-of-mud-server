@@ -74,7 +74,7 @@ class MovementApi(GameApi):
         affected_bits = CharacterApi.get_enum("affectedBy")
         sector_types = CharacterApi.get_enum("sectorTypes")
 
-        flags = GenericUtil.to_int(getattr(exit_obj, "exit_flags", 0), 0) if exit_obj is not None else 0
+        flags = GenericUtil.to_int(exit_obj.exit_flags, 0) if exit_obj is not None else 0
         ex_closed = MovementApi.flag_value(exit_flags, "EX_CLOSED", "CLOSED")
         ex_nopass = MovementApi.flag_value(exit_flags, "EX_NOPASS", "NOPASS")
         pass_door = bool(
@@ -106,7 +106,7 @@ class MovementApi(GameApi):
                 and not character.has_boat()
             )
             move_cost = MovementApi._movement_cost(character, in_room, to_room, is_flying, affected_bits)
-            insufficient_movement = GenericUtil.to_int(getattr(character, "movement", 0), 0) < move_cost
+            insufficient_movement = GenericUtil.to_int(character.movement, 0) < move_cost
 
         return MovementState(
             direction=direction_name,
@@ -115,7 +115,7 @@ class MovementApi(GameApi):
             exit_obj=exit_obj,
             to_room=to_room,
             exit_closed=exit_closed,
-            exit_keyword=(getattr(exit_obj, "keyword", "") or "door") if exit_obj is not None else "door",
+            exit_keyword=(exit_obj.keyword or "door") if exit_obj is not None else "door",
             private_room=bool(to_room is not None and to_room.is_private(room_flags)),
             air_blocked=air_blocked,
             water_blocked=water_blocked,
@@ -130,16 +130,16 @@ class MovementApi(GameApi):
         argument = MovementApi.argument_text(subject)
         door = -1 if room is None else room.find_door(argument)
         exit_obj = MovementUtil.find_exit(room, door) if door >= 0 else None
-        flags = GenericUtil.to_int(getattr(exit_obj, "exit_flags", 0), 0) if exit_obj is not None else 0
+        flags = GenericUtil.to_int(exit_obj.exit_flags, 0) if exit_obj is not None else 0
         exit_flags = exit_flags or CharacterApi.get_enum("exitFlags")
-        key = GenericUtil.to_int(getattr(exit_obj, "key", -1), -1) if exit_obj is not None else -1
+        key = GenericUtil.to_int(exit_obj.key if exit_obj is not None and "key" in exit_obj.__dict__ else -1, -1)
         return DoorState(
             argument=argument,
             room=room,
             door=door,
             exit_obj=exit_obj,
             flags=flags,
-            keyword=(getattr(exit_obj, "keyword", "") or "door") if exit_obj is not None else "door",
+            keyword=(exit_obj.keyword or "door") if exit_obj is not None else "door",
             key=key,
             has_key=MovementApi.has_key(character, key),
             closed_flag=MovementApi.flag_value(exit_flags, "EX_CLOSED", "CLOSED"),
@@ -151,14 +151,15 @@ class MovementApi(GameApi):
     def container_state(subject) -> ContainerState:
         character = MovementApi._character(subject)
         item = MovementApi.target_item(subject)
-        flags = GenericUtil.to_int(getattr(item, "value1", 0), 0) if item is not None else 0
-        key = GenericUtil.to_int(getattr(item, "value2", -1), -1) if item is not None else -1
+        flags = GenericUtil.to_int(item.value1, 0) if item is not None else 0
+        key = GenericUtil.to_int(item.value2, -1) if item is not None else -1
         container_state = CharacterApi.get_enum("containerState")
+        short = "container" if item is None else item.short()
         return ContainerState(
             argument=MovementApi.argument_text(subject),
             item=item,
             flags=flags,
-            short=Item.short(item) if item is not None else "container",
+            short=short,
             key=key,
             has_key=MovementApi.has_key(character, key),
             closeable_flag=MovementApi.flag_value(container_state, "CONT_CLOSEABLE"),
@@ -327,7 +328,7 @@ class MovementApi(GameApi):
         affected_bits = CharacterApi.get_enum("affectedBy")
         return (
             not CharacterApi.is_affected_by_name(character, affected_bits, "AFF_SNEAK")
-            and GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0) < 51
+            and GenericUtil.to_int(character.status_flags.invis_level, 0) < 51
         )
 
     @staticmethod
@@ -356,9 +357,8 @@ class MovementApi(GameApi):
         if enum_obj is None:
             return 0
         for name in names:
-            member = getattr(enum_obj, name, None)
-            if member is not None:
-                return int(member.value)
+            if name in enum_obj.__members__:
+                return int(enum_obj[name].value)
         return 0
 
     @staticmethod
@@ -378,7 +378,7 @@ class MovementApi(GameApi):
         if exit_obj is None:
             return
 
-        flags = GenericUtil.to_int(getattr(exit_obj, "exit_flags", 0), 0)
+        flags = GenericUtil.to_int(exit_obj.exit_flags, 0)
         if clear_mask:
             flags = MovementApi.clear_flag(flags, clear_mask)
         if set_mask:
@@ -409,7 +409,7 @@ class MovementApi(GameApi):
         if item is None:
             return
         container_state = CharacterApi.get_enum("containerState")
-        flags = GenericUtil.to_int(getattr(item, "value1", 0), 0)
+        flags = GenericUtil.to_int(item.value1, 0)
         item.value1 = str(MovementApi.set_flag(flags, MovementApi.flag_value(container_state, "CONT_CLOSED")))
 
     @staticmethod
@@ -426,7 +426,7 @@ class MovementApi(GameApi):
         if item is None:
             return
         container_state = CharacterApi.get_enum("containerState")
-        flags = GenericUtil.to_int(getattr(item, "value1", 0), 0)
+        flags = GenericUtil.to_int(item.value1, 0)
         item.value1 = str(MovementApi.set_flag(flags, MovementApi.flag_value(container_state, "CONT_LOCKED")))
 
     @staticmethod
@@ -498,7 +498,7 @@ class MovementApi(GameApi):
         character = MovementApi._character(subject)
         if registry is None or character is None:
             return None
-        return registry.get_or_none(id=getattr(character, "room_id", None))
+        return registry.get_or_none(id=character.room_id)
 
     @staticmethod
     def _destination_room(exit_obj, subject, room_registry=None):
@@ -508,13 +508,13 @@ class MovementApi(GameApi):
         if registry is None:
             return None
 
-        to_room_id = getattr(exit_obj, "to_room_id", None)
+        to_room_id = exit_obj.to_room_id
         if to_room_id:
             room = registry.get_or_none(id=to_room_id)
             if room is not None:
                 return room
 
-        to_room_vnum = getattr(exit_obj, "to_room_vnum", None)
+        to_room_vnum = exit_obj.to_room_vnum
         if to_room_vnum not in (None, ""):
             return registry.get_or_none(vnum=str(to_room_vnum))
         return None
@@ -546,14 +546,14 @@ class MovementApi(GameApi):
     def _mirror_exit_flags(room_registry, room, ex, *, set_mask: int = 0, clear_mask: int = 0):
         if room_registry is None or room is None or ex is None:
             return
-        to_room = room_registry.get_or_none(id=getattr(ex, "to_room_id", None))
+        to_room = room_registry.get_or_none(id=ex.to_room_id)
         if to_room is None:
             return
-        rev = MovementUtil.REV_DIR[int(getattr(ex, "direction", 0))]
+        rev = MovementUtil.REV_DIR[int(ex.direction)]
         rev_exit = MovementUtil.find_exit(to_room, rev)
-        if rev_exit is None or getattr(rev_exit, "to_room_id", None) != room.id:
+        if rev_exit is None or rev_exit.to_room_id != room.id:
             return
-        flags = GenericUtil.to_int(getattr(rev_exit, "exit_flags", 0), 0)
+        flags = GenericUtil.to_int(rev_exit.exit_flags, 0)
         if clear_mask:
             flags = MovementApi.clear_flag(flags, clear_mask)
         if set_mask:

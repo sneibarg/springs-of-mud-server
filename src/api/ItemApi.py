@@ -93,28 +93,28 @@ class ItemApi(GameApi):
         take_bit = cls.enum_bit(wear_flags_enum, "ITEM_TAKE")
         if take_bit == 0:
             return True
-        wear_flags = GameApi.flags_to_int(getattr(obj, "wear_flags", 0))
+        wear_flags = GameApi.flags_to_int(obj.wear_flags)
         return (wear_flags & take_bit) != 0
 
     @staticmethod
     def find_comparable_equipped_item(character: Character, source_item):
-        src_type = str(getattr(source_item, "item_type", "") or "").strip().lower()
-        equipped = getattr(character, "equipped", None)
+        src_type = str(source_item.item_type or "").strip().lower()
+        equipped = character.equipped
         for slot_item in getattr(equipped, "__dict__", {}).values() if equipped is not None else []:
             if slot_item is None or slot_item == source_item:
                 continue
-            item_type = str(getattr(slot_item, "item_type", "") or "").strip().lower()
+            item_type = str(slot_item.item_type or "").strip().lower()
             if item_type == src_type:
                 return slot_item
         return None
 
     @staticmethod
     def compare_value(item) -> int | None:
-        item_type = str(getattr(item, "item_type", "") or "").strip().lower()
+        item_type = str(item.item_type or "").strip().lower()
         if "weapon" in item_type:
-            dam_min = GenericUtil.to_int(getattr(item, "value1", 0), 0)
-            dam_max = GenericUtil.to_int(getattr(item, "value2", 0), 0)
+            dam_min = GenericUtil.to_int(item.value1, 0)
+            dam_max = GenericUtil.to_int(item.value2, 0)
             return (dam_min + dam_max) // 2
         if "armor" in item_type:
-            return GenericUtil.to_int(getattr(item, "value0", 0), 0)
+            return GenericUtil.to_int(item.value0, 0)
         return None
