@@ -128,6 +128,22 @@ class WizApi:
         )
 
     @staticmethod
+    def switch_without_session(view) -> bool:
+        handler = view.context.wiz_handler()
+        if handler is None:
+            return True
+        return handler.current_session(view.context.character) is None
+
+    @staticmethod
+    def switch_self(view) -> bool:
+        return WizApi.switch_target(view) == view.context.character
+
+    @staticmethod
+    def switch_non_mobile(view) -> bool:
+        target = WizApi.switch_target(view)
+        return target is not None and target != view.context.character and not CharacterApi.is_npc(target)
+
+    @staticmethod
     def switch_private(view) -> bool:
         target = WizApi.switch_target(view)
         room = None if target is None else WizUtil.room_of_entity(WizApi.room_registry(view), target)

@@ -8203,6 +8203,9 @@
         "messageKey": "noArgument"
       },
       {
+        "predicate": "lambda v: WizApi.switch_without_session(v)"
+      },
+      {
         "predicate": "lambda v: WizApi.switched(v)",
         "messageKey": "alreadySwitched"
       },
@@ -8211,7 +8214,11 @@
         "messageKey": "targetMissing"
       },
       {
-        "predicate": "lambda v: WizApi.switch_target(v) != v.context.character and not CharacterApi.is_npc(WizApi.switch_target(v))",
+        "predicate": "lambda v: WizApi.switch_self(v)",
+        "messageKey": "default"
+      },
+      {
+        "predicate": "lambda v: WizApi.switch_non_mobile(v)",
         "messageKey": "invalidTarget"
       },
       {

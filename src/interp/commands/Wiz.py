@@ -874,9 +874,6 @@ class Wiz:
         if blocked is not None:
             return blocked
         target = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters))
-        if target == character:
-            context.finish()
-            return self._command_payload("default")
         self.wiz_handler.switch_character(character, target)
         context.character = target
         context.finish()

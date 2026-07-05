@@ -151,7 +151,9 @@ class ConnectionHandler:
 
                 if message.type == MessageType.GAME:
                     character = session.character or character
-                    await self.command_handler.handle_command(player, character, message.get('text', ''))
+                    command_text = message.get('text', '')
+                    await self.message_bus.mirror_snoop_input(session, command_text)
+                    await self.command_handler.handle_command(player, character, command_text)
                     character = session.character or character
                     area, room = self._get_area_and_room(character)
                     await self.message_bus.send_prompt(character, area, room)

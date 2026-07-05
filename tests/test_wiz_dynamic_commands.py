@@ -67,6 +67,29 @@ class TestWizDynamicCommandMetadata(unittest.TestCase):
         self.assertIn("lambda v: WizApi.at_location(v) is None", predicates)
         self.assertIn("lambda v: WizApi.at_private(v)", predicates)
 
+    def test_switch_metadata_uses_rom_order_low_code_guards(self):
+        with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:
+            commands = {entry["name"]: entry for entry in json.load(handle)}
+
+        guards = commands["switch"]["guards"]
+        predicates = [entry.get("predicate", "") for entry in guards]
+        message_keys = [entry.get("messageKey", "") for entry in guards]
+        self.assertEqual(
+            [
+                "lambda v: not InterpUtil.argument_text(v)",
+                "lambda v: WizApi.switch_without_session(v)",
+                "lambda v: WizApi.switched(v)",
+                "lambda v: WizApi.switch_target(v) is None",
+                "lambda v: WizApi.switch_self(v)",
+                "lambda v: WizApi.switch_non_mobile(v)",
+                "lambda v: WizApi.switch_private(v)",
+                "lambda v: WizApi.switch_in_use(v)",
+            ],
+            predicates,
+        )
+        self.assertEqual("", message_keys[1])
+        self.assertEqual("default", message_keys[4])
+
 
 if __name__ == "__main__":
     unittest.main()
