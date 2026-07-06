@@ -46,6 +46,22 @@ class GameService:
             self.logger.error(f"Failed to load game data: {e}")
             raise RuntimeError(f"Failed to load game data: {e}")
 
+    def save_deny_list(self) -> bool:
+        game_data_id = str(getattr(self.game_data, "id", "") or "")
+        if not game_data_id:
+            self.logger.error("Refusing to save denyList without a game data id.")
+            return False
+
+        payload = {"denyList": list(getattr(self.game_data, "denyList", []) or [])}
+        url = f"{self.game_data_endpoint}/{game_data_id}"
+        try:
+            response = requests.patch(url, json=payload, timeout=10)
+            response.raise_for_status()
+            return True
+        except requests.RequestException as e:
+            self.logger.error(f"Failed to save denyList to {url}: {e}")
+            return False
+
     def _load_enums(self):
         from util.GenericUtil import GenericUtil
         for enum_name in self.game_data.enums:

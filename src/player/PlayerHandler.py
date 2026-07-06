@@ -44,6 +44,8 @@ class PlayerHandler:
         self.__name__ = "PlayerHandler"
         self.message_bus = message_bus
         self.interp_api = interp_api
+        self.registry_service = registry_service
+        self.player_registry = registry_service.player_registry
         self.character_registry = registry_service.character_registry
         self.area_registry = registry_service.area_registry
         self.room_registry = registry_service.room_registry

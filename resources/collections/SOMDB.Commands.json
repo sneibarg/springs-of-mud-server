@@ -6770,7 +6770,17 @@
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: WizApi.allow_site_missing(v)",
+        "messageKey": "noSuchBan"
+      }
+    ]
   },
   {
     "_id": {
@@ -6789,15 +6799,42 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "nullList": "No sites banned at this time.",
-        "invalidOption": "Acceptable ban types are all, newbies, and permit.",
-        "noArgument": "You have to ban SOMETHING.",
-        "insufficientLevel": "That ban was set by a higher power.",
+        "noArgument": "Ban whom?",
+        "targetMissing": "They aren't here.",
+        "noNPCs": "Not on NPC's.",
+        "failed": "You failed.",
         "default": "%t has been banned."
       },
       "toRoom": {},
-      "toVictim": {}
-    }
+      "toVictim": {
+        "default": "You have been banned from the server."
+      },
+      "toWiznet": {
+        "default": "%c banned %t."
+      }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: WizApi.ban_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: WizApi.ban_target_is_npc(v)",
+        "messageKey": "noNPCs"
+      },
+      {
+        "predicate": "lambda v: WizApi.ban_target_trust_failed(v)",
+        "messageKey": "failed"
+      },
+      {
+        "predicate": "lambda v: WizApi.ban_target_account_missing(v)",
+        "messageKey": "targetMissing"
+      }
+    ]
   },
   {
     "_id": {
@@ -6818,8 +6855,9 @@
       "toChar": {
         "noArgument": "Deny whom?",
         "targetMissing": "They aren't here.",
-        "noNPCs": "Not on NPCs.",
+        "noNPCs": "Not on NPC's.",
         "failed": "You failed.",
+        "siteDenied": "%s has been denied.",
         "default": "OK."
       },
       "toRoom": {},
@@ -6829,7 +6867,25 @@
       "toWiznet": {
         "default": "%c denied access to %t."
       }
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: WizApi.deny_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: WizApi.deny_target_is_npc(v)",
+        "messageKey": "noNPCs"
+      },
+      {
+        "predicate": "lambda v: WizApi.deny_target_trust_failed(v)",
+        "messageKey": "failed"
+      }
+    ]
   },
   {
     "_id": {

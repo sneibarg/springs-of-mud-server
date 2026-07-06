@@ -16,6 +16,7 @@ class GameApi:
     _enum_provider = None
     _races = {}
     _item_table = {}
+    _weapons = {}
     _attribute_bonuses = {}
     _classes = {}
     _pc_races = {}
@@ -34,6 +35,7 @@ class GameApi:
             GameApi._enum_provider = enum_provider
             GameApi._configure_races(game_data)
             GameApi._configure_item_table(game_data)
+            GameApi._configure_weapons(game_data)
             GameApi._configure_attribute_bonuses(game_data)
             GameApi._configure_classes(game_data)
             GameApi._configure_pc_races(game_data)
@@ -49,6 +51,7 @@ class GameApi:
             GameApi._enums = {}
             GameApi._races = {}
             GameApi._item_table = {}
+            GameApi._weapons = {}
             GameApi._attribute_bonuses = {}
             GameApi._classes = {}
             GameApi._pc_races = {}
@@ -77,6 +80,10 @@ class GameApi:
     @classmethod
     def _configure_item_table(cls, game_data: GameData) -> None:
         GameApi._item_table = dict(game_data.item_table or {})
+
+    @classmethod
+    def _configure_weapons(cls, game_data: GameData) -> None:
+        GameApi._weapons = dict(game_data.weapons or {})
 
     @classmethod
     def _configure_attribute_bonuses(cls, game_data: GameData) -> None:
@@ -117,6 +124,11 @@ class GameApi:
         return GameApi._item_table
 
     @classmethod
+    def weapons_map(cls) -> dict:
+        cls._require_configured()
+        return GameApi._weapons
+
+    @classmethod
     def attribute_bonus_map(cls) -> dict:
         cls._require_configured()
         return GameApi._attribute_bonuses
@@ -137,11 +149,90 @@ class GameApi:
         return GameApi._titles
 
     @classmethod
+    def deny_list(cls) -> list[str]:
+        cls._require_configured()
+        if GameApi._game_data is None:
+            return []
+        deny_list = getattr(GameApi._game_data, "denyList", None)
+        if deny_list is None:
+            object.__setattr__(GameApi._game_data, "denyList", [])
+        return GameApi._game_data.denyList
+
+    @classmethod
+    def add_denied_site(cls, site: str) -> bool:
+        normalized = cls.normalize_site(site)
+        if not normalized:
+            return False
+        deny_list = cls.deny_list()
+        if any(cls.normalize_site(entry) == normalized for entry in deny_list):
+            return False
+        deny_list.append(normalized)
+        return True
+
+    @classmethod
+    def remove_denied_site(cls, site: str) -> bool:
+        normalized = cls.normalize_site(site)
+        if not normalized:
+            return False
+        deny_list = cls.deny_list()
+        for index, entry in enumerate(list(deny_list)):
+            if cls.normalize_site(entry) == normalized:
+                del deny_list[index]
+                return True
+        return False
+
+    @classmethod
+    def has_denied_site(cls, site: str) -> bool:
+        normalized = cls.normalize_site(site)
+        if not normalized:
+            return False
+        return any(cls.normalize_site(entry) == normalized for entry in cls.deny_list())
+
+    @classmethod
+    def is_site_denied(cls, site: str) -> bool:
+        normalized = cls.normalize_site(site)
+        if not normalized:
+            return False
+        return any(cls._site_pattern_matches(entry, normalized) for entry in cls.deny_list())
+
+    @classmethod
     def get_enum(cls, enum_name: str) -> type[IntEnum] | Any | None:
         cls._require_configured()
         if GameApi._enum_provider is None or not GameApi._enum_provider.contains(enum_name):
             return None
         return GameApi._enum_provider.get(enum_name)
+
+    @staticmethod
+    def normalize_site(site: str) -> str:
+        return str(site or "").strip().lower()
+
+    @staticmethod
+    def looks_like_site(site: str) -> bool:
+        text = GameApi.normalize_site(site).strip("*")
+        if not text:
+            return False
+        if ":" in text or "." in text:
+            return True
+        return all(part.isdigit() for part in text.split(".")) if "." in text else False
+
+    @staticmethod
+    def _site_pattern_matches(pattern: str, site: str) -> bool:
+        entry = GameApi.normalize_site(pattern)
+        host = GameApi.normalize_site(site)
+        if not entry or not host:
+            return False
+        prefix = entry.startswith("*")
+        suffix = entry.endswith("*")
+        name = entry.strip("*")
+        if not name:
+            return False
+        if prefix and suffix:
+            return name in host
+        if prefix:
+            return host.endswith(name)
+        if suffix:
+            return host.startswith(name)
+        return host == name
 
     @classmethod
     def load_enums(cls, **aliases: str) -> None:

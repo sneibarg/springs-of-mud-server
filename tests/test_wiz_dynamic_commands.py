@@ -11,8 +11,11 @@ class TestWizDynamicCommandMetadata(unittest.TestCase):
     def test_migrated_wiz_commands_have_guards(self):
         expected = {
             "advance",
+            "allow",
             "at",
+            "ban",
             "clone",
+            "deny",
             "flag",
             "freeze",
             "goto",
@@ -131,6 +134,37 @@ class TestWizDynamicCommandMetadata(unittest.TestCase):
                 "lambda v: WizApi.flag_unknown_name(v)",
             ],
             [entry.get("predicate", "") for entry in guards],
+        )
+
+    def test_allow_deny_ban_metadata_uses_low_code_guards(self):
+        with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:
+            commands = {entry["name"]: entry for entry in json.load(handle)}
+
+        self.assertEqual(
+            [
+                "lambda v: not InterpUtil.argument_text(v)",
+                "lambda v: WizApi.allow_site_missing(v)",
+            ],
+            [entry.get("predicate", "") for entry in commands["allow"]["guards"]],
+        )
+        self.assertEqual(
+            [
+                "lambda v: not InterpUtil.argument_text(v)",
+                "lambda v: WizApi.deny_target_missing(v)",
+                "lambda v: WizApi.deny_target_is_npc(v)",
+                "lambda v: WizApi.deny_target_trust_failed(v)",
+            ],
+            [entry.get("predicate", "") for entry in commands["deny"]["guards"]],
+        )
+        self.assertEqual(
+            [
+                "lambda v: not InterpUtil.argument_text(v)",
+                "lambda v: WizApi.ban_target_missing(v)",
+                "lambda v: WizApi.ban_target_is_npc(v)",
+                "lambda v: WizApi.ban_target_trust_failed(v)",
+                "lambda v: WizApi.ban_target_account_missing(v)",
+            ],
+            [entry.get("predicate", "") for entry in commands["ban"]["guards"]],
         )
 
 

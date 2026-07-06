@@ -10,6 +10,7 @@ from area.Area import Area
 from area.Room import Room
 from interp.InterpHandler import InterpHandler
 from api.CharacterApi import CharacterApi
+from api.GameApi import GameApi
 from server.connection.TelnetConnection import TelnetConnection
 from server.connection.ConnectionManager import ConnectionManager
 from server.session.SessionHandler import SessionHandler
@@ -72,6 +73,10 @@ class ConnectionHandler:
             self.connection_manager.add_connection(connection)
             peer_info = connection.get_peer_info()
             self.logger.info(f"New connection from {peer_info}: session {session.session_id}")
+            if self._peer_denied(peer_info):
+                await connection.send_text("Your site has been banned from this mud.\r\n", MessageType.ERROR)
+                await connection.close()
+                return
 
             await self._send_welcome(connection)
             success, player_id, character = await self._receive_initial_message(connection, session)
@@ -127,6 +132,12 @@ class ConnectionHandler:
     async def _send_welcome(connection: TelnetConnection) -> None:
         welcome = f"Welcome to the server!\n\n\n\n"
         await connection.send_text(welcome, MessageType.GAME)
+
+    @staticmethod
+    def _peer_denied(peer_info) -> bool:
+        if isinstance(peer_info, tuple) and peer_info:
+            return GameApi.is_site_denied(str(peer_info[0] or ""))
+        return GameApi.is_site_denied(str(peer_info or ""))
 
     async def _game_loop(self, connection: TelnetConnection, session, player, character) -> None:
         while not connection.is_closed() and (session.is_playing() or session.is_idle()):

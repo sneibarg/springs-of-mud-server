@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from api.CharacterApi import CharacterApi
+from api.GameApi import GameApi
 from player.Character import Character
 from util.AreaUtil import AreaUtil
 from util.GenericUtil import GenericUtil
@@ -316,6 +317,96 @@ class WizApi:
             InterpUtil.argument_text(view),
             include_mobiles=False,
         )
+
+    @staticmethod
+    def first_argument(view) -> str:
+        arg, _rest = InterpUtil.one_argument(InterpUtil.argument_text(view))
+        return arg
+
+    @staticmethod
+    def deny_site_argument(view) -> str:
+        arg = WizApi.first_argument(view)
+        return arg if GameApi.looks_like_site(arg) else ""
+
+    @staticmethod
+    def deny_is_site(view) -> bool:
+        return bool(WizApi.deny_site_argument(view))
+
+    @staticmethod
+    def deny_target(view):
+        if WizApi.deny_is_site(view):
+            return None
+        return WizApi.world_target(view)
+
+    @staticmethod
+    def deny_target_missing(view) -> bool:
+        return (not WizApi.deny_is_site(view)) and WizApi.deny_target(view) is None
+
+    @staticmethod
+    def deny_target_is_npc(view) -> bool:
+        target = WizApi.deny_target(view)
+        return target is not None and CharacterApi.is_npc(target)
+
+    @staticmethod
+    def deny_target_trust_failed(view) -> bool:
+        target = WizApi.deny_target(view)
+        return target is not None and CharacterApi.get_trust(target) >= CharacterApi.get_trust(view.context.character)
+
+    @staticmethod
+    def allow_site_missing(view) -> bool:
+        return not GameApi.has_denied_site(WizApi.first_argument(view))
+
+    @staticmethod
+    def ban_target(view):
+        return WizUtil.find_world_entity(
+            WizApi.character_registry(view),
+            WizApi.room_registry(view),
+            InterpUtil.argument_text(view),
+            include_players=True,
+            include_mobiles=True,
+        )
+
+    @staticmethod
+    def ban_target_missing(view) -> bool:
+        return WizApi.ban_target(view) is None
+
+    @staticmethod
+    def ban_target_is_npc(view) -> bool:
+        target = WizApi.ban_target(view)
+        return target is not None and CharacterApi.is_npc(target)
+
+    @staticmethod
+    def ban_target_trust_failed(view) -> bool:
+        target = WizApi.ban_target(view)
+        return target is not None and CharacterApi.get_trust(target) >= CharacterApi.get_trust(view.context.character)
+
+    @staticmethod
+    def ban_target_account(view):
+        target = WizApi.ban_target(view)
+        if target is None:
+            return None
+        player_handler = view.context.player_handler()
+        registry_service = None if player_handler is None else getattr(player_handler, "registry_service", None)
+        if registry_service is None:
+            return None
+        account_id = str(getattr(target, "account_id", "") or "")
+        return None if not account_id else WizApi._registry_get_or_none(registry_service.player_registry, id=account_id)
+
+    @staticmethod
+    def ban_target_account_missing(view) -> bool:
+        return WizApi.ban_target(view) is not None and (not CharacterApi.is_npc(WizApi.ban_target(view))) and WizApi.ban_target_account(view) is None
+
+    @staticmethod
+    def _registry_get_or_none(registry, **kwargs):
+        if registry is None:
+            return None
+        get_or_none = getattr(registry, "get_or_none", None)
+        if callable(get_or_none):
+            return get_or_none(**kwargs)
+        try:
+            return registry.get(**kwargs)
+        except Exception:
+            return None
 
     @staticmethod
     def switch_target(view):

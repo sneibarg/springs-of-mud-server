@@ -10,12 +10,15 @@ from api.WizApi import WizApi
 from api.WizSetApi import WizSetApi
 from area.Room import Room
 from fight.FightHandler import FightHandler
+from game.GameService import GameService
 from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
 from game.WizHandler import WizHandler
 from interp.Context import Context
 from item.ExtraDescriptionData import ExtraDescriptionData
 from player.Character import Character
+from player.CharacterService import CharacterService
+from player.PlayerService import PlayerService
 from server.LoggerFactory import LoggerFactory
 from util.AreaUtil import AreaUtil
 from util.GenericUtil import GenericUtil
@@ -32,7 +35,10 @@ class Wiz:
                  interp_api: InterpApi,
                  wiz_set_api: WizSetApi,
                  fight_handler: FightHandler,
-                 enum_provider: EnumProvider):
+                 enum_provider: EnumProvider,
+                 game_service: GameService = None,
+                 player_service: PlayerService = None,
+                 character_service: CharacterService = None):
         self.__name__ = "Wiz"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -40,6 +46,9 @@ class Wiz:
         self.interp_api = interp_api
         self.wiz_set_api = wiz_set_api
         self.fight_handler = fight_handler
+        self.game_service = game_service
+        self.player_service = player_service
+        self.character_service = character_service
         self.character_registry = registry_service.character_registry
         self.room_registry = registry_service.room_registry
         self.area_registry = registry_service.area_registry
@@ -105,6 +114,9 @@ class Wiz:
             "clone": self.do_clone,
             "advance": self.do_advance,
             "flag": self.do_flag,
+            "allow": self.do_allow,
+            "deny": self.do_deny,
+            "ban": self.do_ban,
         }
         handler = handlers.get(command_name)
         if handler is None:
@@ -954,6 +966,76 @@ class Wiz:
             return blocked
         return self.wiz_set_api.flag(character, context)
 
+    def do_allow(self, _character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+        site = WizUtil.split_argument(WizUtil.argument_text(context.result, context.parameters))[0]
+        GameApi.remove_denied_site(site)
+        self._save_deny_list()
+        context.finish()
+        return self._command_payload("removed", tokens={"s": site})
+
+    def do_deny(self, character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+
+        argument = WizUtil.argument_text(context.result, context.parameters)
+        site, _rest = WizUtil.split_argument(argument)
+        if GameApi.looks_like_site(site):
+            GameApi.add_denied_site(site)
+            self._save_deny_list()
+            context.finish()
+            return self._command_payload("siteDenied", tokens={"s": site, "t": site})
+
+        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, argument, include_players=True, include_mobiles=False)
+        deny_bit = CharacterApi.enum_bit(self.PlayerActBitsEnum, "PLR_DENY")
+        if deny_bit:
+            CharacterApi.set_act_flags(victim, deny_bit)
+        if getattr(victim, "character_flags", None) is not None:
+            victim.character_flags.deny = True
+        self._save_character(victim)
+        self.fight_handler.stop_fighting(victim, True)
+        context.finish()
+        return self._command_payload(
+            "default",
+            victim=victim,
+            disconnect_character=victim,
+            wiznet_flag="WIZ_PENALTIES",
+            wiznet_skip_flag="WIZ_SECURE",
+            tokens={"t": WizUtil.display_name(victim)},
+        )
+
+    def do_ban(self, character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+
+        victim = WizUtil.find_world_entity(
+            self.character_registry,
+            self.room_registry,
+            WizUtil.argument_text(context.result, context.parameters),
+            include_players=True,
+            include_mobiles=False,
+        )
+        account = self._player_account_for_character(victim)
+        if account is None:
+            context.finish()
+            return self._command_payload("targetMissing")
+
+        account.banned = True
+        self._save_player(account)
+        context.finish()
+        return self._command_payload(
+            "default",
+            victim=victim,
+            disconnect_character=victim,
+            wiznet_flag="WIZ_PENALTIES",
+            wiznet_skip_flag="WIZ_SECURE",
+            tokens={"t": WizUtil.display_name(victim)},
+        )
+
     @staticmethod
     def _command_payload(message_key: str, *, victim=None, targets=None, channel: str = "", tokens: dict | None = None, **extra) -> dict:
         payload = {"message_key": str(message_key or "")}
@@ -1003,6 +1085,35 @@ class Wiz:
             self.character_registry.unregister(character)
         except KeyError:
             return
+
+    def _save_deny_list(self) -> bool:
+        if self.game_service is None:
+            return False
+        return self.game_service.save_deny_list()
+
+    def _save_player(self, player) -> bool:
+        if self.player_service is None:
+            return False
+        return self.player_service.save_player(player)
+
+    def _save_character(self, character) -> bool:
+        if self.character_service is None:
+            return False
+        return self.character_service.save_character(character)
+
+    def _player_account_for_character(self, character):
+        if character is None:
+            return None
+        account_id = str(getattr(character, "account_id", "") or "")
+        if not account_id:
+            return None
+        get_or_none = getattr(self.registry_service.player_registry, "get_or_none", None)
+        if callable(get_or_none):
+            return get_or_none(id=account_id)
+        try:
+            return self.registry_service.player_registry.get(id=account_id)
+        except Exception:
+            return None
 
     @staticmethod
     def _stat_character_text(target) -> str:
