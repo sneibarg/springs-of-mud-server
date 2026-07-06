@@ -10,8 +10,10 @@ COMMANDS_PATH = os.path.join(ROOT, "resources", "collections", "SOMDB.Commands.j
 class TestWizDynamicCommandMetadata(unittest.TestCase):
     def test_migrated_wiz_commands_have_guards(self):
         expected = {
+            "advance",
             "at",
             "clone",
+            "flag",
             "freeze",
             "goto",
             "incognito",
@@ -89,6 +91,47 @@ class TestWizDynamicCommandMetadata(unittest.TestCase):
         )
         self.assertEqual("", message_keys[1])
         self.assertEqual("default", message_keys[4])
+
+    def test_advance_metadata_uses_low_code_guards(self):
+        with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:
+            commands = {entry["name"]: entry for entry in json.load(handle)}
+
+        guards = commands["advance"]["guards"]
+        self.assertEqual(
+            [
+                "lambda v: WizApi.advance_syntax_invalid(v)",
+                "lambda v: WizApi.advance_target_missing(v)",
+                "lambda v: WizApi.advance_target_is_npc(v)",
+                "lambda v: WizApi.advance_level_invalid(v)",
+                "lambda v: WizApi.advance_trust_limited(v)",
+            ],
+            [entry.get("predicate", "") for entry in guards],
+        )
+        self.assertEqual("lambda v: WizApi.max_level_token(v)", guards[3].get("tokenFactory", ""))
+
+    def test_flag_metadata_uses_low_code_guards(self):
+        with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:
+            commands = {entry["name"]: entry for entry in json.load(handle)}
+
+        guards = commands["flag"]["guards"]
+        self.assertEqual(
+            [
+                "lambda v: WizApi.flag_kind_missing(v)",
+                "lambda v: WizApi.flag_target_arg_missing(v)",
+                "lambda v: WizApi.flag_field_missing(v)",
+                "lambda v: WizApi.flag_changes_missing(v)",
+                "lambda v: WizApi.flag_kind_invalid(v)",
+                "lambda v: WizApi.flag_target_missing(v)",
+                "lambda v: WizApi.flag_act_is_pc(v)",
+                "lambda v: WizApi.flag_plr_is_npc(v)",
+                "lambda v: WizApi.flag_form_pc(v)",
+                "lambda v: WizApi.flag_parts_pc(v)",
+                "lambda v: WizApi.flag_comm_npc(v)",
+                "lambda v: WizApi.flag_field_invalid(v)",
+                "lambda v: WizApi.flag_unknown_name(v)",
+            ],
+            [entry.get("predicate", "") for entry in guards],
+        )
 
 
 if __name__ == "__main__":

@@ -68,6 +68,206 @@ class WizApi:
         return level < 2 or level > CharacterApi.get_trust(view.context.character)
 
     @staticmethod
+    def max_level_token(_view) -> dict:
+        return {"d": WizApi.max_level()}
+
+    @staticmethod
+    def max_level() -> int:
+        params = CharacterApi.get_enum("gameParameters")
+        return 60 if params is None or not hasattr(params, "MAX_LEVEL") else GenericUtil.to_int(params.MAX_LEVEL.value, 60)
+
+    @staticmethod
+    def advance_parts(view) -> tuple[str, str]:
+        arg1, rest = InterpUtil.one_argument(InterpUtil.argument_text(view))
+        arg2, _rest = InterpUtil.one_argument(rest)
+        return arg1, arg2
+
+    @staticmethod
+    def advance_syntax_invalid(view) -> bool:
+        arg1, arg2 = WizApi.advance_parts(view)
+        return not arg1 or not arg2 or not str(arg2).lstrip("-").isdigit()
+
+    @staticmethod
+    def advance_target(view):
+        target_name, _level = WizApi.advance_parts(view)
+        return WizUtil.find_world_entity(
+            WizApi.character_registry(view),
+            WizApi.room_registry(view),
+            target_name,
+            include_players=True,
+            include_mobiles=True,
+        )
+
+    @staticmethod
+    def advance_target_missing(view) -> bool:
+        return WizApi.advance_target(view) is None
+
+    @staticmethod
+    def advance_target_is_npc(view) -> bool:
+        target = WizApi.advance_target(view)
+        return target is not None and CharacterApi.is_npc(target)
+
+    @staticmethod
+    def advance_level_invalid(view) -> bool:
+        _target_name, level_text = WizApi.advance_parts(view)
+        level = GenericUtil.to_int(level_text, 0)
+        return level < 1 or level > WizApi.max_level()
+
+    @staticmethod
+    def advance_trust_limited(view) -> bool:
+        _target_name, level_text = WizApi.advance_parts(view)
+        return GenericUtil.to_int(level_text, 0) > CharacterApi.get_trust(view.context.character)
+
+    @staticmethod
+    def flag_parts(view) -> dict:
+        arg1, rest = InterpUtil.one_argument(InterpUtil.argument_text(view))
+        arg2, rest = InterpUtil.one_argument(rest)
+        arg3, rest = InterpUtil.one_argument(rest)
+        rest = str(rest or "").lstrip()
+        op = rest[0] if rest[:1] in ("=", "-", "+") else ""
+        changes = rest
+        if op:
+            _operator, changes = InterpUtil.one_argument(rest)
+        return {
+            "kind": arg1,
+            "target": arg2,
+            "field": arg3,
+            "op": op,
+            "changes": str(changes or "").strip(),
+        }
+
+    @staticmethod
+    def flag_kind_missing(view) -> bool:
+        return not WizApi.flag_parts(view)["kind"]
+
+    @staticmethod
+    def flag_target_arg_missing(view) -> bool:
+        return bool(WizApi.flag_parts(view)["kind"]) and not WizApi.flag_parts(view)["target"]
+
+    @staticmethod
+    def flag_field_missing(view) -> bool:
+        parts = WizApi.flag_parts(view)
+        return bool(parts["target"]) and not parts["field"]
+
+    @staticmethod
+    def flag_changes_missing(view) -> bool:
+        parts = WizApi.flag_parts(view)
+        return bool(parts["field"]) and not parts["changes"]
+
+    @staticmethod
+    def flag_kind_invalid(view) -> bool:
+        kind = WizApi.flag_parts(view)["kind"]
+        return bool(kind) and not (WizApi._is_prefix(kind, "mob") or WizApi._is_prefix(kind, "char"))
+
+    @staticmethod
+    def flag_target(view):
+        target_name = WizApi.flag_parts(view)["target"]
+        return WizUtil.find_world_entity(
+            WizApi.character_registry(view),
+            WizApi.room_registry(view),
+            target_name,
+            include_players=True,
+            include_mobiles=True,
+        )
+
+    @staticmethod
+    def flag_target_missing(view) -> bool:
+        return WizApi.flag_target(view) is None
+
+    @staticmethod
+    def flag_field_code(view) -> str:
+        field = WizApi.flag_parts(view)["field"]
+        if WizApi._is_prefix(field, "act"):
+            return "act"
+        if WizApi._is_prefix(field, "plr"):
+            return "plr"
+        if WizApi._is_prefix(field, "aff"):
+            return "aff"
+        if WizApi._is_prefix(field, "immunity"):
+            return "imm"
+        if WizApi._is_prefix(field, "resist"):
+            return "res"
+        if WizApi._is_prefix(field, "vuln"):
+            return "vuln"
+        if WizApi._is_prefix(field, "form"):
+            return "form"
+        if WizApi._is_prefix(field, "parts"):
+            return "parts"
+        if WizApi._is_prefix(field, "comm"):
+            return "comm"
+        return ""
+
+    @staticmethod
+    def flag_plr_is_npc(view) -> bool:
+        target = WizApi.flag_target(view)
+        return target is not None and WizApi.flag_field_code(view) == "plr" and CharacterApi.is_npc(target)
+
+    @staticmethod
+    def flag_act_is_pc(view) -> bool:
+        target = WizApi.flag_target(view)
+        return target is not None and WizApi.flag_field_code(view) == "act" and not CharacterApi.is_npc(target)
+
+    @staticmethod
+    def flag_form_pc(view) -> bool:
+        target = WizApi.flag_target(view)
+        return target is not None and WizApi.flag_field_code(view) == "form" and not CharacterApi.is_npc(target)
+
+    @staticmethod
+    def flag_parts_pc(view) -> bool:
+        target = WizApi.flag_target(view)
+        return target is not None and WizApi.flag_field_code(view) == "parts" and not CharacterApi.is_npc(target)
+
+    @staticmethod
+    def flag_comm_npc(view) -> bool:
+        target = WizApi.flag_target(view)
+        return target is not None and WizApi.flag_field_code(view) == "comm" and CharacterApi.is_npc(target)
+
+    @staticmethod
+    def flag_field_invalid(view) -> bool:
+        return not WizApi.flag_field_code(view)
+
+    @staticmethod
+    def flag_unknown_name(view) -> bool:
+        field_code = WizApi.flag_field_code(view)
+        if not field_code:
+            return False
+        return any(WizApi.flag_bit(field_code, word) == 0 for word in WizApi.flag_parts(view)["changes"].split())
+
+    @staticmethod
+    def flag_bit(field_code: str, word: str) -> int:
+        aliases = {
+            "act": ("actBits", "ACT_", {"npc": "ACT_IS_NPC", "healer": "ACT_IS_HEALER", "changer": "ACT_IS_CHANGER"}),
+            "plr": ("playerActBits", "PLR_", {"npc": "PLR_IS_NPC", "can_loot": "PLR_CANLOOT"}),
+            "aff": ("affectedBy", "AFF_", {}),
+            "imm": ("mobImmunity", "IMM_", {}),
+            "res": ("mobResistance", "RES_", {}),
+            "vuln": ("mobVulnerability", "VULN_", {}),
+            "form": ("bodyForm", "FORM_", {}),
+            "parts": ("bodyParts", "PART_", {"ear": "PART_EAR", "eye": "PART_EYE"}),
+            "comm": ("commFlags", "COMM_", {"noclangossip": "COMM_NOAUCTION", "shoutsoff": "COMM_SHOUTSOFF"}),
+        }
+        enum_name, prefix, special = aliases.get(field_code, ("", "", {}))
+        enum_obj = CharacterApi.get_enum(enum_name) if enum_name else None
+        query = str(word or "").strip().lower()
+        if not query or enum_obj is None:
+            return 0
+        if query in special:
+            return CharacterApi.enum_bit(enum_obj, special[query])
+        for member_name, member in enum_obj.__members__.items():
+            label = member_name
+            if prefix and label.startswith(prefix):
+                label = label[len(prefix):]
+            label = label.lower()
+            if label == query or label.startswith(query):
+                return int(member.value)
+        return 0
+
+    @staticmethod
+    def _is_prefix(value: str, full: str) -> bool:
+        text = str(value or "").strip().lower()
+        return bool(text) and str(full or "").lower().startswith(text)
+
+    @staticmethod
     def room_private_for_actor(view, room, *, implementor_only: bool = False) -> bool:
         handler = view.context.wiz_handler()
         if handler is None:

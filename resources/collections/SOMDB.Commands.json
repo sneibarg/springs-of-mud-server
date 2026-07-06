@@ -6645,7 +6645,30 @@
         "raise": "**** OOOOHHHHHHHHHH  YYYYEEEESSS ****",
         "newLevel": "You are now level %d."
       }
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: WizApi.advance_syntax_invalid(v)",
+        "messageKey": "syntax"
+      },
+      {
+        "predicate": "lambda v: WizApi.advance_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: WizApi.advance_target_is_npc(v)",
+        "messageKey": "isNPC"
+      },
+      {
+        "predicate": "lambda v: WizApi.advance_level_invalid(v)",
+        "messageKey": "levelInvalid",
+        "tokenFactory": "lambda v: WizApi.max_level_token(v)"
+      },
+      {
+        "predicate": "lambda v: WizApi.advance_trust_limited(v)",
+        "messageKey": "trustLimited"
+      }
+    ]
   },
   {
     "_id": {
@@ -6867,7 +6890,60 @@
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: WizApi.flag_kind_missing(v)",
+        "messageKey": "syntax"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_target_arg_missing(v)",
+        "messageKey": "noTarget"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_field_missing(v)",
+        "messageKey": "noFlag"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_changes_missing(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_kind_invalid(v)"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_act_is_pc(v)",
+        "messageKey": "plrIsNPC"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_plr_is_npc(v)",
+        "messageKey": "npcIsPlr"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_form_pc(v)",
+        "messageKey": "noForm"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_parts_pc(v)",
+        "messageKey": "noParts"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_comm_npc(v)",
+        "messageKey": "noComm"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_field_invalid(v)",
+        "messageKey": "invalidFlag"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_unknown_name(v)",
+        "messageKey": "noSuchFlag"
+      }
+    ]
   },
   {
     "_id": {

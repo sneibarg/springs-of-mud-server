@@ -103,6 +103,8 @@ class Wiz:
             "string": self.do_string,
             "switch": self.do_switch,
             "clone": self.do_clone,
+            "advance": self.do_advance,
+            "flag": self.do_flag,
         }
         handler = handlers.get(command_name)
         if handler is None:
@@ -939,6 +941,18 @@ class Wiz:
             "room_message": f"{character.name} has created {clone.short_description}.\r\n",
             "room_targets": [] if room is None else room.player_targets(character),
         }
+
+    def do_advance(self, character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+        return self.wiz_set_api.advance(character, context)
+
+    def do_flag(self, character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+        return self.wiz_set_api.flag(character, context)
 
     @staticmethod
     def _command_payload(message_key: str, *, victim=None, targets=None, channel: str = "", tokens: dict | None = None, **extra) -> dict:
