@@ -167,6 +167,61 @@ class TestWizDynamicCommandMetadata(unittest.TestCase):
             [entry.get("predicate", "") for entry in commands["ban"]["guards"]],
         )
 
+    def test_follow_metadata_uses_rom_order_low_code_guards(self):
+        with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:
+            commands = {entry["name"]: entry for entry in json.load(handle)}
+
+        guards = commands["follow"]["guards"]
+        self.assertEqual(
+            [
+                "lambda v: not InterpUtil.argument_text(v)",
+                "lambda v: CommunicationsApi.follow_target(v) is None",
+                "lambda v: CommunicationsApi.follow_charmed_with_master(v)",
+                "lambda v: CommunicationsApi.follow_self_without_master(v)",
+                "lambda v: CommunicationsApi.follow_target_blocks_followers(v)",
+            ],
+            [entry.get("predicate", "") for entry in guards],
+        )
+        self.assertEqual("lambda v: CommunicationsApi.follow_target_tokens(v)", guards[2].get("tokenFactory", ""))
+        self.assertEqual("lambda v: CommunicationsApi.follow_target_tokens(v)", guards[4].get("tokenFactory", ""))
+
+    def test_order_group_split_metadata_uses_rom_order_low_code_guards(self):
+        with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:
+            commands = {entry["name"]: entry for entry in json.load(handle)}
+
+        self.assertEqual(
+            [
+                "lambda v: CommunicationsApi.order_delete(v)",
+                "lambda v: CommunicationsApi.order_missing_argument(v)",
+                "lambda v: CommunicationsApi.order_actor_charmed(v)",
+                "lambda v: CommunicationsApi.order_target_missing(v)",
+                "lambda v: CommunicationsApi.order_target_self(v)",
+                "lambda v: CommunicationsApi.order_target_not_submissive(v)",
+            ],
+            [entry.get("predicate", "") for entry in commands["order"]["guards"]],
+        )
+        self.assertEqual(
+            [
+                "lambda v: CommunicationsApi.group_target_missing(v)",
+                "lambda v: CommunicationsApi.group_actor_follows_another(v)",
+                "lambda v: CommunicationsApi.group_target_not_follower(v)",
+                "lambda v: CommunicationsApi.group_target_charmed(v)",
+                "lambda v: CommunicationsApi.group_actor_charmed(v)",
+            ],
+            [entry.get("predicate", "") for entry in commands["group"]["guards"]],
+        )
+        self.assertEqual(
+            [
+                "lambda v: CommunicationsApi.split_missing_amount(v)",
+                "lambda v: CommunicationsApi.split_negative(v)",
+                "lambda v: CommunicationsApi.split_zero(v)",
+                "lambda v: CommunicationsApi.split_insufficient_funds(v)",
+                "lambda v: CommunicationsApi.split_too_few_members(v)",
+                "lambda v: CommunicationsApi.split_share_zero(v)",
+            ],
+            [entry.get("predicate", "") for entry in commands["split"]["guards"]],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

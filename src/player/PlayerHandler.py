@@ -564,6 +564,12 @@ class PlayerHandler:
             if payload:
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload))
             return
+        if payload.get("ordered_commands"):
+            await self._handle_order_payload(character, context, payload)
+            return
+        if payload.get("payloads"):
+            await self._emit_standard_payloads(character, payload.get("payloads", []), context=context)
+            return
         await self._emit_standard_payload(character, payload)
         if payload.get("to_area"):
             await self.message_bus.send_to_area(character.area_id, self.message_bus.text_to_message(payload["to_area"]))
@@ -576,6 +582,26 @@ class PlayerHandler:
         if payload.get("broadcast_message"):
             exclude_ids = payload.get("exclude_character_ids", [])
             await self.message_bus.broadcast(self.message_bus.text_to_message(payload["broadcast_message"]), exclude_ids)
+
+    async def _handle_order_payload(self, character: Character, context: Context, payload: dict):
+        message_key = str(payload.get("order_message_key", "") or "ordered")
+        for entry in payload.get("ordered_commands", []):
+            victim = entry.get("victim")
+            command_text = str(entry.get("command", "") or "")
+            if victim is None or not command_text:
+                continue
+            order_payload = self.interp_api.render_message_key(
+                context,
+                message_key,
+                channel="to_victim",
+                s=command_text,
+                t=getattr(victim, "name", ""),
+            )
+            if order_payload.get("to_victim"):
+                await self.message_bus.send_to_character(victim.id, self.message_bus.text_to_message(order_payload["to_victim"]))
+            await self._interpret_nested_command(victim, context, command_text)
+        if payload.get("to_char"):
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
 
     async def do_hit(self, character: Character, context: Context):
         await self._handle_fight_payload(character, context, self.fight_commands.do_kill(character, context))

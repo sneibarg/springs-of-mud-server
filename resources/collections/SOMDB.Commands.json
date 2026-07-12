@@ -1406,21 +1406,46 @@
       "toChar": {
         "targetMissing": "They aren't here.",
         "isFollower": "But you are following someone else!",
-        "isCharmed": "You like your master too much to leave %m",
-        "targetIsNotFOllower": "%t isn't following you.",
+        "targetIsNotFollower": "%t isn't following you.",
         "cannotRemoveCharmed": "You can't remove charmed mobs from your group.",
         "removal": "You remove %t from your group.",
         "addition": "%t joins your group."
       },
       "toRoom": {
-        "removal": "%m removes %t from their group.",
-        "addition": "%t joins %m's group."
+        "removal": "%c removes %t from {s_poss} group.",
+        "addition": "%t joins %c's group."
       },
       "toVictim": {
-        "removal": "%m removes you from the group.",
-        "addition": "You join %m's group."
+        "actorCharmed": "You like your master too much to leave {m_pronoun}!",
+        "removal": "%c removes you from {s_poss} group.",
+        "addition": "You join %c's group."
       }
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: CommunicationsApi.group_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.group_actor_follows_another(v)",
+        "messageKey": "isFollower"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.group_target_not_follower(v)",
+        "messageKey": "targetIsNotFollower",
+        "tokenFactory": "lambda v: CommunicationsApi.group_target_tokens(v)"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.group_target_charmed(v)",
+        "messageKey": "cannotRemoveCharmed"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.group_actor_charmed(v)",
+        "messageKey": "actorCharmed",
+        "channel": "to_victim",
+        "tokenFactory": "lambda v: CommunicationsApi.group_target_tokens(v)"
+      }
+    ]
   },
   {
     "_id": {
@@ -1609,7 +1634,7 @@
       "toChar": {
         "invalidOrder": "That will NOT be done.",
         "noArgument": "Order whom to do what?",
-        "isFollower": "You feel like taking, not giving, orders.",
+        "actorCharmed": "You feel like taking, not giving, orders.",
         "targetMissing": "They aren't here.",
         "targetSelf": "Aye aye, right away!",
         "targetNotSubmissive": "Do it yourself!",
@@ -1618,9 +1643,36 @@
       },
       "toRoom": {},
       "toVictim": {
-        "default": "%c orders you to '%s'"
+        "ordered": "%c orders you to '%s'."
       }
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: CommunicationsApi.order_delete(v)",
+        "messageKey": "invalidOrder"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.order_missing_argument(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.order_actor_charmed(v)",
+        "messageKey": "actorCharmed"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.order_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.order_target_self(v)",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.order_target_not_submissive(v)",
+        "messageKey": "targetNotSubmissive",
+        "tokenFactory": "lambda v: CommunicationsApi.order_tokens(v)"
+      }
+    ]
   },
   {
     "_id": {
@@ -6092,16 +6144,42 @@
       "toChar": {
         "noArgument": "Follow whom?",
         "targetMissing": "They aren't here.",
-        "charmed": "But you'd rather follow %M",
+        "charmed": "But you'd rather follow {M}!",
         "noMaster": "You already follow yourself.",
-        "noFollow": "%v doesn't seem to want any followers.",
-        "default": "You now follow %v."
+        "noFollow": "%t doesn't seem to want any followers.",
+        "stop": "You stop following %t.",
+        "default": "You now follow %t."
       },
       "toRoom": {},
       "toVictim": {
+        "stop": "%c stops following you.",
         "default": "%c now follows you."
       }
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.follow_target(v) is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.follow_charmed_with_master(v)",
+        "messageKey": "charmed",
+        "tokenFactory": "lambda v: CommunicationsApi.follow_target_tokens(v)"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.follow_self_without_master(v)",
+        "messageKey": "noMaster"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.follow_target_blocks_followers(v)",
+        "messageKey": "noFollow",
+        "tokenFactory": "lambda v: CommunicationsApi.follow_target_tokens(v)"
+      }
+    ]
   },
   {
     "_id": {
@@ -6451,12 +6529,42 @@
         "donTMuchSplit": "You don't have that much to split.",
         "justKeepItAll": "Just keep it all.",
         "donTEvenBother": "Don't even bother, cheapskate.",
-        "splitSilverCoinsShare": "You split %d silver coins. Your share is %d silver.",
-        "splitGoldCoinsShare": "You split %d gold coins. Your share is %d gold."
+        "splitSilverCoinsShare": "You split {amount_silver} silver coins. Your share is {share_silver} silver.",
+        "splitGoldCoinsShare": "You split {amount_gold} gold coins. Your share is {share_gold} gold."
       },
       "toRoom": {},
-      "toVictim": {}
-    }
+      "toVictim": {
+        "splitSilverVictim": "%c splits {amount_silver} silver coins. Your share is {share_silver} silver.",
+        "splitGoldVictim": "%c splits {amount_gold} gold coins. Your share is {share_gold} gold.",
+        "splitBothVictim": "%c splits {amount_silver} silver and {amount_gold} gold coins, giving you {share_silver} silver and {share_gold} gold."
+      }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: CommunicationsApi.split_missing_amount(v)",
+        "messageKey": "splitHowMuch"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.split_negative(v)",
+        "messageKey": "groupWouldnTLike"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.split_zero(v)",
+        "messageKey": "handOutZeroCoins"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.split_insufficient_funds(v)",
+        "messageKey": "donTMuchSplit"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.split_too_few_members(v)",
+        "messageKey": "justKeepItAll"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.split_share_zero(v)",
+        "messageKey": "donTEvenBother"
+      }
+    ]
   },
   {
     "_id": {

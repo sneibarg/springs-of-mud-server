@@ -40,10 +40,26 @@ class Movement:
         self.sector_types = enum_provider.get("sectorTypes")
 
     def move_char(self, character: Character, direction: str, context: Context):
+        return self._move_char(character, direction, context, follow=False, leader=None, visited=set())
+
+    def _move_char(self, character: Character, direction: str, context: Context, *, follow: bool, leader, visited: set[str]):
+        character_key = str(getattr(character, "id", id(character)))
+        if character_key in visited:
+            return {"payloads": []}
+        visited.add(character_key)
+
+        original_character = context.character
+        original_room = getattr(context, "room", None)
+        context.character = character
         state = MovementApi.move_state(context, direction=direction, room_registry=self.room_registry)
         context.room = state.in_room
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        context.character = original_character
+        context.room = original_room
         if blocked is not None:
+            if follow:
+                text = str(blocked.get("to_char", "") or "")
+                return {"payloads": [], "target_messages": ([{"id": getattr(character, "id", ""), "text": text}] if text else [])}
             return blocked
 
         if not CharacterApi.is_npc(character):
@@ -51,30 +67,57 @@ class Movement:
 
         in_room = state.in_room
         to_room = state.to_room
+        followers = self._followers_in_room(character, in_room)
         from_room_targets = in_room.player_targets(character)
-        in_room.remove_player_from_room(character)
-        to_room.add_player_to_room(character)
+        self._remove_from_room(in_room, character)
+        self._add_to_room(to_room, character)
         character.room_id = to_room.id
+        if getattr(to_room, "area_id", None) is not None:
+            character.area_id = to_room.area_id
 
         to_room_targets = to_room.player_targets(character)
+        payloads = []
+        target_messages = []
+        if follow and leader is not None:
+            target_messages.append({
+                "id": getattr(character, "id", ""),
+                "text": f"You follow {getattr(leader, 'name', '')}.\r\n",
+            })
+        payloads.extend([
+            self._command_payload(
+                "default",
+                channel="to_room",
+                targets=from_room_targets,
+                tokens=self._actor_tokens(character),
+            ),
+            self._command_payload(
+                "arrived",
+                channel="to_room",
+                targets=to_room_targets,
+                tokens=self._actor_tokens(character),
+                to_room_obj=to_room,
+                view_character=character,
+                aggressive_rounds=self.fight_handler.aggressive_entry_rounds(character, to_room),
+            ),
+        ])
+
+        if in_room != to_room:
+            for follower in followers:
+                if self._should_stand_charmed_follower(follower, character):
+                    CharacterApi.set_position(follower, "POS_STANDING")
+                if not self._should_follow(follower, character, to_room):
+                    continue
+                follower_payload = self._move_char(follower, direction, context, follow=True, leader=character, visited=visited)
+                payloads.extend(follower_payload.get("payloads", []))
+                target_messages.extend(follower_payload.get("target_messages", []))
+
+        if target_messages:
+            payloads.append({"target_messages": target_messages})
+
         context.finish()
         return {
-            "payloads": [
-                self._command_payload(
-                    "default",
-                    channel="to_room",
-                    targets=from_room_targets,
-                    tokens=self._actor_tokens(character),
-                ),
-                self._command_payload(
-                    "arrived",
-                    channel="to_room",
-                    targets=to_room_targets,
-                    tokens=self._actor_tokens(character),
-                    to_room_obj=to_room,
-                    aggressive_rounds=self.fight_handler.aggressive_entry_rounds(character, to_room),
-                ),
-            ]
+            "payloads": payloads,
+            "target_messages": [],
         }
 
     def do_north(self, character: Character, context: Context):
@@ -497,6 +540,53 @@ class Movement:
     @staticmethod
     def _room_targets(room, character: Character) -> list:
         return room.player_targets(character) if room is not None else []
+
+    @staticmethod
+    def _followers_in_room(character, room) -> list:
+        if room is None:
+            return []
+        people = getattr(room, "people", None)
+        if callable(people):
+            candidates = list(people())
+        else:
+            candidates = list((getattr(room, "characters", {}) or {}).values()) + list((getattr(room, "mobiles", {}) or {}).values())
+        return [candidate for candidate in candidates if candidate is not character and getattr(candidate, "master", None) == character]
+
+    def _should_stand_charmed_follower(self, follower, master) -> bool:
+        return (
+            getattr(follower, "master", None) == master
+            and CharacterApi.is_affected_by_name(follower, self.affected_bits, "AFF_CHARM")
+            and CharacterApi.position_value(follower) < CharacterApi.pos_value("POS_STANDING")
+        )
+
+    def _should_follow(self, follower, master, to_room) -> bool:
+        if getattr(follower, "master", None) != master:
+            return False
+        if CharacterApi.position_value(follower) != CharacterApi.pos_value("POS_STANDING"):
+            return False
+        return self._can_see_room(follower, to_room)
+
+    @staticmethod
+    def _can_see_room(_character, room) -> bool:
+        return room is not None
+
+    @staticmethod
+    def _remove_from_room(room, character) -> None:
+        if CharacterApi.is_npc(character):
+            remover = getattr(room, "remove_mobile_from_room", None)
+        else:
+            remover = getattr(room, "remove_player_from_room", None)
+        if callable(remover):
+            remover(character)
+
+    @staticmethod
+    def _add_to_room(room, character) -> None:
+        if CharacterApi.is_npc(character):
+            adder = getattr(room, "add_mobile_to_room", None)
+        else:
+            adder = getattr(room, "add_player_to_room", None)
+        if callable(adder):
+            adder(character)
 
     @staticmethod
     def _actor_tokens(character: Character) -> dict:

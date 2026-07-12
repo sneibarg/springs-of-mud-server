@@ -1,11 +1,11 @@
 import requests
 
-from api.GameApi import GameApi
 from injector import inject
+
 from game.GameData import GameData
 from server.LoggerFactory import LoggerFactory
-from server.TimeVal import gettimeofday, TimeVal, stall_until_last_time
 from server.ServiceConfig import ServiceConfig
+from server.TimeVal import gettimeofday, TimeVal, stall_until_last_time
 
 
 class GameService:

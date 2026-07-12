@@ -14,6 +14,7 @@ from api.CharacterApi import CharacterApi
 from player.CharacterService import CharacterService
 from server.LoggerFactory import LoggerFactory
 from server.session.SessionHandler import SessionHandler
+from util.GenericUtil import GenericUtil
 
 
 class Communications:
@@ -155,7 +156,7 @@ class Communications:
             return payload
         history = self.communications_api.get_tell_buffer(character)
         missed_tells = "".join(entry.format_message() for entry in history)
-        return missed_tells
+        return {"to_char": missed_tells}
 
     def do_say(self, context: Context):
         character = context.character
@@ -299,20 +300,201 @@ class Communications:
         return self._render_message_key(context, "failed")
 
     def do_follow(self, context: Context):
+        character = context.character
+        view = self.interp_api.build_interp_view(context)
+        target = self.communications_api.follow_target(view)
+        context.follow_target = target
+        if target is not None:
+            context.interp_tokens = self.communications_api.follow_target_tokens(view)
+        payload = self.interp_api.run_action(context, context.command.name)
+        if payload.get("blocked"):
+            return payload
+
+        if target == character:
+            previous = self._stop_following(character)
+            context.finish()
+            return {} if previous is None else self._follow_payload(context, "stop", previous)
+
+        self._clear_nofollow(character)
+        payload["victim"] = target
+        if not self._can_receive_follow_notice(context, target, character):
+            payload.pop("to_victim", None)
+        if getattr(character, "master", None) is not None:
+            previous = self._stop_following(character)
+            if previous is not None:
+                character.master = target
+                context.finish()
+                return {"payloads": [self._follow_payload(context, "stop", previous), payload]}
+
+        character.master = target
+        character.leader = None
         context.finish()
-        return {"to_char": "Follow is not implemented yet.\r\n"}
+        return payload
 
     def do_order(self, context: Context):
+        view = self.interp_api.build_interp_view(context)
+        context.interp_tokens = self.communications_api.order_tokens(view)
+        payload = self.interp_api.run_action(context, context.command.name)
+        if payload.get("blocked"):
+            return payload
+
+        targets = self.communications_api.order_targets(view)
+        if not targets:
+            return self._blocked_message(context, "no_followers")
+
+        game_params = CharacterApi.get_enum("gameParameters")
+        pulse_violence = CharacterApi.enum_bit(game_params, "PULSE_VIOLENCE") if game_params is not None else 12
+        status_flags = getattr(context.character, "status_flags", None)
+        if status_flags is not None:
+            status_flags.pulse_wait = max(GenericUtil.to_int(getattr(status_flags, "pulse_wait", 0), 0), pulse_violence or 12)
+
+        _target, command_text, _command = self.communications_api.order_args(view)
         context.finish()
-        return {"to_char": "Order is not implemented yet.\r\n"}
+        return {
+            "ordered_commands": [{"victim": target, "command": command_text} for target in targets],
+            "order_message_key": "ordered",
+            "to_char": payload.get("to_char", ""),
+        }
 
     def do_group(self, context: Context):
-        context.finish()
-        return {"to_char": "Group is not implemented yet.\r\n"}
+        if not CommunicationsUtil.parse_argument(context.result, context.parameters):
+            context.finish()
+            return {"to_char": self._group_listing(context)}
+
+        view = self.interp_api.build_interp_view(context)
+        context.interp_tokens = self.communications_api.group_target_tokens(view)
+        payload = self.interp_api.run_action(context, context.command.name)
+        if payload.get("blocked"):
+            if payload.get("to_victim") and not payload.get("victim"):
+                payload["victim"] = self.communications_api.group_target(view)
+            return payload
+
+        character = context.character
+        victim = self.communications_api.group_target(view)
+        if CharacterApi.is_same_group(victim, character) and victim != character:
+            victim.leader = None
+            return self._group_payload(context, "removal", victim)
+
+        victim.leader = character
+        return self._group_payload(context, "addition", victim)
 
     def do_split(self, context: Context):
+        view = self.interp_api.build_interp_view(context)
+        payload = self.interp_api.run_action(context, context.command.name)
+        if payload.get("blocked"):
+            return payload
+
+        character = context.character
+        amounts = self.communications_api.split_amounts(view)
+        shares = self.communications_api.split_shares(view)
+        members = self.communications_api.split_members(view)
+
+        character.silver = GenericUtil.to_int(getattr(character, "silver", 0), 0) - amounts["silver"] + shares["silver"] + shares["extra_silver"]
+        character.gold = GenericUtil.to_int(getattr(character, "gold", 0), 0) - amounts["gold"] + shares["gold"] + shares["extra_gold"]
+
+        to_char = ""
+        if shares["silver"] > 0:
+            to_char += self._render_message_key(
+                context,
+                "split_silver_coins_share",
+                channel="to_char",
+                amount_silver=amounts["silver"],
+                share_silver=shares["silver"] + shares["extra_silver"],
+            ).get("to_char", "")
+        if shares["gold"] > 0:
+            to_char += self._render_message_key(
+                context,
+                "split_gold_coins_share",
+                channel="to_char",
+                amount_gold=amounts["gold"],
+                share_gold=shares["gold"] + shares["extra_gold"],
+            ).get("to_char", "")
+
+        victim_message_key = "split_silver_victim"
+        if shares["gold"] > 0 and shares["silver"] == 0:
+            victim_message_key = "split_gold_victim"
+        elif shares["gold"] > 0 and shares["silver"] > 0:
+            victim_message_key = "split_both_victim"
+
+        target_messages = []
+        for member in members:
+            if member == character:
+                continue
+            member.gold = GenericUtil.to_int(getattr(member, "gold", 0), 0) + shares["gold"]
+            member.silver = GenericUtil.to_int(getattr(member, "silver", 0), 0) + shares["silver"]
+            target_messages.append({
+                "id": getattr(member, "id", ""),
+                "text": self._render_message_key(
+                    context,
+                    victim_message_key,
+                    channel="to_victim",
+                    amount_silver=amounts["silver"],
+                    amount_gold=amounts["gold"],
+                    share_silver=shares["silver"],
+                    share_gold=shares["gold"],
+                ).get("to_victim", ""),
+            })
+
         context.finish()
-        return {"to_char": "Split is not implemented yet.\r\n"}
+        return {"to_char": to_char, "target_messages": target_messages}
+
+    def _group_listing(self, context: Context) -> str:
+        view = self.interp_api.build_interp_view(context)
+        character = context.character
+        leader = getattr(character, "leader", None) or character
+        lines = [f"{self._display_name(leader)}'s group:"]
+        for member in self.communications_api.group_members(view):
+            lines.append(self._group_member_line(member))
+        return "\r\n".join(lines) + "\r\n"
+
+    def _group_member_line(self, member) -> str:
+        class_name = "Mob" if CharacterApi.is_npc(member) else self._class_who_name(member)
+        attrs = getattr(member, "character_attributes", None)
+        exp = GenericUtil.to_int(getattr(attrs, "experience", getattr(member, "experience", 0)), 0)
+        return (
+            f"[{GenericUtil.to_int(getattr(member, 'level', 0), 0):2d} {class_name}] "
+            f"{self._display_name(member).capitalize():<16} "
+            f"{GenericUtil.to_int(getattr(member, 'hit', 0), 0):4d}/{GenericUtil.to_int(getattr(member, 'max_hit', 0), 0):4d} hp "
+            f"{GenericUtil.to_int(getattr(member, 'mana', 0), 0):4d}/{GenericUtil.to_int(getattr(member, 'max_mana', 0), 0):4d} mana "
+            f"{GenericUtil.to_int(getattr(member, 'movement', 0), 0):4d}/{GenericUtil.to_int(getattr(member, 'max_movement', 0), 0):4d} mv "
+            f"{exp:5d} xp"
+        )
+
+    @staticmethod
+    def _class_who_name(member) -> str:
+        character_class = getattr(member, "character_class", None)
+        who = getattr(character_class, "who_name", None)
+        if who:
+            return str(who)
+        name = str(getattr(character_class, "name", "") or "")
+        return name[:3].capitalize() if name else "Mob"
+
+    @staticmethod
+    def _display_name(member) -> str:
+        return str(getattr(member, "name", "") or getattr(member, "short_description", "") or "someone")
+
+    def _group_payload(self, context: Context, message_key: str, victim) -> dict:
+        actor_sex = str(getattr(context.character, "sex", "") or "").strip().lower()
+        s_poss = "his" if actor_sex in ("1", "male", "m") else "her" if actor_sex in ("2", "female", "f") else "its"
+        m_pronoun = "him" if actor_sex in ("1", "male", "m") else "her" if actor_sex in ("2", "female", "f") else "it"
+        context.interp_tokens = {
+            "t": self._display_name(victim),
+            "m": self._display_name(context.character),
+            "s_poss": s_poss,
+            "m_pronoun": m_pronoun,
+        }
+        payload = self._render_message_key(context, message_key)
+        payload["victim"] = victim
+        room = context.room if context.room is not None else self.room_registry.get_or_none(id=getattr(context.character, "room_id", ""))
+        targets = []
+        if room is not None:
+            targets = [
+                target for target in list((getattr(room, "characters", {}) or {}).values())
+                if target not in (context.character, victim)
+            ]
+        payload["targets"] = targets
+        context.finish()
+        return payload
 
     def _channel(self, context: Context, off_flag: str, verb: str, _on_msg: str, _off_msg: str):
         character = context.character
@@ -378,3 +560,33 @@ class Communications:
         payload = self._render_message_key(context, message_key, channel=channel, **tokens)
         payload["blocked"] = True
         return payload
+
+    def _clear_nofollow(self, character) -> None:
+        bit = CharacterApi.enum_bit(CharacterApi.get_enum("playerActBits"), "PLR_NOFOLLOW")
+        if bit:
+            CharacterApi.unset_act_flags(character, bit)
+        if getattr(character, "character_flags", None) is not None:
+            character.character_flags.no_follow = False
+
+    @staticmethod
+    def _stop_following(character):
+        previous = getattr(character, "master", None)
+        character.master = None
+        return previous
+
+    def _follow_payload(self, context: Context, message_key: str, victim) -> dict:
+        context.interp_tokens = {"t": getattr(victim, "name", "")}
+        payload = self._render_message_key(context, message_key)
+        payload["victim"] = victim
+        if not self._can_receive_follow_notice(context, victim, context.character):
+            payload.pop("to_victim", None)
+        return payload
+
+    def _can_receive_follow_notice(self, context: Context, viewer, character) -> bool:
+        room = context.room
+        if room is None:
+            room = self.room_registry.get_or_none(id=getattr(character, "room_id", ""))
+        try:
+            return CharacterApi.can_see(viewer, character, room)
+        except (AttributeError, TypeError):
+            return True
