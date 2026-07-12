@@ -125,7 +125,7 @@ class TestMobileService(unittest.TestCase):
         from game import GameData
         from registry import RegistryService
         from area import AreaService
-        from fight import FightHandler
+        from combat import CombatHandler
 
         self.mock_config = Mock(spec=ServiceConfig)
         self.mock_config.mobiles_endpoint = 'http://test/mobiles'

@@ -7,7 +7,7 @@ from injector import inject
 from api.FightApi import FightApi
 from api.GameApi import GameApi
 from api.MovementApi import MovementApi
-from fight.FightHandler import FightHandler
+from combat.CombatHandler import FightHandler
 from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler

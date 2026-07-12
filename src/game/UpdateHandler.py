@@ -3,8 +3,8 @@ from enum import IntEnum
 
 from injector import inject
 from area.AreaHandler import AreaHandler
-from fight.CombatRegistry import CombatRegistry
-from fight.FightHandler import FightHandler
+from combat.CombatRegistry import CombatRegistry
+from combat.CombatHandler import FightHandler
 from api.GameApi import GameApi
 from game.EnumProvider import EnumProvider
 from item.EffectHandler import EffectHandler
@@ -143,7 +143,7 @@ class UpdateHandler:
                 self.fight_handler.stop_fighting(attacker, both=False)
                 continue
 
-            # ROM fight.c parity: if awake and in same room then multi_hit(), else stop_fighting().
+            # ROM combat.c parity: if awake and in same room then multi_hit(), else stop_fighting().
             if room.find_entity_in_room(event.defender_id) is None:
                 self.fight_handler.stop_fighting(attacker, both=False)
                 continue

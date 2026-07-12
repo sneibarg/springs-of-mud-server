@@ -9,7 +9,7 @@ from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
 from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
-from fight.FightHandler import FightHandler
+from combat.CombatHandler import FightHandler
 from item.EffectHandler import EffectHandler
 from mobile.Mobile import Mobile
 from mobile.KillTable import KillTable

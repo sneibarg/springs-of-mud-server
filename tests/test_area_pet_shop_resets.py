@@ -18,7 +18,7 @@ root = os.getcwd()
 src = os.path.join(root, "src")
 sys.path.insert(0, src)
 
-for package_name in ("api", "area", "fight", "game", "interp", "mobile", "item", "player", "skill", "util"):
+for package_name in ("api", "area", "combat", "game", "interp", "mobile", "item", "player", "skill", "util"):
     package = types.ModuleType(package_name)
     package.__path__ = [os.path.join(src, package_name)]
     sys.modules[package_name] = package
@@ -113,7 +113,7 @@ item_util.ItemUtil = ItemUtil
 sys.modules["util.ItemUtil"] = item_util
 
 for module_name, class_name in (
-    ("fight.FightHandler", "FightHandler"),
+    ("combat.FightHandler", "FightHandler"),
     ("game.EnumProvider", "EnumProvider"),
     ("game.Equipped", "Equipped"),
     ("game.WeatherHandler", "WeatherHandler"),

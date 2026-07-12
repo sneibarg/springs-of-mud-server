@@ -3,7 +3,7 @@ from injector import inject
 from area.ResetRegistry import ResetRegistry
 from area.ShopRegistry import ShopRegistry
 from area.SpecialRegistry import SpecialRegistry
-from fight.CombatRegistry import CombatRegistry
+from combat.CombatRegistry import CombatRegistry
 from interp.InterpRegistry import InterpRegistry
 from interp.SocialRegistry import SocialRegistry
 from player.PlayerRegistry import PlayerRegistry

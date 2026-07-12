@@ -7,8 +7,8 @@ from typing import Any
 from injector import inject
 
 from area.RoomRegistry import RoomRegistry
-from fight.FightHandler import FightHandler
-from fight.FightView import FightView
+from combat.CombatHandler import FightHandler
+from combat.CombatView import FightView
 from game.action import ActionGuard, ActionDefinition, ActionPlan, MessageRef
 from api.SkillApi import SkillApi
 from skill.SkillRegistry import SkillRegistry

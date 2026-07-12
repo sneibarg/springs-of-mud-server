@@ -127,12 +127,12 @@ _stub_package("game")
 _load_module("game.GamePayload", "game/GamePayload.py")
 _stub_package("area")
 _stub_module("area.RoomRegistry", RoomRegistry=_RoomRegistry)
-_stub_package("fight")
-_load_module("fight.FightCheck", "fight/FightCheck.py")
-_load_module("fight.FightView", "fight/FightView.py")
-_load_module("fight.FightPlan", "fight/FightPlan.py")
-_load_module("fight.FightActionDefinition", "fight/FightActionDefinition.py")
-_stub_module("fight.FightHandler", FightHandler=_FightHandler)
+_stub_package("combat")
+_load_module("combat.FightCheck", "combat/CombatCheck.py")
+_load_module("combat.FightView", "combat/CombatView.py")
+_load_module("combat.FightPlan", "combat/CombatPlan.py")
+_load_module("combat.FightActionDefinition", "combat/CombatActionDefinition.py")
+_stub_module("combat.FightHandler", FightHandler=_FightHandler)
 _stub_package("skill")
 _stub_module("skill.SkillApi", SkillApi=_SkillApi)
 _stub_module("skill.SkillRegistry", SkillRegistry=_SkillRegistry)
@@ -141,8 +141,8 @@ _stub_module("player.CharacterApi", CharacterMacros=_CharacterMacros)
 
 GamePayload = _load_module("game.GamePayload", "game/GamePayload.py").GamePayload
 Skill = _load_module("skill.Skill", "skill/Skill.py").Skill
-FightView = sys.modules["fight.FightView"].FightView
-fight_api_module = _load_module("fight.FightApi", "fight/FightApi.py")
+FightView = sys.modules["combat.FightView"].FightView
+fight_api_module = _load_module("combat.FightApi", "combat/FightApi.py")
 FightApi = fight_api_module.FightApi
 
 

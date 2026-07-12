@@ -22,7 +22,7 @@ from server.LoggerFactory import LoggerFactory
 from player.Player import Player
 from player.Character import Character
 from game.RegistryService import RegistryService
-from fight.FightHandler import FightHandler
+from combat.CombatHandler import FightHandler
 
 
 class ConnectionHandler:

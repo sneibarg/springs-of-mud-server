@@ -9,7 +9,7 @@ from game.RegistryService import RegistryService
 from interp.Context import Context
 from api.InterpApi import InterpApi
 from api.MovementApi import MovementApi
-from fight.FightHandler import FightHandler
+from combat.CombatHandler import FightHandler
 from item.Item import Item
 from util.MobileUtil import MobileUtil
 from util.PlayerUtil import PlayerUtil

@@ -5,7 +5,7 @@ from typing import Any
 from injector import inject
 
 from api.InterpApi import InterpApi
-from fight.FightHandler import FightHandler
+from combat.CombatHandler import FightHandler
 from game.WizHandler import WizHandler
 from game.RegistryService import RegistryService
 from interp.Context import Context

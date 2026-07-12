@@ -232,9 +232,9 @@ _stub_module("player.Character", Character=object)
 _stub_package("item")
 _stub_module("item.Item", Item=SimpleNamespace)
 InterpApi = _load_module("api.InterpApi", "api/InterpApi.py").InterpApi
-_stub_package("fight")
-_stub_module("fight.FightHandler", FightHandler=_FightHandler)
-_load_module("fight.FightView", "fight/FightView.py")
+_stub_package("combat")
+_stub_module("combat.FightHandler", FightHandler=_FightHandler)
+_load_module("combat.FightView", "combat/CombatView.py")
 _stub_package("skill")
 _stub_module("skill.SkillRegistry", SkillRegistry=object)
 FightApi = _load_module("api.FightApi", "api/FightApi.py").FightApi

@@ -188,8 +188,8 @@ _stub_module("api.GameApi", GameApi=SimpleNamespace())
 _stub_module("api.ItemApi", ItemApi=SimpleNamespace())
 _stub_module("api.CharacterApi", CharacterApi=_CharacterApi)
 _stub_module("api.MobileApi", MobileApi=_MobileApi)
-_stub_package("fight")
-_stub_module("fight.CombatEvent", CombatEvent=object)
+_stub_package("combat")
+_stub_module("combat.CombatEvent", CombatEvent=object)
 _stub_package("game")
 _stub_module("game", GameData=object)
 _stub_module("game.EnumProvider", EnumProvider=object)
@@ -252,7 +252,7 @@ _stub_module("util.SkillUtil", SkillUtil=_SkillUtil)
 _stub_package("skill")
 _stub_module("skill.Ability", Ability=_SkillUtil)
 
-FightHandler = _load_module("fight.FightHandler", "fight/FightHandler.py").FightHandler
+FightHandler = _load_module("combat.FightHandler", "combat/CombatHandler.py").FightHandler
 
 
 class TestFightHandlerAggression(unittest.TestCase):
@@ -450,7 +450,7 @@ class TestFightHandlerAggression(unittest.TestCase):
             shield=SimpleNamespace(),
         )
 
-        with unittest.mock.patch.object(sys.modules["fight.FightHandler"].GameApi, "is_set", return_value=False, create=True), \
+        with unittest.mock.patch.object(sys.modules["combat.FightHandler"].GameApi, "is_set", return_value=False, create=True), \
                 unittest.mock.patch.object(handler.rng, "dice", return_value=2):
             damage = handler._attack_damage(attacker, skill=60)
 

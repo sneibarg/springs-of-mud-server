@@ -20,8 +20,8 @@ from area.ShopRegistry import ShopRegistry
 from area.ShopService import ShopService
 from area.SpecialRegistry import SpecialRegistry
 from area.SpecialService import SpecialService
-from fight.FightHandler import FightHandler
-from fight.CombatRegistry import CombatRegistry
+from combat.CombatHandler import FightHandler
+from combat.CombatRegistry import CombatRegistry
 from game.EnumProvider import EnumProvider
 from game.GameData import GameData
 from game.GameService import GameService

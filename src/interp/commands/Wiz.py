@@ -9,7 +9,7 @@ from api.ItemApi import ItemApi
 from api.WizApi import WizApi
 from api.WizSetApi import WizSetApi
 from area.Room import Room
-from fight.FightHandler import FightHandler
+from combat.CombatHandler import FightHandler
 from game.GameService import GameService
 from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService

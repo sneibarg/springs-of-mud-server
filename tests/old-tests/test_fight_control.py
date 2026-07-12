@@ -3,7 +3,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, patch
 
-from fight.FightHandler import FightHandler
+from combat.CombatHandler import FightHandler
 from game.UpdateHandler import UpdateHandler
 from interp.commands.Fight import Fight
 
@@ -82,8 +82,8 @@ class TestFightControl(unittest.TestCase):
             POS_FIGHTING=SimpleNamespace(value=7),
         )
 
-        with patch("fight.FightHandler.CharacterApi.get_enum", return_value=positions), \
-             patch("fight.FightHandler.CharacterApi.is_npc", side_effect=lambda entity: entity is victim):
+        with patch("combat.FightHandler.CharacterApi.get_enum", return_value=positions), \
+             patch("combat.FightHandler.CharacterApi.is_npc", side_effect=lambda entity: entity is victim):
             handler.damage(attacker, victim, 2)
 
         self.assertIs(attacker.fighting, victim)
@@ -131,9 +131,9 @@ class TestFightControl(unittest.TestCase):
 
         positions = SimpleNamespace(POS_DEAD=SimpleNamespace(value=0))
 
-        with patch("fight.FightHandler.CharacterApi.get_enum", return_value=positions), \
-             patch("fight.FightHandler.CharacterApi.is_npc", side_effect=lambda entity: entity is victim), \
-             patch("fight.FightHandler.random.randint", return_value=5), \
+        with patch("combat.FightHandler.CharacterApi.get_enum", return_value=positions), \
+             patch("combat.FightHandler.CharacterApi.is_npc", side_effect=lambda entity: entity is victim), \
+             patch("combat.FightHandler.random.randint", return_value=5), \
              patch.object(handler, "check_dodge", return_value=False), \
              patch.object(handler, "check_parry", return_value=False), \
              patch.object(handler, "check_shield_block", return_value=False):
@@ -162,7 +162,7 @@ class TestFightControl(unittest.TestCase):
             mobile_registry=mobile_registry,
         )
 
-        with patch("fight.FightHandler.CharacterApi.is_npc", side_effect=lambda entity: entity is victim):
+        with patch("combat.FightHandler.CharacterApi.is_npc", side_effect=lambda entity: entity is victim):
             payload = handler.build_round_payload(
                 attacker,
                 victim,
@@ -216,12 +216,12 @@ class TestFightControl(unittest.TestCase):
 
         positions = SimpleNamespace(POS_DEAD=SimpleNamespace(value=0))
 
-        with patch("fight.FightHandler.CharacterApi.get_enum", return_value=positions), \
-             patch("fight.FightHandler.CharacterApi.is_npc", side_effect=lambda entity: entity is victim), \
+        with patch("combat.FightHandler.CharacterApi.get_enum", return_value=positions), \
+             patch("combat.FightHandler.CharacterApi.is_npc", side_effect=lambda entity: entity is victim), \
              patch.object(handler, "check_dodge", return_value=False), \
              patch.object(handler, "check_parry", return_value=False), \
              patch.object(handler, "check_shield_block", return_value=False), \
-             patch("fight.FightHandler.random.randint", return_value=3):
+             patch("combat.FightHandler.random.randint", return_value=3):
             result = handler.one_hit(attacker, victim, dt="TYPE_UNDEFINED")
 
         self.assertIn("your slash", result["to_char"].lower())
@@ -241,7 +241,7 @@ class TestFightControl(unittest.TestCase):
             level=1,
         )
 
-        with patch("fight.FightHandler.random.randint", return_value=4):
+        with patch("combat.FightHandler.random.randint", return_value=4):
             damage = handler._attack_damage(attacker)
 
         self.assertEqual(4, damage)
@@ -263,13 +263,13 @@ class TestFightControl(unittest.TestCase):
         victim = SimpleNamespace(id="mob1")
         attacker.fighting = victim
 
-        with patch("fight.FightHandler.CharacterApi.get_enum", return_value=SimpleNamespace(POS_RESTING=SimpleNamespace(value=5))), \
-             patch("fight.FightHandler.CharacterApi.is_npc", return_value=False), \
+        with patch("combat.FightHandler.CharacterApi.get_enum", return_value=SimpleNamespace(POS_RESTING=SimpleNamespace(value=5))), \
+             patch("combat.FightHandler.CharacterApi.is_npc", return_value=False), \
              patch.object(handler, "one_hit", side_effect=[
                  {"to_char": "first\r\n", "to_victim": "", "to_room": "", "killed": False},
                  {"to_char": "second\r\n", "to_victim": "", "to_room": "", "killed": False},
              ]), \
-             patch("fight.FightHandler.random.randint", return_value=1):
+             patch("combat.FightHandler.random.randint", return_value=1):
             payload = handler.multi_hit(attacker, victim, dt="TYPE_UNDEFINED")
 
         self.assertEqual("first\r\nsecond\r\n", payload["to_char"])
@@ -302,12 +302,12 @@ class TestFightControl(unittest.TestCase):
             spell_registry=SimpleNamespace(all_spells=Mock(return_value=[])),
         )
 
-        with patch("fight.FightHandler.CharacterApi.get_enum", return_value=SimpleNamespace(POS_RESTING=SimpleNamespace(value=5))), \
-             patch("fight.FightHandler.CharacterApi.is_npc", return_value=False), \
+        with patch("combat.FightHandler.CharacterApi.get_enum", return_value=SimpleNamespace(POS_RESTING=SimpleNamespace(value=5))), \
+             patch("combat.FightHandler.CharacterApi.is_npc", return_value=False), \
              patch("util.SkillUtil.CharacterApi.get_registry", return_value=registry), \
              patch.object(handler, "one_hit", return_value={"to_char": "first\r\n", "to_victim": "", "to_room": "", "killed": False}) as one_hit, \
              patch.object(handler, "_entity_has_affect", return_value=False), \
-             patch("fight.FightHandler.random.randint", return_value=1):
+             patch("combat.FightHandler.random.randint", return_value=1):
             payload = handler.multi_hit(attacker, victim, dt="TYPE_UNDEFINED")
 
         self.assertEqual("first\r\n", payload["to_char"])
@@ -331,7 +331,7 @@ class TestFightControl(unittest.TestCase):
         victim = SimpleNamespace(id="char1")
         attacker.fighting = victim
 
-        with patch("fight.FightHandler.CharacterApi.is_npc", return_value=True), \
+        with patch("combat.FightHandler.CharacterApi.is_npc", return_value=True), \
              patch.object(handler, "one_hit", side_effect=[
                  {"to_char": "first\r\n", "to_victim": "", "to_room": "", "killed": False},
                  {"to_char": "fast\r\n", "to_victim": "", "to_room": "", "killed": False},

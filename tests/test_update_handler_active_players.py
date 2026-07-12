@@ -19,7 +19,7 @@ def _stub_package(package_name: str) -> None:
     sys.modules[package_name] = package
 
 
-for package_name in ["area", "fight", "game", "interp", "item", "mobile", "player", "server", "skill", "util"]:
+for package_name in ["area", "combat", "game", "interp", "item", "mobile", "player", "server", "skill", "util"]:
     _stub_package(package_name)
 
 from game.UpdateHandler import UpdateHandler

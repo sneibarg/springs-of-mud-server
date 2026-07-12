@@ -7,7 +7,7 @@ from api.GameApi import GameApi
 from api.ItemApi import ItemApi
 from api.CharacterApi import CharacterApi
 from api.MobileApi import MobileApi
-from fight.CombatEvent import CombatEvent
+from combat.CombatEvent import CombatEvent
 from game import GameData
 from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService

@@ -6,7 +6,7 @@ from mobile.Mobile import Mobile
 from util.MobileUtil import MobileUtil
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
-from fight.FightHandler import FightHandler
+from combat.CombatHandler import FightHandler
 from game.GameData import GameData
 from area.AreaRegistry import AreaRegistry
 from mobile.MobileRegistry import MobileRegistry

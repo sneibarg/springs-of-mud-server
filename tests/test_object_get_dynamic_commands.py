@@ -315,7 +315,7 @@ class _SpellApi:
         return None
 
 
-for package_name in ("api", "area", "fight", "game", "interp", "item", "player", "server", "skill", "util"):
+for package_name in ("api", "area", "combat", "game", "interp", "item", "player", "server", "skill", "util"):
     _stub_package(package_name)
 _stub_package("interp.commands")
 
@@ -353,7 +353,7 @@ _stub_module("game.RegistryService", RegistryService=object)
 _stub_module("interp.Context", Context=_Context)
 _stub_module("item.Item", Item=object)
 _stub_module("player.Character", Character=object)
-_stub_module("fight.FightHandler", FightHandler=object)
+_stub_module("combat.FightHandler", FightHandler=object)
 _stub_module("skill.SpellContext", SpellContext=object)
 _stub_module("api.SpellApi", SpellApi=_SpellApi)
 
