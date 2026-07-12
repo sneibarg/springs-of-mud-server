@@ -563,6 +563,9 @@ class Object:
             self.affected_bits,
             self.comm_flags,
         )
+        character_registry = getattr(self.registry_service, "character_registry", None)
+        if character_registry is not None:
+            character_registry.register(pet)
         return {
             "to_char": self._render_command_message(context, "pet_purchased"),
             "to_room": self._render_command_message(context, "pet_purchased", channel="to_room", c=character.name, t=getattr(pet, "short_description", "a pet")),

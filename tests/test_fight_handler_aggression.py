@@ -69,6 +69,7 @@ class _RoomFlags(IntEnum):
 
 class _AffectBits(IntEnum):
     AFF_CALM = 1
+    AFF_CHARM = 2
 
 
 class _Positions(IntEnum):
@@ -100,8 +101,8 @@ class _CharacterApi:
         return int(getattr(member, "value", member or 0))
 
     @staticmethod
-    def is_affected(_entity, _bit):
-        return False
+    def is_affected(entity, bit):
+        return (int(getattr(getattr(entity, "status_flags", None), "affected_by", 0) or 0) & int(bit or 0)) != 0
 
     @staticmethod
     def is_awake(_entity):
@@ -125,10 +126,26 @@ class _CharacterApi:
             return {"tohit": 0, "todam": 1}
         return {"tohit": 0, "todam": 0, "defensive": 0}
 
+    @staticmethod
+    def is_same_group(left, right):
+        if getattr(left, "leader", None) is not None:
+            left = left.leader
+        if getattr(right, "leader", None) is not None:
+            right = right.leader
+        return left is right
+
+    @staticmethod
+    def player_auto_assist(entity):
+        return bool(getattr(entity, "auto_assist", False))
+
 
 class _MobileApi:
     @staticmethod
     def mobile_is_charmed(_entity):
+        return False
+
+    @staticmethod
+    def mobile_will_assist(_entity):
         return False
 
 
@@ -183,6 +200,8 @@ _stub_module("item.EffectHandler", EffectHandler=object)
 _stub_module("item.BodyForm", BodyForm=object)
 _stub_module("item.BodyParts", BodyParts=object)
 _stub_module("item.Item", Item=object)
+_stub_package("mobile")
+_stub_module("mobile.Mobile", Mobile=type("Mobile", (), {}))
 _stub_package("player")
 _stub_module("player.Character", Character=_Character)
 _stub_module("player.CharacterAdvancement", CharacterAdvancement=object)
@@ -267,9 +286,12 @@ class TestFightHandlerAggression(unittest.TestCase):
             is_npc=True,
             is_immortal=False,
             level=10,
+            room_id="room-1",
             fighting=None,
-            status_flags=SimpleNamespace(act=int(_ActBits.ACT_AGGRESSIVE), off=0),
+            status_flags=SimpleNamespace(act=int(_ActBits.ACT_AGGRESSIVE), affected_by=0, off=0),
             character_attributes=SimpleNamespace(position=8),
+            leader=None,
+            master=None,
         )
 
     @staticmethod
@@ -279,8 +301,12 @@ class TestFightHandlerAggression(unittest.TestCase):
             is_npc=False,
             is_immortal=False,
             level=5,
+            room_id="room-1",
             fighting=None,
+            status_flags=SimpleNamespace(act=0, affected_by=0, comm=0),
             character_attributes=SimpleNamespace(position=8),
+            leader=None,
+            master=None,
         )
 
     def test_aggressive_entry_rounds_only_sets_fighting(self):
@@ -455,6 +481,84 @@ class TestFightHandlerAggression(unittest.TestCase):
         damage_type = handler._attack_damage_type(attacker, "TYPE_UNDEFINED", "")
 
         self.assertEqual("DAM_SLASH", damage_type)
+
+    def test_is_safe_returns_safe_when_room_cannot_be_resolved(self):
+        attacker = self._player("char-1")
+        victim = self._mob("mob-1")
+        handler = self._handler(SimpleNamespace())
+        handler._find_room_for_entity = Mock(return_value=None)
+
+        safe, message = handler.is_safe(attacker, victim)
+
+        self.assertTrue(safe)
+        self.assertEqual("They aren't here.\r\n", message)
+
+    def test_check_assist_charmed_group_pet_autoattacks_owner_target(self):
+        owner = self._player("char-1")
+        victim = self._mob("mob-1")
+        victim.fighting = owner
+        pet = self._mob("pet-1")
+        pet.status_flags.affected_by = int(_AffectBits.AFF_CHARM)
+        pet.master = owner
+        pet.leader = owner
+        room = SimpleNamespace(
+            id="room-1",
+            area_id="area-1",
+            room_flags=0,
+            mobiles={"mob-1": victim, "pet-1": pet},
+            characters={"char-1": owner},
+            people=lambda: [owner, victim, pet],
+        )
+        handler = self._handler(room)
+        handler.multi_hit = Mock()
+
+        handler.check_assist(owner, victim)
+
+        handler.multi_hit.assert_called_once_with(pet, victim, dt="TYPE_UNDEFINED")
+
+    def test_check_assist_charmed_group_pet_defends_owner_from_npc_attacker(self):
+        owner = self._player("char-1")
+        attacker = self._mob("mob-1")
+        attacker.fighting = owner
+        owner.fighting = attacker
+        pet = self._mob("pet-1")
+        pet.status_flags.affected_by = int(_AffectBits.AFF_CHARM)
+        pet.master = owner
+        pet.leader = owner
+        room = SimpleNamespace(
+            id="room-1",
+            area_id="area-1",
+            room_flags=0,
+            mobiles={"mob-1": attacker, "pet-1": pet},
+            characters={"char-1": owner},
+            people=lambda: [owner, attacker, pet],
+        )
+        handler = self._handler(room)
+        handler.multi_hit = Mock()
+
+        handler.check_assist(attacker, owner)
+
+        handler.multi_hit.assert_called_once_with(pet, attacker, dt="TYPE_UNDEFINED")
+
+    def test_is_safe_allows_group_member_to_join_existing_fight(self):
+        owner = self._player("char-1")
+        victim = self._mob("mob-1")
+        victim.fighting = owner
+        pet = self._mob("pet-1")
+        pet.leader = owner
+        room = SimpleNamespace(
+            id="room-1",
+            area_id="area-1",
+            room_flags=0,
+            mobiles={"mob-1": victim, "pet-1": pet},
+            characters={"char-1": owner},
+        )
+        handler = self._handler(room)
+
+        safe, message = handler.is_safe(pet, victim, room=room)
+
+        self.assertFalse(safe)
+        self.assertEqual("", message)
 
     def test_build_round_payload_uses_room_player_targets_for_observers(self):
         attacker = self._player("char-1")

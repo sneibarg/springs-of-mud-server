@@ -96,6 +96,11 @@ class FightHandler:
         if attacker is victim:
             return True, "You hit yourself. Ouch!\r\n"
 
+        if room is None:
+            room = self._find_room_for_entity(attacker) or self._find_room_for_entity(victim)
+        if room is None:
+            return True, "They aren't here.\r\n"
+
         if room is not None and not self._entity_in_room(room, victim):
             return True, "They aren't here.\r\n"
 
@@ -118,7 +123,11 @@ class FightHandler:
                                                                                                         "ACT_PET")):
                 return True, "But they look so cute and cuddly...\r\n"
 
-        if victim.fighting is not None and victim.fighting is not attacker:
+        if (
+            victim.fighting is not None
+            and victim.fighting is not attacker
+            and not CharacterApi.is_same_group(attacker, victim.fighting)
+        ):
             return True, "Kill stealing is not permitted.\r\n"
 
         # Keep this permissive for now; detailed PK and charm rules migrate next.
@@ -782,11 +791,14 @@ class FightHandler:
 
     # TO-DO
     def check_assist(self, attacker, victim) -> None:
-        from mobile.Mobile import Mobile
-        if type(attacker) is Mobile:
+        room = self.room_registry.get_or_none(id=getattr(attacker, "room_id", ""))
+        if room is None:
             return None
-        room = self.room_registry.get(id=attacker.room_id)
         for char in room.people():
+            if char is attacker or char is victim:
+                continue
+            if not CharacterApi.is_awake(char) or getattr(char, "fighting", None) is not None:
+                continue
             if (not CharacterApi.is_npc(attacker) and
                     CharacterApi.is_npc(char) and
                     MobileApi.mobile_will_assist(char) and
@@ -799,11 +811,25 @@ class FightHandler:
             if (not CharacterApi.is_npc(attacker) or
                     CharacterApi.is_affected(attacker, self.AffectBits.AFF_CHARM.value)):
 
-                if ((not CharacterApi.is_npc(char) and CharacterApi.player_auto_assist(char)) or
-                    CharacterApi.is_affected(char, self.AffectBits.AFF_CHARM.value)) and \
-                        CharacterApi.is_same_group(attacker, char) and \
-                        not self.is_safe(char, victim):
+                safe, _message = self.is_safe(char, victim, room=room)
+                if (
+                    ((not CharacterApi.is_npc(char) and CharacterApi.player_auto_assist(char))
+                     or CharacterApi.is_affected(char, self.AffectBits.AFF_CHARM.value))
+                    and CharacterApi.is_same_group(attacker, char)
+                    and not safe
+                ):
                     self.multi_hit(char, victim, dt="TYPE_UNDEFINED")
+                continue
+
+            if CharacterApi.is_npc(attacker) and not CharacterApi.is_affected(attacker, self.AffectBits.AFF_CHARM.value):
+                safe, _message = self.is_safe(char, attacker, room=room)
+                if (
+                    ((not CharacterApi.is_npc(char) and CharacterApi.player_auto_assist(char))
+                     or CharacterApi.is_affected(char, self.AffectBits.AFF_CHARM.value))
+                    and CharacterApi.is_same_group(victim, char)
+                    and not safe
+                ):
+                    self.multi_hit(char, attacker, dt="TYPE_UNDEFINED")
                 continue
         return
 

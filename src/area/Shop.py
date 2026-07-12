@@ -245,19 +245,22 @@ class Shop:
         pet_bit = CharacterApi.enum_bit(act_bits, "ACT_PET")
         charm_bit = CharacterApi.enum_bit(affected_bits, "AFF_CHARM")
         if pet_bit:
-            pet.status_flags.act = CharacterApi.set_bit(GenericUtil.to_int(pet.status_flags.act, 0), pet_bit)
+            pet.status_flags.set_flag("act", pet_bit)
         if charm_bit:
-            pet.status_flags.affected_by = CharacterApi.set_bit(GenericUtil.to_int(pet.status_flags.affected_by, 0), charm_bit)
+            pet.status_flags.set_flag("affected_by", charm_bit)
 
         for comm_name in ("COMM_NOTELL", "COMM_NOSHOUT", "COMM_NOCHANNELS"):
             bit = CharacterApi.enum_bit(comm_flags, comm_name)
             if bit:
-                pet.status_flags.comm = CharacterApi.set_bit(GenericUtil.to_int(pet.status_flags.comm, 0), bit)
+                pet.status_flags.set_flag("comm", bit)
 
         if pet_name:
             pet.name = f"{pet.name} {pet_name}".strip()
         pet.description = f"{pet.description or ''}A neck tag says 'I belong to {buyer.name}'.\r\n"
         room.add_mobile_to_room(pet)
+        pet.room_id = getattr(room, "id", getattr(pet, "room_id", ""))
+        pet.area_id = getattr(room, "area_id", getattr(pet, "area_id", ""))
+        pet.master = buyer
         pet.leader = buyer
         buyer.pet = pet
         cls._deduct_money(buyer, cost)
