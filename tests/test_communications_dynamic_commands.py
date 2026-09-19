@@ -134,6 +134,7 @@ sys.modules["game.RegistryService"] = SimpleNamespace(RegistryService=object)
 sys.modules["player.CharacterService"] = SimpleNamespace(CharacterService=object)
 sys.modules["server.session.SessionHandler"] = SimpleNamespace(SessionHandler=object)
 
+from api.AliasApi import AliasApi
 from api.CommunicationsApi import BufferedMessage, CommunicationsApi
 from api.InterpApi import InterpApi
 from interp.Command import Command
@@ -422,6 +423,122 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
 
         self.assertEqual("Victim tells you 'hello'\r\n", payload["to_char"])
         self.assertEqual([], CommunicationsApi.get_tell_buffer(actor))
+
+    def test_alias_metadata_uses_low_code_guards(self):
+        with open(RESOURCES_PATH, "r", encoding="utf-8") as handle:
+            commands = {entry["name"]: entry for entry in json.load(handle)}
+
+        self.assertEqual(
+            ["lambda ctx: ctx.player_handler().do_communications_command(ctx.character, ctx)"],
+            commands["alias"]["lambdas"],
+        )
+        self.assertEqual(
+            [
+                "lambda v: AliasApi.reserved_alias_word(v)",
+                "lambda v: AliasApi.lookup_missing(v)",
+                "lambda v: AliasApi.invalid_alias_substitution(v)",
+                "lambda v: AliasApi.alias_limit_reached(v)",
+            ],
+            [entry.get("predicate", "") for entry in commands["alias"]["guards"]],
+        )
+        self.assertIn("substitutionTooLong", commands["alias"]["payload"]["toChar"])
+        self.assertEqual(
+            ["lambda ctx: ctx.player_handler().do_communications_command(ctx.character, ctx)"],
+            commands["unalias"]["lambdas"],
+        )
+        self.assertEqual(
+            [
+                "lambda v: AliasApi.unalias_no_argument(v)",
+                "lambda v: AliasApi.unalias_missing(v)",
+            ],
+            [entry.get("predicate", "") for entry in commands["unalias"]["guards"]],
+        )
+
+    def test_do_alias_lists_empty_aliases(self):
+        actor = _character("Actor", "actor")
+        room = _Room(actor)
+        communications, context = self._command_context("alias", actor, room, "")
+
+        payload = communications.do_alias(context)
+
+        self.assertEqual("You have no aliases defined.\r\n", payload["to_char"])
+
+    def test_do_alias_sets_and_queries_alias_through_payload(self):
+        actor = _character("Actor", "actor")
+        room = _Room(actor)
+        communications, context = self._command_context("alias", actor, room, "foo say hello")
+
+        payload = communications.do_alias(context)
+
+        self.assertEqual({"foo": "say hello"}, actor.context["aliases"])
+        self.assertEqual("foo is now aliased to 'say hello'.\r\n", payload["to_char"])
+
+        context = self._command_context("alias", actor, room, "foo")[1]
+        payload = communications.do_alias(context)
+
+        self.assertEqual("foo aliases to 'say hello'.\r\n", payload["to_char"])
+
+    def test_do_alias_blocks_reserved_alias_word(self):
+        actor = _character("Actor", "actor")
+        room = _Room(actor)
+        communications, context = self._command_context("alias", actor, room, "unalias say hello")
+
+        payload = communications.do_alias(context)
+
+        self.assertTrue(payload["blocked"])
+        self.assertEqual("Sorry, that word is reserved.\r\n", payload["to_char"])
+
+    def test_do_unalias_removes_alias(self):
+        actor = _character("Actor", "actor")
+        actor.context["aliases"] = {"foo": "say hello"}
+        room = _Room(actor)
+        communications, context = self._command_context("unalias", actor, room, "foo")
+
+        payload = communications.do_unalias(context)
+
+        self.assertEqual({}, actor.context["aliases"])
+        self.assertEqual("Alias removed.\r\n", payload["to_char"])
+
+    def test_do_unalias_uses_low_code_guards(self):
+        actor = _character("Actor", "actor")
+        room = _Room(actor)
+        communications, context = self._command_context("unalias", actor, room, "")
+
+        payload = communications.do_unalias(context)
+
+        self.assertTrue(payload["blocked"])
+        self.assertEqual("Unalias what?\r\n", payload["to_char"])
+
+        context = self._command_context("unalias", actor, room, "missing")[1]
+        payload = communications.do_unalias(context)
+
+        self.assertTrue(payload["blocked"])
+        self.assertEqual("No alias of that name to remove.\r\n", payload["to_char"])
+
+    def test_alias_api_substitutes_command_once(self):
+        actor = _character("Actor", "actor")
+        actor.context["aliases"] = {"foo": "say hello"}
+
+        result = AliasApi.substitute_command(actor, "foo there")
+
+        self.assertEqual("say hello there", result.command)
+        self.assertEqual("alias foo", AliasApi.substitute_command(actor, "alias foo").command)
+
+        actor.context["aliases"] = {"foo": "say " + ("x" * 300)}
+        result = AliasApi.substitute_command(actor, "foo")
+
+        self.assertEqual("substitution_too_long", result.message_key)
+        self.assertEqual(AliasApi.MAX_INPUT_LENGTH - 1, len(result.command))
+
+    def test_alias_api_reads_persisted_aliases_and_mirrors_context(self):
+        actor = _character("Actor", "actor")
+        actor.aliases = {"Foo": "say hello"}
+
+        result = AliasApi.substitute_command(actor, "foo there")
+
+        self.assertEqual("say hello there", result.command)
+        self.assertEqual({"foo": "say hello"}, actor.aliases)
+        self.assertEqual({"foo": "say hello"}, actor.context["aliases"])
 
     def _communications_for_room(self, room):
         registry_service = SimpleNamespace(

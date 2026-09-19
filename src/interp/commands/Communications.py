@@ -4,6 +4,7 @@ import random
 
 from injector import inject
 
+from api.AliasApi import AliasApi
 from api.CommunicationsApi import CommunicationsApi
 from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
@@ -75,6 +76,9 @@ class Communications:
             "typo": self.do_typo,
             "rent": self.do_rent,
             "save": self.do_save,
+            "alia": self.do_alia,
+            "alias": self.do_alias,
+            "unalias": self.do_unalias,
             "follow": self.do_follow,
             "order": self.do_order,
             "group": self.do_group,
@@ -85,6 +89,57 @@ class Communications:
             context.finish()
             return {"to_char": f"{name} is not implemented yet.\r\n"}
         return fn(context)
+
+    def do_alia(self, context: Context):
+        context.finish()
+        return self._render_message_key(context, "must_enter_full")
+
+    def do_alias(self, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+
+        alias_name, replacement = AliasApi.alias_parts(self.interp_api.build_interp_view(context))
+        aliases = AliasApi.aliases(context.character)
+        if not alias_name:
+            context.finish()
+            if not aliases:
+                return self._render_message_key(context, "no_aliases_defined")
+            rows = []
+            for current_alias, current_replacement in aliases.items():
+                rows.append(
+                    self._render_message_key(
+                        context,
+                        "default",
+                        channel="to_char",
+                        alias=current_alias,
+                        replacement=current_replacement,
+                    ).get("to_char", "")
+                )
+            return self._render_message_key(context, "current_aliases", s="".join(rows))
+
+        if not replacement:
+            context.finish()
+            return self._render_message_key(context, "alias", **AliasApi.alias_tokens(self.interp_api.build_interp_view(context)))
+
+        was_existing = AliasApi.set_alias(context.character, alias_name, replacement)
+        context.finish()
+        return self._render_message_key(
+            context,
+            "reset" if was_existing else "set",
+            alias=alias_name,
+            replacement=replacement,
+        )
+
+    def do_unalias(self, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+
+        alias_name = AliasApi.unalias_name(self.interp_api.build_interp_view(context))
+        AliasApi.remove_alias(context.character, alias_name)
+        context.finish()
+        return self._render_message_key(context, "remove")
 
     def do_channels(self, context: Context):
         character = context.character

@@ -43,6 +43,7 @@ class Character(AnimateEntity):
     spells: List[dict] = field(default_factory=list)
     loot: List[Item] = field(default_factory=list)
     context: Optional[Context] = None
+    aliases: dict[str, str] = field(default_factory=dict)
     carriage_return: bool = True
 
     def __post_init__(self):

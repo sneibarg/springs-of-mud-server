@@ -3,6 +3,7 @@ import inspect
 from typing import List
 from injector import inject, Injector
 
+from api.AliasApi import AliasApi
 from game.HandlerService import HandlerService
 from game.RegistryService import RegistryService
 from interp.Command import Command
@@ -105,9 +106,26 @@ class InterpHandler:
             self.logger.error("TypeError: " + str(te))
             raise
 
+    async def _send_alias_substitution_message(self, character: Character, alias_result):
+        text = str(getattr(alias_result, "message", "") or "")
+        message_key = str(getattr(alias_result, "message_key", "") or "")
+        if message_key:
+            alias_command = self.interp_registry.get_or_none(name="alias")
+            if alias_command is not None:
+                rendered = alias_command.render_message("to_char", message_key, fallback=text)
+                if rendered:
+                    text = rendered if rendered.endswith("\r\n") else f"{rendered}\r\n"
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
     async def handle_command(self, player, character, command):
         if command is None or not str(command).strip():
             return None
+
+        alias_result = AliasApi.substitute_command(character, command)
+        if alias_result.message:
+            await self._send_alias_substitution_message(character, alias_result)
+        command = alias_result.command
 
         cmd, parameters = InterpUtil.extract_parameters(self.registry_service.interp_registry, command)
         if cmd is None:

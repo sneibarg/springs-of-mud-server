@@ -2818,7 +2818,9 @@
     },
     "name": "alia",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_communications_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2826,7 +2828,9 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "mustEnterFull": "I'm sorry, alias must be entered in full."
+      },
       "toRoom": {},
       "toVictim": {}
     }
@@ -2837,7 +2841,9 @@
     },
     "name": "alias",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_communications_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2847,19 +2853,38 @@
     "payload": {
       "toChar": {
         "noAliasesDefined": "You have no aliases defined.",
-        "currentAliases": "Your current aliases are: %s",
+        "currentAliases": "Your current aliases are:\n\r%s",
         "reservedWord": "Sorry, that word is reserved.",
         "noSuchAlias": "That alias is not defined.",
         "invalidAlias": "That shall not be done!",
         "aliasLimit": "Sorry, you have reached the alias limit.",
-        "default": "    %s:  %s",
-        "alias": "%s aliases to '%s'.",
-        "reset": "%s is now re-aliased to '%s'.",
-        "set": "%s is now aliased to '%s'."
+        "substitutionTooLong": "Alias substitution too long. Truncated.",
+        "default": "    {alias}:  {replacement}",
+        "alias": "{alias} aliases to '{replacement}'.",
+        "reset": "{alias} is now re-aliased to '{replacement}'.",
+        "set": "{alias} is now aliased to '{replacement}'."
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: AliasApi.reserved_alias_word(v)",
+        "messageKey": "reservedWord"
+      },
+      {
+        "predicate": "lambda v: AliasApi.lookup_missing(v)",
+        "messageKey": "noSuchAlias"
+      },
+      {
+        "predicate": "lambda v: AliasApi.invalid_alias_substitution(v)",
+        "messageKey": "invalidAlias"
+      },
+      {
+        "predicate": "lambda v: AliasApi.alias_limit_reached(v)",
+        "messageKey": "aliasLimit"
+      }
+    ]
   },
   {
     "_id": {
@@ -3320,7 +3345,9 @@
     },
     "name": "unalias",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_communications_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -3335,7 +3362,17 @@
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: AliasApi.unalias_no_argument(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: AliasApi.unalias_missing(v)",
+        "messageKey": "noSuchAlias"
+      }
+    ]
   },
   {
     "_id": {
