@@ -18,7 +18,9 @@ class TestWizDynamicCommandMetadata(unittest.TestCase):
             "deny",
             "flag",
             "freeze",
+            "force",
             "goto",
+            "guild",
             "incognito",
             "invis",
             "log",
@@ -29,12 +31,17 @@ class TestWizDynamicCommandMetadata(unittest.TestCase):
             "poofin",
             "poofout",
             "prefix",
+            "protect",
+            "pardon",
             "restore",
             "return",
             "set",
             "smote",
             "snoop",
             "switch",
+            "trust",
+            "disconnect",
+            "violate",
         }
         with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:
             commands = {entry["name"]: entry for entry in json.load(handle)}
@@ -166,6 +173,76 @@ class TestWizDynamicCommandMetadata(unittest.TestCase):
             ],
             [entry.get("predicate", "") for entry in commands["ban"]["guards"]],
         )
+
+    def test_admin_command_metadata_uses_low_code_guards(self):
+        with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:
+            commands = {entry["name"]: entry for entry in json.load(handle)}
+
+        self.assertEqual(
+            [
+                "lambda v: WizApi.guild_syntax_invalid(v)",
+                "lambda v: WizApi.guild_target_missing(v)",
+            ],
+            [entry.get("predicate", "") for entry in commands["guild"]["guards"]],
+        )
+        self.assertEqual(
+            [
+                "lambda v: WizApi.trust_syntax_invalid(v)",
+                "lambda v: WizApi.trust_target_missing(v)",
+                "lambda v: WizApi.trust_level_invalid(v)",
+                "lambda v: WizApi.trust_limited(v)",
+            ],
+            [entry.get("predicate", "") for entry in commands["trust"]["guards"]],
+        )
+        self.assertEqual(
+            [
+                "lambda v: not InterpUtil.argument_text(v)",
+                "lambda v: WizApi.violate_location(v) is None",
+                "lambda v: WizApi.violate_not_private(v)",
+            ],
+            [entry.get("predicate", "") for entry in commands["violate"]["guards"]],
+        )
+        self.assertEqual(
+            [
+                "lambda v: not InterpUtil.argument_text(v)",
+                "lambda v: WizApi.disconnect_target_missing(v)",
+                "lambda v: WizApi.disconnect_session_missing(v)",
+            ],
+            [entry.get("predicate", "") for entry in commands["disconnect"]["guards"]],
+        )
+        self.assertEqual(
+            [
+                "lambda v: not InterpUtil.argument_text(v)",
+                "lambda v: WizApi.protect_target_missing(v)",
+            ],
+            [entry.get("predicate", "") for entry in commands["protect"]["guards"]],
+        )
+        self.assertEqual(
+            [
+                "lambda v: WizApi.pardon_syntax_invalid(v)",
+                "lambda v: WizApi.pardon_target_missing(v)",
+                "lambda v: WizApi.pardon_target_is_npc(v)",
+            ],
+            [entry.get("predicate", "") for entry in commands["pardon"]["guards"]],
+        )
+
+    def test_force_metadata_has_guards_and_victim_payload(self):
+        with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:
+            commands = {entry["name"]: entry for entry in json.load(handle)}
+
+        self.assertEqual(
+            [
+                "lambda v: WizApi.force_missing_argument(v)",
+                "lambda v: WizApi.force_delete(v)",
+                "lambda v: WizApi.force_target_missing(v)",
+                "lambda v: WizApi.force_target_self(v)",
+                "lambda v: WizApi.force_private(v)",
+                "lambda v: WizApi.force_target_higher_level(v)",
+            ],
+            [entry.get("predicate", "") for entry in commands["force"]["guards"]],
+        )
+        self.assertEqual("%c forces you to '%s'.", commands["force"]["payload"]["toVictim"]["forced"])
+        self.assertEqual("%t is now snoop-proof.", commands["protect"]["payload"]["toChar"]["set"])
 
     def test_follow_metadata_uses_rom_order_low_code_guards(self):
         with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:

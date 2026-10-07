@@ -12,6 +12,8 @@ from mobile.MobileRegistry import MobileRegistry
 from area.AreaRegistry import AreaRegistry
 from area.RoomRegistry import RoomRegistry
 from item.ItemRegistry import ItemRegistry
+from notes.NoteRegistry import NoteRegistry
+from skill.GroupRegistry import GroupRegistry
 from skill.SkillRegistry import SkillRegistry
 from skill.SpellRegistry import SpellRegistry
 
@@ -25,6 +27,8 @@ class RegistryService:
                  area_registry: AreaRegistry,
                  room_registry: RoomRegistry,
                  item_registry: ItemRegistry,
+                 note_registry: NoteRegistry,
+                 group_registry: GroupRegistry,
                  skill_registry: SkillRegistry,
                  spell_registry: SpellRegistry,
                  shop_registry: ShopRegistry,
@@ -40,6 +44,8 @@ class RegistryService:
         self.area_registry = area_registry
         self.room_registry = room_registry
         self.item_registry = item_registry
+        self.note_registry = note_registry
+        self.group_registry = group_registry
         self.skill_registry = skill_registry
         self.spell_registry = spell_registry
         self.shop_registry = shop_registry

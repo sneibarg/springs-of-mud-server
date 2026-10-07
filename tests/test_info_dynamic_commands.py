@@ -70,11 +70,22 @@ class _StatusFlags:
         setattr(self, name, value)
 
 
+class _EnumLike(SimpleNamespace):
+    def __getitem__(self, name):
+        return self.__members__[name]
+
+
 class _CharacterMacros:
+    @staticmethod
+    def _enum_like(**members):
+        enum_obj = _EnumLike(**members)
+        enum_obj.__members__ = members
+        return enum_obj
+
     @staticmethod
     def get_enum(name: str):
         if name == "playerActBits":
-            return SimpleNamespace(
+            return _CharacterMacros._enum_like(
                 PLR_AUTOASSIST=SimpleNamespace(value=1),
                 PLR_AUTOEXIT=SimpleNamespace(value=2),
                 PLR_AUTOGOLD=SimpleNamespace(value=4),
@@ -82,26 +93,59 @@ class _CharacterMacros:
                 PLR_AUTOSAC=SimpleNamespace(value=16),
                 PLR_AUTOSPLIT=SimpleNamespace(value=32),
                 PLR_CANLOOT=SimpleNamespace(value=64),
-                PLR_NOFOLLOW=SimpleNamespace(value=128),
                 PLR_NOSUMMON=SimpleNamespace(value=256),
+                PLR_NOFOLLOW=SimpleNamespace(value=131072),
             )
         if name == "commFlags":
-            return SimpleNamespace(
-                COMM_BRIEF=SimpleNamespace(value=1),
-                COMM_COMPACT=SimpleNamespace(value=2),
-                COMM_COMBINE=SimpleNamespace(value=4),
-                COMM_PROMPT=SimpleNamespace(value=8),
-                COMM_SHOW_AFFECTS=SimpleNamespace(value=16),
+            return _CharacterMacros._enum_like(
+                COMM_DEAF=SimpleNamespace(value=1),
+                COMM_QUIET=SimpleNamespace(value=2),
+                COMM_AFK=SimpleNamespace(value=4),
+                COMM_NOTELL=SimpleNamespace(value=8),
+                COMM_NOGOSSIP=SimpleNamespace(value=16),
+                COMM_NOAUCTION=SimpleNamespace(value=32),
+                COMM_NOMUSIC=SimpleNamespace(value=64),
+                COMM_NOQUESTION=SimpleNamespace(value=128),
+                COMM_NOQUOTE=SimpleNamespace(value=256),
+                COMM_NOGRATS=SimpleNamespace(value=512),
+                COMM_NOWIZ=SimpleNamespace(value=1024),
+                COMM_NOSHOUT=SimpleNamespace(value=2048),
+                COMM_NOCHANNELS=SimpleNamespace(value=4096),
+                COMM_NOEMOTE=SimpleNamespace(value=8192),
+                COMM_SHOUTSOFF=SimpleNamespace(value=16384),
+                COMM_BRIEF=SimpleNamespace(value=32768),
+                COMM_COMPACT=SimpleNamespace(value=65536),
+                COMM_COMBINE=SimpleNamespace(value=131072),
+                COMM_PROMPT=SimpleNamespace(value=262144),
+                COMM_SHOW_AFFECTS=SimpleNamespace(value=524288),
             )
         if name == "actBits":
-            return SimpleNamespace(ACT_PRACTICE=SimpleNamespace(value=1))
+            return _CharacterMacros._enum_like(ACT_PRACTICE=SimpleNamespace(value=1))
+        if name == "affectedBy":
+            return _CharacterMacros._enum_like(AFF_CHARM=SimpleNamespace(value=262144))
         if name == "itemFlags":
-            return SimpleNamespace()
-        return SimpleNamespace()
+            return _CharacterMacros._enum_like()
+        if name == "gameParameters":
+            return _CharacterMacros._enum_like(LEVEL_HERO=SimpleNamespace(value=51), PULSE_VIOLENCE=SimpleNamespace(value=12))
+        return _CharacterMacros._enum_like()
 
     @staticmethod
     def is_set(value: int, bit: int) -> bool:
         return (int(value) & int(bit)) != 0
+
+    @staticmethod
+    def enum_bit(enum_obj, bit_name: str) -> int:
+        return int(getattr(getattr(enum_obj, bit_name, None), "value", 0) or 0)
+
+    @staticmethod
+    def is_same_group(left, right):
+        if left is None or right is None:
+            return False
+        if getattr(left, "leader", None) is not None:
+            left = left.leader
+        if getattr(right, "leader", None) is not None:
+            right = right.leader
+        return left == right
 
     @classmethod
     def set_act_flags(cls, character, bit: int):
@@ -139,7 +183,27 @@ class _CharacterMacros:
 
     @staticmethod
     def is_npc(_character) -> bool:
-        return False
+        return str(getattr(_character, "role", "") or "").lower() == "mobile"
+
+    @staticmethod
+    def is_immortal(character) -> bool:
+        return bool(getattr(character, "immortal", False))
+
+    @staticmethod
+    def get_trust(character):
+        return int(getattr(character, "trust", getattr(character, "level", 0)) or 0)
+
+    @staticmethod
+    def find_playing_character(name: str, session_handler):
+        wanted = str(name or "").strip().lower()
+        for session in session_handler.get_playing_sessions():
+            character = getattr(session, "character", None)
+            if character is None:
+                continue
+            current = str(getattr(character, "name", "") or "").lower()
+            if current == wanted or current.startswith(wanted):
+                return character
+        return None
 
     @staticmethod
     def is_awake(_character) -> bool:
@@ -158,6 +222,16 @@ class _CharacterMacros:
         return {"learn": 5}
 
     @staticmethod
+    def skill_value_for_class(values: dict, class_name: str, default: int = 0) -> int:
+        if not isinstance(values, dict):
+            return default
+        class_name = str(class_name or "").lower()
+        for key, value in values.items():
+            if str(key).lower() == class_name:
+                return int(value)
+        return default
+
+    @staticmethod
     def who_line(_viewer, target) -> str:
         return str(getattr(target, "name", ""))
 
@@ -167,6 +241,11 @@ class _CharacterMacros:
             if str(getattr(item, "name", "")).lower() == str(wanted or "").lower():
                 return item
         return None
+
+    @staticmethod
+    def can_see(viewer, target, _room=None):
+        hidden_from = set(getattr(target, "hidden_from", set()) or set())
+        return getattr(viewer, "id", None) not in hidden_from
 
     @staticmethod
     def target_equipment_lines(_character, _labels):
@@ -441,10 +520,13 @@ def _load_command(name: str) -> Command:
 
 class TestInfoDynamicCommands(unittest.TestCase):
     def _commands(self):
+        area_registry = SimpleNamespace(all_areas=lambda: [])
         room_registry = SimpleNamespace(get_or_none=lambda **_kwargs: None)
         registry_service = SimpleNamespace(
             interp_registry=SimpleNamespace(all_commands=lambda: []),
+            area_registry=area_registry,
             room_registry=room_registry,
+            group_registry=SimpleNamespace(all_groups=lambda: []),
             skill_registry=SimpleNamespace(all_skills=lambda: []),
             spell_registry=SimpleNamespace(all_spells=lambda: []),
         )
@@ -454,6 +536,144 @@ class TestInfoDynamicCommands(unittest.TestCase):
         commands = Info(registry_service, session_handler, weather_handler, enum_provider, InterpApi())
         commands.PlayerActBits = _CharacterMacros.get_enum("playerActBits")
         return commands, room_registry, registry_service, session_handler, weather_handler
+
+    def test_areas_groups_skills_spells_metadata_uses_info_handler(self):
+        self.assertEqual(
+            ["lambda ctx: ctx.player_handler().do_areas(ctx.character, ctx)"],
+            _load_command("areas").lambdas,
+        )
+        self.assertEqual(
+            ["lambda ctx: ctx.player_handler().do_skills(ctx.character, ctx)"],
+            _load_command("skills").lambdas,
+        )
+        self.assertEqual(
+            ["lambda ctx: ctx.player_handler().do_spells(ctx.character, ctx)"],
+            _load_command("spells").lambdas,
+        )
+        self.assertEqual(
+            ["lambda ctx: ctx.player_handler().do_groups(ctx.character, ctx)"],
+            _load_command("groups").lambdas,
+        )
+        self.assertEqual(
+            ["lambda ctx: ctx.player_handler().do_groups(ctx.character, ctx)"],
+            _load_command("info").lambdas,
+        )
+
+    def test_do_areas_lists_registry_areas_in_two_columns(self):
+        commands, _room_registry, registry_service, _session_handler, _weather_handler = self._commands()
+        registry_service.area_registry.all_areas = lambda: [
+            SimpleNamespace(name="Arachnos", author="Mahatma", suggested_level_range="5 20"),
+            SimpleNamespace(name="Dwarven Day Care", author="Sandman", suggested_level_range="1 5"),
+        ]
+        commands.area_registry = registry_service.area_registry
+        character = SimpleNamespace(name="Tester")
+        context = _Context(character=character, command=_load_command("areas"), result="", parameters=[], done=False)
+
+        text = commands.do_areas(character, context)
+
+        self.assertIn("[5 20] Mahatma: Arachnos", text)
+        self.assertIn("[1 5] Sandman: Dwarven Day Care", text)
+        self.assertTrue(text.endswith("\r\n"))
+
+    def test_do_areas_rejects_arguments_through_payload(self):
+        commands, _room_registry, _registry_service, _session_handler, _weather_handler = self._commands()
+        character = SimpleNamespace(name="Tester")
+        context = _Context(character=character, command=_load_command("areas"), result="all", parameters=[], done=False)
+
+        text = commands.do_areas(character, context)
+
+        self.assertEqual("No argument is used with this command.\r\n", text)
+
+    def test_do_skills_lists_known_skills_by_level(self):
+        commands, _room_registry, registry_service, _session_handler, _weather_handler = self._commands()
+        registry_service.skill_registry = SimpleNamespace(
+            all_skills=lambda: [
+                SimpleNamespace(name="dagger", level_by_class={"thief": 1}, rating_by_class={"thief": 4}),
+                SimpleNamespace(name="second attack", level_by_class={"thief": 12}, rating_by_class={"thief": 5}),
+            ]
+        )
+        commands.skill_registry = registry_service.skill_registry
+        character = SimpleNamespace(
+            name="Tester",
+            level=10,
+            skills=[{"name": "dagger", "level": 25}, {"name": "second attack", "level": 1}],
+            spells=[],
+            character_class=SimpleNamespace(name="thief", skill_adept=75),
+        )
+        context = _Context(character=character, command=_load_command("skills"), result="", parameters=[], done=False)
+
+        text = commands.do_skills(character, context)
+
+        self.assertIn("Level  1: dagger", text)
+        self.assertIn("25%", text)
+        self.assertNotIn("second attack", text)
+
+    def test_do_skills_validates_level_arguments(self):
+        commands, _room_registry, _registry_service, _session_handler, _weather_handler = self._commands()
+        character = SimpleNamespace(name="Tester", level=10, skills=[], spells=[], character_class=SimpleNamespace(name="thief"))
+        context = _Context(character=character, command=_load_command("skills"), result="abc", parameters=[], done=False)
+
+        text = commands.do_skills(character, context)
+
+        self.assertEqual("Arguments must be numerical or all.\r\n", text)
+
+    def test_do_spells_lists_known_spells_with_mana(self):
+        commands, _room_registry, registry_service, _session_handler, _weather_handler = self._commands()
+        registry_service.spell_registry = SimpleNamespace(
+            all_spells=lambda: [
+                SimpleNamespace(name="magic missile", level_by_class={"mage": 1}, rating_by_class={"mage": 1}, min_mana=5),
+            ]
+        )
+        commands.spell_registry = registry_service.spell_registry
+        character = SimpleNamespace(
+            name="Tester",
+            level=10,
+            skills=[],
+            spells=[{"name": "magic missile", "level": 60}],
+            character_class=SimpleNamespace(name="mage", skill_adept=75),
+        )
+        context = _Context(character=character, command=_load_command("spells"), result="", parameters=[], done=False)
+
+        text = commands.do_spells(character, context)
+
+        self.assertIn("Level  1: magic missile", text)
+        self.assertIn("mana", text)
+
+    def test_do_groups_lists_all_and_group_members(self):
+        commands, _room_registry, registry_service, _session_handler, _weather_handler = self._commands()
+        registry_service.group_registry = SimpleNamespace(
+            all_groups=lambda: [
+                SimpleNamespace(name="weaponsmaster", spells=[], skills=["axe", "sword"]),
+                SimpleNamespace(name="combat", spells=["magic missile"], skills=[]),
+            ]
+        )
+        commands.group_registry = registry_service.group_registry
+        character = SimpleNamespace(
+            name="Tester",
+            groups=["combat"],
+            skills=[],
+            spells=[],
+            character_attributes=SimpleNamespace(points=40),
+        )
+
+        text = commands.do_groups(character, _Context(character=character, command=_load_command("groups"), result="", parameters=[], done=False))
+        self.assertIn("combat", text)
+        self.assertIn("Creation points: 40", text)
+
+        text = commands.do_groups(character, _Context(character=character, command=_load_command("groups"), result="weapons", parameters=[], done=False))
+        self.assertIn("axe", text)
+        self.assertIn("sword", text)
+
+    def test_do_groups_reports_missing_group_through_payload(self):
+        commands, _room_registry, registry_service, _session_handler, _weather_handler = self._commands()
+        registry_service.group_registry = SimpleNamespace(all_groups=lambda: [])
+        commands.group_registry = registry_service.group_registry
+        character = SimpleNamespace(name="Tester", skills=[], spells=[], character_attributes=SimpleNamespace(points=0))
+        context = _Context(character=character, command=_load_command("groups"), result="missing", parameters=[], done=False)
+
+        text = commands.do_groups(character, context)
+
+        self.assertEqual("No group of that name exist.\r\nType 'groups all' or 'info all' for a full listing.\r\n", text)
 
     def test_scroll_invalid_number_uses_command_check(self):
         commands, _room_registry, _registry_service, _session_handler, _weather_handler = self._commands()

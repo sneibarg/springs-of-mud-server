@@ -73,7 +73,11 @@ class Info:
         self.__name__ = "Info"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.interp_registry = registry_service.interp_registry
+        self.area_registry = registry_service.area_registry
         self.room_registry = registry_service.room_registry
+        self.group_registry = getattr(registry_service, "group_registry", None)
+        self.skill_registry = registry_service.skill_registry
+        self.spell_registry = registry_service.spell_registry
         self.session_handler = session_handler
         self.weather_handler = weather_handler
         self.interp_api = interp_api
@@ -588,6 +592,56 @@ class Info:
         context.finish()
         return EffectUtil.format_affects(character)
 
+    def do_areas(self, character: Character, context: Context) -> str:
+        argument = self._argument_text(context)
+        if argument:
+            context.finish()
+            return self._render_message_key(context, "no_argument_used_with", channel="to_char").get("to_char", "")
+
+        areas = sorted(
+            list(getattr(self.area_registry, "all_areas", lambda: [])() or []),
+            key=lambda area: str(getattr(area, "name", "") or "").lower(),
+        )
+        lines = [self._area_credit_line(area) for area in areas]
+        context.finish()
+        return self._column_lines(lines, width=39, columns=2)
+
+    def do_skills(self, character: Character, context: Context) -> str:
+        return self._do_learned_list(character, context, collection_name="skills")
+
+    def do_spells(self, character: Character, context: Context) -> str:
+        return self._do_learned_list(character, context, collection_name="spells")
+
+    def do_groups(self, character: Character, context: Context) -> str:
+        if CharacterApi.is_npc(character):
+            context.finish()
+            return ""
+
+        argument = self._argument_text(context).lower()
+        groups = self._all_groups()
+        if not argument:
+            known = self._known_group_names(character, groups)
+            lines = self._column_lines(known, width=20, columns=3)
+            points = GenericUtil.to_int(getattr(getattr(character, "character_attributes", None), "points", getattr(character, "points", 0)), 0)
+            context.finish()
+            return f"{lines}Creation points: {points}\r\n"
+
+        if argument == "all":
+            context.finish()
+            return self._column_lines([self._group_name(group) for group in groups], width=20, columns=3)
+
+        group = self._find_group(argument, groups)
+        if group is None:
+            context.finish()
+            return (
+                self._render_message_key(context, "no_group_name_exist", channel="to_char").get("to_char", "")
+                + self._render_message_key(context, "type_groups_all_info", channel="to_char").get("to_char", "")
+            )
+
+        members = [str(name) for name in list(getattr(group, "spells", []) or []) + list(getattr(group, "skills", []) or []) if str(name or "").strip()]
+        context.finish()
+        return self._column_lines(members, width=20, columns=3)
+
     def do_autolist(self, character: Character, context: Context) -> str:
         if CharacterApi.is_npc(character):
             context.finish()
@@ -973,6 +1027,243 @@ class Info:
         if v1 > v2:
             return f"{n1} looks better than {n2}.\r\n"
         return f"{n1} looks worse than {n2}.\r\n"
+
+    def _do_learned_list(self, character: Character, context: Context, *, collection_name: str) -> str:
+        if CharacterApi.is_npc(character):
+            context.finish()
+            return ""
+
+        parsed = self._learned_level_filter(context)
+        if parsed.get("error_key"):
+            context.finish()
+            return self._render_message_key(
+                context,
+                parsed["error_key"],
+                channel="to_char",
+                max_level=parsed.get("max_level", self._hero_level()),
+            ).get("to_char", "")
+
+        metadata = self._ability_metadata(collection_name)
+        rows: list[dict[str, Any]] = []
+        for entry in Character.visible_learned_entries(character, collection_name=collection_name):
+            name = Character.learned_entry_name(entry)
+            if not name:
+                continue
+            meta = metadata.get(name.lower())
+            required_level = self._ability_level(character, meta, default=1)
+            if required_level > self._hero_level():
+                continue
+            if not parsed["show_all"] and required_level > GenericUtil.to_int(getattr(character, "level", 0), 0):
+                continue
+            if required_level < parsed["min_level"] or required_level > parsed["max_level"]:
+                continue
+            rows.append(
+                {
+                    "name": name,
+                    "level": required_level,
+                    "learned": Character.learned_entry_level(entry),
+                    "meta": meta,
+                }
+            )
+
+        if not rows:
+            context.finish()
+            return self._render_message_key(context, "none_found", channel="to_char").get("to_char", "")
+
+        rows.sort(key=lambda row: (row["level"], row["name"].lower()))
+        grouped: dict[int, list[str]] = {}
+        for row in rows:
+            if collection_name == "spells":
+                chunk = self._spell_list_chunk(character, row)
+            else:
+                chunk = self._skill_list_chunk(character, row)
+            grouped.setdefault(row["level"], []).append(chunk)
+
+        lines = []
+        for level in sorted(grouped):
+            chunks = grouped[level]
+            for index, chunk in enumerate(chunks):
+                if index == 0:
+                    lines.append(f"\r\nLevel {level:2d}: {chunk}")
+                elif index % 2 == 0:
+                    lines.append(f"\r\n          {chunk}")
+                else:
+                    lines.append(chunk)
+        lines.append("\r\n")
+        context.finish()
+        return "".join(lines)
+
+    def _learned_level_filter(self, context: Context) -> dict[str, Any]:
+        hero_level = self._hero_level()
+        argument = self._argument_text(context).lower()
+        result = {"show_all": False, "min_level": 1, "max_level": hero_level, "max_level_value": hero_level}
+        if not argument:
+            return result
+
+        result["show_all"] = True
+        if argument == "all":
+            return result
+
+        parts = argument.split()
+        if not parts or not parts[0].lstrip("-").isdigit():
+            return {"error_key": "arguments_numeric_or_all", "max_level": hero_level}
+
+        max_level = GenericUtil.to_int(parts[0], 0)
+        if max_level < 1 or max_level > hero_level:
+            return {"error_key": "levels_range", "max_level": hero_level}
+
+        if len(parts) > 1:
+            if not parts[1].lstrip("-").isdigit():
+                return {"error_key": "arguments_numeric_or_all", "max_level": hero_level}
+            min_level = max_level
+            max_level = GenericUtil.to_int(parts[1], 0)
+            if max_level < 1 or max_level > hero_level:
+                return {"error_key": "levels_range", "max_level": hero_level}
+            if min_level > max_level:
+                return {"error_key": "silly", "max_level": hero_level}
+            result["min_level"] = min_level
+
+        result["max_level"] = max_level
+        return result
+
+    def _ability_metadata(self, collection_name: str) -> dict[str, Any]:
+        registry = self.spell_registry if collection_name == "spells" else self.skill_registry
+        method_name = "all_spells" if collection_name == "spells" else "all_skills"
+        values = getattr(registry, method_name, lambda: [])() if registry is not None else []
+        return {
+            str(getattr(ability, "name", "") or "").strip().lower(): ability
+            for ability in list(values or [])
+            if str(getattr(ability, "name", "") or "").strip()
+        }
+
+    def _ability_level(self, character: Character, ability, default: int = 1) -> int:
+        if ability is None:
+            return default
+        values = getattr(ability, "level_by_class", {}) or {}
+        return self._class_value(character, values, default=default)
+
+    def _ability_rating(self, character: Character, ability, default: int = 0) -> int:
+        if ability is None:
+            return default
+        values = getattr(ability, "rating_by_class", {}) or {}
+        return self._class_value(character, values, default=default)
+
+    def _class_value(self, character: Character, values: dict, default: int = 0) -> int:
+        class_name = str(getattr(getattr(character, "character_class", None), "name", "") or "").strip().lower()
+        if not isinstance(values, dict):
+            return default
+        try:
+            return CharacterApi.skill_value_for_class(values, class_name, default)
+        except AttributeError:
+            if class_name in values:
+                return GenericUtil.to_int(values.get(class_name), default)
+            for key, value in values.items():
+                if str(key).strip().lower() == class_name:
+                    return GenericUtil.to_int(value, default)
+            return default
+
+    def _skill_list_chunk(self, character: Character, row: dict[str, Any]) -> str:
+        if GenericUtil.to_int(getattr(character, "level", 0), 0) < row["level"]:
+            return f"{row['name']:<18} n/a      "
+        return f"{row['name']:<18} {row['learned']:>3}%      "
+
+    def _spell_list_chunk(self, character: Character, row: dict[str, Any]) -> str:
+        if GenericUtil.to_int(getattr(character, "level", 0), 0) < row["level"]:
+            return f"{row['name']:<18} n/a      "
+        meta = row.get("meta")
+        min_mana = GenericUtil.to_int(getattr(meta, "min_mana", 0), 0)
+        learned_level = max(1, GenericUtil.to_int(row.get("level", 1), 1))
+        mana = max(min_mana, int(100 / max(1, 2 + GenericUtil.to_int(getattr(character, "level", 0), 0) - learned_level)))
+        return f"{row['name']:<18}  {mana:>3} mana  "
+
+    def _hero_level(self) -> int:
+        try:
+            params = CharacterApi.get_enum("gameParameters")
+            return GenericUtil.to_int(getattr(getattr(params, "LEVEL_HERO", None), "value", 51), 51)
+        except Exception:
+            return 51
+
+    def _area_credit_line(self, area) -> str:
+        name = str(getattr(area, "name", "") or "").strip()
+        author = str(getattr(area, "author", "") or "").strip()
+        level_range = str(getattr(area, "suggested_level_range", "") or "").strip()
+        if level_range and author:
+            return f"[{level_range}] {author}: {name}"
+        if author:
+            return f"{author}: {name}"
+        return name
+
+    def _all_groups(self) -> list[Any]:
+        registry = getattr(self, "group_registry", None)
+        groups = getattr(registry, "all_groups", lambda: [])() if registry is not None else []
+        return sorted(list(groups or []), key=lambda group: self._group_name(group).lower())
+
+    def _group_name(self, group) -> str:
+        if isinstance(group, dict):
+            return str(group.get("name", "") or "").strip()
+        return str(getattr(group, "name", "") or "").strip()
+
+    def _find_group(self, argument: str, groups: list[Any]):
+        exact = None
+        prefix = None
+        for group in groups:
+            name = self._group_name(group).lower()
+            if name == argument:
+                exact = group
+                break
+            if prefix is None and name.startswith(argument):
+                prefix = group
+        return exact if exact is not None else prefix
+
+    def _known_group_names(self, character: Character, groups: list[Any]) -> list[str]:
+        raw = (
+            getattr(character, "groups", None)
+            or getattr(character, "known_groups", None)
+            or getattr(character, "group_known", None)
+        )
+        if isinstance(raw, dict):
+            return sorted(str(name) for name, known in raw.items() if known)
+        if isinstance(raw, (list, tuple, set)):
+            names = []
+            for entry in raw:
+                if isinstance(entry, dict):
+                    name = str(entry.get("name", "") or "").strip()
+                else:
+                    name = str(entry or "").strip()
+                if name:
+                    names.append(name)
+            return sorted(names)
+
+        learned_names = {
+            Character.learned_entry_name(entry).lower()
+            for entry in Character.visible_learned_entries(character)
+            if Character.learned_entry_name(entry)
+        }
+        inferred = []
+        for group in groups:
+            members = [str(name or "").strip().lower() for name in list(getattr(group, "spells", []) or []) + list(getattr(group, "skills", []) or [])]
+            members = [name for name in members if name]
+            if members and all(name in learned_names for name in members):
+                inferred.append(self._group_name(group))
+        return sorted(inferred)
+
+    @staticmethod
+    def _column_lines(values: list[str], *, width: int, columns: int) -> str:
+        lines = []
+        for index, value in enumerate(values):
+            lines.append(f"{str(value or '')[:width]:<{width}}")
+            if (index + 1) % columns == 0:
+                lines.append("\r\n")
+        if values and len(values) % columns != 0:
+            lines.append("\r\n")
+        return "".join(lines)
+
+    @staticmethod
+    def _argument_text(context: Context) -> str:
+        result = getattr(context, "result", "")
+        if isinstance(result, str) and result.strip():
+            return result.strip()
+        return " ".join(getattr(context, "parameters", []) or []).strip()
 
     def _render_message_key(self, context: Context, message_key: str, channel: str = "", **tokens) -> dict:
         return self.interp_api.render_message_key(context, message_key, channel=channel, **tokens)

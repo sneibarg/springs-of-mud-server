@@ -68,6 +68,7 @@ from server.messaging import MessageBus
 from server.session.AuthenticationService import AuthenticationService
 from server.session.SessionHandler import SessionHandler
 from skill.SkillRegistry import SkillRegistry
+from skill.GroupRegistry import GroupRegistry
 from skill.SkillService import SkillService
 from skill.SpellRegistry import SpellRegistry
 from skill.SpellService import SpellService
@@ -124,7 +125,7 @@ class Bootstrapper:
     def _bind_registries(injector: Injector):
         Bootstrapper._bind_singleton_classes(injector, [
             NoteRegistry, PlayerRegistry, CharacterRegistry, MobileRegistry,
-            RoomRegistry, ItemRegistry, SkillRegistry, SpellRegistry,
+            RoomRegistry, ItemRegistry, SkillRegistry, GroupRegistry, SpellRegistry,
             HelpRegistry, InterpRegistry, SocialRegistry, ShopRegistry,
             ResetRegistry, SpecialRegistry, RegistryService, AreaRegistry,
             CombatRegistry,

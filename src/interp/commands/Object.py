@@ -58,6 +58,8 @@ class Object:
         self.wear_flags = enum_provider.get("wearFlags")
         self.room_flags = enum_provider.get("roomFlags")
         self.act_bits = enum_provider.get("actBits")
+        self.PlayerActBits = enum_provider.get("playerActBits")
+        self.GameParameters = enum_provider.get("gameParameters")
         self.affected_bits = enum_provider.get("affectedBy")
         self.comm_flags = enum_provider.get("commFlags")
 
@@ -78,6 +80,7 @@ class Object:
             "remove": self.do_remove,
             "buy": self.do_buy,
             "list": self.do_list,
+            "heal": self.do_heal,
             "sell": self.do_sell,
             "value": self.do_value,
             "drink": self.do_drink,
@@ -88,6 +91,7 @@ class Object:
             "recite": self.do_recite,
             "brandish": self.do_brandish,
             "zap": self.do_zap,
+            "steal": self.do_steal,
         }
         fn = handlers.get(name)
         if fn is None:
@@ -132,6 +136,69 @@ class Object:
         )
         context.finish()
         return payload
+
+    def do_heal(self, character: Character, context: Context):
+        room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
+        service_key, _rest = InterpUtil.one_argument((context.result if isinstance(context.result, str) else "") or " ".join(context.parameters or []))
+        healer = self._find_healer(room)
+
+        context.heal_room = room
+        context.heal_healer = healer
+        context.heal_service_key = service_key
+        context.heal_service = self._healer_service(service_key)
+        context.heal_cost = 0 if context.heal_service is None else context.heal_service["cost"]
+
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            context.finish()
+            return blocked
+
+        if not service_key:
+            context.finish()
+            return {"to_char": self._healer_service_list(healer)}
+
+        payloads = self._buy_healer_service(character, room, healer, context.heal_service)
+        context.finish()
+        return {"payloads": payloads}
+
+    def _buy_healer_service(self, character: Character, room, healer, service: dict):
+        cost = GenericUtil.to_int(service.get("cost"), 0)
+        self._deduct_money(character, cost)
+        self._add_money(healer, cost)
+        CharacterApi.wait_state(character, 24)
+
+        payload: dict = {
+            "to_room": f"{getattr(healer, 'short_description', '') or getattr(healer, 'name', 'The healer')} utters the words '{service.get('words', '')}'.\r\n",
+            "targets": room.player_targets(character) if room is not None and hasattr(room, "player_targets") else [],
+        }
+
+        if service.get("kind") == "mana":
+            amount = random.randint(1, 8) + random.randint(1, 8) + (GenericUtil.to_int(getattr(healer, "level", 0), 0) // 3)
+            current = GenericUtil.to_int(getattr(character, "mana", 0), 0)
+            maximum = GenericUtil.to_int(getattr(character, "max_mana", current), current)
+            character.mana = min(maximum, current + amount)
+            payload["to_char"] = "A warm glow passes through you.\r\n"
+            return [payload]
+
+        spell = FightUtil.find_spell(self.spell_registry, str(service.get("spell", "") or ""))
+        if spell is None:
+            payload["to_char"] = "You feel momentarily better.\r\n"
+            return [payload]
+
+        spell_context = SpellContext(
+            actor=healer,
+            spell=spell,
+            handler=self,
+            room=room,
+            target=character,
+            target_name=str(getattr(character, "name", "") or ""),
+            target_kind="char",
+            cast_level=GenericUtil.to_int(getattr(healer, "level", 0), 0),
+            source="mobile",
+            command_context=None,
+        )
+        self.spell_api.execute_lambdas(spell_context)
+        return [payload] + list(spell_context.payloads)
 
     def _prepare_list_context(self, character: Character, context: Context):
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
@@ -1024,6 +1091,230 @@ class Object:
             return "silver"
         return ""
 
+    def do_steal(self, character: Character, context: Context):
+        room = self._prepare_steal_context(character, context)
+        payload = self._steal_blocked_payload(character, room, context)
+        if payload is not None:
+            context.finish()
+            return payload
+
+        self._set_wait(character, self._steal_beats())
+
+        if not self._steal_succeeds(character, context.steal_victim, room):
+            payload = self._finish_steal_failure(character, room, context)
+            context.finish()
+            return payload
+
+        if context.steal_is_money:
+            payload = self._finish_steal_money(character, context)
+        else:
+            payload = self._finish_steal_item(character, context)
+        context.finish()
+        return payload
+
+    def _prepare_steal_context(self, character: Character, context: Context):
+        raw = (context.result if isinstance(context.result, str) else "").strip()
+        if not raw and context.parameters:
+            raw = " ".join(context.parameters).strip()
+        arg1, rest = InterpUtil.one_argument(raw)
+        arg2, _tail = InterpUtil.one_argument(rest)
+        room = getattr(context, "room", None)
+        if room is None:
+            room = self.room_registry.get_or_none(id=character.room_id)
+
+        victim = self._find_give_target(room, arg2)
+        context.room = room
+        context.steal_raw = raw
+        context.steal_item_name = str(arg1 or "").strip().lower()
+        context.steal_victim_name = arg2
+        context.steal_victim = victim
+        context.steal_is_money = str(arg1 or "").strip().lower() in {"coin", "coins", "gold", "silver"}
+        context.steal_item = None
+        context.steal_item_short = ""
+        context.steal_no_drop = False
+        context.steal_inventory_full = False
+        context.steal_encumbered = False
+
+        if victim is not None and not context.steal_is_money and arg1:
+            item = victim.find_inventory_item(arg1) if hasattr(victim, "find_inventory_item") else None
+            context.steal_item = item
+            context.steal_item_short = Item.short(item) if item is not None else ""
+            if item is not None:
+                context.steal_no_drop = bool(
+                    ItemApi.has_item_flag(item, self.item_flags, "ITEM_NODROP", "ITEM_INVENTORY")
+                    or GenericUtil.to_int(getattr(item, "level", 0), 0) > GenericUtil.to_int(getattr(character, "level", 0), 0)
+                )
+                max_items = character.max_items() if hasattr(character, "max_items") else 0
+                if max_items > 0 and character.carry_count() + 1 > max_items:
+                    context.steal_inventory_full = True
+
+                max_weight = character.max_weight() if hasattr(character, "max_weight") else 0
+                item_weight = GenericUtil.to_int(getattr(item, "weight", 0), 0)
+                if max_weight > 0 and character.carry_weight() + item_weight > max_weight:
+                    context.steal_encumbered = True
+        return room
+
+    def _steal_blocked_payload(self, character: Character, room, context: Context) -> dict | None:
+        if not context.steal_item_name or not context.steal_victim_name:
+            return {"to_char": self._render_command_message(context, "no_argument")}
+
+        victim = context.steal_victim
+        if victim is None:
+            return {"to_char": self._render_command_message(context, "target_missing")}
+        if victim is character:
+            return {"to_char": self._render_command_message(context, "target_self")}
+
+        safe_payload = self._steal_safe_payload(character, victim, room)
+        if safe_payload is not None:
+            return safe_payload
+
+        if CharacterApi.is_npc(victim) and getattr(victim, "fighting", None) is not None:
+            return {"to_char": self._render_command_message(context, "no_kill_stealing")}
+
+        if not context.steal_is_money:
+            if context.steal_item is None:
+                return {"to_char": self._render_command_message(context, "inventory_item_missing")}
+            if context.steal_no_drop:
+                return {"to_char": self._render_command_message(context, "no_drop")}
+            if context.steal_inventory_full:
+                return {"to_char": self._render_command_message(context, "inventory_full")}
+            if context.steal_encumbered:
+                return {"to_char": self._render_command_message(context, "encumbered")}
+        return None
+
+    def _steal_safe_payload(self, character: Character, victim, room) -> dict | None:
+        checker = getattr(self.fight_handler, "is_safe", None)
+        if not callable(checker):
+            return None
+        try:
+            safe, message = checker(character, victim, room=room)
+        except TypeError:
+            safe, message = checker(character, victim)
+        if not safe:
+            return None
+        return {"to_char": CommunicationsUtil.ensure_message_break(message or "You cannot do that here.")}
+
+    def _steal_succeeds(self, character: Character, victim, room) -> bool:
+        if CharacterApi.is_npc(character):
+            return True
+
+        percent = random.randint(1, 100)
+        if not self._is_awake(victim):
+            percent -= 10
+        elif not self._can_see(victim, character, room):
+            percent += 25
+        else:
+            percent += 50
+
+        if not CharacterApi.is_npc(victim):
+            level_delta = abs(GenericUtil.to_int(getattr(character, "level", 0), 0) - GenericUtil.to_int(getattr(victim, "level", 0), 0))
+            if level_delta > 7:
+                return False
+        return percent <= self._steal_skill_percent(character)
+
+    def _finish_steal_failure(self, character: Character, room, context: Context) -> dict:
+        victim = context.steal_victim
+        self._improve_item_skill(character, "steal", False)
+        payload = {
+            "to_char": self._render_command_message(context, "failed"),
+            "to_room": self._render_command_message(context, "failed", channel="to_room", c=character.name, t=getattr(victim, "name", "")),
+            "targets": self._room_targets_except(room, character, victim),
+        }
+        if not CharacterApi.is_npc(victim):
+            payload["to_victim"] = self._render_command_message(context, "failed", channel="to_victim", c=character.name)
+            payload["victim"] = victim
+        if not CharacterApi.is_npc(character) and not CharacterApi.is_npc(victim):
+            if self._mark_player_thief(character):
+                payload["to_char"] += self._render_command_message(context, "thief")
+            payload["to_wiznet"] = self._render_command_message(context, "default", channel="to_wiznet", c=character.name, t=getattr(victim, "name", ""))
+        return payload
+
+    def _finish_steal_money(self, character: Character, context: Context) -> dict:
+        victim = context.steal_victim
+        level = max(1, GenericUtil.to_int(getattr(character, "level", 1), 1))
+        max_level = self._max_level()
+        gold = GenericUtil.to_int(getattr(victim, "gold", 0), 0) * random.randint(1, level) // max_level
+        silver = GenericUtil.to_int(getattr(victim, "silver", 0), 0) * random.randint(1, level) // max_level
+        if context.steal_item_name == "gold":
+            silver = 0
+        elif context.steal_item_name == "silver":
+            gold = 0
+
+        if gold <= 0 and silver <= 0:
+            return {"to_char": self._render_command_message(context, "failed_coins")}
+
+        character.gold = GenericUtil.to_int(getattr(character, "gold", 0), 0) + gold
+        character.silver = GenericUtil.to_int(getattr(character, "silver", 0), 0) + silver
+        victim.gold = max(0, GenericUtil.to_int(getattr(victim, "gold", 0), 0) - gold)
+        victim.silver = max(0, GenericUtil.to_int(getattr(victim, "silver", 0), 0) - silver)
+        self._improve_item_skill(character, "steal", True)
+
+        if silver <= 0:
+            return {"to_char": self._render_command_message(context, "gold", d=gold)}
+        if gold <= 0:
+            return {"to_char": self._render_command_message(context, "silver", d=silver)}
+        return {"to_char": self._render_command_message(context, "coins", d=silver, g=gold)}
+
+    def _finish_steal_item(self, character: Character, context: Context) -> dict:
+        item = context.steal_item
+        context.steal_victim.remove_item(item)
+        character.add_item(item)
+        self._improve_item_skill(character, "steal", True)
+        return {"to_char": self._render_command_message(context, "item", t=Item.short(item))}
+
+    def _steal_skill_percent(self, character: Character) -> int:
+        if hasattr(character, "skill_level"):
+            return max(1, min(100, GenericUtil.to_int(character.skill_level("steal"), 1)))
+        return max(1, min(100, 40 + (2 * GenericUtil.to_int(getattr(character, "level", 0), 0))))
+
+    def _steal_beats(self) -> int:
+        skill = self.skill_registry.get_or_none(name="steal") if self.skill_registry is not None else None
+        return GenericUtil.to_int(getattr(skill, "beats", 24), 24) if skill is not None else 24
+
+    @staticmethod
+    def _set_wait(character: Character, pulses: int) -> None:
+        status_flags = getattr(character, "status_flags", None)
+        if status_flags is not None:
+            status_flags.pulse_wait = max(GenericUtil.to_int(getattr(status_flags, "pulse_wait", 0), 0), GenericUtil.to_int(pulses, 0))
+
+    @staticmethod
+    def _can_see(viewer, target, room) -> bool:
+        try:
+            return CharacterApi.can_see(viewer, target, room)
+        except TypeError:
+            return CharacterApi.can_see(viewer, target)
+
+    @staticmethod
+    def _is_awake(entity) -> bool:
+        checker = getattr(CharacterApi, "is_awake", None)
+        if callable(checker):
+            return checker(entity)
+        return GenericUtil.to_int(getattr(entity, "position", 8), 8) > 4
+
+    @staticmethod
+    def _room_targets_except(room, character, victim) -> list:
+        if room is None:
+            return []
+        excluded = {getattr(character, "id", ""), getattr(victim, "id", "")}
+        return [target for target in room.player_targets(character) if getattr(target, "id", "") not in excluded]
+
+    def _mark_player_thief(self, character: Character) -> bool:
+        bit = CharacterApi.enum_bit(self.PlayerActBits, "PLR_THIEF")
+        if bit <= 0 or getattr(character, "status_flags", None) is None:
+            return False
+        current = GenericUtil.to_int(getattr(character.status_flags, "act", 0), 0)
+        if CharacterApi.is_set(current, bit):
+            return False
+        if hasattr(CharacterApi, "set_act_flags"):
+            CharacterApi.set_act_flags(character, bit)
+        else:
+            character.status_flags.act = current | bit
+        return True
+
+    def _max_level(self) -> int:
+        value = getattr(getattr(self, "GameParameters", None), "MAX_LEVEL", None)
+        return max(1, GenericUtil.to_int(getattr(value, "value", value), 60))
+
     @staticmethod
     def _possessive_name(victim) -> str:
         if victim is None:
@@ -1663,6 +1954,57 @@ class Object:
                 return None, None, error
             return mob, shop, ""
         return None, None, "shop_unavailable"
+
+    def _find_healer(self, room):
+        if room is None:
+            return None
+        healer_bit = CharacterApi.enum_bit(self.act_bits, "ACT_IS_HEALER")
+        for mob in getattr(room, "mobiles", {}).values():
+            act = GenericUtil.to_int(getattr(getattr(mob, "status_flags", None), "act", 0), 0)
+            if healer_bit and CharacterApi.is_set(act, healer_bit):
+                return mob
+        return None
+
+    @staticmethod
+    def _healer_service(argument: str) -> dict | None:
+        query = str(argument or "").strip().lower()
+        if not query:
+            return None
+        services = [
+            {"aliases": ("light",), "spell": "cure light", "cost": 1000, "words": "judicandus dies"},
+            {"aliases": ("serious",), "spell": "cure serious", "cost": 1600, "words": "judicandus gzfuajg"},
+            {"aliases": ("critical", "critic"), "spell": "cure critical", "cost": 2500, "words": "judicandus qfuhuqar"},
+            {"aliases": ("heal",), "spell": "heal", "cost": 5000, "words": "pzar"},
+            {"aliases": ("blindness", "blind"), "spell": "cure blindness", "cost": 2000, "words": "judicandus noselacri"},
+            {"aliases": ("disease",), "spell": "cure disease", "cost": 1500, "words": "judicandus eugzagz"},
+            {"aliases": ("poison",), "spell": "cure poison", "cost": 2500, "words": "judicandus sausabru"},
+            {"aliases": ("uncurse", "curse"), "spell": "remove curse", "cost": 5000, "words": "candussido judifgz"},
+            {"aliases": ("refresh", "moves"), "spell": "refresh", "cost": 500, "words": "candusima"},
+            {"aliases": ("mana", "energize"), "kind": "mana", "cost": 1000, "words": "energizer"},
+        ]
+        for service in services:
+            for alias in service["aliases"]:
+                if alias.startswith(query) or query.startswith(alias):
+                    return service
+        return None
+
+    @staticmethod
+    def _healer_service_list(healer) -> str:
+        name = getattr(healer, "short_description", "") or getattr(healer, "name", "The healer")
+        return (
+            f"{name} says 'I offer the following spells:'\r\n"
+            "  light: cure light wounds      10 gold\r\n"
+            "  serious: cure serious wounds  15 gold\r\n"
+            "  critic: cure critical wounds  25 gold\r\n"
+            "  heal: healing spell           50 gold\r\n"
+            "  blind: cure blindness         20 gold\r\n"
+            "  disease: cure disease         15 gold\r\n"
+            "  poison: cure poison           25 gold\r\n"
+            "  uncurse: remove curse         50 gold\r\n"
+            "  refresh: restore movement      5 gold\r\n"
+            "  mana: restore mana            10 gold\r\n"
+            " Type heal <type> to be healed.\r\n"
+        )
 
     def _keeper_error_payload(self, error_key: str) -> dict:
         messages = {

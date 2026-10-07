@@ -1479,7 +1479,17 @@
         "addIndependent": "You are now independent.",
         "addClanMember": "You are now a member of clan %g."
       }
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: WizApi.guild_syntax_invalid(v)",
+        "messageKey": "syntax"
+      },
+      {
+        "predicate": "lambda v: WizApi.guild_target_missing(v)",
+        "messageKey": "targetMissing"
+      }
+    ]
   },
   {
     "_id": {
@@ -2087,7 +2097,9 @@
     "name": "areas",
     "shortcuts": "ar, are, area",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_areas(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2141,7 +2153,9 @@
     "name": "changes",
     "shortcuts": "ch, cha, chan, chang",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_note_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2149,7 +2163,32 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "invalidNumber": "Read which number?",
+        "noNotes": "There are no notes for you.",
+        "noIdeas": "There are no ideas for you.",
+        "noPenalties": "There are no penalties for you.",
+        "noNews": "There is no news for you.",
+        "noChanges": "There are no changes for you.",
+        "noteRemoveWhichNumber": "Note remove which number?",
+        "noteDeleteWhichNumber": "Note delete which number?",
+        "ok2": "Ok.",
+        "ok3": "Ok.",
+        "ok4": "Ok.",
+        "ok5": "Ok.",
+        "ok6": "Ok.",
+        "alreadyHaveDifferentNote": "You already have a different note in progress.",
+        "alreadyHaveNote": "You already have a note in progress.",
+        "tooLong": "Note too long.",
+        "nothingToRemove": "No lines left to remove.",
+        "noDraft": "You have no note in progress.",
+        "arenTWorkingThat": "You aren't working on that kind of note.",
+        "missingRecipient": "You need to provide a recipient (name, all, or immortal).",
+        "missingSubject": "You need to provide a subject.",
+        "canTDoThat": "You can't do that.",
+        "haveNoUnread": "You have no unread {s}.",
+        "arenTThatMany": "There aren't that many {s}."
+      },
       "toRoom": {},
       "toVictim": {}
     }
@@ -2358,7 +2397,9 @@
     },
     "name": "idea",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_note_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2367,22 +2408,34 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "indoors": "You can't see the weather indoors.",
-        "unavailable": "The weather is unavailable."
+        "invalidNumber": "Read which number?",
+        "noNotes": "There are no notes for you.",
+        "noIdeas": "There are no ideas for you.",
+        "noPenalties": "There are no penalties for you.",
+        "noNews": "There is no news for you.",
+        "noChanges": "There are no changes for you.",
+        "noteRemoveWhichNumber": "Note remove which number?",
+        "noteDeleteWhichNumber": "Note delete which number?",
+        "ok2": "Ok.",
+        "ok3": "Ok.",
+        "ok4": "Ok.",
+        "ok5": "Ok.",
+        "ok6": "Ok.",
+        "alreadyHaveDifferentNote": "You already have a different note in progress.",
+        "alreadyHaveNote": "You already have a note in progress.",
+        "tooLong": "Note too long.",
+        "nothingToRemove": "No lines left to remove.",
+        "noDraft": "You have no note in progress.",
+        "arenTWorkingThat": "You aren't working on that kind of note.",
+        "missingRecipient": "You need to provide a recipient (name, all, or immortal).",
+        "missingSubject": "You need to provide a subject.",
+        "canTDoThat": "You can't do that.",
+        "haveNoUnread": "You have no unread {s}.",
+        "arenTThatMany": "There aren't that many {s}."
       },
       "toRoom": {},
       "toVictim": {}
-    },
-    "guards": [
-      {
-        "predicate": "lambda v: not v.context.weather_outside",
-        "messageKey": "indoors"
-      },
-      {
-        "predicate": "lambda v: not v.context.weather_available",
-        "messageKey": "unavailable"
-      }
-    ]
+    }
   },
   {
     "_id": {
@@ -2390,7 +2443,9 @@
     },
     "name": "info",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_groups(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_SLEEPING",
     "level": 0,
@@ -2432,7 +2487,9 @@
     },
     "name": "news",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_note_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2440,7 +2497,32 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "invalidNumber": "Read which number?",
+        "noNotes": "There are no notes for you.",
+        "noIdeas": "There are no ideas for you.",
+        "noPenalties": "There are no penalties for you.",
+        "noNews": "There is no news for you.",
+        "noChanges": "There are no changes for you.",
+        "noteRemoveWhichNumber": "Note remove which number?",
+        "noteDeleteWhichNumber": "Note delete which number?",
+        "ok2": "Ok.",
+        "ok3": "Ok.",
+        "ok4": "Ok.",
+        "ok5": "Ok.",
+        "ok6": "Ok.",
+        "alreadyHaveDifferentNote": "You already have a different note in progress.",
+        "alreadyHaveNote": "You already have a note in progress.",
+        "tooLong": "Note too long.",
+        "nothingToRemove": "No lines left to remove.",
+        "noDraft": "You have no note in progress.",
+        "arenTWorkingThat": "You aren't working on that kind of note.",
+        "missingRecipient": "You need to provide a recipient (name, all, or immortal).",
+        "missingSubject": "You need to provide a subject.",
+        "canTDoThat": "You can't do that.",
+        "haveNoUnread": "You have no unread {s}.",
+        "arenTThatMany": "There aren't that many {s}."
+      },
       "toRoom": {},
       "toVictim": {}
     }
@@ -2557,7 +2639,9 @@
     },
     "name": "skills",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_skills(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2565,7 +2649,12 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "argumentsNumericOrAll": "Arguments must be numerical or all.",
+        "levelsRange": "Levels must be between 1 and {max_level}.",
+        "silly": "That would be silly.",
+        "noneFound": "No skills found."
+      },
       "toRoom": {},
       "toVictim": {}
     }
@@ -2621,7 +2710,9 @@
     },
     "name": "spells",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_spells(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2629,7 +2720,12 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "argumentsNumericOrAll": "Arguments must be numerical or all.",
+        "levelsRange": "Levels must be between 1 and {max_level}.",
+        "silly": "That would be silly.",
+        "noneFound": "No spells found."
+      },
       "toRoom": {},
       "toVictim": {}
     }
@@ -3799,7 +3895,9 @@
     },
     "name": "note",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_note_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_SLEEPING",
     "level": 0,
@@ -3807,7 +3905,32 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "invalidNumber": "Read which number?",
+        "noNotes": "There are no notes for you.",
+        "noIdeas": "There are no ideas for you.",
+        "noPenalties": "There are no penalties for you.",
+        "noNews": "There is no news for you.",
+        "noChanges": "There are no changes for you.",
+        "noteRemoveWhichNumber": "Note remove which number?",
+        "noteDeleteWhichNumber": "Note delete which number?",
+        "ok2": "Ok.",
+        "ok3": "Ok.",
+        "ok4": "Ok.",
+        "ok5": "Ok.",
+        "ok6": "Ok.",
+        "alreadyHaveDifferentNote": "You already have a different note in progress.",
+        "alreadyHaveNote": "You already have a note in progress.",
+        "tooLong": "Note too long.",
+        "nothingToRemove": "No lines left to remove.",
+        "noDraft": "You have no note in progress.",
+        "arenTWorkingThat": "You aren't working on that kind of note.",
+        "missingRecipient": "You need to provide a recipient (name, all, or immortal).",
+        "missingSubject": "You need to provide a subject.",
+        "canTDoThat": "You can't do that.",
+        "haveNoUnread": "You have no unread {s}.",
+        "arenTThatMany": "There aren't that many {s}."
+      },
       "toRoom": {},
       "toVictim": {}
     }
@@ -4530,7 +4653,9 @@
     },
     "name": "heal",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_RESTING",
     "level": 0,
@@ -4538,12 +4663,35 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "roomMissing": "You can't do that here.",
+        "noHealer": "You can't do that here.",
+        "unknownService": "The healer says 'Type heal for a list of spells.'",
+        "insufficientFunds": "The healer says 'You do not have enough gold for my services.'"
+      },
       "toRoom": {
         "uttersWords": "$n utters the words '$T'."
       },
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: getattr(v.context, 'heal_room', None) is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: getattr(v.context, 'heal_healer', None) is None",
+        "messageKey": "noHealer"
+      },
+      {
+        "predicate": "lambda v: bool(getattr(v.context, 'heal_service_key', '')) and getattr(v.context, 'heal_service', None) is None",
+        "messageKey": "unknownService"
+      },
+      {
+        "predicate": "lambda v: bool(getattr(v.context, 'heal_service_key', '')) and getattr(v.context, 'heal_service', None) is not None and ((int(getattr(v.context.character, 'gold', 0) or 0) * 100) + int(getattr(v.context.character, 'silver', 0) or 0)) < int(getattr(v.context, 'heal_cost', 0) or 0)",
+        "messageKey": "insufficientFunds"
+      }
+    ]
   },
   {
     "_id": {
@@ -6308,7 +6456,9 @@
     },
     "name": "groups",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_groups(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_SLEEPING",
     "level": 0,
@@ -6609,7 +6759,9 @@
     },
     "name": "steal",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "STANDING",
     "level": 0,
@@ -6631,7 +6783,7 @@
         "thief": "*** You are now a THIEF!! ***",
         "gold": "Bingo!  You got %d gold coins.",
         "silver": "Bingo!  You got %d silver coins.",
-        "coins": "Bingo!  You got %d silver and %d gold coins.",
+        "coins": "Bingo!  You got %d silver and %g gold coins.",
         "item": "You pocket %t."
       },
       "toRoom": {
@@ -6860,7 +7012,26 @@
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: WizApi.trust_syntax_invalid(v)",
+        "messageKey": "syntax"
+      },
+      {
+        "predicate": "lambda v: WizApi.trust_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: WizApi.trust_level_invalid(v)",
+        "messageKey": "invalidLevel",
+        "tokenFactory": "lambda v: WizApi.max_level_token(v)"
+      },
+      {
+        "predicate": "lambda v: WizApi.trust_limited(v)",
+        "messageKey": "trustLimited"
+      }
+    ]
   },
   {
     "_id": {
@@ -6889,7 +7060,21 @@
         "exit": "%t leaves in a swirling mist.",
         "entry": "%t appears in a swirling mist."
       }
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: WizApi.violate_location(v) is None",
+        "messageKey": "noSuchLocation"
+      },
+      {
+        "predicate": "lambda v: WizApi.violate_not_private(v)",
+        "messageKey": "privateRoom"
+      }
+    ]
   },
   {
     "_id": {
@@ -7057,7 +7242,22 @@
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: WizApi.disconnect_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: WizApi.disconnect_session_missing(v)",
+        "messageKey": "nullDescriptor",
+        "tokenFactory": "lambda v: WizApi.disconnect_target_tokens(v)"
+      }
+    ]
   },
   {
     "_id": {
@@ -7245,6 +7445,7 @@
       "toChar": {
         "noArgument": "Protect whom from snooping?",
         "targetMissing": "You can't find them.",
+        "set": "%t is now snoop-proof.",
         "remove": "%t is no longer snoop-proof."
       },
       "toRoom": {},
@@ -7252,7 +7453,17 @@
         "remove": "Your snoop-proofing was just removed.",
         "set": "You are now immune to snooping."
       }
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: WizApi.protect_target_missing(v)",
+        "messageKey": "targetMissing"
+      }
+    ]
   },
   {
     "_id": {
@@ -7415,8 +7626,36 @@
         "default": "Ok."
       },
       "toRoom": {},
-      "toVictim": {}
-    }
+      "toVictim": {
+        "forced": "%c forces you to '%s'."
+      }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: WizApi.force_missing_argument(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: WizApi.force_delete(v)",
+        "messageKey": "delete"
+      },
+      {
+        "predicate": "lambda v: WizApi.force_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: WizApi.force_target_self(v)",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: WizApi.force_private(v)",
+        "messageKey": "privateRoom"
+      },
+      {
+        "predicate": "lambda v: WizApi.force_target_higher_level(v)",
+        "messageKey": "targetHigherLevel"
+      }
+    ]
   },
   {
     "_id": {
@@ -7735,7 +7974,21 @@
         "removeKiller": "You are no longer a KILLER.",
         "removeThief": "You are no longer a THIEF."
       }
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: WizApi.pardon_syntax_invalid(v)",
+        "messageKey": "syntax"
+      },
+      {
+        "predicate": "lambda v: WizApi.pardon_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: WizApi.pardon_target_is_npc(v)",
+        "messageKey": "noNPCs"
+      }
+    ]
   },
   {
     "_id": {
@@ -8221,7 +8474,7 @@
     "name": "penalty",
     "role": "immortal",
     "lambdas": [
-      "lambda ctx: ctx.player_handler().do_wiz_command(ctx.character, ctx)"
+      "lambda ctx: ctx.player_handler().do_note_command(ctx.character, ctx)"
     ],
     "enabled": true,
     "position": "POS_DEAD",
@@ -8242,6 +8495,7 @@
         "noteDeleteWhichNumber": "Note delete which number?",
         "ok2": "Ok.",
         "alreadyHaveDifferentNote": "You already have a different note in progress.",
+        "alreadyHaveNote": "You already have a note in progress.",
         "tooLong": "Note too long.",
         "ok3": "Ok.",
         "alreadyHaveDifferentNote2": "You already have a different note in progress.",

@@ -75,6 +75,7 @@ class Communications:
             "bug": self.do_bug,
             "typo": self.do_typo,
             "rent": self.do_rent,
+            "qui": self.do_qui,
             "save": self.do_save,
             "alia": self.do_alia,
             "alias": self.do_alias,
@@ -89,6 +90,10 @@ class Communications:
             context.finish()
             return {"to_char": f"{name} is not implemented yet.\r\n"}
         return fn(context)
+
+    def do_qui(self, context: Context):
+        context.finish()
+        return self._render_message_key(context, "if_want_quit_spell")
 
     def do_alia(self, context: Context):
         context.finish()
