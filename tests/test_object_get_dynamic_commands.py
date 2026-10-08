@@ -490,6 +490,17 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             ITEM_HAD_TIMER=SimpleNamespace(value=2),
             ITEM_SELL_EXTRACT=SimpleNamespace(value=4),
             ITEM_NOREMOVE=SimpleNamespace(value=8),
+            ITEM_BLESS=SimpleNamespace(value=16),
+            ITEM_BURN_PROOF=SimpleNamespace(value=32),
+        )
+        commands.weapon_type = SimpleNamespace(
+            WEAPON_FLAMING=SimpleNamespace(value=1),
+            WEAPON_FROST=SimpleNamespace(value=2),
+            WEAPON_VAMPIRIC=SimpleNamespace(value=4),
+            WEAPON_SHARP=SimpleNamespace(value=8),
+            WEAPON_VORPAL=SimpleNamespace(value=16),
+            WEAPON_SHOCKING=SimpleNamespace(value=64),
+            WEAPON_POISON=SimpleNamespace(value=128),
         )
         commands.act_bits = SimpleNamespace(ACT_IS_CHANGER=SimpleNamespace(value=1), ACT_IS_HEALER=SimpleNamespace(value=2))
         commands.PlayerActBits = SimpleNamespace(PLR_THIEF=SimpleNamespace(value=1 << 25))
@@ -1505,6 +1516,104 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertIn("*** You are now a THIEF!! ***\r\n", payload["to_char"])
         self.assertEqual(1 << 25, character.status_flags.act)
         self.assertEqual("Tester tried to steal from you.\r\n", payload["to_victim"])
+
+    def test_envenom_metadata_routes_to_object_handler(self):
+        with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:
+            command = next(entry for entry in json.load(handle) if entry.get("name") == "envenom")
+
+        self.assertEqual(["lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"], command["lambdas"])
+
+    def test_envenom_food_success_marks_food_poisoned(self):
+        bread = SimpleNamespace(
+            id="obj-envenom-food",
+            name="bread loaf",
+            short_description="a loaf of bread",
+            item_type="ITEM_FOOD",
+            value3="0",
+            value4="0",
+            level=1,
+            weight=1,
+            extra_flags=0,
+        )
+        room = _Room(id="room-1", contents={}, mobiles={}, characters={})
+        character = self._build_character(bread, level=10, skills=[{"name": "envenom", "level": 100}])
+
+        with patch.object(sys.modules["interp.commands.Object"].random, "randint", return_value=1):
+            payload = self._commands(room).do_envenom(
+                character,
+                self._build_context("bread", room, character, "envenom"),
+            )
+
+        self.assertEqual("You treat a loaf of bread with deadly poison.\r\n", payload["to_char"])
+        self.assertEqual("1", bread.value3)
+        self.assertEqual(24, character.status_flags.pulse_wait)
+
+    def test_envenom_weapon_success_marks_weapon_poisoned(self):
+        dagger = SimpleNamespace(
+            id="obj-envenom-weapon",
+            name="dagger steel",
+            short_description="a steel dagger",
+            item_type="ITEM_WEAPON",
+            damage_type="pierce",
+            value3="pierce",
+            value4="0",
+            level=1,
+            weight=1,
+            extra_flags=0,
+        )
+        room = _Room(id="room-1", contents={}, mobiles={}, characters={})
+        character = self._build_character(dagger, level=10, skills=[{"name": "envenom", "level": 100}])
+
+        with patch.object(sys.modules["interp.commands.Object"].random, "randint", return_value=1):
+            payload = self._commands(room).do_envenom(
+                character,
+                self._build_context("dagger", room, character, "envenom"),
+            )
+
+        self.assertEqual("You coat a steel dagger with venom.\r\n", payload["to_char"])
+        self.assertEqual("128", dagger.value4)
+        self.assertEqual(24, character.status_flags.pulse_wait)
+
+    def test_envenom_blunt_weapon_is_rejected(self):
+        mace = SimpleNamespace(
+            id="obj-envenom-blunt",
+            name="mace iron",
+            short_description="an iron mace",
+            item_type="ITEM_WEAPON",
+            damage_type="bash",
+            value3="bash",
+            value4="0",
+            level=1,
+            weight=1,
+            extra_flags=0,
+        )
+        room = _Room(id="room-1", contents={}, mobiles={}, characters={})
+        character = self._build_character(mace, level=10, skills=[{"name": "envenom", "level": 100}])
+
+        payload = self._commands(room).do_envenom(character, self._build_context("mace", room, character, "envenom"))
+
+        self.assertEqual("You can only envenom edged weapons.\r\n", payload["to_char"])
+        self.assertEqual("0", mace.value4)
+
+    def test_envenom_without_skill_is_rejected(self):
+        bread = SimpleNamespace(
+            id="obj-envenom-no-skill",
+            name="bread loaf",
+            short_description="a loaf of bread",
+            item_type="ITEM_FOOD",
+            value3="0",
+            value4="0",
+            level=1,
+            weight=1,
+            extra_flags=0,
+        )
+        room = _Room(id="room-1", contents={}, mobiles={}, characters={})
+        character = self._build_character(bread, level=10, skills=[{"name": "envenom", "level": 0}])
+
+        payload = self._commands(room).do_envenom(character, self._build_context("bread", room, character, "envenom"))
+
+        self.assertEqual("Are you crazy? You'd poison yourself!\r\n", payload["to_char"])
+        self.assertEqual("0", bread.value3)
 
 
 if __name__ == "__main__":

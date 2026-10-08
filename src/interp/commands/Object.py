@@ -10,6 +10,7 @@ from combat.CombatHandler import FightHandler
 from game.EnumProvider import EnumProvider
 from game.Equipped import Equipped
 from game.WeatherHandler import WeatherHandler
+from item.Effect import Effect
 from item.EffectHandler import EffectHandler
 from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
@@ -56,6 +57,7 @@ class Object:
         self.item_types = enum_provider.get("itemTypes")
         self.item_flags = enum_provider.get("itemFlags")
         self.wear_flags = enum_provider.get("wearFlags")
+        self.weapon_type = enum_provider.get("weaponType")
         self.room_flags = enum_provider.get("roomFlags")
         self.act_bits = enum_provider.get("actBits")
         self.PlayerActBits = enum_provider.get("playerActBits")
@@ -81,6 +83,7 @@ class Object:
             "buy": self.do_buy,
             "list": self.do_list,
             "heal": self.do_heal,
+            "envenom": self.do_envenom,
             "sell": self.do_sell,
             "value": self.do_value,
             "drink": self.do_drink,
@@ -386,6 +389,170 @@ class Object:
         if selector.startswith("all."):
             return selector[4:].strip()
         return ""
+
+    def do_envenom(self, character: Character, context: Context):
+        room = self._prepare_envenom_context(character, context)
+        payload = self._envenom_blocked_payload(context)
+        if payload is not None:
+            context.finish()
+            return payload
+
+        item = context.envenom_item
+        if context.envenom_kind == "food":
+            payload = self._finish_envenom_food(character, room, context, item)
+        elif context.envenom_kind == "weapon":
+            payload = self._finish_envenom_weapon(character, room, context, item)
+        else:
+            payload = {"to_char": self._render_command_message(context, "target_invalid", t=Item.short(item))}
+        context.finish()
+        return payload
+
+    def _prepare_envenom_context(self, character: Character, context: Context):
+        arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
+        room = getattr(context, "room", None)
+        if room is None:
+            room = self.room_registry.get_or_none(id=character.room_id)
+        item = character.find_inventory_item(arg1) if arg1 else None
+
+        context.room = room
+        context.envenom_arg1 = arg1
+        context.envenom_item = item
+        context.envenom_item_short = "" if item is None else Item.short(item)
+        context.envenom_skill_percent = self._skill_percent(character, "envenom")
+        context.envenom_kind = ""
+        if item is not None:
+            if self._is_poisonable_food_or_drink(item):
+                context.envenom_kind = "food"
+            elif self._is_weapon(item):
+                context.envenom_kind = "weapon"
+        return room
+
+    def _envenom_blocked_payload(self, context: Context) -> dict | None:
+        item = context.envenom_item
+        if not context.envenom_arg1:
+            return {"to_char": self._render_command_message(context, "no_argument")}
+        if item is None:
+            return {"to_char": self._render_command_message(context, "target_missing")}
+        if context.envenom_skill_percent < 1:
+            return {"to_char": self._render_command_message(context, "target_self")}
+        if context.envenom_kind == "food" and self._has_item_flags(item, "ITEM_BLESS", "ITEM_BURN_PROOF"):
+            return {"to_char": self._render_command_message(context, "food_fail", t=Item.short(item))}
+        if context.envenom_kind == "weapon":
+            if self._has_item_flags(item, "ITEM_BLESS", "ITEM_BURN_PROOF") or self._has_weapon_flags(item, "WEAPON_FLAMING", "WEAPON_FROST", "WEAPON_VAMPIRIC", "WEAPON_SHARP", "WEAPON_VORPAL", "WEAPON_SHOCKING"):
+                return {"to_char": self._render_command_message(context, "enchanted", t=Item.short(item))}
+            if not self._is_edged_weapon(item):
+                return {"to_char": self._render_command_message(context, "invalid_weapon")}
+            if self._has_weapon_flags(item, "WEAPON_POISON"):
+                return {"to_char": self._render_command_message(context, "is_envenomed", t=Item.short(item))}
+        return None
+
+    def _finish_envenom_food(self, character: Character, room, context: Context, item) -> dict:
+        success = random.randint(1, 100) < context.envenom_skill_percent
+        self._set_wait(character, self._skill_beats("envenom", 24))
+        if success:
+            if GenericUtil.to_int(getattr(item, "value3", 0), 0) == 0:
+                item.value3 = "1"
+                self._improve_item_skill(character, "envenom", True)
+            return self._envenom_payload(character, room, context, "food", item)
+
+        if GenericUtil.to_int(getattr(item, "value3", 0), 0) == 0:
+            self._improve_item_skill(character, "envenom", False)
+        return {"to_char": self._render_command_message(context, "food_fail", t=Item.short(item))}
+
+    def _finish_envenom_weapon(self, character: Character, room, context: Context, item) -> dict:
+        percent = random.randint(1, 100)
+        self._set_wait(character, self._skill_beats("envenom", 24))
+        if percent < context.envenom_skill_percent:
+            self._apply_weapon_poison(character, item, percent)
+            self._improve_item_skill(character, "envenom", True)
+            return self._envenom_payload(character, room, context, "weapon", item)
+
+        self._improve_item_skill(character, "envenom", False)
+        return {"to_char": self._render_command_message(context, "weapon_fail", t=Item.short(item))}
+
+    def _envenom_payload(self, character: Character, room, context: Context, key: str, item) -> dict:
+        payload = {
+            "to_char": self._render_command_message(context, key, t=Item.short(item)),
+        }
+        if room is not None:
+            payload["to_room"] = self._render_command_message(context, key, channel="to_room", c=character.name, t=Item.short(item))
+            payload["targets"] = room.player_targets(character)
+        return payload
+
+    def _apply_weapon_poison(self, character: Character, item, percent: int) -> None:
+        level = GenericUtil.to_int(getattr(character, "level", 0), 0)
+        effect = Effect(
+            where="TO_WEAPON",
+            type="spell.poison",
+            level=(level * percent) // 100,
+            duration=max(1, ((level // 2) * percent) // 100),
+            location="0",
+            modifier=0,
+            bitvector="WEAPON_POISON",
+        )
+        applied = False
+        affect_to_obj = getattr(self.effect_handler, "affect_to_obj", None)
+        if callable(affect_to_obj):
+            try:
+                affect_to_obj(item, effect)
+                applied = True
+            except Exception:
+                applied = False
+        if not applied or not self._has_weapon_flags(item, "WEAPON_POISON"):
+            self._set_weapon_flag(item, "WEAPON_POISON")
+
+    def _skill_percent(self, character: Character, skill_name: str) -> int:
+        if CharacterApi.is_npc(character):
+            return max(1, min(100, 40 + (2 * GenericUtil.to_int(getattr(character, "level", 0), 0))))
+        if hasattr(character, "skill_level"):
+            return max(0, min(100, GenericUtil.to_int(character.skill_level(skill_name), 0)))
+        return 0
+
+    def _skill_beats(self, skill_name: str, default: int = 24) -> int:
+        skill = self.skill_registry.get_or_none(name=skill_name) if self.skill_registry is not None else None
+        return GenericUtil.to_int(getattr(skill, "beats", default), default) if skill is not None else default
+
+    @staticmethod
+    def _is_poisonable_food_or_drink(item) -> bool:
+        item_type = str(getattr(item, "item_type", "") or "").strip().lower()
+        return "food" in item_type or "drink" in item_type
+
+    @staticmethod
+    def _is_weapon(item) -> bool:
+        return "weapon" in str(getattr(item, "item_type", "") or "").strip().lower()
+
+    @staticmethod
+    def _is_edged_weapon(item) -> bool:
+        damage_name = str(getattr(item, "damage_type", "") or getattr(item, "value3", "") or "").strip().lower()
+        if damage_name.lstrip("-").isdigit():
+            return GenericUtil.to_int(damage_name, 0) >= 0
+        blunt_names = {"bash", "pound", "crush", "suction", "beating", "charge", "slap", "punch", "peck", "peckb", "smash", "thwack"}
+        return bool(damage_name) and damage_name not in blunt_names
+
+    def _has_item_flags(self, item, *flag_names: str) -> bool:
+        for flag_name in flag_names:
+            if ItemApi.has_item_flag(item, self.item_flags, flag_name):
+                return True
+        return False
+
+    def _has_weapon_flags(self, item, *flag_names: str) -> bool:
+        raw = GameApi.flags_to_int(getattr(item, "value4", 0))
+        return any((raw & self._enum_bit(self.weapon_type, flag_name)) != 0 for flag_name in flag_names)
+
+    def _set_weapon_flag(self, item, flag_name: str) -> None:
+        bit = self._enum_bit(self.weapon_type, flag_name)
+        if bit:
+            item.value4 = str(GameApi.flags_to_int(getattr(item, "value4", 0)) | bit)
+
+    @staticmethod
+    def _enum_bit(enum_obj, name: str) -> int:
+        if enum_obj is None:
+            return 0
+        members = getattr(enum_obj, "__members__", None)
+        if members is not None and name in members:
+            return GenericUtil.to_int(getattr(members[name], "value", members[name]), 0)
+        member = getattr(enum_obj, name, None)
+        return GenericUtil.to_int(getattr(member, "value", member), 0)
 
     def do_put(self, character: Character, context: Context):
         room = self._prepare_put_context(character, context)
@@ -1268,8 +1435,7 @@ class Object:
         return max(1, min(100, 40 + (2 * GenericUtil.to_int(getattr(character, "level", 0), 0))))
 
     def _steal_beats(self) -> int:
-        skill = self.skill_registry.get_or_none(name="steal") if self.skill_registry is not None else None
-        return GenericUtil.to_int(getattr(skill, "beats", 24), 24) if skill is not None else 24
+        return self._skill_beats("steal", 24)
 
     @staticmethod
     def _set_wait(character: Character, pulses: int) -> None:

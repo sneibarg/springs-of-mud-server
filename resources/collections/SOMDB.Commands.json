@@ -4464,7 +4464,9 @@
     },
     "name": "envenom",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_RESTING",
     "level": 0,
@@ -4478,9 +4480,9 @@
         "targetSelf": "Are you crazy? You'd poison yourself!",
         "invalidWeapon": "You can only envenom edged weapons.",
         "food": "You treat %t with deadly poison.",
-        "foodFail": "You fail to poison $p.",
-        "enchanted": "You can't seem to envenom $p.",
-        "isEnvenomed": "$p is already envenomed.",
+        "foodFail": "You fail to poison %t.",
+        "enchanted": "You can't seem to envenom %t.",
+        "isEnvenomed": "%t is already envenomed.",
         "weapon": "You coat %t with venom.",
         "weaponFail": "You fail to envenom %t.",
         "targetInvalid": "You can't poison %t."
