@@ -105,6 +105,7 @@ class _CharacterMacros:
                 COMM_NOGOSSIP=SimpleNamespace(value=16),
                 COMM_NOAUCTION=SimpleNamespace(value=32),
                 COMM_NOMUSIC=SimpleNamespace(value=64),
+                COMM_NOCLAN=SimpleNamespace(value=128),
                 COMM_NOQUESTION=SimpleNamespace(value=128),
                 COMM_NOQUOTE=SimpleNamespace(value=256),
                 COMM_NOGRATS=SimpleNamespace(value=512),
@@ -543,6 +544,14 @@ class TestInfoDynamicCommands(unittest.TestCase):
             _load_command("areas").lambdas,
         )
         self.assertEqual(
+            ["lambda ctx: ctx.player_handler().do_commands(ctx.character, ctx)"],
+            _load_command("commands").lambdas,
+        )
+        self.assertEqual(
+            ["lambda ctx: ctx.player_handler().do_credits(ctx.character, ctx)"],
+            _load_command("credits").lambdas,
+        )
+        self.assertEqual(
             ["lambda ctx: ctx.player_handler().do_skills(ctx.character, ctx)"],
             _load_command("skills").lambdas,
         )
@@ -558,6 +567,67 @@ class TestInfoDynamicCommands(unittest.TestCase):
             ["lambda ctx: ctx.player_handler().do_groups(ctx.character, ctx)"],
             _load_command("info").lambdas,
         )
+        self.assertEqual(
+            ["lambda ctx: ctx.player_handler().do_wizlist(ctx.character, ctx)"],
+            _load_command("wizlist").lambdas,
+        )
+
+    def test_do_commands_lists_enabled_available_commands(self):
+        commands, _room_registry, registry_service, _session_handler, _weather_handler = self._commands()
+        registry_service.interp_registry.all_commands = lambda: [
+            SimpleNamespace(name="look", enabled=True, role="player", level=0),
+            SimpleNamespace(name="commands", enabled=True, role="player", level=0),
+            SimpleNamespace(name="advance", enabled=True, role="immortal", level=0),
+            SimpleNamespace(name="disabled", enabled=False, role="player", level=0),
+            SimpleNamespace(name="heroic", enabled=True, role="player", level=20),
+        ]
+        commands.interp_registry = registry_service.interp_registry
+        character = SimpleNamespace(name="Tester", level=10)
+        context = _Context(character=character, command=_load_command("commands"), result="", parameters=[], done=False)
+
+        text = commands.do_commands(character, context)
+
+        self.assertIn("commands", text)
+        self.assertIn("look", text)
+        self.assertNotIn("advance", text)
+        self.assertNotIn("disabled", text)
+        self.assertNotIn("heroic", text)
+        self.assertTrue(context.done)
+
+    def test_do_credits_lists_base_code_attribution(self):
+        commands, _room_registry, _registry_service, _session_handler, _weather_handler = self._commands()
+        character = SimpleNamespace(name="Tester")
+        context = _Context(character=character, command=_load_command("credits"), result="", parameters=[], done=False)
+
+        text = commands.do_credits(character, context)
+
+        self.assertIn("Original DikuMUD", text)
+        self.assertIn("Hatchet, Furey, and Kahn", text)
+        self.assertIn("Russ Taylor", text)
+        self.assertTrue(text.endswith("\r\n"))
+        self.assertTrue(context.done)
+
+    def test_do_wizlist_lists_visible_immortals(self):
+        commands, _room_registry, _registry_service, session_handler, _weather_handler = self._commands()
+        viewer = SimpleNamespace(id="viewer", name="Viewer", level=10, immortal=False)
+        visible_immortal = SimpleNamespace(id="imm-1", name="Alander", title="the Builder", level=60, trust=60, immortal=True)
+        hidden_immortal = SimpleNamespace(id="imm-2", name="Hidden", level=60, trust=60, immortal=True, hidden_from={"viewer"})
+        mortal = SimpleNamespace(id="mort-1", name="Mortal", level=10, immortal=False)
+        session_handler.get_playing_sessions = lambda: [
+            SimpleNamespace(character=visible_immortal),
+            SimpleNamespace(character=hidden_immortal),
+            SimpleNamespace(character=mortal),
+        ]
+        commands.session_handler = session_handler
+        context = _Context(character=viewer, command=_load_command("wizlist"), result="", parameters=[], done=False)
+
+        text = commands.do_wizlist(viewer, context)
+
+        self.assertIn("Immortals online:", text)
+        self.assertIn("Alander the Builder", text)
+        self.assertNotIn("Hidden", text)
+        self.assertNotIn("Mortal", text)
+        self.assertTrue(context.done)
 
     def test_do_areas_lists_registry_areas_in_two_columns(self):
         commands, _room_registry, registry_service, _session_handler, _weather_handler = self._commands()

@@ -67,6 +67,7 @@ class Communications:
             ";": self.do_quote,
             "grats": self.do_grats,
             ".": self.do_grats,
+            "clan": self.do_clan,
             "afk": self.do_afk,
             "quiet": self.do_quiet,
             "channels": self.do_channels,
@@ -183,6 +184,35 @@ class Communications:
             lines.append(f"Your current prompt is: {prompt_text}")
         context.finish()
         return {"to_char": "\r\n".join(lines) + "\r\n"}
+
+    def do_clan(self, context: Context):
+        character = context.character
+        clan_key = self._clan_key(character)
+        if not clan_key:
+            context.finish()
+            return self._render_message_key(context, "no_clan", channel="to_char")
+
+        text = CommunicationsUtil.parse_argument(context.result, context.parameters)
+        if not text:
+            disabled = CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_NOCLAN")
+            CommunicationsUtil.set_comm(character, self.comm_flags, "COMM_NOCLAN", not disabled)
+            context.finish()
+            return self._render_message_key(context, "enable" if disabled else "disable", channel="to_char")
+
+        if CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_QUIET"):
+            context.finish()
+            return self._render_message_key(context, "quiet_mode", channel="to_char")
+        if CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_NOCHANNELS"):
+            context.finish()
+            return self._render_message_key(context, "no_channels", channel="to_char")
+
+        CommunicationsUtil.set_comm(character, self.comm_flags, "COMM_NOCLAN", False)
+        context.finish()
+        return {
+            "to_char": self._render_message_key(context, "default", channel="to_char", s=text).get("to_char", ""),
+            "global_message": f"{self._display_name(character)} clans '{text}'\r\n",
+            "global_targets": self._clan_targets(character, clan_key),
+        }
 
     def do_deaf(self, context: Context):
         character = context.character
@@ -615,6 +645,42 @@ class Communications:
 
     def _render_message_key(self, context: Context, message_key: str, channel: str = "", **tokens):
         return self.interp_api.render_message_key(context, message_key, channel=channel, **tokens)
+
+    def _clan_targets(self, character, clan_key: str) -> list:
+        targets = []
+        for session in list(self.session_handler.get_playing_sessions() or []):
+            victim = getattr(session, "character", None)
+            if victim is None or getattr(victim, "id", None) == getattr(character, "id", None):
+                continue
+            if self._clan_key(victim) != clan_key:
+                continue
+            if CommunicationsUtil.has_comm(victim, self.comm_flags, "COMM_QUIET"):
+                continue
+            if CommunicationsUtil.has_comm(victim, self.comm_flags, "COMM_NOCLAN"):
+                continue
+            targets.append(victim)
+        return targets
+
+    @staticmethod
+    def _clan_key(character) -> str:
+        value = (
+            getattr(character, "guild", None)
+            or getattr(character, "clan", None)
+            or getattr(character, "clan_name", None)
+            or getattr(character, "clan_id", None)
+        )
+        if value is None:
+            attrs = getattr(character, "character_attributes", None)
+            value = (
+                getattr(attrs, "guild", None)
+                or getattr(attrs, "clan", None)
+                or getattr(attrs, "clan_name", None)
+                or getattr(attrs, "clan_id", None)
+            )
+        text = str(value or "").strip().lower()
+        if text in ("", "0", "none", "no", "clanless"):
+            return ""
+        return text
 
     def _blocked_message(self, context: Context, message_key: str, channel: str = "", **tokens):
         payload = self._render_message_key(context, message_key, channel=channel, **tokens)

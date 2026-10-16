@@ -20,7 +20,7 @@ def _stub_package(package_name: str) -> None:
     sys.modules[package_name] = package
 
 
-for package_name in ["area", "game", "interp", "player", "server", "util"]:
+for package_name in ["area", "game", "interp", "item", "player", "server", "util"]:
     _stub_package(package_name)
 
 if "injector" not in sys.modules:
@@ -66,6 +66,7 @@ class _CharacterMacros:
             COMM_NOAUCTION=SimpleNamespace(value=32),
             COMM_NOMUSIC=SimpleNamespace(value=64),
             COMM_NOQUESTION=SimpleNamespace(value=128),
+            COMM_NOCLAN=SimpleNamespace(value=32768),
             COMM_NOQUOTE=SimpleNamespace(value=256),
             COMM_NOGRATS=SimpleNamespace(value=512),
             COMM_NOWIZ=SimpleNamespace(value=1024),
@@ -128,11 +129,13 @@ class _CharacterMacros:
 
 
 sys.modules["api.CharacterApi"] = SimpleNamespace(CharacterApi=_CharacterMacros)
+sys.modules["item.Item"] = SimpleNamespace(Item=object)
 sys.modules["player.CharacterApi"] = SimpleNamespace(CharacterMacros=_CharacterMacros)
 sys.modules["player.Character"] = SimpleNamespace(Character=object)
 sys.modules["game.RegistryService"] = SimpleNamespace(RegistryService=object)
 sys.modules["player.CharacterService"] = SimpleNamespace(CharacterService=object)
 sys.modules["server.session.SessionHandler"] = SimpleNamespace(SessionHandler=object)
+sys.modules["util.ItemUtil"] = SimpleNamespace(ItemUtil=object)
 
 from api.AliasApi import AliasApi
 from api.CommunicationsApi import BufferedMessage, CommunicationsApi
@@ -453,6 +456,50 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
             ],
             [entry.get("predicate", "") for entry in commands["unalias"]["guards"]],
         )
+
+    def test_clan_metadata_uses_communications_handler(self):
+        with open(RESOURCES_PATH, "r", encoding="utf-8") as handle:
+            commands = {entry["name"]: entry for entry in json.load(handle)}
+
+        self.assertEqual(
+            ["lambda ctx: ctx.player_handler().do_communications_command(ctx.character, ctx)"],
+            commands["clan"]["lambdas"],
+        )
+
+    def test_do_clan_without_clan_matches_rom_message(self):
+        actor = _character("Actor", "actor")
+        room = _Room(actor)
+        communications, context = self._command_context("clan", actor, room, "hello")
+
+        payload = communications.do_clan(context)
+
+        self.assertEqual("You aren't in a clan.\r\n", payload["to_char"])
+        self.assertTrue(context.done)
+
+    def test_do_clan_sends_to_same_clan_members_only(self):
+        actor = _character("Actor", "actor")
+        ally = _character("Ally", "ally")
+        outsider = _character("Outsider", "outsider")
+        opted_out = _character("Silent", "silent")
+        actor.guild = "Knights"
+        ally.guild = "knights"
+        outsider.guild = "Ravens"
+        opted_out.guild = "Knights"
+        opted_out.status_flags.comm = _CharacterMacros.get_enum("commFlags").COMM_NOCLAN.value
+        room = _Room(actor)
+        communications, context = self._command_context("clan", actor, room, "for glory")
+        communications.session_handler.get_playing_sessions.return_value = [
+            SimpleNamespace(character=ally),
+            SimpleNamespace(character=outsider),
+            SimpleNamespace(character=opted_out),
+        ]
+
+        payload = communications.do_clan(context)
+
+        self.assertEqual("You clan 'for glory'\r\n", payload["to_char"])
+        self.assertEqual("Actor clans 'for glory'\r\n", payload["global_message"])
+        self.assertEqual([ally], payload["global_targets"])
+        self.assertTrue(context.done)
 
     def test_do_alias_lists_empty_aliases(self):
         actor = _character("Actor", "actor")

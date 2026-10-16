@@ -66,6 +66,17 @@ class _LoggerFactory:
         return _Logger()
 
 
+class _EnumLike(SimpleNamespace):
+    def __getitem__(self, name):
+        return self.__members__[name]
+
+
+def _enum_like(**members):
+    enum_obj = _EnumLike(**members)
+    enum_obj.__members__ = members
+    return enum_obj
+
+
 class _CharacterApi:
     @staticmethod
     def get_enum(name: str):
@@ -145,6 +156,8 @@ class _ItemApi:
 
     @staticmethod
     def item_takeable(item, wear_flags_enum) -> bool:
+        if not hasattr(item, "wear_flags"):
+            return bool(getattr(item, "takeable", True))
         take_flag = getattr(getattr(wear_flags_enum, "ITEM_TAKE", None), "value", 0)
         if not take_flag:
             return True
@@ -157,6 +170,10 @@ class _ItemApi:
     @staticmethod
     def is_no_sac(item) -> bool:
         return bool(getattr(item, "no_sac", False))
+
+    @staticmethod
+    def is_set(value: int, bit: int) -> bool:
+        return (int(value or 0) & int(bit or 0)) != 0
 
 
 class _CommunicationsUtil:
@@ -333,6 +350,22 @@ class _FightUtil:
         return None
 
 
+class _InfoUtil:
+    @staticmethod
+    def look_keyword_matches(token: str, keyword: str) -> bool:
+        q = str(token or "").strip().lower()
+        words = [word for word in str(keyword or "").strip().lower().split() if word]
+        return any(word == q or word.startswith(q) for word in words)
+
+
+class _RandomNumberGenerator:
+    def number_range(self, start: int, end: int) -> int:
+        return int(start)
+
+    def number_percent(self) -> int:
+        return 1
+
+
 for package_name in ("api", "area", "combat", "game", "interp", "item", "player", "server", "skill", "util"):
     _stub_package(package_name)
 _stub_package("interp.commands")
@@ -345,6 +378,7 @@ _stub_module("api.MovementApi", MovementApi=SimpleNamespace())
 _stub_module("util.CommunicationsUtil", CommunicationsUtil=_CommunicationsUtil)
 _stub_module("util.AreaUtil", AreaUtil=SimpleNamespace())
 _stub_module("util.FightUtil", FightUtil=_FightUtil)
+_stub_module("util.InfoUtil", InfoUtil=_InfoUtil)
 _stub_module("util.MovementUtil", MovementUtil=SimpleNamespace())
 _stub_module("util.MobileUtil", MobileUtil=SimpleNamespace())
 _effect_handler = SimpleNamespace(apply_item_effects=lambda *_args, **_kwargs: None, remove_item_effects=lambda *_args, **_kwargs: None)
@@ -367,6 +401,7 @@ _stub_module(
 )
 _stub_module("util.SkillUtil", SkillUtil=SimpleNamespace(check_improve=lambda *_args, **_kwargs: None))
 _stub_module("skill.Ability", Ability=SimpleNamespace(check_improve=lambda *_args, **_kwargs: None))
+_stub_module("game.RandomNumberGenerator", RandomNumberGenerator=_RandomNumberGenerator)
 _stub_module("game.RegistryService", RegistryService=object)
 _stub_module("game.WeatherHandler", WeatherHandler=object)
 _stub_module("interp.Context", Context=_Context)
@@ -430,6 +465,16 @@ def _load_command(name: str):
 
 
 class _Room(SimpleNamespace):
+    def __init__(self, **kwargs):
+        kwargs.setdefault("room_flags", 0)
+        kwargs.setdefault("characters", {})
+        kwargs.setdefault("mobiles", {})
+        super().__init__(**kwargs)
+        for mobile in list(getattr(self, "mobiles", {}).values()):
+            for item in list(getattr(mobile, "inventory", []) or []):
+                if item is not None and not hasattr(item, "item_type"):
+                    item.item_type = "ITEM_WEAPON"
+
     def add_item_to_room(self, item):
         self.contents[item.id] = item
 
@@ -447,6 +492,9 @@ class _Room(SimpleNamespace):
     def player_targets(self, character):
         return [ch for ch in list(getattr(self, "characters", {}).values()) if getattr(ch, "id", None) != getattr(character, "id", None)]
 
+    def to_not_victim(self, victim):
+        return [ch for ch in list(getattr(self, "characters", {}).values()) if getattr(ch, "id", None) != getattr(victim, "id", None)]
+
 
 class _Container(SimpleNamespace):
     def find_contained_item(self, wanted):
@@ -462,19 +510,26 @@ class _Container(SimpleNamespace):
 
 
 class TestObjectGetDynamicCommands(unittest.TestCase):
-    def _commands(self, room, *, shop_registry=None, weather_handler=None, skill_registry=None, spell_registry=None, spell_api=None, fight_handler=None):
+    def _commands(self, room, *, shop_registry=None, weather_handler=None, skill_registry=None, spell_registry=None, spell_api=None, fight_handler=None, item_registry=None):
         room_registry = SimpleNamespace(
             get_or_none=lambda **kwargs: room if kwargs.get("id") == room.id else None,
             get=lambda **kwargs: room if kwargs.get("id") == room.id else None,
         )
         registry_service = SimpleNamespace(
             room_registry=room_registry,
+            item_registry=item_registry or SimpleNamespace(get_or_none=lambda **_kwargs: None, all_items=lambda: []),
             mobile_registry=SimpleNamespace(),
-            shop_registry=shop_registry,
+            shop_registry=shop_registry or SimpleNamespace(find_by_keeper_vnum=lambda _keeper_vnum: None),
             skill_registry=skill_registry or SimpleNamespace(get_or_none=lambda **_kwargs: None),
             spell_registry=spell_registry or SimpleNamespace(get_or_none=lambda **_kwargs: None, all_spells=lambda: []),
         )
-        enum_provider = SimpleNamespace(get=lambda _name: SimpleNamespace())
+        enum_provider = SimpleNamespace(get=lambda _name: _enum_like(
+            OBJ_VNUM_SCHOOL_BANNER=SimpleNamespace(value=3716),
+            OBJ_VNUM_SCHOOL_DAGGER=SimpleNamespace(value=3701),
+            OBJ_VNUM_SCHOOL_HELMET=SimpleNamespace(value=3706),
+            OBJ_VNUM_SCHOOL_SHIELD=SimpleNamespace(value=3704),
+            OBJ_VNUM_SCHOOL_VEST=SimpleNamespace(value=3703),
+        ) if _name == "wellKnownObjectVnums" else SimpleNamespace())
         commands = Object(
             registry_service=registry_service,
             enum_provider=enum_provider,
@@ -484,14 +539,15 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             fight_handler=fight_handler or SimpleNamespace(),
             effect_handler=_effect_handler,
         )
-        commands.item_types = SimpleNamespace(ITEM_WEAPON=SimpleNamespace(value=5))
-        commands.item_flags = SimpleNamespace(
+        commands.item_types = _enum_like(ITEM_WEAPON=SimpleNamespace(value=5))
+        commands.item_flags = _enum_like(
             ITEM_INVENTORY=SimpleNamespace(value=1),
             ITEM_HAD_TIMER=SimpleNamespace(value=2),
             ITEM_SELL_EXTRACT=SimpleNamespace(value=4),
             ITEM_NOREMOVE=SimpleNamespace(value=8),
             ITEM_BLESS=SimpleNamespace(value=16),
             ITEM_BURN_PROOF=SimpleNamespace(value=32),
+            ITEM_MELT_DROP=SimpleNamespace(value=64),
         )
         commands.weapon_type = SimpleNamespace(
             WEAPON_FLAMING=SimpleNamespace(value=1),
@@ -505,12 +561,14 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         commands.act_bits = SimpleNamespace(ACT_IS_CHANGER=SimpleNamespace(value=1), ACT_IS_HEALER=SimpleNamespace(value=2))
         commands.PlayerActBits = SimpleNamespace(PLR_THIEF=SimpleNamespace(value=1 << 25))
         commands.GameParameters = SimpleNamespace(MAX_LEVEL=SimpleNamespace(value=60))
-        commands.wear_flags = SimpleNamespace(
+        commands.room_flags = SimpleNamespace(ROOM_PET_SHOP=SimpleNamespace(value=1))
+        commands.wear_flags = _enum_like(
             ITEM_TAKE=SimpleNamespace(value=1 << 0),
             ITEM_WEAR_BODY=SimpleNamespace(value=1 << 0),
             ITEM_WIELD=SimpleNamespace(value=1 << 1),
             ITEM_HOLD=SimpleNamespace(value=1 << 2),
             ITEM_WEAR_SHIELD=SimpleNamespace(value=1 << 3),
+            ITEM_WEAR_HEAD=SimpleNamespace(value=1 << 4),
         )
         return commands
 
@@ -535,6 +593,9 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
     @staticmethod
     def _build_character(*items, is_immortal=False, is_npc=False, name="Tester", level=10, max_items=10, max_weight=100, sex="male", act=0, skills=None, fighting=None):
         inventory = list(items)
+        for item in inventory:
+            if item is not None and not hasattr(item, "item_type"):
+                item.item_type = "ITEM_TRASH"
         character = SimpleNamespace(
             id=f"{name.lower()}-id",
             name=name,
@@ -548,6 +609,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             sex=sex,
             status_flags=SimpleNamespace(act=act, pulse_wait=0),
             character_attributes=SimpleNamespace(max_items=max_items, max_weight=max_weight),
+            character_class=SimpleNamespace(name="mage", weapon="OBJ_VNUM_SCHOOL_DAGGER"),
             equipped=Equipped(),
             skills=list(skills or []),
             fighting=fighting,
@@ -582,6 +644,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             return int(getattr(character.character_attributes, "max_weight", 0) or 0)
 
         character.find_inventory_item = _find_inventory_item
+        character.find_owned_item = _find_inventory_item
         character.add_item = _add_item
         character.remove_item = _remove_item
         character.carry_count = _carry_count
@@ -595,6 +658,9 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         character.equip_item = lambda item, slot: Equipped.equip_item(character, item, slot)
         character.equipped_slot_of = lambda item: character.equipped.slot_of(item)
         character.unequip_item = lambda slot: Equipped.unequip_item(character, slot)
+        character.owned_items = lambda: list(character.loot or []) + [
+            item for item in getattr(character.equipped, "__dict__", {}).values() if item is not None
+        ]
         return character
 
     @staticmethod
@@ -1458,6 +1524,45 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("You can't do that here.\r\n", payload["to_char"])
         self.assertEqual("no_healer", payload["blocked_key"])
 
+    def test_outfit_metadata_routes_to_object_handler(self):
+        with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:
+            command = next(entry for entry in json.load(handle) if entry.get("name") == "outfit")
+
+        self.assertEqual(["lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"], command["lambdas"])
+
+    def test_outfit_rejects_graduates(self):
+        room = _Room(id="room-1", contents={}, mobiles={}, characters={})
+        character = self._build_character(level=6)
+
+        payload = self._commands(room).do_outfit(character, self._build_context("", room, character, "outfit"))
+
+        self.assertEqual("Find it yourself!\r\n", payload["to_char"])
+        self.assertIsNone(character.equipped.wielded)
+
+    def test_outfit_equips_school_gear_without_replacing_occupied_slots(self):
+        existing_vest = self._outfit_proto("existing", "9001", "vest old", "an old vest", "armor", 1 << 0)
+        room = _Room(id="room-1", contents={}, mobiles={}, characters={})
+        character = self._build_character(level=5)
+        character.equipped.torso = existing_vest
+        prototypes = {
+            "3716": self._outfit_proto("banner", "3716", "banner war", "a war banner", "light", 1 << 0),
+            "3701": self._outfit_proto("dagger", "3701", "dagger sub", "a sub issue dagger", "weapon", 1 << 1),
+            "3706": self._outfit_proto("helmet", "3706", "helmet sub", "a sub issue helmet", "armor", 1 << 4),
+            "3704": self._outfit_proto("shield", "3704", "shield sub", "a sub issue shield", "armor", 1 << 3),
+            "3703": self._outfit_proto("vest", "3703", "vest sub", "a sub issue vest", "armor", 1 << 0),
+        }
+        item_registry = SimpleNamespace(get_or_none=lambda **kwargs: prototypes.get(str(kwargs.get("vnum"))), all_items=lambda: prototypes.values())
+
+        payload = self._commands(room, item_registry=item_registry).do_outfit(character, self._build_context("", room, character, "outfit"))
+
+        self.assertEqual("You have been equipped by Mota.\r\n", payload["to_char"])
+        self.assertEqual("banner war", character.equipped.light.name)
+        self.assertEqual("dagger sub", character.equipped.wielded.name)
+        self.assertEqual("helmet sub", character.equipped.head.name)
+        self.assertEqual("shield sub", character.equipped.shield.name)
+        self.assertIs(character.equipped.torso, existing_vest)
+        self.assertFalse(any(getattr(item, "name", "") == "vest sub" for item in character.loot))
+
     def test_steal_metadata_routes_to_object_handler(self):
         with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:
             command = next(entry for entry in json.load(handle) if entry.get("name") == "steal")
@@ -1522,6 +1627,24 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             command = next(entry for entry in json.load(handle) if entry.get("name") == "envenom")
 
         self.assertEqual(["lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"], command["lambdas"])
+
+    @staticmethod
+    def _outfit_proto(item_id: str, vnum: str, name: str, short: str, item_type: str, wear_flags: int):
+        return SimpleNamespace(
+            id=f"proto-{item_id}",
+            vnum=vnum,
+            name=name,
+            short_description=short,
+            item_type=item_type,
+            wear_flags=wear_flags,
+            level=0,
+            weight=1,
+            extra_flags=0,
+            weapon_too_heavy=lambda _character: False,
+            is_two_handed_weapon=lambda: False,
+            weapon_skill_feedback_key=lambda _character: "",
+            can_remove=lambda _item_flags: True,
+        )
 
     def test_envenom_food_success_marks_food_poisoned(self):
         bread = SimpleNamespace(

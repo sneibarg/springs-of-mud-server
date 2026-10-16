@@ -1561,6 +1561,9 @@
     "name": "clan",
     "shortcuts": "cl, cla",
     "role": "player",
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_communications_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_SLEEPING",
     "level": 0,
@@ -2199,7 +2202,9 @@
     },
     "name": "commands",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_commands(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2328,7 +2333,9 @@
     "name": "credits",
     "shortcuts": "cr, cre, cred, credi",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_credits(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2874,7 +2881,9 @@
     },
     "name": "wizlist",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_wizlist(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -3319,7 +3328,9 @@
     },
     "name": "outfit",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_RESTING",
     "level": 0,
@@ -6279,7 +6290,9 @@
     },
     "name": "enter",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_enter(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "STANDING",
     "level": 0,
@@ -6293,21 +6306,21 @@
         "somethingPreventsFromLeaving": "Something prevents you from leaving...",
         "somethingPreventsFromLeaving2": "Something prevents you from leaving...",
         "nopeCanTDo": "Nope, can't do it.",
-        "doesnTSeemGo": "$p doesn't seem to go anywhere.",
-        "enter": "You enter $p.",
-        "walkThroughFindYourself": "You walk through $p and find yourself somewhere else...",
-        "canTBringInto": "You can't bring $N into the city.",
+        "doesnTSeemGo": "%t doesn't seem to go anywhere.",
+        "enter": "You enter %t.",
+        "walkThroughFindYourself": "You walk through %t and find yourself somewhere else...",
+        "canTBringInto": "You can't bring %s into the city.",
         "arenTAllowedCity": "You aren't allowed in the city.",
-        "follow": "You follow $N.",
-        "fadesOutExistence": "$p fades out of existence.",
-        "fadesOutExistence2": "$p fades out of existence."
+        "follow": "You follow %s.",
+        "fadesOutExistence": "%t fades out of existence.",
+        "fadesOutExistence2": "%t fades out of existence."
       },
       "toRoom": {
-        "stepsInto": "$n steps into $p.",
-        "arrived": "$n has arrived.",
-        "arrivedThrough": "$n has arrived through $p.",
-        "fadesOutExistence": "$p fades out of existence.",
-        "fadesOutExistence2": "$p fades out of existence."
+        "stepsInto": "%c steps into %t.",
+        "arrived": "%c has arrived.",
+        "arrivedThrough": "%c has arrived through %t.",
+        "fadesOutExistence": "%t fades out of existence.",
+        "fadesOutExistence2": "%t fades out of existence."
       },
       "toVictim": {}
     }
@@ -6374,7 +6387,9 @@
     },
     "name": "gain",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_gain(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "STANDING",
     "level": 0,
@@ -6393,21 +6408,21 @@
         "18s5d": "%-18s %-5d ",
         "18s5s18s5s2": "%-18s %-5s %-18s %-5s %-18s %-5s",
         "18s5d2": "%-18s %-5d ",
-        "tellsNotYetReady": "$N tells you 'You are not yet ready.'",
-        "helpsApplyPracticeTraining": "$N helps you apply your practice to training",
-        "tellsNotYetReady2": "$N tells you 'You are not yet ready.'",
-        "tellsWouldNoPoint": "$N tells you 'There would be no point in that.'",
-        "trainsFeelMoreAt": "$N trains you, and you feel more at ease with your skills.",
-        "tellsAlreadyKnowGroup": "$N tells you 'You already know that group!'",
-        "tellsGroupBeyondPowers": "$N tells you 'That group is beyond your powers.'",
-        "tellsNotYetReady3": "$N tells you 'You are not yet ready for that group.'",
-        "trainsArt": "$N trains you in the art of $t",
-        "tellsMustLearnFull": "$N tells you 'You must learn the full group.'",
-        "tellsAlreadyKnowSkill": "$N tells you 'You already know that skill!'",
-        "tellsSkillBeyondPowers": "$N tells you 'That skill is beyond your powers.'",
-        "tellsNotYetReady4": "$N tells you 'You are not yet ready for that skill.'",
-        "trainsArt2": "$N trains you in the art of $t",
-        "tellsIDoNot": "$N tells you 'I do not understand...'"
+        "tellsNotYetReady": "%t tells you 'You are not yet ready.'",
+        "helpsApplyPracticeTraining": "%t helps you apply your practice to training",
+        "tellsNotYetReady2": "%t tells you 'You are not yet ready.'",
+        "tellsWouldNoPoint": "%t tells you 'There would be no point in that.'",
+        "trainsFeelMoreAt": "%t trains you, and you feel more at ease with your skills.",
+        "tellsAlreadyKnowGroup": "%t tells you 'You already know that group!'",
+        "tellsGroupBeyondPowers": "%t tells you 'That group is beyond your powers.'",
+        "tellsNotYetReady3": "%t tells you 'You are not yet ready for that group.'",
+        "trainsArt": "%t trains you in the art of %s",
+        "tellsMustLearnFull": "%t tells you 'You must learn the full group.'",
+        "tellsAlreadyKnowSkill": "%t tells you 'You already know that skill!'",
+        "tellsSkillBeyondPowers": "%t tells you 'That skill is beyond your powers.'",
+        "tellsNotYetReady4": "%t tells you 'You are not yet ready for that skill.'",
+        "trainsArt2": "%t trains you in the art of %s",
+        "tellsIDoNot": "%t tells you 'I do not understand...'"
       },
       "toRoom": {},
       "toVictim": {}
@@ -6419,7 +6434,9 @@
     },
     "name": "go",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_go(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "STANDING",
     "level": 0,
@@ -6433,21 +6450,21 @@
         "somethingPreventsFromLeaving": "Something prevents you from leaving...",
         "somethingPreventsFromLeaving2": "Something prevents you from leaving...",
         "nopeCanTDo": "Nope, can't do it.",
-        "doesnTSeemGo": "$p doesn't seem to go anywhere.",
-        "enter": "You enter $p.",
-        "walkThroughFindYourself": "You walk through $p and find yourself somewhere else...",
-        "canTBringInto": "You can't bring $N into the city.",
+        "doesnTSeemGo": "%t doesn't seem to go anywhere.",
+        "enter": "You enter %t.",
+        "walkThroughFindYourself": "You walk through %t and find yourself somewhere else...",
+        "canTBringInto": "You can't bring %s into the city.",
         "arenTAllowedCity": "You aren't allowed in the city.",
-        "follow": "You follow $N.",
-        "fadesOutExistence": "$p fades out of existence.",
-        "fadesOutExistence2": "$p fades out of existence."
+        "follow": "You follow %s.",
+        "fadesOutExistence": "%t fades out of existence.",
+        "fadesOutExistence2": "%t fades out of existence."
       },
       "toRoom": {
-        "stepsInto": "$n steps into $p.",
-        "arrived": "$n has arrived.",
-        "arrivedThrough": "$n has arrived through $p.",
-        "fadesOutExistence": "$p fades out of existence.",
-        "fadesOutExistence2": "$p fades out of existence."
+        "stepsInto": "%c steps into %t.",
+        "arrived": "%c has arrived.",
+        "arrivedThrough": "%c has arrived through %t.",
+        "fadesOutExistence": "%t fades out of existence.",
+        "fadesOutExistence2": "%t fades out of existence."
       },
       "toVictim": {}
     }

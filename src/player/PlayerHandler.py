@@ -275,6 +275,16 @@ class PlayerHandler:
         if text:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
 
+    async def do_commands(self, character: Character, context: Context):
+        text = self.info_commands.do_commands(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_credits(self, character: Character, context: Context):
+        text = self.info_commands.do_credits(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
     async def do_skills(self, character: Character, context: Context):
         text = self.info_commands.do_skills(character, context)
         if text:
@@ -287,6 +297,11 @@ class PlayerHandler:
 
     async def do_groups(self, character: Character, context: Context):
         text = self.info_commands.do_groups(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_wizlist(self, character: Character, context: Context):
+        text = self.info_commands.do_wizlist(character, context)
         if text:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
 
@@ -467,8 +482,17 @@ class PlayerHandler:
     async def do_recall(self, character: Character, context: Context):
         await self._handle_move_payload(character, context, self.movement_commands.do_recall(character, context))
 
+    async def do_enter(self, character: Character, context: Context):
+        await self._handle_move_payload(character, context, self.movement_commands.do_enter(character, context))
+
+    async def do_go(self, character: Character, context: Context):
+        await self._handle_move_payload(character, context, self.movement_commands.do_go(character, context))
+
     async def do_train(self, character: Character, context: Context):
         await self._handle_room_action_payload(character, context, self.movement_commands.do_train(character, context))
+
+    async def do_gain(self, character: Character, context: Context):
+        await self._handle_room_action_payload(character, context, self.movement_commands.do_gain(character, context))
 
     async def do_wiz_command(self, character: Character, context: Context):
         payload = self.wiz_commands.execute(character, context)

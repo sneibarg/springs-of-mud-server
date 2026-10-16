@@ -8,3 +8,7 @@ from interp.Context import Context
 class InterpView:
     context: Context
     payload: GamePayload
+
+    @property
+    def handler(self):
+        return getattr(self.context, "handler", None)

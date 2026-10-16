@@ -606,6 +606,38 @@ class Info:
         context.finish()
         return self._column_lines(lines, width=39, columns=2)
 
+    def do_commands(self, character: Character, context: Context) -> str:
+        trust = self._character_trust(character)
+        is_immortal = CharacterApi.is_immortal(character)
+        names: set[str] = set()
+        for command in list(self.interp_registry.all_commands() or []):
+            name = str(getattr(command, "name", "") or "").strip()
+            if not name:
+                continue
+            if not bool(getattr(command, "enabled", False)):
+                continue
+            level = GenericUtil.to_int(getattr(command, "level", 0), 0)
+            if level > trust:
+                continue
+            role = str(getattr(command, "role", "") or "").strip().lower()
+            if role == "immortal" and not is_immortal:
+                continue
+            names.add(name)
+
+        context.finish()
+        return self._column_lines(sorted(names), width=12, columns=6)
+
+    def do_credits(self, _character: Character, context: Context) -> str:
+        context.finish()
+        return (
+            "ROM Version 2.4 beta\r\n"
+            "\r\n"
+            "Original DikuMUD by Hans Staerfeldt, Katja Nyboe,\r\n"
+            "Tom Madsen, Michael Seifert, and Sebastian Hammer\r\n"
+            "Based on MERC 2.1 code by Hatchet, Furey, and Kahn\r\n"
+            "ROM 2.4 copyright (c) 1993-1998 Russ Taylor\r\n"
+        )
+
     def do_skills(self, character: Character, context: Context) -> str:
         return self._do_learned_list(character, context, collection_name="skills")
 
@@ -641,6 +673,40 @@ class Info:
         members = [str(name) for name in list(getattr(group, "spells", []) or []) + list(getattr(group, "skills", []) or []) if str(name or "").strip()]
         context.finish()
         return self._column_lines(members, width=20, columns=3)
+
+    def do_wizlist(self, character: Character, context: Context) -> str:
+        room = (
+            context.room
+            if getattr(context, "room", None) is not None
+            else getattr(self.room_registry, "get_or_none", lambda **_kwargs: None)(id=getattr(character, "room_id", ""))
+        )
+        seen: set[str] = set()
+        immortals = []
+        for candidate in [character] + list(PlayerUtil.visible(character, self.session_handler) or []):
+            if candidate is None:
+                continue
+            key = str(getattr(candidate, "id", "") or getattr(candidate, "name", "") or "")
+            if key and key in seen:
+                continue
+            if key:
+                seen.add(key)
+            if not CharacterApi.is_immortal(candidate):
+                continue
+            if candidate is not character and not self._can_see_character(character, candidate, room):
+                continue
+            immortals.append(candidate)
+
+        context.finish()
+        if not immortals:
+            return "No immortals are visible.\r\n"
+
+        lines = ["Immortals online:\r\n"]
+        for immortal in sorted(immortals, key=lambda item: (-self._character_trust(item), str(getattr(item, "name", "") or "").lower())):
+            name = str(getattr(immortal, "name", "") or "Someone").strip()
+            title = str(getattr(immortal, "title", "") or "").strip()
+            suffix = f" {title}" if title else ""
+            lines.append(f"[{self._character_trust(immortal):2d}] {name}{suffix}\r\n")
+        return "".join(lines)
 
     def do_autolist(self, character: Character, context: Context) -> str:
         if CharacterApi.is_npc(character):
@@ -1192,6 +1258,22 @@ class Info:
         if author:
             return f"{author}: {name}"
         return name
+
+    @staticmethod
+    def _character_trust(character: Character) -> int:
+        try:
+            return GenericUtil.to_int(CharacterApi.get_trust(character), 0)
+        except Exception:
+            return GenericUtil.to_int(getattr(character, "trust", getattr(character, "level", 0)), 0)
+
+    @staticmethod
+    def _can_see_character(character: Character, target: Character, room=None) -> bool:
+        try:
+            return bool(CharacterApi.can_see(character, target, room))
+        except TypeError:
+            return bool(CharacterApi.can_see(character, target))
+        except AttributeError:
+            return True
 
     def _all_groups(self) -> list[Any]:
         registry = getattr(self, "group_registry", None)

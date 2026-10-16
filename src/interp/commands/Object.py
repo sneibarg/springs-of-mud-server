@@ -45,6 +45,7 @@ class Object:
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.room_registry = registry_service.room_registry
+        self.item_registry = getattr(registry_service, "item_registry", None)
         self.mobile_registry = registry_service.mobile_registry
         self.shop_registry = registry_service.shop_registry
         self.skill_registry = registry_service.skill_registry
@@ -64,8 +65,10 @@ class Object:
         self.GameParameters = enum_provider.get("gameParameters")
         self.affected_bits = enum_provider.get("affectedBy")
         self.comm_flags = enum_provider.get("commFlags")
+        self.well_known_object_vnums = enum_provider.get("wellKnownObjectVnums")
 
     def execute(self, character: Character, context: Context):
+        context.handler = self
         name = (context.command.name or "").strip().lower()
         handlers = {
             "get": self.do_get,
@@ -95,6 +98,7 @@ class Object:
             "brandish": self.do_brandish,
             "zap": self.do_zap,
             "steal": self.do_steal,
+            "outfit": self.do_outfit,
         }
         fn = handlers.get(name)
         if fn is None:
@@ -247,6 +251,105 @@ class Object:
             g=context.value_gold,
             t=context.value_item_short,
         )
+
+    def do_outfit(self, character: Character, context: Context):
+        if GenericUtil.to_int(getattr(character, "level", 0), 0) > 5 and not CharacterApi.is_immortal(character):
+            context.finish()
+            return self.interp_api.render_message_key(context, "graduate", channel="to_char")
+
+        for vnum in self._outfit_vnums(character):
+            item = self._create_outfit_item(vnum)
+            if item is None:
+                continue
+            character.add_item(item)
+            result = Equipped.wear_item(
+                character,
+                item,
+                self.wear_flags,
+                self.item_flags,
+                replace=False,
+                effect_handler=self.effect_handler,
+            )
+            if character.equipped_slot_of(item) is None or getattr(result, "blocked_key", ""):
+                try:
+                    character.remove_item(item)
+                except ValueError:
+                    pass
+
+        context.finish()
+        return self.interp_api.render_message_key(context, "default", channel="to_char")
+
+    def _outfit_vnums(self, character: Character) -> list[str]:
+        return [
+            self._well_known_outfit_vnum("OBJ_VNUM_SCHOOL_BANNER", 3716),
+            self._outfit_weapon_vnum(character),
+            self._well_known_outfit_vnum("OBJ_VNUM_SCHOOL_HELMET", 3706),
+            self._well_known_outfit_vnum("OBJ_VNUM_SCHOOL_SHIELD", 3704),
+            self._well_known_outfit_vnum("OBJ_VNUM_SCHOOL_VEST", 3703),
+        ]
+
+    def _outfit_weapon_vnum(self, character: Character) -> str:
+        class_weapon = getattr(getattr(character, "character_class", None), "weapon", None)
+        if not class_weapon:
+            try:
+                class_name = str(getattr(getattr(character, "character_class", None), "name", "") or "")
+                class_weapon = CharacterApi.class_data(class_name).get("weapon", "")
+            except (AttributeError, RuntimeError):
+                class_weapon = ""
+        return self._resolve_outfit_vnum(class_weapon) or self._well_known_outfit_vnum("OBJ_VNUM_SCHOOL_DAGGER", 3701)
+
+    def _well_known_outfit_vnum(self, name: str, fallback: int) -> str:
+        return self._resolve_outfit_vnum(name) or str(fallback)
+
+    def _resolve_outfit_vnum(self, value) -> str:
+        if value is None:
+            return ""
+        if isinstance(value, int):
+            return str(value)
+        text = str(getattr(value, "value", value) or "").strip()
+        if not text:
+            return ""
+        if text.lstrip("-").isdigit():
+            return text
+        enum_obj = self.well_known_object_vnums
+        member = None
+        try:
+            member = enum_obj[text]
+        except (TypeError, KeyError, AttributeError):
+            member = getattr(enum_obj, text, None)
+        return str(getattr(member, "value", "") or "")
+
+    def _create_outfit_item(self, vnum: str):
+        proto = self._outfit_prototype(vnum)
+        if proto is None:
+            return None
+        try:
+            return ItemUtil.create_object(proto)
+        except ValueError:
+            return None
+
+    def _outfit_prototype(self, vnum: str):
+        registry = self.item_registry
+        if registry is None:
+            return None
+        target = str(vnum or "").strip()
+        if not target:
+            return None
+        for method_name in ("get_or_none", "get"):
+            method = getattr(registry, method_name, None)
+            if method is None:
+                continue
+            for current in (target, GenericUtil.to_int(target, target)):
+                try:
+                    proto = method(vnum=current)
+                except Exception:
+                    proto = None
+                if proto is not None:
+                    return proto
+        for proto in list(getattr(registry, "all_items", lambda: [])() or []):
+            if str(getattr(proto, "vnum", "") or "") == target:
+                return proto
+        return None
 
     def do_get(self, character: Character, context: Context):
         room = self._prepare_get_context(character, context)
