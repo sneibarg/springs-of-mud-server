@@ -421,6 +421,31 @@ class TestFightHandlerAggression(unittest.TestCase):
 
         self.assertEqual([("dagger", False, 5)], calls)
 
+    def test_damage_uses_skill_payload_for_successful_dodge(self):
+        attacker = self._player("char-1")
+        attacker.name = "Tester"
+        victim = self._player("char-2")
+        victim.name = "Target"
+        room = SimpleNamespace(id="room-1", area_id="area-1", room_flags=0, mobiles={}, characters={"char-1": attacker, "char-2": victim})
+        handler = self._handler(room)
+
+        messages = {
+            ("to_char", "success"): "{t} dodges your attack.",
+            ("to_victim", "success"): "You dodge {c}'s attack.",
+        }
+        dodge = SimpleNamespace(message=lambda channel, key, **tokens: messages.get((channel, key), "").format_map(tokens))
+        handler.skill_registry = SimpleNamespace(get_or_none=lambda **kwargs: dodge if kwargs.get("name") == "dodge" else None)
+
+        with unittest.mock.patch.object(handler, "check_parry", return_value=False), \
+                unittest.mock.patch.object(handler, "check_dodge", return_value=True), \
+                unittest.mock.patch.object(handler, "check_shield_block", return_value=False):
+            result = handler.damage(attacker, victim, 0, dt="slash", weapon_hit=True)
+
+        self.assertEqual("Target dodges your attack.\r\n", result["to_char"])
+        self.assertEqual("You dodge Tester's attack.\r\n", result["to_victim"])
+        self.assertEqual("", result["to_room"])
+        self.assertFalse(result["killed"])
+
     def test_update_pos_keeps_npc_alive_when_hit_points_remain(self):
         handler = self._handler(SimpleNamespace())
         victim = self._mob("mob-1")
@@ -556,6 +581,25 @@ class TestFightHandlerAggression(unittest.TestCase):
         handler = self._handler(room)
 
         safe, message = handler.is_safe(pet, victim, room=room)
+
+        self.assertFalse(safe)
+        self.assertEqual("", message)
+
+    def test_is_safe_can_ignore_existing_fight_for_direct_offensive_spell(self):
+        owner = self._player("char-1")
+        caster = self._player("char-2")
+        victim = self._mob("mob-1")
+        victim.fighting = owner
+        room = SimpleNamespace(
+            id="room-1",
+            area_id="area-1",
+            room_flags=0,
+            mobiles={"mob-1": victim},
+            characters={"char-1": owner, "char-2": caster},
+        )
+        handler = self._handler(room)
+
+        safe, message = handler.is_safe(caster, victim, room=room, ignore_target_fighting=True)
 
         self.assertFalse(safe)
         self.assertEqual("", message)

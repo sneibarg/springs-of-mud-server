@@ -21,6 +21,7 @@ from player.CharacterAdvancement import CharacterAdvancement
 from skill.Ability import Ability
 from server.LoggerFactory import LoggerFactory
 from server.messaging.MessageBus import MessageBus
+from util.CommunicationsUtil import CommunicationsUtil
 from util.DisplayUtil import DisplayUtil
 from util.GenericUtil import GenericUtil
 from util.InfoUtil import InfoUtil
@@ -90,7 +91,7 @@ class FightHandler:
                 prompted.extend(target for target in targets if not CharacterApi.is_npc(target))
         return prompted
 
-    def is_safe(self, attacker, victim, room=None) -> tuple[bool, str]:
+    def is_safe(self, attacker, victim, room=None, ignore_target_fighting: bool = False) -> tuple[bool, str]:
         if attacker is None or victim is None:
             return True, "You cannot attack that.\r\n"
 
@@ -125,6 +126,8 @@ class FightHandler:
                 return True, "But they look so cute and cuddly...\r\n"
 
         if (
+            not ignore_target_fighting
+            and
             victim.fighting is not None
             and victim.fighting is not attacker
             and not CharacterApi.is_same_group(attacker, victim.fighting)
@@ -164,6 +167,56 @@ class FightHandler:
 
     def check_dodge(self, attacker, victim) -> bool:
         return self._check_dex_defense(victim, "dodge", max_chance=65, dex_divisor=3)
+
+    def _successful_skill_payload(self, skill_name: str, attacker, victim) -> dict | None:
+        skill = self._skill_definition(skill_name)
+        if skill is None:
+            return None
+
+        attacker_name = self._combat_target_name(attacker)
+        victim_name = self._combat_target_name(victim)
+        tokens = {"c": attacker_name, "t": victim_name, "attacker": attacker_name, "victim": victim_name}
+        rendered = {"to_char": "", "to_victim": "", "to_room": ""}
+        for channel in rendered:
+            text = self._render_skill_message(skill, channel, "success", **tokens)
+            rendered[channel] = CommunicationsUtil.ensure_message_break(text) if text else ""
+
+        if not any(rendered.values()):
+            return None
+
+        rendered["killed"] = False
+        rendered["xp_gain"] = 0
+        rendered["level_up_messages"] = ""
+        return rendered
+
+    def _skill_definition(self, skill_name: str):
+        registry = getattr(self, "skill_registry", None)
+        if registry is None:
+            return None
+        get_or_none = getattr(registry, "get_or_none", None)
+        if callable(get_or_none):
+            try:
+                return get_or_none(name=skill_name)
+            except TypeError:
+                return get_or_none(skill_name)
+        get = getattr(registry, "get", None)
+        if callable(get):
+            try:
+                return get(name=skill_name)
+            except (KeyError, TypeError):
+                return None
+        return None
+
+    @staticmethod
+    def _render_skill_message(skill, channel: str, key: str, **tokens) -> str:
+        message = getattr(skill, "message", None)
+        if callable(message):
+            return str(message(channel, key, **tokens) or "")
+        payload = getattr(skill, "payload", None)
+        render = getattr(payload, "render", None)
+        if callable(render):
+            return str(render(channel, key, **tokens) or "")
+        return ""
 
     def _check_dex_defense(self, victim, skill_name: str, *, max_chance: int, dex_divisor: int) -> bool:
         if not CharacterApi.is_awake(victim):
@@ -586,13 +639,32 @@ class FightHandler:
 
         self.logger.debug(f"Damage calculation 2: dam={dam}, applied={applied}, dam_type={dam_type}")
         if weapon_hit and attacker is not None and victim is not attacker:
-            if self.check_parry(attacker, victim) or self.check_dodge(attacker, victim) or self.check_shield_block(
-                    attacker, victim):
-                msg = self.dam_message(attacker, victim, 0, dt=dt, immune=False)
+            if self.check_parry(attacker, victim):
+                Ability.check_improve_by_name(victim, "parry", True, 6)
+                msg = self._successful_skill_payload("parry", attacker, victim) or self.dam_message(
+                    attacker, victim, 0, dt=dt, immune=False)
                 msg["killed"] = False
                 msg["xp_gain"] = 0
                 msg["level_up_messages"] = ""
-                self.logger.debug(f"Parry/Dodge/Shield Block: {msg['to_char']} {msg['to_victim']} {msg['to_room']}")
+                self.logger.debug(f"Parry: {msg['to_char']} {msg['to_victim']} {msg['to_room']}")
+                return msg
+            if self.check_dodge(attacker, victim):
+                Ability.check_improve_by_name(victim, "dodge", True, 6)
+                msg = self._successful_skill_payload("dodge", attacker, victim) or self.dam_message(
+                    attacker, victim, 0, dt=dt, immune=False)
+                msg["killed"] = False
+                msg["xp_gain"] = 0
+                msg["level_up_messages"] = ""
+                self.logger.debug(f"Dodge: {msg['to_char']} {msg['to_victim']} {msg['to_room']}")
+                return msg
+            if self.check_shield_block(attacker, victim):
+                Ability.check_improve_by_name(victim, "shield block", True, 6)
+                msg = self._successful_skill_payload("shield block", attacker, victim) or self.dam_message(
+                    attacker, victim, 0, dt=dt, immune=False)
+                msg["killed"] = False
+                msg["xp_gain"] = 0
+                msg["level_up_messages"] = ""
+                self.logger.debug(f"Shield Block: {msg['to_char']} {msg['to_victim']} {msg['to_room']}")
                 return msg
 
         immunity = self._check_immunity(victim, dam_type_name)

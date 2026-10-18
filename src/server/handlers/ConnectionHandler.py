@@ -144,7 +144,10 @@ class ConnectionHandler:
             try:
                 character = session.character or character
                 if not session.is_idle() and self.session_handler.is_session_idle(session):
-                    session.status = SessionStatus.IDLING
+                    if CharacterApi.is_immortal(session):
+                        session.update_activity()
+                    else:
+                        session.status = SessionStatus.IDLING
 
                 message = await self._wait_for_message(connection, session)
                 if message is None:
@@ -173,13 +176,18 @@ class ConnectionHandler:
                 break
 
     async def _wait_for_message(self, connection: TelnetConnection, session: SessionState) -> Message | None:
-        try:
-            return await asyncio.wait_for(connection.receive_message(), timeout=self.session_handler.max_idle_time)
-        except asyncio.TimeoutError:
-            if not session.is_idle():
-                session.status = SessionStatus.IDLING
-                self.logger.info(f"Session {session.session_id} timed out")
-                await connection.send_text("You have disappeared into the void.\n\r", MessageType.GAME)
+        while True:
+            try:
+                return await asyncio.wait_for(connection.receive_message(), timeout=self.session_handler.max_idle_time)
+            except asyncio.TimeoutError:
+                if CharacterApi.is_immortal(session):
+                    session.update_activity()
+                    self.logger.debug(f"Immortal session {session.session_id} idle timer reset")
+                    continue
+                if not session.is_idle():
+                    session.status = SessionStatus.IDLING
+                    self.logger.info(f"Session {session.session_id} timed out")
+                    await connection.send_text("You have disappeared into the void.\n\r", MessageType.GAME)
                 return None
 
     @staticmethod

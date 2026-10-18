@@ -233,6 +233,7 @@ _stub_package("item")
 _stub_module("item.Item", Item=SimpleNamespace)
 InterpApi = _load_module("api.InterpApi", "api/InterpApi.py").InterpApi
 _stub_package("combat")
+_stub_module("combat.CombatHandler", FightHandler=_FightHandler)
 _stub_module("combat.FightHandler", FightHandler=_FightHandler)
 _load_module("combat.FightView", "combat/CombatView.py")
 _stub_package("skill")
@@ -301,6 +302,20 @@ class TestFightDynamicCommands(unittest.TestCase):
             self.assertTrue(commands[name].get("guards"), name)
         for name in skill_names:
             self.assertTrue(skills[name].get("guards"), name)
+
+    def test_defensive_skills_define_success_payloads(self):
+        with open(SKILLS_PATH, "r", encoding="utf-8") as handle:
+            skills = {entry["name"]: entry for entry in json.load(handle)}
+
+        expected = {
+            "dodge": ("{t} dodges your attack.", "You dodge {c}'s attack."),
+            "parry": ("{t} parries your attack.", "You parry {c}'s attack."),
+            "shield block": ("{t} blocks your attack with a shield.", "You block {c}'s attack with your shield."),
+        }
+        for skill_name, (to_char, to_victim) in expected.items():
+            payload = skills[skill_name]["payload"]
+            self.assertEqual(to_char, payload["toChar"]["success"])
+            self.assertEqual(to_victim, payload["toVictim"]["success"])
 
     def test_do_flee_uses_command_check_and_stands_when_not_fighting(self):
         room = SimpleNamespace(id="room-1", exits=[], player_targets=lambda _character: [])
@@ -375,6 +390,30 @@ class TestFightDynamicCommands(unittest.TestCase):
         self.assertEqual("self_room", payload["payloads"][1]["message_key"])
         self.assertEqual("to_room", payload["payloads"][1]["channel"])
         self.assertEqual(48, character.status_flags.pulse_wait)
+
+    def test_resolve_char_offensive_spell_allows_target_fighting_other_player(self):
+        owner = SimpleNamespace(id="char-2", name="Owner", room_id="room-1", is_npc=False)
+        victim = SimpleNamespace(id="mob-1", name="Goblin", room_id="room-1", is_npc=True, fighting=owner)
+        room = SimpleNamespace(id="room-1", targets={"goblin": victim})
+        registry_service = SimpleNamespace(
+            room_registry=SimpleNamespace(get=lambda **_kwargs: room, get_or_none=lambda **_kwargs: room),
+            skill_registry=_SkillRegistry({}),
+            spell_registry=SimpleNamespace(all_spells=lambda: []),
+        )
+        fight_handler = Mock()
+        fight_handler.is_safe.return_value = (False, "")
+        fight_api = SimpleNamespace(fight_handler=fight_handler)
+        enum_provider = SimpleNamespace(get=lambda _name: SimpleNamespace())
+        commands = Fight(registry_service, enum_provider, Mock(), fight_api, InterpApi(), Mock(), Mock(), Mock())
+        character = SimpleNamespace(id="char-1", name="Hero", room_id="room-1", is_npc=False, fighting=None)
+        spell = SimpleNamespace(target="CHAR_OFFENSIVE")
+
+        target, target_kind, target_error = commands._resolve_spell_target(character, room, spell, "goblin")
+
+        self.assertIs(target, victim)
+        self.assertEqual("char", target_kind)
+        self.assertEqual("", target_error)
+        fight_handler.is_safe.assert_called_once_with(character, victim, room=room, ignore_target_fighting=True)
 
 
 class TestFightPayloadEmission(unittest.IsolatedAsyncioTestCase):

@@ -17,16 +17,32 @@ class _AffectedBits(IntEnum):
     AFF_SANCTUARY = 1
 
 
+class _ApplyTypes(IntEnum):
+    APPLY_NONE = 0
+    APPLY_STR = 1
+    APPLY_DEX = 2
+    APPLY_AC = 17
+
+
 class _CharacterApi:
     @staticmethod
     def get_enum(name):
         if name == "affectedBy":
             return _AffectedBits
+        if name == "applyTypes":
+            return _ApplyTypes
         return SimpleNamespace(__members__={})
 
     @staticmethod
     def is_set(raw, bit):
         return (int(raw) & int(bit)) != 0
+
+
+def _to_int(value, default=0):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
 
 
 def _load_effect_util():
@@ -35,7 +51,7 @@ def _load_effect_util():
         "api.CharacterApi": types.SimpleNamespace(CharacterApi=_CharacterApi),
         "player.Character": types.SimpleNamespace(Character=object),
         "util.GenericUtil": types.SimpleNamespace(
-            GenericUtil=types.SimpleNamespace(to_int=lambda value, default=0: int(value) if str(value).strip() else default)
+            GenericUtil=types.SimpleNamespace(to_int=_to_int)
         ),
     }
     originals = {name: sys.modules.get(name) for name in replacements}
@@ -91,6 +107,39 @@ class TestEffectUtilAffects(unittest.TestCase):
 
         self.assertNotIn("Spell: -1\r\n", text)
         self.assertIn("Spell: armor\r\n", text)
+
+    def test_format_affects_hides_stat_details_below_level_twenty(self):
+        character = SimpleNamespace(
+            level=19,
+            status_flags=SimpleNamespace(affected_by=0),
+            effects=[
+                SimpleNamespace(type="spell.giant_strength", location="APPLY_STR", modifier=3, duration=5),
+                SimpleNamespace(type="spell.giant_strength", location="APPLY_DEX", modifier=2, duration=-1),
+            ],
+        )
+
+        text = EffectUtil.format_affects(character)
+
+        self.assertEqual(1, text.count("Spell: giant strength\r\n"))
+        self.assertNotIn("modifies strength by 3", text)
+        self.assertNotIn("permanently", text)
+
+    def test_format_affects_shows_stat_details_at_level_twenty(self):
+        character = SimpleNamespace(
+            level=20,
+            status_flags=SimpleNamespace(affected_by=0),
+            effects=[
+                SimpleNamespace(type="spell.giant_strength", location="APPLY_STR", modifier=3, duration=5),
+                SimpleNamespace(type="spell.giant_strength", location="APPLY_DEX", modifier=2, duration=-1),
+                SimpleNamespace(type="spell.armor", location="APPLY_AC", modifier=-20, duration=12),
+            ],
+        )
+
+        text = EffectUtil.format_affects(character)
+
+        self.assertIn("Spell: giant strength : modifies strength by 3 for 5 hours\r\n", text)
+        self.assertIn("                      : modifies dexterity by 2 permanently\r\n", text)
+        self.assertIn("Spell: armor          : modifies armor class by -20 for 12 hours\r\n", text)
 
 
 if __name__ == "__main__":

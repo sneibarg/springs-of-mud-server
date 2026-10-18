@@ -428,7 +428,7 @@ class Fight:
             victim = PlayerUtil.get_target(character, argument, room) if argument else getattr(character, "fighting", None)
             if victim is None:
                 return None, "", "no_target"
-            safe, safe_msg = self.fight_handler.is_safe(character, victim, room=room)
+            safe, safe_msg = self.fight_handler.is_safe(character, victim, room=room, ignore_target_fighting=True)
             if safe and victim is not character:
                 return None, "", "target_safe"
             return victim, "char", ""
