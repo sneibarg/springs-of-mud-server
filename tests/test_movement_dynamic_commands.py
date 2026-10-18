@@ -78,21 +78,41 @@ class _CharacterMacros:
     @staticmethod
     def get_enum(_name: str):
         if _name == "exitFlags":
-            return SimpleNamespace(
+            return _enum_like(
                 EX_CLOSED=SimpleNamespace(value=1),
                 EX_NOPASS=SimpleNamespace(value=2),
                 EX_LOCKED=SimpleNamespace(value=4),
                 EX_PICKPROOF=SimpleNamespace(value=8),
             )
         if _name == "roomFlags":
-            return SimpleNamespace(ROOM_NO_RECALL=SimpleNamespace(value=1))
+            return _enum_like(ROOM_NO_RECALL=SimpleNamespace(value=1))
         if _name == "containerState":
-            return SimpleNamespace(
+            return _enum_like(
                 CONT_CLOSEABLE=SimpleNamespace(value=1),
                 CONT_CLOSED=SimpleNamespace(value=4),
                 CONT_LOCKED=SimpleNamespace(value=8),
             )
-        return SimpleNamespace()
+        if _name == "affectedBy":
+            return _enum_like(AFF_CHARM=SimpleNamespace(value=262144))
+        if _name == "sectorTypes":
+            return _enum_like()
+        return _enum_like()
+
+    @staticmethod
+    def skill_value_for_class(values: dict, class_name: str, default: int = 0) -> int:
+        class_name = str(class_name or "").strip().lower()
+        for key, value in dict(values or {}).items():
+            if str(key).strip().lower() == class_name:
+                return int(value)
+        return default
+
+    @staticmethod
+    def can_see(_character, _target, _room) -> bool:
+        return True
+
+    @staticmethod
+    def is_set(flags, bit) -> bool:
+        return (int(flags or 0) & int(bit or 0)) != 0
 
     @staticmethod
     def is_affected_by_name(character, _bits, name: str) -> bool:
@@ -146,6 +166,14 @@ class _CharacterMacros:
     def is_flying(cls, character) -> bool:
         return cls.position_value(character) == cls.pos_value("POS_FLYING")
 
+    @classmethod
+    def set_position(cls, character, pos_name: str):
+        value = cls.pos_value(pos_name)
+        attrs = getattr(character, "character_attributes", None)
+        if attrs is not None:
+            attrs.position = value
+        character.position = value
+
 
 class _MovementUtil:
     DIR_NAME = ["north", "east", "south", "west", "up", "down"]
@@ -162,6 +190,17 @@ class _MovementUtil:
     @staticmethod
     def sector_cost(_sector_type) -> int:
         return 1
+
+
+class _EnumLike(SimpleNamespace):
+    def __getitem__(self, name):
+        return self.__members__[name]
+
+
+def _enum_like(**members):
+    enum_obj = _EnumLike(**members)
+    enum_obj.__members__ = members
+    return enum_obj
 
 
 class _Context(SimpleNamespace):
@@ -191,8 +230,9 @@ _stub_module("game.RegistryService", RegistryService=object)
 _load_module("game.GamePayload", "game/GamePayload.py")
 _stub_package("area")
 _stub_module("area.Room", Room=object)
-_stub_package("fight")
-_stub_module("fight.FightHandler", FightHandler=object)
+_stub_package("combat")
+_stub_module("combat.FightHandler", FightHandler=object)
+_stub_module("combat.CombatHandler", FightHandler=object)
 _stub_package("player")
 _stub_module("player.Character", Character=object)
 _stub_module("player.CharacterApi", CharacterMacros=_CharacterMacros)
@@ -265,13 +305,34 @@ class _Room(SimpleNamespace):
         return None
 
     def player_targets(self, _character):
-        return []
+        return [character for character in getattr(self, "characters", {}).values() if character != _character]
 
     def remove_player_from_room(self, character):
+        if not hasattr(self, "characters"):
+            self.characters = {}
+        self.characters.pop(character.id, None)
         self.removed = character.id
 
     def add_player_to_room(self, character):
+        if not hasattr(self, "characters"):
+            self.characters = {}
+        self.characters[character.id] = character
         self.added = character.id
+
+    def remove_mobile_from_room(self, mobile):
+        if not hasattr(self, "mobiles"):
+            self.mobiles = {}
+        self.mobiles.pop(mobile.id, None)
+        self.removed = mobile.id
+
+    def add_mobile_to_room(self, mobile):
+        if not hasattr(self, "mobiles"):
+            self.mobiles = {}
+        self.mobiles[mobile.id] = mobile
+        self.added = mobile.id
+
+    def people(self):
+        return list(getattr(self, "characters", {}).values()) + list(getattr(self, "mobiles", {}).values())
 
     def is_private(self, _room_flags):
         return bool(getattr(self, "private_room", False))
@@ -284,8 +345,13 @@ class _Room(SimpleNamespace):
 
 
 class TestMovementDynamicCommands(unittest.TestCase):
-    def _commands(self):
-        registry_service = SimpleNamespace(room_registry=SimpleNamespace(get_or_none=lambda **_kwargs: None))
+    def _commands(self, *, group_registry=None, skill_registry=None, spell_registry=None):
+        registry_service = SimpleNamespace(
+            room_registry=SimpleNamespace(get_or_none=lambda **_kwargs: None),
+            group_registry=group_registry or SimpleNamespace(all_groups=lambda: []),
+            skill_registry=skill_registry or SimpleNamespace(all_skills=lambda: []),
+            spell_registry=spell_registry or SimpleNamespace(all_spells=lambda: []),
+        )
         commands = Movement(
             registry_service=registry_service,
             game_data=SimpleNamespace(),
@@ -296,7 +362,15 @@ class TestMovementDynamicCommands(unittest.TestCase):
         commands.exit_flags = _CharacterMacros.get_enum("exitFlags")
         commands.room_flags = _CharacterMacros.get_enum("roomFlags")
         commands.affected_bits = SimpleNamespace()
-        commands.act_bits = SimpleNamespace()
+        commands.item_types = SimpleNamespace(ITEM_PORTAL=SimpleNamespace(value=29))
+        commands.gate_flags = SimpleNamespace(
+            GATE_NORMAL_EXIT=SimpleNamespace(value=1),
+            GATE_NOCURSE=SimpleNamespace(value=2),
+            GATE_GOWITH=SimpleNamespace(value=4),
+            GATE_BUGGY=SimpleNamespace(value=8),
+            GATE_RANDOM=SimpleNamespace(value=16),
+        )
+        commands.act_bits = SimpleNamespace(ACT_GAIN=SimpleNamespace(value=1), ACT_AGGRESSIVE=SimpleNamespace(value=2))
         commands.sector_types = SimpleNamespace()
         return commands, registry_service.room_registry
 
@@ -305,6 +379,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
         room_registry.get_or_none = lambda **kwargs: None if "id" in kwargs else None
         character = SimpleNamespace(
             id="char-1",
+            name="Tester",
             room_id="room-1",
             movement=10,
             character_attributes=SimpleNamespace(position="POS_STANDING"),
@@ -340,6 +415,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
         room_registry.get_or_none = _get_or_none
         character = SimpleNamespace(
             id="char-1",
+            name="Tester",
             room_id="room-1",
             movement=10,
             character_attributes=SimpleNamespace(position="POS_STANDING"),
@@ -401,6 +477,63 @@ class TestMovementDynamicCommands(unittest.TestCase):
         self.assertEqual("Tester leaves north.", context.command.render_message("to_room", payload["payloads"][0]["message_key"], **payload["payloads"][0]["tokens"]))
         self.assertEqual("Tester has arrived.", context.command.render_message("to_room", payload["payloads"][1]["message_key"], **payload["payloads"][1]["tokens"]))
         self.assertIs(destination, payload["payloads"][1]["to_room_obj"])
+
+    def test_direction_success_moves_standing_followers_with_master(self):
+        commands, room_registry = self._commands()
+        current_room = _Room(id="room-1", exits={0: _Exit(to_room_vnum="200", to_room_id="room-2", exit_flags=0, keyword="door")}, sector_type="field", characters={})
+        destination = _Room(id="room-2", exits={}, sector_type="field", characters={})
+
+        def _get_or_none(**kwargs):
+            if kwargs.get("id") == "room-1":
+                return current_room
+            if kwargs.get("vnum") == "200":
+                return destination
+            return None
+
+        room_registry.get_or_none = _get_or_none
+        leader = SimpleNamespace(
+            id="leader",
+            name="Leader",
+            room_id="room-1",
+            movement=5,
+            character_attributes=SimpleNamespace(position="POS_STANDING"),
+            status_flags=SimpleNamespace(invis_level=0),
+            effects={},
+            has_boat=lambda: False,
+        )
+        follower = SimpleNamespace(
+            id="follower",
+            name="Follower",
+            room_id="room-1",
+            movement=5,
+            master=leader,
+            character_attributes=SimpleNamespace(position="POS_STANDING"),
+            status_flags=SimpleNamespace(invis_level=0),
+            effects={},
+            has_boat=lambda: False,
+        )
+        current_room.characters = {leader.id: leader, follower.id: follower}
+        context = _Context(
+            character=leader,
+            command=_load_command("north"),
+            done=False,
+            room=current_room,
+            player_handler=lambda: SimpleNamespace(room_registry=room_registry),
+        )
+
+        payload = commands.do_north(leader, context)
+
+        self.assertEqual("room-2", leader.room_id)
+        self.assertEqual("room-2", follower.room_id)
+        self.assertNotIn("leader", current_room.characters)
+        self.assertNotIn("follower", current_room.characters)
+        self.assertIn("leader", destination.characters)
+        self.assertIn("follower", destination.characters)
+        self.assertEqual("Follower leaves north.", context.command.render_message("to_room", payload["payloads"][2]["message_key"], **payload["payloads"][2]["tokens"]))
+        self.assertEqual(
+            [{"id": "follower", "text": "You follow Leader.\r\n"}],
+            payload["payloads"][-1]["target_messages"],
+        )
 
     def test_open_invalid_door_uses_guard_payload(self):
         commands, room_registry = self._commands()
@@ -481,6 +614,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
             value1="1",
             value2="-1",
         )
+        chest.short = lambda: "a wooden chest"
         character = SimpleNamespace(
             id="char-1",
             name="Tester",
@@ -521,6 +655,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
             value1="5",
             value2="123",
         )
+        chest.short = lambda: "an iron chest"
         character = SimpleNamespace(
             id="char-1",
             name="Tester",
@@ -549,6 +684,128 @@ class TestMovementDynamicCommands(unittest.TestCase):
         self.assertEqual("You lock an iron chest.", context.command.render_message("to_char", payload["message_key"], **payload["tokens"]))
         self.assertEqual("%c locks %t.".replace("%c", "Tester").replace("%t", "an iron chest"), context.command.render_message("to_room", payload["message_key"], **payload["tokens"]))
         self.assertEqual("13", chest.value1)
+
+    def test_enter_gain_and_go_metadata_route_to_movement_handler(self):
+        with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:
+            commands = {entry.get("name"): entry for entry in json.load(handle)}
+
+        self.assertEqual(["lambda ctx: ctx.player_handler().do_enter(ctx.character, ctx)"], commands["enter"]["lambdas"])
+        self.assertEqual(["lambda ctx: ctx.player_handler().do_gain(ctx.character, ctx)"], commands["gain"]["lambdas"])
+        self.assertEqual(["lambda ctx: ctx.player_handler().do_go(ctx.character, ctx)"], commands["go"]["lambdas"])
+
+    def test_enter_portal_moves_character_to_destination(self):
+        commands, room_registry = self._commands()
+        portal = SimpleNamespace(
+            id="portal-1",
+            name="portal shimmering",
+            short_description="a shimmering portal",
+            item_type="ITEM_PORTAL",
+            value0="0",
+            value1="0",
+            value2="1",
+            value3="200",
+        )
+        current_room = _Room(id="room-1", vnum="100", exits={}, sector_type="field", contents={portal.id: portal}, characters={})
+        destination = _Room(id="room-2", vnum="200", exits={}, sector_type="field", contents={}, characters={})
+
+        def _get_or_none(**kwargs):
+            if kwargs.get("id") == "room-1":
+                return current_room
+            if kwargs.get("id") == "room-2" or kwargs.get("vnum") == "200":
+                return destination
+            return None
+
+        room_registry.get_or_none = _get_or_none
+        character = SimpleNamespace(
+            id="char-1",
+            name="Tester",
+            room_id="room-1",
+            movement=5,
+            character_attributes=SimpleNamespace(position="POS_STANDING"),
+            status_flags=SimpleNamespace(invis_level=0),
+            effects={},
+            is_npc=False,
+            has_boat=lambda: False,
+        )
+        current_room.characters = {character.id: character}
+        context = _Context(
+            character=character,
+            command=_load_command("enter"),
+            result="portal",
+            parameters=[],
+            done=False,
+            room=current_room,
+            player_handler=lambda: SimpleNamespace(room_registry=room_registry),
+        )
+
+        payload = commands.do_enter(character, context)
+
+        self.assertEqual("room-2", character.room_id)
+        self.assertNotIn(character.id, current_room.characters)
+        self.assertIn(character.id, destination.characters)
+        self.assertEqual("steps_into", payload["payloads"][0]["message_key"])
+        self.assertEqual("enter", payload["payloads"][1]["message_key"])
+        self.assertEqual("arrived", payload["payloads"][2]["message_key"])
+        self.assertEqual("You enter a shimmering portal.", context.command.render_message("to_char", "enter", **payload["payloads"][1]["tokens"]))
+        self.assertIs(destination, payload["payloads"][2]["to_room_obj"])
+
+    def test_gain_convert_turns_ten_practices_into_one_train(self):
+        commands, room_registry = self._commands()
+        trainer = SimpleNamespace(id="trainer", name="Trainer", short_description="A gain trainer", mobile_flags=SimpleNamespace(act=1))
+        room = _Room(id="room-1", exits={}, sector_type="field", mobiles={trainer.id: trainer})
+        room_registry.get_or_none = lambda **kwargs: room if kwargs.get("id") == "room-1" else None
+        attrs = SimpleNamespace(position="POS_STANDING", practices=10, trains=0, points=40)
+        character = SimpleNamespace(
+            id="char-1",
+            name="Tester",
+            room_id="room-1",
+            character_attributes=attrs,
+            character_class=SimpleNamespace(name="thief"),
+            skills=[],
+            spells=[],
+            is_npc=False,
+        )
+        context = _Context(character=character, command=_load_command("gain"), result="convert", parameters=[], done=False, room=room)
+
+        payload = commands.do_gain(character, context)
+
+        self.assertEqual(0, attrs.practices)
+        self.assertEqual(1, attrs.trains)
+        self.assertEqual("helps_apply_practice_training", payload["message_key"])
+        self.assertEqual(
+            "A gain trainer helps you apply your practice to training",
+            context.command.render_message("to_char", payload["message_key"], **payload["tokens"]),
+        )
+
+    def test_gain_skill_purchase_spends_trains_and_adds_skill(self):
+        skill = SimpleNamespace(name="dagger", kind="skill", rating_by_class={"thief": 2})
+        skill_registry = SimpleNamespace(all_skills=lambda: [skill])
+        commands, room_registry = self._commands(skill_registry=skill_registry)
+        trainer = SimpleNamespace(id="trainer", name="Trainer", short_description="A gain trainer", mobile_flags=SimpleNamespace(act=1))
+        room = _Room(id="room-1", exits={}, sector_type="field", mobiles={trainer.id: trainer})
+        room_registry.get_or_none = lambda **kwargs: room if kwargs.get("id") == "room-1" else None
+        attrs = SimpleNamespace(position="POS_STANDING", practices=0, trains=2, points=40)
+        character = SimpleNamespace(
+            id="char-1",
+            name="Tester",
+            room_id="room-1",
+            character_attributes=attrs,
+            character_class=SimpleNamespace(name="thief"),
+            skills=[],
+            spells=[],
+            is_npc=False,
+        )
+        context = _Context(character=character, command=_load_command("gain"), result="dagger", parameters=[], done=False, room=room)
+
+        payload = commands.do_gain(character, context)
+
+        self.assertEqual(0, attrs.trains)
+        self.assertEqual([{"name": "dagger", "level": 1}], character.skills)
+        self.assertEqual("trains_art2", payload["message_key"])
+        self.assertEqual(
+            "A gain trainer trains you in the art of dagger",
+            context.command.render_message("to_char", payload["message_key"], **payload["tokens"]),
+        )
 
 
 if __name__ == "__main__":

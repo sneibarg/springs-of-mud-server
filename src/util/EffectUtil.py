@@ -224,23 +224,88 @@ class EffectUtil:
     @staticmethod
     def format_affects(character: Character) -> str:
         AffectedBits = CharacterApi.get_enum("affectedBy")
+        ApplyTypes = CharacterApi.get_enum("applyTypes")
         raw = GenericUtil.to_int(getattr(character.status_flags, "affected_by", 0), 0)
+        show_details = GenericUtil.to_int(getattr(character, "level", 0), 0) >= 20
         lines = []
-        seen = set()
-        for name, member in AffectedBits.__members__.items():
-            if CharacterApi.is_set(raw, member.value):
-                pretty = name.replace("AFF_", "").replace("_", " ").lower()
-                seen.add(pretty)
-                lines.append(f"Spell: {pretty}\r\n")
+        seen_bits = set()
+        listed_names = set()
+        last_effect_type = None
+
         for effect in list(getattr(character, "effects", []) or []):
             effect_type = str(getattr(effect, "type", "") or "").strip()
             if not effect_type or effect_type.lstrip("-").isdigit():
                 continue
             pretty = effect_type.removeprefix("spell.").removeprefix("skill.").replace("_", " ").lower()
-            if pretty in seen:
+            listed_names.add(pretty)
+            bit = EffectUtil.enum_value(AffectedBits, getattr(effect, "bitvector", 0), 0)
+            if bit != 0:
+                seen_bits.add(bit)
+
+            same_as_last = effect_type.lower() == last_effect_type
+            if same_as_last and not show_details:
                 continue
-            seen.add(pretty)
+
+            prefix = " " * 22 if same_as_last else f"Spell: {pretty:<15}"
+            if show_details:
+                location = EffectUtil._affect_location_name(getattr(effect, "location", 0), ApplyTypes)
+                modifier = GenericUtil.to_int(getattr(effect, "modifier", 0), 0)
+                duration = GenericUtil.to_int(getattr(effect, "duration", 0), 0)
+                duration_text = "permanently" if duration == -1 else f"for {duration} hours"
+                lines.append(f"{prefix}: modifies {location} by {modifier} {duration_text}\r\n")
+            else:
+                lines.append(f"Spell: {pretty}\r\n")
+            last_effect_type = effect_type.lower()
+
+        for name, member in AffectedBits.__members__.items():
+            if not CharacterApi.is_set(raw, member.value) or int(member.value) in seen_bits:
+                continue
+            pretty = name.replace("AFF_", "").replace("_", " ").lower()
+            if pretty in listed_names:
+                continue
             lines.append(f"Spell: {pretty}\r\n")
+
         if not lines:
             return "You are not affected by any spells.\r\n"
         return "You are affected by the following spells:\r\n" + "".join(lines)
+
+    @staticmethod
+    def _affect_location_name(location, apply_types) -> str:
+        rom_names = {
+            "APPLY_NONE": "none",
+            "APPLY_STR": "strength",
+            "APPLY_DEX": "dexterity",
+            "APPLY_INT": "intelligence",
+            "APPLY_WIS": "wisdom",
+            "APPLY_CON": "constitution",
+            "APPLY_SEX": "sex",
+            "APPLY_CLASS": "class",
+            "APPLY_LEVEL": "level",
+            "APPLY_AGE": "age",
+            "APPLY_MANA": "mana",
+            "APPLY_HIT": "hp",
+            "APPLY_MOVE": "moves",
+            "APPLY_GOLD": "gold",
+            "APPLY_EXP": "experience",
+            "APPLY_AC": "armor class",
+            "APPLY_HITROLL": "hit roll",
+            "APPLY_DAMROLL": "damage roll",
+            "APPLY_SAVES": "saves",
+            "APPLY_SAVING_ROD": "save vs rod",
+            "APPLY_SAVING_PETRI": "save vs petrification",
+            "APPLY_SAVING_BREATH": "save vs breath",
+            "APPLY_SAVING_SPELL": "save vs spell",
+            "APPLY_SPELL_AFFECT": "none",
+        }
+
+        key = str(location or "").strip().upper()
+        if key in rom_names:
+            return rom_names[key]
+
+        value = GenericUtil.to_int(location, None)
+        if value is not None:
+            for name in rom_names:
+                if apply_types is not None and name in apply_types.__members__ and int(apply_types[name].value) == value:
+                    return rom_names[name]
+
+        return "(unknown)"

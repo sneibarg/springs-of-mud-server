@@ -19,6 +19,8 @@ from item.ItemRegistry import ItemRegistry
 from player.CharacterRegistry import CharacterRegistry
 from server.messaging import MessageBus
 from server.LoggerFactory import LoggerFactory
+from api.CharacterApi import CharacterApi
+from api.ItemApi import ItemApi
 
 rng = RandomNumberGenerator()
 
@@ -46,6 +48,8 @@ class AreaHandler:
         self.WellKnownRoomVnums = enum_provider.get("wellKnownRoomVnums")
         self.ExitFlags = enum_provider.get("exitFlags")
         self.ItemFlags = enum_provider.get("itemFlags")
+        self.RoomFlags = enum_provider.get("roomFlags")
+        self.ActBits = enum_provider.get("actBits")
 
     def area_update(self):
         for area in self.area_registry.all_areas():
@@ -129,6 +133,7 @@ class AreaHandler:
             return last, None
         template_mob.room_id = room.id
         mob = MobileUtil.create_mobile(template_mob, self.enum_provider)
+        self._mark_pet_shop_stock_mob(mob, room)
         for special in getattr(template_mob, "specials", []) or []:
             if str(getattr(special, "mob_vnum", "") or "") == str(mob.vnum):
                 mob.special_name = str(getattr(special, "name", "") or "")
@@ -137,6 +142,34 @@ class AreaHandler:
         room.add_mobile_to_room(mob)
         self._register_live_character(mob)
         return True, mob
+
+    def _mark_pet_shop_stock_mob(self, mob: Mobile, room) -> None:
+        if mob is None or room is None:
+            return
+        if not self._is_pet_shop_stock_room(room):
+            return
+        pet_bit = CharacterApi.enum_bit(self.ActBits, "ACT_PET")
+        if pet_bit:
+            mob.status_flags.set_flag("act", pet_bit)
+
+    def _is_pet_shop_stock_room(self, room) -> bool:
+        room_vnum = GenericUtil.to_int(getattr(room, "vnum", 0), 0)
+        if room_vnum <= 0:
+            return False
+
+        previous_room = self.room_registry.get_or_none(vnum=str(room_vnum - 1))
+        if self._is_pet_shop_room(previous_room):
+            return True
+
+        # ROM's buy/list commands hardcode New Thalos room 9621 to use stock room 9706.
+        if room_vnum == 9706:
+            return self._is_pet_shop_room(self.room_registry.get_or_none(vnum="9621"))
+        return False
+
+    def _is_pet_shop_room(self, room) -> bool:
+        if room is None:
+            return False
+        return ItemApi.is_set(GenericUtil.to_int(getattr(room, "room_flags", 0), 0), self.RoomFlags.ROOM_PET_SHOP.value)
 
     def _register_live_character(self, character) -> None:
         if character is None:

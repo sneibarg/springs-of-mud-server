@@ -1941,6 +1941,64 @@
         "type": "ITEM_JUKEBOX"
       }
     },
+    "weapons": {
+      "sword": {
+        "name": "sword",
+        "vnum": "OBJ_VNUM_SCHOOL_SWORD",
+        "type": "WEAPON_SWORD",
+        "gsn": "gsn_sword",
+        "skill": "sword"
+      },
+      "mace": {
+        "name": "mace",
+        "vnum": "OBJ_VNUM_SCHOOL_MACE",
+        "type": "WEAPON_MACE",
+        "gsn": "gsn_mace",
+        "skill": "mace"
+      },
+      "dagger": {
+        "name": "dagger",
+        "vnum": "OBJ_VNUM_SCHOOL_DAGGER",
+        "type": "WEAPON_DAGGER",
+        "gsn": "gsn_dagger",
+        "skill": "dagger"
+      },
+      "axe": {
+        "name": "axe",
+        "vnum": "OBJ_VNUM_SCHOOL_AXE",
+        "type": "WEAPON_AXE",
+        "gsn": "gsn_axe",
+        "skill": "axe"
+      },
+      "staff": {
+        "name": "staff",
+        "vnum": "OBJ_VNUM_SCHOOL_STAFF",
+        "type": "WEAPON_SPEAR",
+        "gsn": "gsn_spear",
+        "skill": "spear"
+      },
+      "flail": {
+        "name": "flail",
+        "vnum": "OBJ_VNUM_SCHOOL_FLAIL",
+        "type": "WEAPON_FLAIL",
+        "gsn": "gsn_flail",
+        "skill": "flail"
+      },
+      "whip": {
+        "name": "whip",
+        "vnum": "OBJ_VNUM_SCHOOL_WHIP",
+        "type": "WEAPON_WHIP",
+        "gsn": "gsn_whip",
+        "skill": "whip"
+      },
+      "polearm": {
+        "name": "polearm",
+        "vnum": "OBJ_VNUM_SCHOOL_POLEARM",
+        "type": "WEAPON_POLEARM",
+        "gsn": "gsn_polearm",
+        "skill": "polearm"
+      }
+    },
     "attacks": {
       "none": {
         "message": "hit",
@@ -2505,8 +2563,10 @@
       "contentHash": "sha256:REPLACE_WITH_HASH_OF_CANONICAL_JSON",
       "build": {
         "source": "ruleset-compiler",
-        "toolVersion": "1.0.0"
+        "toolVersion": "1.0.0",
+        "extra": {}
       }
-    }
+    },
+    "denyList": []
   }
 ]

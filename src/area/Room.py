@@ -217,8 +217,8 @@ class Room:
         return self.find_visible_mobile(observer, query)
 
     def is_private(self, room_flags) -> bool:
-        private = GenericUtil.to_int(room_flags.ROOM_PRIVATE.value, 0)
-        solitary = GenericUtil.to_int(room_flags.ROOM_SOLITARY.value, 0)
+        private = room_flags.ROOM_PRIVATE.value
+        solitary = room_flags.ROOM_SOLITARY.value
         flags = GenericUtil.to_int(self.room_flags, 0)
         if private and (flags & private) and len(self.characters) >= 2:
             return True

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Collection Modify"
+  short_description: "Safely rewrite SOMDB collection JSON"
+  default_prompt: "Use $collection-modify to safely edit a SOMDB collection document with validation."

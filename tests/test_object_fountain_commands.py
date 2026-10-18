@@ -29,7 +29,7 @@ def _stub_module(name: str, **attrs):
     return module
 
 
-for package_name in ("api", "area", "fight", "game", "interp", "item", "player", "server", "skill", "util"):
+for package_name in ("api", "area", "combat", "game", "interp", "item", "player", "server", "skill", "util"):
     _stub_package(package_name)
 _stub_package("interp.commands")
 
@@ -273,7 +273,7 @@ _stub_module("api.InterpApi", InterpApi=_InterpApi)
 _stub_module("api.SpellApi", SpellApi=_SpellApi)
 _stub_module("player.Character", Character=object)
 _stub_module("api.CharacterApi", CharacterApi=_CharacterApi)
-_stub_module("fight.FightHandler", FightHandler=object)
+_stub_module("combat.FightHandler", FightHandler=object)
 _stub_module("skill.SpellContext", SpellContext=object)
 
 

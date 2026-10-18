@@ -49,10 +49,20 @@ class WizHandler:
         self.session_handler = session_handler
         self.connection_manager = connection_manager
         self.log_all = False
+        self.wizlocked = False
+        self.newlocked = False
 
     def toggle_log_all(self) -> bool:
         self.log_all = not self.log_all
         return self.log_all
+
+    def toggle_wizlock(self) -> bool:
+        self.wizlocked = not self.wizlocked
+        return self.wizlocked
+
+    def toggle_newlock(self) -> bool:
+        self.newlocked = not self.newlocked
+        return self.newlocked
 
     def current_session(self, character):
         if character is None:

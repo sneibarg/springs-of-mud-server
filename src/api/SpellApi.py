@@ -11,6 +11,7 @@ from api.InterpApi import InterpApi
 from api.GameApi import GameApi
 from item.EffectHandler import EffectHandler
 from item.Item import Item
+from util.DisplayUtil import DisplayUtil
 from util.GenericUtil import GenericUtil
 from util.FightUtil import FightUtil
 from item.Effect import Effect
@@ -322,10 +323,7 @@ class SpellApi:
 
     @staticmethod
     def _display_effect_message(message) -> str:
-        text = str(message or "").strip()
-        if len(text) >= 2 and text.startswith("!") and text.endswith("!"):
-            return ""
-        return text
+        return DisplayUtil.display_effect_message(message)
 
     def damage_expr(
         self,
@@ -1057,11 +1055,7 @@ class SpellApi:
 
     @staticmethod
     def _entity_name(entity) -> str:
-        if entity is None:
-            return "someone"
-        if CharacterApi.is_npc(entity):
-            return str(getattr(entity, "short_description", "") or getattr(entity, "name", "someone"))
-        return str(getattr(entity, "name", "someone"))
+        return DisplayUtil.entity_name(entity, is_npc=CharacterApi.is_npc)
 
     @staticmethod
     def _alignment(entity) -> int:

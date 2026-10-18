@@ -1406,21 +1406,46 @@
       "toChar": {
         "targetMissing": "They aren't here.",
         "isFollower": "But you are following someone else!",
-        "isCharmed": "You like your master too much to leave %m",
-        "targetIsNotFOllower": "%t isn't following you.",
+        "targetIsNotFollower": "%t isn't following you.",
         "cannotRemoveCharmed": "You can't remove charmed mobs from your group.",
         "removal": "You remove %t from your group.",
         "addition": "%t joins your group."
       },
       "toRoom": {
-        "removal": "%m removes %t from their group.",
-        "addition": "%t joins %m's group."
+        "removal": "%c removes %t from {s_poss} group.",
+        "addition": "%t joins %c's group."
       },
       "toVictim": {
-        "removal": "%m removes you from the group.",
-        "addition": "You join %m's group."
+        "actorCharmed": "You like your master too much to leave {m_pronoun}!",
+        "removal": "%c removes you from {s_poss} group.",
+        "addition": "You join %c's group."
       }
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: CommunicationsApi.group_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.group_actor_follows_another(v)",
+        "messageKey": "isFollower"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.group_target_not_follower(v)",
+        "messageKey": "targetIsNotFollower",
+        "tokenFactory": "lambda v: CommunicationsApi.group_target_tokens(v)"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.group_target_charmed(v)",
+        "messageKey": "cannotRemoveCharmed"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.group_actor_charmed(v)",
+        "messageKey": "actorCharmed",
+        "channel": "to_victim",
+        "tokenFactory": "lambda v: CommunicationsApi.group_target_tokens(v)"
+      }
+    ]
   },
   {
     "_id": {
@@ -1454,7 +1479,17 @@
         "addIndependent": "You are now independent.",
         "addClanMember": "You are now a member of clan %g."
       }
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: WizApi.guild_syntax_invalid(v)",
+        "messageKey": "syntax"
+      },
+      {
+        "predicate": "lambda v: WizApi.guild_target_missing(v)",
+        "messageKey": "targetMissing"
+      }
+    ]
   },
   {
     "_id": {
@@ -1526,6 +1561,9 @@
     "name": "clan",
     "shortcuts": "cl, cla",
     "role": "player",
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_communications_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_SLEEPING",
     "level": 0,
@@ -1609,7 +1647,7 @@
       "toChar": {
         "invalidOrder": "That will NOT be done.",
         "noArgument": "Order whom to do what?",
-        "isFollower": "You feel like taking, not giving, orders.",
+        "actorCharmed": "You feel like taking, not giving, orders.",
         "targetMissing": "They aren't here.",
         "targetSelf": "Aye aye, right away!",
         "targetNotSubmissive": "Do it yourself!",
@@ -1618,9 +1656,36 @@
       },
       "toRoom": {},
       "toVictim": {
-        "default": "%c orders you to '%s'"
+        "ordered": "%c orders you to '%s'."
       }
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: CommunicationsApi.order_delete(v)",
+        "messageKey": "invalidOrder"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.order_missing_argument(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.order_actor_charmed(v)",
+        "messageKey": "actorCharmed"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.order_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.order_target_self(v)",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.order_target_not_submissive(v)",
+        "messageKey": "targetNotSubmissive",
+        "tokenFactory": "lambda v: CommunicationsApi.order_tokens(v)"
+      }
+    ]
   },
   {
     "_id": {
@@ -2035,7 +2100,9 @@
     "name": "areas",
     "shortcuts": "ar, are, area",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_areas(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2089,7 +2156,9 @@
     "name": "changes",
     "shortcuts": "ch, cha, chan, chang",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_note_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2097,7 +2166,32 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "invalidNumber": "Read which number?",
+        "noNotes": "There are no notes for you.",
+        "noIdeas": "There are no ideas for you.",
+        "noPenalties": "There are no penalties for you.",
+        "noNews": "There is no news for you.",
+        "noChanges": "There are no changes for you.",
+        "noteRemoveWhichNumber": "Note remove which number?",
+        "noteDeleteWhichNumber": "Note delete which number?",
+        "ok2": "Ok.",
+        "ok3": "Ok.",
+        "ok4": "Ok.",
+        "ok5": "Ok.",
+        "ok6": "Ok.",
+        "alreadyHaveDifferentNote": "You already have a different note in progress.",
+        "alreadyHaveNote": "You already have a note in progress.",
+        "tooLong": "Note too long.",
+        "nothingToRemove": "No lines left to remove.",
+        "noDraft": "You have no note in progress.",
+        "arenTWorkingThat": "You aren't working on that kind of note.",
+        "missingRecipient": "You need to provide a recipient (name, all, or immortal).",
+        "missingSubject": "You need to provide a subject.",
+        "canTDoThat": "You can't do that.",
+        "haveNoUnread": "You have no unread {s}.",
+        "arenTThatMany": "There aren't that many {s}."
+      },
       "toRoom": {},
       "toVictim": {}
     }
@@ -2108,7 +2202,9 @@
     },
     "name": "commands",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_commands(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2237,7 +2333,9 @@
     "name": "credits",
     "shortcuts": "cr, cre, cred, credi",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_credits(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2306,7 +2404,9 @@
     },
     "name": "idea",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_note_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2315,22 +2415,34 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "indoors": "You can't see the weather indoors.",
-        "unavailable": "The weather is unavailable."
+        "invalidNumber": "Read which number?",
+        "noNotes": "There are no notes for you.",
+        "noIdeas": "There are no ideas for you.",
+        "noPenalties": "There are no penalties for you.",
+        "noNews": "There is no news for you.",
+        "noChanges": "There are no changes for you.",
+        "noteRemoveWhichNumber": "Note remove which number?",
+        "noteDeleteWhichNumber": "Note delete which number?",
+        "ok2": "Ok.",
+        "ok3": "Ok.",
+        "ok4": "Ok.",
+        "ok5": "Ok.",
+        "ok6": "Ok.",
+        "alreadyHaveDifferentNote": "You already have a different note in progress.",
+        "alreadyHaveNote": "You already have a note in progress.",
+        "tooLong": "Note too long.",
+        "nothingToRemove": "No lines left to remove.",
+        "noDraft": "You have no note in progress.",
+        "arenTWorkingThat": "You aren't working on that kind of note.",
+        "missingRecipient": "You need to provide a recipient (name, all, or immortal).",
+        "missingSubject": "You need to provide a subject.",
+        "canTDoThat": "You can't do that.",
+        "haveNoUnread": "You have no unread {s}.",
+        "arenTThatMany": "There aren't that many {s}."
       },
       "toRoom": {},
       "toVictim": {}
-    },
-    "guards": [
-      {
-        "predicate": "lambda v: not v.context.weather_outside",
-        "messageKey": "indoors"
-      },
-      {
-        "predicate": "lambda v: not v.context.weather_available",
-        "messageKey": "unavailable"
-      }
-    ]
+    }
   },
   {
     "_id": {
@@ -2338,7 +2450,9 @@
     },
     "name": "info",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_groups(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_SLEEPING",
     "level": 0,
@@ -2380,7 +2494,9 @@
     },
     "name": "news",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_note_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2388,7 +2504,32 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "invalidNumber": "Read which number?",
+        "noNotes": "There are no notes for you.",
+        "noIdeas": "There are no ideas for you.",
+        "noPenalties": "There are no penalties for you.",
+        "noNews": "There is no news for you.",
+        "noChanges": "There are no changes for you.",
+        "noteRemoveWhichNumber": "Note remove which number?",
+        "noteDeleteWhichNumber": "Note delete which number?",
+        "ok2": "Ok.",
+        "ok3": "Ok.",
+        "ok4": "Ok.",
+        "ok5": "Ok.",
+        "ok6": "Ok.",
+        "alreadyHaveDifferentNote": "You already have a different note in progress.",
+        "alreadyHaveNote": "You already have a note in progress.",
+        "tooLong": "Note too long.",
+        "nothingToRemove": "No lines left to remove.",
+        "noDraft": "You have no note in progress.",
+        "arenTWorkingThat": "You aren't working on that kind of note.",
+        "missingRecipient": "You need to provide a recipient (name, all, or immortal).",
+        "missingSubject": "You need to provide a subject.",
+        "canTDoThat": "You can't do that.",
+        "haveNoUnread": "You have no unread {s}.",
+        "arenTThatMany": "There aren't that many {s}."
+      },
       "toRoom": {},
       "toVictim": {}
     }
@@ -2505,7 +2646,9 @@
     },
     "name": "skills",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_skills(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2513,7 +2656,12 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "argumentsNumericOrAll": "Arguments must be numerical or all.",
+        "levelsRange": "Levels must be between 1 and {max_level}.",
+        "silly": "That would be silly.",
+        "noneFound": "No skills found."
+      },
       "toRoom": {},
       "toVictim": {}
     }
@@ -2569,7 +2717,9 @@
     },
     "name": "spells",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_spells(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2577,7 +2727,12 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "argumentsNumericOrAll": "Arguments must be numerical or all.",
+        "levelsRange": "Levels must be between 1 and {max_level}.",
+        "silly": "That would be silly.",
+        "noneFound": "No spells found."
+      },
       "toRoom": {},
       "toVictim": {}
     }
@@ -2726,7 +2881,9 @@
     },
     "name": "wizlist",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_wizlist(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2766,7 +2923,9 @@
     },
     "name": "alia",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_communications_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2774,7 +2933,9 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "mustEnterFull": "I'm sorry, alias must be entered in full."
+      },
       "toRoom": {},
       "toVictim": {}
     }
@@ -2785,7 +2946,9 @@
     },
     "name": "alias",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_communications_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -2795,19 +2958,38 @@
     "payload": {
       "toChar": {
         "noAliasesDefined": "You have no aliases defined.",
-        "currentAliases": "Your current aliases are: %s",
+        "currentAliases": "Your current aliases are:\n\r%s",
         "reservedWord": "Sorry, that word is reserved.",
         "noSuchAlias": "That alias is not defined.",
         "invalidAlias": "That shall not be done!",
         "aliasLimit": "Sorry, you have reached the alias limit.",
-        "default": "    %s:  %s",
-        "alias": "%s aliases to '%s'.",
-        "reset": "%s is now re-aliased to '%s'.",
-        "set": "%s is now aliased to '%s'."
+        "substitutionTooLong": "Alias substitution too long. Truncated.",
+        "default": "    {alias}:  {replacement}",
+        "alias": "{alias} aliases to '{replacement}'.",
+        "reset": "{alias} is now re-aliased to '{replacement}'.",
+        "set": "{alias} is now aliased to '{replacement}'."
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: AliasApi.reserved_alias_word(v)",
+        "messageKey": "reservedWord"
+      },
+      {
+        "predicate": "lambda v: AliasApi.lookup_missing(v)",
+        "messageKey": "noSuchAlias"
+      },
+      {
+        "predicate": "lambda v: AliasApi.invalid_alias_substitution(v)",
+        "messageKey": "invalidAlias"
+      },
+      {
+        "predicate": "lambda v: AliasApi.alias_limit_reached(v)",
+        "messageKey": "aliasLimit"
+      }
+    ]
   },
   {
     "_id": {
@@ -3146,7 +3328,9 @@
     },
     "name": "outfit",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_RESTING",
     "level": 0,
@@ -3268,7 +3452,9 @@
     },
     "name": "unalias",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_communications_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_DEAD",
     "level": 0,
@@ -3283,7 +3469,17 @@
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: AliasApi.unalias_no_argument(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: AliasApi.unalias_missing(v)",
+        "messageKey": "noSuchAlias"
+      }
+    ]
   },
   {
     "_id": {
@@ -3710,7 +3906,9 @@
     },
     "name": "note",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_note_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_SLEEPING",
     "level": 0,
@@ -3718,7 +3916,32 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "invalidNumber": "Read which number?",
+        "noNotes": "There are no notes for you.",
+        "noIdeas": "There are no ideas for you.",
+        "noPenalties": "There are no penalties for you.",
+        "noNews": "There is no news for you.",
+        "noChanges": "There are no changes for you.",
+        "noteRemoveWhichNumber": "Note remove which number?",
+        "noteDeleteWhichNumber": "Note delete which number?",
+        "ok2": "Ok.",
+        "ok3": "Ok.",
+        "ok4": "Ok.",
+        "ok5": "Ok.",
+        "ok6": "Ok.",
+        "alreadyHaveDifferentNote": "You already have a different note in progress.",
+        "alreadyHaveNote": "You already have a note in progress.",
+        "tooLong": "Note too long.",
+        "nothingToRemove": "No lines left to remove.",
+        "noDraft": "You have no note in progress.",
+        "arenTWorkingThat": "You aren't working on that kind of note.",
+        "missingRecipient": "You need to provide a recipient (name, all, or immortal).",
+        "missingSubject": "You need to provide a subject.",
+        "canTDoThat": "You can't do that.",
+        "haveNoUnread": "You have no unread {s}.",
+        "arenTThatMany": "There aren't that many {s}."
+      },
       "toRoom": {},
       "toVictim": {}
     }
@@ -4252,7 +4475,9 @@
     },
     "name": "envenom",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_RESTING",
     "level": 0,
@@ -4266,9 +4491,9 @@
         "targetSelf": "Are you crazy? You'd poison yourself!",
         "invalidWeapon": "You can only envenom edged weapons.",
         "food": "You treat %t with deadly poison.",
-        "foodFail": "You fail to poison $p.",
-        "enchanted": "You can't seem to envenom $p.",
-        "isEnvenomed": "$p is already envenomed.",
+        "foodFail": "You fail to poison %t.",
+        "enchanted": "You can't seem to envenom %t.",
+        "isEnvenomed": "%t is already envenomed.",
         "weapon": "You coat %t with venom.",
         "weaponFail": "You fail to envenom %t.",
         "targetInvalid": "You can't poison %t."
@@ -4441,7 +4666,9 @@
     },
     "name": "heal",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_RESTING",
     "level": 0,
@@ -4449,12 +4676,35 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "roomMissing": "You can't do that here.",
+        "noHealer": "You can't do that here.",
+        "unknownService": "The healer says 'Type heal for a list of spells.'",
+        "insufficientFunds": "The healer says 'You do not have enough gold for my services.'"
+      },
       "toRoom": {
         "uttersWords": "$n utters the words '$T'."
       },
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: getattr(v.context, 'heal_room', None) is None",
+        "messageKey": "roomMissing"
+      },
+      {
+        "predicate": "lambda v: getattr(v.context, 'heal_healer', None) is None",
+        "messageKey": "noHealer"
+      },
+      {
+        "predicate": "lambda v: bool(getattr(v.context, 'heal_service_key', '')) and getattr(v.context, 'heal_service', None) is None",
+        "messageKey": "unknownService"
+      },
+      {
+        "predicate": "lambda v: bool(getattr(v.context, 'heal_service_key', '')) and getattr(v.context, 'heal_service', None) is not None and ((int(getattr(v.context.character, 'gold', 0) or 0) * 100) + int(getattr(v.context.character, 'silver', 0) or 0)) < int(getattr(v.context, 'heal_cost', 0) or 0)",
+        "messageKey": "insufficientFunds"
+      }
+    ]
   },
   {
     "_id": {
@@ -6040,7 +6290,9 @@
     },
     "name": "enter",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_enter(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "STANDING",
     "level": 0,
@@ -6054,21 +6306,21 @@
         "somethingPreventsFromLeaving": "Something prevents you from leaving...",
         "somethingPreventsFromLeaving2": "Something prevents you from leaving...",
         "nopeCanTDo": "Nope, can't do it.",
-        "doesnTSeemGo": "$p doesn't seem to go anywhere.",
-        "enter": "You enter $p.",
-        "walkThroughFindYourself": "You walk through $p and find yourself somewhere else...",
-        "canTBringInto": "You can't bring $N into the city.",
+        "doesnTSeemGo": "%t doesn't seem to go anywhere.",
+        "enter": "You enter %t.",
+        "walkThroughFindYourself": "You walk through %t and find yourself somewhere else...",
+        "canTBringInto": "You can't bring %s into the city.",
         "arenTAllowedCity": "You aren't allowed in the city.",
-        "follow": "You follow $N.",
-        "fadesOutExistence": "$p fades out of existence.",
-        "fadesOutExistence2": "$p fades out of existence."
+        "follow": "You follow %s.",
+        "fadesOutExistence": "%t fades out of existence.",
+        "fadesOutExistence2": "%t fades out of existence."
       },
       "toRoom": {
-        "stepsInto": "$n steps into $p.",
-        "arrived": "$n has arrived.",
-        "arrivedThrough": "$n has arrived through $p.",
-        "fadesOutExistence": "$p fades out of existence.",
-        "fadesOutExistence2": "$p fades out of existence."
+        "stepsInto": "%c steps into %t.",
+        "arrived": "%c has arrived.",
+        "arrivedThrough": "%c has arrived through %t.",
+        "fadesOutExistence": "%t fades out of existence.",
+        "fadesOutExistence2": "%t fades out of existence."
       },
       "toVictim": {}
     }
@@ -6092,16 +6344,42 @@
       "toChar": {
         "noArgument": "Follow whom?",
         "targetMissing": "They aren't here.",
-        "charmed": "But you'd rather follow %M",
+        "charmed": "But you'd rather follow {M}!",
         "noMaster": "You already follow yourself.",
-        "noFollow": "%v doesn't seem to want any followers.",
-        "default": "You now follow %v."
+        "noFollow": "%t doesn't seem to want any followers.",
+        "stop": "You stop following %t.",
+        "default": "You now follow %t."
       },
       "toRoom": {},
       "toVictim": {
+        "stop": "%c stops following you.",
         "default": "%c now follows you."
       }
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.follow_target(v) is None",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.follow_charmed_with_master(v)",
+        "messageKey": "charmed",
+        "tokenFactory": "lambda v: CommunicationsApi.follow_target_tokens(v)"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.follow_self_without_master(v)",
+        "messageKey": "noMaster"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.follow_target_blocks_followers(v)",
+        "messageKey": "noFollow",
+        "tokenFactory": "lambda v: CommunicationsApi.follow_target_tokens(v)"
+      }
+    ]
   },
   {
     "_id": {
@@ -6109,7 +6387,9 @@
     },
     "name": "gain",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_gain(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "STANDING",
     "level": 0,
@@ -6128,21 +6408,21 @@
         "18s5d": "%-18s %-5d ",
         "18s5s18s5s2": "%-18s %-5s %-18s %-5s %-18s %-5s",
         "18s5d2": "%-18s %-5d ",
-        "tellsNotYetReady": "$N tells you 'You are not yet ready.'",
-        "helpsApplyPracticeTraining": "$N helps you apply your practice to training",
-        "tellsNotYetReady2": "$N tells you 'You are not yet ready.'",
-        "tellsWouldNoPoint": "$N tells you 'There would be no point in that.'",
-        "trainsFeelMoreAt": "$N trains you, and you feel more at ease with your skills.",
-        "tellsAlreadyKnowGroup": "$N tells you 'You already know that group!'",
-        "tellsGroupBeyondPowers": "$N tells you 'That group is beyond your powers.'",
-        "tellsNotYetReady3": "$N tells you 'You are not yet ready for that group.'",
-        "trainsArt": "$N trains you in the art of $t",
-        "tellsMustLearnFull": "$N tells you 'You must learn the full group.'",
-        "tellsAlreadyKnowSkill": "$N tells you 'You already know that skill!'",
-        "tellsSkillBeyondPowers": "$N tells you 'That skill is beyond your powers.'",
-        "tellsNotYetReady4": "$N tells you 'You are not yet ready for that skill.'",
-        "trainsArt2": "$N trains you in the art of $t",
-        "tellsIDoNot": "$N tells you 'I do not understand...'"
+        "tellsNotYetReady": "%t tells you 'You are not yet ready.'",
+        "helpsApplyPracticeTraining": "%t helps you apply your practice to training",
+        "tellsNotYetReady2": "%t tells you 'You are not yet ready.'",
+        "tellsWouldNoPoint": "%t tells you 'There would be no point in that.'",
+        "trainsFeelMoreAt": "%t trains you, and you feel more at ease with your skills.",
+        "tellsAlreadyKnowGroup": "%t tells you 'You already know that group!'",
+        "tellsGroupBeyondPowers": "%t tells you 'That group is beyond your powers.'",
+        "tellsNotYetReady3": "%t tells you 'You are not yet ready for that group.'",
+        "trainsArt": "%t trains you in the art of %s",
+        "tellsMustLearnFull": "%t tells you 'You must learn the full group.'",
+        "tellsAlreadyKnowSkill": "%t tells you 'You already know that skill!'",
+        "tellsSkillBeyondPowers": "%t tells you 'That skill is beyond your powers.'",
+        "tellsNotYetReady4": "%t tells you 'You are not yet ready for that skill.'",
+        "trainsArt2": "%t trains you in the art of %s",
+        "tellsIDoNot": "%t tells you 'I do not understand...'"
       },
       "toRoom": {},
       "toVictim": {}
@@ -6154,7 +6434,9 @@
     },
     "name": "go",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_go(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "STANDING",
     "level": 0,
@@ -6168,21 +6450,21 @@
         "somethingPreventsFromLeaving": "Something prevents you from leaving...",
         "somethingPreventsFromLeaving2": "Something prevents you from leaving...",
         "nopeCanTDo": "Nope, can't do it.",
-        "doesnTSeemGo": "$p doesn't seem to go anywhere.",
-        "enter": "You enter $p.",
-        "walkThroughFindYourself": "You walk through $p and find yourself somewhere else...",
-        "canTBringInto": "You can't bring $N into the city.",
+        "doesnTSeemGo": "%t doesn't seem to go anywhere.",
+        "enter": "You enter %t.",
+        "walkThroughFindYourself": "You walk through %t and find yourself somewhere else...",
+        "canTBringInto": "You can't bring %s into the city.",
         "arenTAllowedCity": "You aren't allowed in the city.",
-        "follow": "You follow $N.",
-        "fadesOutExistence": "$p fades out of existence.",
-        "fadesOutExistence2": "$p fades out of existence."
+        "follow": "You follow %s.",
+        "fadesOutExistence": "%t fades out of existence.",
+        "fadesOutExistence2": "%t fades out of existence."
       },
       "toRoom": {
-        "stepsInto": "$n steps into $p.",
-        "arrived": "$n has arrived.",
-        "arrivedThrough": "$n has arrived through $p.",
-        "fadesOutExistence": "$p fades out of existence.",
-        "fadesOutExistence2": "$p fades out of existence."
+        "stepsInto": "%c steps into %t.",
+        "arrived": "%c has arrived.",
+        "arrivedThrough": "%c has arrived through %t.",
+        "fadesOutExistence": "%t fades out of existence.",
+        "fadesOutExistence2": "%t fades out of existence."
       },
       "toVictim": {}
     }
@@ -6193,7 +6475,9 @@
     },
     "name": "groups",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_groups(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "POS_SLEEPING",
     "level": 0,
@@ -6451,12 +6735,42 @@
         "donTMuchSplit": "You don't have that much to split.",
         "justKeepItAll": "Just keep it all.",
         "donTEvenBother": "Don't even bother, cheapskate.",
-        "splitSilverCoinsShare": "You split %d silver coins. Your share is %d silver.",
-        "splitGoldCoinsShare": "You split %d gold coins. Your share is %d gold."
+        "splitSilverCoinsShare": "You split {amount_silver} silver coins. Your share is {share_silver} silver.",
+        "splitGoldCoinsShare": "You split {amount_gold} gold coins. Your share is {share_gold} gold."
       },
       "toRoom": {},
-      "toVictim": {}
-    }
+      "toVictim": {
+        "splitSilverVictim": "%c splits {amount_silver} silver coins. Your share is {share_silver} silver.",
+        "splitGoldVictim": "%c splits {amount_gold} gold coins. Your share is {share_gold} gold.",
+        "splitBothVictim": "%c splits {amount_silver} silver and {amount_gold} gold coins, giving you {share_silver} silver and {share_gold} gold."
+      }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: CommunicationsApi.split_missing_amount(v)",
+        "messageKey": "splitHowMuch"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.split_negative(v)",
+        "messageKey": "groupWouldnTLike"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.split_zero(v)",
+        "messageKey": "handOutZeroCoins"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.split_insufficient_funds(v)",
+        "messageKey": "donTMuchSplit"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.split_too_few_members(v)",
+        "messageKey": "justKeepItAll"
+      },
+      {
+        "predicate": "lambda v: CommunicationsApi.split_share_zero(v)",
+        "messageKey": "donTEvenBother"
+      }
+    ]
   },
   {
     "_id": {
@@ -6464,7 +6778,9 @@
     },
     "name": "steal",
     "role": "player",
-    "lambdas": [],
+    "lambdas": [
+      "lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"
+    ],
     "enabled": true,
     "position": "STANDING",
     "level": 0,
@@ -6486,7 +6802,7 @@
         "thief": "*** You are now a THIEF!! ***",
         "gold": "Bingo!  You got %d gold coins.",
         "silver": "Bingo!  You got %d silver coins.",
-        "coins": "Bingo!  You got %d silver and %d gold coins.",
+        "coins": "Bingo!  You got %d silver and %g gold coins.",
         "item": "You pocket %t."
       },
       "toRoom": {
@@ -6645,7 +6961,30 @@
         "raise": "**** OOOOHHHHHHHHHH  YYYYEEEESSS ****",
         "newLevel": "You are now level %d."
       }
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: WizApi.advance_syntax_invalid(v)",
+        "messageKey": "syntax"
+      },
+      {
+        "predicate": "lambda v: WizApi.advance_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: WizApi.advance_target_is_npc(v)",
+        "messageKey": "isNPC"
+      },
+      {
+        "predicate": "lambda v: WizApi.advance_level_invalid(v)",
+        "messageKey": "levelInvalid",
+        "tokenFactory": "lambda v: WizApi.max_level_token(v)"
+      },
+      {
+        "predicate": "lambda v: WizApi.advance_trust_limited(v)",
+        "messageKey": "trustLimited"
+      }
+    ]
   },
   {
     "_id": {
@@ -6692,7 +7031,26 @@
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: WizApi.trust_syntax_invalid(v)",
+        "messageKey": "syntax"
+      },
+      {
+        "predicate": "lambda v: WizApi.trust_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: WizApi.trust_level_invalid(v)",
+        "messageKey": "invalidLevel",
+        "tokenFactory": "lambda v: WizApi.max_level_token(v)"
+      },
+      {
+        "predicate": "lambda v: WizApi.trust_limited(v)",
+        "messageKey": "trustLimited"
+      }
+    ]
   },
   {
     "_id": {
@@ -6721,7 +7079,21 @@
         "exit": "%t leaves in a swirling mist.",
         "entry": "%t appears in a swirling mist."
       }
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: WizApi.violate_location(v) is None",
+        "messageKey": "noSuchLocation"
+      },
+      {
+        "predicate": "lambda v: WizApi.violate_not_private(v)",
+        "messageKey": "privateRoom"
+      }
+    ]
   },
   {
     "_id": {
@@ -6747,7 +7119,17 @@
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: WizApi.allow_site_missing(v)",
+        "messageKey": "noSuchBan"
+      }
+    ]
   },
   {
     "_id": {
@@ -6766,15 +7148,42 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "nullList": "No sites banned at this time.",
-        "invalidOption": "Acceptable ban types are all, newbies, and permit.",
-        "noArgument": "You have to ban SOMETHING.",
-        "insufficientLevel": "That ban was set by a higher power.",
+        "noArgument": "Ban whom?",
+        "targetMissing": "They aren't here.",
+        "noNPCs": "Not on NPC's.",
+        "failed": "You failed.",
         "default": "%t has been banned."
       },
       "toRoom": {},
-      "toVictim": {}
-    }
+      "toVictim": {
+        "default": "You have been banned from the server."
+      },
+      "toWiznet": {
+        "default": "%c banned %t."
+      }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: WizApi.ban_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: WizApi.ban_target_is_npc(v)",
+        "messageKey": "noNPCs"
+      },
+      {
+        "predicate": "lambda v: WizApi.ban_target_trust_failed(v)",
+        "messageKey": "failed"
+      },
+      {
+        "predicate": "lambda v: WizApi.ban_target_account_missing(v)",
+        "messageKey": "targetMissing"
+      }
+    ]
   },
   {
     "_id": {
@@ -6795,8 +7204,9 @@
       "toChar": {
         "noArgument": "Deny whom?",
         "targetMissing": "They aren't here.",
-        "noNPCs": "Not on NPCs.",
+        "noNPCs": "Not on NPC's.",
         "failed": "You failed.",
+        "siteDenied": "%s has been denied.",
         "default": "OK."
       },
       "toRoom": {},
@@ -6806,7 +7216,25 @@
       "toWiznet": {
         "default": "%c denied access to %t."
       }
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: WizApi.deny_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: WizApi.deny_target_is_npc(v)",
+        "messageKey": "noNPCs"
+      },
+      {
+        "predicate": "lambda v: WizApi.deny_target_trust_failed(v)",
+        "messageKey": "failed"
+      }
+    ]
   },
   {
     "_id": {
@@ -6833,7 +7261,22 @@
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: WizApi.disconnect_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: WizApi.disconnect_session_missing(v)",
+        "messageKey": "nullDescriptor",
+        "tokenFactory": "lambda v: WizApi.disconnect_target_tokens(v)"
+      }
+    ]
   },
   {
     "_id": {
@@ -6867,7 +7310,60 @@
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: WizApi.flag_kind_missing(v)",
+        "messageKey": "syntax"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_target_arg_missing(v)",
+        "messageKey": "noTarget"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_field_missing(v)",
+        "messageKey": "noFlag"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_changes_missing(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_kind_invalid(v)"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_act_is_pc(v)",
+        "messageKey": "plrIsNPC"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_plr_is_npc(v)",
+        "messageKey": "npcIsPlr"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_form_pc(v)",
+        "messageKey": "noForm"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_parts_pc(v)",
+        "messageKey": "noParts"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_comm_npc(v)",
+        "messageKey": "noComm"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_field_invalid(v)",
+        "messageKey": "invalidFlag"
+      },
+      {
+        "predicate": "lambda v: WizApi.flag_unknown_name(v)",
+        "messageKey": "noSuchFlag"
+      }
+    ]
   },
   {
     "_id": {
@@ -6968,6 +7464,7 @@
       "toChar": {
         "noArgument": "Protect whom from snooping?",
         "targetMissing": "You can't find them.",
+        "set": "%t is now snoop-proof.",
         "remove": "%t is no longer snoop-proof."
       },
       "toRoom": {},
@@ -6975,7 +7472,17 @@
         "remove": "Your snoop-proofing was just removed.",
         "set": "You are now immune to snooping."
       }
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: WizApi.protect_target_missing(v)",
+        "messageKey": "targetMissing"
+      }
+    ]
   },
   {
     "_id": {
@@ -7138,8 +7645,36 @@
         "default": "Ok."
       },
       "toRoom": {},
-      "toVictim": {}
-    }
+      "toVictim": {
+        "forced": "%c forces you to '%s'."
+      }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: WizApi.force_missing_argument(v)",
+        "messageKey": "noArgument"
+      },
+      {
+        "predicate": "lambda v: WizApi.force_delete(v)",
+        "messageKey": "delete"
+      },
+      {
+        "predicate": "lambda v: WizApi.force_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: WizApi.force_target_self(v)",
+        "messageKey": "targetSelf"
+      },
+      {
+        "predicate": "lambda v: WizApi.force_private(v)",
+        "messageKey": "privateRoom"
+      },
+      {
+        "predicate": "lambda v: WizApi.force_target_higher_level(v)",
+        "messageKey": "targetHigherLevel"
+      }
+    ]
   },
   {
     "_id": {
@@ -7458,7 +7993,21 @@
         "removeKiller": "You are no longer a KILLER.",
         "removeThief": "You are no longer a THIEF."
       }
-    }
+    },
+    "guards": [
+      {
+        "predicate": "lambda v: WizApi.pardon_syntax_invalid(v)",
+        "messageKey": "syntax"
+      },
+      {
+        "predicate": "lambda v: WizApi.pardon_target_missing(v)",
+        "messageKey": "targetMissing"
+      },
+      {
+        "predicate": "lambda v: WizApi.pardon_target_is_npc(v)",
+        "messageKey": "noNPCs"
+      }
+    ]
   },
   {
     "_id": {
@@ -7944,7 +8493,7 @@
     "name": "penalty",
     "role": "immortal",
     "lambdas": [
-      "lambda ctx: ctx.player_handler().do_wiz_command(ctx.character, ctx)"
+      "lambda ctx: ctx.player_handler().do_note_command(ctx.character, ctx)"
     ],
     "enabled": true,
     "position": "POS_DEAD",
@@ -7965,6 +8514,7 @@
         "noteDeleteWhichNumber": "Note delete which number?",
         "ok2": "Ok.",
         "alreadyHaveDifferentNote": "You already have a different note in progress.",
+        "alreadyHaveNote": "You already have a note in progress.",
         "tooLong": "Note too long.",
         "ok3": "Ok.",
         "alreadyHaveDifferentNote2": "You already have a different note in progress.",
@@ -8203,6 +8753,9 @@
         "messageKey": "noArgument"
       },
       {
+        "predicate": "lambda v: WizApi.switch_without_session(v)"
+      },
+      {
         "predicate": "lambda v: WizApi.switched(v)",
         "messageKey": "alreadySwitched"
       },
@@ -8211,7 +8764,11 @@
         "messageKey": "targetMissing"
       },
       {
-        "predicate": "lambda v: WizApi.switch_target(v) != v.context.character and not CharacterApi.is_npc(WizApi.switch_target(v))",
+        "predicate": "lambda v: WizApi.switch_self(v)",
+        "messageKey": "default"
+      },
+      {
+        "predicate": "lambda v: WizApi.switch_non_mobile(v)",
         "messageKey": "invalidTarget"
       },
       {

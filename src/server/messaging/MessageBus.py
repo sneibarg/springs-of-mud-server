@@ -53,6 +53,7 @@ class MessageBus:
 
                 await connection.send_message(message)
                 self._record_message_spacing(session, message)
+                await self._mirror_snoop_output(session, message)
                 self.logger.debug(f"Successfully sent message to character {character_id}")
                 return True
             except Exception as e:
@@ -96,6 +97,7 @@ class MessageBus:
                     message.data["text"] = "\r\n" + text.lstrip("\r\n")
                 await connection.send_message(message)
                 self._record_message_spacing(session, message)
+                await self._mirror_snoop_output(session, message)
                 return True
             except Exception as e:
                 self.logger.error(f"Failed to send prompt to character {character.id}: {e}", exc_info=True)
@@ -118,6 +120,41 @@ class MessageBus:
             if session.character:
                 active_players.append(session.character)
         return active_players
+
+    async def mirror_snoop_input(self, session, command_text: str) -> None:
+        if session is None:
+            return
+        await self._send_snoop_text(session, f"% {command_text}\r\n")
+
+    async def _mirror_snoop_output(self, session, message: Message) -> None:
+        if session is None or message.type != MessageType.GAME or not isinstance(message.data, dict):
+            return
+        text = str(message.data.get("text", "") or "")
+        if not text:
+            return
+        character = getattr(session, "character", None)
+        name = "" if character is None else str(getattr(character, "name", "") or "")
+        await self._send_snoop_text(session, f"{name}> {text}")
+
+    async def _send_snoop_text(self, snooped_session, text: str) -> None:
+        snooper_session_id = str((getattr(snooped_session, "metadata", {}) or {}).get("snoop_by_session_id", "") or "")
+        if not snooper_session_id or not text:
+            return
+
+        snooper_session = self.session_handler.get_session(snooper_session_id)
+        if snooper_session is None:
+            return
+
+        connection = self.connection_manager.get_connection(snooper_session_id)
+        if connection is None or connection.is_closed():
+            return
+
+        message = self.text_to_message(text)
+        try:
+            await connection.send_message(message)
+            self._record_message_spacing(snooper_session, message)
+        except Exception as e:
+            self.logger.error(f"Failed to send snoop output to session {snooper_session_id}: {e}", exc_info=True)
 
     @staticmethod
     def _split_into_pages(text: str, max_lines: int) -> list[str]:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from api.CharacterApi import CharacterApi
+from api.GameApi import GameApi
 from player.Character import Character
 from util.AreaUtil import AreaUtil
 from util.GenericUtil import GenericUtil
@@ -68,6 +69,206 @@ class WizApi:
         return level < 2 or level > CharacterApi.get_trust(view.context.character)
 
     @staticmethod
+    def max_level_token(_view) -> dict:
+        return {"d": WizApi.max_level()}
+
+    @staticmethod
+    def max_level() -> int:
+        params = CharacterApi.get_enum("gameParameters")
+        return 60 if params is None or not hasattr(params, "MAX_LEVEL") else GenericUtil.to_int(params.MAX_LEVEL.value, 60)
+
+    @staticmethod
+    def advance_parts(view) -> tuple[str, str]:
+        arg1, rest = InterpUtil.one_argument(InterpUtil.argument_text(view))
+        arg2, _rest = InterpUtil.one_argument(rest)
+        return arg1, arg2
+
+    @staticmethod
+    def advance_syntax_invalid(view) -> bool:
+        arg1, arg2 = WizApi.advance_parts(view)
+        return not arg1 or not arg2 or not str(arg2).lstrip("-").isdigit()
+
+    @staticmethod
+    def advance_target(view):
+        target_name, _level = WizApi.advance_parts(view)
+        return WizUtil.find_world_entity(
+            WizApi.character_registry(view),
+            WizApi.room_registry(view),
+            target_name,
+            include_players=True,
+            include_mobiles=True,
+        )
+
+    @staticmethod
+    def advance_target_missing(view) -> bool:
+        return WizApi.advance_target(view) is None
+
+    @staticmethod
+    def advance_target_is_npc(view) -> bool:
+        target = WizApi.advance_target(view)
+        return target is not None and CharacterApi.is_npc(target)
+
+    @staticmethod
+    def advance_level_invalid(view) -> bool:
+        _target_name, level_text = WizApi.advance_parts(view)
+        level = GenericUtil.to_int(level_text, 0)
+        return level < 1 or level > WizApi.max_level()
+
+    @staticmethod
+    def advance_trust_limited(view) -> bool:
+        _target_name, level_text = WizApi.advance_parts(view)
+        return GenericUtil.to_int(level_text, 0) > CharacterApi.get_trust(view.context.character)
+
+    @staticmethod
+    def flag_parts(view) -> dict:
+        arg1, rest = InterpUtil.one_argument(InterpUtil.argument_text(view))
+        arg2, rest = InterpUtil.one_argument(rest)
+        arg3, rest = InterpUtil.one_argument(rest)
+        rest = str(rest or "").lstrip()
+        op = rest[0] if rest[:1] in ("=", "-", "+") else ""
+        changes = rest
+        if op:
+            _operator, changes = InterpUtil.one_argument(rest)
+        return {
+            "kind": arg1,
+            "target": arg2,
+            "field": arg3,
+            "op": op,
+            "changes": str(changes or "").strip(),
+        }
+
+    @staticmethod
+    def flag_kind_missing(view) -> bool:
+        return not WizApi.flag_parts(view)["kind"]
+
+    @staticmethod
+    def flag_target_arg_missing(view) -> bool:
+        return bool(WizApi.flag_parts(view)["kind"]) and not WizApi.flag_parts(view)["target"]
+
+    @staticmethod
+    def flag_field_missing(view) -> bool:
+        parts = WizApi.flag_parts(view)
+        return bool(parts["target"]) and not parts["field"]
+
+    @staticmethod
+    def flag_changes_missing(view) -> bool:
+        parts = WizApi.flag_parts(view)
+        return bool(parts["field"]) and not parts["changes"]
+
+    @staticmethod
+    def flag_kind_invalid(view) -> bool:
+        kind = WizApi.flag_parts(view)["kind"]
+        return bool(kind) and not (WizApi._is_prefix(kind, "mob") or WizApi._is_prefix(kind, "char"))
+
+    @staticmethod
+    def flag_target(view):
+        target_name = WizApi.flag_parts(view)["target"]
+        return WizUtil.find_world_entity(
+            WizApi.character_registry(view),
+            WizApi.room_registry(view),
+            target_name,
+            include_players=True,
+            include_mobiles=True,
+        )
+
+    @staticmethod
+    def flag_target_missing(view) -> bool:
+        return WizApi.flag_target(view) is None
+
+    @staticmethod
+    def flag_field_code(view) -> str:
+        field = WizApi.flag_parts(view)["field"]
+        if WizApi._is_prefix(field, "act"):
+            return "act"
+        if WizApi._is_prefix(field, "plr"):
+            return "plr"
+        if WizApi._is_prefix(field, "aff"):
+            return "aff"
+        if WizApi._is_prefix(field, "immunity"):
+            return "imm"
+        if WizApi._is_prefix(field, "resist"):
+            return "res"
+        if WizApi._is_prefix(field, "vuln"):
+            return "vuln"
+        if WizApi._is_prefix(field, "form"):
+            return "form"
+        if WizApi._is_prefix(field, "parts"):
+            return "parts"
+        if WizApi._is_prefix(field, "comm"):
+            return "comm"
+        return ""
+
+    @staticmethod
+    def flag_plr_is_npc(view) -> bool:
+        target = WizApi.flag_target(view)
+        return target is not None and WizApi.flag_field_code(view) == "plr" and CharacterApi.is_npc(target)
+
+    @staticmethod
+    def flag_act_is_pc(view) -> bool:
+        target = WizApi.flag_target(view)
+        return target is not None and WizApi.flag_field_code(view) == "act" and not CharacterApi.is_npc(target)
+
+    @staticmethod
+    def flag_form_pc(view) -> bool:
+        target = WizApi.flag_target(view)
+        return target is not None and WizApi.flag_field_code(view) == "form" and not CharacterApi.is_npc(target)
+
+    @staticmethod
+    def flag_parts_pc(view) -> bool:
+        target = WizApi.flag_target(view)
+        return target is not None and WizApi.flag_field_code(view) == "parts" and not CharacterApi.is_npc(target)
+
+    @staticmethod
+    def flag_comm_npc(view) -> bool:
+        target = WizApi.flag_target(view)
+        return target is not None and WizApi.flag_field_code(view) == "comm" and CharacterApi.is_npc(target)
+
+    @staticmethod
+    def flag_field_invalid(view) -> bool:
+        return not WizApi.flag_field_code(view)
+
+    @staticmethod
+    def flag_unknown_name(view) -> bool:
+        field_code = WizApi.flag_field_code(view)
+        if not field_code:
+            return False
+        return any(WizApi.flag_bit(field_code, word) == 0 for word in WizApi.flag_parts(view)["changes"].split())
+
+    @staticmethod
+    def flag_bit(field_code: str, word: str) -> int:
+        aliases = {
+            "act": ("actBits", "ACT_", {"npc": "ACT_IS_NPC", "healer": "ACT_IS_HEALER", "changer": "ACT_IS_CHANGER"}),
+            "plr": ("playerActBits", "PLR_", {"npc": "PLR_IS_NPC", "can_loot": "PLR_CANLOOT"}),
+            "aff": ("affectedBy", "AFF_", {}),
+            "imm": ("mobImmunity", "IMM_", {}),
+            "res": ("mobResistance", "RES_", {}),
+            "vuln": ("mobVulnerability", "VULN_", {}),
+            "form": ("bodyForm", "FORM_", {}),
+            "parts": ("bodyParts", "PART_", {"ear": "PART_EAR", "eye": "PART_EYE"}),
+            "comm": ("commFlags", "COMM_", {"noclangossip": "COMM_NOAUCTION", "shoutsoff": "COMM_SHOUTSOFF"}),
+        }
+        enum_name, prefix, special = aliases.get(field_code, ("", "", {}))
+        enum_obj = CharacterApi.get_enum(enum_name) if enum_name else None
+        query = str(word or "").strip().lower()
+        if not query or enum_obj is None:
+            return 0
+        if query in special:
+            return CharacterApi.enum_bit(enum_obj, special[query])
+        for member_name, member in enum_obj.__members__.items():
+            label = member_name
+            if prefix and label.startswith(prefix):
+                label = label[len(prefix):]
+            label = label.lower()
+            if label == query or label.startswith(query):
+                return int(member.value)
+        return 0
+
+    @staticmethod
+    def _is_prefix(value: str, full: str) -> bool:
+        text = str(value or "").strip().lower()
+        return bool(text) and str(full or "").lower().startswith(text)
+
+    @staticmethod
     def room_private_for_actor(view, room, *, implementor_only: bool = False) -> bool:
         handler = view.context.wiz_handler()
         if handler is None:
@@ -118,6 +319,96 @@ class WizApi:
         )
 
     @staticmethod
+    def first_argument(view) -> str:
+        arg, _rest = InterpUtil.one_argument(InterpUtil.argument_text(view))
+        return arg
+
+    @staticmethod
+    def deny_site_argument(view) -> str:
+        arg = WizApi.first_argument(view)
+        return arg if GameApi.looks_like_site(arg) else ""
+
+    @staticmethod
+    def deny_is_site(view) -> bool:
+        return bool(WizApi.deny_site_argument(view))
+
+    @staticmethod
+    def deny_target(view):
+        if WizApi.deny_is_site(view):
+            return None
+        return WizApi.world_target(view)
+
+    @staticmethod
+    def deny_target_missing(view) -> bool:
+        return (not WizApi.deny_is_site(view)) and WizApi.deny_target(view) is None
+
+    @staticmethod
+    def deny_target_is_npc(view) -> bool:
+        target = WizApi.deny_target(view)
+        return target is not None and CharacterApi.is_npc(target)
+
+    @staticmethod
+    def deny_target_trust_failed(view) -> bool:
+        target = WizApi.deny_target(view)
+        return target is not None and CharacterApi.get_trust(target) >= CharacterApi.get_trust(view.context.character)
+
+    @staticmethod
+    def allow_site_missing(view) -> bool:
+        return not GameApi.has_denied_site(WizApi.first_argument(view))
+
+    @staticmethod
+    def ban_target(view):
+        return WizUtil.find_world_entity(
+            WizApi.character_registry(view),
+            WizApi.room_registry(view),
+            InterpUtil.argument_text(view),
+            include_players=True,
+            include_mobiles=True,
+        )
+
+    @staticmethod
+    def ban_target_missing(view) -> bool:
+        return WizApi.ban_target(view) is None
+
+    @staticmethod
+    def ban_target_is_npc(view) -> bool:
+        target = WizApi.ban_target(view)
+        return target is not None and CharacterApi.is_npc(target)
+
+    @staticmethod
+    def ban_target_trust_failed(view) -> bool:
+        target = WizApi.ban_target(view)
+        return target is not None and CharacterApi.get_trust(target) >= CharacterApi.get_trust(view.context.character)
+
+    @staticmethod
+    def ban_target_account(view):
+        target = WizApi.ban_target(view)
+        if target is None:
+            return None
+        player_handler = view.context.player_handler()
+        registry_service = None if player_handler is None else getattr(player_handler, "registry_service", None)
+        if registry_service is None:
+            return None
+        account_id = str(getattr(target, "account_id", "") or "")
+        return None if not account_id else WizApi._registry_get_or_none(registry_service.player_registry, id=account_id)
+
+    @staticmethod
+    def ban_target_account_missing(view) -> bool:
+        return WizApi.ban_target(view) is not None and (not CharacterApi.is_npc(WizApi.ban_target(view))) and WizApi.ban_target_account(view) is None
+
+    @staticmethod
+    def _registry_get_or_none(registry, **kwargs):
+        if registry is None:
+            return None
+        get_or_none = getattr(registry, "get_or_none", None)
+        if callable(get_or_none):
+            return get_or_none(**kwargs)
+        try:
+            return registry.get(**kwargs)
+        except Exception:
+            return None
+
+    @staticmethod
     def switch_target(view):
         return WizUtil.find_world_entity(
             WizApi.character_registry(view),
@@ -126,6 +417,22 @@ class WizApi:
             include_players=True,
             include_mobiles=True,
         )
+
+    @staticmethod
+    def switch_without_session(view) -> bool:
+        handler = view.context.wiz_handler()
+        if handler is None:
+            return True
+        return handler.current_session(view.context.character) is None
+
+    @staticmethod
+    def switch_self(view) -> bool:
+        return WizApi.switch_target(view) == view.context.character
+
+    @staticmethod
+    def switch_non_mobile(view) -> bool:
+        target = WizApi.switch_target(view)
+        return target is not None and target != view.context.character and not CharacterApi.is_npc(target)
 
     @staticmethod
     def switch_private(view) -> bool:
@@ -203,3 +510,221 @@ class WizApi:
         if session is None:
             return False
         return bool(session.metadata.get("snoop_by_session_id"))
+
+    @staticmethod
+    def guild_parts(view) -> tuple[str, str]:
+        return WizUtil.split_argument(InterpUtil.argument_text(view))
+
+    @staticmethod
+    def guild_syntax_invalid(view) -> bool:
+        target_name, guild_name = WizApi.guild_parts(view)
+        return not target_name or not guild_name
+
+    @staticmethod
+    def guild_target(view):
+        target_name, _guild_name = WizApi.guild_parts(view)
+        return WizUtil.find_world_entity(
+            WizApi.character_registry(view),
+            WizApi.room_registry(view),
+            target_name,
+            include_players=True,
+            include_mobiles=False,
+        )
+
+    @staticmethod
+    def guild_target_missing(view) -> bool:
+        return not WizApi.guild_syntax_invalid(view) and WizApi.guild_target(view) is None
+
+    @staticmethod
+    def trust_parts(view) -> tuple[str, str]:
+        return WizUtil.split_argument(InterpUtil.argument_text(view))
+
+    @staticmethod
+    def trust_syntax_invalid(view) -> bool:
+        target_name, level_text = WizApi.trust_parts(view)
+        return not target_name or not level_text or not str(level_text).lstrip("-").isdigit()
+
+    @staticmethod
+    def trust_target(view):
+        target_name, _level_text = WizApi.trust_parts(view)
+        return WizUtil.find_world_entity(
+            WizApi.character_registry(view),
+            WizApi.room_registry(view),
+            target_name,
+            include_players=True,
+            include_mobiles=False,
+        )
+
+    @staticmethod
+    def trust_target_missing(view) -> bool:
+        return not WizApi.trust_syntax_invalid(view) and WizApi.trust_target(view) is None
+
+    @staticmethod
+    def trust_level_invalid(view) -> bool:
+        if WizApi.trust_syntax_invalid(view):
+            return False
+        _target_name, level_text = WizApi.trust_parts(view)
+        level = GenericUtil.to_int(level_text, -1)
+        return level != 0 and (level < 1 or level > WizApi.max_level())
+
+    @staticmethod
+    def trust_limited(view) -> bool:
+        if WizApi.trust_syntax_invalid(view):
+            return False
+        _target_name, level_text = WizApi.trust_parts(view)
+        return GenericUtil.to_int(level_text, 0) > CharacterApi.get_trust(view.context.character)
+
+    @staticmethod
+    def violate_location(view):
+        return AreaUtil.find_location(
+            InterpUtil.argument_text(view),
+            WizApi.room_registry(view),
+            WizApi.character_registry(view),
+            WizUtil.name_matches,
+        )
+
+    @staticmethod
+    def violate_not_private(view) -> bool:
+        room = WizApi.violate_location(view)
+        if room is None:
+            return False
+        room_flags = CharacterApi.get_enum("roomFlags")
+        if room_flags is None:
+            return True
+        return not room.is_private(room_flags)
+
+    @staticmethod
+    def disconnect_target(view):
+        argument = InterpUtil.argument_text(view).strip()
+        if not argument:
+            return None
+        handler = view.context.wiz_handler()
+        if argument.isdigit() and handler is not None:
+            connection_manager = getattr(handler, "connection_manager", None)
+            session_handler = getattr(handler, "session_handler", None)
+            if connection_manager is not None and session_handler is not None:
+                for connection in connection_manager.get_all_connections():
+                    try:
+                        sock = connection.writer.get_extra_info("socket")
+                        descriptor = -1 if sock is None else int(sock.fileno())
+                    except Exception:
+                        descriptor = -1
+                    if descriptor != GenericUtil.to_int(argument, -2):
+                        continue
+                    session = session_handler.get_session(connection.session_id)
+                    return None if session is None else session.character
+        return WizUtil.find_world_entity(
+            WizApi.character_registry(view),
+            WizApi.room_registry(view),
+            argument,
+            include_players=True,
+            include_mobiles=False,
+        )
+
+    @staticmethod
+    def disconnect_target_missing(view) -> bool:
+        return bool(InterpUtil.argument_text(view)) and WizApi.disconnect_target(view) is None
+
+    @staticmethod
+    def disconnect_session_missing(view) -> bool:
+        target = WizApi.disconnect_target(view)
+        handler = view.context.wiz_handler()
+        if target is None or handler is None:
+            return False
+        return handler.current_session(target) is None
+
+    @staticmethod
+    def disconnect_target_tokens(view) -> dict:
+        target = WizApi.disconnect_target(view)
+        return {"c": WizUtil.display_name(target), "t": WizUtil.display_name(target)}
+
+    @staticmethod
+    def protect_target(view):
+        return WizApi.world_player_target(view)
+
+    @staticmethod
+    def protect_target_missing(view) -> bool:
+        return bool(InterpUtil.argument_text(view)) and WizApi.protect_target(view) is None
+
+    @staticmethod
+    def force_parts(view) -> tuple[str, str]:
+        return WizUtil.split_argument(InterpUtil.argument_text(view))
+
+    @staticmethod
+    def force_missing_argument(view) -> bool:
+        target_name, command_text = WizApi.force_parts(view)
+        return not target_name or not command_text
+
+    @staticmethod
+    def force_delete(view) -> bool:
+        _target_name, command_text = WizApi.force_parts(view)
+        command_name, _rest = InterpUtil.one_argument(command_text)
+        return command_name in ("delete", "mob")
+
+    @staticmethod
+    def force_target(view):
+        target_name, _command_text = WizApi.force_parts(view)
+        if target_name == "all":
+            return view.context.character
+        return WizUtil.find_world_entity(
+            WizApi.character_registry(view),
+            WizApi.room_registry(view),
+            target_name,
+            include_players=True,
+            include_mobiles=True,
+        )
+
+    @staticmethod
+    def force_target_missing(view) -> bool:
+        return not WizApi.force_missing_argument(view) and WizApi.force_target(view) is None
+
+    @staticmethod
+    def force_target_self(view) -> bool:
+        target_name, _command_text = WizApi.force_parts(view)
+        return target_name != "all" and WizApi.force_target(view) == view.context.character
+
+    @staticmethod
+    def force_private(view) -> bool:
+        target_name, _command_text = WizApi.force_parts(view)
+        if target_name == "all":
+            return False
+        target = WizApi.force_target(view)
+        room = None if target is None else WizUtil.room_of_entity(WizApi.room_registry(view), target)
+        return room is not None and WizApi.room_private_for_actor(view, room, implementor_only=True)
+
+    @staticmethod
+    def force_target_higher_level(view) -> bool:
+        target_name, _command_text = WizApi.force_parts(view)
+        if target_name == "all":
+            return False
+        target = WizApi.force_target(view)
+        return target is not None and CharacterApi.get_trust(target) >= CharacterApi.get_trust(view.context.character)
+
+    @staticmethod
+    def pardon_parts(view) -> tuple[str, str]:
+        return WizUtil.split_argument(InterpUtil.argument_text(view))
+
+    @staticmethod
+    def pardon_syntax_invalid(view) -> bool:
+        target_name, flag_name = WizApi.pardon_parts(view)
+        return not target_name or flag_name not in ("killer", "thief")
+
+    @staticmethod
+    def pardon_target(view):
+        target_name, _flag_name = WizApi.pardon_parts(view)
+        return WizUtil.find_world_entity(
+            WizApi.character_registry(view),
+            WizApi.room_registry(view),
+            target_name,
+            include_players=True,
+            include_mobiles=True,
+        )
+
+    @staticmethod
+    def pardon_target_missing(view) -> bool:
+        return not WizApi.pardon_syntax_invalid(view) and WizApi.pardon_target(view) is None
+
+    @staticmethod
+    def pardon_target_is_npc(view) -> bool:
+        target = WizApi.pardon_target(view)
+        return target is not None and CharacterApi.is_npc(target)

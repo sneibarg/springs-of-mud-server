@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch
 
 SRC_ROOT = Path(__file__).resolve().parents[1] / "src"
 
-for package_name in ("area", "fight", "game", "interp", "mobile", "item", "player", "util"):
+for package_name in ("area", "combat", "game", "interp", "mobile", "item", "player", "util"):
     if package_name not in sys.modules:
         package = types.ModuleType(package_name)
         package.__path__ = [str(SRC_ROOT / package_name)]
@@ -75,7 +75,7 @@ if "server.messaging.MessageBus" not in sys.modules:
     message_bus.MessageBus = MessageBus
     sys.modules["server.messaging.MessageBus"] = message_bus
 
-from fight.FightHandler import FightHandler
+from combat.CombatHandler import FightHandler
 from interp.commands.Object import Object
 
 
@@ -202,9 +202,9 @@ class TestSacrificeFlow(unittest.TestCase):
                 return self._item_flags()
             return SimpleNamespace()
 
-        with patch("fight.FightHandler.CharacterApi.is_npc", side_effect=lambda entity: entity is victim), \
+        with patch("combat.FightHandler.CharacterApi.is_npc", side_effect=lambda entity: entity is victim), \
              patch.object(handler, "_player_act_enabled", side_effect=lambda _character, flag: flag in {"PLR_AUTOLOOT", "PLR_AUTOSAC"}), \
-             patch("fight.FightHandler.CharacterApi.get_enum", side_effect=enum_lookup):
+             patch("combat.FightHandler.CharacterApi.get_enum", side_effect=enum_lookup):
             payload = handler.build_round_payload(
                 attacker,
                 victim,
@@ -247,9 +247,9 @@ class TestSacrificeFlow(unittest.TestCase):
                 return self._item_flags()
             return SimpleNamespace()
 
-        with patch("fight.FightHandler.CharacterApi.is_npc", side_effect=lambda entity: entity is victim), \
+        with patch("combat.FightHandler.CharacterApi.is_npc", side_effect=lambda entity: entity is victim), \
              patch.object(handler, "_player_act_enabled", side_effect=lambda _character, flag: flag in {"PLR_AUTOLOOT", "PLR_AUTOSAC"}), \
-             patch("fight.FightHandler.CharacterApi.get_enum", side_effect=enum_lookup):
+             patch("combat.FightHandler.CharacterApi.get_enum", side_effect=enum_lookup):
             payload = handler.build_round_payload(
                 attacker,
                 victim,

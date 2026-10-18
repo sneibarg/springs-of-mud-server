@@ -1,18 +1,17 @@
-import requests
-
 from typing import Optional
 from injector import inject
 from mobile.Mobile import Mobile
 from util.MobileUtil import MobileUtil
+from server.FetchAndRegisterMixin import FetchAndRegisterMixin
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
-from fight.FightHandler import FightHandler
+from combat.CombatHandler import FightHandler
 from game.GameData import GameData
 from area.AreaRegistry import AreaRegistry
 from mobile.MobileRegistry import MobileRegistry
 
 
-class MobileService:
+class MobileService(FetchAndRegisterMixin):
     @inject
     def __init__(self, config: ServiceConfig, area_registry: AreaRegistry, mobile_registry: MobileRegistry, fight_handler: FightHandler, game_data: GameData):
         self.__name__ = "MobileService"
@@ -26,47 +25,26 @@ class MobileService:
         self.load_mobiles()
 
     def reload_mobiles(self) -> None:
-        self.logger.info("Reloading all socials...")
+        self.logger.info("Reloading all mobiles...")
         self.mobile_registry.reset()
         self.load_mobiles()
-        self.logger.info("Socials reload completed.")
+        self.logger.info("Mobiles reload completed.")
 
     def load_mobiles(self):
         self._fetch_and_register(self.mobiles_endpoint, "all mobiles")
 
     def load_mobile(self, mobile_name: str):
         url = f"{self.mobiles_endpoint}/name/{mobile_name}"
-        return self._fetch_and_register(url, f"social '{mobile_name}'")
+        return self._fetch_and_register(url, f"mobile '{mobile_name}'")
 
-    def _fetch_and_register(self, url: str, description: str) -> Optional[Mobile]:
-        try:
-            response = requests.get(url, timeout=10)
-            response.raise_for_status()
-            data = response.json()
-            if isinstance(data, list):
-                count = 0
-                for raw_mobile in data:
-                    mobile = self._build_mobile(raw_mobile)
-                    if mobile is None:
-                        self.logger.error(f"Failed to build mobile for {raw_mobile}")
-                        continue
-                    self.mobile_registry.register(mobile)
-                    count += 1
-                self.logger.info(f"Loaded {count} {description}.")
-                return None
-            else:
-                mobile = self._build_mobile(data)
-                if mobile is None:
-                    return None
-                self.mobile_registry.register(mobile)
-                self.logger.info(f"Loaded {description}.")
-                return mobile
-        except requests.RequestException as e:
-            self.logger.error(f"Failed to fetch {description} from {url}: {e}")
-            return None
-        except Exception as e:
-            self.logger.error(f"Unexpected error processing {description}: {e}", exc_info=True)
-            return None
+    def _build_fetch_item(self, raw_mobile) -> Optional[Mobile]:
+        mobile = self._build_mobile(raw_mobile)
+        if mobile is None:
+            self.logger.error(f"Failed to build mobile for {raw_mobile}")
+        return mobile
+
+    def _register_fetch_item(self, mobile: Mobile) -> None:
+        self.mobile_registry.register(mobile)
 
     def _build_mobile(self, raw_mobile) -> Optional[Mobile]:
         from util.GenericUtil import GenericUtil

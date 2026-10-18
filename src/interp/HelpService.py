@@ -1,14 +1,12 @@
-import requests
-
 from injector import inject
-from typing import Optional
 from interp.HelpRegistry import HelpRegistry
 from interp.HelpEntry import HelpEntry
+from server.FetchAndRegisterMixin import FetchAndRegisterMixin
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 
 
-class HelpService:
+class HelpService(FetchAndRegisterMixin):
     @inject
     def __init__(self, config: ServiceConfig, help_registry: HelpRegistry):
         self.__name__ = "HelpService"
@@ -26,28 +24,8 @@ class HelpService:
     def load_helps(self):
         self._fetch_and_register(self.helps_endpoint, "helps")
 
-    def _fetch_and_register(self, url: str, description: str) -> Optional[HelpEntry]:
-        try:
-            response = requests.get(url, timeout=10)
-            response.raise_for_status()
-            data = response.json()
-            if isinstance(data, list):
-                count = 0
-                for help_data in data:
-                    help_entry = HelpEntry.from_json(help_data)
-                    self.help_registry.register(help_entry)
-                    count += 1
-                self.logger.info(f"Loaded {count} {description}.")
-                return None
-            else:
-                help_entry = HelpEntry.from_json(data)
-                self.help_registry.register(help_entry)
-                self.logger.info(f"Loaded {description}.")
-                return help_entry
+    def _build_fetch_item(self, help_data) -> HelpEntry:
+        return HelpEntry.from_json(help_data)
 
-        except requests.RequestException as e:
-            self.logger.error(f"Failed to fetch {description} from {url}: {e}")
-            return None
-        except Exception as e:
-            self.logger.error(f"Unexpected error processing {description}: {e}", exc_info=True)
-            return None
+    def _register_fetch_item(self, help_entry: HelpEntry) -> None:
+        self.help_registry.register(help_entry)

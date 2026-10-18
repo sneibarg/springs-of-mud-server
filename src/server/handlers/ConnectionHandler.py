@@ -10,6 +10,7 @@ from area.Area import Area
 from area.Room import Room
 from interp.InterpHandler import InterpHandler
 from api.CharacterApi import CharacterApi
+from api.GameApi import GameApi
 from server.connection.TelnetConnection import TelnetConnection
 from server.connection.ConnectionManager import ConnectionManager
 from server.session.SessionHandler import SessionHandler
@@ -21,7 +22,7 @@ from server.LoggerFactory import LoggerFactory
 from player.Player import Player
 from player.Character import Character
 from game.RegistryService import RegistryService
-from fight.FightHandler import FightHandler
+from combat.CombatHandler import FightHandler
 
 
 class ConnectionHandler:
@@ -72,6 +73,10 @@ class ConnectionHandler:
             self.connection_manager.add_connection(connection)
             peer_info = connection.get_peer_info()
             self.logger.info(f"New connection from {peer_info}: session {session.session_id}")
+            if self._peer_denied(peer_info):
+                await connection.send_text("Your site has been banned from this mud.\r\n", MessageType.ERROR)
+                await connection.close()
+                return
 
             await self._send_welcome(connection)
             success, player_id, character = await self._receive_initial_message(connection, session)
@@ -128,12 +133,21 @@ class ConnectionHandler:
         welcome = f"Welcome to the server!\n\n\n\n"
         await connection.send_text(welcome, MessageType.GAME)
 
+    @staticmethod
+    def _peer_denied(peer_info) -> bool:
+        if isinstance(peer_info, tuple) and peer_info:
+            return GameApi.is_site_denied(str(peer_info[0] or ""))
+        return GameApi.is_site_denied(str(peer_info or ""))
+
     async def _game_loop(self, connection: TelnetConnection, session, player, character) -> None:
         while not connection.is_closed() and (session.is_playing() or session.is_idle()):
             try:
                 character = session.character or character
                 if not session.is_idle() and self.session_handler.is_session_idle(session):
-                    session.status = SessionStatus.IDLING
+                    if CharacterApi.is_immortal(session):
+                        session.update_activity()
+                    else:
+                        session.status = SessionStatus.IDLING
 
                 message = await self._wait_for_message(connection, session)
                 if message is None:
@@ -151,7 +165,9 @@ class ConnectionHandler:
 
                 if message.type == MessageType.GAME:
                     character = session.character or character
-                    await self.command_handler.handle_command(player, character, message.get('text', ''))
+                    command_text = message.get('text', '')
+                    await self.message_bus.mirror_snoop_input(session, command_text)
+                    await self.command_handler.handle_command(player, character, command_text)
                     character = session.character or character
                     area, room = self._get_area_and_room(character)
                     await self.message_bus.send_prompt(character, area, room)
@@ -160,13 +176,18 @@ class ConnectionHandler:
                 break
 
     async def _wait_for_message(self, connection: TelnetConnection, session: SessionState) -> Message | None:
-        try:
-            return await asyncio.wait_for(connection.receive_message(), timeout=self.session_handler.max_idle_time)
-        except asyncio.TimeoutError:
-            if not session.is_idle():
-                session.status = SessionStatus.IDLING
-                self.logger.info(f"Session {session.session_id} timed out")
-                await connection.send_text("You have disappeared into the void.\n\r", MessageType.GAME)
+        while True:
+            try:
+                return await asyncio.wait_for(connection.receive_message(), timeout=self.session_handler.max_idle_time)
+            except asyncio.TimeoutError:
+                if CharacterApi.is_immortal(session):
+                    session.update_activity()
+                    self.logger.debug(f"Immortal session {session.session_id} idle timer reset")
+                    continue
+                if not session.is_idle():
+                    session.status = SessionStatus.IDLING
+                    self.logger.info(f"Session {session.session_id} timed out")
+                    await connection.send_text("You have disappeared into the void.\n\r", MessageType.GAME)
                 return None
 
     @staticmethod

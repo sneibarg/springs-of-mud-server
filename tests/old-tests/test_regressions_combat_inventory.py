@@ -23,7 +23,7 @@ if "injector" not in sys.modules:
     injector.inject = inject
     sys.modules["injector"] = injector
 
-from fight.FightHandler import FightHandler
+from combat.CombatHandler import FightHandler
 from game.Equipped import Equipped
 from game.UpdateHandler import UpdateHandler
 from mobile.MobileHandler import MobileHandler
@@ -64,8 +64,8 @@ class TestCombatInventoryRegressions(TestCase):
         attacker.fighting = victim
 
         positions = SimpleNamespace(POS_STANDING=SimpleNamespace(value=8))
-        with patch("fight.FightHandler.CharacterApi.get_enum", return_value=positions), \
-             patch("fight.FightHandler.CharacterApi.is_npc", return_value=False):
+        with patch("combat.FightHandler.CharacterApi.get_enum", return_value=positions), \
+             patch("combat.FightHandler.CharacterApi.is_npc", return_value=False):
             handler.stop_fighting(victim, both=True)
 
         self.assertIsNone(attacker.fighting)
@@ -148,10 +148,10 @@ class TestCombatInventoryRegressions(TestCase):
             POS_FIGHTING=SimpleNamespace(value=7),
         )
 
-        with patch("fight.FightHandler.CharacterApi.get_enum", return_value=positions), \
-             patch("fight.FightHandler.CharacterApi.is_npc", side_effect=lambda entity: entity is victim), \
+        with patch("combat.FightHandler.CharacterApi.get_enum", return_value=positions), \
+             patch("combat.FightHandler.CharacterApi.is_npc", side_effect=lambda entity: entity is victim), \
              patch.object(handler, "xp_compute", return_value=75), \
-             patch("fight.FightHandler.CharacterAdvancement.gain_experience", wraps=CharacterAdvancement.gain_experience), \
+             patch("combat.FightHandler.CharacterAdvancement.gain_experience", wraps=CharacterAdvancement.gain_experience), \
              patch.object(handler, "raw_kill") as raw_kill:
             result = handler.damage(attacker, victim, 20)
 
@@ -215,10 +215,10 @@ class TestCombatInventoryRegressions(TestCase):
         )
         room.mobiles = {"mob1": victim}
 
-        with patch("fight.FightHandler.CharacterApi.is_npc", return_value=True), \
+        with patch("combat.FightHandler.CharacterApi.is_npc", return_value=True), \
              patch.object(handler, "death_cry"), \
              patch.object(handler, "make_corpse"), \
-             patch("fight.FightHandler.CharacterApi.get_enum", return_value=SimpleNamespace()):
+             patch("combat.FightHandler.CharacterApi.get_enum", return_value=SimpleNamespace()):
             handler.raw_kill(victim)
 
         self.assertEqual(3, proto.count)

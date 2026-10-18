@@ -66,6 +66,17 @@ class _LoggerFactory:
         return _Logger()
 
 
+class _EnumLike(SimpleNamespace):
+    def __getitem__(self, name):
+        return self.__members__[name]
+
+
+def _enum_like(**members):
+    enum_obj = _EnumLike(**members)
+    enum_obj.__members__ = members
+    return enum_obj
+
+
 class _CharacterApi:
     @staticmethod
     def get_enum(name: str):
@@ -80,7 +91,7 @@ class _CharacterApi:
                 ITEM_SELL_EXTRACT=SimpleNamespace(value=4),
             )
         if name == "actBits":
-            return SimpleNamespace(ACT_IS_CHANGER=SimpleNamespace(value=1))
+            return SimpleNamespace(ACT_IS_CHANGER=SimpleNamespace(value=1), ACT_IS_HEALER=SimpleNamespace(value=2))
         return SimpleNamespace()
 
     @staticmethod
@@ -145,6 +156,8 @@ class _ItemApi:
 
     @staticmethod
     def item_takeable(item, wear_flags_enum) -> bool:
+        if not hasattr(item, "wear_flags"):
+            return bool(getattr(item, "takeable", True))
         take_flag = getattr(getattr(wear_flags_enum, "ITEM_TAKE", None), "value", 0)
         if not take_flag:
             return True
@@ -157,6 +170,10 @@ class _ItemApi:
     @staticmethod
     def is_no_sac(item) -> bool:
         return bool(getattr(item, "no_sac", False))
+
+    @staticmethod
+    def is_set(value: int, bit: int) -> bool:
+        return (int(value or 0) & int(bit or 0)) != 0
 
 
 class _CommunicationsUtil:
@@ -315,7 +332,41 @@ class _SpellApi:
         return None
 
 
-for package_name in ("api", "area", "fight", "game", "interp", "item", "player", "server", "skill", "util"):
+class _FightUtil:
+    @staticmethod
+    def spell_handler_name(spell_name: str) -> str:
+        return "spell." + str(spell_name or "").strip().lower().replace(" ", "_")
+
+    @staticmethod
+    def find_spell(spell_registry, spell_name: str):
+        if spell_registry is None:
+            return None
+        want_handler = _FightUtil.spell_handler_name(spell_name)
+        for spell in spell_registry.all_spells():
+            handler_id = str(getattr(spell, "handler_id", "") or "").strip().lower()
+            name = str(getattr(spell, "name", "") or "").strip().lower()
+            if handler_id == want_handler or name == str(spell_name or "").strip().lower():
+                return spell
+        return None
+
+
+class _InfoUtil:
+    @staticmethod
+    def look_keyword_matches(token: str, keyword: str) -> bool:
+        q = str(token or "").strip().lower()
+        words = [word for word in str(keyword or "").strip().lower().split() if word]
+        return any(word == q or word.startswith(q) for word in words)
+
+
+class _RandomNumberGenerator:
+    def number_range(self, start: int, end: int) -> int:
+        return int(start)
+
+    def number_percent(self) -> int:
+        return 1
+
+
+for package_name in ("api", "area", "combat", "game", "interp", "item", "player", "server", "skill", "util"):
     _stub_package(package_name)
 _stub_package("interp.commands")
 
@@ -326,7 +377,8 @@ _stub_module("api.ItemApi", ItemApi=_ItemApi)
 _stub_module("api.MovementApi", MovementApi=SimpleNamespace())
 _stub_module("util.CommunicationsUtil", CommunicationsUtil=_CommunicationsUtil)
 _stub_module("util.AreaUtil", AreaUtil=SimpleNamespace())
-_stub_module("util.FightUtil", FightUtil=SimpleNamespace())
+_stub_module("util.FightUtil", FightUtil=_FightUtil)
+_stub_module("util.InfoUtil", InfoUtil=_InfoUtil)
 _stub_module("util.MovementUtil", MovementUtil=SimpleNamespace())
 _stub_module("util.MobileUtil", MobileUtil=SimpleNamespace())
 _effect_handler = SimpleNamespace(apply_item_effects=lambda *_args, **_kwargs: None, remove_item_effects=lambda *_args, **_kwargs: None)
@@ -349,11 +401,13 @@ _stub_module(
 )
 _stub_module("util.SkillUtil", SkillUtil=SimpleNamespace(check_improve=lambda *_args, **_kwargs: None))
 _stub_module("skill.Ability", Ability=SimpleNamespace(check_improve=lambda *_args, **_kwargs: None))
+_stub_module("game.RandomNumberGenerator", RandomNumberGenerator=_RandomNumberGenerator)
 _stub_module("game.RegistryService", RegistryService=object)
+_stub_module("game.WeatherHandler", WeatherHandler=object)
 _stub_module("interp.Context", Context=_Context)
 _stub_module("item.Item", Item=object)
 _stub_module("player.Character", Character=object)
-_stub_module("fight.FightHandler", FightHandler=object)
+_stub_module("combat.CombatHandler", FightHandler=object)
 _stub_module("skill.SpellContext", SpellContext=object)
 _stub_module("api.SpellApi", SpellApi=_SpellApi)
 
@@ -411,6 +465,16 @@ def _load_command(name: str):
 
 
 class _Room(SimpleNamespace):
+    def __init__(self, **kwargs):
+        kwargs.setdefault("room_flags", 0)
+        kwargs.setdefault("characters", {})
+        kwargs.setdefault("mobiles", {})
+        super().__init__(**kwargs)
+        for mobile in list(getattr(self, "mobiles", {}).values()):
+            for item in list(getattr(mobile, "inventory", []) or []):
+                if item is not None and not hasattr(item, "item_type"):
+                    item.item_type = "ITEM_WEAPON"
+
     def add_item_to_room(self, item):
         self.contents[item.id] = item
 
@@ -428,6 +492,9 @@ class _Room(SimpleNamespace):
     def player_targets(self, character):
         return [ch for ch in list(getattr(self, "characters", {}).values()) if getattr(ch, "id", None) != getattr(character, "id", None)]
 
+    def to_not_victim(self, victim):
+        return [ch for ch in list(getattr(self, "characters", {}).values()) if getattr(ch, "id", None) != getattr(victim, "id", None)]
+
 
 class _Container(SimpleNamespace):
     def find_contained_item(self, wanted):
@@ -443,19 +510,26 @@ class _Container(SimpleNamespace):
 
 
 class TestObjectGetDynamicCommands(unittest.TestCase):
-    def _commands(self, room, *, shop_registry=None, weather_handler=None, skill_registry=None, spell_registry=None, spell_api=None, fight_handler=None):
+    def _commands(self, room, *, shop_registry=None, weather_handler=None, skill_registry=None, spell_registry=None, spell_api=None, fight_handler=None, item_registry=None):
         room_registry = SimpleNamespace(
             get_or_none=lambda **kwargs: room if kwargs.get("id") == room.id else None,
             get=lambda **kwargs: room if kwargs.get("id") == room.id else None,
         )
         registry_service = SimpleNamespace(
             room_registry=room_registry,
+            item_registry=item_registry or SimpleNamespace(get_or_none=lambda **_kwargs: None, all_items=lambda: []),
             mobile_registry=SimpleNamespace(),
-            shop_registry=shop_registry,
+            shop_registry=shop_registry or SimpleNamespace(find_by_keeper_vnum=lambda _keeper_vnum: None),
             skill_registry=skill_registry or SimpleNamespace(get_or_none=lambda **_kwargs: None),
             spell_registry=spell_registry or SimpleNamespace(get_or_none=lambda **_kwargs: None, all_spells=lambda: []),
         )
-        enum_provider = SimpleNamespace(get=lambda _name: SimpleNamespace())
+        enum_provider = SimpleNamespace(get=lambda _name: _enum_like(
+            OBJ_VNUM_SCHOOL_BANNER=SimpleNamespace(value=3716),
+            OBJ_VNUM_SCHOOL_DAGGER=SimpleNamespace(value=3701),
+            OBJ_VNUM_SCHOOL_HELMET=SimpleNamespace(value=3706),
+            OBJ_VNUM_SCHOOL_SHIELD=SimpleNamespace(value=3704),
+            OBJ_VNUM_SCHOOL_VEST=SimpleNamespace(value=3703),
+        ) if _name == "wellKnownObjectVnums" else SimpleNamespace())
         commands = Object(
             registry_service=registry_service,
             enum_provider=enum_provider,
@@ -465,20 +539,36 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             fight_handler=fight_handler or SimpleNamespace(),
             effect_handler=_effect_handler,
         )
-        commands.item_types = SimpleNamespace(ITEM_WEAPON=SimpleNamespace(value=5))
-        commands.item_flags = SimpleNamespace(
+        commands.item_types = _enum_like(ITEM_WEAPON=SimpleNamespace(value=5))
+        commands.item_flags = _enum_like(
             ITEM_INVENTORY=SimpleNamespace(value=1),
             ITEM_HAD_TIMER=SimpleNamespace(value=2),
             ITEM_SELL_EXTRACT=SimpleNamespace(value=4),
             ITEM_NOREMOVE=SimpleNamespace(value=8),
+            ITEM_BLESS=SimpleNamespace(value=16),
+            ITEM_BURN_PROOF=SimpleNamespace(value=32),
+            ITEM_MELT_DROP=SimpleNamespace(value=64),
         )
-        commands.act_bits = SimpleNamespace(ACT_IS_CHANGER=SimpleNamespace(value=1))
-        commands.wear_flags = SimpleNamespace(
+        commands.weapon_type = SimpleNamespace(
+            WEAPON_FLAMING=SimpleNamespace(value=1),
+            WEAPON_FROST=SimpleNamespace(value=2),
+            WEAPON_VAMPIRIC=SimpleNamespace(value=4),
+            WEAPON_SHARP=SimpleNamespace(value=8),
+            WEAPON_VORPAL=SimpleNamespace(value=16),
+            WEAPON_SHOCKING=SimpleNamespace(value=64),
+            WEAPON_POISON=SimpleNamespace(value=128),
+        )
+        commands.act_bits = SimpleNamespace(ACT_IS_CHANGER=SimpleNamespace(value=1), ACT_IS_HEALER=SimpleNamespace(value=2))
+        commands.PlayerActBits = SimpleNamespace(PLR_THIEF=SimpleNamespace(value=1 << 25))
+        commands.GameParameters = SimpleNamespace(MAX_LEVEL=SimpleNamespace(value=60))
+        commands.room_flags = SimpleNamespace(ROOM_PET_SHOP=SimpleNamespace(value=1))
+        commands.wear_flags = _enum_like(
             ITEM_TAKE=SimpleNamespace(value=1 << 0),
             ITEM_WEAR_BODY=SimpleNamespace(value=1 << 0),
             ITEM_WIELD=SimpleNamespace(value=1 << 1),
             ITEM_HOLD=SimpleNamespace(value=1 << 2),
             ITEM_WEAR_SHIELD=SimpleNamespace(value=1 << 3),
+            ITEM_WEAR_HEAD=SimpleNamespace(value=1 << 4),
         )
         return commands
 
@@ -503,6 +593,9 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
     @staticmethod
     def _build_character(*items, is_immortal=False, is_npc=False, name="Tester", level=10, max_items=10, max_weight=100, sex="male", act=0, skills=None, fighting=None):
         inventory = list(items)
+        for item in inventory:
+            if item is not None and not hasattr(item, "item_type"):
+                item.item_type = "ITEM_TRASH"
         character = SimpleNamespace(
             id=f"{name.lower()}-id",
             name=name,
@@ -514,8 +607,9 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             is_immortal=is_immortal,
             is_npc=is_npc,
             sex=sex,
-            status_flags=SimpleNamespace(act=act),
+            status_flags=SimpleNamespace(act=act, pulse_wait=0),
             character_attributes=SimpleNamespace(max_items=max_items, max_weight=max_weight),
+            character_class=SimpleNamespace(name="mage", weapon="OBJ_VNUM_SCHOOL_DAGGER"),
             equipped=Equipped(),
             skills=list(skills or []),
             fighting=fighting,
@@ -550,6 +644,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             return int(getattr(character.character_attributes, "max_weight", 0) or 0)
 
         character.find_inventory_item = _find_inventory_item
+        character.find_owned_item = _find_inventory_item
         character.add_item = _add_item
         character.remove_item = _remove_item
         character.carry_count = _carry_count
@@ -563,6 +658,9 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         character.equip_item = lambda item, slot: Equipped.equip_item(character, item, slot)
         character.equipped_slot_of = lambda item: character.equipped.slot_of(item)
         character.unequip_item = lambda slot: Equipped.unequip_item(character, slot)
+        character.owned_items = lambda: list(character.loot or []) + [
+            item for item in getattr(character.equipped, "__dict__", {}).values() if item is not None
+        ]
         return character
 
     @staticmethod
@@ -1356,6 +1454,289 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("Your a crystal wand explodes into fragments.\r\n", payload["payloads"][-1]["to_char"])
         self.assertIsNone(actor.equipped.held)
         self.assertNotIn(wand, actor.loot)
+
+    def test_heal_without_argument_lists_healer_services(self):
+        healer = self._build_character(is_npc=True, name="Healer", level=20, act=2)
+        healer.short_description = "the healer"
+        room = _Room(id="room-1", contents={}, mobiles={"healer": healer}, characters={})
+        character = self._build_character()
+
+        payload = self._commands(room).do_heal(character, self._build_context("", room, character, "heal"))
+
+        self.assertIn("the healer says 'I offer the following spells:'", payload["to_char"])
+        self.assertIn("light: cure light wounds", payload["to_char"])
+        self.assertIn("Type heal <type> to be healed.", payload["to_char"])
+
+    def test_heal_buys_spell_service_and_pays_healer(self):
+        class _SpellApiDouble:
+            def __init__(self):
+                self.calls = []
+
+            def execute_lambdas(self, ctx):
+                self.calls.append((ctx.spell.name, ctx.level, getattr(ctx.target, "name", "")))
+                ctx.mark_performed()
+
+        healer = self._build_character(is_npc=True, name="Healer", level=30, act=2)
+        healer.short_description = "the healer"
+        room = _Room(id="room-1", contents={}, mobiles={"healer": healer}, characters={})
+        character = self._build_character()
+        character.gold = 10
+        spell = SimpleNamespace(name="cure light", handler_id="spell.cure_light", target="CHAR_DEFENSIVE")
+        spell_registry = SimpleNamespace(all_spells=lambda: [spell], get_or_none=lambda **_kwargs: None)
+        spell_api = _SpellApiDouble()
+
+        payload = self._commands(room, spell_registry=spell_registry, spell_api=spell_api).do_heal(
+            character,
+            self._build_context("light", room, character, "heal"),
+        )
+
+        self.assertEqual([("cure light", 30, "Tester")], spell_api.calls)
+        self.assertEqual(0, character.gold)
+        self.assertEqual(0, character.silver)
+        self.assertEqual(10, healer.gold)
+        self.assertEqual(0, healer.silver)
+        self.assertEqual(24, character.wait)
+        self.assertEqual("the healer utters the words 'judicandus dies'.\r\n", payload["payloads"][0]["to_room"])
+
+    def test_heal_mana_service_restores_mana_without_spell(self):
+        healer = self._build_character(is_npc=True, name="Healer", level=30, act=2)
+        healer.short_description = "the healer"
+        room = _Room(id="room-1", contents={}, mobiles={"healer": healer}, characters={})
+        character = self._build_character()
+        character.gold = 10
+        character.mana = 5
+        character.max_mana = 50
+
+        with patch.object(sys.modules["interp.commands.Object"].random, "randint", return_value=4):
+            payload = self._commands(room).do_heal(character, self._build_context("mana", room, character, "heal"))
+
+        self.assertEqual(23, character.mana)
+        self.assertEqual(0, character.gold)
+        self.assertEqual(10, healer.gold)
+        self.assertEqual("A warm glow passes through you.\r\n", payload["payloads"][0]["to_char"])
+
+    def test_heal_without_healer_uses_guard_payload(self):
+        room = _Room(id="room-1", contents={}, mobiles={}, characters={})
+        character = self._build_character()
+
+        payload = self._commands(room).do_heal(character, self._build_context("", room, character, "heal"))
+
+        self.assertEqual("You can't do that here.\r\n", payload["to_char"])
+        self.assertEqual("no_healer", payload["blocked_key"])
+
+    def test_outfit_metadata_routes_to_object_handler(self):
+        with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:
+            command = next(entry for entry in json.load(handle) if entry.get("name") == "outfit")
+
+        self.assertEqual(["lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"], command["lambdas"])
+
+    def test_outfit_rejects_graduates(self):
+        room = _Room(id="room-1", contents={}, mobiles={}, characters={})
+        character = self._build_character(level=6)
+
+        payload = self._commands(room).do_outfit(character, self._build_context("", room, character, "outfit"))
+
+        self.assertEqual("Find it yourself!\r\n", payload["to_char"])
+        self.assertIsNone(character.equipped.wielded)
+
+    def test_outfit_equips_school_gear_without_replacing_occupied_slots(self):
+        existing_vest = self._outfit_proto("existing", "9001", "vest old", "an old vest", "armor", 1 << 0)
+        room = _Room(id="room-1", contents={}, mobiles={}, characters={})
+        character = self._build_character(level=5)
+        character.equipped.torso = existing_vest
+        prototypes = {
+            "3716": self._outfit_proto("banner", "3716", "banner war", "a war banner", "light", 1 << 0),
+            "3701": self._outfit_proto("dagger", "3701", "dagger sub", "a sub issue dagger", "weapon", 1 << 1),
+            "3706": self._outfit_proto("helmet", "3706", "helmet sub", "a sub issue helmet", "armor", 1 << 4),
+            "3704": self._outfit_proto("shield", "3704", "shield sub", "a sub issue shield", "armor", 1 << 3),
+            "3703": self._outfit_proto("vest", "3703", "vest sub", "a sub issue vest", "armor", 1 << 0),
+        }
+        item_registry = SimpleNamespace(get_or_none=lambda **kwargs: prototypes.get(str(kwargs.get("vnum"))), all_items=lambda: prototypes.values())
+
+        payload = self._commands(room, item_registry=item_registry).do_outfit(character, self._build_context("", room, character, "outfit"))
+
+        self.assertEqual("You have been equipped by Mota.\r\n", payload["to_char"])
+        self.assertEqual("banner war", character.equipped.light.name)
+        self.assertEqual("dagger sub", character.equipped.wielded.name)
+        self.assertEqual("helmet sub", character.equipped.head.name)
+        self.assertEqual("shield sub", character.equipped.shield.name)
+        self.assertIs(character.equipped.torso, existing_vest)
+        self.assertFalse(any(getattr(item, "name", "") == "vest sub" for item in character.loot))
+
+    def test_steal_metadata_routes_to_object_handler(self):
+        with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:
+            command = next(entry for entry in json.load(handle) if entry.get("name") == "steal")
+
+        self.assertEqual(["lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"], command["lambdas"])
+
+    def test_steal_item_success_moves_item_from_victim(self):
+        ring = SimpleNamespace(id="obj-steal-1", name="ring silver", short_description="a silver ring", level=1, weight=1, extra_flags=0)
+        victim = self._build_character(ring, name="Victim", level=10)
+        room = _Room(id="room-1", contents={}, mobiles={}, characters={"victim": victim})
+        character = self._build_character(name="Tester", level=10, skills=[{"name": "steal", "level": 100}])
+        skill_registry = SimpleNamespace(get_or_none=lambda **kwargs: SimpleNamespace(id="skill-steal", beats=24) if kwargs.get("name") == "steal" else None)
+
+        with patch.object(sys.modules["interp.commands.Object"].random, "randint", return_value=1):
+            payload = self._commands(room, skill_registry=skill_registry).do_steal(
+                character,
+                self._build_context("ring Victim", room, character, "steal"),
+            )
+
+        self.assertEqual("You pocket a silver ring.\r\n", payload["to_char"])
+        self.assertIn(ring, character.loot)
+        self.assertNotIn(ring, victim.loot)
+        self.assertEqual(24, character.status_flags.pulse_wait)
+
+    def test_steal_coins_success_transfers_money(self):
+        victim = self._build_character(name="Victim", level=10)
+        victim.gold = 60
+        victim.silver = 120
+        room = _Room(id="room-1", contents={}, mobiles={}, characters={"victim": victim})
+        character = self._build_character(name="Tester", level=10, skills=[{"name": "steal", "level": 100}])
+
+        with patch.object(sys.modules["interp.commands.Object"].random, "randint", return_value=10):
+            payload = self._commands(room).do_steal(
+                character,
+                self._build_context("coins Victim", room, character, "steal"),
+            )
+
+        self.assertEqual("Bingo!  You got 20 silver and 10 gold coins.\r\n", payload["to_char"])
+        self.assertEqual(10, character.gold)
+        self.assertEqual(20, character.silver)
+        self.assertEqual(50, victim.gold)
+        self.assertEqual(100, victim.silver)
+
+    def test_failed_player_steal_marks_character_thief(self):
+        victim = self._build_character(name="Victim", level=10)
+        room = _Room(id="room-1", contents={}, mobiles={}, characters={"victim": victim})
+        character = self._build_character(name="Tester", level=10, skills=[{"name": "steal", "level": 1}])
+
+        with patch.object(sys.modules["interp.commands.Object"].random, "randint", return_value=100):
+            payload = self._commands(room).do_steal(
+                character,
+                self._build_context("coins Victim", room, character, "steal"),
+            )
+
+        self.assertIn("Oops.\r\n", payload["to_char"])
+        self.assertIn("*** You are now a THIEF!! ***\r\n", payload["to_char"])
+        self.assertEqual(1 << 25, character.status_flags.act)
+        self.assertEqual("Tester tried to steal from you.\r\n", payload["to_victim"])
+
+    def test_envenom_metadata_routes_to_object_handler(self):
+        with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:
+            command = next(entry for entry in json.load(handle) if entry.get("name") == "envenom")
+
+        self.assertEqual(["lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"], command["lambdas"])
+
+    @staticmethod
+    def _outfit_proto(item_id: str, vnum: str, name: str, short: str, item_type: str, wear_flags: int):
+        return SimpleNamespace(
+            id=f"proto-{item_id}",
+            vnum=vnum,
+            name=name,
+            short_description=short,
+            item_type=item_type,
+            wear_flags=wear_flags,
+            level=0,
+            weight=1,
+            extra_flags=0,
+            weapon_too_heavy=lambda _character: False,
+            is_two_handed_weapon=lambda: False,
+            weapon_skill_feedback_key=lambda _character: "",
+            can_remove=lambda _item_flags: True,
+        )
+
+    def test_envenom_food_success_marks_food_poisoned(self):
+        bread = SimpleNamespace(
+            id="obj-envenom-food",
+            name="bread loaf",
+            short_description="a loaf of bread",
+            item_type="ITEM_FOOD",
+            value3="0",
+            value4="0",
+            level=1,
+            weight=1,
+            extra_flags=0,
+        )
+        room = _Room(id="room-1", contents={}, mobiles={}, characters={})
+        character = self._build_character(bread, level=10, skills=[{"name": "envenom", "level": 100}])
+
+        with patch.object(sys.modules["interp.commands.Object"].random, "randint", return_value=1):
+            payload = self._commands(room).do_envenom(
+                character,
+                self._build_context("bread", room, character, "envenom"),
+            )
+
+        self.assertEqual("You treat a loaf of bread with deadly poison.\r\n", payload["to_char"])
+        self.assertEqual("1", bread.value3)
+        self.assertEqual(24, character.status_flags.pulse_wait)
+
+    def test_envenom_weapon_success_marks_weapon_poisoned(self):
+        dagger = SimpleNamespace(
+            id="obj-envenom-weapon",
+            name="dagger steel",
+            short_description="a steel dagger",
+            item_type="ITEM_WEAPON",
+            damage_type="pierce",
+            value3="pierce",
+            value4="0",
+            level=1,
+            weight=1,
+            extra_flags=0,
+        )
+        room = _Room(id="room-1", contents={}, mobiles={}, characters={})
+        character = self._build_character(dagger, level=10, skills=[{"name": "envenom", "level": 100}])
+
+        with patch.object(sys.modules["interp.commands.Object"].random, "randint", return_value=1):
+            payload = self._commands(room).do_envenom(
+                character,
+                self._build_context("dagger", room, character, "envenom"),
+            )
+
+        self.assertEqual("You coat a steel dagger with venom.\r\n", payload["to_char"])
+        self.assertEqual("128", dagger.value4)
+        self.assertEqual(24, character.status_flags.pulse_wait)
+
+    def test_envenom_blunt_weapon_is_rejected(self):
+        mace = SimpleNamespace(
+            id="obj-envenom-blunt",
+            name="mace iron",
+            short_description="an iron mace",
+            item_type="ITEM_WEAPON",
+            damage_type="bash",
+            value3="bash",
+            value4="0",
+            level=1,
+            weight=1,
+            extra_flags=0,
+        )
+        room = _Room(id="room-1", contents={}, mobiles={}, characters={})
+        character = self._build_character(mace, level=10, skills=[{"name": "envenom", "level": 100}])
+
+        payload = self._commands(room).do_envenom(character, self._build_context("mace", room, character, "envenom"))
+
+        self.assertEqual("You can only envenom edged weapons.\r\n", payload["to_char"])
+        self.assertEqual("0", mace.value4)
+
+    def test_envenom_without_skill_is_rejected(self):
+        bread = SimpleNamespace(
+            id="obj-envenom-no-skill",
+            name="bread loaf",
+            short_description="a loaf of bread",
+            item_type="ITEM_FOOD",
+            value3="0",
+            value4="0",
+            level=1,
+            weight=1,
+            extra_flags=0,
+        )
+        room = _Room(id="room-1", contents={}, mobiles={}, characters={})
+        character = self._build_character(bread, level=10, skills=[{"name": "envenom", "level": 0}])
+
+        payload = self._commands(room).do_envenom(character, self._build_context("bread", room, character, "envenom"))
+
+        self.assertEqual("Are you crazy? You'd poison yourself!\r\n", payload["to_char"])
+        self.assertEqual("0", bread.value3)
 
 
 if __name__ == "__main__":

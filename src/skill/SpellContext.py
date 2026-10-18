@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any, Optional
 
 from api.CharacterApi import CharacterApi
+from util.DisplayUtil import DisplayUtil
 
 
 @dataclass
@@ -145,8 +146,4 @@ class SpellContext:
 
     @staticmethod
     def _entity_name(entity: Any) -> str:
-        if entity is None:
-            return "someone"
-        if CharacterApi.is_npc(entity):
-            return str(getattr(entity, "short_description", "") or getattr(entity, "name", "someone"))
-        return str(getattr(entity, "name", "someone"))
+        return DisplayUtil.entity_name(entity, is_npc=CharacterApi.is_npc)

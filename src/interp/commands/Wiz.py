@@ -9,18 +9,23 @@ from api.ItemApi import ItemApi
 from api.WizApi import WizApi
 from api.WizSetApi import WizSetApi
 from area.Room import Room
-from fight.FightHandler import FightHandler
+from combat.CombatHandler import FightHandler
+from game.GameService import GameService
 from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
 from game.WizHandler import WizHandler
 from interp.Context import Context
 from item.ExtraDescriptionData import ExtraDescriptionData
+from notes.InGameNote import InGameNoteEnum
 from player.Character import Character
+from player.CharacterService import CharacterService
+from player.PlayerService import PlayerService
 from server.LoggerFactory import LoggerFactory
 from util.AreaUtil import AreaUtil
 from util.GenericUtil import GenericUtil
 from util.ItemUtil import ItemUtil
 from util.MobileUtil import MobileUtil
+from util.PayloadUtil import PayloadUtil
 from util.WizUtil import WizUtil
 
 
@@ -32,7 +37,10 @@ class Wiz:
                  interp_api: InterpApi,
                  wiz_set_api: WizSetApi,
                  fight_handler: FightHandler,
-                 enum_provider: EnumProvider):
+                 enum_provider: EnumProvider,
+                 game_service: GameService = None,
+                 player_service: PlayerService = None,
+                 character_service: CharacterService = None):
         self.__name__ = "Wiz"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -40,11 +48,15 @@ class Wiz:
         self.interp_api = interp_api
         self.wiz_set_api = wiz_set_api
         self.fight_handler = fight_handler
+        self.game_service = game_service
+        self.player_service = player_service
+        self.character_service = character_service
         self.character_registry = registry_service.character_registry
         self.room_registry = registry_service.room_registry
         self.area_registry = registry_service.area_registry
         self.item_registry = registry_service.item_registry
         self.mobile_registry = registry_service.mobile_registry
+        self.note_registry = getattr(registry_service, "note_registry", None)
         self.interp_registry = registry_service.interp_registry
         self.special_registry = registry_service.special_registry
         self.PlayerActBitsEnum = enum_provider.get("playerActBits")
@@ -103,6 +115,25 @@ class Wiz:
             "string": self.do_string,
             "switch": self.do_switch,
             "clone": self.do_clone,
+            "advance": self.do_advance,
+            "flag": self.do_flag,
+            "allow": self.do_allow,
+            "deny": self.do_deny,
+            "ban": self.do_ban,
+            "guild": self.do_guild,
+            "dump": self.do_dump,
+            "trust": self.do_trust,
+            "violate": self.do_violate,
+            "disconnect": self.do_disconnect,
+            "permban": self.do_permban,
+            "protect": self.do_protect,
+            "reboot": self.do_reboot,
+            "shutdown": self.do_shutdown,
+            "wizlock": self.do_wizlock,
+            "force": self.do_force,
+            "newlock": self.do_newlock,
+            "pardon": self.do_pardon,
+            "penalty": self.do_penalty,
         }
         handler = handlers.get(command_name)
         if handler is None:
@@ -173,62 +204,16 @@ class Wiz:
         return self._command_payload("enable" if enabled else "disable")
 
     def do_invis(self, character: Character, context: Context):
-        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
-        if blocked is not None:
-            return blocked
-        arg = WizUtil.argument_text(context.result, context.parameters).strip()
-        current = GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0)
-        if not arg:
-            character.status_flags.invis_level = 0 if current > 0 else CharacterApi.get_trust(character)
-        else:
-            character.status_flags.invis_level = GenericUtil.to_int(arg, 0)
-        room = self.room_registry.get_or_none(id=character.room_id)
-        context.finish()
-        return self._command_payload(
-            "enable" if GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0) > 0 else "disable",
-            targets=[] if room is None else room.player_targets(character),
-        )
+        return self._toggle_level_visibility(character, context, "invis_level")
 
     def do_incognito(self, character: Character, context: Context):
-        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
-        if blocked is not None:
-            return blocked
-        arg = WizUtil.argument_text(context.result, context.parameters).strip()
-        current = GenericUtil.to_int(getattr(character.status_flags, "incog_level", 0), 0)
-        if not arg:
-            character.status_flags.incog_level = 0 if current > 0 else CharacterApi.get_trust(character)
-        else:
-            character.status_flags.incog_level = GenericUtil.to_int(arg, 0)
-        room = self.room_registry.get_or_none(id=character.room_id)
-        context.finish()
-        return self._command_payload(
-            "enable" if GenericUtil.to_int(getattr(character.status_flags, "incog_level", 0), 0) > 0 else "disable",
-            targets=[] if room is None else room.player_targets(character),
-        )
+        return self._toggle_level_visibility(character, context, "incog_level")
 
     def do_bamfin(self, character: Character, context: Context):
-        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
-        if blocked is not None:
-            return blocked
-        text = WizUtil.argument_text(context.result, context.parameters).strip()
-        if not text:
-            context.finish()
-            return self._command_payload("default", tokens={"s": (character.context or {}).get("poofin", "")})
-        character.context["poofin"] = text
-        context.finish()
-        return self._command_payload("set", tokens={"s": text})
+        return self._set_poof_text(character, context, "poofin")
 
     def do_bamfout(self, character: Character, context: Context):
-        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
-        if blocked is not None:
-            return blocked
-        text = WizUtil.argument_text(context.result, context.parameters).strip()
-        if not text:
-            context.finish()
-            return self._command_payload("default", tokens={"s": (character.context or {}).get("poofout", "")})
-        character.context["poofout"] = text
-        context.finish()
-        return self._command_payload("set", tokens={"s": text})
+        return self._set_poof_text(character, context, "poofout")
 
     def do_echo(self, character: Character, context: Context):
         argument = WizUtil.argument_text(context.result, context.parameters)
@@ -359,57 +344,60 @@ class Wiz:
         )
 
     def do_nochannels(self, character: Character, context: Context):
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters))
-        bit = CharacterApi.enum_bit(self.CommFlagsEnum, "COMM_NOCHANNELS")
-        enabled = CharacterApi.is_set(victim.status_flags.comm, bit)
-        if enabled:
-            CharacterApi.unset_comm_flags(victim, bit)
-        else:
-            CharacterApi.set_comm_flags(victim, bit)
-        context.finish()
-        return self._command_payload("removed" if enabled else "set", victim=victim, wiznet_flag="WIZ_PENALTIES", wiznet_skip_flag="WIZ_SECURE")
+        return self._toggle_penalty_flag(character, context, self.CommFlagsEnum, "COMM_NOCHANNELS", "comm")
 
     def do_noemote(self, character: Character, context: Context):
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters))
-        bit = CharacterApi.enum_bit(self.CommFlagsEnum, "COMM_NOEMOTE")
-        enabled = CharacterApi.is_set(victim.status_flags.comm, bit)
-        if enabled:
-            CharacterApi.unset_comm_flags(victim, bit)
-        else:
-            CharacterApi.set_comm_flags(victim, bit)
-        context.finish()
-        return self._command_payload("removed" if enabled else "set", victim=victim, wiznet_flag="WIZ_PENALTIES", wiznet_skip_flag="WIZ_SECURE")
+        return self._toggle_penalty_flag(character, context, self.CommFlagsEnum, "COMM_NOEMOTE", "comm")
 
     def do_noshout(self, character: Character, context: Context):
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters))
-        bit = CharacterApi.enum_bit(self.CommFlagsEnum, "COMM_NOSHOUT")
-        enabled = CharacterApi.is_set(victim.status_flags.comm, bit)
-        if enabled:
-            CharacterApi.unset_comm_flags(victim, bit)
-        else:
-            CharacterApi.set_comm_flags(victim, bit)
-        context.finish()
-        return self._command_payload("removed" if enabled else "set", victim=victim, wiznet_flag="WIZ_PENALTIES", wiznet_skip_flag="WIZ_SECURE")
+        return self._toggle_penalty_flag(character, context, self.CommFlagsEnum, "COMM_NOSHOUT", "comm")
 
     def do_notell(self, character: Character, context: Context):
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters))
-        bit = CharacterApi.enum_bit(self.CommFlagsEnum, "COMM_NOTELL")
-        enabled = CharacterApi.is_set(victim.status_flags.comm, bit)
-        if enabled:
-            CharacterApi.unset_comm_flags(victim, bit)
-        else:
-            CharacterApi.set_comm_flags(victim, bit)
-        context.finish()
-        return self._command_payload("removed" if enabled else "set", victim=victim, wiznet_flag="WIZ_PENALTIES", wiznet_skip_flag="WIZ_SECURE")
+        return self._toggle_penalty_flag(character, context, self.CommFlagsEnum, "COMM_NOTELL", "comm")
 
     def do_freeze(self, character: Character, context: Context):
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters))
-        bit = CharacterApi.enum_bit(self.PlayerActBitsEnum, "PLR_FREEZE")
-        enabled = CharacterApi.is_set(victim.status_flags.act, bit)
-        if enabled:
-            CharacterApi.unset_act_flags(victim, bit)
+        return self._toggle_penalty_flag(character, context, self.PlayerActBitsEnum, "PLR_FREEZE", "act")
+
+    def _toggle_level_visibility(self, character: Character, context: Context, field_name: str):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+        arg = WizUtil.argument_text(context.result, context.parameters).strip()
+        current = GenericUtil.to_int(getattr(character.status_flags, field_name, 0), 0)
+        if not arg:
+            setattr(character.status_flags, field_name, 0 if current > 0 else CharacterApi.get_trust(character))
         else:
-            CharacterApi.set_act_flags(victim, bit)
+            setattr(character.status_flags, field_name, GenericUtil.to_int(arg, 0))
+        room = self.room_registry.get_or_none(id=character.room_id)
+        context.finish()
+        return self._command_payload(
+            "enable" if GenericUtil.to_int(getattr(character.status_flags, field_name, 0), 0) > 0 else "disable",
+            targets=[] if room is None else room.player_targets(character),
+        )
+
+    def _set_poof_text(self, character: Character, context: Context, context_key: str):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+        text = WizUtil.argument_text(context.result, context.parameters).strip()
+        if not text:
+            context.finish()
+            return self._command_payload("default", tokens={"s": (character.context or {}).get(context_key, "")})
+        character.context[context_key] = text
+        context.finish()
+        return self._command_payload("set", tokens={"s": text})
+
+    def _toggle_penalty_flag(self, _character: Character, context: Context, enum_obj, flag_name: str, flag_group: str):
+        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters))
+        bit = CharacterApi.enum_bit(enum_obj, flag_name)
+        current = getattr(victim.status_flags, flag_group)
+        enabled = CharacterApi.is_set(current, bit)
+        setter = CharacterApi.set_comm_flags if flag_group == "comm" else CharacterApi.set_act_flags
+        unsetter = CharacterApi.unset_comm_flags if flag_group == "comm" else CharacterApi.unset_act_flags
+        if enabled:
+            unsetter(victim, bit)
+        else:
+            setter(victim, bit)
         context.finish()
         return self._command_payload("removed" if enabled else "set", victim=victim, wiznet_flag="WIZ_PENALTIES", wiznet_skip_flag="WIZ_SECURE")
 
@@ -874,9 +862,6 @@ class Wiz:
         if blocked is not None:
             return blocked
         target = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters))
-        if target == character:
-            context.finish()
-            return self._command_payload("default")
         self.wiz_handler.switch_character(character, target)
         context.character = target
         context.finish()
@@ -943,19 +928,343 @@ class Wiz:
             "room_targets": [] if room is None else room.player_targets(character),
         }
 
+    def do_advance(self, character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+        return self.wiz_set_api.advance(character, context)
+
+    def do_flag(self, character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+        return self.wiz_set_api.flag(character, context)
+
+    def do_allow(self, _character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+        site = WizUtil.split_argument(WizUtil.argument_text(context.result, context.parameters))[0]
+        GameApi.remove_denied_site(site)
+        self._save_deny_list()
+        context.finish()
+        return self._command_payload("removed", tokens={"s": site})
+
+    def do_deny(self, character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+
+        argument = WizUtil.argument_text(context.result, context.parameters)
+        site, _rest = WizUtil.split_argument(argument)
+        if GameApi.looks_like_site(site):
+            GameApi.add_denied_site(site)
+            self._save_deny_list()
+            context.finish()
+            return self._command_payload("siteDenied", tokens={"s": site, "t": site})
+
+        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, argument, include_players=True, include_mobiles=False)
+        deny_bit = CharacterApi.enum_bit(self.PlayerActBitsEnum, "PLR_DENY")
+        if deny_bit:
+            CharacterApi.set_act_flags(victim, deny_bit)
+        if getattr(victim, "character_flags", None) is not None:
+            victim.character_flags.deny = True
+        self._save_character(victim)
+        self.fight_handler.stop_fighting(victim, True)
+        context.finish()
+        return self._command_payload(
+            "default",
+            victim=victim,
+            disconnect_character=victim,
+            wiznet_flag="WIZ_PENALTIES",
+            wiznet_skip_flag="WIZ_SECURE",
+            tokens={"t": WizUtil.display_name(victim)},
+        )
+
+    def do_ban(self, character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+
+        victim = WizUtil.find_world_entity(
+            self.character_registry,
+            self.room_registry,
+            WizUtil.argument_text(context.result, context.parameters),
+            include_players=True,
+            include_mobiles=False,
+        )
+        account = self._player_account_for_character(victim)
+        if account is None:
+            context.finish()
+            return self._command_payload("targetMissing")
+
+        account.banned = True
+        self._save_player(account)
+        context.finish()
+        return self._command_payload(
+            "default",
+            victim=victim,
+            disconnect_character=victim,
+            wiznet_flag="WIZ_PENALTIES",
+            wiznet_skip_flag="WIZ_SECURE",
+            tokens={"t": WizUtil.display_name(victim)},
+        )
+
+    def do_guild(self, _character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+
+        target_name, guild_name = WizApi.guild_parts(self.interp_api.build_interp_view(context))
+        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, target_name, include_players=True, include_mobiles=False)
+        normalized = str(guild_name or "").strip().lower()
+        if normalized in ("none", "no", "clanless", "remove", "0"):
+            victim.guild = ""
+            self._save_character(victim)
+            context.finish()
+            return self._command_payload("removal", victim=victim, tokens={"t": WizUtil.display_name(victim)})
+
+        victim.guild = guild_name
+        self._save_character(victim)
+        context.finish()
+        key = "add_independent" if normalized in ("independent", "loner") else "add_clan_member"
+        return self._command_payload(key, victim=victim, tokens={"s": guild_name, "g": guild_name, "t": WizUtil.display_name(victim)})
+
+    def do_dump(self, _character: Character, context: Context):
+        context.finish()
+        return {"to_char": self.wiz_handler.memory_report()}
+
+    def do_trust(self, _character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+
+        view = self.interp_api.build_interp_view(context)
+        victim = WizApi.trust_target(view)
+        _target_name, level_text = WizApi.trust_parts(view)
+        victim.trust = GenericUtil.to_int(level_text, 0)
+        self._save_character(victim)
+        context.finish()
+        return {"to_char": "Ok.\r\n"}
+
+    def do_violate(self, character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+
+        room = AreaUtil.find_location(WizUtil.argument_text(context.result, context.parameters), self.room_registry, self.character_registry, WizUtil.name_matches)
+        from_room = WizUtil.move_entity(self.room_registry, character, room)
+        context.finish()
+        return {
+            "from_room_targets": self._visible_room_targets(from_room, character),
+            "from_room_message": self._command_text(context, "exit", channel="to_victim", t=character.name),
+            "to_room_targets": self._visible_room_targets(room, character),
+            "to_room_message": self._command_text(context, "entry", channel="to_victim", t=character.name),
+            "to_room_obj": room,
+            "view_character": character,
+        }
+
+    def do_disconnect(self, _character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+
+        target = WizApi.disconnect_target(self.interp_api.build_interp_view(context))
+        context.finish()
+        return self._command_payload("default", disconnect_character=target)
+
+    def do_permban(self, _character: Character, context: Context):
+        raw = WizUtil.argument_text(context.result, context.parameters).strip()
+        if not raw or raw.lower() == "list":
+            entries = list(GameApi.deny_list())
+            context.finish()
+            if not entries:
+                return self._command_payload("null_list")
+            return {"to_char": "Banned sites:\r\n" + "\r\n".join(sorted(entries)) + "\r\n"}
+
+        option, rest = WizUtil.split_argument(raw)
+        site = option
+        if rest:
+            if option not in ("all", "newbies", "permit"):
+                context.finish()
+                return self._command_payload("invalid_option")
+            site = WizUtil.split_argument(rest)[0]
+
+        if not site:
+            context.finish()
+            return self._command_payload("no_argument")
+
+        GameApi.add_denied_site(site)
+        self._save_deny_list()
+        context.finish()
+        return self._command_payload("default", tokens={"t": site})
+
+    def do_protect(self, _character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+
+        victim = WizApi.protect_target(self.interp_api.build_interp_view(context))
+        bit = CharacterApi.enum_bit(self.CommFlagsEnum, "COMM_SNOOP_PROOF")
+        enabled = CharacterApi.is_set(getattr(victim.status_flags, "comm", 0), bit)
+        if enabled:
+            CharacterApi.unset_comm_flags(victim, bit)
+        else:
+            CharacterApi.set_comm_flags(victim, bit)
+        self._save_character(victim)
+        context.finish()
+        return self._command_payload("remove" if enabled else "set", victim=victim, tokens={"t": WizUtil.display_name(victim)})
+
+    def do_reboot(self, character: Character, context: Context):
+        return self._shutdown_payload(character, context, "reboot")
+
+    def do_shutdown(self, character: Character, context: Context):
+        return self._shutdown_payload(character, context, "shutdown")
+
+    def do_wizlock(self, character: Character, context: Context):
+        enabled = self.wiz_handler.toggle_wizlock()
+        context.finish()
+        return self._command_payload(
+            "enable" if enabled else "disable",
+            wiznet_flag="WIZ_SECURE",
+            wiznet_min_level=CharacterApi.get_trust(character),
+        )
+
+    def do_newlock(self, character: Character, context: Context):
+        enabled = self.wiz_handler.toggle_newlock()
+        context.finish()
+        return self._command_payload(
+            "enable" if enabled else "disable",
+            wiznet_flag="WIZ_SECURE",
+            wiznet_min_level=CharacterApi.get_trust(character),
+        )
+
+    def do_force(self, character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+
+        target_name, command_text = WizApi.force_parts(self.interp_api.build_interp_view(context))
+        if target_name == "all":
+            victims = [
+                victim for victim in self.character_registry.all_characters()
+                if victim != character and CharacterApi.get_trust(victim) < CharacterApi.get_trust(character)
+            ]
+        else:
+            victims = [WizApi.force_target(self.interp_api.build_interp_view(context))]
+
+        context.finish()
+        return {
+            **self._command_payload("default"),
+            "forced_commands": [{"victim": victim, "command": command_text} for victim in victims if victim is not None],
+            "force_message_key": "forced",
+        }
+
+    def do_pardon(self, _character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+
+        view = self.interp_api.build_interp_view(context)
+        victim = WizApi.pardon_target(view)
+        _target_name, flag_name = WizApi.pardon_parts(view)
+        bit_name = "PLR_KILLER" if flag_name == "killer" else "PLR_THIEF"
+        bit = CharacterApi.enum_bit(self.PlayerActBitsEnum, bit_name)
+        CharacterApi.unset_act_flags(victim, bit)
+        flags = getattr(victim, "character_flags", None)
+        if flags is not None:
+            setattr(flags, flag_name, False)
+        self._save_character(victim)
+        context.finish()
+        return self._command_payload("remove_killer" if flag_name == "killer" else "remove_thief", victim=victim)
+
+    def do_penalty(self, _character: Character, context: Context):
+        notes = self._notes_by_type(InGameNoteEnum.NOTE_PENALTY.value)
+        arg = WizUtil.argument_text(context.result, context.parameters).strip().lower()
+        if not arg:
+            context.finish()
+            return self._command_payload("no_penalties") if not notes else {"to_char": self._format_note(notes[0], 0)}
+
+        action, rest = WizUtil.split_argument(arg)
+        if action == "list":
+            limit = GenericUtil.to_int(rest, len(notes)) if rest else len(notes)
+            context.finish()
+            return self._command_payload("no_penalties") if not notes else {"to_char": self._format_note_list(notes[-limit:])}
+
+        if action in ("read", "remove", "delete"):
+            if not rest or not rest.isdigit():
+                context.finish()
+                return self._command_payload("note_remove_which_number" if action == "remove" else "note_delete_which_number" if action == "delete" else "invalid_number")
+            index = GenericUtil.to_int(rest, 0) - 1
+            if index < 0 or index >= len(notes):
+                context.finish()
+                return self._command_payload("aren_t_that_many")
+            note = notes[index]
+            if action == "read":
+                context.finish()
+                return {"to_char": self._format_note(note, index)}
+            if self.note_registry is not None:
+                self.note_registry.unregister_note(getattr(note, "id", ""))
+            context.finish()
+            return self._command_payload("ok2")
+
+        if action.isdigit():
+            index = GenericUtil.to_int(action, 0) - 1
+            if index < 0 or index >= len(notes):
+                context.finish()
+                return self._command_payload("aren_t_that_many")
+            context.finish()
+            return {"to_char": self._format_note(notes[index], index)}
+
+        if action in ("write", "subject", "to", "expire", "text", "+", "-", "post", "send"):
+            context.finish()
+            return self._command_payload("can_t_do_that")
+
+        context.finish()
+        return self._command_payload("invalid_number")
+
+    def _shutdown_payload(self, character: Character, context: Context, command_name: str) -> dict:
+        message = self._command_text(context, "default", channel="to_world", c=getattr(character, "name", ""))
+        context.finish()
+        return {
+            "broadcast_message": message,
+            "exclude_character_ids": [],
+            "close_all_connections": True,
+            "shutdown_kind": command_name,
+        }
+
+    def _notes_by_type(self, note_type: int) -> list:
+        if self.note_registry is None:
+            return []
+        notes = list(self.note_registry.get_notes_by_type(note_type) or [])
+        return sorted(notes, key=lambda note: GenericUtil.to_int(getattr(note, "date_stamp", 0), 0))
+
+    @staticmethod
+    def _format_note(note, index: int) -> str:
+        return (
+            f"[{index + 1:3d}] {getattr(note, 'sender', '')}: {getattr(note, 'subject', '')}\r\n"
+            f"To: {getattr(note, 'to_list', '')}\r\n"
+            f"Date: {getattr(note, 'date', '')}\r\n\r\n"
+            f"{getattr(note, 'text', '')}\r\n"
+        )
+
+    @staticmethod
+    def _format_note_list(notes: list) -> str:
+        lines = []
+        for index, note in enumerate(notes, start=1):
+            lines.append(f"[{index:3d}] {getattr(note, 'sender', '')}: {getattr(note, 'subject', '')}")
+        return "\r\n".join(lines) + "\r\n"
+
     @staticmethod
     def _command_payload(message_key: str, *, victim=None, targets=None, channel: str = "", tokens: dict | None = None, **extra) -> dict:
-        payload = {"message_key": str(message_key or "")}
-        if channel:
-            payload["channel"] = channel
-        if victim is not None:
-            payload["victim"] = victim
-        if targets is not None:
-            payload["targets"] = list(targets)
-        if tokens:
-            payload["tokens"] = dict(tokens)
-        payload.update(extra)
-        return payload
+        return PayloadUtil.command_payload(
+            message_key,
+            victim=victim,
+            targets=targets,
+            channel=channel,
+            tokens=tokens,
+            **extra,
+        )
 
     def _command_text(self, context: Context, message_key: str, *, channel: str = "to_char", fallback: str = "", **tokens) -> str:
         payload = self.interp_api.render_message_key(context, message_key, channel=channel, fallback=fallback, **tokens)
@@ -992,6 +1301,35 @@ class Wiz:
             self.character_registry.unregister(character)
         except KeyError:
             return
+
+    def _save_deny_list(self) -> bool:
+        if self.game_service is None:
+            return False
+        return self.game_service.save_deny_list()
+
+    def _save_player(self, player) -> bool:
+        if self.player_service is None:
+            return False
+        return self.player_service.save_player(player)
+
+    def _save_character(self, character) -> bool:
+        if self.character_service is None:
+            return False
+        return self.character_service.save_character(character)
+
+    def _player_account_for_character(self, character):
+        if character is None:
+            return None
+        account_id = str(getattr(character, "account_id", "") or "")
+        if not account_id:
+            return None
+        get_or_none = getattr(self.registry_service.player_registry, "get_or_none", None)
+        if callable(get_or_none):
+            return get_or_none(id=account_id)
+        try:
+            return self.registry_service.player_registry.get(id=account_id)
+        except Exception:
+            return None
 
     @staticmethod
     def _stat_character_text(target) -> str:

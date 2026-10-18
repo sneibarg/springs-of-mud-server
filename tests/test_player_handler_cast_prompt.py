@@ -20,13 +20,13 @@ def _stub_module(name: str, **attrs):
     return module
 
 
-for package_name in ["api", "fight", "game", "interp", "interp.commands", "player", "server", "skill", "util"]:
+for package_name in ["api", "combat", "game", "interp", "interp.commands", "player", "server", "skill", "util"]:
     package = sys.modules.get(package_name) or types.ModuleType(package_name)
     package.__path__ = [os.path.join(SRC_PATH, *package_name.split("."))]
     sys.modules[package_name] = package
 
 _stub_module("api.InterpApi", InterpApi=object)
-_stub_module("fight.FightHandler", FightHandler=object)
+_stub_module("combat.FightHandler", FightHandler=object)
 _stub_module("game.WizHandler", WizHandler=object)
 _stub_module("game.RegistryService", RegistryService=object)
 _stub_module("interp.Context", Context=object)

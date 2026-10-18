@@ -3,8 +3,8 @@ from enum import IntEnum
 
 from injector import inject
 from area.AreaHandler import AreaHandler
-from fight.CombatRegistry import CombatRegistry
-from fight.FightHandler import FightHandler
+from combat.CombatRegistry import CombatRegistry
+from combat.CombatHandler import FightHandler
 from api.GameApi import GameApi
 from game.EnumProvider import EnumProvider
 from item.EffectHandler import EffectHandler
@@ -18,6 +18,7 @@ from player.CharacterService import CharacterService
 from server.messaging.MessageBus import MessageBus
 from server.session.SessionHandler import SessionHandler
 from skill.Ability import Ability
+from util.DisplayUtil import DisplayUtil
 
 
 class UpdateHandler:
@@ -143,7 +144,7 @@ class UpdateHandler:
                 self.fight_handler.stop_fighting(attacker, both=False)
                 continue
 
-            # ROM fight.c parity: if awake and in same room then multi_hit(), else stop_fighting().
+            # ROM combat.c parity: if awake and in same room then multi_hit(), else stop_fighting().
             if room.find_entity_in_room(event.defender_id) is None:
                 self.fight_handler.stop_fighting(attacker, both=False)
                 continue
@@ -566,10 +567,7 @@ class UpdateHandler:
 
     @staticmethod
     def _display_effect_message(message) -> str:
-        text = str(message or "").strip()
-        if len(text) >= 2 and text.startswith("!") and text.endswith("!"):
-            return ""
-        return text
+        return DisplayUtil.display_effect_message(message)
 
     async def _emit_obj_effect_message(self, item, message: str):
         location = self._locate_item(item)

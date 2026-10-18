@@ -4,9 +4,11 @@ from injector import inject
 
 from api.CharacterApi import CharacterApi
 from api.GameApi import GameApi
+from api.WizApi import WizApi
 from game.RegistryService import RegistryService
 from game.WizHandler import WizHandler
 from player.Character import Character
+from player.CharacterAdvancement import CharacterAdvancement
 from player.CharacterClass import CharacterClass
 from player.CharacterRace import CharacterRace
 from util.AreaUtil import AreaUtil
@@ -54,6 +56,79 @@ class WizSetApi:
 
         context.finish()
         return self._payload("syntax")
+
+    def advance(self, actor, context) -> dict:
+        del actor
+        target_name, level_text = WizApi.advance_parts(self._view_like(context))
+        victim = WizUtil.find_world_entity(
+            self.character_registry,
+            self.room_registry,
+            target_name,
+            include_players=True,
+            include_mobiles=True,
+        )
+        level = GenericUtil.to_int(level_text, 0)
+        lowering = level <= GenericUtil.to_int(getattr(victim, "level", 0), 0)
+        if lowering:
+            self._reset_for_advance_lower(victim)
+
+        while GenericUtil.to_int(getattr(victim, "level", 0), 0) < level:
+            victim.level = GenericUtil.to_int(getattr(victim, "level", 0), 0) + 1
+            CharacterAdvancement.advance_level(victim, hide=True)
+
+        attrs = getattr(victim, "character_attributes", None)
+        if attrs is not None:
+            attrs.accumulated_experience = max(1, GenericUtil.to_int(getattr(victim, "level", 0), 0)) * GenericUtil.to_int(getattr(attrs, "experience_per_level", 0), 0)
+            attrs.experience = 0
+        victim.trust = 0
+
+        context.finish()
+        action_key = "lower" if lowering else "raise"
+        return {
+            "payloads": [
+                self._payload(action_key),
+                self._payload(action_key, victim=victim),
+                self._payload("new_level", victim=victim, tokens={"d": getattr(victim, "level", 0)}),
+            ]
+        }
+
+    def flag(self, actor, context) -> dict:
+        del actor
+        view = self._view_like(context)
+        parts = WizApi.flag_parts(view)
+        victim = WizApi.flag_target(view)
+        field_code = WizApi.flag_field_code(view)
+        status_flags = getattr(victim, "status_flags", None)
+        target_field = self._flag_target_field(field_code)
+        old = GenericUtil.to_int(getattr(status_flags, target_field, 0), 0)
+        new = 0 if parts["op"] == "=" else old
+        marked = 0
+        for word in parts["changes"].split():
+            marked |= WizApi.flag_bit(field_code, word)
+
+        for bit in self._flag_table_bits(field_code):
+            if bit == 0:
+                continue
+            if not self._flag_settable(field_code, bit) and (old & bit) != 0:
+                new |= bit
+                continue
+            if (marked & bit) == 0:
+                continue
+            if parts["op"] in ("=", "+"):
+                new |= bit
+            elif parts["op"] == "-":
+                new &= ~bit
+            elif (new & bit) != 0:
+                new &= ~bit
+            else:
+                new |= bit
+
+        if hasattr(status_flags, "assign_bitfield"):
+            status_flags.assign_bitfield(target_field, new)
+        else:
+            setattr(status_flags, target_field, new)
+        context.finish()
+        return {"to_char": ""}
 
     def _set_skill(self, context, raw: str) -> dict:
         parts = str(raw or "").split(maxsplit=2)
@@ -416,6 +491,82 @@ class WizSetApi:
         if CharacterApi.is_npc(victim) and max_train <= current_value:
             return max(25, current_value)
         return max(3, max_train)
+
+    @staticmethod
+    def _view_like(context):
+        return type("_WizSetView", (), {"context": context})()
+
+    @staticmethod
+    def _reset_for_advance_lower(victim) -> None:
+        attrs = getattr(victim, "character_attributes", None)
+        temp_practices = GenericUtil.to_int(getattr(attrs, "practices", 0), 0) if attrs is not None else 0
+        victim.level = 1
+        victim.max_hit = 10
+        victim.max_mana = 100
+        victim.max_movement = 100
+        victim.hit = victim.max_hit
+        victim.mana = victim.max_mana
+        victim.movement = victim.max_movement
+        if attrs is not None:
+            attrs.practices = 0
+            attrs.experience = 0
+            attrs.accumulated_experience = GenericUtil.to_int(getattr(attrs, "experience_per_level", 0), 0)
+        CharacterAdvancement.advance_level(victim, hide=True)
+        if attrs is not None:
+            attrs.practices = temp_practices
+
+    @staticmethod
+    def _flag_target_field(field_code: str) -> str:
+        return {
+            "act": "act",
+            "plr": "act",
+            "aff": "affected_by",
+            "imm": "imm",
+            "res": "res",
+            "vuln": "vuln",
+            "form": "form",
+            "parts": "parts",
+            "comm": "comm",
+        }.get(field_code, "")
+
+    @staticmethod
+    def _flag_table_bits(field_code: str) -> list[int]:
+        enum_names = {
+            "act": "actBits",
+            "plr": "playerActBits",
+            "aff": "affectedBy",
+            "imm": "mobImmunity",
+            "res": "mobResistance",
+            "vuln": "mobVulnerability",
+            "form": "bodyForm",
+            "parts": "bodyParts",
+            "comm": "commFlags",
+        }
+        enum_obj = CharacterApi.get_enum(enum_names.get(field_code, ""))
+        if enum_obj is None:
+            return []
+        return [int(member.value) for member in enum_obj.__members__.values()]
+
+    @staticmethod
+    def _flag_settable(field_code: str, bit: int) -> bool:
+        def bits(enum_name: str, names: tuple[str, ...]) -> set[int]:
+            enum_obj = CharacterApi.get_enum(enum_name)
+            if enum_obj is None:
+                return set()
+            return {int(enum_obj[name].value) for name in names if name in enum_obj.__members__}
+
+        protected = {
+            "act": bits("actBits", ("ACT_IS_NPC",)),
+            "plr": bits("playerActBits", (
+                "PLR_IS_NPC", "PLR_AUTOASSIST", "PLR_AUTOEXIT", "PLR_AUTOLOOT", "PLR_AUTOSAC",
+                "PLR_AUTOGOLD", "PLR_AUTOSPLIT", "PLR_HOLYLIGHT", "PLR_CANLOOT", "PLR_NOSUMMON",
+                "PLR_NOFOLLOW", "PLR_LOG", "PLR_DENY", "PLR_FREEZE", "PLR_THIEF", "PLR_KILLER",
+            )),
+            "comm": bits("commFlags", (
+                "COMM_NOEMOTE", "COMM_NOSHOUT", "COMM_NOTELL", "COMM_NOCHANNELS", "COMM_SNOOP_PROOF",
+            )),
+        }
+        return bit not in protected.get(field_code, set())
 
     @staticmethod
     def _payload(message_key: str, **extra) -> dict:

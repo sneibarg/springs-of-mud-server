@@ -4,7 +4,7 @@ import time
 
 from registries import Registry
 
-from fight.CombatEvent import CombatEvent
+from combat.CombatEvent import CombatEvent
 from util.GenericUtil import GenericUtil
 from server.LoggerFactory import LoggerFactory
 

@@ -25,6 +25,7 @@ class AnimateEntity:
     gold: int
     silver: int
     fighting: Optional[Any] = field(default=None, kw_only=True)
+    master: Optional[Any] = field(default=None, kw_only=True)
     leader: Optional[Any] = field(default=None, kw_only=True)
     equipped: Optional[Equipped] = field(default=None, kw_only=True)
     inventory: list[Any] = field(default_factory=list, kw_only=True)

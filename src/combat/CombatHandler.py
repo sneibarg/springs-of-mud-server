@@ -7,7 +7,7 @@ from api.GameApi import GameApi
 from api.ItemApi import ItemApi
 from api.CharacterApi import CharacterApi
 from api.MobileApi import MobileApi
-from fight.CombatEvent import CombatEvent
+from combat.CombatEvent import CombatEvent
 from game import GameData
 from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
@@ -21,6 +21,8 @@ from player.CharacterAdvancement import CharacterAdvancement
 from skill.Ability import Ability
 from server.LoggerFactory import LoggerFactory
 from server.messaging.MessageBus import MessageBus
+from util.CommunicationsUtil import CommunicationsUtil
+from util.DisplayUtil import DisplayUtil
 from util.GenericUtil import GenericUtil
 from util.InfoUtil import InfoUtil
 from util.ItemUtil import ItemUtil
@@ -89,12 +91,17 @@ class FightHandler:
                 prompted.extend(target for target in targets if not CharacterApi.is_npc(target))
         return prompted
 
-    def is_safe(self, attacker, victim, room=None) -> tuple[bool, str]:
+    def is_safe(self, attacker, victim, room=None, ignore_target_fighting: bool = False) -> tuple[bool, str]:
         if attacker is None or victim is None:
             return True, "You cannot attack that.\r\n"
 
         if attacker is victim:
             return True, "You hit yourself. Ouch!\r\n"
+
+        if room is None:
+            room = self._find_room_for_entity(attacker) or self._find_room_for_entity(victim)
+        if room is None:
+            return True, "They aren't here.\r\n"
 
         if room is not None and not self._entity_in_room(room, victim):
             return True, "They aren't here.\r\n"
@@ -118,7 +125,13 @@ class FightHandler:
                                                                                                         "ACT_PET")):
                 return True, "But they look so cute and cuddly...\r\n"
 
-        if victim.fighting is not None and victim.fighting is not attacker:
+        if (
+            not ignore_target_fighting
+            and
+            victim.fighting is not None
+            and victim.fighting is not attacker
+            and not CharacterApi.is_same_group(attacker, victim.fighting)
+        ):
             return True, "Kill stealing is not permitted.\r\n"
 
         # Keep this permissive for now; detailed PK and charm rules migrate next.
@@ -138,16 +151,7 @@ class FightHandler:
         return
 
     def check_parry(self, attacker, victim) -> bool:
-        if not CharacterApi.is_awake(victim):
-            return False
-        skill = self._defense_skill_percent(victim, "parry")
-        if skill <= 0:
-            return False
-
-        stats = getattr(victim, "character_attributes", None)
-        dex = GenericUtil.to_int(getattr(stats, "dexterity", 10), 10)
-        chance = max(0, min(60, skill // 2 + dex // 4))
-        return random.randint(1, 100) <= chance
+        return self._check_dex_defense(victim, "parry", max_chance=60, dex_divisor=4)
 
     def check_shield_block(self, attacker, victim) -> bool:
         if not CharacterApi.is_awake(victim) or victim.equipped is None or not victim.equipped.is_shield_equipped():
@@ -162,15 +166,68 @@ class FightHandler:
         return random.randint(1, 100) <= chance
 
     def check_dodge(self, attacker, victim) -> bool:
+        return self._check_dex_defense(victim, "dodge", max_chance=65, dex_divisor=3)
+
+    def _successful_skill_payload(self, skill_name: str, attacker, victim) -> dict | None:
+        skill = self._skill_definition(skill_name)
+        if skill is None:
+            return None
+
+        attacker_name = self._combat_target_name(attacker)
+        victim_name = self._combat_target_name(victim)
+        tokens = {"c": attacker_name, "t": victim_name, "attacker": attacker_name, "victim": victim_name}
+        rendered = {"to_char": "", "to_victim": "", "to_room": ""}
+        for channel in rendered:
+            text = self._render_skill_message(skill, channel, "success", **tokens)
+            rendered[channel] = CommunicationsUtil.ensure_message_break(text) if text else ""
+
+        if not any(rendered.values()):
+            return None
+
+        rendered["killed"] = False
+        rendered["xp_gain"] = 0
+        rendered["level_up_messages"] = ""
+        return rendered
+
+    def _skill_definition(self, skill_name: str):
+        registry = getattr(self, "skill_registry", None)
+        if registry is None:
+            return None
+        get_or_none = getattr(registry, "get_or_none", None)
+        if callable(get_or_none):
+            try:
+                return get_or_none(name=skill_name)
+            except TypeError:
+                return get_or_none(skill_name)
+        get = getattr(registry, "get", None)
+        if callable(get):
+            try:
+                return get(name=skill_name)
+            except (KeyError, TypeError):
+                return None
+        return None
+
+    @staticmethod
+    def _render_skill_message(skill, channel: str, key: str, **tokens) -> str:
+        message = getattr(skill, "message", None)
+        if callable(message):
+            return str(message(channel, key, **tokens) or "")
+        payload = getattr(skill, "payload", None)
+        render = getattr(payload, "render", None)
+        if callable(render):
+            return str(render(channel, key, **tokens) or "")
+        return ""
+
+    def _check_dex_defense(self, victim, skill_name: str, *, max_chance: int, dex_divisor: int) -> bool:
         if not CharacterApi.is_awake(victim):
             return False
-        skill = self._defense_skill_percent(victim, "dodge")
+        skill = self._defense_skill_percent(victim, skill_name)
         if skill <= 0:
             return False
 
         stats = getattr(victim, "character_attributes", None)
         dex = GenericUtil.to_int(getattr(stats, "dexterity", 10), 10)
-        chance = max(0, min(65, skill // 2 + dex // 3))
+        chance = max(0, min(max_chance, skill // 2 + dex // dex_divisor))
         return random.randint(1, 100) <= chance
 
     def update_pos(self, victim) -> None:
@@ -582,13 +639,32 @@ class FightHandler:
 
         self.logger.debug(f"Damage calculation 2: dam={dam}, applied={applied}, dam_type={dam_type}")
         if weapon_hit and attacker is not None and victim is not attacker:
-            if self.check_parry(attacker, victim) or self.check_dodge(attacker, victim) or self.check_shield_block(
-                    attacker, victim):
-                msg = self.dam_message(attacker, victim, 0, dt=dt, immune=False)
+            if self.check_parry(attacker, victim):
+                Ability.check_improve_by_name(victim, "parry", True, 6)
+                msg = self._successful_skill_payload("parry", attacker, victim) or self.dam_message(
+                    attacker, victim, 0, dt=dt, immune=False)
                 msg["killed"] = False
                 msg["xp_gain"] = 0
                 msg["level_up_messages"] = ""
-                self.logger.debug(f"Parry/Dodge/Shield Block: {msg['to_char']} {msg['to_victim']} {msg['to_room']}")
+                self.logger.debug(f"Parry: {msg['to_char']} {msg['to_victim']} {msg['to_room']}")
+                return msg
+            if self.check_dodge(attacker, victim):
+                Ability.check_improve_by_name(victim, "dodge", True, 6)
+                msg = self._successful_skill_payload("dodge", attacker, victim) or self.dam_message(
+                    attacker, victim, 0, dt=dt, immune=False)
+                msg["killed"] = False
+                msg["xp_gain"] = 0
+                msg["level_up_messages"] = ""
+                self.logger.debug(f"Dodge: {msg['to_char']} {msg['to_victim']} {msg['to_room']}")
+                return msg
+            if self.check_shield_block(attacker, victim):
+                Ability.check_improve_by_name(victim, "shield block", True, 6)
+                msg = self._successful_skill_payload("shield block", attacker, victim) or self.dam_message(
+                    attacker, victim, 0, dt=dt, immune=False)
+                msg["killed"] = False
+                msg["xp_gain"] = 0
+                msg["level_up_messages"] = ""
+                self.logger.debug(f"Shield Block: {msg['to_char']} {msg['to_victim']} {msg['to_room']}")
                 return msg
 
         immunity = self._check_immunity(victim, dam_type_name)
@@ -782,11 +858,14 @@ class FightHandler:
 
     # TO-DO
     def check_assist(self, attacker, victim) -> None:
-        from mobile.Mobile import Mobile
-        if type(attacker) is Mobile:
+        room = self.room_registry.get_or_none(id=getattr(attacker, "room_id", ""))
+        if room is None:
             return None
-        room = self.room_registry.get(id=attacker.room_id)
         for char in room.people():
+            if char is attacker or char is victim:
+                continue
+            if not CharacterApi.is_awake(char) or getattr(char, "fighting", None) is not None:
+                continue
             if (not CharacterApi.is_npc(attacker) and
                     CharacterApi.is_npc(char) and
                     MobileApi.mobile_will_assist(char) and
@@ -799,11 +878,25 @@ class FightHandler:
             if (not CharacterApi.is_npc(attacker) or
                     CharacterApi.is_affected(attacker, self.AffectBits.AFF_CHARM.value)):
 
-                if ((not CharacterApi.is_npc(char) and CharacterApi.player_auto_assist(char)) or
-                    CharacterApi.is_affected(char, self.AffectBits.AFF_CHARM.value)) and \
-                        CharacterApi.is_same_group(attacker, char) and \
-                        not self.is_safe(char, victim):
+                safe, _message = self.is_safe(char, victim, room=room)
+                if (
+                    ((not CharacterApi.is_npc(char) and CharacterApi.player_auto_assist(char))
+                     or CharacterApi.is_affected(char, self.AffectBits.AFF_CHARM.value))
+                    and CharacterApi.is_same_group(attacker, char)
+                    and not safe
+                ):
                     self.multi_hit(char, victim, dt="TYPE_UNDEFINED")
+                continue
+
+            if CharacterApi.is_npc(attacker) and not CharacterApi.is_affected(attacker, self.AffectBits.AFF_CHARM.value):
+                safe, _message = self.is_safe(char, attacker, room=room)
+                if (
+                    ((not CharacterApi.is_npc(char) and CharacterApi.player_auto_assist(char))
+                     or CharacterApi.is_affected(char, self.AffectBits.AFF_CHARM.value))
+                    and CharacterApi.is_same_group(victim, char)
+                    and not safe
+                ):
+                    self.multi_hit(char, attacker, dt="TYPE_UNDEFINED")
                 continue
         return
 
@@ -978,11 +1071,7 @@ class FightHandler:
 
     @staticmethod
     def _combat_target_name(target) -> str:
-        if target is None:
-            return "someone"
-        if CharacterApi.is_npc(target):
-            return str(getattr(target, "short_description", "") or getattr(target, "name", "someone"))
-        return str(getattr(target, "name", "someone"))
+        return DisplayUtil.entity_name(target, is_npc=CharacterApi.is_npc)
 
     @staticmethod
     def _sentence_case(text: str) -> str:

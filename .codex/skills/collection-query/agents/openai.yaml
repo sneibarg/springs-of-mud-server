@@ -1,0 +1,4 @@
+interface:
+  display_name: "Collection Query"
+  short_description: "Query SOMDB collections without dumping JSON"
+  default_prompt: "Use $collection-query to inspect SOMDB collection data before editing resources/collections."

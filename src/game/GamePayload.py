@@ -47,6 +47,7 @@ class GamePayload:
             "%c": tokens.get("c", ""),
             "%t": tokens.get("t", ""),
             "%s": tokens.get("s", ""),
+            "%g": tokens.get("g", ""),
             "%d": tokens.get("d", ""),
             "%q": tokens.get("q", ""),
             "%p": tokens.get("p", ""),

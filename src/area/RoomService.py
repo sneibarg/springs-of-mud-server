@@ -1,16 +1,18 @@
-import requests
-
 from typing import Optional, List
 from injector import inject
 from area.Exit import Exit
 from area.Room import Room
 from area.RoomRegistry import RoomRegistry
 from item.ExtraDescriptionData import ExtraDescriptionData
+from server.FetchAndRegisterMixin import FetchAndRegisterMixin
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
+from util.GenericUtil import GenericUtil
 
 
-class RoomService:
+class RoomService(FetchAndRegisterMixin):
+    log_fetch_list_count = False
+
     @inject
     def __init__(self, config: ServiceConfig, room_registry: RoomRegistry):
         self.__name__ = "RoomService"
@@ -33,34 +35,15 @@ class RoomService:
         url = f"{self.rooms_endpoint}/name/{room_name}"
         return self._fetch_and_register(url, f"room '{room_name}'")
 
-    def _fetch_and_register(self, url: str, description: str) -> Optional[Room]:
-        try:
-            response = requests.get(url, timeout=10)
-            response.raise_for_status()
-            from util.GenericUtil import GenericUtil
-            data = response.json()
-            if isinstance(data, list):
-                for room_data in data:
-                    room_data = GenericUtil.camel_to_snake_case(room_data)
-                    room = Room.from_json(room_data)
-                    room.exits = self._load_exits(room_data)
-                    room.extra_description = self._load_extra_description(room_data)
-                    self.room_registry.register(room)
-                return None
-            else:
-                room = Room.from_json(data)
-                room.exits = self._load_exits(data)
-                room.extra_description = self._load_extra_description(data)
-                self.room_registry.register(room)
-                self.logger.info(f"Loaded {description}.")
-                return room
+    def _build_fetch_item(self, room_data) -> Room:
+        room_data = GenericUtil.camel_to_snake_case(room_data)
+        room = Room.from_json(room_data)
+        room.exits = self._load_exits(room_data)
+        room.extra_description = self._load_extra_description(room_data)
+        return room
 
-        except requests.RequestException as e:
-            self.logger.error(f"Failed to fetch {description} from {url}: {e}")
-            return None
-        except Exception as e:
-            self.logger.error(f"Unexpected error processing {description}: {e}", exc_info=True)
-            return None
+    def _register_fetch_item(self, room: Room) -> None:
+        self.room_registry.register(room)
 
     def _load_extra_description(self, room_json: dict) -> Optional[ExtraDescriptionData]:
         extra_desc = str(room_json.get('extra_description'))

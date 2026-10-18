@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import Mock
-from fight import FightHandler
+from combat import CombatHandler
 
 
 class TestEventHandler(unittest.TestCase):

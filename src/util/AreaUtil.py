@@ -1,6 +1,8 @@
 from enum import IntEnum
 
 from api.CharacterApi import CharacterApi
+from util.EnumUtil import EnumUtil
+from util.RoomExitUtil import RoomExitUtil
 
 
 class DirectionEnum(IntEnum):
@@ -71,23 +73,11 @@ class AreaUtil:
 
     @staticmethod
     def get_exit_by_direction(room, direction: int):
-        if room is None:
-            return None
-        if hasattr(room, "get_exit"):
-            return room.get_exit(direction)
-        for exit_obj in room.exits:
-            if int(getattr(exit_obj, "direction", -1)) == int(direction):
-                return exit_obj
-        return None
+        return RoomExitUtil.find_exit(room, direction)
 
     @staticmethod
     def _exit_flag_value(exit_flags_enum, *names: str) -> int:
-        if exit_flags_enum is None:
-            return 0
-        for name in names:
-            if name in exit_flags_enum.__members__:
-                return int(exit_flags_enum[name].value)
-        return 0
+        return EnumUtil.value(exit_flags_enum, *names)
 
     @staticmethod
     def apply_door_reset(exit_obj, lock_state: int, exit_flags_enum):

@@ -7,6 +7,7 @@ from injector import inject
 
 from game.action import ActionGuard, ActionDefinition, ActionPlan, MessageRef
 from interp.InterpView import InterpView
+from api.AliasApi import AliasApi
 from api.CommunicationsApi import CommunicationsApi
 from api.MovementApi import MovementApi
 from api.ItemApi import ItemApi
@@ -230,6 +231,7 @@ class InterpApi:
         return {
             "__builtins__": __builtins__,
             "InterpApi": InterpApi,
+            "AliasApi": AliasApi,
             "CharacterApi": CharacterApi,
             "CommunicationsUtil": CommunicationsUtil,
             "GenericUtil": GenericUtil,

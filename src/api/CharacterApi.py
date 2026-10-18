@@ -94,7 +94,11 @@ class CharacterApi(GameApi):
         return type(char) is Mobile
 
     @classmethod
-    def is_immortal(cls, char: Character) -> bool:
+    def is_immortal(cls, char: Any) -> bool:
+        if hasattr(char, "character"):
+            char = getattr(char, "character", None)
+        if char is None:
+            return False
         return cls.GameParameters is not None and cls.get_trust(char) >= cls.GameParameters.LEVEL_IMMORTAL.value
 
     @classmethod

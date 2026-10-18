@@ -6,6 +6,7 @@ from typing import Any, TYPE_CHECKING
 from api.CharacterApi import CharacterApi
 from api.GameApi import GameApi
 from item.Item import Item
+from util.EnumUtil import EnumUtil
 from util.GenericUtil import GenericUtil
 from util.MovementUtil import MovementUtil
 
@@ -354,12 +355,7 @@ class MovementApi(GameApi):
 
     @staticmethod
     def flag_value(enum_obj, *names: str) -> int:
-        if enum_obj is None:
-            return 0
-        for name in names:
-            if name in enum_obj.__members__:
-                return int(enum_obj[name].value)
-        return 0
+        return EnumUtil.value(enum_obj, *names)
 
     @staticmethod
     def has_flag(value: int, mask: int) -> bool:

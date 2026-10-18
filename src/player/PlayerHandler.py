@@ -5,7 +5,7 @@ from typing import Any
 from injector import inject
 
 from api.InterpApi import InterpApi
-from fight.FightHandler import FightHandler
+from combat.CombatHandler import FightHandler
 from game.WizHandler import WizHandler
 from game.RegistryService import RegistryService
 from interp.Context import Context
@@ -15,6 +15,7 @@ from interp.commands.Communications import Communications
 from interp.commands.Fight import Fight
 from interp.commands.Object import Object
 from interp.commands.Wiz import Wiz
+from notes.NoteHandler import NoteHandler
 from player.Character import Character
 from api.CharacterApi import CharacterApi
 from util.GenericUtil import GenericUtil
@@ -40,10 +41,13 @@ class PlayerHandler:
                  info_commands: Info,
                  movement_commands: Movement,
                  object_commands: Object,
+                 note_handler: NoteHandler,
                  wiz_commands: Wiz):
         self.__name__ = "PlayerHandler"
         self.message_bus = message_bus
         self.interp_api = interp_api
+        self.registry_service = registry_service
+        self.player_registry = registry_service.player_registry
         self.character_registry = registry_service.character_registry
         self.area_registry = registry_service.area_registry
         self.room_registry = registry_service.room_registry
@@ -56,6 +60,7 @@ class PlayerHandler:
         self.info_commands = info_commands
         self.movement_commands = movement_commands
         self.object_commands = object_commands
+        self.note_handler = note_handler
         self.wiz_commands = wiz_commands
         self.logger = LoggerFactory.get_logger(__name__)
 
@@ -265,6 +270,41 @@ class PlayerHandler:
         if text:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
 
+    async def do_areas(self, character: Character, context: Context):
+        text = self.info_commands.do_areas(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_commands(self, character: Character, context: Context):
+        text = self.info_commands.do_commands(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_credits(self, character: Character, context: Context):
+        text = self.info_commands.do_credits(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_skills(self, character: Character, context: Context):
+        text = self.info_commands.do_skills(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_spells(self, character: Character, context: Context):
+        text = self.info_commands.do_spells(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_groups(self, character: Character, context: Context):
+        text = self.info_commands.do_groups(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
+    async def do_wizlist(self, character: Character, context: Context):
+        text = self.info_commands.do_wizlist(character, context)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+
     async def do_brief(self, character: Character, context: Context):
         text = self.info_commands.do_brief(character, context)
         if text:
@@ -442,16 +482,32 @@ class PlayerHandler:
     async def do_recall(self, character: Character, context: Context):
         await self._handle_move_payload(character, context, self.movement_commands.do_recall(character, context))
 
+    async def do_enter(self, character: Character, context: Context):
+        await self._handle_move_payload(character, context, self.movement_commands.do_enter(character, context))
+
+    async def do_go(self, character: Character, context: Context):
+        await self._handle_move_payload(character, context, self.movement_commands.do_go(character, context))
+
     async def do_train(self, character: Character, context: Context):
         await self._handle_room_action_payload(character, context, self.movement_commands.do_train(character, context))
+
+    async def do_gain(self, character: Character, context: Context):
+        await self._handle_room_action_payload(character, context, self.movement_commands.do_gain(character, context))
 
     async def do_wiz_command(self, character: Character, context: Context):
         payload = self.wiz_commands.execute(character, context)
         if isinstance(payload, dict) and payload.get("interpret_at"):
             await self._handle_at_payload(character, context, payload)
             return
+        if isinstance(payload, dict) and payload.get("forced_commands"):
+            await self._handle_force_payload(character, context, payload)
+            return
         viewer = getattr(payload, "get", lambda *_args, **_kwargs: getattr(context, "character", character))("view_character", getattr(context, "character", character))
         await self._handle_standard_command_payload(viewer, context, payload)
+
+    async def do_note_command(self, character: Character, context: Context):
+        payload = self.note_handler.execute(character, context)
+        await self._handle_standard_command_payload(character, context, payload)
 
     async def _handle_at_payload(self, character: Character, context: Context, payload: dict):
         try:
@@ -473,13 +529,34 @@ class PlayerHandler:
         nested_context = Context(
             character=character,
             handler_service=context.handler_service,
-            conn=context.conn,
+            conn=self.message_bus.connection_manager.get_connection_by_character(str(getattr(character, "id", "") or "")) or context.conn,
             command=cmd,
             parameters=InterpUtil.build_arguments(cmd, parameters),
             result=parameters,
             room=self.room_registry.get_or_none(id=character.room_id),
         )
         await self._execute_nested_lambdas(cmd, nested_context)
+
+    async def _handle_force_payload(self, character: Character, context: Context, payload: dict):
+        message_key = str(payload.get("force_message_key", "") or "forced")
+        for entry in payload.get("forced_commands", []):
+            victim = entry.get("victim")
+            command_text = str(entry.get("command", "") or "")
+            if victim is None or not command_text:
+                continue
+            rendered = self.interp_api.render_message_key(
+                context,
+                message_key,
+                channel="to_victim",
+                c=getattr(character, "name", ""),
+                s=command_text,
+                t=getattr(victim, "name", ""),
+            )
+            if rendered.get("to_victim"):
+                await self.message_bus.send_to_character(victim.id, self.message_bus.text_to_message(rendered["to_victim"]))
+            await self._interpret_nested_command(victim, context, command_text)
+        if payload.get("to_char") or payload.get("message_key"):
+            await self._handle_standard_command_payload(character, context, {key: value for key, value in payload.items() if key not in {"forced_commands", "force_message_key"}})
 
     async def _execute_nested_lambdas(self, command, context: Context):
         lambdas = getattr(command, "lambdas", None) or []
@@ -562,6 +639,12 @@ class PlayerHandler:
             if payload:
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload))
             return
+        if payload.get("ordered_commands"):
+            await self._handle_order_payload(character, context, payload)
+            return
+        if payload.get("payloads"):
+            await self._emit_standard_payloads(character, payload.get("payloads", []), context=context)
+            return
         await self._emit_standard_payload(character, payload)
         if payload.get("to_area"):
             await self.message_bus.send_to_area(character.area_id, self.message_bus.text_to_message(payload["to_area"]))
@@ -574,6 +657,26 @@ class PlayerHandler:
         if payload.get("broadcast_message"):
             exclude_ids = payload.get("exclude_character_ids", [])
             await self.message_bus.broadcast(self.message_bus.text_to_message(payload["broadcast_message"]), exclude_ids)
+
+    async def _handle_order_payload(self, character: Character, context: Context, payload: dict):
+        message_key = str(payload.get("order_message_key", "") or "ordered")
+        for entry in payload.get("ordered_commands", []):
+            victim = entry.get("victim")
+            command_text = str(entry.get("command", "") or "")
+            if victim is None or not command_text:
+                continue
+            order_payload = self.interp_api.render_message_key(
+                context,
+                message_key,
+                channel="to_victim",
+                s=command_text,
+                t=getattr(victim, "name", ""),
+            )
+            if order_payload.get("to_victim"):
+                await self.message_bus.send_to_character(victim.id, self.message_bus.text_to_message(order_payload["to_victim"]))
+            await self._interpret_nested_command(victim, context, command_text)
+        if payload.get("to_char"):
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
 
     async def do_hit(self, character: Character, context: Context):
         await self._handle_fight_payload(character, context, self.fight_commands.do_kill(character, context))
@@ -770,6 +873,8 @@ class PlayerHandler:
         if payload.get("broadcast_message"):
             exclude_ids = payload.get("exclude_character_ids", [])
             await self.message_bus.broadcast(self.message_bus.text_to_message(payload["broadcast_message"]), exclude_ids)
+        if payload.get("close_all_connections"):
+            await self.message_bus.connection_manager.close_all()
         for target in payload.get("target_messages", []):
             target_id = str(target.get("id", "") or "")
             text = str(target.get("text", "") or "")

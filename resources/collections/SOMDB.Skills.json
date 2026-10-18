@@ -394,7 +394,11 @@
     "payload": {
       "toChar": {
         "msgOff": "!Shield!",
-        "msgObj": ""
+        "msgObj": "",
+        "success": "{t} blocks your attack with a shield."
+      },
+      "toVictim": {
+        "success": "You block {c}'s attack with your shield."
       }
     },
     "guards": []
@@ -946,7 +950,11 @@
     "payload": {
       "toChar": {
         "msgOff": "!Dodge!",
-        "msgObj": ""
+        "msgObj": "",
+        "success": "{t} dodges your attack."
+      },
+      "toVictim": {
+        "success": "You dodge {c}'s attack."
       }
     },
     "guards": []
@@ -1157,7 +1165,11 @@
     "payload": {
       "toChar": {
         "msgOff": "!Parry!",
-        "msgObj": ""
+        "msgObj": "",
+        "success": "{t} parries your attack."
+      },
+      "toVictim": {
+        "success": "You parry {c}'s attack."
       }
     },
     "guards": []
