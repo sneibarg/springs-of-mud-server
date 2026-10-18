@@ -62,6 +62,14 @@ CharacterApi.get_trust = classmethod(lambda cls, character: getattr(character, "
 
 
 class TestCharacterApiImmortal(unittest.TestCase):
+    def test_is_clan_uses_guild_membership_including_independents(self):
+        for guild in (None, "", "0", " none ", "NO", "clanless"):
+            with self.subTest(guild=guild):
+                self.assertFalse(CharacterApi.is_clan(SimpleNamespace(guild=guild)))
+        for guild in ("rom", "loner", "independent", "Designer Guild"):
+            with self.subTest(guild=guild):
+                self.assertTrue(CharacterApi.is_clan(SimpleNamespace(guild=guild)))
+
     def test_is_immortal_accepts_session(self):
         session = SimpleNamespace(character=SimpleNamespace(level=55, trust=0))
 

@@ -143,6 +143,9 @@ class SpellApi:
         room = ctx.room or self._find_room_for_entity(ctx.actor)
         if room is None:
             return
+        notice = self._fight_handler(ctx).check_killer(ctx.actor, victim)
+        if notice:
+            ctx.queue_payload(notice)
         if getattr(ctx.actor, "fighting", None) is None:
             self._fight_handler(ctx).set_fighting(ctx.actor, victim, room.id)
         if getattr(victim, "fighting", None) is None:
@@ -945,6 +948,15 @@ class SpellApi:
             to_victim=str(payload.get("to_victim", "") or ""),
             victim=victim,
         )
+        notice = {key: payload[key] for key in
+                  ("to_wiznet", "wiznet_actor", "wiznet_flag", "global_message", "global_targets") if key in payload}
+        if notice:
+            ctx.queue_payload(notice)
+
+        for reward in payload.get("reward_payloads", []):
+            ctx.queue_payload(reward)
+        for action in payload.get("post_damage_actions", []):
+            ctx.queue_payload(action)
 
     def _find_room_for_entity(self, entity):
         registry = self._room_registry(entity)

@@ -63,6 +63,7 @@ class Item:
     liquid_affect_data: Optional[list] = None
     effects: Optional[List[Effect]] = None
     extra_description: Optional[ExtraDescriptionData] = None
+    owner: Optional[str] = None
 
     def __post_init__(self):
         self.__name__ = "Item"

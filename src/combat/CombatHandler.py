@@ -8,9 +8,12 @@ from api.ItemApi import ItemApi
 from api.CharacterApi import CharacterApi
 from api.MobileApi import MobileApi
 from combat.CombatEvent import CombatEvent
+from combat.WeaponHitHandler import WeaponHitHandler
 from game import GameData
 from game.EnumProvider import EnumProvider
+from game.GamePayload import GamePayload
 from game.RegistryService import RegistryService
+from game.WizHandler import WizHandler
 from game.RandomNumberGenerator import RandomNumberGenerator
 from item.EffectHandler import EffectHandler
 from item.BodyForm import BodyForm
@@ -18,6 +21,7 @@ from item.BodyParts import BodyParts
 from item.Item import Item
 from player.Character import Character
 from player.CharacterAdvancement import CharacterAdvancement
+from player.CharacterService import CharacterService
 from skill.Ability import Ability
 from server.LoggerFactory import LoggerFactory
 from server.messaging.MessageBus import MessageBus
@@ -36,7 +40,10 @@ class FightHandler:
                  registry_service: RegistryService,
                  enum_provider: EnumProvider,
                  effect_handler: EffectHandler,
-                 game_data: GameData):
+                 game_data: GameData,
+                 character_service: CharacterService,
+                 wiz_handler: WizHandler,
+                 weapon_hit_handler: WeaponHitHandler):
         self.__name__ = "FightHandler"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.message_bus = message_bus
@@ -48,7 +55,12 @@ class FightHandler:
         self.mobile_registry = registry_service.mobile_registry
         self.skill_registry = registry_service.skill_registry
         self.spell_registry = registry_service.spell_registry
+        self.shop_registry = registry_service.shop_registry
         self.effect_handler = effect_handler
+        self.character_service = character_service
+        self.wiz_handler = wiz_handler
+        self.weapon_hit_handler = weapon_hit_handler
+        self.group_reward_payload = GamePayload.from_json(game_data.group_rewards.get("payload", {}))
         self.attacks = game_data.attacks
         self.rng = RandomNumberGenerator()
         self.PositionsEnum = enum_provider.get("positions")
@@ -66,14 +78,24 @@ class FightHandler:
         self.MobResistance = CharacterApi.get_enum("mobResistance")
         self.MobVulnerability = CharacterApi.get_enum("mobVulnerability")
         self.mobile_handler = None
+        self.escape_handler = None
         self.logger.info("Initialized FightHandler instance.")
 
     def set_mobile_handler(self, mobile_handler) -> None:
         self.mobile_handler = mobile_handler
 
+    def set_escape_handler(self, escape_handler) -> None:
+        self.escape_handler = escape_handler
+
     async def emit_round_payload(self, attacker, payload: dict, *, include_improvements: bool = False) -> list:
         prompted: list = []
         if not isinstance(payload, dict):
+            return prompted
+        if payload.get("context") is not None and self.escape_handler is not None:
+            return await self.escape_handler.emit(payload)
+        if payload.get("payloads"):
+            for entry in payload["payloads"]:
+                prompted.extend(await self.emit_round_payload(attacker, entry, include_improvements=include_improvements))
             return prompted
 
         if include_improvements:
@@ -95,14 +117,22 @@ class FightHandler:
             if len(targets) > 0:
                 await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room"]), targets)
                 prompted.extend(target for target in targets if not CharacterApi.is_npc(target))
+        if payload.get("global_message"):
+            targets = payload.get("global_targets", [])
+            await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["global_message"]), targets)
+            prompted.extend(target for target in targets if not CharacterApi.is_npc(target))
+        if payload.get("to_wiznet"):
+            actor = payload.get("wiznet_actor", attacker)
+            for target in self.wiz_handler.wiznet_targets(actor, flag_name=payload.get("wiznet_flag", "")):
+                text = self.wiz_handler.decorate_wiznet_text(target, payload["to_wiznet"])
+                await self.message_bus.send_to_character(target.id, self.message_bus.text_to_message(text))
         return prompted
 
     def is_safe(self, attacker, victim, room=None, ignore_target_fighting: bool = False) -> tuple[bool, str]:
+        # Retain ignore_target_fighting for existing spell callers. Kill stealing
+        # belongs to command guards, not ROM's shared melee safety boundary.
         if attacker is None or victim is None:
             return True, "You cannot attack that.\r\n"
-
-        if attacker is victim:
-            return True, "You hit yourself. Ouch!\r\n"
 
         if room is None:
             room = self._find_room_for_entity(attacker) or self._find_room_for_entity(victim)
@@ -118,10 +148,18 @@ class FightHandler:
         if FightUtil.entity_position_value(victim) <= self.PositionsEnum.POS_DEAD.value:
             return True, "They are already dead.\r\n"
 
-        if CharacterApi.is_set(room.room_flags, self.RoomFlags.ROOM_SAFE.value):
-            return True, "Not in this room.\r\n"
+        if victim is attacker or victim.fighting is attacker:
+            return False, ""
+
+        if (CharacterApi.is_immortal(attacker)
+                and attacker.level > CharacterApi.GameParameters.LEVEL_IMMORTAL.value):
+            return False, ""
 
         if CharacterApi.is_npc(victim):
+            if CharacterApi.is_set(room.room_flags, self.RoomFlags.ROOM_SAFE.value):
+                return True, "Not in this room.\r\n"
+            if self.shop_registry.find_by_keeper_vnum(getattr(victim, "vnum", "")) is not None:
+                return True, "The shopkeeper wouldn't like that.\r\n"
             mob_act = GenericUtil.to_int(getattr(getattr(victim, "status_flags", None), "act", 0), 0)
             protected_bits = ("ACT_TRAIN", "ACT_PRACTICE", "ACT_IS_HEALER", "ACT_IS_CHANGER")
             for bit_name in protected_bits:
@@ -131,30 +169,138 @@ class FightHandler:
                                                                                                         "ACT_PET")):
                 return True, "But they look so cute and cuddly...\r\n"
 
-        if (
-            not ignore_target_fighting
-            and
-            victim.fighting is not None
-            and victim.fighting is not attacker
-            and not CharacterApi.is_same_group(attacker, victim.fighting)
-        ):
-            return True, "Kill stealing is not permitted.\r\n"
+            if (not CharacterApi.is_npc(attacker)
+                    and CharacterApi.is_affected(victim, self.AffectBits.AFF_CHARM.value)
+                    and getattr(victim, "master", None) is not attacker):
+                return True, "You don't own that monster.\r\n"
+        elif CharacterApi.is_npc(attacker):
+            if CharacterApi.is_set(room.room_flags, self.RoomFlags.ROOM_SAFE.value):
+                return True, "Not in this room.\r\n"
+            master = getattr(attacker, "master", None)
+            if (CharacterApi.is_affected(attacker, self.AffectBits.AFF_CHARM.value)
+                    and master is not None and master.fighting is not victim):
+                return True, "Players are your friends!\r\n"
+        else:
+            if not CharacterApi.is_clan(attacker):
+                return True, "Join a clan if you want to kill players.\r\n"
+            if (self._player_act_enabled(victim, "PLR_KILLER")
+                    or self._player_act_enabled(victim, "PLR_THIEF")):
+                return False, ""
+            if not CharacterApi.is_clan(victim):
+                return True, "They aren't in a clan, leave them alone.\r\n"
+            if attacker.level > victim.level + 8:
+                return True, "Pick on someone your own size.\r\n"
 
-        # Keep this permissive for now; detailed PK and charm rules migrate next.
         return False, ""
 
     def is_safe_spell(self, attacker, victim, area: bool = False) -> bool:
         if attacker is None or victim is None:
             return True
+        room = self._find_room_for_entity(attacker)
+        if (room is None or not self._entity_in_room(room, victim)
+                or attacker.room_id != victim.room_id
+                or FightUtil.entity_position_value(victim) <= self.PositionsEnum.POS_DEAD.value):
+            return True
         if area and victim is attacker:
             return True
-        room = self._find_room_for_entity(attacker)
-        safe, _message = self.is_safe(attacker, victim, room=room)
-        return safe
+        if victim is attacker or victim.fighting is attacker:
+            return False
+        if (not area and CharacterApi.is_immortal(attacker)
+                and attacker.level > CharacterApi.GameParameters.LEVEL_IMMORTAL.value):
+            return False
 
-    #  TO-DO
-    def check_killer(self, attacker, victim) -> None:
-        return
+        # Spell safety has its own area and group policy; melee safety's
+        # immortal override must not bypass these exclusions for area spells.
+        if CharacterApi.is_npc(victim):
+            if CharacterApi.is_set(room.room_flags, self.RoomFlags.ROOM_SAFE.value):
+                return True
+            if self.shop_registry.find_by_keeper_vnum(getattr(victim, "vnum", "")) is not None:
+                return True
+            mob_act = GenericUtil.to_int(getattr(getattr(victim, "status_flags", None), "act", 0), 0)
+            if any(CharacterApi.is_set(mob_act, CharacterApi.enum_bit(self.ActBits, name))
+                   for name in ("ACT_TRAIN", "ACT_PRACTICE", "ACT_IS_HEALER", "ACT_IS_CHANGER")):
+                return True
+            if not CharacterApi.is_npc(attacker):
+                if CharacterApi.is_set(mob_act, CharacterApi.enum_bit(self.ActBits, "ACT_PET")):
+                    return True
+                if (CharacterApi.is_affected(victim, self.AffectBits.AFF_CHARM.value)
+                        and (area or getattr(victim, "master", None) is not attacker)):
+                    return True
+                if victim.fighting is not None and not CharacterApi.is_same_group(attacker, victim.fighting):
+                    return True
+            elif area and not CharacterApi.is_same_group(victim, attacker.fighting):
+                return True
+        else:
+            if (area and CharacterApi.is_immortal(victim)
+                    and victim.level > CharacterApi.GameParameters.LEVEL_IMMORTAL.value):
+                return True
+            if CharacterApi.is_npc(attacker):
+                master = getattr(attacker, "master", None)
+                if (CharacterApi.is_affected(attacker, self.AffectBits.AFF_CHARM.value)
+                        and master is not None and master.fighting is not victim):
+                    return True
+                if CharacterApi.is_set(room.room_flags, self.RoomFlags.ROOM_SAFE.value):
+                    return True
+                if attacker.fighting is not None and not CharacterApi.is_same_group(attacker.fighting, victim):
+                    return True
+            else:
+                if not CharacterApi.is_clan(attacker):
+                    return True
+                if (self._player_act_enabled(victim, "PLR_KILLER")
+                        or self._player_act_enabled(victim, "PLR_THIEF")):
+                    return False
+                if not CharacterApi.is_clan(victim) or attacker.level > victim.level + 8:
+                    return True
+        return False
+
+    def check_killer(self, attacker, victim) -> dict:
+        if attacker is None or victim is None:
+            return {}
+        seen = set()
+        while CharacterApi.is_affected(victim, self.AffectBits.AFF_CHARM.value) and victim.master is not None:
+            if id(victim) in seen:
+                self.logger.error("Check_killer: cyclic charm ownership")
+                return {}
+            seen.add(id(victim))
+            victim = victim.master
+        if (CharacterApi.is_npc(victim) or self._player_act_enabled(victim, "PLR_KILLER")
+                or self._player_act_enabled(victim, "PLR_THIEF")):
+            return {}
+
+        if CharacterApi.is_affected(attacker, self.AffectBits.AFF_CHARM.value):
+            master = attacker.master
+            room = self._find_room_for_entity(attacker)
+            visible = master is not None and room is not None and CharacterApi.can_see(master, attacker, room)
+            self.effect_handler.affect_strip(attacker, "spell.charm_person")
+            attacker.set_affected(self.AffectBits, "AFF_CHARM", False)
+            if master is None:
+                self.logger.error(f"Check_killer: {DisplayUtil.entity_name(attacker, is_npc=CharacterApi.is_npc)} bad AFF_CHARM")
+                return {}
+            if getattr(master, "pet", None) is attacker:
+                master.pet = None
+            attacker.master = None
+            attacker.leader = None
+            if visible:
+                return {
+                    "to_char": f"You stop following {DisplayUtil.entity_name(master, is_npc=CharacterApi.is_npc)}.\r\n",
+                    "global_message": f"{DisplayUtil.entity_name(attacker, is_npc=CharacterApi.is_npc)} stops following you.\r\n",
+                    "global_targets": [] if CharacterApi.is_npc(master) else [master],
+                }
+            return {}
+
+        if (CharacterApi.is_npc(attacker) or attacker is victim
+                or attacker.level >= CharacterApi.GameParameters.LEVEL_IMMORTAL.value
+                or not CharacterApi.is_clan(attacker) or self._player_act_enabled(attacker, "PLR_KILLER")
+                or attacker.fighting is victim):
+            return {}
+        CharacterApi.set_act_flags(attacker, CharacterApi.enum_bit(self.PlayerActBits, "PLR_KILLER"))
+        self.character_service.save_character(attacker)
+        return {
+            "to_char": "*** You are now a KILLER!! ***\r\n",
+            "to_wiznet": f"{attacker.name} is attempting to murder {victim.name}",
+            "wiznet_actor": attacker,
+            "wiznet_flag": "WIZ_FLAGS",
+        }
 
     def check_parry(self, attacker, victim) -> bool:
         return self._check_dex_defense(victim, "parry", max_chance=60, dex_divisor=4)
@@ -436,13 +582,17 @@ class FightHandler:
                                               form_flags=form, parts_flags=parts)
 
     def make_corpse(self, victim, room) -> None:
-        vnum = self.WellKnownObjectVnums.OBJ_VNUM_CORPSE_PC.value if type(
-            victim) is Character else self.WellKnownObjectVnums.OBJ_VNUM_CORPSE_NPC.value
+        is_npc = CharacterApi.is_npc(victim)
+        vnum = (self.WellKnownObjectVnums.OBJ_VNUM_CORPSE_NPC.value if is_npc
+                else self.WellKnownObjectVnums.OBJ_VNUM_CORPSE_PC.value)
         money, timer_max, timer_min = self._corpse_timer_and_money(victim)
         corpse = ItemUtil.create_object(self.item_registry.get(vnum=str(vnum)))
         corpse.timer = random.randint(timer_min, timer_max)
         corpse.level = GenericUtil.to_int(victim.level)
         corpse.cost = 0
+        corpse.owner = victim.name if not is_npc and not CharacterApi.is_clan(victim) else None
+        if not is_npc:
+            CharacterApi.unset_act_flags(victim, CharacterApi.enum_bit(self.PlayerActBits, "PLR_CANLOOT"))
         victim_name = self._corpse_name(victim)
         corpse.short_description = self._format_template(getattr(corpse, "short_description", ""), victim_name)
         corpse.long_description = self._format_template(getattr(corpse, "long_description", ""), victim_name)
@@ -454,8 +604,17 @@ class FightHandler:
 
     def _transfer_victim_property(self, corpse: Item, room, victim):
         for item in victim.owned_items():
+            # Unequipping clears wear metadata, so remember floating status first.
+            floating = self._is_floating_item(item)
+            equipped = getattr(victim, "equipped", None)
+            slots = [slot for slot, worn in vars(equipped).items() if worn is item] if equipped else []
+            if slots:
+                self.effect_handler.remove_item_effects(victim, item)
+                for slot in slots:
+                    victim.unequip_item(slot)
+            victim.remove_item(item)
             self._prepare_loot_item(item)
-            if self._is_floating_item(item):
+            if floating:
                 room.add_item_to_room(item)
             else:
                 corpse.contains.append(item)
@@ -469,12 +628,72 @@ class FightHandler:
                 victim.gold = 0
                 victim.silver = 0
         else:
-            if victim.gold > 1 or victim.silver > 1:
-                money = ItemUtil.create_money(victim.gold, victim.silver, self.item_registry, self.WellKnownObjectVnums)
-                victim.gold -= victim.gold / 2
-                victim.silver -= victim.silver / 2
+            if CharacterApi.is_clan(victim) and (victim.gold > 1 or victim.silver > 1):
+                gold, silver = victim.gold // 2, victim.silver // 2
+                money = ItemUtil.create_money(gold, silver, self.item_registry, self.WellKnownObjectVnums)
+                victim.gold -= gold
+                victim.silver -= silver
             timer_min, timer_max = 25, 40
         return money, timer_max, timer_min
+
+    def group_gain(self, attacker, victim) -> dict:
+        rewards = {"xp_gain": 0, "level_up_messages": "", "reward_payloads": []}
+        if attacker is None or attacker is victim:
+            return rewards
+        room = self._find_room_for_entity(attacker)
+        if room is None:
+            return rewards
+        members = [entity for entity in room.people() if CharacterApi.is_same_group(entity, attacker)]
+        total_levels = sum(member.level // 2 if CharacterApi.is_npc(member) else member.level for member in members)
+        if not members:
+            self.logger.error("Group_gain: members.")
+            return rewards
+        for member in members:
+            if CharacterApi.is_npc(member):
+                continue
+            xp = self.xp_compute(member, victim, total_levels)
+            advancement = CharacterAdvancement.gain_experience(member, xp)
+            message = self.group_reward_payload.render("to_victim", "xp_received", xp=xp)
+            rewards["reward_payloads"].append({
+                "victim": member,
+                "to_victim": CommunicationsUtil.ensure_message_break(message) + advancement.level_up_messages,
+            })
+            if member is attacker:
+                rewards["xp_gain"] = xp
+                rewards["level_up_messages"] = advancement.level_up_messages
+            # The local ROM loop names ch (the killer), not gch.
+            # Preserve its equipment check after each player's XP/alignment update.
+            rewards["reward_payloads"].extend(self._drop_alignment_equipment(attacker, room))
+        return rewards
+
+    def _drop_alignment_equipment(self, character, room) -> list[dict]:
+        payloads = []
+        equipped = getattr(character, "equipped", None)
+        if equipped is None:
+            return payloads
+        for slot, item in list(vars(equipped).items()):
+            if item is None:
+                continue
+            incompatible = (
+                (ItemApi.has_item_flag(item, self.ItemFlags, "ITEM_ANTI_EVIL") and CharacterApi.is_evil(character))
+                or (ItemApi.has_item_flag(item, self.ItemFlags, "ITEM_ANTI_GOOD") and CharacterApi.is_good(character))
+                or (ItemApi.has_item_flag(item, self.ItemFlags, "ITEM_ANTI_NEUTRAL") and CharacterApi.is_neutral(character))
+            )
+            if not incompatible:
+                continue
+            self.effect_handler.remove_item_effects(character, item)
+            character.unequip_item(slot)
+            character.remove_item(item)
+            room.add_item_to_room(item)
+            tokens = {"item": str(getattr(item, "short_description", "") or getattr(item, "name", "")),
+                      "attacker": DisplayUtil.entity_name(character, is_npc=CharacterApi.is_npc)}
+            payloads.append({
+                "victim": character,
+                "to_victim": CommunicationsUtil.ensure_message_break(self.group_reward_payload.render("to_victim", "zap", **tokens)),
+                "to_room": CommunicationsUtil.ensure_message_break(self.group_reward_payload.render("to_room", "zap", **tokens)),
+                "targets": [entity for entity in room.people() if entity is not character and not CharacterApi.is_npc(entity)],
+            })
+        return payloads
 
     def xp_compute(self, gch, victim, total_levels: int) -> int:
         if gch is None or victim is None:
@@ -613,8 +832,25 @@ class FightHandler:
 
     def damage(self, attacker, victim, dam: int, dt: str = "TYPE_HIT", dam_type: str = "NONE", show: bool = True,
                weapon_hit: bool = False) -> dict:
-        if victim is None:
-            self._error_payload()
+        if victim is None or FightUtil.entity_position_value(victim) <= self.PositionsEnum.POS_DEAD.value:
+            return self._error_payload()
+
+        # Keep the final safety boundary here for every damage caller, including
+        # spells and zero-damage attacks that can still initiate combat.
+        notice = {}
+        if attacker is not victim:
+            safe, message = self.is_safe(attacker, victim)
+            if safe:
+                payload = self._error_payload()
+                payload["to_char"] = message
+                return payload
+            notice = self.check_killer(attacker, victim)
+
+        result = self._apply_damage(attacker, victim, dam, dt, dam_type, show, weapon_hit)
+        return self._merge_attack_payloads(notice, result)
+
+    def _apply_damage(self, attacker, victim, dam: int, dt: str, dam_type: str, show: bool,
+                      weapon_hit: bool) -> dict:
 
         applied = max(0, GenericUtil.to_int(dam, 0))
         dam_type_name = FightUtil.normalize_damage_type_name(dam_type)
@@ -695,23 +931,28 @@ class FightHandler:
 
         original_hit = GenericUtil.to_int(getattr(victim, "hit", 0), 0)
         setattr(victim, "hit", original_hit - applied)
+        if (not CharacterApi.is_npc(victim) and victim.level >= CharacterApi.GameParameters.LEVEL_IMMORTAL.value
+                and victim.hit < 1):
+            victim.hit = 1
         self.update_pos(victim)
 
         killed = False
         xp_gain = 0
-        advancement = None
         if FightUtil.entity_position_value(victim) <= int(self.PositionsEnum.POS_DEAD.value):
             killed = True
-            xp_gain = 0
-            if attacker is not None and not CharacterApi.is_npc(attacker) and CharacterApi.is_npc(victim):
-                attacker_level = max(1, GenericUtil.to_int(getattr(attacker, "level", 1), 1))
-                xp_gain = self.xp_compute(attacker, victim, attacker_level)
-                advancement = CharacterAdvancement.gain_experience(attacker, xp_gain)
+            rewards = self.group_gain(attacker, victim)
+            msg.update(rewards)
+            xp_gain = rewards["xp_gain"]
             self.raw_kill(victim)
+        elif attacker is not victim and getattr(self, "escape_handler", None) is not None:
+            actions = self.escape_handler.after_damage(attacker, victim, applied)
+            if actions:
+                msg["post_damage_actions"] = actions
 
         msg["killed"] = killed
         msg["xp_gain"] = xp_gain if killed else 0
-        msg["level_up_messages"] = advancement.level_up_messages if advancement is not None else ""
+        msg.setdefault("level_up_messages", "")
+        msg["damage_applied"] = applied
         return msg
 
     def set_fighting(self, attacker: Any, defender: Any, room_id: str) -> CombatEvent | None:
@@ -778,7 +1019,12 @@ class FightHandler:
             Ability.check_improve_by_name(attacker, improve_skill, True, 5)
             self.logger.info(
                 f"Hit: {attacker.name}, dam: {dam}, roll: {roll}, thac0: {thac0}, victim_ac: {victim_ac}, weapon: {getattr(weapon, 'name', None)}, dam_type: {dam_type}, skill_name: {improve_skill}, skill: {skill}, base_skill: {base_skill}")
-            return self.damage(attacker, victim, dam, dt=attack_verb, dam_type=dam_type, weapon_hit=True)
+            result = self.damage(attacker, victim, dam, dt=attack_verb, dam_type=dam_type, weapon_hit=True)
+            if weapon is not None and result.get("damage_applied", 0) > 0 and attacker.fighting is victim:
+                effects = self.weapon_hit_handler.apply(attacker, victim, weapon, damage=self.damage,
+                                                        immunity=self._check_immunity, room=attacker_room)
+                result = self._merge_attack_payloads(result, effects)
+            return result
 
     def mob_hit(self, attacker, victim, dt: str = "TYPE_HIT") -> dict:
         payload = self.one_hit(attacker, victim, dt=dt)
@@ -915,6 +1161,9 @@ class FightHandler:
             "to_room": result.get("to_room", ""),
             "targets": [ch for ch in targets if str(getattr(ch, "id", "") or "") not in (attacker_id, victim_id)],
         }
+        for key in ("to_wiznet", "wiznet_actor", "wiznet_flag", "global_message", "global_targets"):
+            if key in result:
+                payload[key] = result[key]
 
         if not CharacterApi.is_npc(victim):
             payload["victim"] = victim
@@ -927,14 +1176,17 @@ class FightHandler:
             #     payload["to_victim"] = self._append_condition_line(payload.get("to_victim", ""), attacker)
 
         if not result.get("killed"):
+            if result.get("post_damage_actions"):
+                return {"payloads": [payload, *result["post_damage_actions"]]}
             return payload
 
         if not CharacterApi.is_npc(attacker):
             victim_name = self._combat_target_name(victim)
             payload["to_char"] = (payload["to_char"] or "") + f"{victim_name} is DEAD!!\r\n"
             xp_gain = int(result.get("xp_gain", 0) or 0)
-            payload["to_char"] = (payload["to_char"] or "") + f"You receive {xp_gain} experience points.\r\n"
-            payload["to_char"] = (payload["to_char"] or "") + str(result.get("level_up_messages", "") or "")
+            if "reward_payloads" not in result:
+                payload["to_char"] = (payload["to_char"] or "") + f"You receive {xp_gain} experience points.\r\n"
+                payload["to_char"] = (payload["to_char"] or "") + str(result.get("level_up_messages", "") or "")
             payload["to_char"] = (payload["to_char"] or "") + f"You hear {victim_name}'s death cry.\r\n"
 
             corpse = self._find_latest_corpse(room, victim, pre_corpse_ids)
@@ -949,6 +1201,9 @@ class FightHandler:
                         payload["to_char"] = (payload["to_char"] or "") + sacrifice.get("to_char", "")
                         payload["to_room"] = (payload["to_room"] or "") + sacrifice.get("to_room", "")
 
+        extra_payloads = result.get("reward_payloads", []) + result.get("post_damage_actions", [])
+        if extra_payloads:
+            return {"payloads": [payload, *extra_payloads]}
         return payload
 
     def _find_room_for_entity(self, entity):
@@ -1103,14 +1358,17 @@ class FightHandler:
         if not extra:
             return base
 
-        merged = dict(base)
-        for key in ("to_char", "to_victim", "to_room"):
-            left = str(merged.get(key, "") or "")
+        merged = {**extra, **base}
+        for key in ("to_char", "to_victim", "to_room", "level_up_messages"):
+            left = str(base.get(key, "") or "")
             right = str(extra.get(key, "") or "")
             merged[key] = left + right
-        merged["killed"] = bool(merged.get("killed")) or bool(extra.get("killed"))
-        merged["xp_gain"] = GenericUtil.to_int(merged.get("xp_gain", 0), 0) + GenericUtil.to_int(
+        merged["killed"] = bool(base.get("killed")) or bool(extra.get("killed"))
+        merged["xp_gain"] = GenericUtil.to_int(base.get("xp_gain", 0), 0) + GenericUtil.to_int(
             extra.get("xp_gain", 0), 0)
+        for key in ("reward_payloads", "post_damage_actions"):
+            if key in base or key in extra:
+                merged[key] = base.get(key, []) + extra.get(key, [])
         return merged
 
     def _autoloot_corpse(self, character, corpse) -> None:

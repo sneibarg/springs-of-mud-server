@@ -390,6 +390,8 @@ class Movement:
         current.remove_player_from_room(character)
         temple_room.add_player_to_room(character)
         character.room_id = temple_room.id
+        character.area_id = temple_room.area_id
+        self.fight_handler.stop_fighting(character, both=True)
         character.movement = max(0, GenericUtil.to_int(getattr(character, "movement", 0), 0) // 2)
         to_targets = temple_room.player_targets(character)
         context.finish()

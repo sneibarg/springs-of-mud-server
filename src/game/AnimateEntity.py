@@ -183,7 +183,7 @@ class AnimateEntity:
     def owned_items(self) -> list:
         seen = set()
         items = []
-        for item in list(getattr(self, "loot", []) or []):
+        for item in list(self._item_collection()):
             item_id = id(item)
             if item is not None and item_id not in seen:
                 items.append(item)

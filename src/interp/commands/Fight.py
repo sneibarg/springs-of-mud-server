@@ -255,6 +255,7 @@ class Fight:
         skill = view.skill
         room = view.room
         victim = view.victim
+        notice = self.fight_handler.check_killer(character, victim)
         obj = getattr(getattr(victim, "equipped", None), "wielded", None)
 
         chance = self._combat_skill_chance(character, victim, skill, primary_stat="dexterity", defend_stat="strength", level_scale=2)
@@ -269,6 +270,8 @@ class Fight:
             self._check_improve(character, skill, False, 1)
             payload = {"payloads": [self._command_payload("failed", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)]}
         context.finish()
+        if notice:
+            payload["payloads"].insert(0, notice)
         return payload
 
     def do_flee(self, character: Character, context: Context):

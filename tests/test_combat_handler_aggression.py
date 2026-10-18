@@ -14,6 +14,8 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
+from tests.test_character_api_immortal import CharacterApi as RealCharacterApi
+
 
 def _stub_package(name: str):
     if name in sys.modules:
@@ -67,6 +69,11 @@ class _RoomFlags(IntEnum):
     ROOM_SAFE = 1
 
 
+class _PlayerActBits(IntEnum):
+    PLR_KILLER = 1
+    PLR_THIEF = 2
+
+
 class _AffectBits(IntEnum):
     AFF_CALM = 1
     AFF_CHARM = 2
@@ -83,6 +90,14 @@ class _Positions(IntEnum):
 
 
 class _CharacterApi:
+    # Use the real membership helper with this module's isolated API stubs.
+    is_clan = staticmethod(RealCharacterApi.is_clan)
+    GameParameters = RealCharacterApi.GameParameters
+
+    @staticmethod
+    def set_act_flags(entity, bit):
+        entity.status_flags.act |= int(bit)
+
     @staticmethod
     def is_npc(entity):
         return bool(getattr(entity, "is_npc", False))
@@ -128,6 +143,8 @@ class _CharacterApi:
 
     @staticmethod
     def is_same_group(left, right):
+        if left is None or right is None:
+            return False
         if getattr(left, "leader", None) is not None:
             left = left.leader
         if getattr(right, "leader", None) is not None:
@@ -194,6 +211,7 @@ _stub_package("game")
 _stub_module("game", GameData=object, __path__=[str(SRC / "game")])
 _stub_module("game.EnumProvider", EnumProvider=object)
 _stub_module("game.RegistryService", RegistryService=object)
+_stub_module("game.WizHandler", WizHandler=object)
 _stub_module("game.RandomNumberGenerator", RandomNumberGenerator=_RandomNumberGenerator)
 _stub_package("item")
 _stub_module("item.EffectHandler", EffectHandler=object)
@@ -205,11 +223,13 @@ _stub_module("mobile.Mobile", Mobile=type("Mobile", (), {}))
 _stub_package("player")
 _stub_module("player.Character", Character=_Character)
 _stub_module("player.CharacterAdvancement", CharacterAdvancement=object)
+_stub_module("player.CharacterService", CharacterService=object)
 _stub_package("server")
 _stub_module("server.LoggerFactory", LoggerFactory=_LoggerFactory)
 _stub_package("server.messaging")
 _stub_module("server.messaging.MessageBus", MessageBus=object)
 _stub_package("util")
+_stub_module("util.InterpUtil", InterpUtil=SimpleNamespace())
 _load_module("util.GenericUtil", "util/GenericUtil.py")
 _load_module("util.FightUtil", "util/FightUtil.py")
 _stub_module("util.InfoUtil", InfoUtil=SimpleNamespace())
@@ -256,6 +276,734 @@ FightHandler = _load_module("combat.FightHandler", "combat/CombatHandler.py").Fi
 
 
 class TestFightHandlerAggression(unittest.TestCase):
+    def test_one_hit_weapon_effects_require_damage_and_continued_combat(self):
+        for roll, applied, fighting, expected in ((0, 10, True, False), (19, 0, True, False),
+                                                  (19, 10, False, False), (19, 10, True, True)):
+            with self.subTest(roll=roll, applied=applied, fighting=fighting):
+                attacker, victim, handler = self._killer_pair()
+                attacker.equipped = SimpleNamespace(wielded=SimpleNamespace(
+                    name="blade", item_type="weapon", value0=1, value3="stab"))
+                room = self._safety_room(attacker, victim)
+                room.id = "room-1"
+                handler.room_registry.get = Mock(return_value=room)
+                handler._thac0 = Mock(return_value=0)
+                handler._victim_ac_for_damage_type = Mock(return_value=0)
+                handler._to_hit_roll = Mock(return_value=roll)
+                handler._attack_damage = Mock(return_value=10)
+                attacker.fighting = victim if fighting else None
+                handler.damage = Mock(return_value={"to_char": "hit", "damage_applied": applied,
+                                                    "xp_gain": 0, "killed": not fighting})
+                handler.weapon_hit_handler = SimpleNamespace(apply=Mock(return_value={
+                    "to_char": "proc", "xp_gain": 3, "killed": True, "level_up_messages": "level"}))
+                result = handler.one_hit(attacker, victim)
+                self.assertEqual(expected, handler.weapon_hit_handler.apply.called)
+                if expected:
+                    self.assertEqual("hitproc", result["to_char"])
+                    self.assertEqual(3, result["xp_gain"])
+                    self.assertEqual("level", result["level_up_messages"])
+                    self.assertTrue(result["killed"])
+
+    def _killer_pair(self):
+        attacker, victim = self._player("attacker"), self._player("victim")
+        attacker.name, victim.name = "Attacker", "Victim"
+        return attacker, victim, self._handler(self._safety_room(attacker, victim))
+
+    def _charm(self, entity, master=None):
+        entity.status_flags.affected_by = int(_AffectBits.AFF_CHARM)
+        entity.master = master
+        def set_affected(_bits, _name, enabled):
+            if not enabled:
+                entity.status_flags.affected_by &= ~int(_AffectBits.AFF_CHARM)
+        entity.set_affected = set_affected
+
+    def test_check_killer_marks_saves_and_returns_notices_once(self):
+        attacker, victim, handler = self._killer_pair()
+        attacker.status_flags.act = 8
+        def save(character):
+            self.assertIs(character, attacker)
+            self.assertTrue(character.status_flags.act & int(_PlayerActBits.PLR_KILLER))
+            self.assertIsNone(character.fighting)
+            return True
+        handler.character_service.save_character.side_effect = save
+        payload = handler.check_killer(attacker, victim)
+        self.assertEqual(9, attacker.status_flags.act)
+        self.assertEqual("*** You are now a KILLER!! ***\r\n", payload["to_char"])
+        self.assertEqual("Attacker is attempting to murder Victim", payload["to_wiznet"])
+        self.assertEqual("WIZ_FLAGS", payload["wiznet_flag"])
+        self.assertIs(attacker, payload["wiznet_actor"])
+        self.assertEqual({}, handler.check_killer(attacker, victim))
+        handler.character_service.save_character.assert_called_once_with(attacker)
+
+    def test_check_killer_exemptions_do_not_mark_or_save(self):
+        for case in ("npc_victim", "killer_victim", "thief_victim", "npc_attacker", "self",
+                     "immortal", "unclanned", "already_killer", "already_fighting"):
+            with self.subTest(case=case):
+                attacker, victim, handler = self._killer_pair()
+                if case == "npc_victim":
+                    victim = self._mob("victim")
+                elif case == "killer_victim":
+                    victim.status_flags.act = int(_PlayerActBits.PLR_KILLER)
+                elif case == "thief_victim":
+                    victim.status_flags.act = int(_PlayerActBits.PLR_THIEF)
+                elif case == "npc_attacker":
+                    attacker = self._mob("attacker")
+                elif case == "self":
+                    victim = attacker
+                elif case == "immortal":
+                    attacker.level = _CharacterApi.GameParameters.LEVEL_IMMORTAL.value
+                elif case == "unclanned":
+                    attacker.guild = ""
+                elif case == "already_killer":
+                    attacker.status_flags.act = int(_PlayerActBits.PLR_KILLER)
+                else:
+                    attacker.fighting = victim
+                before = attacker.status_flags.act
+                self.assertEqual({}, handler.check_killer(attacker, victim))
+                self.assertEqual(before, attacker.status_flags.act)
+                handler.character_service.save_character.assert_not_called()
+
+    def test_check_killer_follows_nested_charm_owner_and_owner_flags(self):
+        for owner_flags in (0, _PlayerActBits.PLR_KILLER, _PlayerActBits.PLR_THIEF):
+            with self.subTest(flags=owner_flags):
+                attacker, owner, handler = self._killer_pair()
+                first, second = self._mob("first"), self._mob("second")
+                self._charm(first, second)
+                self._charm(second, owner)
+                owner.status_flags.act = int(owner_flags)
+                payload = handler.check_killer(attacker, first)
+                self.assertEqual(not bool(owner_flags), bool(payload))
+                if payload:
+                    self.assertIn("Victim", payload["to_wiznet"])
+                    handler.character_service.save_character.assert_called_once_with(attacker)
+                else:
+                    handler.character_service.save_character.assert_not_called()
+
+    def test_check_killer_breaks_charmed_attacker_follower_and_pet_links(self):
+        attacker, victim, handler = self._killer_pair()
+        master = self._player("master")
+        master.name = "Master"
+        master.pet = attacker
+        attacker.leader = master
+        self._charm(attacker, master)
+        payload = handler.check_killer(attacker, victim)
+        self.assertIsNone(attacker.master)
+        self.assertIsNone(attacker.leader)
+        self.assertIsNone(master.pet)
+        self.assertFalse(attacker.status_flags.affected_by & int(_AffectBits.AFF_CHARM))
+        handler.effect_handler.affect_strip.assert_called_once_with(attacker, "spell.charm_person")
+        self.assertEqual("You stop following Master.\r\n", payload["to_char"])
+        self.assertEqual("Attacker stops following you.\r\n", payload["global_message"])
+        self.assertEqual([master], payload["global_targets"])
+        self.assertEqual(0, master.status_flags.act)
+        handler.character_service.save_character.assert_not_called()
+
+    def test_check_killer_repairs_orphaned_charm_without_marking(self):
+        attacker, victim, handler = self._killer_pair()
+        handler.logger = Mock()
+        self._charm(attacker)
+        self.assertEqual({}, handler.check_killer(attacker, victim))
+        self.assertEqual(0, attacker.status_flags.affected_by)
+        handler.effect_handler.affect_strip.assert_called_once_with(attacker, "spell.charm_person")
+        handler.logger.error.assert_called_once()
+        handler.character_service.save_character.assert_not_called()
+
+    def test_check_killer_exempt_victim_does_not_break_attacker_charm(self):
+        attacker, victim, handler = self._killer_pair()
+        master = self._player("master")
+        self._charm(attacker, master)
+        victim.status_flags.act = int(_PlayerActBits.PLR_KILLER)
+        self.assertEqual({}, handler.check_killer(attacker, victim))
+        self.assertIs(attacker.master, master)
+        handler.effect_handler.affect_strip.assert_not_called()
+
+    def test_damage_marks_on_zero_damage_and_preserves_wiznet_in_round_payload(self):
+        attacker, victim, handler = self._killer_pair()
+        victim.hit = 20
+        handler._apply_damage = Mock(return_value={"to_char": "Miss.\r\n", "killed": False,
+                                                   "xp_gain": 0, "level_up_messages": ""})
+        result = handler.damage(attacker, victim, 0)
+        self.assertEqual("*** You are now a KILLER!! ***\r\nMiss.\r\n", result["to_char"])
+        room = self._safety_room(attacker, victim)
+        room.player_targets = lambda _actor: []
+        payload = handler.build_round_payload(attacker, victim, room, result)
+        self.assertEqual(result["to_wiznet"], payload["to_wiznet"])
+        handler.character_service.save_character.assert_called_once_with(attacker)
+
+    def test_round_emitter_routes_wiznet_through_existing_handler(self):
+        attacker, victim, handler = self._killer_pair()
+        watcher = self._player("watcher")
+        payload = handler.check_killer(attacker, victim)
+        handler.wiz_handler.wiznet_targets.return_value = [watcher]
+        handler.wiz_handler.decorate_wiznet_text = Mock(return_value="Wiznet notice")
+        handler.message_bus = SimpleNamespace(text_to_message=lambda text: text,
+                                              send_to_character=AsyncMock(), send_to_room=AsyncMock())
+        asyncio.run(handler.emit_round_payload(attacker, payload))
+        handler.wiz_handler.wiznet_targets.assert_called_once_with(attacker, flag_name="WIZ_FLAGS")
+        handler.message_bus.send_to_character.assert_any_await(watcher.id, "Wiznet notice")
+
+    @staticmethod
+    def _spell_api_class():
+        # Load the real area-spell caller with only unrelated dependencies stubbed.
+        replacements = {
+            "api.InterpApi": SimpleNamespace(InterpApi=object),
+            "item.Effect": SimpleNamespace(Effect=object),
+            "util.EffectUtil": SimpleNamespace(EffectUtil=object),
+            "util.PlayerUtil": SimpleNamespace(PlayerUtil=object),
+            "skill.SpellContext": SimpleNamespace(SpellContext=object),
+            "skill.SpellSpeech": SimpleNamespace(SpellSpeech=object),
+        }
+        with unittest.mock.patch.dict(sys.modules, replacements):
+            spec = importlib.util.spec_from_file_location("_test_area_spell_api", SRC / "api/SpellApi.py")
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+        return module.SpellApi
+
+    def test_spell_damage_preserves_killer_and_follower_notice_channels(self):
+        SpellApi = self._spell_api_class()
+        spell_api = SpellApi(effect_handler=Mock(), interp_api=Mock())
+        spell_api.send = Mock()
+        ctx = SimpleNamespace(queue_payload=Mock())
+        victim = self._player("victim")
+        notice = {"to_wiznet": "alert", "wiznet_flag": "WIZ_FLAGS", "global_message": "stopped",
+                  "global_targets": [victim]}
+        spell_api._queue_damage_payload(ctx, {"to_char": "killer", **notice}, victim)
+        spell_api.send.assert_called_once_with(ctx, to_char="killer", to_room="", to_victim="", victim=victim)
+        ctx.queue_payload.assert_called_once_with(notice)
+
+    def test_offensive_spell_without_damage_checks_killer_before_starting_combat(self):
+        SpellApi = self._spell_api_class()
+        attacker, victim, handler = self._killer_pair()
+        room = self._safety_room(attacker, victim)
+        room.id = "room-1"
+        ctx = SimpleNamespace(actor=attacker, victim=victim, room=room, queue_payload=Mock(),
+                              spell=SimpleNamespace(target="CHAR_OFFENSIVE"))
+        spell_api = SpellApi(effect_handler=Mock(), interp_api=Mock())
+        spell_api._fight_handler = Mock(return_value=handler)
+        spell_api.start_offensive_combat(ctx)
+        self.assertTrue(attacker.status_flags.act & int(_PlayerActBits.PLR_KILLER))
+        handler.character_service.save_character.assert_called_once_with(attacker)
+        self.assertIs(attacker.fighting, victim)
+        self.assertEqual("WIZ_FLAGS", ctx.queue_payload.call_args.args[0]["wiznet_flag"])
+
+    def test_melee_executor_checks_killer_before_preparing_fight(self):
+        replacements = {
+            "area.RoomRegistry": SimpleNamespace(RoomRegistry=object),
+            "combat.CombatHandler": SimpleNamespace(FightHandler=FightHandler),
+            "combat.CombatView": SimpleNamespace(FightView=object),
+            "game.action": SimpleNamespace(ActionGuard=object, ActionDefinition=object, ActionPlan=object, MessageRef=object),
+            "api.SkillApi": SimpleNamespace(SkillApi=object),
+            "skill.SkillRegistry": SimpleNamespace(SkillRegistry=object),
+            "util.PlayerUtil": SimpleNamespace(PlayerUtil=object),
+        }
+        with unittest.mock.patch.dict(sys.modules, replacements):
+            spec = importlib.util.spec_from_file_location("_test_killer_fight_api", SRC / "api/FightApi.py")
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+        attacker, victim, handler = self._killer_pair()
+        room = self._safety_room(attacker, victim)
+        room.id = "room-1"
+        api = module.FightApi.__new__(module.FightApi)
+        api.fight_handler = handler
+        handler.multi_hit = Mock(return_value={"to_char": "hit", "killed": False, "xp_gain": 0})
+        handler.build_round_payload = Mock(side_effect=lambda _a, _v, _r, result, _ids: result)
+        view = SimpleNamespace(actor=attacker, victim=victim, room=room)
+        commands = SimpleNamespace(_pre_corpse_ids=Mock(return_value=set()))
+        result = api.execute_fight_plan(None, commands, view, SimpleNamespace(operation="multi_hit", data={}))
+        self.assertTrue(attacker.status_flags.act & int(_PlayerActBits.PLR_KILLER))
+        self.assertIs(attacker.fighting, victim)
+        self.assertTrue(result["to_char"].startswith("*** You are now a KILLER!! ***"))
+        handler.character_service.save_character.assert_called_once_with(attacker)
+
+    def test_failed_disarm_still_checks_killer_and_returns_notices(self):
+        replacements = {name: SimpleNamespace(**{attr: object}) for name, attr in (
+            ("api.FightApi", "FightApi"), ("api.MovementApi", "MovementApi"),
+            ("game.WeatherHandler", "WeatherHandler"), ("interp.Context", "Context"),
+            ("item.Effect", "Effect"), ("api.InterpApi", "InterpApi"),
+            ("api.SkillApi", "SkillApi"), ("api.SpellApi", "SpellApi"),
+            ("skill.SpellContext", "SpellContext"), ("util.MovementUtil", "MovementUtil"),
+            ("util.PayloadUtil", "PayloadUtil"), ("util.PlayerUtil", "PlayerUtil"))}
+        replacements["combat.CombatHandler"] = SimpleNamespace(FightHandler=FightHandler)
+        with unittest.mock.patch.dict(sys.modules, replacements):
+            spec = importlib.util.spec_from_file_location("_test_killer_fight_commands", SRC / "interp/commands/Fight.py")
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+        attacker, victim, handler = self._killer_pair()
+        room = self._safety_room(attacker, victim)
+        victim.equipped = SimpleNamespace(wielded=object())
+        commands = module.Fight.__new__(module.Fight)
+        commands.fight_handler = handler
+        commands.skill_api = SimpleNamespace(get_rating=Mock(return_value=0))
+        commands.skill_registry = SimpleNamespace(get=Mock())
+        view = SimpleNamespace(skill=object(), actor=attacker, victim=victim, room=room, extra={})
+        commands.fight_api = SimpleNamespace(build_fight_view=Mock(return_value=view),
+                                            evaluate_guards_only_view=Mock(return_value=None))
+        commands._combat_skill_chance = Mock(return_value=0)
+        commands._set_wait = Mock()
+        commands._skill_beats = Mock(return_value=12)
+        commands._check_improve = Mock()
+        commands._command_payload = Mock(return_value={"to_char": "failed"})
+        commands._room_targets = Mock(return_value=[])
+        result = commands.do_disarm(attacker, SimpleNamespace(finish=Mock()))
+        self.assertEqual("WIZ_FLAGS", result["payloads"][0]["wiznet_flag"])
+        handler.character_service.save_character.assert_called_once_with(attacker)
+
+    def test_notice_merge_preserves_damage_rewards_without_duplication(self):
+        merged = FightHandler._merge_attack_payloads(
+            {"to_char": "notice", "to_wiznet": "alert"},
+            {"to_char": "hit", "to_victim": "hurt", "xp_gain": 5, "killed": True, "level_up_messages": "level"})
+        self.assertEqual("noticehit", merged["to_char"])
+        self.assertEqual("hurt", merged["to_victim"])
+        self.assertEqual(5, merged["xp_gain"])
+        self.assertEqual("level", merged["level_up_messages"])
+        self.assertEqual("alert", merged["to_wiznet"])
+
+    def test_area_spell_caller_skips_protected_targets_before_damage(self):
+        SpellApi = self._spell_api_class()
+
+        attacker, allowed = self._player("attacker"), self._mob("allowed")
+        charmed, immortal = self._mob("charmed"), self._player("immortal")
+        charmed.master = attacker
+        charmed.status_flags.affected_by = int(_AffectBits.AFF_CHARM)
+        immortal.is_immortal = True
+        immortal.level = _CharacterApi.GameParameters.LEVEL_IMMORTAL.value + 1
+        room = self._safety_room(attacker, allowed, charmed, immortal)
+        handler = self._handler(room)
+        handler.damage = Mock(return_value={"killed": False})
+        spell_api = SpellApi(effect_handler=Mock(), interp_api=Mock())
+        spell_api._fight_handler = Mock(return_value=handler)
+        spell_api._room_entities = Mock(return_value=[attacker, allowed, charmed, immortal])
+        spell_api.eval_int = Mock(return_value=10)
+        spell_api._queue_damage_payload = Mock()
+        ctx = SimpleNamespace(actor=attacker, room=room, spell=SimpleNamespace(name="earthquake"),
+                              mark_performed=Mock(return_value=True))
+
+        self.assertTrue(spell_api.damage_room_expr(ctx, "10", save_half=False))
+
+        handler.damage.assert_called_once_with(attacker, allowed, 10, dt="earthquake", dam_type="DAM_NONE")
+        spell_api._queue_damage_payload.assert_called_once_with(ctx, {"killed": False}, allowed)
+        ctx.mark_performed.assert_called_once_with()
+
+    def test_spell_safety_self_and_retaliation_precede_area_protections(self):
+        attacker, victim = self._player("attacker"), self._mob("victim")
+        attacker.guild = ""
+        victim.fighting = attacker
+        room = self._safety_room(attacker, victim)
+        room.room_flags = int(_RoomFlags.ROOM_SAFE)
+        handler = self._handler(room)
+        self.assertTrue(handler.is_safe_spell(attacker, attacker, area=True))
+        self.assertFalse(handler.is_safe_spell(attacker, attacker))
+        for area in (False, True):
+            self.assertFalse(handler.is_safe_spell(attacker, victim, area=area))
+
+    def test_spell_safety_immortal_override_is_single_target_only(self):
+        threshold = _CharacterApi.GameParameters.LEVEL_IMMORTAL.value
+        for level, immortal in ((threshold, True), (threshold + 1, True), (threshold + 1, False)):
+            for area in (False, True):
+                with self.subTest(level=level, immortal=immortal, area=area):
+                    attacker, victim = self._player("attacker"), self._mob("victim")
+                    attacker.level, attacker.is_immortal = level, immortal
+                    room = self._safety_room(attacker, victim)
+                    room.room_flags = int(_RoomFlags.ROOM_SAFE)
+                    self.assertEqual(not (immortal and level > threshold and not area),
+                                     self._handler(room).is_safe_spell(attacker, victim, area=area))
+
+    def test_spell_safety_protects_high_immortals_from_area_but_retaliation_wins(self):
+        threshold = _CharacterApi.GameParameters.LEVEL_IMMORTAL.value
+        attacker, victim = self._player("attacker"), self._player("victim")
+        victim.is_immortal = True
+        room = self._safety_room(attacker, victim)
+        handler = self._handler(room)
+        victim.level = threshold
+        self.assertFalse(handler.is_safe_spell(attacker, victim, area=True))
+        victim.level += 1
+        self.assertTrue(handler.is_safe_spell(attacker, victim, area=True))
+        self.assertFalse(handler.is_safe_spell(attacker, victim))
+        victim.fighting = attacker
+        self.assertFalse(handler.is_safe_spell(attacker, victim, area=True))
+
+    def test_spell_safety_charmed_victims_exclude_owner_area_spells(self):
+        for owner, area in ((True, False), (True, True), (False, False), (False, True)):
+            with self.subTest(owner=owner, area=area):
+                attacker, victim = self._player("attacker"), self._mob("victim")
+                victim.status_flags.affected_by = int(_AffectBits.AFF_CHARM)
+                victim.master = attacker if owner else self._player("owner")
+                handler = self._handler(self._safety_room(attacker, victim))
+                self.assertEqual(area or not owner, handler.is_safe_spell(attacker, victim, area=area))
+
+    def test_spell_safety_player_cannot_hit_npc_fighting_another_group(self):
+        for grouped in (False, True):
+            for area in (False, True):
+                with self.subTest(grouped=grouped, area=area):
+                    attacker, ally, victim = self._player("attacker"), self._player("ally"), self._mob("victim")
+                    ally.leader = attacker if grouped else None
+                    victim.fighting = ally
+                    handler = self._handler(self._safety_room(attacker, ally, victim))
+                    self.assertEqual(not grouped, handler.is_safe_spell(attacker, victim, area=area))
+                    self.assertEqual((False, ""), handler.is_safe(attacker, victim))
+
+    def test_spell_safety_npc_area_targets_only_opponent_group_mobs(self):
+        for fighting, grouped, area in ((False, False, True), (True, False, True),
+                                        (True, True, True), (True, False, False)):
+            with self.subTest(fighting=fighting, grouped=grouped, area=area):
+                attacker, opponent, victim = self._mob("attacker"), self._player("opponent"), self._mob("victim")
+                attacker.fighting = opponent if fighting else None
+                victim.leader = opponent if grouped else None
+                handler = self._handler(self._safety_room(attacker, opponent, victim))
+                self.assertEqual(area and not grouped, handler.is_safe_spell(attacker, victim, area=area))
+
+    def test_spell_safety_npc_player_targets_require_opponent_group_for_all_spells(self):
+        for fighting, grouped in ((False, False), (True, False), (True, True)):
+            for area in (False, True):
+                with self.subTest(fighting=fighting, grouped=grouped, area=area):
+                    attacker, opponent, victim = self._mob("attacker"), self._player("opponent"), self._player("victim")
+                    attacker.fighting = opponent if fighting else None
+                    victim.leader = opponent if grouped else None
+                    handler = self._handler(self._safety_room(attacker, opponent, victim))
+                    self.assertEqual(fighting and not grouped, handler.is_safe_spell(attacker, victim, area=area))
+
+    def test_spell_safety_preserves_npc_protections(self):
+        for protection in ("safe_room", "shop", "ACT_TRAIN", "ACT_PRACTICE", "ACT_IS_HEALER", "ACT_IS_CHANGER", "ACT_PET"):
+            for area in (False, True):
+                with self.subTest(protection=protection, area=area):
+                    attacker, victim = self._player("attacker"), self._mob("victim")
+                    room = self._safety_room(attacker, victim)
+                    handler = self._handler(room)
+                    if protection == "safe_room":
+                        room.room_flags = int(_RoomFlags.ROOM_SAFE)
+                    elif protection == "shop":
+                        handler.shop_registry.find_by_keeper_vnum.return_value = object()
+                    else:
+                        handler.ActBits = SimpleNamespace(**{protection: 4})
+                        victim.status_flags.act = 4
+                    self.assertTrue(handler.is_safe_spell(attacker, victim, area=area))
+
+    def test_spell_safety_preserves_player_clan_and_criminal_exceptions(self):
+        for attacker_guild, victim_guild, level, flags, blocked in (
+                ("", "rom", 5, 0, True), ("", "", 50, _PlayerActBits.PLR_KILLER, True),
+                ("rom", "", 5, 0, True), ("rom", "rom", 13, 0, False),
+                ("rom", "rom", 14, 0, True), ("rom", "", 50, _PlayerActBits.PLR_KILLER, False),
+                ("rom", "", 50, _PlayerActBits.PLR_THIEF, False)):
+            for area in (False, True):
+                with self.subTest(attacker_guild=attacker_guild, victim_guild=victim_guild, level=level, flags=flags, area=area):
+                    attacker, victim = self._player("attacker"), self._player("victim")
+                    attacker.guild, victim.guild = attacker_guild, victim_guild
+                    attacker.level = level
+                    victim.status_flags.act = int(flags)
+                    handler = self._handler(self._safety_room(attacker, victim))
+                    self.assertEqual(blocked, handler.is_safe_spell(attacker, victim, area=area))
+
+    def test_spell_safety_preserves_charmed_npc_and_safe_room_player_protection(self):
+        attacker, victim, master = self._mob("attacker"), self._player("victim"), self._player("master")
+        attacker.status_flags.affected_by = int(_AffectBits.AFF_CHARM)
+        attacker.master = master
+        room = self._safety_room(attacker, victim, master)
+        handler = self._handler(room)
+        for area in (False, True):
+            master.fighting = None
+            self.assertTrue(handler.is_safe_spell(attacker, victim, area=area))
+            master.fighting = victim
+            self.assertFalse(handler.is_safe_spell(attacker, victim, area=area))
+            room.room_flags = int(_RoomFlags.ROOM_SAFE)
+            self.assertTrue(handler.is_safe_spell(attacker, victim, area=area))
+            room.room_flags = 0
+
+    def test_spell_safety_rejects_missing_dead_or_absent_targets(self):
+        attacker, victim = self._player("attacker"), self._mob("victim")
+        handler = self._handler(self._safety_room(attacker, victim))
+        self.assertTrue(handler.is_safe_spell(None, victim))
+        self.assertTrue(handler.is_safe_spell(attacker, None))
+        victim.character_attributes.position = _Positions.POS_DEAD
+        self.assertTrue(handler.is_safe_spell(attacker, victim))
+        victim.character_attributes.position = _Positions.POS_STANDING
+        victim.room_id = "elsewhere"
+        self.assertTrue(handler.is_safe_spell(attacker, victim))
+        victim.room_id = attacker.room_id
+        handler._find_room_for_entity = Mock(return_value=None)
+        self.assertTrue(handler.is_safe_spell(attacker, victim))
+
+    def test_is_safe_allows_self_in_safe_room_before_protections(self):
+        for entity in (self._player("player"), self._mob("mob")):
+            with self.subTest(npc=entity.is_npc):
+                entity.guild = ""
+                room = self._safety_room(entity)
+                room.room_flags = int(_RoomFlags.ROOM_SAFE)
+                handler = self._handler(room)
+                handler.shop_registry.find_by_keeper_vnum.return_value = object()
+                self.assertEqual((False, ""), handler.is_safe(entity, entity))
+                handler.shop_registry.find_by_keeper_vnum.assert_not_called()
+
+    def test_is_safe_allows_retaliation_before_room_npc_and_clan_protections(self):
+        for npc_target in (True, False):
+            with self.subTest(npc=npc_target):
+                attacker = self._player("attacker")
+                attacker.guild = ""
+                victim = self._mob("victim") if npc_target else self._player("victim")
+                victim.fighting = attacker
+                room = self._safety_room(attacker, victim)
+                room.room_flags = int(_RoomFlags.ROOM_SAFE)
+                handler = self._handler(room)
+                handler.shop_registry.find_by_keeper_vnum.return_value = object()
+                self.assertEqual((False, ""), handler.is_safe(attacker, victim))
+                handler.shop_registry.find_by_keeper_vnum.assert_not_called()
+
+    def test_is_safe_immortal_override_requires_actual_level_above_threshold(self):
+        threshold = _CharacterApi.GameParameters.LEVEL_IMMORTAL.value
+        for level, immortal, blocked in ((threshold - 1, True, True),
+                                           (threshold, True, True),
+                                           (threshold + 1, True, False),
+                                           (threshold + 1, False, True)):
+            with self.subTest(level=level, immortal=immortal):
+                attacker, victim = self._player("attacker"), self._mob("victim")
+                attacker.level, attacker.is_immortal = level, immortal
+                room = self._safety_room(attacker, victim)
+                room.room_flags = int(_RoomFlags.ROOM_SAFE)
+                handler = self._handler(room)
+                safe, message = handler.is_safe(attacker, victim)
+                self.assertEqual(blocked, safe)
+                self.assertEqual("Not in this room.\r\n" if blocked else "", message)
+
+    def test_is_safe_player_vs_player_uses_clan_rules_in_safe_room(self):
+        attacker, victim = self._player("attacker"), self._player("victim")
+        room = self._safety_room(attacker, victim)
+        room.room_flags = int(_RoomFlags.ROOM_SAFE)
+        handler = self._handler(room)
+        self.assertEqual((False, ""), handler.is_safe(attacker, victim))
+        attacker.guild = ""
+        self.assertEqual((True, "Join a clan if you want to kill players.\r\n"),
+                         handler.is_safe(attacker, victim))
+
+    def test_is_safe_room_still_protects_players_from_npc_attackers(self):
+        attacker, victim = self._mob("attacker"), self._player("victim")
+        room = self._safety_room(attacker, victim)
+        room.room_flags = int(_RoomFlags.ROOM_SAFE)
+        self.assertEqual((True, "Not in this room.\r\n"), self._handler(room).is_safe(attacker, victim))
+
+    def test_is_safe_does_not_enforce_command_kill_stealing_policy(self):
+        for npc_target in (True, False):
+            for ignore in (True, False):
+                with self.subTest(npc=npc_target, ignore=ignore):
+                    attacker, opponent = self._player("attacker"), self._player("opponent")
+                    victim = self._mob("victim") if npc_target else self._player("victim")
+                    victim.fighting = opponent
+                    room = self._safety_room(attacker, victim, opponent)
+                    self.assertEqual((False, ""), self._handler(room).is_safe(
+                        attacker, victim, ignore_target_fighting=ignore))
+
+    def test_is_safe_exceptions_do_not_bypass_missing_room_or_dead_target(self):
+        attacker, victim = self._player("attacker"), self._mob("victim")
+        attacker.is_immortal = True
+        attacker.level = _CharacterApi.GameParameters.LEVEL_IMMORTAL.value + 1
+        victim.fighting = attacker
+        room = self._safety_room(attacker, victim)
+        handler = self._handler(room)
+        handler._find_room_for_entity = Mock(return_value=None)
+        self.assertEqual((True, "They aren't here.\r\n"), handler.is_safe(attacker, victim))
+        handler._find_room_for_entity = Mock(return_value=room)
+        victim.character_attributes.position = _Positions.POS_DEAD
+        self.assertEqual((True, "They are already dead.\r\n"), handler.is_safe(attacker, victim))
+
+    def test_damage_allows_retaliation_in_safe_room_through_final_safety_check(self):
+        attacker, victim = self._player("attacker"), self._mob("victim")
+        victim.fighting = attacker
+        victim.hit = 20
+        room = self._safety_room(attacker, victim)
+        room.room_flags = int(_RoomFlags.ROOM_SAFE)
+        handler = self._damage_handler(room)
+
+        result = handler.damage(attacker, victim, 1)
+
+        self.assertEqual(19, victim.hit)
+        self.assertFalse(result["killed"])
+        handler.check_killer.assert_called_once_with(attacker, victim)
+        handler._set_fighting.assert_called_once_with(attacker, victim)
+
+    def _safety_room(self, *entities):
+        return SimpleNamespace(
+            room_flags=0,
+            characters={entity.id: entity for entity in entities if not entity.is_npc},
+            mobiles={entity.id: entity for entity in entities if entity.is_npc},
+        )
+
+    def test_is_safe_player_killing_membership_flags_and_level_boundary(self):
+        cases = (
+            # Attacker membership is required even against a flagged victim.
+            ("", "rom", 5, 5, 0, "Join a clan"),
+            ("", "", 50, 5, _PlayerActBits.PLR_KILLER, "Join a clan"),
+            ("rom", "", 5, 5, 0, "They aren't in a clan"),
+            ("rom", "rom", 13, 5, 0, ""),
+            ("rom", "rom", 14, 5, 0, "Pick on someone your own size"),
+            ("rom", "rom", 5, 50, 0, ""),
+            ("rom", "", 50, 5, _PlayerActBits.PLR_KILLER, ""),
+            ("rom", "", 50, 5, _PlayerActBits.PLR_THIEF, ""),
+            ("loner", "independent", 5, 5, 0, ""),
+        )
+        for guild, target_guild, level, target_level, flags, reason in cases:
+            with self.subTest(guild=guild, target_guild=target_guild, level=level,
+                              target_level=target_level, flags=flags):
+                attacker, victim = self._player("attacker"), self._player("victim")
+                attacker.guild, victim.guild = guild, target_guild
+                attacker.level, victim.level = level, target_level
+                victim.status_flags.act = int(flags)
+                room = self._safety_room(attacker, victim)
+                safe, message = self._handler(room).is_safe(attacker, victim)
+                self.assertEqual(bool(reason), safe)
+                self.assertTrue(message.startswith(reason))
+                if not safe:
+                    self.assertEqual("", message)
+
+    def test_is_safe_protects_shopkeepers_from_players_and_npcs(self):
+        for attacker in (self._player("player"), self._mob("mob")):
+            with self.subTest(npc=attacker.is_npc):
+                victim = self._mob("keeper")
+                victim.vnum = "3000"
+                room = self._safety_room(attacker, victim)
+                handler = self._handler(room)
+                handler.shop_registry.find_by_keeper_vnum.return_value = object()
+                self.assertEqual((True, "The shopkeeper wouldn't like that.\r\n"),
+                                 handler.is_safe(attacker, victim))
+                handler.shop_registry.find_by_keeper_vnum.assert_called_once_with("3000")
+
+    def test_is_safe_charmed_npc_victim_requires_player_owner(self):
+        for npc_attacker, charmed, owns_victim, blocked in (
+                (False, True, False, True), (False, True, True, False),
+                (True, True, False, False), (False, False, False, False)):
+            with self.subTest(npc=npc_attacker, charmed=charmed, owner=owns_victim):
+                attacker = self._mob("attacker") if npc_attacker else self._player("attacker")
+                victim = self._mob("victim")
+                victim.status_flags.affected_by = int(_AffectBits.AFF_CHARM) if charmed else 0
+                victim.master = attacker if owns_victim else self._player("owner")
+                room = self._safety_room(attacker, victim)
+                self.assertEqual((blocked, "You don't own that monster.\r\n" if blocked else ""),
+                                 self._handler(room).is_safe(attacker, victim))
+
+    def test_is_safe_charmed_npc_attacker_requires_master_fighting_player(self):
+        for charmed, has_master, master_attacking, blocked in (
+                (True, True, False, True), (True, True, True, False),
+                (True, False, False, False), (False, True, False, False)):
+            with self.subTest(charmed=charmed, has_master=has_master, master_attacking=master_attacking):
+                attacker, victim = self._mob("attacker"), self._player("victim")
+                attacker.status_flags.affected_by = int(_AffectBits.AFF_CHARM) if charmed else 0
+                master = self._player("owner")
+                master.fighting = victim if master_attacking else self._mob("other opponent")
+                attacker.master = master if has_master else None
+                room = self._safety_room(attacker, victim)
+                self.assertEqual((blocked, "Players are your friends!\r\n" if blocked else ""),
+                                 self._handler(room).is_safe(attacker, victim))
+
+    def test_damage_enforces_player_killing_rules_without_command_guards(self):
+        attacker, victim = self._player("attacker"), self._player("victim")
+        attacker.guild = ""
+        victim.hit = 20
+        handler = self._damage_handler(self._safety_room(attacker, victim))
+        result = handler.damage(attacker, victim, 100)
+        self.assertEqual("Join a clan if you want to kill players.\r\n", result["to_char"])
+        self.assertEqual(20, victim.hit)
+        handler.check_killer.assert_not_called()
+        handler._set_fighting.assert_not_called()
+        handler.raw_kill.assert_not_called()
+
+    def _damage_handler(self, room):
+        handler = self._handler(room)
+        handler.check_killer = Mock(return_value={})
+        handler._set_fighting = Mock()
+        handler._check_immunity = Mock(return_value="IS_NORMAL")
+        handler.dam_message = Mock(return_value={"to_char": "hit", "to_victim": "hit", "to_room": "hit"})
+        handler.raw_kill = Mock()
+        handler.xp_compute = Mock()
+        return handler
+
+    def test_damage_rejects_missing_or_dead_victim_before_side_effects(self):
+        attacker = self._player("attacker")
+        dead = self._mob("dead")
+        dead.character_attributes.position = _Positions.POS_DEAD
+        dead.hit = -20
+        for victim in (None, dead):
+            with self.subTest(victim=victim):
+                handler = self._damage_handler(SimpleNamespace())
+                handler.is_safe = Mock()
+                self.assertEqual(handler._error_payload(), handler.damage(attacker, victim, 100))
+                handler.is_safe.assert_not_called()
+                handler.check_killer.assert_not_called()
+                handler._set_fighting.assert_not_called()
+                handler._check_immunity.assert_not_called()
+                handler.dam_message.assert_not_called()
+                handler.raw_kill.assert_not_called()
+                handler.xp_compute.assert_not_called()
+                self.assertEqual(-20, dead.hit)
+
+    def test_damage_enforces_safe_room_even_for_misses_and_hidden_damage(self):
+        for dam in (0, 100):
+            for show in (False, True):
+                with self.subTest(dam=dam, show=show):
+                    attacker = self._player("attacker")
+                    victim = self._mob("victim")
+                    victim.hit = 20
+                    room = SimpleNamespace(room_flags=int(_RoomFlags.ROOM_SAFE),
+                                           characters={attacker.id: attacker}, mobiles={victim.id: victim})
+                    handler = self._damage_handler(room)
+                    result = handler.damage(attacker, victim, dam, show=show)
+                    self.assertEqual("Not in this room.\r\n", result["to_char"])
+                    self.assertFalse(result["killed"])
+                    self.assertEqual("", result["to_victim"])
+                    self.assertEqual("", result["to_room"])
+                    self.assertEqual(20, victim.hit)
+                    self.assertIsNone(attacker.fighting)
+                    self.assertIsNone(victim.fighting)
+                    handler.check_killer.assert_not_called()
+                    handler._set_fighting.assert_not_called()
+                    handler._check_immunity.assert_not_called()
+                    handler.dam_message.assert_not_called()
+                    handler.raw_kill.assert_not_called()
+                    handler.xp_compute.assert_not_called()
+
+    def test_damage_enforces_protected_npc_safety(self):
+        attacker = self._player("attacker")
+        victim = self._mob("trainer")
+        victim.status_flags.act = 4
+        victim.hit = 20
+        room = SimpleNamespace(room_flags=0, characters={attacker.id: attacker}, mobiles={victim.id: victim})
+        handler = self._damage_handler(room)
+        handler.ActBits = SimpleNamespace(ACT_TRAIN=4)
+
+        result = handler.damage(attacker, victim, 100)
+
+        self.assertEqual("I don't think Mota would approve.\r\n", result["to_char"])
+        self.assertEqual(20, victim.hit)
+        handler.check_killer.assert_not_called()
+        handler._set_fighting.assert_not_called()
+        handler.raw_kill.assert_not_called()
+
+    def test_allowed_damage_checks_killer_before_combat_even_for_zero_damage(self):
+        for dam in (0, 1):
+            with self.subTest(dam=dam):
+                attacker = self._player("attacker")
+                victim = self._mob("victim")
+                victim.hit = 20
+                room = SimpleNamespace(room_flags=0, characters={attacker.id: attacker},
+                                       mobiles={victim.id: victim})
+                handler = self._damage_handler(room)
+                events = Mock()
+                events.attach_mock(handler.check_killer, "killer")
+                events.attach_mock(handler._set_fighting, "fight")
+                result = handler.damage(attacker, victim, dam)
+                self.assertEqual([unittest.mock.call.killer(attacker, victim),
+                                  unittest.mock.call.fight(attacker, victim)], events.mock_calls)
+                self.assertEqual(20 - dam, victim.hit)
+                self.assertFalse(result["killed"])
+                handler.raw_kill.assert_not_called()
+
+    def test_self_damage_bypasses_hostile_checks_in_safe_room(self):
+        victim = self._mob("victim")
+        victim.hit = 20
+        room = SimpleNamespace(room_flags=int(_RoomFlags.ROOM_SAFE), mobiles={victim.id: victim})
+        handler = self._damage_handler(room)
+        handler.is_safe = Mock(return_value=(True, "blocked"))
+        result = handler.damage(victim, victim, 1)
+        handler.is_safe.assert_not_called()
+        handler.check_killer.assert_not_called()
+        self.assertEqual(19, victim.hit)
+        self.assertFalse(result["killed"])
+
     def test_refresh_combat_registry_retains_only_fights_in_the_room(self):
         attacker = self._mob("mob-1")
         victim = self._player("char-1")
@@ -330,6 +1078,11 @@ class TestFightHandlerAggression(unittest.TestCase):
         handler.PositionsEnum = _Positions
         handler.ActBits = _ActBits
         handler.RoomFlags = _RoomFlags
+        handler.PlayerActBits = _PlayerActBits
+        handler.shop_registry = SimpleNamespace(find_by_keeper_vnum=Mock(return_value=None))
+        handler.character_service = SimpleNamespace(save_character=Mock(return_value=True))
+        handler.effect_handler = SimpleNamespace(affect_strip=Mock())
+        handler.wiz_handler = SimpleNamespace(wiznet_targets=Mock(return_value=[]))
         handler.AffectBits = _AffectBits
         handler.WeaponClass = type("WeaponClass", (), {"__members__": {"WEAPON_DAGGER": "dagger"}})
         handler.WeaponTypes = SimpleNamespace(WEAPON_SHARP=SimpleNamespace(value=1))
@@ -363,6 +1116,7 @@ class TestFightHandlerAggression(unittest.TestCase):
     def _player(player_id: str):
         return SimpleNamespace(
             id=player_id,
+            guild="rom",
             is_npc=False,
             is_immortal=False,
             level=5,
@@ -545,7 +1299,7 @@ class TestFightHandlerAggression(unittest.TestCase):
                 unittest.mock.patch.object(handler, "check_shield_block", return_value=False):
             result = handler.damage(attacker, victim, 0, dt="slash", weapon_hit=True)
 
-        self.assertEqual("Target dodges your attack.\r\n", result["to_char"])
+        self.assertEqual("*** You are now a KILLER!! ***\r\nTarget dodges your attack.\r\n", result["to_char"])
         self.assertEqual("You dodge Tester's attack.\r\n", result["to_victim"])
         self.assertEqual("", result["to_room"])
         self.assertFalse(result["killed"])

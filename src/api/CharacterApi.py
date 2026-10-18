@@ -93,6 +93,13 @@ class CharacterApi(GameApi):
     def is_npc(char: Any) -> bool:
         return type(char) is Mobile
 
+    @staticmethod
+    def is_clan(char: Any) -> bool:
+        # ROM's is_clan checks membership, including the independent loner clan.
+        # The content service represents that membership with the guild field.
+        guild = str(getattr(char, "guild", "") or "").strip().lower()
+        return guild not in ("", "0", "none", "no", "clanless")
+
     @classmethod
     def is_immortal(cls, char: Any) -> bool:
         if hasattr(char, "character"):

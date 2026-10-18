@@ -798,13 +798,21 @@ class PlayerHandler:
 
     async def _emit_standard_payload(self, character: Character, payload: dict, context: Context | None = None, prompt_victims: bool = True) -> list[Character]:
         prompt_targets: list[Character] = []
+        if isinstance(payload, dict):
+            character = payload.get("actor", character)
+            context = payload.get("context", context)
+        if isinstance(payload, dict) and payload.get("payloads"):
+            for entry in payload["payloads"]:
+                prompt_targets.extend(await self._emit_standard_payload(
+                    character, entry, context=context, prompt_victims=prompt_victims))
+            return prompt_targets
         payload = self._resolve_standard_payload(character, payload, context=context)
         if isinstance(payload, dict):
             payload["to_char"] = f"{payload.get('to_char', '')}{Ability.take_improve_messages(character)}"
             victim = payload.get("victim")
             if victim is not None:
                 payload["to_victim"] = f"{payload.get('to_victim', '')}{Ability.take_improve_messages(victim)}"
-        if payload.get("to_char"):
+        if payload.get("to_char") and not CharacterApi.is_npc(character):
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
         if payload.get("to_victim") and payload.get("victim") is not None:
             victim = payload["victim"]

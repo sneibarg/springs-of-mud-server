@@ -21,6 +21,8 @@ from area.ShopService import ShopService
 from area.SpecialRegistry import SpecialRegistry
 from area.SpecialService import SpecialService
 from combat.CombatHandler import FightHandler
+from combat.CombatEscapeHandler import CombatEscapeHandler
+from combat.WeaponHitHandler import WeaponHitHandler
 from combat.CombatRegistry import CombatRegistry
 from game.EnumProvider import EnumProvider
 from game.EntityUpdateHandler import EntityUpdateHandler
@@ -139,7 +141,7 @@ class Bootstrapper:
     def _bind_handlers(injector: Injector):
         Bootstrapper._bind_singleton_classes(injector, [
             SocialHandler, Communications, Fight, Info, Movement, Object, Wiz,
-            AreaHandler, RoomHandler, FightHandler, ItemHandler, MobileHandler, EffectHandler,
+            AreaHandler, RoomHandler, FightHandler, WeaponHitHandler, CombatEscapeHandler, ItemHandler, MobileHandler, EffectHandler,
             EffectUpdateHandler, ItemUpdateHandler, EntityUpdateHandler,
             PlayerHandler, WizHandler, InterpHandler, NoteHandler,
             WeatherHandler, UpdateHandler
@@ -190,6 +192,7 @@ class Bootstrapper:
 
         injector.get(GameService).set_update_handler(injector.get(UpdateHandler))
         injector.get(FightHandler).set_mobile_handler(injector.get(MobileHandler))
+        injector.get(FightHandler).set_escape_handler(injector.get(CombatEscapeHandler))
         injector.get(AreaHandler).initialize_world()
 
         service_list = "; ".join(s.__name__ for s in to_load)

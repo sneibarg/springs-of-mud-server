@@ -2567,6 +2567,201 @@
         "extra": {}
       }
     },
-    "denyList": []
+    "denyList": [],
+    "combat": {
+      "weaponHitEffects": {
+        "poison": {
+          "flag": "WEAPON_POISON",
+          "payload": {
+            "toChar": {
+              "hit": "{victim} is poisoned by the venom on {weapon}.",
+              "wornOff": "The poison on {weapon} has worn off."
+            },
+            "toVictim": {
+              "hit": "You feel poison coursing through your veins."
+            },
+            "toRoom": {
+              "hit": "{victim} is poisoned by the venom on {weapon}."
+            }
+          }
+        },
+        "vampiric": {
+          "flag": "WEAPON_VAMPIRIC",
+          "payload": {
+            "toChar": {
+              "hit": "{weapon} draws life from {victim}."
+            },
+            "toVictim": {
+              "hit": "You feel {weapon} drawing your life away."
+            },
+            "toRoom": {
+              "hit": "{weapon} draws life from {victim}."
+            }
+          },
+          "damageType": "DAM_NEGATIVE",
+          "damageDivisor": 5,
+          "damageOffset": 1
+        },
+        "flaming": {
+          "flag": "WEAPON_FLAMING",
+          "payload": {
+            "toChar": {
+              "hit": "{victim} is burned by {weapon}.",
+              "secondary": "{victim} is blinded by smoke!",
+              "objectContainer": "{weapon} ignites and burns!",
+              "objectPotion": "{weapon} bubbles and boils!",
+              "objectScroll": "{weapon} crackles and burns!",
+              "objectStaff": "{weapon} smokes and chars!",
+              "objectWand": "{weapon} sparks and sputters!",
+              "objectFood": "{weapon} blackens and crisps!",
+              "objectPill": "{weapon} melts and drips!"
+            },
+            "toVictim": {
+              "hit": "{weapon} sears your flesh.",
+              "secondary": "Your eyes tear up from smoke...you can't see a thing!",
+              "objectContainer": "{weapon} ignites and burns!",
+              "objectPotion": "{weapon} bubbles and boils!",
+              "objectScroll": "{weapon} crackles and burns!",
+              "objectStaff": "{weapon} smokes and chars!",
+              "objectWand": "{weapon} sparks and sputters!",
+              "objectFood": "{weapon} blackens and crisps!",
+              "objectPill": "{weapon} melts and drips!"
+            },
+            "toRoom": {
+              "hit": "{victim} is burned by {weapon}.",
+              "secondary": "{victim} is blinded by smoke!",
+              "objectContainer": "{weapon} ignites and burns!",
+              "objectPotion": "{weapon} bubbles and boils!",
+              "objectScroll": "{weapon} crackles and burns!",
+              "objectStaff": "{weapon} smokes and chars!",
+              "objectWand": "{weapon} sparks and sputters!",
+              "objectFood": "{weapon} blackens and crisps!",
+              "objectPill": "{weapon} melts and drips!"
+            }
+          },
+          "damageType": "DAM_FIRE",
+          "damageDivisor": 4,
+          "damageOffset": 1,
+          "objects": {
+            "container": {
+              "chanceBonus": 0,
+              "messageKey": "object_container"
+            },
+            "potion": {
+              "chanceBonus": 25,
+              "messageKey": "object_potion"
+            },
+            "scroll": {
+              "chanceBonus": 50,
+              "messageKey": "object_scroll"
+            },
+            "staff": {
+              "chanceBonus": 10,
+              "messageKey": "object_staff"
+            },
+            "wand": {
+              "chanceBonus": 0,
+              "messageKey": "object_wand"
+            },
+            "food": {
+              "chanceBonus": 0,
+              "messageKey": "object_food"
+            },
+            "pill": {
+              "chanceBonus": 0,
+              "messageKey": "object_pill"
+            }
+          }
+        },
+        "frost": {
+          "flag": "WEAPON_FROST",
+          "payload": {
+            "toChar": {
+              "hit": "{weapon} freezes {victim}.",
+              "secondary": "{victim} turns blue and shivers.",
+              "objectPotion": "{weapon} freezes and shatters!",
+              "objectDrinkCon": "{weapon} freezes and shatters!"
+            },
+            "toVictim": {
+              "hit": "The cold touch of {weapon} surrounds you with ice.",
+              "secondary": "A chill sinks deep into your bones.",
+              "objectPotion": "{weapon} freezes and shatters!",
+              "objectDrinkCon": "{weapon} freezes and shatters!"
+            },
+            "toRoom": {
+              "hit": "{weapon} freezes {victim}.",
+              "secondary": "{victim} turns blue and shivers.",
+              "objectPotion": "{weapon} freezes and shatters!",
+              "objectDrinkCon": "{weapon} freezes and shatters!"
+            }
+          },
+          "damageType": "DAM_COLD",
+          "damageDivisor": 6,
+          "damageOffset": 2,
+          "objects": {
+            "potion": {
+              "chanceBonus": 25,
+              "messageKey": "object_potion"
+            },
+            "drink_con": {
+              "chanceBonus": 5,
+              "messageKey": "object_drink_con"
+            }
+          }
+        },
+        "shocking": {
+          "flag": "WEAPON_SHOCKING",
+          "payload": {
+            "toChar": {
+              "hit": "{victim} is struck by lightning from {weapon}.",
+              "objectWand": "{weapon} overloads and explodes!",
+              "objectStaff": "{weapon} overloads and explodes!",
+              "objectJewelry": "{weapon} is fused into a worthless lump."
+            },
+            "toVictim": {
+              "hit": "You are shocked by {weapon}.",
+              "secondary": "Your muscles stop responding.",
+              "objectWand": "{weapon} overloads and explodes!",
+              "objectStaff": "{weapon} overloads and explodes!",
+              "objectJewelry": "{weapon} is fused into a worthless lump."
+            },
+            "toRoom": {
+              "hit": "{victim} is struck by lightning from {weapon}.",
+              "objectWand": "{weapon} overloads and explodes!",
+              "objectStaff": "{weapon} overloads and explodes!",
+              "objectJewelry": "{weapon} is fused into a worthless lump."
+            }
+          },
+          "damageType": "DAM_LIGHTNING",
+          "damageDivisor": 5,
+          "damageOffset": 2,
+          "objects": {
+            "wand": {
+              "chanceBonus": 10,
+              "messageKey": "object_wand"
+            },
+            "staff": {
+              "chanceBonus": 10,
+              "messageKey": "object_staff"
+            },
+            "jewelry": {
+              "chanceBonus": -10,
+              "messageKey": "object_jewelry"
+            }
+          }
+        }
+      },
+      "groupRewards": {
+        "payload": {
+          "toVictim": {
+            "xpReceived": "You receive {xp} experience points.",
+            "zap": "You are zapped by {item}."
+          },
+          "toRoom": {
+            "zap": "{attacker} is zapped by {item}."
+          }
+        }
+      }
+    }
   }
 ]

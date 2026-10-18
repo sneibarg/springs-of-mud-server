@@ -66,6 +66,20 @@ class TestGameData(unittest.TestCase):
 
         self.assertEqual({}, game_data.weapons)
 
+    def test_weapon_hit_effects_are_optional_and_loaded_from_combat_contract(self):
+        self.assertEqual({}, GameData.from_json(self._minimal_doc()).weapon_hit_effects)
+        self.assertEqual({}, GameData.from_json(self._minimal_doc(combat=None)).weapon_hit_effects)
+        game_data = GameData.from_json(self._load_collection_doc())
+        self.assertEqual({"poison", "vampiric", "flaming", "frost", "shocking"}, set(game_data.weapon_hit_effects))
+        self.assertEqual("DAM_COLD", game_data.weapon_hit_effects["frost"]["damageType"])
+
+    def test_group_rewards_are_optional_and_load_designer_messages(self):
+        self.assertEqual({}, GameData.from_json(self._minimal_doc()).group_rewards)
+        self.assertEqual({}, GameData.from_json(self._minimal_doc(combat=None)).group_rewards)
+        game_data = GameData.from_json(self._load_collection_doc())
+        self.assertEqual("You receive {xp} experience points.",
+                         game_data.group_rewards["payload"]["toVictim"]["xpReceived"])
+
     def test_collection_includes_rom_weapon_selection_table(self):
         game_data = GameData.from_json(self._load_collection_doc())
 
