@@ -1,6 +1,6 @@
 from dataclasses import is_dataclass
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 import requests
 
@@ -8,11 +8,12 @@ from injector import inject
 from player.Character import Character
 from player.CharacterRegistry import CharacterRegistry
 from player.CharacterRace import CharacterRace
+from server.FetchAndRegisterMixin import FetchAndRegisterMixin
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 
 
-class CharacterService:
+class CharacterService(FetchAndRegisterMixin):
     @inject
     def __init__(self, config: ServiceConfig, character_registry: CharacterRegistry):
         self.__name__ = "CharacterService"
@@ -31,7 +32,7 @@ class CharacterService:
         self._fetch_and_register(self.characters_endpoint, "all characters")
         self.logger.info(f"Initialized CharacterService instance with {str(len(self.character_registry))} player characters.")
 
-    def load_player(self, character_name: str):
+    def load_character(self, character_name: str):
         url = f"{self.characters_endpoint}/name/{character_name}"
         return self._fetch_and_register(url, f"character '{character_name}'")
 
@@ -68,32 +69,13 @@ class CharacterService:
             self.logger.error(f"Unexpected error saving character {character_id}: {e}", exc_info=True)
             return False
 
-    def _fetch_and_register(self, url: str, description: str) -> Optional[Character]:
-        try:
-            response = requests.get(url, timeout=10)
-            response.raise_for_status()
-            data = response.json()
-            if isinstance(data, list):
-                count = 0
-                for character_data in data:
-                    char = Character.from_json(character_data)
-                    self.logger.debug(f"Registering character {char.name}: {char}")
-                    self.character_registry.register(char)
-                    count += 1
-                self.logger.info(f"Loaded {count} {description}.")
-                return None
-            else:
-                character = Character.from_json(data)
-                self.character_registry.register(character)
-                self.logger.info(f"Loaded {description}.")
-                return character
+    def _build_fetch_item(self, character_data) -> Character:
+        character = Character.from_json(character_data)
+        self.logger.debug(f"Registering character {character.name}: {character}")
+        return character
 
-        except requests.RequestException as e:
-            self.logger.error(f"Failed to fetch {description} from {url}: {e}")
-            return None
-        except Exception as e:
-            self.logger.error(f"Unexpected error processing {description}: {e}", exc_info=True)
-            return None
+    def _register_fetch_item(self, character: Character) -> None:
+        self.character_registry.register(character)
 
     @classmethod
     def _serialize_character(cls, character: Character) -> dict[str, Any]:

@@ -18,6 +18,7 @@ from player.CharacterService import CharacterService
 from server.messaging.MessageBus import MessageBus
 from server.session.SessionHandler import SessionHandler
 from skill.Ability import Ability
+from util.DisplayUtil import DisplayUtil
 
 
 class UpdateHandler:
@@ -566,10 +567,7 @@ class UpdateHandler:
 
     @staticmethod
     def _display_effect_message(message) -> str:
-        text = str(message or "").strip()
-        if len(text) >= 2 and text.startswith("!") and text.endswith("!"):
-            return ""
-        return text
+        return DisplayUtil.display_effect_message(message)
 
     async def _emit_obj_effect_message(self, item, message: str):
         location = self._locate_item(item)

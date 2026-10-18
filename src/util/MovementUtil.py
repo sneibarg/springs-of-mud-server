@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from util.GenericUtil import GenericUtil
+from util.RoomExitUtil import RoomExitUtil
 
 
 class MovementUtil:
@@ -23,14 +24,7 @@ class MovementUtil:
 
     @staticmethod
     def find_exit(room, direction: int):
-        if room is None:
-            return None
-        if hasattr(room, "get_exit"):
-            return room.get_exit(direction)
-        for ex in room.exits:
-            if int(getattr(ex, "direction", -1)) == int(direction):
-                return ex
-        return None
+        return RoomExitUtil.find_exit(room, direction)
 
     @staticmethod
     def sector_cost(sector_type: int) -> int:

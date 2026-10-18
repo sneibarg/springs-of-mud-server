@@ -8,6 +8,7 @@ from typing import Any, Optional
 from api.GameApi import GameApi
 from api.ItemApi import ItemApi
 from mobile.Mobile import Mobile
+from util.DisplayUtil import DisplayUtil
 from util.GenericUtil import GenericUtil
 from util.FightUtil import FightUtil
 from mobile.MobileContext import MobileContext
@@ -840,11 +841,7 @@ class MobileApi(GameApi):
 
     @staticmethod
     def render_mobile_name(entity) -> str:
-        if entity is None:
-            return "someone"
-        if CharacterApi.is_npc(entity):
-            return str(getattr(entity, "short_description", "") or getattr(entity, "name", "someone"))
-        return str(getattr(entity, "name", "someone"))
+        return DisplayUtil.entity_name(entity, is_npc=CharacterApi.is_npc)
 
     @staticmethod
     def render_act(text: str, actor, target=None) -> str:

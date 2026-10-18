@@ -1,14 +1,14 @@
-import requests
-
-from typing import Optional
 from injector import inject
 from area.Area import Area
 from game.RegistryService import RegistryService
+from server.FetchAndRegisterMixin import FetchAndRegisterMixin
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 
 
-class AreaService:
+class AreaService(FetchAndRegisterMixin):
+    log_fetch_list_count = False
+
     @inject
     def __init__(self, config: ServiceConfig, registry_service: RegistryService):
         self.__name__ = "AreaService"
@@ -37,30 +37,13 @@ class AreaService:
         url = f"{self.areas_endpoint}/name/{area_name}"
         return self._fetch_and_register(url, f"area '{area_name}'")
 
-    def _fetch_and_register(self, url: str, description: str) -> Optional[Area]:
-        try:
-            response = requests.get(url, timeout=10)
-            response.raise_for_status()
-            data = response.json()
-            if isinstance(data, list):
-                for area_data in data:
-                    area = Area.from_json(area_data)
-                    self._lazy_load(area)
-                    self.area_registry.register(area)
-                return None
-            else:
-                area = Area.from_json(data)
-                self.area_registry.register(area)
-                self._lazy_load(area)
-                self.logger.info(f"Loaded {description}.")
-                return area
+    def _build_fetch_item(self, area_data) -> Area:
+        area = Area.from_json(area_data)
+        self._lazy_load(area)
+        return area
 
-        except requests.RequestException as e:
-            self.logger.error(f"Failed to fetch {description} from {url}: {e}")
-            return None
-        except Exception as e:
-            self.logger.error(f"Unexpected error processing {description}: {e}", exc_info=True)
-            return None
+    def _register_fetch_item(self, area: Area) -> None:
+        self.area_registry.register(area)
 
     def _lazy_load(self, area: Area):
         area.resets = self.reset_registry.all_resets_by_area_id(area.id)

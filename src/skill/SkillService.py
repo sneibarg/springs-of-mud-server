@@ -1,17 +1,15 @@
-import requests
-
-from typing import Optional
 from injector import inject
 from game import GameData
 from skill import Skill
 from skill.GroupRegistry import GroupRegistry
 from skill.GroupType import GroupType
 from skill.SkillRegistry import SkillRegistry
+from server.FetchAndRegisterMixin import FetchAndRegisterMixin
 from server.ServiceConfig import ServiceConfig
 from server.LoggerFactory import LoggerFactory
 
 
-class SkillService:
+class SkillService(FetchAndRegisterMixin):
     @inject
     def __init__(self, config: ServiceConfig, skill_registry: SkillRegistry, group_registry: GroupRegistry, game_data: GameData):
         self.__name__ = "SkillService"
@@ -60,29 +58,10 @@ class SkillService:
 
     def load_skill(self, skill_name: str):
         url = f"{self.skills_endpoint}/name/{skill_name}"
-        return self._fetch_and_register(url, f"item '{skill_name}'")
+        return self._fetch_and_register(url, f"skill '{skill_name}'")
 
-    def _fetch_and_register(self, url: str, description: str) -> Optional[Skill]:
-        try:
-            response = requests.get(url, timeout=10)
-            response.raise_for_status()
-            data = response.json()
-            if isinstance(data, list):
-                count = 0
-                for skill_data in data:
-                    self.skill_registry.register(Skill.from_json(skill_data))
-                    count += 1
-                self.logger.info(f"Loaded {count} {description}.")
-                return None
-            else:
-                skill = Skill.from_json(data)
-                self.skill_registry.register(skill)
-                self.logger.info(f"Loaded {description}.")
-                return skill
+    def _build_fetch_item(self, skill_data) -> Skill:
+        return Skill.from_json(skill_data)
 
-        except requests.RequestException as e:
-            self.logger.error(f"Failed to fetch {description} from {url}: {e}")
-            return None
-        except Exception as e:
-            self.logger.error(f"Unexpected error processing {description}: {e}", exc_info=True)
-            return None
+    def _register_fetch_item(self, skill: Skill) -> None:
+        self.skill_registry.register(skill)

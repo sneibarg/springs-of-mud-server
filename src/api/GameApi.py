@@ -5,6 +5,7 @@ from typing import Any
 from game.EnumProvider import EnumProvider
 from game.GameData import GameData
 from server.LoggerFactory import LoggerFactory
+from util.EnumUtil import EnumUtil
 from util.GenericUtil import GenericUtil
 
 
@@ -309,12 +310,7 @@ class GameApi:
 
     @staticmethod
     def enum_bit(enum_obj, *names: str) -> int:
-        if enum_obj is None:
-            return 0
-        for name in names:
-            if name in enum_obj.__members__:
-                return int(enum_obj[name].value)
-        return 0
+        return EnumUtil.value(enum_obj, *names)
 
     @staticmethod
     def enum_names(enum_obj, prefix: str) -> list[str]:

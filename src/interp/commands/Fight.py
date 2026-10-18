@@ -27,6 +27,7 @@ from skill.SpellContext import SpellContext
 from util.FightUtil import FightUtil
 from util.GenericUtil import GenericUtil
 from util.MovementUtil import MovementUtil
+from util.PayloadUtil import PayloadUtil
 from util.PlayerUtil import PlayerUtil
 
 
@@ -634,19 +635,15 @@ class Fight:
 
     @staticmethod
     def _command_payload(message_key: str, *, victim=None, targets=None, token_factory=None, channel: str = "", tokens: dict | None = None, **extra) -> dict:
-        payload = {"message_key": str(message_key or "")}
-        if channel:
-            payload["channel"] = channel
-        if victim is not None:
-            payload["victim"] = victim
-        if targets is not None:
-            payload["targets"] = list(targets)
-        if callable(token_factory):
-            payload["token_factory"] = token_factory
-        if tokens:
-            payload["tokens"] = dict(tokens)
-        payload.update(extra)
-        return payload
+        return PayloadUtil.command_payload(
+            message_key,
+            victim=victim,
+            targets=targets,
+            token_factory=token_factory,
+            channel=channel,
+            tokens=tokens,
+            **extra,
+        )
 
     def _movement_cost(self, character, in_room, to_room) -> int:
         if CharacterApi.is_npc(character):

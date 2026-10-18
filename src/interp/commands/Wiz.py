@@ -25,6 +25,7 @@ from util.AreaUtil import AreaUtil
 from util.GenericUtil import GenericUtil
 from util.ItemUtil import ItemUtil
 from util.MobileUtil import MobileUtil
+from util.PayloadUtil import PayloadUtil
 from util.WizUtil import WizUtil
 
 
@@ -203,62 +204,16 @@ class Wiz:
         return self._command_payload("enable" if enabled else "disable")
 
     def do_invis(self, character: Character, context: Context):
-        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
-        if blocked is not None:
-            return blocked
-        arg = WizUtil.argument_text(context.result, context.parameters).strip()
-        current = GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0)
-        if not arg:
-            character.status_flags.invis_level = 0 if current > 0 else CharacterApi.get_trust(character)
-        else:
-            character.status_flags.invis_level = GenericUtil.to_int(arg, 0)
-        room = self.room_registry.get_or_none(id=character.room_id)
-        context.finish()
-        return self._command_payload(
-            "enable" if GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0) > 0 else "disable",
-            targets=[] if room is None else room.player_targets(character),
-        )
+        return self._toggle_level_visibility(character, context, "invis_level")
 
     def do_incognito(self, character: Character, context: Context):
-        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
-        if blocked is not None:
-            return blocked
-        arg = WizUtil.argument_text(context.result, context.parameters).strip()
-        current = GenericUtil.to_int(getattr(character.status_flags, "incog_level", 0), 0)
-        if not arg:
-            character.status_flags.incog_level = 0 if current > 0 else CharacterApi.get_trust(character)
-        else:
-            character.status_flags.incog_level = GenericUtil.to_int(arg, 0)
-        room = self.room_registry.get_or_none(id=character.room_id)
-        context.finish()
-        return self._command_payload(
-            "enable" if GenericUtil.to_int(getattr(character.status_flags, "incog_level", 0), 0) > 0 else "disable",
-            targets=[] if room is None else room.player_targets(character),
-        )
+        return self._toggle_level_visibility(character, context, "incog_level")
 
     def do_bamfin(self, character: Character, context: Context):
-        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
-        if blocked is not None:
-            return blocked
-        text = WizUtil.argument_text(context.result, context.parameters).strip()
-        if not text:
-            context.finish()
-            return self._command_payload("default", tokens={"s": (character.context or {}).get("poofin", "")})
-        character.context["poofin"] = text
-        context.finish()
-        return self._command_payload("set", tokens={"s": text})
+        return self._set_poof_text(character, context, "poofin")
 
     def do_bamfout(self, character: Character, context: Context):
-        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
-        if blocked is not None:
-            return blocked
-        text = WizUtil.argument_text(context.result, context.parameters).strip()
-        if not text:
-            context.finish()
-            return self._command_payload("default", tokens={"s": (character.context or {}).get("poofout", "")})
-        character.context["poofout"] = text
-        context.finish()
-        return self._command_payload("set", tokens={"s": text})
+        return self._set_poof_text(character, context, "poofout")
 
     def do_echo(self, character: Character, context: Context):
         argument = WizUtil.argument_text(context.result, context.parameters)
@@ -389,57 +344,60 @@ class Wiz:
         )
 
     def do_nochannels(self, character: Character, context: Context):
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters))
-        bit = CharacterApi.enum_bit(self.CommFlagsEnum, "COMM_NOCHANNELS")
-        enabled = CharacterApi.is_set(victim.status_flags.comm, bit)
-        if enabled:
-            CharacterApi.unset_comm_flags(victim, bit)
-        else:
-            CharacterApi.set_comm_flags(victim, bit)
-        context.finish()
-        return self._command_payload("removed" if enabled else "set", victim=victim, wiznet_flag="WIZ_PENALTIES", wiznet_skip_flag="WIZ_SECURE")
+        return self._toggle_penalty_flag(character, context, self.CommFlagsEnum, "COMM_NOCHANNELS", "comm")
 
     def do_noemote(self, character: Character, context: Context):
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters))
-        bit = CharacterApi.enum_bit(self.CommFlagsEnum, "COMM_NOEMOTE")
-        enabled = CharacterApi.is_set(victim.status_flags.comm, bit)
-        if enabled:
-            CharacterApi.unset_comm_flags(victim, bit)
-        else:
-            CharacterApi.set_comm_flags(victim, bit)
-        context.finish()
-        return self._command_payload("removed" if enabled else "set", victim=victim, wiznet_flag="WIZ_PENALTIES", wiznet_skip_flag="WIZ_SECURE")
+        return self._toggle_penalty_flag(character, context, self.CommFlagsEnum, "COMM_NOEMOTE", "comm")
 
     def do_noshout(self, character: Character, context: Context):
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters))
-        bit = CharacterApi.enum_bit(self.CommFlagsEnum, "COMM_NOSHOUT")
-        enabled = CharacterApi.is_set(victim.status_flags.comm, bit)
-        if enabled:
-            CharacterApi.unset_comm_flags(victim, bit)
-        else:
-            CharacterApi.set_comm_flags(victim, bit)
-        context.finish()
-        return self._command_payload("removed" if enabled else "set", victim=victim, wiznet_flag="WIZ_PENALTIES", wiznet_skip_flag="WIZ_SECURE")
+        return self._toggle_penalty_flag(character, context, self.CommFlagsEnum, "COMM_NOSHOUT", "comm")
 
     def do_notell(self, character: Character, context: Context):
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters))
-        bit = CharacterApi.enum_bit(self.CommFlagsEnum, "COMM_NOTELL")
-        enabled = CharacterApi.is_set(victim.status_flags.comm, bit)
-        if enabled:
-            CharacterApi.unset_comm_flags(victim, bit)
-        else:
-            CharacterApi.set_comm_flags(victim, bit)
-        context.finish()
-        return self._command_payload("removed" if enabled else "set", victim=victim, wiznet_flag="WIZ_PENALTIES", wiznet_skip_flag="WIZ_SECURE")
+        return self._toggle_penalty_flag(character, context, self.CommFlagsEnum, "COMM_NOTELL", "comm")
 
     def do_freeze(self, character: Character, context: Context):
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters))
-        bit = CharacterApi.enum_bit(self.PlayerActBitsEnum, "PLR_FREEZE")
-        enabled = CharacterApi.is_set(victim.status_flags.act, bit)
-        if enabled:
-            CharacterApi.unset_act_flags(victim, bit)
+        return self._toggle_penalty_flag(character, context, self.PlayerActBitsEnum, "PLR_FREEZE", "act")
+
+    def _toggle_level_visibility(self, character: Character, context: Context, field_name: str):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+        arg = WizUtil.argument_text(context.result, context.parameters).strip()
+        current = GenericUtil.to_int(getattr(character.status_flags, field_name, 0), 0)
+        if not arg:
+            setattr(character.status_flags, field_name, 0 if current > 0 else CharacterApi.get_trust(character))
         else:
-            CharacterApi.set_act_flags(victim, bit)
+            setattr(character.status_flags, field_name, GenericUtil.to_int(arg, 0))
+        room = self.room_registry.get_or_none(id=character.room_id)
+        context.finish()
+        return self._command_payload(
+            "enable" if GenericUtil.to_int(getattr(character.status_flags, field_name, 0), 0) > 0 else "disable",
+            targets=[] if room is None else room.player_targets(character),
+        )
+
+    def _set_poof_text(self, character: Character, context: Context, context_key: str):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+        text = WizUtil.argument_text(context.result, context.parameters).strip()
+        if not text:
+            context.finish()
+            return self._command_payload("default", tokens={"s": (character.context or {}).get(context_key, "")})
+        character.context[context_key] = text
+        context.finish()
+        return self._command_payload("set", tokens={"s": text})
+
+    def _toggle_penalty_flag(self, _character: Character, context: Context, enum_obj, flag_name: str, flag_group: str):
+        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters))
+        bit = CharacterApi.enum_bit(enum_obj, flag_name)
+        current = getattr(victim.status_flags, flag_group)
+        enabled = CharacterApi.is_set(current, bit)
+        setter = CharacterApi.set_comm_flags if flag_group == "comm" else CharacterApi.set_act_flags
+        unsetter = CharacterApi.unset_comm_flags if flag_group == "comm" else CharacterApi.unset_act_flags
+        if enabled:
+            unsetter(victim, bit)
+        else:
+            setter(victim, bit)
         context.finish()
         return self._command_payload("removed" if enabled else "set", victim=victim, wiznet_flag="WIZ_PENALTIES", wiznet_skip_flag="WIZ_SECURE")
 
@@ -1299,17 +1257,14 @@ class Wiz:
 
     @staticmethod
     def _command_payload(message_key: str, *, victim=None, targets=None, channel: str = "", tokens: dict | None = None, **extra) -> dict:
-        payload = {"message_key": str(message_key or "")}
-        if channel:
-            payload["channel"] = channel
-        if victim is not None:
-            payload["victim"] = victim
-        if targets is not None:
-            payload["targets"] = list(targets)
-        if tokens:
-            payload["tokens"] = dict(tokens)
-        payload.update(extra)
-        return payload
+        return PayloadUtil.command_payload(
+            message_key,
+            victim=victim,
+            targets=targets,
+            channel=channel,
+            tokens=tokens,
+            **extra,
+        )
 
     def _command_text(self, context: Context, message_key: str, *, channel: str = "to_char", fallback: str = "", **tokens) -> str:
         payload = self.interp_api.render_message_key(context, message_key, channel=channel, fallback=fallback, **tokens)

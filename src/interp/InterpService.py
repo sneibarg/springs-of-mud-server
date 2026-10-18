@@ -1,18 +1,20 @@
 from typing import Any
 
-import requests
-
 from injector import inject
 
 from game.GamePayload import GamePayload
 from interp.Command import Command
 from interp.InterpRegistry import InterpRegistry
 from interp.HelpRegistry import HelpRegistry
+from server.FetchAndRegisterMixin import FetchAndRegisterMixin
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
+from util.GenericUtil import GenericUtil
 
 
-class InterpService:
+class InterpService(FetchAndRegisterMixin):
+    fetch_error_return = 0
+
     @inject
     def __init__(self, config: ServiceConfig, interp_registry: InterpRegistry, help_registry: HelpRegistry):
         self.__name__ = "InterpService"
@@ -41,31 +43,14 @@ class InterpService:
         url = f"{self.commands_endpoint}/name/{command_name}"
         return self._fetch_and_register(url, f"command '{command_name}'")
 
-    def _fetch_and_register(self, url: str, description: str) -> int:
-        from util.GenericUtil import GenericUtil
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        data = response.json()
-        try:
-            if isinstance(data, list):
-                for command_data in data:
-                    command = Command.from_json(command_data)
-                    command.payload = GamePayload.from_json(GenericUtil.camel_to_snake_case(command_data.get("payload")))
-                    self._assign_help_to_command(command)
-                    self.interp_registry.register(command)
-                self.logger.info(f"Loaded {len(self.interp_registry.all_commands())} {description}.")
-                return None
-            else:
-                command = Command.from_json(data)
-                self.interp_registry.register(command)
-                self.logger.info(f"Loaded {description}.")
-                return command
-        except requests.RequestException as e:
-            self.logger.error(f"Failed to fetch {description} from {url}: {e}")
-            return 0
-        except Exception as e:
-            self.logger.error(f"Unexpected error processing {description}: {e}", exc_info=True)
-            return 0
+    def _build_fetch_item(self, command_data) -> Command:
+        command = Command.from_json(command_data)
+        command.payload = GamePayload.from_json(GenericUtil.camel_to_snake_case(command_data.get("payload")))
+        self._assign_help_to_command(command)
+        return command
+
+    def _register_fetch_item(self, command: Command) -> None:
+        self.interp_registry.register(command)
 
     def _build_help_indexes(self) -> None:
         self._help_exact_by_keyword = {}

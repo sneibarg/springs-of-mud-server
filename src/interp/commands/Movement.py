@@ -13,7 +13,9 @@ from api.InterpApi import InterpApi
 from api.MovementApi import MovementApi
 from combat.CombatHandler import FightHandler
 from item.Item import Item
+from util.EnumUtil import EnumUtil
 from util.MobileUtil import MobileUtil
+from util.PayloadUtil import PayloadUtil
 from util.PlayerUtil import PlayerUtil
 from player.Character import Character
 from api.CharacterApi import CharacterApi
@@ -146,50 +148,37 @@ class Movement:
         return self.move_char(character, "down", context)
 
     def do_open(self, character: Character, context: Context) -> dict:
-        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
-        if blocked is not None:
-            return blocked
-
-        state = MovementApi.door_state(context, room_registry=self.room_registry, exit_flags=self.exit_flags)
-        room = state.room
-        ex = state.exit_obj
-        MovementApi.open_exit(self.room_registry, room, ex, self.exit_flags)
-        context.finish()
-        return self._command_payload(
-            "open_door",
-            targets=self._room_targets(room, character),
-            tokens=self._actor_door_tokens(character, state.keyword),
-        )
+        return self._door_action(character, context, MovementApi.open_exit, "open_door")
 
     def do_close(self, character: Character, context: Context) -> dict:
-        room = self._room(character, context)
-        context.target_item = MovementApi.target_item(context)
-        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
-        if blocked is not None:
-            return blocked
-
-        target_item = getattr(context, "target_item", None)
-        if target_item is not None:
-            MovementApi.close_container(target_item)
-            context.finish()
-            return self._command_payload(
-                "close_container",
-                targets=self._room_targets(room, character),
-                tokens=self._actor_item_tokens(character, Item.short(target_item)),
-            )
-
-        state = MovementApi.door_state(context, room_registry=self.room_registry, exit_flags=self.exit_flags)
-        room = state.room
-        ex = state.exit_obj
-        MovementApi.close_exit(self.room_registry, room, ex, self.exit_flags)
-        context.finish()
-        return self._command_payload(
+        return self._container_or_door_action(
+            character,
+            context,
+            MovementApi.close_container,
+            "close_container",
+            MovementApi.close_exit,
             "close_door",
-            targets=self._room_targets(room, character),
-            tokens=self._actor_door_tokens(character, state.keyword),
         )
 
     def do_lock(self, character: Character, context: Context) -> dict:
+        return self._container_or_door_action(
+            character,
+            context,
+            MovementApi.lock_container,
+            "container_locked",
+            MovementApi.lock_exit,
+            "exit_locked",
+        )
+
+    def _container_or_door_action(
+            self,
+            character: Character,
+            context: Context,
+            container_action,
+            container_message_key: str,
+            door_action,
+            door_message_key: str,
+    ) -> dict:
         room = self._room(character, context)
         context.target_item = MovementApi.target_item(context)
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
@@ -198,59 +187,53 @@ class Movement:
 
         target_item = getattr(context, "target_item", None)
         if target_item is not None:
-            MovementApi.lock_container(target_item)
+            container_action(target_item)
             context.finish()
             return self._command_payload(
-                "container_locked",
+                container_message_key,
                 targets=self._room_targets(room, character),
                 tokens=self._actor_item_tokens(character, Item.short(target_item)),
             )
 
-        state = MovementApi.door_state(context, room_registry=self.room_registry, exit_flags=self.exit_flags)
-        room = state.room
-        ex = state.exit_obj
-        MovementApi.lock_exit(self.room_registry, room, ex, self.exit_flags)
-        context.finish()
-        return self._command_payload(
-            "exit_locked",
-            targets=self._room_targets(room, character),
-            tokens=self._actor_door_tokens(character, state.keyword),
-        )
+        return self._door_action(character, context, door_action, door_message_key, evaluate_guards=False)
 
     def do_unlock(self, character: Character, context: Context) -> dict:
-        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
-        if blocked is not None:
-            return blocked
-
-        state = MovementApi.door_state(context, room_registry=self.room_registry, exit_flags=self.exit_flags)
-        room = state.room
-        ex = state.exit_obj
-        MovementApi.unlock_exit(self.room_registry, room, ex, self.exit_flags)
-        context.finish()
+        payload = self._door_action(character, context, MovementApi.unlock_exit, "unlocks_exit", channel="to_room")
+        if payload.get("message_key") != "unlocks_exit":
+            return payload
         return {
             "payloads": [
                 self._command_payload("click", channel="to_char"),
-                self._command_payload(
-                    "unlocks_exit",
-                    channel="to_room",
-                    targets=self._room_targets(room, character),
-                    tokens=self._actor_door_tokens(character, state.keyword),
-                ),
+                payload,
             ]
         }
 
     def do_pick(self, character: Character, context: Context) -> dict:
-        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
-        if blocked is not None:
-            return blocked
+        return self._door_action(character, context, MovementApi.unlock_exit, "door_picked")
+
+    def _door_action(
+            self,
+            character: Character,
+            context: Context,
+            action,
+            message_key: str,
+            *,
+            channel: str = "",
+            evaluate_guards: bool = True,
+    ) -> dict:
+        if evaluate_guards:
+            blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+            if blocked is not None:
+                return blocked
 
         state = MovementApi.door_state(context, room_registry=self.room_registry, exit_flags=self.exit_flags)
         room = state.room
         ex = state.exit_obj
-        MovementApi.unlock_exit(self.room_registry, room, ex, self.exit_flags)
+        action(self.room_registry, room, ex, self.exit_flags)
         context.finish()
         return self._command_payload(
-            "door_picked",
+            message_key,
+            channel=channel,
             targets=self._room_targets(room, character),
             tokens=self._actor_door_tokens(character, state.keyword),
         )
@@ -763,30 +746,22 @@ class Movement:
         return None
 
     def _find_gain_group(self, raw: str):
-        wanted = str(raw or "").strip().lower()
-        for group in self._all_groups():
-            name = str(getattr(group, "name", "") or "").strip().lower()
-            if name == wanted:
-                return group
-        getter = getattr(self.group_registry, "get_or_none", None)
-        return getter(name=raw) if callable(getter) else None
+        return self._find_gain_entry(raw, self._all_groups(), self.group_registry)
 
     def _find_gain_skill(self, raw: str):
-        wanted = str(raw or "").strip().lower()
-        for skill in self._all_skills():
-            name = str(getattr(skill, "name", "") or "").strip().lower()
-            if name == wanted:
-                return skill
-        getter = getattr(self.skill_registry, "get_or_none", None)
-        return getter(name=raw) if callable(getter) else None
+        return self._find_gain_entry(raw, self._all_skills(), self.skill_registry)
 
     def _find_gain_spell(self, raw: str):
+        return self._find_gain_entry(raw, self._all_spells(), self.spell_registry)
+
+    @staticmethod
+    def _find_gain_entry(raw: str, candidates: list, registry):
         wanted = str(raw or "").strip().lower()
-        for spell in self._all_spells():
-            name = str(getattr(spell, "name", "") or "").strip().lower()
+        for entry in candidates:
+            name = str(getattr(entry, "name", "") or "").strip().lower()
             if name == wanted:
-                return spell
-        getter = getattr(self.spell_registry, "get_or_none", None)
+                return entry
+        getter = getattr(registry, "get_or_none", None)
         return getter(name=raw) if callable(getter) else None
 
     def _all_groups(self) -> list:
@@ -982,13 +957,7 @@ class Movement:
 
     @staticmethod
     def _enum_bit(enum_obj, name: str) -> int:
-        if enum_obj is None:
-            return 0
-        members = getattr(enum_obj, "__members__", None)
-        if members is not None and name in members:
-            return GenericUtil.to_int(getattr(members[name], "value", members[name]), 0)
-        member = getattr(enum_obj, name, None)
-        return GenericUtil.to_int(getattr(member, "value", member), 0)
+        return EnumUtil.value(enum_obj, name)
 
     def _room(self, character: Character, context: Context):
         room = getattr(context, "room", None)
@@ -1061,14 +1030,11 @@ class Movement:
 
     @staticmethod
     def _command_payload(message_key: str, *, victim=None, targets=None, channel: str = "", tokens: dict | None = None, **extra) -> dict:
-        payload = {"message_key": str(message_key or "")}
-        if channel:
-            payload["channel"] = channel
-        if victim is not None:
-            payload["victim"] = victim
-        if targets is not None:
-            payload["targets"] = list(targets)
-        if tokens:
-            payload["tokens"] = dict(tokens)
-        payload.update(extra)
-        return payload
+        return PayloadUtil.command_payload(
+            message_key,
+            victim=victim,
+            targets=targets,
+            channel=channel,
+            tokens=tokens,
+            **extra,
+        )

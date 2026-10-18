@@ -1,20 +1,17 @@
-from typing import Optional
-
-import requests
-
 from injector import inject
 
 from game.GameData import GameData
 from item.Item import Item
 from item.ItemRegistry import ItemRegistry
 from util.ItemUtil import ItemUtil
+from server.FetchAndRegisterMixin import FetchAndRegisterMixin
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 from skill.SkillRegistry import SkillRegistry
 from skill.SpellRegistry import SpellRegistry
 
 
-class ItemService:
+class ItemService(FetchAndRegisterMixin):
     @inject
     def __init__(self, config: ServiceConfig, item_registry: ItemRegistry, skill_registry: SkillRegistry, spell_registry: SpellRegistry, game_data: GameData):
         self.__name__ = "ItemService"
@@ -39,31 +36,10 @@ class ItemService:
         url = f"{self.items_endpoint}/name/{item_name}"
         return self._fetch_and_register(url, f"item '{item_name}'")
 
-    def _fetch_and_register(self, url: str, description: str) -> Optional[Item]:
+    def _build_fetch_item(self, item_data) -> Item:
         liquids = self.game_data.liquids
-        try:
-            response = requests.get(url, timeout=10)
-            response.raise_for_status()
-            data = response.json()
-            if isinstance(data, list):
-                count = 0
-                for item_data in data:
-                    item = ItemUtil.normalize_item_data(item_data, liquids, (self.spell_registry, self.skill_registry))
-                    self.item_registry.register(item)
-                    count += 1
-                self.logger.info(f"Loaded {count} {description}.")
-                return None
-            else:
-                item = ItemUtil.normalize_item_data(data, liquids, (self.spell_registry, self.skill_registry))
-                self.item_registry.register(item)
-                self.logger.info(f"Loaded {description}.")
-                return item
+        return ItemUtil.normalize_item_data(item_data, liquids, (self.spell_registry, self.skill_registry))
 
-        except requests.RequestException as e:
-            self.logger.error(f"Failed to fetch {description} from {url}: {e}")
-            return None
-        except Exception as e:
-            self.logger.error(f"Unexpected error processing {description}: {e}", exc_info=True)
-            return None
-
+    def _register_fetch_item(self, item: Item) -> None:
+        self.item_registry.register(item)
 

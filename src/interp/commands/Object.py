@@ -12,6 +12,7 @@ from game.Equipped import Equipped
 from game.WeatherHandler import WeatherHandler
 from item.Effect import Effect
 from item.EffectHandler import EffectHandler
+from util.EnumUtil import EnumUtil
 from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
@@ -649,13 +650,7 @@ class Object:
 
     @staticmethod
     def _enum_bit(enum_obj, name: str) -> int:
-        if enum_obj is None:
-            return 0
-        members = getattr(enum_obj, "__members__", None)
-        if members is not None and name in members:
-            return GenericUtil.to_int(getattr(members[name], "value", members[name]), 0)
-        member = getattr(enum_obj, name, None)
-        return GenericUtil.to_int(getattr(member, "value", member), 0)
+        return EnumUtil.value(enum_obj, name)
 
     def do_put(self, character: Character, context: Context):
         room = self._prepare_put_context(character, context)

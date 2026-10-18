@@ -21,6 +21,7 @@ from player.CharacterAdvancement import CharacterAdvancement
 from skill.Ability import Ability
 from server.LoggerFactory import LoggerFactory
 from server.messaging.MessageBus import MessageBus
+from util.DisplayUtil import DisplayUtil
 from util.GenericUtil import GenericUtil
 from util.InfoUtil import InfoUtil
 from util.ItemUtil import ItemUtil
@@ -147,16 +148,7 @@ class FightHandler:
         return
 
     def check_parry(self, attacker, victim) -> bool:
-        if not CharacterApi.is_awake(victim):
-            return False
-        skill = self._defense_skill_percent(victim, "parry")
-        if skill <= 0:
-            return False
-
-        stats = getattr(victim, "character_attributes", None)
-        dex = GenericUtil.to_int(getattr(stats, "dexterity", 10), 10)
-        chance = max(0, min(60, skill // 2 + dex // 4))
-        return random.randint(1, 100) <= chance
+        return self._check_dex_defense(victim, "parry", max_chance=60, dex_divisor=4)
 
     def check_shield_block(self, attacker, victim) -> bool:
         if not CharacterApi.is_awake(victim) or victim.equipped is None or not victim.equipped.is_shield_equipped():
@@ -171,15 +163,18 @@ class FightHandler:
         return random.randint(1, 100) <= chance
 
     def check_dodge(self, attacker, victim) -> bool:
+        return self._check_dex_defense(victim, "dodge", max_chance=65, dex_divisor=3)
+
+    def _check_dex_defense(self, victim, skill_name: str, *, max_chance: int, dex_divisor: int) -> bool:
         if not CharacterApi.is_awake(victim):
             return False
-        skill = self._defense_skill_percent(victim, "dodge")
+        skill = self._defense_skill_percent(victim, skill_name)
         if skill <= 0:
             return False
 
         stats = getattr(victim, "character_attributes", None)
         dex = GenericUtil.to_int(getattr(stats, "dexterity", 10), 10)
-        chance = max(0, min(65, skill // 2 + dex // 3))
+        chance = max(0, min(max_chance, skill // 2 + dex // dex_divisor))
         return random.randint(1, 100) <= chance
 
     def update_pos(self, victim) -> None:
@@ -1004,11 +999,7 @@ class FightHandler:
 
     @staticmethod
     def _combat_target_name(target) -> str:
-        if target is None:
-            return "someone"
-        if CharacterApi.is_npc(target):
-            return str(getattr(target, "short_description", "") or getattr(target, "name", "someone"))
-        return str(getattr(target, "name", "someone"))
+        return DisplayUtil.entity_name(target, is_npc=CharacterApi.is_npc)
 
     @staticmethod
     def _sentence_case(text: str) -> str:
