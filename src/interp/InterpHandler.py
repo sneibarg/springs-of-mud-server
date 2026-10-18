@@ -1,5 +1,3 @@
-import inspect
-
 from typing import List
 from injector import inject, Injector
 
@@ -7,6 +5,8 @@ from api.AliasApi import AliasApi
 from game.HandlerService import HandlerService
 from game.RegistryService import RegistryService
 from interp.Command import Command
+from interp.CommandAccess import CommandAccess
+from interp.CommandExecutor import CommandExecutor
 from interp.Context import Context
 from util.InterpUtil import InterpUtil
 from player.Character import Character
@@ -31,67 +31,14 @@ class InterpHandler:
         self.connection_manager = injector.get(ConnectionManager)
         self.command_not_found_message = self.message_bus.text_to_message("Huh?\r\n")
 
-    @staticmethod
-    async def _execute_lambda(func, context) -> Context:
-        result = func(context)
-        if inspect.isawaitable(result):
-            context.result = await result
-        else:
-            context.result = result
-        return context
-
-    async def _handle_pipeline(self, command: Command, context: Context):
-        i = 0
-        while i < len(command.lambdas):
-            lambda_str = command.lambdas[i]
-            if not isinstance(lambda_str, str):
-                i += 1
-                continue
-
-            try:
-                func = eval(lambda_str)
-                if not callable(func):
-                    i += 1
-                    continue
-
-                context = await self._execute_lambda(func, context)
-                if context.done:
-                    break
-
-                if isinstance(context.next_index, int) and context.next_index >= 0:
-                    i = context.next_index
-                    context.next_index = None
-                    continue
-            except Exception as e:
-                self.logger.error(f"Pipeline lambda failed at index {i}: {lambda_str} | {e}")
-                raise
-            i += 1
-
-    async def _handle_sequence(self, command: Command, context: Context):
-        for lambda_string in command.lambdas:
-            func = eval(lambda_string)
-            if not callable(func):
-                continue
-            await self._execute_lambda(func, context)
-
     async def _handle_lambdas(self, character: Character, command: Command, parameters: str):
-        lambdas = getattr(command, "lambdas", None) or []
-        has_executable_lambda = any(isinstance(value, str) and value.strip() for value in lambdas)
-        if not has_executable_lambda:
-            await self.message_bus.send_to_character(character.id, self.command_not_found_message)
-            return None
-
         arguments = InterpUtil.build_arguments(command, parameters)
         connection = self.connection_manager.get_connection_by_character(character.id)
         room = self.room_registry.get_or_none(id=character.room_id)
         context = Context(character=character, handler_service=self.handler_service, conn=connection, command=command, parameters=arguments, result=parameters, room=room)
 
-        if command.pipeline:
-            await self._handle_pipeline(command, context)
-        else:
-            await self._handle_sequence(command, context)
-
-        return context.result
+        return await CommandExecutor.execute(command, context, authorization=CommandAccess.check,
+                                             message_bus=self.message_bus)
 
     async def _call_lambda(self, character: Character, command_name: str, command_list: List[Command], parameters: str):
         command = self.interp_registry.get_or_none(name=command_name)

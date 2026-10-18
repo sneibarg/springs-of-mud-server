@@ -59,7 +59,11 @@
     "payload": {
       "toChar": {
         "default": "You say '%s'",
-        "noArgument": "Say what?"
+        "noArgument": "Say what?",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "default": "%c says '%s'"
@@ -102,7 +106,11 @@
         "deaf": "Your message didn't get through",
         "quietMode": "You must turn off quiet mode first.",
         "deafMode": "You must turn off deaf mode first.",
-        "default": "You tell %t '%s'"
+        "default": "You tell %t '%s'",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {
@@ -227,7 +235,11 @@
     "payload": {
       "toChar": {
         "noArgument": "Examine what?",
-        "targetMissing": "Odd...there's no coins in the pile."
+        "targetMissing": "Odd...there's no coins in the pile.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {}
@@ -269,7 +281,14 @@
         "privateRoom": "That room is private right now.",
         "inAir": "You can't fly.",
         "inWater": "You need a boat to go there.",
-        "insufficientMovement": "You are too exhausted."
+        "insufficientMovement": "You are too exhausted.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first.",
+        "commandPositionFighting": "No way!  You are still fighting!"
       },
       "toRoom": {
         "default": "%c leaves west.",
@@ -363,7 +382,14 @@
         "privateRoom": "That room is private right now.",
         "inAir": "You can't fly.",
         "inWater": "You need a boat to go there.",
-        "insufficientMovement": "You are too exhausted."
+        "insufficientMovement": "You are too exhausted.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first.",
+        "commandPositionFighting": "No way!  You are still fighting!"
       },
       "toRoom": {
         "default": "%c leaves east.",
@@ -457,7 +483,14 @@
         "privateRoom": "That room is private right now.",
         "inAir": "You can't fly.",
         "inWater": "You need a boat to go there.",
-        "insufficientMovement": "You are too exhausted."
+        "insufficientMovement": "You are too exhausted.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first.",
+        "commandPositionFighting": "No way!  You are still fighting!"
       },
       "toRoom": {
         "default": "%c leaves north.",
@@ -551,7 +584,14 @@
         "privateRoom": "That room is private right now.",
         "inAir": "You can't fly.",
         "inWater": "You need a boat to go there.",
-        "insufficientMovement": "You are too exhausted."
+        "insufficientMovement": "You are too exhausted.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first.",
+        "commandPositionFighting": "No way!  You are still fighting!"
       },
       "toRoom": {
         "default": "%c leaves south.",
@@ -654,7 +694,11 @@
         "multipleTargets": "You only see %q of those here.",
         "holds": "%t holds:",
         "closed": "The %t is closed.",
-        "open": "The %t is open."
+        "open": "The %t is open.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {}
@@ -728,7 +772,14 @@
         "privateRoom": "That room is private right now.",
         "inAir": "You can't fly.",
         "inWater": "You need a boat to go there.",
-        "insufficientMovement": "You are too exhausted."
+        "insufficientMovement": "You are too exhausted.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first.",
+        "commandPositionFighting": "No way!  You are still fighting!"
       },
       "toRoom": {
         "default": "%c leaves up.",
@@ -822,7 +873,14 @@
         "privateRoom": "That room is private right now.",
         "inAir": "You can't fly.",
         "inWater": "You need a boat to go there.",
-        "insufficientMovement": "You are too exhausted."
+        "insufficientMovement": "You are too exhausted.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first.",
+        "commandPositionFighting": "No way!  You are still fighting!"
       },
       "toRoom": {
         "default": "%c leaves down.",
@@ -962,7 +1020,13 @@
         "canTDoOwn2": "You can't do that on your own follower.",
         "targetNotVisible": "You don't see that here.",
         "insufficientMana": "You don't have enough mana.",
-        "skillFailure": "You lost your concentration."
+        "skillFailure": "You lost your concentration.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first."
       },
       "toRoom": {},
       "toVictim": {}
@@ -1040,7 +1104,10 @@
         "disable": "Auction channel is now OFF.",
         "quietMode": "You must turn off quiet mode first.",
         "noChannels": "The gods have revoked your channel privileges.",
-        "default": "You auction '%s'"
+        "default": "You auction '%s'",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {},
       "toVictim": {},
@@ -1096,7 +1163,11 @@
         "quantityExceedsAllowed": "You can't carry that many items.",
         "weightExceedsAllowed": "You can't carry that much weight.",
         "default": "You buy %t for %q silver.",
-        "bulkPurchased": "You buy %t[%d] for %q silver."
+        "bulkPurchased": "You buy %t[%d] for %q silver.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "petPurchased": "%c bought %t as a pet.",
@@ -1231,7 +1302,11 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "dark": "Too dark to tell."
+        "dark": "Too dark to tell.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {}
@@ -1274,7 +1349,11 @@
         "targetNotVisible": "I see no %t here.",
         "closed": "The %t is closed.",
         "invalidContainerTarget": "I see nothing like that in %t.",
-        "containerEmpty": "I see nothing in the %t."
+        "containerEmpty": "I see nothing in the %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "default": "%c gets %t.",
@@ -1409,7 +1488,10 @@
         "targetIsNotFollower": "%t isn't following you.",
         "cannotRemoveCharmed": "You can't remove charmed mobs from your group.",
         "removal": "You remove %t from your group.",
-        "addition": "%t joins your group."
+        "addition": "%t joins your group.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {
         "removal": "%c removes %t from {s_poss} group.",
@@ -1518,7 +1600,13 @@
         "noKillStealing": "Kill stealing is not permitted.",
         "alreadyFighting": "You do the best you can!",
         "busyFighting": "You do the best you can!",
-        "targetIsMaster": "$N is your beloved master."
+        "targetIsMaster": "$N is your beloved master.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first."
       },
       "toRoom": {},
       "toVictim": {}
@@ -1548,7 +1636,13 @@
         "targetSelf": "You hit yourself. Ouch!",
         "targetSafe": "You cannot attack them.",
         "alreadyFighting": "You are already fighting {victim_name}.",
-        "busyFighting": "You do the best you can!"
+        "busyFighting": "You do the best you can!",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first."
       },
       "toRoom": {},
       "toVictim": {}
@@ -1577,7 +1671,10 @@
         "disable": "Clan channel is now OFF.",
         "quietMode": "You must turn off quiet mode first.",
         "noChannels": "The gods have revoked your channel privileges.",
-        "default": "You clan '%s'"
+        "default": "You clan '%s'",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {},
       "toVictim": {},
@@ -1608,7 +1705,10 @@
         "disable": "Music channel is now OFF.",
         "quietMode": "You must turn off quiet mode first.",
         "noChannels": "The gods have revoked your channel privileges.",
-        "default": "You MUSIC: '%s'"
+        "default": "You MUSIC: '%s'",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {},
       "toVictim": {},
@@ -1652,7 +1752,11 @@
         "targetSelf": "Aye aye, right away!",
         "targetNotSubmissive": "Do it yourself!",
         "default": "Ok.",
-        "noFollowers": "You have no followers here."
+        "noFollowers": "You have no followers here.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {
@@ -1712,7 +1816,10 @@
         "learned": "You are already learned at %s.",
         "practiceSessionsLeft": "You have %q practice sessions left.",
         "practice": "You practice %s.",
-        "nowAdept": "You are now learned at %s."
+        "nowAdept": "You are now learned at %s.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {
         "default": "%c practices %s.",
@@ -1775,7 +1882,10 @@
         "rest3": "You rest in $p.",
         "restAt": "You rest at $p.",
         "rest4": "You rest on $p.",
-        "rest5": "You rest in $p."
+        "rest5": "You rest in $p.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {
         "wakesUpStartsResting": "$n wakes up and starts resting.",
@@ -1823,7 +1933,10 @@
         "sit": "You sit on $p.",
         "sitDownAt": "You sit down at $p.",
         "sit2": "You sit on $p.",
-        "sitDown2": "You sit down in $p."
+        "sitDown2": "You sit down in $p.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {
         "wakesSitsUp": "$n wakes and sits up.",
@@ -1898,7 +2011,10 @@
         "alreadyFighting": "You are already fighting!",
         "standAt": "You stand at $p.",
         "stand": "You stand on $p.",
-        "stand2": "You stand in $p."
+        "stand2": "You stand in $p.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {
         "wakesStandsUp": "$n wakes and stands up.",
@@ -1949,7 +2065,11 @@
         "itSAlreadyUnlocked3": "It's already unlocked.",
         "click": "*Click*",
         "unlock": "You unlock $p.",
-        "unlock2": "You unlock $p."
+        "unlock2": "You unlock $p.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "unlocks": "$n unlocks $p.",
@@ -2019,7 +2139,11 @@
         "skill50": "Your skill with %t is adequate.",
         "skill25": "%t feels a little clumsy in your hands.",
         "skill1": "You fumble and almost drop %t.",
-        "skill0": "You don't even know which end is up on %t."
+        "skill0": "You don't even know which end is up on %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "insufficientLevel": "%c tries to use %t, but is too inexperienced.",
@@ -2242,7 +2366,11 @@
         "noArgument": "Compare what to what?",
         "targetMissing": "You do not have that item.",
         "wearSlotEmpty": "You aren't wearing anything comparable.",
-        "cannotCompare": "You can't compare those items."
+        "cannotCompare": "You can't compare those items.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {}
@@ -2286,7 +2414,11 @@
       "toChar": {
         "noArgument": "Consider killing whom?",
         "targetMissing": "They're not here.",
-        "isSafe": "Don't even think about it."
+        "isSafe": "Don't even think about it.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {}
@@ -2320,7 +2452,10 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "charactersMostSoFar": "There are %q characters on, the most so far today."
+        "charactersMostSoFar": "There are %q characters on, the most so far today.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {},
       "toVictim": {}
@@ -2460,7 +2595,11 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
+      },
       "toRoom": {},
       "toVictim": {}
     }
@@ -2567,7 +2706,11 @@
         "onlySeeOne": "You only see one %s here.",
         "holds": "$p holds:",
         "closed": "The $d is closed.",
-        "open": "The $d is open."
+        "open": "The $d is open.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {}
@@ -2590,7 +2733,12 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
+      },
       "toRoom": {},
       "toVictim": {}
     }
@@ -2829,7 +2977,11 @@
     "payload": {
       "toChar": {
         "indoors": "You can't see the weather indoors.",
-        "unavailable": "The weather is unavailable."
+        "unavailable": "The weather is unavailable.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {}
@@ -2891,7 +3043,11 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "dead": "Lie still; you are DEAD.",
+        "hurt": "You are hurt far too bad for that.",
+        "stunned": "You are too stunned to do that."
+      },
       "toRoom": {},
       "toVictim": {}
     }
@@ -2912,7 +3068,11 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
+      },
       "toRoom": {},
       "toVictim": {}
     }
@@ -3340,7 +3500,11 @@
     "payload": {
       "toChar": {
         "graduate": "Find it yourself!",
-        "default": "You have been equipped by Mota."
+        "default": "You have been equipped by Mota.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {}
@@ -3544,7 +3708,10 @@
     "payload": {
       "toChar": {
         "enable": "You are now in AFK mode.",
-        "disable": "AFK mode removed. Type 'replay' to see tells."
+        "disable": "AFK mode removed. Type 'replay' to see tells.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {},
       "toVictim": {}
@@ -3571,7 +3738,10 @@
         "disable": "Q/A channel is now OFF.",
         "quietMode": "You must turn off quiet mode first.",
         "noChannels": "The gods have revoked your channel privileges.",
-        "default": "You answer '%s'"
+        "default": "You answer '%s'",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {},
       "toVictim": {},
@@ -3633,7 +3803,11 @@
       "toChar": {
         "noEmote": "You can't show your emotions.",
         "noArgument": "Emote what?",
-        "default": "%c %e"
+        "default": "%c %e",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "default": "%c %e"
@@ -3670,7 +3844,11 @@
       "toChar": {
         "noEmote": "You can't show your emotions.",
         "default": "%c %e",
-        "noArgument": "Emote what?"
+        "noArgument": "Emote what?",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {}
@@ -3707,7 +3885,10 @@
         "disable": "Gossip channel is now OFF.",
         "quietMode": "You must turn off quiet mode first.",
         "noChannels": "The gods have revoked your channel privileges.",
-        "default": "You gossip '%s'"
+        "default": "You gossip '%s'",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {},
       "toVictim": {},
@@ -3747,7 +3928,10 @@
         "disable": "Gossip channel is now OFF.",
         "quietMode": "You must turn off quiet mode first.",
         "noChannels": "The gods have revoked your channel privileges.",
-        "default": "You gossip '%s'"
+        "default": "You gossip '%s'",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {},
       "toVictim": {},
@@ -3785,7 +3969,11 @@
       "toChar": {
         "noEmote": "You can't show your emotions.",
         "noArgument": "Emote what?",
-        "default": "%c %e"
+        "default": "%c %e",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "default": "%c %e"
@@ -3824,7 +4012,10 @@
         "disable": "Grats channel is now OFF.",
         "quietMode": "You must turn off quiet mode first.",
         "noChannels": "The gods have revoked your channel privileges.",
-        "default": "You grats '%s'"
+        "default": "You grats '%s'",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {},
       "toVictim": {},
@@ -3940,7 +4131,10 @@
         "missingSubject": "You need to provide a subject.",
         "canTDoThat": "You can't do that.",
         "haveNoUnread": "You have no unread {s}.",
-        "arenTThatMany": "There aren't that many {s}."
+        "arenTThatMany": "There aren't that many {s}.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {},
       "toVictim": {}
@@ -3962,7 +4156,12 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
+      },
       "toRoom": {},
       "toVictim": {}
     }
@@ -3988,7 +4187,10 @@
         "disable": "Q/A channel is now OFF.",
         "quietMode": "You must turn off quiet mode first.",
         "noChannels": "The gods have revoked your channel privileges.",
-        "default": "You question '%s'"
+        "default": "You question '%s'",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {},
       "toVictim": {},
@@ -4028,7 +4230,10 @@
         "disable": "Quote channel is now OFF.",
         "quietMode": "You must turn off quiet mode first.",
         "noChannels": "The gods have revoked your channel privileges.",
-        "default": "You quote '%s'"
+        "default": "You quote '%s'",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {},
       "toVictim": {},
@@ -4065,7 +4270,10 @@
     "payload": {
       "toChar": {
         "enable": "From now on, you will only hear says and emotes.",
-        "disable": "Quiet mode removed."
+        "disable": "Quiet mode removed.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {},
       "toVictim": {}
@@ -4099,7 +4307,10 @@
         "deaf": "Your message didn't get through",
         "quietMode": "You must turn off quiet mode first.",
         "deafMode": "You must turn off deaf mode first.",
-        "default": "You tell %t '%s'"
+        "default": "You tell %t '%s'",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {},
       "toVictim": {
@@ -4148,7 +4359,10 @@
     "payload": {
       "toChar": {
         "isNpc": "You can't replay.",
-        "noTells": "You have no tells to replay."
+        "noTells": "You have no tells to replay.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {},
       "toVictim": {}
@@ -4182,7 +4396,11 @@
         "noShout": "You can't shout.",
         "quietMode": "You must turn off quiet mode first.",
         "default": "You shout '%s'",
-        "noArgument": "Shout what?"
+        "noArgument": "Shout what?",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {},
@@ -4219,7 +4437,11 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
+      },
       "toRoom": {},
       "toVictim": {}
     }
@@ -4243,7 +4465,11 @@
       "toChar": {
         "noShout": "You can't yell.",
         "noArgument": "Yell what?",
-        "default": "You yell '%s'"
+        "default": "You yell '%s'",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {}
@@ -4280,7 +4506,11 @@
         "invalidWeapon": "You can brandish only with a staff.",
         "default": "You brandish %t.",
         "failure": "You fail to invoke %t.",
-        "itemBroken": "Your %t blazes bright and is gone."
+        "itemBroken": "Your %t blazes bright and is gone.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "default": "%c brandishes %t.",
@@ -4327,7 +4557,11 @@
         "alcohol": "You feel drunk.",
         "poison": "You choke and gag.",
         "drunk": "You fail to reach your mouth. *Hic*",
-        "default": "You drink %l from %p."
+        "default": "You drink %l from %p.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "poison": "%c chokes and gags.",
@@ -4390,7 +4624,11 @@
         "default": "You drop %t.",
         "dissolved": "%t dissolves into smoke.",
         "noInventory": "You are not carrying anything.",
-        "targetNotFound": "You are not carrying any %t."
+        "targetNotFound": "You are not carrying any %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "coins": "%c drops some coins.",
@@ -4442,7 +4680,11 @@
         "satiated": "You are no longer hungry.",
         "full": "You are full.",
         "poison": "You choke and gag.",
-        "default": "You eat %p."
+        "default": "You eat %p.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "poison": "%c chokes and gags.",
@@ -4496,7 +4738,11 @@
         "isEnvenomed": "%t is already envenomed.",
         "weapon": "You coat %t with venom.",
         "weaponFail": "You fail to envenom %t.",
-        "targetInvalid": "You can't poison %t."
+        "targetInvalid": "You can't poison %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "food": "%c treats %t with deadly poison.",
@@ -4529,7 +4775,11 @@
         "containerFull": "Your container is full.",
         "differentLiquid": "There is already another liquid in it.",
         "sourceEmpty": "It is empty.",
-        "default": "You fill %t with %s from %T."
+        "default": "You fill %t with %s from %T.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "default": "%c fills %t with %s from %T."
@@ -4598,7 +4848,11 @@
         "targetHandsFull": "%t has %s hands full.",
         "targetEncumbered": "%t can't carry that much weight.",
         "targetCannotSee": "%t can't see it.",
-        "itemReceived": "You give %t to %T."
+        "itemReceived": "You give %t to %T.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "fundsReceived": "%c gives %t some coins.",
@@ -4680,7 +4934,11 @@
         "roomMissing": "You can't do that here.",
         "noHealer": "You can't do that here.",
         "unknownService": "The healer says 'Type heal for a list of spells.'",
-        "insufficientFunds": "The healer says 'You do not have enough gold for my services.'"
+        "insufficientFunds": "The healer says 'You do not have enough gold for my services.'",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "uttersWords": "$n utters the words '$T'."
@@ -4729,7 +4987,11 @@
         "insufficientLevel": "You must be level %d to use this object.",
         "noRemove": "You can't remove %t.",
         "removed": "You stop using %t.",
-        "hold": "You hold %t in your hand."
+        "hold": "You hold %t in your hand.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "insufficientLevel": "%c tries to use %t, but is too inexperienced.",
@@ -4770,7 +5032,11 @@
         "shopUnavailable": "You can't do that here.",
         "shopClosedLater": "Sorry, I am closed. Come back later.",
         "shopClosedTomorrow": "Sorry, I am closed. Come back tomorrow.",
-        "keeperCannotSee": "I don't trade with folks I can't see."
+        "keeperCannotSee": "I don't trade with folks I can't see.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {}
@@ -4824,7 +5090,11 @@
         "locked": "It's already locked.",
         "notContainer": "That's not a container.",
         "exitLocked": "*Click*",
-        "containerLocked": "You lock %t."
+        "containerLocked": "You lock %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "containerLocked": "%c locks %t.",
@@ -4904,7 +5174,11 @@
         "notContainer": "That's not a container.",
         "openDoor": "Ok.",
         "openPortal": "You open %t.",
-        "openContainer": "The %t opens."
+        "openContainer": "The %t opens.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "openPortal": "%c opens %t.",
@@ -4957,7 +5231,11 @@
         "notContainer": "That's not a container.",
         "closeDoor": "Ok.",
         "closePortal": "You close %t.",
-        "closeContainer": "You close %t."
+        "closeContainer": "You close %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "closeContainer": "%c closes %t.",
@@ -4965,7 +5243,7 @@
         "closeDoor": "%c closes the %t."
       },
       "toDestination": {
-          "closes": "The %t closes."
+        "closes": "The %t closes."
       },
       "toVictim": {}
     },
@@ -5031,7 +5309,11 @@
         "notLocked": "It's already unlocked.",
         "doorPicked": "*Click*",
         "npcNear": "%N is standing too close to the lock.",
-        "containerPicked": "You pick the lock on %t."
+        "containerPicked": "You pick the lock on %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "containerPicked": "%c picks the lock on %t.",
@@ -5092,7 +5374,11 @@
         "filled": "%t is already filled to the top.",
         "spillOut": "You invert %t, spilling %s all over the ground.",
         "toContainer": "You pour %s from %t into %T.",
-        "forVictim": "You pour some %s for %t."
+        "forVictim": "You pour some %s for %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "spillOut": "%c inverts %t, spilling %s all over the ground.",
@@ -5181,7 +5467,11 @@
         "weightExceeds": "You have a feeling that would be a bad idea.",
         "containerFull": "It won't fit.",
         "on": "You put %t on %T.",
-        "in": "You put %t in %T."
+        "in": "You put %t in %T.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "on": "%c puts %t on %T.",
@@ -5208,7 +5498,7 @@
         "tokenFactory": "lambda v: {'t': v.context.put_container_name}"
       },
       {
-        "predicate": "lambda v: v.context.put_container is not None and not ItemUtil.is_container(v.context.put_container)",
+        "predicate": "lambda v: v.context.put_container is not None and not v.context.put_container.is_container(v.context.put_container)",
         "messageKey": "notContainer"
       },
       {
@@ -5243,7 +5533,11 @@
         "targetMissing": "You do not have that potion.",
         "notPotion": "You can quaff only potions.",
         "insufficientLevel": "This liquid is too powerful for you to drink.",
-        "quaff": "You quaff %t."
+        "quaff": "You quaff %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "quaffs": "%c quaffs %t."
@@ -5291,7 +5585,11 @@
         "insufficientLevel": "This scroll is too complex for you to comprehend.",
         "targetMissing": "You can't find it.",
         "failed": "You mispronounce a syllable.",
-        "recite": "You recite %t."
+        "recite": "You recite %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "recites": "%c recites %t."
@@ -5337,7 +5635,11 @@
         "noTarget": "Remove what?",
         "notWorn": "You aren't wearing that.",
         "noRemove": "You can't remove %t.",
-        "removed": "You stop using %t."
+        "removed": "You stop using %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "removed": "%c stops using %t."
@@ -5387,7 +5689,11 @@
         "canTLetGo": "You can't let go of it.",
         "looksUninterested": "%s looks uninterested in %t.",
         "insufficientWealth": "I'm afraid I don't have enough wealth to buy %t.",
-        "default": "You sell %t for %q silver and {g} gold piece{sfx}."
+        "default": "You sell %t for %q silver and {g} gold piece{sfx}.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "sells": "%c sells %t."
@@ -5468,7 +5774,11 @@
         "targetNotVisible": "I see no %t here.",
         "closed": "The %t is closed.",
         "invalidContainerTarget": "I see nothing like that in %t.",
-        "containerEmpty": "I see nothing in the %t."
+        "containerEmpty": "I see nothing in the %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "default": "%c gets %t.",
@@ -5563,7 +5873,11 @@
         "oneSilver": "Mota gives you one silver coin for your sacrifice.",
         "multipleSilver": "Mota gives you %d silver coins for your sacrifice.",
         "noSacrifice": "%t is not an acceptable sacrifice.",
-        "targetInUse": "%v appears to be using %t."
+        "targetInUse": "%v appears to be using %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "targetSelf": "%c offers their self to Mota, who graciously declines.",
@@ -5629,7 +5943,11 @@
         "targetMissing": "You don't have that item.",
         "noDrop": "You can't let go of it.",
         "looksUninterested": "%s looks uninterested in %t.",
-        "default": "I'll give you %q silver and {g} gold coins for %t."
+        "default": "I'll give you %q silver and {g} gold coins for %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {}
@@ -5727,7 +6045,11 @@
         "skill50": "Your skill with %t is adequate.",
         "skill25": "%t feels a little clumsy in your hands.",
         "skill1": "You fumble and almost drop %t.",
-        "skill0": "You don't even know which end is up on %t."
+        "skill0": "You don't even know which end is up on %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "insufficientLevel": "%c tries to use %t, but is too inexperienced.",
@@ -5799,7 +6121,11 @@
         "targetMissing": "You can't find it.",
         "default": "You zap %t with %T.",
         "failed": "Your efforts with %t produce only smoke and sparks.",
-        "itemBroken": "Your %t explodes into fragments."
+        "itemBroken": "Your %t explodes into fragments.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "default": "%c zaps %t with %T.",
@@ -5859,7 +6185,13 @@
         "targetTooHurt": "They are hurt and suspicious. You can't sneak up.",
         "isSafe": "Not in this room.",
         "isShop": "The shopkeeper wouldn't like that.",
-        "isMota": "I don't think Mota would approve."
+        "isMota": "I don't think Mota would approve.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first."
       },
       "toRoom": {},
       "toVictim": {}
@@ -5900,7 +6232,13 @@
         "dodgesBashFallFlat": "$N dodges your bash, you fall flat on your face.",
         "slamIntoSendFlying": "You slam into $N, and send $M flying!",
         "fallFlatFace": "You fall flat on your face!",
-        "success": "You slam into them and send them flying!"
+        "success": "You slam into them and send them flying!",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first."
       },
       "toRoom": {
         "sendsSprawlingWithPowerful": "$n sends $N sprawling with a powerful bash.",
@@ -5943,7 +6281,13 @@
         "pulseRacesAsConsumed": "Your pulse races as you are consumed by rage!",
         "pulseSpeedsUpBut": "Your pulse speeds up, but nothing happens.",
         "success": "Your pulse races as you are consumed by rage!",
-        "failed": "Your pulse speeds up, but nothing happens."
+        "failed": "Your pulse speeds up, but nothing happens.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first."
       },
       "toRoom": {
         "getsWildLookEyes": "$n gets a wild look in $s eyes.",
@@ -5986,7 +6330,13 @@
         "isnTAnyDirt": "There isn't any dirt to kick.",
         "sAlreadyBeenBlinded": "$E's already been blinded.",
         "butSuchGoodFriend": "But $N is such a good friend!",
-        "success": "You kick dirt in their eyes!"
+        "success": "You kick dirt in their eyes!",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first."
       },
       "toRoom": {
         "blindedByDirtEyes": "$n is blinded by the dirt in $s eyes!",
@@ -6027,7 +6377,13 @@
         "failDisarm": "You fail to disarm $N.",
         "failed": "You fail to disarm {victim_name}.",
         "noRemove": "Their weapon won't budge!",
-        "success": "You disarm {victim_name}!"
+        "success": "You disarm {victim_name}!",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first."
       },
       "toRoom": {
         "triesDisarmButFails": "$n tries to disarm $N, but fails.",
@@ -6069,7 +6425,13 @@
         "lost10Exp": "You lost 10 exp.",
         "panicCouldnTEscape": "PANIC! You couldn't escape!",
         "flee": "You flee from combat!",
-        "lostExp": "You lost 10 exp."
+        "lostExp": "You lost 10 exp.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first."
       },
       "toRoom": {
         "fled": "$n has fled!",
@@ -6114,7 +6476,13 @@
         "roomMissing": "You are nowhere.",
         "noVictim": "You aren't fighting anyone.",
         "betterLeaveMartialArts": "You better leave the martial arts to fighters.",
-        "arenTFightingAnyone": "You aren't fighting anyone."
+        "arenTFightingAnyone": "You aren't fighting anyone.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first."
       },
       "toRoom": {},
       "toVictim": {}
@@ -6137,7 +6505,13 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "ifWantMurderSpell": "If you want to MURDER, spell it out."
+        "ifWantMurderSpell": "If you want to MURDER, spell it out.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first."
       },
       "toRoom": {},
       "toVictim": {}
@@ -6172,7 +6546,13 @@
         "suicideMortalSin": "Suicide is a mortal sin.",
         "killStealingNotPermitted": "Kill stealing is not permitted.",
         "doBestCan": "You do the best you can!",
-        "belovedMaster": "$N is your beloved master."
+        "belovedMaster": "$N is your beloved master.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first."
       },
       "toRoom": {},
       "toVictim": {}
@@ -6223,7 +6603,13 @@
         "failRescue": "You fail the rescue.",
         "rescue": "You rescue $N!",
         "failed": "You fail the rescue.",
-        "success": "You rescue {victim_name}!"
+        "success": "You rescue {victim_name}!",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first."
       },
       "toRoom": {
         "rescues": "$n rescues $N!",
@@ -6270,7 +6656,13 @@
         "alreadyDown": "$N is already down.",
         "belovedMaster": "$N is your beloved master.",
         "tripGoesDown": "You trip $N and $N goes down!",
-        "success": "You trip {victim_name} and they go down!"
+        "success": "You trip {victim_name} and they go down!",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first."
       },
       "toRoom": {
         "tripsOverOwnFeet": "$n trips over $s own feet!",
@@ -6313,7 +6705,14 @@
         "arenTAllowedCity": "You aren't allowed in the city.",
         "follow": "You follow %s.",
         "fadesOutExistence": "%t fades out of existence.",
-        "fadesOutExistence2": "%t fades out of existence."
+        "fadesOutExistence2": "%t fades out of existence.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first.",
+        "commandPositionFighting": "No way!  You are still fighting!"
       },
       "toRoom": {
         "stepsInto": "%c steps into %t.",
@@ -6348,7 +6747,11 @@
         "noMaster": "You already follow yourself.",
         "noFollow": "%t doesn't seem to want any followers.",
         "stop": "You stop following %t.",
-        "default": "You now follow %t."
+        "default": "You now follow %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {
@@ -6422,7 +6825,14 @@
         "tellsSkillBeyondPowers": "%t tells you 'That skill is beyond your powers.'",
         "tellsNotYetReady4": "%t tells you 'You are not yet ready for that skill.'",
         "trainsArt2": "%t trains you in the art of %s",
-        "tellsIDoNot": "%t tells you 'I do not understand...'"
+        "tellsIDoNot": "%t tells you 'I do not understand...'",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first.",
+        "commandPositionFighting": "No way!  You are still fighting!"
       },
       "toRoom": {},
       "toVictim": {}
@@ -6457,7 +6867,14 @@
         "arenTAllowedCity": "You aren't allowed in the city.",
         "follow": "You follow %s.",
         "fadesOutExistence": "%t fades out of existence.",
-        "fadesOutExistence2": "%t fades out of existence."
+        "fadesOutExistence2": "%t fades out of existence.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first.",
+        "commandPositionFighting": "No way!  You are still fighting!"
       },
       "toRoom": {
         "stepsInto": "%c steps into %t.",
@@ -6497,7 +6914,10 @@
         "20s": "%-20s ",
         "creationPoints": "Creation points: %d",
         "20s2": "%-20s ",
-        "20s3": "%-20s "
+        "20s3": "%-20s ",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {},
       "toVictim": {}
@@ -6520,7 +6940,11 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "attemptHide": "You attempt to hide."
+        "attemptHide": "You attempt to hide.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {}
@@ -6547,7 +6971,11 @@
         "jukeboxFullUpRight": "The jukebox is full up right now.",
         "songIsnTAvailable": "That song isn't available.",
         "songIsnTAvailable2": "That song isn't available.",
-        "comingRightUp": "Coming right up."
+        "comingRightUp": "Coming right up.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {}
@@ -6597,7 +7025,13 @@
         "nullTemple": "You are completely lost.",
         "noRecall": "Mota has forsaken you.",
         "failed": "You failed!.",
-        "combatRecall": "You recall from combat!  You lose %d exps."
+        "combatRecall": "You recall from combat!  You lose %d exps.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first."
       },
       "toRoom": {
         "praysTransportation": "%c prays for transportation!",
@@ -6678,7 +7112,10 @@
         "isFighting": "You are already fighting!",
         "at": "You go to sleep at %t.",
         "on": "You go to sleep on %t.",
-        "in": "You go to sleep in %t."
+        "in": "You go to sleep in %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {
         "default": "%c goes to sleep.",
@@ -6706,7 +7143,14 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "attemptMoveSilently": "You attempt to move silently."
+        "attemptMoveSilently": "You attempt to move silently.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first.",
+        "commandPositionFighting": "No way!  You are still fighting!"
       },
       "toRoom": {},
       "toVictim": {}
@@ -6736,7 +7180,11 @@
         "justKeepItAll": "Just keep it all.",
         "donTEvenBother": "Don't even bother, cheapskate.",
         "splitSilverCoinsShare": "You split {amount_silver} silver coins. Your share is {share_silver} silver.",
-        "splitGoldCoinsShare": "You split {amount_gold} gold coins. Your share is {share_gold} gold."
+        "splitGoldCoinsShare": "You split {amount_gold} gold coins. Your share is {share_gold} gold.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {
@@ -6803,7 +7251,14 @@
         "gold": "Bingo!  You got %d gold coins.",
         "silver": "Bingo!  You got %d silver coins.",
         "coins": "Bingo!  You got %d silver and %g gold coins.",
-        "item": "You pocket %t."
+        "item": "You pocket %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?",
+        "commandPositionResting": "Nah... You feel too relaxed...",
+        "commandPositionSitting": "Better stand up first.",
+        "commandPositionFighting": "No way!  You are still fighting!"
       },
       "toRoom": {
         "failed": "%c tried to steal from %t.",
@@ -6845,7 +7300,11 @@
         "powerIncreases": "Your power increases!",
         "alreadyAtMaximum": "Your %t is already at maximum.",
         "invalidState": "You can't do that.",
-        "increases": "Your %t increases!"
+        "increases": "Your %t increases!",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {
         "durabilityIncreases": "%c's durability increases!",
@@ -6872,7 +7331,10 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "default": "Ok."
+        "default": "Ok.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {},
       "toVictim": {}
@@ -6899,7 +7361,10 @@
         "targetMissing": "They aren't here.",
         "targetAwake": "%t is already awake.",
         "affectSleep": "You can't wake %t!",
-        "wakeTarget": "You wake %t."
+        "wakeTarget": "You wake %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that."
       },
       "toRoom": {},
       "toVictim": {
@@ -6924,7 +7389,11 @@
     "maxArguments": 1,
     "payload": {
       "toChar": {
-        "targetMissing": "You didn't find any %t."
+        "targetMissing": "You didn't find any %t.",
+        "commandPositionDead": "Lie still; you are DEAD.",
+        "commandPositionHurt": "You are hurt far too bad for that.",
+        "commandPositionStunned": "You are too stunned to do that.",
+        "commandPositionSleeping": "In your dreams, or what?"
       },
       "toRoom": {},
       "toVictim": {}

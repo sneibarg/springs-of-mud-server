@@ -17,3 +17,7 @@ class SpecialRegistry(Registry[Special]):
 
     def all_specials_by_area_id(self, area_id: str) -> list[Special]:
         return [special for special in self._items if special.area_id == area_id]
+
+    def for_mobile(self, area_id: str, vnum: str) -> Special | None:
+        return next((special for special in self._items
+                     if special.area_id == str(area_id) and special.mob_vnum == str(vnum)), None)

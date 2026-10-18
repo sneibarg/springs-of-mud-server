@@ -40,6 +40,12 @@ class Mobile(AnimateEntity):
     def __hash__(self):
         return hash(self.id)
 
+    def credit_expired_stock(self, item) -> int:
+        """Recover ROM's silver value when a shopkeeper's carried stock expires."""
+        credit = GenericUtil.to_int(getattr(item, "cost", 0), 0) // 5
+        self.silver = GenericUtil.to_int(getattr(self, "silver", 0), 0) + credit
+        return credit
+
     def __eq__(self, other):
         if isinstance(other, Mobile):
             return self.id == other.id

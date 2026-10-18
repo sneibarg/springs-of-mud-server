@@ -9,14 +9,16 @@ from combat.CombatHandler import FightHandler
 from game.GameData import GameData
 from area.AreaRegistry import AreaRegistry
 from mobile.MobileRegistry import MobileRegistry
+from area.SpecialRegistry import SpecialRegistry
 
 
 class MobileService(FetchAndRegisterMixin):
     @inject
-    def __init__(self, config: ServiceConfig, area_registry: AreaRegistry, mobile_registry: MobileRegistry, fight_handler: FightHandler, game_data: GameData):
+    def __init__(self, config: ServiceConfig, area_registry: AreaRegistry, mobile_registry: MobileRegistry, fight_handler: FightHandler, game_data: GameData, special_registry: SpecialRegistry):
         self.__name__ = "MobileService"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.mobile_registry = mobile_registry
+        self.special_registry = special_registry
         self.game_data = game_data
         self.enums = self.game_data.enums
         self.mobiles_endpoint = config.mobiles_endpoint
@@ -41,6 +43,11 @@ class MobileService(FetchAndRegisterMixin):
         mobile = self._build_mobile(raw_mobile)
         if mobile is None:
             self.logger.error(f"Failed to build mobile for {raw_mobile}")
+        else:
+            special = self.special_registry.for_mobile(mobile.area_id, mobile.vnum)
+            if special is not None:
+                mobile.special_name = special.name
+                mobile.special_function = list(special.special_function)
         return mobile
 
     def _register_fetch_item(self, mobile: Mobile) -> None:

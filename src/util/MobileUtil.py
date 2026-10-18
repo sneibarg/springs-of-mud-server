@@ -1,4 +1,5 @@
 import json
+from copy import copy
 
 from enum import IntEnum
 from typing import Tuple
@@ -294,6 +295,8 @@ class MobileUtil:
             "silver": 0,
             "flags": None,
             "status_flags": pMobIndex.status_flags,
+            "special_name": pMobIndex.special_name,
+            "special_function": list(pMobIndex.special_function),
             "character_attributes": CharacterAttributes.default()
         })
 
@@ -323,7 +326,8 @@ class MobileUtil:
             if not mob.dam_type or mob.dam_type == "none":
                 mob.dam_type = MobileUtil._random_dam_type()
 
-            mob.armor_class = pMobIndex.armor_class
+            # ROM copies all four armor values into each mobile's own runtime state.
+            mob.armor_class = copy(pMobIndex.armor_class)
             if pMobIndex.status_flags is not None:
                 mob.status_flags = StatusFlags.from_template(pMobIndex.status_flags)
             mob.start_pos = pMobIndex.start_pos

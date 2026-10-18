@@ -26,6 +26,14 @@ class Effect:
     apply_to: str = ""
     source: str = ""
 
+    def has_bit(self, bit_name: str, bit: int) -> bool:
+        from api.GameApi import GameApi
+
+        raw = getattr(self, "bitvector", 0)
+        if str(raw or "").strip().upper() == str(bit_name or "").strip().upper():
+            return True
+        return GameApi.flags_to_int(raw) == bit
+
     @classmethod
     def from_json(cls, data):
         if isinstance(data, str):

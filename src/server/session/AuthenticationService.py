@@ -48,7 +48,6 @@ class AuthenticationService:
             await connection.send_message(Message(MessageType.ERROR, data={"text": "Invalid authentication payload for registered character.\r\n"}))
             return False, None, None
 
-        self.character_registry.set_playing(character)
         session.player_id = account_id
         session.account_name = account.account_name
 
@@ -58,7 +57,7 @@ class AuthenticationService:
     def _get_character_by_id(self, character_id: str, character_list: list) -> Optional[Character]:
         for char in character_list:
             if char == character_id:
-                return self.character_registry.get(char)
+                return self.character_registry.playing.get(character_id) or self.character_registry.get(id=character_id)
         return None
 
     def _get_account_by_id(self, account_id: str) -> Optional[Player]:

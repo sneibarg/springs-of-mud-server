@@ -61,7 +61,8 @@ class TelnetConnection(Connection):
             return None
 
     async def close(self) -> None:
-        if self._closed:
+        # EOF/read failures mark _closed before cleanup; the writer still needs closing.
+        if self.writer.is_closing():
             return
 
         current_loop = self._current_loop()

@@ -13,6 +13,7 @@ from util.PlayerUtil import PlayerUtil
 
 
 if TYPE_CHECKING:
+    from area.Area import Area
     from item.Item import Item
     from player.Character import Character
 
@@ -49,6 +50,7 @@ class Room:
     characters: dict[str, Character] = field(default_factory=dict)
     mobiles: dict[str, Mobile] = field(default_factory=dict)
     exits: List[Exit] = field(default_factory=list)
+    area: 'Area | None' = field(default=None, init=False, repr=False, compare=False)
 
     def __post_init__(self):
         self.clan = None
@@ -72,6 +74,42 @@ class Room:
 
     def get_formatted_exits(self):
         return AreaUtil.cardinal_direction(self)
+
+    def adjust_light(self, amount: int) -> None:
+        self.light = max(0, GenericUtil.to_int(getattr(self, "light", 0), 0) + amount)
+
+    def item_locations(self):
+        """Yield the room's top-level items and their immediate ownership locations."""
+        for item in list(self.contents.values()):
+            yield item, {"kind": "room", "parent": self, "container": None, "room": self}
+        for kind, entities, inventory in (("char", self.characters, "loot"), ("mob", self.mobiles, "inventory")):
+            for entity in list(entities.values()):
+                for item in list(getattr(entity, inventory, []) or []):
+                    yield item, {"kind": f"{kind}_{inventory}", "parent": entity, "container": None, "room": self}
+                equipped = getattr(entity, "equipped", None)
+                for item in getattr(equipped, "__dict__", {}).values() if equipped is not None else []:
+                    if item is not None:
+                        yield item, {"kind": f"{kind}_equipped", "parent": entity, "container": None, "room": self}
+
+    def world_items(self):
+        from item.Item import Item
+
+        seen = set()
+        for item, _ in Room.item_locations(self):
+            if item is not None:
+                yield from Item.walk_contents(item, seen)
+
+    def locate_item(self, target):
+        from item.Item import Item
+
+        for item, location in Room.item_locations(self):
+            if item is target:
+                return location
+            if item is not None:
+                found = Item.locate_contained_item(item, target, self)
+                if found is not None:
+                    return found
+        return None
 
     @classmethod
     def direction_index(cls, direction_name: str) -> int:
@@ -106,12 +144,28 @@ class Room:
 
     def add_player_to_room(self, character: Character):
         with self.lock:
+            if character.id not in self.characters and self.area is not None:
+                self.area.player_entered()
             self.characters[character.id] = character
 
     def remove_player_from_room(self, character: Character):
         with self.lock:
             if character.id in self.characters:
                 del self.characters[character.id]
+                if self.area is not None:
+                    self.area.player_left()
+
+    def bind_area(self, area: 'Area | None') -> None:
+        """Attach runtime ownership, including players already present when an area loads."""
+        with self.lock:
+            if self.area is area:
+                return
+            for _ in self.characters:
+                if self.area is not None:
+                    self.area.player_left()
+                if area is not None:
+                    area.player_entered()
+            self.area = area
 
     def add_mobile_to_room(self, mobile: Mobile):
         with self.lock:

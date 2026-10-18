@@ -71,10 +71,16 @@ class FightHandler:
     def set_mobile_handler(self, mobile_handler) -> None:
         self.mobile_handler = mobile_handler
 
-    async def emit_round_payload(self, attacker, payload: dict) -> list:
+    async def emit_round_payload(self, attacker, payload: dict, *, include_improvements: bool = False) -> list:
         prompted: list = []
         if not isinstance(payload, dict):
             return prompted
+
+        if include_improvements:
+            payload["to_char"] = f"{payload.get('to_char', '')}{Ability.take_improve_messages(attacker)}"
+            victim = payload.get("victim")
+            if victim is not None:
+                payload["to_victim"] = f"{payload.get('to_victim', '')}{Ability.take_improve_messages(victim)}"
 
         if payload.get("to_char") and not CharacterApi.is_npc(attacker):
             await self.message_bus.send_to_character(attacker.id, self.message_bus.text_to_message(payload["to_char"]))
@@ -157,13 +163,8 @@ class FightHandler:
         if not CharacterApi.is_awake(victim) or victim.equipped is None or not victim.equipped.is_shield_equipped():
             return False
         skill = self._defense_skill_percent(victim, "shield block")
-        if skill <= 0:
-            return False
-
-        stats = getattr(victim, "character_attributes", None)
-        dex = GenericUtil.to_int(getattr(stats, "dexterity", 10), 10)
-        chance = max(0, min(50, skill // 2 + dex // 4))
-        return random.randint(1, 100) <= chance
+        chance = skill // 5 + 3 + victim.level - attacker.level
+        return random.randint(1, 100) < chance
 
     def check_dodge(self, attacker, victim) -> bool:
         return self._check_dex_defense(victim, "dodge", max_chance=65, dex_divisor=3)
@@ -306,7 +307,8 @@ class FightHandler:
 
             victim = self._select_aggressive_victim(aggressor, room)
             if self._start_aggressive_combat(aggressor, victim):
-                continue
+                result = self.multi_hit(aggressor, victim, dt="TYPE_UNDEFINED")
+                rounds.append((aggressor, self.build_round_payload(aggressor, victim, room, result)))
 
         return rounds
 
@@ -318,15 +320,19 @@ class FightHandler:
         if area is not None and bool(getattr(area, "empty", False)):
             return []
 
+        rounds: list[tuple[object, dict]] = []
         for aggressor in list(getattr(room, "mobiles", {}).values()):
             if aggressor is None:
                 continue
             victim = self._select_aggressive_victim(aggressor, room)
             if victim is None or not self._should_aggress(aggressor, victim, room):
                 continue
-            self._start_aggressive_combat(aggressor, victim)
+            if self._start_aggressive_combat(aggressor, victim):
+                # ROM aggr_update attacks immediately, before the next violence pulse.
+                result = self.multi_hit(aggressor, victim, dt="TYPE_UNDEFINED")
+                rounds.append((aggressor, self.build_round_payload(aggressor, victim, room, result)))
 
-        return []
+        return rounds
 
     def _start_aggressive_combat(self, aggressor, victim) -> bool:
         if aggressor is None or victim is None or aggressor is victim:
@@ -1540,7 +1546,7 @@ class FightHandler:
     def _restore_player_after_death(self, victim, room) -> None:
         temple_room = self.room_registry.get_or_none(vnum="3001")
         if room is not None:
-            room.characters.pop(str(getattr(victim, "id", "") or ""), None)
+            room.remove_player_from_room(victim)
 
         for effect in list(self.effect_handler.ensure_effects(victim)):
             self.effect_handler.remove_effect(victim, effect)
@@ -1574,3 +1580,104 @@ class FightHandler:
             self.registry_service.character_registry.unregister(character)
         except KeyError:
             return
+
+    def refresh_combat_registry_from_world(self):
+        active_keys: set[tuple[str, str, str]] = set()
+
+        for room in self.room_registry.all_rooms():
+            if room is None:
+                continue
+            for attacker in room.people():
+                defender = getattr(attacker, "fighting", None)
+                if defender is None:
+                    continue
+                attacker_id = str(getattr(attacker, "id", "") or "")
+                defender_id = str(getattr(defender, "id", "") or "")
+                if not attacker_id or not defender_id:
+                    self.stop_fighting(attacker, both=False)
+                    continue
+                if room.find_entity_in_room(defender_id) is None:
+                    self.stop_fighting(attacker, both=False)
+                    continue
+                key = (attacker_id, defender_id, str(room.id))
+                active_keys.add(key)
+                self.combat_registry.upsert(attacker_id, defender_id, room.id)
+
+        self.combat_registry.retain_keys(active_keys)
+
+    async def violence_update(self):
+        try:
+            positions_enum = CharacterApi.get_enum("positions")
+        except RuntimeError:
+            positions_enum = self.PositionsEnum
+        if positions_enum is None:
+            return
+
+        prompted_characters: dict[str, Character] = {}
+        events = list(self.combat_registry.all_events())
+        decorated_events = []
+        for index, event in enumerate(events):
+            room = self.room_registry.get_or_none(id=event.room_id)
+            attacker = room.find_entity_in_room(event.attacker_id) if room is not None else None
+            decorated_events.append((0 if (attacker is not None and CharacterApi.is_npc(attacker)) else 1, index, event))
+
+        for _, _, event in sorted(decorated_events, key=lambda item: (item[0], item[1])):
+            room = self.room_registry.get_or_none(id=event.room_id)
+            if room is None:
+                self.combat_registry.remove_by_id(event.id)
+                continue
+
+            attacker = room.find_entity_in_room(event.attacker_id)
+            defender = room.find_entity_in_room(event.defender_id)
+            if attacker is None or defender is None:
+                self.combat_registry.remove_by_id(event.id)
+                continue
+
+            if not CharacterApi.is_awake(attacker):
+                self.stop_fighting(attacker, both=False)
+                continue
+
+            # ROM combat.c parity: if awake and in same room then multi_hit(), else stop_fighting().
+            if room.find_entity_in_room(event.defender_id) is None:
+                self.stop_fighting(attacker, both=False)
+                continue
+
+            result = self.multi_hit(attacker, defender, dt="TYPE_UNDEFINED")
+            payload = self.build_round_payload(attacker, defender, room, result)
+            prompted = await self.emit_round_payload(attacker, payload, include_improvements=True)
+            prompted_characters.update({character.id: character for character in prompted})
+            if getattr(attacker, "fighting", None) is not None:
+                self.check_assist(attacker, defender)
+
+        for character in prompted_characters.values():
+            room = self.room_registry.get_or_none(id=character.room_id)
+            area = self.area_registry.get_or_none(id=getattr(room, "area_id", getattr(character, "area_id", ""))) if room is not None else self.area_registry.get_or_none(id=character.area_id)
+            if room is not None and area is not None:
+                await self.message_bus.send_prompt(character, area, room)
+
+    async def aggression_update(self):
+        prompted_characters: dict[str, Character] = {}
+        for room in self.room_registry.all_rooms():
+            if room is None:
+                continue
+
+            for attacker, payload in self.aggressive_room_rounds(room):
+                prompted = await self.emit_round_payload(attacker, payload)
+                prompted_characters.update({victim.id: victim for victim in prompted})
+
+        for character in prompted_characters.values():
+            room = self.room_registry.get_or_none(id=character.room_id)
+            area = self.area_registry.get_or_none(id=getattr(room, "area_id", getattr(character, "area_id", ""))) if room is not None else self.area_registry.get_or_none(id=character.area_id)
+            if room is not None and area is not None:
+                await self.message_bus.send_prompt(character, area, room)
+
+    def apply_periodic_damage(self, entity, damage: int) -> None:
+        from game.AnimateEntity import AnimateEntity
+
+        damage = max(0, GenericUtil.to_int(damage, 0))
+        if damage <= 0:
+            return
+        setattr(entity, "hit", GenericUtil.to_int(getattr(entity, "hit", 0), 0) - damage)
+        self.update_pos(entity)
+        if AnimateEntity.position_value(entity, self.PositionsEnum) <= self.PositionsEnum.POS_DEAD.value:
+            self.raw_kill(entity)

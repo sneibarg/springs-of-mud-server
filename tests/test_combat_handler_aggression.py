@@ -191,7 +191,7 @@ _stub_module("api.MobileApi", MobileApi=_MobileApi)
 _stub_package("combat")
 _stub_module("combat.CombatEvent", CombatEvent=object)
 _stub_package("game")
-_stub_module("game", GameData=object)
+_stub_module("game", GameData=object, __path__=[str(SRC / "game")])
 _stub_module("game.EnumProvider", EnumProvider=object)
 _stub_module("game.RegistryService", RegistryService=object)
 _stub_module("game.RandomNumberGenerator", RandomNumberGenerator=_RandomNumberGenerator)
@@ -256,6 +256,71 @@ FightHandler = _load_module("combat.FightHandler", "combat/CombatHandler.py").Fi
 
 
 class TestFightHandlerAggression(unittest.TestCase):
+    def test_refresh_combat_registry_retains_only_fights_in_the_room(self):
+        attacker = self._mob("mob-1")
+        victim = self._player("char-1")
+        absent = self._mob("mob-2")
+        attacker.fighting = victim
+        victim.fighting = absent
+        room = SimpleNamespace(id="room-1", people=lambda: [attacker, victim],
+                               find_entity_in_room=lambda entity_id: {victim.id: victim, attacker.id: attacker}.get(entity_id))
+        handler = self._handler(room)
+        handler.room_registry.all_rooms = lambda: [room]
+        handler.combat_registry.retain_keys = Mock()
+        handler.stop_fighting = Mock()
+
+        handler.refresh_combat_registry_from_world()
+
+        handler.combat_registry.upsert.assert_called_once_with(attacker.id, victim.id, room.id)
+        handler.combat_registry.retain_keys.assert_called_once_with({(attacker.id, victim.id, room.id)})
+        handler.stop_fighting.assert_called_once_with(victim, both=False)
+
+    def test_violence_update_attacks_npcs_first_and_prompts_message_recipients(self):
+        attacker = self._mob("mob-1")
+        victim = self._player("char-1")
+        attacker.fighting = victim
+        victim.fighting = attacker
+        room = SimpleNamespace(id="room-1", area_id="area-1", characters={victim.id: victim},
+                               find_entity_in_room=lambda entity_id: {victim.id: victim, attacker.id: attacker}.get(entity_id))
+        handler = self._handler(room)
+        handler.area_registry.get_or_none = lambda **_kwargs: SimpleNamespace(id="area-1")
+        handler.combat_registry.all_events = lambda: [
+            SimpleNamespace(id="player-event", room_id=room.id, attacker_id=victim.id, defender_id=attacker.id),
+            SimpleNamespace(id="npc-event", room_id=room.id, attacker_id=attacker.id, defender_id=victim.id),
+        ]
+        handler.multi_hit = Mock(return_value={"to_char": "Your attack.\r\n", "to_victim": "Their attack.\r\n"})
+        handler._append_condition_line = lambda text, _target: text
+        handler.check_assist = Mock()
+        handler.message_bus = SimpleNamespace(text_to_message=lambda text: text,
+                                              send_to_character=AsyncMock(), send_to_room=AsyncMock(),
+                                              send_prompt=AsyncMock())
+        with unittest.mock.patch.object(_SkillUtil, "take_improve_messages", return_value="", create=True):
+            asyncio.run(handler.violence_update())
+
+        self.assertEqual([(attacker, victim), (victim, attacker)],
+                         [call.args for call in handler.multi_hit.call_args_list])
+        self.assertEqual([("char-1", "Their attack.\r\n"), ("char-1", "Your attack.\r\n")],
+                         [call.args for call in handler.message_bus.send_to_character.await_args_list])
+        self.assertEqual(2, handler.check_assist.call_count)
+        handler.message_bus.send_prompt.assert_awaited_once()
+
+    def test_aggression_update_emits_opening_round_and_prompt(self):
+        victim = self._player("char-1")
+        attacker = self._mob("mob-1")
+        room = SimpleNamespace(id="room-1", area_id="area-1")
+        handler = self._handler(room)
+        handler.room_registry.all_rooms = lambda: [room]
+        handler.area_registry.get_or_none = lambda **_kwargs: SimpleNamespace(id="area-1")
+        handler.aggressive_room_rounds = Mock(return_value=[
+            (attacker, {"victim": victim, "to_victim": "The mob hits you.\r\n"})])
+        handler.message_bus = SimpleNamespace(text_to_message=lambda text: text,
+                                              send_to_character=AsyncMock(), send_prompt=AsyncMock())
+
+        asyncio.run(handler.aggression_update())
+
+        handler.message_bus.send_to_character.assert_awaited_once_with("char-1", "The mob hits you.\r\n")
+        handler.message_bus.send_prompt.assert_awaited_once()
+
     def _handler(self, room):
         handler = FightHandler.__new__(FightHandler)
         handler.logger = _Logger()
@@ -309,16 +374,18 @@ class TestFightHandlerAggression(unittest.TestCase):
             master=None,
         )
 
-    def test_aggressive_entry_rounds_only_sets_fighting(self):
+    def test_aggressive_entry_rounds_attacks_immediately(self):
         victim = self._player("char-1")
         aggressor = self._mob("mob-1")
         room = SimpleNamespace(id="room-1", area_id="area-1", room_flags=0, mobiles={"mob-1": aggressor}, characters={"char-1": victim})
         handler = self._handler(room)
-        handler.multi_hit = Mock(side_effect=AssertionError("aggression should not execute a combat round"))
+        handler.multi_hit = Mock(return_value={"to_victim": "The mob hits you.\r\n"})
 
         rounds = handler.aggressive_entry_rounds(victim, room)
 
-        self.assertEqual([], rounds)
+        handler.multi_hit.assert_called_once_with(aggressor, victim, dt="TYPE_UNDEFINED")
+        self.assertEqual([(aggressor, {"to_char": "", "to_room": "", "targets": [],
+                                     "victim": victim, "to_victim": "The mob hits you.\r\n"})], rounds)
         self.assertIs(aggressor.fighting, victim)
         self.assertIs(victim.fighting, aggressor)
         self.assertEqual(2, handler.combat_registry.upsert.call_count)
@@ -335,17 +402,54 @@ class TestFightHandlerAggression(unittest.TestCase):
             characters={"char-1": victim, "char-2": witness},
         )
         handler = self._handler(room)
-        handler.multi_hit = Mock(side_effect=AssertionError("aggression should not execute a combat round"))
+        def attack(attacker, target, dt):
+            self.assertIs(attacker.fighting, target)
+            target.hit -= 7
+            return {"to_victim": "The mob hits you.\r\n", "to_room": "The mob attacks.\r\n"}
+
+        victim.hit = 20
+        handler.multi_hit = Mock(side_effect=attack)
         handler._select_aggressive_victim = Mock(return_value=victim)
         handler._should_aggress = Mock(return_value=True)
 
         rounds = handler.aggressive_room_rounds(room)
 
-        self.assertEqual([], rounds)
+        handler.multi_hit.assert_called_once_with(aggressor, victim, dt="TYPE_UNDEFINED")
+        self.assertEqual(13, victim.hit)
+        self.assertEqual([(aggressor, {"to_char": "", "to_room": "The mob attacks.\r\n",
+                                     "targets": [witness], "victim": victim,
+                                     "to_victim": "The mob hits you.\r\n"})], rounds)
         self.assertEqual(1, handler._select_aggressive_victim.call_count)
         self.assertEqual(1, handler._should_aggress.call_count)
         self.assertIs(aggressor.fighting, victim)
         self.assertIs(victim.fighting, aggressor)
+
+        self.assertEqual([], handler.aggressive_room_rounds(room))
+        handler.multi_hit.assert_called_once_with(aggressor, victim, dt="TYPE_UNDEFINED")
+
+    def test_aggression_does_not_attack_without_a_valid_start(self):
+        for entry in (False, True):
+            for reason in ("no victim", "failed guard", "already fighting", "empty area"):
+                with self.subTest(entry=entry, reason=reason):
+                    victim = self._player("char-1")
+                    aggressor = self._mob("mob-1")
+                    room = SimpleNamespace(id="room-1", area_id="area-1", room_flags=0,
+                                           mobiles={aggressor.id: aggressor}, characters={victim.id: victim})
+                    handler = self._handler(room)
+                    handler.multi_hit = Mock()
+                    handler._select_aggressive_victim = Mock(
+                        return_value=None if reason == "no victim" else victim)
+                    handler._should_aggress = Mock(return_value=reason != "failed guard")
+                    if reason == "already fighting":
+                        aggressor.fighting = victim
+                    if reason == "empty area":
+                        handler.area_registry.get_or_none = lambda **_kwargs: SimpleNamespace(empty=True)
+
+                    rounds = (handler.aggressive_entry_rounds(victim, room) if entry
+                              else handler.aggressive_room_rounds(room))
+
+                    self.assertEqual([], rounds)
+                    handler.multi_hit.assert_not_called()
 
     def test_should_aggress_false_when_already_fighting(self):
         victim = self._player("char-1")

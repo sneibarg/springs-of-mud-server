@@ -396,6 +396,9 @@ class ItemUtil:
 
     @staticmethod
     def find_world_object_instance(room_registry, target_vnum: str):
+        from area.Room import Room
+
+        target_vnum = str(target_vnum)
         def _walk(items, in_room: bool):
             for obj in items:
                 if str(getattr(obj, "vnum", "")) == target_vnum:
@@ -405,13 +408,13 @@ class ItemUtil:
                     return found_obj, found_in_room
             return None, False
 
-        for room_id in room_registry.all_rooms():
-            room = room_registry.get_or_none(id=room_id)
+        for room in room_registry.all_rooms():
             if room is None:
                 continue
-            obj, in_room = _walk(room.contents.values(), True)
-            if obj is not None:
-                return obj, in_room
+            for item, location in Room.item_locations(room):
+                obj, in_room = _walk([item], location['kind'] == 'room')
+                if obj is not None:
+                    return obj, in_room
         return None, False
 
     @staticmethod

@@ -141,7 +141,7 @@ class Equipped:
         return str(item.item_type or "").strip().lower() == "light"
 
     def is_shield_equipped(self) -> bool:
-        return self.shield is None
+        return self.shield is not None
 
     @classmethod
     def wear_slot_groups_for_item(cls, item, wear_flags_enum, *, preferred_slot: str = "", forced_slot: str = "") -> list[tuple[str, ...]]:

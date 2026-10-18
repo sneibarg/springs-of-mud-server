@@ -1,5 +1,4 @@
 import asyncio
-import threading
 
 from asyncio import StreamReader, StreamWriter
 from typing import Optional
@@ -22,10 +21,19 @@ from server.LoggerFactory import LoggerFactory
 from player.Player import Player
 from player.Character import Character
 from game.RegistryService import RegistryService
+from game.GamePayload import GamePayload
+from game.WizHandler import WizHandler
 from combat.CombatHandler import FightHandler
 
 
 class ConnectionHandler:
+    LINK_MESSAGES = GamePayload.from_json({
+        "toChar": {"reconnect": "Reconnecting. Type replay to see missed tells.\r\n"},
+        "toRoom": {"lost": "{name} has lost {possessive} link.\r\n", "reconnect": "{name} has reconnected.\r\n"},
+        "toWiznet": {"lost": "Net death has claimed {name}.\r\n",
+                     "reconnect": "{name} groks the fullness of {possessive} link.\r\n"},
+    })
+
     @inject
     def __init__(self,
                  connection_manager: ConnectionManager,
@@ -35,7 +43,8 @@ class ConnectionHandler:
                  room_handler: RoomHandler,
                  auth_service: AuthenticationService,
                  command_handler: InterpHandler,
-                 fight_handler: FightHandler):
+                 fight_handler: FightHandler,
+                 wiz_handler: WizHandler):
         self.logger = LoggerFactory.get_logger(__name__)
         self.session_handler = session_handler
         self.connection_manager = connection_manager
@@ -45,6 +54,8 @@ class ConnectionHandler:
         self.auth_service = auth_service
         self.command_handler = command_handler
         self.fight_handler = fight_handler
+        self.wiz_handler = wiz_handler
+        self._character_locks: dict[str, asyncio.Lock] = {}
 
     async def _receive_initial_message(self, connection: TelnetConnection, session: SessionState) -> tuple[bool, str | None, Character | None] | tuple[bool, None, None]:
         first_msg = await connection.receive_message()
@@ -53,7 +64,6 @@ class ConnectionHandler:
             self.logger.info(f"Payload-based auth attempt on session {session.session_id}")
             success, player_id, character = await self.auth_service.authenticate_with_payload(connection, session, first_msg.data)
             if success:
-                self.connection_manager.bind_character(character.id, session.session_id)
                 self.logger.debug(f"Character {character.id} authenticated via payload on session {session.session_id}")
                 self.logger.debug(f"Player character is: {character}")
                 return success, player_id, character
@@ -83,12 +93,10 @@ class ConnectionHandler:
             if not success:
                 return
 
-            existing = self.connection_manager.get_connection_by_character(character.id)
-            if existing and existing.session_id != connection.session_id:
-                await existing.close()
-                self.connection_manager.remove_connection(existing.session_id)
-
-            player = await self._nanny(character, session, connection)
+            attached = await self._attach_character(character, session, connection)
+            if attached is None:
+                return
+            player, character = attached
             if not session.metadata.get("entered_world", False):
                 session.metadata["entered_world"] = True
                 area, room = self._get_area_and_room(character)
@@ -119,14 +127,152 @@ class ConnectionHandler:
         except Exception as e:
             self.logger.error(f"Error handling connection: {e}", exc_info=True)
         finally:
-            if connection:
-                await connection.close()
-            if session:
-                self.session_handler.remove_session(session.session_id)
-                if session.character:
-                    self.connection_manager.unbind_character(session.character.id)
-                self.connection_manager.remove_connection(connection.session_id)
+            try:
+                if session:
+                    await self._cleanup_session(session)
+            finally:
+                if connection:
+                    await connection.close()
             self.logger.info(f"Connection closed: {peer_info if connection else 'unknown'}")
+
+    def _character_lock(self, character_id: str) -> asyncio.Lock:
+        return self._character_locks.setdefault(character_id, asyncio.Lock())
+
+    def _live_character(self, character_id: str):
+        for room in self.registry_service.room_registry.all_rooms():
+            if room is not None:
+                character = room.characters.get(character_id)
+                if character is not None:
+                    return character
+        return None
+
+    def _existing_connection(self, character_id: str):
+        session = self.session_handler.get_session_by_character(character_id)
+        if session is not None:
+            connection = self.connection_manager.get_connection(session.session_id)
+            if connection is not None:
+                return connection
+        return self.connection_manager.get_connection_by_character(character_id)
+
+    async def _confirm_replacement(self, connection) -> bool:
+        await connection.send_text("That character is already playing.\r\n")
+        await connection.send_text("Do you wish to connect anyway (Y/N)?")
+        while not connection.is_closed():
+            try:
+                message = await asyncio.wait_for(connection.receive_message(), self.session_handler.max_idle_time)
+            except asyncio.TimeoutError:
+                return False
+            if message is None:
+                return False
+            answer = str(message.get("text", "") or "").strip().lower()
+            if answer.startswith("y"):
+                return True
+            if answer.startswith("n"):
+                return False
+            await connection.send_text("Please type Y or N? ")
+        return False
+
+    async def _attach_character(self, character, session, connection):
+        account = self.registry_service.player_registry.get_or_none(id=session.player_id)
+        if account is None or account.banned:
+            await self._nanny(character, session, connection)
+            return None
+        confirmed = False
+        while not connection.is_closed():
+            existing = self._existing_connection(character.id)
+            if existing is not None and existing is not connection and not existing.is_closed() and not confirmed:
+                if not await self._confirm_replacement(connection):
+                    return None
+                confirmed = True
+
+            async with self._character_lock(character.id):
+                # Another login may have completed while this client answered the prompt.
+                existing = self._existing_connection(character.id)
+                if existing is not None and existing is not connection:
+                    if not existing.is_closed() and not confirmed:
+                        continue
+                    old_session = self.session_handler.get_session(existing.session_id)
+                    if old_session is not None:
+                        await self._detach_session(old_session)
+                    else:
+                        self.connection_manager.remove_connection(existing.session_id)
+                    await existing.close()
+
+                live_character = self._live_character(character.id)
+                character = live_character or character
+                player = await self._nanny(character, session, connection)
+                if player is None:
+                    return None
+                session.metadata["entered_world"] = live_character is not None
+                self.connection_manager.bind_character(character.id, session.session_id)
+                if live_character is not None:
+                    text = self.LINK_MESSAGES.render("to_char", "reconnect")
+                    await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+                    await self._announce_link(character, "reconnect")
+                    area, room = self._get_area_and_room(character)
+                    if room is not None and area is not None:
+                        await self.message_bus.send_prompt(character, area, room)
+                    self.logger.info(f"{character.name}@{connection.get_peer_info()} reconnected.")
+                return player, character
+        return None
+
+    async def _cleanup_session(self, session):
+        character = session.metadata.get("switched_original") or session.character
+        if character is None:
+            await self._detach_session(session)
+        else:
+            async with self._character_lock(character.id):
+                await self._detach_session(session)
+
+    async def _detach_session(self, session):
+        if session.metadata.get("connection_cleaned", False):
+            return
+        session.metadata["connection_cleaned"] = True
+        current = session.character
+        character = session.metadata.get("switched_original") or current
+        owned = any(candidate is not None and self.connection_manager.owns_character(candidate.id, session.session_id)
+                    for candidate in (current, character))
+        for candidate in (current, character):
+            if candidate is not None:
+                self.connection_manager.unbind_character(candidate.id, session_id=session.session_id)
+        self.connection_manager.remove_connection(session.session_id)
+        self.session_handler.remove_session(session.session_id)
+        snooper_id = session.metadata.pop("snoop_by_session_id", None)
+        for other in self.session_handler.get_active_sessions():
+            if other.metadata.get("snoop_by_session_id") == session.session_id:
+                other.metadata.pop("snoop_by_session_id", None)
+        if snooper_id:
+            snooper = self.connection_manager.get_connection(snooper_id)
+            if snooper is not None and not snooper.is_closed():
+                await snooper.send_text("Your victim has left the game.\r\n")
+        if not owned or character is None:
+            return
+
+        if current is not character and getattr(current, "context", None) is not None:
+            current.context.pop("controller_original", None)
+            current.context.pop("controller_original_id", None)
+        account = self.registry_service.player_registry.get_or_none(id=session.player_id)
+        if account is not None:
+            account.current_characters = [ch for ch in (account.current_characters or []) if ch.id != character.id]
+        if self._live_character(character.id) is not None:
+            await self._announce_link(character, "lost")
+        else:
+            self.registry_service.character_registry.remove_playing(character)
+
+    async def _announce_link(self, character, key: str):
+        _, room = self._get_area_and_room(character)
+        if room is not None:
+            positions = CharacterApi.get_enum("positions")
+            for viewer in room.players_in_room():
+                if viewer.id == character.id or CharacterApi.position_value(viewer) < positions.POS_RESTING.value:
+                    continue
+                name = character.name if CharacterApi.can_see(viewer, character, room) else "Someone"
+                text = self.LINK_MESSAGES.render("to_room", key, name=name, possessive=character.his_her())
+                await self.message_bus.send_to_character(viewer.id, self.message_bus.text_to_message(text))
+        text = self.LINK_MESSAGES.render("to_wiznet", key, name=character.name, possessive=character.his_her())
+        for recipient in self.wiz_handler.wiznet_targets(character, flag_name="WIZ_LINKS"):
+            message = self.wiz_handler.decorate_wiznet_text(recipient, text)
+            await self.message_bus.send_to_character(recipient.id, self.message_bus.text_to_message(message))
 
     @staticmethod
     async def _send_welcome(connection: TelnetConnection) -> None:
@@ -151,6 +297,8 @@ class ConnectionHandler:
 
                 message = await self._wait_for_message(connection, session)
                 if message is None:
+                    break
+                if connection.is_closed() or not (session.is_playing() or session.is_idle()):
                     break
                 session.update_activity()
                 character = session.character or character
@@ -190,14 +338,13 @@ class ConnectionHandler:
                     await connection.send_text("You have disappeared into the void.\n\r", MessageType.GAME)
                 return None
 
-    @staticmethod
-    def _update_character(character) -> None:
-        character.lock = threading.Lock()
-
     def _update_player(self, session, character) -> Player | None:
         account = self.registry_service.player_registry.get(id=session.player_id)
         if account:
-            account.current_characters.append(character)
+            if account.current_characters is None:
+                account.current_characters = []
+            if not any(current.id == character.id for current in account.current_characters):
+                account.current_characters.append(character)
             account.ansi_enabled = session.ansi_enabled
         return account
 
@@ -207,9 +354,7 @@ class ConnectionHandler:
         return area, room
 
     async def _nanny(self, character, session, connection) -> Optional[Player]:
-        self._update_character(character)
-        session.character = character
-        player = self._update_player(session, character)
+        player = self.registry_service.player_registry.get_or_none(id=session.player_id)
 
         if player is not None and player.banned:
             await connection.send_text("You have been banned from the server.\r\n", MessageType.ERROR)
@@ -218,7 +363,9 @@ class ConnectionHandler:
         elif player is None:
             await connection.send_text("Player not registered. Please try again.\r\n", MessageType.ERROR)
             return None
-        player.current_characters.append(character)
+        session.character = character
+        self._update_player(session, character)
+        self.registry_service.character_registry.set_playing(character)
         self.logger.info(f"Player {player.first_name} {player.last_name} is now playing {character.name}.")
         session.status = SessionStatus.PLAYING
         return player

@@ -90,6 +90,79 @@ class Item:
     def display_name(self) -> str:
         return self.short_description or self.name or "Something"
 
+    def tick_timer(self) -> bool:
+        """Return true only when a positive expiration timer reaches zero."""
+        timer = GenericUtil.to_int(getattr(self, "timer", -1), -1)
+        if timer <= 0:
+            return False
+        self.timer = timer - 1
+        return self.timer == 0
+
+    def burn_light(self) -> int | None:
+        if str(getattr(self, "item_type", "") or "").strip().upper() not in {"ITEM_LIGHT", "LIGHT"}:
+            return None
+        remaining = GenericUtil.to_int(getattr(self, "value2", 0), 0)
+        if remaining <= 0:
+            return None
+        self.value2 = str(remaining - 1)
+        return remaining - 1
+
+    def can_wear(self, wear_flags, flag_name: str) -> bool:
+        flag = getattr(getattr(wear_flags, flag_name, None), "value", 0)
+        return flag > 0 and GameApi.is_set(GameApi.flags_to_int(getattr(self, "wear_flags", 0)), flag)
+
+    def is_fixed_pit(self, well_known_vnums, wear_flags) -> bool:
+        pit = getattr(well_known_vnums, "OBJ_VNUM_PIT", None)
+        if pit is None or getattr(wear_flags, "ITEM_TAKE", None) is None:
+            return False
+        return str(getattr(self, "vnum", "")) == str(pit.value) and not Item.can_wear(self, wear_flags, "ITEM_TAKE")
+
+    def decay_message(self, wear_flags) -> str:
+        item_type = str(getattr(self, "item_type", "") or "").upper()
+        messages = {
+            "ITEM_FOUNTAIN": "$p dries up.",
+            "ITEM_CORPSE_NPC": "$p decays into dust.",
+            "ITEM_CORPSE_PC": "$p decays into dust.",
+            "ITEM_FOOD": "$p decomposes.",
+            "ITEM_POTION": "$p has evaporated from disuse.",
+            "ITEM_PORTAL": "$p fades out of existence.",
+        }
+        if item_type == "ITEM_CONTAINER" and Item.can_wear(self, wear_flags, "ITEM_WEAR_FLOAT"):
+            if list(getattr(self, "contains", []) or []):
+                return "$p flickers and vanishes, spilling its contents on the floor."
+            return "$p flickers and vanishes."
+        return messages.get(item_type, "$p crumbles into dust.")
+
+    def format_message(self, message: str) -> str:
+        name = str(getattr(self, "short_description", "") or getattr(self, "name", "something"))
+        return str(message or "").replace("$p", name)
+
+    def walk_contents(self, seen=None):
+        """Walk an item tree once, tolerating shared references and cycles."""
+        if seen is None:
+            seen = set()
+        if id(self) in seen:
+            return
+        seen.add(id(self))
+        yield self
+        for child in list(getattr(self, "contains", []) or []):
+            if child is not None:
+                yield from Item.walk_contents(child, seen)
+
+    def locate_contained_item(self, target, room, seen=None):
+        if seen is None:
+            seen = set()
+        if id(self) in seen:
+            return None
+        seen.add(id(self))
+        for child in list(getattr(self, "contains", []) or []):
+            if child is target:
+                return {"kind": "item_contains", "parent": self, "container": self.contains, "room": room}
+            found = Item.locate_contained_item(child, target, room, seen)
+            if found is not None:
+                return found
+        return None
+
     def add_contained_item(self, item) -> None:
         with self.lock:
             if self.contains is None:
@@ -131,7 +204,10 @@ class Item:
             data = json.loads(data)
         from util.GenericUtil import GenericUtil
         data = GenericUtil.camel_to_snake_case(data)
-        data['contains'] = []
+        data['contains'] = [
+            child if isinstance(child, cls) else cls.from_json(child)
+            for child in list(data.get('contains') or [])
+        ]
         data['effects'] = [
             effect if isinstance(effect, Effect) else Effect.from_json(effect)
             for effect in list(data.get('effects', []) or [])

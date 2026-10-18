@@ -23,6 +23,7 @@ from area.SpecialService import SpecialService
 from combat.CombatHandler import FightHandler
 from combat.CombatRegistry import CombatRegistry
 from game.EnumProvider import EnumProvider
+from game.EntityUpdateHandler import EntityUpdateHandler
 from game.GameData import GameData
 from game.GameService import GameService
 from game.HandlerService import HandlerService
@@ -50,6 +51,8 @@ from interp.commands.Wiz import Wiz
 from item.BodyForm import BodyForm
 from item.BodyParts import BodyParts
 from item.EffectHandler import EffectHandler
+from item.EffectUpdateHandler import EffectUpdateHandler
+from item.ItemUpdateHandler import ItemUpdateHandler
 from item.ItemHandler import ItemHandler
 from item.ItemRegistry import ItemRegistry
 from item.ItemService import ItemService
@@ -137,6 +140,7 @@ class Bootstrapper:
         Bootstrapper._bind_singleton_classes(injector, [
             SocialHandler, Communications, Fight, Info, Movement, Object, Wiz,
             AreaHandler, RoomHandler, FightHandler, ItemHandler, MobileHandler, EffectHandler,
+            EffectUpdateHandler, ItemUpdateHandler, EntityUpdateHandler,
             PlayerHandler, WizHandler, InterpHandler, NoteHandler,
             WeatherHandler, UpdateHandler
         ])

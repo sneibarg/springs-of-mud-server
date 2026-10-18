@@ -3,6 +3,7 @@ from injector import inject
 from area.Exit import Exit
 from area.Room import Room
 from area.RoomRegistry import RoomRegistry
+from area.AreaRegistry import AreaRegistry
 from item.ExtraDescriptionData import ExtraDescriptionData
 from server.FetchAndRegisterMixin import FetchAndRegisterMixin
 from server.LoggerFactory import LoggerFactory
@@ -14,11 +15,12 @@ class RoomService(FetchAndRegisterMixin):
     log_fetch_list_count = False
 
     @inject
-    def __init__(self, config: ServiceConfig, room_registry: RoomRegistry):
+    def __init__(self, config: ServiceConfig, room_registry: RoomRegistry, area_registry: AreaRegistry):
         self.__name__ = "RoomService"
         self.rooms_endpoint = config.rooms_endpoint
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.room_registry = room_registry
+        self.area_registry = area_registry
         self.load_rooms()
         self.logger.info(f"Initialized RoomService instance with {len(self.room_registry.all_rooms())} rooms in memory.")
 
@@ -43,6 +45,7 @@ class RoomService(FetchAndRegisterMixin):
         return room
 
     def _register_fetch_item(self, room: Room) -> None:
+        room.bind_area(self.area_registry.get_or_none(id=room.area_id))
         self.room_registry.register(room)
 
     def _load_extra_description(self, room_json: dict) -> Optional[ExtraDescriptionData]:

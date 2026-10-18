@@ -126,12 +126,12 @@ class MobileApi(GameApi):
     @staticmethod
     def select_visible_room_player(ctx: MobileContext, alias: str, exclude_self: bool = True, max_level: Optional[int] = None, chance_bits: int = 0):
         target = None
-        for player in ctx.room.player_in_room().values():
+        for player in ctx.room.players_in_room():
             if exclude_self and player is ctx.actor:
                 continue
             if max_level is not None and GenericUtil.to_int(player.level, 0) > GenericUtil.to_int(max_level, 0):
                 continue
-            if not CharacterApi.can_see(ctx.actor, player, ctx.handler.room_helper):
+            if not CharacterApi.can_see(ctx.actor, player, ctx.room):
                 continue
             if chance_bits > 0 and ctx.handler.rng.number_bits(GenericUtil.to_int(chance_bits, 0)) != 0:
                 continue
@@ -143,7 +143,7 @@ class MobileApi(GameApi):
     @staticmethod
     def select_room_combat_victim(ctx: MobileContext, alias: str, chance_bits: int = 0):
         target = None
-        for entity in ctx.room.in_room().values():
+        for entity in ctx.room.people():
             if getattr(entity, "fighting", None) is ctx.actor:
                 if chance_bits > 0 and ctx.handler.rng.number_bits(GenericUtil.to_int(chance_bits, 0)) != 0:
                     continue
@@ -248,8 +248,8 @@ class MobileApi(GameApi):
         player_bits = CharacterApi.get_enum("playerActBits")
         victim = None
         crime = ""
-        for player in ctx.room.players_in_room().values():
-            if visible_only and not CharacterApi.can_see(ctx.actor, player, ctx.handler.room_helper):
+        for player in ctx.room.players_in_room():
+            if visible_only and not CharacterApi.can_see(ctx.actor, player, ctx.room):
                 continue
             act_flags = player.status_flags.act
             for flag_name in priorities:
@@ -289,7 +289,7 @@ class MobileApi(GameApi):
         result = ctx.handler.fight_handler.multi_hit(ctx.actor, victim, dt="TYPE_UNDEFINED")
         payload = {
             "to_room": result.get("to_room", ""),
-            "targets": [player for player in ctx.room.players_in_room().values() if str(player.id) != str(victim.id)],
+            "targets": [player for player in ctx.room.players_in_room() if str(player.id) != str(victim.id)],
         }
         if not CharacterApi.is_npc(victim):
             payload["victim"] = victim
@@ -312,7 +312,7 @@ class MobileApi(GameApi):
             threshold = abs(threshold)
         best = None
         max_evil = threshold
-        for entity in ctx.room.in_room().values():
+        for entity in ctx.room.people():
             if exclude_target == "self" and entity is ctx.actor:
                 continue
             if getattr(entity, "fighting", None) is None or getattr(entity, "fighting", None) is ctx.actor:
@@ -515,12 +515,12 @@ class MobileApi(GameApi):
         game_parameters = CharacterApi.get_enum("gameParameters")
         imm_name = str(immortal_level or "").strip().upper()
         imm_value = int(game_parameters[imm_name].value)
-        for victim in ctx.room.players_in_room().values():
+        for victim in ctx.room.players_in_room():
             if GenericUtil.to_int(victim.level, 0) >= imm_value:
                 continue
             if ctx.handler.rng.number_bits(GenericUtil.to_int(discovery_bits, 0)) != 0:
                 continue
-            if require_visibility and not CharacterApi.can_see(ctx.actor, victim, ctx.handler.room_helper):
+            if require_visibility and not CharacterApi.can_see(ctx.actor, victim, ctx.room):
                 continue
             if awake_discovery_check and CharacterApi.is_awake(victim) and ctx.handler.rng.number_range(0, max(0, GenericUtil.to_int(ctx.actor.level, 0))) == 0:
                 ctx.queue_payload({"victim": victim, "to_victim": f"You discover {MobileApi.render_mobile_name(ctx.actor)}'s hands in your wallet!\r\n"})
@@ -554,7 +554,7 @@ class MobileApi(GameApi):
         if CharacterApi.position_value(ctx.actor) == CharacterApi.pos_value("POS_FIGHTING"):
             return False
         minimum, maximum = level_window
-        for victim in ctx.room.players_in_room().values():
+        for victim in ctx.room.players_in_room():
             delta = GenericUtil.to_int(victim.level, 0) - GenericUtil.to_int(ctx.actor.level, 0)
             if delta < GenericUtil.to_int(minimum, 0) or delta > GenericUtil.to_int(maximum, 0):
                 continue
@@ -585,7 +585,7 @@ class MobileApi(GameApi):
     def select_room_fight_intervention_target(ctx: MobileContext, alias: str, exclude_self: bool = True, choose: str = "", randomize: bool = False):
         victim = None
         count = 0
-        for entity in ctx.room.in_room().values():
+        for entity in ctx.room.people():
             if exclude_self and entity is ctx.actor:
                 continue
             defender = getattr(entity, "fighting", None)

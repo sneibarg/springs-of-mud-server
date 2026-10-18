@@ -23,7 +23,7 @@ class CharacterRegistry(Registry):
         self.playing[character.id] = character
 
     def remove_playing(self, character: Character):
-        del self.playing[character.id]
+        self.playing.pop(character.id, None)
 
     def all_characters(self) -> set[Character]:
         return self._items

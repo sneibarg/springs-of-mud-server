@@ -59,11 +59,11 @@ class AreaHandler:
 
             if (not area.empty and (area.number_of_players == 0 or area.age >= 15)) or area.age >= 31:
                 school_vnum = self.WellKnownRoomVnums.ROOM_VNUM_SCHOOL
-                school_room = self.room_registry.get(vnum=str(school_vnum))
+                school_room = self.room_registry.get_or_none(vnum=str(school_vnum))
 
                 self._reset_area(area)
                 area.age = rng.number_range(0, 3)
-                if (school_room is not None and school_room.area_id == area.id) or school_vnum in area.vnum_range:
+                if school_room is not None and school_room.area_id == area.id:
                     area.age = 13  # 15 - 2 → ~2 minute grace period before it can reset again
                 elif area.number_of_players == 0:
                     area.empty = True
@@ -134,11 +134,6 @@ class AreaHandler:
         template_mob.room_id = room.id
         mob = MobileUtil.create_mobile(template_mob, self.enum_provider)
         self._mark_pet_shop_stock_mob(mob, room)
-        for special in getattr(template_mob, "specials", []) or []:
-            if str(getattr(special, "mob_vnum", "") or "") == str(mob.vnum):
-                mob.special_name = str(getattr(special, "name", "") or "")
-                mob.special_function = list(getattr(special, "special_function", []) or [])
-                break
         room.add_mobile_to_room(mob)
         self._register_live_character(mob)
         return True, mob

@@ -23,6 +23,13 @@ for package_name in ["area", "combat", "game", "interp", "item", "mobile", "play
     _stub_package(package_name)
 
 from game.UpdateHandler import UpdateHandler
+from game.EntityUpdateHandler import EntityUpdateHandler
+from game.AnimateEntity import AnimateEntity
+from combat.CombatHandler import FightHandler
+from item.EffectUpdateHandler import EffectUpdateHandler
+from item.ItemUpdateHandler import ItemUpdateHandler
+from item.Item import Item
+from area.Room import Room
 from game.GamePayload import GamePayload
 from item.Effect import Effect
 from player.Character import Character
@@ -173,6 +180,230 @@ class AffectedBy(IntEnum):
 
 
 class TestUpdateHandlerActivePlayers(unittest.TestCase):
+    def test_update_handlers_resolve_shared_dependencies_through_injector(self):
+        from injector import Injector, singleton
+
+        injector = Injector()
+        handlers = (UpdateHandler, EntityUpdateHandler, ItemUpdateHandler, EffectUpdateHandler)
+        for handler_type in handlers:
+            for dependency in handler_type.__init__.__annotations__.values():
+                if dependency not in handlers:
+                    injector.binder.bind(dependency, to=Mock(get=Mock(return_value=None)), scope=singleton)
+        for handler_type in handlers:
+            injector.binder.bind(handler_type, scope=singleton)
+
+        update = injector.get(UpdateHandler)
+
+        self.assertIs(update.entity_update_handler, injector.get(EntityUpdateHandler))
+        self.assertIs(update.item_update_handler, injector.get(ItemUpdateHandler))
+        self.assertIs(update.entity_update_handler.effect_update_handler,
+                      update.item_update_handler.effect_update_handler)
+        self.assertIs(update.fight_handler, update.entity_update_handler.fight_handler)
+
+    def test_model_regeneration_caps_resources_and_requires_a_room(self):
+        character = Character.from_json(build_character_data())
+        handler, _, _ = self._handler([character])
+        handler.entity_update_handler.rng.number_percent = Mock(return_value=100)
+        for name, maximum in (("hit", "max_hit"), ("mana", "max_mana"), ("movement", "max_movement")):
+            setattr(character, maximum, 100)
+            setattr(character, name, 99)
+        character.regenerate(None, handler.entity_update_handler.regeneration_context())
+        self.assertEqual((99, 99, 99), (character.hit, character.mana, character.movement))
+        character.regenerate(Room(), handler.entity_update_handler.regeneration_context())
+        self.assertEqual((100, 100, 100), (character.hit, character.mana, character.movement))
+
+    def test_character_condition_rules_and_disabled_conditions(self):
+        character = Character.from_json(build_character_data())
+        character.status_flags.hunger = 2
+        character.status_flags.thirst = -1
+        character.status_flags.drunk = 1
+        character.character_race.size = "SIZE_LARGE"
+        with patch("api.CharacterApi.CharacterApi.is_immortal", return_value=False):
+            self.assertEqual(["You are sober.\r\n", "You are hungry.\r\n"], character.tick_conditions())
+        self.assertEqual(-1, character.status_flags.thirst)
+        character.gain_condition("hunger", 100)
+        self.assertEqual(48, character.status_flags.hunger)
+        with patch("api.CharacterApi.CharacterApi.is_immortal", return_value=True):
+            self.assertEqual([], character.tick_conditions())
+        self.assertEqual(48, character.status_flags.hunger)
+
+    def test_room_item_traversal_preserves_locations_and_handles_cycles(self):
+        room = Room()
+        bag = SimpleNamespace(id="bag", contains=[])
+        child = SimpleNamespace(id="child", contains=[bag])
+        bag.contains.append(child)
+        room.contents[bag.id] = bag
+        room.characters["owner"] = SimpleNamespace(loot=[bag], equipped=None)
+        self.assertEqual([bag, child], list(room.world_items()))
+        location = room.locate_item(child)
+        self.assertEqual("item_contains", location["kind"])
+        self.assertIs(bag, location["parent"])
+        self.assertIs(bag.contains, location["container"])
+        self.assertIsNone(room.locate_item(object()))
+
+    def test_item_timer_and_light_fuel_boundaries(self):
+        for timer, expires, remaining in ((None, False, None), (-1, False, -1), (0, False, 0),
+                                           (1, True, 0), (2, False, 1)):
+            with self.subTest(timer=timer):
+                item = SimpleNamespace(timer=timer)
+                self.assertEqual(expires, Item.tick_timer(item))
+                self.assertEqual(remaining, item.timer)
+        for fuel, remaining in (("-1", None), ("0", None), ("1", 0), ("6", 5)):
+            with self.subTest(fuel=fuel):
+                item = SimpleNamespace(item_type="ITEM_LIGHT", value2=fuel)
+                self.assertEqual(remaining, Item.burn_light(item))
+                self.assertEqual(fuel if remaining is None else str(remaining), item.value2)
+
+    def test_periodic_damage_uses_combat_death_cleanup(self):
+        handler, _, _ = self._handler([])
+        victim = Character.from_json(build_character_data())
+        victim.hit = 1
+        def update_position(entity):
+            entity.character_attributes.position = Positions.POS_DEAD
+        handler.fight_handler.update_pos.side_effect = update_position
+        handler.fight_handler.apply_periodic_damage(victim, 5)
+        self.assertEqual(-4, victim.hit)
+        handler.fight_handler.raw_kill.assert_called_once_with(victim)
+
+    def test_update_schedule_calls_extracted_handlers(self):
+        handler, _, _ = self._handler([])
+        handler.GameParametersEnum = SimpleNamespace(**{
+            name: SimpleNamespace(value=10) for name in
+            ("PULSE_AREA", "PULSE_TICK", "PULSE_MUSIC", "PULSE_MOBILE", "PULSE_VIOLENCE")})
+        handler.weather_handler.update = AsyncMock()
+        handler.mobile_handler.mobile_update = AsyncMock()
+        handler.fight_handler.violence_update = AsyncMock()
+        handler.fight_handler.aggression_update = AsyncMock()
+        handler.char_update = AsyncMock()
+        handler.item_update_handler.update = AsyncMock()
+        asyncio.run(handler.handle_updates())
+        handler.item_update_handler.update.assert_awaited_once()
+        handler.fight_handler.refresh_combat_registry_from_world.assert_called_once()
+        handler.fight_handler.violence_update.assert_awaited_once()
+        handler.fight_handler.aggression_update.assert_awaited_once()
+        asyncio.run(handler.handle_updates())
+        handler.item_update_handler.update.assert_awaited_once()
+        handler.fight_handler.violence_update.assert_awaited_once()
+        self.assertEqual(2, handler.fight_handler.aggression_update.await_count)
+
+    def _object_update_fixture(self):
+        handler, registries, bus = self._handler([])
+        handler = handler.item_update_handler
+        handler.ItemTypes = SimpleNamespace(ITEM_CORPSE_PC=SimpleNamespace(name="ITEM_CORPSE_PC"))
+        handler.WearLocation = SimpleNamespace(WEAR_FLOAT=SimpleNamespace(value=17))
+        handler.WearFlags = SimpleNamespace(ITEM_TAKE=SimpleNamespace(value=1))
+        handler.enum_provider.get.return_value = SimpleNamespace(OBJ_VNUM_PIT=SimpleNamespace(value=999))
+        registries.shop_registry.find_by_keeper_vnum.return_value = None
+        room = SimpleNamespace(contents={}, characters={}, mobiles={}, players_in_room=lambda: ["observer"])
+        registries.room_registry.all_rooms.return_value = [room]
+        handler.tick_effects = AsyncMock()
+        item = SimpleNamespace(id="stock", short_description="a trinket", item_type="ITEM_TRASH",
+                               cost=29, timer=1, wear_loc=-1, contains=[])
+        return handler, registries, bus, room, item
+
+    def test_obj_update_credits_shopkeepers_without_decay_messages(self):
+        for equipped in (False, True):
+            with self.subTest(equipped=equipped):
+                handler, registries, bus, room, item = self._object_update_fixture()
+                keeper = SimpleNamespace(vnum="100", silver=7, inventory=[] if equipped else [item],
+                                         equipped=SimpleNamespace(floating=item) if equipped else None)
+                if equipped:
+                    item.wear_loc = 17
+                room.mobiles["keeper"] = keeper
+                registries.shop_registry.find_by_keeper_vnum.return_value = object()
+
+                asyncio.run(handler.update())
+
+                self.assertEqual(12, keeper.silver)
+                self.assertEqual(0, item.timer)
+                self.assertEqual([], keeper.inventory)
+                if equipped:
+                    self.assertIsNone(keeper.equipped.floating)
+                registries.shop_registry.find_by_keeper_vnum.assert_called_once_with("100")
+                bus.send_to_character.assert_not_awaited()
+                bus.send_to_room.assert_not_awaited()
+                asyncio.run(handler.update())
+                self.assertEqual(12, keeper.silver)
+
+    def test_obj_update_non_shop_npc_decay_still_announces_without_credit(self):
+        handler, registries, bus, room, item = self._object_update_fixture()
+        mob = SimpleNamespace(vnum="100", silver=7, inventory=[item], equipped=None)
+        room.mobiles["mob"] = mob
+
+        asyncio.run(handler.update())
+
+        self.assertEqual(7, mob.silver)
+        self.assertEqual([], mob.inventory)
+        bus.send_to_room.assert_awaited_once_with("a trinket crumbles into dust.\r\n", ["observer"])
+
+    def test_obj_update_suppresses_only_fixed_pit_contents(self):
+        for vnum, wear_flags, silent in (("999", 0, True), (999, "", True),
+                                         (999, 1, False), (999, "A", False), (123, 0, False)):
+            with self.subTest(vnum=vnum, wear_flags=wear_flags):
+                handler, registries, bus, room, item = self._object_update_fixture()
+                pit = SimpleNamespace(id="pit", vnum=vnum, wear_flags=wear_flags, contains=[item], timer=0)
+                room.contents[pit.id] = pit
+
+                asyncio.run(handler.update())
+
+                self.assertEqual([], pit.contains)
+                self.assertIs(pit, room.contents["pit"])
+                if silent:
+                    bus.send_to_room.assert_not_awaited()
+                else:
+                    bus.send_to_room.assert_awaited_once()
+                bus.send_to_character.assert_not_awaited()
+                registries.shop_registry.find_by_keeper_vnum.assert_not_called()
+
+    def test_obj_update_checks_immediate_container_inside_pit(self):
+        handler, registries, bus, room, item = self._object_update_fixture()
+        bag = SimpleNamespace(id="bag", vnum=123, wear_flags=1, contains=[item], timer=0)
+        pit = SimpleNamespace(id="pit", vnum=999, wear_flags=0, contains=[bag], timer=0)
+        room.contents[pit.id] = pit
+
+        asyncio.run(handler.update())
+
+        self.assertEqual([], bag.contains)
+        bus.send_to_room.assert_awaited_once()
+
+    def test_obj_update_player_inventory_and_room_decay_remain_visible(self):
+        for carried in (False, True):
+            with self.subTest(carried=carried):
+                handler, registries, bus, room, item = self._object_update_fixture()
+                player = SimpleNamespace(id="player", vnum="100", silver=7, loot=[item], equipped=None)
+                if carried:
+                    room.characters[player.id] = player
+                else:
+                    room.contents[item.id] = item
+                registries.shop_registry.find_by_keeper_vnum.return_value = object()
+
+                asyncio.run(handler.update())
+
+                self.assertEqual(7, player.silver)
+                registries.shop_registry.find_by_keeper_vnum.assert_not_called()
+                if carried:
+                    self.assertEqual([], player.loot)
+                    bus.send_to_character.assert_awaited_once_with(
+                        "player", "a trinket crumbles into dust.\r\n")
+                    bus.send_to_room.assert_not_awaited()
+                else:
+                    self.assertEqual({}, room.contents)
+                    bus.send_to_room.assert_awaited_once()
+
+    def test_silent_pit_expiration_still_preserves_pc_corpse_contents(self):
+        handler, registries, bus, room, item = self._object_update_fixture()
+        child = SimpleNamespace(id="child", timer=0, contains=[])
+        item.item_type = "ITEM_CORPSE_PC"
+        item.contains = [child]
+        pit = SimpleNamespace(id="pit", vnum=999, wear_flags=0, contains=[item], timer=0)
+        room.contents[pit.id] = pit
+
+        asyncio.run(handler.update())
+
+        self.assertEqual([child], pit.contains)
+        self.assertEqual([], item.contains)
+        bus.send_to_room.assert_not_awaited()
+
     def _handler(self, playing_characters):
         registry_service = Mock()
         registry_service.character_registry.all_characters.return_value = []
@@ -193,20 +424,30 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         effect_handler = Mock()
         effect_handler.tick_effects.return_value = SimpleNamespace(expired_effects=[])
 
+        enum_provider = Mock(get=Mock(return_value=None))
+        fight_handler = Mock()
+        fight_handler.PositionsEnum = Positions
+        fight_handler.apply_periodic_damage.side_effect = lambda entity, damage: FightHandler.apply_periodic_damage(
+            fight_handler, entity, damage)
+        effect_updates = EffectUpdateHandler(registry_service, enum_provider, effect_handler, fight_handler, message_bus)
+        item_updates = ItemUpdateHandler(registry_service, enum_provider, effect_updates, message_bus)
+        entity_updates = EntityUpdateHandler(registry_service, enum_provider, fight_handler, effect_updates, message_bus)
         handler = UpdateHandler(
             weather_handler=Mock(),
             area_handler=Mock(),
             mobile_handler=Mock(),
-            fight_handler=Mock(),
-            message_bus=message_bus,
-            registry_service=registry_service,
+            fight_handler=fight_handler,
             character_service=Mock(),
             session_handler=session_handler,
-            enum_provider=Mock(get=Mock(return_value=None)),
-            effect_handler=effect_handler,
+            enum_provider=enum_provider,
+            entity_update_handler=entity_updates,
+            item_update_handler=item_updates,
         )
-        handler.PositionsEnum = Positions
-        handler.AffectedBits = AffectedBy
+        handler.entity_update_handler.PositionsEnum = Positions
+        handler.entity_update_handler.AffectedBits = AffectedBy
+        effect_updates.PositionsEnum = Positions
+        effect_updates.AffectedBits = AffectedBy
+        effect_updates.rng = handler.entity_update_handler.rng
         registry_service.room_registry.get_or_none.return_value = SimpleNamespace(heal_rate=100, mana_rate=100)
         return handler, registry_service, message_bus
 
@@ -230,7 +471,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
             handler, registry_service, message_bus = self._handler([])
             registry_service.character_registry.all_characters.return_value = [offline]
 
-            with patch("game.UpdateHandler.CharacterApi.is_immortal", return_value=False):
+            with patch("api.CharacterApi.CharacterApi.is_immortal", return_value=False):
                 await handler.char_update()
 
             self.assertEqual(1, offline.status_flags.thirst)
@@ -263,12 +504,12 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         ]
         room = SimpleNamespace(heal_rate=150, mana_rate=200)
         handler, _, _ = self._handler([character])
-        handler.rng.number_percent = Mock(side_effect=[25, 25])
+        handler.entity_update_handler.rng.number_percent = Mock(side_effect=[25, 25])
 
-        with patch("game.UpdateHandler.Ability.check_improve_by_name") as improve:
-            self.assertEqual(10, handler.hit_gain(character, room))
-            self.assertEqual(6, handler.mana_gain(character, room))
-            self.assertEqual(18, handler.move_gain(character, room))
+        with patch("skill.Ability.Ability.check_improve_by_name") as improve:
+            self.assertEqual(10, character.hit_gain(room, handler.entity_update_handler.regeneration_context()))
+            self.assertEqual(6, character.mana_gain(room, handler.entity_update_handler.regeneration_context()))
+            self.assertEqual(18, character.move_gain(room, handler.entity_update_handler.regeneration_context()))
 
         self.assertEqual(
             [
@@ -279,7 +520,8 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         )
 
     def test_rom_npc_regen_uses_level_position_and_affects(self):
-        npc = SimpleNamespace(
+        npc = AnimateEntity.__new__(AnimateEntity)
+        npc.__dict__.update(
             level=10,
             hit=50,
             max_hit=100,
@@ -295,10 +537,10 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         room = SimpleNamespace(heal_rate=100, mana_rate=100)
         handler, _, _ = self._handler([])
 
-        with patch("game.UpdateHandler.CharacterApi.is_npc", return_value=True):
-            self.assertEqual(5, handler.hit_gain(npc, room))
-            self.assertEqual(2, handler.mana_gain(npc, room))
-            self.assertEqual(5, handler.move_gain(npc, room))
+        with patch("api.CharacterApi.CharacterApi.is_npc", return_value=True):
+            self.assertEqual(5, npc.hit_gain(room, handler.entity_update_handler.regeneration_context()))
+            self.assertEqual(2, npc.mana_gain(room, handler.entity_update_handler.regeneration_context()))
+            self.assertEqual(5, npc.move_gain(room, handler.entity_update_handler.regeneration_context()))
 
     def test_char_update_regenerates_before_condition_decay(self):
         async def run_test():
@@ -308,9 +550,9 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
             active.status_flags.thirst = 1
             active.status_flags.hunger = 1
             handler, _, message_bus = self._handler([active])
-            handler.rng.number_percent = Mock(return_value=100)
+            handler.entity_update_handler.rng.number_percent = Mock(return_value=100)
 
-            with patch("game.UpdateHandler.CharacterApi.is_immortal", return_value=False):
+            with patch("api.CharacterApi.CharacterApi.is_immortal", return_value=False):
                 await handler.char_update()
 
             self.assertEqual(27, active.hit)
@@ -342,8 +584,8 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
             )
             handler, _, message_bus = self._handler([active, viewer])
 
-            with patch("game.UpdateHandler.CharacterApi.is_immortal", return_value=False):
-                await handler._tick_light_source(active, room)
+            with patch("api.CharacterApi.CharacterApi.is_immortal", return_value=False):
+                await handler.entity_update_handler.emit_character_tick(active, room, active.tick_light_source(room))
 
             self.assertEqual("0", lamp.value2)
             self.assertEqual(0, room.light)
@@ -376,7 +618,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
                 people=lambda: [poisoned, viewer],
             )
             handler, _, message_bus = self._handler([poisoned, viewer])
-            handler.spell_registry.all_spells.return_value = [
+            handler.entity_update_handler.effect_update_handler.spell_registry.all_spells.return_value = [
                 self._spell_payload(
                     "poison",
                     "spell.poison",
@@ -387,7 +629,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
                 )
             ]
 
-            await handler._tick_rom_status_effects(poisoned, room)
+            await handler.entity_update_handler.effect_update_handler.tick_status_effects(poisoned, room)
 
             self.assertEqual(17, poisoned.hit)
             handler.fight_handler.update_pos.assert_called_once_with(poisoned)
@@ -421,7 +663,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
                 people=lambda: [carrier, victim],
             )
             handler, _, message_bus = self._handler([carrier, victim])
-            handler.spell_registry.all_spells.return_value = [
+            handler.entity_update_handler.effect_update_handler.spell_registry.all_spells.return_value = [
                 self._spell_payload(
                     "plague",
                     "spell.plague",
@@ -437,8 +679,8 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
                     },
                 )
             ]
-            handler.rng.number_range = Mock(return_value=4)
-            handler.rng.number_bits = Mock(return_value=0)
+            handler.entity_update_handler.rng.number_range = Mock(return_value=4)
+            handler.entity_update_handler.rng.number_bits = Mock(return_value=0)
 
             def join_effect(target, effect):
                 target.effects.append(effect)
@@ -447,17 +689,17 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
                     target.status_flags.affected_by | AffectedBy.AFF_PLAGUE.value,
                 )
 
-            handler.effect_handler.affect_join.side_effect = join_effect
+            handler.entity_update_handler.effect_update_handler.effect_handler.affect_join.side_effect = join_effect
 
-            with patch("game.UpdateHandler.CharacterApi.is_immortal", return_value=False), \
-                    patch("game.UpdateHandler.EffectUtil.saves_spell", return_value=False):
-                await handler._tick_rom_status_effects(carrier, room)
+            with patch("api.CharacterApi.CharacterApi.is_immortal", return_value=False), \
+                    patch("item.EffectUpdateHandler.EffectUtil.saves_spell", return_value=False):
+                await handler.entity_update_handler.effect_update_handler.tick_status_effects(carrier, room)
 
             self.assertEqual(47, carrier.hit)
             self.assertEqual(17, carrier.mana)
             self.assertEqual(17, carrier.movement)
             self.assertTrue(victim.status_flags.affected_by & AffectedBy.AFF_PLAGUE.value)
-            handler.effect_handler.affect_join.assert_called_once()
+            handler.entity_update_handler.effect_update_handler.effect_handler.affect_join.assert_called_once()
             handler.fight_handler.update_pos.assert_called_once_with(carrier)
             self.assertEqual(
                 [
@@ -480,7 +722,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
             character.character_attributes.position = Positions.POS_MORTAL.value
             handler, _, message_bus = self._handler([character])
 
-            await handler._tick_rom_status_effects(character, SimpleNamespace())
+            await handler.entity_update_handler.effect_update_handler.tick_status_effects(character, SimpleNamespace())
 
             self.assertEqual(-7, character.hit)
             handler.fight_handler.update_pos.assert_called_once_with(character)
@@ -509,9 +751,9 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
 
             handler, registry_service, message_bus = self._handler([active])
             registry_service.spell_registry.all_spells.return_value = [armor, teleport]
-            handler.effect_handler.tick_effects.return_value = SimpleNamespace(expired_effects=expired)
+            handler.entity_update_handler.effect_update_handler.effect_handler.tick_effects.return_value = SimpleNamespace(expired_effects=expired)
 
-            await handler._tick_effects(active)
+            await handler.entity_update_handler.effect_update_handler.tick_effects(active)
 
             message_bus.send_to_character.assert_awaited_once_with("active_char", "You feel less armored.\r\n")
 
@@ -529,10 +771,10 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
 
             handler, registry_service, message_bus = self._handler([])
             registry_service.spell_registry.all_spells.return_value = [spell]
-            handler.effect_handler.tick_effects.return_value = SimpleNamespace(expired_effects=[SimpleNamespace(type="spell.bless")])
-            handler._locate_item = Mock(return_value={"kind": "char_loot", "parent": holder, "room": None})
+            handler.entity_update_handler.effect_update_handler.effect_handler.tick_effects.return_value = SimpleNamespace(expired_effects=[SimpleNamespace(type="spell.bless")])
+            handler.item_update_handler._locate_item = Mock(return_value={"kind": "char_loot", "parent": holder, "room": None})
 
-            await handler._tick_item_effects(item)
+            await handler.item_update_handler.tick_effects(item)
 
             message_bus.send_to_character.assert_awaited_once_with("char_001", "a bright sword's holy aura fades.\r\n")
 
@@ -546,7 +788,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
 
             handler, _, message_bus = self._handler([active])
 
-            with patch("game.UpdateHandler.CharacterApi.is_immortal", return_value=False):
+            with patch("api.CharacterApi.CharacterApi.is_immortal", return_value=False):
                 await handler.char_update()
 
             self.assertEqual(0, active.status_flags.thirst)

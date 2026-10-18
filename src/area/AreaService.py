@@ -46,13 +46,11 @@ class AreaService(FetchAndRegisterMixin):
         self.area_registry.register(area)
 
     def _lazy_load(self, area: Area):
+        area.rooms = [room for room in self.registry_service.room_registry.all_rooms() if room.area_id == area.id]
+        for room in area.rooms:
+            room.bind_area(area)
         area.resets = self.reset_registry.all_resets_by_area_id(area.id)
         area.shops = self.shop_registry.all_shops_by_area_id(area.id)
         area.specials = self.special_registry.all_specials_by_area_id(area.id)
         area.items = self.item_registry.all_items_by_area_id(area.id)
         area.mobiles = self.mobile_registry.all_mobiles_by_area_id(area.id)
-        specials_by_vnum = {}
-        for special in area.specials:
-            specials_by_vnum.setdefault(str(special.mob_vnum), []).append(special)
-        for mobile in area.mobiles:
-            mobile.specials = list(specials_by_vnum.get(str(getattr(mobile, "vnum", "") or ""), []))

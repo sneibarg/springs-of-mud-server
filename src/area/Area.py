@@ -46,6 +46,15 @@ class Area:
     def __hash__(self):
         return hash(self.id)
 
+    def player_entered(self) -> None:
+        if self.empty:
+            self.empty = False
+            self.age = 0
+        self.number_of_players += 1
+
+    def player_left(self) -> None:
+        self.number_of_players = max(0, self.number_of_players - 1)
+
     def __eq__(self, other):
         if isinstance(other, Area):
             return self.id == other.id

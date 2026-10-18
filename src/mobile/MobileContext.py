@@ -81,4 +81,4 @@ class MobileContext:
 
     def room_players(self, exclude_ids: Optional[set[str]] = None) -> list[Any]:
         exclude = {str(value) for value in (exclude_ids or set())}
-        return [player for player in self.room.players_in_room().values() if str(getattr(player, "id", "")) not in exclude]
+        return [player for player in self.room.players_in_room() if str(getattr(player, "id", "")) not in exclude]

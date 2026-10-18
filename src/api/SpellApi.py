@@ -982,7 +982,7 @@ class SpellApi:
             current.mobiles.pop(str(getattr(victim, "id", "")), None)
             room.add_mobile_to_room(victim)
         else:
-            current.characters.pop(str(getattr(victim, "id", "")), None)
+            current.remove_player_from_room(victim)
             room.add_player_to_room(victim)
         victim.room_id = room.id
         victim.area_id = getattr(room, "area_id", getattr(victim, "area_id", ""))

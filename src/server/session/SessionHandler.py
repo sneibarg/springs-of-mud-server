@@ -27,6 +27,9 @@ class SessionHandler:
         for session in self._sessions.values():
             if session.character and session.character.id == character_id:
                 return session
+            original = session.metadata.get("switched_original")
+            if original is not None and original.id == character_id:
+                return session
         return None
 
     def remove_session(self, session_id: str) -> None:

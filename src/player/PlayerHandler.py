@@ -1,5 +1,3 @@
-import inspect
-
 from dataclasses import fields
 from typing import Any
 from injector import inject
@@ -9,6 +7,8 @@ from combat.CombatHandler import FightHandler
 from game.WizHandler import WizHandler
 from game.RegistryService import RegistryService
 from interp.Context import Context
+from interp.CommandAccess import CommandAccess
+from interp.CommandExecutor import CommandExecutor
 from interp.commands.Info import Info
 from interp.commands.Movement import Movement
 from interp.commands.Communications import Communications
@@ -81,6 +81,7 @@ class PlayerHandler:
                     text = "Someone has left the game.\r\n"
                 await self.message_bus.send_to_character(viewer.id, self.message_bus.text_to_message(text))
             room.remove_player_from_room(character)
+        self.character_registry.remove_playing(character)
         await context.disconnect()
 
     async def do_who(self, character):
@@ -559,38 +560,8 @@ class PlayerHandler:
             await self._handle_standard_command_payload(character, context, {key: value for key, value in payload.items() if key not in {"forced_commands", "force_message_key"}})
 
     async def _execute_nested_lambdas(self, command, context: Context):
-        lambdas = getattr(command, "lambdas", None) or []
-        if not command.pipeline:
-            for lambda_string in lambdas:
-                if not isinstance(lambda_string, str) or not lambda_string.strip():
-                    continue
-                await self._execute_nested_lambda(eval(lambda_string), context)
-            return
-
-        index = 0
-        while index < len(lambdas):
-            lambda_string = lambdas[index]
-            if not isinstance(lambda_string, str) or not lambda_string.strip():
-                index += 1
-                continue
-            await self._execute_nested_lambda(eval(lambda_string), context)
-            if context.done:
-                break
-            if isinstance(context.next_index, int) and context.next_index >= 0:
-                index = context.next_index
-                context.next_index = None
-                continue
-            index += 1
-
-    @staticmethod
-    async def _execute_nested_lambda(func, context: Context):
-        if not callable(func):
-            return
-        result = func(context)
-        if inspect.isawaitable(result):
-            context.result = await result
-        else:
-            context.result = result
+        return await CommandExecutor.execute(command, context, authorization=CommandAccess.check,
+                                             message_bus=self.message_bus)
 
     def _character_in_any_room(self, character: Character) -> bool:
         character_id = str(getattr(character, "id", "") or "")

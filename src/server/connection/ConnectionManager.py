@@ -32,7 +32,12 @@ class ConnectionManager:
     def bind_character(self, character_id: str, session_id: str) -> None:
         self._character_sessions[character_id] = session_id
 
-    def unbind_character(self, character_id: str) -> None:
+    def owns_character(self, character_id: str, session_id: str) -> bool:
+        return self._character_sessions.get(character_id) == session_id
+
+    def unbind_character(self, character_id: str, *, session_id: str | None = None) -> None:
+        if session_id is not None and not self.owns_character(character_id, session_id):
+            return
         if character_id in self._character_sessions:
             del self._character_sessions[character_id]
 

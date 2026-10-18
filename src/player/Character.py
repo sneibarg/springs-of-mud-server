@@ -326,3 +326,88 @@ class Character(AnimateEntity):
         collection.append(entry)
         Character._set_learned_entry_level(entry, learned_level)
         return entry
+
+    def tick_conditions(self) -> list[str]:
+        from api.CharacterApi import CharacterApi
+
+        if CharacterApi.is_npc(self) or CharacterApi.is_immortal(self):
+            return []
+        changes = (("drunk", -1), ("thirst", -1), ("hunger", -2 if self.is_large_race() else -1))
+        return [message for name, amount in changes if (message := self.gain_condition(name, amount))]
+
+    def tick_light_source(self, room) -> dict:
+        from api.CharacterApi import CharacterApi
+        from area.Room import Room
+        from item.Item import Item
+
+        if CharacterApi.is_npc(self) or CharacterApi.is_immortal(self):
+            return {}
+        light = getattr(getattr(self, "equipped", None), "light", None)
+        if light is None:
+            return {}
+        remaining = Item.burn_light(light)
+        if remaining is None or room is None:
+            return {}
+        name = light.display_name()
+        if remaining == 0:
+            Room.adjust_light(room, -1)
+            self.equipped.light = None
+            return {"to_char": f"{name} flickers and goes out.\r\n", "to_room": f"{name} goes out.\r\n"}
+        if remaining <= 5:
+            return {"to_char": f"{name} flickers.\r\n"}
+        return {}
+
+    def gain_condition(self, condition_name: str, value: int) -> str:
+        if value == 0:
+            return ""
+
+        status_flags = getattr(self, "status_flags", None)
+        if status_flags is None or not hasattr(status_flags, condition_name):
+            return ""
+
+        current = GenericUtil.to_int(getattr(status_flags, condition_name, -1), -1)
+        if current == -1:
+            return ""
+
+        updated = max(0, min(48, current + value))
+        setattr(status_flags, condition_name, updated)
+        if updated != 0:
+            return ""
+
+        message = None
+        if condition_name == "hunger":
+            message = "You are hungry.\r\n"
+        elif condition_name == "thirst":
+            message = "You are thirsty.\r\n"
+        elif condition_name == "drunk" and current != 0:
+            message = "You are sober.\r\n"
+
+        return message or ""
+
+    def is_large_race(self) -> bool:
+        from api.CharacterApi import CharacterApi
+
+        race = getattr(self, "character_race", None)
+        raw_size = getattr(race, "size", getattr(self, "size", None))
+        if raw_size is None:
+            return False
+
+        try:
+            size_enum = CharacterApi.get_enum("size")
+        except RuntimeError:
+            size_enum = None
+
+        if isinstance(raw_size, str):
+            normalized = raw_size.strip().upper()
+            if size_enum is not None and normalized in size_enum.__members__:
+                raw_size = size_enum[normalized].value
+            else:
+                return normalized in {"SIZE_LARGE", "SIZE_HUGE", "SIZE_GIANT"}
+
+        size_value = GenericUtil.to_int(raw_size, None)
+        if size_value is None:
+            return False
+
+        if size_enum is not None:
+            return size_value > int(size_enum.SIZE_MEDIUM.value)
+        return size_value >= 3
