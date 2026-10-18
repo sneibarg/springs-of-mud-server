@@ -1085,6 +1085,12 @@
       "toChar": {
         "msgOff": "You feel less sick.",
         "msgObj": "The poison on $p dries up."
+      },
+      "toVictim": {
+        "tick": "You shiver and suffer.\r\n"
+      },
+      "toRoom": {
+        "tick": "{victim} shivers and suffers.\r\n"
       }
     },
     "functionName": "poison",
@@ -2572,10 +2578,14 @@
     "nounDamage": "sickness",
     "payload": {
       "toVictim": {
-        "apply": "You scream in agony as plague sores erupt from your skin.\r\n"
+        "apply": "You scream in agony as plague sores erupt from your skin.\r\n",
+        "tick": "You writhe in agony from the plague.\r\n",
+        "spread": "You feel hot and feverish.\r\n"
       },
       "toRoom": {
-        "apply": "{victim} screams in agony as plague sores erupt from their skin.\r\n"
+        "apply": "{victim} screams in agony as plague sores erupt from their skin.\r\n",
+        "tick": "{victim} writhes in agony as plague sores erupt from {possessive} skin.\r\n",
+        "spread": "{victim} shivers and looks very ill.\r\n"
       },
       "toChar": {
         "msgOff": "Your sores vanish.",

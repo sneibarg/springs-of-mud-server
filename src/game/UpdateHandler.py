@@ -7,6 +7,8 @@ from combat.CombatRegistry import CombatRegistry
 from combat.CombatHandler import FightHandler
 from api.GameApi import GameApi
 from game.EnumProvider import EnumProvider
+from game.RandomNumberGenerator import RandomNumberGenerator
+from item.Effect import Effect
 from item.EffectHandler import EffectHandler
 from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
@@ -19,6 +21,7 @@ from server.messaging.MessageBus import MessageBus
 from server.session.SessionHandler import SessionHandler
 from skill.Ability import Ability
 from util.DisplayUtil import DisplayUtil
+from util.EffectUtil import EffectUtil
 
 
 class UpdateHandler:
@@ -58,9 +61,11 @@ class UpdateHandler:
         self.enum_provider = enum_provider
         self.GameParametersEnum = enum_provider.get("gameParameters")
         self.PositionsEnum = enum_provider.get("positions")
+        self.AffectedBits = enum_provider.get("affectedBy")
         self.ItemTypes = enum_provider.get("itemTypes")
         self.WearLocation = enum_provider.get("wearLocation")
         self.WearFlags = enum_provider.get("wearFlags")
+        self.rng = RandomNumberGenerator()
 
     async def handle_updates(self):
         self.pulse_area -= 1
@@ -207,27 +212,32 @@ class UpdateHandler:
         self._advance_save_counter()
         pos_stunned = self.PositionsEnum.POS_STUNNED.value
         for ch in self._active_player_characters():
-            await self._tick_conditions(ch)
             attrs = getattr(ch, "character_attributes", None)
             if attrs is None:
                 continue
+            room = self._room_for_entity(ch)
             pos = GenericUtil.to_int(getattr(attrs, "position", 0), 0)
-            if pos < pos_stunned:
-                await self._tick_effects(ch)
-                continue
-            self._tick_regen(ch)
+            if pos >= pos_stunned:
+                self._tick_regen(ch, room)
+                if pos == pos_stunned:
+                    self.fight_handler.update_pos(ch)
+                await self._flush_improve_messages(ch)
+            await self._tick_light_source(ch, room)
+            await self._tick_conditions(ch)
             await self._tick_effects(ch)
+            await self._tick_rom_status_effects(ch, room)
 
         for room in self.room_registry.all_rooms():
             if room is None:
                 continue
             for mob in room.mobiles.values():
                 pos = GenericUtil.to_int(getattr(mob, "position", getattr(mob, "start_pos", 0)), 0)
-                if pos < pos_stunned:
-                    await self._tick_effects(mob)
-                    continue
-                self._tick_regen(mob)
+                if pos >= pos_stunned:
+                    self._tick_regen(mob, room)
+                    if pos == pos_stunned:
+                        self.fight_handler.update_pos(mob)
                 await self._tick_effects(mob)
+                await self._tick_rom_status_effects(mob, room)
 
         await self._autosave_due_characters()
 
@@ -347,8 +357,39 @@ class UpdateHandler:
             return size_value > int(size_enum.SIZE_MEDIUM.value)
         return size_value >= 3
 
-    @staticmethod
-    def _tick_regen(entity):
+    async def _tick_light_source(self, character: Character, room) -> None:
+        if CharacterApi.is_npc(character) or CharacterApi.is_immortal(character):
+            return
+
+        equipped = getattr(character, "equipped", None)
+        light = getattr(equipped, "light", None) if equipped is not None else None
+        if light is None:
+            return
+        if str(getattr(light, "item_type", "") or "").strip().upper() not in {"ITEM_LIGHT", "LIGHT"}:
+            return
+
+        remaining = GenericUtil.to_int(getattr(light, "value2", 0), 0)
+        if remaining <= 0:
+            return
+
+        remaining -= 1
+        setattr(light, "value2", str(remaining))
+        if remaining == 0 and room is not None:
+            room.light = max(0, GenericUtil.to_int(getattr(room, "light", 0), 0) - 1)
+            item_name = light.display_name()
+            await self._send_to_room_except(room, character, f"{item_name} goes out.\r\n")
+            await self._send_to_entity(character, f"{item_name} flickers and goes out.\r\n")
+            setattr(equipped, "light", None)
+        elif remaining <= 5 and room is not None:
+            await self._send_to_entity(character, f"{light.display_name()} flickers.\r\n")
+
+    def _room_for_entity(self, entity):
+        room_id = str(getattr(entity, "room_id", "") or "")
+        if not room_id:
+            return None
+        return self.room_registry.get_or_none(id=room_id)
+
+    def _tick_regen(self, entity, room=None):
         max_hit = GenericUtil.to_int(getattr(entity, "max_hit", 0), 0)
         max_mana = GenericUtil.to_int(getattr(entity, "max_mana", 0), 0)
         max_move = GenericUtil.to_int(getattr(entity, "max_movement", 0), 0)
@@ -357,16 +398,385 @@ class UpdateHandler:
         mana = GenericUtil.to_int(getattr(entity, "mana", 0), 0)
         move = GenericUtil.to_int(getattr(entity, "movement", 0), 0)
 
-        hit_gain = max(1, max_hit // 20) if max_hit > 0 else 0
-        mana_gain = max(1, max_mana // 20) if max_mana > 0 else 0
-        move_gain = max(1, max_move // 20) if max_move > 0 else 0
-
         if hit < max_hit:
-            setattr(entity, "hit", min(max_hit, hit + hit_gain))
+            setattr(entity, "hit", min(max_hit, hit + self.hit_gain(entity, room)))
         if mana < max_mana:
-            setattr(entity, "mana", min(max_mana, mana + mana_gain))
+            setattr(entity, "mana", min(max_mana, mana + self.mana_gain(entity, room)))
         if move < max_move:
-            setattr(entity, "movement", min(max_move, move + move_gain))
+            setattr(entity, "movement", min(max_move, move + self.move_gain(entity, room)))
+
+    def hit_gain(self, entity, room=None) -> int:
+        if room is None:
+            return 0
+
+        max_hit = GenericUtil.to_int(getattr(entity, "max_hit", 0), 0)
+        hit = GenericUtil.to_int(getattr(entity, "hit", 0), 0)
+        if hit >= max_hit:
+            return 0
+
+        level = GenericUtil.to_int(getattr(entity, "level", 0), 0)
+        position = self._position_value(entity)
+        if CharacterApi.is_npc(entity):
+            gain = 5 + level
+            if self._is_affected(entity, "AFF_REGENERATION"):
+                gain *= 2
+            if position == self._pos_value("POS_SLEEPING"):
+                gain = 3 * gain // 2
+            elif position == self._pos_value("POS_RESTING"):
+                pass
+            elif position == self._pos_value("POS_FIGHTING"):
+                gain //= 3
+            else:
+                gain //= 2
+        else:
+            attrs = getattr(entity, "character_attributes", None)
+            constitution = GenericUtil.to_int(getattr(attrs, "constitution", 0), 0)
+            gain = max(3, constitution - 3 + level // 2)
+            gain += GenericUtil.to_int(getattr(getattr(entity, "character_class", None), "hp_max", 10), 10) - 10
+            number = self.rng.number_percent()
+            if number < self._skill_percent(entity, "fast healing"):
+                gain += number * gain // 100
+                if hit < max_hit:
+                    Ability.check_improve_by_name(entity, "fast healing", True, 8)
+
+            if position == self._pos_value("POS_SLEEPING"):
+                pass
+            elif position == self._pos_value("POS_RESTING"):
+                gain //= 2
+            elif position == self._pos_value("POS_FIGHTING"):
+                gain //= 6
+            else:
+                gain //= 4
+
+            if entity.condition_value("hunger") == 0:
+                gain //= 2
+            if entity.condition_value("thirst") == 0:
+                gain //= 2
+
+        gain = gain * GenericUtil.to_int(getattr(room, "heal_rate", 100), 100) // 100
+        gain = self._apply_furniture_regen_rate(entity, gain, "value3")
+        gain = self._apply_regen_affect_penalties(entity, gain)
+        return min(gain, max_hit - hit)
+
+    def mana_gain(self, entity, room=None) -> int:
+        if room is None:
+            return 0
+
+        max_mana = GenericUtil.to_int(getattr(entity, "max_mana", 0), 0)
+        mana = GenericUtil.to_int(getattr(entity, "mana", 0), 0)
+        if mana >= max_mana:
+            return 0
+
+        level = GenericUtil.to_int(getattr(entity, "level", 0), 0)
+        position = self._position_value(entity)
+        if CharacterApi.is_npc(entity):
+            gain = 5 + level
+            if position == self._pos_value("POS_SLEEPING"):
+                gain = 3 * gain // 2
+            elif position == self._pos_value("POS_RESTING"):
+                pass
+            elif position == self._pos_value("POS_FIGHTING"):
+                gain //= 3
+            else:
+                gain //= 2
+        else:
+            attrs = getattr(entity, "character_attributes", None)
+            wisdom = GenericUtil.to_int(getattr(attrs, "wisdom", 0), 0)
+            intelligence = GenericUtil.to_int(getattr(attrs, "intelligence", 0), 0)
+            gain = (wisdom + intelligence + level) // 2
+            number = self.rng.number_percent()
+            if number < self._skill_percent(entity, "meditation"):
+                gain += number * gain // 100
+                if mana < max_mana:
+                    Ability.check_improve_by_name(entity, "meditation", True, 8)
+
+            if not bool(getattr(getattr(entity, "character_class", None), "mana_gain", True)):
+                gain //= 2
+
+            if position == self._pos_value("POS_SLEEPING"):
+                pass
+            elif position == self._pos_value("POS_RESTING"):
+                gain //= 2
+            elif position == self._pos_value("POS_FIGHTING"):
+                gain //= 6
+            else:
+                gain //= 4
+
+            if entity.condition_value("hunger") == 0:
+                gain //= 2
+            if entity.condition_value("thirst") == 0:
+                gain //= 2
+
+        gain = gain * GenericUtil.to_int(getattr(room, "mana_rate", 100), 100) // 100
+        gain = self._apply_furniture_regen_rate(entity, gain, "value4")
+        gain = self._apply_regen_affect_penalties(entity, gain)
+        return min(gain, max_mana - mana)
+
+    def move_gain(self, entity, room=None) -> int:
+        if room is None:
+            return 0
+
+        max_move = GenericUtil.to_int(getattr(entity, "max_movement", 0), 0)
+        move = GenericUtil.to_int(getattr(entity, "movement", 0), 0)
+        if move >= max_move:
+            return 0
+
+        level = GenericUtil.to_int(getattr(entity, "level", 0), 0)
+        position = self._position_value(entity)
+        if CharacterApi.is_npc(entity):
+            gain = level
+        else:
+            attrs = getattr(entity, "character_attributes", None)
+            dexterity = GenericUtil.to_int(getattr(attrs, "dexterity", 0), 0)
+            gain = max(15, level)
+            if position == self._pos_value("POS_SLEEPING"):
+                gain += dexterity
+            elif position == self._pos_value("POS_RESTING"):
+                gain += dexterity // 2
+
+            if entity.condition_value("hunger") == 0:
+                gain //= 2
+            if entity.condition_value("thirst") == 0:
+                gain //= 2
+
+        gain = gain * GenericUtil.to_int(getattr(room, "heal_rate", 100), 100) // 100
+        gain = self._apply_furniture_regen_rate(entity, gain, "value3")
+        gain = self._apply_regen_affect_penalties(entity, gain)
+        return min(gain, max_move - move)
+
+    def _apply_regen_affect_penalties(self, entity, gain: int) -> int:
+        if self._is_affected(entity, "AFF_POISON"):
+            gain //= 4
+        if self._is_affected(entity, "AFF_PLAGUE"):
+            gain //= 8
+        if self._is_affected(entity, "AFF_HASTE") or self._is_affected(entity, "AFF_SLOW"):
+            gain //= 2
+        return gain
+
+    @staticmethod
+    def _apply_furniture_regen_rate(entity, gain: int, field_name: str) -> int:
+        furniture = getattr(entity, "on", None)
+        if furniture is None:
+            return gain
+        if str(getattr(furniture, "item_type", "") or "").strip().upper() not in {"ITEM_FURNITURE", "FURNITURE"}:
+            return gain
+        return gain * GenericUtil.to_int(getattr(furniture, field_name, 100), 100) // 100
+
+    def _is_affected(self, entity, bit_name: str) -> bool:
+        if self.AffectedBits is None:
+            return False
+        bit = CharacterApi.enum_bit(self.AffectedBits, bit_name)
+        if bit <= 0:
+            return False
+        status_flags = getattr(entity, "status_flags", None)
+        return CharacterApi.is_set(GameApi.flags_to_int(getattr(status_flags, "affected_by", 0)), bit)
+
+    async def _flush_improve_messages(self, character: Character) -> None:
+        messages = Ability.take_improve_messages(character)
+        if messages:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(messages))
+
+    async def _tick_rom_status_effects(self, entity, room=None) -> None:
+        if entity is None:
+            return
+        room = room or self._room_for_entity(entity)
+
+        if self._is_affected(entity, "AFF_PLAGUE"):
+            await self._tick_plague(entity, room)
+            return
+
+        if self._is_affected(entity, "AFF_POISON") and not self._is_affected(entity, "AFF_SLOW"):
+            poison = self._find_effect(entity, "spell.poison", "poison", bit_name="AFF_POISON")
+            if poison is not None:
+                await self._send_effect_payload(poison, "tick", entity, room)
+                damage = GenericUtil.to_int(getattr(poison, "level", 0), 0) // 10 + 1
+                self._apply_periodic_damage(entity, damage)
+            return
+
+        position = self._position_value(entity)
+        if position == self._pos_value("POS_INCAP"):
+            if self.rng.number_range(0, 1) == 0:
+                self._apply_periodic_damage(entity, 1)
+            return
+        if position == self._pos_value("POS_MORTAL"):
+            self._apply_periodic_damage(entity, 1)
+
+    async def _tick_plague(self, entity, room) -> None:
+        if room is None:
+            return
+
+        plague = self._find_effect(entity, "spell.plague", "plague", bit_name="AFF_PLAGUE")
+        if plague is None:
+            self._set_affected(entity, "AFF_PLAGUE", False)
+            return
+
+        await self._send_effect_payload(plague, "tick", entity, room)
+
+        plague_level = GenericUtil.to_int(getattr(plague, "level", 0), 0)
+        if plague_level == 1:
+            return
+
+        spread = Effect(
+            where="TO_AFFECTS",
+            type=getattr(plague, "type", "spell.plague"),
+            level=plague_level - 1,
+            duration=self.rng.number_range(1, max(1, 2 * (plague_level - 1))),
+            location="APPLY_STR",
+            modifier=-5,
+            bitvector="AFF_PLAGUE",
+            apply_to="char",
+        )
+
+        for victim in room.people():
+            if victim is entity:
+                continue
+            if CharacterApi.is_immortal(victim):
+                continue
+            if self._is_affected(victim, "AFF_PLAGUE"):
+                continue
+            if self.rng.number_bits(4) != 0:
+                continue
+            if EffectUtil.saves_spell(GenericUtil.to_int(spread.level, 0) - 2, victim, 0):
+                continue
+
+            await self._send_effect_payload(spread, "spread", victim, room)
+            self.effect_handler.affect_join(victim, spread)
+
+        damage = min(GenericUtil.to_int(getattr(entity, "level", 0), 0), plague_level // 5 + 1)
+        setattr(entity, "mana", GenericUtil.to_int(getattr(entity, "mana", 0), 0) - damage)
+        setattr(entity, "movement", GenericUtil.to_int(getattr(entity, "movement", 0), 0) - damage)
+        self._apply_periodic_damage(entity, damage)
+
+    def _apply_periodic_damage(self, entity, damage: int) -> None:
+        damage = max(0, GenericUtil.to_int(damage, 0))
+        if damage <= 0:
+            return
+        setattr(entity, "hit", GenericUtil.to_int(getattr(entity, "hit", 0), 0) - damage)
+        self.fight_handler.update_pos(entity)
+        if self._position_value(entity) <= self._pos_value("POS_DEAD"):
+            self.fight_handler.raw_kill(entity)
+
+    def _find_effect(self, entity, *type_names: str, bit_name: str = ""):
+        wanted_types = {str(type_name or "").strip().lower() for type_name in type_names if str(type_name or "").strip()}
+        bit = CharacterApi.enum_bit(self.AffectedBits, bit_name) if bit_name else 0
+        for effect in list(getattr(entity, "effects", []) or []):
+            effect_type = str(getattr(effect, "type", "") or "").strip().lower()
+            if effect_type in wanted_types:
+                return effect
+            if bit > 0 and self._effect_has_bit(effect, bit_name, bit):
+                return effect
+        return None
+
+    @staticmethod
+    def _effect_has_bit(effect, bit_name: str, bit: int) -> bool:
+        raw = getattr(effect, "bitvector", 0)
+        if str(raw or "").strip().upper() == str(bit_name or "").strip().upper():
+            return True
+        return GameApi.flags_to_int(raw) == bit
+
+    def _set_affected(self, entity, bit_name: str, enabled: bool) -> None:
+        if self.AffectedBits is None:
+            return
+        bit = CharacterApi.enum_bit(self.AffectedBits, bit_name)
+        if bit <= 0:
+            return
+        status_flags = getattr(entity, "status_flags", None)
+        if status_flags is None:
+            return
+        raw = GameApi.flags_to_int(getattr(status_flags, "affected_by", 0))
+        updated = GameApi.set_bit(raw, bit) if enabled else GameApi.unset_bit(raw, bit)
+        if hasattr(status_flags, "assign_bitfield"):
+            status_flags.assign_bitfield("affected_by", updated)
+        else:
+            setattr(status_flags, "affected_by", updated)
+
+    async def _send_effect_payload(self, effect, key: str, entity, room) -> None:
+        await self._send_to_room_except(room, entity, self._effect_payload(effect, "to_room", key, entity))
+        await self._send_to_entity(entity, self._effect_payload(effect, "to_victim", key, entity))
+
+    def _effect_payload(self, effect, channel: str, key: str, entity) -> str:
+        ability = self._effect_ability(effect)
+        render = getattr(ability, "message", None)
+        if not callable(render):
+            return ""
+        return render(
+            channel,
+            key,
+            victim=entity.display_name(),
+            possessive=getattr(entity, "his_her", lambda: "its")(),
+        )
+
+    def _effect_ability(self, effect):
+        effect_type = getattr(effect, "type", effect)
+        candidates = {
+            str(value or "").strip().lower()
+            for value in (
+                effect_type,
+                str(effect_type or "").replace("spell.", ""),
+                str(effect_type or "").replace("skill.", ""),
+            )
+            if str(value or "").strip()
+        }
+        if not candidates:
+            return None
+
+        for registry, method_name in ((self.spell_registry, "all_spells"), (self.skill_registry, "all_skills")):
+            method = getattr(registry, method_name, None)
+            if not callable(method):
+                continue
+            try:
+                entries = list(method() or [])
+            except TypeError:
+                continue
+            for entry in entries:
+                names = {
+                    str(getattr(entry, "handler_id", "") or "").strip().lower(),
+                    str(getattr(entry, "name", "") or "").strip().lower(),
+                    str(getattr(entry, "id", "") or "").strip().lower(),
+                }
+                if candidates & names:
+                    return entry
+        return None
+
+    async def _send_to_entity(self, entity, text: str) -> None:
+        if entity is None or CharacterApi.is_npc(entity) or not text:
+            return
+        await self.message_bus.send_to_character(entity.id, self.message_bus.text_to_message(text))
+
+    async def _send_to_room_except(self, room, excluded, text: str) -> None:
+        if room is None or not text:
+            return
+        targets = [
+            player for player in room.players_in_room()
+            if str(getattr(player, "id", "") or "") != str(getattr(excluded, "id", "") or "")
+        ]
+        if targets:
+            await self.message_bus.send_to_room(self.message_bus.text_to_message(text), targets)
+
+    def _position_value(self, entity) -> int:
+        attrs = getattr(entity, "character_attributes", None)
+        raw = getattr(attrs, "position", None) if attrs is not None else None
+        if raw is None:
+            raw = getattr(entity, "position", getattr(entity, "start_pos", self._pos_value("POS_STANDING")))
+        if isinstance(raw, str):
+            name = raw.strip().upper()
+            if name and not name.startswith("POS_"):
+                name = f"POS_{name}"
+            value = self._pos_value(name)
+            if value >= 0:
+                return value
+        return GenericUtil.to_int(raw, self._pos_value("POS_STANDING"))
+
+    def _pos_value(self, name: str) -> int:
+        if self.PositionsEnum is None or name not in self.PositionsEnum.__members__:
+            return -1
+        return int(self.PositionsEnum[name].value)
+
+    @staticmethod
+    def _skill_percent(entity, skill_name: str) -> int:
+        if CharacterApi.is_npc(entity):
+            return 0
+        return Character.learned_entry_level(Character.get_learned(entity, skill_name, collection_name="skills"))
 
     def _all_world_items(self):
         seen = set()
@@ -550,24 +960,11 @@ class UpdateHandler:
                 await self._emit_obj_effect_message(item, msg_obj)
 
     def _lookup_effect_message(self, effect_type, field_name: str) -> str:
-        want = str(effect_type or "").strip().lower()
-        if not want:
+        ability = self._effect_ability(effect_type)
+        render = getattr(ability, "message", None)
+        if not callable(render):
             return ""
-
-        for spell in self.spell_registry.all_spells():
-            candidates = [
-                str(getattr(spell, "handler_id", "") or "").strip().lower(),
-                str(getattr(spell, "name", "") or "").strip().lower(),
-                str(getattr(spell, "id", "") or "").strip().lower(),
-            ]
-            if want in candidates:
-                return self._display_effect_message(getattr(spell, field_name, ""))
-
-        return ""
-
-    @staticmethod
-    def _display_effect_message(message) -> str:
-        return DisplayUtil.display_effect_message(message)
+        return DisplayUtil.display_effect_message(render("to_char", field_name))
 
     async def _emit_obj_effect_message(self, item, message: str):
         location = self._locate_item(item)

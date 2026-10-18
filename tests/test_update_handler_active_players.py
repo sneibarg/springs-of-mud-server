@@ -23,6 +23,8 @@ for package_name in ["area", "combat", "game", "interp", "item", "mobile", "play
     _stub_package(package_name)
 
 from game.UpdateHandler import UpdateHandler
+from game.GamePayload import GamePayload
+from item.Effect import Effect
 from player.Character import Character
 
 
@@ -151,7 +153,23 @@ def build_character_data(character_id: str = "char_001") -> dict:
 
 
 class Positions(IntEnum):
-    POS_STUNNED = 4
+    POS_DEAD = 0
+    POS_MORTAL = 1
+    POS_INCAP = 2
+    POS_STUNNED = 3
+    POS_SLEEPING = 4
+    POS_RESTING = 5
+    POS_SITTING = 6
+    POS_FIGHTING = 7
+    POS_STANDING = 8
+
+
+class AffectedBy(IntEnum):
+    AFF_POISON = 4096
+    AFF_PLAGUE = 8388608
+    AFF_HASTE = 2097152
+    AFF_SLOW = 536870912
+    AFF_REGENERATION = 268435456
 
 
 class TestUpdateHandlerActivePlayers(unittest.TestCase):
@@ -188,7 +206,20 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
             effect_handler=effect_handler,
         )
         handler.PositionsEnum = Positions
+        handler.AffectedBits = AffectedBy
+        registry_service.room_registry.get_or_none.return_value = SimpleNamespace(heal_rate=100, mana_rate=100)
         return handler, registry_service, message_bus
+
+    @staticmethod
+    def _spell_payload(name: str, handler_id: str, payload: dict):
+        game_payload = GamePayload.from_json(payload)
+        return SimpleNamespace(
+            id=handler_id,
+            name=name,
+            handler_id=handler_id,
+            message=lambda channel, key, fallback="", **tokens: game_payload.render(channel, key, fallback=fallback,
+                                                                                   **tokens),
+        )
 
     def test_char_update_does_not_tick_offline_registry_characters(self):
         async def run_test():
@@ -208,11 +239,269 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
 
         asyncio.run(run_test())
 
+    def test_rom_player_regen_uses_stats_skills_conditions_class_and_room_rates(self):
+        character = Character.from_json(build_character_data("active_char"))
+        character.level = 20
+        character.hit = 50
+        character.max_hit = 100
+        character.mana = 40
+        character.max_mana = 100
+        character.movement = 30
+        character.max_movement = 100
+        character.character_attributes.constitution = 16
+        character.character_attributes.wisdom = 12
+        character.character_attributes.intelligence = 14
+        character.character_attributes.dexterity = 10
+        character.character_attributes.position = Positions.POS_RESTING.value
+        character.character_class.hp_max = 12
+        character.character_class.mana_gain = False
+        character.status_flags.hunger = 0
+        character.status_flags.thirst = 20
+        character.skills = [
+            {"name": "fast healing", "level": 50},
+            {"name": "meditation", "level": 50},
+        ]
+        room = SimpleNamespace(heal_rate=150, mana_rate=200)
+        handler, _, _ = self._handler([character])
+        handler.rng.number_percent = Mock(side_effect=[25, 25])
+
+        with patch("game.UpdateHandler.Ability.check_improve_by_name") as improve:
+            self.assertEqual(10, handler.hit_gain(character, room))
+            self.assertEqual(6, handler.mana_gain(character, room))
+            self.assertEqual(18, handler.move_gain(character, room))
+
+        self.assertEqual(
+            [
+                (character, "fast healing", True, 8),
+                (character, "meditation", True, 8),
+            ],
+            [call.args for call in improve.call_args_list],
+        )
+
+    def test_rom_npc_regen_uses_level_position_and_affects(self):
+        npc = SimpleNamespace(
+            level=10,
+            hit=50,
+            max_hit=100,
+            mana=50,
+            max_mana=100,
+            movement=50,
+            max_movement=100,
+            position=Positions.POS_FIGHTING.value,
+            status_flags=SimpleNamespace(
+                affected_by=AffectedBy.AFF_REGENERATION.value | AffectedBy.AFF_SLOW.value
+            ),
+        )
+        room = SimpleNamespace(heal_rate=100, mana_rate=100)
+        handler, _, _ = self._handler([])
+
+        with patch("game.UpdateHandler.CharacterApi.is_npc", return_value=True):
+            self.assertEqual(5, handler.hit_gain(npc, room))
+            self.assertEqual(2, handler.mana_gain(npc, room))
+            self.assertEqual(5, handler.move_gain(npc, room))
+
+    def test_char_update_regenerates_before_condition_decay(self):
+        async def run_test():
+            active = Character.from_json(build_character_data("active_char"))
+            active.hit = 25
+            active.max_hit = 30
+            active.status_flags.thirst = 1
+            active.status_flags.hunger = 1
+            handler, _, message_bus = self._handler([active])
+            handler.rng.number_percent = Mock(return_value=100)
+
+            with patch("game.UpdateHandler.CharacterApi.is_immortal", return_value=False):
+                await handler.char_update()
+
+            self.assertEqual(27, active.hit)
+            self.assertEqual(0, active.status_flags.thirst)
+            self.assertEqual(0, active.status_flags.hunger)
+            self.assertIn(
+                ("active_char", "You are thirsty.\r\n"),
+                [call.args for call in message_bus.send_to_character.await_args_list],
+            )
+
+        asyncio.run(run_test())
+
+    def test_rom_light_source_burns_out_and_is_removed(self):
+        async def run_test():
+            active = Character.from_json(build_character_data("active_char"))
+            viewer = Character.from_json(build_character_data("viewer_char"))
+            lamp = SimpleNamespace(
+                item_type="ITEM_LIGHT",
+                value2="1",
+                name="lamp",
+                short_description="a brass lamp",
+                display_name=lambda: "a brass lamp",
+            )
+            active.equipped.light = lamp
+            room = SimpleNamespace(
+                light=1,
+                characters={"active_char": active, "viewer_char": viewer},
+                players_in_room=lambda: [active, viewer],
+            )
+            handler, _, message_bus = self._handler([active, viewer])
+
+            with patch("game.UpdateHandler.CharacterApi.is_immortal", return_value=False):
+                await handler._tick_light_source(active, room)
+
+            self.assertEqual("0", lamp.value2)
+            self.assertEqual(0, room.light)
+            self.assertIsNone(active.equipped.light)
+            message_bus.send_to_character.assert_awaited_once_with(
+                "active_char",
+                "a brass lamp flickers and goes out.\r\n",
+            )
+            message_bus.send_to_room.assert_awaited_once_with(
+                "a brass lamp goes out.\r\n",
+                [viewer],
+            )
+
+        asyncio.run(run_test())
+
+    def test_rom_poison_tick_sends_messages_and_applies_periodic_damage(self):
+        async def run_test():
+            poisoned = Character.from_json(build_character_data("poisoned_char"))
+            poisoned.name = "Tester"
+            poisoned.hit = 20
+            poisoned.status_flags.assign_bitfield("affected_by", AffectedBy.AFF_POISON.value)
+            poisoned.effects = [
+                Effect(type="spell.poison", level=20, duration=3, bitvector="AFF_POISON")
+            ]
+            viewer = Character.from_json(build_character_data("viewer_char"))
+            room = SimpleNamespace(
+                characters={"poisoned_char": poisoned, "viewer_char": viewer},
+                mobiles={},
+                players_in_room=lambda: [poisoned, viewer],
+                people=lambda: [poisoned, viewer],
+            )
+            handler, _, message_bus = self._handler([poisoned, viewer])
+            handler.spell_registry.all_spells.return_value = [
+                self._spell_payload(
+                    "poison",
+                    "spell.poison",
+                    {
+                        "toVictim": {"tick": "You shiver and suffer.\r\n"},
+                        "toRoom": {"tick": "{victim} shivers and suffers.\r\n"},
+                    },
+                )
+            ]
+
+            await handler._tick_rom_status_effects(poisoned, room)
+
+            self.assertEqual(17, poisoned.hit)
+            handler.fight_handler.update_pos.assert_called_once_with(poisoned)
+            handler.fight_handler.raw_kill.assert_not_called()
+            message_bus.send_to_character.assert_awaited_once_with("poisoned_char", "You shiver and suffer.\r\n")
+            message_bus.send_to_room.assert_awaited_once_with(
+                "Tester shivers and suffers.\r\n",
+                [viewer],
+            )
+
+        asyncio.run(run_test())
+
+    def test_rom_plague_tick_spreads_and_drains_before_periodic_damage(self):
+        async def run_test():
+            carrier = Character.from_json(build_character_data("carrier_char"))
+            carrier.name = "Carrier"
+            carrier.level = 30
+            carrier.hit = 50
+            carrier.mana = 20
+            carrier.movement = 20
+            carrier.status_flags.assign_bitfield("affected_by", AffectedBy.AFF_PLAGUE.value)
+            carrier.effects = [
+                Effect(type="spell.plague", level=10, duration=3, bitvector="AFF_PLAGUE")
+            ]
+            victim = Character.from_json(build_character_data("victim_char"))
+            victim.name = "Victim"
+            room = SimpleNamespace(
+                characters={"carrier_char": carrier, "victim_char": victim},
+                mobiles={},
+                players_in_room=lambda: [carrier, victim],
+                people=lambda: [carrier, victim],
+            )
+            handler, _, message_bus = self._handler([carrier, victim])
+            handler.spell_registry.all_spells.return_value = [
+                self._spell_payload(
+                    "plague",
+                    "spell.plague",
+                    {
+                        "toVictim": {
+                            "tick": "You writhe in agony from the plague.\r\n",
+                            "spread": "You feel hot and feverish.\r\n",
+                        },
+                        "toRoom": {
+                            "tick": "{victim} writhes in agony as plague sores erupt from {possessive} skin.\r\n",
+                            "spread": "{victim} shivers and looks very ill.\r\n",
+                        },
+                    },
+                )
+            ]
+            handler.rng.number_range = Mock(return_value=4)
+            handler.rng.number_bits = Mock(return_value=0)
+
+            def join_effect(target, effect):
+                target.effects.append(effect)
+                target.status_flags.assign_bitfield(
+                    "affected_by",
+                    target.status_flags.affected_by | AffectedBy.AFF_PLAGUE.value,
+                )
+
+            handler.effect_handler.affect_join.side_effect = join_effect
+
+            with patch("game.UpdateHandler.CharacterApi.is_immortal", return_value=False), \
+                    patch("game.UpdateHandler.EffectUtil.saves_spell", return_value=False):
+                await handler._tick_rom_status_effects(carrier, room)
+
+            self.assertEqual(47, carrier.hit)
+            self.assertEqual(17, carrier.mana)
+            self.assertEqual(17, carrier.movement)
+            self.assertTrue(victim.status_flags.affected_by & AffectedBy.AFF_PLAGUE.value)
+            handler.effect_handler.affect_join.assert_called_once()
+            handler.fight_handler.update_pos.assert_called_once_with(carrier)
+            self.assertEqual(
+                [
+                    ("carrier_char", "You writhe in agony from the plague.\r\n"),
+                    ("victim_char", "You feel hot and feverish.\r\n"),
+                ],
+                [call.args for call in message_bus.send_to_character.await_args_list],
+            )
+            self.assertIn(
+                ("Carrier writhes in agony as plague sores erupt from his skin.\r\n", [victim]),
+                [call.args for call in message_bus.send_to_room.await_args_list],
+            )
+
+        asyncio.run(run_test())
+
+    def test_rom_mortal_tick_applies_quiet_periodic_damage(self):
+        async def run_test():
+            character = Character.from_json(build_character_data("mortal_char"))
+            character.hit = -6
+            character.character_attributes.position = Positions.POS_MORTAL.value
+            handler, _, message_bus = self._handler([character])
+
+            await handler._tick_rom_status_effects(character, SimpleNamespace())
+
+            self.assertEqual(-7, character.hit)
+            handler.fight_handler.update_pos.assert_called_once_with(character)
+            message_bus.send_to_character.assert_not_awaited()
+            message_bus.send_to_room.assert_not_awaited()
+
+        asyncio.run(run_test())
+
     def test_tick_effects_sends_msg_off_and_ignores_placeholder_messages(self):
         async def run_test():
             active = Character.from_json(build_character_data("active_char"))
-            armor = SimpleNamespace(handler_id="spell.armor", name="armor", id="armor-id", msg_off="You feel less armored.", msg_obj="")
-            teleport = SimpleNamespace(handler_id="spell.teleport", name="teleport", id="teleport-id", msg_off="!Teleport!", msg_obj="")
+            armor = self._spell_payload(
+                "armor",
+                "spell.armor",
+                {"toChar": {"msgOff": "You feel less armored.", "msgObj": ""}},
+            )
+            teleport = self._spell_payload(
+                "teleport",
+                "spell.teleport",
+                {"toChar": {"msgOff": "!Teleport!", "msgObj": ""}},
+            )
             expired = [
                 SimpleNamespace(type="spell.armor"),
                 SimpleNamespace(type="spell.teleport"),
@@ -232,7 +521,11 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         async def run_test():
             holder = SimpleNamespace(id="char_001")
             item = SimpleNamespace(id="item_001", name="sword", short_description="a bright sword")
-            spell = SimpleNamespace(handler_id="spell.bless", name="bless", id="bless-id", msg_off="", msg_obj="$p's holy aura fades.")
+            spell = self._spell_payload(
+                "bless",
+                "spell.bless",
+                {"toChar": {"msgOff": "", "msgObj": "$p's holy aura fades."}},
+            )
 
             handler, registry_service, message_bus = self._handler([])
             registry_service.spell_registry.all_spells.return_value = [spell]

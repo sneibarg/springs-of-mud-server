@@ -53,6 +53,14 @@ def _load_spell_api():
         "item.EffectHandler": _module("item.EffectHandler", EffectHandler=object),
         "item.Item": _module("item.Item", Item=_Item),
         "item.Effect": _module("item.Effect", Effect=object),
+        "util": _module("util"),
+        "util.DisplayUtil": _module(
+            "util.DisplayUtil",
+            DisplayUtil=SimpleNamespace(
+                display_effect_message=lambda message: str(message or "").strip(),
+                entity_name=lambda entity, is_npc: str(getattr(entity, "name", "someone") or "someone"),
+            ),
+        ),
         "util.GenericUtil": _module(
             "util.GenericUtil",
             GenericUtil=SimpleNamespace(

@@ -51,6 +51,21 @@ class AnimateEntity:
             return
         setattr(self, "alignment", int(value))
 
+    def his_her(self) -> str:
+        sex = str(self.sex or "").strip().lower()
+        if sex in {"male", "m", "1"}:
+            return "his"
+        if sex in {"female", "f", "2"}:
+            return "her"
+        return "its"
+
+    def display_name(self) -> str:
+        return str(getattr(self, "name", "") or getattr(self, "short_description", "") or "Someone")
+
+    def condition_value(self, condition_name: str) -> int:
+        status_flags = getattr(self, "status_flags", None)
+        return GenericUtil.to_int(getattr(status_flags, condition_name, -1), -1)
+
     def _item_collection_name(self) -> str:
         loot = getattr(self, "loot", None)
         if loot is not None:

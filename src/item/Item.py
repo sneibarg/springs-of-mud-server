@@ -87,6 +87,9 @@ class Item:
     def short(self) -> str:
         return self.short_description or self.name or "it"
 
+    def display_name(self) -> str:
+        return self.short_description or self.name or "Something"
+
     def add_contained_item(self, item) -> None:
         with self.lock:
             if self.contains is None:
