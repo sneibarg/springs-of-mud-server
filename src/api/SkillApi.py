@@ -27,39 +27,41 @@ class SkillApi:
         if not CharacterApi.is_npc(char):
             rating = char.skill_level(skill.name)
         else:
+            off_flags = char.status_flags.off
+            act_flags = char.status_flags.act
             # TO-DO: this function should never be called when a spell is being cast
             if skill is None:
                 rating = 40 + 2 * char.level
             elif skill.name in ("sneak", "hide"):
                 rating = char.level * 2 + 20
-            elif (skill.name == "dodge" and CharacterApi.is_set(char.off_flags, self.OffBits.OFF_DODGE)) or \
-                    (skill.name == "parry" and CharacterApi.is_set(char.off_flags, self.OffBits.OFF_PARRY)):
+            elif (skill.name == "dodge" and CharacterApi.is_set(off_flags, self.OffBits.OFF_DODGE)) or \
+                    (skill.name == "parry" and CharacterApi.is_set(off_flags, self.OffBits.OFF_PARRY)):
                 rating = char.level * 2
             elif skill.name == "shield block":
                 rating = 10 + 2 * char.level
             elif skill.name == "second attack" and \
-                    (CharacterApi.is_set(char.act, self.ActBits.ACT_WARRIOR) or
-                     CharacterApi.is_set(char.act, self.ActBits.ACT_THIEF)):
+                    (CharacterApi.is_set(act_flags, self.ActBits.ACT_WARRIOR) or
+                     CharacterApi.is_set(act_flags, self.ActBits.ACT_THIEF)):
                 rating = 10 + 3 * char.level
 
-            elif skill.name == "third attack" and CharacterApi.is_set(char.act, self.ActBits.ACT_WARRIOR):
+            elif skill.name == "third attack" and CharacterApi.is_set(act_flags, self.ActBits.ACT_WARRIOR):
                 rating = 4 * char.level - 40
             elif skill.name == "hand to hand":
                 rating = 40 + 2 * char.level
-            elif skill.name == "trip" and CharacterApi.is_set(char.off_flags, self.OffBits.OFF_TRIP):
+            elif skill.name == "trip" and CharacterApi.is_set(off_flags, self.OffBits.OFF_TRIP):
                 rating = 10 + 3 * char.level
-            elif skill.name == "bash" and CharacterApi.is_set(char.off_flags, self.OffBits.OFF_BASH):
+            elif skill.name == "bash" and CharacterApi.is_set(off_flags, self.OffBits.OFF_BASH):
                 rating = 10 + 3 * char.level
             elif skill.name == "disarm" and (
-                    CharacterApi.is_set(char.off_flags, self.OffBits.OFF_DISARM) or
-                    CharacterApi.is_set(char.act, self.ActBits.ACT_WARRIOR) or
-                    CharacterApi.is_set(char.act, self.ActBits.ACT_THIEF)):
+                    CharacterApi.is_set(off_flags, self.OffBits.OFF_DISARM) or
+                    CharacterApi.is_set(act_flags, self.ActBits.ACT_WARRIOR) or
+                    CharacterApi.is_set(act_flags, self.ActBits.ACT_THIEF)):
                 rating = 20 + 3 * char.level
-            elif skill.name == "berserk" and CharacterApi.is_set(char.off_flags, self.OffBits.OFF_BERSERK):
+            elif skill.name == "berserk" and CharacterApi.is_set(off_flags, self.OffBits.OFF_BERSERK):
                 rating = 3 * char.level
             elif skill.name == "kick":
                 rating = 10 + 3 * char.level
-            elif skill.name == "backstab" and CharacterApi.is_set(char.act, self.ActBits.ACT_THIEF):
+            elif skill.name == "backstab" and CharacterApi.is_set(act_flags, self.ActBits.ACT_THIEF):
                 rating = 20 + 2 * char.level
             elif skill.name == "rescue":
                 rating = 40 + char.level

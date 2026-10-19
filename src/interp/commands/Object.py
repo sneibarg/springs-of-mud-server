@@ -458,7 +458,11 @@ class Object:
             to_char = self._render_command_message(context, "default", t=item_short)
             to_room = self._render_command_message(context, "default", channel="to_room", c=character.name, t=item_short)
 
-        character.add_item(item)
+        if str(getattr(item, "item_type", "")).lower() == "money":
+            character.silver = GenericUtil.to_int(getattr(character, "silver", 0), 0) + GenericUtil.to_int(item.value0, 0)
+            character.gold = GenericUtil.to_int(getattr(character, "gold", 0), 0) + GenericUtil.to_int(item.value1, 0)
+        else:
+            character.add_item(item)
         payload = {"to_char": to_char}
         if room is not None:
             payload["to_room"] = to_room

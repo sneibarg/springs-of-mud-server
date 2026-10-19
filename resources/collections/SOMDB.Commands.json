@@ -6344,7 +6344,8 @@
       },
       "toVictim": {
         "kicksDirtEyes": "$n kicks dirt in your eyes!",
-        "success": "{actor_name} kicks dirt in your eyes!\r\nYou can't see a thing!"
+        "success": "{actor_name} kicks dirt in your eyes!\r\nYou can't see a thing!",
+        "blinded": "You can't see a thing!"
       }
     }
   },

@@ -418,6 +418,7 @@ class TestFightHandlerAggression(unittest.TestCase):
 
     def test_damage_marks_on_zero_damage_and_preserves_wiznet_in_round_payload(self):
         attacker, victim, handler = self._killer_pair()
+        handler._set_fighting = Mock()
         victim.hit = 20
         handler._apply_damage = Mock(return_value={"to_char": "Miss.\r\n", "killed": False,
                                                    "xp_gain": 0, "level_up_messages": ""})
@@ -1023,7 +1024,7 @@ class TestFightHandlerAggression(unittest.TestCase):
         handler.combat_registry.retain_keys.assert_called_once_with({(attacker.id, victim.id, room.id)})
         handler.stop_fighting.assert_called_once_with(victim, both=False)
 
-    def test_violence_update_attacks_npcs_first_and_prompts_message_recipients(self):
+    def test_violence_update_preserves_event_order_and_prompts_message_recipients(self):
         attacker = self._mob("mob-1")
         victim = self._player("char-1")
         attacker.fighting = victim
@@ -1038,16 +1039,16 @@ class TestFightHandlerAggression(unittest.TestCase):
         ]
         handler.multi_hit = Mock(return_value={"to_char": "Your attack.\r\n", "to_victim": "Their attack.\r\n"})
         handler._append_condition_line = lambda text, _target: text
-        handler.check_assist = Mock()
+        handler.check_assist = Mock(return_value=[])
         handler.message_bus = SimpleNamespace(text_to_message=lambda text: text,
                                               send_to_character=AsyncMock(), send_to_room=AsyncMock(),
                                               send_prompt=AsyncMock())
         with unittest.mock.patch.object(_SkillUtil, "take_improve_messages", return_value="", create=True):
             asyncio.run(handler.violence_update())
 
-        self.assertEqual([(attacker, victim), (victim, attacker)],
+        self.assertEqual([(victim, attacker), (attacker, victim)],
                          [call.args for call in handler.multi_hit.call_args_list])
-        self.assertEqual([("char-1", "Their attack.\r\n"), ("char-1", "Your attack.\r\n")],
+        self.assertEqual([("char-1", "Your attack.\r\n"), ("char-1", "Their attack.\r\n")],
                          [call.args for call in handler.message_bus.send_to_character.await_args_list])
         self.assertEqual(2, handler.check_assist.call_count)
         handler.message_bus.send_prompt.assert_awaited_once()
@@ -1073,7 +1074,7 @@ class TestFightHandlerAggression(unittest.TestCase):
         handler = FightHandler.__new__(FightHandler)
         handler.logger = _Logger()
         handler.area_registry = SimpleNamespace(get_or_none=lambda **_kwargs: None)
-        handler.combat_registry = SimpleNamespace(upsert=Mock())
+        handler.combat_registry = SimpleNamespace(upsert=Mock(), get_by_combatant=Mock(return_value=[]), remove_by_id=Mock())
         handler.room_registry = SimpleNamespace(get=lambda **_kwargs: room, get_or_none=lambda **_kwargs: room)
         handler.PositionsEnum = _Positions
         handler.ActBits = _ActBits
@@ -1251,7 +1252,7 @@ class TestFightHandlerAggression(unittest.TestCase):
 
         self.assertEqual([("dagger", True, 5)], calls)
 
-    def test_one_hit_improves_weapon_skill_on_miss(self):
+    def test_one_hit_does_not_improve_weapon_skill_on_miss(self):
         victim = self._mob("mob-1")
         victim.room_id = "room-1"
         victim.hit = 20
@@ -1277,7 +1278,7 @@ class TestFightHandlerAggression(unittest.TestCase):
                 unittest.mock.patch.object(handler, "damage", return_value={"to_char": "", "to_victim": "", "to_room": "", "killed": False}):
             handler.one_hit(attacker, victim, dt="TYPE_HIT")
 
-        self.assertEqual([("dagger", False, 5)], calls)
+        self.assertEqual([], calls)
 
     def test_damage_uses_skill_payload_for_successful_dodge(self):
         attacker = self._player("char-1")
@@ -1323,7 +1324,7 @@ class TestFightHandlerAggression(unittest.TestCase):
 
         self.assertEqual(_Positions.POS_DEAD, victim.character_attributes.position)
 
-    def test_attack_damage_adds_unscaled_damroll_for_players(self):
+    def test_attack_damage_scales_damroll_for_players(self):
         handler = self._handler(SimpleNamespace())
         attacker = self._player("char-1")
         attacker.level = 6
@@ -1337,7 +1338,7 @@ class TestFightHandlerAggression(unittest.TestCase):
                 unittest.mock.patch.object(handler.rng, "dice", return_value=2):
             damage = handler._attack_damage(attacker, skill=60)
 
-        self.assertEqual(2, damage)
+        self.assertEqual(1, damage)
 
     def test_attack_damage_type_defaults_unknown_attack_to_bash(self):
         handler = self._handler(SimpleNamespace())
@@ -1394,12 +1395,14 @@ class TestFightHandlerAggression(unittest.TestCase):
         )
         handler = self._handler(room)
         handler.multi_hit = Mock()
+        handler._mob_has_off = Mock(return_value=False)
+        handler.build_round_payload = Mock(return_value={})
 
         handler.check_assist(owner, victim)
 
         handler.multi_hit.assert_called_once_with(pet, victim, dt="TYPE_UNDEFINED")
 
-    def test_check_assist_charmed_group_pet_defends_owner_from_npc_attacker(self):
+    def test_check_assist_does_not_add_victim_side_pet_defense_on_npc_turn(self):
         owner = self._player("char-1")
         attacker = self._mob("mob-1")
         attacker.fighting = owner
@@ -1419,9 +1422,13 @@ class TestFightHandlerAggression(unittest.TestCase):
         handler = self._handler(room)
         handler.multi_hit = Mock()
 
-        handler.check_assist(attacker, owner)
+        with unittest.mock.patch.object(_CharacterApi, "is_good", return_value=False, create=True), \
+                unittest.mock.patch.object(_CharacterApi, "is_evil", return_value=False, create=True), \
+                unittest.mock.patch.object(_CharacterApi, "is_neutral", return_value=True, create=True):
+            handler._mob_has_off = Mock(return_value=False)
+            handler.check_assist(attacker, owner)
 
-        handler.multi_hit.assert_called_once_with(pet, attacker, dt="TYPE_UNDEFINED")
+        handler.multi_hit.assert_not_called()
 
     def test_is_safe_allows_group_member_to_join_existing_fight(self):
         owner = self._player("char-1")

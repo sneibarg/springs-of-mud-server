@@ -216,7 +216,7 @@ class TestCombatSurvival(unittest.TestCase):
         self.attacker.fighting, self.victim.fighting = self.victim, self.attacker
         destination = SimpleNamespace(id="room-2", area_id="area-2", add_player_to_room=Mock(),
                                       player_targets=lambda _actor: [])
-        self.room.exits = [object()]
+        self.room.exits = [SimpleNamespace(direction=direction) for direction in range(6)]
         self.room.player_targets = lambda _actor: [self.attacker]
         self.room.remove_player_from_room = Mock()
         commands = Components["interp.commands.Fight"].Fight.__new__(Components["interp.commands.Fight"].Fight)

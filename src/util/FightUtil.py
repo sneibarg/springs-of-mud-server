@@ -111,4 +111,4 @@ class FightUtil:
 
     @staticmethod
     def interpolate(level: int, value_00: int, value_32: int) -> int:
-        return value_00 + level * (value_32 - value_00) // 32
+        return value_00 + GenericUtil.trunc_div(level * (value_32 - value_00), 32)

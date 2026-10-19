@@ -80,6 +80,12 @@ class TestGameData(unittest.TestCase):
         self.assertEqual("You receive {xp} experience points.",
                          game_data.group_rewards["payload"]["toVictim"]["xpReceived"])
 
+    def test_death_rules_are_optional_and_load_payloads(self):
+        self.assertEqual({}, GameData.from_json(self._minimal_doc()).death_rules)
+        self.assertEqual({}, GameData.from_json(self._minimal_doc(combat=None)).death_rules)
+        data = GameData.from_json(self._load_collection_doc())
+        self.assertEqual("You have been KILLED!!", data.death_rules["payload"]["toVictim"]["dead"])
+
     def test_collection_includes_rom_weapon_selection_table(self):
         game_data = GameData.from_json(self._load_collection_doc())
 

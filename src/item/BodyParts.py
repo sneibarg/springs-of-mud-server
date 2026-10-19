@@ -83,12 +83,12 @@ class BodyParts:
         )
 
     @classmethod
-    def maybe_create_death_cry_part(cls, victim, room, item_registry, well_known_object_vnums, form_flags: int, parts_flags: int):
+    def maybe_create_death_cry_part(cls, victim, room, item_registry, well_known_object_vnums, form_flags: int, parts_flags: int, roll=None):
         if victim is None or room is None:
             return None
 
         selected_vnum = None
-        roll = random.randint(0, 15)
+        roll = random.randint(0, 15) if roll is None else roll
         for target_roll, part_name, vnum_name in cls._death_cry_drops:
             if roll != target_roll:
                 continue

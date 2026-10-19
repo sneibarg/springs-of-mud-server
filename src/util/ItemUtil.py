@@ -49,8 +49,8 @@ class ItemUtil:
             money.weight = silver / 20
         else:
             money = ItemUtil.create_object(item_registry.get(vnum=WellKnownObjEnums.OBJ_VNUM_COINS.value))
-            money.value0 = str(gold)
-            money.value1 = str(silver)
+            money.value0 = str(silver)
+            money.value1 = str(gold)
             money.cost = 100 * gold + silver
             money.weight = gold / 5 + silver / 20
             money.short_description = money.short_description % (silver, gold)

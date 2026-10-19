@@ -944,7 +944,8 @@
       },
       "toRoom": {
         "apply": "{victim} fades out of existence.\r\n",
-        "applyObject": "{item} fades out of sight.\r\n"
+        "applyObject": "{item} fades out of sight.\r\n",
+        "reveal": "{victim} fades into existence."
       },
       "toChar": {
         "applyObject": "{item} fades out of sight.\r\n",

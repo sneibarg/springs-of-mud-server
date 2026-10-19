@@ -14,6 +14,12 @@ class GenericUtil:
     pass
 
     @staticmethod
+    def trunc_div(numerator: int, denominator: int) -> int:
+        """Divide integers toward zero without converting through floating point."""
+        quotient = abs(numerator) // abs(denominator)
+        return -quotient if (numerator < 0) != (denominator < 0) else quotient
+
+    @staticmethod
     def convert_numeric_to_string(value):
         if isinstance(value, int):
             return str(value)

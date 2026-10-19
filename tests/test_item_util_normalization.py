@@ -4,6 +4,7 @@ import os
 import sys
 import types
 import unittest
+from unittest.mock import Mock, patch
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -45,6 +46,14 @@ from util.ItemUtil import ItemUtil
 
 
 class TestItemUtilNormalization(unittest.TestCase):
+    def test_mixed_money_uses_silver_value_zero_and_gold_value_one(self):
+        money = SimpleNamespace(short_description="%d silver and %d gold", value0="0", value1="0")
+        registry = SimpleNamespace(get=Mock(return_value=object()))
+        enums = SimpleNamespace(OBJ_VNUM_COINS=SimpleNamespace(value=1))
+        with patch.object(ItemUtil, "create_object", return_value=money):
+            result = ItemUtil.create_money(3, 7, registry, enums)
+        self.assertEqual(("7", "3"), (result.value0, result.value1))
+
     @staticmethod
     def _load_game_data():
         repo_root = Path(__file__).resolve().parents[1]

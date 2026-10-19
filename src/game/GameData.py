@@ -22,6 +22,7 @@ class GameData:
     item_table: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     weapon_hit_effects: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     group_rewards: Dict[str, Any] = field(default_factory=dict)
+    death_rules: Dict[str, Any] = field(default_factory=dict)
     weapons: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     attacks: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     liquids: Dict[str, Dict[str, Any]] = field(default_factory=dict)
@@ -49,6 +50,7 @@ class GameData:
             item_table=dict(doc.get("itemTable", doc.get("item_table")) or {}),
             weapon_hit_effects=dict((doc.get("combat") or {}).get("weaponHitEffects") or {}),
             group_rewards=dict((doc.get("combat") or {}).get("groupRewards") or {}),
+            death_rules=dict((doc.get("combat") or {}).get("death") or {}),
             weapons=dict(doc.get("weapons") or {}),
             attacks=dict(doc.get("attacks") or {}),
             liquids=dict(doc.get("liquids") or {}),

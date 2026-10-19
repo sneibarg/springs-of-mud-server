@@ -941,6 +941,8 @@ class SpellApi:
     def _queue_damage_payload(self, ctx: SpellContext, payload: dict, victim):
         if not payload:
             return
+        for notice in payload.get("pre_damage_payloads", []):
+            ctx.queue_payload(notice)
         self.send(
             ctx,
             to_char=str(payload.get("to_char", "") or ""),

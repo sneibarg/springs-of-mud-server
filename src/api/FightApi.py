@@ -139,8 +139,8 @@ class FightApi:
             skill = view.skill
             fight_commands._set_wait(view.actor, fight_commands._skill_beats(skill, 12))
             pre_corpse_ids = fight_commands._pre_corpse_ids(room)
-            skill_percent = max(1, GenericUtil.to_int(view.extra.get("skill_percent", 0), 0))
-            success = random.randint(1, 100) <= skill_percent
+            skill_percent = GenericUtil.to_int(view.extra.get("skill_percent", 0), 0)
+            success = random.randint(1, 100) < skill_percent
             if not CharacterApi.is_awake(victim) and skill_percent >= 2:
                 success = True
 

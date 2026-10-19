@@ -34,7 +34,7 @@ class WeaponHitHandler:
             result[channel] = base.get(channel, "") + extra.get(channel, "")
         result["killed"] = bool(base.get("killed") or extra.get("killed"))
         result["xp_gain"] = base.get("xp_gain", 0) + extra.get("xp_gain", 0)
-        for key in ("reward_payloads", "post_damage_actions"):
+        for key in ("reward_payloads", "post_damage_actions", "pre_damage_payloads"):
             if key in base or key in extra:
                 result[key] = base.get(key, []) + extra.get(key, [])
         return result

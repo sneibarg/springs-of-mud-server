@@ -2569,6 +2569,41 @@
     },
     "denyList": [],
     "combat": {
+      "death": {
+        "payload": {
+          "toRoom": {
+            "mortal": "{victim} is mortally wounded, and will die soon, if not aided.",
+            "incap": "{victim} is incapacitated and will slowly die, if not aided.",
+            "stunned": "{victim} is stunned, but will probably recover.",
+            "dead": "{victim} is DEAD!!",
+            "cry": "You hear {victim}'s death cry.",
+            "ground": "{victim} hits the ground ... DEAD.",
+            "blood": "{victim} splatters blood on your armor.",
+            "guts": "{victim} spills their guts all over the floor.",
+            "head": "{victim}'s severed head plops on the ground.",
+            "heart": "{victim}'s heart is torn from their chest.",
+            "arm": "{victim}'s arm is sliced from their dead body.",
+            "leg": "{victim}'s leg is sliced from their dead body.",
+            "brains": "{victim}'s head is shattered, and their brains splash all over you.",
+            "npcCry": "You hear something's death cry.",
+            "playerCry": "You hear someone's death cry.",
+            "evaporatesContents": "{item} evaporates, scattering its contents.",
+            "evaporates": "{item} evaporates.",
+            "falls": "{item} falls to the floor."
+          },
+          "toVictim": {
+            "mortal": "You are mortally wounded, and will die soon, if not aided.",
+            "incap": "You are incapacitated and will slowly die, if not aided.",
+            "stunned": "You are stunned, but will probably recover.",
+            "dead": "You have been KILLED!!",
+            "hurt": "That really did HURT!",
+            "bleeding": "You sure are BLEEDING!"
+          },
+          "toWiznet": {
+            "death": "{victim} got toasted by {killer} at {room} [room {vnum}]"
+          }
+        }
+      },
       "weaponHitEffects": {
         "poison": {
           "flag": "WEAPON_POISON",
