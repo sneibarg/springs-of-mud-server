@@ -156,10 +156,10 @@ class SpellApi:
         target = ctx.resolve(victim) if victim is not None else ctx.victim
         payload: dict[str, Any] = {}
         if to_char and ctx.is_player_source:
-            payload["to_char"] = str(to_char)
+            payload["to_char"] = to_char
         if to_victim and target is not None and not CharacterApi.is_npc(target):
             payload["victim"] = target
-            payload["to_victim"] = str(to_victim)
+            payload["to_victim"] = to_victim
         if to_room:
             exclude = set()
             if not include_actor_in_room:
@@ -168,7 +168,7 @@ class SpellApi:
                 exclude.add(str(getattr(target, "id", "") or ""))
             targets = self._room_players(ctx.room, exclude_ids=exclude)
             if targets:
-                payload["to_room"] = str(to_room)
+                payload["to_room"] = to_room
                 payload["targets"] = targets
         if payload:
             if prepend:
@@ -340,12 +340,19 @@ class SpellApi:
         save_level_adjust: int = 0,
         target: Any = None,
         dt: str = "",
+        object_effect: str = "",
     ):
+        if object_effect not in ("", "acid"):
+            raise ValueError(f"Unsupported object effect: {object_effect}")
         victim = ctx.resolve(target) if target is not None else ctx.victim
         if victim is None:
             return False
         damage = self.eval_int(ctx, expression, victim=victim)
-        if save_half and EffectUtil.saves_spell(ctx.level + int(save_level_adjust), victim, 0):
+        saved = save_half and EffectUtil.saves_spell(ctx.level + int(save_level_adjust), victim, 0)
+        if object_effect == "acid":
+            self.acid_effect(ctx, ctx.level // 2 if saved else ctx.level,
+                             damage // 4 if saved else damage, target=victim)
+        if saved:
             damage //= 2
         payload = self._fight_handler(ctx).damage(
             ctx.actor,
@@ -357,16 +364,152 @@ class SpellApi:
         self._queue_damage_payload(ctx, payload, victim)
         return ctx.mark_performed()
 
-    def damage_room_expr(self, ctx: SpellContext, expression: str, dam_type: str = "DAM_NONE", save_half: bool = True):
+    def acid_effect(self, ctx: SpellContext, level: int, damage: int, target: Any = None):
+        from game.RandomNumberGenerator import RandomNumberGenerator
+        from util.AcidExposure import AcidExposure
+
+        entity = ctx.resolve(target) if target is not None else ctx.target
+        if entity is None:
+            return False
+        if hasattr(entity, "owned_items"):
+            room = self._find_room_for_entity(entity) or ctx.room
+        elif hasattr(entity, "contents"):
+            room = entity
+        else:
+            raise ValueError("Acid exposure requires a character or room target.")
+        exposure = AcidExposure(self.effect_handler, GameApi.get_enum("itemFlags"),
+                                GameApi.get_enum("applyTypes"), GameApi.item_table_map(),
+                                RandomNumberGenerator())
+
+        def notify(key, item):
+            text = ctx.spell.message("to_room", key, item=Item.short(item))
+            if text:
+                # ROM TO_ALL: every player in the object's room, including caster
+                # and carrier, receives the destruction/etching notice.
+                def render(observer):
+                    rendered = ctx.spell.message("to_room", key, **DisplayUtil.visible_tokens({"item": item}, observer, room))
+                    return rendered.rstrip("\r\n") + "\r\n"
+                ctx.queue_payload({"to_room": DisplayUtil.room_text(text.rstrip("\r\n") + "\r\n", render, room),
+                                   "targets": self._room_players(room, exclude_ids=set())})
+
+        if hasattr(entity, "owned_items"):
+            exposure.character(entity, level, damage, room, notify)
+        else:
+            exposure.room(entity, level, damage, notify)
+        return True
+
+    def elemental_effect(self, ctx: SpellContext, kind: str, level: int, damage: int, target: Any = None):
+        entity = ctx.resolve(target) if target is not None else ctx.target
+        if entity is None:
+            return False
+        fight = self._fight_handler(ctx)
+        room = (self._find_room_for_entity(entity) or ctx.room) if hasattr(entity, "owned_items") else entity
+        result = fight.weapon_hit_handler.expose(kind, ctx.actor, entity, level, damage, room,
+                                                 fight._check_immunity, payload=ctx.spell.payload)
+        if hasattr(entity, "owned_items"):
+            self._queue_damage_payload(ctx, result, entity)
+        elif result.get("to_room"):
+            ctx.queue_payload({"to_room": result["to_room"], "targets": self._room_players(room)})
+        return True
+
+    def elemental_breath(self, ctx: SpellContext, expression: str, kind: str, area: bool = False):
+        """Apply breath exposure before HP damage, with ROM collateral scaling."""
+        damage_types = {"flaming": "DAM_FIRE", "frost": "DAM_COLD", "shocking": "DAM_LIGHTNING"}
+        if kind not in damage_types or (area and kind == "shocking"):
+            raise ValueError(f"Unsupported breath exposure: {kind}, area={area}")
+        primary = ctx.victim
+        if primary is None:
+            return False
+        room = self._find_room_for_entity(primary) or ctx.room
+        if room is None:
+            return False
+        fight = self._fight_handler(ctx)
+        damage_type = damage_types[kind]
+        base_damage = self.eval_int(ctx, expression, victim=primary)
+        if area:
+            self.elemental_effect(ctx, kind, ctx.level, base_damage // 2, target=room)
+        victims = self._room_entities(room) if area else [primary]
+        for victim in victims:
+            if area:
+                if victim is ctx.actor or fight.is_safe_spell(ctx.actor, victim, area=True):
+                    continue
+                if (CharacterApi.is_npc(ctx.actor) and CharacterApi.is_npc(victim)
+                        and (getattr(ctx.actor, "fighting", None) is not victim
+                             or getattr(victim, "fighting", None) is not ctx.actor)):
+                    continue
+            collateral = area and victim is not primary
+            saved = EffectUtil.saves_spell(ctx.level - (2 if collateral else 0), victim, damage_type,
+                                          immunity=fight._check_immunity)
+            if collateral:
+                effect_level = ctx.level // 4 if saved else ctx.level // 2
+                effect_damage = base_damage // 8 if saved else base_damage // 4
+                damage = base_damage // 4 if saved else base_damage // 2
+            else:
+                effect_level = ctx.level // 2 if saved else ctx.level
+                effect_damage = base_damage // 4 if saved else base_damage
+                damage = base_damage // 2 if saved else base_damage
+            self.elemental_effect(ctx, kind, effect_level, effect_damage, target=victim)
+            result = fight.damage(ctx.actor, victim, damage, dam_type=damage_type,
+                                  dt=getattr(ctx.spell, "noun_damage", "") or getattr(ctx.spell, "name", "spell"))
+            self._queue_damage_payload(ctx, result, victim)
+        return ctx.mark_performed()
+
+    def poison_effect(self, ctx: SpellContext, level: int, damage: int, target: Any = None):
+        from game.RandomNumberGenerator import RandomNumberGenerator
+        from util.PoisonExposure import PoisonExposure
+
+        entity = ctx.resolve(target) if target is not None else ctx.target
+        if entity is None:
+            return False
+        exposure = PoisonExposure(self.effect_handler, GameApi.get_enum("itemFlags"),
+                                  GameApi.item_table_map(), RandomNumberGenerator())
+
+        def notify(victim):
+            room = self._find_room_for_entity(victim) or ctx.room
+            text = self._ability_message(ctx.spell, "to_room", "poisoned", ctx, victim)
+            def render(observer):
+                return ctx.spell.message("to_room", "poisoned", **DisplayUtil.visible_tokens({"victim": victim}, observer, room))
+            self.send(ctx,
+                      to_victim=self._ability_message(ctx.spell, "to_victim", "poisoned", ctx, victim),
+                      to_room=DisplayUtil.room_text(text, render, room),
+                      victim=victim, include_actor_in_room=True)
+
+        if hasattr(entity, "owned_items"):
+            saves = lambda level, victim, kind: EffectUtil.saves_spell(
+                level, victim, kind, immunity=self._fight_handler(ctx)._check_immunity)
+            exposure.character(entity, level, damage, saves, notify)
+        elif hasattr(entity, "contents"):
+            exposure.room(entity, level, damage)
+        else:
+            raise ValueError("Poison exposure requires a character or room target.")
+        return True
+
+    def damage_room_expr(self, ctx: SpellContext, expression: str, dam_type: str = "DAM_NONE", save_half: bool = True,
+                         effect: str = ""):
+        if effect not in ("", "poison"):
+            raise ValueError(f"Unsupported room effect: {effect}")
         room = ctx.room or self._find_room_for_entity(ctx.actor)
         if room is None:
             return False
         acted = False
+        if effect == "poison":
+            # Gas exposes floor objects before character safety checks and rolls
+            # one base damage amount for the entire cloud, as in ROM.
+            base_damage = self.eval_int(ctx, expression)
+            self.poison_effect(ctx, ctx.level, base_damage, target=room)
+            acted = True
         for victim in self._room_entities(room):
             if victim is ctx.actor or self._fight_handler(ctx).is_safe_spell(ctx.actor, victim, area=True):
                 continue
-            damage = self.eval_int(ctx, expression, victim=victim)
-            if save_half and EffectUtil.saves_spell(ctx.level, victim, 0):
+            damage = base_damage if effect == "poison" else self.eval_int(ctx, expression, victim=victim)
+            if effect == "poison":
+                saved = save_half and EffectUtil.saves_spell(ctx.level, victim, dam_type,
+                                                           immunity=self._fight_handler(ctx)._check_immunity)
+                self.poison_effect(ctx, ctx.level // 2 if saved else ctx.level,
+                                   damage // 4 if saved else damage, target=victim)
+            else:
+                saved = save_half and EffectUtil.saves_spell(ctx.level, victim, 0)
+            if saved:
                 damage //= 2
             payload = self._fight_handler(ctx).damage(
                 ctx.actor,
@@ -948,9 +1091,9 @@ class SpellApi:
             ctx.queue_payload(notice)
         self.send(
             ctx,
-            to_char=str(payload.get("to_char", "") or ""),
-            to_room=str(payload.get("to_room", "") or ""),
-            to_victim=str(payload.get("to_victim", "") or ""),
+            to_char=payload.get("to_char", "") or "",
+            to_room=payload.get("to_room", "") or "",
+            to_victim=payload.get("to_victim", "") or "",
             victim=victim,
         )
         notice = {key: payload[key] for key in

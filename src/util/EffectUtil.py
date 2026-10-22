@@ -212,12 +212,22 @@ class EffectUtil:
         return random.randint(1, 100) < save
 
     @staticmethod
-    def saves_spell(level: int, victim, _dam_type: int = 0) -> bool:
+    def saves_spell(level: int, victim, _dam_type: int | str = 0, *, immunity=None) -> bool:
         victim_level = GenericUtil.to_int(getattr(victim, "level", 0), 0)
         saving_throw = GenericUtil.to_int(getattr(victim, "saving_throw", 0), 0)
         save = 50 + (victim_level - GenericUtil.to_int(level, 0)) * 5 - saving_throw * 2
         if CharacterApi.is_affected_by_name(victim, CharacterApi.get_enum("affectedBy"), "AFF_BERSERK"):
             save += victim_level // 2
+        if immunity is not None:
+            status = immunity(victim, _dam_type)
+            if status == "IS_IMMUNE":
+                return True
+            if status == "IS_RESISTANT":
+                save += 2
+            elif status == "IS_VULNERABLE":
+                save -= 2
+            if not CharacterApi.is_npc(victim) and getattr(getattr(victim, "character_class", None), "mana_gain", False):
+                save = int(9 * save / 10)
         save = max(5, min(95, save))
         return random.randint(1, 100) < save
 

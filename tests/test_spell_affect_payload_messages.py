@@ -59,6 +59,7 @@ def _load_spell_api():
             DisplayUtil=SimpleNamespace(
                 display_effect_message=lambda message: str(message or "").strip(),
                 entity_name=lambda entity, is_npc: str(getattr(entity, "name", "someone") or "someone"),
+                room_text=lambda text, render, room: text,
             ),
         ),
         "util.GenericUtil": _module(

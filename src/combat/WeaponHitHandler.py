@@ -14,7 +14,7 @@ from util.DisplayUtil import DisplayUtil
 
 
 class WeaponHitHandler:
-    """Apply ordered weapon procs after a damaging melee hit, without sending IO."""
+    """Apply weapon procs and reusable elemental exposure without sending IO."""
 
     @inject
     def __init__(self, effect_handler: EffectHandler, enum_provider: EnumProvider, game_data: GameData):
@@ -43,7 +43,7 @@ class WeaponHitHandler:
         return GameApi.is_set(GameApi.flags_to_int(raw), CharacterApi.enum_bit(enums, name))
 
     @staticmethod
-    def _messages(rule, key, attacker, victim, weapon):
+    def _messages(rule, key, attacker, victim, weapon, room=None):
         payload = GamePayload.from_json(rule.get("payload", {}))
         tokens = {
             "attacker": DisplayUtil.entity_name(attacker, is_npc=CharacterApi.is_npc),
@@ -54,6 +54,15 @@ class WeaponHitHandler:
         for channel in ("to_char", "to_victim", "to_room"):
             text = payload.render(channel, key, **tokens)
             messages[channel] = text.rstrip("\r\n") + "\r\n" if text else ""
+        entities = {"attacker": attacker, "victim": victim, "weapon": weapon}
+
+        def render(channel, observer):
+            text = payload.render(channel, key, **DisplayUtil.visible_tokens(entities, observer, room))
+            return text.rstrip("\r\n") + "\r\n" if text else ""
+
+        messages["to_char"] = render("to_char", attacker)
+        messages["to_victim"] = render("to_victim", victim)
+        messages["to_room"] = DisplayUtil.room_text(messages["to_room"], lambda observer: render("to_room", observer), room)
         return messages
 
     def _saves(self, level, victim, dam_type, immunity):
@@ -90,16 +99,16 @@ class WeaponHitHandler:
                     self.effect_handler.affect_join(victim, Effect(
                         where="TO_AFFECTS", type="spell.poison", level=poison_level * 3 // 4,
                         duration=poison_level // 2, location="APPLY_STR", modifier=-1, bitvector="AFF_POISON"))
-                    result = self._merge(result, self._messages(rule, "hit", attacker, victim, weapon))
+                    result = self._merge(result, self._messages(rule, "hit", attacker, victim, weapon, room))
                 if coating is not None:
                     coating.level = max(0, coating.level - 2)
                     coating.duration = max(0, coating.duration - 1)
                     if coating.level == 0 or coating.duration == 0:
-                        result = self._merge(result, self._messages(rule, "worn_off", attacker, victim, weapon))
+                        result = self._merge(result, self._messages(rule, "worn_off", attacker, victim, weapon, room))
                 continue
 
             rolled = self.rng.number_range(1, level // rule["damageDivisor"] + rule["damageOffset"])
-            result = self._merge(result, self._messages(rule, "hit", attacker, victim, weapon))
+            result = self._merge(result, self._messages(rule, "hit", attacker, victim, weapon, room))
             if name != "vampiric":
                 result = self._merge(result, self._element(name, rule, attacker, victim, level // 2,
                                                          rolled, room, immunity))
@@ -109,6 +118,19 @@ class WeaponHitHandler:
                 # ROM heals from the rolled amount, even if secondary damage is
                 # resisted/immune, and does not cap the result at maximum HP.
                 attacker.hit += rolled // 2
+        return result
+
+    def expose(self, name, attacker, target, level, dam, room, immunity, *, payload):
+        """Expose a character or room, using the calling ability's messages."""
+        if name not in ("flaming", "frost", "shocking"):
+            raise ValueError(f"Unsupported elemental exposure: {name}")
+        rule = {**self.rules[name], "payload": payload}
+        if hasattr(target, "owned_items"):
+            return self._element(name, rule, attacker, target, level, dam, room, immunity)
+        result = {}
+        for item in list(target.contents.values()):
+            result = self._merge(result, self._object_effect(
+                name, rule, attacker, None, item, level, dam, target, carrier=None))
         return result
 
     def _element(self, name, rule, attacker, victim, level, dam, room, immunity):
@@ -121,19 +143,19 @@ class WeaponHitHandler:
                     where="TO_AFFECTS", type="spell.fire_breath", level=level,
                     duration=self.rng.number_range(0, level // 10), location="APPLY_HITROLL",
                     modifier=-4, bitvector="AFF_BLIND"))
-                result = self._messages(rule, "secondary", attacker, victim, None)
+                result = self._messages(rule, "secondary", attacker, victim, None, room)
             condition = "thirst"
         elif name == "frost":
             if not self._saves(save_level, victim, rule["damageType"], immunity):
                 self.effect_handler.affect_join(victim, Effect(
                     where="TO_AFFECTS", type="spell.chill_touch", level=level, duration=6,
                     location="APPLY_STR", modifier=-1, bitvector=0))
-                result = self._messages(rule, "secondary", attacker, victim, None)
+                result = self._messages(rule, "secondary", attacker, victim, None, room)
             condition = "hunger"
         else:
             if not self._saves(save_level, victim, rule["damageType"], immunity):
                 victim.status_flags.pulse_daze = max(victim.status_flags.pulse_daze, 12, save_level)
-                result = self._messages(rule, "secondary", attacker, victim, None)
+                result = self._messages(rule, "secondary", attacker, victim, None, room)
             condition = ""
         if (condition and not CharacterApi.is_npc(victim)
                 and victim.level < self.game_parameters.LEVEL_IMMORTAL.value):
@@ -162,7 +184,7 @@ class WeaponHitHandler:
         entry = rule.get("objects", {}).get(item_type)
         if entry is None or self.rng.number_percent() > max(5, min(95, chance + entry["chanceBonus"])):
             return {}
-        result = self._messages(rule, entry["messageKey"], attacker, victim, item)
+        result = self._messages(rule, entry["messageKey"], attacker, victim, item, room)
         if name == "flaming":
             for child in list(item.contains):
                 item.contains.remove(child)

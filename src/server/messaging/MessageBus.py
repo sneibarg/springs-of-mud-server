@@ -1,4 +1,5 @@
 from typing import List, Optional
+from dataclasses import replace
 from injector import inject
 
 from area.Area import Area
@@ -31,6 +32,10 @@ class MessageBus:
         return Message(MessageType.GAME, data={"text": text})
 
     async def send_to_character(self, character_id: str, message: Message) -> bool:
+        if message.type == MessageType.GAME and isinstance(message.data, dict):
+            text = message.data.get("text")
+            if callable(getattr(text, "for_recipient", None)):
+                message = replace(message, data={**message.data, "text": text.for_recipient(character_id)})
         connection = self.connection_manager.get_connection_by_character(character_id)
         if connection and not connection.is_closed():
             try:

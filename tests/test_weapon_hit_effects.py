@@ -16,6 +16,7 @@ SRC = ROOT / "src"
 class CharacterApi:
     is_npc = staticmethod(lambda entity: entity.is_npc)
     enum_bit = staticmethod(lambda enums, name: int(getattr(enums, name, 0)))
+    can_see = staticmethod(lambda observer, entity, room: True)
 
 
 def _load_runtime():
@@ -57,6 +58,12 @@ class TestWeaponHitEffects(unittest.TestCase):
         cls.data = GameData.from_json(json.loads((ROOT / "resources/collections/SOMDB.GameData.json").read_text())[0])
 
     def setUp(self):
+        visibility = patch.dict(sys.modules, {
+            "api.CharacterApi": SimpleNamespace(CharacterApi=CharacterApi),
+            "util.LookupUtil": SimpleNamespace(LookupUtil=SimpleNamespace(object_visible=lambda *args: True)),
+        })
+        visibility.start()
+        self.addCleanup(visibility.stop)
         self.enums = {name: IntEnum(name, self.data.enums[name])
                       for name in ("weaponType", "itemFlags", "affectedBy", "gameParameters")}
         self.effects = Mock()

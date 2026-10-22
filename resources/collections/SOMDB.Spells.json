@@ -2302,12 +2302,19 @@
       "toChar": {
         "msgOff": "!Acid Breath!",
         "msgObj": ""
+      },
+      "toRoom": {
+        "acidContainer": "{item} fumes and dissolves.",
+        "acidArmor": "{item} is pitted and etched.",
+        "acidClothing": "{item} is corroded into scrap.",
+        "acidFocus": "{item} corrodes and breaks.",
+        "acidScroll": "{item} is burned into waste."
       }
     },
     "functionName": "acid_breath",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_expr('dice(level, 16)', 'DAM_ACID')"
+      "lambda ctx: ctx.damage_expr('dice(level, 16)', 'DAM_ACID', object_effect='acid')"
     ]
   },
   {
@@ -2325,14 +2332,42 @@
     "nounDamage": "blast of flame",
     "payload": {
       "toChar": {
+        "msgObj": "",
         "msgOff": "The smoke leaves your eyes.",
-        "msgObj": ""
+        "objectContainer": "{weapon} ignites and burns!",
+        "objectFood": "{weapon} blackens and crisps!",
+        "objectPill": "{weapon} melts and drips!",
+        "objectPotion": "{weapon} bubbles and boils!",
+        "objectScroll": "{weapon} crackles and burns!",
+        "objectStaff": "{weapon} smokes and chars!",
+        "objectWand": "{weapon} sparks and sputters!",
+        "secondary": "{victim} is blinded by smoke!"
+      },
+      "toRoom": {
+        "objectContainer": "{weapon} ignites and burns!",
+        "objectFood": "{weapon} blackens and crisps!",
+        "objectPill": "{weapon} melts and drips!",
+        "objectPotion": "{weapon} bubbles and boils!",
+        "objectScroll": "{weapon} crackles and burns!",
+        "objectStaff": "{weapon} smokes and chars!",
+        "objectWand": "{weapon} sparks and sputters!",
+        "secondary": "{victim} is blinded by smoke!"
+      },
+      "toVictim": {
+        "objectContainer": "{weapon} ignites and burns!",
+        "objectFood": "{weapon} blackens and crisps!",
+        "objectPill": "{weapon} melts and drips!",
+        "objectPotion": "{weapon} bubbles and boils!",
+        "objectScroll": "{weapon} crackles and burns!",
+        "objectStaff": "{weapon} smokes and chars!",
+        "objectWand": "{weapon} sparks and sputters!",
+        "secondary": "Your eyes tear up from smoke...you can't see a thing!"
       }
     },
     "functionName": "fire_breath",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_room_expr('dice(level, 20)', 'DAM_FIRE')"
+      "lambda ctx: ctx.elemental_breath('dice(level, 20)', 'flaming', area=True)"
     ]
   },
   {
@@ -2350,14 +2385,27 @@
     "nounDamage": "blast of frost",
     "payload": {
       "toChar": {
+        "msgObj": "",
         "msgOff": "!Frost Breath!",
-        "msgObj": ""
+        "objectDrinkCon": "{weapon} freezes and shatters!",
+        "objectPotion": "{weapon} freezes and shatters!",
+        "secondary": "{victim} turns blue and shivers."
+      },
+      "toRoom": {
+        "objectDrinkCon": "{weapon} freezes and shatters!",
+        "objectPotion": "{weapon} freezes and shatters!",
+        "secondary": "{victim} turns blue and shivers."
+      },
+      "toVictim": {
+        "objectDrinkCon": "{weapon} freezes and shatters!",
+        "objectPotion": "{weapon} freezes and shatters!",
+        "secondary": "A chill sinks deep into your bones."
       }
     },
     "functionName": "frost_breath",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_room_expr('dice(level, 16)', 'DAM_COLD')"
+      "lambda ctx: ctx.elemental_breath('dice(level, 16)', 'frost', area=True)"
     ]
   },
   {
@@ -2377,12 +2425,18 @@
       "toChar": {
         "msgOff": "!Gas Breath!",
         "msgObj": ""
+      },
+      "toRoom": {
+        "poisoned": "{victim} looks very ill.\r\n"
+      },
+      "toVictim": {
+        "poisoned": "You feel poison coursing through your veins.\r\n"
       }
     },
     "functionName": "gas_breath",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_room_expr('dice(level, 12)', 'DAM_POISON')"
+      "lambda ctx: ctx.damage_room_expr('dice(level, 12)', 'DAM_POISON', effect='poison')"
     ]
   },
   {
@@ -2400,14 +2454,28 @@
     "nounDamage": "blast of lightning",
     "payload": {
       "toChar": {
+        "msgObj": "",
         "msgOff": "!Lightning Breath!",
-        "msgObj": ""
+        "objectJewelry": "{weapon} is fused into a worthless lump.",
+        "objectStaff": "{weapon} overloads and explodes!",
+        "objectWand": "{weapon} overloads and explodes!"
+      },
+      "toRoom": {
+        "objectJewelry": "{weapon} is fused into a worthless lump.",
+        "objectStaff": "{weapon} overloads and explodes!",
+        "objectWand": "{weapon} overloads and explodes!"
+      },
+      "toVictim": {
+        "objectJewelry": "{weapon} is fused into a worthless lump.",
+        "objectStaff": "{weapon} overloads and explodes!",
+        "objectWand": "{weapon} overloads and explodes!",
+        "secondary": "Your muscles stop responding."
       }
     },
     "functionName": "lightning_breath",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_expr('dice(level, 20)', 'DAM_LIGHTNING')"
+      "lambda ctx: ctx.elemental_breath('dice(level, 20)', 'shocking', area=False)"
     ]
   },
   {
