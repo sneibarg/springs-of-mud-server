@@ -28,8 +28,35 @@ class ItemApi(GameApi):
         )
 
     @classmethod
-    def is_no_sac(cls, item: Item):
-        cls.has_item_flag(item, cls.ItemFlags, "ITEM_NO_SAC")
+    def is_no_sac(cls, item: Item) -> bool:
+        wear_flags = cls.get_enum("wearFlags")
+        no_sac = cls.enum_bit(wear_flags, "ITEM_NO_SAC")
+        return not cls.item_takeable(item, wear_flags) or cls.is_set(
+            cls.flags_to_int(item.wear_flags), no_sac
+        )
+
+    @classmethod
+    def can_loot(cls, character, item, owners) -> bool:
+        """Apply ROM ownership rules against entities currently in the world."""
+        from api.CharacterApi import CharacterApi
+
+        if CharacterApi.is_immortal(character):
+            return True
+        owner_name = str(getattr(item, "owner", "") or "").casefold()
+        if not owner_name:
+            return True
+        owner = next((entity for entity in owners
+                      if str(getattr(entity, "name", "") or "").casefold() == owner_name), None)
+        if owner is None:
+            return True
+        if str(getattr(character, "name", "") or "").casefold() == owner_name:
+            return True
+        can_loot = cls.enum_bit(cls.get_enum("playerActBits"), "PLR_CANLOOT")
+        if not CharacterApi.is_npc(owner) and cls.is_set(
+            getattr(getattr(owner, "status_flags", None), "act", 0), can_loot
+        ):
+            return True
+        return CharacterApi.is_same_group(character, owner)
 
     @classmethod
     def is_container_closed(cls, item) -> bool:
@@ -62,11 +89,21 @@ class ItemApi(GameApi):
     def is_weapon_stat(cls, obj: Item, stat: int) -> bool:
         return cls.is_set(int(obj.value4), stat)
 
+    @staticmethod
+    def carried_count(character) -> int:
+        return sum(Item.object_number(item) for item in character.owned_items())
+
+    @staticmethod
+    def carried_weight(character, *, include_coins=True) -> int:
+        weight = sum(Item.object_weight(item) for item in character.owned_items())
+        if include_coins:
+            weight += GenericUtil.to_int(getattr(character, "silver", 0), 0) // 10
+            weight += GenericUtil.to_int(getattr(character, "gold", 0), 0) * 2 // 5
+        return weight
+
     @classmethod
     def weight_multiplier(cls, obj: Item) -> int:
-        item_types = cls.get_enum("itemTypes")
-        item_table = cls.item_table_map()
-        return int(obj.value3) if item_table[obj.item_type] == item_types.ITEM_CONTAINER.name else 100
+        return Item.weight_multiplier(obj)
 
     @classmethod
     def decode_form_and_parts(cls, race_name: str, BodyForm: type[IntEnum], BodyParts: type[IntEnum]) -> Dict[str, List[str]]:

@@ -1167,7 +1167,9 @@
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "haggleSuccess": "You haggle with %t.",
+        "hagglePet": "You haggle the price down to %q coins."
       },
       "toRoom": {
         "petPurchased": "%c bought %t as a pet.",
@@ -1178,78 +1180,78 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not bool(getattr(v.context, 'buy_raw', ''))",
-        "messageKey": "noArgument"
+        "messageKey": "noArgument",
+        "predicate": "lambda v: not bool(getattr(v.context, 'buy_raw', ''))"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'buy_room', None) is None",
-        "messageKey": "roomMissing"
+        "messageKey": "roomMissing",
+        "predicate": "lambda v: getattr(v.context, 'buy_room', None) is None"
       },
       {
-        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and getattr(v.context, 'buy_keeper_error', '') == 'shop_unavailable'",
-        "messageKey": "shopUnavailable"
+        "messageKey": "shopUnavailable",
+        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and getattr(v.context, 'buy_keeper_error', '') == 'shop_unavailable'"
       },
       {
-        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and getattr(v.context, 'buy_keeper_error', '') == 'shop_closed_later'",
-        "messageKey": "shopClosedLater"
+        "messageKey": "shopClosedLater",
+        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and getattr(v.context, 'buy_keeper_error', '') == 'shop_closed_later'"
       },
       {
-        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and getattr(v.context, 'buy_keeper_error', '') == 'shop_closed_tomorrow'",
-        "messageKey": "shopClosedTomorrow"
+        "messageKey": "shopClosedTomorrow",
+        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and getattr(v.context, 'buy_keeper_error', '') == 'shop_closed_tomorrow'"
       },
       {
-        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and getattr(v.context, 'buy_keeper_error', '') == 'keeper_cannot_see'",
-        "messageKey": "keeperCannotSee"
+        "messageKey": "keeperCannotSee",
+        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and getattr(v.context, 'buy_keeper_error', '') == 'keeper_cannot_see'"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'buy_is_pet_shop', False) and getattr(v.context, 'buy_pet_proto', None) is None",
-        "messageKey": "notPetShop"
+        "messageKey": "notPetShop",
+        "predicate": "lambda v: getattr(v.context, 'buy_is_pet_shop', False) and getattr(v.context, 'buy_pet_proto', None) is None"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'buy_is_pet_shop', False) and getattr(v.context.character, 'pet', None) is not None",
-        "messageKey": "hasPet"
+        "messageKey": "hasPet",
+        "predicate": "lambda v: getattr(v.context, 'buy_is_pet_shop', False) and getattr(v.context.character, 'pet', None) is not None"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'buy_is_pet_shop', False) and int(getattr(v.context, 'buy_cost', 0) or 0) > 0 and not bool((int(getattr(v.context.character, 'gold', 0) or 0) * 100) + int(getattr(v.context.character, 'silver', 0) or 0) >= int(getattr(v.context, 'buy_cost', 0) or 0))",
-        "messageKey": "insufficientFunds"
+        "messageKey": "insufficientFunds",
+        "predicate": "lambda v: getattr(v.context, 'buy_is_pet_shop', False) and int(getattr(v.context, 'buy_cost', 0) or 0) > 0 and not bool((int(getattr(v.context.character, 'gold', 0) or 0) * 100) + int(getattr(v.context.character, 'silver', 0) or 0) >= int(getattr(v.context, 'buy_cost', 0) or 0))"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'buy_is_pet_shop', False) and getattr(v.context, 'buy_pet_proto', None) is not None and int(getattr(v.context.character, 'level', 0) or 0) < int(getattr(v.context.buy_pet_proto, 'level', 0) or 0)",
-        "messageKey": "insufficientLevel"
+        "messageKey": "insufficientLevel",
+        "predicate": "lambda v: getattr(v.context, 'buy_is_pet_shop', False) and getattr(v.context, 'buy_pet_proto', None) is not None and int(getattr(v.context.character, 'level', 0) or 0) < int(getattr(v.context.buy_pet_proto, 'level', 0) or 0)"
       },
       {
-        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and (int(getattr(v.context, 'buy_quantity', 0) or 0) < 1 or int(getattr(v.context, 'buy_quantity', 0) or 0) > 99)",
-        "messageKey": "requestedQuantityExcessive"
+        "messageKey": "requestedQuantityExcessive",
+        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and (int(getattr(v.context, 'buy_quantity', 0) or 0) < 1 or int(getattr(v.context, 'buy_quantity', 0) or 0) > 99)"
       },
       {
-        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and (getattr(v.context, 'buy_item', None) is None or int(getattr(v.context, 'buy_cost', 0) or 0) <= 0)",
-        "messageKey": "noSuchItem"
+        "messageKey": "noSuchItem",
+        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and (getattr(v.context, 'buy_item', None) is None or int(getattr(v.context, 'buy_cost', 0) or 0) <= 0)"
       },
       {
-        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and bool(getattr(v.context, 'buy_stock_limited', False)) and int(getattr(v.context, 'buy_available', 0) or 0) < int(getattr(v.context, 'buy_quantity', 0) or 0)",
-        "messageKey": "availableQuantityInsufficient"
+        "messageKey": "availableQuantityInsufficient",
+        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and bool(getattr(v.context, 'buy_stock_limited', False)) and int(getattr(v.context, 'buy_available', 0) or 0) < int(getattr(v.context, 'buy_quantity', 0) or 0)"
       },
       {
-        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and int(getattr(v.context, 'buy_total_cost', 0) or 0) > 0 and ((int(getattr(v.context.character, 'gold', 0) or 0) * 100) + int(getattr(v.context.character, 'silver', 0) or 0) < int(getattr(v.context, 'buy_total_cost', 0) or 0)) and int(getattr(v.context, 'buy_quantity', 0) or 0) > 1",
-        "messageKey": "requestedQuantityExceedsFunds"
+        "messageKey": "requestedQuantityExceedsFunds",
+        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and int(getattr(v.context, 'buy_total_cost', 0) or 0) > 0 and ((int(getattr(v.context.character, 'gold', 0) or 0) * 100) + int(getattr(v.context.character, 'silver', 0) or 0) < int(getattr(v.context, 'buy_total_cost', 0) or 0)) and int(getattr(v.context, 'buy_quantity', 0) or 0) > 1"
       },
       {
-        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and int(getattr(v.context, 'buy_total_cost', 0) or 0) > 0 and ((int(getattr(v.context.character, 'gold', 0) or 0) * 100) + int(getattr(v.context.character, 'silver', 0) or 0) < int(getattr(v.context, 'buy_total_cost', 0) or 0)) and int(getattr(v.context, 'buy_quantity', 0) or 0) == 1",
         "messageKey": "tooExpensive",
+        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and int(getattr(v.context, 'buy_total_cost', 0) or 0) > 0 and ((int(getattr(v.context.character, 'gold', 0) or 0) * 100) + int(getattr(v.context.character, 'silver', 0) or 0) < int(getattr(v.context, 'buy_total_cost', 0) or 0)) and int(getattr(v.context, 'buy_quantity', 0) or 0) == 1",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'buy_item_short', '')}"
       },
       {
-        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and getattr(v.context, 'buy_item', None) is not None and int(getattr(v.context.buy_item, 'level', 0) or 0) > int(getattr(v.context.character, 'level', 0) or 0)",
         "messageKey": "itemInsufficientLevel",
+        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and getattr(v.context, 'buy_item', None) is not None and int(getattr(v.context.buy_item, 'level', 0) or 0) > int(getattr(v.context.character, 'level', 0) or 0)",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'buy_item_short', '')}"
       },
       {
-        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and int(getattr(getattr(v.context.character, 'character_attributes', None), 'max_items', 0) or 0) > 0 and (len(v.context.character.owned_items()) + int(getattr(v.context, 'buy_quantity', 0) or 0)) > int(getattr(getattr(v.context.character, 'character_attributes', None), 'max_items', 0) or 0)",
-        "messageKey": "quantityExceedsAllowed"
+        "messageKey": "quantityExceedsAllowed",
+        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and int(getattr(getattr(v.context.character, 'character_attributes', None), 'max_items', 0) or 0) > 0 and (ItemApi.carried_count(v.context.character) + int(getattr(v.context, 'buy_quantity', 0) or 0) * Item.object_number(v.context.buy_item)) > int(getattr(v.context.character.character_attributes, 'max_items', 0) or 0)"
       },
       {
-        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and int(getattr(getattr(v.context.character, 'character_attributes', None), 'max_weight', 0) or 0) > 0 and (sum(int(getattr(item, 'weight', 0) or 0) for item in v.context.character.owned_items()) + int((int(getattr(v.context.character, 'silver', 0) or 0) / 10) + (int(getattr(v.context.character, 'gold', 0) or 0) * 2 / 5)) + (int(getattr(v.context, 'buy_quantity', 0) or 0) * int(getattr(getattr(v.context, 'buy_item', None), 'weight', 0) or 0))) > int(getattr(getattr(v.context.character, 'character_attributes', None), 'max_weight', 0) or 0)",
-        "messageKey": "weightExceedsAllowed"
+        "messageKey": "weightExceedsAllowed",
+        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and int(getattr(getattr(v.context.character, 'character_attributes', None), 'max_weight', 0) or 0) > 0 and (ItemApi.carried_weight(v.context.character, include_coins=False) + int(getattr(v.context, 'buy_quantity', 0) or 0) * Item.object_weight(v.context.buy_item)) > int(getattr(v.context.character.character_attributes, 'max_weight', 0) or 0)"
       }
     ]
   },
@@ -1353,7 +1355,9 @@
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "lootNotPermitted": "Corpse looting is not permitted.",
+        "pitLevel": "You are not powerful enough to use it."
       },
       "toRoom": {
         "default": "%c gets %t.",
@@ -1382,6 +1386,10 @@
       {
         "predicate": "lambda v: v.context.container is not None and not Item.is_container_like(v.context.container)",
         "messageKey": "notContainer"
+      },
+      {
+        "messageKey": "cannot",
+        "predicate": "lambda v: not getattr(v.context, 'get_container_loot_allowed', True)"
       },
       {
         "predicate": "lambda v: v.context.container is not None and ItemApi.is_container_closed(v.context.container)",
@@ -4510,7 +4518,9 @@
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "itemSpellTargetMissing": "You can't do that.",
+        "itemSpellUnsafe": "Something isn't right..."
       },
       "toRoom": {
         "default": "%c brandishes %t.",
@@ -4571,28 +4581,28 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: (not v.context.drink_arg1) and v.context.drink_item is None",
-        "messageKey": "noArgument"
+        "messageKey": "noArgument",
+        "predicate": "lambda v: (not v.context.drink_arg1) and v.context.drink_item is None"
       },
       {
-        "predicate": "lambda v: bool(v.context.drink_arg1) and v.context.drink_item is None",
-        "messageKey": "itemMissing"
+        "messageKey": "itemMissing",
+        "predicate": "lambda v: bool(v.context.drink_arg1) and v.context.drink_item is None"
       },
       {
-        "predicate": "lambda v: v.context.drink_item is not None and not Item.is_drink_container(v.context.drink_item)",
-        "messageKey": "itemNotContainer"
+        "messageKey": "itemNotContainer",
+        "predicate": "lambda v: v.context.drink_item is not None and not Item.is_drink_container(v.context.drink_item)"
       },
       {
-        "predicate": "lambda v: v.context.drink_item is not None and (not Item.is_fountain(v.context.drink_item)) and GenericUtil.to_int(getattr(v.context.drink_item, 'value1', 0), 0) <= 0",
-        "messageKey": "containerEmpty"
+        "messageKey": "containerEmpty",
+        "predicate": "lambda v: v.context.drink_item is not None and (not Item.is_fountain(v.context.drink_item)) and GenericUtil.to_int(getattr(v.context.drink_item, 'value1', 0), 0) <= 0"
       },
       {
-        "predicate": "lambda v: v.context.drink_item is not None and GenericUtil.to_int(getattr(getattr(v.context.character, 'status_flags', None), 'drunk', 0), 0) > 10",
-        "messageKey": "drunk"
+        "messageKey": "drunk",
+        "predicate": "lambda v: v.context.drink_item is not None and GenericUtil.to_int(getattr(getattr(v.context.character, 'status_flags', None), 'drunk', 0), 0) > 10"
       },
       {
-        "predicate": "lambda v: v.context.drink_item is not None and (not CharacterApi.is_npc(v.context.character)) and (not CharacterApi.is_immortal(v.context.character)) and GenericUtil.to_int(getattr(getattr(v.context.character, 'status_flags', None), 'hunger', 0), 0) > 45",
-        "messageKey": "tooFull"
+        "messageKey": "tooFull",
+        "predicate": "lambda v: v.context.drink_item is not None and (not CharacterApi.is_npc(v.context.character)) and (not CharacterApi.is_immortal(v.context.character)) and GenericUtil.to_int(getattr(getattr(v.context.character, 'status_flags', None), 'fullness', 0), 0) > 45"
       }
     ]
   },
@@ -4639,20 +4649,32 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not v.context.arg1",
-        "messageKey": "noArgument"
+        "messageKey": "noArgument",
+        "predicate": "lambda v: not v.context.arg1"
       },
       {
-        "predicate": "lambda v: v.context.drop_room is None",
-        "messageKey": "roomMissing"
+        "messageKey": "roomMissing",
+        "predicate": "lambda v: v.context.drop_room is None"
       },
       {
-        "predicate": "lambda v: (not v.context.drop_all) and v.context.drop_item is None",
-        "messageKey": "targetMissing"
+        "messageKey": "invalidAmount",
+        "predicate": "lambda v: v.context.drop_invalid_money"
       },
       {
-        "predicate": "lambda v: (not v.context.drop_all) and v.context.drop_item is not None and v.context.drop_no_drop",
-        "messageKey": "noDrop"
+        "messageKey": "insufficientSilver",
+        "predicate": "lambda v: v.context.drop_insufficient_money and v.context.drop_currency == 'silver'"
+      },
+      {
+        "messageKey": "insufficientGold",
+        "predicate": "lambda v: v.context.drop_insufficient_money and v.context.drop_currency == 'gold'"
+      },
+      {
+        "messageKey": "targetMissing",
+        "predicate": "lambda v: (not v.context.drop_is_money) and (not v.context.drop_all) and v.context.drop_item is None"
+      },
+      {
+        "messageKey": "noDrop",
+        "predicate": "lambda v: (not v.context.drop_all) and v.context.drop_item is not None and v.context.drop_no_drop"
       }
     ]
   },
@@ -4684,7 +4706,9 @@
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "itemSpellTargetMissing": "You can't do that.",
+        "itemSpellUnsafe": "Something isn't right..."
       },
       "toRoom": {
         "poison": "%c chokes and gags.",
@@ -4694,20 +4718,20 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not v.context.eat_arg1",
-        "messageKey": "noArgument"
+        "messageKey": "noArgument",
+        "predicate": "lambda v: not v.context.eat_arg1"
       },
       {
-        "predicate": "lambda v: v.context.eat_item is None",
-        "messageKey": "itemMissing"
+        "messageKey": "itemMissing",
+        "predicate": "lambda v: v.context.eat_item is None"
       },
       {
-        "predicate": "lambda v: v.context.eat_item is not None and not v.context.eat_item.is_edible()",
-        "messageKey": "notEdible"
+        "messageKey": "notEdible",
+        "predicate": "lambda v: v.context.eat_item is not None and not v.context.eat_item.is_edible()"
       },
       {
-        "predicate": "lambda v: v.context.eat_item is not None and (not CharacterApi.is_npc(v.context.character)) and (not CharacterApi.is_immortal(v.context.character)) and GenericUtil.to_int(getattr(getattr(v.context.character, 'status_flags', None), 'hunger', 0), 0) > 40",
-        "messageKey": "tooFull"
+        "messageKey": "tooFull",
+        "predicate": "lambda v: v.context.eat_item is not None and (not CharacterApi.is_npc(v.context.character)) and (not CharacterApi.is_immortal(v.context.character)) and GenericUtil.to_int(getattr(getattr(v.context.character, 'status_flags', None), 'fullness', 0), 0) > 40"
       }
     ]
   },
@@ -5489,7 +5513,11 @@
         "messageKey": "roomMissing"
       },
       {
-        "predicate": "lambda v: v.context.put_obj is None",
+        "messageKey": "invalidPut",
+        "predicate": "lambda v: v.context.put_container_name.lower() == 'all' or v.context.put_container_name.lower().startswith('all.')"
+      },
+      {
+        "predicate": "lambda v: not v.context.put_all and (v.context.put_obj is None)",
         "messageKey": "targetMissing"
       },
       {
@@ -5498,7 +5526,7 @@
         "tokenFactory": "lambda v: {'t': v.context.put_container_name}"
       },
       {
-        "predicate": "lambda v: v.context.put_container is not None and not v.context.put_container.is_container(v.context.put_container)",
+        "predicate": "lambda v: v.context.put_container is not None and not Item.is_container(v.context.put_container)",
         "messageKey": "notContainer"
       },
       {
@@ -5507,7 +5535,7 @@
         "tokenFactory": "lambda v: {'t': v.context.put_container_name}"
       },
       {
-        "predicate": "lambda v: v.context.put_obj is v.context.put_container",
+        "predicate": "lambda v: not v.context.put_all and (v.context.put_obj is v.context.put_container)",
         "messageKey": "putContainer"
       }
     ]
@@ -5537,7 +5565,9 @@
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "itemSpellTargetMissing": "You can't do that.",
+        "itemSpellUnsafe": "Something isn't right..."
       },
       "toRoom": {
         "quaffs": "%c quaffs %t."
@@ -5589,7 +5619,9 @@
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "itemSpellTargetMissing": "You can't do that.",
+        "itemSpellUnsafe": "Something isn't right..."
       },
       "toRoom": {
         "recites": "%c recites %t."
@@ -5693,7 +5725,9 @@
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "haggleSuccess": "You haggle with the shopkeeper.",
+        "keeperCannotSeeItem": "%s doesn't see what you are offering."
       },
       "toRoom": {
         "sells": "%c sells %t."
@@ -5702,45 +5736,50 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not bool(getattr(v.context, 'sell_raw', ''))",
-        "messageKey": "sellWhat"
+        "messageKey": "sellWhat",
+        "predicate": "lambda v: not bool(getattr(v.context, 'sell_raw', ''))"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'sell_room', None) is None",
-        "messageKey": "roomMissing"
+        "messageKey": "roomMissing",
+        "predicate": "lambda v: getattr(v.context, 'sell_room', None) is None"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'sell_keeper_error', '') == 'shop_unavailable'",
-        "messageKey": "shopUnavailable"
+        "messageKey": "shopUnavailable",
+        "predicate": "lambda v: getattr(v.context, 'sell_keeper_error', '') == 'shop_unavailable'"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'sell_keeper_error', '') == 'shop_closed_later'",
-        "messageKey": "shopClosedLater"
+        "messageKey": "shopClosedLater",
+        "predicate": "lambda v: getattr(v.context, 'sell_keeper_error', '') == 'shop_closed_later'"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'sell_keeper_error', '') == 'shop_closed_tomorrow'",
-        "messageKey": "shopClosedTomorrow"
+        "messageKey": "shopClosedTomorrow",
+        "predicate": "lambda v: getattr(v.context, 'sell_keeper_error', '') == 'shop_closed_tomorrow'"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'sell_keeper_error', '') == 'keeper_cannot_see'",
-        "messageKey": "keeperCannotSee"
+        "messageKey": "keeperCannotSee",
+        "predicate": "lambda v: getattr(v.context, 'sell_keeper_error', '') == 'keeper_cannot_see'"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'sell_obj', None) is None",
-        "messageKey": "targetMissing"
+        "messageKey": "targetMissing",
+        "predicate": "lambda v: getattr(v.context, 'sell_obj', None) is None"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'sell_obj', None) is not None and bool(getattr(v.context, 'sell_no_drop', False))",
-        "messageKey": "canTLetGo"
+        "messageKey": "canTLetGo",
+        "predicate": "lambda v: getattr(v.context, 'sell_obj', None) is not None and bool(getattr(v.context, 'sell_no_drop', False))"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'sell_obj', None) is not None and int(getattr(v.context, 'sell_cost', 0) or 0) <= 0",
+        "messageKey": "keeperCannotSeeItem",
+        "predicate": "lambda v: getattr(v.context, 'sell_keeper_cannot_see_item', False)",
+        "tokenFactory": "lambda v: {'s': getattr(v.context, 'sell_keeper_short', 'The shopkeeper')}"
+      },
+      {
         "messageKey": "looksUninterested",
+        "predicate": "lambda v: getattr(v.context, 'sell_obj', None) is not None and int(getattr(v.context, 'sell_cost', 0) or 0) <= 0",
         "tokenFactory": "lambda v: {'s': getattr(v.context, 'sell_keeper_short', 'The shopkeeper'), 't': getattr(v.context, 'sell_item_short', '')}"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'sell_obj', None) is not None and int(getattr(v.context, 'sell_cost', 0) or 0) > 0 and ((int(getattr(getattr(v.context, 'sell_keeper', None), 'gold', 0) or 0) * 100) + int(getattr(getattr(v.context, 'sell_keeper', None), 'silver', 0) or 0) < int(getattr(v.context, 'sell_cost', 0) or 0))",
         "messageKey": "insufficientWealth",
+        "predicate": "lambda v: getattr(v.context, 'sell_obj', None) is not None and int(getattr(v.context, 'sell_cost', 0) or 0) > 0 and ((int(getattr(getattr(v.context, 'sell_keeper', None), 'gold', 0) or 0) * 100) + int(getattr(getattr(v.context, 'sell_keeper', None), 'silver', 0) or 0) < int(getattr(v.context, 'sell_cost', 0) or 0))",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'sell_item_short', '')}"
       }
     ]
@@ -5778,7 +5817,9 @@
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "lootNotPermitted": "Corpse looting is not permitted.",
+        "pitLevel": "You are not powerful enough to use it."
       },
       "toRoom": {
         "default": "%c gets %t.",
@@ -5807,6 +5848,10 @@
       {
         "predicate": "lambda v: v.context.container is not None and not Item.is_container_like(v.context.container)",
         "messageKey": "notContainer"
+      },
+      {
+        "messageKey": "cannot",
+        "predicate": "lambda v: not getattr(v.context, 'get_container_loot_allowed', True)"
       },
       {
         "predicate": "lambda v: v.context.container is not None and ItemApi.is_container_closed(v.context.container)",
@@ -5873,7 +5918,7 @@
         "oneSilver": "Mota gives you one silver coin for your sacrifice.",
         "multipleSilver": "Mota gives you %d silver coins for your sacrifice.",
         "noSacrifice": "%t is not an acceptable sacrifice.",
-        "targetInUse": "%v appears to be using %t.",
+        "targetInUse": "{v} appears to be using %t.",
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
@@ -5947,47 +5992,53 @@
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "keeperCannotSeeItem": "%s doesn't see what you are offering."
       },
       "toRoom": {},
       "toVictim": {}
     },
     "guards": [
       {
-        "predicate": "lambda v: not bool(getattr(v.context, 'value_raw', ''))",
-        "messageKey": "noArgument"
+        "messageKey": "noArgument",
+        "predicate": "lambda v: not bool(getattr(v.context, 'value_raw', ''))"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'value_room', None) is None",
-        "messageKey": "roomMissing"
+        "messageKey": "roomMissing",
+        "predicate": "lambda v: getattr(v.context, 'value_room', None) is None"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'value_keeper_error', '') == 'shop_unavailable'",
-        "messageKey": "shopUnavailable"
+        "messageKey": "shopUnavailable",
+        "predicate": "lambda v: getattr(v.context, 'value_keeper_error', '') == 'shop_unavailable'"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'value_keeper_error', '') == 'shop_closed_later'",
-        "messageKey": "shopClosedLater"
+        "messageKey": "shopClosedLater",
+        "predicate": "lambda v: getattr(v.context, 'value_keeper_error', '') == 'shop_closed_later'"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'value_keeper_error', '') == 'shop_closed_tomorrow'",
-        "messageKey": "shopClosedTomorrow"
+        "messageKey": "shopClosedTomorrow",
+        "predicate": "lambda v: getattr(v.context, 'value_keeper_error', '') == 'shop_closed_tomorrow'"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'value_keeper_error', '') == 'keeper_cannot_see'",
-        "messageKey": "keeperCannotSee"
+        "messageKey": "keeperCannotSee",
+        "predicate": "lambda v: getattr(v.context, 'value_keeper_error', '') == 'keeper_cannot_see'"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'value_item', None) is None",
-        "messageKey": "targetMissing"
+        "messageKey": "targetMissing",
+        "predicate": "lambda v: getattr(v.context, 'value_item', None) is None"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'value_item', None) is not None and bool(getattr(v.context, 'value_no_drop', False))",
-        "messageKey": "noDrop"
+        "messageKey": "keeperCannotSeeItem",
+        "predicate": "lambda v: getattr(v.context, 'value_keeper_cannot_see_item', False)",
+        "tokenFactory": "lambda v: {'s': getattr(v.context, 'value_keeper_name', 'The shopkeeper')}"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'value_item', None) is not None and int(getattr(v.context, 'value_cost', 0) or 0) <= 0",
+        "messageKey": "noDrop",
+        "predicate": "lambda v: getattr(v.context, 'value_item', None) is not None and bool(getattr(v.context, 'value_no_drop', False))"
+      },
+      {
         "messageKey": "looksUninterested",
+        "predicate": "lambda v: getattr(v.context, 'value_item', None) is not None and int(getattr(v.context, 'value_cost', 0) or 0) <= 0",
         "tokenFactory": "lambda v: {'s': getattr(v.context, 'value_keeper_name', 'The shopkeeper'), 't': getattr(v.context, 'value_item_short', '')}"
       }
     ]
@@ -6125,7 +6176,9 @@
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "itemSpellTargetMissing": "You can't do that.",
+        "itemSpellUnsafe": "Something isn't right..."
       },
       "toRoom": {
         "default": "%c zaps %t with %T.",
@@ -7265,7 +7318,8 @@
         "failed": "%c tried to steal from %t.",
         "failMessageOne": "%c is a lousy thief!",
         "failMessageTwo": "%c couldn't rob their way out of a paper bag!",
-        "failMessageThree": "Keep your hands out of there, %c!"
+        "failMessageThree": "Keep your hands out of there, %c!",
+        "failMessageRobbed": "%c tried to rob me!"
       },
       "toVictim": {
         "failed": "%c tried to steal from you."

@@ -155,15 +155,10 @@ class AnimateEntity:
             except ValueError:
                 return False
 
-    def find_inventory_item(self, wanted: str) -> Optional[Item]:
-        q = (wanted or "").strip().lower()
-        if not q:
-            return None
-        for item in list(self._item_collection()):
-            name = (item.name or "").lower()
-            if name == q or name.startswith(q):
-                return item
-        return None
+    def find_inventory_item(self, wanted: str, *, observer=None, room=None) -> Optional[Item]:
+        from util.LookupUtil import LookupUtil
+        viewer = self if observer is None else observer
+        return LookupUtil.inventory(self, wanted, visible=lambda item: LookupUtil.object_visible(viewer, room, item))
 
     def ensure_equipped(self):
         return Equipped.ensure_on(self)
@@ -196,15 +191,10 @@ class AnimateEntity:
                 seen.add(item_id)
         return items
 
-    def find_owned_item(self, wanted: str):
-        key = (wanted or "").strip().lower()
-        if not key:
-            return None
-        for item in self.owned_items():
-            name = (item.name or "").lower()
-            if name == key or name.startswith(key):
-                return item
-        return None
+    def find_owned_item(self, wanted: str, *, observer=None, room=None):
+        from util.LookupUtil import LookupUtil
+        viewer = self if observer is None else observer
+        return LookupUtil.find(self.owned_items(), wanted, visible=lambda item: LookupUtil.object_visible(viewer, room, item))
 
     def regenerate(self, room, context: RegenerationContext) -> None:
         max_hit = GenericUtil.to_int(getattr(self, "max_hit", 0), 0)

@@ -118,12 +118,12 @@ class Character(AnimateEntity):
         return self.loot
 
     def carry_count(self) -> int:
-        return len(list(self.loot or []))
+        from api.ItemApi import ItemApi
+        return ItemApi.carried_count(self)
 
     def carry_weight(self) -> int:
-        item_weight = sum(GenericUtil.to_int(item.weight, 0) for item in list(self.loot or []))
-        coin_weight = int((GenericUtil.to_int(self.silver, 0) / 10) + (GenericUtil.to_int(self.gold, 0) * 2 / 5))
-        return item_weight + coin_weight
+        from api.ItemApi import ItemApi
+        return ItemApi.carried_weight(self)
 
     def max_items(self) -> int:
         return self.character_attributes.max_items
@@ -332,7 +332,9 @@ class Character(AnimateEntity):
 
         if CharacterApi.is_npc(self) or CharacterApi.is_immortal(self):
             return []
-        changes = (("drunk", -1), ("thirst", -1), ("hunger", -2 if self.is_large_race() else -1))
+        large = self.is_large_race()
+        changes = (("drunk", -1), ("fullness", -4 if large else -2),
+                   ("thirst", -1), ("hunger", -2 if large else -1))
         return [message for name, amount in changes if (message := self.gain_condition(name, amount))]
 
     def tick_light_source(self, room) -> dict:
@@ -358,7 +360,8 @@ class Character(AnimateEntity):
         return {}
 
     def gain_condition(self, condition_name: str, value: int) -> str:
-        if value == 0:
+        from api.CharacterApi import CharacterApi
+        if value == 0 or CharacterApi.is_npc(self) or CharacterApi.is_immortal(self):
             return ""
 
         status_flags = getattr(self, "status_flags", None)

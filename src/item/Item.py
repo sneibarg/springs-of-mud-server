@@ -179,15 +179,10 @@ class Item:
             except ValueError:
                 return False
 
-    def find_contained_item(self, wanted: str):
-        q = (wanted or "").strip().lower()
-        if not q:
-            return None
-        for obj in list(self.contains or []):
-            name = (obj.name or "").lower()
-            if name == q or name.startswith(q):
-                return obj
-        return None
+    def find_contained_item(self, wanted: str, *, observer=None, room=None):
+        from util.LookupUtil import LookupUtil
+        return LookupUtil.find(list(self.contains or []), wanted,
+                               visible=lambda item: LookupUtil.object_visible(observer, room, item))
 
     def add_item_to_room(self, room: Room):
         with self.lock:
@@ -256,11 +251,47 @@ class Item:
 
     @staticmethod
     def _item_type(item) -> str:
-        return str(item.item_type or "").strip().lower()
+        return str(getattr(item, "item_type", "") or "").strip().lower()
 
     @classmethod
     def item_type_name(cls, item) -> str:
         return cls._item_type(item).upper()
+
+    @classmethod
+    def enum_type_name(cls, item) -> str:
+        """Resolve designer item aliases without changing the stored type."""
+        raw = cls._item_type(item)
+        try:
+            definition = GameApi.item_table_map().get(raw, {})
+        except RuntimeError:
+            definition = {}
+        name = str(definition.get("type", raw) or "").upper()
+        return name if name.startswith("ITEM_") else "ITEM_" + name
+
+    @staticmethod
+    def weight_multiplier(item) -> int:
+        return GenericUtil.to_int(getattr(item, "value4", 100), 100) if Item.is_container(item) else 100
+
+    @staticmethod
+    def object_number(item) -> int:
+        shell = 0 if Item.enum_type_name(item) in (
+            "ITEM_CONTAINER", "ITEM_MONEY", "ITEM_GEM", "ITEM_JEWELRY") else 1
+        return shell + sum(Item.object_number(child)
+                           for child in list(getattr(item, "contains", []) or []))
+
+    @staticmethod
+    def object_weight(item) -> int:
+        weight = GenericUtil.to_int(getattr(item, "weight", 0), 0)
+        multiplier = Item.weight_multiplier(item)
+        return weight + sum(Item.object_weight(child) * multiplier // 100
+                            for child in list(getattr(item, "contains", []) or []))
+
+    @staticmethod
+    def true_weight(item) -> int:
+        """Container shell plus weighted contents, without its own multiplier."""
+        return GenericUtil.to_int(getattr(item, "weight", 0), 0) + sum(
+            Item.object_weight(child) for child in list(getattr(item, "contains", []) or [])
+        )
 
     @classmethod
     def is_container_like(cls, item) -> bool:
@@ -273,15 +304,15 @@ class Item:
 
     @classmethod
     def is_pc_corpse(cls, item) -> bool:
-        return cls.item_type_name(item) == "ITEM_CORPSE_PC"
+        return cls.item_type_name(item) in {"ITEM_CORPSE_PC", "PC_CORPSE", "CORPSE_PC"}
 
     @classmethod
     def is_npc_corpse(cls, item) -> bool:
-        return cls.item_type_name(item) == "ITEM_CORPSE_NPC"
+        return cls.item_type_name(item) in {"ITEM_CORPSE_NPC", "NPC_CORPSE", "CORPSE_NPC"}
 
     @classmethod
     def is_corpse(cls, item) -> bool:
-        return cls.item_type_name(item) in {"NPC_CORPSE", "CORPSE_PC"}
+        return cls.is_npc_corpse(item) or cls.is_pc_corpse(item)
 
     @classmethod
     def is_potion(cls, item) -> bool:
@@ -444,13 +475,13 @@ class Item:
         from api.CharacterApi import CharacterApi
         if CharacterApi.is_npc(character):
             return False
-        strength = max(0, GenericUtil.to_int(character.character_attributes.strength, 0))
+        strength = max(3, min(25, GenericUtil.to_int(character.character_attributes.strength, 0)))
         try:
-            strength_bonus = CharacterApi.get_attribute_bonus("strength", str(character.level))
+            strength_bonus = CharacterApi.get_attribute_bonus("strength", str(strength))
         except RuntimeError:
             strength_bonus = {}
-        wield_limit = GenericUtil.to_int(strength_bonus.get(str(strength), {}).get("wield", 0), 0) * 10
-        return 0 < wield_limit < GenericUtil.to_int(self.weight, 0)
+        wield_limit = GenericUtil.to_int(strength_bonus.get("wield", 0), 0) * 10
+        return Item.object_weight(self) > wield_limit
 
     def is_two_handed_weapon(self) -> bool:
         from api.CharacterApi import CharacterApi

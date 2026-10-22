@@ -5,11 +5,13 @@ import random
 from injector import inject
 
 from api.GameApi import GameApi
+from api.CommunicationsApi import CommunicationsApi
 from area.Shop import Shop
 from combat.CombatHandler import FightHandler
 from game.EnumProvider import EnumProvider
 from game.Equipped import Equipped
 from game.WeatherHandler import WeatherHandler
+from game.RandomNumberGenerator import RandomNumberGenerator
 from item.Effect import Effect
 from item.EffectHandler import EffectHandler
 from util.EnumUtil import EnumUtil
@@ -17,6 +19,7 @@ from util.GenericUtil import GenericUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from util.InfoUtil import InfoUtil
+from util.LookupUtil import LookupUtil
 from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
 from api.InterpApi import InterpApi
@@ -57,6 +60,7 @@ class Object:
         self.spell_api = spell_api
         self.fight_handler = fight_handler
         self.item_types = enum_provider.get("itemTypes")
+        self.container_state = enum_provider.get("containerState")
         self.item_flags = enum_provider.get("itemFlags")
         self.wear_flags = enum_provider.get("wearFlags")
         self.weapon_type = enum_provider.get("weaponType")
@@ -231,9 +235,15 @@ class Object:
             context.finish()
             return blocked
 
+        haggle = self._haggle_transaction(character, context, "sell")
         context.sell_shop.complete_sale(character, context.sell_keeper, context.sell_obj, context.sell_cost, self.item_flags, effect_handler=self.effect_handler)
 
         payload = self._sell_success_payload(character, room, context)
+        if haggle:
+            payload = {"payloads": [
+                {"to_room": payload["to_room"], "targets": payload["targets"]},
+                {"to_char": haggle + payload["to_char"]},
+            ]}
         context.finish()
         return payload
 
@@ -380,7 +390,11 @@ class Object:
         context.get_all = self._is_get_all_selector(arg1)
         context.get_filter_name = self._get_selector_filter(arg1)
         context.get_all_from_container = bool(context.get_all and context.container_name)
-        context.container = character.find_inventory_item(context.container_name) or (None if room is None else room.find_room_item(context.container_name)) if context.container_name else None
+        context.container = self._here_item(character, room, context.container_name) if context.container_name else None
+        context.get_container_loot_allowed = (
+            context.container is None or not Item.is_pc_corpse(context.container)
+            or self.can_loot(character, context.container, room)
+        )
         context.target_item = None
         context.get_candidates = []
         context.get_item_takeable = False
@@ -389,12 +403,12 @@ class Object:
             if context.get_all:
                 context.get_candidates = self._get_matching_container_items(character, room, context.container, context.get_filter_name)
             else:
-                context.target_item = context.container.find_contained_item(arg1) if hasattr(context.container, "find_contained_item") else None
+                context.target_item = LookupUtil.find(list(getattr(context.container, "contains", []) or []), arg1, visible=lambda obj: ItemUtil.can_see_object(room, character, obj))
         elif not context.container_name:
             if context.get_all:
                 context.get_candidates = self._get_matching_room_items(character, room, context.get_filter_name)
             else:
-                context.target_item = room.find_room_item(arg1)
+                context.target_item = self._room_item(character, room, arg1)
 
         if context.target_item is not None:
             context.get_item_takeable = ItemApi.item_takeable(context.target_item, self.wear_flags)
@@ -426,15 +440,19 @@ class Object:
         char_lines = []
         room_lines = []
         moved_any = False
+        payloads = []
 
         for obj in list(items or []):
             payload = self._get_one(character, room, context, obj, container)
+            payloads.append(payload)
             if payload.get("to_char"):
                 char_lines.append(payload["to_char"])
             if payload.get("to_room"):
                 room_lines.append(payload["to_room"])
                 moved_any = True
 
+        if any("payloads" in payload for payload in payloads):
+            return {"payloads": payloads}
         result = {"to_char": "".join(char_lines)}
         if moved_any and room is not None:
             result["to_room"] = "".join(room_lines)
@@ -442,12 +460,25 @@ class Object:
         return result
 
     def _get_one(self, character: Character, room, context: Context, item, container=None):
-        error = self._get_item_error(character, context, item)
+        if (getattr(container, "owner", None) and Item.is_pc_corpse(container)
+                and not self.can_loot(character, container, room)):
+            return {"to_char": self._render_command_message(context, "cannot")}
+        error = self._get_item_error(character, context, item, container)
         if error:
             return {"to_char": error}
 
         item_short = Item.short(item)
         if container is not None:
+            if self._is_donation_pit(container):
+                if CharacterApi.get_trust(character) < GenericUtil.to_int(getattr(item, "level", 0), 0):
+                    return {"to_char": self._render_command_message(context, "pit_level")}
+                if (not ItemApi.item_takeable(container, self.wear_flags)
+                        and not ItemApi.has_item_flag(item, self.item_flags, "ITEM_HAD_TIMER")):
+                    item.timer = 0
+            item.extra_flags = GameApi.unset_bit(
+                GameApi.flags_to_int(getattr(item, "extra_flags", 0)),
+                CharacterApi.enum_bit(self.item_flags, "ITEM_HAD_TIMER"),
+            )
             container.remove_contained_item(item)
             container_short = Item.short(container)
             to_char = self._render_command_message(context, "from_container", t=item_short, T=container_short)
@@ -467,9 +498,34 @@ class Object:
         if room is not None:
             payload["to_room"] = to_room
             payload["targets"] = room.player_targets(character)
+        if str(getattr(item, "item_type", "")).lower() == "money":
+            split = self._autosplit(character, room, context, int(item.value0), int(item.value1))
+            if split is not None:
+                return {"payloads": [payload, split]}
         return payload
 
-    def _get_item_error(self, character: Character, context: Context, item) -> str:
+    def _autosplit(self, character, room, context, silver, gold=0, *, sacrifice=False):
+        bit = CharacterApi.enum_bit(self.PlayerActBits, "PLR_AUTOSPLIT")
+        flags = getattr(getattr(character, "status_flags", None), "act", 0)
+        if room is None or not bit or not CharacterApi.is_set(flags, bit):
+            return None
+        if silver <= 1 and (sacrifice or gold <= 0):
+            return None
+        argument = str(silver) if sacrifice else f"{silver} {gold}"
+        split_context = Context(character=character, room=room,
+                                handler_service=getattr(context, "handler_service", None),
+                                command=self.registry_service.interp_registry.get(name="split"),
+                                result=argument, parameters=argument.split())
+        view = self.interp_api.build_interp_view(split_context)
+        members = [person for person in CommunicationsApi.room_people(view)
+                   if CharacterApi.is_same_group(person, character)
+                   and (sacrifice or not CommunicationsApi.is_charmed(person))]
+        if len(members) <= 1:
+            return None
+        payload = CommunicationsApi.split_money(split_context, self.interp_api)
+        return {"actor": character, "context": split_context, "payloads": [payload]}
+
+    def _get_item_error(self, character: Character, context: Context, item, container=None) -> str:
         if item is None:
             return ""
         item_short = Item.short(item)
@@ -477,14 +533,34 @@ class Object:
             return self._render_command_message(context, "cannot_take", t=item_short)
 
         max_items = character.max_items()
-        if max_items > 0 and character.carry_count() + 1 > max_items:
+        if max_items > 0 and character.carry_count() + Item.object_number(item) > max_items:
             return self._render_command_message(context, "carry_items", t=item_short)
 
         max_weight = character.max_weight()
-        item_weight = GenericUtil.to_int(getattr(item, "weight", 0), 0)
-        if max_weight > 0 and character.carry_weight() + item_weight > max_weight:
+        item_weight = Item.object_weight(item)
+        carried_container = container is not None and any(obj is container for obj in character.owned_items())
+        if not carried_container and max_weight > 0 and character.carry_weight() + item_weight > max_weight:
             return self._render_command_message(context, "carry_weight", t=item_short)
+        if not self.can_loot(character, item, getattr(context, "room", None)):
+            return self._render_command_message(context, "loot_not_permitted")
         return ""
+
+    def can_loot(self, character, item, room=None) -> bool:
+        # Registries contain persisted players and NPC prototypes too. Only room
+        # occupants and playing characters correspond to ROM's live char_list.
+        if not getattr(item, "owner", None):
+            return True
+
+        def owners():
+            registry = getattr(self.registry_service, "character_registry", None)
+            yield from list(getattr(registry, "playing", {}).values())
+            all_rooms = getattr(self.room_registry, "all_rooms", None)
+            rooms = all_rooms() if callable(all_rooms) else ([room] if room is not None else [])
+            for current_room in rooms:
+                yield from list(getattr(current_room, "characters", {}).values())
+                yield from list(getattr(current_room, "mobiles", {}).values())
+
+        return ItemApi.can_loot(character, item, owners())
 
     @staticmethod
     def _is_get_all_selector(arg1: str) -> bool:
@@ -520,7 +596,7 @@ class Object:
         room = getattr(context, "room", None)
         if room is None:
             room = self.room_registry.get_or_none(id=character.room_id)
-        item = character.find_inventory_item(arg1) if arg1 else None
+        item = self._inventory_item(character, room, arg1) if arg1 else None
 
         context.room = room
         context.envenom_arg1 = arg1
@@ -560,11 +636,11 @@ class Object:
         if success:
             if GenericUtil.to_int(getattr(item, "value3", 0), 0) == 0:
                 item.value3 = "1"
-                self._improve_item_skill(character, "envenom", True)
+                self._improve_item_skill(character, "envenom", True, multiplier=4)
             return self._envenom_payload(character, room, context, "food", item)
 
         if GenericUtil.to_int(getattr(item, "value3", 0), 0) == 0:
-            self._improve_item_skill(character, "envenom", False)
+            self._improve_item_skill(character, "envenom", False, multiplier=4)
         return {"to_char": self._render_command_message(context, "food_fail", t=Item.short(item))}
 
     def _finish_envenom_weapon(self, character: Character, room, context: Context, item) -> dict:
@@ -572,10 +648,10 @@ class Object:
         self._set_wait(character, self._skill_beats("envenom", 24))
         if percent < context.envenom_skill_percent:
             self._apply_weapon_poison(character, item, percent)
-            self._improve_item_skill(character, "envenom", True)
+            self._improve_item_skill(character, "envenom", True, multiplier=3)
             return self._envenom_payload(character, room, context, "weapon", item)
 
-        self._improve_item_skill(character, "envenom", False)
+        self._improve_item_skill(character, "envenom", False, multiplier=3)
         return {"to_char": self._render_command_message(context, "weapon_fail", t=Item.short(item))}
 
     def _envenom_payload(self, character: Character, room, context: Context, key: str, item) -> dict:
@@ -593,7 +669,7 @@ class Object:
             where="TO_WEAPON",
             type="spell.poison",
             level=(level * percent) // 100,
-            duration=max(1, ((level // 2) * percent) // 100),
+            duration=((level // 2) * percent) // 100,
             location="0",
             modifier=0,
             bitvector="WEAPON_POISON",
@@ -631,11 +707,16 @@ class Object:
 
     @staticmethod
     def _is_edged_weapon(item) -> bool:
-        damage_name = str(getattr(item, "damage_type", "") or getattr(item, "value3", "") or "").strip().lower()
-        if damage_name.lstrip("-").isdigit():
-            return GenericUtil.to_int(damage_name, 0) >= 0
-        blunt_names = {"bash", "pound", "crush", "suction", "beating", "charge", "slap", "punch", "peck", "peckb", "smash", "thwack"}
-        return bool(damage_name) and damage_name not in blunt_names
+        attack = str(getattr(item, "value3", "") or "").strip()
+        if attack.lstrip("-").isdigit() and int(attack) < 0:
+            return False
+        raw_damage = getattr(item, "damage_type", None)
+        damage = str(raw_damage if raw_damage is not None else attack).strip().lower()
+        if damage.lstrip("-").isdigit():
+            damage_types = CharacterApi.get_enum("damageTypes")
+            return int(damage) >= 0 and int(damage) != int(damage_types.DAM_BASH.value)
+        blunt_names = {"bash", "dam_bash", "blast", "pound", "crush", "suction", "beating", "charge", "slap", "punch", "peckb", "smash", "thwack"}
+        return bool(damage) and damage not in blunt_names
 
     def _has_item_flags(self, item, *flag_names: str) -> bool:
         for flag_name in flag_names:
@@ -663,20 +744,42 @@ class Object:
             context.finish()
             return blocked
 
-        error = self._put_item_error(context.put_obj, context)
-        if error:
+        if context.put_all:
+            payload = self._put_many(character, room, context)
             context.finish()
-            return {"to_char": error}
+            return payload
 
-        character.remove_item(context.put_obj)
-        context.put_container.add_contained_item(context.put_obj)
+        error_key = self._put_item_error_key(context.put_obj, context)
+        if error_key:
+            context.finish()
+            return {"to_char": self._render_command_message(context, error_key, t=Item.short(context.put_obj))}
+
         context.finish()
-        key = "on" if context.put_relation == "on" else "in"
+        return self._put_one(character, room, context, context.put_obj)
+
+    def _is_donation_pit(self, container):
+        pit = getattr(self.well_known_object_vnums, "OBJ_VNUM_PIT", None)
+        return pit is not None and str(getattr(container, "vnum", "")) == str(pit.value)
+
+    def _put_one(self, character, room, context, item):
+        if (not context.put_all and self._is_donation_pit(context.put_container)
+                and not ItemApi.item_takeable(context.put_container, self.wear_flags)):
+            if GenericUtil.to_int(getattr(item, "timer", 0), 0):
+                item.extra_flags = GameApi.set_bit(
+                    GameApi.flags_to_int(getattr(item, "extra_flags", 0)),
+                    CharacterApi.enum_bit(self.item_flags, "ITEM_HAD_TIMER"),
+                )
+            else:
+                item.timer = RandomNumberGenerator().number_range(100, 200)
+        character.remove_item(item)
+        context.put_container.add_contained_item(item)
+        put_on = CharacterApi.enum_bit(self.container_state, "CONT_PUT_ON")
+        key = "on" if GameApi.is_set(getattr(context.put_container, "value1", 0), put_on) else "in"
         return {
             "to_char": self._render_command_message(
                 context,
                 key,
-                t=Item.short(context.put_obj),
+                t=Item.short(item),
                 T=Item.short(context.put_container),
             ),
             "to_room": self._render_command_message(
@@ -684,11 +787,43 @@ class Object:
                 key,
                 channel="to_room",
                 c=character.name,
-                t=Item.short(context.put_obj),
+                t=Item.short(item),
                 T=Item.short(context.put_container),
             ),
             "targets": room.player_targets(character),
         }
+
+    def _put_many(self, character, room, context):
+        container = context.put_container
+        wanted = context.put_arg1[4:]
+        payloads = []
+        for item in list(character.owned_items()):
+            if context.put_arg1 != "all" and (not wanted or not all(
+                    InfoUtil.look_keyword_matches(word, getattr(item, "name", "")) for word in wanted.split())):
+                continue
+            if not ItemUtil.can_see_object(room, character, item):
+                continue
+            if (character.equipped_slot_of(item) is not None
+                    or GenericUtil.to_int(getattr(item, "wear_loc", -1), -1) != -1
+                    or item is container):
+                continue
+            if self._put_item_error_key(item, context, bulk=True):
+                continue
+
+            pit = getattr(self.well_known_object_vnums, "OBJ_VNUM_PIT", None)
+            # Preserve this checkout's bulk-path predicate: the item's TAKE
+            # flag controls the timer, unlike single put's container predicate.
+            if (pit is not None and str(getattr(container, "vnum", "")) == str(pit.value)
+                    and not ItemApi.item_takeable(item, self.wear_flags)):
+                if GenericUtil.to_int(getattr(item, "timer", 0), 0):
+                    item.extra_flags = GameApi.set_bit(
+                        GameApi.flags_to_int(getattr(item, "extra_flags", 0)),
+                        CharacterApi.enum_bit(self.item_flags, "ITEM_HAD_TIMER"),
+                    )
+                else:
+                    item.timer = RandomNumberGenerator().number_range(100, 200)
+            payloads.append(self._put_one(character, room, context, item))
+        return {"payloads": payloads}
 
     def _prepare_put_context(self, character: Character, context: Context):
         arg1, rem = ItemUtil.parse_raw_arguments(context.result, context.parameters)
@@ -698,29 +833,29 @@ class Object:
 
         context.room = room
         context.put_room = room
-        context.put_arg1 = arg1
+        context.put_arg1 = arg1.lower()
         context.put_rem = rem
-        context.put_relation = self._put_relation(context)
+        context.put_all = context.put_arg1 == "all" or context.put_arg1.startswith("all.")
         context.put_container_name = rem.split()[0] if rem else ""
-        context.put_obj = character.find_inventory_item(arg1) if arg1 else None
-        context.put_container = character.find_inventory_item(context.put_container_name) or (None if room is None else room.find_room_item(context.put_container_name)) if context.put_container_name else None
+        context.put_obj = self._inventory_item(character, room, arg1) if arg1 and not context.put_all else None
+        context.put_container = self._here_item(character, room, context.put_container_name) if context.put_container_name else None
         return room
 
-    def _put_item_error(self, item, context: Context) -> str:
+    def _put_item_error_key(self, item, context: Context, *, bulk: bool = False) -> str:
         if item is None:
             return ""
-        if ItemApi.has_item_flag(item, self.item_flags, "ITEM_NODROP"):
-            return self._render_command_message(context, "target_no_drop", t=Item.short(item))
+        if (ItemApi.has_item_flag(item, self.item_flags, "ITEM_NODROP")
+                and not CharacterApi.is_immortal(context.character)):
+            return "target_no_drop"
+        if Item.weight_multiplier(item) != 100:
+            return "weight_exceeds"
+        container = context.put_container
+        weight = Item.object_weight(item)
+        item_limit = GenericUtil.to_int(container.value3, 0) * 10
+        if (weight + Item.true_weight(container) > GenericUtil.to_int(container.value0, 0) * 10
+                or (weight >= item_limit if bulk else weight > item_limit)):
+            return "container_full"
         return ""
-
-    @staticmethod
-    def _put_relation(context: Context) -> str:
-        raw = (context.result if isinstance(context.result, str) else "").strip()
-        if not raw:
-            raw = " ".join(getattr(context, "parameters", []) or []).strip()
-        _arg1, rest = InterpUtil.one_argument(raw)
-        prep, _tail = InterpUtil.one_argument(rest)
-        return "on" if prep.strip().lower() == "on" else "in"
 
     def do_drop(self, character: Character, context: Context):
         room = self._prepare_drop_context(character, context)
@@ -729,7 +864,9 @@ class Object:
             context.finish()
             return blocked
 
-        if context.drop_all:
+        if context.drop_is_money:
+            payload = self._drop_money(character, room, context)
+        elif context.drop_all:
             payload = self._drop_all(character, room, context, context.arg1)
         else:
             payload = self._drop_one(character, room, context, context.drop_item)
@@ -737,7 +874,7 @@ class Object:
         return payload
 
     def _prepare_drop_context(self, character: Character, context: Context):
-        arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
+        arg1, remainder = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = getattr(context, "room", None)
         if room is None:
             room = self.room_registry.get_or_none(id=character.room_id)
@@ -745,9 +882,47 @@ class Object:
         context.arg1 = arg1
         context.drop_room = room
         context.drop_all = arg1 == "all" or arg1.startswith("all.")
-        context.drop_item = None if context.drop_all or not arg1 else character.find_inventory_item(arg1)
+        context.drop_is_money = bool(arg1 and (arg1[1:] if arg1[:1] in ("+", "-") else arg1).isascii()
+                                     and (arg1[1:] if arg1[:1] in ("+", "-") else arg1).isdigit())
+        context.drop_amount = int(arg1) if context.drop_is_money else 0
+        denomination, _ = ItemUtil.parse_raw_arguments(remainder, [])
+        context.drop_currency = "silver" if denomination in ("coin", "coins", "silver") else denomination
+        context.drop_invalid_money = context.drop_is_money and (context.drop_amount <= 0 or context.drop_currency not in ("silver", "gold"))
+        context.drop_insufficient_money = (context.drop_is_money and not context.drop_invalid_money
+                                           and int(getattr(character, context.drop_currency, 0) or 0) < context.drop_amount)
+        context.drop_item = None if context.drop_is_money or context.drop_all or not arg1 else self._inventory_item(character, room, arg1)
         context.drop_no_drop = bool(context.drop_item is not None and ItemApi.has_item_flag(context.drop_item, self.item_flags, "ITEM_NODROP"))
         return room
+
+    def _drop_money(self, character, room, context):
+        silver = context.drop_amount if context.drop_currency == "silver" else 0
+        gold = context.drop_amount if context.drop_currency == "gold" else 0
+        enums = self.well_known_object_vnums
+        piles = []
+        for item in list(room.contents.values()):
+            vnum = GenericUtil.to_int(getattr(item, "vnum", 0), 0)
+            if vnum == enums.OBJ_VNUM_SILVER_ONE.value:
+                silver += 1
+            elif vnum == enums.OBJ_VNUM_GOLD_ONE.value:
+                gold += 1
+            elif vnum == enums.OBJ_VNUM_SILVER_SOME.value:
+                silver += int(item.value0)
+            elif vnum == enums.OBJ_VNUM_GOLD_SOME.value:
+                gold += int(item.value1)
+            elif vnum == enums.OBJ_VNUM_COINS.value:
+                silver += int(item.value0)
+                gold += int(item.value1)
+            else:
+                continue
+            piles.append(item)
+        money = ItemUtil.create_money(gold, silver, self.item_registry, enums)
+        setattr(character, context.drop_currency, int(getattr(character, context.drop_currency, 0) or 0) - context.drop_amount)
+        for item in piles:
+            room.remove_item_from_room(item)
+        room.add_item_to_room(money)
+        return {"to_char": self._render_command_message(context, "coins"),
+                "to_room": self._render_command_message(context, "coins", channel="to_room", c=character.name),
+                "targets": room.player_targets(character)}
 
     def _drop_all(self, character: Character, room, context: Context, arg1: str):
         wanted = arg1[4:].strip().lower() if arg1.startswith("all.") else ""
@@ -756,12 +931,14 @@ class Object:
         char_lines = []
 
         for item in list(getattr(character, "loot", []) or []):
+            if not ItemUtil.can_see_object(room, character, item):
+                continue
             if character.equipped_slot_of(item):
                 continue
             if ItemApi.has_item_flag(item, self.item_flags, "ITEM_NODROP"):
                 continue
             name = str(getattr(item, "name", "") or "").strip().lower()
-            if wanted and wanted not in name.split() and not name.startswith(wanted):
+            if wanted and not LookupUtil.matches(wanted, name):
                 continue
             payload = self._drop_one(character, room, context, item)
             dropped.append(item)
@@ -867,7 +1044,47 @@ class Object:
             context.buy_available = shop.available_stock_quantity(keeper, obj)
         return room
 
+    def _haggle_skill_percent(self, character):
+        if CharacterApi.is_npc(character):
+            return 0
+        skill = self.skill_registry.get_or_none(name="haggle")
+        class_name = str(getattr(getattr(character, "character_class", None), "name", "") or "").lower()
+        required = (getattr(skill, "level_by_class", {}) or {}).get(class_name, 0)
+        if GenericUtil.to_int(getattr(character, "level", 0), 0) < GenericUtil.to_int(required, 0):
+            return 0
+        percent = self._skill_percent(character, "haggle")
+        flags = getattr(character, "status_flags", None)
+        if GenericUtil.to_int(getattr(flags, "pulse_daze", 0), 0) > 0:
+            percent = 2 * percent // 3
+        if GenericUtil.to_int(getattr(flags, "drunk", 0), 0) > 10:
+            percent = 9 * percent // 10
+        return percent
+
+    def _haggle_transaction(self, character, context, transaction):
+        # ROM consumes a roll even for unskilled actors and SELL_EXTRACT items.
+        roll = RandomNumberGenerator().number_percent()
+        item = None if transaction == "pet" else (context.sell_obj if transaction == "sell" else context.buy_item)
+        if item is not None and ItemApi.has_item_flag(item, self.item_flags, "ITEM_SELL_EXTRACT"):
+            return ""
+        if roll >= self._haggle_skill_percent(character):
+            return ""
+        if transaction == "sell":
+            context.sell_cost = context.sell_shop.haggle_sale_price(context.sell_cost, item, context.sell_keeper, roll)
+            context.sell_gold, context.sell_silver = divmod(context.sell_cost, 100)
+            context.sell_suffix = "" if context.sell_cost == 1 else "s"
+            message = self._render_command_message(context, "haggle_success")
+        else:
+            base_cost = context.buy_cost if transaction == "pet" else GenericUtil.to_int(item.cost, 0)
+            context.buy_cost = Shop.haggle_purchase_price(context.buy_cost, base_cost, roll)
+            context.buy_total_cost = context.buy_cost * context.buy_quantity
+            message = self._render_command_message(
+                context, "haggle_pet" if transaction == "pet" else "haggle_success",
+                q=context.buy_cost, t=getattr(context.buy_keeper, "short_description", ""))
+        self._improve_item_skill(character, "haggle", True, multiplier=4)
+        return message
+
     def _finish_buy_item(self, character: Character, room, context: Context):
+        haggle = self._haggle_transaction(character, context, "buy")
         context.buy_shop.complete_purchase(
             character,
             context.buy_keeper,
@@ -878,17 +1095,18 @@ class Object:
         )
         if context.buy_quantity > 1:
             return {
-                "to_char": self._render_command_message(context, "bulk_purchased", t=context.buy_item_short, d=context.buy_quantity, q=context.buy_total_cost),
+                "to_char": haggle + self._render_command_message(context, "bulk_purchased", t=context.buy_item_short, d=context.buy_quantity, q=context.buy_total_cost),
                 "to_room": self._render_command_message(context, "bulk_purchased", channel="to_room", c=character.name, t=context.buy_item_short, d=context.buy_quantity),
                 "targets": room.player_targets(character),
             }
         return {
-            "to_char": self._render_command_message(context, "default", t=context.buy_item_short, q=context.buy_cost),
+            "to_char": haggle + self._render_command_message(context, "default", t=context.buy_item_short, q=context.buy_cost),
             "to_room": self._render_command_message(context, "item_purchased", channel="to_room", c=character.name, t=context.buy_item_short),
             "targets": room.player_targets(character),
         }
 
     def _finish_buy_pet(self, character: Character, room, context: Context):
+        haggle = self._haggle_transaction(character, context, "pet")
         pet = Shop.complete_pet_purchase(
             character,
             room,
@@ -903,10 +1121,13 @@ class Object:
         if character_registry is not None:
             character_registry.register(pet)
         return {
-            "to_char": self._render_command_message(context, "pet_purchased"),
+            "to_char": haggle + self._render_command_message(context, "pet_purchased"),
             "to_room": self._render_command_message(context, "pet_purchased", channel="to_room", c=character.name, t=getattr(pet, "short_description", "a pet")),
             "targets": room.player_targets(character),
         }
+
+    def _shop_carried_item(self, character, room, selector):
+        return self._inventory_item(character, room, selector)
 
     def _prepare_sell_context(self, character: Character, context: Context):
         raw = (context.result if isinstance(context.result, str) else "").strip()
@@ -930,6 +1151,7 @@ class Object:
         context.sell_silver = 0
         context.sell_suffix = "s"
         context.sell_no_drop = False
+        context.sell_keeper_cannot_see_item = False
 
         if not raw or room is None:
             return room
@@ -941,12 +1163,13 @@ class Object:
         if keeper is None or shop is None:
             return room
 
-        obj = character.find_owned_item(raw)
+        obj = self._shop_carried_item(character, room, raw)
         context.sell_obj = obj
         if obj is None:
             return room
 
         context.sell_no_drop = ItemApi.has_item_flag(obj, self.item_flags, "ITEM_NODROP")
+        context.sell_keeper_cannot_see_item = not ItemUtil.can_see_object(room, keeper, obj)
         context.sell_item_short = Item.short(obj)
         context.sell_keeper_short = getattr(keeper, "short_description", "The shopkeeper")
         context.sell_cost = shop.sell_price(obj, getattr(keeper, "inventory", []) or [], self.item_types, self.item_flags)
@@ -980,6 +1203,7 @@ class Object:
         context.value_item = None
         context.value_item_short = ""
         context.value_no_drop = False
+        context.value_keeper_cannot_see_item = False
         context.value_cost = 0
         context.value_gold = 0
         context.value_silver = 0
@@ -996,12 +1220,13 @@ class Object:
         if keeper is None or shop is None:
             return room
 
-        obj = character.find_owned_item(raw)
+        obj = self._shop_carried_item(character, room, raw)
         context.value_item = obj
         if obj is None:
             return room
 
         context.value_no_drop = ItemApi.has_item_flag(obj, self.item_flags, "ITEM_NODROP")
+        context.value_keeper_cannot_see_item = not ItemUtil.can_see_object(room, keeper, obj)
         context.value_item_short = Item.short(obj)
         quote = shop.quote_value(obj, keeper, self.item_types, self.item_flags)
         context.value_cost = quote.cost
@@ -1015,7 +1240,7 @@ class Object:
     def do_sacrifice(self, character: Character, context: Context):
         context.arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
-        context.item = room.find_room_item(context.arg1) if room is not None else None
+        context.item = self._room_item(character, room, context.arg1) if room is not None else None
         context.item_name = Item.short(context.item) if context.item is not None else None
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get('blocked'):
@@ -1032,11 +1257,15 @@ class Object:
             context,
             "one_silver" if silver == 1 else "multiple_silver",
             channel="to_char",
-            d=silver,
+            d=str(silver),
         )
-        payload.update(reward)
+        split = self._autosplit(character, room, context, silver, sacrifice=True)
+        if split is None:
+            payload.update(reward)
         if room is not None and payload.get("to_room"):
             payload["targets"] = room.player_targets(character)
+        if split is not None:
+            return {"payloads": [reward, split, payload]}
         return payload
 
     def destroy_carried(self, character: Character, context: Context, empty_msg: str, success_msg: str = "Ok.\r\n"):
@@ -1044,7 +1273,8 @@ class Object:
         if not arg1:
             context.finish()
             return {"to_char": empty_msg}
-        item = character.find_inventory_item(arg1)
+        room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
+        item = self._inventory_item(character, room, arg1)
         if item is None:
             context.finish()
             return {"to_char": "You do not have that item.\r\n"}
@@ -1122,7 +1352,7 @@ class Object:
             if context.give_invalid_money or not victim_name:
                 return room
 
-            victim = self._find_give_target(room, victim_name)
+            victim = self._find_give_target(room, victim_name, character)
             context.victim = victim
             if victim is None:
                 return room
@@ -1142,8 +1372,8 @@ class Object:
             return room
 
         victim_name, _ = InterpUtil.one_argument(rem)
-        item = character.find_inventory_item(arg1) if arg1 else None
-        victim = self._find_give_target(room, victim_name)
+        item = self._inventory_item(character, room, arg1) if arg1 else None
+        victim = self._find_give_target(room, victim_name, character)
         item_short = Item.short(item) if item is not None else ""
 
         context.give_victim_name = victim_name
@@ -1163,11 +1393,11 @@ class Object:
             return room
 
         max_items = victim.max_items()
-        if max_items > 0 and victim.carry_count() + 1 > max_items:
+        if max_items > 0 and victim.carry_count() + Item.object_number(item) > max_items:
             context.give_target_hands_full = True
 
         max_weight = victim.max_weight()
-        item_weight = GenericUtil.to_int(getattr(item, "weight", 0), 0)
+        item_weight = Item.object_weight(item)
         if max_weight > 0 and victim.carry_weight() + item_weight > max_weight:
             context.give_target_encumbered = True
 
@@ -1324,16 +1554,9 @@ class Object:
             t=getattr(victim, "name", ""),
         )
 
-    def _find_give_target(self, room, wanted: str):
-        query = str(wanted or "").strip()
-        if room is None or not query:
-            return None
-        for collection_name in ("characters", "mobiles"):
-            collection = getattr(room, collection_name, {}) or {}
-            for entity in collection.values():
-                if InfoUtil.look_keyword_matches(query, getattr(entity, "name", "")):
-                    return entity
-        return None
+    def _find_give_target(self, room, wanted: str, observer=None):
+        return LookupUtil.character(room, observer, wanted,
+                                    visible=lambda target: self._can_see(observer, target, room))
 
     def _is_shopkeeper(self, victim) -> bool:
         if victim is None:
@@ -1377,6 +1600,11 @@ class Object:
         if context.steal_is_money:
             payload = self._finish_steal_money(character, context)
         else:
+            self._prepare_steal_item_context(character, context)
+            payload = self._steal_item_blocked_payload(context)
+            if payload is not None:
+                context.finish()
+                return payload
             payload = self._finish_steal_item(character, context)
         context.finish()
         return payload
@@ -1391,7 +1619,7 @@ class Object:
         if room is None:
             room = self.room_registry.get_or_none(id=character.room_id)
 
-        victim = self._find_give_target(room, arg2)
+        victim = self._find_give_target(room, arg2, character)
         context.room = room
         context.steal_raw = raw
         context.steal_item_name = str(arg1 or "").strip().lower()
@@ -1404,24 +1632,29 @@ class Object:
         context.steal_inventory_full = False
         context.steal_encumbered = False
 
-        if victim is not None and not context.steal_is_money and arg1:
-            item = victim.find_inventory_item(arg1) if hasattr(victim, "find_inventory_item") else None
+        return room
+
+    def _prepare_steal_item_context(self, character, context):
+        victim = context.steal_victim
+        if victim is not None:
+            item = self._inventory_item(victim, context.room, context.steal_item_name, observer=character)
             context.steal_item = item
             context.steal_item_short = Item.short(item) if item is not None else ""
             if item is not None:
                 context.steal_no_drop = bool(
-                    ItemApi.has_item_flag(item, self.item_flags, "ITEM_NODROP", "ITEM_INVENTORY")
+                    (ItemApi.has_item_flag(item, self.item_flags, "ITEM_NODROP")
+                     and not CharacterApi.is_immortal(character))
+                    or ItemApi.has_item_flag(item, self.item_flags, "ITEM_INVENTORY")
                     or GenericUtil.to_int(getattr(item, "level", 0), 0) > GenericUtil.to_int(getattr(character, "level", 0), 0)
                 )
                 max_items = character.max_items() if hasattr(character, "max_items") else 0
-                if max_items > 0 and character.carry_count() + 1 > max_items:
+                if max_items > 0 and character.carry_count() + Item.object_number(item) > max_items:
                     context.steal_inventory_full = True
 
                 max_weight = character.max_weight() if hasattr(character, "max_weight") else 0
-                item_weight = GenericUtil.to_int(getattr(item, "weight", 0), 0)
-                if max_weight > 0 and character.carry_weight() + item_weight > max_weight:
+                item_weight = Item.object_weight(item)
+                if max_weight > 0 and ItemApi.carried_weight(character, include_coins=False) + item_weight > max_weight:
                     context.steal_encumbered = True
-        return room
 
     def _steal_blocked_payload(self, character: Character, room, context: Context) -> dict | None:
         if not context.steal_item_name or not context.steal_victim_name:
@@ -1439,16 +1672,17 @@ class Object:
 
         if CharacterApi.is_npc(victim) and getattr(victim, "fighting", None) is not None:
             return {"to_char": self._render_command_message(context, "no_kill_stealing")}
+        return None
 
-        if not context.steal_is_money:
-            if context.steal_item is None:
-                return {"to_char": self._render_command_message(context, "inventory_item_missing")}
-            if context.steal_no_drop:
-                return {"to_char": self._render_command_message(context, "no_drop")}
-            if context.steal_inventory_full:
-                return {"to_char": self._render_command_message(context, "inventory_full")}
-            if context.steal_encumbered:
-                return {"to_char": self._render_command_message(context, "encumbered")}
+    def _steal_item_blocked_payload(self, context) -> dict | None:
+        if context.steal_item is None:
+            return {"to_char": self._render_command_message(context, "inventory_item_missing")}
+        if context.steal_no_drop:
+            return {"to_char": self._render_command_message(context, "no_drop")}
+        if context.steal_inventory_full:
+            return {"to_char": self._render_command_message(context, "inventory_full")}
+        if context.steal_encumbered:
+            return {"to_char": self._render_command_message(context, "encumbered")}
         return None
 
     def _steal_safe_payload(self, character: Character, victim, room) -> dict | None:
@@ -1479,11 +1713,13 @@ class Object:
             level_delta = abs(GenericUtil.to_int(getattr(character, "level", 0), 0) - GenericUtil.to_int(getattr(victim, "level", 0), 0))
             if level_delta > 7:
                 return False
-        return percent <= self._steal_skill_percent(character)
+        return percent <= self._steal_skill_percent(character) and CharacterApi.is_clan(character)
 
     def _finish_steal_failure(self, character: Character, room, context: Context) -> dict:
         victim = context.steal_victim
-        self._improve_item_skill(character, "steal", False)
+        self.effect_handler.affect_strip(character, "sneak")
+        self.effect_handler.affect_strip(character, "skill.sneak")
+        CharacterApi.set_affected_by_name(character, self.affected_bits, "AFF_SNEAK", False)
         payload = {
             "to_char": self._render_command_message(context, "failed"),
             "to_room": self._render_command_message(context, "failed", channel="to_room", c=character.name, t=getattr(victim, "name", "")),
@@ -1492,11 +1728,35 @@ class Object:
         if not CharacterApi.is_npc(victim):
             payload["to_victim"] = self._render_command_message(context, "failed", channel="to_victim", c=character.name)
             payload["victim"] = victim
+        payloads = [payload]
+        reaction = ("fail_message_one", "fail_message_two", "fail_message_robbed", "fail_message_three")[random.randint(0, 3)]
+        text = self._render_command_message(context, reaction, channel="to_room", c=character.name).strip()
+        player_handler = context.player_handler()
+        if not self._is_awake(victim):
+            stand_context = self._theft_reaction_context(context, victim, "stand", "")
+            stand = player_handler.movement_commands.do_stand(victim, stand_context)
+            payloads.append({"actor": victim, "context": stand_context, "payloads": [stand]})
+        if self._is_awake(victim):
+            yell_context = self._theft_reaction_context(context, victim, "yell", text)
+            yell = player_handler.communications_commands.do_yell(yell_context)
+            payloads.append({"actor": victim, "context": yell_context, "payloads": [yell]})
+        if not CharacterApi.is_npc(character) and CharacterApi.is_npc(victim):
+            self._improve_item_skill(character, "steal", False)
+            result = self.fight_handler.multi_hit(victim, character, dt="TYPE_UNDEFINED")
+            fight_payload = self.fight_handler.build_round_payload(victim, character, room, result)
+            payloads.append({"actor": victim, "payloads": [fight_payload]})
         if not CharacterApi.is_npc(character) and not CharacterApi.is_npc(victim):
+            payloads.append({"to_wiznet": self._render_command_message(
+                context, "default", channel="to_wiznet", c=character.name, t=getattr(victim, "name", ""))})
             if self._mark_player_thief(character):
-                payload["to_char"] += self._render_command_message(context, "thief")
-            payload["to_wiznet"] = self._render_command_message(context, "default", channel="to_wiznet", c=character.name, t=getattr(victim, "name", ""))
-        return payload
+                payloads.append({"to_char": self._render_command_message(context, "thief")})
+                self.fight_handler.character_service.save_character(character)
+        return {"payloads": payloads}
+
+    def _theft_reaction_context(self, context, victim, name, argument):
+        return Context(character=victim, command=self.registry_service.interp_registry.get(name=name),
+                       handler_service=getattr(context, "handler_service", None), room=context.room,
+                       parameters=argument.split(), result=argument)
 
     def _finish_steal_money(self, character: Character, context: Context) -> dict:
         victim = context.steal_victim
@@ -1504,11 +1764,6 @@ class Object:
         max_level = self._max_level()
         gold = GenericUtil.to_int(getattr(victim, "gold", 0), 0) * random.randint(1, level) // max_level
         silver = GenericUtil.to_int(getattr(victim, "silver", 0), 0) * random.randint(1, level) // max_level
-        if context.steal_item_name == "gold":
-            silver = 0
-        elif context.steal_item_name == "silver":
-            gold = 0
-
         if gold <= 0 and silver <= 0:
             return {"to_char": self._render_command_message(context, "failed_coins")}
 
@@ -1604,7 +1859,8 @@ class Object:
             return blocked
 
         if context.wear_all:
-            result = Equipped.wear_all(character, self.wear_flags, self.item_flags, effect_handler=self.effect_handler)
+            result = Equipped.wear_all(character, self.wear_flags, self.item_flags, effect_handler=self.effect_handler,
+                                       visible=lambda item: ItemUtil.can_see_object(room, character, item))
         else:
             result = Equipped.wear_item(
                 character,
@@ -1648,7 +1904,7 @@ class Object:
     def _prepare_equipment_context(self, character: Character, context: Context, preferred_slot: str = ""):
         arg1, rem = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = self.room_registry.get_or_none(id=character.room_id)
-        item = None if arg1 == "all" else character.find_inventory_item(arg1)
+        item = None if arg1 == "all" else self._inventory_item(character, room, arg1)
 
         context.room = room
         context.wear_arg1 = arg1
@@ -1677,6 +1933,10 @@ class Object:
     def _equipment_result_payload(self, character: Character, room, context: Context, result) -> dict:
         payload: dict[str, str | list] = {}
 
+        def _render(key, **kwargs):
+            normalized = next(iter(GenericUtil.camel_to_snake_case({key: ""})))
+            return self.interp_api.render_message_key(context, normalized, **kwargs)
+
         def _append(rendered: dict):
             text = str(rendered.get("to_char", "") or "")
             if text:
@@ -1685,13 +1945,15 @@ class Object:
             if room_text:
                 payload["to_room"] = f"{payload.get('to_room', '')}{room_text}"
 
+        for key, tokens in list(getattr(result, "pre_messages", []) or []):
+            _append(_render(key, channel="to_char", **dict(tokens or {})))
         if getattr(result, "blocked_key", ""):
             payload["blocked_key"] = result.blocked_key
-            _append(self.interp_api.render_message_key(context, result.blocked_key, **dict(getattr(result, "blocked_tokens", {}) or {})))
+            _append(_render(result.blocked_key, **dict(getattr(result, "blocked_tokens", {}) or {})))
         for key, tokens in list(getattr(result, "shared_messages", []) or []):
-            _append(self.interp_api.render_message_key(context, key, **dict(tokens or {})))
+            _append(_render(key, **dict(tokens or {})))
         for key, tokens in list(getattr(result, "char_messages", []) or []):
-            _append(self.interp_api.render_message_key(context, key, channel="to_char", **dict(tokens or {})))
+            _append(_render(key, channel="to_char", **dict(tokens or {})))
 
         if payload.get("to_room") and room is not None:
             payload["targets"] = room.player_targets(character)
@@ -1716,7 +1978,7 @@ class Object:
             room = self.room_registry.get_or_none(id=character.room_id)
 
         equipped = character.ensure_equipped()
-        slot, item = equipped.find_remove_target(arg1)
+        slot, item = equipped.find_remove_target(arg1, visible=lambda obj: ItemUtil.can_see_object(room, character, obj))
 
         context.room = room
         context.remove_arg1 = arg1
@@ -1742,13 +2004,21 @@ class Object:
         return GenericUtil.to_int(getattr(status_flags, name, -1), -1)
 
     @staticmethod
-    def _gain_condition(character: Character, name: str, amount: int) -> int:
+    def _gain_condition(character: Character, name: str, amount: int, messages=None) -> int:
         status_flags = getattr(character, "status_flags", None)
         if status_flags is None or not hasattr(status_flags, name):
             return -1
         current = GenericUtil.to_int(getattr(status_flags, name, -1), -1)
         if current == -1:
             return -1
+        if amount == 0 or CharacterApi.is_npc(character) or CharacterApi.is_immortal(character):
+            return current
+        gain = getattr(character, "gain_condition", None)
+        if callable(gain):
+            message = gain(name, int(amount))
+            if messages is not None and message:
+                messages.append(message)
+            return GenericUtil.to_int(getattr(status_flags, name, -1), -1)
         updated = max(0, min(48, current + int(amount)))
         setattr(status_flags, name, updated)
         return updated
@@ -1756,9 +2026,8 @@ class Object:
     def do_drink(self, character: Character, context: Context):
         arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
-        item = character.find_inventory_item(arg1) if arg1 else None
-        if item is None:
-            item = room.find_room_item(arg1) if room is not None and arg1 else None
+        context.room = room
+        item = self._here_item(character, room, arg1) if arg1 else None
         if item is None and not arg1:
             item = Item.first_fountain(room)
         context.drink_arg1 = arg1
@@ -1775,8 +2044,6 @@ class Object:
         else:
             value1 = GenericUtil.to_int(getattr(item, "value1", 0), 0)
             amount = min(max(1, serving_size), value1)
-            if GenericUtil.to_int(getattr(item, "value0", 0), 0) > 0:
-                item.value1 = str(max(0, value1 - amount))
 
         tokens = {
             "c": character.name,
@@ -1790,17 +2057,22 @@ class Object:
             payload["to_room"] = self._render_command_message(context, "default", "to_room", **tokens)
             payload["targets"] = room.player_targets(character)
 
-        if not CharacterApi.is_npc(character) and not CharacterApi.is_immortal(character):
-            drunk_gain = (amount * GenericUtil.to_int(liquid_affect[0], 0)) // 36 if len(liquid_affect) > 0 else 0
-            full_gain = (amount * GenericUtil.to_int(liquid_affect[1], 0)) // 4 if len(liquid_affect) > 1 else 0
-            thirst_gain = (amount * GenericUtil.to_int(liquid_affect[2], 0)) // 10 if len(liquid_affect) > 2 else 0
-            hunger_gain = (amount * GenericUtil.to_int(liquid_affect[3], 0)) // 2 if len(liquid_affect) > 3 else 0
+        if not CharacterApi.is_npc(character):
+            def scaled_gain(index, divisor):
+                numerator = amount * GenericUtil.to_int(liquid_affect[index], 0) if len(liquid_affect) > index else 0
+                return (1 if numerator >= 0 else -1) * (abs(numerator) // divisor)
 
-            drunk = self._gain_condition(character, "drunk", drunk_gain)
-            full = self._gain_condition(character, "hunger", full_gain)
-            if hunger_gain != 0:
-                full = self._gain_condition(character, "hunger", hunger_gain)
-            thirst = self._gain_condition(character, "thirst", thirst_gain)
+            drunk_gain = scaled_gain(0, 36)
+            full_gain = scaled_gain(1, 4)
+            thirst_gain = scaled_gain(2, 10)
+            hunger_gain = scaled_gain(3, 2)
+
+            condition_messages = []
+            drunk = self._gain_condition(character, "drunk", drunk_gain, condition_messages)
+            full = self._gain_condition(character, "fullness", full_gain, condition_messages)
+            thirst = self._gain_condition(character, "thirst", thirst_gain, condition_messages)
+            self._gain_condition(character, "hunger", hunger_gain, condition_messages)
+            payload["to_char"] += "".join(condition_messages)
             self.logger.debug(f"Drunk: {drunk}, Full: {full}, Thirst: {thirst}")
             self.logger.debug(f"drunk_gain: {drunk_gain}; thirst_gain: {thirst_gain}; full_gain: {full_gain}; hunger_gain: {hunger_gain}")
             if drunk > 10:
@@ -1809,12 +2081,17 @@ class Object:
                 payload["to_char"] += self._render_command_message(context, "full")
             if thirst > 40:
                 payload["to_char"] += self._render_command_message(context, "quenched")
+        if GenericUtil.to_int(getattr(item, "value3", 0), 0) != 0:
+            self._apply_consumed_poison(character, context, payload, amount, 3 * amount)
+        if GenericUtil.to_int(getattr(item, "value0", 0), 0) > 0:
+            item.value1 = str(GenericUtil.to_int(getattr(item, "value1", 0), 0) - amount)
         context.finish()
         return payload
 
     def do_eat(self, character: Character, context: Context):
+        room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
         arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
-        item = character.find_inventory_item(arg1)
+        item = self._inventory_item(character, room, arg1)
         context.eat_arg1 = arg1
         context.eat_item = item
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
@@ -1825,19 +2102,33 @@ class Object:
         payload = {
             "to_char": self._render_command_message(context, "default", "to_char", p=Item.short(item)),
         }
-        room = self.room_registry.get_or_none(id=character.room_id)
+        room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
+        context.room = room
         if room is not None:
             payload["to_room"] = self._render_command_message(context, "default", "to_room", c=character.name, p=Item.short(item))
             payload["targets"] = room.player_targets(character)
 
         if "FOOD" in item_type and not CharacterApi.is_npc(character):
             hunger_before = self._condition_value(character, "hunger")
-            hunger_after = self._gain_condition(character, "hunger", GenericUtil.to_int(getattr(item, "value1", 0), 0))
-            self._gain_condition(character, "hunger", GenericUtil.to_int(getattr(item, "value0", 0), 0))
+            condition_messages = []
+            self._gain_condition(character, "fullness", GenericUtil.to_int(getattr(item, "value0", 0), 0), condition_messages)
+            hunger_after = self._gain_condition(character, "hunger", GenericUtil.to_int(getattr(item, "value1", 0), 0), condition_messages)
+            payload["to_char"] += "".join(condition_messages)
             if hunger_before == 0 and hunger_after > 0:
                 payload["to_char"] += self._render_command_message(context, "satiated")
-            elif self._condition_value(character, "hunger") > 40:
+            elif self._condition_value(character, "fullness") > 40:
                 payload["to_char"] += self._render_command_message(context, "full")
+
+        spell_payloads = []
+        if "FOOD" in item_type and GenericUtil.to_int(getattr(item, "value3", 0), 0) != 0:
+            potency = GenericUtil.to_int(getattr(item, "value0", 0), 0)
+            self._apply_consumed_poison(character, context, payload, potency, 2 * potency)
+        elif "PILL" in item_type:
+            for spell_ref in Item.spell_refs(item, 1, 2, 3):
+                spell_payloads.extend(self._cast_item_spell(
+                    character, room, item, spell_ref,
+                    target=character, target_name=character.name, target_kind="char", command_context=context,
+                ))
 
         slot = character.equipped_slot_of(item)
         if slot:
@@ -1845,7 +2136,28 @@ class Object:
             character.unequip_item(slot)
         character.remove_item(item)
         context.finish()
+        if "PILL" in item_type:
+            return {"payloads": [payload, *spell_payloads]}
         return payload
+
+    def _apply_consumed_poison(self, character, context, payload, potency: int, duration: int) -> None:
+        """Food/drink poison joins existing poison without a saving throw."""
+        effect = Effect(
+            where="TO_AFFECTS",
+            type="spell.poison",
+            level=RandomNumberGenerator().number_fuzzy(potency),
+            duration=duration,
+            location="APPLY_NONE",
+            modifier=0,
+            bitvector="AFF_POISON",
+            apply_to="char",
+        )
+        self.effect_handler.affect_join(character, effect)
+        payload["to_char"] += self._render_command_message(context, "poison")
+        if context.room is not None:
+            payload["to_room"] = payload.get("to_room", "") + self._render_command_message(
+                context, "poison", channel="to_room", c=character.name,
+            )
 
     def do_fill(self, character: Character, context: Context):
         room = self._prepare_fill_context(character, context)
@@ -1873,9 +2185,9 @@ class Object:
         if room is None:
             room = self.room_registry.get_or_none(id=character.room_id)
 
-        dest = character.find_inventory_item(arg1) if arg1 else None
+        dest = self._inventory_item(character, room, arg1) if arg1 else None
         src_name = rem.split()[0] if rem else ""
-        src = character.find_inventory_item(src_name) or (None if room is None else room.find_room_item(src_name)) if src_name else None
+        src = self._here_item(character, room, src_name) if src_name else None
         if src is None:
             src = Item.first_fountain(room)
 
@@ -1948,16 +2260,16 @@ class Object:
         arg1, rem = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
         target_arg = str(rem or "").strip()
-        source = character.find_inventory_item(arg1) if arg1 else None
+        source = self._inventory_item(character, room, arg1) if arg1 else None
         target_item = None
         target_character = None
         target_container = None
         preview = None
 
         if target_arg and target_arg.lower() != "out":
-            target_item = character.find_inventory_item(target_arg) or (None if room is None else room.find_room_item(target_arg))
+            target_item = self._here_item(character, room, target_arg)
             if target_item is None:
-                target_character = PlayerUtil.get_target(character, target_arg, room)
+                target_character = self._find_give_target(room, target_arg, character)
                 if target_character is not None:
                     equipped = target_character.ensure_equipped() if hasattr(target_character, "ensure_equipped") else getattr(target_character, "equipped", None)
                     target_container = getattr(equipped, "held", None) if equipped is not None else None
@@ -1982,7 +2294,7 @@ class Object:
     def do_quaff(self, character: Character, context: Context):
         arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
-        item = character.find_inventory_item(arg1) if arg1 else None
+        item = self._inventory_item(character, room, arg1) if arg1 else None
         context.room = room
         context.quaff_arg1 = arg1
         context.quaff_item = item
@@ -1996,7 +2308,7 @@ class Object:
             "targets": room.player_targets(character) if room is not None else [],
         }]
         for spell_ref in Item.spell_refs(item, 1, 2, 3):
-            payloads.extend(self._cast_item_spell(character, room, item, spell_ref, target=character, target_name=character.name, target_kind="char"))
+            payloads.extend(self._cast_item_spell(character, room, item, spell_ref, target=character, target_name=character.name, target_kind="char", command_context=context))
 
         self._destroy_item(character, item)
         context.finish()
@@ -2005,11 +2317,11 @@ class Object:
     def do_recite(self, character: Character, context: Context):
         arg1, rem = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
-        scroll = character.find_inventory_item(arg1) if arg1 else None
+        scroll = self._inventory_item(character, room, arg1) if arg1 else None
         target_name = rem.split()[0] if rem else ""
-        target = character if not target_name else PlayerUtil.get_target(character, target_name, room)
+        target = character if not target_name else self._find_give_target(room, target_name, character)
         if target is None and target_name:
-            target = character.find_inventory_item(target_name) or (None if room is None else room.find_room_item(target_name))
+            target = self._here_item(character, room, target_name)
 
         context.room = room
         context.recite_arg1 = arg1
@@ -2031,7 +2343,7 @@ class Object:
         else:
             target_kind = "obj" if target is not None and hasattr(target, "item_type") else "char"
             for spell_ref in Item.spell_refs(scroll, 1, 2, 3):
-                payloads.extend(self._cast_item_spell(character, room, scroll, spell_ref, target=target, target_name=target_name, target_kind=target_kind))
+                payloads.extend(self._cast_item_spell(character, room, scroll, spell_ref, target=target, target_name=target_name, target_kind=target_kind, command_context=context))
             self._improve_item_skill(character, "scrolls", True)
 
         self._destroy_item(character, scroll)
@@ -2083,7 +2395,7 @@ class Object:
                         continue
                     if target_type == "CHAR_DEFENSIVE" and CharacterApi.is_npc(character) != CharacterApi.is_npc(victim):
                         continue
-                    payloads.extend(self._cast_item_spell(character, room, staff, spell, target=victim, target_name=getattr(victim, "name", ""), target_kind="char"))
+                    payloads.extend(self._cast_item_spell(character, room, staff, spell, target=victim, target_name=getattr(victim, "name", ""), target_kind="char", command_context=context))
                 self._improve_item_skill(character, "staves", True)
 
         if Item.spend_charge(staff) <= 0:
@@ -2100,8 +2412,8 @@ class Object:
         arg1, _ = ItemUtil.parse_raw_arguments(context.result, context.parameters)
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
         wand = getattr(character.ensure_equipped(), "held", None)
-        victim = getattr(character, "fighting", None) if not arg1 else PlayerUtil.get_target(character, arg1, room)
-        obj = None if victim is not None else ((character.find_inventory_item(arg1) if arg1 else None) or (None if room is None else room.find_room_item(arg1)))
+        victim = getattr(character, "fighting", None) if not arg1 else self._find_give_target(room, arg1, character)
+        obj = None if victim is not None else self._here_item(character, room, arg1)
 
         context.room = room
         context.zap_arg1 = arg1
@@ -2150,6 +2462,7 @@ class Object:
                         target=victim or obj,
                         target_name=arg1,
                         target_kind="obj" if obj is not None else "char",
+                        command_context=context,
                     )
                 )
                 self._improve_item_skill(character, "wands", True)
@@ -2173,18 +2486,51 @@ class Object:
         threshold = 20 + (skill_percent * 4) // 5
         return random.randint(1, 100) < threshold
 
-    def _improve_item_skill(self, character: Character, skill_name: str, success: bool):
+    def _improve_item_skill(self, character: Character, skill_name: str, success: bool, multiplier: int = 2):
         skill = self.skill_registry.get_or_none(name=skill_name)
         if skill is None:
             return
-        Ability.check_improve(character, getattr(skill, "id", ""), success, 2)
+        Ability.check_improve(character, getattr(skill, "id", ""), success, multiplier)
 
-    def _cast_item_spell(self, character: Character, room, item, spell_ref, *, target=None, target_name: str = "", target_kind: str = "") -> list[dict]:
+    def _cast_item_spell(self, character: Character, room, item, spell_ref, *, target=None, target_name: str = "", target_kind: str = "", command_context=None) -> list[dict]:
         spell = spell_ref
         if spell is None or not hasattr(spell, "handler_id"):
             spell = FightUtil.find_spell(self.spell_registry, getattr(spell_ref, "name", spell_ref))
         if spell is None:
             return []
+
+        victim = target if target is not None and not hasattr(target, "item_type") else None
+        obj = target if target is not None and hasattr(target, "item_type") else None
+        target_type = str(getattr(spell, "target", "") or "").upper().removeprefix("TAR_")
+        if target_type == "IGNORE":
+            target, target_kind = None, ""
+        elif target_type in ("CHAR_DEFENSIVE", "CHAR_SELF"):
+            target, target_kind = victim if victim is not None else character, "char"
+        elif target_type == "OBJ_INV":
+            target, target_kind = obj, "obj"
+        elif target_type == "CHAR_OFFENSIVE":
+            target = victim if victim is not None else getattr(character, "fighting", None)
+            target_kind = "char"
+        elif target_type in ("OBJ_CHAR_OFF", "OBJ_CHAR_DEF"):
+            target = victim if victim is not None else obj
+            if target is None:
+                target = getattr(character, "fighting", None) if target_type == "OBJ_CHAR_OFF" else character
+            target_kind = "obj" if target is not None and hasattr(target, "item_type") else "char"
+        else:
+            self.logger.error(f"Item spell has invalid target type: {target_type}")
+            return []
+
+        if target is None and target_type != "IGNORE":
+            return [{"to_char": self._render_command_message(command_context, "item_spell_target_missing")}]
+        if target_kind == "char" and target is not character:
+            safe, notice = False, ""
+            if target_type == "CHAR_OFFENSIVE":
+                safe, notice = self.fight_handler.is_safe(character, target, room=room)
+            elif target_type == "OBJ_CHAR_OFF":
+                safe = self.fight_handler.is_safe_spell(character, target, area=False)
+            if safe:
+                return [{"to_char": CommunicationsUtil.ensure_message_break(notice or "")
+                         + self._render_command_message(command_context, "item_spell_unsafe")}]
 
         context = SpellContext(
             actor=character,
@@ -2192,15 +2538,44 @@ class Object:
             handler=self,
             room=room,
             target=target,
-            target_name=target_name,
+            target_name="",
             target_kind=target_kind,
             cast_level=Item.spell_level(item),
             source="player",
+            command_context=command_context,
         )
         self.spell_api.execute_lambdas(context)
-        if context.performed:
-            self.spell_api.start_offensive_combat(context)
+        self._item_spell_retaliation(context, target_type)
         return list(context.payloads)
+
+    def _item_spell_retaliation(self, context, target_type):
+        victim, actor = context.victim, context.actor
+        if (target_type not in ("CHAR_OFFENSIVE", "OBJ_CHAR_OFF") or victim is None
+                or victim is actor or getattr(victim, "master", None) is actor
+                or getattr(victim, "fighting", None) is not None):
+            return
+        room = context.room
+        if room is not None and str(getattr(actor, "room_id", "")) != str(room.id):
+            room = self.room_registry.get_or_none(id=actor.room_id)
+        if room is None or not any(person is victim for person in LookupUtil.people(room)):
+            return
+        notice = self.fight_handler.check_killer(victim, actor)
+        result = self.fight_handler.multi_hit(victim, actor, dt="TYPE_UNDEFINED")
+        attack = self.fight_handler.build_round_payload(victim, actor, room, result)
+        context.queue_payload({"actor": victim, "payloads": [*([notice] if notice else []), attack]})
+
+    def _inventory_item(self, character, room, selector, *, observer=None):
+        observer = character if observer is None else observer
+        return LookupUtil.inventory(character, selector,
+                                    visible=lambda item: ItemUtil.can_see_object(room, observer, item))
+
+    def _room_item(self, character, room, selector):
+        return LookupUtil.find(list(getattr(room, "contents", {}).values()), selector,
+                               visible=lambda item: ItemUtil.can_see_object(room, character, item))
+
+    def _here_item(self, character, room, selector):
+        return LookupUtil.here(character, room, selector,
+                               visible=lambda item: ItemUtil.can_see_object(room, character, item))
 
     @staticmethod
     def _destroy_item(character: Character, item) -> None:
@@ -2293,12 +2668,7 @@ class Object:
 
     @staticmethod
     def _matches_name(entity, wanted: str) -> bool:
-        query = str(wanted or "").strip().lower()
-        if not query:
-            return True
-        name = str(getattr(entity, "name", "") or "").strip().lower()
-        words = [word for word in name.split() if word]
-        return name == query or name.startswith(query) or query in words or any(word.startswith(query) for word in words)
+        return not str(wanted or "").strip() or LookupUtil.matches(wanted, getattr(entity, "name", ""))
 
     @staticmethod
     def _money_value(entity) -> int:

@@ -295,7 +295,7 @@ class WizSetApi:
                 return self._payload("condition_range", tokens={"t": field.capitalize()})
             status_flags = getattr(victim, "status_flags", None)
             if status_flags is not None:
-                target_field = "hunger" if field == "full" else field
+                target_field = "fullness" if field == "full" else field
                 setattr(status_flags, target_field, value)
             context.finish()
             return {"to_char": ""}

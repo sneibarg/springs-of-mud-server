@@ -134,7 +134,7 @@ class Shop:
     def buys_item(self, item, item_types) -> bool:
         if item is None or item_types is None:
             return False
-        item_type_name = str(item.item_type or "").strip().upper()
+        item_type_name = Item.enum_type_name(item)
         if not item_type_name or item_type_name not in item_types.__members__:
             return False
         item_type_value = int(item_types[item_type_name].value)
@@ -221,6 +221,15 @@ class Shop:
                 break
             count += 1
         return count
+
+    @staticmethod
+    def haggle_purchase_price(price: int, base_cost: int, roll: int) -> int:
+        return price - (base_cost // 2) * roll // 100
+
+    def haggle_sale_price(self, price: int, item, keeper, roll: int) -> int:
+        increased = price + (GenericUtil.to_int(item.cost, 0) // 2) * roll // 100
+        wealth = GenericUtil.to_int(keeper.gold, 0) * 100 + GenericUtil.to_int(keeper.silver, 0)
+        return min(increased, 95 * self.buy_price(item) // 100, wealth)
 
     def complete_purchase(self, buyer, keeper, item, quantity: int, cost: int, item_flags):
         current_item = item
@@ -385,7 +394,7 @@ class Shop:
 
     @staticmethod
     def is_trash_item(item) -> bool:
-        return str(item.item_type or "").strip().upper() == "ITEM_TRASH"
+        return Item.enum_type_name(item) == "ITEM_TRASH"
 
     def same_stock_item(self, left, right) -> bool:
         return self._same_stock_item(left, right)
@@ -437,7 +446,7 @@ class Shop:
     @staticmethod
     def _charge_adjusted_price(item, base_price: int) -> int:
         price = max(0, GenericUtil.to_int(base_price, 0))
-        item_type_name = str(item.item_type or "").strip().upper()
+        item_type_name = Item.enum_type_name(item)
         if item_type_name not in {"ITEM_STAFF", "ITEM_WAND"}:
             return price
 

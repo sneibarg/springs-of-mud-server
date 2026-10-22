@@ -219,7 +219,10 @@ class SpellApi:
         victim = ctx.resolve(target) if target is not None else ctx.target
         if victim is None:
             return False
-        self.effect_handler.apply_spell_effects(ctx.actor, victim, ctx.spell)
+        if getattr(ctx, "cast_level", None) is None:
+            self.effect_handler.apply_spell_effects(ctx.actor, victim, ctx.spell)
+        else:
+            self.effect_handler.apply_spell_effects(ctx.actor, victim, ctx.spell, caster_level=ctx.level)
         self._queue_apply_affect_messages(ctx, victim)
         return ctx.mark_performed()
 

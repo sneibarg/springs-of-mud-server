@@ -53,6 +53,7 @@ class StatusFlags:
     logon: int
     pulse_wait: int
     pulse_daze: int
+    fullness: int = field(default=48, kw_only=True)
     _bitfield_write_enabled: bool = field(default=False, init=False, repr=False, compare=False)
     _initialized: bool = field(default=False, init=False, repr=False, compare=False)
 
@@ -102,6 +103,7 @@ class StatusFlags:
             vuln=0,
             form=0,
             parts=0,
+            fullness=48,
             hunger=48,
             thirst=48,
             drunk=0,
@@ -150,6 +152,7 @@ class StatusFlags:
             vuln=template.vuln,
             form=template.form,
             parts=template.parts,
+            fullness=48,
             hunger=48,
             thirst=48,
             drunk=0,

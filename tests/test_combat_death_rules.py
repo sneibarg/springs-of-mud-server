@@ -16,7 +16,7 @@ def load_classes():
     stubs = {name: SimpleNamespace(**{attr: object}) for name, attr in (
         ("area.Shop", "Shop"), ("game.WeatherHandler", "WeatherHandler"), ("item.Effect", "Effect"),
         ("item.EffectHandler", "EffectHandler"), ("util.EnumUtil", "EnumUtil"),
-        ("api.InterpApi", "InterpApi"), ("api.SpellApi", "SpellApi"),
+        ("api.InterpApi", "InterpApi"), ("api.CommunicationsApi", "CommunicationsApi"), ("api.SpellApi", "SpellApi"),
         ("skill.SpellContext", "SpellContext"), ("util.PlayerUtil", "PlayerUtil"))}
     stubs["interp.Context"] = Components["interp.Context"]
     stubs["combat.CombatHandler"] = SimpleNamespace(FightHandler=Runtime.FightHandler)
@@ -48,7 +48,36 @@ class TestCombatDeathRules(unittest.TestCase):
         self.registry = SimpleNamespace(interp_registry=SimpleNamespace(get_or_none=Mock(return_value=SimpleNamespace(name="get"))),
                                         room_registry=SimpleNamespace(get_or_none=Mock(return_value=None)))
         self.objects = Object.__new__(Object)
+        self.objects.PlayerActBits = SimpleNamespace(PLR_AUTOSPLIT=0)
+        self.objects.well_known_object_vnums = SimpleNamespace()
+        self.objects.item_flags = SimpleNamespace()
         self.death = DeathHandler(SimpleNamespace(death_rules=self.config), self.registry, self.objects)
+
+    def test_automatic_sacrifice_preserves_autosplit_payload_and_message_order(self):
+        corpse = SimpleNamespace(item_type="corpse_npc", short_description="a corpse")
+        self.room.remove_item_from_room = Mock()
+        split = {"payloads": [{"target_messages": [{"id": "ally", "text": "split"}]}]}
+        self.objects._autosplit = Mock(return_value=split)
+        self.combat.death_handler = self.death
+        self.actor.silver = 100
+        self.combat.WearFlags = self.combat.ItemFlags = object()
+        before = self.actor.silver
+        with patch.object(Runtime, "Item", SimpleNamespace(is_npc_corpse=lambda item: True, short=lambda item: item.short_description)), \
+                patch.object(Runtime.ItemApi, "item_takeable", return_value=True, create=True), \
+                patch.object(Runtime.ItemApi, "has_item_flag", return_value=False, create=True), \
+                patch.object(Runtime.ItemUtil, "sacrifice_silver_value", return_value=9, create=True), \
+                patch.object(Runtime.ItemUtil, "sacrifice_reward_message", return_value="reward", create=True):
+            payload = self.combat._autosacrifice_corpse(self.actor, corpse, self.room)
+        self.assertEqual(before + 9, self.actor.silver)
+        args, kwargs = self.objects._autosplit.call_args
+        self.assertEqual((self.actor, self.room), args[:2])
+        self.assertIsNone(args[2].handler_service)
+        self.assertEqual(9, args[3])
+        self.assertEqual({"sacrifice": True}, kwargs)
+        self.assertEqual("reward", payload["payloads"][0]["to_char"])
+        self.assertIs(split, payload["payloads"][1])
+        self.assertIn("to_room", payload["payloads"][2])
+        self.room.remove_item_from_room.assert_called_once_with(corpse)
 
     def test_inventory_extraction_rot_and_visibility_flags(self):
         item = SimpleNamespace(extra_flags=7, contains=[SimpleNamespace(contains=[])], timer=0)
@@ -111,7 +140,9 @@ class TestCombatDeathRules(unittest.TestCase):
         self.actor.add_item = Mock()
         self.objects._get_item_error = Mock(return_value="")
         self.objects._render_command_message = Mock(return_value="pickup")
-        with patch.object(ObjectModule, "Item", SimpleNamespace(short=lambda obj: "coins" if obj is money else "corpse")):
+        with patch.object(ObjectModule, "Item", SimpleNamespace(short=lambda obj: "coins" if obj is money else "corpse")), \
+                patch.object(ObjectModule.GameApi, "flags_to_int", side_effect=lambda flags: int(flags), create=True), \
+                patch.object(ObjectModule.GameApi, "unset_bit", side_effect=lambda flags, bit: flags & ~bit, create=True):
             result = self.objects._get_one(self.actor, self.room, SimpleNamespace(), money, container)
         self.assertEqual((8, 5), (self.actor.silver, self.actor.gold))
         self.actor.add_item.assert_not_called()

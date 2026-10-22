@@ -308,9 +308,9 @@ class Info:
 
         lines.append(f"Wimpy set to {attributes.wimpy} hit points.")
         char_context = character.context if isinstance(character.context, dict) else {}
-        drunk = GenericUtil.to_int(getattr(character, "drunk", char_context.get("drunk", 0)), 0)
-        thirst = GenericUtil.to_int(getattr(character, "thirst", char_context.get("thirst", 1)), 1)
-        hunger = GenericUtil.to_int(getattr(character, "hunger", char_context.get("hunger", 1)), 1)
+        drunk = GenericUtil.to_int(getattr(status_flags, "drunk", getattr(character, "drunk", char_context.get("drunk", 0))), 0)
+        thirst = GenericUtil.to_int(getattr(status_flags, "thirst", getattr(character, "thirst", char_context.get("thirst", 1))), 1)
+        hunger = GenericUtil.to_int(getattr(status_flags, "hunger", getattr(character, "hunger", char_context.get("hunger", 1))), 1)
         if drunk > 10:
             lines.append("You are drunk.")
         if thirst == 0:

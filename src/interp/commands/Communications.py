@@ -469,64 +469,7 @@ class Communications:
         return self._group_payload(context, "addition", victim)
 
     def do_split(self, context: Context):
-        view = self.interp_api.build_interp_view(context)
-        payload = self.interp_api.run_action(context, context.command.name)
-        if payload.get("blocked"):
-            return payload
-
-        character = context.character
-        amounts = self.communications_api.split_amounts(view)
-        shares = self.communications_api.split_shares(view)
-        members = self.communications_api.split_members(view)
-
-        character.silver = GenericUtil.to_int(getattr(character, "silver", 0), 0) - amounts["silver"] + shares["silver"] + shares["extra_silver"]
-        character.gold = GenericUtil.to_int(getattr(character, "gold", 0), 0) - amounts["gold"] + shares["gold"] + shares["extra_gold"]
-
-        to_char = ""
-        if shares["silver"] > 0:
-            to_char += self._render_message_key(
-                context,
-                "split_silver_coins_share",
-                channel="to_char",
-                amount_silver=amounts["silver"],
-                share_silver=shares["silver"] + shares["extra_silver"],
-            ).get("to_char", "")
-        if shares["gold"] > 0:
-            to_char += self._render_message_key(
-                context,
-                "split_gold_coins_share",
-                channel="to_char",
-                amount_gold=amounts["gold"],
-                share_gold=shares["gold"] + shares["extra_gold"],
-            ).get("to_char", "")
-
-        victim_message_key = "split_silver_victim"
-        if shares["gold"] > 0 and shares["silver"] == 0:
-            victim_message_key = "split_gold_victim"
-        elif shares["gold"] > 0 and shares["silver"] > 0:
-            victim_message_key = "split_both_victim"
-
-        target_messages = []
-        for member in members:
-            if member == character:
-                continue
-            member.gold = GenericUtil.to_int(getattr(member, "gold", 0), 0) + shares["gold"]
-            member.silver = GenericUtil.to_int(getattr(member, "silver", 0), 0) + shares["silver"]
-            target_messages.append({
-                "id": getattr(member, "id", ""),
-                "text": self._render_message_key(
-                    context,
-                    victim_message_key,
-                    channel="to_victim",
-                    amount_silver=amounts["silver"],
-                    amount_gold=amounts["gold"],
-                    share_silver=shares["silver"],
-                    share_gold=shares["gold"],
-                ).get("to_victim", ""),
-            })
-
-        context.finish()
-        return {"to_char": to_char, "target_messages": target_messages}
+        return self.communications_api.split_money(context, self.interp_api)
 
     def _group_listing(self, context: Context) -> str:
         view = self.interp_api.build_interp_view(context)

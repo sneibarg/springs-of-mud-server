@@ -52,6 +52,7 @@ class WearResult:
     blocked_tokens: dict = field(default_factory=dict)
     shared_messages: list[tuple[str, dict]] = field(default_factory=list)
     char_messages: list[tuple[str, dict]] = field(default_factory=list)
+    pre_messages: list[tuple[str, dict]] = field(default_factory=list)
 
 
 @dataclass
@@ -192,6 +193,7 @@ class Equipped:
             can_remove_item=lambda worn_item: cls._can_remove_item(worn_item, item_flags),
             remove_item=lambda owner, slot_name, worn_item: cls._remove_item(owner, slot_name, worn_item, effect_handler=effect_handler),
         )
+        result.pre_messages.extend(removal.get("failed_removals", []))
         if removal.get("blocked_key"):
             result.blocked_key = str(removal.get("blocked_key", "") or "")
             result.blocked_tokens = dict(removal.get("tokens", {}) or {})
@@ -227,9 +229,11 @@ class Equipped:
         return result
 
     @classmethod
-    def wear_all(cls, character, wear_flags_enum, item_flags, *, effect_handler=None) -> WearResult:
+    def wear_all(cls, character, wear_flags_enum, item_flags, *, effect_handler=None, visible=None) -> WearResult:
         result = WearResult()
         for item in list(character.loot or []):
+            if visible is not None and not visible(item):
+                continue
             item_result = cls.wear_item(character, item, wear_flags_enum, item_flags, replace=False, effect_handler=effect_handler)
             result.shared_messages.extend(item_result.shared_messages)
             result.char_messages.extend(item_result.char_messages)
@@ -246,29 +250,27 @@ class Equipped:
         if not replace:
             return None, combined_payload
 
+        failures = []
         for slot in slots:
             removed, payload = self.remove_equipped_item(character, slot, replace=replace, can_remove_item=can_remove_item, remove_item=remove_item)
             if removed:
-                return slot, payload
-            if payload:
-                return None, payload
+                return slot, {**payload, "failed_removals": failures}
+            if payload.get("blocked_key"):
+                failures.append((payload["blocked_key"], dict(payload.get("tokens", {}))))
 
+        if failures:
+            key, tokens = failures[-1]
+            return None, {"blocked_key": key, "tokens": tokens, "failed_removals": failures[:-1]}
         return None, combined_payload
 
-    def find_remove_target(self, query: str) -> tuple[str, object | None]:
+    def find_remove_target(self, query: str, *, visible=None) -> tuple[str, object | None]:
+        from util.LookupUtil import LookupUtil
         wanted = str(query or "").strip().lower()
-        if not wanted:
-            return "", None
         if hasattr(self, wanted):
-            return wanted, getattr(self, wanted)
-
-        for slot, item in self.__dict__.items():
-            if item is None:
-                continue
-            name = str(item.name or "").strip().lower()
-            if name == wanted or name.startswith(wanted):
-                return slot, item
-        return "", None
+            item = getattr(self, wanted)
+            return (wanted, item) if item is not None and (visible is None or visible(item)) else ("", None)
+        item = LookupUtil.find((obj for obj in self.__dict__.values() if obj is not None), wanted, visible=visible)
+        return next(((slot, obj) for slot, obj in self.__dict__.items() if obj is item), ("", None)) if item is not None else ("", None)
 
     def remove_equipped_item(self, character, slot: str, *, replace: bool,
                              can_remove_item: Callable[[object], bool],

@@ -153,7 +153,7 @@ class _InterpApi:
                 return {"to_char": context.command.render_message("to_char", "item_not_container") + "\r\n"}
             if item is not None and (not _ItemUtil.is_fountain(item)) and _GenericUtil.to_int(getattr(item, "value1", 0), 0) <= 0:
                 return {"to_char": context.command.render_message("to_char", "container_empty") + "\r\n"}
-            if item is not None and _GenericUtil.to_int(getattr(getattr(context.character, "status_flags", None), "hunger", 0), 0) > 45:
+            if item is not None and _GenericUtil.to_int(getattr(getattr(context.character, "status_flags", None), "fullness", 0), 0) > 45:
                 return {"to_char": context.command.render_message("to_char", "too_full") + "\r\n"}
         if name == "eat":
             item = getattr(context, "eat_item", None)
@@ -163,7 +163,7 @@ class _InterpApi:
                 return {"to_char": context.command.render_message("to_char", "item_missing") + "\r\n"}
             if not _ItemUtil.is_edible(item):
                 return {"to_char": context.command.render_message("to_char", "not_edible") + "\r\n"}
-            if _GenericUtil.to_int(getattr(getattr(context.character, "status_flags", None), "hunger", 0), 0) > 40:
+            if _GenericUtil.to_int(getattr(getattr(context.character, "status_flags", None), "fullness", 0), 0) > 40:
                 return {"to_char": context.command.render_message("to_char", "too_full") + "\r\n"}
         if name == "fill":
             dest = getattr(context, "fill_dest", None)
@@ -318,7 +318,7 @@ class TestObjectFountainCommands(unittest.TestCase):
             name="Tester",
             room_id="room1",
             loot=inventory,
-            status_flags=SimpleNamespace(hunger=0, thirst=0, drunk=0),
+            status_flags=SimpleNamespace(hunger=0, fullness=0, thirst=0, drunk=0),
         )
 
         def find_inventory_item(wanted):
@@ -444,7 +444,7 @@ class TestObjectFountainCommands(unittest.TestCase):
         self.assertEqual("5", skin.value1)
         self.assertEqual("water", skin.value2)
 
-    def test_drink_updates_existing_hunger_and_thirst_conditions(self):
+    def test_drink_updates_separate_fullness_and_thirst_conditions(self):
         drink = SimpleNamespace(
             id="obj1",
             name="waterskin water",
@@ -461,7 +461,8 @@ class TestObjectFountainCommands(unittest.TestCase):
         payload = self._build_commands(room).do_drink(character, self._build_context("drink", "waterskin", character))
 
         self.assertEqual("You drink water from a waterskin.\r\n", payload["to_char"])
-        self.assertEqual(2, character.status_flags.hunger)
+        self.assertEqual(2, character.status_flags.fullness)
+        self.assertEqual(0, character.status_flags.hunger)
         self.assertEqual(10, character.status_flags.thirst)
         self.assertEqual("0", drink.value1)
 
@@ -482,12 +483,13 @@ class TestObjectFountainCommands(unittest.TestCase):
         payload = self._build_commands(room).do_drink(character, self._build_context("drink", "skin", character))
 
         self.assertEqual("You drink water from a buffalo water skin.\r\n", payload["to_char"])
-        self.assertEqual(4, character.status_flags.hunger)
+        self.assertEqual(4, character.status_flags.fullness)
+        self.assertEqual(0, character.status_flags.hunger)
         self.assertEqual(16, character.status_flags.thirst)
         self.assertEqual(0, character.status_flags.drunk)
         self.assertEqual("48", drink.value1)
 
-    def test_drink_refuses_when_hunger_meter_is_already_full(self):
+    def test_drink_refuses_when_fullness_meter_is_already_full(self):
         fountain = SimpleNamespace(
             id="obj1",
             name="fountain water",
@@ -500,7 +502,7 @@ class TestObjectFountainCommands(unittest.TestCase):
         )
         room = self._build_room(fountain)
         character = self._build_character()
-        character.status_flags.hunger = 46
+        character.status_flags.fullness = 46
 
         payload = self._build_commands(room).do_drink(character, self._build_context("drink", "fountain", character))
 
@@ -523,7 +525,8 @@ class TestObjectFountainCommands(unittest.TestCase):
         payload = self._build_commands(room).do_eat(character, self._build_context("eat", "bread", character))
 
         self.assertEqual("You eat a loaf of bread.\r\nYou are no longer hungry.\r\n", payload["to_char"])
-        self.assertEqual(13, character.status_flags.hunger)
+        self.assertEqual(8, character.status_flags.hunger)
+        self.assertEqual(5, character.status_flags.fullness)
         self.assertNotIn(food, character.loot)
 
 

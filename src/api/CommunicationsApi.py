@@ -126,7 +126,7 @@ class CommunicationsApi(GameApi):
             return finder(view.context.character, wanted)
 
         q = str(wanted or "").strip().lower()
-        for candidate in list(getattr(room, "characters", {}) or {}).values() + list(getattr(room, "mobiles", {}) or {}).values():
+        for candidate in list((getattr(room, "characters", {}) or {}).values()) + list((getattr(room, "mobiles", {}) or {}).values()):
             name = str(getattr(candidate, "name", "") or "").strip().lower()
             short = str(getattr(candidate, "short_description", "") or "").strip().lower()
             if q and (name == q or name.startswith(q) or short == q or short.startswith(q)):
@@ -359,6 +359,67 @@ class CommunicationsApi(GameApi):
         return None
 
     @classmethod
+    def split_money(cls, context: Context, interp_api):
+        view = interp_api.build_interp_view(context)
+        payload = interp_api.run_action(context, context.command.name)
+        if payload.get("blocked"):
+            return payload
+
+        character = context.character
+        amounts = cls.split_amounts(view)
+        shares = cls.split_shares(view)
+        members = cls.split_members(view)
+
+        character.silver = GenericUtil.to_int(getattr(character, "silver", 0), 0) - amounts["silver"] + shares["silver"] + shares["extra_silver"]
+        character.gold = GenericUtil.to_int(getattr(character, "gold", 0), 0) - amounts["gold"] + shares["gold"] + shares["extra_gold"]
+
+        to_char = ""
+        if shares["silver"] > 0:
+            to_char += interp_api.render_message_key(
+                context,
+                "split_silver_coins_share",
+                channel="to_char",
+                amount_silver=amounts["silver"],
+                share_silver=shares["silver"] + shares["extra_silver"],
+            ).get("to_char", "")
+        if shares["gold"] > 0:
+            to_char += interp_api.render_message_key(
+                context,
+                "split_gold_coins_share",
+                channel="to_char",
+                amount_gold=amounts["gold"],
+                share_gold=shares["gold"] + shares["extra_gold"],
+            ).get("to_char", "")
+
+        victim_message_key = "split_silver_victim"
+        if shares["gold"] > 0 and shares["silver"] == 0:
+            victim_message_key = "split_gold_victim"
+        elif shares["gold"] > 0 and shares["silver"] > 0:
+            victim_message_key = "split_both_victim"
+
+        target_messages = []
+        for member in members:
+            if member == character:
+                continue
+            member.gold = GenericUtil.to_int(getattr(member, "gold", 0), 0) + shares["gold"]
+            member.silver = GenericUtil.to_int(getattr(member, "silver", 0), 0) + shares["silver"]
+            target_messages.append({
+                "id": getattr(member, "id", ""),
+                "text": interp_api.render_message_key(
+                    context,
+                    victim_message_key,
+                    channel="to_victim",
+                    amount_silver=amounts["silver"],
+                    amount_gold=amounts["gold"],
+                    share_silver=shares["silver"],
+                    share_gold=shares["gold"],
+                ).get("to_victim", ""),
+            })
+
+        context.finish()
+        return {"to_char": to_char, "target_messages": target_messages}
+
+    @classmethod
     def current_room(cls, view: InterpView):
         room = getattr(view.context, "room", None)
         if room is not None:
@@ -375,7 +436,7 @@ class CommunicationsApi(GameApi):
         people = getattr(room, "people", None)
         if callable(people):
             return list(people())
-        return list(getattr(room, "characters", {}) or {}).values() + list(getattr(room, "mobiles", {}) or {}).values()
+        return list((getattr(room, "characters", {}) or {}).values()) + list((getattr(room, "mobiles", {}) or {}).values())
 
     @classmethod
     def all_known_people(cls, view: InterpView) -> list[Any]:

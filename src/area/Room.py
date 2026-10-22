@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import threading
 
 from dataclasses import dataclass, field
@@ -222,53 +224,28 @@ class Room:
             return self.mobiles[wanted]
         return None
 
-    def find_room_item(self, wanted: str):
-        q = (wanted or "").strip().lower()
-        if not q:
-            return None
-        for item in self.contents.values():
-            name = (item.name or "").lower()
-            if name == q or name.startswith(q):
-                return item
-        return None
+    def find_room_item(self, wanted: str, *, observer=None):
+        from util.LookupUtil import LookupUtil
+        return LookupUtil.find(list(self.contents.values()), wanted,
+                               visible=lambda item: LookupUtil.object_visible(observer, self, item))
 
     def find_visible_character(self, observer, wanted: str):
         from api.CharacterApi import CharacterApi
-
-        query = (wanted or "").strip().lower()
-        if not query:
-            return None
-
-        for char in self.characters.values():
-            if not CharacterApi.can_see(observer, char, self):
-                continue
-            if char.room_id != self.id:
-                continue
-            name = (char.name or "").strip().lower()
-            if name == query or name.startswith(query):
-                return char
-        return None
+        from util.LookupUtil import LookupUtil
+        return LookupUtil.find(list(self.characters.values()), wanted,
+                               visible=lambda target: CharacterApi.can_see(observer, target, self))
 
     def find_visible_mobile(self, observer, wanted: str):
         from api.CharacterApi import CharacterApi
-        from util.InterpUtil import InterpUtil
-
-        mob = InterpUtil.find_nth_by_keyword(self.mobiles, wanted)
-        if mob is not None and CharacterApi.can_see(observer, mob, self):
-            return mob
-        return None
+        from util.LookupUtil import LookupUtil
+        return LookupUtil.find(list(self.mobiles.values()), wanted,
+                               visible=lambda target: CharacterApi.can_see(observer, target, self))
 
     def find_visible_target(self, observer, wanted: str):
-        query = (wanted or "").strip().lower()
-        if not query:
-            return None
-        if query == "self":
-            return observer
-
-        target = self.find_visible_character(observer, query)
-        if target is not None:
-            return target
-        return self.find_visible_mobile(observer, query)
+        from api.CharacterApi import CharacterApi
+        from util.LookupUtil import LookupUtil
+        return LookupUtil.character(self, observer, wanted,
+                                    visible=lambda target: CharacterApi.can_see(observer, target, self))
 
     def is_private(self, room_flags) -> bool:
         private = room_flags.ROOM_PRIVATE.value

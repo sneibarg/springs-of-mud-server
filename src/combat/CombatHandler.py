@@ -19,6 +19,7 @@ from item.EffectHandler import EffectHandler
 from item.BodyForm import BodyForm
 from item.BodyParts import BodyParts
 from item.Item import Item
+from interp.Context import Context
 from player.Character import Character
 from player.CharacterAdvancement import CharacterAdvancement
 from player.CharacterService import CharacterService
@@ -1509,6 +1510,17 @@ class FightHandler:
         room.remove_item_from_room(corpse)
         silver = ItemUtil.sacrifice_silver_value(corpse)
         attacker.silver = int(attacker.silver or 0) + silver
+        death_handler = getattr(self, "death_handler", None)
+        if death_handler is not None:
+            context = Context(character=attacker, room=room)
+            split = death_handler.object_commands._autosplit(attacker, room, context, silver, sacrifice=True)
+            if split is not None:
+                return {"payloads": [
+                    {"to_char": ItemUtil.sacrifice_reward_message(silver)},
+                    split,
+                    {"to_room": f"{attacker.name} sacrifices {Item.short(corpse)} to Mota.\r\n",
+                     "targets": room.player_targets(attacker)},
+                ]}
         return {
             "to_char": ItemUtil.sacrifice_reward_message(silver),
             "to_room": f"{attacker.name} sacrifices {Item.short(corpse)} to Mota.\r\n",

@@ -132,6 +132,12 @@ class _CharacterApi:
         return int(value or 0) | int(bit or 0)
 
     @staticmethod
+    def set_affected_by_name(character, affected_bits, name, enabled):
+        bit = _CharacterApi.enum_bit(affected_bits, name)
+        raw = getattr(character.status_flags, "affected_by", 0)
+        character.status_flags.affected_by = raw | bit if enabled else raw & ~bit
+
+    @staticmethod
     def _enums_map():
         return {}
 
@@ -381,7 +387,8 @@ _stub_module("util.FightUtil", FightUtil=_FightUtil)
 _stub_module("util.InfoUtil", InfoUtil=_InfoUtil)
 _stub_module("util.MovementUtil", MovementUtil=SimpleNamespace())
 _stub_module("util.MobileUtil", MobileUtil=SimpleNamespace())
-_effect_handler = SimpleNamespace(apply_item_effects=lambda *_args, **_kwargs: None, remove_item_effects=lambda *_args, **_kwargs: None)
+_effect_handler = SimpleNamespace(apply_item_effects=lambda *_args, **_kwargs: None, remove_item_effects=lambda *_args, **_kwargs: None,
+                                  affect_strip=lambda *_args: None)
 _stub_module("util.EffectUtil", EffectUtil=SimpleNamespace(handler=lambda: _effect_handler, apply_item_effects=_effect_handler.apply_item_effects, remove_item_effects=_effect_handler.remove_item_effects))
 _stub_module("util.ItemUtil", ItemUtil=_ItemUtil)
 _stub_module(
@@ -418,6 +425,12 @@ _load_module("interp.InterpView", "interp/InterpView.py")
 _load_module("game.action", "game/action/__init__.py")
 Item = _load_module("item.Item", "item/Item.py").Item
 Equipped = _load_module("game.Equipped", "game/Equipped.py").Equipped
+CarryItemApi = _load_module("object_carry_item_api", "api/ItemApi.py").ItemApi
+_ItemApi.carried_count = staticmethod(CarryItemApi.carried_count)
+_ItemApi.carried_weight = staticmethod(CarryItemApi.carried_weight)
+with patch.dict(sys.modules, {"mobile.Mobile": SimpleNamespace(Mobile=type("ClanMobile", (), {}))}):
+    ClanCharacterApi = _load_module("object_clan_character_api", "api/CharacterApi.py").CharacterApi
+_CharacterApi.is_clan = staticmethod(ClanCharacterApi.is_clan)
 _load_module("skill.SpellContext", "skill/SpellContext.py")
 _load_module("util.InterpUtil", "util/InterpUtil.py")
 Shop = _load_module("area.Shop", "area/Shop.py").Shop
@@ -516,6 +529,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             get=lambda **kwargs: room if kwargs.get("id") == room.id else None,
         )
         registry_service = SimpleNamespace(
+            interp_registry=SimpleNamespace(get=lambda **kwargs: _load_command(kwargs["name"])),
             room_registry=room_registry,
             item_registry=item_registry or SimpleNamespace(get_or_none=lambda **_kwargs: None, all_items=lambda: []),
             mobile_registry=SimpleNamespace(),
@@ -536,7 +550,14 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             interp_api=InterpApi(),
             weather_handler=weather_handler,
             spell_api=spell_api or SimpleNamespace(),
-            fight_handler=fight_handler or SimpleNamespace(),
+            fight_handler=fight_handler or SimpleNamespace(
+                is_safe=lambda *_args, **_kwargs: (False, ""),
+                is_safe_spell=lambda *_args, **_kwargs: False,
+                check_killer=lambda *_args: {},
+                multi_hit=lambda *_args, **_kwargs: {},
+                build_round_payload=lambda *_args: {},
+                character_service=SimpleNamespace(save_character=lambda _character: True),
+            ),
             effect_handler=_effect_handler,
         )
         commands.item_types = _enum_like(ITEM_WEAPON=SimpleNamespace(value=5))
@@ -666,6 +687,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
     @staticmethod
     def _build_context(raw, room, character, command_name="get"):
         return _Context(
+            player_handler=lambda: SimpleNamespace(communications_commands=SimpleNamespace(do_yell=lambda _context: {})),
             character=character,
             result=raw,
             parameters=raw.split(),
@@ -743,6 +765,8 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             name="bag sack",
             short_description="a leather bag",
             item_type="container",
+            value0="10",
+            value3="10",
             contains=[],
             closed=False,
             add_contained_item=lambda item: bag.contains.append(item),
@@ -1448,7 +1472,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             )
 
         self.assertEqual(["Receiver"], spell_api.targets)
-        self.assertEqual(["Receiver"], spell_api.started)
+        self.assertEqual([], spell_api.started)  # item spells use immediate retaliation, not the cast starter
         self.assertEqual("You zap Receiver with a crystal wand.\r\n", payload["payloads"][0]["to_char"])
         self.assertEqual("Tester zaps you with a crystal wand.\r\n", payload["payloads"][0]["to_victim"])
         self.assertEqual("Your a crystal wand explodes into fragments.\r\n", payload["payloads"][-1]["to_char"])
@@ -1574,6 +1598,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         victim = self._build_character(ring, name="Victim", level=10)
         room = _Room(id="room-1", contents={}, mobiles={}, characters={"victim": victim})
         character = self._build_character(name="Tester", level=10, skills=[{"name": "steal", "level": 100}])
+        character.guild = "loner"
         skill_registry = SimpleNamespace(get_or_none=lambda **kwargs: SimpleNamespace(id="skill-steal", beats=24) if kwargs.get("name") == "steal" else None)
 
         with patch.object(sys.modules["interp.commands.Object"].random, "randint", return_value=1):
@@ -1593,6 +1618,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         victim.silver = 120
         room = _Room(id="room-1", contents={}, mobiles={}, characters={"victim": victim})
         character = self._build_character(name="Tester", level=10, skills=[{"name": "steal", "level": 100}])
+        character.guild = "loner"
 
         with patch.object(sys.modules["interp.commands.Object"].random, "randint", return_value=10):
             payload = self._commands(room).do_steal(
@@ -1611,16 +1637,16 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         room = _Room(id="room-1", contents={}, mobiles={}, characters={"victim": victim})
         character = self._build_character(name="Tester", level=10, skills=[{"name": "steal", "level": 1}])
 
-        with patch.object(sys.modules["interp.commands.Object"].random, "randint", return_value=100):
+        with patch.object(sys.modules["interp.commands.Object"].random, "randint", side_effect=[100, 0]):
             payload = self._commands(room).do_steal(
                 character,
                 self._build_context("coins Victim", room, character, "steal"),
             )
 
-        self.assertIn("Oops.\r\n", payload["to_char"])
-        self.assertIn("*** You are now a THIEF!! ***\r\n", payload["to_char"])
+        self.assertIn("Oops.\r\n", payload["payloads"][0]["to_char"])
+        self.assertIn("*** You are now a THIEF!! ***\r\n", payload["payloads"][-1]["to_char"])
         self.assertEqual(1 << 25, character.status_flags.act)
-        self.assertEqual("Tester tried to steal from you.\r\n", payload["to_victim"])
+        self.assertEqual("Tester tried to steal from you.\r\n", payload["payloads"][0]["to_victim"])
 
     def test_envenom_metadata_routes_to_object_handler(self):
         with open(COMMANDS_PATH, "r", encoding="utf-8") as handle:

@@ -428,28 +428,28 @@ class ItemUtil:
     @staticmethod
     def can_see_object(room: Room, character: Character, obj: Item) -> bool:
         ItemFlags = CharacterApi.get_enum('itemFlags')
-        ItemTypes = CharacterApi.get_enum('itemTypes')
         AffectBits = CharacterApi.get_enum('affectedBy')
         PlayerActBits = CharacterApi.get_enum('playerActBits')
         if not CharacterApi.is_npc(character) and CharacterApi.is_set(character.status_flags.act, PlayerActBits.PLR_HOLYLIGHT.value):
             return True
 
-        if CharacterApi.is_set(GameApi.convert_flags(obj.extra_flags), ItemFlags.ITEM_VIS_DEATH.value):
+        if CharacterApi.is_set(GameApi.flags_to_int(obj.extra_flags), ItemFlags.ITEM_VIS_DEATH.value):
             return False
 
-        if CharacterApi.is_affected(character, AffectBits.AFF_BLIND.value) and obj.item_type != ItemTypes.ITEM_POTION.value:
+        if CharacterApi.is_affected(character, AffectBits.AFF_BLIND.value) and Item.enum_type_name(obj) != "ITEM_POTION":
             return False
 
-        if obj.item_type == ItemTypes.ITEM_LIGHT.value and int(obj.value2) != 0:
+        if Item.enum_type_name(obj) == "ITEM_LIGHT" and int(obj.value2) != 0:
             return True
 
-        if CharacterApi.is_set(GameApi.convert_flags(obj.extra_flags), ItemFlags.ITEM_INVIS.value and not CharacterApi.is_affected(character, AffectBits.AFF_DETECT_INVIS.value)):
+        if (CharacterApi.is_set(GameApi.flags_to_int(obj.extra_flags), ItemFlags.ITEM_INVIS.value)
+                and not CharacterApi.is_affected(character, AffectBits.AFF_DETECT_INVIS.value)):
             return False
 
-        if CharacterApi.is_set(GameApi.convert_flags(obj.extra_flags), ItemFlags.ITEM_GLOW.value):
+        if CharacterApi.is_set(GameApi.flags_to_int(obj.extra_flags), ItemFlags.ITEM_GLOW.value):
             return True
 
-        if room.is_room_dark() and not CharacterApi.is_affected(character, AffectBits.AFF_DARK_VISION.value):
+        if room is not None and room.is_room_dark() and not CharacterApi.is_affected(character, AffectBits.AFF_DARK_VISION.value):
             return False
 
         return True
@@ -480,10 +480,10 @@ class ItemUtil:
 
     @staticmethod
     def sacrifice_silver_value(item) -> int:
-        silver = max(1, GenericUtil.to_int(item.level * 3))
+        silver = max(1, GenericUtil.to_int(item.level, 0) * 3)
         if not Item.is_corpse(item):
             silver = min(silver, GenericUtil.to_int(item.cost))
-        return max(3, silver)
+        return silver
 
     @staticmethod
     def sacrifice_reward_message(silver: int) -> str:
@@ -492,11 +492,12 @@ class ItemUtil:
         return f"Mota gives you {GenericUtil.to_int(silver, 0)} silver coins for your sacrifice.\r\n"
 
     @staticmethod
-    def item_in_use(context) -> None:
+    def item_in_use(context) -> bool:
         for occupant in list(getattr(context.room, "characters", {}).values()) + list(getattr(context.room, "mobiles", {}).values()) if context.room is not None else []:
             if getattr(occupant, "on", None) is context.item:
                 context.occupant_name = getattr(occupant, "short_description", None) or getattr(occupant, "name", "Someone")
-        return None
+                return True
+        return False
 
     @staticmethod
     def combine_items(items: list) -> dict:

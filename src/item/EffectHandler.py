@@ -240,12 +240,13 @@ class EffectHandler:
         effect.modifier = EffectUtil._eval_expr(getattr(effect, "modifier", 0), caster_level, 0)
         return effect
 
-    def apply_spell_effects(self, caster, victim, spell) -> None:
+    def apply_spell_effects(self, caster, victim, spell, *, caster_level: int | None = None) -> None:
         affects = list(getattr(spell, "affect_data", []) or getattr(spell, "affects", []) or [])
         if not affects or victim is None:
             return
         source = f"spell:{getattr(spell, 'handler_id', getattr(spell, 'name', ''))}"
-        caster_level = GenericUtil.to_int(getattr(caster, "level", 0), 0)
+        if caster_level is None:
+            caster_level = GenericUtil.to_int(getattr(caster, "level", 0), 0)
         for affect_like in affects:
             effect = self.effect_from_spell_affect(spell, affect_like, caster_level, source=source)
             apply_to = str(getattr(effect, "apply_to", "") or "").strip().lower()
