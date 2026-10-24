@@ -471,20 +471,44 @@ class TestFightHandlerAggression(unittest.TestCase):
         spell_api.send.assert_called_once_with(ctx, to_char="killer", to_room="", to_victim="", victim=victim)
         ctx.queue_payload.assert_called_once_with(notice)
 
-    def test_offensive_spell_without_damage_checks_killer_before_starting_combat(self):
+    def test_offensive_spell_marks_caster_then_retaliates_as_victim(self):
         SpellApi = self._spell_api_class()
         attacker, victim, handler = self._killer_pair()
         room = self._safety_room(attacker, victim)
         room.id = "room-1"
+        attacker.room_id = room.id
         ctx = SimpleNamespace(actor=attacker, victim=victim, room=room, queue_payload=Mock(),
                               spell=SimpleNamespace(target="CHAR_OFFENSIVE"))
         spell_api = SpellApi(effect_handler=Mock(), interp_api=Mock())
         spell_api._fight_handler = Mock(return_value=handler)
+        handler.multi_hit = Mock(return_value={"hit": True})
+        handler.build_round_payload = Mock(return_value={"to_char": "attack"})
+        spell_api.check_offensive_cast(ctx)
         spell_api.start_offensive_combat(ctx)
         self.assertTrue(attacker.status_flags.act & int(_PlayerActBits.PLR_KILLER))
         handler.character_service.save_character.assert_called_once_with(attacker)
-        self.assertIs(attacker.fighting, victim)
-        self.assertEqual("WIZ_FLAGS", ctx.queue_payload.call_args.args[0]["wiznet_flag"])
+        handler.multi_hit.assert_called_once_with(victim, attacker, dt="TYPE_UNDEFINED")
+        self.assertEqual("WIZ_FLAGS", ctx.queue_payload.call_args_list[0].args[0]["wiznet_flag"])
+        self.assertIs(victim, ctx.queue_payload.call_args.args[0]["actor"])
+
+    def test_sleeping_spell_victim_is_not_forced_into_combat_by_retaliation(self):
+        SpellApi = self._spell_api_class()
+        attacker, victim, handler = self._killer_pair()
+        victim.character_attributes.position = 4  # ROM POS_SLEEPING.
+        room = self._safety_room(attacker, victim)
+        room.id = attacker.room_id
+        handler.one_hit = Mock()
+        handler.build_round_payload = Mock(return_value={})
+        ctx = SimpleNamespace(actor=attacker, victim=victim, room=room, queue_payload=Mock(),
+                              spell=SimpleNamespace(target="CHAR_OFFENSIVE"))
+        api = SpellApi(Mock(), Mock())
+        api._fight_handler = Mock(return_value=handler)
+        api.check_offensive_cast(ctx)
+        api.start_offensive_combat(ctx)
+        handler.one_hit.assert_not_called()
+        self.assertIsNone(attacker.fighting)
+        self.assertIsNone(victim.fighting)
+        self.assertEqual(4, victim.character_attributes.position)
 
     def test_melee_executor_checks_killer_before_preparing_fight(self):
         replacements = {

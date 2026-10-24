@@ -234,7 +234,7 @@ class TestAcidSpellIntegration(unittest.TestCase):
         spell = next(doc for doc in json.loads((ROOT / 'resources/collections/SOMDB.Spells.json').read_text())
                      if doc['handlerId'] == 'spell.acid_breath')
         ctx = SimpleNamespace(level=80, victim=object(), spell=SimpleNamespace(noun_damage=spell['nounDamage']),
-                              actor=object(), mark_performed=Mock(return_value=True))
+                              actor=object(), mark_performed=Mock(return_value=True), resolve=lambda value: value)
         ctx.damage_expr = lambda *args, **kwargs: api.damage_expr(ctx, *args, **kwargs)
         api.eval_int = Mock(return_value=200)
         api._queue_damage_payload = Mock()
@@ -246,8 +246,9 @@ class TestAcidSpellIntegration(unittest.TestCase):
                 fight.damage.side_effect = lambda *a, **kw: events.append(('damage', a[2])) or {}
                 api._fight_handler = Mock(return_value=fight)
                 effect_util = Api.damage_expr.__globals__['EffectUtil']
-                with patch.object(effect_util, 'saves_spell', return_value=saved, create=True):
+                with patch.object(effect_util, 'saves_spell', return_value=saved, create=True) as save:
                     self.assertTrue(eval(spell['lambdas'][0])(ctx))
+                save.assert_called_once_with(80, ctx.victim, 'DAM_ACID', immunity=fight._check_immunity)
                 self.assertEqual([('exposure', expected[0], expected[1]), ('damage', expected[2])], events)
         self.assertEqual('{item} is pitted and etched.', spell['payload']['toRoom']['acidArmor'])
 

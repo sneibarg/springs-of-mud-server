@@ -692,8 +692,9 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
             handler.entity_update_handler.effect_update_handler.effect_handler.affect_join.side_effect = join_effect
 
             with patch("api.CharacterApi.CharacterApi.is_immortal", return_value=False), \
-                    patch("item.EffectUpdateHandler.EffectUtil.saves_spell", return_value=False):
+                    patch("item.EffectUpdateHandler.EffectUtil.saves_spell", return_value=False) as save:
                 await handler.entity_update_handler.effect_update_handler.tick_status_effects(carrier, room)
+            save.assert_called_once_with(7, victim, "DAM_DISEASE", immunity=handler.fight_handler._check_immunity)
 
             self.assertEqual(47, carrier.hit)
             self.assertEqual(17, carrier.mana)

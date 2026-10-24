@@ -5,7 +5,7 @@ import types
 import unittest
 from copy import deepcopy
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock, Mock, call
 
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -243,7 +243,7 @@ _stub_module("item.Effect", Effect=SimpleNamespace)
 _stub_module("player.CharacterAdvancement", CharacterAdvancement=SimpleNamespace(gain_experience=lambda *_args, **_kwargs: None))
 Skill = _load_module("skill.Skill", "skill/Skill.py").Skill
 sys.modules["skill"].Skill = Skill
-_stub_module("skill.SpellContext", SpellContext=SimpleNamespace)
+_stub_module("skill.SpellContext", SpellContext=lambda **kwargs: SimpleNamespace(payloads=[], performed=False, **kwargs))
 _stub_module("api.SpellApi", SpellApi=lambda **_kwargs: SimpleNamespace(execute_lambdas=lambda *_args, **_kwargs: None, queue_cast_announcement=lambda *_args, **_kwargs: None, start_offensive_combat=lambda *_args, **_kwargs: None))
 Fight = _load_module("interp.commands.Fight", "interp/commands/Fight.py").Fight
 _stub_module("interp.commands.Info", Info=object)
@@ -289,6 +289,223 @@ class _SkillRegistry:
 
 
 class TestFightDynamicCommands(unittest.TestCase):
+    def test_killer_notices_survive_late_guard_rejection_in_reference_order(self):
+        for target_type in ("CHAR_OFFENSIVE", "OBJ_CHAR_OFF"):
+            for reason in ("mana", "master"):
+                with self.subTest(target_type=target_type, reason=reason):
+                    victim = object()
+                    actor = SimpleNamespace(name="Hero", level=20, mana=0 if reason == "mana" else 100,
+                                            is_npc=False, master=victim if reason == "master" else None,
+                                            affects={"AFF_CHARM"} if reason == "master" else set(),
+                                            character_class=SimpleNamespace(name="mage"),
+                                            get_learned=lambda *args, **kwargs: 100, learned_entry_level=lambda value: value)
+                    spell = SimpleNamespace(name="curse", handler_id="spell.curse", target=target_type,
+                                            min_position="FIGHTING", min_mana=5, level_by_class={"mage": 1})
+                    commands = Fight.__new__(Fight)
+                    commands.spell_registry = SimpleNamespace(all_spells=lambda: [spell])
+                    commands.interp_api = InterpApi()
+                    commands.spell_api = Mock()
+                    commands.spell_api.check_offensive_cast.side_effect = lambda ctx: ctx.payloads.append({"to_wiznet": "notice"})
+                    commands._resolve_spell_target = Mock(return_value=(victim, "char", ""))
+                    ctx = _Context(character=actor, command=_load_command("cast"), room=SimpleNamespace(id="room"), result="curse")
+                    result = commands.do_cast(actor, ctx)
+                    if target_type == "OBJ_CHAR_OFF" and reason == "master":
+                        commands.spell_api.check_offensive_cast.assert_not_called()
+                        self.assertEqual("is_follower", result["blocked_key"])
+                    else:
+                        commands.spell_api.check_offensive_cast.assert_called_once()
+                        self.assertEqual({"to_wiznet": "notice"}, result["payloads"][0])
+                        self.assertEqual("insufficient_mana" if reason == "mana" else "is_follower",
+                                         result["payloads"][1]["blocked_key"])
+                    commands.spell_api.cast.assert_not_called()
+                    commands.spell_api.start_offensive_combat.assert_not_called()
+
+    def test_mixed_offensive_target_uses_spell_safety_even_for_implicit_opponent(self):
+        victim = object()
+        actor = SimpleNamespace(fighting=victim, is_npc=False)
+        commands = Fight.__new__(Fight)
+        commands.fight_handler = Mock()
+        commands.fight_handler.is_safe_spell.return_value = True
+        room = SimpleNamespace(targets={"target": victim})
+        for argument in ("", "target"):
+            with self.subTest(argument=argument):
+                commands.fight_handler.reset_mock()
+                result = commands._resolve_spell_target(actor, room, SimpleNamespace(target="OBJ_CHAR_OFF"), argument)
+                self.assertEqual((None, "", "target_safe"), result)
+                commands.fight_handler.is_safe_spell.assert_called_once_with(actor, victim, area=False)
+                commands.fight_handler.is_safe.assert_not_called()
+        actor.is_npc = True
+        commands.fight_handler.reset_mock()
+        self.assertEqual((victim, "char", ""), commands._resolve_spell_target(
+            actor, room, SimpleNamespace(target="CHAR_OFFENSIVE"), "target"))
+        commands.fight_handler.is_safe.assert_not_called()
+
+    def test_spell_prefix_lookup_prefers_accessible_spells_in_stable_order(self):
+        util = sys.modules["util.FightUtil"].FightUtil
+        spells = [SimpleNamespace(name=name, handler_id="spell." + name.replace(" ", "_"),
+                                  level_by_class={"mage": required})
+                  for name, required in (("cure critical", 12), ("cure disease", 10), ("cure light", 1))]
+        actor = SimpleNamespace(level=10, is_npc=False, character_class=SimpleNamespace(name="mage"),
+                                get_learned=lambda character, name, **kwargs: 100,
+                                learned_entry_level=lambda entry: entry)
+        for ordered in (spells, list(reversed(spells))):
+            registry = SimpleNamespace(all_spells=lambda: ordered)
+            self.assertIs(spells[1], util.find_spell(registry, "cure", actor))
+            self.assertIs(spells[2], util.find_spell(registry, "cure light", actor))
+            self.assertIs(spells[2], util.find_spell(registry, "cure_light", actor))
+            actor.get_learned = lambda character, name, **kwargs: 100 if name == "cure light" else 0
+            self.assertIs(spells[2], util.find_spell(registry, "cure", actor))
+            actor.get_learned = lambda *args, **kwargs: 0
+            self.assertIs(spells[0], util.find_spell(registry, "cure", actor))
+            actor.is_npc = True
+            self.assertIs(spells[0], util.find_spell(registry, "cure", actor))
+            actor.is_npc = False
+            self.assertIsNone(util.find_spell(registry, "unknown", actor))
+            self.assertIsNone(util.find_spell(registry, "", actor))
+            self.assertIsNone(util.find_spell(registry, "cure"))
+            self.assertIs(spells[2], util.find_spell(registry, "cure light"))
+            actor.get_learned = lambda *args, **kwargs: 100
+
+    def test_cast_checks_retaliation_after_no_effect_or_failed_concentration(self):
+        spell = SimpleNamespace(name="blindness", handler_id="spell.blindness", min_position="FIGHTING",
+                                min_mana=5, level_by_class={"mage": 1}, target="CHAR_OFFENSIVE")
+        actor = SimpleNamespace(name="Hero", level=20, mana=100, is_npc=False,
+                                character_class=SimpleNamespace(name="mage"),
+                                get_learned=lambda *a, **kw: 100, learned_entry_level=lambda entry: entry)
+        commands = Fight.__new__(Fight)
+        commands.spell_registry = SimpleNamespace(all_spells=lambda: [spell])
+        commands.interp_api = InterpApi()
+        commands._resolve_spell_target = Mock(return_value=(object(), "char", ""))
+        for success in (False, True):
+            with self.subTest(concentration_success=success):
+                commands.spell_api = Mock()
+                def attempt(ctx, cost):
+                    ctx.performed = False
+                    ctx.payloads = []
+                    return success
+                commands.spell_api.cast.side_effect = attempt
+                ctx = _Context(character=actor, command=_load_command("cast"), room=SimpleNamespace(id="room"), result="blind")
+                commands.do_cast(actor, ctx)
+                self.assertIs(spell, ctx.cast_spell)
+                commands.spell_api.cast.assert_called_once()
+                commands.spell_api.start_offensive_combat.assert_called_once()
+
+    def test_charmed_caster_guard_blocks_attacking_master(self):
+        for npc in (False, True):
+            for target_type in ("CHAR_OFFENSIVE", "OBJ_CHAR_OFF"):
+                with self.subTest(npc=npc, target_type=target_type):
+                    master = object()
+                    actor = SimpleNamespace(name="Follower", level=20, mana=100, is_npc=npc, master=master,
+                                            affects={"AFF_CHARM"}, character_class=SimpleNamespace(name="mage"),
+                                            get_learned=lambda *a, **kw: 100, learned_entry_level=lambda entry: entry)
+                    spell = SimpleNamespace(name="curse", handler_id="spell.curse", target=target_type,
+                                            min_position="FIGHTING", min_mana=5, level_by_class={"mage": 1})
+                    commands = Fight.__new__(Fight)
+                    commands.spell_registry = SimpleNamespace(all_spells=lambda: [spell])
+                    commands.interp_api = InterpApi()
+                    commands.spell_api = Mock()
+                    commands._resolve_spell_target = Mock(return_value=(master, "char", ""))
+                    ctx = _Context(character=actor, command=_load_command("cast"), room=SimpleNamespace(id="room"), result="curse")
+                    result = commands.do_cast(actor, ctx)
+                    self.assertEqual("is_follower", result["blocked_key"])
+                    self.assertEqual(100, actor.mana)
+                    commands.spell_api.cast.assert_not_called()
+                    commands.spell_api.start_offensive_combat.assert_not_called()
+
+    def test_cast_mana_cost_uses_class_level_and_integer_division(self):
+        util = sys.modules["util.FightUtil"].FightUtil
+        spell = SimpleNamespace(min_mana=15, level_by_class={"mage": 10, "warrior": 20})
+        for level, class_name, expected in [(10, "mage", 50), (11, "mage", 33),
+                                            (20, "mage", 15), (20, "warrior", 50),
+                                            (18, "warrior", 50), (1, "mage", 15)]:
+            with self.subTest(level=level, class_name=class_name):
+                actor = SimpleNamespace(level=level, character_class=SimpleNamespace(name=class_name))
+                self.assertEqual(expected, util.cast_mana_cost(actor, spell))
+
+    def test_cast_position_target_and_mana_guards_do_not_start_attempt(self):
+        for minimum, position, mana, target_error, expected in [
+            ("STANDING", "POS_FIGHTING", 100, "", "minimum_position"),
+            ("POS_STANDING", "POS_FIGHTING", 0, "", "minimum_position"),
+            ("FIGHTING", "POS_FIGHTING", 0, "no_target", "no_target"),
+            ("FIGHTING", "POS_FIGHTING", 49, "", "insufficient_mana"),
+        ]:
+            with self.subTest(minimum=minimum, mana=mana, target_error=target_error):
+                actor = SimpleNamespace(name="Hero", level=10, mana=mana, is_npc=False,
+                                        position=_CharacterApi.pos_value(position),
+                                        character_class=SimpleNamespace(name="mage"),
+                                        get_learned=Mock(return_value=100),
+                                        learned_entry_level=Mock(return_value=100))
+                spell = SimpleNamespace(name="armor", handler_id="spell.armor", min_position=minimum, target="CHAR_SELF",
+                                        min_mana=5, level_by_class={"mage": 10})
+                commands = Fight.__new__(Fight)
+                commands.spell_registry = SimpleNamespace(all_spells=lambda: [spell])
+                commands.interp_api = InterpApi()
+                commands.spell_api = Mock()
+                commands._resolve_spell_target = Mock(return_value=(actor, "char", target_error))
+                context = _Context(character=actor, command=_load_command("cast"),
+                                   room=SimpleNamespace(id="room-1"), result="armor", done=False)
+                result = commands.do_cast(actor, context)
+                self.assertEqual(expected, result["blocked_key"])
+                commands.spell_api.cast.assert_not_called()
+                self.assertEqual(mana, actor.mana)
+                commands._resolve_spell_target.assert_called_once()
+
+    def test_cast_access_guards_block_before_execution_and_mana_charge(self):
+        # ROM magic.c do_cast rejects unlearned/under-level PCs, but exempts NPCs.
+        cases = [
+            ("missing learned spell", 10, "mage", None, False, 20, True),
+            ("zero proficiency", 10, "mage", 0, False, 20, True),
+            ("under class level", 9, "mage", 100, False, 20, True),
+            ("access precedes mana", 9, "mage", 100, False, 0, True),
+            ("at class level", 10, "mage", 1, False, 100, False),
+            ("above class level", 11, "mage", 100, False, 100, False),
+            ("different class requirement", 10, "warrior", 100, False, 20, True),
+            ("NPC exemption", 1, "mage", None, True, 0, False),
+        ]
+        for label, level, class_name, learned, npc, mana, blocked in cases:
+            with self.subTest(label=label):
+                spell = SimpleNamespace(name="armor", handler_id="spell.armor",
+                                        target="CHAR_SELF", min_mana=5, min_position="STANDING",
+                                        level_by_class={"mage": 10, "warrior": 20})
+                room = SimpleNamespace(id="room-1")
+                character = SimpleNamespace(
+                    name="Hero", level=level, mana=mana, is_npc=npc,
+                    character_class=SimpleNamespace(name=class_name),
+                    get_learned=Mock(return_value=learned),
+                    learned_entry_level=Mock(return_value=learned or 0),
+                )
+                commands = Fight.__new__(Fight)
+                commands.spell_registry = SimpleNamespace(all_spells=lambda: [spell])
+                commands.interp_api = InterpApi()
+                commands.spell_api = Mock()
+
+                def perform(ctx, cost):
+                    ctx.performed = True
+                    ctx.payloads = []
+                    ctx.actor.mana -= cost
+
+                commands.spell_api.cast.side_effect = perform
+                context = _Context(character=character, command=_load_command("cast"),
+                                   room=room, result="armor", done=False)
+                payload = commands.do_cast(character, context)
+
+                self.assertTrue(context.done)
+                if blocked:
+                    self.assertEqual("spell_not_learned", payload["blocked_key"])
+                    self.assertEqual("You don't know any spells of that name.\r\n", payload["to_char"])
+                    self.assertEqual(mana, character.mana)
+                    commands.spell_api.cast.assert_not_called()
+                    commands.spell_api.execute_lambdas.assert_not_called()
+                    commands.spell_api.queue_cast_announcement.assert_not_called()
+                    commands.spell_api.start_offensive_combat.assert_not_called()
+                else:
+                    self.assertEqual(mana - sys.modules["util.FightUtil"].FightUtil.cast_mana_cost(character, spell), character.mana)
+                    commands.spell_api.cast.assert_called_once()
+                if npc or level < spell.level_by_class[class_name]:
+                    character.get_learned.assert_not_called()
+                else:
+                    character.get_learned.assert_has_calls([call(character, "armor", collection_name="spells")] * 2)
+
     def test_migrated_fight_metadata_has_check_lists(self):
         command_names = {"cast", "flee", "murder"}
         skill_names = {"bash", "berserk", "dirt kicking", "disarm", "kick", "rescue", "trip"}

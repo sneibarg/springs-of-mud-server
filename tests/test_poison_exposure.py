@@ -117,6 +117,7 @@ class TestGasBreathIntegration(unittest.TestCase):
         ctx = SimpleNamespace(level=80, room=object(), actor=object(), spell=SimpleNamespace(noun_damage='gas'),
                               mark_performed=Mock(return_value=True))
         ctx.damage_room_expr = lambda *a, **kw: api.damage_room_expr(ctx, *a, **kw)
+        ctx.is_npc = lambda target=None: api.is_npc(ctx, target)
         api._room_entities = Mock(return_value=[ctx.actor, victim1, safe, victim2])
         api.eval_int = Mock(return_value=200)
         events = []
