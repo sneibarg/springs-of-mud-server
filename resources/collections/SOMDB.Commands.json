@@ -1041,8 +1041,16 @@
         "messageKey": "spellNotLearned"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'cast_spell', None) is not None and int(getattr(v.context.character, 'mana', 0) or 0) < int(getattr(v.context, 'cast_mana_cost', 0) or 0)",
-        "messageKey": "insufficientMana"
+        "predicate": "lambda v: not CharacterApi.is_npc(v.context.character) and int(v.context.character.level) < FightUtil.level_for_class(v.context.cast_spell, v.context.character)",
+        "messageKey": "spellNotLearned"
+      },
+      {
+        "predicate": "lambda v: not CharacterApi.is_npc(v.context.character) and v.context.character.learned_entry_level(v.context.character.get_learned(v.context.character, v.context.cast_spell.name, collection_name='spells')) == 0",
+        "messageKey": "spellNotLearned"
+      },
+      {
+        "predicate": "lambda v: CharacterApi.position_value(v.context.character) < CharacterApi.pos_value('POS_' + v.context.cast_spell.min_position.upper().removeprefix('POS_'))",
+        "messageKey": "minimumPosition"
       },
       {
         "predicate": "lambda v: getattr(v.context, 'cast_spell', None) is not None and getattr(v.context, 'cast_room', None) is None",
@@ -1077,8 +1085,16 @@
         "messageKey": "targetSafe"
       },
       {
+        "predicate": "lambda v: v.context.cast_target_kind == 'char' and v.context.cast_spell.target in ('CHAR_OFFENSIVE', 'OBJ_CHAR_OFF') and v.context.cast_target is getattr(v.context.character, 'master', None) and CharacterApi.is_affected_by_name(v.context.character, CharacterApi.get_enum('affectedBy'), 'AFF_CHARM')",
+        "messageKey": "isFollower"
+      },
+      {
         "predicate": "lambda v: getattr(v.context, 'cast_target_error', '') == 'unsupported_target'",
         "messageKey": "unsupportedTarget"
+      },
+      {
+        "predicate": "lambda v: not CharacterApi.is_npc(v.context.character) and int(getattr(v.context.character, 'mana', 0) or 0) < v.context.cast_mana_cost",
+        "messageKey": "insufficientMana"
       }
     ]
   },

@@ -94,7 +94,8 @@ class EffectUpdateHandler:
                 continue
             if self.rng.number_bits(4) != 0:
                 continue
-            if EffectUtil.saves_spell(GenericUtil.to_int(spread.level, 0) - 2, victim, 0):
+            if EffectUtil.saves_spell(GenericUtil.to_int(spread.level, 0) - 2, victim, "DAM_DISEASE",
+                                      immunity=self.fight_handler._check_immunity):
                 continue
 
             await self._send_effect_payload(spread, "spread", victim, room)

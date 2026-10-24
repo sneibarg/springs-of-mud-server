@@ -125,6 +125,11 @@ class GameApi:
         return GameApi._item_table
 
     @classmethod
+    def liquids_map(cls) -> dict:
+        cls._require_configured()
+        return GameApi._game_data.liquids
+
+    @classmethod
     def weapons_map(cls) -> dict:
         cls._require_configured()
         return GameApi._weapons

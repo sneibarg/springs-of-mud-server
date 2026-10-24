@@ -66,13 +66,29 @@
     "payload": {
       "toChar": {
         "msgOff": "!Teleport!",
-        "msgObj": ""
+        "msgObj": "",
+        "failed": "You failed.\r\n"
+      },
+      "toRoom": {
+        "depart": "{victim} vanishes!\r\n",
+        "arrive": "{victim} slowly fades into existence.\r\n"
+      },
+      "toVictim": {
+        "teleported": "You have been teleported!\r\n"
       }
     },
     "functionName": "teleport",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.teleport_target()"
+      "lambda ctx: ctx.set_target(ctx.victim or ctx.actor)",
+      "lambda ctx: ctx.stop_when(ctx.room_of() is None or ctx.room_flag('ROOM_NO_RECALL'), 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.victim is not ctx.actor and ctx.character_flag('imm', 'IMM_SUMMON'), 'failed')",
+      "lambda ctx: ctx.stop_when(not ctx.is_npc() and ctx.victim.fighting is not None, 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.victim is not ctx.actor and ctx.saves_spell('DAM_OTHER', level_adjust=-5), 'failed')",
+      "lambda ctx: ctx.set_alias('destination', ctx.random_room())",
+      "lambda ctx: ctx.stop_when(ctx.get_alias('destination') is None, 'failed')",
+      "lambda ctx: ctx.send_message('teleported') if ctx.victim is not ctx.actor else None",
+      "lambda ctx: ctx.move_to('destination', departure_key='depart', arrival_key='arrive')"
     ]
   },
   {
@@ -96,10 +112,16 @@
         "apply": "You grant {victim} the favor of your god.",
         "applyObject": "{item} glows with a holy aura.",
         "msgOff": "You feel less righteous.",
-        "msgObj": "$p's holy aura fades."
+        "msgObj": "$p's holy aura fades.",
+        "objectDuplicate": "{item} is already blessed.\r\n",
+        "objectResisted": "The evil of {item} is too powerful for you to overcome.\r\n",
+        "objectCountered": "{item} glows with a pale blue light.\r\n",
+        "alreadyAffected": "You are already blessed.\r\n",
+        "alreadyAffectedOther": "{victim} already has divine favor.\r\n"
       },
       "toRoom": {
-        "applyObject": "{item} glows with a holy aura."
+        "applyObject": "{item} glows with a holy aura.",
+        "objectCountered": "{item} glows with a pale blue light.\r\n"
       }
     },
     "guards": [
@@ -151,6 +173,9 @@
       }
     ],
     "lambdas": [
+      "lambda ctx: ctx.stop_when(ctx.item_has_flag('ITEM_BLESS'), 'objectDuplicate') if ctx.is_object_target() else None",
+      "lambda ctx: ctx.counter_item_flag('ITEM_EVIL', 'spell.curse', 'objectCountered', 'objectResisted') if ctx.is_object_target() else None",
+      "lambda ctx: ctx.stop_when(ctx.has_position('POS_FIGHTING') or ctx.is_affected('spell.bless'), 'alreadyAffected' if ctx.victim is ctx.actor else 'alreadyAffectedOther') if ctx.is_character_target() else None",
       "lambda ctx: ctx.apply_affect_data()"
     ]
   },
@@ -228,8 +253,63 @@
     "functionName": "burning_hands",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_expr('dice(level, 7)', 'DAM_FIRE')"
-    ]
+      "lambda ctx: ctx.damage_table('DAM_FIRE')"
+    ],
+    "tables": {
+      "damage": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        14,
+        17,
+        20,
+        23,
+        26,
+        29,
+        29,
+        29,
+        30,
+        30,
+        31,
+        31,
+        32,
+        32,
+        33,
+        33,
+        34,
+        34,
+        35,
+        35,
+        36,
+        36,
+        37,
+        37,
+        38,
+        38,
+        39,
+        39,
+        40,
+        40,
+        41,
+        41,
+        42,
+        42,
+        43,
+        43,
+        44,
+        44,
+        45,
+        45,
+        46,
+        46,
+        47,
+        47,
+        48,
+        48
+      ]
+    }
   },
   {
     "_id": {
@@ -247,13 +327,27 @@
     "payload": {
       "toChar": {
         "msgOff": "!Call Lightning!",
-        "msgObj": ""
+        "msgObj": "",
+        "indoors": "You must be out of doors.\r\n",
+        "clear": "You need bad weather.\r\n",
+        "cast": "Mota's lightning strikes your foes!\r\n"
+      },
+      "toRoom": {
+        "cast": "{actor} calls Mota's lightning to strike their foes!\r\n"
+      },
+      "toVictim": {
+        "distant": "Lightning flashes in the sky.\r\n"
       }
     },
     "functionName": "call_lightning",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.call_lightning()"
+      "lambda ctx: ctx.stop_when(not ctx.is_outside(), 'indoors')",
+      "lambda ctx: ctx.stop_when(not ctx.is_raining(), 'clear')",
+      "lambda ctx: ctx.set_alias('lightning_damage', ctx.eval_int('dice(level // 2, 8)'))",
+      "lambda ctx: ctx.send_message('cast', include_victim_in_room=True)",
+      "lambda ctx: ctx.for_each_room(lambda v: v.damage_expr('ctx.get_alias(\"lightning_damage\")', 'DAM_LIGHTNING'), predicate=lambda v: v.victim is not v.actor and v.is_npc(v.victim) != v.is_npc())",
+      "lambda ctx: ctx.area_message('distant', outdoors=True, awake=True)"
     ]
   },
   {
@@ -272,7 +366,17 @@
     "payload": {
       "toChar": {
         "msgOff": "You feel more self-confident.",
-        "msgObj": ""
+        "msgObj": "",
+        "self": "You like yourself even better!\r\n",
+        "law": "The mayor does not allow charming in the city limits.\r\n",
+        "charmed": "{victim} looks at you with adoring eyes.\r\n"
+      },
+      "toVictim": {
+        "charmed": "Isn't {actor} just so nice?\r\n",
+        "followStopMaster": "{follower} stops following you.\r\n",
+        "followStop": "You stop following {master}.\r\n",
+        "followStartMaster": "{follower} now follows you.\r\n",
+        "followStart": "You now follow {master}.\r\n"
       }
     },
     "functionName": "charm_person",
@@ -290,7 +394,14 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.charm_person()"
+      "lambda ctx: ctx.stop_when(ctx.is_safe())",
+      "lambda ctx: ctx.stop_when(ctx.victim is ctx.actor, 'self')",
+      "lambda ctx: ctx.stop_when(ctx.is_affected('AFF_CHARM') or ctx.is_affected('AFF_CHARM', target=ctx.actor) or ctx.level < ctx.victim.level or ctx.character_flag('imm', 'IMM_CHARM'))",
+      "lambda ctx: ctx.stop_if_saved(dam_type='DAM_CHARM')",
+      "lambda ctx: ctx.stop_when(ctx.room_has_flag('ROOM_LAW'), 'law')",
+      "lambda ctx: ctx.follow(grouped=True)",
+      "lambda ctx: ctx.apply_affect_data()",
+      "lambda ctx: ctx.send_message('charmed')"
     ]
   },
   {
@@ -310,12 +421,89 @@
       "toChar": {
         "msgOff": "You feel less cold.",
         "msgObj": ""
+      },
+      "toRoom": {
+        "apply": "{victim} turns blue and shivers.\r\n"
       }
     },
     "functionName": "chill_touch",
-    "affectData": [],
+    "affectData": [
+      {
+        "applyTo": "char",
+        "bitvector": "0",
+        "duration": "6",
+        "level": "level",
+        "location": "APPLY_STR",
+        "modifier": "-1",
+        "type": "sn",
+        "valid": true,
+        "where": "TO_AFFECTS"
+      }
+    ],
     "lambdas": [
-      "lambda ctx: ctx.chill_touch()"
+      "lambda ctx: ctx.damage_table('DAM_COLD', on_failed_save=lambda hit: hit.apply_affect_data(join=True))"
+    ],
+    "tables": {
+      "damage": [
+        0,
+        0,
+        0,
+        6,
+        7,
+        8,
+        9,
+        12,
+        13,
+        13,
+        13,
+        14,
+        14,
+        14,
+        15,
+        15,
+        15,
+        16,
+        16,
+        16,
+        17,
+        17,
+        17,
+        18,
+        18,
+        18,
+        19,
+        19,
+        19,
+        20,
+        20,
+        20,
+        21,
+        21,
+        21,
+        22,
+        22,
+        22,
+        23,
+        23,
+        23,
+        24,
+        24,
+        24,
+        25,
+        25,
+        25,
+        26,
+        26,
+        26,
+        27
+      ]
+    },
+    "guards": [
+      {
+        "messageKey": "apply",
+        "predicate": "lambda v: v.context.is_character_target()",
+        "tokenFactory": "lambda v: v.context.payload_tokens()"
+      }
     ]
   },
   {
@@ -340,8 +528,63 @@
     "functionName": "colour_spray",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_expr('dice(level, 6)', 'DAM_LIGHT')"
-    ]
+      "lambda ctx: ctx.damage_table('DAM_LIGHT', on_failed_save=lambda hit: hit.invoke_spell('blindness', hit.level // 2))"
+    ],
+    "tables": {
+      "damage": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        30,
+        35,
+        40,
+        45,
+        50,
+        55,
+        55,
+        55,
+        56,
+        57,
+        58,
+        58,
+        59,
+        60,
+        61,
+        61,
+        62,
+        63,
+        64,
+        64,
+        65,
+        66,
+        67,
+        67,
+        68,
+        69,
+        70,
+        70,
+        71,
+        72,
+        73,
+        73,
+        74,
+        75,
+        76,
+        76,
+        77,
+        78,
+        79,
+        79
+      ]
+    }
   },
   {
     "_id": {
@@ -359,13 +602,16 @@
     "payload": {
       "toChar": {
         "msgOff": "!Control Weather!",
-        "msgObj": ""
+        "msgObj": "",
+        "invalid": "Do you want it to get better or worse?\r\n",
+        "complete": "Ok.\r\n"
       }
     },
     "functionName": "control_weather",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.control_weather()"
+      "lambda ctx: ctx.change_weather('dice(trunc_div(level, 3), 4)' if ctx.target_name.lower() == 'better' else '-dice(trunc_div(level, 3), 4)') if ctx.target_name.lower() in ('better', 'worse') else ctx.send_message('invalid')",
+      "lambda ctx: ctx.send_message('complete')"
     ]
   },
   {
@@ -384,13 +630,19 @@
     "payload": {
       "toChar": {
         "msgOff": "!Create Food!",
-        "msgObj": ""
+        "msgObj": "",
+        "created": "{item} suddenly appears.\r\n"
+      },
+      "toRoom": {
+        "created": "{item} suddenly appears.\r\n"
       }
     },
     "functionName": "create_food",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.create_object('20')"
+      "lambda ctx: ctx.create_object('20', destination='room')",
+      "lambda ctx: ctx.configure_object({'value0': 'trunc_div(level, 2)', 'value1': 'level'})",
+      "lambda ctx: ctx.send_message('created', target='created_item', include_actor_in_room=False)"
     ]
   },
   {
@@ -409,13 +661,18 @@
     "payload": {
       "toChar": {
         "msgOff": "!Create Water!",
-        "msgObj": ""
+        "msgObj": "",
+        "wrongType": "It is unable to hold water.\r\n",
+        "otherLiquid": "It contains some other liquid.\r\n",
+        "filled": "{item} is filled.\r\n"
       }
     },
     "functionName": "create_water",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.create_water()"
+      "lambda ctx: ctx.stop_when(ctx.item_kind() != 'drink_con', 'wrongType')",
+      "lambda ctx: ctx.stop_when(str(ctx.obj.value2).lower() not in ('water', '0') and int(ctx.obj.value1) != 0, 'otherLiquid')",
+      "lambda ctx: ctx.send_message('filled') if ctx.fill_liquid('water', 'level * (4 if ctx.is_raining() else 2)') else None"
     ]
   },
   {
@@ -434,13 +691,24 @@
     "payload": {
       "toChar": {
         "msgOff": "!Cure Blindness!",
-        "msgObj": ""
+        "msgObj": "",
+        "absent": "You aren't blind.\r\n",
+        "absentOther": "{victim} doesn't appear to be blinded.\r\n",
+        "failed": "Spell failed.\r\n"
+      },
+      "toVictim": {
+        "cured": "Your vision returns!\r\n"
+      },
+      "toRoom": {
+        "cured": "{victim} is no longer blinded.\r\n"
       }
     },
     "functionName": "cure_blindness",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.remove_effects('spell.blindness')"
+      "lambda ctx: ctx.stop_when(not ctx.is_affected('spell.blindness'), 'absent' if ctx.victim is ctx.actor else 'absentOther')",
+      "lambda ctx: ctx.stop_when(not ctx.dispel_effects('spell.blindness', notify=False), 'failed')",
+      "lambda ctx: ctx.send_message('cured', include_actor_in_room=True)"
     ]
   },
   {
@@ -459,13 +727,19 @@
     "payload": {
       "toChar": {
         "msgOff": "!Cure Critical!",
-        "msgObj": ""
+        "msgObj": "",
+        "complete": "Ok.\r\n"
+      },
+      "toVictim": {
+        "restored": "You feel better!\r\n"
       }
     },
     "functionName": "cure_critical",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.heal_expr('dice(3, 8) + level - 6')"
+      "lambda ctx: ctx.heal_expr('dice(3, 8) + level - 6')",
+      "lambda ctx: ctx.send_message('restored')",
+      "lambda ctx: ctx.send_message('complete') if ctx.victim is not ctx.actor else None"
     ]
   },
   {
@@ -484,13 +758,19 @@
     "payload": {
       "toChar": {
         "msgOff": "!Cure Light!",
-        "msgObj": ""
+        "msgObj": "",
+        "complete": "Ok.\r\n"
+      },
+      "toVictim": {
+        "restored": "You feel better!\r\n"
       }
     },
     "functionName": "cure_light",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.heal_expr('dice(1, 8) + level // 3')"
+      "lambda ctx: ctx.heal_expr('dice(1, 8) + level // 3')",
+      "lambda ctx: ctx.send_message('restored')",
+      "lambda ctx: ctx.send_message('complete') if ctx.victim is not ctx.actor else None"
     ]
   },
   {
@@ -511,13 +791,17 @@
         "apply": "You feel unclean.\r\n"
       },
       "toRoom": {
-        "applyObject": "{item} glows with a malevolent aura.\r\n"
+        "applyObject": "{item} glows with a malevolent aura.\r\n",
+        "objectCountered": "{item} glows with a red aura.\r\n"
       },
       "toChar": {
         "apply": "{victim} looks very uncomfortable.\r\n",
         "applyObject": "{item} glows with a malevolent aura.\r\n",
         "msgOff": "The curse wears off.",
-        "msgObj": "$p is no longer impure."
+        "msgObj": "$p is no longer impure.",
+        "objectDuplicate": "{item} is already filled with evil.\r\n",
+        "objectResisted": "The holy aura of {item} is too powerful for you to overcome.\r\n",
+        "objectCountered": "{item} glows with a red aura.\r\n"
       }
     },
     "guards": [
@@ -569,6 +853,10 @@
       }
     ],
     "lambdas": [
+      "lambda ctx: ctx.stop_when(ctx.item_has_flag('ITEM_EVIL'), 'objectDuplicate') if ctx.is_object_target() else None",
+      "lambda ctx: ctx.counter_item_flag('ITEM_BLESS', 'spell.bless', 'objectCountered', 'objectResisted') if ctx.is_object_target() else None",
+      "lambda ctx: ctx.stop_if_affected('AFF_CURSE') if ctx.is_character_target() else None",
+      "lambda ctx: ctx.stop_if_saved(dam_type='DAM_NEGATIVE') if ctx.is_character_target() else None",
       "lambda ctx: ctx.apply_affect_data()"
     ]
   },
@@ -619,7 +907,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.stop_if_affected('spell.detect_evil', 'alreadyAffected', 'alreadyAffectedOther')",
+      "lambda ctx: ctx.stop_if_affected('AFF_DETECT_EVIL', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
     ]
   },
@@ -670,7 +958,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.stop_if_affected('spell.detect_invis', 'alreadyAffected', 'alreadyAffectedOther')",
+      "lambda ctx: ctx.stop_if_affected('AFF_DETECT_INVIS', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
     ]
   },
@@ -721,7 +1009,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.stop_if_affected('spell.detect_magic', 'alreadyAffected', 'alreadyAffectedOther')",
+      "lambda ctx: ctx.stop_if_affected('AFF_DETECT_MAGIC', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
     ]
   },
@@ -741,13 +1029,16 @@
     "payload": {
       "toChar": {
         "msgOff": "!Detect Poison!",
-        "msgObj": ""
+        "msgObj": "",
+        "poisoned": "You smell poisonous fumes.\r\n",
+        "clean": "It looks delicious.\r\n",
+        "other": "It doesn't look poisoned.\r\n"
       }
     },
     "functionName": "detect_poison",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.detect_poison()"
+      "lambda ctx: ctx.send_message('poisoned' if int(ctx.obj.value3) else 'clean') if ctx.item_kind() in ('food', 'drink_con') else ctx.send_message('other')"
     ]
   },
   {
@@ -766,13 +1057,22 @@
     "payload": {
       "toChar": {
         "msgOff": "!Dispel Evil!",
-        "msgObj": ""
+        "msgObj": "",
+        "neutral": "{victim} does not seem to be affected.\r\n"
+      },
+      "toRoom": {
+        "protected": "Mota protects {victim}.\r\n"
       }
     },
     "functionName": "dispel_evil",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_expr('dice(level, 4)', 'DAM_HOLY')"
+      "lambda ctx: ctx.set_alias('original_target', ctx.target)",
+      "lambda ctx: ctx.set_target(ctx.actor) if not ctx.is_npc() and ctx.alignment(ctx.actor) <= -350 else None",
+      "lambda ctx: ctx.stop_when(ctx.alignment() >= 350, 'protected', include_victim_in_room=True)",
+      "lambda ctx: ctx.stop_when(-350 < ctx.alignment() < 350, 'neutral')",
+      "lambda ctx: ctx.damage_expr('dice(level, 4) if victim.hit > actor.level * 4 else max(victim.hit, dice(level, 4))', 'DAM_HOLY')",
+      "lambda ctx: ctx.set_target(ctx.get_alias('original_target'))"
     ]
   },
   {
@@ -791,13 +1091,22 @@
     "payload": {
       "toChar": {
         "msgOff": "!Earthquake!",
-        "msgObj": ""
+        "msgObj": "",
+        "cast": "The earth trembles beneath your feet!\r\n"
+      },
+      "toRoom": {
+        "cast": "{actor} makes the earth tremble and shiver.\r\n"
+      },
+      "toVictim": {
+        "distant": "The earth trembles and shivers.\r\n"
       }
     },
     "functionName": "earthquake",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_room_expr('level + dice(2, 8)', 'DAM_BASH')"
+      "lambda ctx: ctx.send_message('cast', include_victim_in_room=True)",
+      "lambda ctx: ctx.for_each_room(lambda v: v.damage_expr(\"0 if ctx.is_affected('AFF_FLYING') else level + dice(2, 8)\", 'DAM_BASH', save_half=False), predicate=lambda v: v.victim is not v.actor, safe=True)",
+      "lambda ctx: ctx.area_message('distant')"
     ]
   },
   {
@@ -816,14 +1125,50 @@
     "payload": {
       "toChar": {
         "msgOff": "!Enchant Weapon!",
-        "msgObj": ""
+        "msgObj": "",
+        "wrongType": "That isn't a weapon.\r\n",
+        "worn": "The item must be carried to be enchanted.\r\n",
+        "destroyed": "{item} shivers violently and explodes!\r\n",
+        "disenchanted": "{item} glows brightly, then fades...oops.\r\n",
+        "failed": "Nothing seemed to happen.\r\n",
+        "success": "{item} glows blue.\r\n",
+        "exceptional": "{item} glows a brillant blue!\r\n"
+      },
+      "toRoom": {
+        "destroyed": "{item} shivers violently and explodeds!\r\n",
+        "disenchanted": "{item} glows brightly, then fades.\r\n",
+        "success": "{item} glows blue.\r\n",
+        "exceptional": "{item} glows a brillant blue!\r\n"
       }
     },
     "functionName": "enchant_weapon",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.enchant_weapon()"
-    ]
+      "lambda ctx: ctx.stop_when(ctx.item_kind() != 'weapon', 'wrongType')",
+      "lambda ctx: ctx.stop_when(ctx.item_worn(), 'worn')",
+      "lambda ctx: ctx.enchant_item(ctx.spell.rules)"
+    ],
+    "rules": {
+      "locations": {
+        "APPLY_DAMROLL": 2,
+        "APPLY_HITROLL": 2
+      },
+      "base_fail": 25,
+      "other_penalty": 25,
+      "flag_adjustments": {
+        "ITEM_BLESS": -15,
+        "ITEM_GLOW": -5
+      },
+      "min_fail": 5,
+      "max_fail": 95,
+      "destroy_divisor": 5,
+      "disenchant_divisor": 2,
+      "level_reduction": "trunc_div(3 * level, 2)",
+      "exceptional_boundary": "100 - trunc_div(level, 5)",
+      "added": 1,
+      "exceptional_added": 2,
+      "hum_above": 4
+    }
   },
   {
     "_id": {
@@ -841,13 +1186,26 @@
     "payload": {
       "toChar": {
         "msgOff": "!Energy Drain!",
-        "msgObj": ""
+        "msgObj": "",
+        "drained": "Wow....what a rush!\r\n"
+      },
+      "toVictim": {
+        "saved": "You feel a momentary chill.\r\n",
+        "drained": "You feel your life slipping away!\r\n"
       }
     },
     "functionName": "energy_drain",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.energy_drain()"
+      "lambda ctx: ctx.resource_expr('alignment', 'max(-1000, current - 50)', target=ctx.actor) if ctx.victim is not ctx.actor else None",
+      "lambda ctx: ctx.stop_when(ctx.saves_spell('DAM_NEGATIVE'), 'saved')",
+      "lambda ctx: ctx.resource_expr('experience', '-number_range(level // 2, 3 * level // 2)') if ctx.victim.level > 2 else None",
+      "lambda ctx: ctx.resource_expr('mana', 'trunc_div(current, 2)') if ctx.victim.level > 2 else None",
+      "lambda ctx: ctx.resource_expr('movement', 'trunc_div(current, 2)') if ctx.victim.level > 2 else None",
+      "lambda ctx: ctx.set_alias('drain_damage', ctx.eval_int('dice(1, level)') if ctx.victim.level > 2 else ctx.actor.hit + 1)",
+      "lambda ctx: ctx.resource_expr('hit', 'current + ctx.get_alias(\"drain_damage\")', target=ctx.actor) if ctx.victim.level > 2 else None",
+      "lambda ctx: ctx.send_message('drained')",
+      "lambda ctx: ctx.damage_expr('ctx.get_alias(\"drain_damage\")', 'DAM_NEGATIVE', save_half=False)"
     ]
   },
   {
@@ -872,8 +1230,63 @@
     "functionName": "fireball",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_expr('dice(level, 10)', 'DAM_FIRE')"
-    ]
+      "lambda ctx: ctx.damage_table('DAM_FIRE')"
+    ],
+    "tables": {
+      "damage": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        30,
+        35,
+        40,
+        45,
+        50,
+        55,
+        60,
+        65,
+        70,
+        75,
+        80,
+        82,
+        84,
+        86,
+        88,
+        90,
+        92,
+        94,
+        96,
+        98,
+        100,
+        102,
+        104,
+        106,
+        108,
+        110,
+        112,
+        114,
+        116,
+        118,
+        120,
+        122,
+        124,
+        126,
+        128,
+        130
+      ]
+    }
   },
   {
     "_id": {
@@ -897,7 +1310,7 @@
     "functionName": "harm",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.harm()"
+      "lambda ctx: ctx.damage_expr('max(20, victim.hit - dice(1, 4))', 'DAM_HARM', post_save_expression='min(100, min(50, damage) if saved else damage)')"
     ]
   },
   {
@@ -916,13 +1329,19 @@
     "payload": {
       "toChar": {
         "msgOff": "!Heal!",
-        "msgObj": ""
+        "msgObj": "",
+        "complete": "Ok.\r\n"
+      },
+      "toVictim": {
+        "restored": "A warm feeling fills your body.\r\n"
       }
     },
     "functionName": "heal",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.heal_expr('100')"
+      "lambda ctx: ctx.heal_expr('100')",
+      "lambda ctx: ctx.send_message('restored')",
+      "lambda ctx: ctx.send_message('complete') if ctx.victim is not ctx.actor else None"
     ]
   },
   {
@@ -1016,8 +1435,63 @@
     "functionName": "lightning_bolt",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_expr('dice(level, 7)', 'DAM_LIGHTNING')"
-    ]
+      "lambda ctx: ctx.damage_table('DAM_LIGHTNING')"
+    ],
+    "tables": {
+      "damage": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        25,
+        28,
+        31,
+        34,
+        37,
+        40,
+        40,
+        41,
+        42,
+        42,
+        43,
+        44,
+        44,
+        45,
+        46,
+        46,
+        47,
+        48,
+        48,
+        49,
+        50,
+        50,
+        51,
+        52,
+        52,
+        53,
+        54,
+        54,
+        55,
+        56,
+        56,
+        57,
+        58,
+        58,
+        59,
+        60,
+        60,
+        61,
+        62,
+        62,
+        63,
+        64
+      ]
+    }
   },
   {
     "_id": {
@@ -1035,14 +1509,23 @@
     "payload": {
       "toChar": {
         "msgOff": "!Locate Object!",
-        "msgObj": ""
+        "msgObj": "",
+        "absent": "Nothing like that in heaven or earth.\r\n",
+        "carried": "One is carried by {owner}\r\n",
+        "somewhere": "One is in somewhere\r\n",
+        "room": "One is in {room}\r\n",
+        "roomImmortal": "One is in {room} [Room {vnum}]\r\n"
       }
     },
     "functionName": "locate_object",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.locate_object()"
-    ]
+      "lambda ctx: ctx.locate_objects(ctx.spell.rules)"
+    ],
+    "rules": {
+      "limit": "200 if ctx.is_immortal() else 2 * level",
+      "chance": "2 * level"
+    }
   },
   {
     "_id": {
@@ -1066,8 +1549,63 @@
     "functionName": "magic_missile",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_expr('dice(level, 4)', 'DAM_ENERGY')"
-    ]
+      "lambda ctx: ctx.damage_table('DAM_ENERGY')"
+    ],
+    "tables": {
+      "damage": [
+        0,
+        3,
+        3,
+        4,
+        4,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7,
+        7,
+        7,
+        7,
+        7,
+        8,
+        8,
+        8,
+        8,
+        8,
+        9,
+        9,
+        9,
+        9,
+        9,
+        10,
+        10,
+        10,
+        10,
+        10,
+        11,
+        11,
+        11,
+        11,
+        11,
+        12,
+        12,
+        12,
+        12,
+        12,
+        13,
+        13,
+        13,
+        13,
+        13,
+        14,
+        14,
+        14,
+        14,
+        14
+      ]
+    }
   },
   {
     "_id": {
@@ -1085,13 +1623,25 @@
     "payload": {
       "toChar": {
         "msgOff": "You feel less sick.",
-        "msgObj": "The poison on $p dries up."
+        "msgObj": "The poison on $p dries up.",
+        "unsupported": "You can't poison {item}.\r\n",
+        "weaponProtected": "You can't seem to envenom {item}.\r\n",
+        "foodProtected": "Your spell fails to corrupt {item}.\r\n",
+        "alreadyPoisoned": "{item} is already envenomed.\r\n",
+        "foodPoisoned": "{item} is infused with poisonous vapors.\r\n",
+        "weaponPoisoned": "{item} is coated with deadly venom.\r\n"
       },
       "toVictim": {
-        "tick": "You shiver and suffer.\r\n"
+        "tick": "You shiver and suffer.\r\n",
+        "poisoned": "You feel very sick.\r\n",
+        "resisted": "You feel momentarily ill, but it passes.\r\n"
       },
       "toRoom": {
-        "tick": "{victim} shivers and suffers.\r\n"
+        "tick": "{victim} shivers and suffers.\r\n",
+        "foodPoisoned": "{item} is infused with poisonous vapors.\r\n",
+        "weaponPoisoned": "{item} is coated with deadly venom.\r\n",
+        "poisoned": "{victim} looks very ill.\r\n",
+        "resisted": "{victim} turns slightly green, but it passes.\r\n"
       }
     },
     "functionName": "poison",
@@ -1106,10 +1656,28 @@
         "modifier": "0",
         "bitvector": "WEAPON_POISON",
         "applyTo": "object"
+      },
+      {
+        "valid": true,
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "level",
+        "location": "APPLY_STR",
+        "modifier": "-2",
+        "bitvector": "AFF_POISON",
+        "applyTo": "char"
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.poison()"
+      "lambda ctx: ctx.stop_when(ctx.item_kind() not in ('food', 'drink_con', 'weapon'), 'unsupported') if ctx.is_object_target() else None",
+      "lambda ctx: ctx.stop_when(ctx.item_has_flag('ITEM_BLESS') or ctx.item_has_flag('ITEM_BURN_PROOF'), 'weaponProtected' if ctx.item_kind() == 'weapon' else 'foodProtected') if ctx.is_object_target() else None",
+      "lambda ctx: ctx.stop_when(any(ctx.item_has_flag(flag, weapon=True) for flag in ('WEAPON_FLAMING', 'WEAPON_FROST', 'WEAPON_VAMPIRIC', 'WEAPON_SHARP', 'WEAPON_VORPAL', 'WEAPON_SHOCKING')), 'weaponProtected') if ctx.is_object_target() and ctx.item_kind() == 'weapon' else None",
+      "lambda ctx: ctx.stop_when(ctx.item_has_flag('WEAPON_POISON', weapon=True), 'alreadyPoisoned') if ctx.is_object_target() and ctx.item_kind() == 'weapon' else None",
+      "lambda ctx: (ctx.object_value_expr(3, '1'), ctx.send_message('foodPoisoned', include_actor_in_room=True), ctx.stop()) if ctx.is_object_target() and ctx.item_kind() in ('food', 'drink_con') else None",
+      "lambda ctx: ctx.stop_when(ctx.saves_spell('DAM_POISON'), 'resisted', include_actor_in_room=True) if ctx.is_character_target() else None",
+      "lambda ctx: ctx.apply_affect_data(join=ctx.is_character_target())",
+      "lambda ctx: ctx.send_message('weaponPoisoned' if ctx.is_object_target() else 'poisoned', include_actor_in_room=True)"
     ]
   },
   {
@@ -1159,7 +1727,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.stop_if_affected('spell.protection_evil', 'alreadyAffected', 'alreadyAffectedOther')",
+      "lambda ctx: ctx.stop_when(ctx.is_affected('AFF_PROTECT_EVIL') or ctx.is_affected('AFF_PROTECT_GOOD'), 'alreadyAffected' if ctx.victim is ctx.actor else 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
     ]
   },
@@ -1180,12 +1748,22 @@
       "toChar": {
         "msgOff": "!Remove Curse!",
         "msgObj": ""
+      },
+      "toVictim": {
+        "characterCured": "You feel better.\r\n",
+        "itemCured": "Your {item} glows blue.\r\n"
+      },
+      "toRoom": {
+        "characterCured": "{victim} looks more relaxed.\r\n",
+        "itemCured": "{victim}'s {item} glows blue.\r\n"
       }
     },
     "functionName": "remove_curse",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.remove_curse()"
+      "lambda ctx: (ctx.uncurse_item(), ctx.stop()) if ctx.obj is not None else None",
+      "lambda ctx: ctx.send_message('characterCured', include_actor_in_room=True) if ctx.dispel_effects('spell.curse', notify=False) else None",
+      "lambda ctx: ctx.uncurse_owned_items(limit=1, level_adjust=0)"
     ]
   },
   {
@@ -1237,7 +1815,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.stop_if_affected('spell.sanctuary', 'alreadyAffected', 'alreadyAffectedOther')",
+      "lambda ctx: ctx.stop_if_affected('AFF_SANCTUARY', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
     ]
   },
@@ -1258,11 +1836,33 @@
       "toChar": {
         "msgOff": "You feel less tired.",
         "msgObj": ""
+      },
+      "toVictim": {
+        "apply": "You feel very sleepy ..... zzzzzz.\r\n"
+      },
+      "toRoom": {
+        "apply": "{victim} goes to sleep.\r\n"
       }
     },
     "functionName": "sleep",
-    "affectData": [],
+    "affectData": [
+      {
+        "where": "TO_AFFECTS",
+        "type": "sn",
+        "level": "level",
+        "duration": "4 + level",
+        "location": "APPLY_NONE",
+        "modifier": "0",
+        "bitvector": "AFF_SLEEP",
+        "applyTo": "char",
+        "valid": true
+      }
+    ],
     "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('AFF_SLEEP')",
+      "lambda ctx: ctx.stop_when(ctx.is_npc(ctx.victim) and ctx.character_flag('act', 'ACT_UNDEAD'))",
+      "lambda ctx: ctx.stop_when(ctx.level + 2 < ctx.victim.level)",
+      "lambda ctx: ctx.stop_if_saved(level_adjust=-4, dam_type='DAM_CHARM')",
       "lambda ctx: ctx.sleep()"
     ]
   },
@@ -1335,13 +1935,32 @@
     "payload": {
       "toChar": {
         "msgOff": "!Summon!",
-        "msgObj": ""
+        "msgObj": "",
+        "failed": "You failed.\r\n"
+      },
+      "toRoom": {
+        "depart": "{victim} disappears suddenly.\r\n",
+        "arrive": "{victim} arrives suddenly.\r\n"
+      },
+      "toVictim": {
+        "summoned": "{actor} has summoned you!\r\n"
       }
     },
     "functionName": "summon",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.summon_target()"
+      "lambda ctx: ctx.find_world_target()",
+      "lambda ctx: ctx.stop_when(ctx.victim is None or ctx.victim is ctx.actor or ctx.room_of() is None or ctx.room is None, 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.room_flag('ROOM_SAFE', room=ctx.room) or any(ctx.room_flag(flag) for flag in ('ROOM_SAFE', 'ROOM_PRIVATE', 'ROOM_SOLITARY', 'ROOM_NO_RECALL')), 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.is_npc(ctx.victim) and ctx.character_flag('act', 'ACT_AGGRESSIVE'), 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.victim.level >= ctx.level + 3, 'failed')",
+      "lambda ctx: ctx.stop_when(not ctx.is_npc(ctx.victim) and ctx.victim.level >= ctx.game_parameter('LEVEL_IMMORTAL'), 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.victim.fighting is not None, 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.is_npc(ctx.victim) and ctx.character_flag('imm', 'IMM_SUMMON'), 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.is_shopkeeper(), 'failed')",
+      "lambda ctx: ctx.stop_when(not ctx.is_npc(ctx.victim) and ctx.player_flag('PLR_NOSUMMON'), 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.is_npc(ctx.victim) and ctx.saves_spell('DAM_OTHER'), 'failed')",
+      "lambda ctx: ctx.move_to(ctx.room, departure_key='depart', arrival_key='arrive', notice_key='summoned')"
     ]
   },
   {
@@ -1361,12 +1980,16 @@
       "toChar": {
         "msgOff": "!Ventriloquate!",
         "msgObj": ""
+      },
+      "toVictim": {
+        "spoken": "{speaker} says '{speech}'.\r\n",
+        "saved": "Someone makes {speaker} say '{speech}'.\r\n"
       }
     },
     "functionName": "ventriloquate",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.ventriloquate()"
+      "lambda ctx: ctx.throw_voice()"
     ]
   },
   {
@@ -1386,13 +2009,31 @@
       "toChar": {
         "msgOff": "!Word of Recall!",
         "msgObj": ""
+      },
+      "toVictim": {
+        "lost": "You are completely lost.\r\n",
+        "failed": "Spell failed.\r\n"
+      },
+      "toRoom": {
+        "depart": "{victim} disappears.\r\n",
+        "arrive": "{victim} appears in the room.\r\n"
       }
     },
     "functionName": "word_of_recall",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.word_of_recall()"
-    ]
+      "lambda ctx: ctx.set_target(ctx.victim or ctx.actor)",
+      "lambda ctx: ctx.stop_when(ctx.is_npc(ctx.victim))",
+      "lambda ctx: ctx.set_alias('destination', ctx.get_room(ctx.spell.rules['destination']))",
+      "lambda ctx: ctx.stop_when(ctx.get_alias('destination') is None, 'lost')",
+      "lambda ctx: ctx.stop_when(ctx.room_of() is None or ctx.room_flag('ROOM_NO_RECALL') or ctx.is_affected('AFF_CURSE'), 'failed')",
+      "lambda ctx: ctx.stop_fighting(both=True) if ctx.victim.fighting is not None else None",
+      "lambda ctx: ctx.resource_expr('movement', 'trunc_div(current, 2)', target=ctx.actor)",
+      "lambda ctx: ctx.move_to('destination', departure_key='depart', arrival_key='arrive')"
+    ],
+    "rules": {
+      "destination": "3001"
+    }
   },
   {
     "_id": {
@@ -1410,13 +2051,24 @@
     "payload": {
       "toChar": {
         "msgOff": "!Cure Poison!",
-        "msgObj": ""
+        "msgObj": "",
+        "absent": "You aren't poisoned.\r\n",
+        "absentOther": "{victim} doesn't appear to be poisoned.\r\n",
+        "failed": "Spell failed.\r\n"
+      },
+      "toVictim": {
+        "cured": "A warm feeling runs through your body.\r\n"
+      },
+      "toRoom": {
+        "cured": "{victim} looks much better.\r\n"
       }
     },
     "functionName": "cure_poison",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.remove_effects('spell.poison')"
+      "lambda ctx: ctx.stop_when(not ctx.is_affected('spell.poison'), 'absent' if ctx.victim is ctx.actor else 'absentOther')",
+      "lambda ctx: ctx.stop_when(not ctx.dispel_effects('spell.poison', notify=False), 'failed')",
+      "lambda ctx: ctx.send_message('cured', include_actor_in_room=True)"
     ]
   },
   {
@@ -1466,7 +2118,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.stop_if_affected('spell.detect_hidden', 'alreadyAffected', 'alreadyAffectedOther')",
+      "lambda ctx: ctx.stop_if_affected('AFF_DETECT_HIDDEN', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
     ]
   },
@@ -1486,14 +2138,214 @@
     "payload": {
       "toChar": {
         "msgOff": "!Identify!",
-        "msgObj": ""
+        "msgObj": "",
+        "summary": "Object '{name}' is type {kind}, extra flags {flags}.\r\nWeight is {weight}, value is {cost}, level is {level}.\r\n",
+        "spells": "Level {level} spells of:{spells}.\r\n",
+        "charges": "Has {charges} charges of level {level}{spell}.\r\n",
+        "liquid": "It holds {color}-colored {liquid}.\r\n",
+        "container": "Capacity: {capacity}#  Maximum weight: {maximum}#  flags: {flags}\r\n",
+        "multiplier": "Weight multiplier: {multiplier}%\r\n",
+        "weapon": "Weapon type is {weapon}.\r\n",
+        "dice": "Damage is {count}d{sides} (average {average}).\r\n",
+        "range": "Damage is {low} to {high} (average {average}).\r\n",
+        "weaponFlags": "Weapons flags: {flags}\r\n",
+        "armor": "Armor class is {pierce} pierce, {bash} bash, {slash} slash, and {magic} vs. magic.\r\n",
+        "affect": "Affects {location} by {modifier}.\r\n",
+        "affectTimed": "Affects {location} by {modifier}, {duration} hours.\r\n",
+        "addsAffect": "Adds {flags} affect.\r\n",
+        "addsObject": "Adds {flags} object flag.\r\n",
+        "addsWeapon": "Adds {flags} weapon flags.\r\n",
+        "addsImmunity": "Adds immunity to {flags}.\r\n",
+        "addsResistance": "Adds resistance to {flags}.\r\n",
+        "addsVulnerability": "Adds vulnerability to {flags}.\r\n",
+        "unknown": "Unknown bit {where}: {bit}\r\n"
       }
     },
     "functionName": "identify",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.identify()"
-    ]
+      "lambda ctx: ctx.describe_object(ctx.spell.rules)"
+    ],
+    "rules": {
+      "spell_indices": {
+        "reserved": 0,
+        "acid blast": 1,
+        "armor": 2,
+        "bless": 3,
+        "blindness": 4,
+        "burning hands": 5,
+        "call lightning": 6,
+        "cancellation": 7,
+        "cause critical": 8,
+        "cause light": 9,
+        "cause serious": 10,
+        "chain lightning": 11,
+        "change sex": 12,
+        "charm person": 13,
+        "chill touch": 14,
+        "colour spray": 15,
+        "continual light": 16,
+        "control weather": 17,
+        "create food": 18,
+        "create rose": 19,
+        "create spring": 20,
+        "create water": 21,
+        "cure blindness": 22,
+        "cure critical": 23,
+        "cure disease": 24,
+        "cure light": 25,
+        "cure poison": 26,
+        "cure serious": 27,
+        "curse": 28,
+        "demonfire": 29,
+        "detect evil": 30,
+        "detect good": 31,
+        "detect hidden": 32,
+        "detect invis": 33,
+        "detect magic": 34,
+        "detect poison": 35,
+        "dispel evil": 36,
+        "dispel good": 37,
+        "dispel magic": 38,
+        "earthquake": 39,
+        "enchant armor": 40,
+        "enchant weapon": 41,
+        "energy drain": 42,
+        "faerie fire": 43,
+        "faerie fog": 44,
+        "farsight": 45,
+        "fireball": 46,
+        "fireproof": 47,
+        "flamestrike": 48,
+        "fly": 49,
+        "floating disc": 50,
+        "frenzy": 51,
+        "gate": 52,
+        "giant strength": 53,
+        "harm": 54,
+        "haste": 55,
+        "heal": 56,
+        "heat metal": 57,
+        "holy word": 58,
+        "identify": 59,
+        "infravision": 60,
+        "invisibility": 61,
+        "know alignment": 62,
+        "lightning bolt": 63,
+        "locate object": 64,
+        "magic missile": 65,
+        "mass healing": 66,
+        "mass invis": 67,
+        "nexus": 68,
+        "pass door": 69,
+        "plague": 70,
+        "poison": 71,
+        "portal": 72,
+        "protection evil": 73,
+        "protection good": 74,
+        "ray of truth": 75,
+        "recharge": 76,
+        "refresh": 77,
+        "remove curse": 78,
+        "sanctuary": 79,
+        "shield": 80,
+        "shocking grasp": 81,
+        "sleep": 82,
+        "slow": 83,
+        "stone skin": 84,
+        "summon": 85,
+        "teleport": 86,
+        "ventriloquate": 87,
+        "weaken": 88,
+        "word of recall": 89,
+        "acid breath": 90,
+        "fire breath": 91,
+        "frost breath": 92,
+        "gas breath": 93,
+        "lightning breath": 94,
+        "general purpose": 95,
+        "high explosive": 96,
+        "axe": 97,
+        "dagger": 98,
+        "flail": 99,
+        "mace": 100,
+        "polearm": 101,
+        "shield block": 102,
+        "spear": 103,
+        "sword": 104,
+        "whip": 105,
+        "backstab": 106,
+        "bash": 107,
+        "berserk": 108,
+        "dirt kicking": 109,
+        "disarm": 110,
+        "dodge": 111,
+        "enhanced damage": 112,
+        "envenom": 113,
+        "hand to hand": 114,
+        "kick": 115,
+        "parry": 116,
+        "rescue": 117,
+        "trip": 118,
+        "second attack": 119,
+        "third attack": 120,
+        "fast healing": 121,
+        "haggle": 122,
+        "hide": 123,
+        "lore": 124,
+        "meditation": 125,
+        "peek": 126,
+        "pick lock": 127,
+        "sneak": 128,
+        "steal": 129,
+        "scrolls": 130,
+        "staves": 131,
+        "wands": 132,
+        "recall": 133
+      },
+      "affect_flags": {
+        "TO_AFFECTS": {
+          "enum": "affectedBy",
+          "message": "adds_affect"
+        },
+        "TO_OBJECT": {
+          "enum": "itemFlags",
+          "message": "adds_object"
+        },
+        "TO_WEAPON": {
+          "enum": "weaponType",
+          "message": "adds_weapon"
+        },
+        "TO_IMMUNE": {
+          "enum": "mobImmunity",
+          "message": "adds_immunity"
+        },
+        "TO_RESIST": {
+          "enum": "mobImmunity",
+          "message": "adds_resistance"
+        },
+        "TO_VULN": {
+          "enum": "mobImmunity",
+          "message": "adds_vulnerability"
+        }
+      },
+      "weapon_names": {
+        "spear": "spear/staff",
+        "mace": "mace/club"
+      },
+      "apply_names": {
+        "APPLY_STR": "strength",
+        "APPLY_DEX": "dexterity",
+        "APPLY_INT": "intelligence",
+        "APPLY_WIS": "wisdom",
+        "APPLY_CON": "constitution",
+        "APPLY_AC": "armor class",
+        "APPLY_HITROLL": "hit roll",
+        "APPLY_DAMROLL": "damage roll",
+        "APPLY_SAVES": "saves",
+        "APPLY_SAVING_SPELL": "saving spell"
+      }
+    }
   },
   {
     "_id": {
@@ -1517,8 +2369,63 @@
     "functionName": "shocking_grasp",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_expr('dice(level, 5)', 'DAM_LIGHTNING')"
-    ]
+      "lambda ctx: ctx.damage_table('DAM_LIGHTNING')"
+    ],
+    "tables": {
+      "damage": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        20,
+        25,
+        29,
+        33,
+        36,
+        39,
+        39,
+        39,
+        40,
+        40,
+        41,
+        41,
+        42,
+        42,
+        43,
+        43,
+        44,
+        44,
+        45,
+        45,
+        46,
+        46,
+        47,
+        47,
+        48,
+        48,
+        49,
+        49,
+        50,
+        50,
+        51,
+        51,
+        52,
+        52,
+        53,
+        53,
+        54,
+        54,
+        55,
+        55,
+        56,
+        56,
+        57,
+        57
+      ]
+    }
   },
   {
     "_id": {
@@ -1569,7 +2476,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.stop_if_affected('spell.fly', 'alreadyAffected', 'alreadyAffectedOther')",
+      "lambda ctx: ctx.stop_if_affected('AFF_FLYING', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
     ]
   },
@@ -1589,14 +2496,33 @@
     "payload": {
       "toChar": {
         "msgOff": "!Continual Light!",
-        "msgObj": ""
+        "msgObj": "",
+        "missing": "You don't see that here.\r\n",
+        "already": "{item} is already glowing.\r\n",
+        "glowing": "{item} glows with a white light.\r\n",
+        "created": "You twiddle your thumbs and {item} appears.\r\n"
+      },
+      "toRoom": {
+        "glowing": "{item} glows with a white light.\r\n",
+        "created": "{actor} twiddles {actor_his} thumbs and {item} appears.\r\n"
       }
     },
     "functionName": "continual_light",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.create_object('21')"
-    ]
+      "lambda ctx: (ctx.execute_lambdas(ctx.spell.rules['glow_steps']), ctx.stop()) if ctx.target_name.strip() else None",
+      "lambda ctx: ctx.create_object('21')",
+      "lambda ctx: ctx.send_message('created', target='created_item', include_actor_in_room=False)"
+    ],
+    "rules": {
+      "glow_steps": [
+        "lambda ctx: ctx.find_carried_object()",
+        "lambda ctx: ctx.stop_when(ctx.obj is None, 'missing')",
+        "lambda ctx: ctx.stop_when(ctx.item_has_flag('ITEM_GLOW'), 'already')",
+        "lambda ctx: ctx.set_item_flag('ITEM_GLOW')",
+        "lambda ctx: ctx.send_message('glowing', include_actor_in_room=False)"
+      ]
+    }
   },
   {
     "_id": {
@@ -1614,14 +2540,53 @@
     "payload": {
       "toChar": {
         "msgOff": "!Know Alignment!",
-        "msgObj": ""
+        "msgObj": "",
+        "pure": "{victim} has a pure and good aura.\r\n",
+        "excellent": "{victim} is of excellent moral character.\r\n",
+        "kind": "{victim} is often kind and thoughtful.\r\n",
+        "neutral": "{victim} doesn't have a firm moral commitment.\r\n",
+        "liar": "{victim} lies to {victim_his} friends.\r\n",
+        "murderer": "{victim} is a black-hearted murderer.\r\n",
+        "evil": "{victim} is the embodiment of pure evil!.\r\n"
       }
     },
     "functionName": "know_alignment",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.know_alignment()"
-    ]
+      "lambda ctx: ctx.send_message(next(b['message'] for b in ctx.spell.rules['bands'] if b['above'] is None or ctx.alignment() > b['above']))"
+    ],
+    "rules": {
+      "bands": [
+        {
+          "above": 700,
+          "message": "pure"
+        },
+        {
+          "above": 350,
+          "message": "excellent"
+        },
+        {
+          "above": 100,
+          "message": "kind"
+        },
+        {
+          "above": -100,
+          "message": "neutral"
+        },
+        {
+          "above": -350,
+          "message": "liar"
+        },
+        {
+          "above": -700,
+          "message": "murderer"
+        },
+        {
+          "above": null,
+          "message": "evil"
+        }
+      ]
+    }
   },
   {
     "_id": {
@@ -1639,14 +2604,157 @@
     "payload": {
       "toChar": {
         "msgOff": "!Dispel Magic!",
-        "msgObj": ""
+        "msgObj": "",
+        "resisted": "You failed.\r\n",
+        "complete": "Ok.\r\n",
+        "failed": "Spell failed.\r\n"
+      },
+      "toVictim": {
+        "resisted": "You feel a brief tingling sensation.\r\n"
+      },
+      "toRoom": {
+        "removedBlindness": "{victim} is no longer blinded.\r\n",
+        "removedCalm": "{victim} no longer looks so peaceful...\r\n",
+        "removedChangeSex": "{victim} looks more like {victim_him}self again.\r\n",
+        "removedCharmPerson": "{victim} regains {victim_his} free will.\r\n",
+        "removedChillTouch": "{victim} looks warmer.\r\n",
+        "removedFaerieFire": "{victim}'s outline fades.\r\n",
+        "removedFly": "{victim} falls to the ground!\r\n",
+        "removedFrenzy": "{victim} no longer looks so wild.\r\n",
+        "removedGiantStrength": "{victim} no longer looks so mighty.\r\n",
+        "removedHaste": "{victim} is no longer moving so quickly.\r\n",
+        "removedInvis": "{victim} fades into existance.\r\n",
+        "removedMassInvis": "{victim} fades into existance.\r\n",
+        "removedSanctuary": "The white aura around {victim}'s body vanishes.\r\n",
+        "removedShield": "The shield protecting {victim} vanishes.\r\n",
+        "removedSlow": "{victim} is no longer moving so slowly.\r\n",
+        "removedStoneSkin": "{victim}'s skin regains its normal texture.\r\n",
+        "removedWeaken": "{victim} looks stronger.\r\n"
       }
     },
     "functionName": "dispel_magic",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.dispel_magic()"
-    ]
+      "lambda ctx: ctx.stop_when(ctx.saves_spell(), 'resisted')",
+      "lambda ctx: ctx.dispel_sequence(ctx.spell.rules['dispels'], level_adjust=0)",
+      "lambda ctx: ctx.send_message('complete' if ctx.performed else 'failed')"
+    ],
+    "rules": {
+      "dispels": [
+        {
+          "effect": "spell.armor"
+        },
+        {
+          "effect": "spell.bless"
+        },
+        {
+          "effect": "spell.blindness",
+          "message": "removedBlindness"
+        },
+        {
+          "effect": "spell.calm",
+          "message": "removedCalm"
+        },
+        {
+          "effect": "spell.change_sex",
+          "message": "removedChangeSex"
+        },
+        {
+          "effect": "spell.charm_person",
+          "message": "removedCharmPerson"
+        },
+        {
+          "effect": "spell.chill_touch",
+          "message": "removedChillTouch"
+        },
+        {
+          "effect": "spell.curse"
+        },
+        {
+          "effect": "spell.detect_evil"
+        },
+        {
+          "effect": "spell.detect_good"
+        },
+        {
+          "effect": "spell.detect_hidden"
+        },
+        {
+          "effect": "spell.detect_invis"
+        },
+        {
+          "effect": "spell.detect_magic"
+        },
+        {
+          "effect": "spell.faerie_fire",
+          "message": "removedFaerieFire"
+        },
+        {
+          "effect": "spell.fly",
+          "message": "removedFly"
+        },
+        {
+          "effect": "spell.frenzy",
+          "message": "removedFrenzy"
+        },
+        {
+          "effect": "spell.giant_strength",
+          "message": "removedGiantStrength"
+        },
+        {
+          "effect": "spell.haste",
+          "message": "removedHaste"
+        },
+        {
+          "effect": "spell.infravision"
+        },
+        {
+          "effect": "spell.invis",
+          "message": "removedInvis"
+        },
+        {
+          "effect": "spell.mass_invis",
+          "message": "removedMassInvis"
+        },
+        {
+          "effect": "spell.pass_door"
+        },
+        {
+          "effect": "spell.protection_evil"
+        },
+        {
+          "effect": "spell.protection_good"
+        },
+        {
+          "effect": "spell.sanctuary",
+          "message": "removedSanctuary"
+        },
+        {
+          "flag": "AFF_SANCTUARY",
+          "effect": "spell.sanctuary",
+          "message": "removedSanctuary"
+        },
+        {
+          "effect": "spell.shield",
+          "message": "removedShield"
+        },
+        {
+          "effect": "spell.sleep"
+        },
+        {
+          "effect": "spell.slow",
+          "message": "removedSlow"
+        },
+        {
+          "effect": "spell.stone_skin",
+          "message": "removedStoneSkin"
+        },
+        {
+          "effect": "spell.weaken",
+          "message": "removedWeaken"
+        }
+      ]
+    }
   },
   {
     "_id": {
@@ -1664,13 +2772,19 @@
     "payload": {
       "toChar": {
         "msgOff": "!Cure Serious!",
-        "msgObj": ""
+        "msgObj": "",
+        "complete": "Ok.\r\n"
+      },
+      "toVictim": {
+        "restored": "You feel better!\r\n"
       }
     },
     "functionName": "cure_serious",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.heal_expr('dice(2, 8) + level // 2')"
+      "lambda ctx: ctx.heal_expr('dice(2, 8) + level // 2')",
+      "lambda ctx: ctx.send_message('restored')",
+      "lambda ctx: ctx.send_message('complete') if ctx.victim is not ctx.actor else None"
     ]
   },
   {
@@ -1695,7 +2809,7 @@
     "functionName": "cause_light",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_expr('dice(1, 8) + level // 3', 'DAM_HARM')"
+      "lambda ctx: ctx.damage_expr('dice(1, 8) + level // 3', 'DAM_HARM', save_half=False)"
     ]
   },
   {
@@ -1720,7 +2834,7 @@
     "functionName": "cause_critical",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_expr('dice(3, 8) + level - 6', 'DAM_HARM')"
+      "lambda ctx: ctx.damage_expr('dice(3, 8) + level - 6', 'DAM_HARM', save_half=False)"
     ]
   },
   {
@@ -1745,7 +2859,7 @@
     "functionName": "cause_serious",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_expr('dice(2, 8) + level // 2', 'DAM_HARM')"
+      "lambda ctx: ctx.damage_expr('dice(2, 8) + level // 2', 'DAM_HARM', save_half=False)"
     ]
   },
   {
@@ -1926,6 +3040,7 @@
       }
     ],
     "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('spell.weaken')",
       "lambda ctx: ctx.stop_if_saved()",
       "lambda ctx: ctx.apply_affect_data()"
     ]
@@ -1946,7 +3061,14 @@
     "payload": {
       "toChar": {
         "msgOff": "You are no longer invisible.",
-        "msgObj": ""
+        "msgObj": "",
+        "complete": "Ok.\r\n"
+      },
+      "toVictim": {
+        "apply": "You slowly fade out of existence.\r\n"
+      },
+      "toRoom": {
+        "apply": "{victim} slowly fades out of existence.\r\n"
       }
     },
     "functionName": "mass_invis",
@@ -1964,7 +3086,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.mass_invis()"
+      "lambda ctx: ctx.for_each_room(lambda v: (v.send_message('apply', include_actor_in_room=True), v.apply_affect_data()), predicate=lambda v: v.same_group() and not v.is_affected('AFF_INVISIBLE'))",
+      "lambda ctx: ctx.send_message('complete')"
     ]
   },
   {
@@ -2039,6 +3162,7 @@
       }
     ],
     "lambdas": [
+      "lambda ctx: ctx.stop_if_affected('AFF_FAERIE_FIRE')",
       "lambda ctx: ctx.apply_affect_data()"
     ]
   },
@@ -2058,14 +3182,32 @@
     "payload": {
       "toChar": {
         "msgOff": "!Faerie Fog!",
-        "msgObj": ""
+        "msgObj": "",
+        "conjure": "You conjure a cloud of purple smoke.\r\n"
+      },
+      "toRoom": {
+        "conjure": "{actor} conjures a cloud of purple smoke.\r\n",
+        "revealed": "{victim} is revealed!\r\n"
+      },
+      "toVictim": {
+        "revealed": "You are revealed!\r\n"
       }
     },
     "functionName": "faerie_fog",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.faerie_fog()"
-    ]
+      "lambda ctx: ctx.send_message('conjure', include_victim_in_room=True)",
+      "lambda ctx: ctx.for_each_room(lambda v: v.execute_lambdas(v.spell.rules['target_steps']))"
+    ],
+    "rules": {
+      "target_steps": [
+        "lambda ctx: ctx.stop_when(ctx.invisibility_level() > 0 or ctx.victim is ctx.actor)",
+        "lambda ctx: ctx.stop_if_saved(dam_type='DAM_OTHER')",
+        "lambda ctx: ctx.remove_effects('spell.invis', 'spell.mass_invis', 'skill.sneak', 'sneak')",
+        "lambda ctx: ctx.clear_affected_flags('AFF_HIDE', 'AFF_INVISIBLE', 'AFF_SNEAK')",
+        "lambda ctx: ctx.send_message('revealed', include_actor_in_room=True)"
+      ]
+    }
   },
   {
     "_id": {
@@ -2116,7 +3258,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.stop_if_affected('spell.pass_door', 'alreadyAffected', 'alreadyAffectedOther')",
+      "lambda ctx: ctx.stop_if_affected('AFF_PASS_DOOR', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
     ]
   },
@@ -2169,7 +3311,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.stop_if_affected('spell.infravision', 'alreadyAffected', 'alreadyAffectedOther')",
+      "lambda ctx: ctx.stop_if_affected('AFF_INFRARED', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
     ]
   },
@@ -2189,13 +3331,19 @@
     "payload": {
       "toChar": {
         "msgOff": "!Create Spring!",
-        "msgObj": ""
+        "msgObj": "",
+        "created": "{item} flows from the ground.\r\n"
+      },
+      "toRoom": {
+        "created": "{item} flows from the ground.\r\n"
       }
     },
     "functionName": "create_spring",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.create_object('22')"
+      "lambda ctx: ctx.create_object('22', destination='room')",
+      "lambda ctx: ctx.configure_object({'timer': 'level'})",
+      "lambda ctx: ctx.send_message('created', target='created_item', include_actor_in_room=False)"
     ]
   },
   {
@@ -2214,13 +3362,20 @@
     "payload": {
       "toChar": {
         "msgOff": "!Refresh!",
-        "msgObj": ""
+        "msgObj": "",
+        "complete": "Ok.\r\n"
+      },
+      "toVictim": {
+        "restored": "You feel less tired.\r\n",
+        "full": "You feel fully refreshed!\r\n"
       }
     },
     "functionName": "refresh",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.restore_move_expr('level')"
+      "lambda ctx: ctx.restore_move_expr('level')",
+      "lambda ctx: ctx.send_message('full' if ctx.movement_full() else 'restored')",
+      "lambda ctx: ctx.send_message('complete') if ctx.victim is not ctx.actor else None"
     ]
   },
   {
@@ -2239,7 +3394,15 @@
     "payload": {
       "toChar": {
         "msgOff": "Your body feels familiar again.",
-        "msgObj": ""
+        "msgObj": "",
+        "alreadyAffected": "You've already been changed.\r\n",
+        "alreadyAffectedOther": "{victim} has already had their(?) sex changed.\r\n"
+      },
+      "toVictim": {
+        "changed": "You feel different.\r\n"
+      },
+      "toRoom": {
+        "changed": "{victim} doesn't look like {victim_him}self anymore...\r\n"
       }
     },
     "functionName": "change_sex",
@@ -2251,13 +3414,16 @@
         "level": "level",
         "duration": "2 * level",
         "location": "APPLY_SEX",
-        "modifier": "= 0 )",
+        "modifier": "0",
         "bitvector": "0",
         "applyTo": "char"
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.change_sex()"
+      "lambda ctx: ctx.stop_if_affected('spell.change_sex', 'alreadyAffected', 'alreadyAffectedOther')",
+      "lambda ctx: ctx.stop_if_saved()",
+      "lambda ctx: ctx.apply_affect_data(modifier_expr='ctx.roll_different(0, 2, int(victim.sex)) - int(victim.sex)')",
+      "lambda ctx: ctx.send_message('changed', include_actor_in_room=True)"
     ]
   },
   {
@@ -2276,13 +3442,32 @@
     "payload": {
       "toChar": {
         "msgOff": "!Gate!",
-        "msgObj": ""
+        "msgObj": "",
+        "failed": "You failed.\r\n"
+      },
+      "toRoom": {
+        "depart": "{victim} steps through a gate and vanishes.\r\n",
+        "arrive": "{victim} has arrived through a gate.\r\n"
+      },
+      "toVictim": {
+        "travel": "You step through a gate and vanish.\r\n"
       }
     },
     "functionName": "gate",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.gate()"
+      "lambda ctx: ctx.find_world_target()",
+      "lambda ctx: ctx.stop_when(ctx.victim is None or ctx.victim is ctx.actor or ctx.room_of() is None or ctx.room is None, 'failed')",
+      "lambda ctx: ctx.stop_when(not ctx.can_view_room(ctx.room_of()) or any(ctx.room_flag(flag) for flag in ('ROOM_SAFE', 'ROOM_PRIVATE', 'ROOM_SOLITARY', 'ROOM_NO_RECALL')) or ctx.room_flag('ROOM_NO_RECALL', room=ctx.room), 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.victim.level >= ctx.level + 3, 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.clan_mismatch(), 'failed')",
+      "lambda ctx: ctx.stop_when(not ctx.is_npc(ctx.victim) and ctx.victim.level >= ctx.game_parameter('LEVEL_HERO'), 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.is_npc(ctx.victim) and ctx.character_flag('imm', 'IMM_SUMMON'), 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.is_npc(ctx.victim) and ctx.saves_spell('DAM_OTHER'), 'failed')",
+      "lambda ctx: ctx.set_alias('gate_pet', ctx.pet_in_room())",
+      "lambda ctx: ctx.set_alias('destination', ctx.room_of())",
+      "lambda ctx: ctx.move_to('destination', target=ctx.actor, departure_key='depart', arrival_key='arrive', notice_key='travel', notice_before=True)",
+      "lambda ctx: ctx.move_to('destination', target=ctx.get_alias('gate_pet'), departure_key='depart', arrival_key='arrive', notice_key='travel', notice_before=True) if ctx.get_alias('gate_pet') is not None else None"
     ]
   },
   {
@@ -2314,7 +3499,7 @@
     "functionName": "acid_breath",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_expr('dice(level, 16)', 'DAM_ACID', object_effect='acid')"
+      "lambda ctx: ctx.damage_expr('ctx.breath_damage(12, 11, 6, 16)', 'DAM_ACID', object_effect='acid')"
     ]
   },
   {
@@ -2367,7 +3552,7 @@
     "functionName": "fire_breath",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.elemental_breath('dice(level, 20)', 'flaming', area=True)"
+      "lambda ctx: ctx.elemental_breath('ctx.breath_damage(10, 9, 5, 20)', 'flaming', area=True)"
     ]
   },
   {
@@ -2405,7 +3590,7 @@
     "functionName": "frost_breath",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.elemental_breath('dice(level, 16)', 'frost', area=True)"
+      "lambda ctx: ctx.elemental_breath('ctx.breath_damage(12, 11, 6, 16)', 'frost', area=True)"
     ]
   },
   {
@@ -2436,7 +3621,7 @@
     "functionName": "gas_breath",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_room_expr('dice(level, 12)', 'DAM_POISON', effect='poison')"
+      "lambda ctx: ctx.damage_room_expr('ctx.breath_damage(16, 15, 1, 12, upper_limit=8)', 'DAM_POISON', effect='poison', target_filter=lambda victim: not (ctx.is_npc() and ctx.is_npc(victim) and (getattr(ctx.actor, 'fighting', None) is victim or getattr(victim, 'fighting', None) is ctx.actor)))"
     ]
   },
   {
@@ -2475,7 +3660,7 @@
     "functionName": "lightning_breath",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.elemental_breath('dice(level, 20)', 'shocking', area=False)"
+      "lambda ctx: ctx.elemental_breath('ctx.breath_damage(10, 9, 5, 20)', 'shocking', area=False)"
     ]
   },
   {
@@ -2544,13 +3729,26 @@
     "payload": {
       "toChar": {
         "msgOff": "!Chain Lightning!",
-        "msgObj": ""
+        "msgObj": "",
+        "first": "A lightning bolt leaps from your hand and arcs to {victim}.\r\n",
+        "rebound": "You are struck by your own lightning!\r\n",
+        "fizzle": "The bolt grounds out through your body.\r\n"
+      },
+      "toVictim": {
+        "first": "A lightning bolt leaps from {actor}'s hand and hits you!\r\n",
+        "arc": "The bolt hits you!\r\n"
+      },
+      "toRoom": {
+        "first": "A lightning bolt leaps from {actor}'s hand and arcs to {victim}.\r\n",
+        "arc": "The bolt arcs to {victim}!\r\n",
+        "rebound": "The bolt arcs to {actor}...whoops!\r\n",
+        "fizzle": "The bolt seems to have fizzled out.\r\n"
       }
     },
     "functionName": "chain_lightning",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.chain_lightning()"
+      "lambda ctx: ctx.chain_damage('dice(level, 6)', 'DAM_LIGHTNING', level_step=4, save_divisor=3, first_message='first', arc_message='arc', rebound_message='rebound', fizzle_message='fizzle')"
     ]
   },
   {
@@ -2569,13 +3767,24 @@
     "payload": {
       "toChar": {
         "msgOff": "!Cure Disease!",
-        "msgObj": ""
+        "msgObj": "",
+        "absent": "You aren't ill.\r\n",
+        "absentOther": "{victim} doesn't appear to be diseased.\r\n",
+        "failed": "Spell failed.\r\n"
+      },
+      "toVictim": {
+        "cured": "Your sores vanish.\r\n"
+      },
+      "toRoom": {
+        "cured": "{victim} looks relieved as {victim_his} sores vanish.\r\n"
       }
     },
     "functionName": "cure_disease",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.remove_effects('spell.plague')"
+      "lambda ctx: ctx.stop_when(not ctx.is_affected('spell.plague'), 'absent' if ctx.victim is ctx.actor else 'absentOther')",
+      "lambda ctx: ctx.stop_when(not ctx.dispel_effects('spell.plague', notify=False), 'failed')",
+      "lambda ctx: ctx.send_message('cured', include_actor_in_room=True)"
     ]
   },
   {
@@ -2593,17 +3802,21 @@
     "nounDamage": "",
     "payload": {
       "toVictim": {
-        "apply": "You feel yourself moving more quickly.\r\n"
+        "apply": "You feel yourself moving more quickly.\r\n",
+        "counterFailed": "You feel momentarily faster.\r\n",
+        "counterFailedOther": "You feel momentarily faster.\r\n"
       },
       "toChar": {
         "apply": "Ok.\r\n",
         "msgOff": "You feel yourself slow down.",
         "msgObj": "",
         "alreadyAffected": "You can't move any faster!",
-        "alreadyAffectedOther": "{victim} is already moving as fast as they can."
+        "alreadyAffectedOther": "{victim} is already moving as fast as they can.",
+        "counterFailedOther": "Spell failed.\r\n"
       },
       "toRoom": {
-        "apply": "{victim} is moving more quickly.\r\n"
+        "apply": "{victim} is moving more quickly.\r\n",
+        "countered": "{victim} is moving less slowly.\r\n"
       }
     },
     "guards": [
@@ -2628,8 +3841,9 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.stop_if_affected('spell.haste', 'alreadyAffected', 'alreadyAffectedOther')",
-      "lambda ctx: ctx.apply_affect_data()"
+      "lambda ctx: ctx.stop_when(ctx.is_affected('spell.haste') or ctx.is_affected('AFF_HASTE') or ctx.character_flag('off', 'OFF_FAST'), 'alreadyAffected' if ctx.victim is ctx.actor else 'alreadyAffectedOther')",
+      "lambda ctx: ctx.counter_effect('AFF_SLOW', 'spell.slow', 'countered', 'counterFailed' if ctx.victim is ctx.actor else 'counterFailedOther')",
+      "lambda ctx: ctx.apply_affect_data(duration_expr='level / (2 if victim is actor else 4)')"
     ]
   },
   {
@@ -2658,7 +3872,9 @@
       },
       "toChar": {
         "msgOff": "Your sores vanish.",
-        "msgObj": ""
+        "msgObj": "",
+        "resisted": "You feel momentarily ill, but it passes.\r\n",
+        "resistedOther": "{victim} seems to be unaffected.\r\n"
       }
     },
     "guards": [
@@ -2683,7 +3899,8 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.apply_affect_data()"
+      "lambda ctx: ctx.stop_when(ctx.saves_spell('DAM_DISEASE') or (ctx.is_npc(ctx.victim) and ctx.character_flag('act', 'ACT_UNDEAD')), 'resisted' if ctx.victim is ctx.actor else 'resistedOther')",
+      "lambda ctx: ctx.apply_affect_data(join=True)"
     ]
   },
   {
@@ -2708,7 +3925,12 @@
       },
       "toChar": {
         "msgOff": "Your rage ebbs.",
-        "msgObj": ""
+        "msgObj": "",
+        "alreadyAffected": "You are already in a frenzy.\r\n",
+        "alreadyAffectedOther": "{victim} is already in a frenzy.\r\n",
+        "calm": "Why don't you just relax for a while?\r\n",
+        "calmOther": "{victim} doesn't look like they want to fight anymore.\r\n",
+        "alignment": "Your god doesn't seem to like {victim}.\r\n"
       }
     },
     "guards": [
@@ -2749,12 +3971,15 @@
         "level": "level",
         "duration": "level / 3",
         "location": "APPLY_AC",
-        "modifier": "10 * (level / 12)",
+        "modifier": "10 * (level // 12)",
         "bitvector": "0",
         "applyTo": "char"
       }
     ],
     "lambdas": [
+      "lambda ctx: ctx.stop_when(ctx.is_affected('spell.frenzy') or ctx.is_affected('AFF_BERSERK'), 'alreadyAffected' if ctx.victim is ctx.actor else 'alreadyAffectedOther')",
+      "lambda ctx: ctx.stop_when(ctx.is_affected('spell.calm'), 'calm' if ctx.victim is ctx.actor else 'calmOther')",
+      "lambda ctx: ctx.stop_when(ctx.alignment_group() != ctx.alignment_group(ctx.actor), 'alignment')",
       "lambda ctx: ctx.apply_affect_data()"
     ]
   },
@@ -2774,13 +3999,27 @@
     "payload": {
       "toChar": {
         "msgOff": "!Demonfire!",
-        "msgObj": ""
+        "msgObj": "",
+        "backlash": "The demons turn upon you!\r\n",
+        "cast": "You conjure forth the demons of hell!\r\n"
+      },
+      "toRoom": {
+        "cast": "{actor} calls forth the demons of Hell upon {victim}!\r\n"
+      },
+      "toVictim": {
+        "cast": "{actor} has assailed you with the demons of Hell!\r\n"
       }
     },
     "functionName": "demonfire",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_expr('dice(level, 4) + 20', 'DAM_NEGATIVE')"
+      "lambda ctx: ctx.set_alias('original_target', ctx.target)",
+      "lambda ctx: (ctx.set_target(ctx.actor), ctx.send_message('backlash')) if not ctx.is_npc() and ctx.alignment(ctx.actor) > -350 else None",
+      "lambda ctx: ctx.resource_expr('alignment', 'max(-1000, current - 50)', target=ctx.actor)",
+      "lambda ctx: ctx.send_message('cast') if ctx.victim is not ctx.actor else None",
+      "lambda ctx: ctx.damage_expr('dice(level, 10)', 'DAM_NEGATIVE')",
+      "lambda ctx: ctx.invoke_spell('curse', 3 * ctx.level // 4)",
+      "lambda ctx: ctx.set_target(ctx.get_alias('original_target'))"
     ]
   },
   {
@@ -2799,13 +4038,26 @@
     "payload": {
       "toChar": {
         "msgOff": "!Holy Word!",
-        "msgObj": ""
+        "msgObj": "",
+        "cast": "You utter a word of divine power.\r\n",
+        "drained": "You feel drained.\r\n"
+      },
+      "toRoom": {
+        "cast": "{actor} utters a word of divine power!\r\n"
+      },
+      "toVictim": {
+        "powerful": "You feel full more powerful.\r\n",
+        "struck": "You are struck down!\r\n"
       }
     },
     "functionName": "holy_word",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.holy_word()"
+      "lambda ctx: ctx.send_message('cast', include_victim_in_room=True)",
+      "lambda ctx: ctx.for_each_room(lambda v: (v.send_message('powerful'), v.invoke_spell('frenzy', v.level), v.invoke_spell('bless', v.level)) if v.alignment_group() == v.alignment_group(v.actor) else ((v.invoke_spell('curse', v.level if v.alignment_group(v.actor) else v.level // 2), v.send_message('struck'), v.damage_expr('dice(level, 6) if ctx.alignment_group(actor) else dice(level, 4)', 'DAM_ENERGY', save_half=False)) if (v.alignment_group(v.actor) == 0 or v.alignment_group() == -v.alignment_group(v.actor)) and not v.is_safe_spell() else None))",
+      "lambda ctx: ctx.send_message('drained')",
+      "lambda ctx: ctx.resource_expr('movement', '0', target=ctx.actor)",
+      "lambda ctx: ctx.resource_expr('hit', 'trunc_div(current, 2)', target=ctx.actor)"
     ]
   },
   {
@@ -2824,14 +4076,149 @@
     "payload": {
       "toChar": {
         "msgOff": "!Cancellation!",
-        "msgObj": ""
+        "msgObj": "",
+        "invalidTarget": "You failed, try dispel magic.\r\n",
+        "complete": "Ok.\r\n",
+        "failed": "Spell failed.\r\n"
+      },
+      "toRoom": {
+        "removedBlindness": "{victim} is no longer blinded.\r\n",
+        "removedCalm": "{victim} no longer looks so peaceful...\r\n",
+        "removedChangeSex": "{victim} looks more like {victim_him}self again.\r\n",
+        "removedCharmPerson": "{victim} regains {victim_his} free will.\r\n",
+        "removedChillTouch": "{victim} looks warmer.\r\n",
+        "removedFaerieFire": "{victim}'s outline fades.\r\n",
+        "removedFly": "{victim} falls to the ground!\r\n",
+        "removedFrenzy": "{victim} no longer looks so wild.\r\n",
+        "removedGiantStrength": "{victim} no longer looks so mighty.\r\n",
+        "removedHaste": "{victim} is no longer moving so quickly.\r\n",
+        "removedInvis": "{victim} fades into existance.\r\n",
+        "removedMassInvis": "{victim} fades into existance.\r\n",
+        "removedSanctuary": "The white aura around {victim}'s body vanishes.\r\n",
+        "removedShield": "The shield protecting {victim} vanishes.\r\n",
+        "removedSlow": "{victim} is no longer moving so slowly.\r\n",
+        "removedStoneSkin": "{victim}'s skin regains its normal texture.\r\n",
+        "removedWeaken": "{victim} looks stronger.\r\n"
       }
     },
     "functionName": "cancellation",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.cancellation()"
-    ]
+      "lambda ctx: ctx.stop_when((not ctx.is_npc() and ctx.is_npc(ctx.victim) and not (ctx.is_affected('AFF_CHARM', target=ctx.actor) and ctx.actor.master is ctx.victim)) or (ctx.is_npc() and not ctx.is_npc(ctx.victim)), 'invalidTarget')",
+      "lambda ctx: ctx.dispel_sequence(ctx.spell.rules['dispels'], level_adjust=2)",
+      "lambda ctx: ctx.send_message('complete' if ctx.performed else 'failed')"
+    ],
+    "rules": {
+      "dispels": [
+        {
+          "effect": "spell.armor"
+        },
+        {
+          "effect": "spell.bless"
+        },
+        {
+          "effect": "spell.blindness",
+          "message": "removedBlindness"
+        },
+        {
+          "effect": "spell.calm",
+          "message": "removedCalm"
+        },
+        {
+          "effect": "spell.change_sex",
+          "message": "removedChangeSex"
+        },
+        {
+          "effect": "spell.charm_person",
+          "message": "removedCharmPerson"
+        },
+        {
+          "effect": "spell.chill_touch",
+          "message": "removedChillTouch"
+        },
+        {
+          "effect": "spell.curse"
+        },
+        {
+          "effect": "spell.detect_evil"
+        },
+        {
+          "effect": "spell.detect_good"
+        },
+        {
+          "effect": "spell.detect_hidden"
+        },
+        {
+          "effect": "spell.detect_invis"
+        },
+        {
+          "effect": "spell.detect_magic"
+        },
+        {
+          "effect": "spell.faerie_fire",
+          "message": "removedFaerieFire"
+        },
+        {
+          "effect": "spell.fly",
+          "message": "removedFly"
+        },
+        {
+          "effect": "spell.frenzy",
+          "message": "removedFrenzy"
+        },
+        {
+          "effect": "spell.giant_strength",
+          "message": "removedGiantStrength"
+        },
+        {
+          "effect": "spell.haste",
+          "message": "removedHaste"
+        },
+        {
+          "effect": "spell.infravision"
+        },
+        {
+          "effect": "spell.invis",
+          "message": "removedInvis"
+        },
+        {
+          "effect": "spell.mass_invis",
+          "message": "removedMassInvis"
+        },
+        {
+          "effect": "spell.pass_door"
+        },
+        {
+          "effect": "spell.protection_evil"
+        },
+        {
+          "effect": "spell.protection_good"
+        },
+        {
+          "effect": "spell.sanctuary",
+          "message": "removedSanctuary"
+        },
+        {
+          "effect": "spell.shield",
+          "message": "removedShield"
+        },
+        {
+          "effect": "spell.sleep"
+        },
+        {
+          "effect": "spell.slow",
+          "message": "removedSlow"
+        },
+        {
+          "effect": "spell.stone_skin",
+          "message": "removedStoneSkin"
+        },
+        {
+          "effect": "spell.weaken",
+          "message": "removedWeaken"
+        }
+      ]
+    }
   },
   {
     "_id": {
@@ -2855,7 +4242,7 @@
     "functionName": "mass_healing",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.mass_healing()"
+      "lambda ctx: ctx.for_each_room(lambda v: (v.invoke_spell('heal', v.level), v.invoke_spell('refresh', v.level)), predicate=lambda v: v.is_npc() == v.is_npc(v.victim))"
     ]
   },
   {
@@ -2875,6 +4262,9 @@
       "toChar": {
         "msgOff": "You have lost your peace of mind.",
         "msgObj": ""
+      },
+      "toVictim": {
+        "apply": "A wave of calm passes over you.\r\n"
       }
     },
     "functionName": "calm",
@@ -2903,8 +4293,21 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.calm()"
-    ]
+      "lambda ctx: ctx.set_alias('combat_totals', ctx.room_combat_stats(player_divisor=2))",
+      "lambda ctx: ctx.set_alias('calm_threshold', 0 if ctx.is_immortal() else ctx.get_alias('combat_totals')['total'])",
+      "lambda ctx: ctx.stop_when(ctx.roll_range(0, 4 * ctx.level - ctx.get_alias('combat_totals')['highest'] + 2 * ctx.get_alias('combat_totals')['count']) < ctx.get_alias('calm_threshold'))",
+      "lambda ctx: ctx.for_each_room(lambda v: v.execute_lambdas(v.spell.rules['target_steps']), stop_on_block=True)"
+    ],
+    "rules": {
+      "modifier": "-2 if ctx.is_npc(victim) else -5",
+      "target_steps": [
+        "lambda ctx: ctx.stop_when(ctx.is_npc(ctx.victim) and (ctx.character_flag('imm', 'IMM_MAGIC') or ctx.character_flag('act', 'ACT_UNDEAD')))",
+        "lambda ctx: ctx.stop_when(ctx.is_affected('AFF_CALM') or ctx.is_affected('AFF_BERSERK') or ctx.is_affected('spell.frenzy'))",
+        "lambda ctx: ctx.send_message('apply')",
+        "lambda ctx: ctx.stop_fighting(both=False)",
+        "lambda ctx: ctx.apply_affect_data(modifier_expr=ctx.spell.rules['modifier'])"
+      ]
+    }
   },
   {
     "_id": {
@@ -2922,14 +4325,48 @@
     "payload": {
       "toChar": {
         "msgOff": "!Enchant Armor!",
-        "msgObj": ""
+        "msgObj": "",
+        "wrongType": "That isn't an armor.\r\n",
+        "worn": "The item must be carried to be enchanted.\r\n",
+        "destroyed": "{item} flares blindingly... and evaporates!\r\n",
+        "disenchanted": "{item} glows brightly, then fades...oops.\r\n",
+        "failed": "Nothing seemed to happen.\r\n",
+        "success": "{item} shimmers with a gold aura.\r\n",
+        "exceptional": "{item} glows a brillant gold!\r\n"
+      },
+      "toRoom": {
+        "destroyed": "{item} flares blindingly... and evaporates!\r\n",
+        "disenchanted": "{item} glows brightly, then fades.\r\n",
+        "success": "{item} shimmers with a gold aura.\r\n",
+        "exceptional": "{item} glows a brillant gold!\r\n"
       }
     },
     "functionName": "enchant_armor",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.enchant_armor()"
-    ]
+      "lambda ctx: ctx.stop_when(ctx.item_kind() != 'armor', 'wrongType')",
+      "lambda ctx: ctx.stop_when(ctx.item_worn(), 'worn')",
+      "lambda ctx: ctx.enchant_item(ctx.spell.rules)"
+    ],
+    "rules": {
+      "locations": {
+        "APPLY_AC": 5
+      },
+      "base_fail": 25,
+      "other_penalty": 20,
+      "flag_adjustments": {
+        "ITEM_BLESS": -15,
+        "ITEM_GLOW": -5
+      },
+      "min_fail": 5,
+      "max_fail": 85,
+      "destroy_divisor": 5,
+      "disenchant_divisor": 3,
+      "level_reduction": "level",
+      "exceptional_boundary": "90 - trunc_div(level, 5)",
+      "added": -1,
+      "exceptional_added": -2
+    }
   },
   {
     "_id": {
@@ -2947,13 +4384,19 @@
     "payload": {
       "toChar": {
         "msgOff": "!Create Rose!",
-        "msgObj": ""
+        "msgObj": "",
+        "created": "You create a beautiful red rose.\r\n"
+      },
+      "toRoom": {
+        "created": "{actor} has created a beautiful red rose.\r\n"
       }
     },
     "functionName": "create_rose",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.create_object('1001')"
+      "lambda ctx: ctx.create_object('1001', destination='inventory')",
+      "lambda ctx: ctx.configure_object({})",
+      "lambda ctx: ctx.send_message('created', target='created_item', include_actor_in_room=False)"
     ]
   },
   {
@@ -2972,13 +4415,22 @@
     "payload": {
       "toChar": {
         "msgOff": "!Dispel Good!",
-        "msgObj": ""
+        "msgObj": "",
+        "neutral": "{victim} does not seem to be affected.\r\n"
+      },
+      "toRoom": {
+        "protected": "{victim} is protected by evil.\r\n"
       }
     },
     "functionName": "dispel_good",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.damage_expr('dice(level, 4)', 'DAM_NEGATIVE')"
+      "lambda ctx: ctx.set_alias('original_target', ctx.target)",
+      "lambda ctx: ctx.set_target(ctx.actor) if not ctx.is_npc() and ctx.alignment(ctx.actor) >= 350 else None",
+      "lambda ctx: ctx.stop_when(ctx.alignment() <= -350, 'protected', include_victim_in_room=True)",
+      "lambda ctx: ctx.stop_when(-350 < ctx.alignment() < 350, 'neutral')",
+      "lambda ctx: ctx.damage_expr('dice(level, 4) if victim.hit > actor.level * 4 else max(victim.hit, dice(level, 4))', 'DAM_NEGATIVE')",
+      "lambda ctx: ctx.set_target(ctx.get_alias('original_target'))"
     ]
   },
   {
@@ -3028,7 +4480,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.stop_if_affected('spell.detect_good', 'alreadyAffected', 'alreadyAffectedOther')",
+      "lambda ctx: ctx.stop_if_affected('AFF_DETECT_GOOD', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
     ]
   },
@@ -3079,7 +4531,7 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.stop_if_affected('spell.protection_good', 'alreadyAffected', 'alreadyAffectedOther')",
+      "lambda ctx: ctx.stop_when(ctx.is_affected('AFF_PROTECT_EVIL') or ctx.is_affected('AFF_PROTECT_GOOD'), 'alreadyAffected' if ctx.victim is ctx.actor else 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
     ]
   },
@@ -3099,7 +4551,20 @@
     "payload": {
       "toChar": {
         "msgOff": "You feel yourself speed up.",
-        "msgObj": ""
+        "msgObj": "",
+        "alreadyAffected": "You can't move any slower!\r\n",
+        "alreadyAffectedOther": "{victim} can't get any slower than that.\r\n",
+        "resistedOther": "Nothing seemed to happen.\r\n",
+        "counterFailedOther": "Spell failed.\r\n"
+      },
+      "toVictim": {
+        "resisted": "You feel momentarily lethargic.\r\n",
+        "resistedOther": "You feel momentarily lethargic.\r\n",
+        "counterFailed": "You feel momentarily slower.\r\n",
+        "counterFailedOther": "You feel momentarily slower.\r\n"
+      },
+      "toRoom": {
+        "countered": "{victim} is moving less quickly.\r\n"
       }
     },
     "functionName": "slow",
@@ -3117,7 +4582,10 @@
       }
     ],
     "lambdas": [
-      "lambda ctx: ctx.slow()"
+      "lambda ctx: ctx.stop_when(ctx.is_affected('spell.slow') or ctx.is_affected('AFF_SLOW'), 'alreadyAffected' if ctx.victim is ctx.actor else 'alreadyAffectedOther')",
+      "lambda ctx: ctx.stop_when(ctx.saves_spell() or ctx.character_flag('imm', 'IMM_MAGIC'), 'resisted' if ctx.victim is ctx.actor else 'resistedOther')",
+      "lambda ctx: ctx.counter_effect('AFF_HASTE', 'spell.haste', 'countered', 'counterFailed' if ctx.victim is ctx.actor else 'counterFailedOther')",
+      "lambda ctx: ctx.apply_affect_data()"
     ]
   },
   {
@@ -3136,14 +4604,75 @@
     "payload": {
       "toChar": {
         "msgOff": "!Heat Metal!",
-        "msgObj": ""
+        "msgObj": "",
+        "noEffect": "Your spell had no effect.\r\n"
+      },
+      "toVictim": {
+        "noEffect": "You feel momentarily warmer.\r\n",
+        "armorDrop": "You remove and drop {item} before it burns you.\r\n",
+        "carriedDrop": "You and drop {item} before it burns you.\r\n",
+        "seared": "Your skin is seared by {item}!\r\n",
+        "weaponDrop": "You throw your red-hot weapon to the ground!\r\n",
+        "weaponStuck": "Your weapon sears your flesh!\r\n",
+        "removed": "You stop using {item}.\r\n",
+        "noRemove": "You can't remove {item}.\r\n",
+        "armorCarriedDrop": "You and drop {item} before it burns you.\r\n"
+      },
+      "toRoom": {
+        "armorDrop": "{victim} yelps and throws {item} to the ground!\r\n",
+        "carriedDrop": "{victim} throws a burning hot {item} to the ground!\r\n",
+        "weaponDrop": "{victim} is burned by {item}, and throws it to the ground.\r\n",
+        "removed": "{victim} stops using {item}.\r\n",
+        "armorCarriedDrop": "{victim} yelps and throws {item} to the ground!\r\n"
       }
     },
     "functionName": "heat_metal",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.heat_metal()"
-    ]
+      "lambda ctx: ctx.heat_equipment()"
+    ],
+    "rules": {
+      "armor": {
+        "weight_check": true,
+        "skip_flaming": false,
+        "worn_drop": {
+          "message": "armor_drop",
+          "divisor": 3
+        },
+        "worn_stuck": {
+          "message": "seared",
+          "divisor": 1
+        },
+        "carried_drop": {
+          "message": "armor_carried_drop",
+          "divisor": 6
+        },
+        "carried_stuck": {
+          "message": "seared",
+          "divisor": 2
+        }
+      },
+      "weapon": {
+        "weight_check": false,
+        "skip_flaming": true,
+        "worn_drop": {
+          "message": "weapon_drop",
+          "constant": 1
+        },
+        "worn_stuck": {
+          "message": "weapon_stuck",
+          "divisor": 1
+        },
+        "carried_drop": {
+          "message": "carried_drop",
+          "divisor": 6
+        },
+        "carried_stuck": {
+          "message": "seared",
+          "divisor": 2
+        }
+      }
+    }
   },
   {
     "_id": {
@@ -3161,14 +4690,166 @@
     "payload": {
       "toChar": {
         "msgOff": "!Recharge!",
-        "msgObj": ""
+        "msgObj": "",
+        "wrongType": "That item does not carry charges.\r\n",
+        "tooAdvanced": "Your skills are not great enough for that.\r\n",
+        "used": "That item has already been recharged once.\r\n",
+        "recharged": "{item} glows softly.\r\n",
+        "partial": "{item} glows softly.\r\n",
+        "unchanged": "Nothing seems to happen.\r\n",
+        "destroyed": "{item} glows brightly and explodes!\r\n"
+      },
+      "toRoom": {
+        "recharged": "{item} glows softly.\r\n",
+        "destroyed": "{item} glows brightly and explodes!\r\n"
       }
     },
     "functionName": "recharge",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.recharge()"
-    ]
+      "lambda ctx: ctx.stop_when(ctx.item_kind() not in ('wand', 'staff'), 'wrongType')",
+      "lambda ctx: ctx.recharge_item(ctx.spell.rules)"
+    ],
+    "rules": {
+      "spell_indices": {
+        "reserved": 0,
+        "acid blast": 1,
+        "armor": 2,
+        "bless": 3,
+        "blindness": 4,
+        "burning hands": 5,
+        "call lightning": 6,
+        "cancellation": 7,
+        "cause critical": 8,
+        "cause light": 9,
+        "cause serious": 10,
+        "chain lightning": 11,
+        "change sex": 12,
+        "charm person": 13,
+        "chill touch": 14,
+        "colour spray": 15,
+        "continual light": 16,
+        "control weather": 17,
+        "create food": 18,
+        "create rose": 19,
+        "create spring": 20,
+        "create water": 21,
+        "cure blindness": 22,
+        "cure critical": 23,
+        "cure disease": 24,
+        "cure light": 25,
+        "cure poison": 26,
+        "cure serious": 27,
+        "curse": 28,
+        "demonfire": 29,
+        "detect evil": 30,
+        "detect good": 31,
+        "detect hidden": 32,
+        "detect invis": 33,
+        "detect magic": 34,
+        "detect poison": 35,
+        "dispel evil": 36,
+        "dispel good": 37,
+        "dispel magic": 38,
+        "earthquake": 39,
+        "enchant armor": 40,
+        "enchant weapon": 41,
+        "energy drain": 42,
+        "faerie fire": 43,
+        "faerie fog": 44,
+        "farsight": 45,
+        "fireball": 46,
+        "fireproof": 47,
+        "flamestrike": 48,
+        "fly": 49,
+        "floating disc": 50,
+        "frenzy": 51,
+        "gate": 52,
+        "giant strength": 53,
+        "harm": 54,
+        "haste": 55,
+        "heal": 56,
+        "heat metal": 57,
+        "holy word": 58,
+        "identify": 59,
+        "infravision": 60,
+        "invisibility": 61,
+        "know alignment": 62,
+        "lightning bolt": 63,
+        "locate object": 64,
+        "magic missile": 65,
+        "mass healing": 66,
+        "mass invis": 67,
+        "nexus": 68,
+        "pass door": 69,
+        "plague": 70,
+        "poison": 71,
+        "portal": 72,
+        "protection evil": 73,
+        "protection good": 74,
+        "ray of truth": 75,
+        "recharge": 76,
+        "refresh": 77,
+        "remove curse": 78,
+        "sanctuary": 79,
+        "shield": 80,
+        "shocking grasp": 81,
+        "sleep": 82,
+        "slow": 83,
+        "stone skin": 84,
+        "summon": 85,
+        "teleport": 86,
+        "ventriloquate": 87,
+        "weaken": 88,
+        "word of recall": 89,
+        "acid breath": 90,
+        "fire breath": 91,
+        "frost breath": 92,
+        "gas breath": 93,
+        "lightning breath": 94,
+        "general purpose": 95,
+        "high explosive": 96,
+        "axe": 97,
+        "dagger": 98,
+        "flail": 99,
+        "mace": 100,
+        "polearm": 101,
+        "shield block": 102,
+        "spear": 103,
+        "sword": 104,
+        "whip": 105,
+        "backstab": 106,
+        "bash": 107,
+        "berserk": 108,
+        "dirt kicking": 109,
+        "disarm": 110,
+        "dodge": 111,
+        "enhanced damage": 112,
+        "envenom": 113,
+        "hand to hand": 114,
+        "kick": 115,
+        "parry": 116,
+        "rescue": 117,
+        "trip": 118,
+        "second attack": 119,
+        "third attack": 120,
+        "fast healing": 121,
+        "haggle": 122,
+        "hide": 123,
+        "lore": 124,
+        "meditation": 125,
+        "peek": 126,
+        "pick lock": 127,
+        "sneak": 128,
+        "steal": 129,
+        "scrolls": 130,
+        "staves": 131,
+        "wands": 132,
+        "recall": 133
+      },
+      "skill_limit": "trunc_div(3 * level, 2)",
+      "chance": "max(trunc_div(level, 2), 40 + 2 * level - ordinal - (maximum - current) ** 2)"
+    }
   },
   {
     "_id": {
@@ -3186,13 +4867,30 @@
     "payload": {
       "toChar": {
         "msgOff": "!Ray of Truth!",
-        "msgObj": ""
+        "msgObj": "",
+        "backlash": "The energy explodes inside you!\r\n",
+        "cast": "You raise your hand and a blinding ray of light shoots forth!\r\n"
+      },
+      "toRoom": {
+        "cast": "{actor} raises a hand, and a blinding ray of light shoots forth!\r\n",
+        "protected": "{victim} seems unharmed by the light.\r\n"
+      },
+      "toVictim": {
+        "protected": "The light seems powerless to affect you.\r\n"
       }
     },
     "functionName": "ray_of_truth",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.ray_of_truth()"
+      "lambda ctx: ctx.set_alias('ray_target', ctx.target)",
+      "lambda ctx: (ctx.set_target(ctx.actor), ctx.send_message('backlash')) if ctx.alignment(ctx.actor) <= -350 else None",
+      "lambda ctx: ctx.send_message('cast', include_victim_in_room=True) if ctx.victim is not ctx.actor else None",
+      "lambda ctx: ctx.stop_when(ctx.alignment() >= 350, 'protected', include_actor_in_room=True)",
+      "lambda ctx: ctx.set_alias('ray_alignment', ctx.alignment() - 350)",
+      "lambda ctx: ctx.set_alias('ray_alignment', -1000 + ctx.eval_int('trunc_div(ctx.get_alias(\"ray_alignment\") + 1000, 3)')) if ctx.get_alias('ray_alignment') < -1000 else None",
+      "lambda ctx: ctx.damage_expr('dice(level, 10)', 'DAM_HOLY', post_save_expression='trunc_div(damage * ctx.get_alias(\"ray_alignment\") ** 2, 1000000)')",
+      "lambda ctx: ctx.invoke_spell('blindness', 3 * ctx.level // 4)",
+      "lambda ctx: ctx.set_target(ctx.get_alias('ray_target'))"
     ]
   },
   {
@@ -3211,14 +4909,36 @@
     "payload": {
       "toChar": {
         "msgOff": "!Portal!",
-        "msgObj": ""
+        "msgObj": "",
+        "failed": "You failed.\r\n",
+        "componentMissing": "You lack the proper component for this spell.\r\n",
+        "consumeComponent": "You draw upon the power of {item}.\r\nIt flares brightly and vanishes!\r\n",
+        "created": "{item} rises up before you.\r\n"
+      },
+      "toRoom": {
+        "created": "{item} rises up from the ground.\r\n",
+        "createdRemote": "{item} rises up from the ground.\r\n"
       }
     },
     "functionName": "portal",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.portal()"
-    ]
+      "lambda ctx: ctx.find_world_target()",
+      "lambda ctx: ctx.stop_when(ctx.victim is None or ctx.victim is ctx.actor or ctx.room_of() is None or ctx.room is None, 'failed')",
+      "lambda ctx: ctx.stop_when(not ctx.can_view_room(ctx.room_of()) or any(ctx.room_flag(flag) for flag in ('ROOM_SAFE', 'ROOM_PRIVATE', 'ROOM_SOLITARY', 'ROOM_NO_RECALL')) or ctx.room_flag('ROOM_NO_RECALL', room=ctx.room), 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.victim.level >= ctx.level + 3, 'failed')",
+      "lambda ctx: ctx.stop_when(not ctx.is_npc(ctx.victim) and ctx.victim.level >= ctx.game_parameter('LEVEL_HERO'), 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.is_npc(ctx.victim) and ctx.character_flag('imm', 'IMM_SUMMON'), 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.is_npc(ctx.victim) and ctx.saves_spell('DAM_NONE'), 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.clan_mismatch(), 'failed')",
+      "lambda ctx: ctx.stop_when(not ctx.is_immortal() and not ctx.held_item_kind('warp_stone'), 'componentMissing')",
+      "lambda ctx: ctx.consume_held_item('warp_stone', 'consumeComponent')",
+      "lambda ctx: ctx.create_portals(ctx.spell.rules['vnum'], ctx.spell.rules['timer'], two_way=False)"
+    ],
+    "rules": {
+      "vnum": "25",
+      "timer": "2 + level / 25"
+    }
   },
   {
     "_id": {
@@ -3236,14 +4956,36 @@
     "payload": {
       "toChar": {
         "msgOff": "!Nexus!",
-        "msgObj": ""
+        "msgObj": "",
+        "failed": "You failed.\r\n",
+        "componentMissing": "You lack the proper component for this spell.\r\n",
+        "consumeComponent": "You draw upon the power of {item}.\r\nIt flares brightly and vanishes!\r\n",
+        "created": "{item} rises up before you.\r\n"
+      },
+      "toRoom": {
+        "created": "{item} rises up from the ground.\r\n",
+        "createdRemote": "{item} rises up from the ground.\r\n"
       }
     },
     "functionName": "nexus",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.nexus()"
-    ]
+      "lambda ctx: ctx.find_world_target()",
+      "lambda ctx: ctx.stop_when(ctx.victim is None or ctx.victim is ctx.actor or ctx.room_of() is None or ctx.room is None, 'failed')",
+      "lambda ctx: ctx.stop_when(not ctx.can_view_room(ctx.room_of()) or any(ctx.room_flag(flag) for flag in ('ROOM_SAFE', 'ROOM_PRIVATE', 'ROOM_SOLITARY', 'ROOM_NO_RECALL')) or ctx.room_flag('ROOM_NO_RECALL', room=ctx.room) or not ctx.can_view_room(ctx.room) or ctx.room_flag('ROOM_SAFE', room=ctx.room), 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.victim.level >= ctx.level + 3, 'failed')",
+      "lambda ctx: ctx.stop_when(not ctx.is_npc(ctx.victim) and ctx.victim.level >= ctx.game_parameter('LEVEL_HERO'), 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.is_npc(ctx.victim) and ctx.character_flag('imm', 'IMM_SUMMON'), 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.is_npc(ctx.victim) and ctx.saves_spell('DAM_NONE'), 'failed')",
+      "lambda ctx: ctx.stop_when(ctx.clan_mismatch(), 'failed')",
+      "lambda ctx: ctx.stop_when(not ctx.is_immortal() and not ctx.held_item_kind('warp_stone'), 'componentMissing')",
+      "lambda ctx: ctx.consume_held_item('warp_stone', 'consumeComponent')",
+      "lambda ctx: ctx.create_portals(ctx.spell.rules['vnum'], ctx.spell.rules['timer'], two_way=True)"
+    ],
+    "rules": {
+      "vnum": "25",
+      "timer": "1 + level / 10"
+    }
   },
   {
     "_id": {
@@ -3261,14 +5003,40 @@
     "payload": {
       "toChar": {
         "msgOff": "!Farsight!",
-        "msgObj": ""
+        "msgObj": "",
+        "blind": "Maybe it would help if you could see?\r\n",
+        "invalid": "Which way do you want to scan?\r\n",
+        "around": "Looking around you see:\r\n",
+        "peer": "You peer intently {direction}.\r\n",
+        "seen": "{victim}, {distance}\r\n"
+      },
+      "toRoom": {
+        "around": "{actor} looks all around.\r\n",
+        "peer": "{actor} peers intently {direction}.\r\n"
       }
     },
     "functionName": "farsight",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.farsight()"
-    ]
+      "lambda ctx: ctx.stop_when(ctx.is_affected('AFF_BLIND', target=ctx.actor), 'blind')",
+      "lambda ctx: ctx.scan(ctx.spell.rules)"
+    ],
+    "rules": {
+      "directions": [
+        "north",
+        "east",
+        "south",
+        "west",
+        "up",
+        "down"
+      ],
+      "distances": [
+        "right here.",
+        "nearby to the {direction}.",
+        "not far {direction}.",
+        "off in the distance {direction}."
+      ]
+    }
   },
   {
     "_id": {
@@ -3286,13 +5054,25 @@
     "payload": {
       "toChar": {
         "msgOff": "!Floating disc!",
-        "msgObj": ""
+        "msgObj": "",
+        "created": "You create a floating disc.\r\n",
+        "blocked": "You can't remove {item}.\r\n",
+        "removed": "You stop using {item}.\r\n",
+        "equipped": "You wear {item} floating nearby.\r\n"
+      },
+      "toRoom": {
+        "created": "{actor} has created a floating black disc.\r\n",
+        "equipped": "{actor} wears {item} floating nearby.\r\n"
       }
     },
     "functionName": "floating_disc",
     "affectData": [],
     "lambdas": [
-      "lambda ctx: ctx.create_object('23')"
+      "lambda ctx: ctx.stop_when(ctx.equipped_item('floating_nearby') is not None and ctx.item_has_flag('ITEM_NOREMOVE', target=ctx.equipped_item('floating_nearby')), 'blocked', target=ctx.equipped_item('floating_nearby'))",
+      "lambda ctx: ctx.create_object('23', destination='inventory')",
+      "lambda ctx: ctx.configure_object({'value0': 'int(actor.level) * 10', 'value3': 'int(actor.level) * 5', 'timer': 'int(actor.level) * 2 - ctx.roll_range(0, trunc_div(level, 2))'})",
+      "lambda ctx: ctx.send_message('created', target='created_item', include_actor_in_room=False)",
+      "lambda ctx: ctx.equip_created('floating_nearby')"
     ]
   },
   {

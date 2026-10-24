@@ -64,6 +64,7 @@ class Item:
     effects: Optional[List[Effect]] = None
     extra_description: Optional[ExtraDescriptionData] = None
     owner: Optional[str] = None
+    new_format: bool = True
 
     def __post_init__(self):
         self.__name__ = "Item"

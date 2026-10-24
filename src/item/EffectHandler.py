@@ -172,12 +172,16 @@ class EffectHandler:
         return None
 
     def affect_check(self, entity, where, vector) -> None:
-        if GenericUtil.to_int(vector, 0) == 0:
-            return
         where_value = EffectUtil.enum_value(self.where_enum, where, -1)
+        if where_value != EffectUtil.enum_value(self.where_enum, "TO_AFFECTS", -1):
+            return
+        bit = EffectUtil.enum_value(self.affected_by, vector, 0)
+        if bit == 0:
+            return
         for effect in self.ensure_effects(entity):
-            if EffectUtil.enum_value(self.where_enum, effect.where, -1) == where_value and str(effect.bitvector) == str(vector):
-                self.affect_modify(entity, effect, True)
+            if (EffectUtil.enum_value(self.where_enum, effect.where, -1) == where_value
+                    and EffectUtil.enum_value(self.affected_by, effect.bitvector, 0) == bit):
+                self._set_affected_raw(entity, GameApi.set_bit(self._get_affected_raw(entity), bit))
                 return
 
     def apply_effect(self, entity: Any, effect: Effect):
@@ -185,6 +189,7 @@ class EffectHandler:
         with self._lock_for(entity):
             self.ensure_effects(entity).append(new_effect)
             self.affect_modify(entity, new_effect, True)
+        self._refresh_item_wearer(entity)
         return new_effect
 
     def remove_effect(self, entity: Any, effect: Effect) -> bool:
@@ -198,6 +203,7 @@ class EffectHandler:
             effects.remove(effect)
             if not hasattr(entity, "item_type"):
                 self.affect_check(entity, where, vector)
+        self._refresh_item_wearer(entity)
         return True
 
     def affect_to_char(self, character, effect: Effect):
@@ -240,7 +246,9 @@ class EffectHandler:
         effect.modifier = EffectUtil._eval_expr(getattr(effect, "modifier", 0), caster_level, 0)
         return effect
 
-    def apply_spell_effects(self, caster, victim, spell, *, caster_level: int | None = None) -> None:
+    def apply_spell_effects(self, caster, victim, spell, *, caster_level: int | None = None,
+                            join: bool = False) -> None:
+        """Add target-compatible effects; join character effects only when requested."""
         affects = list(getattr(spell, "affect_data", []) or getattr(spell, "affects", []) or [])
         if not affects or victim is None:
             return
@@ -250,14 +258,21 @@ class EffectHandler:
         for affect_like in affects:
             effect = self.effect_from_spell_affect(spell, affect_like, caster_level, source=source)
             apply_to = str(getattr(effect, "apply_to", "") or "").strip().lower()
-            where = str(getattr(effect, "where", "") or "").strip().upper()
-            wants_object = apply_to == "item" or where in ("TO_OBJECT", "TO_WEAPON")
+            where = EffectUtil.enum_value(self.where_enum, effect.where, -1)
+            wants_object = apply_to in ("item", "object") or where in (
+                EffectUtil.enum_value(self.where_enum, "TO_OBJECT", -2),
+                EffectUtil.enum_value(self.where_enum, "TO_WEAPON", -2),
+            )
             if wants_object and hasattr(victim, "item_type"):
                 self.affect_to_obj(victim, effect)
-            elif not hasattr(victim, "item_type"):
-                self.affect_join(victim, effect)
+            elif not wants_object and not hasattr(victim, "item_type"):
+                if join:
+                    self.affect_join(victim, effect)
+                else:
+                    self.affect_to_char(victim, effect)
 
     def apply_item_effects(self, character, item) -> None:
+        item._effect_wearer = character
         effects = list(getattr(item, "effects", []) or [])
         if not effects:
             return
@@ -271,26 +286,90 @@ class EffectHandler:
         for effect in list(self.ensure_effects(character)):
             if getattr(effect, "source", "") == source:
                 self.remove_effect(character, effect)
+        if getattr(item, "_effect_wearer", None) is character:
+            item._effect_wearer = None
+
+    def _refresh_item_wearer(self, item) -> None:
+        """Keep worn-item stat contributions in sync with live object affects."""
+        wearer = getattr(item, "_effect_wearer", None)
+        if wearer is None:
+            return
+        self.remove_item_effects(wearer, item)
+        self.apply_item_effects(wearer, item)
 
     def dispel_effects(self, dis_level: int, victim, effect_type) -> list[Effect]:
-        removed_effects: list[Effect] = []
         want = str(effect_type).strip().lower()
-        for effect in list(self.ensure_effects(victim)):
-            if str(getattr(effect, "type", "")).strip().lower() != want:
-                continue
+        matching = [effect for effect in self.ensure_effects(victim)
+                    if str(getattr(effect, "type", "")).strip().lower() == want]
+        for effect in matching:
             if not EffectUtil.saves_dispel(
                 dis_level,
                 GenericUtil.to_int(getattr(effect, "level", 0), 0),
                 GenericUtil.to_int(getattr(effect, "duration", 0), 0),
             ):
-                self.remove_effect(victim, effect)
-                removed_effects.append(effect)
+                for removed in matching:
+                    self.remove_effect(victim, removed)
+                return matching
             else:
-                effect.level = max(0, GenericUtil.to_int(getattr(effect, "level", 0), 0) - 1)
-        return removed_effects
+                effect.level = GenericUtil.to_int(getattr(effect, "level", 0), 0) - 1
+        return []
 
     def check_dispel(self, dis_level: int, victim, effect_type) -> bool:
         return bool(self.dispel_effects(dis_level, victim, effect_type))
+
+    def enchant_object(self, item, spell_type: str, level: int, rules: dict,
+                       level_reduction: int, exceptional_boundary: int, level_cap: int, roll: int) -> str:
+        """Resolve a configured risky enchantment over the instance's canonical affects."""
+        effects = self.ensure_effects(item)
+        locations = {EffectUtil.enum_value(self.apply_types, name, -1): coefficient
+                     for name, coefficient in rules['locations'].items()}
+        fail = int(rules['base_fail'])
+        for effect in effects:
+            location = EffectUtil.enum_value(self.apply_types, effect.location, -1)
+            fail += (locations[location] * int(effect.modifier) ** 2 if location in locations
+                     else int(rules['other_penalty']))
+        raw_flags = GameApi.flags_to_int(item.extra_flags)
+        for flag, adjustment in rules['flag_adjustments'].items():
+            if GameApi.is_set(raw_flags, int(getattr(self.item_flags, flag))):
+                fail += adjustment
+        fail = max(rules['min_fail'], min(rules['max_fail'], fail - level_reduction))
+        if roll < fail // rules['destroy_divisor']:
+            return 'destroyed'
+        if roll < fail // rules['disenchant_divisor']:
+            item.enchanted = True
+            effects.clear()
+            item.extra_flags = GameApi.flags_to_letters(0)
+            return 'disenchanted'
+        if roll <= fail:
+            return 'failed'
+        if not item.enchanted:
+            for effect in effects:
+                if GenericUtil.to_int(effect.type, 0) < 0:
+                    effect.type = 0
+        item.enchanted = True
+        exceptional = roll > exceptional_boundary
+        added = rules['exceptional_added'] if exceptional else rules['added']
+        raw_flags = GameApi.set_bit(raw_flags, int(self.item_flags.ITEM_MAGIC))
+        if exceptional:
+            raw_flags = GameApi.set_bit(raw_flags, int(self.item_flags.ITEM_GLOW))
+        if item.level < level_cap:
+            item.level = min(level_cap, item.level + 1)
+        for name in rules['locations']:
+            location = EffectUtil.enum_value(self.apply_types, name, -1)
+            matching = [effect for effect in effects
+                        if EffectUtil.enum_value(self.apply_types, effect.location, -1) == location]
+            if matching:
+                for effect in matching:
+                    effect.type = spell_type
+                    effect.modifier = int(effect.modifier) + added
+                    effect.level = max(int(effect.level), level)
+                    if rules.get('hum_above') is not None and effect.modifier > rules['hum_above']:
+                        raw_flags = GameApi.set_bit(raw_flags, int(self.item_flags.ITEM_HUM))
+            else:
+                effects.insert(0, Effect(valid=True, where='TO_OBJECT', type=spell_type, level=level,
+                    duration=-1, location=name, modifier=added, bitvector=0, apply_to='object'))
+        item.extra_flags = GameApi.flags_to_letters(raw_flags)
+        return 'exceptional' if exceptional else 'success'
 
     def tick_effects(self, entity) -> EffectTickResult:
         expired_effects: list[Effect] = []

@@ -100,13 +100,13 @@ class Fight:
 
     def do_cast(self, character: Character, context: Context):
         spell_name, target_arg = FightUtil.parse_cast_argument(context.result, context.parameters)
-        spell = FightUtil.find_spell(self.spell_registry, spell_name) if spell_name else None
-        mana_cost = FightUtil.min_mana(spell) if spell is not None else 0
+        spell = FightUtil.find_spell(self.spell_registry, spell_name, character) if spell_name else None
+        mana_cost = FightUtil.cast_mana_cost(character, spell)
         room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         target = None
         target_kind = ""
         target_error = ""
-        if spell is not None and room is not None and getattr(character, "mana", 0) >= mana_cost:
+        if spell is not None and room is not None:
             target, target_kind, target_error = self._resolve_spell_target(character, room, spell, target_arg)
 
         context.cast_spell_name = spell_name
@@ -117,7 +117,11 @@ class Fight:
         context.cast_target = target
         context.cast_target_kind = target_kind
         context.cast_target_error = target_error
-        payload = self.interp_api.evaluate_guards_only(context, context.command.name)
+        late_guards = {"insufficient_mana"}
+        if str(getattr(spell, "target", "") or "").upper() == "CHAR_OFFENSIVE":
+            late_guards.add("is_follower")
+        payload = self.interp_api.evaluate_guards_only(
+            context, context.command.name, guard_filter=lambda guard: guard.message_key not in late_guards)
         if payload is not None:
             return payload
 
@@ -132,11 +136,15 @@ class Fight:
             source="player",
             command_context=context,
         )
-        self.spell_api.execute_lambdas(spell_context)
-        if spell_context.performed:
-            character.mana -= mana_cost
-            self.spell_api.queue_cast_announcement(spell_context)
-            self.spell_api.start_offensive_combat(spell_context)
+        self.spell_api.check_offensive_cast(spell_context)
+        payload = self.interp_api.evaluate_guards_only(
+            context, context.command.name, guard_filter=lambda guard: guard.message_key in late_guards)
+        if payload is not None:
+            if spell_context.payloads:
+                return {"payloads": [*spell_context.payloads, payload]}
+            return payload
+        self.spell_api.cast(spell_context, mana_cost)
+        self.spell_api.start_offensive_combat(spell_context)
         context.finish()
         return {"payloads": spell_context.payloads}
 
@@ -462,9 +470,10 @@ class Fight:
             victim = PlayerUtil.get_target(character, argument, room) if argument else getattr(character, "fighting", None)
             if victim is None:
                 return None, "", "no_target"
-            safe, safe_msg = self.fight_handler.is_safe(character, victim, room=room, ignore_target_fighting=True)
-            if safe and victim is not character:
-                return None, "", "target_safe"
+            if not CharacterApi.is_npc(character):
+                safe, safe_msg = self.fight_handler.is_safe(character, victim, room=room, ignore_target_fighting=True)
+                if safe and victim is not character:
+                    return None, "", "target_safe"
             return victim, "char", ""
 
         if target_type == "OBJ_INV":
@@ -491,10 +500,10 @@ class Fight:
                 victim = getattr(character, "fighting", None)
                 if victim is None:
                     return None, "", "missing_target"
-                return victim, "char", ""
-            victim = PlayerUtil.get_target(character, argument, room)
+            else:
+                victim = PlayerUtil.get_target(character, argument, room)
             if victim is not None:
-                safe, safe_msg = self.fight_handler.is_safe(character, victim, room=room)
+                safe = self.fight_handler.is_safe_spell(character, victim, area=False)
                 if safe and victim is not character:
                     return None, "", "target_safe"
                 return victim, "char", ""

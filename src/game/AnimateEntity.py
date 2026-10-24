@@ -72,6 +72,9 @@ class AnimateEntity:
             return "her"
         return "its"
 
+    def him_her(self) -> str:
+        return {"his": "him", "her": "her"}.get(self.his_her(), "it")
+
     def display_name(self) -> str:
         return str(getattr(self, "name", "") or getattr(self, "short_description", "") or "Someone")
 

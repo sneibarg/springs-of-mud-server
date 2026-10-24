@@ -75,7 +75,8 @@ class ItemUtil:
     def update_affect_data(item):
         for affect in item.affect_data:
             affect_elements = affect.split(",")
-            affect_data = Effect(valid=True, where=-1, type=-1, level=item.level, duration=-1, location=-1, modifier=-1, bitvector=-1)
+            affect_data = Effect(valid=True, where=AffectWhere.TO_OBJECT.value, type=-1,
+                                 level=item.level, duration=-1, location=0, modifier=0, bitvector=0)
             if affect_elements[0] == "A":
                 affect_data.where = AffectWhere.TO_OBJECT.value
                 affect_data.location = affect_elements[1]

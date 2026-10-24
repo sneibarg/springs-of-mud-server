@@ -47,6 +47,7 @@ class Room:
     heal_rate: int = 0
     mana_rate: int = 0
     clan: int = 0
+    owner: str = ""
     extra_description: ExtraDescriptionData = None
     contents: dict[str, Item] = field(default_factory=dict)
     characters: dict[str, Character] = field(default_factory=dict)
@@ -55,7 +56,6 @@ class Room:
     area: 'Area | None' = field(default=None, init=False, repr=False, compare=False)
 
     def __post_init__(self):
-        self.clan = None
         self.heal_rate = 100
         self.mana_rate = 100
         self.combat_events = []
@@ -248,12 +248,17 @@ class Room:
                                     visible=lambda target: CharacterApi.can_see(observer, target, self))
 
     def is_private(self, room_flags) -> bool:
+        if getattr(self, "owner", ""):
+            return True
         private = room_flags.ROOM_PRIVATE.value
         solitary = room_flags.ROOM_SOLITARY.value
         flags = GenericUtil.to_int(self.room_flags, 0)
-        if private and (flags & private) and len(self.characters) >= 2:
+        count = len(self.characters) + len(self.mobiles)
+        if private and (flags & private) and count >= 2:
             return True
-        if solitary and (flags & solitary) and len(self.characters) >= 1:
+        if solitary and (flags & solitary) and count >= 1:
+            return True
+        if flags & int(getattr(room_flags, "ROOM_IMP_ONLY", 0)):
             return True
         return False
 

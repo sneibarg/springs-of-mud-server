@@ -101,6 +101,27 @@ class CharacterApi(GameApi):
         return guild not in ("", "0", "none", "no", "clanless")
 
     @classmethod
+    def can_see_room(cls, character: Any, room: Any) -> bool:
+        if room is None:
+            return False
+        flags = cls.get_enum("roomFlags")
+        parameters = cls.get_enum("gameParameters")
+        raw = cls.flags_to_int(room.room_flags)
+        def flagged(name):
+            return cls.is_set(raw, int(getattr(flags, name)))
+        immortal = cls.is_immortal(character)
+        if flagged("ROOM_IMP_ONLY") and cls.get_trust(character) < int(parameters.MAX_LEVEL):
+            return False
+        if not immortal and (flagged("ROOM_GODS_ONLY") or flagged("ROOM_HEROES_ONLY")):
+            return False
+        if not immortal and flagged("ROOM_NEWBIES_ONLY") and int(character.level) > 5:
+            return False
+        clan = str(getattr(room, "clan", "") or "").strip().lower()
+        if not immortal and clan not in ("", "0", "none"):
+            return clan == str(getattr(character, "guild", "") or "").strip().lower()
+        return True
+
+    @classmethod
     def is_immortal(cls, char: Any) -> bool:
         if hasattr(char, "character"):
             char = getattr(char, "character", None)

@@ -123,10 +123,6 @@ class EffectUtil:
                 lo, hi = hi, lo
             return random.randint(lo, hi)
 
-        def number_fuzzy(value):
-            base = GenericUtil.to_int(value, 0)
-            return max(1, base + random.randint(-1, 1))
-
         return {
             "level": GenericUtil.to_int(level, 0),
             "victim": target,
@@ -135,7 +131,7 @@ class EffectUtil:
             "actor": caster,
             "dice": dice,
             "number_range": number_range,
-            "number_fuzzy": number_fuzzy,
+            "number_fuzzy": EffectUtil.number_fuzzy,
             "UMAX": lambda a, b: max(GenericUtil.to_int(a, 0), GenericUtil.to_int(b, 0)),
             "UMIN": lambda a, b: min(GenericUtil.to_int(a, 0), GenericUtil.to_int(b, 0)),
             "abs": abs,
@@ -143,6 +139,12 @@ class EffectUtil:
             "min": min,
             "int": int,
         }
+
+    @staticmethod
+    def number_fuzzy(value) -> int:
+        from game.RandomNumberGenerator import RandomNumberGenerator
+
+        return RandomNumberGenerator().number_fuzzy(GenericUtil.to_int(value, 0))
 
     @staticmethod
     def safe_eval_int(value, default: int = 0, **env) -> int:
@@ -226,8 +228,8 @@ class EffectUtil:
                 save += 2
             elif status == "IS_VULNERABLE":
                 save -= 2
-            if not CharacterApi.is_npc(victim) and getattr(getattr(victim, "character_class", None), "mana_gain", False):
-                save = int(9 * save / 10)
+        if not CharacterApi.is_npc(victim) and getattr(getattr(victim, "character_class", None), "mana_gain", False):
+            save = int(9 * save / 10)
         save = max(5, min(95, save))
         return random.randint(1, 100) < save
 

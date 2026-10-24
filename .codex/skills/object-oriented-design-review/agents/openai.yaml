@@ -1,0 +1,4 @@
+interface:
+  display_name: "Object-Oriented Design Review"
+  short_description: "Review object responsibilities and design tradeoffs"
+  default_prompt: "Use $object-oriented-design-review to review this code for object-oriented design issues and recommend focused improvements."

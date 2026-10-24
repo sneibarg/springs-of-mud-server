@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import fields
+from dataclasses import fields, replace
 from functools import lru_cache
 from typing import Any, Callable
 from injector import inject
@@ -39,9 +39,12 @@ class InterpApi:
         context.finish()
         return self.execute_interp_plan(view, plan)
 
-    def evaluate_guards_only(self, context, action_name: str):
+    def evaluate_guards_only(self, context, action_name: str, *, guard_filter: Callable | None = None):
+        """Evaluate all guards, or a selected phase of the same data-defined guards."""
         view = self.build_interp_view(context)
         definition = self._interp_check_definition(view, action_name)
+        if guard_filter is not None:
+            definition = replace(definition, guards=tuple(guard for guard in definition.guards if guard_filter(guard)))
         plan = self.evaluate_interp_action(view, definition)
         if not bool((plan.data or {}).get("blocked")):
             return None
@@ -59,7 +62,7 @@ class InterpApi:
 
     def evaluate_interp_action(self, view: InterpView, definition: ActionDefinition[InterpView]) -> ActionPlan:
         for index, guard in enumerate(definition.guards):
-            self.logger.debug(f"Checking guard #{index+1} of {len(definition.guards)}; predicate: {view.context.command.guards[index]}")
+            self.logger.debug(f"Checking guard #{index+1} of {len(definition.guards)}; predicate: {guard.predicate}")
             if guard.predicate(view):
                 tokens = InterpApi._default_tokens(view)
                 tokens.update(dict(guard.token_factory(view) or {}))

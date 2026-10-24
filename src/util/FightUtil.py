@@ -46,10 +46,38 @@ class FightUtil:
         return max(0, GenericUtil.to_int(getattr(skill, "min_mana", 0), 0))
 
     @staticmethod
-    def find_spell(spell_registry, spell_name: str):
+    def cast_mana_cost(character, ability) -> int:
+        if ability is None:
+            return 0
+        divisor = 2 + int(character.level) - FightUtil.level_for_class(ability, character)
+        return 50 if divisor == 0 else max(FightUtil.min_mana(ability), GenericUtil.trunc_div(100, divisor))
+
+    @staticmethod
+    def find_spell(spell_registry, spell_name: str, character=None):
+        """Resolve exact content references, or accessible prefixes for a caster."""
         if spell_registry is None:
             return None
         want_handler = FightUtil.spell_handler_name(spell_name)
+        if character is not None:
+            from api.CharacterApi import CharacterApi
+
+            wanted = str(spell_name or "").strip().lower()
+            if not wanted:
+                return None
+            matches = sorted(
+                (spell for spell in spell_registry.all_spells()
+                 if str(spell.name or "").lower().startswith(wanted)
+                 or str(getattr(spell, "handler_id", "") or "").lower().startswith(want_handler)),
+                key=lambda spell: str(getattr(spell, "handler_id", "") or spell.name).lower(),
+            )
+            for spell in matches:
+                if CharacterApi.is_npc(character):
+                    return spell
+                if (int(character.level) >= FightUtil.level_for_class(spell, character)
+                        and character.learned_entry_level(character.get_learned(
+                            character, spell.name, collection_name="spells")) > 0):
+                    return spell
+            return matches[0] if matches else None
         for spell in spell_registry.all_spells():
             handler_id = str(getattr(spell, "handler_id", "") or "").strip().lower()
             name = str(getattr(spell, "name", "") or "").strip().lower()

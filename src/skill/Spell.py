@@ -11,6 +11,8 @@ class Spell(Ability):
     function_name: str = ""
     lambdas: list[str] = field(default_factory=list)
     affect_data: list[Effect] = field(default_factory=list)
+    tables: dict[str, list[int]] = field(default_factory=dict)
+    rules: dict = field(default_factory=dict)
 
     def __hash__(self):
         return hash(self.id)
