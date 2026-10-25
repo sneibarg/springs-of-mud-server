@@ -1,3 +1,4 @@
+from copy import deepcopy
 from dataclasses import is_dataclass
 from enum import Enum
 from typing import Any
@@ -8,6 +9,7 @@ from injector import inject
 from player.Player import Player
 from player.PlayerRegistry import PlayerRegistry
 from server.FetchAndRegisterMixin import FetchAndRegisterMixin
+from server.BackgroundIO import submit
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 
@@ -22,11 +24,8 @@ class PlayerService(FetchAndRegisterMixin):
         self.player_registry = player_registry
         self.load_players()
 
-    def reload_players(self) -> None:
-        self.logger.info("Reloading all players...")
-        self.player_registry.reset()
-        self.load_players()
-        self.logger.info("Players reload completed.")
+    def reload_players(self) -> bool:
+        return self._reload_collection(self.players_endpoint, "players", self.player_registry)
 
     def load_players(self):
         self._fetch_and_register(self.players_endpoint, "all players")
@@ -36,20 +35,28 @@ class PlayerService(FetchAndRegisterMixin):
         url = f"{self.players_endpoint}/name/{player_name}"
         return self._fetch_and_register(url, f"player '{player_name}'")
 
+    def queue_save_player(self, player):
+        with player.lock:
+            payload = deepcopy(self._serialize_player(player))
+            return submit(self._persist_player, payload)
+
     def save_player(self, player: Player) -> bool:
-        player_id = str(player.id or "")
+        result = self._persist_player(self._serialize_player(player))
+        if result:
+            self.player_registry.register(player)
+        return result
+
+    def _persist_player(self, payload) -> bool:
+        player_id = str(payload.get("id") or "")
         if not player_id:
             self.logger.error("Refusing to save player without an id.")
             return False
 
-        payload = self._serialize_player(player)
         payload["id"] = player_id
         url = f"{self.players_endpoint}/{player_id}"
         try:
             response = requests.put(url, json=payload, timeout=10)
             response.raise_for_status()
-            self.player_registry.register(player)
-            self.logger.debug(f"Saved player {player.account_name} ({player_id}).")
             return True
         except requests.RequestException as e:
             self.logger.error(f"Failed to save player {player_id} to {self.players_endpoint}: {e}")

@@ -8,6 +8,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, patch
 
 from tests import test_combat_handler_aggression as fixtures
+from game.StatusFlags import StatusFlags
 
 Runtime = sys.modules[fixtures.FightHandler.__module__]
 ROOT = Path(__file__).resolve().parents[1]
@@ -53,7 +54,8 @@ class TestCombatStateEffects(unittest.TestCase):
         payload = Runtime.GamePayload.from_json(document["payload"])
         self.handler.spell_registry = SimpleNamespace(get_or_none=Mock(return_value=SimpleNamespace(payload=payload)))
         self.actor.name = "Attacker"
-        self.actor.status_flags.affected_by = int(Bits.AFF_INVISIBLE) | 128
+        self.actor.status_flags = StatusFlags.default()
+        self.actor.status_flags.assign_bitfield("affected_by", int(Bits.AFF_INVISIBLE) | 128)
         self.handler.is_safe = Mock(return_value=(False, ""))
         self.handler.check_killer = Mock(return_value={})
         self.handler._set_fighting = Mock()

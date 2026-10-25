@@ -29,7 +29,7 @@ def build_prompt_map():
         "%X": lambda c: c.accumulated_experience,
         "%g": lambda c: c.gold,
         "%s": lambda c: c.silver,
-        "%a": lambda c: c.alignment,
+        "%a": lambda c: c.get_alignment(),
         "%r": lambda r: r.name if r and r.name else "",
         "%e": lambda r: r.get_formatted_exits() if r else "",
         "%R": lambda c, r: r.vnum if r and CharacterApi.is_immortal(c) else "",

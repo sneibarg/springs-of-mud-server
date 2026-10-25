@@ -357,7 +357,7 @@ class TestSpellAffectPayloadMessages(unittest.TestCase):
                 if npc or level < 10:
                     actor.get_learned.assert_not_called()
                 else:
-                    actor.get_learned.assert_called_once_with(actor, "armor", collection_name="spells")
+                    actor.get_learned.assert_called_once_with("armor", collection_name="spells")
 
     def test_cast_attempt_charges_and_improves_independently_of_spell_effect(self):
         for roll, mana_gain, npc, expected_cost, expected_level in [

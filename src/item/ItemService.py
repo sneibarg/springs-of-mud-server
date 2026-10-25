@@ -23,11 +23,8 @@ class ItemService(FetchAndRegisterMixin):
         self.spell_registry = spell_registry
         self.load_items()
 
-    def reload_items(self) -> None:
-        self.logger.info("Reloading all items...")
-        self.item_registry.reset()
-        self.load_items()
-        self.logger.info("Item reload completed.")
+    def reload_items(self) -> bool:
+        return self._reload_collection(self.items_endpoint, "items", self.item_registry)
 
     def load_items(self):
         self._fetch_and_register(self.items_endpoint, "all items")

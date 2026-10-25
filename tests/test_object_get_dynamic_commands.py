@@ -567,7 +567,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
                 check_killer=lambda *_args: {},
                 multi_hit=lambda *_args, **_kwargs: {},
                 build_round_payload=lambda *_args: {},
-                character_service=SimpleNamespace(save_character=lambda _character: True),
+                character_service=SimpleNamespace(queue_save_character=lambda _character: True),
             ),
             effect_handler=_effect_handler,
         )

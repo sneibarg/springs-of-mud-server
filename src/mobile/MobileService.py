@@ -26,11 +26,8 @@ class MobileService(FetchAndRegisterMixin):
         self.fight_handler = fight_handler
         self.load_mobiles()
 
-    def reload_mobiles(self) -> None:
-        self.logger.info("Reloading all mobiles...")
-        self.mobile_registry.reset()
-        self.load_mobiles()
-        self.logger.info("Mobiles reload completed.")
+    def reload_mobiles(self) -> bool:
+        return self._reload_collection(self.mobiles_endpoint, "mobiles", self.mobile_registry)
 
     def load_mobiles(self):
         self._fetch_and_register(self.mobiles_endpoint, "all mobiles")

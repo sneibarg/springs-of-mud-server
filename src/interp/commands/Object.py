@@ -1750,7 +1750,7 @@ class Object:
                 context, "default", channel="to_wiznet", c=character.name, t=getattr(victim, "name", ""))})
             if self._mark_player_thief(character):
                 payloads.append({"to_char": self._render_command_message(context, "thief")})
-                self.fight_handler.character_service.save_character(character)
+                self.fight_handler.character_service.queue_save_character(character)
         return {"payloads": payloads}
 
     def _theft_reaction_context(self, context, victim, name, argument):

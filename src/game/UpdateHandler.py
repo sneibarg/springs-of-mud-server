@@ -1,5 +1,3 @@
-import asyncio
-
 from injector import inject
 from area.AreaHandler import AreaHandler
 from combat.CombatHandler import FightHandler
@@ -54,6 +52,7 @@ class UpdateHandler:
         self.GameParametersEnum = enum_provider.get("gameParameters")
 
     async def handle_updates(self):
+        self._advance_input_timers()
         self.pulse_area -= 1
         self.pulse_mobile -= 1
         self.pulse_violence -= 1
@@ -96,16 +95,32 @@ class UpdateHandler:
 
     async def _autosave_due_characters(self) -> None:
         due = [
-            character for character in self._active_player_characters()
+            character for character in self._live_player_characters()
             if self._autosave_bucket(character.id) == self.save_number
         ]
         if not due:
             return
 
-        await asyncio.gather(*[
-            asyncio.to_thread(self.character_service.save_character, character)
-            for character in due
-        ])
+        for character in due:
+            self.character_service.queue_save_character(character)
+
+    def _advance_input_timers(self) -> None:
+        characters = []
+        for session in self.session_handler.get_playing_sessions():
+            characters.extend((session.character, (getattr(session, "metadata", None) or {}).get("switched_original")))
+        # Link-dead players still participate in combat and recovery.
+        for room in self.entity_update_handler.room_registry.all_rooms():
+            if room is not None:
+                characters.extend(list(room.characters.values()))
+        seen = set()
+        for character in characters:
+            if character is None or id(character) in seen:
+                continue
+            seen.add(id(character))
+            status = getattr(character, "status_flags", None)
+            if status is not None:
+                status.pulse_wait = max(0, status.pulse_wait - 1)
+                status.pulse_daze = max(0, status.pulse_daze - 1)
 
     def _advance_save_counter(self) -> None:
         self.save_number += 1
@@ -125,6 +140,27 @@ class UpdateHandler:
             seen.add(character_id)
             active.append(character)
         return active
+
+    def _live_player_characters(self) -> list[Character]:
+        """Save live world players, including link-dead and possession originals.
+
+        The account character registry also contains offline records, so it is
+        deliberately not an authority for this enumeration.
+        """
+        characters = []
+        for room in self.entity_update_handler.room_registry.all_rooms():
+            if room is not None:
+                characters.extend(list(room.characters.values()))
+        for session in self.session_handler.get_playing_sessions():
+            characters.append(getattr(session, "character", None))
+            characters.append((getattr(session, "metadata", None) or {}).get("switched_original"))
+            body = getattr(session, "character", None)
+            characters.append((getattr(body, "context", None) or {}).get("controller_original"))
+        live = {}
+        for character in characters:
+            if isinstance(character, Character) and character.id:
+                live.setdefault(str(character.id), character)
+        return list(live.values())
 
     def _autosave_bucket(self, character_id: str) -> int:
         if self.save_cycle <= 0:

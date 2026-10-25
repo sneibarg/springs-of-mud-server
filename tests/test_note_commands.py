@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 import sys
@@ -203,10 +204,10 @@ class TestNoteCommands(unittest.TestCase):
         handler, _service = self._handler([note])
         character = SimpleNamespace(name="Bob", context={}, immortal=False)
 
-        payload = handler.execute(character, self._context("note", "list"))
+        payload = asyncio.run(handler.execute(character, self._context("note", "list")))
         self.assertIn("[  1] Ann: Hello", payload["to_char"])
 
-        payload = handler.execute(character, self._context("note", "read 1"))
+        payload = asyncio.run(handler.execute(character, self._context("note", "read 1")))
         self.assertIn("To: all", payload["to_char"])
         self.assertEqual(10, character.context["note_read_stamps"]["0"])
 
@@ -215,10 +216,10 @@ class TestNoteCommands(unittest.TestCase):
         character = SimpleNamespace(name="Bob", context={}, immortal=False)
 
         for text in ("write", "to all", "subject Greetings", "+ First line", "+ Second line"):
-            payload = handler.execute(character, self._context("note", text))
+            payload = asyncio.run(handler.execute(character, self._context("note", text)))
             self.assertIn("Ok.", payload["to_char"])
 
-        payload = handler.execute(character, self._context("note", "post"))
+        payload = asyncio.run(handler.execute(character, self._context("note", "post")))
 
         self.assertIn("Ok.", payload["to_char"])
         self.assertEqual(1, len(service.created))
@@ -233,11 +234,11 @@ class TestNoteCommands(unittest.TestCase):
         mortal = SimpleNamespace(name="Bob", context={}, immortal=False)
         immortal = SimpleNamespace(name="Admin", context={}, immortal=True)
 
-        payload = handler.execute(mortal, self._context("note", "remove 1"))
+        payload = asyncio.run(handler.execute(mortal, self._context("note", "remove 1")))
         self.assertIn("You can't do that.", payload["to_char"])
         self.assertEqual([], service.deleted)
 
-        payload = handler.execute(immortal, self._context("note", "remove 1"))
+        payload = asyncio.run(handler.execute(immortal, self._context("note", "remove 1")))
         self.assertIn("Ok.", payload["to_char"])
         self.assertEqual(["n1"], service.deleted)
 

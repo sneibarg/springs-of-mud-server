@@ -21,17 +21,21 @@ class SkillService(FetchAndRegisterMixin):
         self.load_skills()
         self.load_groups()
 
-    def reload_skills(self) -> None:
-        self.logger.info("Reloading all skills...")
-        self.skill_registry.reset()
-        self.load_skills()
-        self.logger.info("Skills reload completed.")
+    def reload_skills(self) -> bool:
+        return self._reload_collection(self.skills_endpoint, "skills", self.skill_registry)
 
-    def reload_groups(self) -> None:
-        self.logger.info("Reloading all groups...")
-        self.group_registry.reset()
-        self.load_groups()
-        self.logger.info("Groups reload completed.")
+    def reload_groups(self) -> bool:
+        try:
+            candidate = type(self.group_registry)()
+            for name, data in self.groups.items():
+                candidate.register(GroupType.from_json(dict(data, name=name)))
+            candidate.populate()
+            self._publish_registry(self.group_registry, candidate)
+            self.logger.info("Groups reload completed.")
+            return True
+        except Exception as error:
+            self.logger.error(f"Failed to reload groups; previous registry retained: {error}", exc_info=True)
+            return False
 
     def load_groups(self):
         for group_data in self.groups:

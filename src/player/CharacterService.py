@@ -1,3 +1,5 @@
+import asyncio
+from copy import deepcopy
 from dataclasses import is_dataclass
 from enum import Enum
 from typing import Any
@@ -9,6 +11,7 @@ from player.Character import Character
 from player.CharacterRegistry import CharacterRegistry
 from player.CharacterRace import CharacterRace
 from server.FetchAndRegisterMixin import FetchAndRegisterMixin
+from server.BackgroundIO import submit
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 
@@ -22,11 +25,8 @@ class CharacterService(FetchAndRegisterMixin):
         self.character_registry = character_registry
         self.load_characters()
 
-    def reload_characters(self) -> None:
-        self.logger.info("Reloading all characters...")
-        self.character_registry.reset()
-        self.load_characters()
-        self.logger.info("Characters reload completed.")
+    def reload_characters(self) -> bool:
+        return self._reload_collection(self.characters_endpoint, "characters", self.character_registry)
 
     def load_characters(self):
         self._fetch_and_register(self.characters_endpoint, "all characters")
@@ -36,34 +36,40 @@ class CharacterService(FetchAndRegisterMixin):
         url = f"{self.characters_endpoint}/name/{character_name}"
         return self._fetch_and_register(url, f"character '{character_name}'")
 
+    def _save_snapshot(self, character):
+        return deepcopy(self._serialize_character(character))
+
+    def queue_save_character(self, character):
+        """Capture now; return a future for the ordered HTTP write."""
+        # Submit while holding the model lock so snapshots cannot overtake each other.
+        with character.lock:
+            return submit(self._persist_character, self._save_snapshot(character))
+
+    async def save_character_async(self, character) -> bool:
+        return await asyncio.shield(asyncio.wrap_future(self.queue_save_character(character)))
+
     def save_character(self, character: Character) -> bool:
-        character_id = str(character.id or "")
+        """Blocking compatibility entry point; async gameplay uses the queue."""
+        with character.lock:
+            payload = self._save_snapshot(character)
+        result = self._persist_character(payload)
+        if result:
+            self.character_registry.register(character)
+        return result
+
+    def _persist_character(self, payload) -> bool:
+        character_id = str(payload.get("id") or "")
         if not character_id:
             self.logger.error("Refusing to save character without an id.")
             return False
-
-        payload = self._serialize_character(character)
         payload["id"] = character_id
-        url = f"{self.characters_endpoint}/{character_id}"
         try:
-            response = requests.put(url, json=payload, timeout=10)
+            response = requests.put(f"{self.characters_endpoint}/{character_id}", json=payload, timeout=10)
             response.raise_for_status()
-
-            try:
-                data = response.json()
-            except ValueError:
-                data = None
-
-            if isinstance(data, dict) and data.get("id"):
-                self.character_registry.unregister(item=character)
-                self.character_registry.register(character)
-            else:
-                self.character_registry.register(character)
-
-            self.logger.debug(f"Saved character {character.name} ({character_id}).")
+            self.logger.debug(f"Saved character {payload.get('name', '')} ({character_id}).")
             return True
         except requests.RequestException as e:
-            self.logger.error(f"Failed to save character {character_id} to {self.characters_endpoint}: {e}")
+            self.logger.error(f"Failed to save character {character_id}: {e}")
             return False
         except Exception as e:
             self.logger.error(f"Unexpected error saving character {character_id}: {e}", exc_info=True)
@@ -107,7 +113,7 @@ class CharacterService(FetchAndRegisterMixin):
             "skills": cls._serialize_value(character.skills),
             "spells": cls._serialize_value(character.spells),
             "groups": list(character.groups),
-            "aliases": cls._serialize_value(getattr(character, "aliases", {})),
+            "aliases": dict(getattr(character, "aliases", {})),
             "statusFlags": cls._serialize_value(character.status_flags),
             "characterAttributes": cls._serialize_value(character.character_attributes),
             "armorClass": cls._serialize_value(character.armor_class),

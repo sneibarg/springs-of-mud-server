@@ -17,11 +17,8 @@ class SpecialService(FetchAndRegisterMixin):
         self.special_registry = special_registry
         self.load_specials()
 
-    def reload_specials(self):
-        self.logger.info("Reloading specials...")
-        self.special_registry.reset()
-        self.load_specials()
-        self.logger.info("Specials reload completed.")
+    def reload_specials(self) -> bool:
+        return self._reload_collection(self.specials_endpoint, "specials", self.special_registry)
 
     def load_specials(self):
         self._fetch_and_register(self.specials_endpoint, "specials")

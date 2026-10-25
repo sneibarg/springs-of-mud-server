@@ -1045,7 +1045,7 @@
         "messageKey": "spellNotLearned"
       },
       {
-        "predicate": "lambda v: not CharacterApi.is_npc(v.context.character) and v.context.character.learned_entry_level(v.context.character.get_learned(v.context.character, v.context.cast_spell.name, collection_name='spells')) == 0",
+        "predicate": "lambda v: not CharacterApi.is_npc(v.context.character) and v.context.character.learned_entry_level(v.context.character.get_learned(v.context.cast_spell.name, collection_name='spells')) == 0",
         "messageKey": "spellNotLearned"
       },
       {

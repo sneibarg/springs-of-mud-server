@@ -52,7 +52,7 @@ class SpellApi:
         elif int(actor.level) < FightUtil.level_for_class(spell, actor):
             rating = 0
         else:
-            rating = actor.learned_entry_level(actor.get_learned(actor, spell.name, collection_name="spells"))
+            rating = actor.learned_entry_level(actor.get_learned(spell.name, collection_name="spells"))
         status = actor.status_flags
         if status.pulse_daze > 0:
             rating //= 2
@@ -1598,13 +1598,8 @@ class SpellApi:
 
     @staticmethod
     def _alignment(entity) -> int:
-        attrs = getattr(entity, "character_attributes", None)
-        if attrs is not None:
-            return GenericUtil.to_int(getattr(attrs, "alignment", 0), 0)
-        perm = getattr(entity, "character_attributes", None)
-        if perm is not None:
-            return GenericUtil.to_int(getattr(perm, "alignment", 0), 0)
-        return GenericUtil.to_int(getattr(entity, "alignment", 0), 0)
+        from game.AnimateEntity import AnimateEntity
+        return AnimateEntity.get_alignment(entity)
 
     @staticmethod
     def _room_players(room, exclude_ids: set[str] | None = None) -> list[Any]:

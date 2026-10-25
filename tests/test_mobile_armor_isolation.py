@@ -50,6 +50,41 @@ class MobileArmorIsolationTests(unittest.TestCase):
         self.assertEqual(clone.armor_class.slash, 60)
         self.assertEqual(self.prototype.armor_class.pierce, 70)
 
+    def test_real_mobile_status_timers_recover_and_clamp(self):
+        from combat.CombatHandler import FightHandler
+        from game.StatusFlags import StatusFlags
+        self.prototype.status_flags = StatusFlags.from_json({})
+        mobile = MobileUtil.create_mobile(self.prototype, self.enums)
+        mobile.status_flags.pulse_wait = 25
+        mobile.status_flags.pulse_daze = 13
+        for expected in ((13, 1), (1, 0), (0, 0), (0, 0)):
+            FightHandler._decrement_combat_timers(mobile)
+            self.assertEqual(expected, (mobile.status_flags.pulse_wait, mobile.status_flags.pulse_daze))
+        self.assertFalse(hasattr(mobile, 'pulse_wait'))
+
+    def test_spawn_and_clone_preserve_authored_and_current_alignment(self):
+        from api.CharacterApi import CharacterApi
+        from api.SpellApi import SpellApi
+        for alignment in (900, -900, 0, 349, -349, 350, -350):
+            with self.subTest(alignment=alignment):
+                self.prototype.alignment = str(alignment)
+                mobile = MobileUtil.create_mobile(self.prototype, self.enums)
+                self.assertEqual(str(alignment), mobile.alignment)
+                self.assertEqual(alignment, mobile.get_alignment())
+                self.assertEqual(alignment, mobile.character_attributes.alignment)
+                self.assertEqual(alignment >= 350, CharacterApi.is_good(mobile))
+                self.assertEqual(alignment <= -350, CharacterApi.is_evil(mobile))
+                self.assertEqual(-350 < alignment < 350, CharacterApi.is_neutral(mobile))
+                self.assertEqual(alignment, SpellApi._alignment(mobile))
+                mobile.set_alignment(-alignment)
+                clone = MobileUtil.clone_mobile_instance(mobile, self.enums)
+                self.assertEqual(-alignment, clone.get_alignment())
+                self.assertEqual(-alignment, SpellApi._alignment(clone))
+                clone.set_alignment(123)
+                self.assertEqual(-alignment, mobile.get_alignment())
+                self.assertEqual(alignment, self.prototype.get_alignment())
+                self.assertIsInstance(self.prototype.alignment, str)
+
     def test_missing_armor_remains_optional(self):
         self.prototype.armor_class = None
         mobile = MobileUtil.create_mobile(self.prototype, self.enums)

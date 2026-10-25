@@ -15,11 +15,8 @@ class SocialService(FetchAndRegisterMixin):
         self.social_registry = social_registry
         self.load_socials()
 
-    def reload_socials(self) -> None:
-        self.logger.info("Reloading all socials...")
-        self.social_registry.reset()
-        self.load_socials()
-        self.logger.info("Socials reload completed.")
+    def reload_socials(self) -> bool:
+        return self._reload_collection(self.socials_endpoint, "socials", self.social_registry)
 
     def load_socials(self):
         self._fetch_and_register(self.socials_endpoint, "all socials")

@@ -15,11 +15,8 @@ class HelpService(FetchAndRegisterMixin):
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.load_helps()
 
-    def reload_helps(self):
-        self.logger.info("Reloading all helps...")
-        self.help_registry.reset()
-        self.load_helps()
-        self.logger.info("Helps reload completed.")
+    def reload_helps(self) -> bool:
+        return self._reload_collection(self.helps_endpoint, "helps", self.help_registry)
 
     def load_helps(self):
         self._fetch_and_register(self.helps_endpoint, "helps")

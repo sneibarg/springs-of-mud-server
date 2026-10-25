@@ -188,21 +188,21 @@ class MobileUtil:
             domain = str(removal.get("domain", "")).lower().strip()
             vector = GenericUtil.to_int(removal.get("vector", 0))
             if domain == "act":
-                flags.act &= ~vector
+                flags.unset_flag("act", vector)
             elif domain.startswith("aff"):
-                flags.affected_by &= ~vector
+                flags.unset_flag("affected_by", vector)
             elif domain == "off":
-                flags.off &= ~vector
+                flags.unset_flag("off", vector)
             elif domain == "imm":
-                flags.imm &= ~vector
+                flags.unset_flag("imm", vector)
             elif domain == "res":
-                flags.res &= ~vector
+                flags.unset_flag("res", vector)
             elif domain.startswith("vul"):
-                flags.vuln &= ~vector
+                flags.unset_flag("vuln", vector)
             elif domain.startswith("for"):
-                flags.form &= ~vector
+                flags.unset_flag("form", vector)
             elif domain.startswith("par"):
-                flags.parts &= ~vector
+                flags.unset_flag("parts", vector)
 
     @staticmethod
     def _random_dam_type() -> int:
@@ -281,7 +281,7 @@ class MobileUtil:
             "long_description": pMobIndex.long_description,
             "description": pMobIndex.description,
             "race": pMobIndex.race,
-            "alignment": pMobIndex.alignment,
+            "alignment": str(pMobIndex.get_alignment()),
             "group": pMobIndex.group,
             "dam_type": pMobIndex.dam_type,
             "start_pos": pMobIndex.start_pos,
@@ -309,7 +309,7 @@ class MobileUtil:
             mob.silver = 0
 
         if True:
-            mob.alignment = pMobIndex.alignment
+            mob.set_alignment(pMobIndex.get_alignment())
             mob.level = pMobIndex.level
             mob.hit_roll = pMobIndex.hit_roll
 
@@ -355,7 +355,7 @@ class MobileUtil:
         clone.name = mob.name
         clone.race = mob.race
         clone.flags = mob.flags
-        clone.alignment = mob.alignment
+        clone.set_alignment(mob.get_alignment())
         clone.group = mob.group
         clone.dam_type = mob.dam_type
         clone.sex = mob.sex

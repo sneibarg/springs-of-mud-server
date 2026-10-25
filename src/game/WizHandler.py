@@ -100,7 +100,7 @@ class WizHandler:
             target.prompt_format = deepcopy(original.prompt_format)
         target.carriage_return = bool(getattr(original, "carriage_return", True))
         if getattr(target, "status_flags", None) is not None and getattr(original, "status_flags", None) is not None:
-            target.status_flags.comm = getattr(original.status_flags, "comm", 0)
+            CharacterApi.assign_comm_flags(target, getattr(original.status_flags, "comm", 0))
         return original
 
     def return_character(self, character):

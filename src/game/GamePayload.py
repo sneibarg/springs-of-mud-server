@@ -45,6 +45,7 @@ class GamePayload:
         rendered = str(template or "").format_map(_SafeTokens(tokens))
         legacy_tokens = {
             "%c": tokens.get("c", ""),
+            "%e": tokens.get("e", ""),
             "%t": tokens.get("t", ""),
             "%s": tokens.get("s", ""),
             "%g": tokens.get("g", ""),

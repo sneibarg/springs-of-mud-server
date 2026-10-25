@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 import sys
@@ -5,7 +6,7 @@ import unittest
 from copy import deepcopy
 from types import ModuleType
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import AsyncMock, Mock
 
 SRC_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
 RESOURCES_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "resources", "collections", "SOMDB.Commands.json"))
@@ -299,6 +300,24 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
         self.assertEqual("Actor blocked.\r\n", payload["to_char"])
         self.assertEqual("Tester cannot do that.\r\n", payload["to_room"])
 
+    def test_pmote_dispatch_uses_authored_payload_and_room_targets(self):
+        actor = _character("Actor", "actor")
+        viewer = _character("Viewer", "viewer")
+        room = _Room(actor, viewer)
+        room.player_targets = lambda character: [viewer]
+        commands, context = self._command_context("pmote", actor, room, "waves happily")
+        payload = commands.execute(context)
+        self.assertFalse(payload.get("blocked", False))
+        self.assertIn("Actor waves happily", payload["to_char"])
+        self.assertEqual([viewer], payload["targets"])
+
+    def test_pmote_dispatch_retains_authored_missing_argument_guard(self):
+        actor = _character("Actor", "actor")
+        commands, context = self._command_context("pmote", actor, _Room(actor), "")
+        payload = commands.execute(context)
+        self.assertTrue(payload["blocked"])
+        self.assertEqual("Emote what?\r\n", payload["to_char"])
+
     def test_do_tell_uses_command_check_for_missing_target(self):
         actor = _character("Actor", "actor")
         registry_service = SimpleNamespace(
@@ -362,12 +381,12 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
         )
         session_handler = Mock()
         character_service = Mock()
-        character_service.save_character.return_value = False
+        character_service.save_character_async = AsyncMock(return_value=False)
 
         communications = Communications(registry_service, session_handler, character_service, _enum_provider(), InterpApi())
         context = _Context(character=actor, command=_load_command("save"), result="", parameters=[], done=False)
 
-        payload = communications.do_save(context)
+        payload = asyncio.run(communications.do_save(context))
 
         self.assertEqual("Save failed.\r\n", payload["to_char"])
 

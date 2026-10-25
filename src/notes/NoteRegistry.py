@@ -16,21 +16,18 @@ class NoteRegistry:
         self.lock = threading.Lock()
 
     def get_note_by_id(self, note_id: str) -> Optional[InGameNote]:
-        try:
-            return self.registry[note_id]
-        except KeyError:
-            return None
+        with self.lock:
+            return self.registry.get(note_id)
 
     def get_notes_by_type(self, note_type: str) -> List[InGameNote]:
-        notes = []
         wanted = GenericUtil.to_int(note_type, -1)
-        for note in self.registry.values():
-            if GenericUtil.to_int(note.type, -2) == wanted:
-                notes.append(note)
-        return notes
+        return [note for note in self.all_notes() if GenericUtil.to_int(note.type, -2) == wanted]
 
     def all_notes(self) -> List[InGameNote]:
-        return list(self.registry.values())
+        # Content I/O publishes notes from its worker. Copy under the same lock
+        # used by writers, then filter/render outside the critical section.
+        with self.lock:
+            return list(self.registry.values())
 
     def register_note(self, note: InGameNote):
         with self.lock:

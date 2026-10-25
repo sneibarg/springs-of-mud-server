@@ -76,7 +76,7 @@ class InterpHandler:
 
         cmd, parameters = InterpUtil.extract_parameters(self.registry_service.interp_registry, command)
         if cmd is None:
-            social = self.social_registry.get_or_none(name=command.lower())
+            social = self.social_registry.get_or_none(name=command.split(maxsplit=1)[0].lower())
             if social is not None:
                 return await self.social_handler.handle_social(character, command, social)
             await self.message_bus.send_to_character(character.id, self.command_not_found_message)

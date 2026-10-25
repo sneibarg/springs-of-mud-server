@@ -7,7 +7,7 @@ from server.messaging.MessageBus import MessageBus
 
 
 class AdvancementHandler:
-    """Persist synchronous level gains and deliver notices on the world loop."""
+    """Queue level-gain snapshots and deliver notices on the world loop."""
 
     @inject
     def __init__(self, character_service: CharacterService, wiz_handler: WizHandler, message_bus: MessageBus):
@@ -17,7 +17,7 @@ class AdvancementHandler:
         self.pending = SimpleQueue()
 
     def level_gained(self, character, result):
-        self.character_service.save_character(character)
+        self.character_service.queue_save_character(character)
         self.pending.put((character, f"{character.name} has attained level {result.level}!"))
 
     async def flush(self):

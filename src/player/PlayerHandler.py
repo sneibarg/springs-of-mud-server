@@ -1,3 +1,4 @@
+import inspect
 from dataclasses import fields
 from typing import Any
 from injector import inject
@@ -507,7 +508,7 @@ class PlayerHandler:
         await self._handle_standard_command_payload(viewer, context, payload)
 
     async def do_note_command(self, character: Character, context: Context):
-        payload = self.note_handler.execute(character, context)
+        payload = await self.note_handler.execute(character, context)
         await self._handle_standard_command_payload(character, context, payload)
 
     async def _handle_at_payload(self, character: Character, context: Context, payload: dict):
@@ -604,6 +605,8 @@ class PlayerHandler:
 
     async def do_communications_command(self, character: Character, context: Context):
         payload = self.communications_commands.execute(context)
+        if inspect.isawaitable(payload):
+            payload = await payload
         if payload is None:
             return
         if isinstance(payload, str):

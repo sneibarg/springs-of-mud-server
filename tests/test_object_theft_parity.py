@@ -52,7 +52,7 @@ class TestObjectTheftParity(unittest.TestCase):
         self.player_handler = NS(movement_commands=self.movement, communications_commands=self.communications)
         self.save = Mock()
         self.commands.fight_handler = NS(is_safe=Mock(return_value=(False, "")),
-            character_service=NS(save_character=self.save), multi_hit=Mock(return_value={"hit": True}),
+            character_service=NS(queue_save_character=self.save), multi_hit=Mock(return_value={"hit": True}),
             build_round_payload=Mock(return_value={"to_victim": "Retaliation!", "victim": self.actor}))
         self.improve = Mock()
         self.commands._improve_item_skill = self.improve

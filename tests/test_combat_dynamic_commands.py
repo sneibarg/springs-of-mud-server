@@ -362,14 +362,14 @@ class TestFightDynamicCommands(unittest.TestCase):
                                   level_by_class={"mage": required})
                   for name, required in (("cure critical", 12), ("cure disease", 10), ("cure light", 1))]
         actor = SimpleNamespace(level=10, is_npc=False, character_class=SimpleNamespace(name="mage"),
-                                get_learned=lambda character, name, **kwargs: 100,
+                                get_learned=lambda name, **kwargs: 100,
                                 learned_entry_level=lambda entry: entry)
         for ordered in (spells, list(reversed(spells))):
             registry = SimpleNamespace(all_spells=lambda: ordered)
             self.assertIs(spells[1], util.find_spell(registry, "cure", actor))
             self.assertIs(spells[2], util.find_spell(registry, "cure light", actor))
             self.assertIs(spells[2], util.find_spell(registry, "cure_light", actor))
-            actor.get_learned = lambda character, name, **kwargs: 100 if name == "cure light" else 0
+            actor.get_learned = lambda name, **kwargs: 100 if name == "cure light" else 0
             self.assertIs(spells[2], util.find_spell(registry, "cure", actor))
             actor.get_learned = lambda *args, **kwargs: 0
             self.assertIs(spells[0], util.find_spell(registry, "cure", actor))
@@ -520,7 +520,7 @@ class TestFightDynamicCommands(unittest.TestCase):
                 if npc or level < spell.level_by_class[class_name]:
                     character.get_learned.assert_not_called()
                 else:
-                    character.get_learned.assert_has_calls([call(character, "armor", collection_name="spells")] * 2)
+                    character.get_learned.assert_has_calls([call("armor", collection_name="spells")] * 2)
 
     def test_migrated_fight_metadata_has_check_lists(self):
         command_names = {"cast", "flee", "murder"}

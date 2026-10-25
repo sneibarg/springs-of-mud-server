@@ -1,4 +1,5 @@
 from datetime import datetime
+from server.BackgroundIO import run as run_io
 import time
 
 from injector import inject
@@ -39,7 +40,7 @@ class NoteHandler:
             InGameNoteEnum.NOTE_CHANGES.value: ("change", "changes", "no_changes"),
         }
 
-    def execute(self, character, context):
+    async def execute(self, character, context):
         context.finish()
         command_name = str(getattr(getattr(context, "command", None), "name", "") or "note").strip().lower()
         note_type = self.note_types.get(command_name, InGameNoteEnum.NOTE_NOTE.value)
@@ -47,17 +48,17 @@ class NoteHandler:
         action, rest = self._split_note_argument(argument)
 
         if not action:
-            return self._read_next_unread(character, context, note_type)
+            return await self._read_next_unread(character, context, note_type)
         if action == "list":
-            return self._list_notes(character, context, note_type, rest)
+            return await self._list_notes(character, context, note_type, rest)
         if action == "read":
-            return self._read_note(character, context, note_type, rest)
+            return await self._read_note(character, context, note_type, rest)
         if action.isdigit():
-            return self._read_note(character, context, note_type, action)
+            return await self._read_note(character, context, note_type, action)
         if action in ("remove", "delete"):
-            return self._delete_note(character, context, note_type, rest, action)
+            return await self._delete_note(character, context, note_type, rest, action)
         if action == "catchup":
-            return self._catchup(character, context, note_type)
+            return await self._catchup(character, context, note_type)
         if action == "write":
             return self._start_draft(character, context, note_type)
         if action == "to":
@@ -75,11 +76,11 @@ class NoteHandler:
         if action == "show":
             return self._show_draft(character, context, note_type)
         if action in ("post", "send"):
-            return self._post_draft(character, context, note_type)
+            return await self._post_draft(character, context, note_type)
         return self._message(context, "invalid_number", fallback="Read which number?\r\n")
 
-    def _list_notes(self, character, context, note_type: int, rest: str):
-        notes = self._visible_notes(character, note_type)
+    async def _list_notes(self, character, context, note_type: int, rest: str):
+        notes = await self._visible_notes(character, note_type)
         if not notes:
             return self._message(context, self._no_notes_key(note_type), fallback="There are no notes for you.\r\n")
         if rest and not rest.isdigit():
@@ -90,8 +91,8 @@ class NoteHandler:
             return self._message(context, self._no_notes_key(note_type), fallback="There are no notes for you.\r\n")
         return {"to_char": self._format_note_list(selected, start_index=len(notes) - len(selected) + 1)}
 
-    def _read_next_unread(self, character, context, note_type: int):
-        notes = self._visible_notes(character, note_type)
+    async def _read_next_unread(self, character, context, note_type: int):
+        notes = await self._visible_notes(character, note_type)
         if not notes:
             return self._message(context, self._no_notes_key(note_type), fallback="There are no notes for you.\r\n")
         last_read = self._read_stamp(character, note_type)
@@ -102,12 +103,12 @@ class NoteHandler:
                 return {"to_char": self._format_note(note, index)}
         return self._message(context, "have_no_unread", s=self._plural_name(note_type), fallback=f"You have no unread {self._plural_name(note_type)}.\r\n")
 
-    def _read_note(self, character, context, note_type: int, rest: str):
-        notes = self._visible_notes(character, note_type)
+    async def _read_note(self, character, context, note_type: int, rest: str):
+        notes = await self._visible_notes(character, note_type)
         if not notes:
             return self._message(context, self._no_notes_key(note_type), fallback="There are no notes for you.\r\n")
         if not rest:
-            return self._read_next_unread(character, context, note_type)
+            return await self._read_next_unread(character, context, note_type)
         if not rest.isdigit():
             return self._message(context, "invalid_number", fallback="Read which number?\r\n")
         index = GenericUtil.to_int(rest, 0)
@@ -117,8 +118,8 @@ class NoteHandler:
         self._mark_read(character, note_type, GenericUtil.to_int(getattr(note, "date_stamp", 0), 0))
         return {"to_char": self._format_note(note, index)}
 
-    def _delete_note(self, character, context, note_type: int, rest: str, action: str):
-        notes = self._visible_notes(character, note_type)
+    async def _delete_note(self, character, context, note_type: int, rest: str, action: str):
+        notes = await self._visible_notes(character, note_type)
         if not rest or not rest.isdigit():
             key = "note_remove_which_number" if action == "remove" else "note_delete_which_number"
             fallback = "Note remove which number?\r\n" if action == "remove" else "Note delete which number?\r\n"
@@ -128,12 +129,12 @@ class NoteHandler:
             return self._message(context, "aren_t_that_many", s=self._plural_name(note_type), fallback=f"There aren't that many {self._plural_name(note_type)}.\r\n")
         if not self._can_delete(character, note):
             return self._message(context, "can_t_do_that", fallback="You can't do that.\r\n")
-        if not self.note_service.delete_note(str(getattr(note, "id", "") or "")):
+        if not await run_io(self.note_service.delete_note, str(getattr(note, "id", "") or "")):
             return self._message(context, "can_t_do_that", fallback="You can't do that.\r\n")
         return self._message(context, "ok2", fallback="Ok.\r\n")
 
-    def _catchup(self, character, context, note_type: int):
-        notes = self._visible_notes(character, note_type)
+    async def _catchup(self, character, context, note_type: int):
+        notes = await self._visible_notes(character, note_type)
         latest = max([GenericUtil.to_int(getattr(note, "date_stamp", 0), 0) for note in notes] or [int(time.time())])
         self._mark_read(character, note_type, latest)
         return self._message(context, "ok2", fallback="Ok.\r\n")
@@ -201,7 +202,7 @@ class NoteHandler:
             return draft
         return {"to_char": self._format_draft(draft)}
 
-    def _post_draft(self, character, context, note_type: int):
+    async def _post_draft(self, character, context, note_type: int):
         draft = self._matching_draft(character, context, note_type)
         if isinstance(draft, dict) and draft.get("blocked"):
             return draft
@@ -221,7 +222,7 @@ class NoteHandler:
             text="\r\n".join(draft.get("lines", [])),
             date_stamp=stamp,
         )
-        created = self.note_service.create_note(note)
+        created = await run_io(self.note_service.create_note, note)
         if created is None:
             return self._message(context, "can_t_do_that", fallback="You can't do that.\r\n")
         self._character_context(character).pop("note_draft", None)
@@ -235,8 +236,8 @@ class NoteHandler:
             return self._blocked_message(context, "aren_t_working_that", fallback="You aren't working on that kind of note.\r\n")
         return draft
 
-    def _visible_notes(self, character, note_type: int):
-        notes = list(self.note_service.get_notes_by_type(int(note_type)) or [])
+    async def _visible_notes(self, character, note_type: int):
+        notes = list(await run_io(self.note_service.get_notes_by_type, int(note_type)) or [])
         visible = [note for note in notes if self._can_read(character, note)]
         return sorted(visible, key=lambda note: GenericUtil.to_int(getattr(note, "date_stamp", 0), 0))
 

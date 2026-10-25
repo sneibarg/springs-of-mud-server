@@ -263,13 +263,12 @@ class Communications:
         if payload.get("blocked"):
             return payload
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
-        payload["targets"] = self._room_targets(character, room)
+        payload["targets"] = room.player_targets(character) if room is not None else []
         return payload
 
     def do_pmote(self, context: Context):
-        character = context.character
         # Minimal pass-through; per-target rewriting can be added in parity pass.
-        return self.do_emote(character, context)
+        return self.do_emote(context)
 
     def do_pose(self, context: Context):
         character = context.character
@@ -380,12 +379,12 @@ class Communications:
     def do_rent(self, context: Context):
         return self.interp_api.run_action(context, context.command.name)
 
-    def do_save(self, context: Context):
+    async def do_save(self, context: Context):
         character = context.character
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload
-        if self.character_service.save_character(character):
+        if await self.character_service.save_character_async(character):
             return payload
         return self._render_message_key(context, "failed")
 

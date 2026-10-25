@@ -41,7 +41,7 @@ Read a whole collection only when `$collection-query` cannot answer the question
 - Services usually subclass `FetchAndRegisterMixin`, fetch REST data from `ServiceConfig`, build domain objects in `_build_fetch_item`, and register them in `_register_fetch_item`.
 - Runtime enums are loaded from `GameData.enums` into `IntEnum` types. Access them through `EnumProvider` or `GameApi`/`CharacterApi` helpers rather than hard-coded numbers.
 - ROM-style flags may be stored as letters or integers. Use `GameApi.flags_to_int`, `letters_to_flags`, `flags_to_letters`, `is_set`, `set_bit`, and `unset_bit`.
-- Preserve async boundaries. Network/session/message paths are async; the game loop runs in a background thread with its own event loop.
+- Preserve async boundaries. Network/session/message paths are async. The game scheduler runs in a background thread with its own event loop, but dispatches each world update onto the socket event loop, which owns live gameplay and session mutations. Persistence workers receive prepared snapshots; avoid reading or mutating live entities in workers.
 - When adding new services, registries, handlers, or API facades, update `Bootstrapper` bindings and lazy-load setup.
 
 ## Testing

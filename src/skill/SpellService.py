@@ -16,11 +16,8 @@ class SpellService(FetchAndRegisterMixin):
         self.spell_registry = spell_registry
         self.load_spells()
 
-    def reload_spells(self) -> None:
-        self.logger.info("Reloading all spells...")
-        self.spell_registry.reset()
-        self.load_spells()
-        self.logger.info("Spells reload completed.")
+    def reload_spells(self) -> bool:
+        return self._reload_collection(self.spells_endpoint, "spells", self.spell_registry)
 
     def load_spells(self):
         self._fetch_and_register(self.spells_endpoint, "all spells")

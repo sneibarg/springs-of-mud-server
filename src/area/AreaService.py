@@ -24,11 +24,14 @@ class AreaService(FetchAndRegisterMixin):
         self.load_areas()
         self.logger.info(f"Initialized AreaService instance with {len(self.area_registry.all_areas())} areas in memory.")
 
-    def reload_areas(self):
-        self.logger.info("Reloading all areas...")
-        self.area_registry.reset()
-        self.load_areas()
-        self.logger.info("Areas reload completed.")
+    def reload_areas(self) -> bool:
+        return self._reload_collection(self.areas_endpoint, "areas", self.area_registry)
+
+    def _validate_reload(self, registry, candidate) -> None:
+        if self.registry_service.room_registry.all_rooms():
+            raise ValueError("Area reload requires world migration; restart to replace a loaded world")
+        for area in candidate.all_areas():
+            self._lazy_load(area)
 
     def load_areas(self):
         self._fetch_and_register(self.areas_endpoint, "all areas")
@@ -38,11 +41,10 @@ class AreaService(FetchAndRegisterMixin):
         return self._fetch_and_register(url, f"area '{area_name}'")
 
     def _build_fetch_item(self, area_data) -> Area:
-        area = Area.from_json(area_data)
-        self._lazy_load(area)
-        return area
+        return Area.from_json(area_data)
 
     def _register_fetch_item(self, area: Area) -> None:
+        self._lazy_load(area)
         self.area_registry.register(area)
 
     def _lazy_load(self, area: Area):

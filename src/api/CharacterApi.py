@@ -135,17 +135,13 @@ class CharacterApi(GameApi):
 
     @staticmethod
     def is_good(char: Any) -> bool:
-        from player.Character import Character
-        if type(char) is Character:
-            return char.character_attributes.alignment >= 350
-        return char.character_attributes.alignment >= 350
+        from game.AnimateEntity import AnimateEntity
+        return AnimateEntity.get_alignment(char) >= 350
 
     @staticmethod
     def is_evil(char: Any) -> bool:
-        from player.Character import Character
-        if type(char) is Character:
-            return char.character_attributes.alignment <= -350
-        return char.character_attributes.alignment <= -350
+        from game.AnimateEntity import AnimateEntity
+        return AnimateEntity.get_alignment(char) <= -350
 
     @classmethod
     def is_neutral(cls, char: Any) -> bool:

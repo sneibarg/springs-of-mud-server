@@ -28,6 +28,15 @@ For each substantial function or class, assess who owns the data, invariant, and
 - Check that moving a method would reduce knowledge and coupling, not merely relocate the same oversized logic. Models should not acquire the injector, network clients, or broad registry access just to absorb an orchestration function.
 - Preserve designer-editable or declarative behavior when the repository requires it. Do not recommend replacing content with hard-coded branches as an architectural cleanup.
 
+## Review DRY and duplicated knowledge
+
+Apply DRY (Don't Repeat Yourself) to repeated knowledge: business rules, validation, conversions, defaults, and workflows that must change together. Check nearby implementations and existing shared capabilities before recommending new abstractions.
+
+- Identify the duplicated locations and explain the concrete risk: inconsistent behavior, a fix that must be repeated, or drift between implementations. Similar syntax alone is not sufficient evidence; code serving independent concepts may reasonably remain separate.
+- Prefer one authoritative owner for a shared rule, placed at the appropriate domain or architectural boundary. Reuse an existing method, function, or declarative definition when it fits. Preserve designer-editable data and avoid introducing cross-layer dependencies merely to remove repetition.
+- Recommend extraction only when the shared concept is clear and the result simplifies its callers. Weigh reduced duplication against indirection, parameter flags, conditionals, and coupling; avoid premature generalization or combining behavior that changes for different reasons.
+- Report duplication as a correctness defect only when a concrete failing path is demonstrated. Otherwise present it as a nonblocking maintainability recommendation, citing the affected locations, the smallest useful consolidation, and behavior and regression coverage to preserve.
+
 ## Evaluate design patterns selectively
 
 Recommend a pattern only when the reviewed code demonstrates the problem it solves. Prefer an existing abstraction or a small function over a new framework when either is sufficient.

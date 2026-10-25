@@ -75,7 +75,7 @@ class FightUtil:
                     return spell
                 if (int(character.level) >= FightUtil.level_for_class(spell, character)
                         and character.learned_entry_level(character.get_learned(
-                            character, spell.name, collection_name="spells")) > 0):
+                            spell.name, collection_name="spells")) > 0):
                     return spell
             return matches[0] if matches else None
         for spell in spell_registry.all_spells():

@@ -24,11 +24,31 @@ class RoomService(FetchAndRegisterMixin):
         self.load_rooms()
         self.logger.info(f"Initialized RoomService instance with {len(self.room_registry.all_rooms())} rooms in memory.")
 
-    def reload_rooms(self) -> None:
-        self.logger.info("Reloading rooms...")
-        self.room_registry.reset()
-        self.load_rooms()
-        self.logger.info("Rooms reload completed.")
+    def reload_rooms(self) -> bool:
+        return self._reload_collection(self.rooms_endpoint, "rooms", self.room_registry)
+
+    def _build_reload_item(self, raw_item):
+        # Initial loading tolerates broken exits for diagnostics; replacement
+        # must reject them rather than silently publish a truncated definition.
+        data = GenericUtil.camel_to_snake_case(raw_item)
+        exits = data.get("exits")
+        if exits is None:
+            exits = []
+        if not isinstance(exits, list):
+            raise ValueError("Room exits must be a list")
+        for raw_exit in exits:
+            Exit.from_json(raw_exit)
+        return self._build_fetch_item(raw_item)
+
+    def _validate_reload(self, registry, candidate) -> None:
+        for room in registry.all_rooms():
+            if (room.area is not None or room.characters or room.mobiles or room.contents
+                    or room.combat_events or room.populace):
+                raise ValueError("Live room reload requires world migration; restart to replace room definitions")
+        # Unbound empty rooms can be replaced, but new area bindings also belong
+        # to world initialization rather than definition-only replacement.
+        if any(self.area_registry.get_or_none(id=room.area_id) is not None for room in candidate.all_rooms()):
+            raise ValueError("Room reload into a bound world requires a restart")
 
     def load_rooms(self):
         self._fetch_and_register(self.rooms_endpoint, "rooms")
@@ -49,8 +69,8 @@ class RoomService(FetchAndRegisterMixin):
         self.room_registry.register(room)
 
     def _load_extra_description(self, room_json: dict) -> Optional[ExtraDescriptionData]:
-        extra_desc = str(room_json.get('extra_description'))
-        if extra_desc is None:
+        extra_desc = room_json.get('extra_description')
+        if extra_desc is None or extra_desc == '':
             return None
         if not isinstance(extra_desc, str):
             self.logger.warning(f"Expected extra description to be a string, got {type(extra_desc).__name__}")

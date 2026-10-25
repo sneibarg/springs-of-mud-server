@@ -22,19 +22,31 @@ class MudServer:
         self._configure_server()
 
     async def start(self):
-        game_thread = threading.Thread(target=self._run_game_loop, daemon=True, name="GameLoop")
-        game_thread.start()
-        self.logger.info("GameService started in background thread")
-        server = await asyncio.start_server(self.handle_client, self.host, self.port)
-        self.logger.info(f"MudServer started on {self.host}:{self.port}")
-        await server.serve_forever()
-
-    def _run_game_loop(self):
         from game.GameService import GameService
+
+        game_service = self.injector.get(GameService)
+        game_service.set_runtime_loop(asyncio.get_running_loop())
+        server = await asyncio.start_server(self.handle_client, self.host, self.port)
+        game_thread = threading.Thread(target=self._run_game_loop, args=(game_service,),
+                                       daemon=True, name="GameLoop")
+        try:
+            async with server:
+                game_thread.start()
+                self.logger.info("Game scheduler started; world updates run on the socket loop")
+                self.logger.info(f"MudServer started on {self.host}:{self.port}")
+                await server.serve_forever()
+        finally:
+            game_service.stop()
+            if game_thread.ident is not None:
+                await asyncio.to_thread(game_thread.join, 2)
+                if game_thread.is_alive():
+                    self.logger.warning("Game scheduler did not stop within two seconds")
+
+    def _run_game_loop(self, game_service):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         try:
-            loop.run_until_complete(self.injector.get(GameService).start())
+            loop.run_until_complete(game_service.start())
         except Exception as e:
             self.logger.error(f"Game loop error: {e}", exc_info=True)
         finally:

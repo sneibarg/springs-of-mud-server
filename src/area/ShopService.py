@@ -17,11 +17,8 @@ class ShopService(FetchAndRegisterMixin):
         self.shop_registry = shop_registry
         self.load_shops()
 
-    def reload_shops(self):
-        self.logger.info("Reloading shops...")
-        self.shop_registry.reset()
-        self.load_shops()
-        self.logger.info("Shops reload completed.")
+    def reload_shops(self) -> bool:
+        return self._reload_collection(self.shops_endpoint, "shops", self.shop_registry)
 
     def load_shops(self):
         self._fetch_and_register(self.shops_endpoint, "shops")

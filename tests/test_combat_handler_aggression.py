@@ -337,7 +337,7 @@ class TestFightHandlerAggression(unittest.TestCase):
             self.assertTrue(character.status_flags.act & int(_PlayerActBits.PLR_KILLER))
             self.assertIsNone(character.fighting)
             return True
-        handler.character_service.save_character.side_effect = save
+        handler.character_service.queue_save_character.side_effect = save
         payload = handler.check_killer(attacker, victim)
         self.assertEqual(9, attacker.status_flags.act)
         self.assertEqual("*** You are now a KILLER!! ***\r\n", payload["to_char"])
@@ -345,7 +345,7 @@ class TestFightHandlerAggression(unittest.TestCase):
         self.assertEqual("WIZ_FLAGS", payload["wiznet_flag"])
         self.assertIs(attacker, payload["wiznet_actor"])
         self.assertEqual({}, handler.check_killer(attacker, victim))
-        handler.character_service.save_character.assert_called_once_with(attacker)
+        handler.character_service.queue_save_character.assert_called_once_with(attacker)
 
     def test_check_killer_exemptions_do_not_mark_or_save(self):
         for case in ("npc_victim", "killer_victim", "thief_victim", "npc_attacker", "self",
@@ -373,7 +373,7 @@ class TestFightHandlerAggression(unittest.TestCase):
                 before = attacker.status_flags.act
                 self.assertEqual({}, handler.check_killer(attacker, victim))
                 self.assertEqual(before, attacker.status_flags.act)
-                handler.character_service.save_character.assert_not_called()
+                handler.character_service.queue_save_character.assert_not_called()
 
     def test_check_killer_follows_nested_charm_owner_and_owner_flags(self):
         for owner_flags in (0, _PlayerActBits.PLR_KILLER, _PlayerActBits.PLR_THIEF):
@@ -387,9 +387,9 @@ class TestFightHandlerAggression(unittest.TestCase):
                 self.assertEqual(not bool(owner_flags), bool(payload))
                 if payload:
                     self.assertIn("Victim", payload["to_wiznet"])
-                    handler.character_service.save_character.assert_called_once_with(attacker)
+                    handler.character_service.queue_save_character.assert_called_once_with(attacker)
                 else:
-                    handler.character_service.save_character.assert_not_called()
+                    handler.character_service.queue_save_character.assert_not_called()
 
     def test_check_killer_breaks_charmed_attacker_follower_and_pet_links(self):
         attacker, victim, handler = self._killer_pair()
@@ -408,7 +408,7 @@ class TestFightHandlerAggression(unittest.TestCase):
         self.assertEqual("Attacker stops following you.\r\n", payload["global_message"])
         self.assertEqual([master], payload["global_targets"])
         self.assertEqual(0, master.status_flags.act)
-        handler.character_service.save_character.assert_not_called()
+        handler.character_service.queue_save_character.assert_not_called()
 
     def test_check_killer_repairs_orphaned_charm_without_marking(self):
         attacker, victim, handler = self._killer_pair()
@@ -418,7 +418,7 @@ class TestFightHandlerAggression(unittest.TestCase):
         self.assertEqual(0, attacker.status_flags.affected_by)
         handler.effect_handler.affect_strip.assert_called_once_with(attacker, "spell.charm_person")
         handler.logger.error.assert_called_once()
-        handler.character_service.save_character.assert_not_called()
+        handler.character_service.queue_save_character.assert_not_called()
 
     def test_check_killer_exempt_victim_does_not_break_attacker_charm(self):
         attacker, victim, handler = self._killer_pair()
@@ -441,7 +441,7 @@ class TestFightHandlerAggression(unittest.TestCase):
         room.player_targets = lambda _actor: []
         payload = handler.build_round_payload(attacker, victim, room, result)
         self.assertEqual(result["to_wiznet"], payload["to_wiznet"])
-        handler.character_service.save_character.assert_called_once_with(attacker)
+        handler.character_service.queue_save_character.assert_called_once_with(attacker)
 
     def test_round_emitter_routes_wiznet_through_existing_handler(self):
         attacker, victim, handler = self._killer_pair()
@@ -499,7 +499,7 @@ class TestFightHandlerAggression(unittest.TestCase):
         spell_api.check_offensive_cast(ctx)
         spell_api.start_offensive_combat(ctx)
         self.assertTrue(attacker.status_flags.act & int(_PlayerActBits.PLR_KILLER))
-        handler.character_service.save_character.assert_called_once_with(attacker)
+        handler.character_service.queue_save_character.assert_called_once_with(attacker)
         handler.multi_hit.assert_called_once_with(victim, attacker, dt="TYPE_UNDEFINED")
         self.assertEqual("WIZ_FLAGS", ctx.queue_payload.call_args_list[0].args[0]["wiznet_flag"])
         self.assertIs(victim, ctx.queue_payload.call_args.args[0]["actor"])
@@ -550,7 +550,7 @@ class TestFightHandlerAggression(unittest.TestCase):
         self.assertTrue(attacker.status_flags.act & int(_PlayerActBits.PLR_KILLER))
         self.assertIs(attacker.fighting, victim)
         self.assertTrue(result["to_char"].startswith("*** You are now a KILLER!! ***"))
-        handler.character_service.save_character.assert_called_once_with(attacker)
+        handler.character_service.queue_save_character.assert_called_once_with(attacker)
 
     def test_failed_disarm_still_checks_killer_and_returns_notices(self):
         replacements = {name: SimpleNamespace(**{attr: object}) for name, attr in (
@@ -583,7 +583,7 @@ class TestFightHandlerAggression(unittest.TestCase):
         commands._room_targets = Mock(return_value=[])
         result = commands.do_disarm(attacker, SimpleNamespace(finish=Mock()))
         self.assertEqual("WIZ_FLAGS", result["payloads"][0]["wiznet_flag"])
-        handler.character_service.save_character.assert_called_once_with(attacker)
+        handler.character_service.queue_save_character.assert_called_once_with(attacker)
 
     def test_notice_merge_preserves_damage_rewards_without_duplication(self):
         merged = FightHandler._merge_attack_payloads(
@@ -1118,7 +1118,7 @@ class TestFightHandlerAggression(unittest.TestCase):
         handler.RoomFlags = _RoomFlags
         handler.PlayerActBits = _PlayerActBits
         handler.shop_registry = SimpleNamespace(find_by_keeper_vnum=Mock(return_value=None))
-        handler.character_service = SimpleNamespace(save_character=Mock(return_value=True))
+        handler.character_service = SimpleNamespace(queue_save_character=Mock(return_value=True))
         handler.effect_handler = SimpleNamespace(affect_strip=Mock())
         handler.wiz_handler = SimpleNamespace(wiznet_targets=Mock(return_value=[]))
         handler.AffectBits = _AffectBits

@@ -27,17 +27,15 @@ class InterpService(FetchAndRegisterMixin):
         self._build_help_indexes()
         self.load_commands()
 
-    def reload_commands(self) -> None:
-        self.logger.info("Reloading all commands...")
-        self.interp_registry.reset()
-        self.load_commands()
-        self.logger.info("Commands reload completed.")
+    def reload_commands(self) -> bool:
+        self._build_help_indexes()
+        return self._reload_collection(self.commands_endpoint, "commands", self.interp_registry)
+
+    def _reload_extra_items(self):
+        return (self._build_summary_command(),)
 
     def load_commands(self):
-        self.interp_registry.reset()
-        self._build_help_indexes()
-        self._fetch_and_register(self.commands_endpoint, "all commands")
-        self.interp_registry.register(self._build_summary_command())
+        return self.reload_commands()
 
     def load_command(self, command_name: str):
         url = f"{self.commands_endpoint}/name/{command_name}"

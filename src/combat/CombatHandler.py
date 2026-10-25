@@ -306,7 +306,7 @@ class FightHandler:
                 or attacker.fighting is victim):
             return {}
         CharacterApi.set_act_flags(attacker, CharacterApi.enum_bit(self.PlayerActBits, "PLR_KILLER"))
-        self.character_service.save_character(attacker)
+        self.character_service.queue_save_character(attacker)
         return {
             "to_char": "*** You are now a KILLER!! ***\r\n",
             "to_wiznet": f"{attacker.name} is attempting to murder {victim.name}",
@@ -875,7 +875,7 @@ class FightHandler:
             return {}
         self.effect_handler.affect_strip(attacker, "spell.invis")
         self.effect_handler.affect_strip(attacker, "spell.mass_invis")
-        attacker.status_flags.affected_by &= ~bit
+        attacker.status_flags.unset_flag("affected_by", bit)
         spell = self.spell_registry.get_or_none(name="invisibility")
         room = self._find_room_for_entity(attacker)
         text = self._render_skill_message(spell, "to_room", "reveal", victim=self._combat_target_name(attacker)) if spell else ""
@@ -1513,18 +1513,13 @@ class FightHandler:
 
     @staticmethod
     def _decrement_combat_timers(entity) -> None:
-        if CharacterApi.is_npc(entity):
-            if hasattr(entity, "pulse_wait"):
-                entity.pulse_wait = max(0, GenericUtil.to_int(getattr(entity, "pulse_wait", 0), 0) - 12)
-            if hasattr(entity, "pulse_daze"):
-                entity.pulse_daze = max(0, GenericUtil.to_int(getattr(entity, "pulse_daze", 0), 0) - 12)
+        # Connected players and controlled bodies recover once per input pulse.
+        if not CharacterApi.is_npc(entity) or (getattr(entity, "context", None) or {}).get("controller_original"):
             return
-
-        status_flags = getattr(entity, "status_flags", None)
-        if status_flags is None:
-            return
-        status_flags.pulse_wait = max(0, GenericUtil.to_int(getattr(status_flags, "pulse_wait", 0), 0) - 12)
-        status_flags.pulse_daze = max(0, GenericUtil.to_int(getattr(status_flags, "pulse_daze", 0), 0) - 12)
+        flags = getattr(entity, "status_flags", None)
+        if flags is not None:
+            for name in ("pulse_wait", "pulse_daze"):
+                setattr(flags, name, max(0, GenericUtil.to_int(getattr(flags, name, 0), 0) - 12))
 
     def _mob_has_off(self, entity, off_name: str) -> bool:
         bit = CharacterApi.enum_bit(self.OffenseTypes, off_name)

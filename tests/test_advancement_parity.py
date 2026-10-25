@@ -36,7 +36,7 @@ class AdvancementParityTests(unittest.TestCase):
         ch.character_attributes.accumulated_experience = 5999
         ch.character_attributes.points = 40
         saves = []
-        service = NS(save_character=lambda character: saves.append(character.level))
+        service = NS(queue_save_character=lambda character: saves.append(character.level))
         recipient = NS(id='admin')
         wiz = Mock(wiznet_targets=Mock(return_value=[recipient]))
         wiz.decorate_wiznet_text.side_effect = lambda recipient, text: '--> ' + text

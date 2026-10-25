@@ -516,7 +516,7 @@ class Wiz:
             if hasattr(target, "character_attributes") and getattr(target, "character_attributes", None) is not None:
                 CharacterApi.set_position(target, "POS_STANDING")
             if CharacterApi.is_npc(target) and aggressive:
-                target.status_flags.act = CharacterApi.unset_bit(getattr(target.status_flags, "act", 0), aggressive)
+                CharacterApi.unset_act_flags(target, aggressive)
         context.finish()
         return {"to_char": "Ok.\r\n"}
 
@@ -1302,20 +1302,20 @@ class Wiz:
         except KeyError:
             return
 
-    def _save_deny_list(self) -> bool:
+    def _save_deny_list(self):
         if self.game_service is None:
             return False
-        return self.game_service.save_deny_list()
+        return self.game_service.queue_save_deny_list()
 
-    def _save_player(self, player) -> bool:
+    def _save_player(self, player):
         if self.player_service is None:
             return False
-        return self.player_service.save_player(player)
+        return self.player_service.queue_save_player(player)
 
-    def _save_character(self, character) -> bool:
+    def _save_character(self, character):
         if self.character_service is None:
             return False
-        return self.character_service.save_character(character)
+        return self.character_service.queue_save_character(character)
 
     def _player_account_for_character(self, character):
         if character is None:

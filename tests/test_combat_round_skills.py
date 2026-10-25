@@ -104,6 +104,24 @@ class TestCombatRoundSkills(unittest.TestCase):
         handler.rng = SimpleNamespace(number_range=Mock(side_effect=[0, number]))
         return handler
 
+    def test_npc_skill_wait_recovers_over_successive_rounds(self):
+        handler = self.selector(3)
+        handler.rng.number_range.side_effect = [0, 3, 0, 3]
+        def kick(actor, context):
+            actor.status_flags.pulse_wait = 25
+            actor.status_flags.pulse_daze = 13
+            return {"to_char": "kick"}
+        self.commands.do_kick.side_effect = kick
+        self.assertTrue(handler.after_round(self.actor))
+        for expected in ((13, 1), (1, 0)):
+            self.combat._decrement_combat_timers(self.actor)
+            self.assertEqual(expected, (self.actor.status_flags.pulse_wait, self.actor.status_flags.pulse_daze))
+            self.assertEqual([], handler.after_round(self.actor))
+        self.combat._decrement_combat_timers(self.actor)
+        self.assertEqual((0, 0), (self.actor.status_flags.pulse_wait, self.actor.status_flags.pulse_daze))
+        self.assertTrue(handler.after_round(self.actor))
+        self.assertEqual(2, self.commands.do_kick.call_count)
+
     def test_all_npc_choices_keep_noop_slots_and_command_context(self):
         for number, name in enumerate(("bash", "berserk", "disarm", "kick", "dirt", None, "trip", None, "backstab")):
             with self.subTest(number=number):

@@ -17,11 +17,8 @@ class ResetService(FetchAndRegisterMixin):
         self.reset_registry = reset_registry
         self.load_resets()
 
-    def reload_resets(self):
-        self.logger.info("Reloading resets...")
-        self.reset_registry.reset()
-        self.load_resets()
-        self.logger.info("Resets reload completed.")
+    def reload_resets(self) -> bool:
+        return self._reload_collection(self.resets_endpoint, "resets", self.reset_registry)
 
     def load_resets(self):
         self._fetch_and_register(self.resets_endpoint, "resets")

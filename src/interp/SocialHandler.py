@@ -1,5 +1,8 @@
 from injector import inject
 
+from api.CharacterApi import CharacterApi
+from util.LookupUtil import LookupUtil
+
 from area.RoomRegistry import RoomRegistry
 from interp.SocialRegistry import SocialRegistry
 from server.messaging import MessageBus
@@ -19,12 +22,12 @@ class SocialHandler:
         if not text:
             return False
 
-        parts = text.split(" ", 1)
+        parts = text.split(maxsplit=1)
         social_name = parts[0].lower()
         target_name = parts[1].strip() if len(parts) > 1 and parts[1].strip() else None
         social = social or self.social_registry.get(name=social_name)
         room = self.room_registry.get(id=actor.room_id)
-        in_room = room.players_in_room()
+        in_room = [person for person in room.players_in_room() if person is not actor]
         if social is None:
             return False
 
@@ -33,7 +36,8 @@ class SocialHandler:
             await self.message_bus.send_to_room(self.message_bus.text_to_message(self._render(social.others_no_arg, actor) + "\r\n"), in_room)
             return True
 
-        target = room.characters.get(target_name) or None
+        target = LookupUtil.character(room, actor, target_name,
+                                      visible=lambda victim: CharacterApi.can_see(actor, victim, room))
         if target is None:
             await self.message_bus.send_to_character(actor.id, self.message_bus.text_to_message(self._render(social.char_not_found, actor) + "\r\n"))
             return True
@@ -45,7 +49,8 @@ class SocialHandler:
 
         await self.message_bus.send_to_character(actor.id, self.message_bus.text_to_message(self._render(social.char_found, actor, target) + "\r\n"))
         await self.message_bus.send_to_character(target.id, self.message_bus.text_to_message(self._render(social.vict_found, actor, target) + "\r\n"))
-        await self.message_bus.send_to_room(self.message_bus.text_to_message(self._render(social.others_found, actor, target) + "\r\n"), in_room)
+        await self.message_bus.send_to_room(self.message_bus.text_to_message(self._render(social.others_found, actor, target) + "\r\n"),
+                                            [person for person in in_room if person is not target])
         return True
 
     @staticmethod

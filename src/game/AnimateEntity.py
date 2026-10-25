@@ -55,14 +55,17 @@ class AnimateEntity:
             self.lock = threading.RLock()
 
     def get_alignment(self) -> int:
-        return GenericUtil.to_int(self.character_attributes.alignment, 0)
+        # Runtime attributes own alignment; prototypes retain the service field.
+        attrs = getattr(self, "character_attributes", None)
+        owner = attrs if attrs is not None else self
+        return GenericUtil.to_int(getattr(owner, "alignment", 0), 0)
 
     def set_alignment(self, value: int) -> None:
         attrs = self.character_attributes
         if attrs is not None:
             attrs.alignment = int(value)
             return
-        setattr(self, "alignment", int(value))
+        setattr(self, "alignment", str(int(value)))
 
     def his_her(self) -> str:
         sex = str(self.sex or "").strip().lower()

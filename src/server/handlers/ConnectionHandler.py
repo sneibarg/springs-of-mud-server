@@ -301,6 +301,8 @@ class ConnectionHandler:
                 if connection.is_closed() or not (session.is_playing() or session.is_idle()):
                     break
                 session.update_activity()
+                if message.type == MessageType.GAME and not await self._wait_for_action_ready(connection, session):
+                    break
                 character = session.character or character
                 area, room = self._get_area_and_room(character)
                 if message.type == MessageType.GAME and session.metadata.get("paging_active", False):
@@ -322,6 +324,16 @@ class ConnectionHandler:
             except Exception as e:
                 self.logger.error(f"Error in game loop: {e}", exc_info=True)
                 break
+
+    async def _wait_for_action_ready(self, connection, session) -> bool:
+        """Keep typed input ordered; nested/forced commands do not enter this gate."""
+        while not connection.is_closed() and (session.is_playing() or session.is_idle()):
+            character = session.character
+            status = getattr(character, "status_flags", None)
+            if status is None or status.pulse_wait <= 0:
+                return True
+            await asyncio.sleep(0.05)
+        return False
 
     async def _wait_for_message(self, connection: TelnetConnection, session: SessionState) -> Message | None:
         while True:
