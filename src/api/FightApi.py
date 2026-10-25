@@ -237,12 +237,9 @@ class FightApi:
 
     def _resolve_action_skill(self, command_name: str, weapon) -> Any:
         if command_name in {"kill", "hit"}:
-            skill_name = self._active_melee_skill_name(weapon)
+            skill_name = SkillUtil.active_melee_skill_name(weapon, self.fight_handler.WeaponClass)
             return self.skill_registry.get_or_none(name=skill_name)
         return self.skill_registry.get_or_none(name=command_name)
-
-    def _active_melee_skill_name(self, weapon) -> str:
-        return SkillUtil.active_melee_skill_name(weapon, self.fight_handler.WeaponClass)
 
     def _build_checks(self, skill) -> tuple[ActionGuard[FightView], ...]:
         guards: list[ActionGuard[FightView]] = []

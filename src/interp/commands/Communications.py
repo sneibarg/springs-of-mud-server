@@ -94,11 +94,11 @@ class Communications:
 
     def do_qui(self, context: Context):
         context.finish()
-        return self._render_message_key(context, "if_want_quit_spell")
+        return self.interp_api.render_message_key(context, "if_want_quit_spell")
 
     def do_alia(self, context: Context):
         context.finish()
-        return self._render_message_key(context, "must_enter_full")
+        return self.interp_api.render_message_key(context, "must_enter_full")
 
     def do_alias(self, context: Context):
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
@@ -110,11 +110,11 @@ class Communications:
         if not alias_name:
             context.finish()
             if not aliases:
-                return self._render_message_key(context, "no_aliases_defined")
+                return self.interp_api.render_message_key(context, "no_aliases_defined")
             rows = []
             for current_alias, current_replacement in aliases.items():
                 rows.append(
-                    self._render_message_key(
+                    self.interp_api.render_message_key(
                         context,
                         "default",
                         channel="to_char",
@@ -122,15 +122,15 @@ class Communications:
                         replacement=current_replacement,
                     ).get("to_char", "")
                 )
-            return self._render_message_key(context, "current_aliases", s="".join(rows))
+            return self.interp_api.render_message_key(context, "current_aliases", s="".join(rows))
 
         if not replacement:
             context.finish()
-            return self._render_message_key(context, "alias", **AliasApi.alias_tokens(self.interp_api.build_interp_view(context)))
+            return self.interp_api.render_message_key(context, "alias", **AliasApi.alias_tokens(self.interp_api.build_interp_view(context)))
 
         was_existing = AliasApi.set_alias(context.character, alias_name, replacement)
         context.finish()
-        return self._render_message_key(
+        return self.interp_api.render_message_key(
             context,
             "reset" if was_existing else "set",
             alias=alias_name,
@@ -145,7 +145,7 @@ class Communications:
         alias_name = AliasApi.unalias_name(self.interp_api.build_interp_view(context))
         AliasApi.remove_alias(context.character, alias_name)
         context.finish()
-        return self._render_message_key(context, "remove")
+        return self.interp_api.render_message_key(context, "remove")
 
     def do_channels(self, context: Context):
         character = context.character
@@ -190,26 +190,26 @@ class Communications:
         clan_key = self._clan_key(character)
         if not clan_key:
             context.finish()
-            return self._render_message_key(context, "no_clan", channel="to_char")
+            return self.interp_api.render_message_key(context, "no_clan", channel="to_char")
 
         text = CommunicationsUtil.parse_argument(context.result, context.parameters)
         if not text:
             disabled = CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_NOCLAN")
             CommunicationsUtil.set_comm(character, self.comm_flags, "COMM_NOCLAN", not disabled)
             context.finish()
-            return self._render_message_key(context, "enable" if disabled else "disable", channel="to_char")
+            return self.interp_api.render_message_key(context, "enable" if disabled else "disable", channel="to_char")
 
         if CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_QUIET"):
             context.finish()
-            return self._render_message_key(context, "quiet_mode", channel="to_char")
+            return self.interp_api.render_message_key(context, "quiet_mode", channel="to_char")
         if CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_NOCHANNELS"):
             context.finish()
-            return self._render_message_key(context, "no_channels", channel="to_char")
+            return self.interp_api.render_message_key(context, "no_channels", channel="to_char")
 
         CommunicationsUtil.set_comm(character, self.comm_flags, "COMM_NOCLAN", False)
         context.finish()
         return {
-            "to_char": self._render_message_key(context, "default", channel="to_char", s=text).get("to_char", ""),
+            "to_char": self.interp_api.render_message_key(context, "default", channel="to_char", s=text).get("to_char", ""),
             "global_message": f"{self._display_name(character)} clans '{text}'\r\n",
             "global_targets": self._clan_targets(character, clan_key),
         }
@@ -219,14 +219,14 @@ class Communications:
         enabled = CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_DEAF")
         CommunicationsUtil.set_comm(character, self.comm_flags, "COMM_DEAF", not enabled)
         context.finish()
-        return self._render_message_key(context, "disable" if enabled else "enable")
+        return self.interp_api.render_message_key(context, "disable" if enabled else "enable")
 
     def do_quiet(self, context: Context):
         character = context.character
         enabled = CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_QUIET")
         CommunicationsUtil.set_comm(character, self.comm_flags, "COMM_QUIET", not enabled)
         context.finish()
-        return self._render_message_key(context, "disable" if enabled else "enable")
+        return self.interp_api.render_message_key(context, "disable" if enabled else "enable")
 
     def do_afk(self, context: Context):
         character = context.character
@@ -237,7 +237,7 @@ class Communications:
             enabled = False
         CommunicationsUtil.set_comm(character, self.comm_flags, "COMM_AFK", enabled)
         context.finish()
-        return self._render_message_key(context, "disable" if enabled else "enable")
+        return self.interp_api.render_message_key(context, "disable" if enabled else "enable")
 
     def do_replay(self, context: Context):
         character = context.character
@@ -386,7 +386,7 @@ class Communications:
             return payload
         if await self.character_service.save_character_async(character):
             return payload
-        return self._render_message_key(context, "failed")
+        return self.interp_api.render_message_key(context, "failed")
 
     def do_follow(self, context: Context):
         character = context.character
@@ -515,7 +515,7 @@ class Communications:
             "s_poss": s_poss,
             "m_pronoun": m_pronoun,
         }
-        payload = self._render_message_key(context, message_key)
+        payload = self.interp_api.render_message_key(context, message_key)
         payload["victim"] = victim
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=getattr(context.character, "room_id", ""))
         targets = []
@@ -535,7 +535,7 @@ class Communications:
             is_off = CommunicationsUtil.has_comm(character, self.comm_flags, off_flag)
             CommunicationsUtil.set_comm(character, self.comm_flags, off_flag, not is_off)
             context.finish()
-            return self._render_message_key(context, "enable" if is_off else "disable")
+            return self.interp_api.render_message_key(context, "enable" if is_off else "disable")
 
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
@@ -576,17 +576,14 @@ class Communications:
         victim.context["reply_to"] = character.id
         context.interp_tokens = {"t": victim.name, "s": message}
 
-        payload = self._render_message_key(context, "default")
+        payload = self.interp_api.render_message_key(context, "default")
         payload["victim"] = victim
         self.communications_api.append_tell_buffer(victim, character, payload.get("to_victim", ""))
         if CommunicationsUtil.has_comm(victim, self.comm_flags, "COMM_AFK"):
-            payload["to_char"] = payload.get("to_char", "") + self._render_message_key(context, "target_afk",
+            payload["to_char"] = payload.get("to_char", "") + self.interp_api.render_message_key(context, "target_afk",
                                                                                        channel="to_char").get("to_char",
                                                                                                               "")
         return payload
-
-    def _render_message_key(self, context: Context, message_key: str, channel: str = "", **tokens):
-        return self.interp_api.render_message_key(context, message_key, channel=channel, **tokens)
 
     def _clan_targets(self, character, clan_key: str) -> list:
         targets = []
@@ -625,7 +622,7 @@ class Communications:
         return text
 
     def _blocked_message(self, context: Context, message_key: str, channel: str = "", **tokens):
-        payload = self._render_message_key(context, message_key, channel=channel, **tokens)
+        payload = self.interp_api.render_message_key(context, message_key, channel=channel, **tokens)
         payload["blocked"] = True
         return payload
 
@@ -644,7 +641,7 @@ class Communications:
 
     def _follow_payload(self, context: Context, message_key: str, victim) -> dict:
         context.interp_tokens = {"t": getattr(victim, "name", "")}
-        payload = self._render_message_key(context, message_key)
+        payload = self.interp_api.render_message_key(context, message_key)
         payload["victim"] = victim
         if not self._can_receive_follow_notice(context, victim, context.character):
             payload.pop("to_victim", None)

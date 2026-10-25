@@ -1,7 +1,5 @@
 import asyncio
 from copy import deepcopy
-from dataclasses import is_dataclass
-from enum import Enum
 from typing import Any
 
 import requests
@@ -12,11 +10,14 @@ from player.CharacterRegistry import CharacterRegistry
 from player.CharacterRace import CharacterRace
 from server.FetchAndRegisterMixin import FetchAndRegisterMixin
 from server.BackgroundIO import submit
+from server.WireCodec import serialize_wire_value
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 
 
 class CharacterService(FetchAndRegisterMixin):
+    _WIRE_EXCLUDED_FIELDS = frozenset({"room_data"})
+
     @inject
     def __init__(self, config: ServiceConfig, character_registry: CharacterRegistry):
         self.__name__ = "CharacterService"
@@ -108,23 +109,19 @@ class CharacterService(FetchAndRegisterMixin):
             "gold": character.gold,
             "silver": character.silver,
             "trust": character.trust,
-            "inventory": [cls._serialize_value(item) for item in cls._inventory_items(character)],
-            "effects": cls._serialize_value(character.effects),
-            "skills": cls._serialize_value(character.skills),
-            "spells": cls._serialize_value(character.spells),
+            "inventory": serialize_wire_value(character.get_items(), excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
+            "effects": serialize_wire_value(character.effects, excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
+            "skills": serialize_wire_value(character.skills, excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
+            "spells": serialize_wire_value(character.spells, excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
             "groups": list(character.groups),
-            "aliases": dict(getattr(character, "aliases", {})),
-            "statusFlags": cls._serialize_value(character.status_flags),
-            "characterAttributes": cls._serialize_value(character.character_attributes),
-            "armorClass": cls._serialize_value(character.armor_class),
-            "characterClass": cls._serialize_value(character.character_class),
+            "aliases": serialize_wire_value(getattr(character, "aliases", {}), excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
+            "statusFlags": serialize_wire_value(character.status_flags, excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
+            "characterAttributes": serialize_wire_value(character.character_attributes, excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
+            "armorClass": serialize_wire_value(character.armor_class, excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
+            "characterClass": serialize_wire_value(character.character_class, excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
             "promptFormat": cls._serialize_prompt_format(character.prompt_format),
-            "equipped": cls._serialize_value(character.equipped),
+            "equipped": serialize_wire_value(character.equipped, excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
         }
-
-    @staticmethod
-    def _inventory_items(character: Character) -> list[Any]:
-        return list(character.get_items())
 
     @staticmethod
     def _serialize_character_race(character_race: CharacterRace | None) -> dict[str, Any]:
@@ -146,31 +143,6 @@ class CharacterService(FetchAndRegisterMixin):
             "maxConstitution": race.max_constitution,
             "size": race.size,
         }
-
-    @classmethod
-    def _serialize_value(cls, value: Any) -> Any:
-        if value is None:
-            return None
-        if isinstance(value, (str, int, float, bool)):
-            return value
-        if isinstance(value, Enum):
-            return value.value
-        if isinstance(value, list):
-            return [cls._serialize_value(item) for item in value]
-        if isinstance(value, tuple):
-            return [cls._serialize_value(item) for item in value]
-        if isinstance(value, set):
-            return [cls._serialize_value(item) for item in value]
-        if isinstance(value, dict):
-            return {cls._camelize(str(key)): cls._serialize_value(item) for key, item in value.items()}
-        if is_dataclass(value):
-            data = {}
-            for field_name in value.__dataclass_fields__:
-                if field_name in {"room_data"}:
-                    continue
-                data[cls._camelize(field_name)] = cls._serialize_value(getattr(value, field_name))
-            return data
-        return value
 
     @staticmethod
     def _serialize_prompt_format(prompt_format) -> dict[str, bool]:
@@ -195,10 +167,3 @@ class CharacterService(FetchAndRegisterMixin):
             "area_name": bool(prompt_format.area_name),
             "carriage_return": bool(prompt_format.carriage_return),
         }
-
-    @staticmethod
-    def _camelize(name: str) -> str:
-        if "_" not in name:
-            return name
-        head, *tail = name.split("_")
-        return head + "".join(part.capitalize() for part in tail)

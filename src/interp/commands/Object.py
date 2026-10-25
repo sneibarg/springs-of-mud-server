@@ -726,16 +726,12 @@ class Object:
 
     def _has_weapon_flags(self, item, *flag_names: str) -> bool:
         raw = GameApi.flags_to_int(getattr(item, "value4", 0))
-        return any((raw & self._enum_bit(self.weapon_type, flag_name)) != 0 for flag_name in flag_names)
+        return any((raw & EnumUtil.value(self.weapon_type, flag_name)) != 0 for flag_name in flag_names)
 
     def _set_weapon_flag(self, item, flag_name: str) -> None:
-        bit = self._enum_bit(self.weapon_type, flag_name)
+        bit = EnumUtil.value(self.weapon_type, flag_name)
         if bit:
             item.value4 = str(GameApi.flags_to_int(getattr(item, "value4", 0)) | bit)
-
-    @staticmethod
-    def _enum_bit(enum_obj, name: str) -> int:
-        return EnumUtil.value(enum_obj, name)
 
     def do_put(self, character: Character, context: Context):
         room = self._prepare_put_context(character, context)
@@ -1126,9 +1122,6 @@ class Object:
             "targets": room.player_targets(character),
         }
 
-    def _shop_carried_item(self, character, room, selector):
-        return self._inventory_item(character, room, selector)
-
     def _prepare_sell_context(self, character: Character, context: Context):
         raw = (context.result if isinstance(context.result, str) else "").strip()
         if not raw and context.parameters:
@@ -1163,7 +1156,7 @@ class Object:
         if keeper is None or shop is None:
             return room
 
-        obj = self._shop_carried_item(character, room, raw)
+        obj = self._inventory_item(character, room, raw)
         context.sell_obj = obj
         if obj is None:
             return room
@@ -1220,7 +1213,7 @@ class Object:
         if keeper is None or shop is None:
             return room
 
-        obj = self._shop_carried_item(character, room, raw)
+        obj = self._inventory_item(character, room, raw)
         context.value_item = obj
         if obj is None:
             return room

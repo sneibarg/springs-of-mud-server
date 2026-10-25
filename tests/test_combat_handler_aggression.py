@@ -559,7 +559,7 @@ class TestFightHandlerAggression(unittest.TestCase):
             ("item.Effect", "Effect"), ("api.InterpApi", "InterpApi"),
             ("api.SkillApi", "SkillApi"), ("api.SpellApi", "SpellApi"),
             ("skill.SpellContext", "SpellContext"), ("util.MovementUtil", "MovementUtil"),
-            ("util.PayloadUtil", "PayloadUtil"), ("util.PlayerUtil", "PlayerUtil"))}
+            ("util.PlayerUtil", "PlayerUtil"))}
         replacements["combat.CombatHandler"] = SimpleNamespace(FightHandler=FightHandler)
         with unittest.mock.patch.dict(sys.modules, replacements):
             spec = importlib.util.spec_from_file_location("_test_killer_fight_commands", SRC / "interp/commands/Fight.py")
@@ -579,7 +579,6 @@ class TestFightHandlerAggression(unittest.TestCase):
         commands._set_wait = Mock()
         commands._skill_beats = Mock(return_value=12)
         commands._check_improve = Mock()
-        commands._command_payload = Mock(return_value={"to_char": "failed"})
         commands._room_targets = Mock(return_value=[])
         result = commands.do_disarm(attacker, SimpleNamespace(finish=Mock()))
         self.assertEqual("WIZ_FLAGS", result["payloads"][0]["wiznet_flag"])

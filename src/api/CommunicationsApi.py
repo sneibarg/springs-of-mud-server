@@ -25,9 +25,6 @@ class CommunicationsApi(GameApi):
     _tell_buffer: dict[str, List[BufferedMessage]] = {}
     _logger = None
 
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-
     @classmethod
     def reset_for_tests(cls) -> None:
         with cls._lock:
@@ -90,7 +87,7 @@ class CommunicationsApi(GameApi):
         if override is not None:
             return override
 
-        player_handler = cls._player_handler(view)
+        player_handler = view.context.player_handler()
         if player_handler is None:
             return None
         session_handler = player_handler.communications_commands.session_handler
@@ -110,7 +107,7 @@ class CommunicationsApi(GameApi):
         if override is not None:
             return override
 
-        player_handler = cls._player_handler(view)
+        player_handler = view.context.player_handler()
         if player_handler is None:
             return None
         room = getattr(view.context, "room", None)
@@ -424,7 +421,7 @@ class CommunicationsApi(GameApi):
         room = getattr(view.context, "room", None)
         if room is not None:
             return room
-        player_handler = cls._player_handler(view)
+        player_handler = view.context.player_handler()
         room_registry = None if player_handler is None else getattr(player_handler, "room_registry", None)
         return None if room_registry is None else room_registry.get_or_none(id=getattr(view.context.character, "room_id", ""))
 
@@ -440,7 +437,7 @@ class CommunicationsApi(GameApi):
 
     @classmethod
     def all_known_people(cls, view: InterpView) -> list[Any]:
-        player_handler = cls._player_handler(view)
+        player_handler = view.context.player_handler()
         room_registry = None if player_handler is None else getattr(player_handler, "room_registry", None)
         all_rooms = getattr(room_registry, "all_rooms", None)
         if not callable(all_rooms):
@@ -494,7 +491,7 @@ class CommunicationsApi(GameApi):
         if not target_id:
             return None
 
-        player_handler = cls._player_handler(view)
+        player_handler = view.context.player_handler()
         if player_handler is None:
             return None
         registry = player_handler.character_registry
@@ -507,10 +504,6 @@ class CommunicationsApi(GameApi):
     @classmethod
     def reply_target_blocks_tells(cls, view: InterpView) -> bool:
         return cls._target_blocks_tells(cls.reply_target(view))
-
-    @staticmethod
-    def _player_handler(view: InterpView):
-        return view.context.player_handler()
 
     @classmethod
     def _target_blocks_tells(cls, target) -> bool:

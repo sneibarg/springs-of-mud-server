@@ -49,15 +49,11 @@ class Ability:
         payload = GenericUtil.camel_to_snake_case(data)
         payload["id"] = cls._extract_id(data, payload)
         payload["payload"] = GamePayload.from_json(payload.get("payload"))
-        payload["guards"] = cls._normalize_checks(payload.get("guards"))
+        payload["guards"] = normalize_guards(payload.get("guards"))
         payload.pop("msg_off", None)
         payload.pop("msg_obj", None)
         payload.pop("_id", None)
         return payload
-
-    @staticmethod
-    def _normalize_checks(value: Any) -> list[dict[str, Any]]:
-        return normalize_guards(value)
 
     @staticmethod
     def _extract_id(source: dict[str, Any], payload: dict[str, Any]) -> str:

@@ -192,6 +192,12 @@ Extract one small pure normalization function at a shared content-contract bound
 
 Use a small shared codec for value conversion with explicit wire fields and caller-owned exclusions. Preserve user mapping keys. Keep the account and character payload schemas separate, including the prompt adapter's special field names. Round-trip tests should cover nested items/effects, enums, aliases, and omission of runtime-only state. Avoid an ORM or blanket `asdict` replacement.
 
+**Follow-up status - addressed October 25, 2026:** CharacterService and PlayerService now delegate recursive conversion and field-name camelization to `server.WireCodec`. The codec treats dataclass fields as schema names and preserves dictionary keys verbatim, including nested user mappings and collision-prone underscore/camelCase names. Raw dictionary records retain their supplied wire keys rather than having their schema inferred. Enum values and supported sequences become JSON values; conversion builds independent containers. Services retain their explicit, separate top-level payload schemas and caller-owned dataclass exclusions. The character race/prompt adapters remain explicit, including the prompt contract's underscore field names. Aliases use the same shared conversion path rather than a special-case key-preservation workaround. No ORM or blanket `asdict` conversion was added.
+
+**D2 validation:** 105 test executions passed across eight isolated focused modules: the shared codec (7), item persistence (9), social/alias/prompt regressions (4), input wait/persistence (11), fullness/hunger (14), reload/live autosave (15), communications commands (38), and runtime ownership (7). Coverage includes real account/character JSON round trips, nested inventory/equipment and effects, ordinary/IntEnum values, tuples/sets, collision-prone mapping keys, alias persistence, prompt special fields, caller-specific recursive exclusions, class-variable omission, top-level runtime-state omission, and output isolation. `git diff --check` passed. Async suites used Windows asyncio local socket access. No live persistence endpoint was exercised; earlier repository-wide failures were not rerun.
+
+**D2 cleanup:** removed the unused `_camelize` wrappers and the delegating `_serialize_value` wrappers. Service payload builders call `serialize_wire_value` explicitly with their own exclusion policies; tests call the codec directly or exercise complete payload round trips. All 45 focused serializer, item, fullness, alias/prompt, and persistence test executions passed after this cleanup. No wrapper references remain under `src` or `tests`; `git diff --check` passed.
+
 ### D3 — Make state ownership consistent before adding abstractions
 
 F2, F6, and F7 show the cost of maintaining competing representations of flags, timers, and alignment. Continue the existing `AnimateEntity`/`StatusFlags` direction: expose small invariant-preserving operations, use them from callers, and keep wire-format adaptation at loading/saving boundaries. Do not introduce separate player/NPC algorithms for state that already has a shared runtime contract.
@@ -280,3 +286,7 @@ Probes used actual models and selected content, with mocked registries, HTTP fai
 3. Correct NPC timer/alignment ownership (F6/F7), then the localized social, pmote, alias, and prompt failures (F8–F11).
 4. Make reload/persistence enumeration resilient (F12/F13), and repair test import isolation and stale fixtures so the prescribed aggregate check becomes useful.
 5. Consolidate the demonstrated duplicated knowledge in D1/D2 only after behavior is protected by those regression tests.
+
+## Wrapper cleanup follow-up
+
+The subsequent repository-wide wrapper pass removed 32 unnecessary forwarding methods, normalized the inventory item-list type, and updated callers/tests to use their implementation owners directly. See [Python wrapper review](C:/Users/scott/PycharmProjects/springs-of-mud-server/docs/reports/python-wrapper-review-2026-10-25.md) for the removal inventory, retained contracts, verification, and the seven previously recorded failing test modules.

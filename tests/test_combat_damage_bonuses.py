@@ -41,7 +41,8 @@ class TestCombatDamageBonuses(unittest.TestCase):
             with self.subTest(daze=daze, drunk=drunk):
                 self.attacker.status_flags.pulse_daze = daze
                 self.attacker.status_flags.drunk = drunk
-                with patch.object(Runtime.Character, "get_learned", return_value=99), \
+                with patch.object(Runtime.SkillUtil, "weapon_skill_name", return_value="sword"), \
+                patch.object(Runtime.Character, "get_learned", return_value=99), \
                         patch.object(Runtime.Character, "learned_entry_level", side_effect=lambda value: value):
                     self.assertEqual(expected, self.handler._skill_percent(self.attacker, "second attack"))
                     self.assertEqual(expected, self.handler._defense_skill_percent(self.attacker, "parry"))
@@ -67,8 +68,8 @@ class TestCombatDamageBonuses(unittest.TestCase):
     def test_weapon_proficiency_retains_separate_unpenalized_lookup(self):
         self.attacker.status_flags.pulse_daze = 1
         self.attacker.status_flags.drunk = 20
-        self.handler._weapon_skill_name = Mock(return_value="sword")
-        with patch.object(Runtime.Character, "get_learned", return_value=99), \
+        with patch.object(Runtime.SkillUtil, "weapon_skill_name", return_value="sword"), \
+                patch.object(Runtime.Character, "get_learned", return_value=99), \
                 patch.object(Runtime.Character, "learned_entry_level", side_effect=lambda value: value):
             self.assertEqual(59, self.handler._skill_percent(self.attacker, "sword"))
             self.assertEqual(119, self.handler._weapon_skill_total(self.attacker, object()))

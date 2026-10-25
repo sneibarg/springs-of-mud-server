@@ -221,7 +221,7 @@ class Info:
         if arg == "":
             display_lines = current_lines + 2 if current_lines > 0 else 0
             context.finish()
-            return self._render_message_key(context, "default", channel="to_char", n=display_lines).get("to_char", "")
+            return self.interp_api.render_message_key(context, "default", channel="to_char", n=display_lines).get("to_char", "")
 
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
@@ -230,10 +230,10 @@ class Info:
         lines = context.scroll_lines
         if lines == 0:
             character.context["scroll_lines"] = 0
-            return self._render_message_key(context, "disable", channel="to_char").get("to_char", "")
+            return self.interp_api.render_message_key(context, "disable", channel="to_char").get("to_char", "")
 
         character.context["scroll_lines"] = lines - 2
-        return self._render_message_key(context, "set", channel="to_char", n=lines).get("to_char", "")
+        return self.interp_api.render_message_key(context, "set", channel="to_char", n=lines).get("to_char", "")
 
     def do_wimpy(self, character: Character, context: Context) -> str:
         if CharacterApi.is_npc(character):
@@ -261,7 +261,7 @@ class Info:
 
         attributes.wimpy = wimpy
         context.finish()
-        return self._render_message_key(context, "set", channel="to_char", d=wimpy).get("to_char", "")
+        return self.interp_api.render_message_key(context, "set", channel="to_char", d=wimpy).get("to_char", "")
 
     def do_score(self, character: Character, context: Context) -> str:
         attributes = getattr(character, "character_attributes", None)
@@ -522,7 +522,7 @@ class Info:
         else:
             character.title = argument
 
-        return self._render_message_key(context, "default", channel="to_char").get("to_char", "")
+        return self.interp_api.render_message_key(context, "default", channel="to_char").get("to_char", "")
 
     def do_description(self, character: Character, context: Context) -> str:
         argument = (context.result if isinstance(context.result, str) else "").strip()
@@ -597,7 +597,7 @@ class Info:
         argument = self._argument_text(context)
         if argument:
             context.finish()
-            return self._render_message_key(context, "no_argument_used_with", channel="to_char").get("to_char", "")
+            return self.interp_api.render_message_key(context, "no_argument_used_with", channel="to_char").get("to_char", "")
 
         areas = sorted(
             list(getattr(self.area_registry, "all_areas", lambda: [])() or []),
@@ -667,8 +667,8 @@ class Info:
         if group is None:
             context.finish()
             return (
-                self._render_message_key(context, "no_group_name_exist", channel="to_char").get("to_char", "")
-                + self._render_message_key(context, "type_groups_all_info", channel="to_char").get("to_char", "")
+                self.interp_api.render_message_key(context, "no_group_name_exist", channel="to_char").get("to_char", "")
+                + self.interp_api.render_message_key(context, "type_groups_all_info", channel="to_char").get("to_char", "")
             )
 
         members = [str(name) for name in list(getattr(group, "spells", []) or []) + list(getattr(group, "skills", []) or []) if str(name or "").strip()]
@@ -769,37 +769,37 @@ class Info:
     def do_autoassist(self, character: Character, context: Context) -> str:
         CharacterApi.toggle_player_act(character, "PLR_AUTOASSIST", "Autoassist removed.\r\n", "You will now assist when needed.\r\n")
         context.finish()
-        return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOASSIST") else "disable", channel="to_char").get("to_char", "")
+        return self.interp_api.render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOASSIST") else "disable", channel="to_char").get("to_char", "")
 
     def do_autoexit(self, character: Character, context: Context) -> str:
         CharacterApi.toggle_player_act(character, "PLR_AUTOEXIT", "Exits will no longer be displayed.\r\n", "Exits will now be displayed.\r\n")
         context.finish()
-        return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOEXIT") else "disable", channel="to_char").get("to_char", "")
+        return self.interp_api.render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOEXIT") else "disable", channel="to_char").get("to_char", "")
 
     def do_autogold(self, character: Character, context: Context) -> str:
         CharacterApi.toggle_player_act(character, "PLR_AUTOGOLD", "Autogold removed.\r\n", "Automatic gold looting set.\r\n")
         context.finish()
-        return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOGOLD") else "disable", channel="to_char").get("to_char", "")
+        return self.interp_api.render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOGOLD") else "disable", channel="to_char").get("to_char", "")
 
     def do_autoloot(self, character: Character, context: Context) -> str:
         CharacterApi.toggle_player_act(character, "PLR_AUTOLOOT", "Autolooting removed.\r\n", "Automatic corpse looting set.\r\n")
         context.finish()
-        return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOLOOT") else "disable", channel="to_char").get("to_char", "")
+        return self.interp_api.render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOLOOT") else "disable", channel="to_char").get("to_char", "")
 
     def do_autosac(self, character: Character, context: Context) -> str:
         CharacterApi.toggle_player_act(character, "PLR_AUTOSAC", "Autosacrificing removed.\r\n", "Automatic corpse sacrificing set.\r\n")
         context.finish()
-        return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOSAC") else "disable", channel="to_char").get("to_char", "")
+        return self.interp_api.render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOSAC") else "disable", channel="to_char").get("to_char", "")
 
     def do_autosplit(self, character: Character, context: Context) -> str:
         CharacterApi.toggle_player_act(character, "PLR_AUTOSPLIT", "Autosplitting removed.\r\n", "Automatic gold splitting set.\r\n")
         context.finish()
-        return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOSPLIT") else "disable", channel="to_char").get("to_char", "")
+        return self.interp_api.render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOSPLIT") else "disable", channel="to_char").get("to_char", "")
 
     def do_brief(self, character: Character, context: Context) -> str:
         CharacterApi.toggle_comm(character, "COMM_BRIEF", "Full descriptions activated.\r\n", "Short descriptions activated.\r\n")
         context.finish()
-        return self._render_message_key(context, "enable" if self._comm_enabled(character, "COMM_BRIEF") else "disable", channel="to_char").get("to_char", "")
+        return self.interp_api.render_message_key(context, "enable" if self._comm_enabled(character, "COMM_BRIEF") else "disable", channel="to_char").get("to_char", "")
 
     def do_compact(self, character: Character, context: Context) -> str:
         CharacterApi.toggle_comm(character, "COMM_COMPACT", "Compact mode removed.\r\n", "Compact mode set.\r\n")
@@ -813,12 +813,12 @@ class Info:
         if getattr(character, "prompt_format", None) is not None:
             character.prompt_format.carriage_return = not is_compact
         context.finish()
-        return self._render_message_key(context, "enable" if is_compact else "disable", channel="to_char").get("to_char", "")
+        return self.interp_api.render_message_key(context, "enable" if is_compact else "disable", channel="to_char").get("to_char", "")
 
     def do_combine(self, character: Character, context: Context) -> str:
         CharacterApi.toggle_comm(character, "COMM_COMBINE", "Long inventory selected.\r\n", "Combined inventory selected.\r\n")
         context.finish()
-        return self._render_message_key(context, "enable" if self._comm_enabled(character, "COMM_COMBINE") else "disable", channel="to_char").get("to_char", "")
+        return self.interp_api.render_message_key(context, "enable" if self._comm_enabled(character, "COMM_COMBINE") else "disable", channel="to_char").get("to_char", "")
 
     def do_noloot(self, character: Character, context: Context) -> str:
         CharacterApi.toggle_player_act(
@@ -828,7 +828,7 @@ class Info:
             "Your corpse may now be looted.\r\n",
         )
         context.finish()
-        return self._render_message_key(context, "disable" if self._player_act_enabled(character, "PLR_CANLOOT") else "enable", channel="to_char").get("to_char", "")
+        return self.interp_api.render_message_key(context, "disable" if self._player_act_enabled(character, "PLR_CANLOOT") else "enable", channel="to_char").get("to_char", "")
 
     def do_nofollow(self, character: Character, context: Context) -> str:
         CharacterApi.toggle_player_act(
@@ -838,7 +838,7 @@ class Info:
             "You no longer accept followers.\r\n",
         )
         context.finish()
-        return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_NOFOLLOW") else "disable", channel="to_char").get("to_char", "")
+        return self.interp_api.render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_NOFOLLOW") else "disable", channel="to_char").get("to_char", "")
 
     def do_nosummon(self, character: Character, context: Context) -> str:
         CharacterApi.toggle_player_act(
@@ -848,7 +848,7 @@ class Info:
             "You are no longer summonable.\r\n",
         )
         context.finish()
-        return self._render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_NOSUMMON") else "disable", channel="to_char").get("to_char", "")
+        return self.interp_api.render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_NOSUMMON") else "disable", channel="to_char").get("to_char", "")
 
     def do_read(self, character: Character, context: Context) -> dict:
         arg = (context.result if isinstance(context.result, str) else "").strip()
@@ -911,7 +911,7 @@ class Info:
             "Affects will now be shown in score.\r\n",
         )
         context.finish()
-        return self._render_message_key(context, "enable" if self._comm_enabled(character, "COMM_SHOW_AFFECTS") else "disable", channel="to_char").get("to_char", "")
+        return self.interp_api.render_message_key(context, "enable" if self._comm_enabled(character, "COMM_SHOW_AFFECTS") else "disable", channel="to_char").get("to_char", "")
 
     def do_practice(self, character: Character, context: Context) -> str | dict:
         if CharacterApi.is_npc(character):
@@ -988,16 +988,16 @@ class Info:
             Character.set_learned(character, skill_name, new_level)
             context.finish()
             return {
-                **self._render_message_key(context, "practice", s=skill_name),
-                "to_room": self._render_message_key(context, "default", channel="to_room", s=skill_name).get("to_room", ""),
+                **self.interp_api.render_message_key(context, "practice", s=skill_name),
+                "to_room": self.interp_api.render_message_key(context, "default", channel="to_room", s=skill_name).get("to_room", ""),
                 "targets": targets,
             }
 
         practiced_skill["level"] = adept
         context.finish()
         return {
-            **self._render_message_key(context, "now_adept", s=skill_name),
-            "to_room": self._render_message_key(context, "learned", channel="to_room", s=skill_name).get("to_room", ""),
+            **self.interp_api.render_message_key(context, "now_adept", s=skill_name),
+            "to_room": self.interp_api.render_message_key(context, "learned", channel="to_room", s=skill_name).get("to_room", ""),
             "targets": targets,
         }
 
@@ -1009,7 +1009,7 @@ class Info:
         if raw == "":
             CharacterApi.toggle_comm(character, "COMM_PROMPT", "You will no longer see prompts.\r\n", "You will now see prompts.\r\n")
             context.finish()
-            return self._render_message_key(context, "enable" if self._comm_enabled(character, "COMM_PROMPT") else "disable", channel="to_char").get("to_char", "")
+            return self.interp_api.render_message_key(context, "enable" if self._comm_enabled(character, "COMM_PROMPT") else "disable", channel="to_char").get("to_char", "")
 
         context.prompt_argument = raw
         context.prompt_format_available = getattr(character, "prompt_format", None) is not None
@@ -1024,7 +1024,7 @@ class Info:
                 else:
                     setattr(character.prompt_format, attr, False)
             context.finish()
-            return self._render_message_key(context, "set", channel="to_char", s="<%hhp %mm %vmv> ").get("to_char", "")
+            return self.interp_api.render_message_key(context, "set", channel="to_char", s="<%hhp %mm %vmv> ").get("to_char", "")
 
         template = raw.replace("~", "")[:50]
         tokens = set()
@@ -1051,7 +1051,7 @@ class Info:
 
         shown = template if "%c" in template else (template + " ")
         context.finish()
-        return self._render_message_key(context, "set", channel="to_char", s=shown).get("to_char", "")
+        return self.interp_api.render_message_key(context, "set", channel="to_char", s=shown).get("to_char", "")
 
     def do_equipment(self, character: Character, context: Context) -> str:
         lines = InfoUtil.target_equipment_lines(character, EQUIP_SLOT_LABELS)
@@ -1103,7 +1103,7 @@ class Info:
         parsed = self._learned_level_filter(context)
         if parsed.get("error_key"):
             context.finish()
-            return self._render_message_key(
+            return self.interp_api.render_message_key(
                 context,
                 parsed["error_key"],
                 channel="to_char",
@@ -1135,7 +1135,7 @@ class Info:
 
         if not rows:
             context.finish()
-            return self._render_message_key(context, "none_found", channel="to_char").get("to_char", "")
+            return self.interp_api.render_message_key(context, "none_found", channel="to_char").get("to_char", "")
 
         rows.sort(key=lambda row: (row["level"], row["name"].lower()))
         grouped: dict[int, list[str]] = {}
@@ -1318,9 +1318,6 @@ class Info:
         if isinstance(result, str) and result.strip():
             return result.strip()
         return " ".join(getattr(context, "parameters", []) or []).strip()
-
-    def _render_message_key(self, context: Context, message_key: str, channel: str = "", **tokens) -> dict:
-        return self.interp_api.render_message_key(context, message_key, channel=channel, **tokens)
 
     @staticmethod
     def _player_act_enabled(character: Character, bit_name: str) -> bool:

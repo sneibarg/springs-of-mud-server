@@ -105,7 +105,7 @@ class SpellContext:
 
     def payload_tokens(self) -> dict[str, str]:
         target_name = self._target_name(self.target)
-        actor_name = self._entity_name(self.actor)
+        actor_name = DisplayUtil.entity_name(self.actor, is_npc=CharacterApi.is_npc)
         return {
             "actor": actor_name,
             "victim": target_name,
@@ -142,8 +142,4 @@ class SpellContext:
             return ""
         if self.is_object_target():
             return str(getattr(target, "short_description", "") or getattr(target, "name", "something"))
-        return self._entity_name(target)
-
-    @staticmethod
-    def _entity_name(entity: Any) -> str:
-        return DisplayUtil.entity_name(entity, is_npc=CharacterApi.is_npc)
+        return DisplayUtil.entity_name(target, is_npc=CharacterApi.is_npc)

@@ -177,7 +177,7 @@ class Shop:
                     continue
 
                 count = 1
-                while index + count < len(stock) and self._same_stock_item(item, stock[index + count]):
+                while index + count < len(stock) and self.same_stock_item(item, stock[index + count]):
                     count += 1
                 lines.append(
                     f"[{GenericUtil.to_int(item.level, 0):>2} "
@@ -202,7 +202,7 @@ class Shop:
                 count += 1
                 if count == number:
                     return item
-                while index + 1 < len(stock) and self._same_stock_item(item, stock[index + 1]):
+                while index + 1 < len(stock) and self.same_stock_item(item, stock[index + 1]):
                     index += 1
             index += 1
         return None
@@ -217,7 +217,7 @@ class Shop:
                 matched = stocked is item
             if not matched:
                 continue
-            if not self._same_stock_item(item, stocked):
+            if not self.same_stock_item(item, stocked):
                 break
             count += 1
         return count
@@ -291,7 +291,7 @@ class Shop:
         item_extra_flags = GenericUtil.to_int(item.extra_flags, 0)
         if sell_extract_bit == 0 or (item_extra_flags & sell_extract_bit) == 0:
             for stocked in list(keeper_inventory or []):
-                if not self._same_stock_item(item, stocked):
+                if not self.same_stock_item(item, stocked):
                     continue
                 stocked_flags = GenericUtil.to_int(stocked.extra_flags, 0)
                 if inventory_bit and (stocked_flags & inventory_bit) != 0:
@@ -329,7 +329,7 @@ class Shop:
         for stocked in list(keeper.inventory or []):
             if self._is_item_worn(stocked):
                 continue
-            if self._same_stock_item(wanted, stocked):
+            if self.same_stock_item(wanted, stocked):
                 return stocked
         return wanted
 
@@ -349,7 +349,7 @@ class Shop:
             inventory = keeper.inventory
 
         for index, stocked in enumerate(list(inventory)):
-            if not self._same_stock_item(item, stocked):
+            if not self.same_stock_item(item, stocked):
                 continue
             if self.is_inventory_item(stocked, item_flags):
                 return None
@@ -396,11 +396,8 @@ class Shop:
     def is_trash_item(item) -> bool:
         return Item.enum_type_name(item) == "ITEM_TRASH"
 
-    def same_stock_item(self, left, right) -> bool:
-        return self._same_stock_item(left, right)
-
     @staticmethod
-    def _same_stock_item(left, right) -> bool:
+    def same_stock_item(left, right) -> bool:
         return (
             left is not None
             and right is not None

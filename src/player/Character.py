@@ -42,7 +42,7 @@ class Character(AnimateEntity):
     skills: List[dict] = field(default_factory=list)
     spells: List[dict] = field(default_factory=list)
     groups: list[str] = field(default_factory=list)
-    loot: List[Item] = field(default_factory=list)
+    loot: list[Item] = field(default_factory=list)
     context: Optional[Context] = None
     aliases: dict[str, str] = field(default_factory=dict)
     carriage_return: bool = True
@@ -117,7 +117,7 @@ class Character(AnimateEntity):
     def spell_level(self, spell_name: str) -> int:
         return Character.learned_entry_level(Character.get_learned(self, spell_name, collection_name="spells")) or 1
 
-    def get_items(self) -> List[Item]:
+    def get_items(self) -> list[Item]:
         return self.loot
 
     def carry_count(self) -> int:

@@ -9,12 +9,7 @@ from tests.test_object_carry_limits_parity import Character
 
 h = fixtures.h
 StatusFlags = h._load_module("fullness_status_flags", "game/StatusFlags.py").StatusFlags
-stubs = {name: NS(**{attr: object}) for name, attr in (
-    ("player.CharacterRegistry", "CharacterRegistry"), ("server.FetchAndRegisterMixin", "FetchAndRegisterMixin"),
-    ("server.ServiceConfig", "ServiceConfig"))}
-stubs["requests"] = NS()
-with patch.dict(sys.modules, stubs):
-    CharacterService = h._load_module("fullness_character_service", "player/CharacterService.py").CharacterService
+serialize_wire_value = h._load_module("fullness_wire_codec", "server/WireCodec.py").serialize_wire_value
 stubs = {name: NS(**{attr: object}) for name, attr in (
     ("api.WizApi", "WizApi"), ("game.WizHandler", "WizHandler"),
     ("player.CharacterAdvancement", "CharacterAdvancement"), ("util.AreaUtil", "AreaUtil"),
@@ -145,7 +140,7 @@ class TestFullnessHungerParity(unittest.TestCase):
     def test_saved_fullness_and_hunger_round_trip_independently(self):
         flags = self.actor.status_flags
         flags.fullness, flags.hunger = 8, -1
-        payload = CharacterService._serialize_value(flags)
+        payload = serialize_wire_value(flags)
         self.assertEqual((8, -1), (payload["fullness"], payload["hunger"]))
         restored = StatusFlags.from_json(json.loads(json.dumps(payload)))
         self.assertEqual((8, -1), (restored.fullness, restored.hunger))

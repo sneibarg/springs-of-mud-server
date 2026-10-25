@@ -2361,22 +2361,21 @@ class TestTableDamageSpells(unittest.TestCase):
                 self.assertTrue(self.api.execute_lambdas(ctx))
                 movement = module.Movement.__new__(module.Movement)
                 movement.affected_bits = self.enums['affectedBy']
-                movement._command_payload = Mock(side_effect=lambda key, **kwargs: {'key': key})
                 def command_context(result=''):
                     context = SimpleNamespace(room=ctx.room, result=result, done=False)
                     context.finish = lambda: setattr(context, 'done', True)
                     return context
                 with patch.dict(module.Movement.do_stand.__globals__, CharacterApi=self.PositionApi,
                                 MovementApi=movement_api):
-                    self.assertEqual('can_t_wake_up', movement.do_stand(ctx.victim, command_context())['key'])
-                    self.assertEqual('affect_sleep', movement.do_wake(ctx.actor, command_context('Target'))['key'])
+                    self.assertEqual('can_t_wake_up', movement.do_stand(ctx.victim, command_context())['message_key'])
+                    self.assertEqual('affect_sleep', movement.do_wake(ctx.actor, command_context('Target'))['message_key'])
                     self.assertEqual(int(self.enums['positions'].POS_SLEEPING), self.PositionApi.position_value(ctx.victim))
                     if removal == 'expiry':
                         ctx.victim.effects[0].duration = 1
                         with patch('random.randint', return_value=1):
                             tick = self.api.effect_handler.tick_effects(ctx.victim)
                         self.assertEqual([], tick.expired_effects)
-                        self.assertEqual('can_t_wake_up', movement.do_stand(ctx.victim, command_context())['key'])
+                        self.assertEqual('can_t_wake_up', movement.do_stand(ctx.victim, command_context())['message_key'])
                         tick = self.api.effect_handler.tick_effects(ctx.victim)
                         self.assertEqual('spell.sleep', tick.expired_effects[0].type)
                     else:
@@ -2388,9 +2387,9 @@ class TestTableDamageSpells(unittest.TestCase):
                     self.assertEqual(0, ctx.victim.status_flags.affected_by)
                     # Ending the affect permits waking; it does not itself stand the victim.
                     self.assertEqual(int(self.enums['positions'].POS_SLEEPING), self.PositionApi.position_value(ctx.victim))
-                    self.assertEqual('wake_stand_up', movement.do_stand(ctx.victim, command_context())['key'])
+                    self.assertEqual('wake_stand_up', movement.do_stand(ctx.victim, command_context())['message_key'])
                     self.PositionApi.set_position(ctx.victim, 'POS_SLEEPING')
-                    self.assertEqual('wake_target', movement.do_wake(ctx.actor, command_context('Target'))['key'])
+                    self.assertEqual('wake_target', movement.do_wake(ctx.actor, command_context('Target'))['message_key'])
                     self.assertEqual(int(self.enums['positions'].POS_STANDING), ctx.victim.character_attributes.position)
 
     def test_opposing_protection_flags_are_exclusive_without_effect_records(self):

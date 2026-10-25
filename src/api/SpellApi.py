@@ -110,8 +110,8 @@ class SpellApi:
         if spell_label.strip().lower() == "ventriloquate":
             return False
         victim = ctx.victim
-        actor_name = self._entity_name(ctx.actor)
-        self.send(ctx, to_char=f"You cast {spell_label}" + (f" on {self._entity_name(victim)}" if victim is not None and victim is not ctx.actor else "") + ".\r\n")
+        actor_name = DisplayUtil.entity_name(ctx.actor, is_npc=CharacterApi.is_npc)
+        self.send(ctx, to_char=f"You cast {spell_label}" + (f" on {DisplayUtil.entity_name(victim, is_npc=CharacterApi.is_npc)}" if victim is not None and victim is not ctx.actor else "") + ".\r\n")
 
         visible_spell = SpellSpeech.utterance(spell_label, actor_name, translated=False)
         obscure_spell = SpellSpeech.utterance(spell_label, actor_name, translated=True)
@@ -361,7 +361,7 @@ class SpellApi:
             ability = self._ability_for_effect(ctx, getattr(effect, "type", ""))
             if ability is None:
                 continue
-            text = self._display_effect_message(self._ability_message(ability, "to_char", "msg_off", ctx, victim))
+            text = DisplayUtil.display_effect_message(self._ability_message(ability, "to_char", "msg_off", ctx, victim))
             if not text:
                 continue
             if not text.endswith(("\r\n", "\n\r", "\n")):
@@ -377,7 +377,7 @@ class SpellApi:
 
     def _ability_message(self, ability: Any, channel: str, key: str, ctx: SpellContext, target: Any) -> str:
         tokens = ctx.payload_tokens() if callable(getattr(ctx, "payload_tokens", None)) else {}
-        target_name = self._entity_name(target)
+        target_name = DisplayUtil.entity_name(target, is_npc=CharacterApi.is_npc)
         tokens.update(
             {
                 "victim": target_name,
@@ -393,10 +393,6 @@ class SpellApi:
         if callable(getattr(ability, "message", None)):
             return str(ability.message(channel, key, **tokens) or "")
         return ""
-
-    @staticmethod
-    def _display_effect_message(message) -> str:
-        return DisplayUtil.display_effect_message(message)
 
     def damage_expr(
         self,
@@ -592,8 +588,8 @@ class SpellApi:
         previous = getattr(follower, "master", None)
 
         def notify(key, recipient, leader):
-            tokens = {**ctx.payload_tokens(), "follower": self._entity_name(follower),
-                      "master": self._entity_name(leader)}
+            tokens = {**ctx.payload_tokens(), "follower": DisplayUtil.entity_name(follower, is_npc=CharacterApi.is_npc),
+                      "master": DisplayUtil.entity_name(leader, is_npc=CharacterApi.is_npc)}
             self.send(ctx, victim=recipient,
                       to_victim=ctx.spell.message("to_victim", key, **tokens))
 
@@ -713,7 +709,7 @@ class SpellApi:
             return GameApi.is_set(GameApi.flags_to_int(item.extra_flags), getattr(flags, name).value)
 
         def notify(key, item):
-            tokens = {**ctx.payload_tokens(), "victim": self._entity_name(victim), "item": Item.short(item)}
+            tokens = {**ctx.payload_tokens(), "victim": DisplayUtil.entity_name(victim, is_npc=CharacterApi.is_npc), "item": Item.short(item)}
             self.send(ctx, victim=victim, include_actor_in_room=True,
                       to_victim=ctx.spell.message("to_victim", key, **tokens),
                       to_room=ctx.spell.message("to_room", key, **tokens))
@@ -1095,7 +1091,7 @@ class SpellApi:
         Equipped.equip_item(ctx.actor, item, slot)
         self.effect_handler.apply_item_effects(ctx.actor, item)
         self.send(ctx, to_char=ctx.spell.message('to_char', 'equipped', item=Item.short(item)),
-                  to_room=ctx.spell.message('to_room', 'equipped', actor=self._entity_name(ctx.actor), item=Item.short(item)),
+                  to_room=ctx.spell.message('to_room', 'equipped', actor=DisplayUtil.entity_name(ctx.actor, is_npc=CharacterApi.is_npc), item=Item.short(item)),
                   include_victim_in_room=True)
         return ctx.mark_performed()
 
@@ -1285,7 +1281,7 @@ class SpellApi:
             owner = None if location['kind'] == 'room' else location['parent']
             tokens = {'owner': '', 'room': '', 'vnum': ''}
             if owner is not None and CharacterApi.can_see(ctx.actor, owner, ctx.room):
-                key, tokens['owner'] = 'carried', self._entity_name(owner)
+                key, tokens['owner'] = 'carried', DisplayUtil.entity_name(owner, is_npc=CharacterApi.is_npc)
             elif owner is not None:
                 key = 'somewhere'
             else:
@@ -1462,7 +1458,7 @@ class SpellApi:
                 if entity is ctx.actor or not CharacterApi.can_see(ctx.actor, entity, ctx.room):
                     continue
                 distance = rules["distances"][depth].format(direction=directions[door] if door is not None else "")
-                self.send(ctx, to_char=ctx.spell.message("to_char", "seen", victim=self._entity_name(entity), distance=distance))
+                self.send(ctx, to_char=ctx.spell.message("to_char", "seen", victim=DisplayUtil.entity_name(entity, is_npc=CharacterApi.is_npc), distance=distance))
         def adjacent(origin, door):
             exit_obj = origin.get_exit(door)
             if exit_obj is None:
@@ -1499,7 +1495,7 @@ class SpellApi:
             if successes >= limit:
                 break
             if self._remove_curse_item(ctx, item, owner=victim, quiet=True, level_adjust=level_adjust):
-                tokens = {**ctx.payload_tokens(), "victim": self._entity_name(victim), "item": Item.short(item)}
+                tokens = {**ctx.payload_tokens(), "victim": DisplayUtil.entity_name(victim, is_npc=CharacterApi.is_npc), "item": Item.short(item)}
                 self.send(ctx, victim=victim, include_actor_in_room=True,
                           to_victim=ctx.spell.message("to_victim", "item_cured", **tokens),
                           to_room=ctx.spell.message("to_room", "item_cured", **tokens))
@@ -1591,10 +1587,6 @@ class SpellApi:
             if target is not None:
                 return target
         return None
-
-    @staticmethod
-    def _entity_name(entity) -> str:
-        return DisplayUtil.entity_name(entity, is_npc=CharacterApi.is_npc)
 
     @staticmethod
     def _alignment(entity) -> int:
@@ -1689,7 +1681,7 @@ class SpellApi:
             return True
         if owner is not None and owner is not ctx.actor:
             self.send(ctx, to_victim=f"Your {Item.short(item)} glows blue.\r\n", victim=owner)
-            self.send(ctx, to_room=f"{self._entity_name(owner)}'s {Item.short(item)} glows blue.\r\n", victim=owner)
+            self.send(ctx, to_room=f"{DisplayUtil.entity_name(owner, is_npc=CharacterApi.is_npc)}'s {Item.short(item)} glows blue.\r\n", victim=owner)
         else:
             self.send(ctx, to_char=f"{Item.short(item)} glows blue.\r\n")
             self.send(ctx, to_room=f"{Item.short(item)} glows blue.\r\n")

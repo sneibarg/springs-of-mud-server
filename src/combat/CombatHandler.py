@@ -1,6 +1,6 @@
 from game.ArmorValues import ArmorValues
 from combat.ArmorDefense import dexterity_defense
-from item.DeathLoot import format_template, victim_name
+from item.DeathLoot import format_template, victim_name as death_victim_name
 import random
 
 from typing import Any, Literal
@@ -332,8 +332,8 @@ class FightHandler:
         if skill is None:
             return None
 
-        attacker_name = self._combat_target_name(attacker)
-        victim_name = self._combat_target_name(victim)
+        attacker_name = DisplayUtil.entity_name(attacker, is_npc=CharacterApi.is_npc)
+        victim_name = DisplayUtil.entity_name(victim, is_npc=CharacterApi.is_npc)
         tokens = {"c": attacker_name, "t": victim_name, "attacker": attacker_name, "victim": victim_name}
         rendered = {"to_char": "", "to_victim": "", "to_room": ""}
         for channel in rendered:
@@ -523,8 +523,8 @@ class FightHandler:
                 break
 
         punct = "." if dam <= 24 else "!"
-        attacker_name = self._combat_target_name(attacker)
-        victim_name = self._combat_target_name(victim)
+        attacker_name = DisplayUtil.entity_name(attacker, is_npc=CharacterApi.is_npc)
+        victim_name = DisplayUtil.entity_name(victim, is_npc=CharacterApi.is_npc)
 
         if dt == "TYPE_HIT":
             if immune:
@@ -601,9 +601,9 @@ class FightHandler:
         corpse.owner = victim.name if not is_npc and not CharacterApi.is_clan(victim) else None
         if not is_npc:
             CharacterApi.unset_act_flags(victim, CharacterApi.enum_bit(self.PlayerActBits, "PLR_CANLOOT"))
-        victim_name = self._corpse_name(victim)
-        corpse.short_description = self._format_template(getattr(corpse, "short_description", ""), victim_name)
-        corpse.long_description = self._format_template(getattr(corpse, "long_description", ""), victim_name)
+        victim_name = death_victim_name(victim, CharacterApi.is_npc)
+        corpse.short_description = format_template(getattr(corpse, "short_description", ""), victim_name)
+        corpse.long_description = format_template(getattr(corpse, "long_description", ""), victim_name)
 
         notices = self._transfer_victim_property(corpse, room, victim)
         if money is not None:
@@ -878,7 +878,7 @@ class FightHandler:
         attacker.status_flags.unset_flag("affected_by", bit)
         spell = self.spell_registry.get_or_none(name="invisibility")
         room = self._find_room_for_entity(attacker)
-        text = self._render_skill_message(spell, "to_room", "reveal", victim=self._combat_target_name(attacker)) if spell else ""
+        text = self._render_skill_message(spell, "to_room", "reveal", victim=DisplayUtil.entity_name(attacker, is_npc=CharacterApi.is_npc)) if spell else ""
         return {"to_room": CommunicationsUtil.ensure_message_break(text),
                 "targets": room.player_targets(attacker) if room is not None else []} if text else {}
 
@@ -991,7 +991,7 @@ class FightHandler:
             if death_handler is not None:
                 aftermath.append(death_handler.penalty(attacker, victim, death_room))
                 if not CharacterApi.is_npc(victim):
-                    self.logger.info(f"{victim.name} killed by {self._combat_target_name(attacker)} at {getattr(death_room, 'vnum', '')}")
+                    self.logger.info(f"{victim.name} killed by {DisplayUtil.entity_name(attacker, is_npc=CharacterApi.is_npc)} at {getattr(death_room, 'vnum', '')}")
             pre_corpse_ids = {str(getattr(item, "id", "")) for item in getattr(death_room, "contents", {}).values()} if death_room is not None else set()
             death_notices = self.raw_kill(victim)
             if isinstance(death_notices, list):
@@ -1233,7 +1233,7 @@ class FightHandler:
     def _assist_round(self, helper, target, room, *, emote=False) -> list:
         rounds = []
         if emote:
-            rounds.append((helper, {"to_room": f"{self._combat_target_name(helper)} screams and attacks!\r\n",
+            rounds.append((helper, {"to_room": f"{DisplayUtil.entity_name(helper, is_npc=CharacterApi.is_npc)} screams and attacks!\r\n",
                                     "targets": room.players_in_room()}))
         pre_corpse_ids = {str(getattr(item, "id", "")) for item in getattr(room, "contents", {}).values()}
         result = self.multi_hit(helper, target, dt="TYPE_UNDEFINED")
@@ -1274,7 +1274,7 @@ class FightHandler:
             return payload
 
         if not CharacterApi.is_npc(attacker):
-            victim_name = self._combat_target_name(victim)
+            victim_name = DisplayUtil.entity_name(victim, is_npc=CharacterApi.is_npc)
             if getattr(self, "death_handler", None) is None:
                 payload["to_char"] = (payload["to_char"] or "") + f"{victim_name} is DEAD!!\r\n"
             xp_gain = int(result.get("xp_gain", 0) or 0)
@@ -1329,15 +1329,6 @@ class FightHandler:
             if entity_id in getattr(room, "characters", {}) or entity_id in getattr(room, "mobiles", {}):
                 return room
         return None
-
-    @staticmethod
-    def _corpse_name(entity) -> str:
-        from api.CharacterApi import CharacterApi
-        return victim_name(entity, CharacterApi.is_npc)
-
-    @staticmethod
-    def _format_template(text: str, victim_name: str) -> str:
-        return format_template(text, victim_name)
 
     @staticmethod
     def _prepare_loot_item(item) -> None:
@@ -1416,7 +1407,7 @@ class FightHandler:
             return None
 
         pre_corpse_ids = set(pre_corpse_ids or set())
-        victim_name = FightHandler._combat_target_name(victim).lower()
+        victim_name = DisplayUtil.entity_name(victim, is_npc=CharacterApi.is_npc).lower()
         for item in reversed(list(room.contents.values())):
             item_type = str(getattr(item, "item_type", "") or "").lower()
             if "corpse" not in item_type:
@@ -1428,10 +1419,6 @@ class FightHandler:
             if victim_name and victim_name in short_desc:
                 return item
         return None
-
-    @staticmethod
-    def _combat_target_name(target) -> str:
-        return DisplayUtil.entity_name(target, is_npc=CharacterApi.is_npc)
 
     @staticmethod
     def _sentence_case(text: str) -> str:
@@ -1533,15 +1520,15 @@ class FightHandler:
             return 0
 
         if not CharacterApi.is_npc(entity):
-            return self._adjust_combat_skill(entity, self._learned_skill_percent(entity, skill_name))
+            return SkillUtil.adjusted_percent(entity, self._learned_skill_percent(entity, skill_name))
 
         level = entity.level
         if wanted == "second attack":
             is_warrior = self._mob_has_act(entity, self.ActBits, self.ActBits.ACT_WARRIOR.name)
             is_thief = self._mob_has_act(entity, self.ActBits, self.ActBits.ACT_THIEF.name)
-            return self._adjust_combat_skill(entity, 10 + 3 * level) if (is_warrior or is_thief) else 0
+            return SkillUtil.adjusted_percent(entity, 10 + 3 * level) if (is_warrior or is_thief) else 0
         if wanted == "third attack":
-            return self._adjust_combat_skill(entity, 4 * level - 40) if self._mob_has_act(entity, self.ActBits,
+            return SkillUtil.adjusted_percent(entity, 4 * level - 40) if self._mob_has_act(entity, self.ActBits,
                                                                          self.ActBits.ACT_WARRIOR.name) else 0
         return 0
 
@@ -1549,11 +1536,6 @@ class FightHandler:
     def _learned_skill_percent(entity, skill_name: str) -> int:
         return Character.learned_entry_level(
             Character.get_learned(entity, skill_name, visible_only=True, visible_fn=Ability.practice_visible))
-
-    @staticmethod
-    def _adjust_combat_skill(entity, skill: int) -> int:
-        from util.SkillUtil import SkillUtil
-        return SkillUtil.adjusted_percent(entity, skill)
 
     def _defense_skill_percent(self, entity, skill_name: str) -> int:
         wanted = str(skill_name or "").strip().lower()
@@ -1565,11 +1547,11 @@ class FightHandler:
 
         level = max(0, GenericUtil.to_int(getattr(entity, "level", 0), 0))
         if wanted == "shield block":
-            return self._adjust_combat_skill(entity, 10 + 2 * level)
+            return SkillUtil.adjusted_percent(entity, 10 + 2 * level)
         if wanted == "dodge":
-            return self._adjust_combat_skill(entity, 2 * level) if self._mob_has_off(entity, self.OffenseTypes.OFF_DODGE.name) else 0
+            return SkillUtil.adjusted_percent(entity, 2 * level) if self._mob_has_off(entity, self.OffenseTypes.OFF_DODGE.name) else 0
         if wanted == "parry":
-            return self._adjust_combat_skill(entity, 2 * level) if self._mob_has_off(entity, self.OffenseTypes.OFF_PARRY.name) else 0
+            return SkillUtil.adjusted_percent(entity, 2 * level) if self._mob_has_off(entity, self.OffenseTypes.OFF_PARRY.name) else 0
         return 0
 
     @staticmethod
@@ -1714,7 +1696,7 @@ class FightHandler:
         if enhanced_skill > 0:
             roll = self.rng.number_percent()
             if roll <= enhanced_skill:
-                self._check_improve(attacker, "enhanced damage", True, 6)
+                Ability.check_improve_by_name(attacker, "enhanced damage", True, 6)
                 dam += 2 * (dam * roll // 300)
 
         if victim is not None:
@@ -1724,7 +1706,7 @@ class FightHandler:
                 dam = dam * 3 // 2
 
         if self._is_backstab_attack(dt) and weapon is not None:
-            is_dagger = self._weapon_skill_name(weapon) == "dagger"
+            is_dagger = SkillUtil.weapon_skill_name(weapon, self.WeaponClass) == "dagger"
             level = max(1, GenericUtil.to_int(getattr(attacker, "level", 1), 1))
             dam *= 2 + (level // 8 if is_dagger else level // 10)
 
@@ -1755,11 +1737,8 @@ class FightHandler:
 
         return FightUtil.normalize_damage_type_name(damage_type)
 
-    def _weapon_skill_name(self, weapon) -> str:
-        return SkillUtil.weapon_skill_name(weapon, self.WeaponClass)
-
     def _weapon_skill_total(self, attacker, weapon) -> int:
-        skill_name = self._weapon_skill_name(weapon)
+        skill_name = SkillUtil.weapon_skill_name(weapon, self.WeaponClass)
         if CharacterApi.is_npc(attacker):
             level = max(0, GenericUtil.to_int(getattr(attacker, "level", 0), 0))
             if not skill_name:
@@ -1822,9 +1801,6 @@ class FightHandler:
         while roll >= 20:
             roll = self.rng.number_bits(5)
         return roll
-
-    def _check_improve(self, attacker, skill_name: str, success: bool, multiplier: int) -> None:
-        Ability.check_improve_by_name(attacker, skill_name, success, multiplier)
 
     def _current_hitroll(self, entity) -> int:
         return self._strength_combat_bonus(entity, "tohit") + FightUtil.dynamic_combat_bonus(entity, "hit_roll",

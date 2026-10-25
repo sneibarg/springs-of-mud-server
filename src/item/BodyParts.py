@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from item.DeathLoot import format_template, victim_name
+from item.DeathLoot import format_template, victim_name as death_victim_name
 
 import random
 from enum import IntEnum
 
 from game.GameData import GameData
 from item.BodyForm import BodyForm
+from api.CharacterApi import CharacterApi
 
 
 class BodyParts:
@@ -111,9 +112,9 @@ class BodyParts:
         part_item = ItemUtil.create_object(proto)
         part_item.timer = random.randint(4, 7)
 
-        victim_name = cls._victim_name(victim)
-        part_item.short_description = cls._format_template(getattr(part_item, "short_description", ""), victim_name)
-        part_item.long_description = cls._format_template(getattr(part_item, "long_description", ""), victim_name)
+        victim_name = death_victim_name(victim, CharacterApi.is_npc)
+        part_item.short_description = format_template(getattr(part_item, "short_description", ""), victim_name)
+        part_item.long_description = format_template(getattr(part_item, "long_description", ""), victim_name)
 
         item_type = str(getattr(part_item, "item_type", "") or "").lower()
         if "food" in item_type:
@@ -125,14 +126,7 @@ class BodyParts:
         room.add_item_to_room(part_item)
         return part_item
 
-    @staticmethod
-    def _victim_name(victim) -> str:
-        from api.CharacterApi import CharacterApi
-        return victim_name(victim, CharacterApi.is_npc)
 
-    @staticmethod
-    def _format_template(text: str, victim_name: str) -> str:
-        return format_template(text, victim_name)
 
 
 __all__ = ["BodyParts"]

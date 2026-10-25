@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from game.action.GuardNormalization import normalize_guards
+
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -22,7 +24,7 @@ class Skill(Ability):
     @classmethod
     def from_json(cls, data) -> Skill:
         payload = cls._base_payload_from_json(data)
-        payload["guards"] = cls._normalize_checks(payload.get("guards"))
+        payload["guards"] = normalize_guards(payload.get("guards"))
         payload["fight_plan"] = cls._normalize_mapping(payload.get("fight_plan"))
         return cls(**payload)
 

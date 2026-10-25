@@ -7,7 +7,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 
 from interp.Command import Command
-from skill.Ability import Ability
+from game.action.GuardNormalization import normalize_guards
 from skill.Skill import Skill
 from skill.Spell import Spell
 
@@ -74,12 +74,11 @@ class GuardNormalizationTests(unittest.TestCase):
     def test_normalizers_do_not_mutate_input_or_share_results(self):
         source = [{'predicate': ' valid ', 'messageKey': 'noTarget'}]
         before = deepcopy(source)
-        for model in (Command, Ability):
-            first = model._normalize_checks(source)
-            first[0]['predicate'] = 'changed'
-            second = model._normalize_checks(source)
-            self.assertEqual('valid', second[0]['predicate'])
-            self.assertEqual('no_target', second[0]['message_key'])
+        first = normalize_guards(source)
+        first[0]['predicate'] = 'changed'
+        second = normalize_guards(source)
+        self.assertEqual('valid', second[0]['predicate'])
+        self.assertEqual('no_target', second[0]['message_key'])
         self.assertEqual(before, source)
 
 

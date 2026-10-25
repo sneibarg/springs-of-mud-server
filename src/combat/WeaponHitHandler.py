@@ -36,15 +36,7 @@ class WeaponHitHandler:
 
     _merge = staticmethod(ElementalExposure._merge)
 
-    def _flag(self, raw, enums, name):
-        return self.elemental_exposure._flag(raw, enums, name)
-
     _messages = staticmethod(ElementalExposure._messages)
-
-    def _saves(self, level, victim, dam_type, immunity):
-        # This new path includes ROM's type immunity and mana-class adjustments;
-        # existing spell callers retain their current saving-throw implementation.
-        return self.elemental_exposure._saves(level, victim, dam_type, immunity)
 
     def apply(self, attacker, victim, weapon, *, damage, immunity, room):
         result = {}
@@ -53,13 +45,13 @@ class WeaponHitHandler:
             if attacker.fighting is not victim:
                 break
             rule = self.rules.get(name)
-            if not rule or not self._flag(weapon.value4, self.weapon_types, rule["flag"]):
+            if not rule or not self.elemental_exposure._flag(weapon.value4, self.weapon_types, rule["flag"]):
                 continue
             if name == "poison":
                 coating = next((effect for effect in self.effect_handler.ensure_effects(weapon)
                                 if str(effect.type).lower() == "spell.poison"), None)
                 poison_level = int(coating.level) if coating is not None else level
-                if not self._saves(poison_level // 2, victim, "DAM_POISON", immunity):
+                if not self.elemental_exposure._saves(poison_level // 2, victim, "DAM_POISON", immunity):
                     self.effect_handler.affect_join(victim, Effect(
                         where="TO_AFFECTS", type="spell.poison", level=poison_level * 3 // 4,
                         duration=poison_level // 2, location="APPLY_STR", modifier=-1, bitvector="AFF_POISON"))
@@ -74,7 +66,7 @@ class WeaponHitHandler:
             rolled = self.rng.number_range(1, level // rule["damageDivisor"] + rule["damageOffset"])
             result = self._merge(result, self._messages(rule, "hit", attacker, victim, weapon, room))
             if name != "vampiric":
-                result = self._merge(result, self._element(name, rule, attacker, victim, level // 2,
+                result = self._merge(result, self.elemental_exposure._element(name, rule, attacker, victim, level // 2,
                                                          rolled, room, immunity))
             result = self._merge(result, damage(attacker, victim, rolled, dt="0", dam_type=rule["damageType"], show=False))
             if name == "vampiric":
@@ -86,9 +78,3 @@ class WeaponHitHandler:
 
     def expose(self, name, attacker, target, level, dam, room, immunity, *, payload):
         return self.elemental_exposure.expose(name, attacker, target, level, dam, room, immunity, payload=payload)
-
-    def _element(self, name, rule, attacker, victim, level, dam, room, immunity):
-        return self.elemental_exposure._element(name, rule, attacker, victim, level, dam, room, immunity)
-
-    def _object_effect(self, name, rule, attacker, victim, item, level, dam, room, *, carrier):
-        return self.elemental_exposure._object_effect(name, rule, attacker, victim, item, level, dam, room, carrier=carrier)

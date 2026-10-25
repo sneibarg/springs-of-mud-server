@@ -226,7 +226,7 @@ class TestWeaponHitEffects(unittest.TestCase):
             with self.subTest(roll=roll):
                 self.victim.inventory = [potion]
                 self.handler.rng.number_percent.return_value = roll
-                self.handler._object_effect("frost", self.data.weapon_hit_effects["frost"],
+                self.handler.elemental_exposure._object_effect("frost", self.data.weapon_hit_effects["frost"],
                                             self.attacker, self.victim, potion, 120, 400, self.room,
                                             carrier=self.victim)
                 self.assertEqual(not destroyed, potion in self.victim.inventory)

@@ -1,6 +1,4 @@
 from copy import deepcopy
-from dataclasses import is_dataclass
-from enum import Enum
 from typing import Any
 
 import requests
@@ -10,11 +8,14 @@ from player.Player import Player
 from player.PlayerRegistry import PlayerRegistry
 from server.FetchAndRegisterMixin import FetchAndRegisterMixin
 from server.BackgroundIO import submit
+from server.WireCodec import serialize_wire_value
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 
 
 class PlayerService(FetchAndRegisterMixin):
+    _WIRE_EXCLUDED_FIELDS = frozenset({"connection", "current_characters", "lock", "logger"})
+
     @inject
     def __init__(self, config: ServiceConfig, player_registry: PlayerRegistry):
         self.__name__ = "PlayerService"
@@ -81,39 +82,7 @@ class PlayerService(FetchAndRegisterMixin):
             "accountName": player.account_name,
             "emailAddress": player.email_address,
             "password": player.password,
-            "playerCharacterList": cls._serialize_value(player.player_character_list),
+            "playerCharacterList": serialize_wire_value(player.player_character_list, excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
             "ansiEnabled": bool(player.ansi_enabled),
             "usage": player.usage,
         }
-
-    @classmethod
-    def _serialize_value(cls, value: Any) -> Any:
-        if value is None:
-            return None
-        if isinstance(value, (str, int, float, bool)):
-            return value
-        if isinstance(value, Enum):
-            return value.value
-        if isinstance(value, list):
-            return [cls._serialize_value(item) for item in value]
-        if isinstance(value, tuple):
-            return [cls._serialize_value(item) for item in value]
-        if isinstance(value, set):
-            return [cls._serialize_value(item) for item in value]
-        if isinstance(value, dict):
-            return {cls._camelize(str(key)): cls._serialize_value(item) for key, item in value.items()}
-        if is_dataclass(value):
-            data = {}
-            for field_name in value.__dataclass_fields__:
-                if field_name in {"connection", "current_characters", "lock", "logger"}:
-                    continue
-                data[cls._camelize(field_name)] = cls._serialize_value(getattr(value, field_name))
-            return data
-        return value
-
-    @staticmethod
-    def _camelize(name: str) -> str:
-        if "_" not in name:
-            return name
-        head, *tail = name.split("_")
-        return head + "".join(part.capitalize() for part in tail)
