@@ -1,6 +1,7 @@
+import asyncio
 import unittest
 from types import SimpleNamespace
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 from tests.test_update_handler_active_players import Room
 from area.Area import Area
@@ -22,6 +23,8 @@ class AreaOccupancyTests(unittest.TestCase):
         handler.room_registry = SimpleNamespace(get_or_none=lambda **kw: school)
         handler.WellKnownRoomVnums = SimpleNamespace(ROOM_VNUM_SCHOOL=3700)
         handler._reset_area = Mock()
+        handler.wiz_handler = Mock(wiznet_targets=Mock(return_value=[]))
+        handler.message_bus = Mock(send_to_character=AsyncMock())
         return handler
 
     def test_entry_reactivates_empty_area_and_duplicate_entry_does_not_count_twice(self):
@@ -33,6 +36,44 @@ class AreaOccupancyTests(unittest.TestCase):
         self.room.add_mobile_to_room(SimpleNamespace(id='npc'))
         self.assertEqual(self.area.number_of_players, 1)
 
+    def test_reset_notice_follows_reset_before_age_changes_and_uses_wiznet(self):
+        self.area.age = 2
+        self.area.empty = False
+        handler = self.handler()
+        recipient = SimpleNamespace(id='admin')
+        handler.wiz_handler.wiznet_targets.return_value = [recipient]
+        handler.wiz_handler.decorate_wiznet_text.return_value = '--> Test has just been reset.'
+        events = []
+        handler._reset_area.side_effect = lambda area: events.append(('reset', area.age))
+        handler.message_bus.send_to_character.side_effect = lambda *args: events.append(('notice', self.area.age))
+        with patch('area.AreaHandler.rng.number_range', return_value=1) as roll:
+            asyncio.run(handler.area_update())
+        self.assertEqual([('reset', 3), ('notice', 3)], events)
+        handler.wiz_handler.wiznet_targets.assert_called_once_with(None, flag_name='WIZ_RESETS')
+        handler.wiz_handler.decorate_wiznet_text.assert_called_once_with(recipient, 'Test has just been reset.')
+        handler.message_bus.send_to_character.assert_awaited_once_with(
+            'admin', handler.message_bus.text_to_message('--> Test has just been reset.'))
+        roll.assert_called_once_with(0, 3)
+        self.assertEqual((1, True), (self.area.age, self.area.empty))
+
+    def test_first_two_age_pulses_do_not_reset_or_announce(self):
+        self.area.age = 0
+        self.area.empty = False
+        handler = self.handler()
+        for age in (1, 2):
+            asyncio.run(handler.area_update())
+            self.assertEqual(age, self.area.age)
+        handler._reset_area.assert_not_called()
+        handler.wiz_handler.wiznet_targets.assert_not_called()
+        handler.message_bus.send_to_character.assert_not_awaited()
+
+    def test_world_initialization_does_not_announce_periodic_resets(self):
+        handler = self.handler()
+        handler.initialize_world()
+        handler._reset_area.assert_called_once_with(self.area)
+        self.assertEqual((0, False), (self.area.age, self.area.empty))
+        handler.wiz_handler.wiznet_targets.assert_not_called()
+
     def test_last_departure_waits_for_reset_before_marking_empty(self):
         self.room.add_player_to_room(self.character)
         self.area.age = 2
@@ -41,7 +82,7 @@ class AreaOccupancyTests(unittest.TestCase):
         self.assertEqual((self.area.number_of_players, self.area.empty), (0, False))
         handler = self.handler()
         with patch('area.AreaHandler.rng.number_range', return_value=1):
-            handler.area_update()
+            asyncio.run(handler.area_update())
         handler._reset_area.assert_called_once_with(self.area)
         self.assertEqual((self.area.age, self.area.empty), (1, True))
 
@@ -65,19 +106,19 @@ class AreaOccupancyTests(unittest.TestCase):
         self.room.add_player_to_room(self.character)
         handler = self.handler()
         self.area.age = 13
-        handler.area_update()
+        asyncio.run(handler.area_update())
         handler._reset_area.assert_not_called()
         with patch('area.AreaHandler.rng.number_range', return_value=2):
-            handler.area_update()
+            asyncio.run(handler.area_update())
         handler._reset_area.assert_called_once_with(self.area)
         self.assertFalse(self.area.empty)
         handler._reset_area.reset_mock()
         self.room.remove_player_from_room(self.character)
         self.area.empty = True
         self.area.age = 29
-        handler.area_update()
+        asyncio.run(handler.area_update())
         handler._reset_area.assert_not_called()
-        handler.area_update()
+        asyncio.run(handler.area_update())
         handler._reset_area.assert_called_once_with(self.area)
 
     def test_school_exception_uses_actual_room_area_not_suggested_level_range(self):
@@ -85,12 +126,12 @@ class AreaOccupancyTests(unittest.TestCase):
         self.area.age = 2
         self.area.vnum_range = (3700, 3800)
         handler = self.handler(SimpleNamespace(area_id='different'))
-        handler.area_update()
+        asyncio.run(handler.area_update())
         self.assertTrue(self.area.empty)
         self.area.empty = False
         self.area.age = 2
         handler = self.handler(SimpleNamespace(area_id=self.area.id))
-        handler.area_update()
+        asyncio.run(handler.area_update())
         self.assertEqual(self.area.age, 13)
         self.assertFalse(self.area.empty)
 

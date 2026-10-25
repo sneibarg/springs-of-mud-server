@@ -255,22 +255,60 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
                 self.assertEqual(remaining, Item.burn_light(item))
                 self.assertEqual(fuel if remaining is None else str(remaining), item.value2)
 
-    def test_periodic_damage_uses_combat_death_cleanup(self):
+    def test_periodic_damage_uses_shared_damage_and_emits_consequences(self):
         handler, _, _ = self._handler([])
+        fight = handler.fight_handler
         victim = Character.from_json(build_character_data())
-        victim.hit = 1
-        def update_position(entity):
-            entity.character_attributes.position = Positions.POS_DEAD
-        handler.fight_handler.update_pos.side_effect = update_position
-        handler.fight_handler.apply_periodic_damage(victim, 5)
-        self.assertEqual(-4, victim.hit)
-        handler.fight_handler.raw_kill.assert_called_once_with(victim)
+        room = SimpleNamespace(players_in_room=lambda: [victim])
+        fight._find_room_for_entity.return_value = room
+        fight.damage.return_value = {"post_damage_actions": [{"to_char": "death notice"}]}
+        fight.emit_round_payload = AsyncMock()
+        asyncio.run(FightHandler.apply_periodic_damage(fight, victim, 5, dt="spell.poison", dam_type="DAM_POISON"))
+        fight.damage.assert_called_once_with(victim, victim, 5, dt="spell.poison", dam_type="DAM_POISON", show=False)
+        self.assertEqual({"to_char": "death notice"}, fight.emit_round_payload.await_args.args[1]["payloads"][-1])
+
+    def test_regeneration_clamps_all_resources_without_rolling_for_full_resources(self):
+        character = Character.from_json(build_character_data())
+        for name in ("hit", "mana", "movement"):
+            setattr(character, name, 100)
+        character.hit_gain = Mock()
+        character.mana_gain = Mock()
+        character.move_gain = Mock()
+        character.regenerate(None, None)
+        self.assertEqual((30, 20, 20), (character.hit, character.mana, character.movement))
+        for gain in (character.hit_gain, character.mana_gain, character.move_gain):
+            gain.assert_not_called()
+
+    def test_expiration_message_suppression_uses_next_same_type_nonpositive_duration(self):
+        from item.EffectHandler import EffectHandler
+        for durations, expected in (((0, 0), 1), ((0, 5), 1), ((0, -1), 0), ((0, 0, 0), 1)):
+            with self.subTest(durations=durations):
+                effects = [Effect(type="spell.bless", duration=duration, level=0) for duration in durations]
+                entity = SimpleNamespace(effects=effects)
+                handler = EffectHandler.__new__(EffectHandler)
+                handler.remove_effect = Mock(side_effect=lambda target, effect: target.effects.remove(effect))
+                result = handler.tick_effects(entity)
+                self.assertEqual(expected, len(result.expired_effects))
+                self.assertEqual(sum(duration == 0 for duration in durations), handler.remove_effect.call_count)
+
+    def test_idle_timeout_uses_seconds_consistently(self):
+        from datetime import datetime, timedelta
+        from server.session.SessionHandler import SessionHandler
+        handler = SessionHandler(max_idle_time=30)
+        last_activity = datetime(2026, 10, 25, 12)
+        session = SimpleNamespace(last_activity=last_activity)
+        with patch("server.session.SessionHandler.datetime") as clock:
+            for seconds, expected in ((29, False), (30, False), (31, True)):
+                clock.now.return_value = last_activity + timedelta(seconds=seconds)
+                self.assertEqual(expected, handler.is_session_idle(session))
+        self.assertEqual(int(last_activity.timestamp()) + 30, handler.get_idle_timeout(session))
 
     def test_update_schedule_calls_extracted_handlers(self):
         handler, _, _ = self._handler([])
         handler.GameParametersEnum = SimpleNamespace(**{
             name: SimpleNamespace(value=10) for name in
             ("PULSE_AREA", "PULSE_TICK", "PULSE_MUSIC", "PULSE_MOBILE", "PULSE_VIOLENCE")})
+        handler.area_handler.area_update = AsyncMock()
         handler.weather_handler.update = AsyncMock()
         handler.mobile_handler.mobile_update = AsyncMock()
         handler.fight_handler.violence_update = AsyncMock()
@@ -286,6 +324,65 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         handler.item_update_handler.update.assert_awaited_once()
         handler.fight_handler.violence_update.assert_awaited_once()
         self.assertEqual(2, handler.fight_handler.aggression_update.await_count)
+
+    def test_coincident_pulses_run_combat_before_tick_and_aggression_last(self):
+        handler, _, bus = self._handler([])
+        events = []
+        handler.GameParametersEnum = SimpleNamespace(**{
+            name: SimpleNamespace(value=value) for name, value in
+            (("PULSE_AREA", 480), ("PULSE_MUSIC", 24), ("PULSE_MOBILE", 16),
+             ("PULSE_VIOLENCE", 12), ("PULSE_TICK", 240))})
+        handler.area_handler.area_update = AsyncMock(side_effect=lambda: events.append("area"))
+        handler.mobile_handler.mobile_update = AsyncMock(side_effect=lambda: events.append("mobile"))
+        handler.fight_handler.refresh_combat_registry_from_world.side_effect = lambda: events.append("refresh")
+        handler.fight_handler.violence_update = AsyncMock(side_effect=lambda: events.append("violence"))
+        handler.weather_handler.update = AsyncMock(side_effect=lambda: events.append("weather"))
+        handler.char_update = AsyncMock(side_effect=lambda: events.append("characters"))
+        handler.obj_update = AsyncMock(side_effect=lambda: events.append("objects"))
+        handler.fight_handler.aggression_update = AsyncMock(side_effect=lambda: events.append("aggression"))
+        recipient = SimpleNamespace(id="admin")
+        handler.wiz_handler.wiznet_targets.return_value = [recipient]
+        handler.wiz_handler.decorate_wiznet_text.return_value = "--> TICK!"
+        bus.send_to_character.side_effect = lambda *args: events.append("tick notice")
+
+        asyncio.run(handler.handle_updates())
+
+        self.assertEqual(["area", "mobile", "refresh", "violence", "tick notice",
+                          "weather", "characters", "objects", "aggression"], events)
+        handler.wiz_handler.wiznet_targets.assert_called_once_with(None, flag_name="WIZ_TICKS")
+        handler.wiz_handler.decorate_wiznet_text.assert_called_once_with(recipient, "TICK!")
+        bus.send_to_character.assert_awaited_once_with("admin", bus.text_to_message("--> TICK!"))
+
+    def test_pulse_cadence_and_tick_notice_only_on_due_ticks(self):
+        handler, _, _ = self._handler([])
+        periods = {"area": 480, "music": 24, "mobile": 16, "violence": 12, "point": 240}
+        handler.GameParametersEnum = SimpleNamespace(**{
+            "PULSE_" + ("TICK" if name == "point" else name.upper()): SimpleNamespace(value=value)
+            for name, value in periods.items()})
+        handler.area_handler.area_update = AsyncMock()
+        handler.weather_handler.update = AsyncMock()
+        handler.mobile_handler.mobile_update = AsyncMock()
+        handler.fight_handler.violence_update = AsyncMock()
+        handler.fight_handler.aggression_update = AsyncMock()
+        handler.char_update = AsyncMock()
+        handler.obj_update = AsyncMock()
+
+        async def run_pulses():
+            for pulse in range(481):
+                await handler.handle_updates()
+                for name, period in periods.items():
+                    self.assertEqual(period - pulse % period, getattr(handler, "pulse_" + name))
+
+        asyncio.run(run_pulses())
+
+        self.assertEqual(2, handler.area_handler.area_update.call_count)
+        self.assertEqual(31, handler.mobile_handler.mobile_update.await_count)
+        self.assertEqual(41, handler.fight_handler.violence_update.await_count)
+        self.assertEqual(3, handler.weather_handler.update.await_count)
+        self.assertEqual(3, handler.char_update.await_count)
+        self.assertEqual(3, handler.obj_update.await_count)
+        self.assertEqual(3, handler.wiz_handler.wiznet_targets.call_count)
+        self.assertEqual(481, handler.fight_handler.aggression_update.await_count)
 
     def _object_update_fixture(self):
         handler, registries, bus = self._handler([])
@@ -327,7 +424,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
                 asyncio.run(handler.update())
                 self.assertEqual(12, keeper.silver)
 
-    def test_obj_update_non_shop_npc_decay_still_announces_without_credit(self):
+    def test_obj_update_non_shop_npc_decay_is_silent_without_credit(self):
         handler, registries, bus, room, item = self._object_update_fixture()
         mob = SimpleNamespace(vnum="100", silver=7, inventory=[item], equipped=None)
         room.mobiles["mob"] = mob
@@ -336,11 +433,10 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
 
         self.assertEqual(7, mob.silver)
         self.assertEqual([], mob.inventory)
-        bus.send_to_room.assert_awaited_once_with("a trinket crumbles into dust.\r\n", ["observer"])
+        bus.send_to_room.assert_not_awaited()
 
-    def test_obj_update_suppresses_only_fixed_pit_contents(self):
-        for vnum, wear_flags, silent in (("999", 0, True), (999, "", True),
-                                         (999, 1, False), (999, "A", False), (123, 0, False)):
+    def test_obj_update_suppresses_all_nested_contents(self):
+        for vnum, wear_flags in (("999", 0), (999, ""), (999, 1), (999, "A"), (123, 0)):
             with self.subTest(vnum=vnum, wear_flags=wear_flags):
                 handler, registries, bus, room, item = self._object_update_fixture()
                 pit = SimpleNamespace(id="pit", vnum=vnum, wear_flags=wear_flags, contains=[item], timer=0)
@@ -350,10 +446,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
 
                 self.assertEqual([], pit.contains)
                 self.assertIs(pit, room.contents["pit"])
-                if silent:
-                    bus.send_to_room.assert_not_awaited()
-                else:
-                    bus.send_to_room.assert_awaited_once()
+                bus.send_to_room.assert_not_awaited()
                 bus.send_to_character.assert_not_awaited()
                 registries.shop_registry.find_by_keeper_vnum.assert_not_called()
 
@@ -366,7 +459,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         asyncio.run(handler.update())
 
         self.assertEqual([], bag.contains)
-        bus.send_to_room.assert_awaited_once()
+        bus.send_to_room.assert_not_awaited()
 
     def test_obj_update_player_inventory_and_room_decay_remain_visible(self):
         for carried in (False, True):
@@ -391,6 +484,83 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
                 else:
                     self.assertEqual({}, room.contents)
                     bus.send_to_room.assert_awaited_once()
+
+    def test_decay_messages_accept_collection_and_enum_item_types(self):
+        expected = {"food": "$p decomposes.", "portal": "$p fades out of existence.",
+                    "potion": "$p has evaporated from disuse.", "fountain": "$p dries up.",
+                    "pc_corpse": "$p decays into dust.", "npc_corpse": "$p decays into dust."}
+        for item_type, message in expected.items():
+            enum_name = {"pc_corpse": "ITEM_CORPSE_PC", "npc_corpse": "ITEM_CORPSE_NPC"}.get(
+                item_type, "ITEM_" + item_type.upper())
+            for alias in (item_type, enum_name):
+                with self.subTest(alias=alias):
+                    self.assertEqual(message, Item.decay_message(SimpleNamespace(item_type=alias), None))
+        flags = SimpleNamespace(ITEM_WEAR_FLOAT=SimpleNamespace(value=1))
+        for contents, message in (([], "$p flickers and vanishes."),
+                                  ([object()], "$p flickers and vanishes, spilling its contents on the floor.")):
+            item = SimpleNamespace(item_type="container", wear_flags=1, contains=contents)
+            self.assertEqual(message, Item.decay_message(item, flags))
+
+    def test_pc_corpse_alias_preserves_contents_at_every_direct_ownership_location(self):
+        for kind in ("room", "nested", "char_loot", "char_equipped", "mob_inventory", "mob_equipped"):
+            with self.subTest(kind=kind):
+                handler, registries, bus, room, corpse = self._object_update_fixture()
+                corpse.item_type = "pc_corpse"  # collection vnum 11's actual type
+                child = SimpleNamespace(id="treasure", timer=0, contains=[])
+                corpse.contains = [child]
+                if kind == "room":
+                    room.contents[corpse.id] = corpse
+                    destination = room.contents
+                elif kind == "nested":
+                    bag = SimpleNamespace(id="bag", timer=0, contains=[corpse])
+                    room.contents[bag.id] = bag
+                    destination = bag.contains
+                else:
+                    is_player = kind.startswith("char")
+                    equipped = kind.endswith("equipped")
+                    owner = SimpleNamespace(id="owner", vnum="100", loot=[], inventory=[],
+                                            equipped=SimpleNamespace(held=corpse) if equipped else None)
+                    destination = owner.loot if is_player else owner.inventory
+                    if not equipped:
+                        destination.append(corpse)
+                    (room.characters if is_player else room.mobiles)[owner.id] = owner
+                asyncio.run(handler.update())
+                self.assertEqual([], corpse.contains)
+                self.assertIn(child, destination.values() if isinstance(destination, dict) else destination)
+                self.assertNotIn(corpse, destination.values() if isinstance(destination, dict) else destination)
+
+    def test_floating_container_spills_to_room_and_excludes_wearer_from_room_notice(self):
+        handler, registries, bus, room, item = self._object_update_fixture()
+        child = SimpleNamespace(id="treasure", timer=0, contains=[])
+        item.item_type, item.wear_loc, item.contains = "container", 17, [child]
+        owner = SimpleNamespace(id="owner", loot=[], equipped=SimpleNamespace(floating=item))
+        viewer = SimpleNamespace(id="viewer")
+        room.characters[owner.id] = owner
+        room.players_in_room = lambda: [owner, viewer]
+        asyncio.run(handler.update())
+        self.assertIs(child, room.contents[child.id])
+        self.assertEqual([], owner.loot)
+        self.assertIsNone(owner.equipped.floating)
+        bus.send_to_character.assert_awaited_once()
+        self.assertEqual([viewer], bus.send_to_room.await_args.args[1])
+
+    def test_nested_effect_expiration_is_silent_but_still_ticks(self):
+        for carried in (False, True):
+            with self.subTest(carried=carried):
+                handler, registries, bus, room, item = self._object_update_fixture()
+                bag = SimpleNamespace(id="bag", timer=0, contains=[item])
+                if carried:
+                    room.characters["owner"] = SimpleNamespace(id="owner", loot=[bag], equipped=None)
+                else:
+                    room.contents[bag.id] = bag
+                del handler.tick_effects  # restore production effect/message routing
+                effects = handler.effect_update_handler
+                effects.expired_messages = Mock(side_effect=lambda target, field: ["$p loses its glow."] if target is item else [])
+                asyncio.run(handler.update())
+                self.assertEqual(0, item.timer)
+                self.assertEqual([], bag.contains)
+                bus.send_to_character.assert_not_awaited()
+                bus.send_to_room.assert_not_awaited()
 
     def test_silent_pit_expiration_still_preserves_pc_corpse_contents(self):
         handler, registries, bus, room, item = self._object_update_fixture()
@@ -429,8 +599,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         enum_provider = Mock(get=Mock(return_value=None))
         fight_handler = Mock()
         fight_handler.PositionsEnum = Positions
-        fight_handler.apply_periodic_damage.side_effect = lambda entity, damage: FightHandler.apply_periodic_damage(
-            fight_handler, entity, damage)
+        fight_handler.apply_periodic_damage = AsyncMock()
         effect_updates = EffectUpdateHandler(registry_service, enum_provider, effect_handler, fight_handler, message_bus)
         item_updates = ItemUpdateHandler(registry_service, enum_provider, effect_updates, message_bus)
         entity_updates = EntityUpdateHandler(registry_service, enum_provider, fight_handler, effect_updates, message_bus)
@@ -444,6 +613,9 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
             enum_provider=enum_provider,
             entity_update_handler=entity_updates,
             item_update_handler=item_updates,
+            advancement_handler=Mock(flush=AsyncMock()),
+            wiz_handler=Mock(wiznet_targets=Mock(return_value=[])),
+            message_bus=message_bus,
         )
         handler.entity_update_handler.PositionsEnum = Positions
         handler.entity_update_handler.AffectedBits = AffectedBy
@@ -579,6 +751,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
                 display_name=lambda: "a brass lamp",
             )
             active.equipped.light = lamp
+            active.loot = [lamp, lamp]
             room = SimpleNamespace(
                 light=1,
                 characters={"active_char": active, "viewer_char": viewer},
@@ -592,6 +765,8 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
             self.assertEqual("0", lamp.value2)
             self.assertEqual(0, room.light)
             self.assertIsNone(active.equipped.light)
+            self.assertEqual([], active.loot)
+            handler.entity_update_handler.effect_update_handler.effect_handler.remove_item_effects.assert_called_once_with(active, lamp)
             message_bus.send_to_character.assert_awaited_once_with(
                 "active_char",
                 "a brass lamp flickers and goes out.\r\n",
@@ -633,8 +808,8 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
 
             await handler.entity_update_handler.effect_update_handler.tick_status_effects(poisoned, room)
 
-            self.assertEqual(17, poisoned.hit)
-            handler.fight_handler.update_pos.assert_called_once_with(poisoned)
+            handler.fight_handler.apply_periodic_damage.assert_awaited_once_with(
+                poisoned, 3, dt="spell.poison", dam_type="DAM_POISON")
             handler.fight_handler.raw_kill.assert_not_called()
             message_bus.send_to_character.assert_awaited_once_with("poisoned_char", "You shiver and suffer.\r\n")
             message_bus.send_to_room.assert_awaited_once_with(
@@ -696,14 +871,14 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
             with patch("api.CharacterApi.CharacterApi.is_immortal", return_value=False), \
                     patch("item.EffectUpdateHandler.EffectUtil.saves_spell", return_value=False) as save:
                 await handler.entity_update_handler.effect_update_handler.tick_status_effects(carrier, room)
-            save.assert_called_once_with(7, victim, "DAM_DISEASE", immunity=handler.fight_handler._check_immunity)
+            self.assertEqual([carrier, victim], [call.args[1] for call in save.call_args_list])
 
-            self.assertEqual(47, carrier.hit)
+            handler.fight_handler.apply_periodic_damage.assert_awaited_once_with(
+                carrier, 3, dt="spell.plague", dam_type="DAM_DISEASE")
             self.assertEqual(17, carrier.mana)
             self.assertEqual(17, carrier.movement)
             self.assertTrue(victim.status_flags.affected_by & AffectedBy.AFF_PLAGUE.value)
             handler.entity_update_handler.effect_update_handler.effect_handler.affect_join.assert_called_once()
-            handler.fight_handler.update_pos.assert_called_once_with(carrier)
             self.assertEqual(
                 [
                     ("carrier_char", "You writhe in agony from the plague.\r\n"),
@@ -727,8 +902,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
 
             await handler.entity_update_handler.effect_update_handler.tick_status_effects(character, SimpleNamespace())
 
-            self.assertEqual(-7, character.hit)
-            handler.fight_handler.update_pos.assert_called_once_with(character)
+            handler.fight_handler.apply_periodic_damage.assert_awaited_once_with(character, 1)
             message_bus.send_to_character.assert_not_awaited()
             message_bus.send_to_room.assert_not_awaited()
 

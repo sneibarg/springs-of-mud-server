@@ -279,6 +279,8 @@ class _SkillUtil:
         return _SkillUtil.weapon_skill_name(weapon, weapon_class_names) or "hand to hand"
 
 
+_real_skill_util = _load_module("_combat_skill_util_runtime", "util/SkillUtil.py")
+_SkillUtil.adjusted_percent = staticmethod(_real_skill_util.SkillUtil.adjusted_percent)
 _stub_module("util.SkillUtil", SkillUtil=_SkillUtil)
 _stub_package("skill")
 _stub_module("skill.Ability", Ability=_SkillUtil)
@@ -1180,7 +1182,7 @@ class TestFightHandlerAggression(unittest.TestCase):
         self.assertIs(victim.fighting, aggressor)
         self.assertEqual(2, handler.combat_registry.upsert.call_count)
 
-    def test_aggressive_room_rounds_evaluates_each_aggressor_once(self):
+    def test_aggressive_room_rounds_stops_starting_combat_after_success(self):
         victim = self._player("char-1")
         witness = self._player("char-2")
         aggressor = self._mob("mob-1")
@@ -1200,7 +1202,8 @@ class TestFightHandlerAggression(unittest.TestCase):
         victim.hit = 20
         handler.multi_hit = Mock(side_effect=attack)
         handler._select_aggressive_victim = Mock(return_value=victim)
-        handler._should_aggress = Mock(return_value=True)
+        handler.rng.number_bits = Mock(return_value=1)
+        handler._should_aggress = Mock(wraps=handler._should_aggress)
 
         rounds = handler.aggressive_room_rounds(room)
 
@@ -1210,12 +1213,68 @@ class TestFightHandlerAggression(unittest.TestCase):
                                      "targets": [witness], "victim": victim,
                                      "to_victim": "The mob hits you.\r\n"})], rounds)
         self.assertEqual(1, handler._select_aggressive_victim.call_count)
-        self.assertEqual(1, handler._should_aggress.call_count)
+        self.assertEqual(2, handler._should_aggress.call_count)
         self.assertIs(aggressor.fighting, victim)
         self.assertIs(victim.fighting, aggressor)
 
         self.assertEqual([], handler.aggressive_room_rounds(room))
         handler.multi_hit.assert_called_once_with(aggressor, victim, dt="TYPE_UNDEFINED")
+
+    def test_two_witnesses_get_independent_attempts_until_combat_starts(self):
+        outcomes = []
+        for rolls in ((0, 0), (0, 1), (1, 0), (1, 1)):
+            with self.subTest(rolls=rolls):
+                players = [self._player("first"), self._player("second")]
+                mob = self._mob("mob")
+                room = self._safety_room(*players)
+                room.id = "room-1"
+                room.mobiles = {mob.id: mob}
+                handler = self._handler(room)
+                handler.rng.number_bits = Mock(side_effect=rolls)
+                handler.rng.number_range = Mock(return_value=0)
+                handler.multi_hit = Mock(return_value={})
+                rounds = handler.aggressive_room_rounds(room)
+                expected = any(rolls)
+                outcomes.append(bool(rounds))
+                self.assertEqual(int(expected), len(rounds))
+                self.assertEqual(int(expected), handler.multi_hit.call_count)
+                self.assertEqual(1 if rolls[0] else 2, handler.rng.number_bits.call_count)
+                self.assertEqual(2 if expected else 0, handler.rng.number_range.call_count)
+        self.assertEqual(3, sum(outcomes))  # Three of four equally likely roll pairs attack.
+
+    def test_aggression_can_join_attack_on_an_engaged_player_without_retargeting_them(self):
+        victim, opponent = self._player("victim"), self._mob("opponent")
+        aggressor = self._mob("aggressor")
+        victim.fighting, opponent.fighting = opponent, victim
+        room = self._safety_room(victim)
+        room.id = "room-1"
+        room.mobiles = {aggressor.id: aggressor, opponent.id: opponent}
+        handler = self._handler(room)
+        handler.rng.number_bits = Mock(return_value=1)
+        handler.rng.number_range = Mock(return_value=0)
+        handler.multi_hit = Mock(return_value={})
+        rounds = handler.aggressive_room_rounds(room)
+        handler.multi_hit.assert_called_once_with(aggressor, victim, dt="TYPE_UNDEFINED")
+        self.assertEqual(1, len(rounds))
+        self.assertIs(victim.fighting, opponent)
+        self.assertIs(opponent.fighting, victim)
+        self.assertIs(aggressor.fighting, victim)
+
+    def test_witness_need_not_be_level_eligible_as_selected_victim(self):
+        witness, target = self._player("witness"), self._player("target")
+        witness.level = 30
+        mob = self._mob("mob")
+        room = self._safety_room(witness, target)
+        room.id = "room-1"
+        room.mobiles = {mob.id: mob}
+        handler = self._handler(room)
+        handler.rng.number_bits = Mock(return_value=1)
+        handler.rng.number_range = Mock(return_value=0)
+        handler.multi_hit = Mock(return_value={})
+        handler.aggressive_room_rounds(room)
+        handler.multi_hit.assert_called_once_with(mob, target, dt="TYPE_UNDEFINED")
+        handler.rng.number_bits.assert_called_once_with(1)
+        handler.rng.number_range.assert_called_once_with(0, 0)
 
     def test_aggression_does_not_attack_without_a_valid_start(self):
         for entry in (False, True):

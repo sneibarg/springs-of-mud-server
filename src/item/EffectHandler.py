@@ -388,7 +388,7 @@ class EffectHandler:
             suppress_msg = (
                 next_effect is not None
                 and str(getattr(next_effect, "type", "")).strip().lower() == str(getattr(effect, "type", "")).strip().lower()
-                and GenericUtil.to_int(getattr(next_effect, "duration", 0), 0) > 0
+                and GenericUtil.to_int(getattr(next_effect, "duration", 0), 0) <= 0
             )
             if not suppress_msg:
                 expired_effects.append(effect)

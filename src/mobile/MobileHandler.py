@@ -108,8 +108,6 @@ class MobileHandler:
                 self.logger.debug(f"mobile_update skipping {self._actor_label(mob)} in {self._room_label(room)} because the area is empty and ACT_UPDATE_ALWAYS is not set")
                 continue
 
-            self._update_shop_money(mob)
-
             special_performed = await self.execute_special_function(mob, room)
             self.logger.debug(
                 f"mobile_update special execution result for {self._actor_label(mob)} in {self._room_label(room)}: "
@@ -117,6 +115,8 @@ class MobileHandler:
             )
             if special_performed:
                 continue
+
+            self._update_shop_money(mob)
 
             if not MobileApi.mobile_is_standing(mob):
                 self.logger.debug(f"mobile_update skipping generic specials for {self._actor_label(mob)} in {self._room_label(room)} because position is not standing")

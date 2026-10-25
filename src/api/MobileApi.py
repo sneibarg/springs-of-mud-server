@@ -626,7 +626,7 @@ class MobileApi(GameApi):
         return ctx.mark_performed()
 
     @classmethod
-    def scavenge(cls, ctx: MobileContext):
+    def scavenge(cls, ctx: MobileContext, room_message: str = ""):
         actor_label = cls._actor_label(ctx.actor)
         room_label = cls._room_label(ctx.room)
         if not MobileApi.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_SCAVENGER"):
@@ -642,8 +642,11 @@ class MobileApi(GameApi):
 
         obj_best = None
         max_cost = 1
+        owners = list(cls._live_loot_owners(ctx))
         for obj in list(ctx.room.contents.values()):
             if not ItemApi.item_takeable(obj, ctx.handler.wear_flags):
+                continue
+            if not ItemApi.can_loot(ctx.actor, obj, owners):
                 continue
             cost = GenericUtil.to_int(obj.cost, 0)
             if cost > max_cost:
@@ -653,11 +656,23 @@ class MobileApi(GameApi):
             cls._logger_obj().debug(f"{actor_label}: scavenge found no takeable item worth taking in {room_label}")
             return False
         MobileApi.give_room_item_to_mobile(ctx.room, ctx.actor, obj_best)
+        if room_message:
+            text = MobileApi.render_act(room_message, ctx.actor).replace(
+                "$p", str(getattr(obj_best, "short_description", "") or getattr(obj_best, "name", "item")))
+            cls._queue_room_message(ctx, text + "\r\n")
         cls._logger_obj().debug(
             f"{actor_label}: scavenged {getattr(obj_best, 'short_description', '') or getattr(obj_best, 'name', 'item')} "
             f"[id={getattr(obj_best, 'id', '')}, cost={getattr(obj_best, 'cost', 0)}] in {room_label}"
         )
         return ctx.mark_performed()
+
+    @staticmethod
+    def _live_loot_owners(ctx: MobileContext):
+        registry = ctx.handler.registry_service.character_registry
+        yield from registry.playing.values()
+        for room in ctx.handler.room_registry.all_rooms():
+            yield from room.characters.values()
+            yield from room.mobiles.values()
 
     @classmethod
     def wander(cls, ctx: MobileContext):

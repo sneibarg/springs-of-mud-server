@@ -202,20 +202,13 @@ class AnimateEntity:
         return LookupUtil.find(self.owned_items(), wanted, visible=lambda item: LookupUtil.object_visible(viewer, room, item))
 
     def regenerate(self, room, context: RegenerationContext) -> None:
-        max_hit = GenericUtil.to_int(getattr(self, "max_hit", 0), 0)
-        max_mana = GenericUtil.to_int(getattr(self, "max_mana", 0), 0)
-        max_move = GenericUtil.to_int(getattr(self, "max_movement", 0), 0)
-
-        hit = GenericUtil.to_int(getattr(self, "hit", 0), 0)
-        mana = GenericUtil.to_int(getattr(self, "mana", 0), 0)
-        move = GenericUtil.to_int(getattr(self, "movement", 0), 0)
-
-        if hit < max_hit:
-            setattr(self, "hit", min(max_hit, hit + self.hit_gain(room, context)))
-        if mana < max_mana:
-            setattr(self, "mana", min(max_mana, mana + self.mana_gain(room, context)))
-        if move < max_move:
-            setattr(self, "movement", min(max_move, move + self.move_gain(room, context)))
+        for resource, maximum, gain in (
+                ("hit", "max_hit", self.hit_gain),
+                ("mana", "max_mana", self.mana_gain),
+                ("movement", "max_movement", self.move_gain)):
+            current = GenericUtil.to_int(getattr(self, resource, 0), 0)
+            limit = GenericUtil.to_int(getattr(self, maximum, 0), 0)
+            setattr(self, resource, min(limit, current + gain(room, context)) if current < limit else limit)
 
     def hit_gain(self, room, context: RegenerationContext) -> int:
         if room is None:

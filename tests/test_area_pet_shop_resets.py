@@ -115,6 +115,7 @@ sys.modules["util.ItemUtil"] = item_util
 for module_name, class_name in (
     ("combat.FightHandler", "FightHandler"),
     ("game.EnumProvider", "EnumProvider"),
+    ("game.WizHandler", "WizHandler"),
     ("game.Equipped", "Equipped"),
     ("game.WeatherHandler", "WeatherHandler"),
     ("game.RegistryService", "RegistryService"),
@@ -197,6 +198,7 @@ def build_handler(rooms):
         shop_registry=Mock(find_by_keeper_vnum=Mock(return_value=None)),
         enum_provider=enum_provider,
         character_registry=Mock(),
+        wiz_handler=Mock(),
     )
 
 def reset(mob_vnum, room_vnum):

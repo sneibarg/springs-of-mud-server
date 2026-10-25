@@ -5876,4 +5876,18 @@
     "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
-}]
+},
+{
+  "_id": {
+    "$oid": "6a0000010000000000000001"
+  },
+  "areaId": "",
+  "mobVnum": "",
+  "name": "spec_scavenge",
+  "comment": "Generic autonomous NPC scavenging; room pickup text is designer editable.",
+  "specialFunction": [
+    "lambda ctx: ctx.scavenge(room_message='$n gets $p.')"
+  ],
+  "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
+}
+]

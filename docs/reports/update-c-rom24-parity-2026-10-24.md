@@ -8,6 +8,8 @@ Each update type has its own subsection below. Functions defined in update.c but
 
 ### update_handler: pulse scheduling
 
+**Resolved 2026-10-25:** `UpdateHandler` now runs area, music counter, mobile, violence, tick work (weather, characters, objects), then aggression. Tick work emits `TICK!` through the existing `WizHandler` subscription filtering/decoration and `MessageBus` before weather updates. Fixed periods and the music placeholder remain unchanged. Regression tests cover coincident deadlines, notice routing and 481 pulses of counter cadence; `tests.test_update_handler_active_players` passes all 26 tests. This resolution applies only to the two scheduler findings below, not the separate update-type findings.
+
 **P2 — Tick work executes before mobile and violence pulses instead of afterward.** C `update.c:1081–1134`; Python `src/game/UpdateHandler.py:47–72`. At coincident deadlines, C executes area, music, mobile, violence, weather, character, object, then aggression. Python executes area, weather, character, object, music placeholder, mobile, violence, then aggression. Therefore specials see the new hour one mobile pulse earlier; regeneration, poison, expiring effects and object decay happen before combat instead of after combat. This can alter who survives a combat pulse and which effects apply to it. This is the scheduler mismatch also identified in the mobile-specials report.
 
 The configured periods match C merc.h: four pulses/second; area 480 pulses, music 24, mobile 16, violence 12, tick 240. Both initialize counters to zero and decrement before testing. The local C's purported random pulse intervals are commented out; Python's fixed periods are not a mismatch.
@@ -15,6 +17,8 @@ The configured periods match C merc.h: four pulses/second; area 480 pulses, musi
 **P3 — Missing tick monitoring notice.** C `update.c:1116` emits `TICK!` through WIZ_TICKS. Python's tick branch has no equivalent notice. This removes an administrator's tick-observation facility, though it does not itself stop updates.
 
 ### area_update: area aging/reset pulse
+
+**Resolved 2026-10-25:** Scheduled area resets now announce `<area name> has just been reset.` through `WIZ_RESETS`, after resetting and before updating age/empty state. The area pulse awaits delivery through `MessageBus` using existing wiznet filtering and decoration. Aging thresholds, random age range and school override remain unchanged. Area occupancy and scheduler suites pass 36 tests, including new notice-ordering, initial-age gate and initialization-silence regressions. The separate pet-shop reset test remains blocked by stale fixture imports (`combat.FightHandler` versus `combat.CombatHandler`), unrelated to area pulse behavior.
 
 C call: `update.c:1093`; implementation: `db.c:1172–1210`. Python: `src/area/AreaHandler.py:54–69`.
 
@@ -28,6 +32,8 @@ C `update.c:1096–1100`, `music.c:45` advances queued songs and delivers song t
 
 ### mobile_update: autonomous NPC pulse
 
+**Resolved 2026-10-25:** Shopkeeper replenishment now follows assigned-special dispatch and is skipped when the special claims the pulse. Scavenging applies shared `ItemApi.can_loot` rules using playing characters and live room occupants, then queues the pickup notice through the mobile payload path. Added the missing `spec_scavenge` library document to the snapshot, with designer-editable pickup text passed to the generic primitive. New regressions exercise special/replenishment ordering and RNG consumption plus a collection-backed pulse that rejects protected loot, picks the best allowed item and emits its notice. These changes address the two findings below; mayor-specific behavior remains covered by the separate mobile-specials report.
+
 C `update.c:374–461`; Python `src/mobile/MobileHandler.py:85–157`, `src/api/MobileApi.py:628–727`.
 
 Charmed/empty-area eligibility, assigned-special dispatch before the standing check, scavenging's 1-in-64 roll, wandering's 1-in-8 roll followed by a 0–31 direction roll, and the inspected exit/area/indoor gates substantially match C.
@@ -40,6 +46,8 @@ The previously verified mayor-specific position/combat/return-value defects rema
 
 ### weather_update: clock, sunlight, pressure and sky
 
+**Resolved 2026-10-25:** Sky transitions now compare barometric pressure throughout and preserve C's independent rain/lightning checks. Weather notices are combined in time-then-sky order and sent only to awake outdoor active players. Day/night punctuation matches C; invalid sky values are logged and reset without exposing diagnostics to players. New regressions cover pressure boundaries and random-roll consumption for all sky states, recipient eligibility, combined messages, invalid skies, clock rollover, seasonal pressure thresholds and clamps. Weather and scheduler suites pass 31 tests.
+
 C `update.c:467–599`; Python `src/game/WeatherHandler.py:43–148`.
 
 Hour transitions 5/6/19/20, day/month rollover at 35/17, seasonal pressure threshold 985 versus 1015, change clamp -12..12 and pressure clamp 960..1040 match the inspected normal paths.
@@ -51,6 +59,10 @@ Hour transitions 5/6/19/20, day/month rollover at 35/17, seasonal pressure thres
 Minor differences: Python splits time/sky notices into separate sends, omits punctuation from some time notices, and broadcasts an invalid-sky diagnostic rather than only logging the C bug message. These are secondary to the recipient/transition defects.
 
 ### char_update: character and NPC hourly tick
+
+**Confirmed defects resolved 2026-10-25:** Regeneration now clamps HP/mana/movement to their maxima without rolling gains for full resources. Shared effect ticking suppresses notices only when the next same-type effect has nonpositive duration, fixing character and object expiration together. Periodic poison, plague and wound damage now await the existing quiet typed combat pipeline and emit its reveal/reward/wound/death consequences through the shared combat emitter; spell-owned tick text remains unchanged. Plague spread now rolls saves before eligibility/chance checks as C does, including the carrier's save. Burned-out lights use `ItemOwnership.detach_carried` for equipment effects and inventory-alias cleanup. `SessionHandler.is_session_idle` now uses the existing seconds-based deadline rather than multiplying the timeout by 1000.
+
+Validation: 165 focused tests pass across character updates (29), periodic/combat state/aggression (80), effects (17), conditions (14), design contracts (9), ownership (3) and death rules (13), run in compatible processes to avoid global fixture collisions. Regressions cover over-max resources without gain rolls, expiration groups including permanent/positive siblings, typed defenses and immortal floors, lethal notice delivery, plague save ordering, burned-light cleanup and idle deadline boundaries. NPC return-home extraction and ROM limbo/autoquit policy remain unresolved design choices; neither was implemented. The regeneration skill-integration finding under `hit_gain / mana_gain / move_gain` is outside this section's fixes.
 
 C `update.c:607–840`; Python `src/game/UpdateHandler.py:74–102`, `src/game/EntityUpdateHandler.py:35–80`, Character/AnimateEntity model methods and EffectUpdateHandler.
 
@@ -72,6 +84,10 @@ Light fuel countdown/low-fuel messages, mortal/immortal gating, and room light d
 
 ### obj_update: object effects, timers and decay
 
+**Confirmed defects resolved 2026-10-25:** Player-corpse preservation uses the existing alias-aware `Item.is_pc_corpse` predicate. Decay text reuses `Item.enum_type_name` and corpse predicates, including ordinary collection types and floating containers. One shared ownership-based message router now handles affect and decay notices: nested contents remain silent, directly carried NPC items do not broadcast, and floating-item decay reaches observers without sending a duplicate notice to the wearer. Content spill routing now preserves non-floating equipped corpse contents in the carrier's inventory and drops floating contents into the room, matching C. The shared effect-message suppression fix recorded under `char_update` also applies here.
+
+Validation: 76 tests pass across active-player/object updates (33), item ownership (3), effects (17), design contracts (9) and loot/sacrifice (14), run in isolated processes. New cases cover collection aliases, corpse contents across room/nested/player/NPC inventory/equipment locations, floating spills and recipients, and nested affect expiration. The live-object traversal coverage caveat below remains unproven; this fix does not introduce a new global object registry.
+
 C `update.c:849–987`; Python `src/item/ItemUpdateHandler.py:27–105` and shared Item/EffectHandler methods. Both tick affects first; timers <=0 do not expire; a positive timer expires when decremented to zero. Shopkeeper credit uses cost/5; fixed-pit suppression, equipped-item detachment and content spill paths exist. Shared affect-message suppression differs as described under char_update.
 
 **P1 — Real player-corpse types fail the preservation branch.** Python `ItemUpdateHandler.py:47–48,79–84` recognizes only the enum name ITEM_CORPSE_PC. The checked collection document for vnum 11 stores `pc_corpse`, preserved by ItemUtil normalization. Consequently is_pc_corpse is false and contents are not moved before the corpse is detached. Reproduced an expiring pc_corpse containing treasure: the room ended empty rather than containing the treasure. C `update.c:951–981` explicitly preserves player-corpse contents. This is item loss, not just wording. Normalize type checks using existing item predicates/aliases.
@@ -84,6 +100,10 @@ Global C object-list membership is represented by Python's live room/character o
 
 ### aggr_update: per-pulse aggression
 
+**Confirmed defects resolved 2026-10-25:** Room aggression now reuses the entry-aggression path for each player witness, restoring a fresh guard/chance check before reservoir victim selection. A successful combat start naturally prevents subsequent starts while the NPC remains fighting. Already-engaged players are eligible victims, and the start helper no longer rejects them; their existing fighting target is preserved while the new aggressor joins combat. The shared entry path avoids duplicating guard, selection, opening attack and payload construction logic.
+
+Validation: 132 focused tests pass across aggression/combat state/periodic damage (83), update scheduling (33) and dynamic combat commands (16), run in compatible processes. New regressions enumerate all four two-witness gate outcomes (three produce an attack), assert random-roll consumption, confirm that witness level eligibility is distinct from victim eligibility, and verify joining combat without retargeting an engaged player. Immediate opening attacks and later-start suppression remain covered.
+
 C `update.c:1003–1069`; Python `src/combat/CombatHandler.py:477–497,1608–1667,2042–2056`.
 
 Empty-area, aggressive/safe/calm/charm/awake checks, five-level victim tolerance, wimpy/asleep restriction, reservoir selection, and immediate multi_hit are represented.
@@ -94,11 +114,15 @@ Empty-area, aggressive/safe/calm/charm/awake checks, five-level victim tolerance
 
 ### violence_update: scheduled combat boundary
 
+**Resolved and reverified 2026-10-25:** The ordering issue referenced here was fixed under `update_handler`: mobile updates precede combat-registry refresh and violence dispatch, which precede weather/character/object tick work and finally aggression. Existing coincident-pulse and 481-pulse cadence regressions cover this boundary, including the 12-pulse violence period and refresh-before-dispatch order. All 33 tests in `tests.test_update_handler_active_players` pass. No additional runtime change or duplicate test was needed. This section establishes scheduler-boundary parity only; the combat-round scope limits below still apply.
+
 C scheduler `update.c:1108–1112`; implementation `fight.c` violence_update. Python `UpdateHandler.py:67–71`, `CombatHandler.py:1992–2040`. The three-second period and ongoing-combat update call are present; Python refreshes its combat-event registry before dispatch. The relative ordering defect is listed under update_handler. Round execution, combat assistance, and every weapon/offensive action were not re-audited here; no whole-combat parity claim is made.
 
 ## Other functions defined in update.c
 
 ### hit_gain / mana_gain / move_gain
+
+**Resolved 2026-10-25:** Regeneration now looks up learned skills with the existing class-level visibility guard and applies the same shared `SkillUtil.adjusted_percent` daze/drunk scaling used by combat. The referenced LearningService cap/eligibility defects were already resolved in the skills.c work and reverified here. Resource over-max clamping was resolved under `char_update`.
 
 C `update.c:147–330`; Python `AnimateEntity.py:220–300`, `Character.py:423–514`, `Mobile.py:60–91`. Inspected base player/NPC formulas, integer divisions on normal nonnegative gains, position multipliers, hunger/thirst penalties, room/furniture rates, regeneration flag, poison/plague penalties and haste/slow halving. These match the covered normal inputs, apart from the caller's over-max clamp omission. Furniture rates use value3 for HP/movement and value4 for mana, as C does.
 
@@ -109,6 +133,10 @@ Fast-healing/meditation improvement invokes the LearningService defects already 
 C `update.c:333–370`; Python `Character.py:327–335,359–387`. Covered zero-change/NPC/immortal/disabled gates, clamp 0–48, sober notice only when transitioning from nonzero, hunger/thirst warnings at zero, and separate fullness/hunger decay with large-race scaling. No mismatch found in those inspected branches. Conditions remain designer-compatible runtime state; no content rewrite is required for parity.
 
 ### advance_level / gain_exp
+
+**Confirmed defects resolved 2026-10-25:** Each eligible XP award recalculates the requirement using the existing creation-point/race/class formula. Total XP has a one-requirement minimum, and level thresholds use total XP so penalties below the current-level floor must be earned back. The existing within-level display remains nonnegative. One configured advancement observer persists every level immediately and queues `WIZ_LEVELS` notices for delivery on the next world pulse through existing wiznet filtering/decoration and MessageBus. This single lifecycle boundary covers combat, learning and spell callers without duplicating their save/notification logic; runtime reset clears its registration. The notification queue is thread-safe because XP can be awarded from different runtime loops.
+
+Validation for these helper fixes: 161 tests pass across update/learning (37), new advancement regressions (3), movement/XP costs (21), aggression/combat proficiency (77), conditions (14) and design contracts (9), run in compatible processes. New regressions cover recalculation, XP-floor/debt behavior, per-level persistence, exactly-once queued notice delivery, regeneration eligibility and combined daze/drunk rounding. No live content-service persistence run was performed. `last_level` and permanent-stat schema requirements remain unresolved product/service questions rather than confirmed runtime defects; no new persistence fields were invented.
 
 C `update.c:61–140`; Python `src/player/CharacterAdvancement.py:46–181`. Inspected growth draws, 90% scaling, HP/mana minimum 2, movement minimum 6, class mana halving, practice award, train +1, hero gating and title update. Normal covered growth arithmetic matches. Python represents within-level and accumulated XP separately, which is not itself a defect.
 

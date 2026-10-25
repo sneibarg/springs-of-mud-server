@@ -49,16 +49,16 @@ class EffectUpdateHandler:
             if poison is not None:
                 await self._send_effect_payload(poison, "tick", entity, room)
                 damage = GenericUtil.to_int(getattr(poison, "level", 0), 0) // 10 + 1
-                self.fight_handler.apply_periodic_damage(entity, damage)
+                await self.fight_handler.apply_periodic_damage(entity, damage, dt="spell.poison", dam_type="DAM_POISON")
             return
 
         position = entity.position_value(self.PositionsEnum)
         if position == self._pos_value("POS_INCAP"):
             if self.rng.number_range(0, 1) == 0:
-                self.fight_handler.apply_periodic_damage(entity, 1)
+                await self.fight_handler.apply_periodic_damage(entity, 1)
             return
         if position == self._pos_value("POS_MORTAL"):
-            self.fight_handler.apply_periodic_damage(entity, 1)
+            await self.fight_handler.apply_periodic_damage(entity, 1)
 
     async def _tick_plague(self, entity, room) -> None:
         if room is None:
@@ -87,16 +87,14 @@ class EffectUpdateHandler:
         )
 
         for victim in room.people():
-            if victim is entity:
+            if EffectUtil.saves_spell(GenericUtil.to_int(spread.level, 0) - 2, victim, "DAM_DISEASE",
+                                      immunity=self.fight_handler._check_immunity):
                 continue
             if CharacterApi.is_immortal(victim):
                 continue
             if victim.is_affected(self.AffectedBits, "AFF_PLAGUE"):
                 continue
             if self.rng.number_bits(4) != 0:
-                continue
-            if EffectUtil.saves_spell(GenericUtil.to_int(spread.level, 0) - 2, victim, "DAM_DISEASE",
-                                      immunity=self.fight_handler._check_immunity):
                 continue
 
             await self._send_effect_payload(spread, "spread", victim, room)
@@ -105,7 +103,7 @@ class EffectUpdateHandler:
         damage = min(GenericUtil.to_int(getattr(entity, "level", 0), 0), plague_level // 5 + 1)
         setattr(entity, "mana", GenericUtil.to_int(getattr(entity, "mana", 0), 0) - damage)
         setattr(entity, "movement", GenericUtil.to_int(getattr(entity, "movement", 0), 0) - damage)
-        self.fight_handler.apply_periodic_damage(entity, damage)
+        await self.fight_handler.apply_periodic_damage(entity, damage, dt="spell.plague", dam_type="DAM_DISEASE")
 
     async def _send_effect_payload(self, effect, key: str, entity, room) -> None:
         await self._send_to_room_except(room, entity, self._effect_payload(effect, "to_room", key, entity))

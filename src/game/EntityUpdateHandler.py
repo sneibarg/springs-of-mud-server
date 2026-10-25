@@ -6,6 +6,7 @@ from game.EnumProvider import EnumProvider
 from game.RandomNumberGenerator import RandomNumberGenerator
 from game.RegistryService import RegistryService
 from item.EffectUpdateHandler import EffectUpdateHandler
+from item.ItemOwnership import ItemOwnership
 from player.Character import Character
 from server.messaging.MessageBus import MessageBus
 from skill.Ability import Ability
@@ -68,6 +69,8 @@ class EntityUpdateHandler:
         await self.effect_update_handler.tick_status_effects(entity, room)
 
     async def emit_character_tick(self, character, room, payload: dict) -> None:
+        if payload.get("expired_item") is not None:
+            ItemOwnership(self.effect_update_handler.effect_handler).detach_carried(character, payload["expired_item"])
         if payload.get("to_room") and room is not None:
             targets = [player for player in room.players_in_room() if player.id != character.id]
             if targets:

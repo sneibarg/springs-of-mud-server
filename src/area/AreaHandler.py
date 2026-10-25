@@ -2,6 +2,7 @@ from enum import IntEnum
 from injector import inject
 
 from game.EnumProvider import EnumProvider
+from game.WizHandler import WizHandler
 from util.AreaUtil import AreaUtil
 from area.Reset import Reset
 from area.Area import Area
@@ -34,7 +35,8 @@ class AreaHandler:
                  mobile_registry: MobileRegistry,
                  shop_registry: ShopRegistry,
                  enum_provider: EnumProvider,
-                 character_registry: CharacterRegistry):
+                 character_registry: CharacterRegistry,
+                 wiz_handler: WizHandler):
         self.__name__ = "AreaHandler"
         self.logger = LoggerFactory.get_logger(__name__)
         self.message_bus = message_bus
@@ -45,13 +47,14 @@ class AreaHandler:
         self.shop_registry = shop_registry
         self.enum_provider = enum_provider
         self.character_registry = character_registry
+        self.wiz_handler = wiz_handler
         self.WellKnownRoomVnums = enum_provider.get("wellKnownRoomVnums")
         self.ExitFlags = enum_provider.get("exitFlags")
         self.ItemFlags = enum_provider.get("itemFlags")
         self.RoomFlags = enum_provider.get("roomFlags")
         self.ActBits = enum_provider.get("actBits")
 
-    def area_update(self):
+    async def area_update(self):
         for area in self.area_registry.all_areas():
             area.age += 1
             if area.age < 3:
@@ -62,6 +65,9 @@ class AreaHandler:
                 school_room = self.room_registry.get_or_none(vnum=str(school_vnum))
 
                 self._reset_area(area)
+                for recipient in self.wiz_handler.wiznet_targets(None, flag_name="WIZ_RESETS"):
+                    text = self.wiz_handler.decorate_wiznet_text(recipient, f"{area.name} has just been reset.")
+                    await self.message_bus.send_to_character(recipient.id, self.message_bus.text_to_message(text))
                 area.age = rng.number_range(0, 3)
                 if school_room is not None and school_room.area_id == area.id:
                     area.age = 13  # 15 - 2 → ~2 minute grace period before it can reset again

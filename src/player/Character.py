@@ -352,8 +352,7 @@ class Character(AnimateEntity):
         name = light.display_name()
         if remaining == 0:
             Room.adjust_light(room, -1)
-            self.equipped.light = None
-            return {"to_char": f"{name} flickers and goes out.\r\n", "to_room": f"{name} goes out.\r\n"}
+            return {"expired_item": light, "to_char": f"{name} flickers and goes out.\r\n", "to_room": f"{name} goes out.\r\n"}
         if remaining <= 5:
             return {"to_char": f"{name} flickers.\r\n"}
         return {}
@@ -504,4 +503,8 @@ class Character(AnimateEntity):
         return gain
 
     def _skill_percent(self, skill_name: str) -> int:
-        return self.learned_entry_level(self.get_learned(skill_name, collection_name="skills"))
+        from skill.Ability import Ability
+        from util.SkillUtil import SkillUtil
+        learned = self.learned_entry_level(self.get_learned(
+            skill_name, collection_name="skills", visible_only=True, visible_fn=Ability.practice_visible))
+        return SkillUtil.adjusted_percent(self, learned)

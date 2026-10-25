@@ -5,12 +5,15 @@ from area.AreaHandler import AreaHandler
 from combat.CombatHandler import FightHandler
 from game.EntityUpdateHandler import EntityUpdateHandler
 from game.EnumProvider import EnumProvider
+from game.WizHandler import WizHandler
 from item.ItemUpdateHandler import ItemUpdateHandler
 from game.WeatherHandler import WeatherHandler
 from mobile.MobileHandler import MobileHandler
 from player.Character import Character
 from player.CharacterService import CharacterService
+from player.AdvancementHandler import AdvancementHandler
 from server.session.SessionHandler import SessionHandler
+from server.messaging.MessageBus import MessageBus
 
 
 class UpdateHandler:
@@ -26,7 +29,10 @@ class UpdateHandler:
                  session_handler: SessionHandler,
                  enum_provider: EnumProvider,
                  entity_update_handler: EntityUpdateHandler,
-                 item_update_handler: ItemUpdateHandler):
+                 item_update_handler: ItemUpdateHandler,
+                 wiz_handler: WizHandler,
+                 message_bus: MessageBus,
+                 advancement_handler: AdvancementHandler):
         self.weather_handler = weather_handler
         self.area_handler = area_handler
         self.mobile_handler = mobile_handler
@@ -35,6 +41,9 @@ class UpdateHandler:
         self.session_handler = session_handler
         self.entity_update_handler = entity_update_handler
         self.item_update_handler = item_update_handler
+        self.wiz_handler = wiz_handler
+        self.message_bus = message_bus
+        self.advancement_handler = advancement_handler
         self.pulse_area = 0
         self.pulse_mobile = 0
         self.pulse_violence = 0
@@ -53,12 +62,7 @@ class UpdateHandler:
 
         if self.pulse_area <= 0:
             self.pulse_area = self.GameParametersEnum.PULSE_AREA.value
-            self.area_handler.area_update()
-        if self.pulse_point <= 0:
-            self.pulse_point = self.GameParametersEnum.PULSE_TICK.value
-            await self.weather_handler.update()
-            await self.char_update()
-            await self.obj_update()
+            await self.area_handler.area_update()
         if self.pulse_music <= 0:
             self.pulse_music = self.GameParametersEnum.PULSE_MUSIC.value
         if self.pulse_mobile <= 0:
@@ -68,7 +72,16 @@ class UpdateHandler:
             self.pulse_violence = self.GameParametersEnum.PULSE_VIOLENCE.value
             self.fight_handler.refresh_combat_registry_from_world()
             await self.fight_handler.violence_update()
+        if self.pulse_point <= 0:
+            for recipient in self.wiz_handler.wiznet_targets(None, flag_name="WIZ_TICKS"):
+                text = self.wiz_handler.decorate_wiznet_text(recipient, "TICK!")
+                await self.message_bus.send_to_character(recipient.id, self.message_bus.text_to_message(text))
+            self.pulse_point = self.GameParametersEnum.PULSE_TICK.value
+            await self.weather_handler.update()
+            await self.char_update()
+            await self.obj_update()
         await self.fight_handler.aggression_update()
+        await self.advancement_handler.flush()
 
     async def char_update(self):
         if not self.entity_update_handler.enabled:

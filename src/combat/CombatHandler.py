@@ -478,32 +478,16 @@ class FightHandler:
         if room is None:
             return []
 
-        area = self.area_registry.get_or_none(id=getattr(room, "area_id", ""))
-        if area is not None and bool(getattr(area, "empty", False)):
-            return []
-
         rounds: list[tuple[object, dict]] = []
-        for aggressor in list(getattr(room, "mobiles", {}).values()):
-            if aggressor is None:
-                continue
-            victim = self._select_aggressive_victim(aggressor, room)
-            if victim is None or not self._should_aggress(aggressor, victim, room):
-                continue
-            if self._start_aggressive_combat(aggressor, victim):
-                # ROM aggr_update attacks immediately, before the next violence pulse.
-                result = self.multi_hit(aggressor, victim, dt="TYPE_UNDEFINED")
-                rounds.append((aggressor, self.build_round_payload(aggressor, victim, room, result)))
-
+        # Each mortal PC witnesses a fresh aggression attempt, as in aggr_update.
+        for witness in list(getattr(room, "characters", {}).values()):
+            rounds.extend(self.aggressive_entry_rounds(witness, room))
         return rounds
 
     def _start_aggressive_combat(self, aggressor, victim) -> bool:
         if aggressor is None or victim is None or aggressor is victim:
             return False
         if getattr(aggressor, "fighting", None) is not None:
-            return False
-
-        victim_fighting = getattr(victim, "fighting", None)
-        if victim_fighting not in (None, aggressor):
             return False
 
         self._set_fighting(aggressor, victim)
@@ -1573,12 +1557,8 @@ class FightHandler:
 
     @staticmethod
     def _adjust_combat_skill(entity, skill: int) -> int:
-        status = getattr(entity, "status_flags", None)
-        if GenericUtil.to_int(getattr(status, "pulse_daze", 0), 0) > 0:
-            skill = 2 * skill // 3
-        if not CharacterApi.is_npc(entity) and GenericUtil.to_int(getattr(status, "drunk", 0), 0) > 10:
-            skill = 9 * skill // 10
-        return max(0, min(100, skill))
+        from util.SkillUtil import SkillUtil
+        return SkillUtil.adjusted_percent(entity, skill)
 
     def _defense_skill_percent(self, entity, skill_name: str) -> int:
         wanted = str(skill_name or "").strip().lower()
@@ -1645,9 +1625,6 @@ class FightHandler:
             if CharacterApi.is_npc(candidate):
                 continue
             if CharacterApi.is_immortal(candidate):
-                continue
-            if getattr(candidate, "fighting", None) is not None and getattr(candidate, "fighting",
-                                                                            None) is not aggressor:
                 continue
             if aggressor.level < candidate.level - 5:
                 continue
@@ -2055,13 +2032,13 @@ class FightHandler:
             if room is not None and area is not None:
                 await self.message_bus.send_prompt(character, area, room)
 
-    def apply_periodic_damage(self, entity, damage: int) -> None:
-        from game.AnimateEntity import AnimateEntity
-
-        damage = max(0, GenericUtil.to_int(damage, 0))
-        if damage <= 0:
-            return
-        setattr(entity, "hit", GenericUtil.to_int(getattr(entity, "hit", 0), 0) - damage)
-        self.update_pos(entity)
-        if AnimateEntity.position_value(entity, self.PositionsEnum) <= self.PositionsEnum.POS_DEAD.value:
-            self.raw_kill(entity)
+    async def apply_periodic_damage(self, entity, damage: int, *, dt: str = "TYPE_UNDEFINED",
+                                    dam_type: str = "DAM_NONE") -> None:
+        """Apply quiet self-damage through the shared defenses and death lifecycle."""
+        room = self._find_room_for_entity(entity)
+        result = self.damage(entity, entity, damage, dt=dt, dam_type=dam_type, show=False)
+        payload = {**result, "victim": entity,
+                   "targets": [player for player in room.players_in_room() if player is not entity] if room else []}
+        await self.emit_round_payload(entity, {"payloads": [
+            *result.get("pre_damage_payloads", []), payload,
+            *result.get("reward_payloads", []), *result.get("post_damage_actions", [])]})

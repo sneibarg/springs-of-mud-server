@@ -42,38 +42,21 @@ class WeatherHandler:
     # every 60 seconds is one game hour.
     async def update(self):
         self.logger.info(f"{str(self.time_info)}; {str(self.weather_info)}")
-        await self._time_update()
-        await self._sky_update()
-
-    async def _time_update(self):
-        time_msg = self._time_change()
-        if time_msg:
-            self.logger.info(f"Time update: {time_msg}")
-            message = Message(type=MessageType.GAME, data={'text': time_msg})
-            await self.message_bus.broadcast(message, self._indoors())
-
-    async def _sky_update(self):
+        text = self._time_change()
         self._update_barometric_pressure()
-
-        sky_msg = self._sky_change()
-        if sky_msg:
-            self.logger.info(f"Sky update: {sky_msg}")
-            message = Message(type=MessageType.GAME, data={'text': sky_msg})
-            await self.message_bus.broadcast(message, self._indoors())
-
-    def _indoors(self) -> list:
-        indoors = []
-        for character in self.message_bus.get_active_players():
-            if not CharacterApi.is_outside(character) and CharacterApi.is_awake(character):
-                indoors.append(character.id)
-        return indoors
+        text += self._sky_change()
+        if text:
+            message = Message(type=MessageType.GAME, data={'text': text})
+            for character in self.message_bus.get_active_players():
+                if CharacterApi.is_outside(character) and CharacterApi.is_awake(character):
+                    await self.message_bus.send_to_character(character.id, message)
 
     def _time_change(self):
         time_message: str = ""
         self.time_info.hour += 1
         if self.time_info.hour == 5:
             self.weather_info.sunlight = self.TimeAndWeatherEnum.SUN_LIGHT
-            time_message = "The day has begun\n\r"
+            time_message = "The day has begun.\n\r"
         elif self.time_info.hour == 6:
             self.weather_info.sunlight = self.TimeAndWeatherEnum.SUN_RISE
             time_message = "The sun rises in the east.\n\r"
@@ -82,7 +65,7 @@ class WeatherHandler:
             time_message = "The sun slowly disappears in the west.\n\r"
         elif self.time_info.hour == 20:
             self.weather_info.sunlight = self.TimeAndWeatherEnum.SUN_DARK
-            time_message = "The night has begun\n\r"
+            time_message = "The night has begun.\n\r"
         elif self.time_info.hour == 24:
             self.time_info.day += 1
             self.time_info.hour = 0
@@ -124,14 +107,14 @@ class WeatherHandler:
             if self.weather_info.mmhg < 970 or (self.weather_info.mmhg < 990 and chance()):
                 sky_update += "It starts to rain.\n\r"
                 self.weather_info.sky = self.TimeAndWeatherEnum.SKY_RAINING
-            elif self.weather_info.sky > 1030 and chance():
+            if self.weather_info.mmhg > 1030 and chance():
                 sky_update += "The clouds disappear.\n\r"
                 self.weather_info.sky = self.TimeAndWeatherEnum.SKY_CLOUDLESS
         elif self.weather_info.sky == self.TimeAndWeatherEnum.SKY_RAINING:
-            if self.weather_info.sky < 970 and chance():
+            if self.weather_info.mmhg < 970 and chance():
                 sky_update += "Lightning flashes in the sky.\n\r"
                 self.weather_info.sky = self.TimeAndWeatherEnum.SKY_LIGHTNING
-            elif self.weather_info.sky > 1030 or (self.weather_info.mmhg > 1010 and chance()):
+            if self.weather_info.mmhg > 1030 or (self.weather_info.mmhg > 1010 and chance()):
                 sky_update += "The rain stopped.\n\r"
                 self.weather_info.sky = self.TimeAndWeatherEnum.SKY_CLOUDY
         elif self.weather_info.sky == self.TimeAndWeatherEnum.SKY_LIGHTNING:
@@ -139,6 +122,6 @@ class WeatherHandler:
                 sky_update += "The lightning has stopped.\n\r"
                 self.weather_info.sky = self.TimeAndWeatherEnum.SKY_RAINING
         else:
-            sky_update = f"Weather_update: bad sky {self.weather_info.sky}."
+            self.logger.error(f"Weather_update: bad sky {self.weather_info.sky}.")
             self.weather_info.sky = self.TimeAndWeatherEnum.SKY_CLOUDLESS
         return sky_update

@@ -42,6 +42,12 @@ class ExperienceGainResult:
 
 
 class CharacterAdvancement:
+    _level_observer = None
+
+    @classmethod
+    def configure_level_observer(cls, observer=None):
+        cls._level_observer = observer
+
     @staticmethod
     def experience_per_level(character, points: int) -> int:
         """ROM creation-point cost using the character's race/class multiplier."""
@@ -88,24 +94,26 @@ class CharacterAdvancement:
         current_level = GenericUtil.to_int(character.level, 0)
         current_xp = GenericUtil.to_int(attrs.experience, 0)
         accumulated_xp = GenericUtil.to_int(attrs.accumulated_experience, 0)
-        xp_per_level = max(0, GenericUtil.to_int(attrs.experience_per_level, 0))
         applied_gain = GenericUtil.to_int(gain, 0)
 
         if current_level >= hero_level:
             return ExperienceGainResult(0, current_xp, accumulated_xp, [])
 
-        current_xp = max(0, current_xp + applied_gain)
-        accumulated_xp = max(0, accumulated_xp + applied_gain)
+        xp_per_level = max(1, CharacterAdvancement.experience_per_level(character, attrs.points))
+        attrs.experience_per_level = xp_per_level
+        accumulated_xp = max(xp_per_level, accumulated_xp + applied_gain)
+        current_xp = max(0, accumulated_xp - current_level * xp_per_level)
 
         attrs.experience = current_xp
         attrs.accumulated_experience = accumulated_xp
 
         levels_gained: list[LevelAdvanceResult] = []
-        if xp_per_level > 0:
-            while GenericUtil.to_int(character.level, 0) < hero_level and GenericUtil.to_int(attrs.experience, 0) >= xp_per_level:
-                attrs.experience = GenericUtil.to_int(attrs.experience, 0) - xp_per_level
-                character.level = GenericUtil.to_int(character.level, 0) + 1
-                levels_gained.append(CharacterAdvancement.advance_level(character, hide=False))
+        while GenericUtil.to_int(character.level, 0) < hero_level and accumulated_xp >= xp_per_level * (character.level + 1):
+            attrs.experience = GenericUtil.to_int(attrs.experience, 0) - xp_per_level
+            character.level = GenericUtil.to_int(character.level, 0) + 1
+            levels_gained.append(CharacterAdvancement.advance_level(character, hide=False))
+            if CharacterAdvancement._level_observer is not None:
+                CharacterAdvancement._level_observer(character, levels_gained[-1])
 
         return ExperienceGainResult(
             applied_gain=applied_gain,

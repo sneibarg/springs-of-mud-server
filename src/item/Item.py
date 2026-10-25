@@ -120,11 +120,11 @@ class Item:
         return str(getattr(self, "vnum", "")) == str(pit.value) and not Item.can_wear(self, wear_flags, "ITEM_TAKE")
 
     def decay_message(self, wear_flags) -> str:
-        item_type = str(getattr(self, "item_type", "") or "").upper()
+        item_type = Item.enum_type_name(self)
+        if Item.is_corpse(self):
+            return "$p decays into dust."
         messages = {
             "ITEM_FOUNTAIN": "$p dries up.",
-            "ITEM_CORPSE_NPC": "$p decays into dust.",
-            "ITEM_CORPSE_PC": "$p decays into dust.",
             "ITEM_FOOD": "$p decomposes.",
             "ITEM_POTION": "$p has evaporated from disuse.",
             "ITEM_PORTAL": "$p fades out of existence.",

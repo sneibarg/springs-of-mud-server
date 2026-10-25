@@ -50,3 +50,11 @@ class SkillUtil:
     def active_melee_skill_name(weapon, weapon_class_names=None) -> str:
         return SkillUtil.weapon_skill_name(weapon, weapon_class_names) or "hand to hand"
 
+    @staticmethod
+    def adjusted_percent(entity, skill: int) -> int:
+        status = getattr(entity, "status_flags", None)
+        if GenericUtil.to_int(getattr(status, "pulse_daze", 0), 0) > 0:
+            skill = 2 * skill // 3
+        if not CharacterApi.is_npc(entity) and GenericUtil.to_int(getattr(status, "drunk", 0), 0) > 10:
+            skill = 9 * skill // 10
+        return max(0, min(100, skill))

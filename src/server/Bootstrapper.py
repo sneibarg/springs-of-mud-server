@@ -82,6 +82,7 @@ from skill.AbilityResolver import AbilityResolver
 from skill.LearningService import LearningService
 from game.RandomNumberGenerator import RandomNumberGenerator
 from player.CharacterAdvancement import CharacterAdvancement
+from player.AdvancementHandler import AdvancementHandler
 from skill.GroupRegistry import GroupRegistry
 from skill.SkillService import SkillService
 from skill.SpellRegistry import SpellRegistry
@@ -170,7 +171,7 @@ class Bootstrapper:
             AreaHandler, RoomHandler, FightHandler, WeaponHitHandler, CombatEscapeHandler, CombatSkillHandler, CombatDeathHandler, ItemHandler, MobileHandler, EffectHandler,
             EffectUpdateHandler, ItemUpdateHandler, EntityUpdateHandler,
             PlayerHandler, WizHandler, InterpHandler, NoteHandler,
-            WeatherHandler, UpdateHandler
+            WeatherHandler, UpdateHandler, AdvancementHandler
         ])
         logger.info("All command and game handlers bound.")
 
@@ -216,6 +217,8 @@ class Bootstrapper:
         for service in to_load:
             injector.get(service)
 
+        CharacterAdvancement.configure_level_observer(injector.get(AdvancementHandler).level_gained)
+        GameApi.register_runtime_reset(CharacterAdvancement.configure_level_observer)
         injector.get(GameService).set_update_handler(injector.get(UpdateHandler))
         injector.get(FightHandler).set_mobile_handler(injector.get(MobileHandler))
         injector.get(FightHandler).set_escape_handler(injector.get(CombatEscapeHandler))
