@@ -39,6 +39,12 @@ def load_classes():
 
 class TestCombatDeathRules(unittest.TestCase):
     def setUp(self):
+        spec = importlib.util.spec_from_file_location("_death_flag_api", ROOT / "src/api/GameApi.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        converter = patch.object(DeathModule.ItemApi, "flags_to_int", side_effect=module.GameApi.flags_to_int, create=True)
+        converter.start()
+        self.addCleanup(converter.stop)
         self.fixtures = fixtures.TestFightHandlerAggression()
         self.actor, self.victim, self.combat = self.fixtures._killer_pair()
         self.victim.name = "Victim"
@@ -89,6 +95,20 @@ class TestCombatDeathRules(unittest.TestCase):
             keep, notices = self.death.item_transfer(item, False, self.victim, self.room, object())
         self.assertFalse(keep)
         self.assertEqual((4, 7, []), (item.extra_flags, item.timer, item.contains))
+
+    def test_item_transfer_normalizes_string_flags_before_clearing_death_bits(self):
+        flags = {"ITEM_ROT_DEATH": 1, "ITEM_VIS_DEATH": 2, "ITEM_INVENTORY": 4}
+        for raw in ("0", "3", "AB", 3):
+            with self.subTest(flags=raw):
+                item = SimpleNamespace(extra_flags=raw, contains=[], timer=0)
+                with patch.object(DeathModule.ItemApi, "has_item_flag", side_effect=lambda obj, enum, name: bool(obj.extra_flags & flags[name]), create=True), \
+                        patch.object(DeathModule.CharacterApi, "enum_bit", side_effect=lambda enum, name: flags[name]), \
+                        patch.object(DeathModule.CharacterApi, "unset_bit", side_effect=lambda value, bit: value & ~bit, create=True):
+                    keep, notices = self.death.item_transfer(item, False, self.victim, self.room, object())
+                self.assertTrue(keep)
+                self.assertEqual([], notices)
+                self.assertEqual(0, item.extra_flags)
+                self.assertEqual(raw != "0", 5 <= item.timer <= 10)
 
     def test_floating_rot_spills_contents_without_destroying_them(self):
         child = SimpleNamespace(contains=[object()])

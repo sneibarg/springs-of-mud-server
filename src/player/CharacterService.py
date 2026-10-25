@@ -106,6 +106,7 @@ class CharacterService(FetchAndRegisterMixin):
             "effects": cls._serialize_value(character.effects),
             "skills": cls._serialize_value(character.skills),
             "spells": cls._serialize_value(character.spells),
+            "groups": list(character.groups),
             "aliases": cls._serialize_value(getattr(character, "aliases", {})),
             "statusFlags": cls._serialize_value(character.status_flags),
             "characterAttributes": cls._serialize_value(character.character_attributes),

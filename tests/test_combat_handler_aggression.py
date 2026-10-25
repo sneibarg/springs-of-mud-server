@@ -43,6 +43,17 @@ def _load_module(name: str, relative_path: str):
     return module
 
 
+def _ensure_injector():
+    current = sys.modules.get("injector")
+    if current is not None and hasattr(current, "Injector"):
+        return
+    sys.modules.pop("injector", None)
+    try:
+        import injector  # noqa: F401
+    except ImportError:
+        _stub_module("injector", inject=lambda target: target, Injector=object, singleton=lambda target: target)
+
+
 class _Logger:
     def info(self, *_args, **_kwargs):
         return None
@@ -199,7 +210,7 @@ class _Character:
         return None
 
 
-_stub_module("injector", inject=lambda target: target)
+_ensure_injector()
 _stub_package("api")
 _stub_module("api.GameApi", GameApi=SimpleNamespace())
 _stub_module("api.ItemApi", ItemApi=SimpleNamespace())

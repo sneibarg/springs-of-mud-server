@@ -56,3 +56,36 @@ class Mobile(AnimateEntity):
         data.setdefault('room_id', "")
         data.setdefault('lock', None)
         return cls(**data)
+
+    def _base_hit_gain(self, level, position, context):
+        gain = 5 + level
+        if self.is_affected(context.affected_bits, "AFF_REGENERATION"):
+            gain *= 2
+        if position == context.position("POS_SLEEPING"):
+            gain = 3 * gain // 2
+        elif position == context.position("POS_RESTING"):
+            pass
+        elif position == context.position("POS_FIGHTING"):
+            gain //= 3
+        else:
+            gain //= 2
+
+        return gain
+
+    def _base_mana_gain(self, level, position, context):
+        gain = 5 + level
+        if position == context.position("POS_SLEEPING"):
+            gain = 3 * gain // 2
+        elif position == context.position("POS_RESTING"):
+            pass
+        elif position == context.position("POS_FIGHTING"):
+            gain //= 3
+        else:
+            gain //= 2
+
+        return gain
+
+    def _base_move_gain(self, level, position, context):
+        gain = level
+
+        return gain

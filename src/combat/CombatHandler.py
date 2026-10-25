@@ -1,3 +1,6 @@
+from game.ArmorValues import ArmorValues
+from combat.ArmorDefense import dexterity_defense
+from item.DeathLoot import format_template, victim_name
 import random
 
 from typing import Any, Literal
@@ -1345,19 +1348,12 @@ class FightHandler:
 
     @staticmethod
     def _corpse_name(entity) -> str:
-        if CharacterApi.is_npc(entity):
-            return str(getattr(entity, "short_description", "") or getattr(entity, "name", "someone"))
-        return str(getattr(entity, "name", "someone"))
+        from api.CharacterApi import CharacterApi
+        return victim_name(entity, CharacterApi.is_npc)
 
     @staticmethod
     def _format_template(text: str, victim_name: str) -> str:
-        raw = str(text or "")
-        if "%s" in raw:
-            try:
-                return raw % victim_name
-            except Exception:
-                return raw.replace("%s", victim_name)
-        return raw
+        return format_template(text, victim_name)
 
     @staticmethod
     def _prepare_loot_item(item) -> None:
@@ -1845,19 +1841,8 @@ class FightHandler:
             return 0
 
         category = FightUtil.normalize_damage_type_name(dam_type)
-        if category == "DAM_PIERCE":
-            base = getattr(armor, "piercing", getattr(armor, "pierce", 0))
-        elif category == "DAM_BASH":
-            base = getattr(armor, "bashing", getattr(armor, "bash", 0))
-        elif category == "DAM_SLASH":
-            base = getattr(armor, "slashing", getattr(armor, "slash", 0))
-        else:
-            base = getattr(armor, "magic", getattr(armor, "exotic", 0))
-
-        stats = getattr(victim, "character_attributes", None)
-        dexterity = stats.dexterity
-        defensive = GenericUtil.to_int(
-            CharacterApi.get_attribute_bonus("dexterity", str(dexterity)).get("defensive", 0), 0)
+        base = ArmorValues.base_value(armor, category)
+        defensive = dexterity_defense(victim, CharacterApi.get_attribute_bonus)
         return GenericUtil.trunc_div(GenericUtil.to_int(base, 0) + defensive, 10)
 
     def _to_hit_roll(self) -> int:
@@ -1952,9 +1937,8 @@ class FightHandler:
             self.effect_handler.remove_effect(victim, effect)
 
         armor = getattr(victim, "armor_class", None)
-        for field_name in ("piercing", "bashing", "slashing", "magic"):
-            if armor is not None and hasattr(armor, field_name):
-                setattr(armor, field_name, 100)
+        if armor is not None:
+            ArmorValues.reset_all(armor, 100)
 
         positions_enum = CharacterApi.get_enum("positions")
         self._set_position(victim, int(positions_enum.POS_RESTING.value))

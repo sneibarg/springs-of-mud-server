@@ -43,7 +43,7 @@ class ItemHandler:
             return
 
         contents = "" if obj is None else obj.contents()
-        text = f"{getattr(obj, 'name', '')} holds\r\n"
+        text = f"{obj.short() if obj is not None else ''} holds\r\n"
         text += contents if contents else "\tNothing.\r\n"
         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
         context.finish()

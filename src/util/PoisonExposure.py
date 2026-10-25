@@ -1,3 +1,4 @@
+from util.ExposureUtil import exposure_chance, item_kind
 from api.GameApi import GameApi
 from item.Effect import Effect
 
@@ -31,14 +32,9 @@ class PoisonExposure:
                 or GameApi.is_set(flags, self.item_flags.ITEM_BLESS.value)
                 or self.rng.number_range(0, 4) == 0):
             return
-        chance = level // 4 + damage // 10
-        if chance > 25:
-            chance = (chance - 25) // 2 + 25
-        if chance > 50:
-            chance = (chance - 50) // 2 + 50
+        chance = exposure_chance(level, damage)
         chance -= int(item.level) * 2
-        raw_type = str(item.item_type).lower()
-        kind = self.item_table.get(raw_type, {}).get("type", raw_type).lower().removeprefix("item_")
+        kind = item_kind(item, self.item_table)
         if kind == "drink_con":
             if int(item.value0) == int(item.value1):
                 return

@@ -36,7 +36,7 @@ class TestObjectCurrencyParity(unittest.TestCase):
             ("SILVER_SOME", 0, 0, "%d silver coins"), ("GOLD_SOME", 0, 0, "%d gold coins"),
             ("COINS", 0, 0, "%d silver and %d gold coins")]:
             vnum = getattr(self.commands.well_known_object_vnums, "OBJ_VNUM_" + name).value
-            self.prototypes[vnum] = self.base.item(name, vnum=vnum, item_type="money",
+            self.prototypes[str(vnum)] = self.base.item(name, vnum=vnum, item_type="money",
                 value0=str(silver), value1=str(gold), short_description=text)
         self.commands.item_registry = NS(get=lambda **kw: self.prototypes[kw["vnum"]])
 

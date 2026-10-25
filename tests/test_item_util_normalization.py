@@ -54,6 +54,24 @@ class TestItemUtilNormalization(unittest.TestCase):
             result = ItemUtil.create_money(3, 7, registry, enums)
         self.assertEqual(("7", "3"), (result.value0, result.value1))
 
+    def test_money_prototypes_use_string_vnum_registry_keys(self):
+        names = ("SILVER_ONE", "GOLD_ONE", "GOLD_SOME", "SILVER_SOME", "COINS")
+        enums = SimpleNamespace(**{
+            "OBJ_VNUM_" + name: SimpleNamespace(value=index)
+            for index, name in enumerate(names, 1)
+        })
+        prototypes = {str(index): object() for index in range(1, 6)}
+        registry = SimpleNamespace(get=Mock(side_effect=lambda **kw: prototypes[kw["vnum"]]))
+        for gold, silver, vnum in ((0, 1, "1"), (1, 0, "2"), (3, 0, "3"),
+                                   (0, 7, "4"), (3, 7, "5")):
+            with self.subTest(gold=gold, silver=silver):
+                template = "%d silver and %d gold" if gold and silver else "%d coins"
+                money = SimpleNamespace(short_description=template, value0="0", value1="0")
+                with patch.object(ItemUtil, "create_object", return_value=money) as create:
+                    ItemUtil.create_money(gold, silver, registry, enums)
+                registry.get.assert_called_with(vnum=vnum)
+                create.assert_called_once_with(prototypes[vnum])
+
     @staticmethod
     def _load_game_data():
         repo_root = Path(__file__).resolve().parents[1]

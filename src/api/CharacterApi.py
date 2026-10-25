@@ -28,24 +28,12 @@ class CharacterApi(GameApi):
 
     @classmethod
     def set_registry(cls, registry_service) -> None:
-        cls._registry_service = registry_service
+        from api.RuntimeDependencies import RuntimeDependencies
+        cls.configure_runtime(RuntimeDependencies(registry_service, cls._weather_handler))
 
     @classmethod
     def lazy_load(cls, weather_handler, registry_service=None) -> None:
-        if registry_service is not None:
-            cls._registry_service = registry_service
-        cls._weather_handler = weather_handler
-        cls.load_enums(
-            TimeAndWeather="timeAndWeather",
-            GameParameters="gameParameters",
-            AffectedBits="affectedBy",
-            positions="positions",
-            RoomFlags="roomFlags",
-            CommFlags="commFlags",
-            PlayerActBits="playerActBits",
-            OffenseTypes="offenseTypes",
-            SectorTypes="sectorTypes",
-        )
+        cls.load_actor_runtime(weather_handler, registry_service)
 
     @classmethod
     def _registry(cls):
@@ -340,20 +328,15 @@ class CharacterApi(GameApi):
 
     @classmethod
     def is_affected_by_name(cls, character: Character, affected_bits, bit_name: str) -> bool:
-        if affected_bits is None or bit_name not in affected_bits.__members__:
-            return False
-        bit = affected_bits[bit_name].value
-        return cls.is_set(character.status_flags.affected_by, bit)
+        from game.AnimateEntity import AnimateEntity
+
+        return AnimateEntity.is_affected(character, affected_bits, bit_name)
 
     @classmethod
     def set_affected_by_name(cls, character: Character, affected_bits, bit_name: str, enabled: bool):
-        if affected_bits is None or bit_name not in affected_bits.__members__:
-            return
-        bit = affected_bits[bit_name].value
-        if enabled:
-            character.status_flags.set_flag("affected_by", bit)
-            return
-        character.status_flags.unset_flag("affected_by", bit)
+        from game.AnimateEntity import AnimateEntity
+
+        AnimateEntity.set_affected(character, affected_bits, bit_name, enabled)
 
     @classmethod
     def pos_value(cls, name: str) -> int:
@@ -363,29 +346,20 @@ class CharacterApi(GameApi):
 
     @classmethod
     def position_value(cls, character: Character) -> int:
-        attrs = character.character_attributes
-        raw = attrs.position if attrs is not None else None
-        if raw is None and "position" in character.__dict__:
-            raw = character.__dict__["position"]
-        if isinstance(raw, str):
-            name = raw.strip().upper()
-            if name and not name.startswith("POS_"):
-                name = f"POS_{name}"
-            if name in cls.positions.__members__:
-                return int(cls.positions[name].value)
+        from game.AnimateEntity import AnimateEntity
+
         standing = cls.pos_value("POS_STANDING")
-        default_pos = standing if standing >= 0 else 0
-        return GenericUtil.to_int(raw, default_pos)
+        return AnimateEntity.position_value(character, cls.positions, include_start_position=False,
+                                             default_position=standing if standing >= 0 else 0)
 
     @classmethod
     def set_position(cls, character: Character, pos_name: str):
+        from game.AnimateEntity import AnimateEntity
+
         if pos_name not in cls.positions.__members__:
             return
         value = int(cls.positions[pos_name].value)
-        attrs = character.character_attributes
-        if attrs is not None:
-            attrs.position = value
-        setattr(character, "position", value)
+        AnimateEntity.set_position(character, value)
 
     @classmethod
     def is_fighting(cls, char: Character) -> bool:

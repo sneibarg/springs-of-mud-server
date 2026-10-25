@@ -174,7 +174,7 @@ class TestSkillUtilMeleeResolution(unittest.TestCase):
             skills=[{"name": "sword", "level": 40}],
             spells=[],
         )
-        ability = SimpleNamespace(name="sword", rating_by_class={"warrior": 2})
+        ability = SimpleNamespace(name="sword", rating_by_class={"warrior": 2}, level_by_class={"warrior": 1})
         registry = SimpleNamespace(
             skill_registry=SimpleNamespace(get_or_none=Mock(return_value=ability)),
             spell_registry=SimpleNamespace(get_or_none=Mock(return_value=None)),
@@ -198,7 +198,7 @@ class TestSkillUtilMeleeResolution(unittest.TestCase):
             skills=[],
             spells=[{"name": "magic missile", "level": 51}],
         )
-        ability = SimpleNamespace(name="magic missile", rating_by_class={"mage": 4})
+        ability = SimpleNamespace(name="magic missile", rating_by_class={"mage": 4}, level_by_class={"mage": 1})
         registry = SimpleNamespace(
             skill_registry=SimpleNamespace(get_or_none=Mock(return_value=None)),
             spell_registry=SimpleNamespace(get_or_none=Mock(return_value=ability)),
@@ -206,16 +206,17 @@ class TestSkillUtilMeleeResolution(unittest.TestCase):
 
         with patch.object(_ability_module.CharacterApi, "get_registry", return_value=registry), \
                 patch.object(_ability_module.CharacterAdvancement, "gain_experience"), \
-                patch.object(_ability_module.random, "randint", side_effect=[1, 1, 3]):
+                patch.object(_ability_module.random, "randint", side_effect=[1, 3]), \
+                patch.object(_ability_module.rng, "number_percent", return_value=1):
             Ability.check_improve(character, "spell-magic-missile", False)
 
-        self.assertEqual(52, character.spells[0]["level"])
+        self.assertEqual(54, character.spells[0]["level"])
         self.assertEqual(
             "You learn from your mistakes, and your magic missile skill improves.\r\n",
             Ability.take_improve_messages(character),
         )
 
-    def test_check_improve_creates_missing_skill_entry_before_incrementing(self):
+    def test_check_improve_skips_missing_skill_entry(self):
         character = SimpleNamespace(
             name="Tester",
             level=20,
@@ -224,20 +225,23 @@ class TestSkillUtilMeleeResolution(unittest.TestCase):
             skills=[],
             spells=[],
         )
-        ability = SimpleNamespace(name="sword", rating_by_class={"warrior": 2})
+        ability = SimpleNamespace(name="sword", rating_by_class={"warrior": 2}, level_by_class={"warrior": 1})
         registry = SimpleNamespace(
             skill_registry=SimpleNamespace(get_or_none=Mock(return_value=ability)),
             spell_registry=SimpleNamespace(get_or_none=Mock(return_value=None)),
         )
 
         with patch.object(_ability_module.CharacterApi, "get_registry", return_value=registry), \
-                patch.object(_ability_module.CharacterAdvancement, "gain_experience"), \
-                patch.object(_ability_module.random, "randint", side_effect=[1]), \
-                patch.object(_ability_module.rng, "number_percent", return_value=1):
+                patch.object(_ability_module.CharacterAdvancement, "gain_experience") as advance, \
+                patch.object(_ability_module.random, "randint") as random, \
+                patch.object(_ability_module.rng, "number_percent") as percent:
             Ability.check_improve(character, "skill-sword", True)
 
-        self.assertEqual([{"name": "sword", "level": 1}], character.skills)
-        self.assertEqual("You have become better at sword!\r\n", Ability.take_improve_messages(character))
+        self.assertEqual([], character.skills)
+        self.assertEqual("", Ability.take_improve_messages(character))
+        advance.assert_not_called()
+        random.assert_not_called()
+        percent.assert_not_called()
 
 
 if __name__ == "__main__":

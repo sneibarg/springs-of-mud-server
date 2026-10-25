@@ -43,6 +43,35 @@ class ExperienceGainResult:
 
 class CharacterAdvancement:
     @staticmethod
+    def experience_per_level(character, points: int) -> int:
+        """ROM creation-point cost using the character's race/class multiplier."""
+        if CharacterApi.is_npc(character):
+            return 1000
+        multiplier = GenericUtil.to_int(character.character_race.class_mult, 100)
+        points = GenericUtil.to_int(points, 0)
+        if points < 40:
+            return 1000 * (multiplier // 100 if multiplier else 1)
+
+        cost, increment = 1000, 500
+        points -= 40
+        while points > 9:
+            cost += increment
+            points -= 10
+            if points > 9:
+                cost += increment
+                increment *= 2
+                points -= 10
+        cost += points * increment // 10
+        return cost * multiplier // 100
+
+    @staticmethod
+    def reset_experience_for_points(character) -> None:
+        attrs = character.character_attributes
+        attrs.experience_per_level = CharacterAdvancement.experience_per_level(character, attrs.points)
+        attrs.experience = 0
+        attrs.accumulated_experience = attrs.experience_per_level * GenericUtil.to_int(character.level, 0)
+
+    @staticmethod
     def gain_experience(character, gain: int) -> ExperienceGainResult:
         if character is None:
             return ExperienceGainResult(0, 0, 0, [])

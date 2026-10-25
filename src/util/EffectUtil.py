@@ -104,6 +104,10 @@ class EffectUtil:
         cls._handler = effect_handler
 
     @classmethod
+    def reset_for_tests(cls) -> None:
+        cls._handler = None
+
+    @classmethod
     def handler(cls):
         if cls._handler is None:
             raise RuntimeError("EffectUtil has not been configured with an EffectHandler.")

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+
 from injector import inject
 from api.CharacterApi import CharacterApi
 from api.ItemApi import ItemApi
@@ -34,6 +35,7 @@ class CombatDeathHandler:
 
     def item_transfer(self, item, floating, victim, room, flags):
         notices = []
+        item.extra_flags = ItemApi.flags_to_int(getattr(item, "extra_flags", 0))
         has = lambda name: ItemApi.has_item_flag(item, flags, name)
         if has("ITEM_ROT_DEATH") and not floating:
             item.timer = random.randint(5, 10)
@@ -54,13 +56,6 @@ class CombatDeathHandler:
                 return False, notices
             notices.append(self.room_notice(room, "falls", victim, item=str(getattr(item, "short_description", "") or item.name)))
         return True, notices
-
-    @classmethod
-    def discard(cls, item):
-        # Live objects are owned by containers, not the prototype registry.
-        for child in list(getattr(item, "contains", []) or []):
-            cls.discard(child)
-        item.contains = []
 
     def wounds(self, attacker, victim, room, damage, position):
         result = []
@@ -89,16 +84,6 @@ class CombatDeathHandler:
         return {"to_wiznet": self.text("to_wiznet", "death", victim=victim_name, killer=killer,
                                       room=getattr(room, "name", ""), vnum=getattr(room, "vnum", "")),
                 "wiznet_actor": None, "wiznet_flag": "WIZ_MOBDEATHS" if CharacterApi.is_npc(victim) else "WIZ_DEATHS"}
-
-    def cleanup_flags(self, attacker, victim, flags):
-        if attacker is victim or CharacterApi.is_npc(attacker) or CharacterApi.is_npc(victim):
-            return
-        guild = str(getattr(attacker, "guild", "") or "").lower()
-        if guild not in {"independent", "loner"} and guild == str(getattr(victim, "guild", "") or "").lower():
-            return
-        killer = CharacterApi.enum_bit(flags, "PLR_KILLER")
-        bit = killer if CharacterApi.is_set(victim.status_flags.act, killer) else CharacterApi.enum_bit(flags, "PLR_THIEF")
-        CharacterApi.unset_act_flags(victim, bit)
 
     def cry(self, victim, room, roll, parts, body_parts):
         key = "cry"
@@ -152,3 +137,21 @@ class CombatDeathHandler:
                 sacrifice["targets"] = room.player_targets(actor)
                 results.append(sacrifice)
         return results
+
+    @staticmethod
+    def cleanup_flags(attacker, victim, flags):
+        if attacker is victim or CharacterApi.is_npc(attacker) or CharacterApi.is_npc(victim):
+            return
+        guild = str(getattr(attacker, "guild", "") or "").lower()
+        if guild not in {"independent", "loner"} and guild == str(getattr(victim, "guild", "") or "").lower():
+            return
+        killer = CharacterApi.enum_bit(flags, "PLR_KILLER")
+        bit = killer if CharacterApi.is_set(victim.status_flags.act, killer) else CharacterApi.enum_bit(flags, "PLR_THIEF")
+        CharacterApi.unset_act_flags(victim, bit)
+
+    @classmethod
+    def discard(cls, item):
+        # Live objects are owned by containers, not the prototype registry.
+        for child in list(getattr(item, "contains", []) or []):
+            cls.discard(child)
+        item.contains = []

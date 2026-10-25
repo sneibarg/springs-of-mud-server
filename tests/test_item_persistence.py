@@ -10,6 +10,27 @@ from util.ItemUtil import ItemUtil
 
 
 class TestItemPersistence(unittest.TestCase):
+    def test_character_groups_round_trip_independently_from_learned_members(self):
+        document = build_character_data()
+        document["groups"] = ["mage default", "combat"]
+        character = Character.from_json(document)
+        character.skills = []
+        character.spells = []
+        payload = CharacterService._serialize_character(character)
+        self.assertEqual(document["groups"], payload["groups"])
+        restored = Character.from_json(json.loads(json.dumps(payload)))
+        self.assertEqual(character.groups, restored.groups)
+        self.assertEqual(payload, CharacterService._serialize_character(restored))
+
+    def test_legacy_character_groups_default_to_independent_empty_lists(self):
+        document = build_character_data()
+        document.pop("groups", None)
+        first, second = Character.from_json(document), Character.from_json(document)
+        first.groups.append("combat")
+        self.assertEqual([], second.groups)
+        document["groups"] = None
+        self.assertEqual([], Character.from_json(document).groups)
+
     @staticmethod
     def _document(item_id, *, contains=None):
         return {
@@ -20,6 +41,16 @@ class TestItemPersistence(unittest.TestCase):
             "condition": "G", "level": 1, "weight": 1, "cost": 10, "affectData": [],
             "contains": contains if contains is not None else [],
         }
+
+    def test_container_contents_display_short_descriptions_and_keep_target_keywords(self):
+        document = self._document("sword blade steel")
+        document["shortDescription"] = "a gleaming steel sword"
+        sword = Item.from_json(document)
+        corpse = Item.from_json(self._document("corpse", contains=[sword]))
+        self.assertEqual("\ta gleaming steel sword\r\n", corpse.contents())
+        self.assertEqual("sword blade steel", sword.name)
+        sword.short_description = ""
+        self.assertEqual("\tsword blade steel\r\n", corpse.contents())
 
     def _nested_document(self):
         child = self._document("gem")

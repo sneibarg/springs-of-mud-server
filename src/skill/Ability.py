@@ -103,154 +103,90 @@ class Ability:
             return str(nested_id)
         return ""
 
+    _learning = None
+
+    def level_for_class(self, class_name):
+        fallback = CharacterApi.skill_value_for_class(self.level_by_class or {}, "mage", 99)
+        return max(0, CharacterApi.skill_value_for_class(self.level_by_class or {}, class_name, fallback))
+
+    def rating_for_class(self, class_name):
+        fallback = CharacterApi.skill_value_for_class(self.rating_by_class or {}, "mage", 0)
+        return max(0, CharacterApi.skill_value_for_class(self.rating_by_class or {}, class_name, fallback))
+
+    @classmethod
+    def configure_learning(cls, service):
+        cls._learning = service
+
+    @classmethod
+    def _learning_service(cls):
+        if cls._learning is not None:
+            return cls._learning
+        # Compatibility for isolated model users; server bootstrap supplies the
+        # persistent service. Resolve dependencies afresh, never cache a world.
+        from skill.AbilityResolver import AbilityResolver
+        from skill.LearningService import LearningService
+        try:
+            get_registry = getattr(CharacterApi, "get_registry", None)
+            registry = get_registry() if callable(get_registry) else None
+        except RuntimeError:
+            registry = None
+        resolver = AbilityResolver(getattr(registry, "skill_registry", None),
+                                   getattr(registry, "spell_registry", None))
+        return LearningService(resolver, CharacterApi, rng, random,
+                               CharacterAdvancement.gain_experience, logger)
+
     @staticmethod
     def practice_class_name(character: Character) -> str:
-        return str(character.character_class.name or "").strip().lower()
+        return Ability._learning_service().practice_class_name(character)
 
     @staticmethod
     def practice_adept(character: Character) -> int:
-        adept = GenericUtil.to_int(character.character_class.skill_adept, 75)
-        return adept if adept > 0 else 75
+        return Ability._learning_service().practice_adept(character)
 
     @staticmethod
     def practice_meta(ability_name: str):
-        wanted = str(ability_name or "").strip().lower()
-        if not wanted:
-            return None
-
-        try:
-            registry = CharacterApi.get_registry()
-        except RuntimeError:
-            return None
-
-        skill_registry = registry.skill_registry
-        if skill_registry is not None:
-            for skill in skill_registry.all_skills():
-                if str(skill.name or "").strip().lower() == wanted:
-                    return skill
-
-        spell_registry = registry.spell_registry
-        if spell_registry is not None:
-            for spell in spell_registry.all_spells():
-                if str(spell.name or "").strip().lower() == wanted:
-                    return spell
-
-        return None
+        return Ability._learning_service().practice_meta(ability_name)
 
     @staticmethod
     def _resolve_practice_meta(meta_or_name):
-        if meta_or_name is None:
-            return None
-        if isinstance(meta_or_name, str):
-            return Ability.practice_meta(meta_or_name)
-        return meta_or_name
+        return Ability._learning_service()._resolve_practice_meta(meta_or_name)
 
     @staticmethod
     def practice_level_requirement(character: Character, meta_or_name) -> int:
-        meta = Ability._resolve_practice_meta(meta_or_name)
-        if meta is None:
-            return 0
-        class_name = Ability.practice_class_name(character)
-        level_map = meta.level_by_class or {}
-        fallback = CharacterApi.skill_value_for_class(level_map, "mage", 99)
-        return max(0, CharacterApi.skill_value_for_class(level_map, class_name, fallback))
+        return Ability._learning_service().practice_level_requirement(character, meta_or_name)
 
     @staticmethod
     def practice_visible(character: Character, meta_or_name) -> bool:
-        meta = Ability._resolve_practice_meta(meta_or_name)
-        if meta is None:
-            return True
-        required_level = Ability.practice_level_requirement(character, meta)
-        return GenericUtil.to_int(character.level, 0) >= required_level
+        return Ability._learning_service().practice_visible(character, meta_or_name)
 
     @staticmethod
     def practice_rating(character: Character, meta_or_name) -> int:
-        meta = Ability._resolve_practice_meta(meta_or_name)
-        if meta is None:
-            return 1
-        class_name = Ability.practice_class_name(character)
-        rating_map = meta.rating_by_class or {}
-        fallback = CharacterApi.skill_value_for_class(rating_map, "mage", 0)
-        return max(0, CharacterApi.skill_value_for_class(rating_map, class_name, fallback))
+        return Ability._learning_service().practice_rating(character, meta_or_name)
 
     @staticmethod
     def practice_gain(character: Character, rating: int) -> int:
-        intelligence = GenericUtil.to_int(character.character_attributes.intelligence, 0)
-        learn_bonus = GenericUtil.to_int(
-            CharacterApi.get_attribute_bonus("intelligence", str(intelligence)).get("learn", 0), 0)
-        rating = max(1, GenericUtil.to_int(rating, 1))
-        gain = learn_bonus // rating
-        return max(1, gain)
+        return Ability._learning_service().practice_gain(character, rating)
 
     @staticmethod
     def practice_meta_id(meta_or_name) -> str:
-        meta = Ability._resolve_practice_meta(meta_or_name)
-        return "" if meta is None else str(meta.id or "").strip()
+        return Ability._learning_service().practice_meta_id(meta_or_name)
 
     @staticmethod
     def check_improve_by_name(ch: Character, ability_name: str, success: bool, multiplier: int = 1) -> None:
         ability_id = Ability.practice_meta_id(ability_name)
-        if not ability_id:
-            return
-        Ability.check_improve(ch, ability_id, success, multiplier)
+        if ability_id:
+            Ability.check_improve(ch, ability_id, success, multiplier)
 
     @staticmethod
     def check_improve(ch: Character, ability_id: str, success: bool, multiplier: int = 1) -> None:
-        if CharacterApi.is_npc(ch):
-            return
-
-        registry = CharacterApi.get_registry()
-        collection_name = "skills"
-        ability = registry.skill_registry.get_or_none(id=ability_id) if registry.skill_registry is not None else None
-        if ability is None and registry.spell_registry is not None:
-            ability = registry.spell_registry.get_or_none(id=ability_id)
-            collection_name = "spells"
-        if ability is None:
-            return
-
-        rating = Ability.practice_rating(ch, ability)
-        learned_entry = Character.get_learned(ch, ability.name, collection_name=collection_name)
-        learned = Character.learned_entry_level(learned_entry)
-        adept = Ability.practice_adept(ch)
-        intelligence = ch.character_attributes.intelligence
-        learn_bonus = GenericUtil.to_int(CharacterApi.get_attribute_bonus("intelligence", str(intelligence)).get("learn", 0), 0)
-        multiplier = max(1, GenericUtil.to_int(multiplier, 1))
-        chance = (10 * learn_bonus) // (multiplier * rating * 4) + ch.level
-        random_integer = random.randint(1, 1000)
-        logger.info(f"Skill {ability.name} for {ch.name} (level {ch.level}, adept {adept}) - chance: {chance}; random_integer={random_integer} learn_bonus={learn_bonus}; rating={rating} learned={learned}; multiplier={multiplier}; success={success}")
-        if random_integer > chance:
-            return
-
-        if success:
-            chance = max(5, min(adept - learned, 95))
-            if rng.number_percent() < chance:
-                improved = min(learned + 1, adept)
-                Character.set_learned(ch, ability.name, improved, collection_name=collection_name, create=True)
-                if improved > learned:
-                    Ability._queue_improve_message(ch, f"You have become better at {ability.name}!\r\n")
-                    CharacterAdvancement.gain_experience(ch, 2 * rating)
-        else:
-            chance = max(5, min(learned // 2, 30))
-            if rng.number_percent() < chance:
-                improved = min(learned + random.randint(1, 3), adept)
-                Character.set_learned(ch, ability.name, improved, collection_name=collection_name, create=True)
-                if improved > learned:
-                    Ability._queue_improve_message(ch, f"You learn from your mistakes, and your {ability.name} skill improves.\r\n")
-                    CharacterAdvancement.gain_experience(ch, 2 * rating)
-        logger.info(f"Random chance SUCCESS - actual chance: {chance}")
+        return Ability._learning_service().check_improve(ch, ability_id, success, multiplier)
 
     @staticmethod
     def _queue_improve_message(character: Character, message: str) -> None:
-        if character is None or not message:
-            return
-        messages = list(getattr(character, "_skill_improve_messages", []) or [])
-        messages.append(str(message))
-        setattr(character, "_skill_improve_messages", messages)
+        from skill.LearningMessages import LearningMessages
+        LearningMessages.queue(character, message)
 
     @staticmethod
     def take_improve_messages(character: Character) -> str:
-        if character is None:
-            return ""
-        messages = list(getattr(character, "_skill_improve_messages", []) or [])
-        setattr(character, "_skill_improve_messages", [])
-        return "".join(messages)
+        from skill.LearningMessages import LearningMessages
+        return LearningMessages.take(character)

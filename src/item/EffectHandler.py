@@ -91,11 +91,10 @@ class EffectHandler:
             elif hasattr(entity, "damroll"):
                 entity.damroll = GenericUtil.to_int(getattr(entity, "damroll", 0), 0) + modifier
         elif location == location_name("APPLY_AC"):
+            from game.ArmorValues import ArmorValues
             armor = getattr(entity, "armor_class", None)
             if armor is not None:
-                for field in ("piercing", "bashing", "slashing", "magic", "pierce", "bash", "slash", "exotic"):
-                    if hasattr(armor, field):
-                        setattr(armor, field, GenericUtil.to_int(getattr(armor, field, 0), 0) + modifier)
+                ArmorValues.adjust_all(armor, modifier)
         elif location in (location_name("APPLY_SAVING_SPELL"), location_name("APPLY_SAVES")):
             if hasattr(entity, "saving_throw"):
                 entity.saving_throw = GenericUtil.to_int(getattr(entity, "saving_throw", 0), 0) + modifier

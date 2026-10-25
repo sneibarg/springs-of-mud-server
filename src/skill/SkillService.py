@@ -1,6 +1,6 @@
 from injector import inject
 from game import GameData
-from skill import Skill
+from skill.Skill import Skill
 from skill.GroupRegistry import GroupRegistry
 from skill.GroupType import GroupType
 from skill.SkillRegistry import SkillRegistry

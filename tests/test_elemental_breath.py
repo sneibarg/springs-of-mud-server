@@ -101,7 +101,7 @@ class TestSharedElementalExposure(unittest.TestCase):
         self.fixture.setUp()
         self.addCleanup(self.fixture.doCleanups)
         self.handler = self.fixture.handler
-        self.handler._saves = Mock(return_value=False)
+        self.handler.elemental_exposure._saves = Mock(return_value=False)
         self.handler.rng.number_percent.return_value = 1
 
     def expose(self, name, kind, target=None, level=80, damage=200):
@@ -120,7 +120,7 @@ class TestSharedElementalExposure(unittest.TestCase):
             self.assertEqual((effect_type, 80, duration), (effect.type, effect.level, effect.duration))
             f.victim.gain_condition.assert_called_with(condition, 10)
             self.assertTrue(result['to_victim'])
-            self.handler._saves.assert_called_with(30, f.victim, self.handler.rules[kind]['damageType'], f.immunity)
+            self.handler.elemental_exposure._saves.assert_called_with(30, f.victim, self.handler.rules[kind]['damageType'], f.immunity)
 
     def test_existing_blindness_skips_secondary_save_but_still_exposes_gear(self):
         f = self.fixture
@@ -128,14 +128,14 @@ class TestSharedElementalExposure(unittest.TestCase):
         item = f._item('scroll', 'scroll')
         f.victim.inventory = [item]
         result = self.expose('fire breath', 'flaming')
-        self.handler._saves.assert_not_called()
+        self.handler.elemental_exposure._saves.assert_not_called()
         f.effects.affect_to_char.assert_not_called()
         self.assertEqual([], f.victim.inventory)
         self.assertIn('scroll crackles', result['to_victim'])
 
     def test_saved_character_still_exposes_gear(self):
         f = self.fixture
-        self.handler._saves.return_value = True
+        self.handler.elemental_exposure._saves.return_value = True
         f.victim.inventory = [f._item('potion', 'potion')]
         self.expose('frost breath', 'frost')
         self.assertEqual([], f.victim.inventory)

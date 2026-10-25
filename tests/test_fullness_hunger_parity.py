@@ -5,7 +5,7 @@ import unittest
 from types import SimpleNamespace as NS
 from unittest.mock import patch
 from tests import test_object_container_shop_spell_parity as fixtures
-from tests.test_object_carry_limits_parity import Character, Entity
+from tests.test_object_carry_limits_parity import Character
 
 h = fixtures.h
 StatusFlags = h._load_module("fullness_status_flags", "game/StatusFlags.py").StatusFlags
@@ -151,7 +151,7 @@ class TestFullnessHungerParity(unittest.TestCase):
         self.assertEqual((8, -1), (restored.fullness, restored.hunger))
 
     def test_hunger_not_fullness_controls_starvation_regeneration_penalty(self):
-        entity = Entity.__new__(Entity)
+        entity = Character.__new__(Character)
         entity.is_npc = False
         entity.level, entity.hit, entity.max_hit = 10, 0, 100
         entity.character_attributes = NS(constitution=20, position=self.base.enums["positions"].POS_SLEEPING.value)

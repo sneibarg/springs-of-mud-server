@@ -41,6 +41,22 @@ def _load_module(name: str, relative_path: str):
     return module
 
 
+def _ensure_injector():
+    current = sys.modules.get("injector")
+    if current is not None and hasattr(current, "Injector"):
+        return
+    sys.modules.pop("injector", None)
+    try:
+        import injector  # noqa: F401
+    except ImportError:
+        _stub_module("injector", inject=lambda target: target, Injector=object, singleton=lambda target: target)
+
+
+def _stub_module_if_missing(name: str, **attrs):
+    if name not in sys.modules:
+        _stub_module(name, **attrs)
+
+
 class _Logger:
     def info(self, *_args, **_kwargs):
         return None
@@ -208,7 +224,7 @@ class _Context(SimpleNamespace):
         self.done = True
 
 
-_stub_module("injector", inject=lambda target: target)
+_ensure_injector()
 _stub_package("server")
 _stub_module("server.LoggerFactory", LoggerFactory=_LoggerFactory)
 _stub_package("util")
@@ -231,8 +247,8 @@ _load_module("game.GamePayload", "game/GamePayload.py")
 _stub_package("area")
 _stub_module("area.Room", Room=object)
 _stub_package("combat")
-_stub_module("combat.FightHandler", FightHandler=object)
-_stub_module("combat.CombatHandler", FightHandler=object)
+_stub_module_if_missing("combat.FightHandler", FightHandler=object)
+_stub_module_if_missing("combat.CombatHandler", FightHandler=object)
 _stub_package("player")
 _stub_module("player.Character", Character=object)
 _stub_module("player.CharacterApi", CharacterMacros=_CharacterMacros)
@@ -254,10 +270,13 @@ _stub_module(
 
 Command = _load_module("interp.Command", "interp/Command.py").Command
 _load_module("interp.InterpView", "interp/InterpView.py")
+_load_module("util.InterpUtil", "util/InterpUtil.py")
 _load_module("interp.InterpCheck", "interp/InterpCheck.py")
 _load_module("interp.InterpActionDefinition", "interp/InterpActionDefinition.py")
 _load_module("interp.InterpPlan", "interp/InterpPlan.py")
 InterpApi = _load_module("interp.InterpApi", "api/InterpApi.py").InterpApi
+if "api.MovementApi" not in sys.modules:
+    _load_module("api.MovementApi", "api/MovementApi.py")
 MovementApi = sys.modules["api.MovementApi"].MovementApi
 Movement = _load_module("interp.commands.Movement", "interp/commands/Movement.py").Movement
 
@@ -749,9 +768,164 @@ class TestMovementDynamicCommands(unittest.TestCase):
         self.assertEqual("You enter a shimmering portal.", context.command.render_message("to_char", "enter", **payload["payloads"][1]["tokens"]))
         self.assertIs(destination, payload["payloads"][2]["to_room_obj"])
 
+    def test_gain_prefixes_and_invalid_suffixes(self):
+        for argument, expected, practices, trains, points in (
+            ("con", "helps_apply_practice_training", 0, 6, 50),
+            ("CON extra", "helps_apply_practice_training", 0, 6, 50),
+            ("po", "trains_feel_more_at", 10, 3, 49),
+            ("convertjunk", "tells_i_do_not", 10, 5, 50),
+            ("pointsjunk", "tells_i_do_not", 10, 5, 50),
+            ("listjunk", "tells_i_do_not", 10, 5, 50),
+            ("''", "tells_i_do_not", 10, 5, 50),
+        ):
+            with self.subTest(argument=argument):
+                commands, _ = self._commands()
+                trainer = SimpleNamespace(name="Trainer", status_flags=SimpleNamespace(act=1))
+                room = _Room(id="room-1", exits={}, sector_type="field", mobiles={"trainer": trainer})
+                attrs = SimpleNamespace(practices=10, trains=5, points=50)
+                character = SimpleNamespace(name="Tester", is_npc=False, character_attributes=attrs,
+                                            level=10, character_race=SimpleNamespace(class_mult=100))
+                context = _Context(character=character, result=argument, parameters=[], room=room, done=False)
+                payload = commands.do_gain(character, context)
+                self.assertEqual(expected, payload["message_key"])
+                self.assertEqual((practices, trains, points), (attrs.practices, attrs.trains, attrs.points))
+                self.assertTrue(context.done)
+
+    def test_gain_group_preserves_proficiency_expands_cycles_and_tracks_ownership(self):
+        root = SimpleNamespace(name="mage default", skills=["sword", "combat"], spells=["combat", "missing"], rating=[2]*4)
+        nested = SimpleNamespace(name="combat", skills=["sword", "dagger"],
+                                 spells=["magic missile", "heal", "mage default"], rating=[1]*4)
+        skills = [SimpleNamespace(name=name) for name in ("sword", "dagger")]
+        spells = [SimpleNamespace(name="magic missile"), SimpleNamespace(name="heal")]
+        commands, _ = self._commands(
+            group_registry=SimpleNamespace(all_groups=lambda: [root, nested]),
+            skill_registry=SimpleNamespace(all_skills=lambda: skills),
+            spell_registry=SimpleNamespace(all_spells=lambda: spells))
+        character = SimpleNamespace(skills=[{"name": "sword", "level": 80}, {"name": "dagger", "level": 0}],
+                                    spells=[{"name": "magic missile", "level": 60}],
+                                    groups=[], character_class=SimpleNamespace(name="mage"),
+                                    character_attributes=SimpleNamespace(trains=5), is_npc=False)
+        self.assertFalse(commands._knows_group(character, root))
+        trainer = SimpleNamespace(name="Trainer", status_flags=SimpleNamespace(act=1))
+        room = _Room(id="room-1", exits={}, sector_type="field", mobiles={"trainer": trainer})
+        context = _Context(character=character, result="mage default", parameters=[], room=room)
+        payload = commands.do_gain(character, context)
+        self.assertEqual("trains_art", payload["message_key"])
+        self.assertEqual(3, character.character_attributes.trains)
+        self.assertEqual([{"name": "sword", "level": 80}, {"name": "dagger", "level": 1}], character.skills)
+        self.assertEqual([{"name": "magic missile", "level": 60}, {"name": "heal", "level": 1}], character.spells)
+        self.assertEqual(["mage default", "combat"], character.groups)
+        self.assertTrue(commands._knows_group(character, nested))
+        payload = commands.do_gain(character, context)
+        self.assertEqual("tells_already_know_group", payload["message_key"])
+        self.assertEqual(3, character.character_attributes.trains)
+        commands._add_group(character, root)
+        self.assertEqual(["mage default", "combat"], character.groups)
+
+    def test_gain_can_purchase_group_when_all_members_are_individually_known(self):
+        group = SimpleNamespace(name="weapons", skills=["sword"], spells=[], rating=[2]*4)
+        commands, _ = self._commands(
+            group_registry=SimpleNamespace(all_groups=lambda: [group]),
+            skill_registry=SimpleNamespace(all_skills=lambda: [SimpleNamespace(name="sword")]))
+        character = SimpleNamespace(skills=[{"name": "sword", "level": 90}], spells=[],
+                                    groups=[], is_npc=False, character_class=SimpleNamespace(name="warrior"),
+                                    character_attributes=SimpleNamespace(trains=2))
+        self.assertFalse(commands._knows_group(character, group))
+        self.assertIn("weapons", commands._gain_list(character))
+        trainer = SimpleNamespace(name="Trainer", status_flags=SimpleNamespace(act=1))
+        room = _Room(id="room-1", exits={}, sector_type="field", mobiles={"trainer": trainer})
+        context = _Context(character=character, result="weapons", parameters=[], room=room)
+        self.assertEqual("trains_art", commands.do_gain(character, context)["message_key"])
+        self.assertEqual(0, character.character_attributes.trains)
+        self.assertEqual(90, character.skills[0]["level"])
+        self.assertEqual(["weapons"], character.groups)
+
+    def test_gain_points_recalculates_cost_and_resets_level_progress(self):
+        from player.CharacterAdvancement import CharacterAdvancement
+        from unittest.mock import patch
+
+        commands, _ = self._commands()
+        trainer = SimpleNamespace(name="Trainer", status_flags=SimpleNamespace(act=1))
+        room = _Room(id="room-1", exits={}, sector_type="field", mobiles={"trainer": trainer})
+        for points, trains, expected_key in ((50, 2, "trains_feel_more_at"),
+                                             (40, 2, "tells_would_no_point"),
+                                             (50, 1, "tells_not_yet_ready2")):
+            with self.subTest(points=points, trains=trains):
+                attrs = SimpleNamespace(points=points, trains=trains, experience_per_level=1500,
+                                        experience=700, accumulated_experience=15700)
+                character = SimpleNamespace(name="Tester", level=10, is_npc=False,
+                                            character_race=SimpleNamespace(class_mult=100),
+                                            character_attributes=attrs)
+                context = _Context(character=character, result="points", parameters=[], room=room)
+                payload = commands.do_gain(character, context)
+                self.assertEqual(expected_key, payload["message_key"])
+                self.assertEqual(10, character.level)
+                if points == 50 and trains == 2:
+                    self.assertEqual((49, 0, 1450, 0, 14500),
+                                     (attrs.points, attrs.trains, attrs.experience_per_level,
+                                      attrs.experience, attrs.accumulated_experience))
+                    # Subsequent XP awards use the newly cached cost.
+                    with patch.object(CharacterAdvancement, "advance_level") as advance:
+                        CharacterAdvancement.gain_experience(character, 1449)
+                        advance.assert_not_called()
+                        CharacterAdvancement.gain_experience(character, 1)
+                        advance.assert_called_once()
+                    self.assertEqual(11, character.level)
+                    self.assertEqual(0, attrs.experience)
+                    self.assertEqual(15950, attrs.accumulated_experience)
+                else:
+                    self.assertEqual((points, trains, 1500, 700, 15700),
+                                     (attrs.points, attrs.trains, attrs.experience_per_level,
+                                      attrs.experience, attrs.accumulated_experience))
+
+    def test_creation_point_experience_formula(self):
+        from player.CharacterAdvancement import CharacterAdvancement
+
+        character = SimpleNamespace(is_npc=False, character_race=SimpleNamespace(class_mult=100))
+        for points, expected in ((39, 1000), (40, 1000), (41, 1050), (49, 1450),
+                                 (50, 1500), (59, 1950), (60, 2000), (61, 2100),
+                                 (70, 3000), (80, 4000), (81, 4200), (90, 6000)):
+            with self.subTest(points=points):
+                self.assertEqual(expected, CharacterAdvancement.experience_per_level(character, points))
+        character.character_race.class_mult = 125
+        self.assertEqual(1812, CharacterAdvancement.experience_per_level(character, 49))
+        character.is_npc = True
+        self.assertEqual(1000, CharacterAdvancement.experience_per_level(character, 90))
+
+    def test_gain_list_prefix(self):
+        commands, _ = self._commands()
+        trainer = SimpleNamespace(status_flags=SimpleNamespace(act=1))
+        room = _Room(id="room-1", exits={}, sector_type="field", mobiles={"trainer": trainer})
+        character = SimpleNamespace(is_npc=False)
+        context = _Context(character=character, result="li extra", parameters=[], room=room)
+        self.assertIn("group", commands.do_gain(character, context)["to_char"])
+
+    def test_gain_requires_current_trainer_flag(self):
+        commands, _ = self._commands()
+        trainer = SimpleNamespace(status_flags=SimpleNamespace(act=0), mobile_flags=SimpleNamespace(act=1))
+        room = _Room(id="room-1", exits={}, sector_type="field", mobiles={"trainer": trainer})
+        character = SimpleNamespace(is_npc=False)
+        context = _Context(character=character, result="con", parameters=[], room=room)
+        self.assertEqual("can_t_do", commands.do_gain(character, context)["message_key"])
+
+    def test_gain_name_prefix_uses_registry_order(self):
+        first = SimpleNamespace(name="sword mastery")
+        second = SimpleNamespace(name="sword")
+        registry = SimpleNamespace(get_or_none=lambda **kwargs: second)
+        self.assertIs(first, Movement._find_gain_entry("SWO", [first, second], registry))
+        self.assertIs(first, Movement._find_gain_entry("sword", [first, second], registry))
+        self.assertIsNone(Movement._find_gain_entry("swordjunk", [first, second], None))
+        self.assertIsNone(Movement._find_gain_entry("", [first, second], registry))
+        commands, _ = self._commands(
+            group_registry=SimpleNamespace(all_groups=lambda: [SimpleNamespace(name="combat magic")]),
+            spell_registry=SimpleNamespace(all_spells=lambda: [SimpleNamespace(name="fireball")]),
+        )
+        self.assertEqual("combat magic", commands._find_gain_group("combat m").name)
+        self.assertEqual("fireball", commands._find_gain_spell("fireb").name)
+
     def test_gain_convert_turns_ten_practices_into_one_train(self):
         commands, room_registry = self._commands()
-        trainer = SimpleNamespace(id="trainer", name="Trainer", short_description="A gain trainer", mobile_flags=SimpleNamespace(act=1))
+        trainer = SimpleNamespace(id="trainer", name="Trainer", short_description="A gain trainer", status_flags=SimpleNamespace(act=1))
         room = _Room(id="room-1", exits={}, sector_type="field", mobiles={trainer.id: trainer})
         room_registry.get_or_none = lambda **kwargs: room if kwargs.get("id") == "room-1" else None
         attrs = SimpleNamespace(position="POS_STANDING", practices=10, trains=0, points=40)
@@ -781,7 +955,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
         skill = SimpleNamespace(name="dagger", kind="skill", rating_by_class={"thief": 2})
         skill_registry = SimpleNamespace(all_skills=lambda: [skill])
         commands, room_registry = self._commands(skill_registry=skill_registry)
-        trainer = SimpleNamespace(id="trainer", name="Trainer", short_description="A gain trainer", mobile_flags=SimpleNamespace(act=1))
+        trainer = SimpleNamespace(id="trainer", name="Trainer", short_description="A gain trainer", status_flags=SimpleNamespace(act=1))
         room = _Room(id="room-1", exits={}, sector_type="field", mobiles={trainer.id: trainer})
         room_registry.get_or_none = lambda **kwargs: room if kwargs.get("id") == "room-1" else None
         attrs = SimpleNamespace(position="POS_STANDING", practices=0, trains=2, points=40)
@@ -795,7 +969,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
             spells=[],
             is_npc=False,
         )
-        context = _Context(character=character, command=_load_command("gain"), result="dagger", parameters=[], done=False, room=room)
+        context = _Context(character=character, command=_load_command("gain"), result="dag", parameters=[], done=False, room=room)
 
         payload = commands.do_gain(character, context)
 

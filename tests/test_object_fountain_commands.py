@@ -29,11 +29,22 @@ def _stub_module(name: str, **attrs):
     return module
 
 
+def _ensure_injector():
+    current = sys.modules.get("injector")
+    if current is not None and hasattr(current, "Injector"):
+        return
+    sys.modules.pop("injector", None)
+    try:
+        import injector  # noqa: F401
+    except ImportError:
+        _stub_module("injector", inject=lambda target: target, Injector=object, singleton=lambda target: target)
+
+
 for package_name in ("api", "area", "combat", "game", "interp", "item", "player", "server", "skill", "util"):
     _stub_package(package_name)
 _stub_package("interp.commands")
 
-_stub_module("injector", inject=lambda target: target)
+_ensure_injector()
 
 
 class _Logger:

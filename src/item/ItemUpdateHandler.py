@@ -1,8 +1,8 @@
 from injector import inject
-from area.Room import Room
 from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
 from item.Item import Item
+from item.ItemOwnership import ItemOwnership
 from item.EffectUpdateHandler import EffectUpdateHandler
 from mobile.Mobile import Mobile
 from server.messaging.MessageBus import MessageBus
@@ -27,14 +27,7 @@ class ItemUpdateHandler:
     async def update(self):
         if self.ItemTypes is None:
             return
-        seen = set()
-        items = []
-        for room in self.room_registry.all_rooms():
-            if room is not None:
-                for item in Room.world_items(room):
-                    if id(item) not in seen:
-                        seen.add(id(item))
-                        items.append(item)
+        items = [item for item, _, _ in self._ownership().walk_world_items()]
         for item in items:
             await self.tick_effects(item)
             if Item.tick_timer(item):
@@ -44,13 +37,11 @@ class ItemUpdateHandler:
         for message in self.effect_update_handler.expired_messages(item, "msg_obj"):
             await self._emit_obj_effect_message(item, message)
 
+    def _ownership(self):
+        return ItemOwnership(self.effect_update_handler.effect_handler, self.room_registry)
+
     def _locate_item(self, target):
-        for room in self.room_registry.all_rooms():
-            if room is not None:
-                location = Room.locate_item(room, target)
-                if location is not None:
-                    return location
-        return None
+        return self._ownership().find_location(target)
 
     async def expire_item(self, item):
         item_type = str(getattr(item, "item_type", "") or "").upper()
@@ -109,31 +100,8 @@ class ItemUpdateHandler:
             if holder is not None:
                 holder.contents[getattr(child, "id", GenericUtil.generate_mongo_id())] = child
 
-    @staticmethod
-    def _remove_item_at_location(item, parent_kind: str, parent, container):
-        if parent_kind == "room":
-            parent.contents.pop(getattr(item, "id", ""), None)
-            return
-        if parent_kind == "char_loot":
-            if item in parent.loot:
-                parent.loot.remove(item)
-            return
-        if parent_kind == "mob_inventory":
-            if item in parent.inventory:
-                parent.inventory.remove(item)
-            return
-        if parent_kind == "item_contains":
-            if item in container:
-                container.remove(item)
-            return
-        if parent_kind in ["char_equipped", "mob_equipped"]:
-            equipped = getattr(parent, "equipped", None)
-            if equipped is None:
-                return
-            for slot, equipped_item in getattr(equipped, "__dict__", {}).items():
-                if equipped_item is item:
-                    setattr(equipped, slot, None)
-                    break
+    def _remove_item_at_location(self, item, parent_kind: str, parent, container):
+        self._ownership().detach(item, {"kind": parent_kind, "parent": parent, "container": container})
 
     async def _emit_obj_effect_message(self, item, message: str):
         location = self._locate_item(item)

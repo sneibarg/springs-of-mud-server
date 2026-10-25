@@ -41,6 +41,17 @@ def _load_module(name: str, relative_path: str):
     return module
 
 
+def _ensure_injector():
+    current = sys.modules.get("injector")
+    if current is not None and hasattr(current, "Injector"):
+        return
+    sys.modules.pop("injector", None)
+    try:
+        import injector  # noqa: F401
+    except ImportError:
+        _stub_module("injector", inject=lambda target: target, Injector=object, singleton=lambda target: target)
+
+
 class _Logger:
     def info(self, *_args, **_kwargs):
         return None
@@ -464,7 +475,7 @@ class _Context(SimpleNamespace):
         return getattr(self, "player_handler_value", None)
 
 
-_stub_module("injector", inject=lambda target: target)
+_ensure_injector()
 _stub_package("api")
 _stub_module("api.CharacterApi", CharacterApi=_CharacterMacros)
 _stub_module("api.ItemApi", ItemApi=_ItemMacros)
@@ -744,6 +755,15 @@ class TestInfoDynamicCommands(unittest.TestCase):
         text = commands.do_groups(character, context)
 
         self.assertEqual("No group of that name exist.\r\nType 'groups all' or 'info all' for a full listing.\r\n", text)
+
+    def test_known_groups_are_not_inferred_from_members(self):
+        commands, *_ = self._commands()
+        group = SimpleNamespace(name="combat", skills=["sword"], spells=[])
+        character = SimpleNamespace(skills=[{"name": "sword", "level": 80}], spells=[], groups=[])
+        self.assertEqual([], commands._known_group_names(character, [group]))
+        character.groups = ["combat"]
+        character.skills = []
+        self.assertEqual(["combat"], commands._known_group_names(character, [group]))
 
     def test_scroll_invalid_number_uses_command_check(self):
         commands, _room_registry, _registry_service, _session_handler, _weather_handler = self._commands()

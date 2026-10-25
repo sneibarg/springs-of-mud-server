@@ -83,7 +83,7 @@ class Item:
         text = ""
         if len(self.contains) > 0:
             for item in self.contains:
-                text = text + "\t" + item.name + "\r\n"
+                text = text + "\t" + item.short() + "\r\n"
         return text
 
     def short(self) -> str:

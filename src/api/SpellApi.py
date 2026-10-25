@@ -12,18 +12,21 @@ from api.InterpApi import InterpApi
 from api.GameApi import GameApi
 from item.EffectHandler import EffectHandler
 from item.Item import Item
+from item.ItemOwnership import ItemOwnership
 from util.DisplayUtil import DisplayUtil
 from util.GenericUtil import GenericUtil
 from util.FightUtil import FightUtil
 from item.Effect import Effect
 from util.EffectUtil import EffectUtil
 from util.ItemUtil import ItemUtil
+from util.ElementalExposure import ElementalExposure
 from api.CharacterApi import CharacterApi
 from util.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
 from skill.SpellContext import SpellContext
 from skill.SpellSpeech import SpellSpeech
 from skill.Ability import Ability
+from skill.AbilityResolver import AbilityResolver
 
 
 class _SafeFormatTokens(dict):
@@ -34,11 +37,13 @@ class _SafeFormatTokens(dict):
 class SpellApi:
 
     @inject
-    def __init__(self, effect_handler: EffectHandler, interp_api: InterpApi):
+    def __init__(self, effect_handler: EffectHandler, interp_api: InterpApi,
+                 elemental_exposure: ElementalExposure = None):
         self.__name__ = "SpellApi"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.effect_handler = effect_handler
         self.interp_api = interp_api
+        self.elemental_exposure = elemental_exposure
 
     @staticmethod
     def casting_proficiency(actor, spell) -> int:
@@ -367,24 +372,8 @@ class SpellApi:
                 ctx.queue_payload({"victim": victim, "to_victim": text})
 
     def _ability_for_effect(self, ctx: SpellContext, effect_type: Any):
-        want = str(effect_type or "").strip().lower()
-        if not want:
-            return None
-
         registry = getattr(getattr(ctx, "handler", None), "spell_registry", None)
-        if registry is None:
-            return None
-        all_spells = getattr(registry, "all_spells", None)
-        spells = all_spells() if callable(all_spells) else []
-        for spell in spells:
-            candidates = [
-                str(getattr(spell, "handler_id", "") or "").strip().lower(),
-                str(getattr(spell, "name", "") or "").strip().lower(),
-                str(getattr(spell, "id", "") or "").strip().lower(),
-            ]
-            if want in candidates:
-                return spell
-        return None
+        return AbilityResolver(spell_registry=registry).effect_owner(effect_type, spell_only=True)
 
     def _ability_message(self, ability: Any, channel: str, key: str, ctx: SpellContext, target: Any) -> str:
         tokens = ctx.payload_tokens() if callable(getattr(ctx, "payload_tokens", None)) else {}
@@ -899,7 +888,8 @@ class SpellApi:
             return False
         fight = self._fight_handler(ctx)
         room = (self._find_room_for_entity(entity) or ctx.room) if hasattr(entity, "owned_items") else entity
-        result = fight.weapon_hit_handler.expose(kind, ctx.actor, entity, level, damage, room,
+        exposure = getattr(self, "elemental_exposure", None) or fight.weapon_hit_handler
+        result = exposure.expose(kind, ctx.actor, entity, level, damage, room,
                                                  fight._check_immunity, payload=ctx.spell.payload)
         if hasattr(entity, "owned_items"):
             self._queue_damage_payload(ctx, result, entity)
@@ -1128,45 +1118,18 @@ class SpellApi:
             getattr(victim, 'max_movement', getattr(victim, 'max_move', 0)))
 
     def world_object_locations(self, ctx: SpellContext):
-        registry = self._room_registry(ctx)
-        seen = set()
-        def walk(item, root, location):
-            if id(item) in seen:
-                return
-            seen.add(id(item))
-            yield item, root, location
-            for child in list(getattr(item, 'contains', []) or []):
-                yield from walk(child, root, location)
-        for room in registry.all_rooms() if registry is not None else []:
-            for item, location in room.item_locations():
-                yield from walk(item, item, location)
+        yield from ItemOwnership(self.effect_handler, self._room_registry(ctx)).walk_world_items()
 
     def extract_object(self, ctx: SpellContext, target: Any = None):
-        from game.Equipped import Equipped
         item = ctx.resolve(target) if target is not None else ctx.obj
         registry = self._room_registry(ctx)
-        for room in registry.all_rooms() if registry is not None else [ctx.room]:
-            if room is None:
-                continue
-            location = room.locate_item(item)
-            if location is None:
-                continue
-            parent, kind = location['parent'], location['kind']
-            if kind == 'item_contains':
-                parent.contains.remove(item)
-            elif kind == 'room':
-                parent.remove_item_from_room(item)
-            elif kind.endswith('_equipped'):
-                self.effect_handler.remove_item_effects(parent, item)
-                slot = next(slot for slot, value in parent.equipped.__dict__.items() if value is item)
-                Equipped.unequip_item(parent, slot)
-                Equipped.remove_from_inventory(parent, item)
-            else:
-                Equipped.remove_from_inventory(parent, item)
+        ownership = ItemOwnership(self.effect_handler, registry)
+        location = ownership.find_location(item, None if registry is not None else [ctx.room])
+        if location is not None:
+            ownership.detach(item, location)
             return ctx.mark_performed()
-        # Minimal callers may provide only a carried target, without a world registry.
         if item in self._owned_items(ctx.actor):
-            Equipped.remove_from_inventory(ctx.actor, item)
+            ownership.detach_carried(ctx.actor, item)
             return ctx.mark_performed()
         return False
 

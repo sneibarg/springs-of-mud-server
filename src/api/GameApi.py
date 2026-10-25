@@ -7,9 +7,18 @@ from game.GameData import GameData
 from server.LoggerFactory import LoggerFactory
 from util.EnumUtil import EnumUtil
 from util.GenericUtil import GenericUtil
+from api.RuntimeDependencies import RuntimeDependencies
 
 
 class GameApi:
+    ACTOR_ENUM_ALIASES = dict(TimeAndWeather="timeAndWeather", GameParameters="gameParameters",
+                             AffectedBits="affectedBy", positions="positions", RoomFlags="roomFlags",
+                             CommFlags="commFlags", PlayerActBits="playerActBits",
+                             OffenseTypes="offenseTypes", SectorTypes="sectorTypes")
+    GameParameters = None
+    _runtime = RuntimeDependencies()
+    _runtime_reset_callbacks = []
+    _loaded_enum_aliases = set()
     _lock = RLock()
     _configured = False
     _game_data = None
@@ -28,6 +37,25 @@ class GameApi:
         super().__init_subclass__(**kwargs)
         cls._lock = RLock()
         cls._logger = None
+        cls._loaded_enum_aliases = set()
+
+    @classmethod
+    def configure_runtime(cls, dependencies: RuntimeDependencies) -> None:
+        cls._runtime = dependencies
+        # Keep legacy facade accessors compatible during incremental migration.
+        cls._registry_service = dependencies.registry_service
+        cls._weather_handler = dependencies.weather_handler
+
+    @classmethod
+    def load_actor_runtime(cls, weather_handler, registry_service=None):
+        registry = registry_service if registry_service is not None else getattr(cls, "_registry_service", None)
+        cls.configure_runtime(RuntimeDependencies(registry, weather_handler))
+        cls.load_enums(**cls.ACTOR_ENUM_ALIASES)
+
+    @classmethod
+    def register_runtime_reset(cls, callback):
+        if callback not in GameApi._runtime_reset_callbacks:
+            GameApi._runtime_reset_callbacks.append(callback)
 
     @classmethod
     def configure(cls, game_data: GameData, enum_provider: EnumProvider | None = None) -> None:
@@ -57,7 +85,18 @@ class GameApi:
             GameApi._classes = {}
             GameApi._pc_races = {}
             GameApi._titles = {}
-            cls._reset_internal_variables()
+            pending = [GameApi]
+            while pending:
+                facade = pending.pop()
+                pending.extend(facade.__subclasses__())
+                facade.configure_runtime(RuntimeDependencies())
+                for alias in facade._loaded_enum_aliases:
+                    setattr(facade, alias, None)
+                facade._loaded_enum_aliases.clear()
+                facade._reset_internal_variables()
+            for callback in GameApi._runtime_reset_callbacks:
+                callback()
+            GameApi._runtime_reset_callbacks.clear()
 
     @classmethod
     def _reset_internal_variables(cls) -> None:
@@ -245,6 +284,7 @@ class GameApi:
         cls._require_configured()
         for attr_name, enum_name in aliases.items():
             setattr(cls, attr_name, cls.get_enum(enum_name))
+            cls._loaded_enum_aliases.add(attr_name)
 
     @classmethod
     def is_set(cls, flag: int, bit) -> bool:

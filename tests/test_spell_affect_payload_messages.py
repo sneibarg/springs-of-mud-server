@@ -60,6 +60,7 @@ def _load_spell_api():
         "item.Item": _module("item.Item", Item=_Item),
         "item.Effect": _module("item.Effect", Effect=object),
         "util": _module("util"),
+        "util.ElementalExposure": _module("util.ElementalExposure", ElementalExposure=object),
         "util.DisplayUtil": _module(
             "util.DisplayUtil",
             DisplayUtil=SimpleNamespace(

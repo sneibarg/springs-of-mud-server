@@ -1,3 +1,4 @@
+from skill.AbilityResolver import AbilityResolver
 from injector import inject
 from api.CharacterApi import CharacterApi
 from combat.CombatHandler import FightHandler
@@ -124,35 +125,7 @@ class EffectUpdateHandler:
 
     def _effect_ability(self, effect):
         effect_type = getattr(effect, "type", effect)
-        candidates = {
-            str(value or "").strip().lower()
-            for value in (
-                effect_type,
-                str(effect_type or "").replace("spell.", ""),
-                str(effect_type or "").replace("skill.", ""),
-            )
-            if str(value or "").strip()
-        }
-        if not candidates:
-            return None
-
-        for registry, method_name in ((self.spell_registry, "all_spells"), (self.skill_registry, "all_skills")):
-            method = getattr(registry, method_name, None)
-            if not callable(method):
-                continue
-            try:
-                entries = list(method() or [])
-            except TypeError:
-                continue
-            for entry in entries:
-                names = {
-                    str(getattr(entry, "handler_id", "") or "").strip().lower(),
-                    str(getattr(entry, "name", "") or "").strip().lower(),
-                    str(getattr(entry, "id", "") or "").strip().lower(),
-                }
-                if candidates & names:
-                    return entry
-        return None
+        return AbilityResolver(self.skill_registry, self.spell_registry).effect_owner(effect_type)
 
     async def _send_to_entity(self, entity, text: str) -> None:
         if entity is None or CharacterApi.is_npc(entity) or not text:

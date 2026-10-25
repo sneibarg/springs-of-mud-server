@@ -82,11 +82,14 @@ class AnimateEntity:
         status_flags = getattr(self, "status_flags", None)
         return GenericUtil.to_int(getattr(status_flags, condition_name, -1), -1)
 
-    def position_value(self, positions) -> int:
+    def position_value(self, positions, *, include_start_position=True, default_position=None) -> int:
         standing = getattr(getattr(positions, "POS_STANDING", None), "value", -1)
+        if default_position is not None:
+            standing = default_position
         raw = getattr(getattr(self, "character_attributes", None), "position", None)
         if raw is None:
-            raw = getattr(self, "position", getattr(self, "start_pos", standing))
+            fallback = getattr(self, "start_pos", standing) if include_start_position else standing
+            raw = getattr(self, "position", fallback)
         if isinstance(raw, str):
             name = raw.strip().upper()
             if not name.startswith("POS_"):
@@ -96,26 +99,25 @@ class AnimateEntity:
                 return int(member.value)
         return GenericUtil.to_int(raw, standing)
 
+    def set_position(self, value: int) -> None:
+        attrs = getattr(self, "character_attributes", None)
+        if attrs is not None:
+            attrs.position = value
+        self.position = value
+
     def is_affected(self, affected_bits, bit_name: str) -> bool:
         from api.GameApi import GameApi
+        from game.StatusFlags import StatusFlags
 
-        bit = getattr(getattr(affected_bits, bit_name, None), "value", 0)
-        flags = getattr(getattr(self, "status_flags", None), "affected_by", 0)
-        return bit > 0 and GameApi.is_set(GameApi.flags_to_int(flags), bit)
+        return StatusFlags.has_named_flag(getattr(self, "status_flags", None), "affected_by",
+                                          affected_bits, bit_name, GameApi.flags_to_int)
 
     def set_affected(self, affected_bits, bit_name: str, enabled: bool) -> None:
         from api.GameApi import GameApi
+        from game.StatusFlags import StatusFlags
 
-        bit = getattr(getattr(affected_bits, bit_name, None), "value", 0)
-        flags = getattr(self, "status_flags", None)
-        if bit <= 0 or flags is None:
-            return
-        raw = GameApi.flags_to_int(getattr(flags, "affected_by", 0))
-        updated = GameApi.set_bit(raw, bit) if enabled else GameApi.unset_bit(raw, bit)
-        if hasattr(flags, "assign_bitfield"):
-            flags.assign_bitfield("affected_by", updated)
-        else:
-            flags.affected_by = updated
+        StatusFlags.set_named_flag(getattr(self, "status_flags", None), "affected_by",
+                                   affected_bits, bit_name, enabled, GameApi.flags_to_int)
 
     def find_effect(self, *type_names: str, affected_bits=None, bit_name: str = ""):
         from item.Effect import Effect
@@ -216,9 +218,6 @@ class AnimateEntity:
             setattr(self, "movement", min(max_move, move + self.move_gain(room, context)))
 
     def hit_gain(self, room, context: RegenerationContext) -> int:
-        from api.CharacterApi import CharacterApi
-        from skill.Ability import Ability
-
         if room is None:
             return 0
 
@@ -229,42 +228,7 @@ class AnimateEntity:
 
         level = GenericUtil.to_int(getattr(self, "level", 0), 0)
         position = self.position_value(context.positions)
-        if CharacterApi.is_npc(self):
-            gain = 5 + level
-            if self.is_affected(context.affected_bits, "AFF_REGENERATION"):
-                gain *= 2
-            if position == context.position("POS_SLEEPING"):
-                gain = 3 * gain // 2
-            elif position == context.position("POS_RESTING"):
-                pass
-            elif position == context.position("POS_FIGHTING"):
-                gain //= 3
-            else:
-                gain //= 2
-        else:
-            attrs = getattr(self, "character_attributes", None)
-            constitution = GenericUtil.to_int(getattr(attrs, "constitution", 0), 0)
-            gain = max(3, constitution - 3 + level // 2)
-            gain += GenericUtil.to_int(getattr(getattr(self, "character_class", None), "hp_max", 10), 10) - 10
-            number = context.rng.number_percent()
-            if number < self._skill_percent("fast healing"):
-                gain += number * gain // 100
-                if hit < max_hit:
-                    Ability.check_improve_by_name(self, "fast healing", True, 8)
-
-            if position == context.position("POS_SLEEPING"):
-                pass
-            elif position == context.position("POS_RESTING"):
-                gain //= 2
-            elif position == context.position("POS_FIGHTING"):
-                gain //= 6
-            else:
-                gain //= 4
-
-            if self.condition_value("hunger") == 0:
-                gain //= 2
-            if self.condition_value("thirst") == 0:
-                gain //= 2
+        gain = self._base_hit_gain(level, position, context)
 
         gain = gain * GenericUtil.to_int(getattr(room, "heal_rate", 100), 100) // 100
         gain = self._apply_furniture_regen_rate(gain, "value3")
@@ -272,9 +236,6 @@ class AnimateEntity:
         return min(gain, max_hit - hit)
 
     def mana_gain(self, room, context: RegenerationContext) -> int:
-        from api.CharacterApi import CharacterApi
-        from skill.Ability import Ability
-
         if room is None:
             return 0
 
@@ -285,43 +246,7 @@ class AnimateEntity:
 
         level = GenericUtil.to_int(getattr(self, "level", 0), 0)
         position = self.position_value(context.positions)
-        if CharacterApi.is_npc(self):
-            gain = 5 + level
-            if position == context.position("POS_SLEEPING"):
-                gain = 3 * gain // 2
-            elif position == context.position("POS_RESTING"):
-                pass
-            elif position == context.position("POS_FIGHTING"):
-                gain //= 3
-            else:
-                gain //= 2
-        else:
-            attrs = getattr(self, "character_attributes", None)
-            wisdom = GenericUtil.to_int(getattr(attrs, "wisdom", 0), 0)
-            intelligence = GenericUtil.to_int(getattr(attrs, "intelligence", 0), 0)
-            gain = (wisdom + intelligence + level) // 2
-            number = context.rng.number_percent()
-            if number < self._skill_percent("meditation"):
-                gain += number * gain // 100
-                if mana < max_mana:
-                    Ability.check_improve_by_name(self, "meditation", True, 8)
-
-            if not bool(getattr(getattr(self, "character_class", None), "mana_gain", True)):
-                gain //= 2
-
-            if position == context.position("POS_SLEEPING"):
-                pass
-            elif position == context.position("POS_RESTING"):
-                gain //= 2
-            elif position == context.position("POS_FIGHTING"):
-                gain //= 6
-            else:
-                gain //= 4
-
-            if self.condition_value("hunger") == 0:
-                gain //= 2
-            if self.condition_value("thirst") == 0:
-                gain //= 2
+        gain = self._base_mana_gain(level, position, context)
 
         gain = gain * GenericUtil.to_int(getattr(room, "mana_rate", 100), 100) // 100
         gain = self._apply_furniture_regen_rate(gain, "value4")
@@ -329,8 +254,6 @@ class AnimateEntity:
         return min(gain, max_mana - mana)
 
     def move_gain(self, room, context: RegenerationContext) -> int:
-        from api.CharacterApi import CharacterApi
-
         if room is None:
             return 0
 
@@ -341,21 +264,7 @@ class AnimateEntity:
 
         level = GenericUtil.to_int(getattr(self, "level", 0), 0)
         position = self.position_value(context.positions)
-        if CharacterApi.is_npc(self):
-            gain = level
-        else:
-            attrs = getattr(self, "character_attributes", None)
-            dexterity = GenericUtil.to_int(getattr(attrs, "dexterity", 0), 0)
-            gain = max(15, level)
-            if position == context.position("POS_SLEEPING"):
-                gain += dexterity
-            elif position == context.position("POS_RESTING"):
-                gain += dexterity // 2
-
-            if self.condition_value("hunger") == 0:
-                gain //= 2
-            if self.condition_value("thirst") == 0:
-                gain //= 2
+        gain = self._base_move_gain(level, position, context)
 
         gain = gain * GenericUtil.to_int(getattr(room, "heal_rate", 100), 100) // 100
         gain = self._apply_furniture_regen_rate(gain, "value3")
@@ -379,10 +288,11 @@ class AnimateEntity:
             return gain
         return gain * GenericUtil.to_int(getattr(furniture, field_name, 100), 100) // 100
 
-    def _skill_percent(self, skill_name: str) -> int:
-        from api.CharacterApi import CharacterApi
-        from player.Character import Character
+    def _base_hit_gain(self, level, position, context):
+        raise NotImplementedError
 
-        if CharacterApi.is_npc(self):
-            return 0
-        return Character.learned_entry_level(Character.get_learned(self, skill_name, collection_name="skills"))
+    def _base_mana_gain(self, level, position, context):
+        raise NotImplementedError
+
+    def _base_move_gain(self, level, position, context):
+        raise NotImplementedError

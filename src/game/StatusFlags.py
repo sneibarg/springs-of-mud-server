@@ -84,6 +84,21 @@ class StatusFlags:
             raise AttributeError(f"{name} is not a bitfield member")
         self._write_bitfield(name, BitField.unset_bit(getattr(self, name, 0), bit))
 
+    def has_named_flag(self, field, enums, name, normalize=int) -> bool:
+        bit = getattr(getattr(enums, name, None), "value", 0)
+        return bit > 0 and bool(normalize(getattr(self, field, 0)) & bit)
+
+    def set_named_flag(self, field, enums, name, enabled, normalize=int) -> None:
+        bit = getattr(getattr(enums, name, None), "value", 0)
+        if self is None or bit <= 0:
+            return
+        raw = normalize(getattr(self, field, 0))
+        value = raw | bit if enabled else raw & ~bit
+        if hasattr(self, "assign_bitfield"):
+            self.assign_bitfield(field, value)
+        else:
+            setattr(self, field, value)
+
     def _write_bitfield(self, name: str, value: int) -> None:
         object.__setattr__(self, "_bitfield_write_enabled", True)
         try:

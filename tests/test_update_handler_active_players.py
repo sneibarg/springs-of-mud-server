@@ -25,6 +25,7 @@ for package_name in ["area", "combat", "game", "interp", "item", "mobile", "play
 from game.UpdateHandler import UpdateHandler
 from game.EntityUpdateHandler import EntityUpdateHandler
 from game.AnimateEntity import AnimateEntity
+from mobile.Mobile import Mobile
 from combat.CombatHandler import FightHandler
 from item.EffectUpdateHandler import EffectUpdateHandler
 from item.ItemUpdateHandler import ItemUpdateHandler
@@ -295,6 +296,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         handler.enum_provider.get.return_value = SimpleNamespace(OBJ_VNUM_PIT=SimpleNamespace(value=999))
         registries.shop_registry.find_by_keeper_vnum.return_value = None
         room = SimpleNamespace(contents={}, characters={}, mobiles={}, players_in_room=lambda: ["observer"])
+        room.remove_item_from_room = lambda item: room.contents.pop(item.id, None)
         registries.room_registry.all_rooms.return_value = [room]
         handler.tick_effects = AsyncMock()
         item = SimpleNamespace(id="stock", short_description="a trinket", item_type="ITEM_TRASH",
@@ -520,7 +522,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         )
 
     def test_rom_npc_regen_uses_level_position_and_affects(self):
-        npc = AnimateEntity.__new__(AnimateEntity)
+        npc = Mobile.__new__(Mobile)
         npc.__dict__.update(
             level=10,
             hit=50,

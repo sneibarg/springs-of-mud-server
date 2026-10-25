@@ -21,7 +21,7 @@ from api.CharacterApi import CharacterApi
 from api.InterpApi import InterpApi
 from server.LoggerFactory import LoggerFactory
 from skill.Ability import Ability
-from skill import Skill
+from skill.Skill import Skill
 from api.SkillApi import SkillApi
 from api.SpellApi import SpellApi
 from skill.SpellContext import SpellContext

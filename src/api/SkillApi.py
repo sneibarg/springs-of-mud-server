@@ -4,7 +4,7 @@ from injector import inject
 from api.CharacterApi import CharacterApi
 from game.EnumProvider import EnumProvider
 from server.LoggerFactory import LoggerFactory
-from skill import Skill
+from skill.Skill import Skill
 from skill.SkillRegistry import SkillRegistry
 from util.GenericUtil import GenericUtil
 

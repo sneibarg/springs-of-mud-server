@@ -43,6 +43,22 @@ def _load_module(name: str, relative_path: str):
     return module
 
 
+def _ensure_injector():
+    current = sys.modules.get("injector")
+    if current is not None and hasattr(current, "Injector"):
+        return
+    sys.modules.pop("injector", None)
+    try:
+        import injector  # noqa: F401
+    except ImportError:
+        _stub_module("injector", inject=lambda target: target, Injector=object, singleton=lambda target: target)
+
+
+def _stub_module_if_missing(name: str, **attrs):
+    if name not in sys.modules:
+        _stub_module(name, **attrs)
+
+
 class _Logger:
     def info(self, *_args, **_kwargs):
         return None
@@ -197,7 +213,7 @@ class _Context(SimpleNamespace):
         self.done = True
 
 
-_stub_module("injector", inject=lambda target: target)
+_ensure_injector()
 _stub_package("server")
 _stub_module("server.LoggerFactory", LoggerFactory=_LoggerFactory)
 _stub_package("interp")
@@ -224,7 +240,7 @@ _load_module("interp.HelpEntry", "interp/HelpEntry.py")
 Command = _load_module("interp.Command", "interp/Command.py").Command
 _load_module("interp.InterpView", "interp/InterpView.py")
 _stub_module("api.CharacterApi", CharacterApi=_CharacterApi)
-_stub_module("api.MovementApi", MovementApi=SimpleNamespace())
+_stub_module_if_missing("api.MovementApi", MovementApi=SimpleNamespace())
 _stub_module("api.ItemApi", ItemApi=SimpleNamespace())
 _stub_module("api.SkillApi", SkillApi=object)
 _stub_package("player")
@@ -233,8 +249,8 @@ _stub_package("item")
 _stub_module("item.Item", Item=SimpleNamespace)
 InterpApi = _load_module("api.InterpApi", "api/InterpApi.py").InterpApi
 _stub_package("combat")
-_stub_module("combat.CombatHandler", FightHandler=_FightHandler)
-_stub_module("combat.FightHandler", FightHandler=_FightHandler)
+_stub_module_if_missing("combat.CombatHandler", FightHandler=_FightHandler)
+_stub_module_if_missing("combat.FightHandler", FightHandler=_FightHandler)
 _load_module("combat.FightView", "combat/CombatView.py")
 _stub_package("skill")
 _stub_module("skill.SkillRegistry", SkillRegistry=object)
@@ -246,12 +262,12 @@ sys.modules["skill"].Skill = Skill
 _stub_module("skill.SpellContext", SpellContext=lambda **kwargs: SimpleNamespace(payloads=[], performed=False, **kwargs))
 _stub_module("api.SpellApi", SpellApi=lambda **_kwargs: SimpleNamespace(execute_lambdas=lambda *_args, **_kwargs: None, queue_cast_announcement=lambda *_args, **_kwargs: None, start_offensive_combat=lambda *_args, **_kwargs: None))
 Fight = _load_module("interp.commands.Fight", "interp/commands/Fight.py").Fight
-_stub_module("interp.commands.Info", Info=object)
-_stub_module("interp.commands.Movement", Movement=object)
-_stub_module("interp.commands.Communications", Communications=object)
-_stub_module("interp.commands.Object", Object=object)
-_stub_module("interp.commands.Wiz", Wiz=object)
-_stub_module("server.messaging", MessageBus=object)
+_stub_module_if_missing("interp.commands.Info", Info=object)
+_stub_module_if_missing("interp.commands.Movement", Movement=object)
+_stub_module_if_missing("interp.commands.Communications", Communications=object)
+_stub_module_if_missing("interp.commands.Object", Object=object)
+_stub_module_if_missing("interp.commands.Wiz", Wiz=object)
+_stub_module_if_missing("server.messaging", MessageBus=object)
 PlayerHandler = _load_module("player.PlayerHandler", "player/PlayerHandler.py").PlayerHandler
 
 

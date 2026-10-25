@@ -19,6 +19,7 @@ def load_class(name, path, class_name):
         "interp.Context": Components["interp.Context"],
         "interp.commands.Fight": SimpleNamespace(Fight=object),
         "skill": SimpleNamespace(Skill=object),
+        "skill.Skill": SimpleNamespace(Skill=object),
         "skill.SkillRegistry": SimpleNamespace(SkillRegistry=object),
     }
     with patch.dict(sys.modules, replacements):

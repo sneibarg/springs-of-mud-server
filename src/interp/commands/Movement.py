@@ -7,6 +7,7 @@ from injector import inject
 from game.EnumProvider import EnumProvider
 from game.GameData import GameData
 from util.GenericUtil import GenericUtil
+from util.InterpUtil import InterpUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from api.InterpApi import InterpApi
@@ -18,6 +19,8 @@ from util.MobileUtil import MobileUtil
 from util.PayloadUtil import PayloadUtil
 from util.PlayerUtil import PlayerUtil
 from player.Character import Character
+from player.CharacterAdvancement import CharacterAdvancement
+from skill.GroupOwnership import GroupOwnership
 from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
 
@@ -613,11 +616,12 @@ class Movement:
             return self._command_payload("tells_i_do_not", channel="to_char", tokens={"t": self._entity_label(trainer)})
 
         attrs = getattr(character, "character_attributes", None)
-        if raw.startswith("list"):
+        subcommand, _ = InterpUtil.one_argument(raw)
+        if subcommand and "list".startswith(subcommand):
             context.finish()
             return {"to_char": self._gain_list(character)}
 
-        if raw.startswith("convert"):
+        if subcommand and "convert".startswith(subcommand):
             practices = GenericUtil.to_int(getattr(attrs, "practices", 0), 0) if attrs is not None else 0
             if practices < 10:
                 context.finish()
@@ -627,7 +631,7 @@ class Movement:
             context.finish()
             return self._command_payload("helps_apply_practice_training", channel="to_char", tokens={"t": self._entity_label(trainer)})
 
-        if raw.startswith("points"):
+        if subcommand and "points".startswith(subcommand):
             trains = GenericUtil.to_int(getattr(attrs, "trains", 0), 0) if attrs is not None else 0
             points = GenericUtil.to_int(getattr(attrs, "points", 0), 0) if attrs is not None else 0
             if trains < 2:
@@ -638,6 +642,7 @@ class Movement:
                 return self._command_payload("tells_would_no_point", channel="to_char", tokens={"t": self._entity_label(trainer)})
             attrs.trains = trains - 2
             attrs.points = points - 1
+            CharacterAdvancement.reset_experience_for_points(character)
             context.finish()
             return self._command_payload("trains_feel_more_at", channel="to_char", tokens={"t": self._entity_label(trainer)})
 
@@ -759,9 +764,12 @@ class Movement:
     @staticmethod
     def _find_gain_entry(raw: str, candidates: list, registry):
         wanted = str(raw or "").strip().lower()
+        if not wanted:
+            return None
+        # Registry order supplies the stable first match, as ROM's tables do.
         for entry in candidates:
             name = str(getattr(entry, "name", "") or "").strip().lower()
-            if name == wanted:
+            if name.startswith(wanted):
                 return entry
         getter = getattr(registry, "get_or_none", None)
         return getter(name=raw) if callable(getter) else None
@@ -798,26 +806,29 @@ class Movement:
         return {"mage": 0, "cleric": 1, "thief": 2, "warrior": 3}.get(self._class_name(character), -1)
 
     def _knows_group(self, character: Character, group) -> bool:
-        group_name = str(getattr(group, "name", "") or "").strip().lower()
-        for known in list(getattr(character, "groups", []) or []):
-            if str(known or "").strip().lower() == group_name:
-                return True
-        skills = list(getattr(group, "skills", []) or [])
-        spells = list(getattr(group, "spells", []) or [])
-        if not skills and not spells:
-            return False
-        return all(self._has_learned(character, name, "skills") for name in skills) and all(self._has_learned(character, name, "spells") for name in spells)
+        return GroupOwnership.knows(character, group.name)
 
-    def _add_group(self, character: Character, group) -> None:
-        for skill_name in list(getattr(group, "skills", []) or []):
-            self._set_learned(character, skill_name, 1, "skills")
-        for spell_name in list(getattr(group, "spells", []) or []):
-            self._set_learned(character, spell_name, 1, "spells")
-        groups = list(getattr(character, "groups", []) or [])
-        group_name = str(getattr(group, "name", "") or "").strip()
-        if group_name and all(str(entry).strip().lower() != group_name.lower() for entry in groups):
-            groups.append(group_name)
-            setattr(character, "groups", groups)
+    def _add_group(self, character: Character, group, visited: set[str] | None = None) -> None:
+        visited = set() if visited is None else visited
+        key = str(group.name).strip().casefold()
+        if key in visited:
+            return
+        visited.add(key)
+        GroupOwnership.add(character, group.name)
+        for name in list(group.skills or []) + list(group.spells or []):
+            # Resolve abilities before groups, matching ROM group_add. Nested
+            # groups may appear in either designer-authored member list.
+            skill = self._find_gain_skill(name)
+            spell = None if skill is not None else self._find_gain_spell(name)
+            ability = skill if skill is not None else spell
+            if ability is not None:
+                collection = "skills" if skill is not None else "spells"
+                if not self._has_learned(character, ability.name, collection):
+                    self._set_learned(character, ability.name, 1, collection)
+            else:
+                nested = self._find_gain_group(name)
+                if nested is not None:
+                    self._add_group(character, nested, visited)
 
     @staticmethod
     def _has_learned(character: Character, name: str, collection_name: str) -> bool:
@@ -848,8 +859,7 @@ class Movement:
 
     @staticmethod
     def _mobile_act(mob) -> int:
-        flags = getattr(mob, "mobile_flags", None)
-        raw = getattr(flags, "act", getattr(mob, "act", flags))
+        raw = getattr(getattr(mob, "status_flags", None), "act", 0)
         return GenericUtil.to_int(raw, 0)
 
     @staticmethod

@@ -3,10 +3,11 @@ from __future__ import annotations
 import json
 
 from dataclasses import dataclass
+from game.ArmorValues import ArmorValues
 
 
 @dataclass
-class ArmorClass:
+class ArmorClass(ArmorValues):
     pierce: int
     slash: int
     bash: int

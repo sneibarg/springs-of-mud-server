@@ -38,6 +38,17 @@ def _load_module(name: str, relative_path: str):
     return module
 
 
+def _ensure_injector():
+    current = sys.modules.get("injector")
+    if current is not None and hasattr(current, "Injector"):
+        return
+    sys.modules.pop("injector", None)
+    try:
+        import injector  # noqa: F401
+    except ImportError:
+        _stub_module("injector", inject=lambda target: target, Injector=object, singleton=lambda target: target)
+
+
 class _Logger:
     def info(self, *_args, **_kwargs):
         return None
@@ -93,7 +104,7 @@ class _SkillUtil:
         return _SkillUtil.weapon_skill_name(weapon, weapon_class_names) or "hand to hand"
 
 
-_stub_module("injector", inject=lambda target: target)
+_ensure_injector()
 _stub_package("server")
 _stub_module("server.LoggerFactory", LoggerFactory=_LoggerFactory)
 _stub_package("util")
@@ -107,7 +118,8 @@ _load_module("game.action", "game/action/__init__.py")
 _stub_package("area")
 _stub_module("area.RoomRegistry", RoomRegistry=object)
 _stub_package("combat")
-_stub_module("combat.FightHandler", FightHandler=object)
+if "combat.FightHandler" not in sys.modules:
+    _stub_module("combat.FightHandler", FightHandler=object)
 _stub_package("interp")
 _stub_module("interp.Context", Context=object)
 FightView = _load_module("combat.FightView", "combat/CombatView.py").FightView

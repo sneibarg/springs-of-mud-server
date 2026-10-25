@@ -32,23 +32,23 @@ class ItemUtil:
             silver = max(1, silver)
 
         if gold == 0 and silver == 1:
-            money = ItemUtil.create_object(item_registry.get(vnum=WellKnownObjEnums.OBJ_VNUM_SILVER_ONE.value))
+            money = ItemUtil.create_object(item_registry.get(vnum=str(WellKnownObjEnums.OBJ_VNUM_SILVER_ONE.value)))
         elif gold == 1 and silver == 0:
-            money = ItemUtil.create_object(item_registry.get(vnum=WellKnownObjEnums.OBJ_VNUM_GOLD_ONE.value))
+            money = ItemUtil.create_object(item_registry.get(vnum=str(WellKnownObjEnums.OBJ_VNUM_GOLD_ONE.value)))
         elif silver == 0:
-            money = ItemUtil.create_object(item_registry.get(vnum=WellKnownObjEnums.OBJ_VNUM_GOLD_SOME.value))
+            money = ItemUtil.create_object(item_registry.get(vnum=str(WellKnownObjEnums.OBJ_VNUM_GOLD_SOME.value)))
             money.value1 = str(gold)
             money.cost = gold
             money.short_description = money.short_description.replace("%d", str(gold))
             money.weight = gold / 5
         elif gold == 0:
-            money = ItemUtil.create_object(item_registry.get(vnum=WellKnownObjEnums.OBJ_VNUM_SILVER_SOME.value))
+            money = ItemUtil.create_object(item_registry.get(vnum=str(WellKnownObjEnums.OBJ_VNUM_SILVER_SOME.value)))
             money.value0 = str(silver)
             money.cost = silver
             money.short_description = money.short_description.replace("%d", str(silver))
             money.weight = silver / 20
         else:
-            money = ItemUtil.create_object(item_registry.get(vnum=WellKnownObjEnums.OBJ_VNUM_COINS.value))
+            money = ItemUtil.create_object(item_registry.get(vnum=str(WellKnownObjEnums.OBJ_VNUM_COINS.value)))
             money.value0 = str(silver)
             money.value1 = str(gold)
             money.cost = 100 * gold + silver

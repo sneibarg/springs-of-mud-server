@@ -17,6 +17,7 @@ from util.InterpUtil import InterpUtil
 from util.ItemUtil import ItemUtil
 from util.MobileUtil import MobileUtil
 from player.Character import Character
+from skill.GroupOwnership import GroupOwnership
 from api.CharacterApi import CharacterApi
 from skill.Ability import Ability
 from util.PlayerUtil import PlayerUtil
@@ -1298,36 +1299,7 @@ class Info:
         return exact if exact is not None else prefix
 
     def _known_group_names(self, character: Character, groups: list[Any]) -> list[str]:
-        raw = (
-            getattr(character, "groups", None)
-            or getattr(character, "known_groups", None)
-            or getattr(character, "group_known", None)
-        )
-        if isinstance(raw, dict):
-            return sorted(str(name) for name, known in raw.items() if known)
-        if isinstance(raw, (list, tuple, set)):
-            names = []
-            for entry in raw:
-                if isinstance(entry, dict):
-                    name = str(entry.get("name", "") or "").strip()
-                else:
-                    name = str(entry or "").strip()
-                if name:
-                    names.append(name)
-            return sorted(names)
-
-        learned_names = {
-            Character.learned_entry_name(entry).lower()
-            for entry in Character.visible_learned_entries(character)
-            if Character.learned_entry_name(entry)
-        }
-        inferred = []
-        for group in groups:
-            members = [str(name or "").strip().lower() for name in list(getattr(group, "spells", []) or []) + list(getattr(group, "skills", []) or [])]
-            members = [name for name in members if name]
-            if members and all(name in learned_names for name in members):
-                inferred.append(self._group_name(group))
-        return sorted(inferred)
+        return sorted(GroupOwnership.names(character))
 
     @staticmethod
     def _column_lines(values: list[str], *, width: int, columns: int) -> str:

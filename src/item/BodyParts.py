@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from item.DeathLoot import format_template, victim_name
+
 import random
 from enum import IntEnum
 
@@ -126,20 +128,11 @@ class BodyParts:
     @staticmethod
     def _victim_name(victim) -> str:
         from api.CharacterApi import CharacterApi
-
-        if CharacterApi.is_npc(victim):
-            return str(getattr(victim, "short_description", "") or getattr(victim, "name", "someone"))
-        return str(getattr(victim, "name", "someone"))
+        return victim_name(victim, CharacterApi.is_npc)
 
     @staticmethod
     def _format_template(text: str, victim_name: str) -> str:
-        raw = str(text or "")
-        if "%s" in raw:
-            try:
-                return raw % victim_name
-            except Exception:
-                return raw.replace("%s", victim_name)
-        return raw
+        return format_template(text, victim_name)
 
 
 __all__ = ["BodyParts"]

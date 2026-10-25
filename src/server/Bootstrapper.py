@@ -1,3 +1,5 @@
+import random
+
 from injector import Injector, singleton
 
 from api.CharacterApi import CharacterApi
@@ -75,17 +77,27 @@ from server.messaging import MessageBus
 from server.session.AuthenticationService import AuthenticationService
 from server.session.SessionHandler import SessionHandler
 from skill.SkillRegistry import SkillRegistry
+from skill.Ability import Ability
+from skill.AbilityResolver import AbilityResolver
+from skill.LearningService import LearningService
+from game.RandomNumberGenerator import RandomNumberGenerator
+from player.CharacterAdvancement import CharacterAdvancement
 from skill.GroupRegistry import GroupRegistry
 from skill.SkillService import SkillService
 from skill.SpellRegistry import SpellRegistry
 from skill.SpellService import SpellService
 from server.LoggerFactory import LoggerFactory
 from util.EffectUtil import EffectUtil
+from util.ElementalExposure import ElementalExposure
 
 logger = LoggerFactory.get_logger("Bootstrapper")
 
 
 class Bootstrapper:
+    @staticmethod
+    def reset_runtime() -> None:
+        GameApi.reset_for_tests()
+
     @staticmethod
     def bootstrap(service_config: ServiceConfig) -> Injector:
         injector = Bootstrapper.create_injector(service_config)
@@ -101,10 +113,12 @@ class Bootstrapper:
         Bootstrapper._bind_game_data(injector)
         Bootstrapper._bind_network(injector)
         Bootstrapper._bind_registries(injector)
+        Bootstrapper._bind_learning(injector)
         Bootstrapper._bind_handlers(injector)
         Bootstrapper._bind_apis(injector)
         Bootstrapper._bind_game_services(injector, service_config)
         EffectUtil.configure(injector.get(EffectHandler))
+        GameApi.register_runtime_reset(EffectUtil.reset_for_tests)
 
         injector.binder.bind(ConnectionHandler, scope=singleton)
         injector.binder.bind(
@@ -140,9 +154,19 @@ class Bootstrapper:
         logger.info("All registries bound.")
 
     @staticmethod
+    def _bind_learning(injector: Injector):
+        resolver = AbilityResolver(injector.get(SkillRegistry), injector.get(SpellRegistry))
+        injector.binder.bind(AbilityResolver, to=resolver, scope=singleton)
+        learning = LearningService(resolver, CharacterApi, RandomNumberGenerator(), random,
+                                   CharacterAdvancement.gain_experience, LoggerFactory.get_logger("LearningService"))
+        injector.binder.bind(LearningService, to=learning, scope=singleton)
+        Ability.configure_learning(learning)
+        GameApi.register_runtime_reset(lambda: Ability.configure_learning(None))
+
+    @staticmethod
     def _bind_handlers(injector: Injector):
         Bootstrapper._bind_singleton_classes(injector, [
-            SocialHandler, Communications, Fight, Info, Movement, Object, Wiz,
+            SocialHandler, Communications, Fight, Info, Movement, Object, Wiz, ElementalExposure,
             AreaHandler, RoomHandler, FightHandler, WeaponHitHandler, CombatEscapeHandler, CombatSkillHandler, CombatDeathHandler, ItemHandler, MobileHandler, EffectHandler,
             EffectUpdateHandler, ItemUpdateHandler, EntityUpdateHandler,
             PlayerHandler, WizHandler, InterpHandler, NoteHandler,

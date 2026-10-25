@@ -41,10 +41,12 @@ class Character(AnimateEntity):
     character_race: CharacterRace | None = None
     skills: List[dict] = field(default_factory=list)
     spells: List[dict] = field(default_factory=list)
+    groups: list[str] = field(default_factory=list)
     loot: List[Item] = field(default_factory=list)
     context: Optional[Context] = None
     aliases: dict[str, str] = field(default_factory=dict)
     carriage_return: bool = True
+    _skill_improve_messages: list[str] = field(default_factory=list, repr=False, compare=False)
 
     def __post_init__(self):
         super().__post_init__()
@@ -64,6 +66,7 @@ class Character(AnimateEntity):
         from item.Effect import Effect
         from item.Item import Item
         payload = GenericUtil.camel_to_snake_case(data)
+        payload['groups'] = list(payload.get('groups') or [])
         prompt_format = payload.get('prompt_format')
         character_flags = payload.get('character_flags')
         character_class = payload.get('character_class')
@@ -254,43 +257,40 @@ class Character(AnimateEntity):
             return
         setattr(entry, "level", normalized)
 
-    @staticmethod
-    def learned_entries(character, *, collection_name: str = "") -> List[Any]:
+    def learned_entries(self, *, collection_name: str = "") -> List[Any]:
         collection_key = str(collection_name or "").strip().lower()
         if collection_key == "skills":
-            return list(character.skills or [])
+            return list(self.skills or [])
         if collection_key == "spells":
-            return list(character.spells or [])
+            return list(self.spells or [])
 
         entries: list[Any] = []
-        collections = character.learned()
+        collections = self.learned()
         for learned in list(collections or []):
             entries.extend(list(learned or []))
         return entries
 
-    @staticmethod
-    def visible_learned_entries(character, visible_fn=None, *, collection_name: str = "") -> List[Any]:
+    def visible_learned_entries(self, visible_fn=None, *, collection_name: str = "") -> List[Any]:
         entries = []
-        for entry in Character.learned_entries(character, collection_name=collection_name):
+        for entry in Character.learned_entries(self, collection_name=collection_name):
             if Character.learned_entry_level(entry) < 1:
                 continue
             name = Character.learned_entry_name(entry)
             if not name:
                 continue
-            if callable(visible_fn) and not visible_fn(character, name):
+            if callable(visible_fn) and not visible_fn(self, name):
                 continue
             entries.append(entry)
         return entries
 
-    @staticmethod
-    def get_learned(character, learned_name, *, prefix: bool = False, visible_only: bool = False, visible_fn=None,
+    def get_learned(self, learned_name, *, prefix: bool = False, visible_only: bool = False, visible_fn=None,
                     collection_name: str = ""):
         wanted = str(learned_name or "").strip().lower()
         if not wanted:
             return None
 
-        entries = Character.visible_learned_entries(character, visible_fn, collection_name=collection_name) \
-            if visible_only else Character.learned_entries(character, collection_name=collection_name)
+        entries = Character.visible_learned_entries(self, visible_fn, collection_name=collection_name) \
+            if visible_only else Character.learned_entries(self, collection_name=collection_name)
 
         prefix_match = None
         for item in entries:
@@ -303,9 +303,8 @@ class Character(AnimateEntity):
                 prefix_match = item
         return prefix_match
 
-    @staticmethod
-    def set_learned(character, learned_name, learned_level, *, collection_name: str = "", create: bool = False):
-        entry = Character.get_learned(character, learned_name, collection_name=collection_name)
+    def set_learned(self, learned_name, learned_level, *, collection_name: str = "", create: bool = False):
+        entry = Character.get_learned(self, learned_name, collection_name=collection_name)
         if entry is not None:
             Character._set_learned_entry_level(entry, learned_level)
             return entry
@@ -314,13 +313,13 @@ class Character(AnimateEntity):
             raise ValueError(f"Learned skill with ID {learned_name} not found")
 
         collection_key = "spells" if str(collection_name or "").strip().lower() == "spells" else "skills"
-        collection = character.spells if collection_key == "spells" else character.skills
+        collection = self.spells if collection_key == "spells" else self.skills
         if collection is None:
             collection = []
             if collection_key == "spells":
-                character.spells = collection
+                self.spells = collection
             else:
-                character.skills = collection
+                self.skills = collection
 
         entry = {"name": str(learned_name or "").strip(), "level": 0}
         collection.append(entry)
@@ -414,3 +413,95 @@ class Character(AnimateEntity):
         if size_enum is not None:
             return size_value > int(size_enum.SIZE_MEDIUM.value)
         return size_value >= 3
+
+    def queue_improve_message(self, message: str) -> None:
+        from skill.LearningMessages import LearningMessages
+        LearningMessages.queue(self, message)
+
+    def take_improve_messages(self) -> str:
+        from skill.LearningMessages import LearningMessages
+        return LearningMessages.take(self)
+
+    def _base_hit_gain(self, level, position, context):
+        from skill.Ability import Ability
+
+        hit = GenericUtil.to_int(getattr(self, "hit", 0), 0)
+        max_hit = GenericUtil.to_int(getattr(self, "max_hit", 0), 0)
+        attrs = getattr(self, "character_attributes", None)
+        constitution = GenericUtil.to_int(getattr(attrs, "constitution", 0), 0)
+        gain = max(3, constitution - 3 + level // 2)
+        gain += GenericUtil.to_int(getattr(getattr(self, "character_class", None), "hp_max", 10), 10) - 10
+        number = context.rng.number_percent()
+        if number < self._skill_percent("fast healing"):
+            gain += number * gain // 100
+            if hit < max_hit:
+                Ability.check_improve_by_name(self, "fast healing", True, 8)
+
+        if position == context.position("POS_SLEEPING"):
+            pass
+        elif position == context.position("POS_RESTING"):
+            gain //= 2
+        elif position == context.position("POS_FIGHTING"):
+            gain //= 6
+        else:
+            gain //= 4
+
+        if self.condition_value("hunger") == 0:
+            gain //= 2
+        if self.condition_value("thirst") == 0:
+            gain //= 2
+
+        return gain
+
+    def _base_mana_gain(self, level, position, context):
+        from skill.Ability import Ability
+
+        mana = GenericUtil.to_int(getattr(self, "mana", 0), 0)
+        max_mana = GenericUtil.to_int(getattr(self, "max_mana", 0), 0)
+        attrs = getattr(self, "character_attributes", None)
+        wisdom = GenericUtil.to_int(getattr(attrs, "wisdom", 0), 0)
+        intelligence = GenericUtil.to_int(getattr(attrs, "intelligence", 0), 0)
+        gain = (wisdom + intelligence + level) // 2
+        number = context.rng.number_percent()
+        if number < self._skill_percent("meditation"):
+            gain += number * gain // 100
+            if mana < max_mana:
+                Ability.check_improve_by_name(self, "meditation", True, 8)
+
+        if not bool(getattr(getattr(self, "character_class", None), "mana_gain", True)):
+            gain //= 2
+
+        if position == context.position("POS_SLEEPING"):
+            pass
+        elif position == context.position("POS_RESTING"):
+            gain //= 2
+        elif position == context.position("POS_FIGHTING"):
+            gain //= 6
+        else:
+            gain //= 4
+
+        if self.condition_value("hunger") == 0:
+            gain //= 2
+        if self.condition_value("thirst") == 0:
+            gain //= 2
+
+        return gain
+
+    def _base_move_gain(self, level, position, context):
+        attrs = getattr(self, "character_attributes", None)
+        dexterity = GenericUtil.to_int(getattr(attrs, "dexterity", 0), 0)
+        gain = max(15, level)
+        if position == context.position("POS_SLEEPING"):
+            gain += dexterity
+        elif position == context.position("POS_RESTING"):
+            gain += dexterity // 2
+
+        if self.condition_value("hunger") == 0:
+            gain //= 2
+        if self.condition_value("thirst") == 0:
+            gain //= 2
+
+        return gain
+
+    def _skill_percent(self, skill_name: str) -> int:
+        return self.learned_entry_level(self.get_learned(skill_name, collection_name="skills"))

@@ -111,10 +111,10 @@ class TestWeaponHitEffects(unittest.TestCase):
                 self._flags("poison")
                 coating = SimpleNamespace(type="spell.poison", level=2, duration=1)
                 self.weapon.effects = [coating]
-                self.handler._saves = Mock(return_value=saved)
+                self.handler.elemental_exposure._saves = Mock(return_value=saved)
                 self.effects.affect_join.reset_mock()
                 result = self._apply()
-                self.handler._saves.assert_called_once_with(1, self.victim, "DAM_POISON", self.immunity)
+                self.handler.elemental_exposure._saves.assert_called_once_with(1, self.victim, "DAM_POISON", self.immunity)
                 self.assertEqual((0, 0), (coating.level, coating.duration))
                 self.assertIn("has worn off", result["to_char"])
                 self.assertIn(coating, self.weapon.effects)  # removal belongs to effect ticking
@@ -130,7 +130,7 @@ class TestWeaponHitEffects(unittest.TestCase):
 
     def test_innate_poison_uses_weapon_level_without_temporary_coating(self):
         self._flags("poison")
-        self.handler._saves = Mock(return_value=False)
+        self.handler.elemental_exposure._saves = Mock(return_value=False)
         self._apply()
         affect = self.effects.affect_join.call_args.args[1]
         self.assertEqual((18, 12, "spell.poison"), (affect.level, affect.duration, affect.type))
@@ -148,7 +148,7 @@ class TestWeaponHitEffects(unittest.TestCase):
 
     def test_proc_order_and_roll_bounds_match_rom(self):
         self._flags("poison", "vampiric", "flaming", "frost", "shocking")
-        self.handler._saves = Mock(return_value=True)
+        self.handler.elemental_exposure._saves = Mock(return_value=True)
         self._apply()
         self.assertEqual(["DAM_NEGATIVE", "DAM_FIRE", "DAM_COLD", "DAM_LIGHTNING"],
                          [call.kwargs["dam_type"] for call in self.damage.call_args_list])
@@ -183,12 +183,12 @@ class TestWeaponHitEffects(unittest.TestCase):
                 self._flags(kind)
                 self.effects.reset_mock()
                 self.effects.ensure_effects.side_effect = lambda entity: entity.effects
-                self.handler._saves = Mock(return_value=False)
+                self.handler.elemental_exposure._saves = Mock(return_value=False)
                 self._apply()
                 method = self.effects.affect_to_char if kind == "flaming" else self.effects.affect_join
                 effect = method.call_args.args[1]
                 self.assertEqual((effect_type, 12, duration), (effect.type, effect.level, effect.duration))
-                self.handler._saves.assert_called_with(3, self.victim, self.data.weapon_hit_effects[kind]["damageType"], self.immunity)
+                self.handler.elemental_exposure._saves.assert_called_with(3, self.victim, self.data.weapon_hit_effects[kind]["damageType"], self.immunity)
         self._flags("shocking")
         self.victim.status_flags.pulse_daze = 20
         result = self._apply()
@@ -198,14 +198,14 @@ class TestWeaponHitEffects(unittest.TestCase):
     def test_existing_blindness_avoids_fire_save_and_effect(self):
         self._flags("flaming")
         self.victim.status_flags.affected_by = int(self.enums["affectedBy"].AFF_BLIND)
-        self.handler._saves = Mock(return_value=False)
+        self.handler.elemental_exposure._saves = Mock(return_value=False)
         self._apply()
-        self.handler._saves.assert_not_called()
+        self.handler.elemental_exposure._saves.assert_not_called()
         self.effects.affect_to_char.assert_not_called()
 
     def test_elemental_conditions_follow_positive_rom_adjustment(self):
         self.weapon.level = 200
-        self.handler._saves = Mock(return_value=True)
+        self.handler.elemental_exposure._saves = Mock(return_value=True)
         for kind, condition, amount in (("flaming", "thirst", 2), ("frost", "hunger", 1)):
             with self.subTest(kind=kind):
                 self._flags(kind)
@@ -239,15 +239,15 @@ class TestWeaponHitEffects(unittest.TestCase):
                 self.immunity.return_value = status
                 self.victim.character_class = SimpleNamespace(mana_gain=mana)
                 self.handler.rng.number_percent.return_value = roll
-                self.assertEqual(saved, self.handler._saves(10, self.victim, "DAM_FIRE", self.immunity))
+                self.assertEqual(saved, self.handler.elemental_exposure._saves(10, self.victim, "DAM_FIRE", self.immunity))
         self.immunity.return_value = "IS_IMMUNE"
         self.handler.rng.number_percent.reset_mock()
-        self.assertTrue(self.handler._saves(100, self.victim, "DAM_FIRE", self.immunity))
+        self.assertTrue(self.handler.elemental_exposure._saves(100, self.victim, "DAM_FIRE", self.immunity))
         self.handler.rng.number_percent.assert_not_called()
 
     def test_fire_container_spills_then_damages_contents_and_removes_equipped_effects(self):
         self._flags("flaming")
-        self.handler._saves = Mock(return_value=True)
+        self.handler.elemental_exposure._saves = Mock(return_value=True)
         self.handler.rng.number_percent.return_value = 1
         bag = self._item("bag", "container")
         scroll = self._item("scroll", "scroll")
@@ -266,7 +266,7 @@ class TestWeaponHitEffects(unittest.TestCase):
         for kind, types in (("frost", ("potion", "drink")), ("shocking", ("wand", "staff", "jewelry"))):
             with self.subTest(kind=kind):
                 self._flags(kind)
-                self.handler._saves = Mock(return_value=True)
+                self.handler.elemental_exposure._saves = Mock(return_value=True)
                 self.handler.rng.number_percent.return_value = 1
                 self.victim.inventory = [self._item(name, name) for name in (*types, "weapon")]
                 self._apply()
@@ -276,7 +276,7 @@ class TestWeaponHitEffects(unittest.TestCase):
         for flag, gate in (("ITEM_BURN_PROOF", 4), ("ITEM_NOPURGE", 4), (None, 0)):
             with self.subTest(flag=flag, gate=gate):
                 self._flags("frost")
-                self.handler._saves = Mock(return_value=True)
+                self.handler.elemental_exposure._saves = Mock(return_value=True)
                 self.handler.rng.number_percent.return_value = 1
                 self.handler.rng.number_range.side_effect = lambda low, high: gate if (low, high) == (0, 4) else high
                 potion = self._item("potion", "potion")

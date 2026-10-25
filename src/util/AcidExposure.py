@@ -1,3 +1,5 @@
+from util.ExposureUtil import exposure_chance, item_kind
+from item.ItemOwnership import ItemOwnership
 from copy import deepcopy
 
 from api.GameApi import GameApi
@@ -29,16 +31,11 @@ class AcidExposure:
                 or GameApi.is_set(flags, self.item_flags.ITEM_NOPURGE.value)
                 or self.rng.number_range(0, 4) == 0):
             return
-        chance = level // 4 + damage // 10
-        if chance > 25:
-            chance = (chance - 25) // 2 + 25
-        if chance > 50:
-            chance = (chance - 50) // 2 + 50
+        chance = exposure_chance(level, damage)
         if GameApi.is_set(flags, self.item_flags.ITEM_BLESS.value):
             chance -= 5
         chance -= int(item.level) * 2
-        raw_type = str(item.item_type).lower()
-        kind = self.item_table.get(raw_type, {}).get("type", raw_type).lower().removeprefix("item_")
+        kind = item_kind(item, self.item_table)
         if kind in ("container", "corpse_pc", "corpse_npc"):
             key = "acid_container"
         elif kind == "armor":
@@ -85,13 +82,7 @@ class AcidExposure:
                 self.object(child, level // 2, damage // 2, room, notify)
             else:
                 self._discard_contents(child)
-        if carrier is not None:
-            if slot is not None:
-                self.effects.remove_item_effects(carrier, item)
-                carrier.unequip_item(slot)
-            carrier.remove_item(item)
-        elif room is not None:
-            room.remove_item_from_room(item)
+        ItemOwnership(self.effects).detach_exposed(item, carrier=carrier, room=room)
 
     @classmethod
     def _discard_contents(cls, item):
