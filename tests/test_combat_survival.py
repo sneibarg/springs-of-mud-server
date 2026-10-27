@@ -24,6 +24,8 @@ def _load_components():
         ("util.MobileUtil", "MobileUtil"),
         ("game.HandlerService", "HandlerService"), ("server.session.SessionHandler", "SessionHandler"),
         ("server.connection.ConnectionManager", "ConnectionManager"))}
+    replacements["api.InterpApi"] = SimpleNamespace(InterpApi=SimpleNamespace(
+        command_payload=lambda key, **fields: dict(message_key=key, **fields)))
     replacements["combat.CombatHandler"] = SimpleNamespace(FightHandler=Runtime.FightHandler)
     replacements["api.MovementApi"] = SimpleNamespace(MovementApi=SimpleNamespace(
         flag_value=lambda enums, *names: next((int(getattr(getattr(enums, name, None), "value", 0))
@@ -38,7 +40,6 @@ def _load_components():
             ("player.CharacterAttributes", "player/CharacterAttributes.py"),
             ("game.AnimateEntity", "game/AnimateEntity.py"),
             ("interp.Context", "interp/Context.py"),
-            ("util.PayloadUtil", "util/PayloadUtil.py"),
             ("interp.commands.Fight", "interp/commands/Fight.py"),
             ("interp.commands.Movement", "interp/commands/Movement.py"),
             ("combat.CombatEscapeHandler", "combat/CombatEscapeHandler.py"),

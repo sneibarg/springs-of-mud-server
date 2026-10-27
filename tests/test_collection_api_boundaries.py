@@ -25,6 +25,30 @@ from util.GenericUtil import GenericUtil
 
 
 class CollectionApiBoundaryTests(unittest.TestCase):
+    def test_command_payload_preserves_references_and_copies_mutable_inputs(self):
+        targets = [self.actor]
+        tokens = {'amount': 0}
+        factory = Mock()
+        result = InterpApi.command_payload('success', victim=self.actor, targets=iter(targets),
+                                          token_factory=factory, channel='to_room', tokens=tokens,
+                                          wiznet_flag='WIZ_LOAD')
+        self.assertEqual('success', result['message_key'])
+        self.assertEqual('to_room', result['channel'])
+        self.assertIs(self.actor, result['victim'])
+        self.assertEqual(targets, result['targets'])
+        self.assertIs(factory, result['token_factory'])
+        self.assertEqual('WIZ_LOAD', result['wiznet_flag'])
+        factory.assert_not_called()
+        targets.clear()
+        tokens['amount'] = 10
+        self.assertEqual([self.actor], result['targets'])
+        self.assertEqual({'amount': 0}, result['tokens'])
+
+    def test_command_payload_omits_unused_fields_and_keeps_explicit_empty_targets(self):
+        self.assertEqual({'message_key': 'success'}, InterpApi.command_payload('success'))
+        self.assertEqual({'message_key': '', 'targets': []},
+                         InterpApi.command_payload(None, targets=[], tokens={}, token_factory='unused'))
+
     @classmethod
     def setUpClass(cls):
         collections = load_collections(Path(__file__).resolve().parents[1] / 'resources/collections',

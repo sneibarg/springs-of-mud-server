@@ -15,7 +15,6 @@ from api.InterpApi import InterpApi
 from api.MovementApi import MovementApi
 from combat.CombatHandler import FightHandler
 from item.Item import Item
-from util.PayloadUtil import PayloadUtil
 from util.PlayerUtil import PlayerUtil
 from player.Character import Character
 from player.CharacterAdvancement import CharacterAdvancement
@@ -95,13 +94,13 @@ class Movement:
                 "text": f"You follow {getattr(leader, 'name', '')}.\r\n",
             })
         payloads.extend([
-            PayloadUtil.command_payload(
+            InterpApi.command_payload(
                 "default",
                 channel="to_room",
                 targets=from_room_targets,
                 tokens=self._actor_tokens(character),
             ),
-            PayloadUtil.command_payload(
+            InterpApi.command_payload(
                 "arrived",
                 channel="to_room",
                 targets=to_room_targets,
@@ -191,7 +190,7 @@ class Movement:
         if target_item is not None:
             container_action(target_item)
             context.finish()
-            return PayloadUtil.command_payload(
+            return InterpApi.command_payload(
                 container_message_key,
                 targets=self._room_targets(room, character),
                 tokens=self._actor_item_tokens(character, Item.short(target_item)),
@@ -205,7 +204,7 @@ class Movement:
             return payload
         return {
             "payloads": [
-                PayloadUtil.command_payload("click", channel="to_char"),
+                InterpApi.command_payload("click", channel="to_char"),
                 payload,
             ]
         }
@@ -233,7 +232,7 @@ class Movement:
         ex = state.exit_obj
         action(self.room_registry, room, ex, self.exit_flags)
         context.finish()
-        return PayloadUtil.command_payload(
+        return InterpApi.command_payload(
             message_key,
             channel=channel,
             targets=self._room_targets(room, character),
@@ -244,24 +243,24 @@ class Movement:
         pos = CharacterApi.position_value(character)
         if pos <= CharacterApi.pos_value("POS_STUNNED"):
             context.finish()
-            return PayloadUtil.command_payload("can_t_do_that_right_now", channel="to_char")
+            return InterpApi.command_payload("can_t_do_that_right_now", channel="to_char")
         if pos == CharacterApi.pos_value("POS_SLEEPING"):
             if CharacterApi.is_affected_by_name(character, self.affected_bits, "AFF_SLEEP"):
                 context.finish()
-                return PayloadUtil.command_payload("can_t_wake_up", channel="to_char")
+                return InterpApi.command_payload("can_t_wake_up", channel="to_char")
             CharacterApi.set_position(character, "POS_STANDING")
             context.finish()
-            return PayloadUtil.command_payload("wake_stand_up", channel="to_char")
+            return InterpApi.command_payload("wake_stand_up", channel="to_char")
         if pos in (CharacterApi.pos_value("POS_RESTING"), CharacterApi.pos_value("POS_SITTING")):
             CharacterApi.set_position(character, "POS_STANDING")
             context.finish()
-            return PayloadUtil.command_payload("stand_up", channel="to_char")
+            return InterpApi.command_payload("stand_up", channel="to_char")
         if pos == CharacterApi.pos_value("POS_STANDING"):
             context.finish()
-            return PayloadUtil.command_payload("already_standing", channel="to_char")
+            return InterpApi.command_payload("already_standing", channel="to_char")
         if pos == CharacterApi.pos_value("POS_FIGHTING"):
             context.finish()
-            return PayloadUtil.command_payload("already_fighting", channel="to_char")
+            return InterpApi.command_payload("already_fighting", channel="to_char")
         context.finish()
         return {}
 
@@ -269,55 +268,55 @@ class Movement:
         pos = CharacterApi.position_value(character)
         if pos == CharacterApi.pos_value("POS_FIGHTING"):
             context.finish()
-            return PayloadUtil.command_payload("already_fighting", channel="to_char")
+            return InterpApi.command_payload("already_fighting", channel="to_char")
         if pos == CharacterApi.pos_value("POS_SLEEPING"):
             if CharacterApi.is_affected_by_name(character, self.affected_bits, "AFF_SLEEP"):
                 context.finish()
-                return PayloadUtil.command_payload("can_t_wake_up", channel="to_char")
+                return InterpApi.command_payload("can_t_wake_up", channel="to_char")
             CharacterApi.set_position(character, "POS_RESTING")
             context.finish()
-            return PayloadUtil.command_payload("wake_up_start_resting", channel="to_char")
+            return InterpApi.command_payload("wake_up_start_resting", channel="to_char")
         if pos in (CharacterApi.pos_value("POS_STANDING"), CharacterApi.pos_value("POS_SITTING")):
             CharacterApi.set_position(character, "POS_RESTING")
             context.finish()
-            return PayloadUtil.command_payload("rest", channel="to_char")
+            return InterpApi.command_payload("rest", channel="to_char")
         context.finish()
-        return PayloadUtil.command_payload("already_resting", channel="to_char")
+        return InterpApi.command_payload("already_resting", channel="to_char")
 
     def do_sit(self, character: Character, context: Context) -> dict:
         pos = CharacterApi.position_value(character)
         if pos == CharacterApi.pos_value("POS_FIGHTING"):
             context.finish()
-            return PayloadUtil.command_payload("maybe_should_finish_fight", channel="to_char")
+            return InterpApi.command_payload("maybe_should_finish_fight", channel="to_char")
         if pos == CharacterApi.pos_value("POS_SLEEPING"):
             if CharacterApi.is_affected_by_name(character, self.affected_bits, "AFF_SLEEP"):
                 context.finish()
-                return PayloadUtil.command_payload("can_t_wake_up", channel="to_char")
+                return InterpApi.command_payload("can_t_wake_up", channel="to_char")
             CharacterApi.set_position(character, "POS_SITTING")
             context.finish()
-            return PayloadUtil.command_payload("wake_sit_up", channel="to_char")
+            return InterpApi.command_payload("wake_sit_up", channel="to_char")
         if pos == CharacterApi.pos_value("POS_RESTING"):
             CharacterApi.set_position(character, "POS_SITTING")
             context.finish()
-            return PayloadUtil.command_payload("stop_resting", channel="to_char")
+            return InterpApi.command_payload("stop_resting", channel="to_char")
         if pos == CharacterApi.pos_value("POS_STANDING"):
             CharacterApi.set_position(character, "POS_SITTING")
             context.finish()
-            return PayloadUtil.command_payload("sit_down", channel="to_char")
+            return InterpApi.command_payload("sit_down", channel="to_char")
         context.finish()
-        return PayloadUtil.command_payload("already_sitting_down", channel="to_char")
+        return InterpApi.command_payload("already_sitting_down", channel="to_char")
 
     def do_sleep(self, character: Character, context: Context) -> dict:
         pos = CharacterApi.position_value(character)
         if pos == CharacterApi.pos_value("POS_SLEEPING"):
             context.finish()
-            return PayloadUtil.command_payload("is_asleep", channel="to_char")
+            return InterpApi.command_payload("is_asleep", channel="to_char")
         if pos == CharacterApi.pos_value("POS_FIGHTING"):
             context.finish()
-            return PayloadUtil.command_payload("is_fighting", channel="to_char")
+            return InterpApi.command_payload("is_fighting", channel="to_char")
         CharacterApi.set_position(character, "POS_SLEEPING")
         context.finish()
-        return PayloadUtil.command_payload("default", channel="to_char")
+        return InterpApi.command_payload("default", channel="to_char")
 
     def do_wake(self, character: Character, context: Context) -> dict:
         arg = MovementApi.argument_text(context)
@@ -325,7 +324,7 @@ class Movement:
             return {"self_stand": True}
         if not CharacterApi.is_awake(character):
             context.finish()
-            return PayloadUtil.command_payload("is_asleep", channel="to_char")
+            return InterpApi.command_payload("is_asleep", channel="to_char")
 
         room = self._room(character, context)
         victim = None
@@ -337,17 +336,17 @@ class Movement:
                     break
         if victim is None:
             context.finish()
-            return PayloadUtil.command_payload("target_missing", channel="to_char")
+            return InterpApi.command_payload("target_missing", channel="to_char")
         if CharacterApi.is_awake(victim):
             context.finish()
-            return PayloadUtil.command_payload("target_awake", channel="to_char", tokens={"t": victim.name})
+            return InterpApi.command_payload("target_awake", channel="to_char", tokens={"t": victim.name})
         if CharacterApi.is_affected_by_name(victim, self.affected_bits, "AFF_SLEEP"):
             context.finish()
-            return PayloadUtil.command_payload("affect_sleep", channel="to_char", tokens={"t": victim.name})
+            return InterpApi.command_payload("affect_sleep", channel="to_char", tokens={"t": victim.name})
 
         CharacterApi.set_position(victim, "POS_STANDING")
         context.finish()
-        return PayloadUtil.command_payload(
+        return InterpApi.command_payload(
             "wake_target",
             victim=victim,
             tokens={"c": character.name, "t": victim.name},
@@ -356,19 +355,19 @@ class Movement:
     def do_sneak(self, character: Character, context: Context) -> dict:
         CharacterApi.set_affected_by_name(character, self.affected_bits, "AFF_SNEAK", True)
         context.finish()
-        return PayloadUtil.command_payload("attempt_move_silently", channel="to_char")
+        return InterpApi.command_payload("attempt_move_silently", channel="to_char")
 
     def do_hide(self, character: Character, context: Context) -> dict:
         CharacterApi.set_affected_by_name(character, self.affected_bits, "AFF_HIDE", True)
         context.finish()
-        return PayloadUtil.command_payload("attempt_hide", channel="to_char")
+        return InterpApi.command_payload("attempt_hide", channel="to_char")
 
     def do_visible(self, character: Character, context: Context) -> dict:
         CharacterApi.set_affected_by_name(character, self.affected_bits, "AFF_HIDE", False)
         CharacterApi.set_affected_by_name(character, self.affected_bits, "AFF_INVISIBLE", False)
         CharacterApi.set_affected_by_name(character, self.affected_bits, "AFF_SNEAK", False)
         context.finish()
-        return PayloadUtil.command_payload("default", channel="to_char")
+        return InterpApi.command_payload("default", channel="to_char")
 
     def do_recall(self, character: Character, context: Context):
         room_flags = self.room_flags
@@ -376,7 +375,7 @@ class Movement:
         temple_room = self.room_registry.get_or_none(vnum=temple_vnum)
         if temple_room is None:
             context.finish()
-            return PayloadUtil.command_payload("null_temple", channel="to_char")
+            return InterpApi.command_payload("null_temple", channel="to_char")
 
         current = self._room(character, context)
         if current is None or current.id == temple_room.id:
@@ -386,7 +385,7 @@ class Movement:
         no_recall = MovementApi.flag_value(room_flags, "ROOM_NO_RECALL")
         if MovementApi.has_flag(GenericUtil.to_int(current.room_flags, 0), no_recall):
             context.finish()
-            return PayloadUtil.command_payload("no_recall", channel="to_char")
+            return InterpApi.command_payload("no_recall", channel="to_char")
 
         from_targets = current.player_targets(character)
         current.remove_player_from_room(character)
@@ -399,13 +398,13 @@ class Movement:
         context.finish()
         return {
             "payloads": [
-                PayloadUtil.command_payload(
+                InterpApi.command_payload(
                     "disappears",
                     channel="to_room",
                     targets=from_targets,
                     tokens=self._actor_tokens(character),
                 ),
-                PayloadUtil.command_payload(
+                InterpApi.command_payload(
                     "appears_room",
                     channel="to_room",
                     targets=to_targets,
@@ -426,27 +425,27 @@ class Movement:
             raw = " ".join(context.parameters).strip()
         if not raw:
             context.finish()
-            return PayloadUtil.command_payload("nope_can_t_do", channel="to_char")
+            return InterpApi.command_payload("nope_can_t_do", channel="to_char")
 
         room = self._room(character, context)
         portal = self._find_room_item(room, raw)
         if portal is None:
             context.finish()
-            return PayloadUtil.command_payload("don_t_see", channel="to_char")
+            return InterpApi.command_payload("don_t_see", channel="to_char")
         if not self._is_portal(portal) or self._portal_closed(portal, character):
             context.finish()
-            return PayloadUtil.command_payload("can_t_seem_find", channel="to_char")
+            return InterpApi.command_payload("can_t_seem_find", channel="to_char")
         if self._portal_curse_blocked(portal, character, room):
             context.finish()
-            return PayloadUtil.command_payload("something_prevents_from_leaving", channel="to_char")
+            return InterpApi.command_payload("something_prevents_from_leaving", channel="to_char")
 
         destination = self._portal_destination(portal, room)
         if destination is None or destination == room or not self._can_see_room(character, destination) or self._room_private_for(destination, character):
             context.finish()
-            return PayloadUtil.command_payload("doesn_t_seem_go", channel="to_char", tokens={"t": Item.short(portal)})
+            return InterpApi.command_payload("doesn_t_seem_go", channel="to_char", tokens={"t": Item.short(portal)})
         if self._aggressive_npc_law_blocked(character, destination):
             context.finish()
-            return PayloadUtil.command_payload("something_prevents_from_leaving2", channel="to_char")
+            return InterpApi.command_payload("something_prevents_from_leaving2", channel="to_char")
 
         from_targets = self._room_targets(room, character)
         self._remove_from_room(room, character)
@@ -463,18 +462,18 @@ class Movement:
         to_targets = self._room_targets(destination, character)
         item_short = Item.short(portal)
         payloads = [
-            PayloadUtil.command_payload(
+            InterpApi.command_payload(
                 "steps_into",
                 channel="to_room",
                 targets=from_targets,
                 tokens={"c": character.name, "t": item_short},
             ),
-            PayloadUtil.command_payload(
+            InterpApi.command_payload(
                 "enter" if normal_exit else "walk_through_find_yourself",
                 channel="to_char",
                 tokens={"t": item_short},
             ),
-            PayloadUtil.command_payload(
+            InterpApi.command_payload(
                 "arrived" if normal_exit else "arrived_through",
                 channel="to_room",
                 targets=to_targets,
@@ -487,7 +486,7 @@ class Movement:
 
         if self._decrement_portal_charge(portal):
             self._remove_item_from_room(destination if self._portal_flag(portal, "GATE_GOWITH") else room, portal)
-            payloads.append(PayloadUtil.command_payload("fades_out_existence", channel="to_char", tokens={"t": item_short}))
+            payloads.append(InterpApi.command_payload("fades_out_existence", channel="to_char", tokens={"t": item_short}))
 
         context.finish()
         return {"payloads": payloads}
@@ -515,7 +514,7 @@ class Movement:
                     break
         if not trainer_found:
             context.finish()
-            return PayloadUtil.command_payload("no_trainer", channel="to_char")
+            return InterpApi.command_payload("no_trainer", channel="to_char")
 
         attrs = getattr(character, "character_attributes", None)
         trains = GenericUtil.to_int(getattr(attrs, "trains", 0), 0) if attrs is not None else 0
@@ -523,24 +522,24 @@ class Movement:
             context.finish()
             return {
                 "payloads": [
-                    PayloadUtil.command_payload("training_sessions", channel="to_char", tokens={"d": trains}),
+                    InterpApi.command_payload("training_sessions", channel="to_char", tokens={"d": trains}),
                     self._train_options_payload(character),
                 ]
             }
 
         if attrs is None:
             context.finish()
-            return PayloadUtil.command_payload("invalid_state", channel="to_char")
+            return InterpApi.command_payload("invalid_state", channel="to_char")
 
         if raw == "hp":
             if trains < 1:
                 context.finish()
-                return PayloadUtil.command_payload("insufficient_sessions", channel="to_char")
+                return InterpApi.command_payload("insufficient_sessions", channel="to_char")
             attrs.trains = trains - 1
             character.max_hit = GenericUtil.to_int(getattr(character, "max_hit", 0), 0) + 10
             character.hit = GenericUtil.to_int(getattr(character, "hit", 0), 0) + 10
             context.finish()
-            return PayloadUtil.command_payload(
+            return InterpApi.command_payload(
                 "durability_increases",
                 targets=self._room_targets(room, character),
                 tokens=self._actor_tokens(character),
@@ -549,12 +548,12 @@ class Movement:
         if raw == "mana":
             if trains < 1:
                 context.finish()
-                return PayloadUtil.command_payload("insufficient_sessions", channel="to_char")
+                return InterpApi.command_payload("insufficient_sessions", channel="to_char")
             attrs.trains = trains - 1
             character.max_mana = GenericUtil.to_int(getattr(character, "max_mana", 0), 0) + 10
             character.mana = GenericUtil.to_int(getattr(character, "mana", 0), 0) + 10
             context.finish()
-            return PayloadUtil.command_payload(
+            return InterpApi.command_payload(
                 "power_increases",
                 targets=self._room_targets(room, character),
                 tokens=self._actor_tokens(character),
@@ -582,15 +581,15 @@ class Movement:
         max_train = CharacterApi.get_max_train(character, stat_index, current)
         if current >= max_train:
             context.finish()
-            return PayloadUtil.command_payload("already_at_maximum", channel="to_char", tokens={"t": output_name})
+            return InterpApi.command_payload("already_at_maximum", channel="to_char", tokens={"t": output_name})
         if trains < 1:
             context.finish()
-            return PayloadUtil.command_payload("insufficient_sessions", channel="to_char")
+            return InterpApi.command_payload("insufficient_sessions", channel="to_char")
 
         setattr(attrs, attr_name, current + 1)
         attrs.trains = trains - 1
         context.finish()
-        return PayloadUtil.command_payload(
+        return InterpApi.command_payload(
             "increases",
             targets=self._room_targets(room, character),
             tokens={"c": character.name, "t": output_name},
@@ -609,10 +608,10 @@ class Movement:
         trainer = self._gain_trainer(room, character)
         if trainer is None:
             context.finish()
-            return PayloadUtil.command_payload("can_t_do", channel="to_char")
+            return InterpApi.command_payload("can_t_do", channel="to_char")
         if not raw:
             context.finish()
-            return PayloadUtil.command_payload("tells_i_do_not", channel="to_char", tokens={"t": self._entity_label(trainer)})
+            return InterpApi.command_payload("tells_i_do_not", channel="to_char", tokens={"t": self._entity_label(trainer)})
 
         attrs = getattr(character, "character_attributes", None)
         subcommand, _ = InterpUtil.one_argument(raw)
@@ -624,81 +623,81 @@ class Movement:
             practices = GenericUtil.to_int(getattr(attrs, "practices", 0), 0) if attrs is not None else 0
             if practices < 10:
                 context.finish()
-                return PayloadUtil.command_payload("tells_not_yet_ready", channel="to_char", tokens={"t": self._entity_label(trainer)})
+                return InterpApi.command_payload("tells_not_yet_ready", channel="to_char", tokens={"t": self._entity_label(trainer)})
             attrs.practices = practices - 10
             attrs.trains = GenericUtil.to_int(getattr(attrs, "trains", 0), 0) + 1
             context.finish()
-            return PayloadUtil.command_payload("helps_apply_practice_training", channel="to_char", tokens={"t": self._entity_label(trainer)})
+            return InterpApi.command_payload("helps_apply_practice_training", channel="to_char", tokens={"t": self._entity_label(trainer)})
 
         if subcommand and "points".startswith(subcommand):
             trains = GenericUtil.to_int(getattr(attrs, "trains", 0), 0) if attrs is not None else 0
             points = GenericUtil.to_int(getattr(attrs, "points", 0), 0) if attrs is not None else 0
             if trains < 2:
                 context.finish()
-                return PayloadUtil.command_payload("tells_not_yet_ready2", channel="to_char", tokens={"t": self._entity_label(trainer)})
+                return InterpApi.command_payload("tells_not_yet_ready2", channel="to_char", tokens={"t": self._entity_label(trainer)})
             if points <= 40:
                 context.finish()
-                return PayloadUtil.command_payload("tells_would_no_point", channel="to_char", tokens={"t": self._entity_label(trainer)})
+                return InterpApi.command_payload("tells_would_no_point", channel="to_char", tokens={"t": self._entity_label(trainer)})
             attrs.trains = trains - 2
             attrs.points = points - 1
             CharacterAdvancement.reset_experience_for_points(character)
             context.finish()
-            return PayloadUtil.command_payload("trains_feel_more_at", channel="to_char", tokens={"t": self._entity_label(trainer)})
+            return InterpApi.command_payload("trains_feel_more_at", channel="to_char", tokens={"t": self._entity_label(trainer)})
 
         group = self._find_gain_group(raw)
         if group is not None:
             cost = self._group_rating(character, group)
             if self._knows_group(character, group):
                 context.finish()
-                return PayloadUtil.command_payload("tells_already_know_group", channel="to_char", tokens={"t": self._entity_label(trainer)})
+                return InterpApi.command_payload("tells_already_know_group", channel="to_char", tokens={"t": self._entity_label(trainer)})
             if cost <= 0:
                 context.finish()
-                return PayloadUtil.command_payload("tells_group_beyond_powers", channel="to_char", tokens={"t": self._entity_label(trainer)})
+                return InterpApi.command_payload("tells_group_beyond_powers", channel="to_char", tokens={"t": self._entity_label(trainer)})
             trains = GenericUtil.to_int(getattr(attrs, "trains", 0), 0) if attrs is not None else 0
             if trains < cost:
                 context.finish()
-                return PayloadUtil.command_payload("tells_not_yet_ready3", channel="to_char", tokens={"t": self._entity_label(trainer)})
+                return InterpApi.command_payload("tells_not_yet_ready3", channel="to_char", tokens={"t": self._entity_label(trainer)})
             self._add_group(character, group)
             attrs.trains = trains - cost
             context.finish()
-            return PayloadUtil.command_payload("trains_art", channel="to_char", tokens={"t": self._entity_label(trainer), "s": getattr(group, "name", raw)})
+            return InterpApi.command_payload("trains_art", channel="to_char", tokens={"t": self._entity_label(trainer), "s": getattr(group, "name", raw)})
 
         skill = self._find_gain_skill(raw)
         if skill is not None:
             skill_name = str(getattr(skill, "name", raw) or raw)
             if str(getattr(skill, "kind", "skill") or "skill").strip().lower() != "skill":
                 context.finish()
-                return PayloadUtil.command_payload("tells_must_learn_full", channel="to_char", tokens={"t": self._entity_label(trainer)})
+                return InterpApi.command_payload("tells_must_learn_full", channel="to_char", tokens={"t": self._entity_label(trainer)})
             if self._has_learned(character, skill_name, "skills"):
                 context.finish()
-                return PayloadUtil.command_payload("tells_already_know_skill", channel="to_char", tokens={"t": self._entity_label(trainer)})
+                return InterpApi.command_payload("tells_already_know_skill", channel="to_char", tokens={"t": self._entity_label(trainer)})
             cost = self._ability_rating(character, skill)
             if cost <= 0:
                 context.finish()
-                return PayloadUtil.command_payload("tells_skill_beyond_powers", channel="to_char", tokens={"t": self._entity_label(trainer)})
+                return InterpApi.command_payload("tells_skill_beyond_powers", channel="to_char", tokens={"t": self._entity_label(trainer)})
             trains = GenericUtil.to_int(getattr(attrs, "trains", 0), 0) if attrs is not None else 0
             if trains < cost:
                 context.finish()
-                return PayloadUtil.command_payload("tells_not_yet_ready4", channel="to_char", tokens={"t": self._entity_label(trainer)})
+                return InterpApi.command_payload("tells_not_yet_ready4", channel="to_char", tokens={"t": self._entity_label(trainer)})
             self._set_learned(character, skill_name, 1, "skills")
             attrs.trains = trains - cost
             context.finish()
-            return PayloadUtil.command_payload("trains_art2", channel="to_char", tokens={"t": self._entity_label(trainer), "s": skill_name})
+            return InterpApi.command_payload("trains_art2", channel="to_char", tokens={"t": self._entity_label(trainer), "s": skill_name})
 
         if self._find_gain_spell(raw) is not None:
             context.finish()
-            return PayloadUtil.command_payload("tells_must_learn_full", channel="to_char", tokens={"t": self._entity_label(trainer)})
+            return InterpApi.command_payload("tells_must_learn_full", channel="to_char", tokens={"t": self._entity_label(trainer)})
 
         context.finish()
-        return PayloadUtil.command_payload("tells_i_do_not", channel="to_char", tokens={"t": self._entity_label(trainer)})
+        return InterpApi.command_payload("tells_i_do_not", channel="to_char", tokens={"t": self._entity_label(trainer)})
 
     def _train_options_payload(self, character: Character) -> dict:
         options = PlayerUtil.format_train_options(character).strip()
         if options.startswith("You have nothing left to train, you ") and options.endswith("!"):
             ending = options.removeprefix("You have nothing left to train, you ").removesuffix("!")
-            return PayloadUtil.command_payload("nothing_left_train", channel="to_char", tokens={"s": ending})
+            return InterpApi.command_payload("nothing_left_train", channel="to_char", tokens={"s": ending})
         trainable = options.removeprefix("You can train: ").removesuffix(".")
-        return PayloadUtil.command_payload("train_options", channel="to_char", tokens={"t": trainable})
+        return InterpApi.command_payload("train_options", channel="to_char", tokens={"t": trainable})
 
     def _gain_list(self, character: Character) -> str:
         lines = [self._format_gain_row_header("group"), "\r\n"]

@@ -28,7 +28,6 @@ from skill.SpellContext import SpellContext
 from util.FightUtil import FightUtil
 from util.GenericUtil import GenericUtil
 from util.MovementUtil import MovementUtil
-from util.PayloadUtil import PayloadUtil
 from util.DisplayUtil import DisplayUtil
 from util.PlayerUtil import PlayerUtil
 
@@ -174,7 +173,7 @@ class Fight:
             round_payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
             payload = {
                 "payloads": [
-                    PayloadUtil.command_payload("success", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens),
+                    InterpApi.command_payload("success", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens),
                     round_payload,
                 ]
             }
@@ -185,10 +184,10 @@ class Fight:
             self._set_wait(character, self._skill_beats(skill, 12) * 3 // 2)
             payload = {"payloads": [
                 self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids),
-                PayloadUtil.command_payload("fallFlatFace", channel="to_char", victim=victim, token_factory=self._actor_victim_tokens),
-                PayloadUtil.command_payload("fallsFlatFace", channel="to_room", victim=victim,
+                InterpApi.command_payload("fallFlatFace", channel="to_char", victim=victim, token_factory=self._actor_victim_tokens),
+                InterpApi.command_payload("fallsFlatFace", channel="to_room", victim=victim,
                                       targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens),
-                PayloadUtil.command_payload("evadeSBashCausing", channel="to_victim", victim=victim, token_factory=self._actor_victim_tokens),
+                InterpApi.command_payload("evadeSBashCausing", channel="to_victim", victim=victim, token_factory=self._actor_victim_tokens),
             ]}
         context.finish()
         return payload
@@ -223,14 +222,14 @@ class Fight:
             self.effect_handler.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_AC", modifier=ac_penalty, bitvector="0"))
             room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
             context.finish()
-            return {"payloads": [PayloadUtil.command_payload("success", targets=room.player_targets(character), token_factory=self._actor_tokens)]}
+            return {"payloads": [InterpApi.command_payload("success", targets=room.player_targets(character), token_factory=self._actor_tokens)]}
 
         self._set_wait(character, self.game_parameters.PULSE_VIOLENCE.value * 3)
         character.mana = max(0, GenericUtil.to_int(getattr(character, "mana", 0), 0) - 25)
         character.movement = max(0, GenericUtil.to_int(getattr(character, "movement", 0), 0) // 2)
         self._check_improve(character, skill, False, 2)
         context.finish()
-        return {"payloads": [PayloadUtil.command_payload("failed")]}
+        return {"payloads": [InterpApi.command_payload("failed")]}
 
     def do_dirt(self, character: Character, context: Context):
         view = self.fight_api.build_fight_view(context, skill_name="dirt kicking", current_target_fallback=True)
@@ -250,7 +249,7 @@ class Fight:
         chance += terrain_adjustment
         if chance == 0:
             context.finish()
-            return PayloadUtil.command_payload("noTerrain", channel="to_char")
+            return InterpApi.command_payload("noTerrain", channel="to_char")
         pre_corpse_ids = self._pre_corpse_ids(room)
         if random.randint(1, 100) < chance:
             result = self.fight_handler.damage(character, victim, random.randint(2, 5), dt="dirt", dam_type="DAM_NONE", show=False)
@@ -260,11 +259,11 @@ class Fight:
             round_payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
             payload = {
                 "payloads": [
-                    PayloadUtil.command_payload("success", channel="to_char", victim=victim, token_factory=self._actor_victim_tokens),
-                    PayloadUtil.command_payload("success", channel="to_room", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens),
-                    PayloadUtil.command_payload("kicksDirtEyes", channel="to_victim", victim=victim, token_factory=self._actor_victim_tokens),
+                    InterpApi.command_payload("success", channel="to_char", victim=victim, token_factory=self._actor_victim_tokens),
+                    InterpApi.command_payload("success", channel="to_room", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens),
+                    InterpApi.command_payload("kicksDirtEyes", channel="to_victim", victim=victim, token_factory=self._actor_victim_tokens),
                     round_payload,
-                    PayloadUtil.command_payload("blinded", channel="to_victim", victim=victim),
+                    InterpApi.command_payload("blinded", channel="to_victim", victim=victim),
                 ]
             }
         else:
@@ -298,7 +297,7 @@ class Fight:
             self._check_improve(character, skill, True, 1)
         else:
             self._check_improve(character, skill, False, 1)
-            payload = {"payloads": [PayloadUtil.command_payload("failed", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)]}
+            payload = {"payloads": [InterpApi.command_payload("failed", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)]}
         context.finish()
         if notice:
             payload["payloads"].insert(0, notice)
@@ -353,13 +352,13 @@ class Fight:
 
         context.finish()
         payloads = [
-            PayloadUtil.command_payload("flee", channel="to_char"),
-            PayloadUtil.command_payload("departed", channel="to_room", targets=from_targets, token_factory=self._actor_tokens),
-            PayloadUtil.command_payload("arrived", channel="to_room", targets=to_room.player_targets(character), token_factory=self._actor_tokens),
+            InterpApi.command_payload("flee", channel="to_char"),
+            InterpApi.command_payload("departed", channel="to_room", targets=from_targets, token_factory=self._actor_tokens),
+            InterpApi.command_payload("arrived", channel="to_room", targets=to_room.player_targets(character), token_factory=self._actor_tokens),
             {"to_room_obj": to_room, "aggressive_rounds": self.fight_handler.aggressive_entry_rounds(character, to_room)},
         ]
         if exp_text:
-            payloads.insert(1, PayloadUtil.command_payload(exp_text, channel="to_char"))
+            payloads.insert(1, InterpApi.command_payload(exp_text, channel="to_char"))
         return {"payloads": payloads}
 
     def do_rescue(self, character: Character, context: Context):
@@ -377,7 +376,7 @@ class Fight:
         if random.randint(1, 100) > max(1, self.skill_api.get_rating(character, skill)):
             self._check_improve(character, skill, False, 1)
             context.finish()
-            return {"payloads": [PayloadUtil.command_payload("failed")]}
+            return {"payloads": [InterpApi.command_payload("failed")]}
 
         self._check_improve(character, skill, True, 1)
         self.fight_handler.stop_fighting(foe, both=False)
@@ -386,7 +385,7 @@ class Fight:
         self.fight_handler.set_fighting(character, foe, room.id)
         self.fight_handler.set_fighting(foe, character, room.id)
         context.finish()
-        return {"payloads": [PayloadUtil.command_payload("success", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)]}
+        return {"payloads": [InterpApi.command_payload("success", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)]}
 
     def do_kick(self, character: Character, context: Context):
         view = self.fight_api.build_fight_view(context, skill_name="kick", current_target_fallback=True)
@@ -417,7 +416,7 @@ class Fight:
                 self._set_wait(character, self._skill_beats(view.skill, 12) * 2)
                 payload["payloads"] = [
                     {key: value for key, value in payload.items() if key != "payloads"},
-                    PayloadUtil.command_payload("self_room", channel="to_room", targets=view.room.player_targets(character) if view.room is not None else [], token_factory=self._actor_tokens),
+                    InterpApi.command_payload("self_room", channel="to_room", targets=view.room.player_targets(character) if view.room is not None else [], token_factory=self._actor_tokens),
                 ]
             return payload
 
@@ -437,7 +436,7 @@ class Fight:
             round_payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
             payload = {
                 "payloads": [
-                    PayloadUtil.command_payload("success", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens),
+                    InterpApi.command_payload("success", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens),
                     round_payload,
                 ]
             }
@@ -698,7 +697,7 @@ class Fight:
     def _disarm_payload(self, character, victim, room, obj) -> dict:
         item_flags = CharacterApi.get_enum("itemFlags")
         if GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_NOREMOVE.value):
-            return PayloadUtil.command_payload("no_remove", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)
+            return InterpApi.command_payload("no_remove", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)
 
         self.effect_handler.remove_item_effects(victim, obj)
         victim.unequip_item("wielded")
@@ -722,11 +721,11 @@ class Fight:
         else:
             victim.add_item(obj)
 
-        success = PayloadUtil.command_payload("success", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)
+        success = InterpApi.command_payload("success", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)
         if retrieved:
             command = self.registry_service.interp_registry.get_or_none(name="get")
             if command is not None:
-                pickup = PayloadUtil.command_payload("default", channel="to_room", targets=room.player_targets(victim),
+                pickup = InterpApi.command_payload("default", channel="to_room", targets=room.player_targets(victim),
                                                tokens={"c": victim.name, "t": str(getattr(obj, "short_description", obj.name))})
                 return {"payloads": [success, {"actor": victim, "context": Context(character=victim, command=command, room=room),
                                               "payloads": [pickup]}]}

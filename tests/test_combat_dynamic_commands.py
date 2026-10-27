@@ -1,4 +1,3 @@
-from util.PayloadUtil import PayloadUtil
 import json
 import os
 import sys
@@ -735,7 +734,7 @@ class TestFightPayloadEmission(unittest.IsolatedAsyncioTestCase):
 
         await handler._emit_standard_payloads(
             character,
-            [PayloadUtil.command_payload("success", victim=victim, targets=[watcher], token_factory=Fight._actor_victim_tokens)],
+            [InterpApi.command_payload("success", victim=victim, targets=[watcher], token_factory=Fight._actor_victim_tokens)],
             context=context,
         )
 
