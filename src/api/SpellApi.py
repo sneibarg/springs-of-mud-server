@@ -1,4 +1,7 @@
 from __future__ import annotations
+from api.ItemApi import ItemApi
+
+from item.ItemFactory import ItemFactory
 
 import inspect
 import random
@@ -18,7 +21,6 @@ from util.GenericUtil import GenericUtil
 from util.FightUtil import FightUtil
 from item.Effect import Effect
 from util.EffectUtil import EffectUtil
-from util.ItemUtil import ItemUtil
 from util.ElementalExposure import ElementalExposure
 from api.CharacterApi import CharacterApi
 from util.PlayerUtil import PlayerUtil
@@ -1039,7 +1041,7 @@ class SpellApi:
         prototype = registry.get_or_none(vnum=str(vnum))
         if prototype is None:
             return False
-        item = ItemUtil.create_object(prototype)
+        item = ItemFactory.create(prototype)
         if destination == "inventory":
             from game.Equipped import Equipped
             Equipped.add_to_inventory(ctx.actor, item)
@@ -1075,7 +1077,7 @@ class SpellApi:
     def find_carried_object(self, ctx: SpellContext):
         from util.LookupUtil import LookupUtil
         return ctx.set_target(LookupUtil.inventory(ctx.actor, ctx.target_name,
-            visible=lambda item: ItemUtil.can_see_object(ctx.room, ctx.actor, item)))
+            visible=lambda item: ItemApi.can_see_object(ctx.room, ctx.actor, item)))
 
     def equipped_item(self, ctx: SpellContext, slot: str):
         return getattr(getattr(ctx.actor, 'equipped', None), slot, None)
@@ -1142,7 +1144,7 @@ class SpellApi:
     def object_affects(self, ctx: SpellContext, item):
         if not getattr(item, 'enchanted', False) and not getattr(item, 'effects', None) and getattr(item, 'affect_data', []):
             item.effects = []
-            ItemUtil.update_affect_data(item)
+            ItemFactory.update_affect_data(item)
         return self.effect_handler.ensure_effects(item)
 
     def describe_object(self, ctx: SpellContext, rules: dict):
@@ -1272,7 +1274,7 @@ class SpellApi:
         limit = self.eval_int(ctx, rules['limit'])
         for item, root, location in self.world_object_locations(ctx):
             room = location['room']
-            if (not ItemUtil.can_see_object(ctx.room, ctx.actor, item)
+            if (not ItemApi.can_see_object(ctx.room, ctx.actor, item)
                     or not LookupUtil.matches(ctx.target_name, item.name)
                     or GameApi.is_set(GameApi.flags_to_int(item.extra_flags), int(GameApi.get_enum('itemFlags').ITEM_NOLOCATE))):
                 continue
@@ -1429,7 +1431,7 @@ class SpellApi:
         if two_way and destination is not ctx.room:
             routes.append((destination, ctx.room))
         for index, (origin, endpoint) in enumerate(routes):
-            portal = ItemUtil.create_object(prototype)
+            portal = ItemFactory.create(prototype)
             portal.timer = self.eval_int(ctx, timer_expr)
             portal.value3 = str(endpoint.vnum)
             origin.add_item_to_room(portal)
@@ -1546,7 +1548,7 @@ class SpellApi:
         if any(str(getattr(effect, "type", "")).strip().lower() == normalized for effect in getattr(target, "effects", []) or []):
             return True
         if name.upper().startswith("AFF_"):
-            return EffectUtil.is_affected(target, name.upper())
+            return CharacterApi.is_affected_by_name(target, CharacterApi.get_enum("affectedBy"), name.upper())
         return False
 
     def _queue_damage_payload(self, ctx: SpellContext, payload: dict, victim):

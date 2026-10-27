@@ -10,6 +10,7 @@ from area.AreaService import AreaService
 from area.RoomService import RoomService
 
 
+from item.ItemFactory import ItemFactory
 class AreaOccupancyTests(unittest.TestCase):
     def setUp(self):
         self.area = Area(author='ROM', name='Test', id='area', age=20, empty=True)
@@ -141,7 +142,7 @@ class AreaOccupancyTests(unittest.TestCase):
         handler.room_registry = SimpleNamespace(get=lambda **kw: self.room)
         reset = SimpleNamespace(arg1='object', arg3=self.room.id)
         self.room.add_player_to_room(self.character)
-        with patch('area.AreaHandler.ItemUtil.create_object') as create:
+        with patch('area.AreaHandler.ItemFactory.create') as create:
             self.assertFalse(handler._do_object_reset(reset, self.area))
             create.assert_not_called()
             self.room.remove_player_from_room(self.character)

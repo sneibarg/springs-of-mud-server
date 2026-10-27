@@ -13,7 +13,6 @@ from interp.commands.Object import Object
 from player.CharacterAdvancement import CharacterAdvancement
 from util.CommunicationsUtil import CommunicationsUtil
 from util.GenericUtil import GenericUtil
-from util.ItemUtil import ItemUtil
 
 
 class CombatDeathHandler:
@@ -115,7 +114,7 @@ class CombatDeathHandler:
         for item in list(corpse.contains):
             if money_only and str(getattr(item, "item_type", "")).lower() != "money":
                 continue
-            if ItemUtil.can_see_object(room, actor, item):
+            if ItemApi.can_see_object(room, actor, item):
                 results.append(self.object_commands._get_one(actor, room, context, item, corpse))
         return results
 
@@ -123,7 +122,7 @@ class CombatDeathHandler:
         if CharacterApi.is_npc(actor) or room is None:
             return []
         corpse = combat._find_latest_corpse(room, victim, pre_corpse_ids)
-        if corpse is None or "corpse_npc" not in str(getattr(corpse, "item_type", "")).lower() or not ItemUtil.can_see_object(room, actor, corpse):
+        if corpse is None or "corpse_npc" not in str(getattr(corpse, "item_type", "")).lower() or not ItemApi.can_see_object(room, actor, corpse):
             return []
         results = []
         autoloot = combat._player_act_enabled(actor, "PLR_AUTOLOOT")

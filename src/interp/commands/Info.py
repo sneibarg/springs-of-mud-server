@@ -1,3 +1,4 @@
+from api.MobileApi import MobileApi
 from datetime import datetime
 from typing import Any
 from injector import inject
@@ -14,8 +15,6 @@ from interp.Context import Context
 from interp.HelpEntry import HelpEntry
 from item.Item import Item
 from util.InterpUtil import InterpUtil
-from util.ItemUtil import ItemUtil
-from util.MobileUtil import MobileUtil
 from player.Character import Character
 from skill.GroupOwnership import GroupOwnership
 from api.CharacterApi import CharacterApi
@@ -953,7 +952,7 @@ class Info:
         if room is not None:
             practice_bit = act_bits.ACT_PRACTICE.value if act_bits is not None else 0
             for mob in room.mobiles.values():
-                if MobileUtil.is_practice_trainer(mob, practice_bit):
+                if MobileApi.is_practice_trainer(mob, practice_bit):
                     trainer = mob
                     break
 
@@ -1085,8 +1084,8 @@ class Info:
             return payload.get("to_char", "")
 
         item_flags = CharacterApi.get_enum("itemFlags")
-        n1 = ItemUtil.format_obj_to_char(obj1, item_flags_enum=item_flags, f_short=True)
-        n2 = ItemUtil.format_obj_to_char(obj2, item_flags_enum=item_flags, f_short=True)
+        n1 = Item.format_obj_to_char(obj1, item_flags_enum=item_flags, f_short=True)
+        n2 = Item.format_obj_to_char(obj2, item_flags_enum=item_flags, f_short=True)
 
         context.finish()
         if v1 == v2:

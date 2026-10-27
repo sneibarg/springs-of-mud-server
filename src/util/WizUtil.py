@@ -101,35 +101,14 @@ class WizUtil:
 
     @staticmethod
     def find_world_item(character_registry, room_registry, query: str):
+        from item.ItemOwnership import ItemOwnership
         wanted = (query or "").strip().lower()
         if not wanted:
             return None
-        if character_registry is not None:
-            for character in character_registry.all_characters():
-                for item in list(character.loot):
-                    if WizUtil.name_matches(wanted, item.name):
-                        return item
-                    found = WizUtil._find_nested_item(item, wanted)
-                    if found is not None:
-                        return found
-        if room_registry is not None:
-            for room in room_registry.all_rooms():
-                for item in room.contents.values():
-                    if WizUtil.name_matches(wanted, item.name):
-                        return item
-                    found = WizUtil._find_nested_item(item, wanted)
-                    if found is not None:
-                        return found
+        for item, _, _ in ItemOwnership(None, room_registry).walk_world_items():
+            if WizUtil.name_matches(wanted, item.name):
+                return item
         return None
-
-    @staticmethod
-    def _find_nested_item(item, wanted: str):
-        for child in list(item.contains):
-            if WizUtil.name_matches(wanted, child.name):
-                return child
-            found = WizUtil._find_nested_item(child, wanted)
-            if found is not None:
-                return found
         return None
 
     @staticmethod

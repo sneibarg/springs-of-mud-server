@@ -1,14 +1,22 @@
 """ROM-style visible keyword and ordinal selection shared by gameplay paths."""
 from util.InterpUtil import InterpUtil
-from util.InfoUtil import InfoUtil
 from util.GenericUtil import GenericUtil
 
 
 class LookupUtil:
     @staticmethod
+    def keyword_matches(token: str, keyword: str) -> bool:
+        t = (token or "").strip().lower()
+        k = (keyword or "").strip().lower()
+        if not t or not k:
+            return False
+        words = [w for w in k.split() if w]
+        return any(w == t or w.startswith(t) for w in words)
+
+    @staticmethod
     def matches(selector, name):
         words = str(selector or "").strip().lower().split()
-        return bool(words) and all(InfoUtil.look_keyword_matches(word, name) for word in words)
+        return bool(words) and all(LookupUtil.keyword_matches(word, name) for word in words)
 
     @staticmethod
     def find(items, selector, *, visible=None):
@@ -49,7 +57,7 @@ class LookupUtil:
 
     @staticmethod
     def object_visible(observer, room, item):
-        from util.ItemUtil import ItemUtil
+        from api.ItemApi import ItemApi
         if observer is None:
             return True
         if room is None:
@@ -59,7 +67,7 @@ class LookupUtil:
                 room = registry.room_registry.get_or_none(id=observer.room_id)
             except (RuntimeError, AttributeError):
                 room = None
-        return ItemUtil.can_see_object(room, observer, item)
+        return ItemApi.can_see_object(room, observer, item)
 
     @staticmethod
     def people(room):

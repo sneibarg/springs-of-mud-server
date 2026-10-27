@@ -1,9 +1,12 @@
+from game.Equipped import WEAR_LOC_TO_EQUIPPED_SLOT
+from item.ItemOwnership import ItemOwnership
+from mobile.MobileFactory import MobileFactory
+from item.ItemFactory import ItemFactory
 from enum import IntEnum
 from injector import inject
 
 from game.EnumProvider import EnumProvider
 from game.WizHandler import WizHandler
-from util.AreaUtil import AreaUtil
 from area.Reset import Reset
 from area.Area import Area
 from area.AreaRegistry import AreaRegistry
@@ -11,10 +14,8 @@ from area.RoomRegistry import RoomRegistry
 from area.ShopRegistry import ShopRegistry
 from util.GenericUtil import GenericUtil
 from mobile.Mobile import Mobile
-from util.MobileUtil import MobileUtil
 from mobile.MobileRegistry import MobileRegistry
-from item import Item
-from util.ItemUtil import ItemUtil
+from item.Item import Item
 from game.RandomNumberGenerator import RandomNumberGenerator
 from item.ItemRegistry import ItemRegistry
 from player.CharacterRegistry import CharacterRegistry
@@ -113,7 +114,7 @@ class AreaHandler:
             return False
         if area.number_of_players > 0 or len(room.contents) > 0:
             return False
-        obj = ItemUtil.create_object(template_obj)
+        obj = ItemFactory.create(template_obj)
         room.add_item_to_room(obj)
         return True
 
@@ -138,7 +139,7 @@ class AreaHandler:
             last = False
             return last, None
         template_mob.room_id = room.id
-        mob = MobileUtil.create_mobile(template_mob, self.enum_provider)
+        mob = MobileFactory.create(template_mob, self.enum_provider)
         self._mark_pet_shop_stock_mob(mob, room)
         room.add_mobile_to_room(mob)
         self._register_live_character(mob)
@@ -199,7 +200,7 @@ class AreaHandler:
         else:
             limit = arg2
 
-        obj_to, obj_to_in_room = ItemUtil.find_world_object_instance(self.room_registry, target_vnum)
+        obj_to, obj_to_in_room = ItemOwnership(None, self.room_registry).find_world_vnum(target_vnum)
         if area.number_of_players > 0:
             return False
         if obj_to is None:
@@ -210,12 +211,12 @@ class AreaHandler:
         if live_count >= limit and rng.number_range(0, 4) != 0:
             return False
 
-        count = ItemUtil.count_obj_list(obj_vnum, getattr(obj_to, "contains", []) or [])
+        count = Item.count_obj_list(obj_vnum, getattr(obj_to, "contains", []) or [])
         if count > max_in_target:
             return False
 
         while count < max_in_target:
-            obj = ItemUtil.create_object(template_obj)
+            obj = ItemFactory.create(template_obj)
             obj_to.contains.append(obj)
             count += 1
             live_count += 1
@@ -239,15 +240,15 @@ class AreaHandler:
             return False
 
         if self._is_shopkeeper(mob):
-            obj = ItemUtil.create_object(template_obj)
+            obj = ItemFactory.create(template_obj)
             inventory_bit = GenericUtil.to_int(self.ItemFlags.ITEM_INVENTORY.value, 0)
             if inventory_bit:
                 obj.extra_flags = GenericUtil.to_int(getattr(obj, "extra_flags", 0), 0) | inventory_bit
             wear_loc = GenericUtil.to_int(reset.arg3, -1)
             if reset.command == "E" and wear_loc >= 0:
-                MobileUtil.equip_item(mob, obj, wear_loc)
+                mob.equip_item(obj, WEAR_LOC_TO_EQUIPPED_SLOT[wear_loc])
             else:
-                MobileUtil.add_inventory_item(mob, obj)
+                mob.add_item(obj)
             return True
 
         arg2 = GenericUtil.to_int(reset.arg2, 0)
@@ -261,12 +262,12 @@ class AreaHandler:
         if self._count_live_items(obj_vnum) >= limit and rng.number_range(0, 4) != 0:
             return last
 
-        obj = ItemUtil.create_object(template_obj)
+        obj = ItemFactory.create(template_obj)
         wear_loc = GenericUtil.to_int(reset.arg3, -1)
         if wear_loc >= 0:
-            MobileUtil.equip_item(mob, obj, wear_loc)
+            mob.equip_item(obj, WEAR_LOC_TO_EQUIPPED_SLOT[wear_loc])
         else:
-            MobileUtil.add_inventory_item(mob, obj)
+            mob.add_item(obj)
         return True
 
     def _is_shopkeeper(self, mob: Mobile | None) -> bool:
@@ -281,10 +282,10 @@ class AreaHandler:
         room = self.room_registry.get_or_none(vnum=room_vnum)
         if room is None:
             return last
-        exit_obj = room.get_exit(direction) if hasattr(room, "get_exit") else AreaUtil.get_exit_by_direction(room, direction)
+        exit_obj = room.get_exit(direction)
         if exit_obj is None:
             return last
-        AreaUtil.apply_door_reset(exit_obj, lock_state, self.ExitFlags)
+        exit_obj.apply_door_reset(lock_state, self.ExitFlags)
         return True
 
     def _do_randomize_reset(self, reset: Reset):
@@ -293,7 +294,7 @@ class AreaHandler:
         room = self.room_registry.get_or_none(vnum=room_vnum)
         if room is None:
             return
-        AreaUtil.randomize_room_exits(room, max_exits, rng)
+        room.randomize_exits(max_exits, rng)
 
     def _count_live_mobiles(self, mob_vnum: str, room=None, area_id: str = "") -> int:
         wanted_vnum = str(mob_vnum or "")

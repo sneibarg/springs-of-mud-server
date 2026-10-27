@@ -94,6 +94,12 @@ class GameService:
         return submit(self._persist_deny_list, str(self.game_data.id or ""),
                       {"denyList": list(self.game_data.denyList or [])})
 
+    def queue_save_bans(self):
+        # Only permanent bans cross the worker boundary; temporary rules stay live.
+        payload = {'bans': self.game_data.site_bans.save_bans(),
+                   'denyList': list(self.game_data.denyList or [])}
+        return submit(self._persist_deny_list, str(self.game_data.id or ''), payload)
+
     def save_deny_list(self) -> bool:
         return self._persist_deny_list(str(self.game_data.id or ""),
                                        {"denyList": list(self.game_data.denyList or [])})

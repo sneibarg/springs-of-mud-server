@@ -132,8 +132,9 @@ class TestObjectCommandsEquipment(unittest.TestCase):
         )
         character = self._build_character(item)
 
-        with patch("interp.commands.Object.EffectUtil.apply_item_effects"):
-            payload = self._build_commands(room)._wear_item(character, item, room, replace=True)
+        commands = self._build_commands(room)
+        with patch.object(commands.effect_handler, "apply_item_effects"):
+            payload = commands._wear_item(character, item, room, replace=True)
 
         self.assertEqual("You wear a vest on your torso.\r\n", payload["to_char"])
         self.assertIs(character.equipped.torso, item)
@@ -155,8 +156,8 @@ class TestObjectCommandsEquipment(unittest.TestCase):
         commands = self._build_commands(room)
         context = SimpleNamespace(result="vest", parameters=[], finish=Mock())
 
-        with patch("interp.commands.Object.EffectUtil.apply_item_effects"), \
-             patch("interp.commands.Object.EffectUtil.remove_item_effects"):
+        with patch.object(commands.effect_handler, "apply_item_effects"), \
+             patch.object(commands.effect_handler, "remove_item_effects"):
             commands._wear_item(character, item, room, replace=True)
             payload = commands.do_remove(character, context)
 

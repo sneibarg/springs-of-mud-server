@@ -5,6 +5,7 @@ from item.Item import Item
 from item.ItemOwnership import ItemOwnership
 from item.EffectUpdateHandler import EffectUpdateHandler
 from mobile.Mobile import Mobile
+from player.Character import Character
 from server.messaging.MessageBus import MessageBus
 from util.GenericUtil import GenericUtil
 
@@ -27,11 +28,24 @@ class ItemUpdateHandler:
     async def update(self):
         if self.ItemTypes is None:
             return
-        items = [item for item, _, _ in self._ownership().walk_world_items()]
-        for item in items:
-            await self.tick_effects(item)
+        # The socket loop owns all live mutations. Finish this phase without
+        # yielding, so pickup/transfer/quit cannot invalidate selected ownership.
+        notices = []
+        for item, _, location in list(self._ownership().walk_world_items()):
+            owner = location['parent']
+            if isinstance(owner, Character) and owner.world_retired:
+                continue
+            for message in self.effect_update_handler.expired_messages(item, "msg_obj"):
+                current = self._locate_item(item)
+                if current is not None:
+                    notices.append((message, item, current, False))
             if Item.tick_timer(item):
-                await self.expire_item(item)
+                notice = self._expire_item(item)
+                if notice is not None:
+                    notices.append(notice)
+        for text, item, location, is_float in notices:
+            await self._emit_item_message(text, item, location['kind'], location['parent'],
+                                          location.get('room'), is_float=is_float)
 
     async def tick_effects(self, item):
         for message in self.effect_update_handler.expired_messages(item, "msg_obj"):
@@ -43,7 +57,8 @@ class ItemUpdateHandler:
     def _locate_item(self, target):
         return self._ownership().find_location(target)
 
-    async def expire_item(self, item):
+    def _expire_item(self, item):
+        """Complete decay synchronously; return its notice for async delivery."""
         is_pc_corpse = Item.is_pc_corpse(item)
         is_float = (
             self.WearLocation is not None
@@ -63,9 +78,10 @@ class ItemUpdateHandler:
                 if parent_kind in ("mob_inventory", "mob_equipped") else None)
         if shop is not None:
             Mobile.credit_expired_stock(parent, item)
+            notice = None
         else:
             message = Item.decay_message(item, self.WearFlags)
-            await self._emit_item_message(message, item, parent_kind, parent, room, is_float=is_float)
+            notice = (message, item, location, is_float)
 
         contents = list(getattr(item, "contains", []) or [])
         if (is_pc_corpse or is_float) and contents:
@@ -74,6 +90,7 @@ class ItemUpdateHandler:
             item.contains = []
 
         self._remove_item_at_location(item, parent_kind, parent, container)
+        return notice
 
     def _move_child_from_expiring_item(self, child, parent_kind: str, parent, container, room, is_float: bool):
         if parent_kind == "item_contains":

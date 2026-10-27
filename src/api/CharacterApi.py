@@ -81,6 +81,17 @@ class CharacterApi(GameApi):
     def is_npc(char: Any) -> bool:
         return type(char) is Mobile
 
+    @classmethod
+    def has_player_flag(cls, character, name: str) -> bool:
+        from game.StatusFlags import StatusFlags
+
+        if character is None or cls.is_npc(character):
+            return False
+        if not cls.flags_to_int(getattr(getattr(character, 'status_flags', None), 'act', 0)):
+            return False
+        return StatusFlags.has_named_flag(getattr(character, 'status_flags', None), 'act',
+                                          cls.get_enum('playerActBits'), name, cls.flags_to_int)
+
     @staticmethod
     def is_clan(char: Any) -> bool:
         # ROM's is_clan checks membership, including the independent loner clan.
@@ -149,13 +160,17 @@ class CharacterApi(GameApi):
 
     @classmethod
     def get_hitroll(cls, char: Any) -> int:
+        from util.FightUtil import FightUtil
         strength = char.character_attributes.strength
-        return int(cls.get_attribute_bonus(attr_name="strength", attr_level=str(strength)).get("tohit", 0))
+        strength_bonus = cls.get_attribute_bonus(attr_name="strength", attr_level=str(strength))
+        return int(strength_bonus.get("tohit", 0)) + FightUtil.dynamic_combat_bonus(char, 'hit_roll', 'hitroll')
 
     @classmethod
     def get_damroll(cls, char: Any) -> int:
+        from util.FightUtil import FightUtil
         strength = char.character_attributes.strength
-        return int(cls.get_attribute_bonus(attr_name="strength", attr_level=str(strength)).get("todam", 0))
+        strength_bonus = cls.get_attribute_bonus(attr_name="strength", attr_level=str(strength))
+        return int(strength_bonus.get("todam", 0)) + FightUtil.dynamic_combat_bonus(char, 'dam_roll', 'damroll')
 
     @classmethod
     def is_outside(cls, char: Any) -> bool:
@@ -227,18 +242,6 @@ class CharacterApi(GameApi):
             return off_text
         cls.set_comm_flags(character, bit_value)
         return on_text
-
-    @classmethod
-    def format_affects(cls, character: Character) -> str:
-        raw = GenericUtil.to_int(character.status_flags.affected_by, 0)
-        lines = []
-        for name, member in cls.AffectedBits.__members__.items():
-            if cls.is_set(raw, member.value):
-                pretty = name.replace("AFF_", "").replace("_", " ").lower()
-                lines.append(f"Spell: {pretty}\r\n")
-        if not lines:
-            return "You are not affected by any spells.\r\n"
-        return "You are affected by the following spells:\r\n" + "".join(lines)
 
     @staticmethod
     def skill_value_for_class(values: dict, class_name: str, default: int = 0) -> int:

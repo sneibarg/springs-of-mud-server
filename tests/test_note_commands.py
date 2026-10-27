@@ -209,7 +209,7 @@ class TestNoteCommands(unittest.TestCase):
 
         payload = asyncio.run(handler.execute(character, self._context("note", "read 1")))
         self.assertIn("To: all", payload["to_char"])
-        self.assertEqual(10, character.context["note_read_stamps"]["0"])
+        self.assertEqual(10, character.note_read_stamps["0"])
 
     def test_draft_flow_posts_note_through_service(self):
         handler, service = self._handler()

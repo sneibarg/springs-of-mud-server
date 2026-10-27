@@ -141,3 +141,14 @@ class InterpUtil:
     def normalize_help_token(value: str) -> str:
         token = str(value or "").strip().lower()
         return token.strip("~`'\".,;:!?()[]{}<>")
+
+    @staticmethod
+    def parse_object_arguments(raw_result, parameters) -> tuple[str, str]:
+        text = (raw_result if isinstance(raw_result, str) else "").strip()
+        if not text:
+            text = " ".join(parameters or []).strip()
+        a1, rest = InterpUtil.one_argument(text)
+        a2, rest2 = InterpUtil.one_argument(rest)
+        if a2 in ("from", "in", "on"):
+            a2, rest2 = InterpUtil.one_argument(rest2)
+        return a1, f"{a2} {rest2}".strip()

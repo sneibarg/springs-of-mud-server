@@ -5,7 +5,6 @@ from typing import Any
 from game.EnumProvider import EnumProvider
 from game.GameData import GameData
 from server.LoggerFactory import LoggerFactory
-from util.EnumUtil import EnumUtil
 from util.GenericUtil import GenericUtil
 from api.RuntimeDependencies import RuntimeDependencies
 
@@ -238,7 +237,18 @@ class GameApi:
         normalized = cls.normalize_site(site)
         if not normalized:
             return False
-        return any(cls._site_pattern_matches(entry, normalized) for entry in cls.deny_list())
+        return cls.check_ban(normalized, 'all')
+
+    @classmethod
+    def site_bans(cls):
+        cls._require_configured()
+        return GameApi._game_data.site_bans
+
+    @classmethod
+    def check_ban(cls, site: str, kind: str = 'all') -> bool:
+        legacy = kind == 'all' and any(cls._site_pattern_matches(entry, cls.normalize_site(site))
+                                     for entry in cls.deny_list())
+        return legacy or cls.site_bans().check_ban(site, kind)
 
     @classmethod
     def get_enum(cls, enum_name: str) -> type[IntEnum] | Any | None:
@@ -355,7 +365,7 @@ class GameApi:
 
     @staticmethod
     def enum_bit(enum_obj, *names: str) -> int:
-        return EnumUtil.value(enum_obj, *names)
+        return EnumProvider.value(enum_obj, *names)
 
     @staticmethod
     def enum_names(enum_obj, prefix: str) -> list[str]:

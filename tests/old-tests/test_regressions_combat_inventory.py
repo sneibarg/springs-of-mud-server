@@ -27,7 +27,6 @@ from combat.CombatHandler import FightHandler
 from game.Equipped import Equipped
 from game.UpdateHandler import UpdateHandler
 from mobile.MobileHandler import MobileHandler
-from util.ItemUtil import ItemUtil
 from player.CharacterAdvancement import CharacterAdvancement
 
 

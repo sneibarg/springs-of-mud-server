@@ -9,7 +9,7 @@ from util.LookupUtil import LookupUtil
 
 h = equipment.h
 stubs = {name: NS(**{attr: object}) for name, attr in (
-    ("util.AreaUtil", "AreaUtil"), ("area.Exit", "Exit"), ("mobile.Mobile", "Mobile"),
+    ("mobile.Mobile", "Mobile"),
     ("item.ExtraDescriptionData", "ExtraDescriptionData"))}
 with patch.dict(sys.modules, stubs):
     Room = h._load_module("lookup_room", "area/Room.py").Room
@@ -22,7 +22,7 @@ class TestObjectLookupParity(unittest.TestCase):
         self.addCleanup(self.base.doCleanups)
         self.actor, self.room, self.commands = self.base.actor, self.base.room, self.base.commands
         self.swap = self.base.swap
-        self.swap(sys.modules["util.ItemUtil"], "ItemUtil", new=equipment.RealItemUtil)
+        self.swap(sys.modules["api.ItemApi"], "ItemApi", new=equipment.RealItemApi)
         self.swap(equipment.ObjectModule.CharacterApi, "can_see", create=True,
                   side_effect=lambda viewer, target, room=None: not getattr(target, "hidden", False))
         self.room.contents = {}

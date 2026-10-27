@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime
 from dataclasses import dataclass, field
 from typing import List, Optional, Any, TYPE_CHECKING
@@ -37,6 +38,9 @@ class Character(AnimateEntity):
     trust: int
     character_class: CharacterClass
     prompt_format: PromptFormat
+    hit_roll: int = 0
+    dam_roll: int = 0
+    saving_throw: int = 0
     character_flags: CharacterFlags | None = None
     character_race: CharacterRace | None = None
     skills: List[dict] = field(default_factory=list)
@@ -45,12 +49,23 @@ class Character(AnimateEntity):
     loot: list[Item] = field(default_factory=list)
     context: Optional[Context] = None
     aliases: dict[str, str] = field(default_factory=dict)
+    note_read_stamps: dict[str, int] = field(default_factory=dict)
+    note_read_ids: dict[str, list[str]] = field(default_factory=dict)
+    world_retired: bool = field(default=False, init=False, repr=False, compare=False)
     carriage_return: bool = True
     _skill_improve_messages: list[str] = field(default_factory=list, repr=False, compare=False)
 
     def __post_init__(self):
         super().__post_init__()
         self.load_inventory()
+        from item.Effect import Effect
+        for item in vars(self.equipped).values() if self.equipped is not None else []:
+            if item is None:
+                continue
+            item._effect_wearer = self
+            for effect in self.effects:
+                if effect.belongs_to_item(item.id):
+                    effect.source = Effect.item_source(item.id)
 
     def __hash__(self):
         return hash(self.id)
@@ -67,6 +82,14 @@ class Character(AnimateEntity):
         from item.Item import Item
         payload = GenericUtil.camel_to_snake_case(data)
         payload['groups'] = list(payload.get('groups') or [])
+        payload['note_read_stamps'] = {
+            str(key): max(0, GenericUtil.to_int(value, 0))
+            for key, value in (payload.get('note_read_stamps') or {}).items()
+        }
+        payload['note_read_ids'] = {
+            str(key): list(dict.fromkeys(str(note_id) for note_id in (value or [])))
+            for key, value in (payload.get('note_read_ids') or {}).items()
+        }
         prompt_format = payload.get('prompt_format')
         character_flags = payload.get('character_flags')
         character_class = payload.get('character_class')
@@ -89,6 +112,20 @@ class Character(AnimateEntity):
             effect if isinstance(effect, Effect) else Effect.from_json(effect)
             for effect in list(payload.get('effects', []) or [])
         ]
+        # Legacy player records omitted these counters even when effects existed.
+        # Existing effective counters are already modified and must not be added twice.
+        from api.GameApi import GameApi
+        try:
+            apply_types = GameApi.get_enum('applyTypes')
+        except RuntimeError:
+            apply_types = None
+        for field_name, names in (
+                ('hit_roll', ('APPLY_HITROLL', 'APPLY_HIT_ROLL')),
+                ('dam_roll', ('APPLY_DAMROLL', 'APPLY_DAM_ROLL')),
+                ('saving_throw', ('APPLY_SAVING_SPELL', 'APPLY_SAVES'))):
+            if field_name not in payload:
+                payload[field_name] = sum(GenericUtil.to_int(effect.modifier, 0) for effect in payload['effects']
+                                          if effect.matches_location(apply_types, *names))
 
         if isinstance(equipped_data, dict):
             normalized_equipped = GenericUtil.camel_to_snake_case(equipped_data)
@@ -110,6 +147,51 @@ class Character(AnimateEntity):
             self.loot = []
             for item in list(self.inventory or []):
                 self.loot.append(item if isinstance(item, Item) else Item.from_json(item))
+
+    def note_read_stamp(self, note_type: int) -> int:
+        stamps = getattr(self, 'note_read_stamps', None) or {}
+        return max(0, GenericUtil.to_int(stamps.get(str(int(note_type))), 0))
+
+    def has_read_note(self, note_type: int, stamp: int, note_id: str) -> bool:
+        cursor = Character.note_read_stamp(self, note_type)
+        if stamp != cursor:
+            return stamp < cursor
+        ids = getattr(self, 'note_read_ids', None) or {}
+        key = str(int(note_type))
+        if key not in (getattr(self, 'note_read_stamps', None) or {}):
+            return False
+        # A legacy timestamp-only cursor treated the whole boundary as read.
+        return key not in ids or str(note_id) in ids[key]
+
+    def mark_note_read(self, note_type: int, stamp: int, note_id: str | None = None) -> None:
+        if getattr(self, 'note_read_stamps', None) is None:
+            self.note_read_stamps = {}
+        if getattr(self, 'note_read_ids', None) is None:
+            self.note_read_ids = {}
+        key, current = str(int(note_type)), Character.note_read_stamp(self, note_type)
+        stamp = max(0, GenericUtil.to_int(stamp, 0))
+        if stamp < current:
+            return
+        if stamp > current or key not in self.note_read_stamps:
+            self.note_read_stamps[key] = stamp
+            if note_id is not None:
+                self.note_read_ids[key] = []
+        if note_id is None:
+            self.note_read_ids.pop(key, None)
+        elif key in self.note_read_ids and str(note_id) not in self.note_read_ids[key]:
+            self.note_read_ids[key].append(str(note_id))
+
+    def catchup_notes(self, note_type: int, stamp: int, note_ids: list[str]) -> None:
+        if stamp < Character.note_read_stamp(self, note_type):
+            return
+        Character.mark_note_read(self, note_type, stamp)
+        self.note_read_ids[str(int(note_type))] = list(dict.fromkeys(str(note_id) for note_id in note_ids))
+
+    def world_update_lock(self):
+        lock = getattr(self, '_world_update_lock', None)
+        if lock is None:
+            lock = self._world_update_lock = asyncio.Lock()
+        return lock
 
     def skill_level(self, skill_name: str) -> int:
         return Character.learned_entry_level(Character.get_learned(self, skill_name, collection_name="skills")) or 1

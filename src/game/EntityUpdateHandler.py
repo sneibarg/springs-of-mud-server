@@ -51,6 +51,16 @@ class EntityUpdateHandler:
                     await self.tick(mobile, room)
 
     async def tick(self, entity, room) -> None:
+        if isinstance(entity, Character):
+            if entity.world_retired:
+                return
+            async with entity.world_update_lock():
+                if not entity.world_retired:
+                    await self._tick(entity, room)
+        else:
+            await self._tick(entity, room)
+
+    async def _tick(self, entity, room) -> None:
         context = self.regeneration_context()
         position = entity.position_value(self.PositionsEnum)
         if position >= context.position("POS_STUNNED"):

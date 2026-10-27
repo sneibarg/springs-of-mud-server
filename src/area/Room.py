@@ -6,7 +6,6 @@ from dataclasses import dataclass, field
 from typing import List, Any, TYPE_CHECKING
 
 from api.CharacterApi import CharacterApi
-from util.AreaUtil import AreaUtil
 from area.Exit import Exit
 from mobile.Mobile import Mobile
 from item.ExtraDescriptionData import ExtraDescriptionData
@@ -23,12 +22,7 @@ if TYPE_CHECKING:
 @dataclass
 class Room:
     DIRECTION_ALIASES = {
-        "north": 0,
-        "east": 1,
-        "south": 2,
-        "west": 3,
-        "up": 4,
-        "down": 5,
+        alias: index for index, name in enumerate(Exit.DIRECTION_NAMES) for alias in (name, name[0])
     }
 
     id: str = ""
@@ -44,8 +38,8 @@ class Room:
     room_flags: int = 0
     sector_type: int = 0
     light: int = 0
-    heal_rate: int = 0
-    mana_rate: int = 0
+    heal_rate: int = 100
+    mana_rate: int = 100
     clan: int = 0
     owner: str = ""
     extra_description: ExtraDescriptionData = None
@@ -56,8 +50,6 @@ class Room:
     area: 'Area | None' = field(default=None, init=False, repr=False, compare=False)
 
     def __post_init__(self):
-        self.heal_rate = 100
-        self.mana_rate = 100
         self.combat_events = []
         self.populace = {}
         self.lock = threading.Lock()
@@ -75,7 +67,10 @@ class Room:
         return cls(**data)
 
     def get_formatted_exits(self):
-        return AreaUtil.cardinal_direction(self)
+        if not self.exits:
+            return "none"
+        names = [Exit.direction_label(exit_obj.direction) for exit_obj in self.exits]
+        return ", ".join(name for name in names if name) or "none"
 
     def adjust_light(self, amount: int) -> None:
         self.light = max(0, GenericUtil.to_int(getattr(self, "light", 0), 0) + amount)
@@ -311,3 +306,39 @@ class Room:
         if CharacterApi.is_immortal(char) and (CharacterApi.is_npc(char) or CharacterApi.has_holy_light(char)):
             return True
         return False
+
+    @staticmethod
+    def item_description_lines(room) -> list:
+        lines = []
+        for item in room.contents.values():
+            raw_long = item.long_description or ""
+            line = raw_long.rstrip("\r\n")
+            if not raw_long.strip():
+                line = item.short_description or item.name
+            if line:
+                line = f"    {line}"
+                lines.append(line)
+        return lines
+
+    def randomize_exits(self, max_exits: int, rng):
+        if max_exits <= 1:
+            return
+
+        slots = {i: None for i in range(len(Exit.DIRECTION_NAMES))}
+        for exit_obj in self.exits:
+            direction = int(getattr(exit_obj, "direction", -1))
+            if 0 <= direction < len(Exit.DIRECTION_NAMES):
+                slots[direction] = exit_obj
+
+        upper = min(max_exits, len(Exit.DIRECTION_NAMES))
+        for d0 in range(upper - 1):
+            d1 = rng.number_range(d0, upper - 1)
+            slots[d0], slots[d1] = slots[d1], slots[d0]
+
+        rebuilt = []
+        for direction in range(len(Exit.DIRECTION_NAMES)):
+            exit_obj = slots[direction]
+            if exit_obj is not None:
+                exit_obj.direction = direction
+                rebuilt.append(exit_obj)
+        self.exits = rebuilt

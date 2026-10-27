@@ -21,7 +21,6 @@ from mobile.Mobile import Mobile
 from player.Character import Character
 from server.connection.ConnectionManager import ConnectionManager
 from server.session.SessionHandler import SessionHandler
-from util.MobileUtil import MobileUtil
 
 
 class Positions(IntEnum):
@@ -145,7 +144,7 @@ class TestGuardedFlagRuntimePaths(unittest.TestCase):
                 flags = StatusFlags.default()
                 flags.assign_bitfield(field, 2 | 4)
                 flags.assign_bitfield("comm", 8)
-                MobileUtil.apply_flag_removes(flags, [{"domain": domain.upper(), "vector": "2"},
+                StatusFlags.apply_flag_removes(flags, [{"domain": domain.upper(), "vector": "2"},
                                                       {"domain": "unknown", "vector": "4"}])
                 self.assertEqual(4, getattr(flags, field))
                 self.assertEqual(8, flags.comm)

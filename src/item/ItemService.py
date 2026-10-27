@@ -3,7 +3,7 @@ from injector import inject
 from game.GameData import GameData
 from item.Item import Item
 from item.ItemRegistry import ItemRegistry
-from util.ItemUtil import ItemUtil
+from item.ItemFactory import ItemFactory
 from server.FetchAndRegisterMixin import FetchAndRegisterMixin
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
@@ -35,7 +35,7 @@ class ItemService(FetchAndRegisterMixin):
 
     def _build_fetch_item(self, item_data) -> Item:
         liquids = self.game_data.liquids
-        return ItemUtil.normalize_item_data(item_data, liquids, (self.spell_registry, self.skill_registry))
+        return ItemFactory.from_data(item_data, liquids, (self.spell_registry, self.skill_registry))
 
     def _register_fetch_item(self, item: Item) -> None:
         self.item_registry.register(item)

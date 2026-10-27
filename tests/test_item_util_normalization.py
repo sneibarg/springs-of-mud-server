@@ -42,7 +42,7 @@ builtins.Room = type("Room", (), {})
 
 from api.ItemApi import ItemApi
 from game.GameData import GameData
-from util.ItemUtil import ItemUtil
+from item.ItemFactory import ItemFactory
 
 
 class TestItemUtilNormalization(unittest.TestCase):
@@ -50,8 +50,8 @@ class TestItemUtilNormalization(unittest.TestCase):
         money = SimpleNamespace(short_description="%d silver and %d gold", value0="0", value1="0")
         registry = SimpleNamespace(get=Mock(return_value=object()))
         enums = SimpleNamespace(OBJ_VNUM_COINS=SimpleNamespace(value=1))
-        with patch.object(ItemUtil, "create_object", return_value=money):
-            result = ItemUtil.create_money(3, 7, registry, enums)
+        with patch.object(ItemFactory, "create", return_value=money):
+            result = ItemFactory.create_money(3, 7, registry, enums)
         self.assertEqual(("7", "3"), (result.value0, result.value1))
 
     def test_money_prototypes_use_string_vnum_registry_keys(self):
@@ -67,8 +67,8 @@ class TestItemUtilNormalization(unittest.TestCase):
             with self.subTest(gold=gold, silver=silver):
                 template = "%d silver and %d gold" if gold and silver else "%d coins"
                 money = SimpleNamespace(short_description=template, value0="0", value1="0")
-                with patch.object(ItemUtil, "create_object", return_value=money) as create:
-                    ItemUtil.create_money(gold, silver, registry, enums)
+                with patch.object(ItemFactory, "create", return_value=money) as create:
+                    ItemFactory.create_money(gold, silver, registry, enums)
                 registry.get.assert_called_with(vnum=vnum)
                 create.assert_called_once_with(prototypes[vnum])
 
@@ -118,7 +118,7 @@ class TestItemUtilNormalization(unittest.TestCase):
             "extraDescr": [],
         }
 
-        item = ItemUtil.normalize_item_data(item_data, self.liquids, SimpleNamespace())
+        item = ItemFactory.from_data(item_data, self.liquids, SimpleNamespace())
 
         self.assertEqual("water", item.value2)
         self.assertEqual([0, 1, 10, 0, 16], item.liquid_affect_data)
@@ -149,7 +149,7 @@ class TestItemUtilNormalization(unittest.TestCase):
             "extraDescr": [],
         }
 
-        item = ItemUtil.normalize_item_data(item_data, self.liquids, SimpleNamespace())
+        item = ItemFactory.from_data(item_data, self.liquids, SimpleNamespace())
 
         self.assertEqual("water", item.value2)
         self.assertEqual([0, 1, 10, 0, 16], item.liquid_affect_data)
@@ -183,7 +183,7 @@ class TestItemUtilNormalization(unittest.TestCase):
             "extraDescr": [],
         }
 
-        item = ItemUtil.normalize_item_data(item_data, self.liquids, (spell_registry, skill_registry))
+        item = ItemFactory.from_data(item_data, self.liquids, (spell_registry, skill_registry))
 
         self.assertIs(spell, item.value3)
 
@@ -217,7 +217,7 @@ class TestItemUtilNormalization(unittest.TestCase):
             "extraDescr": [],
         }
 
-        item = ItemUtil.normalize_item_data(item_data, self.liquids, (spell_registry,))
+        item = ItemFactory.from_data(item_data, self.liquids, (spell_registry,))
 
         self.assertIs(armor, item.value1)
         self.assertIs(bless, item.value2)

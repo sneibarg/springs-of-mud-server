@@ -1,3 +1,5 @@
+from util.LookupUtil import LookupUtil
+from api.ItemApi import ItemApi
 import inspect
 from dataclasses import fields
 from typing import Any
@@ -18,16 +20,16 @@ from interp.commands.Object import Object
 from interp.commands.Wiz import Wiz
 from notes.NoteHandler import NoteHandler
 from player.Character import Character
+from player.CharacterService import CharacterService
 from api.CharacterApi import CharacterApi
 from util.GenericUtil import GenericUtil
-from util.InfoUtil import InfoUtil
 from util.InterpUtil import InterpUtil
 from util.CommunicationsUtil import CommunicationsUtil
-from util.ItemUtil import ItemUtil
 from util.PlayerUtil import PlayerUtil
 from skill.Ability import Ability
 from server.messaging import MessageBus
 from server.LoggerFactory import LoggerFactory
+from server.session.SessionState import SessionStatus
 
 
 class PlayerHandler:
@@ -43,7 +45,8 @@ class PlayerHandler:
                  movement_commands: Movement,
                  object_commands: Object,
                  note_handler: NoteHandler,
-                 wiz_commands: Wiz):
+                 wiz_commands: Wiz,
+                 character_service: CharacterService):
         self.__name__ = "PlayerHandler"
         self.message_bus = message_bus
         self.interp_api = interp_api
@@ -63,27 +66,68 @@ class PlayerHandler:
         self.object_commands = object_commands
         self.note_handler = note_handler
         self.wiz_commands = wiz_commands
+        self.character_service = character_service
         self.logger = LoggerFactory.get_logger(__name__)
 
     async def do_quit(self, character: Character, context: Context):
-        payload = self.info_commands.do_quit(context)
-        message = self.message_bus.text_to_message(payload["to_char"])
-        await self.message_bus.send_to_character(character.id, message)
-        if payload.get("blocked"):
+        if CharacterApi.is_npc(character):
             return
-        room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
+        async with character.world_update_lock():
+            if not character.world_retired:
+                await self._quit(character, context)
+
+    async def _quit(self, character: Character, context: Context):
+        payload = self.info_commands.do_quit(context)
+        if payload.get("blocked"):
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
+            return
+        room = self.room_registry.get_or_none(id=character.room_id)
+        notices = []
         if room is not None:
-            for viewer in room.characters.values():
+            for viewer in list(room.characters.values()):
                 if viewer.id == character.id:
                     continue
                 if CharacterApi.can_see(viewer, character, room):
                     text = payload["to_room"]
                 else:
                     text = "Someone has left the game.\r\n"
-                await self.message_bus.send_to_character(viewer.id, self.message_bus.text_to_message(text))
+                notices.append((viewer.id, text))
+
+        session = self.message_bus.session_handler.get_session_by_character(character.id)
+        previous_status = session.status if session is not None else None
+        if session is not None:
+            session.metadata['quitting'] = True
+            session.status = SessionStatus.DISCONNECTING
+        character.world_retired = True
+        # Retire synchronously before snapshotting, excluding the character from
+        # subsequent world tick selection while its final HTTP write is pending.
+        if room is not None:
             room.remove_player_from_room(character)
         self.character_registry.remove_playing(character)
-        await context.disconnect()
+        saved = False
+        try:
+            saved = await self.character_service.save_character_async(character)
+            if not saved:
+                failed = self.interp_api.render_message_key(context, "unsaved", channel="to_char",
+                                                           fallback="Your character could not be saved. Please try quitting again.\r\n")
+                await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(failed["to_char"]))
+                return
+            if context.conn is not None and context.conn.is_closed():
+                return
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
+            for viewer_id, text in notices:
+                await self.message_bus.send_to_character(viewer_id, self.message_bus.text_to_message(text))
+            await context.disconnect()
+        finally:
+            if not saved:
+                character.world_retired = False
+                if room is not None:
+                    room.add_player_to_room(character)
+                self.character_registry.set_playing(character)
+                if session is not None and not session.metadata.get('connection_cleaned', False):
+                    session.status = previous_status
+            if session is not None:
+                session.metadata.pop('quitting', None)
 
     async def do_who(self, character):
         await self.message_bus.send_to_character(
@@ -151,17 +195,17 @@ class PlayerHandler:
             return False
 
         for item in list(character.get_items()) + list(room.contents.values()):
-            if not ItemUtil.can_see_object(room, character, item):
+            if not ItemApi.can_see_object(room, character, item):
                 continue
 
             extra = getattr(item, "extra_description", None)
             extra_keyword = getattr(extra, "keyword", None) if extra is not None else None
             if isinstance(extra, dict):
                 extra_keyword = extra.get("keyword")
-            if extra and InfoUtil.look_keyword_matches(wanted, extra_keyword or ""):
+            if extra and LookupUtil.keyword_matches(wanted, extra_keyword or ""):
                 return True
 
-            if InfoUtil.look_keyword_matches(wanted, getattr(item, "name", "") or ""):
+            if LookupUtil.keyword_matches(wanted, getattr(item, "name", "") or ""):
                 return True
 
         room_extra = getattr(room, "extra_description", None)
@@ -169,7 +213,7 @@ class PlayerHandler:
             room_extra_keyword = room_extra.get("keyword")
         else:
             room_extra_keyword = getattr(room_extra, "keyword", "")
-        return bool(room_extra and InfoUtil.look_keyword_matches(wanted, room_extra_keyword or ""))
+        return bool(room_extra and LookupUtil.keyword_matches(wanted, room_extra_keyword or ""))
 
     async def do_scroll(self, character: Character, context: Context):
         text = self.info_commands.do_scroll(character, context)
@@ -521,7 +565,11 @@ class PlayerHandler:
     async def _interpret_nested_command(self, character: Character, context: Context, raw_command: str):
         cmd, parameters = InterpUtil.extract_parameters(self.interp_registry, raw_command)
         if cmd is None:
-            social = self.social_registry.get_or_none(name=raw_command.lower())
+            denial = CommandAccess.check_actor(character)
+            if denial is not None:
+                await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(denial.render(None)))
+                return
+            social = self.social_registry.get_or_none(name=InterpUtil.one_argument(raw_command)[0])
             if social is not None and context.social_handler() is not None:
                 await context.social_handler().handle_social(character, raw_command, social)
                 return

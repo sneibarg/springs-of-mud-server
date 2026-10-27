@@ -3,7 +3,7 @@ from __future__ import annotations
 from api.CharacterApi import CharacterApi
 from api.GameApi import GameApi
 from player.Character import Character
-from util.AreaUtil import AreaUtil
+from api.AreaApi import AreaApi
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
 from util.WizUtil import WizUtil
@@ -32,7 +32,7 @@ class WizApi:
 
     @staticmethod
     def location(view):
-        return AreaUtil.find_location(
+        return AreaApi.find_location(
             InterpUtil.argument_text(view),
             WizApi.room_registry(view),
             WizApi.character_registry(view),
@@ -51,7 +51,7 @@ class WizApi:
     @staticmethod
     def at_location(view):
         location_arg, _nested_command = WizApi.at_argument_parts(view)
-        return AreaUtil.find_location(
+        return AreaApi.find_location(
             location_arg,
             WizApi.room_registry(view),
             WizApi.character_registry(view),
@@ -576,7 +576,7 @@ class WizApi:
 
     @staticmethod
     def violate_location(view):
-        return AreaUtil.find_location(
+        return AreaApi.find_location(
             InterpUtil.argument_text(view),
             WizApi.room_registry(view),
             WizApi.character_registry(view),

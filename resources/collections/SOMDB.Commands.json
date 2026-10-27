@@ -29,7 +29,8 @@
       "toChar": {
         "fighting": "No way! You are fighting.",
         "stunned": "You're not DEAD yet.",
-        "default": "Alas, all good things must come to an end."
+        "default": "Alas, all good things must come to an end.",
+        "unsaved": "Your character could not be saved. Please try quitting again."
       },
       "toRoom": {
         "default": "%c has left the game."
@@ -1383,67 +1384,67 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not bool(getattr(v.context, 'arg1', '') or InterpUtil.argument_text(v))",
-        "messageKey": "noArgument"
+        "messageKey": "noArgument",
+        "predicate": "lambda v: not bool(getattr(v.context, 'arg1', '') or InterpUtil.argument_text(v))"
       },
       {
-        "predicate": "lambda v: v.context.room is None",
-        "messageKey": "roomMissing"
+        "messageKey": "roomMissing",
+        "predicate": "lambda v: v.context.room is None"
       },
       {
-        "predicate": "lambda v: bool(getattr(v.context, 'get_all_from_container', False)) and ItemUtil.is_newbie_pit(v.context.container) and not CharacterApi.is_immortal(v.context.character)",
-        "messageKey": "isNewbiePit"
+        "messageKey": "isNewbiePit",
+        "predicate": "lambda v: bool(getattr(v.context, 'get_all_from_container', False)) and ItemApi.is_newbie_pit(v.context.container) and not CharacterApi.is_immortal(v.context.character)"
       },
       {
-        "predicate": "lambda v: bool(v.context.rem) and v.context.container is None",
         "messageKey": "targetNotVisible",
+        "predicate": "lambda v: bool(v.context.rem) and v.context.container is None",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
       },
       {
-        "predicate": "lambda v: v.context.container is not None and not Item.is_container_like(v.context.container)",
-        "messageKey": "notContainer"
+        "messageKey": "notContainer",
+        "predicate": "lambda v: v.context.container is not None and not Item.is_container_like(v.context.container)"
       },
       {
         "messageKey": "cannot",
         "predicate": "lambda v: not getattr(v.context, 'get_container_loot_allowed', True)"
       },
       {
-        "predicate": "lambda v: v.context.container is not None and ItemApi.is_container_closed(v.context.container)",
         "messageKey": "closed",
+        "predicate": "lambda v: v.context.container is not None and ItemApi.is_container_closed(v.context.container)",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', getattr(v.context.container, 'name', ''))}"
       },
       {
-        "predicate": "lambda v: not bool(v.context.rem) and not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is None",
         "messageKey": "targetNotVisible",
+        "predicate": "lambda v: not bool(v.context.rem) and not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is None",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'arg1', '')}"
       },
       {
-        "predicate": "lambda v: not bool(v.context.rem) and bool(getattr(v.context, 'get_all', False)) and not bool(getattr(v.context, 'get_candidates', [])) and not bool(getattr(v.context, 'get_filter_name', ''))",
-        "messageKey": "targetMissing"
+        "messageKey": "targetMissing",
+        "predicate": "lambda v: not bool(v.context.rem) and bool(getattr(v.context, 'get_all', False)) and not bool(getattr(v.context, 'get_candidates', [])) and not bool(getattr(v.context, 'get_filter_name', ''))"
       },
       {
-        "predicate": "lambda v: not bool(v.context.rem) and bool(getattr(v.context, 'get_all', False)) and not bool(getattr(v.context, 'get_candidates', [])) and bool(getattr(v.context, 'get_filter_name', ''))",
         "messageKey": "targetNotVisible",
+        "predicate": "lambda v: not bool(v.context.rem) and bool(getattr(v.context, 'get_all', False)) and not bool(getattr(v.context, 'get_candidates', [])) and bool(getattr(v.context, 'get_filter_name', ''))",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'get_filter_name', '')}"
       },
       {
+        "messageKey": "invalidContainerTarget",
         "predicate": "lambda v: bool(v.context.rem) and v.context.container is not None and not bool(getattr(v.context, 'get_all_from_container', False)) and v.context.target_item is None",
-        "messageKey": "invalidContainerTarget",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
       },
       {
-        "predicate": "lambda v: bool(v.context.rem) and v.context.container is not None and bool(getattr(v.context, 'get_all_from_container', False)) and not bool(getattr(v.context, 'get_candidates', [])) and not bool(getattr(v.context, 'get_filter_name', ''))",
         "messageKey": "containerEmpty",
+        "predicate": "lambda v: bool(v.context.rem) and v.context.container is not None and bool(getattr(v.context, 'get_all_from_container', False)) and not bool(getattr(v.context, 'get_candidates', [])) and not bool(getattr(v.context, 'get_filter_name', ''))",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
       },
       {
-        "predicate": "lambda v: bool(v.context.rem) and v.context.container is not None and bool(getattr(v.context, 'get_all_from_container', False)) and not bool(getattr(v.context, 'get_candidates', [])) and bool(getattr(v.context, 'get_filter_name', ''))",
         "messageKey": "invalidContainerTarget",
+        "predicate": "lambda v: bool(v.context.rem) and v.context.container is not None and bool(getattr(v.context, 'get_all_from_container', False)) and not bool(getattr(v.context, 'get_candidates', [])) and bool(getattr(v.context, 'get_filter_name', ''))",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
       },
       {
-        "predicate": "lambda v: not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is not None and not ItemApi.item_takeable(v.context.target_item, getattr(v.handler, 'wear_flags', None))",
-        "messageKey": "cannotTake"
+        "messageKey": "cannotTake",
+        "predicate": "lambda v: not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is not None and not ItemApi.item_takeable(v.context.target_item, getattr(v.handler, 'wear_flags', None))"
       }
     ]
   },
@@ -4973,15 +4974,17 @@
       "toChar": {
         "roomMissing": "You can't do that here.",
         "noHealer": "You can't do that here.",
-        "unknownService": "The healer says 'Type heal for a list of spells.'",
-        "insufficientFunds": "The healer says 'You do not have enough gold for my services.'",
+        "unknownService": "{healer} says 'Type 'heal' for a list of spells.'",
+        "insufficientFunds": "{healer} says 'You do not have enough gold for my services.'",
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "services": "{healer} says 'I offer the following spells:'\r\n  light: cure light wounds      10 gold\r\n  serious: cure serious wounds  15 gold\r\n  critic: cure critical wounds  25 gold\r\n  heal: healing spell\t      50 gold\r\n  blind: cure blindness         20 gold\r\n  disease: cure disease         15 gold\r\n  poison:  cure poison\t      25 gold\r\n  uncurse: remove curse\t      50 gold\r\n  refresh: restore movement      5 gold\r\n  mana:  restore mana\t      10 gold\r\n Type heal <type> to be healed.\r\n",
+        "warmGlow": "A warm glow passes through you.\r\n"
       },
       "toRoom": {
-        "uttersWords": "$n utters the words '$T'."
+        "uttersWords": "{healer} utters the words '{words}'.\r\n"
       },
       "toVictim": {}
     },
@@ -5431,50 +5434,50 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not getattr(v.context, 'pour_arg1', '') or not getattr(v.context, 'pour_target_arg', '')",
-        "messageKey": "noArgument"
+        "messageKey": "noArgument",
+        "predicate": "lambda v: not getattr(v.context, 'pour_arg1', '') or not getattr(v.context, 'pour_target_arg', '')"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'pour_source', None) is None",
-        "messageKey": "targetMissing"
+        "messageKey": "targetMissing",
+        "predicate": "lambda v: getattr(v.context, 'pour_source', None) is None"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'notContainer'",
-        "messageKey": "notContainer"
+        "messageKey": "notContainer",
+        "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'notContainer'"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'emptyTarget'",
-        "messageKey": "emptyTarget"
+        "messageKey": "emptyTarget",
+        "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'emptyTarget'"
       },
       {
-        "predicate": "lambda v: (not getattr(v.context, 'pour_is_out', False)) and getattr(v.context, 'pour_target_item', None) is None and getattr(v.context, 'pour_target_character', None) is None",
-        "messageKey": "pourTargetMissing"
+        "messageKey": "pourTargetMissing",
+        "predicate": "lambda v: (not getattr(v.context, 'pour_is_out', False)) and getattr(v.context, 'pour_target_item', None) is None and getattr(v.context, 'pour_target_character', None) is None"
       },
       {
-        "predicate": "lambda v: (not getattr(v.context, 'pour_is_out', False)) and getattr(v.context, 'pour_target_character', None) is not None and getattr(v.context, 'pour_target_container', None) is None",
-        "messageKey": "targetContainerMissing"
+        "messageKey": "targetContainerMissing",
+        "predicate": "lambda v: (not getattr(v.context, 'pour_is_out', False)) and getattr(v.context, 'pour_target_character', None) is not None and getattr(v.context, 'pour_target_container', None) is None"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'targetContainerInvalid'",
-        "messageKey": "targetContainerInvalid"
+        "messageKey": "targetContainerInvalid",
+        "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'targetContainerInvalid'"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'targetSelf'",
-        "messageKey": "targetSelf"
+        "messageKey": "targetSelf",
+        "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'targetSelf'"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'invalidLiquid'",
-        "messageKey": "invalidLiquid"
+        "messageKey": "invalidLiquid",
+        "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'invalidLiquid'"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'missingLiquid'",
         "messageKey": "missingLiquid",
-        "tokenFactory": "lambda v: {'t': ItemUtil.short(v.context.pour_source)}"
+        "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'missingLiquid'",
+        "tokenFactory": "lambda v: {'t': v.context.pour_source.short()}"
       },
       {
-        "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'filled'",
         "messageKey": "filled",
-        "tokenFactory": "lambda v: {'t': ItemUtil.short(v.context.pour_target_container)}"
+        "predicate": "lambda v: getattr(v.context, 'pour_blocked_key', '') == 'filled'",
+        "tokenFactory": "lambda v: {'t': v.context.pour_target_container.short()}"
       }
     ]
   },
@@ -5845,67 +5848,67 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: not bool(getattr(v.context, 'arg1', '') or InterpUtil.argument_text(v))",
-        "messageKey": "noArgument"
+        "messageKey": "noArgument",
+        "predicate": "lambda v: not bool(getattr(v.context, 'arg1', '') or InterpUtil.argument_text(v))"
       },
       {
-        "predicate": "lambda v: v.context.room is None",
-        "messageKey": "roomMissing"
+        "messageKey": "roomMissing",
+        "predicate": "lambda v: v.context.room is None"
       },
       {
-        "predicate": "lambda v: bool(getattr(v.context, 'get_all_from_container', False)) and ItemUtil.is_newbie_pit(v.context.container) and not CharacterApi.is_immortal(v.context.character)",
-        "messageKey": "isNewbiePit"
+        "messageKey": "isNewbiePit",
+        "predicate": "lambda v: bool(getattr(v.context, 'get_all_from_container', False)) and ItemApi.is_newbie_pit(v.context.container) and not CharacterApi.is_immortal(v.context.character)"
       },
       {
-        "predicate": "lambda v: bool(v.context.rem) and v.context.container is None",
         "messageKey": "targetNotVisible",
+        "predicate": "lambda v: bool(v.context.rem) and v.context.container is None",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
       },
       {
-        "predicate": "lambda v: v.context.container is not None and not Item.is_container_like(v.context.container)",
-        "messageKey": "notContainer"
+        "messageKey": "notContainer",
+        "predicate": "lambda v: v.context.container is not None and not Item.is_container_like(v.context.container)"
       },
       {
         "messageKey": "cannot",
         "predicate": "lambda v: not getattr(v.context, 'get_container_loot_allowed', True)"
       },
       {
-        "predicate": "lambda v: v.context.container is not None and ItemApi.is_container_closed(v.context.container)",
         "messageKey": "closed",
+        "predicate": "lambda v: v.context.container is not None and ItemApi.is_container_closed(v.context.container)",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', getattr(v.context.container, 'name', ''))}"
       },
       {
-        "predicate": "lambda v: not bool(v.context.rem) and not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is None",
         "messageKey": "targetNotVisible",
+        "predicate": "lambda v: not bool(v.context.rem) and not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is None",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'arg1', '')}"
       },
       {
-        "predicate": "lambda v: not bool(v.context.rem) and bool(getattr(v.context, 'get_all', False)) and not bool(getattr(v.context, 'get_candidates', [])) and not bool(getattr(v.context, 'get_filter_name', ''))",
-        "messageKey": "targetMissing"
+        "messageKey": "targetMissing",
+        "predicate": "lambda v: not bool(v.context.rem) and bool(getattr(v.context, 'get_all', False)) and not bool(getattr(v.context, 'get_candidates', [])) and not bool(getattr(v.context, 'get_filter_name', ''))"
       },
       {
-        "predicate": "lambda v: not bool(v.context.rem) and bool(getattr(v.context, 'get_all', False)) and not bool(getattr(v.context, 'get_candidates', [])) and bool(getattr(v.context, 'get_filter_name', ''))",
         "messageKey": "targetNotVisible",
+        "predicate": "lambda v: not bool(v.context.rem) and bool(getattr(v.context, 'get_all', False)) and not bool(getattr(v.context, 'get_candidates', [])) and bool(getattr(v.context, 'get_filter_name', ''))",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'get_filter_name', '')}"
       },
       {
+        "messageKey": "invalidContainerTarget",
         "predicate": "lambda v: bool(v.context.rem) and v.context.container is not None and not bool(getattr(v.context, 'get_all_from_container', False)) and v.context.target_item is None",
-        "messageKey": "invalidContainerTarget",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
       },
       {
-        "predicate": "lambda v: bool(v.context.rem) and v.context.container is not None and bool(getattr(v.context, 'get_all_from_container', False)) and not bool(getattr(v.context, 'get_candidates', [])) and not bool(getattr(v.context, 'get_filter_name', ''))",
         "messageKey": "containerEmpty",
+        "predicate": "lambda v: bool(v.context.rem) and v.context.container is not None and bool(getattr(v.context, 'get_all_from_container', False)) and not bool(getattr(v.context, 'get_candidates', [])) and not bool(getattr(v.context, 'get_filter_name', ''))",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
       },
       {
-        "predicate": "lambda v: bool(v.context.rem) and v.context.container is not None and bool(getattr(v.context, 'get_all_from_container', False)) and not bool(getattr(v.context, 'get_candidates', [])) and bool(getattr(v.context, 'get_filter_name', ''))",
         "messageKey": "invalidContainerTarget",
+        "predicate": "lambda v: bool(v.context.rem) and v.context.container is not None and bool(getattr(v.context, 'get_all_from_container', False)) and not bool(getattr(v.context, 'get_candidates', [])) and bool(getattr(v.context, 'get_filter_name', ''))",
         "tokenFactory": "lambda v: {'t': getattr(v.context, 'container_name', '')}"
       },
       {
-        "predicate": "lambda v: not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is not None and not ItemApi.item_takeable(v.context.target_item, getattr(v.handler, 'wear_flags', None))",
-        "messageKey": "cannotTake"
+        "messageKey": "cannotTake",
+        "predicate": "lambda v: not bool(getattr(v.context, 'get_all', False)) and v.context.target_item is not None and not ItemApi.item_takeable(v.context.target_item, getattr(v.handler, 'wear_flags', None))"
       }
     ]
   },
@@ -5951,29 +5954,29 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: v.context.arg1 == \"\"",
-        "messageKey": "noArgument"
+        "messageKey": "noArgument",
+        "predicate": "lambda v: v.context.arg1 == \"\""
       },
       {
-        "predicate": "lambda v: v.context.arg1 != 'self' and v.context.item is None",
-        "messageKey": "targetMissing"
+        "messageKey": "targetMissing",
+        "predicate": "lambda v: v.context.arg1 != 'self' and v.context.item is None"
       },
       {
-        "predicate": "lambda v: v.context.arg1 == 'self' or v.context.arg1.lower() == v.context.character.name.lower()",
-        "messageKey": "targetSelf"
+        "messageKey": "targetSelf",
+        "predicate": "lambda v: v.context.arg1 == 'self' or v.context.arg1.lower() == v.context.character.name.lower()"
       },
       {
-        "predicate": "lambda v: Item.is_pc_corpse(v.context.item) and list(getattr(v.context.item, 'contains', []) or [])",
-        "messageKey": "pcCorpse"
+        "messageKey": "pcCorpse",
+        "predicate": "lambda v: Item.is_pc_corpse(v.context.item) and list(getattr(v.context.item, 'contains', []) or [])"
       },
       {
-        "predicate": "lambda v: ItemApi.is_no_sac(v.context.item)",
         "messageKey": "noSacrifice",
+        "predicate": "lambda v: ItemApi.is_no_sac(v.context.item)",
         "tokenFactory": "lambda v: {'t': v.context.item_name}"
       },
       {
-        "predicate": "lambda v: ItemUtil.item_in_use(v.context)",
         "messageKey": "targetInUse",
+        "predicate": "lambda v: v.context.item_occupant is not None",
         "tokenFactory": "lambda v: {'t': v.context.item_name, 'v': v.context.occupant_name}"
       }
     ]
@@ -7660,16 +7663,7 @@
       "toRoom": {},
       "toVictim": {}
     },
-    "guards": [
-      {
-        "predicate": "lambda v: not InterpUtil.argument_text(v)",
-        "messageKey": "noArgument"
-      },
-      {
-        "predicate": "lambda v: WizApi.allow_site_missing(v)",
-        "messageKey": "noSuchBan"
-      }
-    ]
+    "guards": []
   },
   {
     "_id": {
@@ -7688,42 +7682,18 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "noArgument": "Ban whom?",
-        "targetMissing": "They aren't here.",
-        "noNPCs": "Not on NPC's.",
-        "failed": "You failed.",
-        "default": "%t has been banned."
+        "default": "%t has been banned.",
+        "insufficientLevel": "That ban was set by a higher power.",
+        "invalidOption": "Acceptable ban types are all, newbies, and permit.",
+        "noArgument": "You have to ban SOMETHING.",
+        "nullList": "No sites banned at this time.",
+        "listHeader": "Banned sites  level  type     status\r\n",
+        "listRow": "{site:<12}    {level:<3}  {type:<7}  {status}\r\n"
       },
       "toRoom": {},
-      "toVictim": {
-        "default": "You have been banned from the server."
-      },
-      "toWiznet": {
-        "default": "%c banned %t."
-      }
+      "toVictim": {}
     },
-    "guards": [
-      {
-        "predicate": "lambda v: not InterpUtil.argument_text(v)",
-        "messageKey": "noArgument"
-      },
-      {
-        "predicate": "lambda v: WizApi.ban_target_missing(v)",
-        "messageKey": "targetMissing"
-      },
-      {
-        "predicate": "lambda v: WizApi.ban_target_is_npc(v)",
-        "messageKey": "noNPCs"
-      },
-      {
-        "predicate": "lambda v: WizApi.ban_target_trust_failed(v)",
-        "messageKey": "failed"
-      },
-      {
-        "predicate": "lambda v: WizApi.ban_target_account_missing(v)",
-        "messageKey": "targetMissing"
-      }
-    ]
+    "guards": []
   },
   {
     "_id": {
@@ -7975,15 +7945,18 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "nullList": "No sites banned at this time.",
+        "default": "%t has been banned.",
+        "insufficientLevel": "That ban was set by a higher power.",
         "invalidOption": "Acceptable ban types are all, newbies, and permit.",
         "noArgument": "You have to ban SOMETHING.",
-        "insufficientLevel": "That ban was set by a higher power.",
-        "default": "%t has been banned."
+        "nullList": "No sites banned at this time.",
+        "listHeader": "Banned sites  level  type     status\r\n",
+        "listRow": "{site:<12}    {level:<3}  {type:<7}  {status}\r\n"
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "guards": []
   },
   {
     "_id": {

@@ -27,6 +27,7 @@ class TestObjectContainerShopSpellParity(unittest.TestCase):
         self.item_table = data["itemTable"]
         self.swap(GameApi, "item_table_map", return_value=self.item_table)
         self.swap(RealItemApi, "get_enum", side_effect=self.enums.__getitem__)
+        self.swap(RealItemApi, "can_see_object", return_value=True)
         for module in (sys.modules[h.Object.__module__], sys.modules[h.InterpApi.__module__]):
             self.swap(module, "ItemApi", new=RealItemApi)
         self.commands.item_types = self.enums["itemTypes"]
@@ -142,7 +143,8 @@ class TestObjectContainerShopSpellParity(unittest.TestCase):
                 shop.buy_type0 = self.enums["itemTypes"]["ITEM_" + kind.upper()].value
                 self.actor = self.fixture._build_character(item)
                 self.assertEqual(50, shop.quote_value(item, keeper, self.enums["itemTypes"], self.commands.item_flags).cost)
-                shop.complete_sale(self.actor, keeper, item, 50, self.commands.item_flags)
+                shop.complete_sale(self.actor, keeper, item, 50, self.commands.item_flags,
+                                   effect_handler=self.commands.effect_handler)
                 self.assertNotIn(item, self.actor.loot)
                 self.assertEqual(50, self.actor.gold * 100 + self.actor.silver)
                 self.assertEqual(kind != "trash", item in keeper.inventory)

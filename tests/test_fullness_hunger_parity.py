@@ -12,7 +12,7 @@ StatusFlags = h._load_module("fullness_status_flags", "game/StatusFlags.py").Sta
 serialize_wire_value = h._load_module("fullness_wire_codec", "server/WireCodec.py").serialize_wire_value
 stubs = {name: NS(**{attr: object}) for name, attr in (
     ("api.WizApi", "WizApi"), ("game.WizHandler", "WizHandler"),
-    ("player.CharacterAdvancement", "CharacterAdvancement"), ("util.AreaUtil", "AreaUtil"),
+    ("player.CharacterAdvancement", "CharacterAdvancement"),
     ("util.WizUtil", "WizUtil"))}
 with patch.dict(sys.modules, stubs):
     WizModule = h._load_module("fullness_wiz_set", "api/WizSetApi.py")

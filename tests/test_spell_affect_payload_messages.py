@@ -22,6 +22,8 @@ def _module(name: str, **attrs):
     return module
 
 
+from item.ItemFactory import ItemFactory
+
 class _CharacterApi:
     @staticmethod
     def is_npc(entity):
@@ -672,8 +674,7 @@ class TestTableDamageSpells(unittest.TestCase):
             cls.Equipped = module.Equipped
         with patch.dict(sys.modules, {
             'api.CharacterApi': _module('api.CharacterApi', CharacterApi=_CharacterApi),
-            'util.AreaUtil': _module('util.AreaUtil', AreaUtil=object),
-            'area.Exit': _module('area.Exit', Exit=object),
+            'area.Exit': _module('area.Exit', Exit=SimpleNamespace(DIRECTION_NAMES=('north', 'east', 'south', 'west', 'up', 'down'))),
             'mobile.Mobile': _module('mobile.Mobile', Mobile=object),
             'item.ExtraDescriptionData': _module('item.ExtraDescriptionData', ExtraDescriptionData=object),
             'util.PlayerUtil': _module('util.PlayerUtil', PlayerUtil=object),
@@ -760,8 +761,10 @@ class TestTableDamageSpells(unittest.TestCase):
             if name in ('sleep', 'calm'):
                 self.PositionApi.set_position(entity, 'POS_STANDING')
         self.enterContext(patch.dict(SpellApi.character_flag.__globals__, GameApi=self.game_api()))
-        self.enterContext(patch.object(SpellApi.is_affected.__globals__['EffectUtil'], 'is_affected',
-            side_effect=lambda entity, flag: bool(int(entity.status_flags.affected_by) & int(self.enums['affectedBy'][flag])), create=True))
+        self.enterContext(patch.object(SpellApi.is_affected.__globals__['CharacterApi'], 'get_enum',
+            side_effect=self.enums.get, create=True))
+        self.enterContext(patch.object(SpellApi.is_affected.__globals__['CharacterApi'], 'is_affected_by_name',
+            side_effect=lambda entity, enums, flag: bool(int(entity.status_flags.affected_by) & int(enums[flag])), create=True))
         self.api._effect_active = SpellApi._effect_active.__get__(self.api)
         self.fight.is_safe = Mock(return_value=False)
         self.api._room_flag = Mock(return_value=False)
@@ -945,7 +948,7 @@ class TestTableDamageSpells(unittest.TestCase):
             'util.GenericUtil': _module('util.GenericUtil', GenericUtil=Generic),
         }):
             loaded = {}
-            for mod, path in [('util.InterpUtil', 'util/InterpUtil.py'), ('util.InfoUtil', 'util/InfoUtil.py'),
+            for mod, path in [('util.InterpUtil', 'util/InterpUtil.py'),
                               ('util.LookupUtil', 'util/LookupUtil.py'), ('item.Item', 'item/Item.py')]:
                 spec = importlib.util.spec_from_file_location(mod, SRC / path)
                 module = importlib.util.module_from_spec(spec)
@@ -954,7 +957,7 @@ class TestTableDamageSpells(unittest.TestCase):
                 spec.loader.exec_module(module)
         self.enterContext(patch.dict(sys.modules, loaded))
         RealItem = loaded['item.Item'].Item
-        self.enterContext(patch.object(SpellApi.find_carried_object.__globals__['ItemUtil'], 'can_see_object', return_value=True, create=True))
+        self.enterContext(patch.object(SpellApi.find_carried_object.__globals__['ItemApi'], 'can_see_object', return_value=True, create=True))
         def item(item_name='ring', kind='armor', **extras):
             args = dict(id=item_name, area_id='', vnum='900', name=item_name, short_description=item_name,
                         long_description='', material='metal', item_type=kind, extra_flags='', wear_flags='',
@@ -980,7 +983,7 @@ class TestTableDamageSpells(unittest.TestCase):
         recovery = namespace['PositionRecovery']()
         recovery.PositionsEnum = self.enums['positions']
         self.fight.update_pos = Mock(side_effect=recovery.update_pos)
-        self.enterContext(patch.object(SpellApi.create_object.__globals__['ItemUtil'], 'create_object',
+        self.enterContext(patch.object(SpellApi.create_object.__globals__['ItemFactory'], 'create',
             side_effect=lambda prototype: item('created-' + str(len(room.contents) + len(ctx.actor.loot)),
                                               kind=getattr(prototype, 'item_type', 'container')), create=True))
         return ctx, obj, item, Effect, room, destination
@@ -1067,14 +1070,14 @@ class TestTableDamageSpells(unittest.TestCase):
         ctx,obj,_,Effect,_,_=self.object_context('enchant weapon',60)
         obj.item_type='weapon'
         obj.affect_data=['A,18,2']
-        tree=ast.parse((SRC/'util/ItemUtil.py').read_text())
-        utility=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='ItemUtil')
+        tree=ast.parse((SRC/'item/ItemFactory.py').read_text())
+        utility=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='ItemFactory')
         method=next(n for n in utility.body if isinstance(n,ast.FunctionDef) and n.name=='update_affect_data')
         method.decorator_list=[]
         namespace=dict(Effect=Effect,AffectWhere=SimpleNamespace(TO_OBJECT=SimpleNamespace(value=1)),
                        GameApi=SimpleNamespace(convert_flags=self.game_api().flags_to_int))
-        exec(compile(ast.fix_missing_locations(ast.Module(body=[method],type_ignores=[])),str(SRC/'util/ItemUtil.py'),'exec'),namespace)
-        with patch.object(SpellApi.object_affects.__globals__['ItemUtil'],'update_affect_data',side_effect=namespace['update_affect_data'],create=True):
+        exec(compile(ast.fix_missing_locations(ast.Module(body=[method],type_ignores=[])),str(SRC/'item/ItemFactory.py'),'exec'),namespace)
+        with patch.object(SpellApi.object_affects.__globals__['ItemFactory'],'update_affect_data',side_effect=namespace['update_affect_data'],create=True):
             with patch('random.randint',return_value=10):self.assertTrue(self.api.execute_lambdas(ctx))
         self.assertEqual(2,len(obj.effects))
         self.assertEqual([0,0],[e.bitvector for e in obj.effects])
@@ -1198,7 +1201,7 @@ class TestTableDamageSpells(unittest.TestCase):
         objects = [item('invisible gem'),item('stone'),item('protected gem',extra_flags=str(int(self.enums['itemFlags'].ITEM_NOLOCATE))),
                    item('high gem',level=21),item('resistant gem'),item('found gem')]
         room.contents.update({o.id:o for o in objects})
-        with patch.object(SpellApi.locate_objects.__globals__['ItemUtil'],'can_see_object',side_effect=lambda room,actor,obj:obj.name!='invisible gem'), \
+        with patch.object(SpellApi.locate_objects.__globals__['ItemApi'],'can_see_object',side_effect=lambda room,actor,obj:obj.name!='invisible gem'), \
                 patch('random.randint',side_effect=[1,100,1]) as rng:
             self.api.execute_lambdas(ctx)
         self.assertEqual(3,rng.call_count)
@@ -1370,7 +1373,7 @@ class TestTableDamageSpells(unittest.TestCase):
             portal = SimpleNamespace(id='portal-' + str(len(created)), name='a portal', short_description='a portal')
             created.append(portal)
             return portal
-        self.enterContext(patch.object(SpellApi.create_portals.__globals__['ItemUtil'], 'create_object', side_effect=create, create=True))
+        self.enterContext(patch.object(SpellApi.create_portals.__globals__['ItemFactory'], 'create', side_effect=create, create=True))
         ctx.set_alias('created_portals', created)
         return ctx, source, destination, rooms
 

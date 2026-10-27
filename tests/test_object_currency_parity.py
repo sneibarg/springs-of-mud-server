@@ -4,7 +4,7 @@ import unittest
 from types import SimpleNamespace as NS
 from unittest.mock import patch
 from tests import test_object_container_shop_spell_parity as fixtures
-from tests.test_object_loot_and_sacrifice_parity import RealItemUtil
+from tests.test_object_loot_and_sacrifice_parity import RealItemApi, ItemFactory
 
 h = fixtures.h
 ObjectModule = sys.modules[h.Object.__module__]
@@ -25,11 +25,13 @@ class TestObjectCurrencyParity(unittest.TestCase):
         self.actor.gold, self.actor.silver = 20, 100
         self.actor.status_flags.act = self.enums["playerActBits"].PLR_AUTOSPLIT.value
         for module in (ObjectModule, sys.modules[h.InterpApi.__module__]):
-            self.base.swap(module, "ItemUtil", new=RealItemUtil)
+            self.base.swap(module, "ItemApi", new=RealItemApi)
+        self.base.swap(ObjectModule, "ItemFactory", new=ItemFactory)
+        self.base.swap(RealItemApi, "get_enum", side_effect=self.enums.__getitem__)
         self.base.swap(ObjectModule.CharacterApi, "is_same_group", create=True,
                        side_effect=lambda a, b: getattr(a, "leader", None) is getattr(b, "leader", None))
         self.base.swap(CommunicationsApi, "is_charmed", side_effect=lambda ch: getattr(ch, "charmed", False))
-        self.base.swap(RealItemUtil, "can_see_object", return_value=True)
+        self.base.swap(RealItemApi, "can_see_object", return_value=True)
         self.prototypes = {}
         for name, silver, gold, text in [
             ("SILVER_ONE", 1, 0, "a silver coin"), ("GOLD_ONE", 0, 1, "a gold coin"),
@@ -54,7 +56,7 @@ class TestObjectCurrencyParity(unittest.TestCase):
         return ch
 
     def money(self, silver, gold=0):
-        return RealItemUtil.create_money(gold, silver, self.commands.item_registry,
+        return ItemFactory.create_money(gold, silver, self.commands.item_registry,
                                          self.commands.well_known_object_vnums)
 
     def pickup(self, silver, gold=0, container=None):
@@ -181,7 +183,7 @@ class TestObjectCurrencyParity(unittest.TestCase):
         ally = self.member()
         item = self.base.item("idol", level=9, cost=100)
         self.room.contents[item.id] = item
-        reward = RealItemUtil.sacrifice_silver_value(item)
+        reward = RealItemApi.sacrifice_silver_value(item)
         payload = self.commands.do_sacrifice(self.actor, self.context("sacrifice", "idol"))
         self.assertEqual(100 + reward // 2 + reward % 2, self.actor.silver)
         self.assertEqual(reward // 2, ally.silver)

@@ -1,4 +1,6 @@
 import asyncio
+import ipaddress
+import socket
 
 from asyncio import StreamReader, StreamWriter
 from typing import Optional
@@ -88,6 +90,12 @@ class ConnectionHandler:
                 await connection.close()
                 return
 
+            session.metadata['peer_host'] = await self._resolve_peer_host(peer_info)
+            if self._peer_denied(session.metadata['peer_host']):
+                await connection.send_text("Your site has been banned from this mud.\r\n", MessageType.ERROR)
+                await connection.close()
+                return
+
             await self._send_welcome(connection)
             success, player_id, character = await self._receive_initial_message(connection, session)
             if not success:
@@ -173,12 +181,20 @@ class ConnectionHandler:
         return False
 
     async def _attach_character(self, character, session, connection):
+        if session.metadata.get('login_rejected', False):
+            return None
+        character = self._live_character(character.id) or character
         account = self.registry_service.player_registry.get_or_none(id=session.player_id)
-        if account is None or account.banned:
+        peer_info = getattr(connection, 'get_peer_info', lambda: None)()
+        if self._login_error(character, account, peer_info, session.metadata.get('peer_host')):
             await self._nanny(character, session, connection)
             return None
         confirmed = False
         while not connection.is_closed():
+            existing_session = self.session_handler.get_session_by_character(character.id)
+            if existing_session is not None and existing_session.metadata.get('quitting', False):
+                await connection.send_text("That character is being saved. Please reconnect in a moment.\r\n", MessageType.ERROR)
+                return None
             existing = self._existing_connection(character.id)
             if existing is not None and existing is not connection and not existing.is_closed() and not confirmed:
                 if not await self._confirm_replacement(connection):
@@ -187,8 +203,18 @@ class ConnectionHandler:
 
             async with self._character_lock(character.id):
                 # Another login may have completed while this client answered the prompt.
+                live_character = self._live_character(character.id)
+                character = live_character or character
+                account = self.registry_service.player_registry.get_or_none(id=session.player_id)
+                if self._login_error(character, account, peer_info, session.metadata.get('peer_host')):
+                    await self._nanny(character, session, connection)
+                    return None
                 existing = self._existing_connection(character.id)
                 if existing is not None and existing is not connection:
+                    existing_session = self.session_handler.get_session(existing.session_id)
+                    if existing_session is not None and existing_session.metadata.get('quitting', False):
+                        await connection.send_text("That character is being saved. Please reconnect in a moment.\r\n", MessageType.ERROR)
+                        return None
                     if not existing.is_closed() and not confirmed:
                         continue
                     old_session = self.session_handler.get_session(existing.session_id)
@@ -198,8 +224,6 @@ class ConnectionHandler:
                         self.connection_manager.remove_connection(existing.session_id)
                     await existing.close()
 
-                live_character = self._live_character(character.id)
-                character = live_character or character
                 player = await self._nanny(character, session, connection)
                 if player is None:
                     return None
@@ -285,6 +309,22 @@ class ConnectionHandler:
             return GameApi.is_site_denied(str(peer_info[0] or ""))
         return GameApi.is_site_denied(str(peer_info or ""))
 
+    @staticmethod
+    async def _resolve_peer_host(peer_info):
+        host = str(peer_info[0] if isinstance(peer_info, tuple) else peer_info or '')
+        try:
+            ipaddress.ip_address(host)
+        except ValueError:
+            return host
+        patterns = [ban.name for ban in GameApi.site_bans().entries] + list(GameApi.deny_list())
+        if not any(':' not in pattern and any(char.isalpha() for char in pattern) for pattern in patterns):
+            return host
+        try:
+            result = await asyncio.wait_for(asyncio.to_thread(socket.gethostbyaddr, host), timeout=2)
+            return result[0].lower()
+        except (OSError, asyncio.TimeoutError):
+            return host
+
     async def _game_loop(self, connection: TelnetConnection, session, player, character) -> None:
         while not connection.is_closed() and (session.is_playing() or session.is_idle()):
             try:
@@ -365,17 +405,44 @@ class ConnectionHandler:
         room = self.registry_service.room_registry.get_or_none(id=character.room_id)
         return area, room
 
-    async def _nanny(self, character, session, connection) -> Optional[Player]:
-        player = self.registry_service.player_registry.get_or_none(id=session.player_id)
+    @staticmethod
+    def _login_error(character, player, peer_info=None, peer_host=None) -> str:
+        if player is None:
+            return "Player not registered. Please try again.\r\n"
+        if player.banned:
+            return "You have been banned from the server.\r\n"
+        if CharacterApi.has_player_flag(character, "PLR_DENY"):
+            return "You are denied access to this character.\r\n"
+        if peer_info is not None:
+            hosts = {str(peer_info[0] if isinstance(peer_info, tuple) else peer_info)}
+            if peer_host:
+                hosts.add(str(peer_host))
+            if any(GameApi.check_ban(host, 'all') for host in hosts) or (
+                    any(GameApi.check_ban(host, 'permit') for host in hosts)
+                    and not CharacterApi.has_player_flag(character, 'PLR_PERMIT')):
+                return "Your site has been banned from this mud.\r\n"
+        return ""
 
-        if player is not None and player.banned:
-            await connection.send_text("You have been banned from the server.\r\n", MessageType.ERROR)
-            await connection.close()
+    async def _nanny(self, character, session, connection) -> Optional[Player]:
+        if session.metadata.get('login_rejected', False):
             return None
-        elif player is None:
-            await connection.send_text("Player not registered. Please try again.\r\n", MessageType.ERROR)
+        player = self.registry_service.player_registry.get_or_none(id=session.player_id)
+        error = self._login_error(character, player, getattr(connection, 'get_peer_info', lambda: None)(),
+                                  session.metadata.get('peer_host'))
+        if error:
+            # Reject before awaiting transport: re-entry must neither repeat the
+            # message nor promote this session to PLAYING, even if flags change.
+            session.metadata['login_rejected'] = True
+            session.status = SessionStatus.DISCONNECTING
+            self.logger.warning("Login rejected for character %s on session %s: %s",
+                                character.name, session.session_id, error.strip())
+            try:
+                await connection.send_text(error, MessageType.ERROR)
+            finally:
+                await connection.close()
             return None
         session.character = character
+        character.world_retired = False
         self._update_player(session, character)
         self.registry_service.character_registry.set_playing(character)
         self.logger.info(f"Player {player.first_name} {player.last_name} is now playing {character.name}.")

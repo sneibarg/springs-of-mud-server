@@ -555,3 +555,71 @@ class Item:
         if skill > 1:
             return "skill1"
         return "skill0"
+
+    @staticmethod
+    def container_volume_description(obj: Item):
+        try:
+            cap = max(0, int(obj.value0))
+            cur = max(0, int(obj.value1))
+        except (TypeError, ValueError):
+            cap = 0
+            cur = 0
+
+        if cur <= 0:
+            text = "It is empty.\r\n"
+        else:
+            if cap <= 0:
+                fill = "partly "
+            elif cur < cap / 4:
+                fill = "less than half-"
+            elif cur < (3 * cap) / 4:
+                fill = "about half-"
+            else:
+                fill = "more than half-"
+            color = getattr(obj, "liquid_color", None) or "unknown"
+            text = f"It's {fill}filled with a {color} liquid.\r\n"
+        return text
+
+    @staticmethod
+    def _is_item_flag_set(obj: Item, flag_value: int) -> bool:
+        try:
+            flags = int(getattr(obj, "extra_flags", 0) or 0)
+        except (TypeError, ValueError):
+            try:
+                flags = GameApi.convert_flags(str(getattr(obj, "extra_flags", "0") or "0"))
+            except Exception:
+                flags = 0
+        return (flags & int(flag_value)) != 0
+
+    @staticmethod
+    def format_obj_to_char(obj: Item, item_flags_enum=None, f_short: bool = True) -> str:
+        if obj is None:
+            return ""
+
+        labels = []
+        if item_flags_enum is not None:
+            if Item._is_item_flag_set(obj, item_flags_enum.ITEM_INVIS.value):
+                labels.append("(Invis)")
+            if Item._is_item_flag_set(obj, item_flags_enum.ITEM_GLOW.value):
+                labels.append("(Glowing)")
+            if Item._is_item_flag_set(obj, item_flags_enum.ITEM_HUM.value):
+                labels.append("(Humming)")
+
+        base = (obj.short_description if f_short else obj.long_description) or obj.name or "something"
+        prefix = (" ".join(labels) + " ") if labels else ""
+        return prefix + base
+
+    @staticmethod
+    def count_obj_list(target_vnum: str, items: list) -> int:
+        count = 0
+        for obj in items or []:
+            if str(getattr(obj, "vnum", "")) == target_vnum:
+                count += 1
+        return count
+
+    @staticmethod
+    def combine_items(items: list) -> dict:
+        combined = {}
+        for item in items:
+            combined.setdefault(item.vnum, []).append(item)
+        return combined

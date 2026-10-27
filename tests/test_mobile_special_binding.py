@@ -11,7 +11,7 @@ from area.Special import Special
 from area.SpecialRegistry import SpecialRegistry
 from mobile.MobileHandler import MobileHandler
 from mobile.MobileService import MobileService
-from util.MobileUtil import MobileUtil
+from mobile.MobileFactory import MobileFactory
 
 
 class MobileSpecialBindingTests(unittest.IsolatedAsyncioTestCase):
@@ -27,7 +27,8 @@ class MobileSpecialBindingTests(unittest.IsolatedAsyncioTestCase):
         self.specials.register(self.special)
         self.service = MobileService.__new__(MobileService)
         self.service.special_registry = self.specials
-        self.service._build_mobile = Mock(return_value=self.prototype)
+        self.service.game_data = SimpleNamespace(races={})
+        self.enterContext(patch.object(MobileFactory, "from_data", return_value=self.prototype))
         self.service.logger = Mock()
 
     async def test_area_loaded_before_mobile_does_not_lose_binding(self):
@@ -42,7 +43,7 @@ class MobileSpecialBindingTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(prototype.special_name, 'spec_guard')
         self.assertEqual(prototype.special_function, self.special.special_function)
         self.assertIsNot(prototype.special_function, self.special.special_function)
-        spawned = MobileUtil.create_mobile(prototype, self.enums)
+        spawned = MobileFactory.create(prototype, self.enums)
         handler = MobileHandler.__new__(MobileHandler)
         handler.logger = Mock()
         handler._flush_context_payloads = AsyncMock()
@@ -61,7 +62,7 @@ class MobileSpecialBindingTests(unittest.IsolatedAsyncioTestCase):
         reset = SimpleNamespace(arg1=prototype.vnum, arg2=2, arg3=room.id, arg4=2)
         success, spawned = handler._do_mob_reset(True, reset)
         self.assertTrue(success)
-        clone = MobileUtil.clone_mobile_instance(spawned, self.enums)
+        clone = MobileFactory.copy_instance(spawned, self.enums)
         self.assertEqual(clone.special_name, 'spec_guard')
         self.assertEqual(clone.special_function, self.special.special_function)
         spawned.special_function.clear()
@@ -75,7 +76,7 @@ class MobileSpecialBindingTests(unittest.IsolatedAsyncioTestCase):
         prototype = self.service._build_fetch_item({})
         self.assertIsNone(prototype.special_name)
         self.assertEqual(prototype.special_function, [])
-        spawned = MobileUtil.create_mobile(prototype, self.enums)
+        spawned = MobileFactory.create(prototype, self.enums)
         handler = MobileHandler.__new__(MobileHandler)
         handler.logger = Mock()
         self.assertFalse(await handler.execute_special_function(spawned, Room(id='room')))
@@ -84,7 +85,7 @@ class MobileSpecialBindingTests(unittest.IsolatedAsyncioTestCase):
         first = self.service._build_fetch_item({})
         self.special.special_function = ['lambda ctx: ctx.finish()']
         # Freshly built prototypes use the current registry on bulk or individual loads.
-        with patch.object(self.service, '_build_mobile', return_value=MobileUtil.create_mobile(first, self.enums)):
+        with patch.object(MobileFactory, 'from_data', return_value=MobileFactory.create(first, self.enums)):
             reloaded = self.service._build_fetch_item({})
         self.assertEqual(reloaded.special_function, ['lambda ctx: ctx.finish()'])
         self.assertEqual(first.special_function, ['lambda ctx: ctx.mark_performed()'])

@@ -15,12 +15,11 @@ from api.WizApi import WizApi
 from api.CharacterApi import CharacterApi
 from game.GamePayload import GamePayload
 from server.LoggerFactory import LoggerFactory
-from util.AreaUtil import AreaUtil
+from api.AreaApi import AreaApi
 from util.CommunicationsUtil import CommunicationsUtil
 from util.FightUtil import FightUtil
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
-from util.ItemUtil import ItemUtil
 from util.MovementUtil import MovementUtil
 from util.WizUtil import WizUtil
 from item.Item import Item
@@ -245,8 +244,7 @@ class InterpApi:
             "CommunicationsApi": CommunicationsApi,
             "ItemApi": ItemApi,
             "Item": Item,
-            "ItemUtil": ItemUtil,
-            "AreaUtil": AreaUtil,
+            "AreaApi": AreaApi,
             "WizApi": WizApi,
             "WizUtil": WizUtil,
             "bool": bool,

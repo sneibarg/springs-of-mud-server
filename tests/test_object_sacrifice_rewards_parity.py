@@ -2,7 +2,7 @@
 import unittest
 from tests import test_object_currency_parity as currency
 
-RealItemUtil = currency.RealItemUtil
+RealItemApi = currency.RealItemApi
 h = currency.h
 
 
@@ -24,19 +24,19 @@ class TestSacrificeRewardsParity(unittest.TestCase):
         for level, cost, expected in [(10, 0, 0), (10, 1, 1), (10, 2, 2), (10, 100, 30),
                                       (0, 100, 1), (0, 0, 0), (1, 100, 3)]:
             with self.subTest(level=level, cost=cost):
-                self.assertEqual(expected, RealItemUtil.sacrifice_silver_value(self.item(level=level, cost=cost)))
+                self.assertEqual(expected, RealItemApi.sacrifice_silver_value(self.item(level=level, cost=cost)))
 
     def test_all_supported_corpse_aliases_are_exempt_from_cost_cap(self):
         for kind in ("pc_corpse", "corpse_pc", "ITEM_CORPSE_PC", "npc_corpse", "corpse_npc", "ITEM_CORPSE_NPC"):
             with self.subTest(kind=kind):
                 item = self.item(item_type=kind, level=10, cost=0)
                 self.assertTrue(h.Item.is_corpse(item))
-                self.assertEqual(30, RealItemUtil.sacrifice_silver_value(item))
+                self.assertEqual(30, RealItemApi.sacrifice_silver_value(item))
                 item.level = 0
-                self.assertEqual(1, RealItemUtil.sacrifice_silver_value(item))
+                self.assertEqual(1, RealItemApi.sacrifice_silver_value(item))
 
     def test_string_level_is_multiplied_numerically(self):
-        self.assertEqual(6, RealItemUtil.sacrifice_silver_value(self.item(level="2", cost="100")))
+        self.assertEqual(6, RealItemApi.sacrifice_silver_value(self.item(level="2", cost="100")))
 
     def test_zero_and_one_silver_rewards_render_messages_without_autosplit(self):
         ally = self.base.member()

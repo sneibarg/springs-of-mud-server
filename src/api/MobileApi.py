@@ -15,7 +15,6 @@ from mobile.MobileContext import MobileContext
 from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
 from skill.SpellContext import SpellContext
-from util.MobileUtil import MobileUtil
 
 
 class MobileApi(GameApi):
@@ -840,7 +839,7 @@ class MobileApi(GameApi):
         if room is None or mob is None or item is None:
             return False
         room.contents.pop(str(item.id))
-        MobileUtil.add_inventory_item(mob, item)
+        mob.add_item(item)
         return True
 
     @staticmethod
@@ -899,3 +898,45 @@ class MobileApi(GameApi):
             return False
         OffenseTypes = cls.get_enum("offenseTypes")
         return cls.is_set(char.status_flags.off, OffenseTypes.ASSIST_PLAYERS.value)
+
+    @staticmethod
+    def is_train_trainer(mob, train_bit: int) -> bool:
+        mob_flags = GenericUtil.to_int(mob.status_flags.act, 0)
+        if train_bit and CharacterApi.is_set(mob_flags, train_bit):
+            return True
+
+        special_name = str(mob.special_name).strip().lower()
+        if special_name == "spec_cast_adept":
+            return True
+
+        description_text = " ".join(
+            [
+                str(mob.long_description.strip().lower()),
+                str(mob.description.strip().lower())
+            ]
+        )
+        trainer_phrases = (
+            "waiting to train you",
+            "ready to train you",
+            "ready to help you train",
+            "help you train",
+            "training young students",
+            "training students",
+        )
+        return any(phrase in description_text for phrase in trainer_phrases)
+
+    @staticmethod
+    def is_practice_trainer(mob, practice_bit: int) -> bool:
+        mob_flags = GenericUtil.to_int(mob.status_flags.act, 0)
+        if practice_bit and CharacterApi.is_set(mob_flags, practice_bit):
+            return True
+
+        special_name = str(mob.special_name).strip().lower()
+        if special_name == "spec_cast_adept":
+            return True
+
+        long_description = str(mob.long_description).strip().lower()
+        if "help you practice" in long_description or "ready to help you practice" in long_description:
+            return True
+
+        return False

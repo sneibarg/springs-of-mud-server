@@ -4,7 +4,7 @@ import unittest
 from types import SimpleNamespace as NS
 from unittest.mock import Mock
 from tests import test_object_haggle_parity as haggle
-from tests.test_object_loot_and_sacrifice_parity import RealItemUtil
+from tests.test_object_loot_and_sacrifice_parity import RealItemApi
 
 h = haggle.h
 ObjectModule = sys.modules[h.Object.__module__]
@@ -19,8 +19,9 @@ class TestShopEquipmentParity(unittest.TestCase):
         self.keeper, self.shop = self.base.keeper, self.base.shop
         self.swap = self.base.base.swap
         self.enums = self.base.base.enums
+        self.swap(RealItemApi, "get_enum", side_effect=self.enums.__getitem__)
         for module in (ObjectModule, sys.modules[h.InterpApi.__module__]):
-            self.swap(module, "ItemUtil", new=RealItemUtil)
+            self.swap(module, "ItemApi", new=RealItemApi)
         self.keeper.is_npc = True
         self.keeper.status_flags = NS(act=0, affected_by=0)
         self.actor.status_flags.affected_by = 0
@@ -189,13 +190,13 @@ class TestShopEquipmentParity(unittest.TestCase):
     def test_visibility_preserves_blind_potion_light_and_death_flag_ordering(self):
         blind = self.enums["affectedBy"].AFF_BLIND.value
         self.actor.status_flags.affected_by = blind
-        self.assertTrue(RealItemUtil.can_see_object(self.room, self.actor, self.item(item_type="potion")))
-        self.assertFalse(RealItemUtil.can_see_object(self.room, self.actor, self.item(item_type="light", value2="1")))
+        self.assertTrue(RealItemApi.can_see_object(self.room, self.actor, self.item(item_type="potion")))
+        self.assertFalse(RealItemApi.can_see_object(self.room, self.actor, self.item(item_type="light", value2="1")))
         self.actor.status_flags.affected_by = 0
         light = self.item(item_type="light", value2="1", extra_flags=str(self.enums["itemFlags"].ITEM_INVIS.value))
-        self.assertTrue(RealItemUtil.can_see_object(self.room, self.actor, light))
+        self.assertTrue(RealItemApi.can_see_object(self.room, self.actor, light))
         light.extra_flags = str(self.enums["itemFlags"].ITEM_VIS_DEATH.value)
-        self.assertFalse(RealItemUtil.can_see_object(self.room, self.actor, light))
+        self.assertFalse(RealItemApi.can_see_object(self.room, self.actor, light))
 
     def test_wield_checks_strength_after_previous_weapon_effects_are_removed(self):
         flag = self.enums["wearFlags"].ITEM_WIELD.value

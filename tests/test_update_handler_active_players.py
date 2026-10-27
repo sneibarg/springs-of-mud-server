@@ -395,7 +395,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         room = SimpleNamespace(contents={}, characters={}, mobiles={}, players_in_room=lambda: ["observer"])
         room.remove_item_from_room = lambda item: room.contents.pop(item.id, None)
         registries.room_registry.all_rooms.return_value = [room]
-        handler.tick_effects = AsyncMock()
+        handler.effect_update_handler.expired_messages = Mock(return_value=[])
         item = SimpleNamespace(id="stock", short_description="a trinket", item_type="ITEM_TRASH",
                                cost=29, timer=1, wear_loc=-1, contains=[])
         return handler, registries, bus, room, item
@@ -553,7 +553,6 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
                     room.characters["owner"] = SimpleNamespace(id="owner", loot=[bag], equipped=None)
                 else:
                     room.contents[bag.id] = bag
-                del handler.tick_effects  # restore production effect/message routing
                 effects = handler.effect_update_handler
                 effects.expired_messages = Mock(side_effect=lambda target, field: ["$p loses its glow."] if target is item else [])
                 asyncio.run(handler.update())

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from api.MobileApi import MobileApi
 
 import random
 
@@ -14,8 +15,6 @@ from api.InterpApi import InterpApi
 from api.MovementApi import MovementApi
 from combat.CombatHandler import FightHandler
 from item.Item import Item
-from util.EnumUtil import EnumUtil
-from util.MobileUtil import MobileUtil
 from util.PayloadUtil import PayloadUtil
 from util.PlayerUtil import PlayerUtil
 from player.Character import Character
@@ -511,7 +510,7 @@ class Movement:
         if room is not None:
             train_bit = act_bits.ACT_TRAIN.value if act_bits is not None else 0
             for mob in room.mobiles.values():
-                if MobileUtil.is_train_trainer(mob, train_bit):
+                if MobileApi.is_train_trainer(mob, train_bit):
                     trainer_found = True
                     break
         if not trainer_found:
@@ -746,7 +745,7 @@ class Movement:
         if room is None:
             return None
         act_bits = self.act_bits or CharacterApi.get_enum("actBits")
-        gain_bit = EnumUtil.value(act_bits, "ACT_GAIN")
+        gain_bit = EnumProvider.value(act_bits, "ACT_GAIN")
         for mob in list((getattr(room, "mobiles", {}) or {}).values()):
             if gain_bit and CharacterApi.is_set(self._mobile_act(mob), gain_bit) and self._can_see_character(character, mob, room):
                 return mob
@@ -875,7 +874,7 @@ class Movement:
 
     def _is_portal(self, item) -> bool:
         item_type = getattr(item, "item_type", "")
-        portal_type = EnumUtil.value(self.item_types, "ITEM_PORTAL")
+        portal_type = EnumProvider.value(self.item_types, "ITEM_PORTAL")
         if portal_type and GenericUtil.to_int(item_type, None) == portal_type:
             return True
         return "portal" in str(item_type or "").strip().lower()
@@ -883,13 +882,13 @@ class Movement:
     def _portal_closed(self, portal, character) -> bool:
         if CharacterApi.is_immortal(character):
             return False
-        closed_bit = EnumUtil.value(self.exit_flags, "EX_CLOSED")
+        closed_bit = EnumProvider.value(self.exit_flags, "EX_CLOSED")
         return bool(closed_bit and (GenericUtil.to_int(getattr(portal, "value1", 0), 0) & closed_bit))
 
     def _portal_curse_blocked(self, portal, character, room) -> bool:
         if CharacterApi.is_immortal(character) or self._portal_flag(portal, "GATE_NOCURSE"):
             return False
-        no_recall = EnumUtil.value(self.room_flags, "ROOM_NO_RECALL")
+        no_recall = EnumProvider.value(self.room_flags, "ROOM_NO_RECALL")
         return CharacterApi.is_affected_by_name(character, self.affected_bits, "AFF_CURSE") or bool(room is not None and no_recall and (GenericUtil.to_int(getattr(room, "room_flags", 0), 0) & no_recall))
 
     def _portal_destination(self, portal, current_room):
@@ -912,7 +911,7 @@ class Movement:
         return random.choice(rooms) if rooms else None
 
     def _portal_flag(self, portal, flag_name: str) -> bool:
-        bit = EnumUtil.value(self.gate_flags, flag_name)
+        bit = EnumProvider.value(self.gate_flags, flag_name)
         return bool(bit and (GenericUtil.to_int(getattr(portal, "value2", 0), 0) & bit))
 
     def _room_private_for(self, room, character) -> bool:
@@ -924,8 +923,8 @@ class Movement:
     def _aggressive_npc_law_blocked(self, character, destination) -> bool:
         if not CharacterApi.is_npc(character):
             return False
-        aggressive = EnumUtil.value(self.act_bits, "ACT_AGGRESSIVE")
-        law = EnumUtil.value(self.room_flags, "ROOM_LAW")
+        aggressive = EnumProvider.value(self.act_bits, "ACT_AGGRESSIVE")
+        law = EnumProvider.value(self.room_flags, "ROOM_LAW")
         return bool(aggressive and law and (self._mobile_act(character) & aggressive) and (GenericUtil.to_int(getattr(destination, "room_flags", 0), 0) & law))
 
     @staticmethod

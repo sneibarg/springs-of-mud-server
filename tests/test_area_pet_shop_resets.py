@@ -4,6 +4,7 @@ import textwrap
 import unittest
 
 
+
 class TestAreaPetShopResets(unittest.TestCase):
     def test_pet_shop_mobile_resets_set_act_pet(self):
         code = r'''
@@ -105,6 +106,9 @@ class MobileUtil:
         return None
 mobile_util.MobileUtil = MobileUtil
 sys.modules["util.MobileUtil"] = mobile_util
+mobile_factory = types.ModuleType("mobile.MobileFactory")
+mobile_factory.MobileFactory = SimpleNamespace(create=MobileUtil.create_mobile)
+sys.modules["mobile.MobileFactory"] = mobile_factory
 
 item_util = types.ModuleType("util.ItemUtil")
 class ItemUtil:
@@ -141,6 +145,7 @@ for module_name, class_name in (
     setattr(module, class_name, object)
     sys.modules[module_name] = module
 
+sys.modules["game.Equipped"].WEAR_LOC_TO_EQUIPPED_SLOT = {}
 from area.AreaHandler import AreaHandler
 from area.Reset import Reset
 
@@ -209,7 +214,7 @@ stock = room(3032)
 handler = build_handler({"3031": shop, "3032": stock})
 handler.mobile_registry.get.return_value = SimpleNamespace(vnum="3090", room_id="", specials=[])
 live_mob = SimpleNamespace(id="mob1", vnum="3090", status_flags=TestStatusFlags())
-with patch("area.AreaHandler.MobileUtil.create_mobile", return_value=live_mob):
+with patch("area.AreaHandler.MobileFactory.create", return_value=live_mob):
     last, mob = handler._do_mob_reset(True, reset(3090, 3032))
 assert last is True
 assert mob is live_mob
@@ -222,7 +227,7 @@ back_room = room(9706)
 handler = build_handler({"9621": nabil, "9705": hall, "9706": back_room})
 handler.mobile_registry.get.return_value = SimpleNamespace(vnum="3097", room_id="", specials=[])
 live_mob = SimpleNamespace(id="mob2", vnum="3097", status_flags=TestStatusFlags())
-with patch("area.AreaHandler.MobileUtil.create_mobile", return_value=live_mob):
+with patch("area.AreaHandler.MobileFactory.create", return_value=live_mob):
     handler._do_mob_reset(True, reset(3097, 9706))
 assert live_mob.status_flags.act == ActBits.ACT_PET.value
 
@@ -231,7 +236,7 @@ plain_room = room(4001)
 handler = build_handler({"4000": plain_previous, "4001": plain_room})
 handler.mobile_registry.get.return_value = SimpleNamespace(vnum="400", room_id="", specials=[])
 live_mob = SimpleNamespace(id="mob3", vnum="400", status_flags=TestStatusFlags())
-with patch("area.AreaHandler.MobileUtil.create_mobile", return_value=live_mob):
+with patch("area.AreaHandler.MobileFactory.create", return_value=live_mob):
     handler._do_mob_reset(True, reset(400, 4001))
 assert live_mob.status_flags.act == 0
 
@@ -248,7 +253,7 @@ pet = SimpleNamespace(
     area_id="midgaard",
     status_flags=TestStatusFlags(),
 )
-with patch("area.Shop.MobileUtil.create_mobile", return_value=pet):
+with patch("area.Shop.MobileFactory.create", return_value=pet):
     purchased = Shop.complete_pet_purchase(
         buyer,
         shop_room,
@@ -271,11 +276,15 @@ assert pet.status_flags.comm == (CommFlags.COMM_NOTELL.value | CommFlags.COMM_NO
 assert pet.name == "kitten fluffy"
 assert buyer.gold == 4 and buyer.silver == 75
 
+fight_handler_module = types.ModuleType("combat.CombatHandler")
+fight_handler_module.FightHandler = object
+sys.modules["combat.CombatHandler"] = fight_handler_module
 from interp.commands.Object import Object
 
 commands = Object.__new__(Object)
 registered = []
 commands.registry_service = SimpleNamespace(character_registry=SimpleNamespace(register=lambda entity: registered.append(entity)))
+commands._haggle_transaction = lambda *_args: ""
 commands.act_bits = ActBits
 commands.affected_bits = AffectedBits
 commands.comm_flags = CommFlags

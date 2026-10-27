@@ -11,7 +11,7 @@ from player.Character import Character
 from player.CharacterAdvancement import CharacterAdvancement
 from player.CharacterClass import CharacterClass
 from player.CharacterRace import CharacterRace
-from util.AreaUtil import AreaUtil
+from api.AreaApi import AreaApi
 from util.GenericUtil import GenericUtil
 from util.WizUtil import WizUtil
 
@@ -364,7 +364,7 @@ class WizSetApi:
             return self._payload("room_syntax")
 
         location_name, field_name, value_text = parts
-        location = AreaUtil.find_location(location_name, self.room_registry, self.character_registry, WizUtil.name_matches)
+        location = AreaApi.find_location(location_name, self.room_registry, self.character_registry, WizUtil.name_matches)
         if location is None:
             context.finish()
             return self._payload("no_such_location")

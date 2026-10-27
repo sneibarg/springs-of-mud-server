@@ -10,9 +10,11 @@ from tests import test_object_get_dynamic_commands as harness
 
 
 RealItemApi = harness._load_module("loot_parity_item_api", "api/ItemApi.py").ItemApi
-with patch.dict(sys.modules, {"item.ItemRegistry": NS(ItemRegistry=object)}):
-    with patch.object(builtins, "Room", object, create=True):
-        RealItemUtil = harness._load_module("loot_parity_item_util", "util/ItemUtil.py").ItemUtil
+
+
+from api.ItemApi import ItemApi
+
+ItemFactory = harness._load_module("parity_item_factory", "item/ItemFactory.py").ItemFactory
 
 
 class WearFlags(IntEnum):
@@ -34,16 +36,16 @@ class TestObjectLootAndSacrificeParity(unittest.TestCase):
         object_module = sys.modules[harness.Object.__module__]
         interp_module = sys.modules[harness.InterpApi.__module__]
         for module in (object_module, interp_module):
-            for name, value in (("ItemApi", RealItemApi), ("ItemUtil", RealItemUtil)):
+            for name, value in (("ItemApi", RealItemApi),):
                 swap = patch.object(module, name, value)
                 swap.start()
                 self.addCleanup(swap.stop)
         enums = {"wearFlags": WearFlags, "playerActBits": PlayerFlags,
-                 "containerState": ContainerFlags}
+                 "containerState": ContainerFlags, "wellKnownObjectVnums": NS(OBJ_VNUM_PIT=NS(value=999))}
         swap = patch.object(RealItemApi, "get_enum", side_effect=enums.__getitem__)
         swap.start()
         self.addCleanup(swap.stop)
-        swap = patch.object(RealItemUtil, "can_see_object", return_value=True)
+        swap = patch.object(RealItemApi, "can_see_object", return_value=True)
         swap.start()
         self.addCleanup(swap.stop)
         swap = patch.object(harness._CharacterApi, "is_same_group", create=True,

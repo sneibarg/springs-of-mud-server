@@ -200,10 +200,6 @@ class _MovementUtil:
         return {"north": 0, "east": 1, "south": 2, "west": 3, "up": 4, "down": 5}.get(direction, -1)
 
     @staticmethod
-    def find_exit(room, direction: int):
-        return None if room is None else room.get_exit(direction)
-
-    @staticmethod
     def sector_cost(_sector_type) -> int:
         return 1
 
@@ -231,7 +227,6 @@ _stub_package("util")
 _load_module("util.GenericUtil", "util/GenericUtil.py")
 _stub_module("util.MovementUtil", MovementUtil=_MovementUtil)
 _stub_module("util.MobileUtil", MobileUtil=SimpleNamespace(is_train_trainer=lambda *_args, **_kwargs: False))
-_stub_module("util.AreaUtil", AreaUtil=SimpleNamespace())
 _stub_module("util.CommunicationsUtil", CommunicationsUtil=SimpleNamespace(
     ensure_message_break=lambda text: text if str(text).endswith("\r\n") else f"{text}\r\n",
     split_first=lambda text: tuple(((text or "").split(maxsplit=1) + ["", ""])[:2]),

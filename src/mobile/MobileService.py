@@ -1,7 +1,7 @@
 from typing import Optional
 from injector import inject
 from mobile.Mobile import Mobile
-from util.MobileUtil import MobileUtil
+from mobile.MobileFactory import MobileFactory
 from server.FetchAndRegisterMixin import FetchAndRegisterMixin
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
@@ -37,7 +37,7 @@ class MobileService(FetchAndRegisterMixin):
         return self._fetch_and_register(url, f"mobile '{mobile_name}'")
 
     def _build_fetch_item(self, raw_mobile) -> Optional[Mobile]:
-        mobile = self._build_mobile(raw_mobile)
+        mobile = MobileFactory.from_data(raw_mobile, self.game_data.races)
         if mobile is None:
             self.logger.error(f"Failed to build mobile for {raw_mobile}")
         else:
@@ -49,13 +49,3 @@ class MobileService(FetchAndRegisterMixin):
 
     def _register_fetch_item(self, mobile: Mobile) -> None:
         self.mobile_registry.register(mobile)
-
-    def _build_mobile(self, raw_mobile) -> Optional[Mobile]:
-        from util.GenericUtil import GenericUtil
-
-        converted_mobile = GenericUtil.camel_to_snake_case(raw_mobile)
-        mobile_id = MobileUtil.resolve_mobile_id(converted_mobile, raw_mobile)
-        if mobile_id is None:
-            return None
-
-        return MobileUtil.build_mobile(mobile_id, self.game_data.races, converted_mobile)

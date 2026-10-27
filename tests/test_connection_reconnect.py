@@ -33,7 +33,8 @@ class ReconnectTests(unittest.IsolatedAsyncioTestCase):
         self.wiz = Mock(wiznet_targets=Mock(return_value=[]))
         self.handler = ConnectionHandler(self.manager, self.sessions, self.bus, self.registries,
                                          Mock(), Mock(), Mock(), Mock(), self.wiz)
-        self.patches = [patch('server.handlers.ConnectionHandler.CharacterApi.get_enum', return_value=SimpleNamespace(POS_RESTING=SimpleNamespace(value=5))),
+        self.patches = [patch('server.handlers.ConnectionHandler.GameApi.check_ban', return_value=False),
+                        patch('server.handlers.ConnectionHandler.CharacterApi.get_enum', return_value=SimpleNamespace(POS_RESTING=SimpleNamespace(value=5))),
                         patch('server.handlers.ConnectionHandler.CharacterApi.position_value', return_value=8),
                         patch('server.handlers.ConnectionHandler.CharacterApi.can_see', return_value=True)]
         for p in self.patches:

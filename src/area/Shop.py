@@ -1,13 +1,12 @@
+from mobile.MobileFactory import MobileFactory
+from item.ItemFactory import ItemFactory
 from dataclasses import dataclass
 from enum import IntEnum
 from api.CharacterApi import CharacterApi
 from api.GameApi import GameApi
 from api.ItemApi import ItemApi
 from item.Item import Item
-from util.MobileUtil import MobileUtil
 from util.InterpUtil import InterpUtil
-from util.EffectUtil import EffectUtil
-from util.ItemUtil import ItemUtil
 from server.LoggerFactory import LoggerFactory
 from util.GenericUtil import GenericUtil
 
@@ -152,7 +151,7 @@ class Shop:
         for item in list(keeper.inventory or []):
             if self._is_item_worn(item):
                 continue
-            if not ItemUtil.can_see_object(room, character, item):
+            if not ItemApi.can_see_object(room, character, item):
                 continue
             stock.append(item)
         return stock
@@ -235,7 +234,7 @@ class Shop:
         current_item = item
         for _ in range(max(0, GenericUtil.to_int(quantity, 0))):
             if self.is_inventory_item(current_item, item_flags):
-                purchased = ItemUtil.create_object(current_item)
+                purchased = ItemFactory.create(current_item)
             else:
                 purchased = current_item
                 self.remove_keeper_item(keeper, purchased)
@@ -250,7 +249,7 @@ class Shop:
 
     @classmethod
     def complete_pet_purchase(cls, buyer, room, pet_proto, pet_name: str, cost: int, act_bits, affected_bits, comm_flags):
-        pet = MobileUtil.create_mobile(pet_proto, CharacterApi.enum_provider())
+        pet = MobileFactory.create(pet_proto, CharacterApi.enum_provider())
         pet_bit = CharacterApi.enum_bit(act_bits, "ACT_PET")
         charm_bit = CharacterApi.enum_bit(affected_bits, "AFF_CHARM")
         if pet_bit:
@@ -301,14 +300,11 @@ class Shop:
 
         return self._charge_adjusted_price(item, price)
 
-    def complete_sale(self, seller, keeper, item, cost: int, item_flags, effect_handler=None):
+    def complete_sale(self, seller, keeper, item, cost: int, item_flags, *, effect_handler):
         slot = seller.equipped_slot_of(item)
         if slot:
-            if effect_handler is not None:
-                effect_handler.remove_item_effects(seller, item)
-            else:
-                EffectUtil.remove_item_effects(seller, item)
-            ItemUtil.unequip_item(seller, slot)
+            effect_handler.remove_item_effects(seller, item)
+            seller.unequip_item(slot)
         seller.remove_item(item)
 
         self._add_money(seller, cost)

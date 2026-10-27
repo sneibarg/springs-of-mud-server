@@ -240,9 +240,7 @@ class EffectHandler:
         raw_type = str(getattr(effect, "type", "") or "").strip().lower()
         if raw_type in ("sn", "skill", "spell"):
             effect.type = str(getattr(spell, "handler_id", "") or getattr(spell, "name", ""))
-        effect.level = EffectUtil._eval_expr(getattr(effect, "level", 0), caster_level, int(caster_level))
-        effect.duration = EffectUtil._eval_expr(getattr(effect, "duration", 0), caster_level, 0)
-        effect.modifier = EffectUtil._eval_expr(getattr(effect, "modifier", 0), caster_level, 0)
+        effect.evaluate_expressions(caster_level, EffectUtil.safe_eval_int)
         return effect
 
     def apply_spell_effects(self, caster, victim, spell, *, caster_level: int | None = None,
@@ -271,19 +269,19 @@ class EffectHandler:
                     self.affect_to_char(victim, effect)
 
     def apply_item_effects(self, character, item) -> None:
+        self.remove_item_effects(character, item)
         item._effect_wearer = character
         effects = list(getattr(item, "effects", []) or [])
         if not effects:
             return
-        source = f"item:{getattr(item, 'id', '')}:{id(item)}"
+        source = Effect.item_source(item.id)
         for affect_like in effects:
             effect = self.as_effect(affect_like, source=source)
             self.affect_to_char(character, effect)
 
     def remove_item_effects(self, character, item) -> None:
-        source = f"item:{getattr(item, 'id', '')}:{id(item)}"
         for effect in list(self.ensure_effects(character)):
-            if getattr(effect, "source", "") == source:
+            if effect.belongs_to_item(item.id):
                 self.remove_effect(character, effect)
         if getattr(item, "_effect_wearer", None) is character:
             item._effect_wearer = None
@@ -301,16 +299,10 @@ class EffectHandler:
         matching = [effect for effect in self.ensure_effects(victim)
                     if str(getattr(effect, "type", "")).strip().lower() == want]
         for effect in matching:
-            if not EffectUtil.saves_dispel(
-                dis_level,
-                GenericUtil.to_int(getattr(effect, "level", 0), 0),
-                GenericUtil.to_int(getattr(effect, "duration", 0), 0),
-            ):
+            if effect.try_dispel(dis_level, EffectUtil.saves_dispel):
                 for removed in matching:
                     self.remove_effect(victim, removed)
                 return matching
-            else:
-                effect.level = GenericUtil.to_int(getattr(effect, "level", 0), 0) - 1
         return []
 
     def check_dispel(self, dis_level: int, victim, effect_type) -> bool:

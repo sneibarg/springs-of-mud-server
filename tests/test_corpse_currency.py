@@ -35,10 +35,8 @@ class TestCorpseCurrency(unittest.TestCase):
         self.handler.PlayerActBits = SimpleNamespace(PLR_CANLOOT=8)
         self.money_factory = Mock(side_effect=lambda gold, silver, *_args: SimpleNamespace(gold=gold, silver=silver))
         self.object_factory = Mock(side_effect=lambda _prototype: Item.from_json(self._document()))
-        patcher = patch.object(Runtime, "ItemUtil", SimpleNamespace(create_money=self.money_factory,
-                                                                   create_object=self.object_factory))
-        patcher.start()
-        self.addCleanup(patcher.stop)
+        self.enterContext(patch.object(Runtime.ItemFactory, "create", self.object_factory))
+        self.enterContext(patch.object(Runtime.ItemFactory, "create_money", self.money_factory))
         patcher = patch.object(Runtime.CharacterApi, "unset_act_flags", create=True,
                                side_effect=lambda entity, bit: setattr(entity.status_flags, "act", entity.status_flags.act & ~int(bit)))
         self.unset_flags = patcher.start()

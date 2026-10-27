@@ -70,6 +70,9 @@ from area.AreaHandler import AreaHandler
 from area.Reset import Reset
 
 
+
+from item.ItemFactory import ItemFactory
+from mobile.MobileFactory import MobileFactory
 class TestAreaShopResets(unittest.TestCase):
     def _build_handler(self, *, shop_lookup):
         room = SimpleNamespace(id="room1", area_id="area1", mobiles={})
@@ -121,8 +124,8 @@ class TestAreaShopResets(unittest.TestCase):
         live_mob = SimpleNamespace(id="mob1", vnum="100", inventory=[])
         created_item = SimpleNamespace(extra_flags=0)
 
-        with patch("area.AreaHandler.MobileUtil.create_mobile", return_value=live_mob), \
-             patch("area.AreaHandler.ItemUtil.create_object", return_value=created_item):
+        with patch("area.AreaHandler.MobileFactory.create", return_value=live_mob), \
+             patch("area.AreaHandler.ItemFactory.create", return_value=created_item):
             handler._reset_area(self._build_area_with_g_reset())
 
         self.assertEqual([created_item], live_mob.inventory)
@@ -139,8 +142,8 @@ class TestAreaShopResets(unittest.TestCase):
         live_mob = SimpleNamespace(id="mob2", vnum="101", inventory=[])
         created_item = SimpleNamespace(extra_flags=0)
 
-        with patch("area.AreaHandler.MobileUtil.create_mobile", return_value=live_mob), \
-             patch("area.AreaHandler.ItemUtil.create_object", return_value=created_item):
+        with patch("area.AreaHandler.MobileFactory.create", return_value=live_mob), \
+             patch("area.AreaHandler.ItemFactory.create", return_value=created_item):
             handler._reset_area(self._build_area_with_g_reset())
 
         self.assertEqual([created_item], live_mob.inventory)

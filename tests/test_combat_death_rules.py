@@ -15,7 +15,7 @@ Runtime = sys.modules[fixtures.FightHandler.__module__]
 def load_classes():
     stubs = {name: SimpleNamespace(**{attr: object}) for name, attr in (
         ("area.Shop", "Shop"), ("game.WeatherHandler", "WeatherHandler"), ("item.Effect", "Effect"),
-        ("item.EffectHandler", "EffectHandler"), ("util.EnumUtil", "EnumUtil"),
+        ("item.EffectHandler", "EffectHandler"),
         ("api.InterpApi", "InterpApi"), ("api.CommunicationsApi", "CommunicationsApi"), ("api.SpellApi", "SpellApi"),
         ("skill.SpellContext", "SpellContext"), ("util.PlayerUtil", "PlayerUtil"))}
     stubs["interp.Context"] = Components["interp.Context"]
@@ -71,8 +71,8 @@ class TestCombatDeathRules(unittest.TestCase):
         with patch.object(Runtime, "Item", SimpleNamespace(is_npc_corpse=lambda item: True, short=lambda item: item.short_description)), \
                 patch.object(Runtime.ItemApi, "item_takeable", return_value=True, create=True), \
                 patch.object(Runtime.ItemApi, "has_item_flag", return_value=False, create=True), \
-                patch.object(Runtime.ItemUtil, "sacrifice_silver_value", return_value=9, create=True), \
-                patch.object(Runtime.ItemUtil, "sacrifice_reward_message", return_value="reward", create=True):
+                patch.object(Runtime.ItemApi, "sacrifice_silver_value", return_value=9, create=True), \
+                patch.object(Runtime, "bundled_payload", return_value=SimpleNamespace(render=lambda channel, key, **tokens: "reward" if channel == "to_char" else "room"), create=True):
             payload = self.combat._autosacrifice_corpse(self.actor, corpse, self.room)
         self.assertEqual(before + 9, self.actor.silver)
         args, kwargs = self.objects._autosplit.call_args
@@ -80,7 +80,7 @@ class TestCombatDeathRules(unittest.TestCase):
         self.assertIsNone(args[2].handler_service)
         self.assertEqual(9, args[3])
         self.assertEqual({"sacrifice": True}, kwargs)
-        self.assertEqual("reward", payload["payloads"][0]["to_char"])
+        self.assertEqual("reward\r\n", payload["payloads"][0]["to_char"])
         self.assertIs(split, payload["payloads"][1])
         self.assertIn("to_room", payload["payloads"][2])
         self.room.remove_item_from_room.assert_called_once_with(corpse)
@@ -177,7 +177,7 @@ class TestCombatDeathRules(unittest.TestCase):
             _player_act_enabled=lambda actor, name: name in ("PLR_AUTOGOLD", "PLR_AUTOSAC"),
             _autosacrifice_corpse=Mock(return_value={"to_char": "sac"}))
         self.objects._get_one = Mock(return_value={"to_char": "coins"})
-        with patch.object(DeathModule.ItemUtil, "can_see_object", return_value=True, create=True):
+        with patch.object(DeathModule.ItemApi, "can_see_object", return_value=True, create=True):
             self.death.auto_loot(combat, self.actor, self.victim, self.room, set())
             self.objects._get_one.assert_called_once()
             self.assertIs(money, self.objects._get_one.call_args.args[3])
@@ -224,7 +224,7 @@ class TestCombatDeathRules(unittest.TestCase):
         gain.assert_not_called()
         corpse = SimpleNamespace(item_type="corpse_npc", contains=[object()])
         combat = SimpleNamespace(_find_latest_corpse=Mock(return_value=corpse))
-        with patch.object(DeathModule.ItemUtil, "can_see_object", return_value=False, create=True):
+        with patch.object(DeathModule.ItemApi, "can_see_object", return_value=False, create=True):
             self.assertEqual([], self.death.auto_loot(combat, self.actor, self.victim, self.room, set()))
 
     def test_death_penalty_uses_total_xp_floor_independently_of_progress(self):

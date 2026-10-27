@@ -2,7 +2,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, Optional, List, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from game.SiteBans import SiteBans
+
+
+def _new_site_bans():
+    # GameData is also loaded directly by isolated consumers before game.__init__.
+    from game.SiteBans import SiteBans
+    return SiteBans()
 
 
 @dataclass(frozen=True)
@@ -28,13 +37,14 @@ class GameData:
     liquids: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     integrity: Integrity = field(default_factory=lambda: Integrity("", BuildInfo("", "")))
     denyList: List[str] = field(default_factory=list)
+    site_bans: SiteBans = field(default_factory=_new_site_bans)
 
     @staticmethod
     def from_json(doc: Dict[str, Any]) -> "GameData":
         _id = doc.get("_id", doc.get("id"))
         if not _id:
             raise KeyError("GameData requires '_id' (or 'id')")
-        return GameData(
+        result = GameData(
             id=_id,
             kind=doc["kind"],
             status=doc.get("status", "active"),
@@ -57,6 +67,8 @@ class GameData:
             integrity=Integrity.from_dict(doc.get("integrity") or {}),
             denyList=list(doc.get("denyList") or []),
         )
+        result.site_bans.load_bans(doc.get('bans'))
+        return result
 
 
 @dataclass(frozen=True)

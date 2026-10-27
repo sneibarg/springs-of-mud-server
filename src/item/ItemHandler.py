@@ -1,3 +1,6 @@
+from util.LookupUtil import LookupUtil
+from area.Room import Room
+from api.ItemApi import ItemApi
 from injector import inject
 
 from api.CharacterApi import CharacterApi
@@ -5,9 +8,7 @@ from game.RegistryService import RegistryService
 from interp.Context import Context
 from item.Item import Item
 from util.CommunicationsUtil import CommunicationsUtil
-from util.InfoUtil import InfoUtil
 from util.InterpUtil import InterpUtil
-from util.ItemUtil import ItemUtil
 from player.Character import Character
 from server.messaging import MessageBus
 
@@ -23,7 +24,7 @@ class ItemHandler:
         room = self.room_registry.get(id=character.room_id)
         if room is None:
             return
-        lines = ItemUtil.room_items(room)
+        lines = Room.item_description_lines(room)
         if lines:
             message = self.message_bus.text_to_message("\r\n".join(lines) + "\r\n")
             await self.message_bus.send_to_character(character.id, message)
@@ -38,7 +39,7 @@ class ItemHandler:
         obj = character.find_inventory_item(arg2) or (None if room is None else room.find_room_item(arg2))
 
         if Item.is_drink_container(obj):
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(ItemUtil.container_volume_description(obj)))
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(Item.container_volume_description(obj)))
             context.finish()
             return
 
@@ -61,7 +62,7 @@ class ItemHandler:
         token = (arg3 or "").strip().lower()
 
         for item in list(character.get_items()) + list(room.contents.values()):
-            if not ItemUtil.can_see_object(room, character, item):
+            if not ItemApi.can_see_object(room, character, item):
                 continue
 
             extra = getattr(item, "extra_description", None)
@@ -70,22 +71,22 @@ class ItemHandler:
             if isinstance(extra, dict):
                 extra_keyword = extra.get("keyword")
                 extra_description = extra.get("description")
-            if extra and InfoUtil.look_keyword_matches(token, extra_keyword or ""):
-                if InfoUtil.look_register_match(context):
+            if extra and LookupUtil.keyword_matches(token, extra_keyword or ""):
+                if context.register_match():
                     await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message((extra_description or "") + "\r\n"))
                     context.finish()
                     return
 
-            if InfoUtil.look_keyword_matches(token, item.name or ""):
-                if InfoUtil.look_register_match(context):
+            if LookupUtil.keyword_matches(token, item.name or ""):
+                if context.register_match():
                     text = (item.long_description or item.short_description or item.name or "You see nothing special.") + "\r\n"
                     await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
                     context.finish()
                     return
 
         room_extra = getattr(room, "extra_description", None)
-        if room_extra and InfoUtil.look_keyword_matches(token, room_extra.keyword or ""):
-            if InfoUtil.look_register_match(context):
+        if room_extra and LookupUtil.keyword_matches(token, room_extra.keyword or ""):
+            if context.register_match():
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(
                     (room_extra.description or "") + "\r\n"))
                 context.finish()
@@ -112,7 +113,7 @@ class ItemHandler:
         items = character.get_items()
         msg = "\r\n\nYou are carrying:\r\n"
         if CommunicationsUtil.has_comm(character, CharacterApi.get_enum("commFlags"), "COMM_COMBINE"):
-            item_totals = ItemUtil.combine_items(items)
+            item_totals = Item.combine_items(items)
             for vnum in item_totals:
                 the_item = item_totals[vnum]
                 if 10 > len(the_item) > 1:

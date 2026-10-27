@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from mobile.MobileFactory import MobileFactory
+
+from item.ItemFactory import ItemFactory
+
 from injector import inject
 
 from api.CharacterApi import CharacterApi
@@ -15,16 +19,15 @@ from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
 from game.WizHandler import WizHandler
 from interp.Context import Context
+from interp.CommandDefaults import render_command_message
 from item.ExtraDescriptionData import ExtraDescriptionData
 from notes.InGameNote import InGameNoteEnum
 from player.Character import Character
 from player.CharacterService import CharacterService
 from player.PlayerService import PlayerService
 from server.LoggerFactory import LoggerFactory
-from util.AreaUtil import AreaUtil
+from api.AreaApi import AreaApi
 from util.GenericUtil import GenericUtil
-from util.ItemUtil import ItemUtil
-from util.MobileUtil import MobileUtil
 from util.PayloadUtil import PayloadUtil
 from util.WizUtil import WizUtil
 
@@ -259,7 +262,7 @@ class Wiz:
             return blocked
 
         location_arg, nested_command = WizUtil.split_argument(WizUtil.argument_text(context.result, context.parameters))
-        room = AreaUtil.find_location(location_arg, self.room_registry, self.character_registry, WizUtil.name_matches)
+        room = AreaApi.find_location(location_arg, self.room_registry, self.character_registry, WizUtil.name_matches)
         if room is None:
             context.finish()
             return PayloadUtil.command_payload("no_such_location")
@@ -277,7 +280,7 @@ class Wiz:
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
             return blocked
-        room = AreaUtil.find_location(WizUtil.argument_text(context.result, context.parameters), self.room_registry, self.character_registry, WizUtil.name_matches)
+        room = AreaApi.find_location(WizUtil.argument_text(context.result, context.parameters), self.room_registry, self.character_registry, WizUtil.name_matches)
         from_room = WizUtil.move_entity(self.room_registry, character, room)
         if from_room is None or room is None:
             context.finish()
@@ -302,7 +305,7 @@ class Wiz:
         if victim is None:
             context.finish()
             return {"to_char": "They aren't here.\r\n"}
-        room = self.room_registry.get_or_none(id=character.room_id) if not destination else AreaUtil.find_location(destination, self.room_registry, self.character_registry, WizUtil.name_matches)
+        room = self.room_registry.get_or_none(id=character.room_id) if not destination else AreaApi.find_location(destination, self.room_registry, self.character_registry, WizUtil.name_matches)
         if room is None:
             context.finish()
             return {"to_char": "No such location.\r\n"}
@@ -603,7 +606,7 @@ class Wiz:
             if proto is None:
                 context.finish()
                 return PayloadUtil.command_payload("no_such_mobile")
-            mob = MobileUtil.create_mobile(proto, CharacterApi.enum_provider())
+            mob = MobileFactory.create(proto, CharacterApi.enum_provider())
             room.add_mobile_to_room(mob)
             self.character_registry.register(mob)
             context.finish()
@@ -634,12 +637,12 @@ class Wiz:
             if proto is None:
                 context.finish()
                 return PayloadUtil.command_payload("no_such_object")
-            obj = ItemUtil.create_object(proto)
+            obj = ItemFactory.create(proto)
             obj.level = level
             if ItemApi.item_takeable(obj, self.WearFlagsEnum) and not CharacterApi.is_npc(character):
                 character.add_item(obj)
             elif ItemApi.item_takeable(obj, self.WearFlagsEnum) and CharacterApi.is_npc(character):
-                MobileUtil.add_inventory_item(character, obj)
+                character.add_item(obj)
             else:
                 room.add_item_to_room(obj)
             context.finish()
@@ -898,11 +901,11 @@ class Wiz:
             if not WizUtil.can_clone_object(character, obj):
                 context.finish()
                 return PayloadUtil.command_payload("insufficient_level")
-            clone = ItemUtil.clone_object_instance(obj)
+            clone = ItemFactory.copy_instance(obj)
             if room is not None and obj in room.contents.values():
                 room.add_item_to_room(clone)
             elif CharacterApi.is_npc(character):
-                MobileUtil.add_inventory_item(character, clone)
+                character.add_item(clone)
             else:
                 character.add_item(clone)
             context.finish()
@@ -917,7 +920,7 @@ class Wiz:
         if not WizUtil.can_clone_mobile(character, mob):
             context.finish()
             return PayloadUtil.command_payload("insufficient_level")
-        clone = MobileUtil.clone_mobile_instance(mob, CharacterApi.enum_provider())
+        clone = MobileFactory.copy_instance(mob, CharacterApi.enum_provider())
         if room is not None:
             room.add_mobile_to_room(clone)
             self.character_registry.register(clone)
@@ -940,15 +943,21 @@ class Wiz:
             return blocked
         return self.wiz_set_api.flag(character, context)
 
-    def do_allow(self, _character: Character, context: Context):
-        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
-        if blocked is not None:
-            return blocked
+    def do_allow(self, character: Character, context: Context):
         site = WizUtil.split_argument(WizUtil.argument_text(context.result, context.parameters))[0]
-        GameApi.remove_denied_site(site)
-        self._save_deny_list()
         context.finish()
-        return PayloadUtil.command_payload("removed", tokens={"s": site})
+        if not site:
+            return self._ban_result(context, 'no_argument')
+        key = GameApi.site_bans().allow(site, CharacterApi.get_trust(character))
+        legacy = [entry for entry in GameApi.deny_list()
+                  if GameApi.normalize_site(entry).strip('*') == site or GameApi.normalize_site(entry) == site]
+        if key == 'no_such_ban' and legacy:
+            key = 'removed'
+        if key == 'removed':
+            for entry in legacy:
+                GameApi.remove_denied_site(entry)
+            self.game_service.queue_save_bans()
+        return self._ban_result(context, key, s=site)
 
     def do_deny(self, character: Character, context: Context):
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
@@ -982,33 +991,35 @@ class Wiz:
         )
 
     def do_ban(self, character: Character, context: Context):
-        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
-        if blocked is not None:
-            return blocked
+        return self.ban_site(character, context, permanent=False)
 
-        victim = WizUtil.find_world_entity(
-            self.character_registry,
-            self.room_registry,
-            WizUtil.argument_text(context.result, context.parameters),
-            include_players=True,
-            include_mobiles=False,
-        )
-        account = self._player_account_for_character(victim)
-        if account is None:
-            context.finish()
-            return PayloadUtil.command_payload("targetMissing")
-
-        account.banned = True
-        self._save_player(account)
+    def ban_site(self, character: Character, context: Context, *, permanent: bool):
+        site, rest = WizUtil.split_argument(WizUtil.argument_text(context.result, context.parameters))
         context.finish()
-        return PayloadUtil.command_payload(
-            "default",
-            victim=victim,
-            disconnect_character=victim,
-            wiznet_flag="WIZ_PENALTIES",
-            wiznet_skip_flag="WIZ_SECURE",
-            tokens={"t": WizUtil.display_name(victim)},
-        )
+        if not site:
+            entries = GameApi.site_bans().entries
+            if not entries and not GameApi.deny_list():
+                return self._ban_result(context, 'null_list')
+            rows = [dict(site=ban.pattern, level=ban.level, type=ban.kind,
+                         status='perm' if ban.permanent else 'temp') for ban in entries]
+            rows.extend(dict(site=site, level=0, type='all', status='perm') for site in GameApi.deny_list())
+            text = render_command_message(context.command, 'to_char', 'list_header')
+            for row in rows:
+                text += render_command_message(context.command, 'to_char', 'list_row', **row)
+            return {'to_char': text}
+        option = WizUtil.split_argument(rest)[0].lower()
+        key, ban = GameApi.site_bans().ban_site(site, option, CharacterApi.get_trust(character), permanent)
+        if ban is not None:
+            for entry in list(GameApi.deny_list()):
+                if GameApi.normalize_site(entry).strip('*') == ban.name:
+                    GameApi.remove_denied_site(entry)
+            self.game_service.queue_save_bans()
+        return self._ban_result(context, key, t=ban.name if ban else site)
+
+    @staticmethod
+    def _ban_result(context, key, **tokens):
+        text = render_command_message(context.command, 'to_char', key, **tokens)
+        return PayloadUtil.command_payload(key, channel='to_char', fallback=text, tokens=tokens)
 
     def do_guild(self, _character: Character, context: Context):
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
@@ -1052,7 +1063,7 @@ class Wiz:
         if blocked is not None:
             return blocked
 
-        room = AreaUtil.find_location(WizUtil.argument_text(context.result, context.parameters), self.room_registry, self.character_registry, WizUtil.name_matches)
+        room = AreaApi.find_location(WizUtil.argument_text(context.result, context.parameters), self.room_registry, self.character_registry, WizUtil.name_matches)
         from_room = WizUtil.move_entity(self.room_registry, character, room)
         context.finish()
         return {
@@ -1073,31 +1084,8 @@ class Wiz:
         context.finish()
         return PayloadUtil.command_payload("default", disconnect_character=target)
 
-    def do_permban(self, _character: Character, context: Context):
-        raw = WizUtil.argument_text(context.result, context.parameters).strip()
-        if not raw or raw.lower() == "list":
-            entries = list(GameApi.deny_list())
-            context.finish()
-            if not entries:
-                return PayloadUtil.command_payload("null_list")
-            return {"to_char": "Banned sites:\r\n" + "\r\n".join(sorted(entries)) + "\r\n"}
-
-        option, rest = WizUtil.split_argument(raw)
-        site = option
-        if rest:
-            if option not in ("all", "newbies", "permit"):
-                context.finish()
-                return PayloadUtil.command_payload("invalid_option")
-            site = WizUtil.split_argument(rest)[0]
-
-        if not site:
-            context.finish()
-            return PayloadUtil.command_payload("no_argument")
-
-        GameApi.add_denied_site(site)
-        self._save_deny_list()
-        context.finish()
-        return PayloadUtil.command_payload("default", tokens={"t": site})
+    def do_permban(self, character: Character, context: Context):
+        return self.ban_site(character, context, permanent=True)
 
     def do_protect(self, _character: Character, context: Context):
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)

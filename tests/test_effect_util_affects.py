@@ -177,7 +177,7 @@ class TestSpellEffectApplication(unittest.TestCase):
              patch.dict(api.eval_int.__globals__, EffectUtil=EffectUtil):
             for roll, expected in ((0, 4), (1, 5), (2, 5), (3, 6)):
                 with self.subTest(roll=roll), patch.object(rng, "number_bits", return_value=roll):
-                    self.assertEqual(expected, EffectUtil._eval_expr("number_fuzzy(level / 4)", 20))
+                    self.assertEqual(expected, EffectUtil.safe_eval_int("number_fuzzy(level / 4)", level=20))
                     self.assertEqual(expected, api.eval_int(ctx, "number_fuzzy(level / 4)"))
             with patch.object(rng, "number_bits", return_value=0):
                 self.assertEqual(1, EffectUtil.number_fuzzy(0))

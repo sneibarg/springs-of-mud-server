@@ -27,7 +27,6 @@ from api.SpellApi import SpellApi
 from skill.SpellContext import SpellContext
 from util.FightUtil import FightUtil
 from util.GenericUtil import GenericUtil
-from util.ItemUtil import ItemUtil
 from util.MovementUtil import MovementUtil
 from util.PayloadUtil import PayloadUtil
 from util.DisplayUtil import DisplayUtil
@@ -451,7 +450,6 @@ class Fight:
         return payload
 
     def _resolve_spell_target(self, character: Character, room, spell, target_arg: str):
-        from util.ItemUtil import ItemUtil
         target_type = str(getattr(spell, "target", "") or "").upper()
         argument = str(target_arg or "").strip()
 
@@ -716,7 +714,7 @@ class Fight:
             victim.remove_item(obj)
             room.add_item_to_room(obj)
             if (CharacterApi.is_npc(victim) and self._current_wait(victim) == 0
-                    and ItemUtil.can_see_object(room, victim, obj)
+                    and ItemApi.can_see_object(room, victim, obj)
                     and ItemApi.item_takeable(obj, CharacterApi.get_enum("wearFlags"))):
                 room.remove_item_from_room(obj)
                 victim.add_item(obj)

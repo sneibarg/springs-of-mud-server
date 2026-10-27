@@ -21,7 +21,7 @@ def _load_components():
         ("api.SpellApi", "SpellApi"), ("game.WeatherHandler", "WeatherHandler"),
         ("item.Effect", "Effect"), ("skill.SpellContext", "SpellContext"),
         ("util.MovementUtil", "MovementUtil"), ("util.PlayerUtil", "PlayerUtil"),
-        ("util.EnumUtil", "EnumUtil"), ("util.MobileUtil", "MobileUtil"),
+        ("util.MobileUtil", "MobileUtil"),
         ("game.HandlerService", "HandlerService"), ("server.session.SessionHandler", "SessionHandler"),
         ("server.connection.ConnectionManager", "ConnectionManager"))}
     replacements["combat.CombatHandler"] = SimpleNamespace(FightHandler=Runtime.FightHandler)

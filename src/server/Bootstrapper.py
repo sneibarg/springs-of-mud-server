@@ -2,6 +2,7 @@ import random
 
 from injector import Injector, singleton
 
+from api.AreaApi import AreaApi
 from api.CharacterApi import CharacterApi
 from api.FightApi import FightApi
 from api.GameApi import GameApi
@@ -88,7 +89,6 @@ from skill.SkillService import SkillService
 from skill.SpellRegistry import SpellRegistry
 from skill.SpellService import SpellService
 from server.LoggerFactory import LoggerFactory
-from util.EffectUtil import EffectUtil
 from util.ElementalExposure import ElementalExposure
 
 logger = LoggerFactory.get_logger("Bootstrapper")
@@ -118,8 +118,6 @@ class Bootstrapper:
         Bootstrapper._bind_handlers(injector)
         Bootstrapper._bind_apis(injector)
         Bootstrapper._bind_game_services(injector, service_config)
-        EffectUtil.configure(injector.get(EffectHandler))
-        GameApi.register_runtime_reset(EffectUtil.reset_for_tests)
 
         injector.binder.bind(ConnectionHandler, scope=singleton)
         injector.binder.bind(
@@ -177,6 +175,7 @@ class Bootstrapper:
 
     @staticmethod
     def _bind_apis(injector: Injector):
+        injector.binder.bind(AreaApi, scope=singleton)
         injector.binder.bind(SkillApi, scope=singleton)
         injector.binder.bind(FightApi, scope=singleton)
         injector.binder.bind(InterpApi, scope=singleton)

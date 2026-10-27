@@ -270,12 +270,12 @@ class TestPersistenceBoundary(unittest.IsolatedAsyncioTestCase):
         try:
             self.assertTrue(await asyncio.to_thread(entered.wait, 1))
             self.assertFalse(task.done())
-            self.assertNotIn("note_read_stamps", character.context)
+            self.assertFalse(getattr(character, "note_read_stamps", {}))
         finally:
             release.set()
         payload = await asyncio.wait_for(task, 1)
         self.assertIn("Hello", payload["to_char"])
-        self.assertEqual(10, character.context["note_read_stamps"]["0"])
+        self.assertEqual(10, character.note_read_stamps["0"])
 
 
 if __name__ == "__main__":

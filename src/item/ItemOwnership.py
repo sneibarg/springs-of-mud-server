@@ -86,3 +86,9 @@ class ItemOwnership:
             self.detach_carried(carrier, item)
         elif room is not None:
             room.remove_item_from_room(item)
+
+    def find_world_vnum(self, target_vnum):
+        for item, root, location in self.walk_world_items():
+            if str(getattr(item, "vnum", "")) == str(target_vnum):
+                return item, item is root and location["kind"] == "room"
+        return None, False

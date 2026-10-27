@@ -91,6 +91,8 @@ def _enum_like(**members):
 class _CharacterApi:
     @staticmethod
     def get_enum(name: str):
+        if name == 'positions':
+            return SimpleNamespace(POS_RESTING=SimpleNamespace(value=6))
         if name == "wellKnownObjectVnums":
             return SimpleNamespace(OBJ_VNUM_PIT=SimpleNamespace(value="999"))
         if name == "wearFlags":
@@ -126,6 +128,10 @@ class _CharacterApi:
         return True
 
     @staticmethod
+    def position_value(character):
+        return getattr(character.character_attributes, 'position', 8)
+
+    @staticmethod
     def is_set(value: int, bit: int) -> bool:
         return (int(value or 0) & int(bit or 0)) != 0
 
@@ -159,6 +165,25 @@ class _CharacterApi:
 
 
 class _ItemApi:
+    @staticmethod
+    def sacrifice_silver_value(item):
+        silver = max(1, int(getattr(item, "level", 0) or 0) * 3)
+        if "corpse" not in str(getattr(item, "item_type", "")).lower():
+            silver = min(silver, int(getattr(item, "cost", 0) or 0))
+        return max(3, silver)
+
+    @staticmethod
+    def can_see_object(room, character, item):
+        return True
+
+    @staticmethod
+    def is_newbie_pit(item):
+        return item is not None and str(getattr(item, "vnum", "")) == "999"
+
+    @staticmethod
+    def find_item_occupant(room, item):
+        return next((entity for entity in room.people() if getattr(entity, "on", None) is item), None) if room and item else None
+
     @staticmethod
     def flags_to_int(raw) -> int:
         return int(raw or 0)
@@ -367,12 +392,7 @@ class _FightUtil:
         return None
 
 
-class _InfoUtil:
-    @staticmethod
-    def look_keyword_matches(token: str, keyword: str) -> bool:
-        q = str(token or "").strip().lower()
-        words = [word for word in str(keyword or "").strip().lower().split() if word]
-        return any(word == q or word.startswith(q) for word in words)
+
 
 
 class _RandomNumberGenerator:
@@ -393,15 +413,14 @@ _stub_module("api.CharacterApi", CharacterApi=_CharacterApi)
 _stub_module("api.ItemApi", ItemApi=_ItemApi)
 _stub_module("api.MovementApi", MovementApi=SimpleNamespace())
 _stub_module("util.CommunicationsUtil", CommunicationsUtil=_CommunicationsUtil)
-_stub_module("util.AreaUtil", AreaUtil=SimpleNamespace())
 _stub_module("util.FightUtil", FightUtil=_FightUtil)
-_stub_module("util.InfoUtil", InfoUtil=_InfoUtil)
 _stub_module("util.MovementUtil", MovementUtil=SimpleNamespace())
 _stub_module("util.MobileUtil", MobileUtil=SimpleNamespace())
 _effect_handler = SimpleNamespace(apply_item_effects=lambda *_args, **_kwargs: None, remove_item_effects=lambda *_args, **_kwargs: None,
                                   affect_strip=lambda *_args: None)
 _stub_module("util.EffectUtil", EffectUtil=SimpleNamespace(handler=lambda: _effect_handler, apply_item_effects=_effect_handler.apply_item_effects, remove_item_effects=_effect_handler.remove_item_effects))
 _stub_module("util.ItemUtil", ItemUtil=_ItemUtil)
+_stub_module("item.ItemFactory", ItemFactory=SimpleNamespace(create=_ItemUtil.create_object))
 _stub_module(
     "util.PlayerUtil",
     PlayerUtil=SimpleNamespace(
@@ -489,6 +508,9 @@ def _load_command(name: str):
 
 
 class _Room(SimpleNamespace):
+    def people(self):
+        return list(getattr(self, "characters", {}).values()) + list(getattr(self, "mobiles", {}).values())
+
     def __init__(self, **kwargs):
         kwargs.setdefault("room_flags", 0)
         kwargs.setdefault("characters", {})
@@ -592,7 +614,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         )
         commands.act_bits = SimpleNamespace(ACT_IS_CHANGER=SimpleNamespace(value=1), ACT_IS_HEALER=SimpleNamespace(value=2))
         commands.PlayerActBits = SimpleNamespace(PLR_THIEF=SimpleNamespace(value=1 << 25))
-        commands.GameParameters = SimpleNamespace(MAX_LEVEL=SimpleNamespace(value=60))
+        commands.GameParameters = SimpleNamespace(MAX_LEVEL=SimpleNamespace(value=60), PULSE_VIOLENCE=SimpleNamespace(value=12))
         commands.room_flags = SimpleNamespace(ROOM_PET_SHOP=SimpleNamespace(value=1))
         commands.wear_flags = _enum_like(
             ITEM_TAKE=SimpleNamespace(value=1 << 0),
@@ -1498,7 +1520,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
 
         payload = self._commands(room).do_heal(character, self._build_context("", room, character, "heal"))
 
-        self.assertIn("the healer says 'I offer the following spells:'", payload["to_char"])
+        self.assertIn("The healer says 'I offer the following spells:'", payload["to_char"])
         self.assertIn("light: cure light wounds", payload["to_char"])
         self.assertIn("Type heal <type> to be healed.", payload["to_char"])
 
@@ -1530,8 +1552,8 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual(0, character.silver)
         self.assertEqual(10, healer.gold)
         self.assertEqual(0, healer.silver)
-        self.assertEqual(24, character.wait)
-        self.assertEqual("the healer utters the words 'judicandus dies'.\r\n", payload["payloads"][0]["to_room"])
+        self.assertEqual(12, character.status_flags.pulse_wait)
+        self.assertEqual("The healer utters the words 'judicandus dies'.\r\n", payload["payloads"][0]["to_room"])
 
     def test_heal_mana_service_restores_mana_without_spell(self):
         healer = self._build_character(is_npc=True, name="Healer", level=30, act=2)

@@ -1,3 +1,5 @@
+from interp.CommandDefaults import bundled_payload
+from item.ItemFactory import ItemFactory
 from game.ArmorValues import ArmorValues
 from combat.ArmorDefense import dexterity_defense
 from item.DeathLoot import format_template, victim_name as death_victim_name
@@ -33,7 +35,6 @@ from util.CommunicationsUtil import CommunicationsUtil
 from util.DisplayUtil import DisplayUtil
 from util.GenericUtil import GenericUtil
 from util.InfoUtil import InfoUtil
-from util.ItemUtil import ItemUtil
 from util.FightUtil import FightUtil
 from util.SkillUtil import SkillUtil
 
@@ -594,7 +595,7 @@ class FightHandler:
         vnum = (self.WellKnownObjectVnums.OBJ_VNUM_CORPSE_NPC.value if is_npc
                 else self.WellKnownObjectVnums.OBJ_VNUM_CORPSE_PC.value)
         money, timer_max, timer_min = self._corpse_timer_and_money(victim)
-        corpse = ItemUtil.create_object(self.item_registry.get(vnum=str(vnum)))
+        corpse = ItemFactory.create(self.item_registry.get(vnum=str(vnum)))
         corpse.timer = random.randint(timer_min, timer_max)
         corpse.level = GenericUtil.to_int(victim.level)
         corpse.cost = 0
@@ -640,13 +641,13 @@ class FightHandler:
         if CharacterApi.is_npc(victim):
             timer_min, timer_max = 3, 6
             if victim.gold > 0:
-                money = ItemUtil.create_money(victim.gold, victim.silver, self.item_registry, self.WellKnownObjectVnums)
+                money = ItemFactory.create_money(victim.gold, victim.silver, self.item_registry, self.WellKnownObjectVnums)
                 victim.gold = 0
                 victim.silver = 0
         else:
             if CharacterApi.is_clan(victim) and (victim.gold > 1 or victim.silver > 1):
                 gold, silver = victim.gold // 2, victim.silver // 2
-                money = ItemUtil.create_money(gold, silver, self.item_registry, self.WellKnownObjectVnums)
+                money = ItemFactory.create_money(gold, silver, self.item_registry, self.WellKnownObjectVnums)
                 victim.gold -= gold
                 victim.silver -= silver
             timer_min, timer_max = 25, 40
@@ -1286,7 +1287,7 @@ class FightHandler:
 
             corpse = self._find_latest_corpse(room, victim, pre_corpse_ids) if getattr(self, "death_handler", None) is None else None
             eligible_corpse = (corpse is not None and "corpse_npc" in str(getattr(corpse, "item_type", "")).lower()
-                               and ItemUtil.can_see_object(room, attacker, corpse)) if getattr(self, "death_handler", None) else corpse is not None
+                               and ItemApi.can_see_object(room, attacker, corpse)) if getattr(self, "death_handler", None) else corpse is not None
             auto_payloads = []
             if eligible_corpse and self._player_act_enabled(attacker, "PLR_AUTOLOOT"):
                 if getattr(self, "death_handler", None):
@@ -1475,22 +1476,34 @@ class FightHandler:
             return None
 
         room.remove_item_from_room(corpse)
-        silver = ItemUtil.sacrifice_silver_value(corpse)
+        silver = ItemApi.sacrifice_silver_value(corpse)
         attacker.silver = int(attacker.silver or 0) + silver
+        registry = getattr(getattr(self, "registry_service", None), "interp_registry", None)
+        command = registry.get_or_none(name="sacrifice") if registry is not None else None
+        definition = command.payload if command is not None else bundled_payload("sacrifice")
+        defaults = bundled_payload("sacrifice")
+        reward_key = "one_silver" if silver == 1 else "multiple_silver"
+        reward = definition.render("to_char", reward_key,
+                                   fallback=defaults.render("to_char", reward_key, d=str(silver)), d=str(silver))
+        room_text = definition.render("to_room", "default",
+                                      fallback=defaults.render("to_room", "default", c=attacker.name, t=Item.short(corpse)),
+                                      c=attacker.name, t=Item.short(corpse))
+        reward = reward.rstrip("\r\n") + "\r\n" if reward else ""
+        room_text = room_text.rstrip("\r\n") + "\r\n" if room_text else ""
         death_handler = getattr(self, "death_handler", None)
         if death_handler is not None:
             context = Context(character=attacker, room=room)
             split = death_handler.object_commands._autosplit(attacker, room, context, silver, sacrifice=True)
             if split is not None:
                 return {"payloads": [
-                    {"to_char": ItemUtil.sacrifice_reward_message(silver)},
+                    {"to_char": reward},
                     split,
-                    {"to_room": f"{attacker.name} sacrifices {Item.short(corpse)} to Mota.\r\n",
+                    {"to_room": room_text,
                      "targets": room.player_targets(attacker)},
                 ]}
         return {
-            "to_char": ItemUtil.sacrifice_reward_message(silver),
-            "to_room": f"{attacker.name} sacrifices {Item.short(corpse)} to Mota.\r\n",
+            "to_char": reward,
+            "to_room": room_text,
         }
 
     @staticmethod

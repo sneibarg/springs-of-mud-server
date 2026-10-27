@@ -14,6 +14,7 @@ from game.RandomNumberGenerator import RandomNumberGenerator
 from item.Effect import Effect
 from item.EffectHandler import EffectHandler
 from util.DisplayUtil import DisplayUtil
+from util.EffectUtil import EffectUtil
 
 
 class ElementalExposure:
@@ -68,21 +69,11 @@ class ElementalExposure:
         return messages
 
     def _saves(self, level, victim, dam_type, immunity):
-        # This new path includes ROM's type immunity and mana-class adjustments;
-        # existing spell callers retain their current saving-throw implementation.
-        status = immunity(victim, dam_type)
-        if status == "IS_IMMUNE":
-            return True
-        save = 50 + (victim.level - level) * 5 - int(getattr(victim, "saving_throw", 0)) * 2
-        if self._flag(victim.status_flags.affected_by, self.affected_by, "AFF_BERSERK"):
-            save += victim.level // 2
-        if status == "IS_RESISTANT":
-            save += 2
-        elif status == "IS_VULNERABLE":
-            save -= 2
-        if not CharacterApi.is_npc(victim) and getattr(getattr(victim, "character_class", None), "mana_gain", False):
-            save = int(9 * save / 10)
-        return self.rng.number_percent() < max(5, min(95, save))
+        return EffectUtil.saves_spell(
+            level, victim, dam_type, immunity=immunity,
+            berserk=self._flag(victim.status_flags.affected_by, self.affected_by, "AFF_BERSERK"),
+            roll=self.rng.number_percent,
+        )
 
     def expose(self, name, attacker, target, level, dam, room, immunity, *, payload):
         """Expose a character or room, using the calling ability's messages."""

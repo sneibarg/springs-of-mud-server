@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from game.EnumProvider import EnumProvider
+
 from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING
 
 from api.CharacterApi import CharacterApi
 from api.GameApi import GameApi
 from item.Item import Item
-from util.EnumUtil import EnumUtil
 from util.GenericUtil import GenericUtil
 from util.MovementUtil import MovementUtil
 
@@ -67,7 +68,7 @@ class MovementApi(GameApi):
         in_room = MovementApi._room(subject, room_registry=room_registry)
         exit_obj = None
         if in_room is not None and door >= 0:
-            exit_obj = in_room.get_exit(door) if hasattr(in_room, "get_exit") else MovementUtil.find_exit(in_room, door)
+            exit_obj = in_room.get_exit(door)
 
         to_room = MovementApi._destination_room(exit_obj, subject, room_registry=room_registry)
         exit_flags = CharacterApi.get_enum("exitFlags")
@@ -130,7 +131,7 @@ class MovementApi(GameApi):
         room: Room | None = MovementApi._room(subject, room_registry=room_registry)
         argument = MovementApi.argument_text(subject)
         door = -1 if room is None else room.find_door(argument)
-        exit_obj = MovementUtil.find_exit(room, door) if door >= 0 else None
+        exit_obj = room.get_exit(door) if door >= 0 else None
         flags = GenericUtil.to_int(exit_obj.exit_flags, 0) if exit_obj is not None else 0
         exit_flags = exit_flags or CharacterApi.get_enum("exitFlags")
         key = GenericUtil.to_int(exit_obj.key if exit_obj is not None and "key" in exit_obj.__dict__ else -1, -1)
@@ -355,7 +356,7 @@ class MovementApi(GameApi):
 
     @staticmethod
     def flag_value(enum_obj, *names: str) -> int:
-        return EnumUtil.value(enum_obj, *names)
+        return EnumProvider.value(enum_obj, *names)
 
     @staticmethod
     def has_flag(value: int, mask: int) -> bool:
@@ -546,7 +547,7 @@ class MovementApi(GameApi):
         if to_room is None:
             return
         rev = MovementUtil.REV_DIR[int(ex.direction)]
-        rev_exit = MovementUtil.find_exit(to_room, rev)
+        rev_exit = to_room.get_exit(rev)
         if rev_exit is None or rev_exit.to_room_id != room.id:
             return
         flags = GenericUtil.to_int(rev_exit.exit_flags, 0)

@@ -87,6 +87,8 @@ class EffectUpdateHandler:
         )
 
         for victim in room.people():
+            if getattr(victim, 'world_retired', False):
+                continue
             if EffectUtil.saves_spell(GenericUtil.to_int(spread.level, 0) - 2, victim, "DAM_DISEASE",
                                       immunity=self.fight_handler._check_immunity):
                 continue
@@ -98,7 +100,8 @@ class EffectUpdateHandler:
                 continue
 
             await self._send_effect_payload(spread, "spread", victim, room)
-            self.effect_handler.affect_join(victim, spread)
+            if not getattr(victim, 'world_retired', False):
+                self.effect_handler.affect_join(victim, spread)
 
         damage = min(GenericUtil.to_int(getattr(entity, "level", 0), 0), plague_level // 5 + 1)
         setattr(entity, "mana", GenericUtil.to_int(getattr(entity, "mana", 0), 0) - damage)

@@ -79,9 +79,9 @@ class TestRefactorRoomEffects(unittest.TestCase):
         self.assertEqual(-1, room.find_door("south"))
 
     def test_effect_eval_supports_numeric_expressions_and_rejects_code_execution(self):
-        self.assertEqual(2, EffectUtil._eval_expr("1 + (level >= 18) + (level >= 25)", level=20))
-        self.assertEqual(2, EffectUtil._eval_expr("level / 8", level=20))
-        self.assertEqual(7, EffectUtil._eval_expr("__import__('os').system('echo hacked')", level=20, default=7))
+        self.assertEqual(2, EffectUtil.safe_eval_int("1 + (level >= 18) + (level >= 25)", level=20))
+        self.assertEqual(2, EffectUtil.safe_eval_int("level / 8", level=20))
+        self.assertEqual(7, EffectUtil.safe_eval_int("__import__('os').system('echo hacked')", level=20, default=7))
 
 if __name__ == "__main__":
     unittest.main()

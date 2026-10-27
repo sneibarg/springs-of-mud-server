@@ -1,12 +1,10 @@
 from typing import List
 from injector import inject
 
-from util.AreaUtil import AreaUtil
 from area.Exit import Exit
 from area.Room import Room
 from game.RegistryService import RegistryService
 from interp.Context import Context
-from util.ItemUtil import ItemUtil
 from player.Character import Character
 from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
@@ -37,7 +35,7 @@ class RoomHandler:
 
     async def move_player(self, character: Character, direction: str):
         room = self.room_registry.get_or_none(id=character.room_id)
-        destination_id = room.destination_id_for_direction(direction) if room is not None and hasattr(room, "destination_id_for_direction") else AreaUtil.is_valid_direction(direction, room)
+        destination_id = room.destination_id_for_direction(direction) if room is not None else None
         destination_room = self.room_registry.get_or_none(id=destination_id)
         if room is not None and destination_room is not None:
             character.room_id = destination_id
@@ -62,10 +60,10 @@ class RoomHandler:
                 continue
             destination_room: Room = self.room_registry.get(id=destination)
             if destination_room.can_see_room_vnum(character):
-                line = AreaUtil.align_exits(direction.direction, destination_room.name, destination_room.vnum, width=6)
+                line = direction.format_destination(destination_room.name, destination_room.vnum, width=6)
                 lines.append(line)
             else:
-                line = AreaUtil.align_exits(direction.direction, destination_room.name, None, width=6)
+                line = direction.format_destination(destination_room.name, None, width=6)
                 lines.append(line)
 
         text = "\n".join(lines) + "\n"
@@ -88,7 +86,7 @@ class RoomHandler:
             await self.message_bus.send_to_character(character_id, message)
         else:
             await self.message_bus.send_to_character(character_id, self.message_bus.text_to_message(f"[{room.name}]\r\n"))
-        lines = ItemUtil.room_items(room)
+        lines = Room.item_description_lines(room)
         if lines:
             await self.message_bus.send_to_character(character_id, self.message_bus.text_to_message("\r\n".join(lines) + "\r\n"))
 
@@ -96,7 +94,10 @@ class RoomHandler:
         arg1 = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip()
         room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         door = room.direction_index(arg1)
-        pexit = room.get_exit(door) if hasattr(room, "get_exit") else AreaUtil.get_exit_by_direction(room, door)
+        pexit = room.get_exit(door)
+        if pexit is None:
+            context.finish()
+            return
         desc = (pexit.description or "").strip()
 
         if desc:

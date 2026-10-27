@@ -74,6 +74,11 @@ class Context:
             return self.handler_service.get_handler("wh")
         return None
 
+    def register_match(self) -> bool:
+        """Count a candidate and report whether it is the requested ordinal."""
+        self.count += 1
+        return self.count == self.number
+
     def jump_to(self, index: int):
         self.next_index = index
 

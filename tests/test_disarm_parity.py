@@ -69,7 +69,7 @@ class TestDisarmParity(unittest.TestCase):
                                      ITEM_INVENTORY=SimpleNamespace(value=4))
         patchers = [patch.object(Module.CharacterApi, "get_enum", return_value=flags_enum),
                     patch.object(Module.GameApi, "is_set", side_effect=lambda value, bit: bool(value & bit), create=True),
-                    patch.object(Module.ItemUtil, "can_see_object", return_value=True, create=True),
+                    patch.object(Module.ItemApi, "can_see_object", return_value=True, create=True),
                     patch.object(Module.ItemApi, "item_takeable", return_value=True, create=True)]
         for patcher in patchers:
             patcher.start()
@@ -109,7 +109,7 @@ class TestDisarmParity(unittest.TestCase):
     def test_unseen_or_untakeable_weapon_stays_on_floor(self):
         for visible, takeable in ((False, True), (True, False)):
             self.transfer_setup()
-            with patch.object(Module.ItemUtil, "can_see_object", return_value=visible), \
+            with patch.object(Module.ItemApi, "can_see_object", return_value=visible), \
                     patch.object(Module.ItemApi, "item_takeable", return_value=takeable):
                 self.commands._disarm_payload(self.actor, self.victim, self.room, self.item)
             self.assertEqual([self.item], self.floor)

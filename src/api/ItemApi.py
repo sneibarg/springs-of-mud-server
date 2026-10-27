@@ -1,10 +1,17 @@
+from __future__ import annotations
+
+from api.CharacterApi import CharacterApi
 from enum import IntEnum
-from typing import Any, Dict, List
+from typing import Any, Dict, List, TYPE_CHECKING
 
 from api.GameApi import GameApi
 from item.Item import Item
 from player.Character import Character
 from util.GenericUtil import GenericUtil
+
+
+if TYPE_CHECKING:
+    from area.Room import Room
 
 
 class ItemApi(GameApi):
@@ -152,3 +159,53 @@ class ItemApi(GameApi):
         if "armor" in item_type:
             return GenericUtil.to_int(item.value0, 0)
         return None
+
+    @staticmethod
+    def can_see_object(room: Room, character: Character, obj: Item) -> bool:
+        ItemFlags = CharacterApi.get_enum('itemFlags')
+        AffectBits = CharacterApi.get_enum('affectedBy')
+        PlayerActBits = CharacterApi.get_enum('playerActBits')
+        if not CharacterApi.is_npc(character) and CharacterApi.is_set(character.status_flags.act, PlayerActBits.PLR_HOLYLIGHT.value):
+            return True
+
+        if CharacterApi.is_set(GameApi.flags_to_int(obj.extra_flags), ItemFlags.ITEM_VIS_DEATH.value):
+            return False
+
+        if CharacterApi.is_affected(character, AffectBits.AFF_BLIND.value) and Item.enum_type_name(obj) != "ITEM_POTION":
+            return False
+
+        if Item.enum_type_name(obj) == "ITEM_LIGHT" and int(obj.value2) != 0:
+            return True
+
+        if (CharacterApi.is_set(GameApi.flags_to_int(obj.extra_flags), ItemFlags.ITEM_INVIS.value)
+                and not CharacterApi.is_affected(character, AffectBits.AFF_DETECT_INVIS.value)):
+            return False
+
+        if CharacterApi.is_set(GameApi.flags_to_int(obj.extra_flags), ItemFlags.ITEM_GLOW.value):
+            return True
+
+        if room is not None and room.is_room_dark() and not CharacterApi.is_affected(character, AffectBits.AFF_DARK_VISION.value):
+            return False
+
+        return True
+
+    @staticmethod
+    def sacrifice_silver_value(item) -> int:
+        silver = max(1, GenericUtil.to_int(item.level, 0) * 3)
+        if not Item.is_corpse(item):
+            silver = min(silver, GenericUtil.to_int(item.cost))
+        return silver
+
+    @classmethod
+    def is_newbie_pit(cls, item) -> bool:
+        if getattr(item, "vnum", None) is None:
+            return False
+        well_known_obj_vnums = cls.get_enum("wellKnownObjectVnums")
+        return str(item.vnum) == str(well_known_obj_vnums.OBJ_VNUM_PIT.value)
+
+    @staticmethod
+    def find_item_occupant(room, item):
+        """Return the entity using an item without mutating command context."""
+        if room is None or item is None:
+            return None
+        return next((entity for entity in room.people() if getattr(entity, "on", None) is item), None)

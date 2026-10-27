@@ -67,6 +67,15 @@ class CommandAccess:
         return None
 
     @classmethod
+    def check_actor(cls, actor) -> CommandDenial | None:
+        principal = cls._principal(actor)
+        if principal is None:
+            return CommandDenial("command_unavailable")
+        if CharacterApi.has_player_flag(principal, "PLR_FREEZE"):
+            return CommandDenial("command_frozen", "You're totally frozen!\r\n")
+        return None
+
+    @classmethod
     def check(cls, actor, command) -> CommandDenial | None:
         if actor is None or getattr(command, "enabled", False) is not True:
             return CommandDenial("command_unavailable")
@@ -75,6 +84,10 @@ class CommandAccess:
             positions = CharacterApi.get_enum("positions")
         except (RuntimeError, KeyError):
             return CommandDenial("command_unavailable")
+
+        denial = cls.check_actor(actor)
+        if denial is not None:
+            return denial
 
         required_level = cls._required_level(getattr(command, "level", None), game_parameters)
         position_name = str(getattr(command, "position", "") or "").strip().upper()

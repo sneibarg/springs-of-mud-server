@@ -6,7 +6,7 @@ from tests.test_update_handler_active_players import Character  # Initialize iso
 from mobile.ArmorClass import ArmorClass
 from mobile.Dice import Dice
 from mobile.Mobile import Mobile
-from util.MobileUtil import MobileUtil
+from mobile.MobileFactory import MobileFactory
 
 
 class MobileArmorIsolationTests(unittest.TestCase):
@@ -20,14 +20,14 @@ class MobileArmorIsolationTests(unittest.TestCase):
             armor_class=ArmorClass(pierce=70, slash=60, bash=50, exotic=40)))
         self.enums = Mock()
         for name in ('_apply_mob_stat_bonuses', '_apply_affected_by'):
-            patcher = patch.object(MobileUtil, name)
+            patcher = patch.object(MobileFactory, name)
             patcher.start()
             self.addCleanup(patcher.stop)
 
     def test_spawn_copies_all_four_values_and_isolates_siblings_and_future_spawns(self):
         expected = asdict(self.prototype.armor_class)
-        first = MobileUtil.create_mobile(self.prototype, self.enums)
-        second = MobileUtil.create_mobile(self.prototype, self.enums)
+        first = MobileFactory.create(self.prototype, self.enums)
+        second = MobileFactory.create(self.prototype, self.enums)
         self.assertEqual(asdict(first.armor_class), expected)
         self.assertIsNot(first.armor_class, self.prototype.armor_class)
         self.assertIsNot(first.armor_class, second.armor_class)
@@ -35,13 +35,13 @@ class MobileArmorIsolationTests(unittest.TestCase):
             setattr(first.armor_class, field, -100)
         self.assertEqual(asdict(second.armor_class), expected)
         self.assertEqual(asdict(self.prototype.armor_class), expected)
-        later = MobileUtil.create_mobile(self.prototype, self.enums)
+        later = MobileFactory.create(self.prototype, self.enums)
         self.assertEqual(asdict(later.armor_class), expected)
 
     def test_clone_copies_current_armor_without_sharing_parent_state(self):
-        parent = MobileUtil.create_mobile(self.prototype, self.enums)
+        parent = MobileFactory.create(self.prototype, self.enums)
         parent.armor_class.pierce = -20
-        clone = MobileUtil.clone_mobile_instance(parent, self.enums)
+        clone = MobileFactory.copy_instance(parent, self.enums)
         self.assertEqual(asdict(clone.armor_class), asdict(parent.armor_class))
         self.assertIsNot(clone.armor_class, parent.armor_class)
         clone.armor_class.pierce = -50
@@ -54,7 +54,7 @@ class MobileArmorIsolationTests(unittest.TestCase):
         from combat.CombatHandler import FightHandler
         from game.StatusFlags import StatusFlags
         self.prototype.status_flags = StatusFlags.from_json({})
-        mobile = MobileUtil.create_mobile(self.prototype, self.enums)
+        mobile = MobileFactory.create(self.prototype, self.enums)
         mobile.status_flags.pulse_wait = 25
         mobile.status_flags.pulse_daze = 13
         for expected in ((13, 1), (1, 0), (0, 0), (0, 0)):
@@ -68,7 +68,7 @@ class MobileArmorIsolationTests(unittest.TestCase):
         for alignment in (900, -900, 0, 349, -349, 350, -350):
             with self.subTest(alignment=alignment):
                 self.prototype.alignment = str(alignment)
-                mobile = MobileUtil.create_mobile(self.prototype, self.enums)
+                mobile = MobileFactory.create(self.prototype, self.enums)
                 self.assertEqual(str(alignment), mobile.alignment)
                 self.assertEqual(alignment, mobile.get_alignment())
                 self.assertEqual(alignment, mobile.character_attributes.alignment)
@@ -77,7 +77,7 @@ class MobileArmorIsolationTests(unittest.TestCase):
                 self.assertEqual(-350 < alignment < 350, CharacterApi.is_neutral(mobile))
                 self.assertEqual(alignment, SpellApi._alignment(mobile))
                 mobile.set_alignment(-alignment)
-                clone = MobileUtil.clone_mobile_instance(mobile, self.enums)
+                clone = MobileFactory.copy_instance(mobile, self.enums)
                 self.assertEqual(-alignment, clone.get_alignment())
                 self.assertEqual(-alignment, SpellApi._alignment(clone))
                 clone.set_alignment(123)
@@ -87,7 +87,7 @@ class MobileArmorIsolationTests(unittest.TestCase):
 
     def test_missing_armor_remains_optional(self):
         self.prototype.armor_class = None
-        mobile = MobileUtil.create_mobile(self.prototype, self.enums)
+        mobile = MobileFactory.create(self.prototype, self.enums)
         self.assertIsNone(mobile.armor_class)
 
 

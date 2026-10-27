@@ -41,3 +41,28 @@ class EnumProvider:
         if enum_name in self._enums:
             return self._enums[enum_name]
         raise AttributeError(f"No enum named '{enum_name}'")
+
+    @staticmethod
+    def value(enum_obj, *names: str) -> int | None:
+        """Resolve the first available member alias, returning zero when absent."""
+        if enum_obj is None:
+            return 0
+
+        members = getattr(enum_obj, "__members__", None)
+        for name in names:
+            if members is not None and name in members:
+                return EnumProvider._to_int(getattr(members[name], "value", members[name]), 0)
+
+            member = getattr(enum_obj, name, None)
+            value = EnumProvider._to_int(getattr(member, "value", member), None)
+            if value is not None:
+                return value
+
+        return 0
+
+    @staticmethod
+    def _to_int(value, default: int | None = 0) -> int | None:
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return default

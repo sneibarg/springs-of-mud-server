@@ -6,7 +6,7 @@ from item.Effect import Effect
 from item.Item import Item
 from player.Character import Character
 from player.CharacterService import CharacterService
-from util.ItemUtil import ItemUtil
+from item.ItemFactory import ItemFactory
 
 
 class TestItemPersistence(unittest.TestCase):
@@ -120,14 +120,14 @@ class TestItemPersistence(unittest.TestCase):
 
     def test_spawning_a_new_object_still_starts_empty(self):
         prototype = Item.from_json(self._nested_document())
-        spawned = ItemUtil.create_object(prototype)
+        spawned = ItemFactory.create(prototype)
         self.assertEqual([], spawned.contains)
         self.assertNotEqual(prototype.id, spawned.id)
         self._assert_contents(prototype)
 
     def test_explicit_instance_cloning_still_copies_nested_contents(self):
         original = Item.from_json(self._nested_document())
-        clone = ItemUtil.clone_object_instance(original)
+        clone = ItemFactory.copy_instance(original)
         self.assertEqual(1, len(clone.contains))
         self.assertEqual(1, len(clone.contains[0].contains))
         self.assertNotEqual(original.id, clone.id)

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from item.ItemFactory import ItemFactory
+
 from item.DeathLoot import format_template, victim_name as death_victim_name
 
 import random
@@ -107,9 +109,8 @@ class BodyParts:
         if proto is None:
             return None
 
-        from util.ItemUtil import ItemUtil
 
-        part_item = ItemUtil.create_object(proto)
+        part_item = ItemFactory.create(proto)
         part_item.timer = random.randint(4, 7)
 
         victim_name = death_victim_name(victim, CharacterApi.is_npc)
@@ -125,8 +126,6 @@ class BodyParts:
 
         room.add_item_to_room(part_item)
         return part_item
-
-
 
 
 __all__ = ["BodyParts"]

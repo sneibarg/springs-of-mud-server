@@ -8,6 +8,7 @@ from api.InterpApi import InterpApi
 from notes.InGameNote import InGameNote, InGameNoteEnum
 from notes.NoteRegistry import NoteRegistry
 from notes.NoteService import NoteService
+from player.Character import Character
 from server.messaging import MessageBus
 from server.LoggerFactory import LoggerFactory
 from util.GenericUtil import GenericUtil
@@ -95,11 +96,11 @@ class NoteHandler:
         notes = await self._visible_notes(character, note_type)
         if not notes:
             return self._message(context, self._no_notes_key(note_type), fallback="There are no notes for you.\r\n")
-        last_read = self._read_stamp(character, note_type)
         for index, note in enumerate(notes, start=1):
             stamp = GenericUtil.to_int(getattr(note, "date_stamp", 0), 0)
-            if stamp > last_read:
-                self._mark_read(character, note_type, stamp)
+            note_id = str(note.id or '')
+            if not Character.has_read_note(character, note_type, stamp, note_id):
+                Character.mark_note_read(character, note_type, stamp, note_id)
                 return {"to_char": self._format_note(note, index)}
         return self._message(context, "have_no_unread", s=self._plural_name(note_type), fallback=f"You have no unread {self._plural_name(note_type)}.\r\n")
 
@@ -115,7 +116,7 @@ class NoteHandler:
         note = self._note_at(notes, index)
         if note is None:
             return self._message(context, "aren_t_that_many", s=self._plural_name(note_type), fallback=f"There aren't that many {self._plural_name(note_type)}.\r\n")
-        self._mark_read(character, note_type, GenericUtil.to_int(getattr(note, "date_stamp", 0), 0))
+        Character.mark_note_read(character, note_type, GenericUtil.to_int(getattr(note, "date_stamp", 0), 0), str(note.id or ''))
         return {"to_char": self._format_note(note, index)}
 
     async def _delete_note(self, character, context, note_type: int, rest: str, action: str):
@@ -136,7 +137,9 @@ class NoteHandler:
     async def _catchup(self, character, context, note_type: int):
         notes = await self._visible_notes(character, note_type)
         latest = max([GenericUtil.to_int(getattr(note, "date_stamp", 0), 0) for note in notes] or [int(time.time())])
-        self._mark_read(character, note_type, latest)
+        Character.catchup_notes(character, note_type, latest,
+                               [str(note.id or '') for note in notes
+                                if GenericUtil.to_int(note.date_stamp, 0) == latest])
         return self._message(context, "ok2", fallback="Ok.\r\n")
 
     def _start_draft(self, character, context, note_type: int):
@@ -239,7 +242,7 @@ class NoteHandler:
     async def _visible_notes(self, character, note_type: int):
         notes = list(await run_io(self.note_service.get_notes_by_type, int(note_type)) or [])
         visible = [note for note in notes if self._can_read(character, note)]
-        return sorted(visible, key=lambda note: GenericUtil.to_int(getattr(note, "date_stamp", 0), 0))
+        return sorted(visible, key=lambda note: (GenericUtil.to_int(getattr(note, "date_stamp", 0), 0), str(note.id or '')))
 
     def _can_read(self, character, note) -> bool:
         from api.CharacterApi import CharacterApi
@@ -309,15 +312,6 @@ class NoteHandler:
             f"Subject: {draft.get('subject', '')}\r\n\r\n"
             f"{body}\r\n"
         )
-
-    def _read_stamp(self, character, note_type: int) -> int:
-        read_notes = self._character_context(character).setdefault("note_read_stamps", {})
-        return GenericUtil.to_int(read_notes.get(str(int(note_type))), 0)
-
-    def _mark_read(self, character, note_type: int, stamp: int):
-        read_notes = self._character_context(character).setdefault("note_read_stamps", {})
-        current = GenericUtil.to_int(read_notes.get(str(int(note_type))), 0)
-        read_notes[str(int(note_type))] = max(current, GenericUtil.to_int(stamp, 0))
 
     def _no_notes_key(self, note_type: int) -> str:
         return self.note_labels.get(int(note_type), self.note_labels[InGameNoteEnum.NOTE_NOTE.value])[2]

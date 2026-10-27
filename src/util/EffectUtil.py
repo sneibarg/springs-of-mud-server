@@ -4,7 +4,10 @@ import ast
 import random
 
 from api.CharacterApi import CharacterApi
-from player.Character import Character
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from player.Character import Character
 from util.GenericUtil import GenericUtil
 
 
@@ -97,21 +100,7 @@ class _SafeNumericExpression:
 
 
 class EffectUtil:
-    _handler = None
-
-    @classmethod
-    def configure(cls, effect_handler) -> None:
-        cls._handler = effect_handler
-
-    @classmethod
-    def reset_for_tests(cls) -> None:
-        cls._handler = None
-
-    @classmethod
-    def handler(cls):
-        if cls._handler is None:
-            raise RuntimeError("EffectUtil has not been configured with an EffectHandler.")
-        return cls._handler
+    """Shared effect calculations, expression evaluation, and affect presentation."""
 
     @staticmethod
     def _expr_env(level: int, target=None, caster=None) -> dict:
@@ -171,18 +160,6 @@ class EffectUtil:
             return default
 
     @staticmethod
-    def _eval_expr(value, level: int, default: int = 0, target=None, caster=None) -> int:
-        return EffectUtil.safe_eval_int(
-            value,
-            default=default,
-            level=level,
-            target=target,
-            victim=target,
-            caster=caster,
-            actor=caster,
-        )
-
-    @staticmethod
     def enum_value(enum_type, raw_value, default: int = 0) -> int:
         if raw_value is None:
             return default
@@ -195,21 +172,6 @@ class EffectUtil:
         return default
 
     @staticmethod
-    def remove_item_effects(character, item):
-        return EffectUtil.handler().remove_item_effects(character, item)
-
-    @staticmethod
-    def is_affected(character, effect_type) -> bool:
-        affected_by = CharacterApi.get_enum("affectedBy")
-        if CharacterApi.is_affected(character, effect_type):
-            return True
-        effect_name = str(effect_type)
-        if effect_name in affected_by.__members__:
-            bit = affected_by[effect_name].value
-            return CharacterApi.is_affected(character, bit)
-        return False
-
-    @staticmethod
     def saves_dispel(dis_level: int, spell_level: int, duration: int) -> bool:
         save = 50 + (GenericUtil.to_int(spell_level, 0) - GenericUtil.to_int(dis_level, 0)) * 5
         if GenericUtil.to_int(duration, 0) == -1:
@@ -218,11 +180,14 @@ class EffectUtil:
         return random.randint(1, 100) < save
 
     @staticmethod
-    def saves_spell(level: int, victim, _dam_type: int | str = 0, *, immunity=None) -> bool:
+    def saves_spell(level: int, victim, _dam_type: int | str = 0, *, immunity=None,
+                    berserk: bool | None = None, roll=None) -> bool:
         victim_level = GenericUtil.to_int(getattr(victim, "level", 0), 0)
         saving_throw = GenericUtil.to_int(getattr(victim, "saving_throw", 0), 0)
         save = 50 + (victim_level - GenericUtil.to_int(level, 0)) * 5 - saving_throw * 2
-        if CharacterApi.is_affected_by_name(victim, CharacterApi.get_enum("affectedBy"), "AFF_BERSERK"):
+        if berserk is None:
+            berserk = CharacterApi.is_affected_by_name(victim, CharacterApi.get_enum("affectedBy"), "AFF_BERSERK")
+        if berserk:
             save += victim_level // 2
         if immunity is not None:
             status = immunity(victim, _dam_type)
@@ -235,7 +200,7 @@ class EffectUtil:
         if not CharacterApi.is_npc(victim) and getattr(getattr(victim, "character_class", None), "mana_gain", False):
             save = int(9 * save / 10)
         save = max(5, min(95, save))
-        return random.randint(1, 100) < save
+        return (roll() if roll is not None else random.randint(1, 100)) < save
 
     @staticmethod
     def format_affects(character: Character) -> str:

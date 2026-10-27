@@ -3,11 +3,13 @@ import sys
 import unittest
 from types import SimpleNamespace as NS
 from tests import test_object_container_shop_spell_parity as fixtures
-from tests.test_object_loot_and_sacrifice_parity import RealItemUtil
+from tests.test_object_loot_and_sacrifice_parity import RealItemApi
 
 h = fixtures.h
 ObjectModule = sys.modules[h.Object.__module__]
 
+
+from tests.test_object_loot_and_sacrifice_parity import ItemFactory
 
 class TestObjectEnvenomParity(unittest.TestCase):
     def setUp(self):
@@ -33,7 +35,7 @@ class TestObjectEnvenomParity(unittest.TestCase):
     def weapon(self, attack="pierce", **kwargs):
         # Exercise the actual normalization step that turns attack names into damage categories.
         data = {"value3": attack}
-        RealItemUtil.attack_type(self.enums["damageTypes"], data)
+        ItemFactory.attack_type(self.enums["damageTypes"], data)
         values = dict(item_type="weapon", value3=attack, damage_type=data["damage_type"], value4="0")
         values.update(kwargs)
         return self.base.item("weapon", **values)

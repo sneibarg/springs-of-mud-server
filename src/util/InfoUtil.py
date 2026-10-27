@@ -1,12 +1,14 @@
+from item.Item import Item
 from typing import Any
 
 from api.CharacterApi import CharacterApi
-from interp.Context import Context
 from player.Character import Character
 from util.GenericUtil import GenericUtil
 
 
 class InfoUtil:
+    """Presentation helpers shared by information commands and combat output."""
+
     @staticmethod
     def target_condition_line(target: Any) -> str:
         hit = target.hit
@@ -42,22 +44,6 @@ class InfoUtil:
         if percent >= 0:
             return f"{name} is in awful condition."
         return f"{name} is bleeding to death."
-
-    @staticmethod
-    def find_inventory_item_for_slot(target: Any, slot: str):
-        from game.Equipped import WEAR_LOC_TO_EQUIPPED_SLOT
-        wanted_locs = [loc for loc, slot_name in WEAR_LOC_TO_EQUIPPED_SLOT.items() if slot_name == slot]
-        if not wanted_locs:
-            return None
-        inventory = getattr(target, "inventory", None) or []
-        for item in inventory:
-            try:
-                wear_loc = int(getattr(item, "wear_loc", -1))
-            except (TypeError, ValueError):
-                wear_loc = -1
-            if wear_loc in wanted_locs:
-                return item
-        return None
 
     @staticmethod
     def score_ac_phrase(ac_value: int, ac_type: str) -> str:
@@ -104,20 +90,6 @@ class InfoUtil:
         if alignment > -900:
             return "demonic"
         return "satanic"
-
-    @staticmethod
-    def look_register_match(context: Context) -> bool:
-        context.count += 1
-        return context.count == context.number
-
-    @staticmethod
-    def look_keyword_matches(token: str, keyword: str) -> bool:
-        t = (token or "").strip().lower()
-        k = (keyword or "").strip().lower()
-        if not t or not k:
-            return False
-        words = [w for w in k.split() if w]
-        return any(w == t or w.startswith(t) for w in words)
 
     @staticmethod
     def who_line(viewer: Character, target: Character) -> str:
@@ -182,7 +154,6 @@ class InfoUtil:
 
     @staticmethod
     def target_equipment_lines(target: Any, equip_slot_labels: list[tuple[str, str]]) -> list[str]:
-        from util.ItemUtil import ItemUtil
         item_flags = CharacterApi.get_enum("itemFlags")
         lines: list[str] = []
         equipped = target.equipped
@@ -202,10 +173,9 @@ class InfoUtil:
                 continue
 
             if isinstance(obj, dict):
-                from item.Item import Item
                 obj = Item.from_json(obj)
 
-            item_text = ItemUtil.format_obj_to_char(obj, item_flags_enum=item_flags, f_short=True)
+            item_text = Item.format_obj_to_char(obj, item_flags_enum=item_flags, f_short=True)
             lines.append(f"{label}{item_text}")
 
         return lines

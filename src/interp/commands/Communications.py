@@ -364,10 +364,9 @@ class Communications:
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload
-        room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
-        payload.setdefault("to_room",
-                           f"{character.name} tells the group '{CommunicationsUtil.parse_argument(context.result, context.parameters)}'\r\n")
-        payload["targets"] = room.player_targets(character)
+        view = self.interp_api.build_interp_view(context)
+        payload["targets"] = [member for member in self.communications_api.group_members(view)
+                              if member.id != character.id and not CharacterApi.is_npc(member)]
         return payload
 
     def do_bug(self, context: Context):

@@ -229,7 +229,6 @@ _stub_module("util.ItemUtil", ItemUtil=SimpleNamespace(find_inventory_item=lambd
 _stub_module("util.EffectUtil", EffectUtil=_EffectUtil)
 _stub_module("util.SkillUtil", SkillUtil=_SkillUtil)
 _stub_module("util.CommunicationsUtil", CommunicationsUtil=SimpleNamespace(has_comm=lambda *_args, **_kwargs: False, split_first=lambda text: (text.split(maxsplit=1)[0], text.split(maxsplit=1)[1] if len(text.split(maxsplit=1)) > 1 else "") if text else ("", ""), ensure_message_break=lambda text: text if not text or text.endswith("\r\n") else text + "\r\n"))
-_stub_module("util.AreaUtil", AreaUtil=SimpleNamespace())
 _stub_package("game")
 _load_module("game.GamePayload", "game/GamePayload.py")
 _load_module("game.action", "game/action/__init__.py")

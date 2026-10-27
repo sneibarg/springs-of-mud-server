@@ -178,3 +178,27 @@ class StatusFlags:
             pulse_wait=template.pulse_wait,
             pulse_daze=template.pulse_daze
         )
+
+    @staticmethod
+    def apply_flag_removes(flags: StatusFlags, removals: list):
+        from util.GenericUtil import GenericUtil
+
+        for removal in removals:
+            domain = str(removal.get("domain", "")).lower().strip()
+            vector = GenericUtil.to_int(removal.get("vector", 0))
+            if domain == "act":
+                flags.unset_flag("act", vector)
+            elif domain.startswith("aff"):
+                flags.unset_flag("affected_by", vector)
+            elif domain == "off":
+                flags.unset_flag("off", vector)
+            elif domain == "imm":
+                flags.unset_flag("imm", vector)
+            elif domain == "res":
+                flags.unset_flag("res", vector)
+            elif domain.startswith("vul"):
+                flags.unset_flag("vuln", vector)
+            elif domain.startswith("for"):
+                flags.unset_flag("form", vector)
+            elif domain.startswith("par"):
+                flags.unset_flag("parts", vector)

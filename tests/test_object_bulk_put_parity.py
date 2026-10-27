@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 
 from tests import test_object_container_shop_spell_parity as container_tests
-from tests.test_object_loot_and_sacrifice_parity import RealItemUtil
+from tests.test_object_loot_and_sacrifice_parity import RealItemApi
 
 h = container_tests.h
 
@@ -17,10 +17,11 @@ class TestObjectBulkPutParity(unittest.TestCase):
         self.commands, self.room = self.base.commands, self.base.room
         self.enums, self.fixture = self.base.enums, self.base.fixture
         self.commands.container_state = self.enums["containerState"]
+        self.base.swap(RealItemApi, "get_enum", side_effect=self.enums.__getitem__)
         self.commands.well_known_object_vnums = self.enums["wellKnownObjectVnums"]
         for module in (sys.modules[h.Object.__module__], sys.modules[h.InterpApi.__module__]):
-            self.base.swap(module, "ItemUtil", new=RealItemUtil)
-        self.visibility = self.base.swap(RealItemUtil, "can_see_object",
+            self.base.swap(module, "ItemApi", new=RealItemApi)
+        self.visibility = self.base.swap(RealItemApi, "can_see_object",
                                          side_effect=lambda room, actor, item: not getattr(item, "hidden", False))
         self.actor = self.fixture._build_character()
         self.bag = self.base.bag()

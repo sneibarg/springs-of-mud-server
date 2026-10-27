@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from util.GenericUtil import GenericUtil
-from util.RoomExitUtil import RoomExitUtil
 
 
 class MovementUtil:
@@ -21,10 +20,6 @@ class MovementUtil:
             "d": 5, "down": 5,
         }
         return mapping.get(token, -1)
-
-    @staticmethod
-    def find_exit(room, direction: int):
-        return RoomExitUtil.find_exit(room, direction)
 
     @staticmethod
     def sector_cost(sector_type: int) -> int:
