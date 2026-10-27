@@ -156,7 +156,8 @@ class WizHandler:
             current_id = current.metadata.get("snoop_by_session_id", "")
         return False
 
-    def room_is_private_for_actor(self, actor, room, *, implementor_only: bool = False) -> bool:
+    def room_is_private_for_actor(self, actor, room, *, implementor_only: bool = False,
+                                  deny_occupied: bool = False) -> bool:
         if actor is None or room is None:
             return False
         actor_room_id = str(getattr(actor, "room_id", "") or "")
@@ -166,6 +167,10 @@ class WizHandler:
         room_flags = CharacterApi.get_enum("roomFlags")
         if room_flags is None or not room.is_private(room_flags):
             return False
+        if WizUtil.name_matches(str(getattr(actor, "name", "") or ""), str(getattr(room, "owner", "") or "")):
+            return False
+        if deny_occupied and len(room.characters) + len(room.mobiles) > 1:
+            return True
 
         game_parameters = CharacterApi.get_enum("gameParameters")
         if game_parameters is None:
@@ -226,16 +231,19 @@ class WizHandler:
         wanted = str(argument or "").strip().lower()
         lines = []
         count = 0
-        for session in self.session_handler.get_playing_sessions():
+        for session in self.session_handler.get_active_sessions():
             current = session.character
             if current is None:
+                continue
+            room = self.room_registry.get_or_none(id=actor.room_id)
+            if not CharacterApi.can_see(actor, current, room):
                 continue
             original = session.metadata.get("switched_original")
             names = [
                 str(getattr(current, "name", "") or "").strip().lower(),
                 str(getattr(original, "name", "") or "").strip().lower(),
             ]
-            if wanted and all(not name or (name != wanted and not name.startswith(wanted)) for name in names):
+            if wanted and all(not WizUtil.name_matches(wanted, name) for name in names):
                 continue
 
             connection = self.connection_manager.get_connection(session.session_id)

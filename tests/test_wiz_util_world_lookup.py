@@ -50,6 +50,7 @@ _stub_module(
     "util.InterpUtil",
     InterpUtil=SimpleNamespace(
         one_argument=lambda argument: tuple(((argument or "").split(maxsplit=1) + ["", ""])[:2]),
+        number_argument=lambda argument: (1, argument),
     ),
 )
 
@@ -81,9 +82,11 @@ class TestWizUtilWorldLookup(unittest.TestCase):
             vnum="9582",
         )
         registry = _CharacterRegistry([guard])
+        room = SimpleNamespace(id='room', characters={}, mobiles={guard.id: guard})
+        rooms = SimpleNamespace(all_rooms=lambda: [room])
 
         with patch.object(wiz_util_module.CharacterApi, "is_npc", return_value=True):
-            found = WizUtil.find_world_entity(registry, room_registry=None, query="elite")
+            found = WizUtil.find_world_entity(registry, room_registry=rooms, query="elite")
 
         self.assertIs(guard, found)
 

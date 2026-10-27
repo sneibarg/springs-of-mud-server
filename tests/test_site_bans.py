@@ -75,6 +75,8 @@ class SiteBanRuntimeTests(RuntimeFixture, unittest.IsolatedAsyncioTestCase):
         self.wiz.game_service = NS(queue_save_bans=Mock())
         self.account = NS(banned=False, current_characters=[], first_name='Test', last_name='Account')
         self.handler = ConnectionHandler.__new__(ConnectionHandler)
+        self.handler.runtime_control = None
+        self.handler.wiz_handler = NS(wizlocked=False)
         self.handler.logger = Mock()
         self.handler.registry_service = NS(player_registry=NS(get_or_none=lambda **kwargs: self.account,
                                                              get=lambda **kwargs: self.account),

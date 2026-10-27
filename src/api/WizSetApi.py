@@ -14,6 +14,8 @@ from player.CharacterRace import CharacterRace
 from api.AreaApi import AreaApi
 from util.GenericUtil import GenericUtil
 from util.WizUtil import WizUtil
+from util.InterpUtil import InterpUtil
+from util.EffectUtil import EffectUtil
 
 
 class WizSetApi:
@@ -66,6 +68,7 @@ class WizSetApi:
             target_name,
             include_players=True,
             include_mobiles=True,
+            observer=context.character,
         )
         level = GenericUtil.to_int(level_text, 0)
         lowering = level <= GenericUtil.to_int(getattr(victim, "level", 0), 0)
@@ -131,17 +134,19 @@ class WizSetApi:
         return {"to_char": ""}
 
     def _set_skill(self, context, raw: str) -> dict:
-        parts = str(raw or "").split(maxsplit=2)
-        if len(parts) < 3:
+        target_name, rest = InterpUtil.one_argument(raw)
+        skill_name, rest = InterpUtil.one_argument(rest)
+        value_text, _ = InterpUtil.one_argument(rest)
+        if not target_name or not skill_name or not value_text:
             context.finish()
             return self._payload("skill_syntax")
 
-        target_name, skill_name, value_text = parts
         victim = WizUtil.find_world_entity(
             self.character_registry,
             self.room_registry,
             target_name,
             include_mobiles=False,
+            observer=context.character,
         )
         if victim is None:
             context.finish()
@@ -176,13 +181,13 @@ class WizSetApi:
         return {"to_char": ""}
 
     def _set_mobile(self, context, raw: str) -> dict:
-        parts = str(raw or "").split(maxsplit=2)
-        if len(parts) < 3:
+        target_name, rest = InterpUtil.one_argument(raw)
+        field_name, value_text = InterpUtil.one_argument(rest)
+        if not target_name or not field_name or not value_text:
             context.finish()
             return self._payload("mobile_syntax")
 
-        target_name, field_name, value_text = parts
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, target_name)
+        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, target_name, observer=context.character)
         if victim is None:
             context.finish()
             return self._payload("target_missing")
@@ -193,15 +198,15 @@ class WizSetApi:
         if field in self.STAT_FIELDS:
             return self._set_stat_field(context, victim, field, value)
 
-        if field.startswith("sex"):
+        if "sex".startswith(field):
             if value < 0 or value > 2:
                 context.finish()
                 return self._payload("sex_range")
-            victim.sex = str(value)
+            victim.sex = str(value + self._stat_modifier(victim, 'APPLY_SEX'))
             context.finish()
             return {"to_char": ""}
 
-        if field.startswith("class"):
+        if "class".startswith(field):
             if CharacterApi.is_npc(victim):
                 context.finish()
                 return self._payload("mobiles_have_no_class")
@@ -216,7 +221,7 @@ class WizSetApi:
             context.finish()
             return {"to_char": ""}
 
-        if field.startswith("level"):
+        if "level".startswith(field):
             if not CharacterApi.is_npc(victim):
                 context.finish()
                 return self._payload("pc_invalid")
@@ -228,17 +233,17 @@ class WizSetApi:
             context.finish()
             return {"to_char": ""}
 
-        if field.startswith("gold"):
+        if "gold".startswith(field):
             victim.gold = value
             context.finish()
             return {"to_char": ""}
 
-        if field.startswith("silver"):
+        if "silver".startswith(field):
             victim.silver = value
             context.finish()
             return {"to_char": ""}
 
-        if field.startswith("hp"):
+        if "hp".startswith(field):
             if value < -10 or value > 30000:
                 context.finish()
                 return self._payload("hp_range")
@@ -246,7 +251,7 @@ class WizSetApi:
             context.finish()
             return {"to_char": ""}
 
-        if field.startswith("mana"):
+        if "mana".startswith(field):
             if value < 0 or value > 30000:
                 context.finish()
                 return self._payload("mana_range")
@@ -254,7 +259,7 @@ class WizSetApi:
             context.finish()
             return {"to_char": ""}
 
-        if field.startswith("move"):
+        if "move".startswith(field):
             if value < 0 or value > 30000:
                 context.finish()
                 return self._payload("move_range")
@@ -262,7 +267,7 @@ class WizSetApi:
             context.finish()
             return {"to_char": ""}
 
-        if field.startswith("practice") or field == "prac":
+        if "practice".startswith(field) or field == "prac":
             if value < 0 or value > 250:
                 context.finish()
                 return self._payload("practice_range")
@@ -270,7 +275,7 @@ class WizSetApi:
             context.finish()
             return {"to_char": ""}
 
-        if field.startswith("train"):
+        if "train".startswith(field):
             if value < 0 or value > 50:
                 context.finish()
                 return self._payload("train_range")
@@ -278,7 +283,7 @@ class WizSetApi:
             context.finish()
             return {"to_char": ""}
 
-        if field.startswith("align"):
+        if "align".startswith(field):
             if value < -1000 or value > 1000:
                 context.finish()
                 return self._payload("align_range")
@@ -300,10 +305,10 @@ class WizSetApi:
             context.finish()
             return {"to_char": ""}
 
-        if field.startswith("race"):
+        if "race".startswith(field):
             return self._set_race_field(context, victim, value_text)
 
-        if field.startswith("group"):
+        if "group".startswith(field):
             if not CharacterApi.is_npc(victim):
                 context.finish()
                 return self._payload("group_npc_only")
@@ -315,13 +320,13 @@ class WizSetApi:
         return self._payload("mobile_syntax")
 
     def _set_object(self, context, raw: str) -> dict:
-        parts = str(raw or "").split(maxsplit=2)
-        if len(parts) < 3:
+        target_name, rest = InterpUtil.one_argument(raw)
+        field_name, value_text = InterpUtil.one_argument(rest)
+        if not target_name or not field_name or not value_text:
             context.finish()
             return self._payload("object_syntax")
 
-        target_name, field_name, value_text = parts
-        obj = WizUtil.find_world_item(self.character_registry, self.room_registry, target_name)
+        obj = WizUtil.find_world_item(self.character_registry, self.room_registry, target_name, observer=context.character)
         if obj is None:
             context.finish()
             return self._payload("no_such_object")
@@ -338,17 +343,17 @@ class WizSetApi:
             obj.value3 = str(value)
         elif field in ("value4", "v4"):
             obj.value4 = str(value)
-        elif field.startswith("extra"):
+        elif "extra".startswith(field):
             obj.extra_flags = str(GameApi.flags_to_int(value_text))
-        elif field.startswith("wear"):
+        elif "wear".startswith(field):
             obj.wear_flags = str(GameApi.flags_to_int(value_text))
-        elif field.startswith("level"):
+        elif "level".startswith(field):
             obj.level = value
-        elif field.startswith("weight"):
+        elif "weight".startswith(field):
             obj.weight = value
-        elif field.startswith("cost"):
+        elif "cost".startswith(field):
             obj.cost = value
-        elif field.startswith("timer"):
+        elif "timer".startswith(field):
             obj.timer = value
         else:
             context.finish()
@@ -358,13 +363,13 @@ class WizSetApi:
         return {"to_char": ""}
 
     def _set_room(self, actor, context, raw: str) -> dict:
-        parts = str(raw or "").split(maxsplit=2)
-        if len(parts) < 3:
+        location_name, rest = InterpUtil.one_argument(raw)
+        field_name, value_text = InterpUtil.one_argument(rest)
+        if not location_name or not field_name or not value_text:
             context.finish()
             return self._payload("room_syntax")
 
-        location_name, field_name, value_text = parts
-        location = AreaApi.find_location(location_name, self.room_registry, self.character_registry, WizUtil.name_matches)
+        location = AreaApi.find_location(location_name, self.room_registry, self.character_registry, WizUtil.name_matches, observer=context.character)
         if location is None:
             context.finish()
             return self._payload("no_such_location")
@@ -377,9 +382,9 @@ class WizSetApi:
 
         value = GenericUtil.to_int(value_text, 0)
         field = str(field_name or "").strip().lower()
-        if field.startswith("flags"):
+        if "flags".startswith(field):
             location.room_flags = value
-        elif field.startswith("sector"):
+        elif "sector".startswith(field):
             location.sector_type = value
         else:
             context.finish()
@@ -395,14 +400,22 @@ class WizSetApi:
             context.finish()
             return self._payload("mobile_syntax")
 
-        current_value = GenericUtil.to_int(getattr(attributes, attr_name, 0), 0)
+        modifier = self._stat_modifier(victim, ('APPLY_STR', 'APPLY_INT', 'APPLY_WIS', 'APPLY_DEX', 'APPLY_CON')[stat_index])
+        current_value = GenericUtil.to_int(getattr(attributes, attr_name, 0), 0) - modifier
         max_train = self._max_train_for(victim, stat_index, current_value)
         if value < 3 or value > max_train:
             context.finish()
             return self._payload("stat_range", tokens={"t": label, "n": max_train})
-        setattr(attributes, attr_name, value)
+        setattr(attributes, attr_name, value + modifier)
         context.finish()
         return {"to_char": ""}
+
+    @staticmethod
+    def _stat_modifier(victim, apply_name):
+        apply_types = CharacterApi.get_enum('applyTypes')
+        wanted = EffectUtil.enum_value(apply_types, apply_name, -1)
+        return sum(GenericUtil.to_int(effect.modifier, 0) for effect in (getattr(victim, 'effects', []) or [])
+                   if EffectUtil.enum_value(apply_types, effect.location, -2) == wanted)
 
     def _set_race_field(self, context, victim, race_name: str) -> dict:
         if CharacterApi.is_npc(victim):

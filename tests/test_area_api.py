@@ -65,7 +65,7 @@ class AreaApiTests(unittest.TestCase):
 
     def test_wizard_context_adapters_share_area_lookup(self):
         handler = NS(room_registry=self.registry, character_registry=self.characters)
-        context = NS(result='20', parameters=[], player_handler=lambda: handler)
+        context = NS(character=self.actor, result='20', parameters=[], player_handler=lambda: handler)
         view = NS(context=context)
         self.assertIs(self.destination, WizApi.location(view))
         self.assertIs(self.destination, WizApi.violate_location(view))

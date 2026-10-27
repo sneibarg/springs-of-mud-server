@@ -12,6 +12,7 @@ class AliasSubstitution:
     command: str
     message: str = ""
     message_key: str = ""
+    message_command: str = "alias"
 
 
 class AliasApi:
@@ -119,24 +120,35 @@ class AliasApi:
     @classmethod
     def substitute_command(cls, character, command_text: str) -> AliasSubstitution:
         original = str(command_text or "")
-        if not original.strip() or character is None or cls._is_npc(character):
+        if not original.strip() or character is None:
             return AliasSubstitution(original)
-
         command_name, rest = cls._one_argument(original)
-        if not command_name or command_name in ("alias", "prefix") or command_name.startswith("una"):
-            return AliasSubstitution(original)
+        prefix = str(cls._context(character).get('prefix', '') or '')
+        warning = ''
+        if prefix and command_name not in ('prefix', 'pref', 'prefi'):
+            expanded = f'{prefix} {original}'
+            if len(expanded) >= cls.MAX_INPUT_LENGTH:
+                warning = 'Line too long, prefix not processed.\r\n'
+            else:
+                original = expanded
+        result = AliasSubstitution(original, warning, 'overflow' if warning else '', 'prefix')
+        if cls._is_npc(character):
+            return result
+        command_name, rest = cls._one_argument(original)
+        if not command_name or command_name in ('alias', 'prefix', 'pref', 'prefi') or command_name.startswith('una'):
+            return result
 
         replacement = cls.aliases(character).get(command_name)
         if replacement is None:
-            return AliasSubstitution(original)
+            return result
 
         expanded = replacement if not rest else f"{replacement} {rest}"
         if len(expanded) <= cls.MAX_INPUT_LENGTH - 1:
-            return AliasSubstitution(expanded)
+            return AliasSubstitution(expanded, warning, 'overflow' if warning else '', 'prefix')
         return AliasSubstitution(
             expanded[: cls.MAX_INPUT_LENGTH - 1],
-            "Alias substitution too long. Truncated.\r\n",
-            "substitution_too_long",
+            warning + "Alias substitution too long. Truncated.\r\n",
+            "" if warning else "substitution_too_long",
         )
 
     @staticmethod

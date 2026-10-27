@@ -167,7 +167,7 @@ class TestFullnessHungerParity(unittest.TestCase):
     def test_administrator_full_setting_changes_fullness_only(self):
         api = WizModule.WizSetApi.__new__(WizModule.WizSetApi)
         api.character_registry = api.room_registry = NS()
-        self.base.swap(WizModule, "WizUtil", new=NS(find_world_entity=lambda *args: self.actor))
+        self.base.swap(WizModule, "WizUtil", new=NS(find_world_entity=lambda *args, **kwargs: self.actor))
         context = self.base.fixture._build_context("", self.room, self.actor)
         api._set_mobile(context, "Tester full 12")
         self.assertEqual((12, 0), (self.actor.status_flags.fullness, self.actor.status_flags.hunger))

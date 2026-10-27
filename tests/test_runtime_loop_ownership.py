@@ -22,10 +22,66 @@ def scheduler(update):
     service._runtime_loop = None
     service._stop_requested = threading.Event()
     service._pending_update = None
+    service._updates_suspended = False
+    service._active_update_task = None
     return service
 
 
 class RuntimeLoopOwnershipTests(unittest.IsolatedAsyncioTestCase):
+    async def test_saved_shutdown_returns_from_server_start_and_stops_scheduler(self):
+        from server.RuntimeControl import RuntimeControl
+        updated = asyncio.Event()
+        async def update():
+            updated.set()
+        service = scheduler(update)
+        control = RuntimeControl(service, Mock(), NS(get_active_sessions=lambda: []), NS(close_all=AsyncMock()))
+        server = MudServer.__new__(MudServer)
+        server.logger = Mock()
+        server.injector = Mock(get=lambda cls: service if cls is GameService else control)
+        server.host, server.port = 'localhost', 0
+        class Listener:
+            def __init__(self):
+                self.closed = False
+            async def __aenter__(self):
+                return self
+            async def __aexit__(self, *args):
+                self.closed = True
+            def close(self):
+                self.closed = True
+            async def wait_closed(self):
+                pass
+        listener = Listener()
+        with patch('server.MudServer.asyncio.start_server', new=AsyncMock(return_value=listener)):
+            task = asyncio.create_task(server.start())
+            await asyncio.wait_for(updated.wait(), 1)
+            self.assertTrue(await control.shutdown('shutdown'))
+            await asyncio.wait_for(task, 3)
+        self.assertTrue(listener.closed)
+        self.assertTrue(service._stop_requested.is_set())
+        control.connection_manager.close_all.assert_awaited_once()
+
+    async def test_pause_drains_current_update_then_skips_pulses_until_resumed(self):
+        entered, release = asyncio.Event(), asyncio.Event()
+        calls = []
+        async def update():
+            calls.append('update')
+            entered.set()
+            await release.wait()
+        service = scheduler(update)
+        active = asyncio.create_task(service._run_updates())
+        await entered.wait()
+        pause = asyncio.create_task(service.pause_updates())
+        await asyncio.sleep(0)
+        self.assertFalse(pause.done())
+        release.set()
+        await active
+        await pause
+        await service._run_updates()
+        self.assertEqual(calls, ['update'])
+        service.resume_updates()
+        await service._run_updates()
+        self.assertEqual(calls, ['update', 'update'])
+
     async def test_background_scheduler_runs_world_and_session_mutations_on_socket_loop(self):
         owner_loop = asyncio.get_running_loop()
         owner_thread = threading.get_ident()
@@ -126,7 +182,11 @@ class RuntimeLoopOwnershipTests(unittest.IsolatedAsyncioTestCase):
         service = scheduler(update)
         server = MudServer.__new__(MudServer)
         server.logger = Mock()
-        server.injector = Mock(get=Mock(return_value=service))
+        control = NS(bind_listener=Mock())
+        async def wait_stopped():
+            await asyncio.Event().wait()
+        control.wait_stopped = wait_stopped
+        server.injector = Mock(get=lambda cls: service if cls is GameService else control)
         server.host, server.port = 'localhost', 0
 
         class Listener:

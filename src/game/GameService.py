@@ -25,6 +25,8 @@ class GameService:
         self._runtime_loop = None
         self._stop_requested = threading.Event()
         self._pending_update = None
+        self._updates_suspended = False
+        self._active_update_task = None
         self.game_data = self._fetch_game_data()
         self.enums = dict()
         self._load_enums()
@@ -46,6 +48,24 @@ class GameService:
     async def start(self):
         await self._game_loop()
 
+    async def pause_updates(self):
+        self._updates_suspended = True
+        active = self._active_update_task
+        if active is not None and active is not asyncio.current_task():
+            await asyncio.shield(active)
+
+    def resume_updates(self):
+        self._updates_suspended = False
+
+    async def _handle_updates_if_active(self):
+        if self._updates_suspended:
+            return
+        self._active_update_task = asyncio.current_task()
+        try:
+            await self.update_handler.handle_updates()
+        finally:
+            self._active_update_task = None
+
     async def _game_loop(self):
         while not self._stop_requested.is_set():
             try:
@@ -58,13 +78,13 @@ class GameService:
         current_loop = asyncio.get_running_loop()
         owner = self._runtime_loop or current_loop
         if owner is current_loop:
-            await self.update_handler.handle_updates()
+            await self._handle_updates_if_active()
             return
         if owner.is_closed() or not owner.is_running():
             raise RuntimeError("The runtime owner loop is unavailable")
         # The scheduler waits for one complete pulse. Only the owner loop touches
         # live models; no thread lock is held while gameplay awaits messages/I/O.
-        pending = asyncio.run_coroutine_threadsafe(self.update_handler.handle_updates(), owner)
+        pending = asyncio.run_coroutine_threadsafe(self._handle_updates_if_active(), owner)
         self._pending_update = pending
         try:
             if self._stop_requested.is_set():

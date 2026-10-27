@@ -7911,7 +7911,7 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: InterpUtil.argument_text(v)",
+        "predicate": "lambda v: not InterpUtil.argument_text(v)",
         "messageKey": "noArgument"
       },
       {
@@ -8013,7 +8013,9 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "shutdownFailed": "The server could not save all characters. Reboot cancelled."
+      },
       "toRoom": {},
       "toVictim": {},
       "toWorld": {
@@ -8095,7 +8097,9 @@
     "pipeline": false,
     "maxArguments": 0,
     "payload": {
-      "toChar": {},
+      "toChar": {
+        "shutdownFailed": "The server could not save all characters. Shutdown cancelled."
+      },
       "toRoom": {},
       "toVictim": {},
       "toWorld": {
@@ -8164,28 +8168,32 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: WizApi.force_missing_argument(v)",
-        "messageKey": "noArgument"
+        "messageKey": "noArgument",
+        "predicate": "lambda v: WizApi.force_missing_argument(v)"
       },
       {
-        "predicate": "lambda v: WizApi.force_delete(v)",
-        "messageKey": "delete"
+        "messageKey": "delete",
+        "predicate": "lambda v: WizApi.force_delete(v)"
       },
       {
-        "predicate": "lambda v: WizApi.force_target_missing(v)",
-        "messageKey": "targetMissing"
+        "messageKey": "targetMissing",
+        "predicate": "lambda v: WizApi.force_target_missing(v)"
       },
       {
-        "predicate": "lambda v: WizApi.force_target_self(v)",
-        "messageKey": "targetSelf"
+        "messageKey": "targetSelf",
+        "predicate": "lambda v: WizApi.force_target_self(v)"
       },
       {
-        "predicate": "lambda v: WizApi.force_private(v)",
-        "messageKey": "privateRoom"
+        "messageKey": "privateRoom",
+        "predicate": "lambda v: WizApi.force_private(v)"
       },
       {
-        "predicate": "lambda v: WizApi.force_target_higher_level(v)",
-        "messageKey": "targetHigherLevel"
+        "messageKey": "targetHigherLevel",
+        "predicate": "lambda v: WizApi.force_target_higher_level(v)"
+      },
+      {
+        "messageKey": "insufficientLevel",
+        "predicate": "lambda v: WizApi.force_insufficient_level(v)"
       }
     ]
   },
@@ -8542,7 +8550,8 @@
         "default": "Ok.",
         "targetMissing": "They aren't here.",
         "targetSelf": "Ho ho ho.",
-        "insufficientLevel": "Maybe that wasn't a good idea..."
+        "insufficientLevel": "Maybe that wasn't a good idea...",
+        "saveFailed": "The character could not be saved. Purge cancelled."
       },
       "toRoom": {
         "room": "%c purges the room!",
@@ -9544,15 +9553,21 @@
         "noArgument": "You have no prefix to clear.",
         "removed": "Prefix removed.",
         "set": "Prefix set to %s.",
-        "changed": "Prefix changed to %s."
+        "changed": "Prefix changed to %s.",
+        "abbreviated": "You cannot abbreviate the prefix command.",
+        "overflow": "Line too long, prefix not processed."
       },
       "toRoom": {},
       "toVictim": {}
     },
     "guards": [
       {
-        "predicate": "lambda v: not InterpUtil.argument_text(v) and not WizApi.current_prefix(v)",
-        "messageKey": "noArgument"
+        "predicate": "lambda v: WizApi.prefix_abbreviated(v)",
+        "messageKey": "abbreviated"
+      },
+      {
+        "messageKey": "noArgument",
+        "predicate": "lambda v: not InterpUtil.argument_text(v) and not WizApi.current_prefix(v)"
       }
     ]
   }

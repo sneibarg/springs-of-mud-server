@@ -48,14 +48,20 @@ class CharacterApi(GameApi):
 
     @classmethod
     def get_trust(cls, char: Any) -> int:
-        from player.Character import Character
-        controller = None
-        if type(char) is Character and char.context is not None:
-            controller = (char.context or {}).get("controller_original")
-        if controller is not None and controller is not char:
-            return cls.get_trust(controller)
-        if type(char) is Character and char.trust > 0:
-            return char.trust
+        seen = set()
+        while char is not None:
+            if id(char) in seen:
+                return 0
+            seen.add(id(char))
+            controller = (getattr(char, "context", None) or {}).get("controller_original")
+            if controller is None:
+                break
+            char = controller
+        if char is None:
+            return 0
+        trust = int(getattr(char, "trust", 0) or 0)
+        if trust > 0:
+            return trust
         if cls.is_npc(char) and char.level >= cls.GameParameters.HERO.value:
             return cls.GameParameters.HERO.value - 1
         return char.level

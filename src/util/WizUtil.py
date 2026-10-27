@@ -7,6 +7,7 @@ from api.CharacterApi import CharacterApi
 from mobile import Mobile
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
+from util.LookupUtil import LookupUtil
 
 
 class WizUtil:
@@ -23,13 +24,7 @@ class WizUtil:
 
     @staticmethod
     def name_matches(query: str, candidate: str) -> bool:
-        q = (query or "").strip().lower()
-        c = (candidate or "").strip().lower()
-        if not q or not c:
-            return False
-        if c == q or c.startswith(q):
-            return True
-        return any(token == q or token.startswith(q) for token in c.split())
+        return LookupUtil.matches(query, candidate)
 
     @staticmethod
     def entity_names(entity) -> list[str]:
@@ -79,37 +74,55 @@ class WizUtil:
         return str(entity.name)
 
     @staticmethod
-    def find_world_entity(character_registry, room_registry, query: str, *, include_players: bool = True, include_mobiles: bool = True):
-        wanted = (query or "").strip().lower()
-        if not wanted:
-            return None
-        if (include_players or include_mobiles) and character_registry is not None:
-            for entity in character_registry.all_characters():
-                is_mobile = CharacterApi.is_npc(entity)
-                if (is_mobile and not include_mobiles) or ((not is_mobile) and not include_players):
+    def live_world_entities(room_registry) -> list:
+        if room_registry is None:
+            return []
+        entities, seen = [], set()
+        for room in room_registry.all_rooms():
+            if room is None:
+                continue
+            for entity in LookupUtil.people(room):
+                if (id(entity) in seen or getattr(entity, 'world_retired', False)
+                        or str(getattr(entity, 'room_id', room.id)) != str(room.id)):
                     continue
-                if any(WizUtil.name_matches(wanted, name) for name in WizUtil.entity_names(entity)):
-                    return entity
-        if include_mobiles and room_registry is not None:
-            for room in room_registry.all_rooms():
-                if room is None:
-                    continue
-                for mobile in room.mobiles.values():
-                    if any(WizUtil.name_matches(wanted, name) for name in WizUtil.entity_names(mobile)):
-                        return mobile
-        return None
+                seen.add(id(entity))
+                entities.append(entity)
+        return entities
 
     @staticmethod
-    def find_world_item(character_registry, room_registry, query: str):
+    def find_world_entity(character_registry, room_registry, query: str, *, include_players: bool = True,
+                          include_mobiles: bool = True, observer=None):
+        # The character registry also holds offline service records. Only room
+        # membership establishes live presence; registry iteration cannot do so.
+        entities = WizUtil.live_world_entities(room_registry)
+        def eligible(entity):
+            return include_mobiles if CharacterApi.is_npc(entity) else include_players
+        entities = [entity for entity in entities if eligible(entity)]
+        observer_room = WizUtil.room_of_entity(room_registry, observer)
+        _number, keyword = InterpUtil.number_argument(str(query or '').strip())
+        if keyword.lower() == 'self' and observer is not None:
+            return observer if eligible(observer) and any(entity is observer for entity in entities) else None
+        def visible(entity):
+            return observer is None or CharacterApi.can_see(observer, entity, observer_room)
+        local = [entity for entity in entities if observer_room is not None
+                 and str(entity.room_id) == str(observer_room.id)]
+        found = LookupUtil.find(local, query, visible=visible)
+        # ROM restarts ordinal counting in the world search if the local search fails.
+        return found if found is not None else LookupUtil.find(entities, query, visible=visible)
+
+    @staticmethod
+    def find_world_item(character_registry, room_registry, query: str, *, observer=None):
         from item.ItemOwnership import ItemOwnership
-        wanted = (query or "").strip().lower()
-        if not wanted:
-            return None
-        for item, _, _ in ItemOwnership(None, room_registry).walk_world_items():
-            if WizUtil.name_matches(wanted, item.name):
-                return item
-        return None
-        return None
+        observer_room = WizUtil.room_of_entity(room_registry, observer)
+        def visible(item):
+            return LookupUtil.object_visible(observer, observer_room, item)
+        if observer is not None and observer_room is not None:
+            found = LookupUtil.here(observer, observer_room, query, visible=visible)
+            if found is not None:
+                return found
+        items = [item for item, _, location in ItemOwnership(None, room_registry).walk_world_items()
+                 if not getattr(location['parent'], 'world_retired', False)]
+        return LookupUtil.find(items, query, visible=visible)
 
     @staticmethod
     def count_extra_descriptions(obj) -> int:

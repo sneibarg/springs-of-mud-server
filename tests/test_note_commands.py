@@ -53,6 +53,14 @@ class _CharacterApi:
     def is_immortal(character) -> bool:
         return bool(getattr(character, "immortal", False))
 
+    @staticmethod
+    def get_trust(character):
+        return getattr(character, 'trust', 0)
+
+    @staticmethod
+    def get_enum(name):
+        return types.SimpleNamespace(MAX_LEVEL=60)
+
 
 _stub_module("injector", inject=lambda target: target)
 _stub_package("api")
@@ -107,6 +115,7 @@ class _NoteService:
         self.notes = list(notes or [])
         self.created = []
         self.deleted = []
+        self.updated = []
 
     def get_notes_by_type(self, note_type: int):
         return [note for note in self.notes if int(note.type) == int(note_type)]
@@ -121,6 +130,11 @@ class _NoteService:
         self.deleted.append(note_id)
         self.notes = [note for note in self.notes if note.id != note_id]
         return True
+
+    def update_note(self, note):
+        self.updated.append(note)
+        self.notes = [note if entry.id == note.id else entry for entry in self.notes]
+        return note
 
 
 class TestNoteCommands(unittest.TestCase):
@@ -228,19 +242,41 @@ class TestNoteCommands(unittest.TestCase):
         self.assertEqual("First line\r\nSecond line", service.created[0].text)
         self.assertNotIn("note_draft", character.context)
 
-    def test_only_sender_or_immortal_can_delete_note(self):
-        note = InGameNote(id="n1", type=0, sender="Ann", to_list="all", subject="Hello", text="Body", date_stamp=10)
+    def test_remove_preserves_other_recipients_and_delete_requires_creator(self):
+        note = InGameNote(id="n1", type=2, sender="Ann", to_list="Bob Admin", subject="Hello", text="Body", date_stamp=10)
         handler, service = self._handler([note])
         mortal = SimpleNamespace(name="Bob", context={}, immortal=False)
-        immortal = SimpleNamespace(name="Admin", context={}, immortal=True)
+        immortal = SimpleNamespace(name="Admin", context={}, immortal=True, trust=55)
 
-        payload = asyncio.run(handler.execute(mortal, self._context("note", "remove 1")))
+        payload = asyncio.run(handler.execute(mortal, self._context("penalty", "remove 1")))
+        self.assertIn("Ok.", payload["to_char"])
+        self.assertEqual([], service.deleted)
+        self.assertEqual('Admin', service.updated[0].to_list)
+        self.assertEqual('Bob Admin', note.to_list)
+
+        payload = asyncio.run(handler.execute(immortal, self._context("penalty", "delete 1")))
         self.assertIn("You can't do that.", payload["to_char"])
         self.assertEqual([], service.deleted)
-
-        payload = asyncio.run(handler.execute(immortal, self._context("note", "remove 1")))
+        immortal.trust = 59
+        payload = asyncio.run(handler.execute(immortal, self._context("penalty", "delete 1")))
         self.assertIn("Ok.", payload["to_char"])
         self.assertEqual(["n1"], service.deleted)
+
+    def test_author_and_last_recipient_can_remove_but_failed_update_is_non_destructive(self):
+        for sender, recipients, reader in (('Ann', 'Bob Cara', 'Ann'), ('Ann', 'Bob', 'Bob')):
+            handler, service = self._handler([InGameNote(id='n1', type=2, sender=sender, to_list=recipients)])
+            payload = asyncio.run(handler.execute(SimpleNamespace(name=reader, context={}, immortal=False),
+                                                 self._context('penalty', 'remove 1')))
+            self.assertIn('Ok.', payload['to_char'])
+            self.assertEqual(service.deleted, ['n1'])
+        note = InGameNote(id='n1', type=2, sender='Ann', to_list='Bob Cara')
+        handler, service = self._handler([note])
+        service.update_note = lambda document: None
+        payload = asyncio.run(handler.execute(SimpleNamespace(name='Bob', context={}, immortal=False),
+                                             self._context('penalty', 'remove 1')))
+        self.assertIn("can't", payload['to_char'])
+        self.assertEqual(note.to_list, 'Bob Cara')
+        self.assertEqual(service.deleted, [])
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ from typing import Tuple
 from enum import IntEnum
 import json
 from item.ItemFactory import ItemFactory
-from copy import copy
+from copy import copy, deepcopy
 
 from api.CharacterApi import CharacterApi
 from api.GameApi import GameApi
@@ -182,8 +182,8 @@ class MobileFactory:
         return mob
 
     @staticmethod
-    def copy_instance(mob: Mobile, enum_provider: EnumProvider) -> Mobile:
-        """Create a new mobile with copied possessions and independent identity."""
+    def copy_instance(mob: Mobile, enum_provider: EnumProvider, item_filter=None, effect_handler=None) -> Mobile:
+        """Copy a mobile, optionally filtering possessions and their nested contents."""
         clone = MobileFactory.create(mob, enum_provider)
         clone.short_description = mob.short_description
         clone.long_description = mob.long_description
@@ -204,15 +204,36 @@ class MobileFactory:
         clone.start_pos = mob.start_pos
         clone.default_pos = mob.default_pos
         clone.status_flags = StatusFlags.from_template(mob.status_flags) if mob.status_flags is not None else None
+        # create() supplies a fresh identity and spawn-only setup; a clone then
+        # inherits live state, not the newly rolled resources or start position.
+        for name in ('hit', 'max_hit', 'mana', 'max_mana', 'movement', 'max_movement',
+                     'position', 'saving_throw', 'dam_roll', 'timer', 'wimpy',
+                     'character_attributes', 'armor_class', 'hit_dice', 'mana_dice',
+                     'damage_dice', 'effects', 'extra_flags', 'special_name', 'special_function'):
+            if hasattr(mob, name):
+                setattr(clone, name, deepcopy(getattr(mob, name)))
+        clone.trust = 0
+        item_ids = {}
         for item in mob.owned_items():
-            copied = ItemFactory.copy_instance(item)
+            if item_filter is not None and not item_filter(item):
+                if effect_handler is not None:
+                    effect_handler.remove_item_effects(clone, item)
+                continue
+            copied = ItemFactory.copy_instance(item, item_filter=item_filter)
+            item_ids[str(item.id)] = str(copied.id)
             slot = mob.equipped_slot_of(item)
             if slot is None:
                 slot = WEAR_LOC_TO_EQUIPPED_SLOT.get(GenericUtil.to_int(getattr(item, "wear_loc", -1), -1))
             if slot is not None:
                 clone.equip_item(copied, slot)
+                copied._effect_wearer = clone
             else:
                 clone.add_item(copied)
+        for effect in (getattr(clone, 'effects', []) or []):
+            for old_id, new_id in item_ids.items():
+                if effect.belongs_to_item(old_id):
+                    effect.source = Effect.item_source(new_id)
+                    break
         return clone
 
     @staticmethod

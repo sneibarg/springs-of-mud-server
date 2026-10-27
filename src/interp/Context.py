@@ -26,6 +26,7 @@ class Context:
     next_index: Optional[int] = None
     count: Optional[int] = 0  # used for counting items; result of number_argument
     room: Optional[Room] = None
+    raw_command: str | None = None
 
     @property
     def argument(self) -> str:

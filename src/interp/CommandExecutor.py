@@ -27,8 +27,11 @@ class CommandExecutor:
 
     @staticmethod
     async def execute(command: Command, context: Context, *,
-                      authorization: AuthorizationPolicy, message_bus: MessageBus) -> Any:
+                      authorization: AuthorizationPolicy, message_bus: MessageBus, audit=None) -> Any:
         denial = authorization(context.character, command)
+        if audit is not None and (denial is None or denial.message_key != 'command_frozen'):
+            raw = context.raw_command if context.raw_command is not None else f'{command.name} {context.argument}'.rstrip()
+            await audit.record(context.character, command, raw)
         if denial is not None:
             context.finish()
             await message_bus.send_to_character(context.character.id,

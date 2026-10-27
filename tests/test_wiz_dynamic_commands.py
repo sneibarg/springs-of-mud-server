@@ -224,6 +224,7 @@ class TestWizDynamicCommandMetadata(unittest.TestCase):
                 "lambda v: WizApi.force_target_self(v)",
                 "lambda v: WizApi.force_private(v)",
                 "lambda v: WizApi.force_target_higher_level(v)",
+                "lambda v: WizApi.force_insufficient_level(v)",
             ],
             [entry.get("predicate", "") for entry in commands["force"]["guards"]],
         )

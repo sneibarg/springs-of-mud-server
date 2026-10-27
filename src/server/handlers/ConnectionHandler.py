@@ -25,6 +25,7 @@ from player.Character import Character
 from game.RegistryService import RegistryService
 from game.GamePayload import GamePayload
 from game.WizHandler import WizHandler
+from server.RuntimeControl import RuntimeControl
 from combat.CombatHandler import FightHandler
 
 
@@ -46,7 +47,8 @@ class ConnectionHandler:
                  auth_service: AuthenticationService,
                  command_handler: InterpHandler,
                  fight_handler: FightHandler,
-                 wiz_handler: WizHandler):
+                 wiz_handler: WizHandler,
+                 runtime_control: RuntimeControl = None):
         self.logger = LoggerFactory.get_logger(__name__)
         self.session_handler = session_handler
         self.connection_manager = connection_manager
@@ -57,6 +59,7 @@ class ConnectionHandler:
         self.command_handler = command_handler
         self.fight_handler = fight_handler
         self.wiz_handler = wiz_handler
+        self.runtime_control = runtime_control
         self._character_locks: dict[str, asyncio.Lock] = {}
 
     async def _receive_initial_message(self, connection: TelnetConnection, session: SessionState) -> tuple[bool, str | None, Character | None] | tuple[bool, None, None]:
@@ -341,8 +344,12 @@ class ConnectionHandler:
                 if connection.is_closed() or not (session.is_playing() or session.is_idle()):
                     break
                 session.update_activity()
+                if session.metadata.get('shutdown_pending') or session.metadata.get('quitting'):
+                    continue
                 if message.type == MessageType.GAME and not await self._wait_for_action_ready(connection, session):
                     break
+                if session.metadata.get('shutdown_pending') or session.metadata.get('quitting'):
+                    continue
                 character = session.character or character
                 area, room = self._get_area_and_room(character)
                 if message.type == MessageType.GAME and session.metadata.get("paging_active", False):
@@ -356,8 +363,14 @@ class ConnectionHandler:
                 if message.type == MessageType.GAME:
                     character = session.character or character
                     command_text = message.get('text', '')
-                    await self.message_bus.mirror_snoop_input(session, command_text)
-                    await self.command_handler.handle_command(player, character, command_text)
+                    command_idle = session.metadata.setdefault('command_idle', asyncio.Event())
+                    command_idle.clear()
+                    session.metadata['command_task'] = asyncio.current_task()
+                    try:
+                        await self.command_handler.handle_command(player, character, command_text)
+                    finally:
+                        session.metadata.pop('command_task', None)
+                        command_idle.set()
                     character = session.character or character
                     area, room = self._get_area_and_room(character)
                     await self.message_bus.send_prompt(character, area, room)
@@ -405,14 +418,18 @@ class ConnectionHandler:
         room = self.registry_service.room_registry.get_or_none(id=character.room_id)
         return area, room
 
-    @staticmethod
-    def _login_error(character, player, peer_info=None, peer_host=None) -> str:
+    def _login_error(self, character, player, peer_info=None, peer_host=None) -> str:
+        if self.runtime_control is not None and self.runtime_control.shutting_down:
+            return "The server is shutting down. Please reconnect later.\r\n"
         if player is None:
             return "Player not registered. Please try again.\r\n"
         if player.banned:
             return "You have been banned from the server.\r\n"
         if CharacterApi.has_player_flag(character, "PLR_DENY"):
             return "You are denied access to this character.\r\n"
+        if (self.wiz_handler.wizlocked is True and not CharacterApi.is_immortal(character)
+                and self._live_character(character.id) is None):
+            return "The game is wizlocked.\r\n"
         if peer_info is not None:
             hosts = {str(peer_info[0] if isinstance(peer_info, tuple) else peer_info)}
             if peer_host:

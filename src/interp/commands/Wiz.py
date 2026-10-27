@@ -29,6 +29,7 @@ from server.LoggerFactory import LoggerFactory
 from api.AreaApi import AreaApi
 from util.GenericUtil import GenericUtil
 from util.WizUtil import WizUtil
+from util.EntityExtractor import EntityExtractor
 
 
 class Wiz:
@@ -50,6 +51,7 @@ class Wiz:
         self.interp_api = interp_api
         self.wiz_set_api = wiz_set_api
         self.fight_handler = fight_handler
+        self.entity_extractor = EntityExtractor(registry_service, fight_handler, wiz_handler)
         self.game_service = game_service
         self.player_service = player_service
         self.character_service = character_service
@@ -245,7 +247,7 @@ class Wiz:
 
     def do_pecho(self, _character: Character, context: Context):
         target_name, message = WizUtil.split_argument(WizUtil.argument_text(context.result, context.parameters))
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, target_name, include_mobiles=False)
+        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, target_name, include_mobiles=False, observer=context.character)
         if not target_name or not message:
             context.finish()
             return InterpApi.command_payload("no_argument")
@@ -261,7 +263,7 @@ class Wiz:
             return blocked
 
         location_arg, nested_command = WizUtil.split_argument(WizUtil.argument_text(context.result, context.parameters))
-        room = AreaApi.find_location(location_arg, self.room_registry, self.character_registry, WizUtil.name_matches)
+        room = AreaApi.find_location(location_arg, self.room_registry, self.character_registry, WizUtil.name_matches, observer=context.character)
         if room is None:
             context.finish()
             return InterpApi.command_payload("no_such_location")
@@ -279,7 +281,9 @@ class Wiz:
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
             return blocked
-        room = AreaApi.find_location(WizUtil.argument_text(context.result, context.parameters), self.room_registry, self.character_registry, WizUtil.name_matches)
+        room = AreaApi.find_location(WizUtil.argument_text(context.result, context.parameters), self.room_registry, self.character_registry, WizUtil.name_matches, observer=context.character)
+        if room is not None and character.fighting is not None:
+            self.fight_handler.stop_fighting(character, both=True)
         from_room = WizUtil.move_entity(self.room_registry, character, room)
         if from_room is None or room is None:
             context.finish()
@@ -300,23 +304,44 @@ class Wiz:
         if not target_name:
             context.finish()
             return {"to_char": "Transfer whom (and where)?\r\n"}
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, target_name)
+        if target_name.lower() == "all":
+            payloads = []
+            for session in self.wiz_handler.session_handler.get_playing_sessions():
+                victim = session.character
+                if victim is None or victim is character:
+                    continue
+                victim_room = WizUtil.room_of_entity(self.room_registry, victim)
+                if victim_room is None or not CharacterApi.can_see(character, victim, victim_room):
+                    continue
+                payloads.append(self._transfer_target(character, context, victim, destination))
+            context.finish()
+            return {"payloads": payloads}
+        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, target_name, observer=context.character)
         if victim is None:
             context.finish()
             return {"to_char": "They aren't here.\r\n"}
-        room = self.room_registry.get_or_none(id=character.room_id) if not destination else AreaApi.find_location(destination, self.room_registry, self.character_registry, WizUtil.name_matches)
+        return self._transfer_target(character, context, victim, destination)
+
+    def _transfer_target(self, character: Character, context: Context, victim, destination: str):
+        room = self.room_registry.get_or_none(id=character.room_id) if not destination else AreaApi.find_location(destination, self.room_registry, self.character_registry, WizUtil.name_matches, observer=context.character)
         if room is None:
             context.finish()
             return {"to_char": "No such location.\r\n"}
-        if self.wiz_handler.room_is_private_for_actor(character, room):
+        if destination and self.wiz_handler.room_is_private_for_actor(character, room):
             context.finish()
             return {"to_char": "That room is private right now.\r\n"}
+        if WizUtil.room_of_entity(self.room_registry, victim) is None:
+            context.finish()
+            return InterpApi.command_payload("target_in_limbo")
+        if victim.fighting is not None:
+            self.fight_handler.stop_fighting(victim, both=True)
         from_room = WizUtil.move_entity(self.room_registry, victim, room)
         context.finish()
         return {
+            "actor": character,
             "to_char": "Ok.\r\n",
             "victim": victim if not CharacterApi.is_npc(victim) else None,
-            "to_victim": "" if CharacterApi.is_npc(victim) else f"{character.name} has transferred you.\r\n",
+            "to_victim": "" if CharacterApi.is_npc(victim) or victim is character else f"{character.name} has transferred you.\r\n",
             "from_room_targets": [] if from_room is None else from_room.player_targets(victim) if not CharacterApi.is_npc(victim) else from_room.players_in_room(),
             "from_room_message": f"{WizUtil.display_name(victim)} disappears in a mushroom cloud.\r\n",
             "to_room_targets": room.player_targets(victim) if not CharacterApi.is_npc(victim) else room.players_in_room(),
@@ -390,7 +415,10 @@ class Wiz:
         return InterpApi.command_payload("set", tokens={"s": text})
 
     def _toggle_penalty_flag(self, _character: Character, context: Context, enum_obj, flag_name: str, flag_group: str):
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters))
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
+        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters), observer=context.character)
         bit = CharacterApi.enum_bit(enum_obj, flag_name)
         current = getattr(victim.status_flags, flag_group)
         enabled = CharacterApi.is_set(current, bit)
@@ -400,6 +428,8 @@ class Wiz:
             unsetter(victim, bit)
         else:
             setter(victim, bit)
+        if flag_name == "PLR_FREEZE":
+            self._save_character(victim)
         context.finish()
         return InterpApi.command_payload("removed" if enabled else "set", victim=victim, wiznet_flag="WIZ_PENALTIES", wiznet_skip_flag="WIZ_SECURE")
 
@@ -410,11 +440,17 @@ class Wiz:
         arg = WizUtil.argument_text(context.result, context.parameters).strip().lower()
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
         if arg in ("", "room"):
+            notifications = []
             for target in ([] if room is None else list(room.characters.values()) + list(room.mobiles.values())):
-                WizApi.restore_character(target)
+                WizApi.restore_character(target, self.fight_handler)
+                notifications.append(InterpApi.command_payload(
+                    "default", channel="to_victim", victim=target,
+                    token_factory=self._actor_target_tokens,
+                ))
             context.finish()
             return {
                 "payloads": [
+                    *notifications,
                     InterpApi.command_payload("room"),
                     InterpApi.command_payload(
                         "default",
@@ -427,17 +463,23 @@ class Wiz:
                 ]
             }
         if arg == "all" and CharacterApi.get_trust(character) >= self.GameParameters.MAX_LEVEL.value - 1:
+            notifications = []
             for session in self.wiz_handler.session_handler.get_playing_sessions():
                 victim = session.character
                 if victim is not None and not CharacterApi.is_npc(victim):
-                    WizApi.restore_character(victim)
+                    WizApi.restore_character(victim, self.fight_handler)
+                    if WizUtil.room_of_entity(self.room_registry, victim) is not None:
+                        notifications.append(InterpApi.command_payload(
+                            "default", channel="to_victim", victim=victim,
+                            token_factory=self._actor_target_tokens,
+                        ))
             context.finish()
-            return InterpApi.command_payload("active_players")
-        victim = character if arg == "self" else WizUtil.find_world_entity(self.character_registry, self.room_registry, arg)
+            return {"payloads": [*notifications, InterpApi.command_payload("active_players")]}
+        victim = character if arg == "self" else WizUtil.find_world_entity(self.character_registry, self.room_registry, arg, observer=context.character)
         if victim is None:
             context.finish()
             return InterpApi.command_payload("target_missing")
-        WizApi.restore_character(victim)
+        WizApi.restore_character(victim, self.fight_handler)
         context.finish()
         if victim == character:
             return InterpApi.command_payload(
@@ -470,8 +512,7 @@ class Wiz:
                     continue
                 if nopurge_act and CharacterApi.is_set(getattr(victim.status_flags, "act", 0), nopurge_act):
                     continue
-                room.remove_mobile_from_room(victim)
-                self._unregister_live_character(victim)
+                self.entity_extractor.extract(victim)
             for obj in list(room.contents.values()):
                 if nopurge_item and GameApi.is_set(getattr(obj, "extra_flags", 0), nopurge_item):
                     continue
@@ -479,7 +520,7 @@ class Wiz:
             context.finish()
             return {"to_char": "Ok.\r\n", "room_message": f"{character.name} purges the room!\r\n", "room_targets": room.player_targets(character)}
 
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, argument)
+        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, argument, observer=context.character)
         if victim is None:
             context.finish()
             return InterpApi.command_payload("target_missing")
@@ -491,19 +532,14 @@ class Wiz:
                 context.finish()
                 return InterpApi.command_payload("insufficient_level", victim=victim, tokens={"c": character.name})
             victim_room = WizUtil.room_of_entity(self.room_registry, victim)
-            if victim_room is not None:
-                victim_room.remove_player_from_room(victim)
-            victim.room_id = ""
             context.finish()
             return {
                 "room_message": f"{character.name} disintegrates {victim.name}.\r\n",
                 "room_targets": [] if victim_room is None else victim_room.player_targets(victim),
-                "disconnect_character": victim,
+                "purge_character": victim,
             }
         victim_room = WizUtil.room_of_entity(self.room_registry, victim)
-        if victim_room is not None:
-            victim_room.remove_mobile_from_room(victim)
-        self._unregister_live_character(victim)
+        self.entity_extractor.extract(victim)
         context.finish()
         return {"room_message": f"{character.name} purges {WizUtil.display_name(victim)}.\r\n", "room_targets": [] if victim_room is None else victim_room.players_in_room()}
 
@@ -514,79 +550,32 @@ class Wiz:
             return {"to_char": "You are nowhere.\r\n"}
         aggressive = CharacterApi.enum_bit(self.ActBitsEnum, "ACT_AGGRESSIVE")
         for target in list(room.characters.values()) + list(room.mobiles.values()):
-            target.fighting = None
-            if hasattr(target, "character_attributes") and getattr(target, "character_attributes", None) is not None:
-                CharacterApi.set_position(target, "POS_STANDING")
+            if target.fighting is not None:
+                self.fight_handler.stop_fighting(target, both=True)
             if CharacterApi.is_npc(target) and aggressive:
                 CharacterApi.unset_act_flags(target, aggressive)
         context.finish()
         return {"to_char": "Ok.\r\n"}
 
-    def do_mwhere(self, _character: Character, context: Context):
-        arg = WizUtil.argument_text(context.result, context.parameters).strip().lower()
-        lines = []
-        for room in self.room_registry.all_rooms():
-            for mob in room.mobiles.values():
-                name = f"{mob.name or ''} {mob.short_description or ''}".strip().lower()
-                if not arg or arg in name:
-                    lines.append(f"[{mob.vnum}] {mob.short_description} - [{room.vnum}] {room.name}")
-        context.finish()
-        return {"to_char": "Nothing like that in heaven or earth.\r\n" if not lines else "\r\n".join(lines) + "\r\n"}
+    def _diagnostics(self):
+        from util.WizDiagnostics import WizDiagnostics
+        return WizDiagnostics(self.registry_service, self.wiz_handler)
 
-    def do_owhere(self, _character: Character, context: Context):
-        arg = WizUtil.argument_text(context.result, context.parameters).strip().lower()
-        if not arg:
-            context.finish()
-            return {"to_char": "Owhere what?\r\n"}
-        lines = []
-        for room in self.room_registry.all_rooms():
-            for obj in room.contents.values():
-                if arg in str(getattr(obj, "name", "") or "").lower():
-                    lines.append(f"[{obj.vnum}] {obj.short_description} - [{room.vnum}] {room.name}")
+    def do_mwhere(self, character, context):
         context.finish()
-        return {"to_char": "Nothing like that in heaven or earth.\r\n" if not lines else "\r\n".join(lines) + "\r\n"}
+        return {"to_char": self._diagnostics().mwhere(character, WizUtil.argument_text(context.result, context.parameters))}
 
-    def do_vnum(self, _character: Character, context: Context):
-        arg = WizUtil.argument_text(context.result, context.parameters).strip().lower()
-        if not arg:
-            context.finish()
-            return InterpApi.command_payload("syntax")
-        lines = []
-        for mob in self.mobile_registry.all_mobiles():
-            if arg in str(getattr(mob, "name", "") or "").lower():
-                lines.append(f"M [{mob.vnum}] {mob.short_description}")
-        for obj in self.item_registry.all_items():
-            if arg in str(getattr(obj, "name", "") or "").lower():
-                lines.append(f"O [{obj.vnum}] {obj.short_description}")
+    def do_owhere(self, character, context):
         context.finish()
-        return {"to_char": "No vnum has that keyword.\r\n" if not lines else "\r\n".join(lines[:200]) + "\r\n"}
+        return {"to_char": self._diagnostics().owhere(character, WizUtil.argument_text(context.result, context.parameters))}
 
-    def do_stat(self, character: Character, context: Context):
-        kind, value = WizUtil.split_argument(WizUtil.argument_text(context.result, context.parameters))
-        if not kind:
-            context.finish()
-            return InterpApi.command_payload("syntax")
-        if kind in ("room", "r"):
-            room = self.room_registry.get_or_none(id=character.room_id)
-            context.finish()
-            if room is None:
-                return InterpApi.command_payload("room_missing")
-            return {"to_char": f"Room [{room.vnum}] {room.name}\r\nFlags: {room.room_flags} Sector: {room.sector_type}\r\n"}
-        if kind in ("char", "mob", "player", "m"):
-            target = WizUtil.find_world_entity(self.character_registry, self.room_registry, value or kind)
-            context.finish()
-            return {"to_char": self._stat_character_text(target)} if target is not None else InterpApi.command_payload("no_such_target")
-        if kind in ("obj", "item", "o"):
-            target = WizUtil.find_world_item(self.character_registry, self.room_registry, value)
-            context.finish()
-            return {"to_char": self._stat_object_text(target)} if target is not None else InterpApi.command_payload("no_such_target")
-        target = WizUtil.find_world_entity(self.character_registry, self.room_registry, kind)
-        if target is not None:
-            context.finish()
-            return {"to_char": self._stat_character_text(target)}
-        obj = WizUtil.find_world_item(self.character_registry, self.room_registry, kind)
+    def do_vnum(self, _character, context):
         context.finish()
-        return {"to_char": self._stat_object_text(obj)} if obj is not None else InterpApi.command_payload("no_such_target")
+        return self._diagnostics().vnum(WizUtil.argument_text(context.result, context.parameters))
+
+    def do_stat(self, character, context):
+        context.finish()
+        return self._diagnostics().stat(character, WizUtil.argument_text(context.result, context.parameters))
 
     def do_load(self, character: Character, context: Context):
         raw = WizUtil.argument_text(context.result, context.parameters)
@@ -606,6 +595,8 @@ class Wiz:
                 context.finish()
                 return InterpApi.command_payload("no_such_mobile")
             mob = MobileFactory.create(proto, CharacterApi.enum_provider())
+            mob.room_id = room.id
+            mob.area_id = room.area_id
             room.add_mobile_to_room(mob)
             self.character_registry.register(mob)
             context.finish()
@@ -637,7 +628,8 @@ class Wiz:
                 context.finish()
                 return InterpApi.command_payload("no_such_object")
             obj = ItemFactory.create(proto)
-            obj.level = level
+            if not obj.new_format:
+                obj.level = level
             if ItemApi.item_takeable(obj, self.WearFlagsEnum) and not CharacterApi.is_npc(character):
                 character.add_item(obj)
             elif ItemApi.item_takeable(obj, self.WearFlagsEnum) and CharacterApi.is_npc(character):
@@ -717,12 +709,15 @@ class Wiz:
         return {"to_char": "You cannot abbreviate the prefix command.\r\n"}
 
     def do_log(self, character: Character, context: Context):
+        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if blocked is not None:
+            return blocked
         argument = WizUtil.argument_text(context.result, context.parameters).strip().lower()
         if argument == "all":
             enabled = self.wiz_handler.toggle_log_all()
             context.finish()
             return InterpApi.command_payload("enable_log_all" if enabled else "disable_log_all")
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, argument)
+        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, argument, observer=context.character)
         bit = CharacterApi.enum_bit(self.PlayerActBitsEnum, "PLR_LOG")
         enabled = CharacterApi.is_set(victim.status_flags.act, bit)
         if enabled:
@@ -746,7 +741,7 @@ class Wiz:
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
             return blocked
-        target = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters))
+        target = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters), observer=context.character)
         if target == character:
             self.wiz_handler.cancel_snoops(character)
             context.finish()
@@ -786,36 +781,37 @@ class Wiz:
 
     def do_string(self, _character: Character, context: Context):
         raw = WizUtil.argument_text(context.result, context.parameters)
-        parts = raw.split(maxsplit=3)
-        if len(parts) < 4:
+        target_type, remainder = WizUtil.split_argument(raw)
+        target_name, remainder = WizUtil.split_argument(remainder)
+        field_name, rest = WizUtil.split_argument(remainder)
+        if not target_type or not target_name or not field_name or not rest:
             context.finish()
             return InterpApi.command_payload("syntax")
-        target_type, target_name, field_name, rest = parts
         target_type = target_type.lower()
         field_name = field_name.lower()
 
         if target_type in ("char", "character", "mobile"):
-            victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, target_name)
+            victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, target_name, observer=context.character)
             if victim is None:
                 context.finish()
                 return InterpApi.command_payload("target_missing")
-            if field_name == "name":
+            if "name".startswith(field_name):
                 if not CharacterApi.is_npc(victim):
                     context.finish()
                     return InterpApi.command_payload("pc_invalid")
                 victim.name = rest
-            elif field_name in ("desc", "description"):
+            elif "description".startswith(field_name):
                 victim.description = rest
-            elif field_name == "short":
+            elif "short".startswith(field_name):
                 setattr(victim, "short_description", rest)
-            elif field_name == "long":
+            elif "long".startswith(field_name):
                 setattr(victim, "long_description", rest if rest.endswith("\r\n") else rest + "\r\n")
-            elif field_name == "title":
+            elif "title".startswith(field_name):
                 if CharacterApi.is_npc(victim):
                     context.finish()
                     return InterpApi.command_payload("npc_invalid")
                 victim.title = rest if rest.startswith((" ", ".", ",", "!", "?")) else f" {rest}"
-            elif field_name == "spec":
+            elif "spec".startswith(field_name):
                 if not CharacterApi.is_npc(victim):
                     context.finish()
                     return InterpApi.command_payload("pc_invalid")
@@ -832,22 +828,21 @@ class Wiz:
             return {"to_char": ""}
 
         if target_type in ("obj", "object"):
-            obj = WizUtil.find_world_item(self.character_registry, self.room_registry, target_name)
+            obj = WizUtil.find_world_item(self.character_registry, self.room_registry, target_name, observer=context.character)
             if obj is None:
                 context.finish()
                 return InterpApi.command_payload("no_such_object")
-            if field_name == "name":
+            if "name".startswith(field_name):
                 obj.name = rest
-            elif field_name == "short":
+            elif "short".startswith(field_name):
                 obj.short_description = rest
-            elif field_name == "long":
+            elif "long".startswith(field_name):
                 obj.long_description = rest
             elif field_name in ("ed", "extended"):
-                pieces = rest.split(maxsplit=1)
-                if len(pieces) < 2:
+                keyword, description = WizUtil.split_argument(rest)
+                if not keyword or not description:
                     context.finish()
                     return InterpApi.command_payload("oset_syntax")
-                keyword, description = pieces
                 obj.extra_descr = [keyword, description]
                 obj.extra_description = ExtraDescriptionData(valid=True, keyword=keyword, description=description)
             else:
@@ -863,7 +858,7 @@ class Wiz:
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
             return blocked
-        target = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters))
+        target = WizUtil.find_world_entity(self.character_registry, self.room_registry, WizUtil.argument_text(context.result, context.parameters), observer=context.character)
         self.wiz_handler.switch_character(character, target)
         context.character = target
         context.finish()
@@ -900,7 +895,7 @@ class Wiz:
             if not WizUtil.can_clone_object(character, obj):
                 context.finish()
                 return InterpApi.command_payload("insufficient_level")
-            clone = ItemFactory.copy_instance(obj)
+            clone = ItemFactory.copy_instance(obj, item_filter=lambda item: WizUtil.can_clone_object(character, item))
             if room is not None and obj in room.contents.values():
                 room.add_item_to_room(clone)
             elif CharacterApi.is_npc(character):
@@ -919,8 +914,12 @@ class Wiz:
         if not WizUtil.can_clone_mobile(character, mob):
             context.finish()
             return InterpApi.command_payload("insufficient_level")
-        clone = MobileFactory.copy_instance(mob, CharacterApi.enum_provider())
+        clone = MobileFactory.copy_instance(
+            mob, CharacterApi.enum_provider(), item_filter=lambda item: WizUtil.can_clone_object(character, item),
+            effect_handler=self.fight_handler.effect_handler)
         if room is not None:
+            clone.room_id = room.id
+            clone.area_id = room.area_id
             room.add_mobile_to_room(clone)
             self.character_registry.register(clone)
         context.finish()
@@ -971,7 +970,7 @@ class Wiz:
             context.finish()
             return InterpApi.command_payload("siteDenied", tokens={"s": site, "t": site})
 
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, argument, include_players=True, include_mobiles=False)
+        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, argument, include_players=True, include_mobiles=False, observer=context.character)
         deny_bit = CharacterApi.enum_bit(self.PlayerActBitsEnum, "PLR_DENY")
         if deny_bit:
             CharacterApi.set_act_flags(victim, deny_bit)
@@ -1026,7 +1025,7 @@ class Wiz:
             return blocked
 
         target_name, guild_name = WizApi.guild_parts(self.interp_api.build_interp_view(context))
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, target_name, include_players=True, include_mobiles=False)
+        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, target_name, include_players=True, include_mobiles=False, observer=context.character)
         normalized = str(guild_name or "").strip().lower()
         if normalized in ("none", "no", "clanless", "remove", "0"):
             victim.guild = ""
@@ -1062,7 +1061,9 @@ class Wiz:
         if blocked is not None:
             return blocked
 
-        room = AreaApi.find_location(WizUtil.argument_text(context.result, context.parameters), self.room_registry, self.character_registry, WizUtil.name_matches)
+        room = AreaApi.find_location(WizUtil.argument_text(context.result, context.parameters), self.room_registry, self.character_registry, WizUtil.name_matches, observer=context.character)
+        if room is not None and character.fighting is not None:
+            self.fight_handler.stop_fighting(character, both=True)
         from_room = WizUtil.move_entity(self.room_registry, character, room)
         context.finish()
         return {
@@ -1131,14 +1132,9 @@ class Wiz:
         if blocked is not None:
             return blocked
 
-        target_name, command_text = WizApi.force_parts(self.interp_api.build_interp_view(context))
-        if target_name == "all":
-            victims = [
-                victim for victim in self.character_registry.all_characters()
-                if victim != character and CharacterApi.get_trust(victim) < CharacterApi.get_trust(character)
-            ]
-        else:
-            victims = [WizApi.force_target(self.interp_api.build_interp_view(context))]
+        view = self.interp_api.build_interp_view(context)
+        _target_name, command_text = WizApi.force_parts(view)
+        victims = WizApi.force_targets(view)
 
         context.finish()
         return {
@@ -1216,7 +1212,6 @@ class Wiz:
         return {
             "broadcast_message": message,
             "exclude_character_ids": [],
-            "close_all_connections": True,
             "shutdown_kind": command_name,
         }
 

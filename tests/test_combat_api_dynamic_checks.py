@@ -236,7 +236,8 @@ class TestFightApiDynamicChecks(unittest.TestCase):
 
         payload = SimpleNamespace(render=lambda channel, key, fallback="", **_tokens: "How can you sneak up on yourself?" if (channel, key) == ("to_char", "target_self") else fallback)
         actor = SimpleNamespace(name="Tester", fighting=None)
-        context = SimpleNamespace(character=actor, command=SimpleNamespace(name="backstab", payload=payload), finish=lambda: None)
+        context = SimpleNamespace(character=actor, command=SimpleNamespace(name="backstab", payload=payload),
+                                  room=None, finish=lambda: None)
         view = FightView(
             context=context,
             payload=payload,

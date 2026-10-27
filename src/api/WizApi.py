@@ -15,6 +15,12 @@ class WizApi:
         return str((view.context.character.context or {}).get("prefix", "") or "")
 
     @staticmethod
+    def prefix_abbreviated(view) -> bool:
+        raw = getattr(view.context, 'raw_command', None) or ''
+        verb, _ = InterpUtil.one_argument(raw)
+        return verb in ('pref', 'prefi')
+
+    @staticmethod
     def room_registry(view):
         player_handler = view.context.player_handler()
         return None if player_handler is None else player_handler.room_registry
@@ -25,10 +31,14 @@ class WizApi:
         return None if player_handler is None else player_handler.character_registry
 
     @staticmethod
-    def restore_character(victim: Character):
+    def restore_character(victim: Character, fight_handler):
+        for name in ("plague", "poison", "blindness", "sleep", "curse"):
+            fight_handler.effect_handler.affect_strip(victim, f"spell.{name}")
+            fight_handler.effect_handler.affect_strip(victim, name)
         victim.hit = int(victim.max_hit)
         victim.mana = int(victim.max_mana)
         victim.movement = int(victim.max_movement)
+        fight_handler.update_pos(victim)
 
     @staticmethod
     def location(view):
@@ -37,6 +47,7 @@ class WizApi:
             WizApi.room_registry(view),
             WizApi.character_registry(view),
             WizUtil.name_matches,
+            observer=view.context.character,
         )
 
     @staticmethod
@@ -56,6 +67,7 @@ class WizApi:
             WizApi.room_registry(view),
             WizApi.character_registry(view),
             WizUtil.name_matches,
+            observer=view.context.character,
         )
 
     @staticmethod
@@ -97,6 +109,7 @@ class WizApi:
             target_name,
             include_players=True,
             include_mobiles=True,
+            observer=view.context.character,
         )
 
     @staticmethod
@@ -169,6 +182,7 @@ class WizApi:
             target_name,
             include_players=True,
             include_mobiles=True,
+            observer=view.context.character,
         )
 
     @staticmethod
@@ -278,7 +292,9 @@ class WizApi:
     @staticmethod
     def goto_private(view) -> bool:
         room = WizApi.location(view)
-        return room is not None and WizApi.room_private_for_actor(view, room)
+        handler = view.context.wiz_handler()
+        return room is not None and handler is not None and handler.room_is_private_for_actor(
+            view.context.character, room, deny_occupied=True)
 
     @staticmethod
     def at_private(view) -> bool:
@@ -307,6 +323,7 @@ class WizApi:
             WizApi.character_registry(view),
             WizApi.room_registry(view),
             argument,
+            observer=view.context.character,
         )
 
     @staticmethod
@@ -316,6 +333,7 @@ class WizApi:
             WizApi.room_registry(view),
             InterpUtil.argument_text(view),
             include_mobiles=False,
+            observer=view.context.character,
         )
 
     @staticmethod
@@ -364,6 +382,7 @@ class WizApi:
             InterpUtil.argument_text(view),
             include_players=True,
             include_mobiles=True,
+            observer=view.context.character,
         )
 
     @staticmethod
@@ -416,6 +435,7 @@ class WizApi:
             InterpUtil.argument_text(view),
             include_players=True,
             include_mobiles=True,
+            observer=view.context.character,
         )
 
     @staticmethod
@@ -529,6 +549,7 @@ class WizApi:
             target_name,
             include_players=True,
             include_mobiles=False,
+            observer=view.context.character,
         )
 
     @staticmethod
@@ -553,6 +574,7 @@ class WizApi:
             target_name,
             include_players=True,
             include_mobiles=False,
+            observer=view.context.character,
         )
 
     @staticmethod
@@ -581,6 +603,7 @@ class WizApi:
             WizApi.room_registry(view),
             WizApi.character_registry(view),
             WizUtil.name_matches,
+            observer=view.context.character,
         )
 
     @staticmethod
@@ -619,6 +642,7 @@ class WizApi:
             argument,
             include_players=True,
             include_mobiles=False,
+            observer=view.context.character,
         )
 
     @staticmethod
@@ -664,7 +688,7 @@ class WizApi:
     @staticmethod
     def force_target(view):
         target_name, _command_text = WizApi.force_parts(view)
-        if target_name == "all":
+        if target_name in ("all", "players", "gods"):
             return view.context.character
         return WizUtil.find_world_entity(
             WizApi.character_registry(view),
@@ -672,6 +696,7 @@ class WizApi:
             target_name,
             include_players=True,
             include_mobiles=True,
+            observer=view.context.character,
         )
 
     @staticmethod
@@ -681,12 +706,12 @@ class WizApi:
     @staticmethod
     def force_target_self(view) -> bool:
         target_name, _command_text = WizApi.force_parts(view)
-        return target_name != "all" and WizApi.force_target(view) == view.context.character
+        return target_name not in ("all", "players", "gods") and WizApi.force_target(view) == view.context.character
 
     @staticmethod
     def force_private(view) -> bool:
         target_name, _command_text = WizApi.force_parts(view)
-        if target_name == "all":
+        if target_name in ("all", "players", "gods"):
             return False
         target = WizApi.force_target(view)
         room = None if target is None else WizUtil.room_of_entity(WizApi.room_registry(view), target)
@@ -695,10 +720,37 @@ class WizApi:
     @staticmethod
     def force_target_higher_level(view) -> bool:
         target_name, _command_text = WizApi.force_parts(view)
-        if target_name == "all":
+        if target_name in ("all", "players", "gods"):
             return False
         target = WizApi.force_target(view)
         return target is not None and CharacterApi.get_trust(target) >= CharacterApi.get_trust(view.context.character)
+
+    @staticmethod
+    def force_insufficient_level(view) -> bool:
+        target_name, _command_text = WizApi.force_parts(view)
+        parameters = CharacterApi.get_enum("gameParameters")
+        trust = CharacterApi.get_trust(view.context.character)
+        if target_name in ("players", "gods"):
+            return trust < int(parameters.MAX_LEVEL) - 2
+        if target_name == "all":
+            return trust < int(parameters.MAX_LEVEL) - 3
+        target = WizApi.force_target(view)
+        return target is not None and not CharacterApi.is_npc(target) and trust < int(parameters.MAX_LEVEL) - 3
+
+    @staticmethod
+    def force_targets(view) -> list:
+        target_name, _command_text = WizApi.force_parts(view)
+        if target_name not in ("all", "players", "gods"):
+            target = WizApi.force_target(view)
+            return [] if target is None else [target]
+        actor = view.context.character
+        hero_level = int(CharacterApi.get_enum("gameParameters").LEVEL_HERO)
+        return [victim for victim in WizUtil.live_world_entities(WizApi.room_registry(view))
+                if not CharacterApi.is_npc(victim)
+                and CharacterApi.get_trust(victim) < CharacterApi.get_trust(actor)
+                and (target_name == "all"
+                     or (target_name == "players" and int(victim.level) < hero_level)
+                     or (target_name == "gods" and int(victim.level) >= hero_level))]
 
     @staticmethod
     def pardon_parts(view) -> tuple[str, str]:
@@ -718,6 +770,7 @@ class WizApi:
             target_name,
             include_players=True,
             include_mobiles=True,
+            observer=view.context.character,
         )
 
     @staticmethod

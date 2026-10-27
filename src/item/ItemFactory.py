@@ -57,8 +57,8 @@ class ItemFactory:
         return item
 
     @staticmethod
-    def copy_instance(obj: Item) -> Item:
-        """Copy current item state and its contents, assigning fresh identities."""
+    def copy_instance(obj: Item, item_filter=None) -> Item:
+        """Copy state with fresh identities, optionally filtering each contained item."""
         clone = ItemFactory.create(obj)
         clone.description = getattr(obj, "description", "")
         for field_name in ("value0", "value1", "value2", "value3", "value4"):
@@ -69,7 +69,9 @@ class ItemFactory:
             Item.update_extra_description(clone)
         effects = getattr(obj, "effects", None)
         clone.effects = deepcopy(effects) if effects is not None else None
-        clone.contains = [ItemFactory.copy_instance(item) for item in list(getattr(obj, "contains", []) or [])]
+        clone.contains = [ItemFactory.copy_instance(item, item_filter=item_filter)
+                          for item in list(getattr(obj, "contains", []) or [])
+                          if item_filter is None or item_filter(item)]
         return clone
 
     @staticmethod

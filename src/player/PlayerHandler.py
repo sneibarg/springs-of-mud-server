@@ -1,6 +1,7 @@
 from util.LookupUtil import LookupUtil
 from api.ItemApi import ItemApi
 import inspect
+import asyncio
 from dataclasses import fields
 from typing import Any
 from injector import inject
@@ -12,6 +13,7 @@ from game.RegistryService import RegistryService
 from interp.Context import Context
 from interp.CommandAccess import CommandAccess
 from interp.CommandExecutor import CommandExecutor
+from interp.CommandAudit import CommandAudit
 from interp.commands.Info import Info
 from interp.commands.Movement import Movement
 from interp.commands.Communications import Communications
@@ -30,6 +32,7 @@ from skill.Ability import Ability
 from server.messaging import MessageBus
 from server.LoggerFactory import LoggerFactory
 from server.session.SessionState import SessionStatus
+from server.RuntimeControl import RuntimeControl
 
 
 class PlayerHandler:
@@ -46,7 +49,9 @@ class PlayerHandler:
                  object_commands: Object,
                  note_handler: NoteHandler,
                  wiz_commands: Wiz,
-                 character_service: CharacterService):
+                 character_service: CharacterService,
+                 runtime_control: RuntimeControl = None,
+                 command_audit: CommandAudit = None):
         self.__name__ = "PlayerHandler"
         self.message_bus = message_bus
         self.interp_api = interp_api
@@ -67,6 +72,8 @@ class PlayerHandler:
         self.note_handler = note_handler
         self.wiz_commands = wiz_commands
         self.character_service = character_service
+        self.runtime_control = runtime_control
+        self.command_audit = command_audit
         self.logger = LoggerFactory.get_logger(__name__)
 
     async def do_quit(self, character: Character, context: Context):
@@ -542,6 +549,16 @@ class PlayerHandler:
 
     async def do_wiz_command(self, character: Character, context: Context):
         payload = self.wiz_commands.execute(character, context)
+        if isinstance(payload, dict) and payload.get("shutdown_kind"):
+            if self.runtime_control is None or not await self.runtime_control.shutdown(
+                    payload['shutdown_kind'],
+                    before_close=lambda: self._handle_standard_command_payload(character, context, payload)):
+                failed = self.interp_api.render_message_key(context, "shutdown_failed", channel="to_char")
+                await self._handle_standard_command_payload(character, context, failed)
+            return
+        if isinstance(payload, dict) and payload.get("purge_character") is not None:
+            await self._handle_purge_payload(character, context, payload)
+            return
         if isinstance(payload, dict) and payload.get("interpret_at"):
             await self._handle_at_payload(character, context, payload)
             return
@@ -550,6 +567,38 @@ class PlayerHandler:
             return
         viewer = getattr(payload, "get", lambda *_args, **_kwargs: getattr(context, "character", character))("view_character", getattr(context, "character", character))
         await self._handle_standard_command_payload(viewer, context, payload)
+
+    async def _handle_purge_payload(self, actor, context, payload):
+        victim = payload['purge_character']
+        session = self.wiz_handler.current_session(victim)
+        connection = None if session is None else self.message_bus.connection_manager.get_connection(session.session_id)
+        if session is not None:
+            session.metadata['quitting'] = True
+        try:
+            if session is not None and session.metadata.get('command_task') not in (None, asyncio.current_task()):
+                await session.metadata['command_idle'].wait()
+            async with victim.world_update_lock():
+                was_retired = victim.world_retired
+                victim.world_retired = True
+                extracted = False
+                try:
+                    if victim.level > 1 and not await self.character_service.save_character_async(victim):
+                        failed = self.interp_api.render_message_key(context, 'save_failed', channel='to_char')
+                        await self._handle_standard_command_payload(actor, context, failed)
+                        return
+                    self.wiz_commands.entity_extractor.extract(victim)
+                    extracted = True
+                    try:
+                        await self._handle_standard_command_payload(actor, context, payload)
+                    finally:
+                        if connection is not None:
+                            await connection.close()
+                finally:
+                    if not extracted:
+                        victim.world_retired = was_retired
+        finally:
+            if session is not None:
+                session.metadata.pop('quitting', None)
 
     async def do_note_command(self, character: Character, context: Context):
         payload = await self.note_handler.execute(character, context)
@@ -569,6 +618,8 @@ class PlayerHandler:
             if denial is not None:
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(denial.render(None)))
                 return
+            if getattr(self, 'command_audit', None) is not None:
+                await self.command_audit.record(character, None, raw_command)
             social = self.social_registry.get_or_none(name=InterpUtil.one_argument(raw_command)[0])
             if social is not None and context.social_handler() is not None:
                 await context.social_handler().handle_social(character, raw_command, social)
@@ -584,6 +635,7 @@ class PlayerHandler:
             parameters=InterpUtil.build_arguments(cmd, parameters),
             result=parameters,
             room=self.room_registry.get_or_none(id=character.room_id),
+            raw_command=raw_command,
         )
         await self._execute_nested_lambdas(cmd, nested_context)
 
@@ -610,7 +662,7 @@ class PlayerHandler:
 
     async def _execute_nested_lambdas(self, command, context: Context):
         return await CommandExecutor.execute(command, context, authorization=CommandAccess.check,
-                                             message_bus=self.message_bus)
+                                             message_bus=self.message_bus, audit=getattr(self, 'command_audit', None))
 
     def _character_in_any_room(self, character: Character) -> bool:
         character_id = str(getattr(character, "id", "") or "")
@@ -863,12 +915,14 @@ class PlayerHandler:
             victim = payload.get("victim")
             if victim is not None:
                 payload["to_victim"] = f"{payload.get('to_victim', '')}{Ability.take_improve_messages(victim)}"
-        if payload.get("to_char") and not CharacterApi.is_npc(character):
+        if payload.get("to_char") and (not CharacterApi.is_npc(character)
+                or self.message_bus.connection_manager.get_connection_by_character(character.id) is not None):
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
         if payload.get("to_victim") and payload.get("victim") is not None:
             victim = payload["victim"]
             await self.message_bus.send_to_character(victim.id, self.message_bus.text_to_message(payload["to_victim"]))
-            if victim is not character and not CharacterApi.is_npc(victim):
+            if victim is not character and (not CharacterApi.is_npc(victim)
+                    or self.message_bus.connection_manager.get_connection_by_character(victim.id) is not None):
                 if prompt_victims:
                     await self._send_prompt(victim, context, prefer_context_room=False)
                 else:
@@ -903,8 +957,6 @@ class PlayerHandler:
         if payload.get("broadcast_message"):
             exclude_ids = payload.get("exclude_character_ids", [])
             await self.message_bus.broadcast(self.message_bus.text_to_message(payload["broadcast_message"]), exclude_ids)
-        if payload.get("close_all_connections"):
-            await self.message_bus.connection_manager.close_all()
         for target in payload.get("target_messages", []):
             target_id = str(target.get("id", "") or "")
             text = str(target.get("text", "") or "")

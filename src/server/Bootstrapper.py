@@ -44,6 +44,7 @@ from game.WizHandler import WizHandler
 from interp.HelpRegistry import HelpRegistry
 from interp.HelpService import HelpService
 from interp.InterpHandler import InterpHandler
+from interp.CommandAudit import CommandAudit
 from interp.InterpRegistry import InterpRegistry
 from interp.InterpService import InterpService
 from interp.SocialHandler import SocialHandler
@@ -89,6 +90,7 @@ from skill.SkillService import SkillService
 from skill.SpellRegistry import SpellRegistry
 from skill.SpellService import SpellService
 from server.LoggerFactory import LoggerFactory
+from server.RuntimeControl import RuntimeControl
 from util.ElementalExposure import ElementalExposure
 
 logger = LoggerFactory.get_logger("Bootstrapper")
@@ -168,7 +170,7 @@ class Bootstrapper:
             SocialHandler, Communications, Fight, Info, Movement, Object, Wiz, ElementalExposure,
             AreaHandler, RoomHandler, FightHandler, WeaponHitHandler, CombatEscapeHandler, CombatSkillHandler, CombatDeathHandler, ItemHandler, MobileHandler, EffectHandler,
             EffectUpdateHandler, ItemUpdateHandler, EntityUpdateHandler,
-            PlayerHandler, WizHandler, InterpHandler, NoteHandler,
+            PlayerHandler, WizHandler, InterpHandler, NoteHandler, CommandAudit,
             WeatherHandler, UpdateHandler, AdvancementHandler
         ])
         logger.info("All command and game handlers bound.")
@@ -187,7 +189,7 @@ class Bootstrapper:
             SkillService, SpellService, PlayerService,
             CharacterService, HelpService, InterpService,
             AreaService, RoomService, MobileService, ItemService,
-            AuthenticationService, SocialService, NoteService, HandlerService
+            AuthenticationService, SocialService, NoteService, HandlerService, RuntimeControl
         ])
 
     @staticmethod

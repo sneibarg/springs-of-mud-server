@@ -120,6 +120,10 @@ class NoteHandler:
         return {"to_char": self._format_note(note, index)}
 
     async def _delete_note(self, character, context, note_type: int, rest: str, action: str):
+        from api.CharacterApi import CharacterApi
+
+        if action == "delete" and CharacterApi.get_trust(character) < int(CharacterApi.get_enum("gameParameters").MAX_LEVEL) - 1:
+            return self._message(context, "can_t_do_that", fallback="You can't do that.\r\n")
         notes = await self._visible_notes(character, note_type)
         if not rest or not rest.isdigit():
             key = "note_remove_which_number" if action == "remove" else "note_delete_which_number"
@@ -128,8 +132,19 @@ class NoteHandler:
         note = self._note_at(notes, GenericUtil.to_int(rest, 0))
         if note is None:
             return self._message(context, "aren_t_that_many", s=self._plural_name(note_type), fallback=f"There aren't that many {self._plural_name(note_type)}.\r\n")
-        if not self._can_delete(character, note):
-            return self._message(context, "can_t_do_that", fallback="You can't do that.\r\n")
+        actor = str(character.name or "").strip().lower()
+        sender = str(note.sender or "").strip().lower()
+        if action == "remove" and actor != sender:
+            remaining = [name for name in str(note.to_list or "").replace(",", " ").replace(";", " ").split()
+                         if name.lower() != actor]
+            if remaining:
+                # Update a detached document; a failed service write must not alter live recipients.
+                from copy import deepcopy
+                updated = deepcopy(note)
+                updated.to_list = " ".join(remaining)
+                saved = await run_io(self.note_service.update_note, updated)
+                key = "ok2" if saved else "can_t_do_that"
+                return self._message(context, key, fallback="Ok.\r\n" if saved else "You can't do that.\r\n")
         if not await run_io(self.note_service.delete_note, str(getattr(note, "id", "") or "")):
             return self._message(context, "can_t_do_that", fallback="You can't do that.\r\n")
         return self._message(context, "ok2", fallback="Ok.\r\n")
@@ -257,13 +272,6 @@ class NoteHandler:
         if CharacterApi.is_immortal(character) and {"immortal", "immortals", "imm"} & recipients:
             return True
         return False
-
-    def _can_delete(self, character, note) -> bool:
-        from api.CharacterApi import CharacterApi
-
-        actor = str(getattr(character, "name", "") or "").strip().lower()
-        sender = str(getattr(note, "sender", "") or "").strip().lower()
-        return CharacterApi.is_immortal(character) or (actor and actor == sender)
 
     @staticmethod
     def _recipient_tokens(to_list: str) -> set[str]:

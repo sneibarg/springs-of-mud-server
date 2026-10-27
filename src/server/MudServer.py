@@ -23,10 +23,13 @@ class MudServer:
 
     async def start(self):
         from game.GameService import GameService
+        from server.RuntimeControl import RuntimeControl
 
         game_service = self.injector.get(GameService)
         game_service.set_runtime_loop(asyncio.get_running_loop())
         server = await asyncio.start_server(self.handle_client, self.host, self.port)
+        runtime_control = self.injector.get(RuntimeControl)
+        runtime_control.bind_listener(server)
         game_thread = threading.Thread(target=self._run_game_loop, args=(game_service,),
                                        daemon=True, name="GameLoop")
         try:
@@ -34,7 +37,7 @@ class MudServer:
                 game_thread.start()
                 self.logger.info("Game scheduler started; world updates run on the socket loop")
                 self.logger.info(f"MudServer started on {self.host}:{self.port}")
-                await server.serve_forever()
+                await runtime_control.wait_stopped()
         finally:
             game_service.stop()
             if game_thread.ident is not None:

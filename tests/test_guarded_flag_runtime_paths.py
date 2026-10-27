@@ -25,6 +25,9 @@ from server.session.SessionHandler import SessionHandler
 
 class Positions(IntEnum):
     POS_DEAD = 0
+    POS_MORTAL = 1
+    POS_INCAP = 2
+    POS_STUNNED = 3
     POS_FIGHTING = 7
     POS_STANDING = 8
 
@@ -124,6 +127,12 @@ class TestGuardedFlagRuntimePaths(unittest.TestCase):
         commands = Wiz.__new__(Wiz)
         commands.room_registry = SimpleNamespace(get_or_none=lambda **_: room)
         commands.ActBitsEnum = SimpleNamespace(ACT_AGGRESSIVE=SimpleNamespace(value=2))
+        commands.fight_handler = FightHandler.__new__(FightHandler)
+        commands.fight_handler.PositionsEnum = Positions
+        commands.fight_handler.combat_registry = SimpleNamespace(get_by_combatant=lambda identifier: [])
+        for entity in [actor, *mobiles]:
+            entity.hit = 1
+            entity.default_pos = Positions.POS_STANDING
         context = Context(character=actor, room=room)
         with patch.object(CharacterApi, "positions", Positions, create=True):
             payload = commands.do_peace(actor, context)
