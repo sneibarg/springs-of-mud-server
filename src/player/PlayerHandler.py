@@ -1,3 +1,5 @@
+from util.WizUtil import WizUtil
+from item.ExtraDescriptionData import ExtraDescriptionData
 from util.LookupUtil import LookupUtil
 from api.ItemApi import ItemApi
 import inspect
@@ -205,11 +207,8 @@ class PlayerHandler:
             if not ItemApi.can_see_object(room, character, item):
                 continue
 
-            extra = getattr(item, "extra_description", None)
-            extra_keyword = getattr(extra, "keyword", None) if extra is not None else None
-            if isinstance(extra, dict):
-                extra_keyword = extra.get("keyword")
-            if extra and LookupUtil.keyword_matches(wanted, extra_keyword or ""):
+            if any(LookupUtil.keyword_matches(wanted, entry.keyword or '')
+                   for entry in ExtraDescriptionData.entries(getattr(item, 'extra_description', None))):
                 return True
 
             if LookupUtil.keyword_matches(wanted, getattr(item, "name", "") or ""):
@@ -676,19 +675,10 @@ class PlayerHandler:
     def _restore_at_character(self, character: Character, original_room, original_on):
         if original_room is None:
             return
-        character_id = str(getattr(character, "id", "") or "")
-        for room in self.room_registry.all_rooms():
-            if character_id in getattr(room, "characters", {}):
-                room.remove_player_from_room(character)
-            if character_id in getattr(room, "mobiles", {}):
-                room.remove_mobile_from_room(character)
-        if CharacterApi.is_npc(character):
-            original_room.add_mobile_to_room(character)
-        else:
-            original_room.add_player_to_room(character)
-        character.room_id = original_room.id
-        character.area_id = original_room.area_id
-        setattr(character, "on", original_on)
+        WizUtil.move_entity(self.room_registry, character, original_room)
+        # A nested command can remove the original furniture.
+        if original_on is not None and any(item is original_on for item in original_room.contents.values()):
+            character.on = original_on
 
     async def do_object_command(self, character: Character, context: Context):
         payload = self.object_commands.execute(character, context)
@@ -967,6 +957,8 @@ class PlayerHandler:
             connection = None if session is None else self.message_bus.connection_manager.get_connection(session.session_id)
             if connection is not None:
                 await connection.close()
+        if payload.get('disconnect_connection') is not None:
+            await payload['disconnect_connection'].close()
         if context is not None:
             if payload.get("from_room_message"):
                 targets = payload.get("from_room_targets", [])

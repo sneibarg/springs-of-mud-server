@@ -146,9 +146,13 @@ class Wiz:
         return handler(character, context)
 
     def do_wizhelp(self, _character: Character, context: Context):
+        from interp.CommandAccess import CommandAccess
         names = []
         for cmd in self.interp_registry.all_commands():
-            if (getattr(cmd, "role", "") or "").strip().lower() == "immortal":
+            required = CommandAccess._required_level(getattr(cmd, 'level', None), CharacterApi.get_enum('gameParameters'))
+            if ((getattr(cmd, "role", "") or "").strip().lower() == "immortal"
+                    and getattr(cmd, 'enabled', False) and getattr(cmd, 'show', True)
+                    and required is not None and required <= CharacterApi.get_trust(context.character)):
                 names.append(str(getattr(cmd, "name", "") or ""))
         context.finish()
         return {"to_char": "Wizard commands:\r\n" + " ".join(sorted(name for name in names if name)) + "\r\n"}
@@ -163,17 +167,17 @@ class Wiz:
             character.context["WiznetFlagsEnum"] = flags | on_bit if enabled else flags & ~on_bit
             context.finish()
             return InterpApi.command_payload("enable" if enabled else "disable")
-        if arg == "on":
+        if 'on'.startswith(arg):
             character.context["WiznetFlagsEnum"] = flags | on_bit
             context.finish()
             return InterpApi.command_payload("enable")
-        if arg == "off":
+        if 'off'.startswith(arg):
             character.context["WiznetFlagsEnum"] = flags & ~on_bit
             context.finish()
             return InterpApi.command_payload("disable")
-        if arg == "status":
+        if 'status'.startswith(arg):
             names = [
-                name.replace("WIZ_", "").lower()
+                self.wiz_handler.wiznet_option_name(name)
                 for name in CharacterApi.enum_names(self.WiznetFlagsEnum, "WIZ_")
                 if CharacterApi.enum_bit(self.WiznetFlagsEnum, name)
                 and (flags & CharacterApi.enum_bit(self.WiznetFlagsEnum, name)) != 0
@@ -181,11 +185,11 @@ class Wiz:
             off = "off " if on_bit and (flags & on_bit) == 0 else ""
             context.finish()
             return {"to_char": f"Wiznet status:\r\n{off}{' '.join(names)}\r\n"}
-        if arg == "show":
+        if 'show'.startswith(arg):
             context.finish()
             return {"to_char": "Wiznet options available to you are:\r\n" + " ".join(self.wiz_handler.wiznet_option_names(character)) + "\r\n"}
 
-        bit_name = f"WIZ_{arg.upper()}"
+        bit_name = self.wiz_handler.resolve_wiznet_option(arg)
         bit = CharacterApi.enum_bit(self.WiznetFlagsEnum, bit_name)
         if bit == 0 or self.wiz_handler.wiznet_option_level(bit_name) > CharacterApi.get_trust(character):
             context.finish()
@@ -193,10 +197,10 @@ class Wiz:
         if (flags & bit) != 0:
             character.context["WiznetFlagsEnum"] = flags & ~bit
             context.finish()
-            return InterpApi.command_payload("enable_option", tokens={"s": arg})
+            return InterpApi.command_payload("enable_option", tokens={"s": self.wiz_handler.wiznet_option_name(bit_name)})
         character.context["WiznetFlagsEnum"] = flags | bit
         context.finish()
-        return InterpApi.command_payload("disable_option", tokens={"s": arg})
+        return InterpApi.command_payload("disable_option", tokens={"s": self.wiz_handler.wiznet_option_name(bit_name)})
 
     def do_holylight(self, character: Character, context: Context):
         enabled = not CharacterApi.is_set(character.status_flags.act, CharacterApi.enum_bit(self.PlayerActBitsEnum, "PLR_HOLYLIGHT"))
@@ -219,43 +223,48 @@ class Wiz:
     def do_bamfout(self, character: Character, context: Context):
         return self._set_poof_text(character, context, "poofout")
 
-    def do_echo(self, character: Character, context: Context):
+    def _echo(self, character, context, scope):
         argument = WizUtil.argument_text(context.result, context.parameters)
-        if not argument:
-            context.finish()
-            return InterpApi.command_payload("local_echo_what")
-        room = self.room_registry.get_or_none(id=character.room_id)
         context.finish()
-        return {"to_char": f"{argument}\r\n", "room_message": f"{argument}\r\n", "room_targets": [] if room is None else room.player_targets(character)}
+        if not argument:
+            return InterpApi.command_payload('local_echo_what' if scope == 'local' else 'no_argument')
+        origin = self.room_registry.get_or_none(id=character.room_id)
+        messages = []
+        for session in self.wiz_handler.session_handler.get_playing_sessions():
+            recipient = session.character
+            if recipient is None:
+                continue
+            room = self.room_registry.get_or_none(id=recipient.room_id)
+            if scope == 'local' and (origin is None or room is not origin):
+                continue
+            if scope == 'zone' and (origin is None or room is None or room.area_id != origin.area_id):
+                continue
+            key = 'provenance' if CharacterApi.get_trust(recipient) >= CharacterApi.get_trust(character) else 'default'
+            messages.append({'id': recipient.id, 'text': self._command_text(context, key, s=argument)})
+        return {'target_messages': messages}
+
+    def do_echo(self, character: Character, context: Context):
+        return self._echo(character, context, 'local')
 
     def do_gecho(self, character: Character, context: Context):
-        argument = WizUtil.argument_text(context.result, context.parameters)
-        if not argument:
-            context.finish()
-            return InterpApi.command_payload("no_argument")
-        context.finish()
-        return {"to_char": f"{argument}\r\n", "broadcast_message": f"{argument}\r\n", "exclude_character_ids": [character.id]}
+        return self._echo(character, context, 'global')
 
     def do_zecho(self, character: Character, context: Context):
-        argument = WizUtil.argument_text(context.result, context.parameters)
-        if not argument:
-            context.finish()
-            return InterpApi.command_payload("no_argument")
-        targets = [ch for ch in self.character_registry.all_characters() if str(getattr(ch, "area_id", "")) == str(character.area_id) and ch.id != character.id]
-        context.finish()
-        return {"to_char": f"{argument}\r\n", "global_message": f"{argument}\r\n", "global_targets": targets}
+        return self._echo(character, context, 'zone')
 
-    def do_pecho(self, _character: Character, context: Context):
+    def do_pecho(self, character: Character, context: Context):
         target_name, message = WizUtil.split_argument(WizUtil.argument_text(context.result, context.parameters))
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, target_name, include_mobiles=False, observer=context.character)
         if not target_name or not message:
             context.finish()
-            return InterpApi.command_payload("no_argument")
+            return InterpApi.command_payload('no_argument')
+        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, target_name, observer=character)
         if victim is None:
             context.finish()
-            return InterpApi.command_payload("target_not_found")
+            return InterpApi.command_payload('target_not_found')
+        marked = CharacterApi.get_trust(victim) >= CharacterApi.get_trust(character) and CharacterApi.get_trust(character) != WizApi.max_level()
         context.finish()
-        return InterpApi.command_payload("default", victim=victim, tokens={"s": message})
+        return {'to_char': self._command_text(context, 'default', s=message), 'victim': victim,
+                'to_victim': self._command_text(context, 'provenance' if marked else 'default', channel='to_victim', s=message)}
 
     def do_at(self, character: Character, context: Context):
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
@@ -269,12 +278,13 @@ class Wiz:
             return InterpApi.command_payload("no_such_location")
 
         original = self.room_registry.get_or_none(id=character.room_id)
+        original_on = getattr(character, 'on', None)
         WizUtil.move_entity(self.room_registry, character, room)
         context.finish()
         return {
             "interpret_at": nested_command,
             "at_original_room": original,
-            "at_on": getattr(character, "on", None),
+            "at_on": original_on,
         }
 
     def do_goto(self, character: Character, context: Context):
@@ -395,6 +405,8 @@ class Wiz:
             setattr(character.status_flags, field_name, 0 if current > 0 else CharacterApi.get_trust(character))
         else:
             setattr(character.status_flags, field_name, GenericUtil.to_int(arg, 0))
+            if isinstance(character.context, dict):
+                character.context.pop('reply_to', None)
         room = self.room_registry.get_or_none(id=character.room_id)
         context.finish()
         return InterpApi.command_payload(
@@ -686,9 +698,12 @@ class Wiz:
                 continue
             if CharacterApi.is_set(getattr(victim.status_flags, "comm", 0), nowiz_bit):
                 continue
-            targets.append({"id": victim.id, "text": f"{character.name}: {text}\r\n"})
+            room = self.room_registry.get_or_none(id=victim.room_id)
+            name = (WizUtil.display_name(character) if CharacterApi.can_see(victim, character, room)
+                    else self._command_text(context, 'anonymous_name').strip())
+            targets.append({"id": victim.id, "text": self._command_text(context, 'default', c=name, s=text)})
         context.finish()
-        return {"to_char": f"{character.name}: {text}\r\n", "target_messages": targets}
+        return {'to_char': self._command_text(context, 'default', c=WizUtil.display_name(character), s=text), 'target_messages': targets}
 
     def do_prefix(self, character: Character, context: Context):
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
@@ -775,9 +790,10 @@ class Wiz:
             victim_id = str(getattr(victim, "id", "") or "")
             targets = [viewer for viewer in room.player_targets(character) if str(getattr(viewer, "id", "") or "") != victim_id]
 
-        self.fight_handler.raw_kill(victim)
+        notices = self.fight_handler.raw_kill(victim) or []
         context.finish()
-        return InterpApi.command_payload("default", victim=victim, targets=targets, tokens={"t": WizUtil.display_name(victim)})
+        return {"payloads": [InterpApi.command_payload("default", victim=victim, targets=targets,
+                                                       tokens={"t": WizUtil.display_name(victim)}), *notices]}
 
     def do_string(self, _character: Character, context: Context):
         raw = WizUtil.argument_text(context.result, context.parameters)
@@ -843,8 +859,10 @@ class Wiz:
                 if not keyword or not description:
                     context.finish()
                     return InterpApi.command_payload("oset_syntax")
-                obj.extra_descr = [keyword, description]
-                obj.extra_description = ExtraDescriptionData(valid=True, keyword=keyword, description=description)
+                obj.extra_description = ExtraDescriptionData(valid=True, keyword=keyword, description=description,
+                                                              next=obj.extra_description)
+                # The legacy pair must not overwrite the canonical chain on load.
+                obj.extra_descr = []
             else:
                 context.finish()
                 return InterpApi.command_payload("syntax")
@@ -933,7 +951,10 @@ class Wiz:
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
             return blocked
-        return self.wiz_set_api.advance(character, context)
+        victim = WizApi.advance_target(self.interp_api.build_interp_view(context))
+        result = self.wiz_set_api.advance(character, context)
+        self._save_character(victim)
+        return result
 
     def do_flag(self, character: Character, context: Context):
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
@@ -1024,20 +1045,23 @@ class Wiz:
         if blocked is not None:
             return blocked
 
-        target_name, guild_name = WizApi.guild_parts(self.interp_api.build_interp_view(context))
-        victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, target_name, include_players=True, include_mobiles=False, observer=context.character)
-        normalized = str(guild_name or "").strip().lower()
-        if normalized in ("none", "no", "clanless", "remove", "0"):
+        view = self.interp_api.build_interp_view(context)
+        victim = WizApi.guild_target(view)
+        if WizApi.guild_removal(view):
             victim.guild = ""
-            self._save_character(victim)
+            if not CharacterApi.is_npc(victim):
+                self._save_character(victim)
             context.finish()
             return InterpApi.command_payload("removal", victim=victim, tokens={"t": WizUtil.display_name(victim)})
 
-        victim.guild = guild_name
-        self._save_character(victim)
+        clan = WizApi.guild_clan(view)
+        victim.guild = clan['name']
+        if not CharacterApi.is_npc(victim):
+            self._save_character(victim)
         context.finish()
-        key = "add_independent" if normalized in ("independent", "loner") else "add_clan_member"
-        return InterpApi.command_payload(key, victim=victim, tokens={"s": guild_name, "g": guild_name, "t": WizUtil.display_name(victim)})
+        key = "add_independent" if clan.get('independent', False) else "add_clan_member"
+        return InterpApi.command_payload(key, victim=victim,
+                                        tokens={"s": clan['name'], "g": clan['name'].capitalize(), "t": WizUtil.display_name(victim)})
 
     def do_dump(self, _character: Character, context: Context):
         context.finish()
@@ -1080,9 +1104,9 @@ class Wiz:
         if blocked is not None:
             return blocked
 
-        target = WizApi.disconnect_target(self.interp_api.build_interp_view(context))
+        connection = WizApi.disconnect_connection(self.interp_api.build_interp_view(context))
         context.finish()
-        return InterpApi.command_payload("default", disconnect_character=target)
+        return InterpApi.command_payload("default", disconnect_connection=connection)
 
     def do_permban(self, character: Character, context: Context):
         return self.ban_site(character, context, permanent=True)

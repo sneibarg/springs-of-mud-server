@@ -168,6 +168,7 @@ class TestWizDynamicCommandMetadata(unittest.TestCase):
             [
                 "lambda v: WizApi.guild_syntax_invalid(v)",
                 "lambda v: WizApi.guild_target_missing(v)",
+                "lambda v: WizApi.guild_invalid_clan(v)",
             ],
             [entry.get("predicate", "") for entry in commands["guild"]["guards"]],
         )

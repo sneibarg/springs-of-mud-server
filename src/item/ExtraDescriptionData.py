@@ -10,9 +10,12 @@ class ExtraDescriptionData:
     valid: bool
     keyword: str
     description: str
+    next: 'ExtraDescriptionData | None' = None
 
     @classmethod
     def from_json(cls, data: str):
+        if isinstance(data, cls):
+            return data
         if isinstance(data, str):
             try:
                 parsed = json.loads(data)
@@ -32,4 +35,16 @@ class ExtraDescriptionData:
             parsed['valid'] = False
             parsed['keyword'] = None
             parsed['description'] = None
+        if parsed.get('next') is not None:
+            parsed['next'] = cls.from_json(parsed['next'])
         return cls(**parsed)
+
+    @classmethod
+    def entries(cls, data):
+        """Walk the canonical description chain, accepting legacy wire objects."""
+        seen = set()
+        while data is not None and id(data) not in seen:
+            seen.add(id(data))
+            entry = cls.from_json(data)
+            yield entry
+            data = entry.next

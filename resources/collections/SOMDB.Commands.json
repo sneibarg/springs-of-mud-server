@@ -1583,18 +1583,22 @@
       "toRoom": {},
       "toVictim": {
         "removal": "You are now a member of no clan!",
-        "addIndependent": "You are now independent.",
+        "addIndependent": "You are now a %s.",
         "addClanMember": "You are now a member of clan %g."
       }
     },
     "guards": [
       {
-        "predicate": "lambda v: WizApi.guild_syntax_invalid(v)",
-        "messageKey": "syntax"
+        "messageKey": "syntax",
+        "predicate": "lambda v: WizApi.guild_syntax_invalid(v)"
       },
       {
-        "predicate": "lambda v: WizApi.guild_target_missing(v)",
-        "messageKey": "targetMissing"
+        "messageKey": "targetMissing",
+        "predicate": "lambda v: WizApi.guild_target_missing(v)"
+      },
+      {
+        "predicate": "lambda v: WizApi.guild_invalid_clan(v)",
+        "messageKey": "noSuchClan"
       }
     ]
   },
@@ -8482,7 +8486,8 @@
       "toRoom": {},
       "toVictim": {
         "default": "%s",
-        "insufficientLevel": "personal> "
+        "insufficientLevel": "personal> ",
+        "provenance": "personal> %s"
       }
     }
   },
@@ -8776,7 +8781,9 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "noArgument": "Global echo what?"
+        "noArgument": "Global echo what?",
+        "default": "%s",
+        "provenance": "global> %s"
       },
       "toRoom": {},
       "toVictim": {}
@@ -9083,7 +9090,9 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "localEchoWhat": "Local echo what?"
+        "localEchoWhat": "Local echo what?",
+        "default": "%s",
+        "provenance": "local> %s"
       },
       "toRoom": {},
       "toVictim": {}
@@ -9329,7 +9338,13 @@
         "enable": "$n slowly fades into thin air."
       },
       "toVictim": {}
-    }
+    },
+    "guards": [
+      {
+        "messageKey": "levelRange",
+        "predicate": "lambda v: WizApi.explicit_level_out_of_range(v, \"invis\")"
+      }
+    ]
   },
   {
     "_id": {
@@ -9372,7 +9387,9 @@
     "maxArguments": 0,
     "payload": {
       "toChar": {
-        "noArgument": "Zone echo what?"
+        "noArgument": "Zone echo what?",
+        "default": "%s",
+        "provenance": "zone> %s"
       },
       "toRoom": {},
       "toVictim": {}
@@ -9464,7 +9481,9 @@
     "payload": {
       "toChar": {
         "immortalChannelNow": "Immortal channel is now ON",
-        "immortalChannelNowOff": "Immortal channel is now OFF"
+        "immortalChannelNowOff": "Immortal channel is now OFF",
+        "default": "%c: %s",
+        "anonymousName": "Someone"
       },
       "toRoom": {},
       "toVictim": {}

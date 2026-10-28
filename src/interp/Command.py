@@ -29,6 +29,7 @@ class Command:
     help: Optional[HelpEntry] = field(default=None)
     payload: GamePayload = field(default_factory=GamePayload)
     guards: list[dict[str, Any]] = field(default_factory=list)
+    show: bool = True
 
     def __hash__(self):
         return hash(self.id)

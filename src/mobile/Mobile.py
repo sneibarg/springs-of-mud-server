@@ -21,6 +21,7 @@ class Mobile(AnimateEntity):
     size: str
     material: str
     hit_roll: int
+    guild: str = field(default='', kw_only=True)
     count: int = 0
     killed: int = 0
     start_pos: int = 0

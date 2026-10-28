@@ -248,11 +248,13 @@ class TestCombatDeathRules(unittest.TestCase):
         self.victim.level = 10
         attrs = self.victim.character_attributes
         attrs.experience_per_level, attrs.accumulated_experience, attrs.experience = 1000, 10301, 900
+        attrs.points = 0
         with patch.object(DeathModule, "CharacterAdvancement", rewards.Advancement), \
-                patch.object(rewards.Advancement, "_hero_level", return_value=60):
+                patch.object(rewards.Advancement, "_hero_level", return_value=60), \
+                patch.object(rewards.Advancement, "experience_per_level", return_value=1000):
             self.death.penalty(self.actor, self.victim, self.room)
         self.assertEqual(10151, attrs.accumulated_experience)
-        self.assertEqual(750, attrs.experience)
+        self.assertEqual(151, attrs.experience)
         self.assertEqual(10, self.victim.level)
 
     def test_death_cry_part_variants_and_missing_parts(self):

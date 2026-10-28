@@ -25,6 +25,7 @@ class GameData:
     classes: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     races: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     pc_races: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    clans: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     wiznet_table: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     groups: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     titles: Dict[str, Dict[str, Any]] = field(default_factory=dict)
@@ -54,6 +55,7 @@ class GameData:
             classes=dict(doc.get("classes") or {}),
             races=dict(doc.get("races") or {}),
             pc_races=dict(doc.get("pcRaces") or {}),
+            clans=dict(doc.get('clans') or {}),
             wiznet_table=dict(doc.get("wiznetTable", doc.get("wiznet_table")) or {}),
             groups=dict(doc.get("groups") or {}),
             titles=dict(doc.get("titles") or {}),

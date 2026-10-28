@@ -5,7 +5,10 @@
   "keyword": "QMCONFIG",
   "level": 0,
   "text": "Syntax: qmconfig [show|ansiprompt|ansicolor|telnetga] [on|off]\n\n        This command is used to set options developed in the\n        QuickMUD source. They include:\n\n        ansicolor  - do new logins have color on by default?\n        ansiprompt - do new logins see a \"color?\" prompt?\n        show       - show current settings of qmconfig variables\n        telnetga   - do new logins have telnetga enabled?",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "qmconfig"
+  ]
 },
 {
   "_id": {
@@ -14,7 +17,12 @@
   "keyword": "COLOUR COLOR ANSI",
   "level": 0,
   "text": "Syntax: colour    Toggles colour mode on/off\n\n        You may also talk in colour; the format is like this:\n        the 'escape character' to specify a colour is the left\n        handed brace '{{', following\n        that you should use one of the following letters,  \n        {r{{r     red      {c{{c     cyan\n        {g{{g     green    {y{{y     yellow\n        {b{{b     blue     {w{{w     white\n        {m{{m     magenta  {x{{x     clear(reset colour)\n        {{{{     {{ char   {{*     beep\n        {{/     newline\n        When using colour, it looks better if you finish the line\n        with whatever colour it would normally be in, such as a\n        gossip, the colour is magenta, so:\n                {mLope gossips '{ghello,{r world{m'{x\n        looks better than:\n                {mLope gossips '{ghello,{r world'{x\n\n        ColoUr is written by Lope (ant@solace.mh.se)",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "colour",
+    "color",
+    "ansi"
+  ]
 },
 {
   "_id": {
@@ -23,7 +31,12 @@
   "keyword": "COLOUR2 COLOR2 ANSI2",
   "level": 0,
   "text": "Syntax: colour <field> <colour>\n\n        You may configure your colour setting for personal preference.\n        current setting are indicated by colour.\n\nfields are:                                    \n  {ttext         {aauction      {dgossip       {emusic        {qquestion\n  {fanswer       {hclass_text   {Hclass_name   {iimmtalk_text\n\n{Iimmtalk_type\n  {jinfo         {ktell         {lreply        {ngtell_text   {Ngtell_type\n  {Zwiznet       {sroom_title   {Sroom_text    {oroom_exits\n\n{Oroom_things\n  {pprompt       {1fight_death  {2fight_yhit   {3fight_ohit   {4fight_thit\n  {5fight_skill{x\n\n   colours are: ( Hi- )\n   {rred          {ggreen        {bblue         {yyellow       {mmagenta\n   {ccyan         {wwhite{x\n\neg. to make the gossip channel red type 'colour gossip red'\n    to make your hits in fights magenta type 'colour fight_yhit magenta'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "colour2",
+    "color2",
+    "ansi2"
+  ]
 },
 {
   "_id": {
@@ -32,7 +45,10 @@
   "keyword": "DIKU",
   "level": -1,
   "text": ".                    Original game idea, concept, and design:\n\n          Katja Nyboe               [Superwoman] (katz@freja.diku.dk)\n          Tom Madsen              [Stormbringer] (noop@freja.diku.dk)\n          Hans Henrik Staerfeldt           [God] (bombman@freja.diku.dk)\n          Michael Seifert                 [Papi] (seifert@freja.diku.dk)\n          Sebastian Hammer               [Quinn] (quinn@freja.diku.dk)\n\n\nDeveloped at: DIKU -- The Department of Computer Science\n                      at the University of Copenhagen.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "diku"
+  ]
 },
 {
   "_id": {
@@ -41,7 +57,12 @@
   "keyword": "GOLD SILVER MONEY",
   "level": -1,
   "text": "Midgaard's economy is based on gold and silver coinage (and the lowly copper,\nwhich you as an adventurer are far too proud to carry).  Gold coins are worth\n100 silver coins, but are also four times as heavy (25 to the pound, as \nopposed to 100 to the pound for silver). Gems can be bought to alleviate weight problems\nfrom the Midgaard jeweller, he charges a mere 10% more than they are worth.\n10 gems weigh one pound, and they can be worth more than 100 gold pieces for\nthe highest quality stones.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "gold",
+    "silver",
+    "money"
+  ]
 },
 {
   "_id": {
@@ -50,7 +71,11 @@
   "keyword": "BRIEF COMPACT",
   "level": 0,
   "text": "Brief and compact help set your display options for the game. Typing brief\ntoggles on and off the showing of room descriptions when you move around\n(considerably reducing the text to be processed), and typing compact \nremoves the extra blank line before your prompt.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "brief",
+    "compact"
+  ]
 },
 {
   "_id": {
@@ -59,7 +84,10 @@
   "keyword": "DEAF",
   "level": -1,
   "text": "The deaf toggle turns off incoming tells, helpfull if you are being bombarded\nby messages from other players.  You can still use reply (see 'help reply') to\nreply to people who were telling you before you went deaf, although you\ncannot reply to a deaf person unless you or they are a diety (it's mostly \nuseful for sending a quick \"I'm being spammed so I went deaf\" message to\na person).",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "deaf"
+  ]
 },
 {
   "_id": {
@@ -68,7 +96,10 @@
   "keyword": "AFK",
   "level": -1,
   "text": "Typing AFK puts your character in a tell-saving mode as follows: any tell\nto you is stored in a special buffer, and can be seen later by typing\nrecall.  This is useful when you need to leave the mud for 5 or 10 minutes,\nbut don't want to miss tells.  AFK shows up in your prompt until it is\nturned off.\n\nTells to link-dead players are stored in a similar fashion, and can also be\nseen by typing replay (unless, of course, the character logs off before\nreading them).",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "afk"
+  ]
 },
 {
   "_id": {
@@ -77,7 +108,10 @@
   "keyword": "PROMPT",
   "level": -1,
   "text": "Syntax: prompt\nSyntax: prompt all\nSyntax: prompt <%*>\n \nPROMPT with out an argument will turn your prompt on or off.\n \nPROMPT ALL will give you the standard \"<hits mana moves>\" prompt.\n \nPROMPT <%*> where the %* are the various variables you may set yourself.\n \n        %h :  Display your current hits\n        %H :  Display your maximum hits\n        %m :  Display your current mana\n        %M :  Display your maximum mana\n        %v :  Display your current moves\n        %V :  Display your maximum moves\n        %x :  Display your current experience\n\t%X :  Display experience to level\n        %g :  Display your gold held\n\t%s :  Display silver carried\n        %a :  Display your alignment\n        %r :  Display the room name you are in\n\t%e :  Display the exits from the room in NESWDU style\n\t%c :  Display a carriage return (useful for multi-line prompts)\n        %R :  Display the vnum you are in (IMMORTAL ONLY)\n        %z :  Display the area name you are in (IMMORTAL ONLY)\n \nExample:  PROMPT <%hhp %mm %vmv>\n        Will set your prompt to \"<10hp 100m 100mv>\"",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "prompt"
+  ]
 },
 {
   "_id": {
@@ -86,7 +120,10 @@
   "keyword": "SUMMARY",
   "level": -1,
   "text": "MOVEMENT                            GROUP\nnorth south east west up down       follow group gtell split\nexits recall\nsleep wake rest stand\n\nOBJECTS                             INFORMATION / COMMUNICATION\nget put drop give sacrifice         help credits commands areas\nwear wield hold                     report score time weather where who\nrecite quaff zap brandish           description password title\nlock unlock open close pick         bug idea typo\ninventory equipment look compare    gossip cgossip say shout tell yell\neat drink fill                      emote pose\nlist buy sell value                 note\n\nCOMBAT                              OTHER\nkill flee kick rescue disarm        ! save quit\nbackstab cast wimpy                 practice train\n\n\nFor more help, type 'help <topic>' for any command, skill, or spell.\nAlso help on: DAMAGE DEATH EXPERIENCE NEWS STORY TICK WIZLIST",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "summary"
+  ]
 },
 {
   "_id": {
@@ -95,7 +132,10 @@
   "keyword": "DEATH",
   "level": 0,
   "text": "When your character dies, you are reincarnated back at the Altar of the Temple\nof Midgaard.  Your corpse is left behind in the room where you were killed,\ntogether with all of your equipment.\n\nAny spells which were affecting you are canceled by death.\n\nFollowing and groups are not affected by death.\n\nYou lose experience points for dying.  The amount you lose is two-thirds of \nthe way back to the beginning of your level.\n\nCorpses decay after time, and the objects inside corpses decay with them.\nPlayer corpses last *roughly* 30 hours of game time (15 minutes of real time).\nOnly the player who died, or someone in the same group, can retrieve objects\nfrom a player's corpse.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "death"
+  ]
 },
 {
   "_id": {
@@ -104,7 +144,12 @@
   "keyword": "EXPERIENCE LEVEL XP",
   "level": 0,
   "text": "Your character advances in power by gaining experience.  You need a set \namount of experience points for each level based on your creation points.\n\nYou gain experience by:\n\n    being part of a group that kills a monster\n\nYou lose experience by:\n\n    fleeing from combat\n    recalling out of combat\n    being the target of certain spells\n    dying\n\nThe experience you get from a kill depends on several things: how many players\nare in your group; your level versus the level of the monster; your alignment\nversus the monster's alignment; how many of this monster have been killed\nlately; and some random variation.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "experience",
+    "level",
+    "xp"
+  ]
 },
 {
   "_id": {
@@ -113,7 +158,11 @@
   "keyword": "PET PETS",
   "level": 0,
   "text": "You can buy pets in the pet shop.  You may own only one pet at a time, after \nthe old one dies you may purchase a replacement.\n\nNew pets are planned for a shop in New Thalos.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "pet",
+    "pets"
+  ]
 },
 {
   "_id": {
@@ -122,7 +171,10 @@
   "keyword": "TICK",
   "level": 0,
   "text": "Many of the game actions are based upon interval timers, including combat,\nmost autonomous monster actions, hp/mana/move regeneration, spell duration,\nweather, and area resetting.\n\nOf these timers, the hp/mana/move regeneration timer is popularly called the\n'tick'.  Ticks on this mud average 30 seconds of real time, but the actual\namount varies randomly from 15 seconds to 45 seconds.\n\nArea resetting happens roughly every 3 minutes if no one is in the area; less\noften (15 minutes) if some one is.  Also note that objects lying on the ground\nwill not be regenerated if anyone is in the area when it resets.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "tick"
+  ]
 },
 {
   "_id": {
@@ -131,7 +183,10 @@
   "keyword": "!",
   "level": 0,
   "text": "Syntax: !\n\n! repeats the last command you typed.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "!"
+  ]
 },
 {
   "_id": {
@@ -140,7 +195,15 @@
   "keyword": "NORTH SOUTH EAST WEST UP DOWN",
   "level": 0,
   "text": "Syntax: north\nSyntax: south\nSyntax: east\nSyntax: west\nSyntax: up\nSyntax: down\n\nUse these commands to walk in a particular direction.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "north",
+    "south",
+    "east",
+    "west",
+    "up",
+    "down"
+  ]
 },
 {
   "_id": {
@@ -149,7 +212,10 @@
   "keyword": "CAST",
   "level": 0,
   "text": "Syntax: cast <spell> <target>\n\nBefore you can cast a spell, you have to practice it.  The more you practice,\nthe higher chance you have of success when casting.  Casting spells costs mana.\nThe mana cost decreases as your level increases.\n\nThe <target> is optional.  Many spells which need targets will use an\nappropriate default target, especially during combat.\n\nIf the spell name is more than one word, then you must quote the spell name.\nExample: cast 'cure critic' frag.  Quoting is optional for single-word spells.\nYou can abbreviate the spell name.\n\nWhen you cast an offensive spell, the victim usually gets a saving throw.\nThe effect of the spell is reduced or eliminated if the victim makes the\nsaving throw successfully.\n\nSee also the help sections for individual spells.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "cast"
+  ]
 },
 {
   "_id": {
@@ -158,7 +224,10 @@
   "keyword": "EXITS",
   "level": 0,
   "text": "Syntax: exits\n\nTells you the visible exits of the room you are in.  Not all exits are visible.\nYou can use the 'bump' technique to find hidden exits.  (Try to walk in a\ncertain direction and see what you bump into).",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "exits"
+  ]
 },
 {
   "_id": {
@@ -167,7 +236,14 @@
   "keyword": "DROP GET GIVE PUT TAKE",
   "level": 0,
   "text": "Syntax: drop <object>\nSyntax: drop <amount> coins\nSyntax: get  <object>\nSyntax: get  <object> <container>\nSyntax: give <object> <character>\nSyntax: give <amount> coins <character>\nSyntax: put  <object> <container>\n\nDROP drops an object, or some coins, on the ground.\n\nGET gets an object, either lying on the ground, or from a container, or even\nfrom a corpse.  TAKE is a synonym for get.\n\nGIVE gives an object, or some coins, to another character.\n\nPUT puts an object into a container.\n\nDROP, GET and PUT understand the object names 'ALL' for all objects and\n'ALL.object' for all objects with the same name.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "drop",
+    "get",
+    "give",
+    "put",
+    "take"
+  ]
 },
 {
   "_id": {
@@ -176,7 +252,11 @@
   "keyword": "EQUIPMENT INVENTORY",
   "level": 0,
   "text": "Syntax: equipment\nSyntax: inventory\n\nEQUIPMENT lists your equipment (armor, weapons, and held items).\nINVENTORY lists your inventory.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "equipment",
+    "inventory"
+  ]
 },
 {
   "_id": {
@@ -185,7 +265,10 @@
   "keyword": "COMPARE",
   "level": 0,
   "text": "Syntax: compare <object-1> <object-2>\nSyntax: compare <object>\n \nCOMPARE compares two objects in your inventory.  If both objects are weapons,\nit will report the one with the better average damage.  If both objects are\narmor, it will report the one with the better armor class.\n \nCOMPARE with one argument compares an object in your inventory to the object\nyou are currently wearing or wielding of the same type.\n \nCOMPARE doesn't consider any special modifiers of the objects.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "compare"
+  ]
 },
 {
   "_id": {
@@ -194,7 +277,10 @@
   "keyword": "FLEE",
   "level": 0,
   "text": "Syntax: flee\nSyntax: rescue   <character>\n\nOnce you start a fight, you can't just walk away from it.  If the fight\nis not going well, you can attempt to FLEE, or another character can\nRESCUE you.  (You can also RECALL, but this is less likely to work,\nand costs more experience points, then fleeing).\n\nIf you lose your link during a fight, then your character will keep\nfighting, and will attempt to RECALL from time to time.  Your chances\nof making the recall are reduced, and you will lose much more experience.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "flee"
+  ]
 },
 {
   "_id": {
@@ -203,7 +289,11 @@
   "keyword": "EXAMINE LOOK",
   "level": 0,
   "text": "Syntax: look\nSyntax: look    <object>\nSyntax: look    <character>\nSyntax: look    <direction>\nSyntax: look    <keyword>\nSyntax: look in <container>\nSyntax: look in <corpse>\nSyntax: examine <container>\nSyntax: examine <corpse>\n\nLOOK looks at something and sees what you can see.\n\nEXAMINE is short for 'LOOK container' followed by 'LOOK IN container'.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "examine",
+    "look"
+  ]
 },
 {
   "_id": {
@@ -212,7 +302,10 @@
   "keyword": "ORDER",
   "level": 0,
   "text": "Syntax: order <character> command\nSyntax: order all command\n\nORDER orders one or all of your charmed followers (including pets) to\nperform any command.  The command may have arguments.  You are responsible\nfor the actions of your followers, and others who attack your followers\nwill incur the same penalty as if they attacked you directly.\n\nMost charmed creatures lose their aggresive nature (while charmed).\n\nIf your charmed creature engages in combat, that will break the charm.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "order"
+  ]
 },
 {
   "_id": {
@@ -221,7 +314,13 @@
   "keyword": "REST SLEEP STAND WAKE",
   "level": 0,
   "text": "Syntax: rest\nSyntax: sleep\nSyntax: stand\nSyntax: wake\n\nThese commands change your position.  When you REST or SLEEP, you \nregenerate hit points, mana points, and movement points faster.\nHowever, you are more vulnerable to attack, and if you SLEEP,\nyou won't hear many things happen.\n\nUse STAND or WAKE to come back to a standing position.  You can\nalso WAKE other sleeping characters.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "rest",
+    "sleep",
+    "stand",
+    "wake"
+  ]
 },
 {
   "_id": {
@@ -230,7 +329,14 @@
   "keyword": "GTELL ; REPLY SAY TELL",
   "level": 0,
   "text": "Syntax: gtell <message>\nSyntax: say   <message>\nSyntax: tell  <character> <message>\n\nAll of these commands send messages to other players.  GTELL sends a message to\nall of the characters in your group, wherever they are, even if they are\nsleeping or stunned or dying.  ';' is a synonym for GTELL.\n\nSAY sends a message to all awake players in your room.  The single quote '''\nis a synonym for SAY.\n\nTELL sends a message to one awake player anywhere in the world.\n\nREPLY sends a message to the last player who sent you a TELL.  REPLY will work\neven if you can't see the player, and without revealing their identity.  This\nis handy for talking to invisible or switched immortal players.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "gtell",
+    ";",
+    "reply",
+    "say",
+    "tell"
+  ]
 },
 {
   "_id": {
@@ -239,7 +345,15 @@
   "keyword": "NOTE 'NOTE WRITE' 'NOTE READ' BOARD 'NOTE SYSTEM' BOARDS",
   "level": 0,
   "text": "Syntax:\n\nboard [number|name]                     Shows or changes board.\nnote                                    Reads next note.\nnote read [number]                      Reads a certain note.\nnote remove <number>                    Removes a note written by you.\nnote list [number]                      Shows up to number notes.\nnote write                              Posts a note.\nnote catchup                            Marks all notes in this board read.\n\nThese commands are used for the new note system. Instead of just one board, \nthere are several, each with its special purpose. \n\nChanging between the boards is accomplished using the BOARD command. BOARD\nwithout any arguments gives you a list of all boards together with number of\nunread message. To change, type BOARD <number> or BOARD <name of the board>.\n\nTo read next unread note, type NOTE. To read a note with a specified number,\ntype NOTE READ <number>. Typing NOTE while in a board with no unread notes\nshifts you to the next board. Note that unlike the standard note system, a \nnote has the same number in NOTE LIST and NOTE READ.\n\nPosting a message is as simple as writing NOTE WRITE. You will be moved \ninto interactive mode, where all you see are prompts for the fields like \nTo:, From: etc. You will be automatically put AFK while writing a note.\n\nTo see the list of the notes in the current board, type NOTE LIST. Typing\nNOTE LIST <number> will list only <number> of the last notes in the area.\n\nYou can remove your own note by using NOTE REMOVE <number>. Implementors may\nremove other people's notes. Implementors can also select how many days\ntheir note is kept before being purged. Purging happens automatically at\nbootup. Purged notes are not deleted, but saved into a file.\n\nTo let only immortals see your note, address it to \"imm\". To let players of\na specific level and above, address it to that level (no other recipients may\nappear in that case).\n\nThis board system was created by Erwin S. Andreasen, erwin@pip.dknet.dk, aka\nPhunk/Drylock and is freely available. The general outlook was based on\nMystic Adventure's note system (mud.gel.ulaval.ca 4000).",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "note",
+    "note write",
+    "note read",
+    "board",
+    "note system",
+    "boards"
+  ]
 },
 {
   "_id": {
@@ -248,7 +362,14 @@
   "keyword": "GOSSIP CGOSSIP . SHOUT YELL",
   "level": 0,
   "text": "Syntax: gossip  <message>\nSyntax: cgossip <message>\nSyntax: shout   <message>\nSyntax: yell    <message>\n\nSHOUT sends a message to all awake players in the world.  To curb excessive\nshouting, SHOUT imposes a three-second delay on the shouter.\n\nGOSSIP and CGOSSIP are variants of SHOUT (without the delay).  '.' is a \nsynonym for GOSSIP.\n\nYELL sends a message to all awake players within your area.\n\nType a channel name by itself to turn it off.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "gossip",
+    "cgossip",
+    ".",
+    "shout",
+    "yell"
+  ]
 },
 {
   "_id": {
@@ -257,7 +378,13 @@
   "keyword": "EMOTE PMOTE POSE SOCIAL",
   "level": 0,
   "text": "Syntax: emote <action>\nSyntax: pose\n\nEMOTE is used to express emotions or actions.  Besides EMOTE, there are\nseveral dozen built-in social commands, such as CACKLE, HUG, and THANK\n(type socials or help socials for a listing).\n\nPMOTE is similar to emote, but will substitute you and your for a target's\nname (i.e. pmote bonks Alander will be read as bonks you by Alander, and\nas bonks Alander by everyone else).\n\nPOSE produces a random message depending on your class and level.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "emote",
+    "pmote",
+    "pose",
+    "social"
+  ]
 },
 {
   "_id": {
@@ -266,7 +393,10 @@
   "keyword": "SMOTE",
   "level": 52,
   "text": "Syntax: smote <action>\n\nSmote works exactly like pmote, except you must place your name somewhere in\nthe string, and it will show that string to everyone in the room.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "smote"
+  ]
 },
 {
   "_id": {
@@ -275,7 +405,13 @@
   "keyword": "HOLD REMOVE WEAR WIELD",
   "level": 0,
   "text": "Syntax: hold   <object>\nSyntax: remove <object>\nSyntax: wear   <object>\nSyntax: wear   all\nSyntax: wield  <object>\n\nThree of these commands will take an object from your inventory and start using\nit as equipment.  HOLD is for light sources, wands, and staves.  WEAR is for\narmor.  WIELD is for weapons.\n\nWEAR ALL will attempt to HOLD, WEAR, or WIELD each suitable item in your\ninventory.\n\nYou may not be able to HOLD, WEAR, or WIELD an item if its alignment does not\nmatch yours, if it is too heavy for you, or if you are not experienced enough\nto use it properly.\n\nREMOVE will take any object from your equipment and put it back into your\ninventory.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "hold",
+    "remove",
+    "wear",
+    "wield"
+  ]
 },
 {
   "_id": {
@@ -284,7 +420,11 @@
   "keyword": "BUG TYPO",
   "level": 0,
   "text": "Syntax: bug <message>\nSyntax: idea <message>\nSyntax: typo <message>\n\nThese commands will take your message and record it into a file as feedback\nto the mud implementors.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "bug",
+    "typo"
+  ]
 },
 {
   "_id": {
@@ -293,7 +433,10 @@
   "keyword": "CREDITS",
   "level": 0,
   "text": "Syntax: credits\n\nThis command shows the list of the original Diku Mud implementors.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "credits"
+  ]
 },
 {
   "_id": {
@@ -302,7 +445,14 @@
   "keyword": "AREAS COMMANDS REPORT SCORE TIME",
   "level": 0,
   "text": "Syntax: areas\nSyntax: commands\nSyntax: report\nSyntax: score\nSyntax: time\nSyntax: weather\n\nAREAS shows you a list of areas in the game.\n\nCOMMANDS shows you all the commands in the game.\n\nREPORT shows your current statistics to you and also announces them to other\nplayers in the room.  SCORE shows much more detailed statistics to you only.\nYour ability scores are shown as true value(current value), so for example\nStr: 15(23) means you have a 15 strength from training, but a 23 strength\nfrom other factors (spells or items).\n\nTIME shows the game time, as well as the time the mud was last started,\nand the current local time for the host computer.\n\nWEATHER shows the current game weather.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "areas",
+    "commands",
+    "report",
+    "score",
+    "time"
+  ]
 },
 {
   "_id": {
@@ -311,7 +461,10 @@
   "keyword": "WHO",
   "level": -1,
   "text": "Syntax: who\nSyntax: who <level-range>\nSyntax: who <class or race>\nSyntax: who <clan name>\nSyntax: who <class or race> <level-range> <clan name>\n\nWHO shows the people currently in the game.  Some people may choose to\nremain unseen and won't appear on the WHO\n \nWHO without any arguments shows all of the (visible) people currently playing.\n\nWith arguments, WHO can show players of certain classes or levels.\nFor example:\n \nwho 10          lists all players of level 10 or above\nwho 15 20       lists all players between level 15 and 20\nwho cleric      lists all clerics playing\nwho immortal    lists all immortals playing\nwho cleric 1 5  lists all clerics between levels 1 and 5\nwho elf cleric  lists all elven clerics\nwho demise e m  lists all elven mages in Demise (hi Alander!)\n\nClasses and races may be abbreviated.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "who"
+  ]
 },
 {
   "_id": {
@@ -320,7 +473,10 @@
   "keyword": "WHOIS",
   "level": -1,
   "text": "Syntax: whois <name>\nThe whois command identifies any user who matches the name given. For\nexample, 'whois a' shows all characters whose name begins with A.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "whois"
+  ]
 },
 {
   "_id": {
@@ -329,7 +485,10 @@
   "keyword": "WHERE",
   "level": 0,
   "text": "Syntax: where\nSyntax: where <character>\n\nWHERE without an argument tells you the location of visible players in the same\narea as you are.\n\nWHERE with an argument tells you the location of one character with that name\nwithin your area, including monsters.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "where"
+  ]
 },
 {
   "_id": {
@@ -338,7 +497,10 @@
   "keyword": "HELP",
   "level": 0,
   "text": "Syntax: help\nSyntax: help <keyword>\n\nHELP without any arguments shows a one-page command summary.\n\nHELP <keyword> shows a page of help on that keyword.  The keywords include\nall the commands, spells, and skills listed in the game.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "help"
+  ]
 },
 {
   "_id": {
@@ -347,7 +509,11 @@
   "keyword": "DESCRIPTION DESC",
   "level": 0,
   "text": "Syntax: description <string>\nSyntax: description + <string>\nSyntax: description - \n\nSets your long description to the given string.  If the description string\nstarts with a '+', the part after the '+' is appended to your current\ndescription, so that you can make multi-line descriptions. You can delete\nlines by uses description -.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "description",
+    "desc"
+  ]
 },
 {
   "_id": {
@@ -356,7 +522,10 @@
   "keyword": "PASSWORD",
   "level": 0,
   "text": "Syntax: password <old-password> <new-password>\n\nPASSWORD changes your character's password.  The first argument must be\nyour old password.  The second argument is your new password.\n\nThe PASSWORD command is protected against being snooped or logged.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "password"
+  ]
 },
 {
   "_id": {
@@ -365,7 +534,10 @@
   "keyword": "TITLE",
   "level": 0,
   "text": "Syntax: title <string>\n\nSets your title to a given string.\n\nThe game supplies a title when your character is created and when you\nadvance a level.  You can use TITLE to set your title to something else.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "title"
+  ]
 },
 {
   "_id": {
@@ -374,7 +546,10 @@
   "keyword": "WIMPY",
   "level": 0,
   "text": "Syntax: wimpy\nSyntax: wimpy <number>\n\nWIMPY sets your wimpy value.  When your character takes damage that reduces\nyour hit points below your wimpy value, you will automatically attempt to flee.\nYou will only flee if your character is not in a wait state -- i.e. has not\nbeen using combat commands like cast, trip and bash, and has not been\ntripped or bash by an enemy.\n\nWIMPY with no argument sets your wimpy value to 20% of your maximum hit points.\n\nSome monsters are wimpy.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "wimpy"
+  ]
 },
 {
   "_id": {
@@ -383,7 +558,14 @@
   "keyword": "OPEN CLOSE LOCK UNLOCK PICK",
   "level": 0,
   "text": "Syntax: open   <object|direction>\nSyntax: close  <object|direction>\nSyntax: lock   <object|direction>\nSyntax: unlock <object|direction>\nSyntax: pick   <object|direction>\n\nOPEN and CLOSE open and close an object or a door.\n\nLOCK and UNLOCK lock and unlock a closed object or door.  You must have\nthe requisite key to LOCK or UNLOCK.\n\nPICK can open a lock without having the key.  In order to PICK successfully,\nyou must practice the appropriate skill.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "open",
+    "close",
+    "lock",
+    "unlock",
+    "pick"
+  ]
 },
 {
   "_id": {
@@ -392,7 +574,13 @@
   "keyword": "DRINK EAT FILL POUR",
   "level": 0,
   "text": "Syntax: drink <object>\nSyntax: eat   <object>\nSyntax: fill  <object>\nSyntax: pour  <object> out\nSyntax: pour  <object> <object>\nSyntax: pour  <object> <character>\n\nWhen you are thirsty, DRINK something.\n\nWhen you are hungry, EAT something.\n\nFILL fills a drink container with water.\n\nPOUR transfers a liquid to a container, or empties one.\nYou can also pour from an object into something a character is holding.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "drink",
+    "eat",
+    "fill",
+    "pour"
+  ]
 },
 {
   "_id": {
@@ -401,7 +589,13 @@
   "keyword": "BUY LIST SELL VALUE",
   "level": 0,
   "text": "Syntax: buy   <object>\nSyntax: list\nSyntax: sell  <object>\nSyntax: value <object>\n\nBUY buys an object from a shop keeper.\nWhen multiple items of the same name are listed, type 'buy n.item', where n\nis the position of the item in a list of that name.  So if there are two\nswords, buy 2.sword will buy the second. If you want to buy multiples of\nan item, use an * (buy 5*pie will buy 5 pies).  These can be combined into\n(for example) buy 2*2.shield, as long as the * is first.  \n\nLIST lists the objects the shop keeper will sell you.\nList <name> shows you only objects of that name.\n\nSELL sells an object to a shop keeper.\n\nVALUE asks the shop keeper how much he, she, or it will buy the item for.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "buy",
+    "list",
+    "sell",
+    "value"
+  ]
 },
 {
   "_id": {
@@ -410,7 +604,10 @@
   "keyword": "SACRIFICE",
   "level": 0,
   "text": "Syntax: sacrifice <object>\n\nSACRIFICE offers an object to Mota, who may reward you.\nThe nature of the reward depends upon the type of object.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "sacrifice"
+  ]
 },
 {
   "_id": {
@@ -419,7 +616,10 @@
   "keyword": "SCROLL",
   "level": 0,
   "text": "Syntax: scroll\nSyntax: scroll <number>\n\nThis command changes the number of lines the mud sends you in a page (the \ndefault is 24 lines).  Change this to a higher number for larger screen\nsizes, or to 0 to disabling paging.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "scroll"
+  ]
 },
 {
   "_id": {
@@ -428,7 +628,13 @@
   "keyword": "BRANDISH QUAFF RECITE ZAP",
   "level": 0,
   "text": "Syntax: brandish\nSyntax: quaff    <potion>\nSyntax: recite   <scroll> <target>\nSyntax: zap      <target>\nSyntax: zap\n\nBRANDISH brandishes a magical staff.  QUAFF quaffs a magical potion (as opposed\nto DRINK, which drinks mundane liquids).  RECITE recites a magical scroll; the\n<target> is optional, depending on the nature of the scroll.  ZAP zaps a\nmagical wand at a target.  If the target is not specified, and you are fighting\nsomeone, then that character is used for a target.\n\nYou must HOLD a wand or a staff before using BRANDISH or ZAP.\n\nAll of these commands use up their objects.  Potions and scrolls have a single\ncharge.  Wands and staves have multiple charges.  When a magical object has no\nmore charges, it will be consumed.\n\nThese commands may require an item skill to be succesful, see the help entries\non the skills scrolls, staves, and wands for more information.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "brandish",
+    "quaff",
+    "recite",
+    "zap"
+  ]
 },
 {
   "_id": {
@@ -437,7 +643,10 @@
   "keyword": "CONSIDER",
   "level": 0,
   "text": "Syntax: consider <character>\n\nCONSIDER tells you what your chances are of killing a character.\nOf course, it's only a rough estimate.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "consider"
+  ]
 },
 {
   "_id": {
@@ -446,7 +655,11 @@
   "keyword": "FOLLOW GROUP",
   "level": 0,
   "text": "Syntax: follow <character>\nSyntax: group\nSyntax: group <character>\n\nFOLLOW starts you following another character.  To stop following anyone else,\njust FOLLOW <yourself>.\n\nGROUP <character> makes someone who is following you a member of your group.\nGroup members share experience points from kills and may use the GTELL and\nSPLIT commands.  If anyone in your group is attacked, you will automatically\njoin the fight.\n\nIf the <character> is already a member of your group, then GROUP will\nkick out the <character> from your group.  Characters can also leave your\ngroup by using a FOLLOW command to stop following you.\n\nGROUP with no argument shows statistics for each character in your group.\n\nYou may FOLLOW and GROUP only with characters who are within five levels of\nyour own.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "follow",
+    "group"
+  ]
 },
 {
   "_id": {
@@ -455,7 +668,10 @@
   "keyword": "VISIBLE",
   "level": 0,
   "text": "VISIBLE cancels your hiding and sneaking, as well as any invisibility,\nmaking you visible again.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "visible"
+  ]
 },
 {
   "_id": {
@@ -464,7 +680,12 @@
   "keyword": "QUIT RENT SAVE",
   "level": 0,
   "text": "Syntax: QUIT\nSyntax: RENT ... not!\nSyntax: SAVE\n\nSAVE saves your character and object.  The game saves your character every\n15 minutes regardless, and is the preferred method of saving.  Typing save\nwill block all other command for about 20 seconds, so use it sparingly.\n(90+ players all typing save every 30 seconds just generated too much lag)\n\nSome objects, such as keys and potions, may not be saved.\n\nQUIT leaves the game.  You may QUIT anywhere.  When you re-enter the game \nyou will be back in the same room.\n\nQUIT automatically does a SAVE, so you can safely leave the game with just one\ncommand.  Nevertheless it's a good idea to SAVE before QUIT.  If you get into\nthe habit of using QUIT without SAVE, and then you play some other mud that\ndoesn't save before quitting, you're going to regret it.\n\nThere is no RENT in this mud.  Just SAVE and QUIT whenever you want to leave.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "quit",
+    "rent",
+    "save"
+  ]
 },
 {
   "_id": {
@@ -473,7 +694,11 @@
   "keyword": "RECALL /",
   "level": 0,
   "text": "Syntax: RECALL\n\nRECALL prays to Mota for miraculous transportation from where you are\nback to the Temple of Midgaard.  '/' is a synonym for RECALL.\n\nIf you RECALL during combat, you will lose experience (more than for fleeing),\nand you will have a chance of failing (again, more than for fleeing).  This\nchance is based on your recall skill, although a 100% recall does not \ninsure success.\n\nRECALL costs half of your movement points.\n\nRECALL doesn't work in certain god-forsaken rooms.  Characters afflicted by a\ncurse may not recall at all.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "recall",
+    "/"
+  ]
 },
 {
   "_id": {
@@ -482,7 +707,10 @@
   "keyword": "SPLIT",
   "level": -1,
   "text": "Syntax: SPLIT <silver> <gold>\n\nSPLIT splits some coins  between you and all the members of your\ngroup who are in the same room as you.  It's customary to SPLIT\nthe loot after a kill.  The first argument is the amount of silver\nthe split (0 is acceptable), and the second gold (optional).\nExamples:\nsplit 30 \t--> split 30 silver\nsplit 20 50\t--> split 20 silver, 50 gold\nsplit  0 10\t--> split 10 gold",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "split"
+  ]
 },
 {
   "_id": {
@@ -491,7 +719,10 @@
   "keyword": "STEAL",
   "level": 0,
   "text": "Syntax: STEAL coins <character>\nSyntax: STEAL <object> <character>\n\nSTEAL attempts to steal coins, or an object, from a character.\n\nThere are penalties for using STEAL on other players.\n\nIn order to STEAL successfully, you must practice the appropriate skill.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "steal"
+  ]
 },
 {
   "_id": {
@@ -500,7 +731,10 @@
   "keyword": "PRACTICE",
   "level": 0,
   "text": "Syntax: PRACTICE\nSyntax: PRACTICE <skill|spell>\n\nPRACTICE without an argument tells you your current ability level in all\nthe skills and spells available to you.  You can check this anywhere.\n\nPRACTICE with an argument practice that skill or spell.  Your learning\npercentage varies from 0% (unlearned) to a some maximum between 80% and 100%,\ndepending on your class.  You must be at a guild master to practice.\n\nThe higher your intelligence, the more you will learn at each practice\nsession.  The higher your wisdom, the more practice sessions you will\nhave each time you gain a level.  Unused sessions are saved until you\ndo use them.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "practice"
+  ]
 },
 {
   "_id": {
@@ -509,7 +743,10 @@
   "keyword": "TRAIN",
   "level": 0,
   "text": "Syntax: train <str int wis dex con hp mana>\n\nTRAIN increases one of your attributes.  When you start the game, your\ncharacter has standard attributes based on your class, and several\ninitial training sessions.  You can increase your attributes by\nusing these sessions at a trainer (there are several in town).\n\nIt takes one training session to improve an attribute, or to increase\nmana or hp by 10.  You receive one session per level.\n\nThe best attributes to train first are WIS and CON.  WIS gives you more\npractice when you gain a level.  CON gives you more hit points.\nIn the long run, your character will be most powerful if you train\nWIS and CON both to 18 before practising or training anything else.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "train"
+  ]
 },
 {
   "_id": {
@@ -518,7 +755,10 @@
   "keyword": "ADVANCE",
   "level": 60,
   "text": "Syntax: advance <character> <level>\n\nADVANCE sets a character's level to the specified value.  It is the\nonly way to create new immortal characters within the game.  ADVANCE\nmay also be used to demote characters.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "advance"
+  ]
 },
 {
   "_id": {
@@ -527,7 +767,10 @@
   "keyword": "TRUST",
   "level": 60,
   "text": "Syntax: trust <character> <level>\n\nTRUST sets a character's trust to the specified level.  This is similar to\nadvancing the character for accessing immortal commands, but has no effect\non combat strength, et cetera.  You can give more trust to mortal (or\nimmortal) characters to give them access to more power without messing up\nthe character.  You can also restrict a player's trust to less than their\nnatural level.\n\nA trust of 0 means to use the character's natural level again.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "trust"
+  ]
 },
 {
   "_id": {
@@ -536,7 +779,12 @@
   "keyword": "ALLOW BAN PERMBAN",
   "level": 58,
   "text": "Syntax: allow   <site>\n\tban     <site> <newbies|all|permit>\n\tban\n\nBAN <site> prohibits players from that site from logging in.  BAN with\nno arguments lists the banned sites.  ALLOW <site> removes a site from\nthe ban list, if the remover is of equal or higher level than the banner.\n\nA site may have all players, new players, or non-permitted players (set\nby editing the player file) banned, by changing the argument after the site.\n*s may be used to ban either by suffix (*.edu), prefix (labmac*), or \ncontent (*andrews*), but be careful not to accidently lock out too many\nsites with a wildcard.  Bans do not save unless the permban command is used.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "allow",
+    "ban",
+    "permban"
+  ]
 },
 {
   "_id": {
@@ -545,7 +793,11 @@
   "keyword": "REBOOT SHUTDOWN",
   "level": 59,
   "text": "Syntax: reboot\n\tshutdown\n\nReboot shuts down the server.  When the normal 'startup' script is used\nto control the server, a delay of fifteen seconds will ensue (to allow\nold connections to die), followed by a reboot.\n\nShutdown shuts down the server and prevents the normal 'startup' script\nfrom restarting it.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "reboot",
+    "shutdown"
+  ]
 },
 {
   "_id": {
@@ -554,7 +806,11 @@
   "keyword": "WIZLOCK NEWLOCK",
   "level": 56,
   "text": "Syntax: wizlock\n\tnewlock\n\nWizlock and newlock both block login attempts to ROM. Wizlock locks\nout all non-gods (i.e. level less than 51), except for link-dead players who\nare returning.  Newlock only locks out new character generation, typically\nused for preventing a spammer from returning.  Wizlocking should be avoided,\nand newlocking should be accompanied by mail or a note to the imps.\n\nA god must be at least Supreme level to wizlock the game.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "wizlock",
+    "newlock"
+  ]
 },
 {
   "_id": {
@@ -563,7 +819,10 @@
   "keyword": "DENY",
   "level": 59,
   "text": "Syntax: deny <name>\n\nDeny locks a character out of a game permanently, rendering their character\nname unusable.  It may only be removed by editing the file, for this reason\nfreeze is usually preferred.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "deny"
+  ]
 },
 {
   "_id": {
@@ -572,7 +831,10 @@
   "keyword": "DISCONNECT",
   "level": 57,
   "text": "Syntax: disconnect <name>\n\nDisconnect breaks a player's link to the game, dumping them back to the telnet\nprompt.  This is a non-lethal way of getting rid of spammers and annoying\nplayers.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "disconnect"
+  ]
 },
 {
   "_id": {
@@ -581,7 +843,10 @@
   "keyword": "FREEZE",
   "level": 57,
   "text": "Syntax: freeze <name>\n\nFREEZE <character> is a toggle which prevents a character from issuing any\ncommands at all. It can be removed from within the game, so freezing a \ntroublemaker is usually a better option than they deny command.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "freeze"
+  ]
 },
 {
   "_id": {
@@ -590,7 +855,10 @@
   "keyword": "FORCE",
   "level": 53,
   "text": "Syntax: force <character> <command>\nSyntax: force all <command>\n\nFORCE forces one character to execute a command, except of course delete.\n\nBelow level 57 (Deity) force can only be used on mobiles, and force all is\nunavailable.  You also cannot 'force orc murder hugo', for example. \n\nFORCE 'all' forces all player characters to execute a command.\nThis is typically used for 'force all save'.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "force"
+  ]
 },
 {
   "_id": {
@@ -599,7 +867,10 @@
   "keyword": "SOCKETS",
   "level": 56,
   "text": "Syntax: sockets\n\tsockets <name> \n\nSOCKETS reports all of the visible users connected to the server, including \nusers in the process of logging in.  The two numbers inside brackets are the \nchannel number and the 'connected' state.  The 'connected' states are listed in \nmerc.h: 0 is CON_PLAYING; non-zero values are various states of logging in.\n\nThe optional name argument shows the site of a player, or optional can be used\nto identify switched gods (i.e. socket orc shows the name of anyone switched\ninto an orc).",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "sockets"
+  ]
 },
 {
   "_id": {
@@ -608,7 +879,10 @@
   "keyword": "LOAD",
   "level": 56,
   "text": "Syntax: load mob <vnum>\n\tload obj <vnum> <level>\n\nThe load command is used to load new objects or mobiles (use clone to \nduplicate strung items and mobs).  The vnums can be found with the vnum\ncommand, or by stat'ing an existing mob or object.\n\nLoad puts objects in inventory if they can be carried, otherwise they are\nput in the room.  Mobiles are always put into the same room as the god. Old\nformat objects must be given a level argument to determine their power, new\nformat objects have a preset level that cannot be changed without set.\n(see also clone, vnum, stat)",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "load"
+  ]
 },
 {
   "_id": {
@@ -617,7 +891,10 @@
   "keyword": "SET",
   "level": 58,
   "text": "Syntax: set mob   <mobile> <field> <value>\n\tset obj   <object> <field> <value>\n\tset room  <number> <field> <value>\n\tset skill <char>   <name>  <rating>\n\tset skill <char>   all     <rating>\n\nThe set command is used to change the numerical values of the various data\nstructures. Type set <class> without an argument to see a listing of options.\nSet skill all (pc's only) will set all the character's skills to the value\ngiven.  Use string to change the strings on an object or mobile.\n(see also string, stat)",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "set"
+  ]
 },
 {
   "_id": {
@@ -626,7 +903,10 @@
   "keyword": "STRING",
   "level": 55,
   "text": "Syntax: string obj <field> <string>\n\tstring mob <field> <string>\n\nThe string command changes the various strings associated with an object or\nmobile.  A full list of fields can be viewed by typing string obj or string\nmob.  Sorry, multi-line strings are not yet supported.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "string"
+  ]
 },
 {
   "_id": {
@@ -635,7 +915,13 @@
   "keyword": "NOCHANNEL NOEMOTE NOSHOUT NOTELL",
   "level": 55,
   "text": "Syntax: nochannel <character>\n\tnoemote   <character>\n\tnoshout   <character>\n\tnotell    <character>\n\nNoemote, noshout, and notell are used to muffle other characters, by\npreventing them from emoting, shouting, and telling, respectively.\nCharacters who are noshout'ed or no'telled will also not receive those\nforms of communication.\n\nThe nochannel command is similar, but more drastic. It prevents the victim\nfrom using any of the channels (gossip, cgossip, Q/A, music) on the game.\nNochannels usually result from swearing or spamming on public channels.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "nochannel",
+    "noemote",
+    "noshout",
+    "notell"
+  ]
 },
 {
   "_id": {
@@ -644,7 +930,10 @@
   "keyword": "PARDON",
   "level": 57,
   "text": "Syntax: pardon <character> killer\n\tpardon <character> thief\n\nPardon pardons a player for their crimes.  Don't pardon a player unless you\nare sure they deserve it.  Being killed by Hassan acts as an automatic\npardon.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "pardon"
+  ]
 },
 {
   "_id": {
@@ -653,7 +942,10 @@
   "keyword": "PURGE",
   "level": 56,
   "text": "Syntax: purge\n\tpurge <character>\n\nPurge is used to clean up the world.  Purge with no arguments removes all the\nNPC's and objects in the current room.  Purge with an argument purges one\ncharacter from anywhere in the world.\n\nPurge will not get rid of PC's, or objects or mobiles with a NOPURGE flag\nset (i.e. the pit, the fountain, shopkeepers, Hassan).  Mobiles may be\npurged if they are called directly by name.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "purge"
+  ]
 },
 {
   "_id": {
@@ -662,7 +954,10 @@
   "keyword": "RESTORE",
   "level": 56,
   "text": "Syntax: restore <character>\n\trestore room\n\trestore all\n\nRestore restores full hit points, mana points, and movement points to the\ntarget character.  It also heals poison, plague, and blindness.\n\nRestore room (or restore with no argument) performs a restore on every player\nin the room, restore all does the same for all connected players. Restore all\nis only usable by creators and implementors.  Restore should be used sparingly\nor not at all.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "restore"
+  ]
 },
 {
   "_id": {
@@ -671,7 +966,10 @@
   "keyword": "SLAY",
   "level": 57,
   "text": "Syntax: slay <character>\n\nSlay kills a character in cold blood, no saving throw.  Best not to use this\ncommand on players if you enjoy being a god.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "slay"
+  ]
 },
 {
   "_id": {
@@ -680,7 +978,11 @@
   "keyword": "TRANSFER TELEPORT",
   "level": 55,
   "text": "Syntax: transfer <character>\n\ttransfer all\n\ttransfer <character> <location>\n\ttransfer all         <location>\n\nTransfer transfers the target character, or ALL player characters,\nto your current location (default) or to a specified location. Trans all \nshould almost never be used, as 100 players popping into one room can have\nhorrible effects on slow links. Teleport is a synonym for transfer.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "transfer",
+    "teleport"
+  ]
 },
 {
   "_id": {
@@ -689,7 +991,10 @@
   "keyword": "AT",
   "level": 54,
   "text": "Syntax: at <location> <command>\n\nAt executes the given command (which may have arguments) at the given\nlocation.  The location may be specified as a vnum, as the name of\na mobile, or as the name of an object.\n\nAt works by temporarily moving you to that location, executing the\ncommand, and then moving you back (if the command didn't change your\nlocation).",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "at"
+  ]
 },
 {
   "_id": {
@@ -698,7 +1003,12 @@
   "keyword": "ECHO GECHO PECHO",
   "level": 54,
   "text": "Syntax: echo  <message>\n\tgecho <message>\n\tpecho <character> <message>\n\nThese commands all perform similar functions.  Echo sends the message to\nall characters in the same room as the user, with no indication of who sent\nit.  Gecho does the same for all players connected to the game, and pecho\nsends the message to the player specified as the target.  Any higher-level\ngod will see a prompt in front of your message, informing him or her that it\nis an echo.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "echo",
+    "gecho",
+    "pecho"
+  ]
 },
 {
   "_id": {
@@ -707,7 +1017,10 @@
   "keyword": "GOTO",
   "level": 52,
   "text": "Syntax: goto <location>\n\nGoto takes you to a location.  The location may be specified as a vnum,\nas the name of a mobile, or as the name of an object.\n\nYou may not Goto a room if it is PRIVATE and has two (or more) characters\nalready present, or if it is SOLITARY and has one (or more) characters\nalready present. Some other rooms are barred to players below a certain\ngod level.\n\nImplementors can use the violate command to get into private rooms.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "goto"
+  ]
 },
 {
   "_id": {
@@ -716,7 +1029,12 @@
   "keyword": "HOLYLIGHT INVIS WIZINVIS",
   "level": 52,
   "text": "Syntax: holylight\n\twiznvis <level>\n\nHolylight is a toggle that allows you to see (almost) every character and\nmobile in the game.  With holy light, you can see what's in the game more\neasily.  Without holy light, you can see what mortal players see.\n\nWizinvis takes a level argument, and will mke you invisible to all players of\na lower level than your invisibility level.  It defaults to the maximum\n(your level) if no argument is given.  Wizi 60 characters are totally \ninvisible.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "holylight",
+    "invis",
+    "wizinvis"
+  ]
 },
 {
   "_id": {
@@ -725,430 +1043,591 @@
   "keyword": "INCOGNITO",
   "level": 52,
   "text": "Toggling your incognito status will hide your presence from people outside the\nroom you are in, but leave you visible to those who are with you.  It takes\na level argument similar to wizinvis, people at that level or higher can see\nyou regarless of location.\n~ \n\n52 MEMORY",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "incognito"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09dcd8ccd9cd682f3f"
   },
-  "keyword": "memory\n\nMemory reports the size of your mud.\n\nThe 'Mobs' and 'Objs' lines report the number of types of mobiles and objects,\nnot the number of instances currently in the game.\n\nThe 'Strings' line shows memory used by area-file strings.  These strings have\na maximum limit, which is also shown.\n\nThe 'Perms' line shows permanently allocated memory blocks.  There is no limit\non the number and size of these blocks.",
-  "level": 0,
-  "text": "56 VNUM",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "keyword": "MEMORY",
+  "level": 52,
+  "text": "Syntax: memory\n\nMemory reports the size of your mud.\n\nThe 'Mobs' and 'Objs' lines report the number of types of mobiles and objects,\nnot the number of instances currently in the game.\n\nThe 'Strings' line shows memory used by area-file strings.  These strings have\na maximum limit, which is also shown.\n\nThe 'Perms' line shows permanently allocated memory blocks.  There is no limit\non the number and size of these blocks.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "memory"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd093e9c6cf05901c830"
   },
-  "keyword": "vnum <name>\n\tvnum <obj or mob> <name>\n\tvnum skill <name>\n\nVnum finds all objects and mobiles with a particular name, and prints out\nthe results.  Use vnum obj or vnum mob to limit the search.  This vnum is\nvery useful for loading. Vnum skill returns the skill number (for set) and\nthe slot number (for making new zones) of a skill name.\n(see also load)",
-  "level": 0,
-  "text": "53 STAT",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "keyword": "VNUM",
+  "level": 56,
+  "text": "Syntax: vnum <name>\n\tvnum <obj or mob> <name>\n\tvnum skill <name>\n\nVnum finds all objects and mobiles with a particular name, and prints out\nthe results.  Use vnum obj or vnum mob to limit the search.  This vnum is\nvery useful for loading. Vnum skill returns the skill number (for set) and\nthe slot number (for making new zones) of a skill name.\n(see also load)",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "vnum"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd094f6e6dbb9f1e90b2"
   },
-  "keyword": "stat <name>\n\tstat mob  <name>\n\tstat obj  <name>\n\tstat room <number>\n\nThe stat command gives you detailed information on an object, mobile, or room\nwithin the game.  Without a class argument, the command will return a object\n(if found), a mobile (if no object exists, but a mobile does), or a room \n(if a number is  given).  Stat room with no argument stats the room you are\nstanding in.  Stat can be used to find room vnums for goto.\n(see also goto, transfer)",
-  "level": 0,
-  "text": "53 MWHERE",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "keyword": "STAT",
+  "level": 53,
+  "text": "Syntax: stat <name>\n\tstat mob  <name>\n\tstat obj  <name>\n\tstat room <number>\n\nThe stat command gives you detailed information on an object, mobile, or room\nwithin the game.  Without a class argument, the command will return a object\n(if found), a mobile (if no object exists, but a mobile does), or a room \n(if a number is  given).  Stat room with no argument stats the room you are\nstanding in.  Stat can be used to find room vnums for goto.\n(see also goto, transfer)",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "stat"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09577a731735dbf89e"
   },
-  "keyword": "mwhere <name>\n\nMwhere shows you the locations of all mobiles with a particular name.",
-  "level": 0,
-  "text": "55 PEACE",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "keyword": "MWHERE",
+  "level": 53,
+  "text": "Syntax: mwhere <name>\n\nMwhere shows you the locations of all mobiles with a particular name.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "mwhere"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd090bd341016ba95b29"
   },
-  "keyword": "peace\n\nPeace causes all characters in a room to stop fighting. It also strips the\nAGGRESSIVE bit from mobiles.",
-  "level": 0,
-  "text": "52 POOFIN POOFOUT",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "keyword": "PEACE",
+  "level": 55,
+  "text": "Syntax: peace\n\nPeace causes all characters in a room to stop fighting. It also strips the\nAGGRESSIVE bit from mobiles.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "peace"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd0911596eaa18033b42"
   },
-  "keyword": "poofin  <message>\nSyntax: pooffout <message>\n\nThe standard messages for goto are 'arrives in a swirling mist' and\n'leaves in a swirling mist'.  You can replace these messages with messages of\nyour own choosing using the poofin and poofout commands.  These messages\nmust include your name somewhere in the string.\n\nPoofin and poofout only show to characters who can see you.\n(see also goto)",
-  "level": 0,
-  "text": "59 PROTECT",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "keyword": "POOFIN POOFOUT",
+  "level": 52,
+  "text": "Syntax: poofin  <message>\nSyntax: pooffout <message>\n\nThe standard messages for goto are 'arrives in a swirling mist' and\n'leaves in a swirling mist'.  You can replace these messages with messages of\nyour own choosing using the poofin and poofout commands.  These messages\nmust include your name somewhere in the string.\n\nPoofin and poofout only show to characters who can see you.\n(see also goto)",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "poofin",
+    "poofout"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd0979cbd3ce47dc19c3"
   },
-  "keyword": "protect <character>\n\nProtect is used to protect a character from unwanted snooping.  Removing \nprotected status from a character WILL be seen by that character.",
-  "level": 0,
-  "text": "55 LOG SNOOP",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "keyword": "PROTECT",
+  "level": 59,
+  "text": "Syntax: protect <character>\n\nProtect is used to protect a character from unwanted snooping.  Removing \nprotected status from a character WILL be seen by that character.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "protect"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd093a4a328838bf1c26"
   },
-  "keyword": "log   <character>\n\tlog   all\n\tsnoop <character>\n\nLog <character> causes all of a character's commands to be logged into\nthe server's log file.  Like Freeze, it is a permanent character toggle.\nLogs may only be used by creators and implementors, and should be accompanied\nby mail to the implementors.\n\nCertain commands (Password) are protected against log.  Conversely, certain\ncommands (especially immortal commands) are always logged.\n\nLog all logs all character commands.  It is a server-wide toggle; it does not\npersist across reboots. Please do not use this unless you tell the imps.\n\nSnoop shows you a copy of all the input and output going to a character.\nThe character must have an open channel.  You may snoop more than one\ncharacter at a time. Try to respect privacy.\n\nSnoop yourself to cancel all outstanding snoops.",
-  "level": 0,
-  "text": "54 SWITCH RETURN",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "keyword": "LOG SNOOP",
+  "level": 55,
+  "text": "Syntax: log   <character>\n\tlog   all\n\tsnoop <character>\n\nLog <character> causes all of a character's commands to be logged into\nthe server's log file.  Like Freeze, it is a permanent character toggle.\nLogs may only be used by creators and implementors, and should be accompanied\nby mail to the implementors.\n\nCertain commands (Password) are protected against log.  Conversely, certain\ncommands (especially immortal commands) are always logged.\n\nLog all logs all character commands.  It is a server-wide toggle; it does not\npersist across reboots. Please do not use this unless you tell the imps.\n\nSnoop shows you a copy of all the input and output going to a character.\nThe character must have an open channel.  You may snoop more than one\ncharacter at a time. Try to respect privacy.\n\nSnoop yourself to cancel all outstanding snoops.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "log",
+    "snoop"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09d771371ff5c04443"
   },
-  "keyword": "switch <character>\n\treturn\n\nSwitch switches you into the body of another character (who must not\nalready have a descriptor, e.g. you can't switch into a PC). You also cannot\nswitch into link-dead PCs.\n\nReturn returns you to your original body.",
-  "level": 0,
-  "text": "51 IMMTALK :",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "keyword": "SWITCH RETURN",
+  "level": 54,
+  "text": "Syntax: switch <character>\n\treturn\n\nSwitch switches you into the body of another character (who must not\nalready have a descriptor, e.g. you can't switch into a PC). You also cannot\nswitch into link-dead PCs.\n\nReturn returns you to your original body.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "switch",
+    "return"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd091102032429458155"
   },
-  "keyword": "immtalk <message>\n\timmtalk\n\nImmtalk sends a message to all immortals.  : is a synonym for immtalk.\nUsing this command with no argument turns off the immortal channel (or\nturns it back on).",
-  "level": 0,
-  "text": "52 WIZNET",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "keyword": "IMMTALK :",
+  "level": 51,
+  "text": "Syntax: immtalk <message>\n\timmtalk\n\nImmtalk sends a message to all immortals.  : is a synonym for immtalk.\nUsing this command with no argument turns off the immortal channel (or\nturns it back on).",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "immtalk",
+    ":"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd099c66b6aa6cfb5e96"
   },
-  "keyword": "wiznet \n\twiznet show\n\twiznet status\n\twiznet <field>\n\nWiznet is sort of an immortal news service, to show important events to\nthe wiznetted immoral.  Wiznet by itself turns wiznet on and off, \nwiznet show lists all settable flags (they are not detailed here), \nwiznet status shows your current wiznet settings, and wiznet <field> toggles\na field on and off.  The events should be self-explanatory, if they are not,\nfiddle with them a while.  More events are available at higher levels.",
-  "level": 0,
-  "text": "51 WIZHELP",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "keyword": "WIZNET",
+  "level": 52,
+  "text": "Syntax: wiznet \n\twiznet show\n\twiznet status\n\twiznet <field>\n\nWiznet is sort of an immortal news service, to show important events to\nthe wiznetted immoral.  Wiznet by itself turns wiznet on and off, \nwiznet show lists all settable flags (they are not detailed here), \nwiznet status shows your current wiznet settings, and wiznet <field> toggles\na field on and off.  The events should be self-explanatory, if they are not,\nfiddle with them a while.  More events are available at higher levels.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "wiznet"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd0939fcaade9697f1a1"
   },
-  "keyword": "wizhelp\n\nWizhelp provides a list of all the immortal commands.",
-  "level": 0,
-  "text": "0 ARMOR",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "keyword": "WIZHELP",
+  "level": 51,
+  "text": "Syntax: wizhelp\n\nWizhelp provides a list of all the immortal commands.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "wizhelp"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd090c075e701ad56c15"
   },
-  "keyword": "cast armor <character>\n\nThis spell decreases (improves) the armor class of the target character\nby 20 points.",
+  "keyword": "ARMOR",
   "level": 0,
-  "text": "0 BLESS",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast armor <character>\n\nThis spell decreases (improves) the armor class of the target character\nby 20 points.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "armor"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd099e97f329e0e3f7e3"
   },
-  "keyword": "cast bless <character>\nSyntax: cast bless <object>\n\nThis spell improves the to-hit roll and saving throw versus spell of the\ntarget character by 1 for every 8 levels of the caster. It may also be\ncast on an object to temporarily bless it (blessed weapons, for example,\nare more effective against demonic beings).",
+  "keyword": "BLESS",
   "level": 0,
-  "text": "0 BLINDNESS",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast bless <character>\nSyntax: cast bless <object>\n\nThis spell improves the to-hit roll and saving throw versus spell of the\ntarget character by 1 for every 8 levels of the caster. It may also be\ncast on an object to temporarily bless it (blessed weapons, for example,\nare more effective against demonic beings).",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "bless"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09b29f392178253f2e"
   },
-  "keyword": "cast blindness <victim>\n\nThis spell renders the target character blind.",
+  "keyword": "BLINDNESS",
   "level": 0,
-  "text": "0 'ACID BLAST' 'BURNING HANDS' 'COLOUR SPRAY' FIREBALL 'LIGHTNING BOLT'\n  'MAGIC MISSILE' 'SHOCKING GRASP'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast blindness <victim>\n\nThis spell renders the target character blind.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "blindness"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09b1ba546492b1a8a2"
   },
-  "keyword": "cast 'acid blast'     <victim>\nSyntax: cast 'burning hands'  <victim>\nSyntax: cast 'colour spray'   <victim>\nSyntax: cast 'fireball'       <victim>\nSyntax: cast 'lightning bolt' <victim>\nSyntax: cast 'magic missile'  <victim>\nSyntax: cast 'shocking grasp' <victim>\n\nThese spells inflict damage on the victim.  The higher-level spells do\nmore damage.",
+  "keyword": "'ACID BLAST' 'BURNING HANDS' 'COLOUR SPRAY' FIREBALL 'LIGHTNING BOLT'\n  'MAGIC MISSILE' 'SHOCKING GRASP'",
   "level": 0,
-  "text": "0 'CALL LIGHTNING'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'acid blast'     <victim>\nSyntax: cast 'burning hands'  <victim>\nSyntax: cast 'colour spray'   <victim>\nSyntax: cast 'fireball'       <victim>\nSyntax: cast 'lightning bolt' <victim>\nSyntax: cast 'magic missile'  <victim>\nSyntax: cast 'shocking grasp' <victim>\n\nThese spells inflict damage on the victim.  The higher-level spells do\nmore damage.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "acid blast",
+    "burning hands",
+    "colour spray",
+    "fireball",
+    "lightning bolt",
+    "magic missile",
+    "shocking grasp"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd096502fe4108fe74ec"
   },
-  "keyword": "cast 'call lightning'\n\nThis spell works only out of doors, and only when the weather is bad.\nIt calls down lightning bolts from Mota.",
+  "keyword": "'CALL LIGHTNING'",
   "level": 0,
-  "text": "0 'CAUSE LIGHT' 'CAUSE SERIOUS' 'CAUSE CRITICAL' HARM",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'call lightning'\n\nThis spell works only out of doors, and only when the weather is bad.\nIt calls down lightning bolts from Mota.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "call lightning"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09ba77781a4c097737"
   },
-  "keyword": "cast 'cause light'    <victim>\nSyntax: cast 'cause serious'  <victim>\nSyntax: cast 'cause critical' <victim>\nSyntax: cast harm             <victim>\n\nThese spells inflict damage on the victim.  The higher-level spells do\nmore damage.",
+  "keyword": "'CAUSE LIGHT' 'CAUSE SERIOUS' 'CAUSE CRITICAL' HARM",
   "level": 0,
-  "text": "53 'CHANGE SEX'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'cause light'    <victim>\nSyntax: cast 'cause serious'  <victim>\nSyntax: cast 'cause critical' <victim>\nSyntax: cast harm             <victim>\n\nThese spells inflict damage on the victim.  The higher-level spells do\nmore damage.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "cause light",
+    "cause serious",
+    "cause critical",
+    "harm"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09173e56019cd9c538"
   },
-  "keyword": "cast 'change sex' <victim>\n\nThis spell changes the sex of the victim (temporarily).",
-  "level": 0,
-  "text": "0 'CHARM PERSON'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "keyword": "'CHANGE SEX'",
+  "level": 53,
+  "text": "Syntax: cast 'change sex' <victim>\n\nThis spell changes the sex of the victim (temporarily).",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "change sex"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09cd331ac493e3c352"
   },
-  "keyword": "cast 'charm person' <victim>\n\nThis spell, if successful, causes the victim to follow you and to take orders\nfrom you.  Use ORDER to order your charmed followers.\n\nYou are responsible for the actions of your followers.  Conversely, other\npeople who attack your followers will be penalized as if they attacked you.",
+  "keyword": "'CHARM PERSON'",
   "level": 0,
-  "text": "0 'CHILL TOUCH'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'charm person' <victim>\n\nThis spell, if successful, causes the victim to follow you and to take orders\nfrom you.  Use ORDER to order your charmed followers.\n\nYou are responsible for the actions of your followers.  Conversely, other\npeople who attack your followers will be penalized as if they attacked you.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "charm person"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09a2db55de75c20f12"
   },
-  "keyword": "cast 'chill touch' <victim>\n\nThis spell inflicts damage on the victim and also reduces the victim's\nstrength by one.",
+  "keyword": "'CHILL TOUCH'",
   "level": 0,
-  "text": "0 'CONTINUAL LIGHT'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'chill touch' <victim>\n\nThis spell inflicts damage on the victim and also reduces the victim's\nstrength by one.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "chill touch"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd094d6b3d58588e41b1"
   },
-  "keyword": "cast 'continual light'\nSyntax: cast 'continual light' <object>\n\nThis spell creates a ball of light, which you can hold as a light source.\nThe ball of light will last indefinitely. It may also be used on an object\nto give it an enchanted glow.",
+  "keyword": "'CONTINUAL LIGHT'",
   "level": 0,
-  "text": "0 'CONTROL WEATHER'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'continual light'\nSyntax: cast 'continual light' <object>\n\nThis spell creates a ball of light, which you can hold as a light source.\nThe ball of light will last indefinitely. It may also be used on an object\nto give it an enchanted glow.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "continual light"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09e73fff06dd524087"
   },
-  "keyword": "cast 'control weather' better\nSyntax: cast 'control weather' worse\n\nThis spell makes the weather either better or worse.",
+  "keyword": "'CONTROL WEATHER'",
   "level": 0,
-  "text": "0 'CREATE FOOD'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'control weather' better\nSyntax: cast 'control weather' worse\n\nThis spell makes the weather either better or worse.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "control weather"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09b26a2beaba172d05"
   },
-  "keyword": "cast 'create food'\n\nThis spell creates a Magic Mushroom, which you or anyone else can eat.",
+  "keyword": "'CREATE FOOD'",
   "level": 0,
-  "text": "0 'CREATE SPRING'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'create food'\n\nThis spell creates a Magic Mushroom, which you or anyone else can eat.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "create food"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09027ae06680c47916"
   },
-  "keyword": "cast 'create spring'\n\nThis spell brings forth a magical spring from the ground, which has the\nsame properties as a fountain.",
+  "keyword": "'CREATE SPRING'",
   "level": 0,
-  "text": "0 'CREATE WATER'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'create spring'\n\nThis spell brings forth a magical spring from the ground, which has the\nsame properties as a fountain.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "create spring"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09764474a19d491e34"
   },
-  "keyword": "cast 'create water' <drink-container>\n\nThis spell replenishes a drink container with water.",
+  "keyword": "'CREATE WATER'",
   "level": 0,
-  "text": "0 'CURE BLINDNESS'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'create water' <drink-container>\n\nThis spell replenishes a drink container with water.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "create water"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd099ebed3b33f3e908c"
   },
-  "keyword": "cast 'cure blindness' <character>\n\nThis spell cures blindness in one so unfortunate.",
+  "keyword": "'CURE BLINDNESS'",
   "level": 0,
-  "text": "0 'CURE POISON'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'cure blindness' <character>\n\nThis spell cures blindness in one so unfortunate.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "cure blindness"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09ab37b1458b1bf644"
   },
-  "keyword": "cast 'cure poison' <character>\n\nThis spell cures poison in one so unfortunate.",
+  "keyword": "'CURE POISON'",
   "level": 0,
-  "text": "0 'CURE LIGHT' 'CURE SERIOUS' 'CURE CRITICAL' HEAL",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'cure poison' <character>\n\nThis spell cures poison in one so unfortunate.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "cure poison"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09bbede1477c1ec415"
   },
-  "keyword": "cast 'cure light'    <character>\nSyntax: cast 'cure serious'  <character>\nSyntax: cast 'cure critical' <character>\nSyntax: cast 'heal'          <character>\n\nThese spells cure damage on the target character.  The higher-level spells\nheal more damage.\n\n(see 'help healer' for details on the heal command)",
+  "keyword": "'CURE LIGHT' 'CURE SERIOUS' 'CURE CRITICAL' HEAL",
   "level": 0,
-  "text": "0 CURSE",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'cure light'    <character>\nSyntax: cast 'cure serious'  <character>\nSyntax: cast 'cure critical' <character>\nSyntax: cast 'heal'          <character>\n\nThese spells cure damage on the target character.  The higher-level spells\nheal more damage.\n\n(see 'help healer' for details on the heal command)",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "cure light",
+    "cure serious",
+    "cure critical",
+    "heal"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09b63939315c50a930"
   },
-  "keyword": "cast 'curse' <character>\n\nThis spell reduces the character's to-hit roll and save versus spells.\nIt also renders the character unclean in the eyes of Mota and\nunable to RECALL. Curse may be used to fill equipment with evil power,\nallowing (for example) weapons to do more damage to particularly holy\nopponents.",
+  "keyword": "CURSE",
   "level": 0,
-  "text": "0 'DETECT EVIL'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'curse' <character>\n\nThis spell reduces the character's to-hit roll and save versus spells.\nIt also renders the character unclean in the eyes of Mota and\nunable to RECALL. Curse may be used to fill equipment with evil power,\nallowing (for example) weapons to do more damage to particularly holy\nopponents.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "curse"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd093cd3250b220cd3a9"
   },
-  "keyword": "cast 'detect evil'\n\nThis spell enables the caster to detect evil characters, which will\nreveal a characteristic red aura.",
+  "keyword": "'DETECT EVIL'",
   "level": 0,
-  "text": "0 'DETECT HIDDEN'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'detect evil'\n\nThis spell enables the caster to detect evil characters, which will\nreveal a characteristic red aura.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "detect evil"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd094d989b1f54463a33"
   },
-  "keyword": "cast 'detect hidden'\n\nThis spell enables the caster to detect hidden creatures.",
+  "keyword": "'DETECT HIDDEN'",
   "level": 0,
-  "text": "0 'DETECT INVIS'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'detect hidden'\n\nThis spell enables the caster to detect hidden creatures.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "detect hidden"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd096856c41bdfb8d0f7"
   },
-  "keyword": "cast 'detect invis'\n\nThis spell enables the caster to detect invisible objects and characters.",
+  "keyword": "'DETECT INVIS'",
   "level": 0,
-  "text": "0 'DETECT MAGIC'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'detect invis'\n\nThis spell enables the caster to detect invisible objects and characters.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "detect invis"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09d9951ec25d4a82b6"
   },
-  "keyword": "cast 'detect magic'\n\nThis spell enables the caster to detect magical objects.",
+  "keyword": "'DETECT MAGIC'",
   "level": 0,
-  "text": "0 'DETECT POISON'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'detect magic'\n\nThis spell enables the caster to detect magical objects.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "detect magic"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09274da56179411791"
   },
-  "keyword": "cast 'detect poison' <object>\n\nThis spell detects the presence of poison in food or drink.",
+  "keyword": "'DETECT POISON'",
   "level": 0,
-  "text": "0 'DISPEL EVIL'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'detect poison' <object>\n\nThis spell detects the presence of poison in food or drink.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "detect poison"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd096f15bbdfd41b773a"
   },
-  "keyword": "cast 'dispel evil' <victim>\n\nThis spell invokes the wrath of Mota on an evil victim. It can be very\ndangerous for casters who are not pure of heart.",
+  "keyword": "'DISPEL EVIL'",
   "level": 0,
-  "text": "0 'DISPEL MAGIC' CANCELLATION",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'dispel evil' <victim>\n\nThis spell invokes the wrath of Mota on an evil victim. It can be very\ndangerous for casters who are not pure of heart.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "dispel evil"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd090c4bdde6db6917e0"
   },
-  "keyword": "cast 'dispel magic' <character>\n        cast 'cancellation' <characte>\n \nBoth of these spells remove magical effects from the target.  Dispel magic\nhas a reduced chance of working, and is considering an attack spell.\nCancellation can only be used on allies, but is much more effective and does\nnot provoke attack.  Unfortunately, the spells do not discriminate between\nharmful and benign spells.\n \nThe chance of dispelling is based on the level of the spell. Permanent spells\n(such as mobile sanctuary) are much harder to remove.  Not all spells may\nbe dispelled, notable examples are poison and plague.",
+  "keyword": "'DISPEL MAGIC' CANCELLATION",
   "level": 0,
-  "text": "0 EARTHQUAKE",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'dispel magic' <character>\n        cast 'cancellation' <characte>\n \nBoth of these spells remove magical effects from the target.  Dispel magic\nhas a reduced chance of working, and is considering an attack spell.\nCancellation can only be used on allies, but is much more effective and does\nnot provoke attack.  Unfortunately, the spells do not discriminate between\nharmful and benign spells.\n \nThe chance of dispelling is based on the level of the spell. Permanent spells\n(such as mobile sanctuary) are much harder to remove.  Not all spells may\nbe dispelled, notable examples are poison and plague.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "dispel magic",
+    "cancellation"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd092d8b92e4a96d7430"
   },
-  "keyword": "cast 'earthquake'\n\nThis spell inflicts damage on every enemy character in the room.\nBeware that other characters who are not yet fighting may attack\nyou as a result!",
+  "keyword": "EARTHQUAKE",
   "level": 0,
-  "text": "0 'ENCHANT WEAPON'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'earthquake'\n\nThis spell inflicts damage on every enemy character in the room.\nBeware that other characters who are not yet fighting may attack\nyou as a result!",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "earthquake"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd0981ccdfcfbb501bcd"
   },
-  "keyword": "cast 'enchant weapon' <weapon>\n\nThis spell magically enchants a weapon, increasing its to-hit and to-dam\nbonuses by one or two points.  Multiple enchants may be cast, but as the\nweapon grows more and more powerful, it is more likely to be drained or\ndestroyed by the magic.  Also, every successful enchant increases the level\nof the weapon by one...and there is no turning back.",
+  "keyword": "'ENCHANT WEAPON'",
   "level": 0,
-  "text": "-1 'ENCHANT ARMOR'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'enchant weapon' <weapon>\n\nThis spell magically enchants a weapon, increasing its to-hit and to-dam\nbonuses by one or two points.  Multiple enchants may be cast, but as the\nweapon grows more and more powerful, it is more likely to be drained or\ndestroyed by the magic.  Also, every successful enchant increases the level\nof the weapon by one...and there is no turning back.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "enchant weapon"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd090f6a0a04982bc2b2"
   },
-  "keyword": "enchant armor spell imbues armor with powerful protective magics. It is\nnot nearly as reliable as enchant weapon, being far more prone to destructive\neffects.  Each succesful enchant increases the plus of the armor by 1 or 2\npoints, and raises its level by one.",
-  "level": 0,
-  "text": "0 'ENERGY DRAIN'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "keyword": "'ENCHANT ARMOR'",
+  "level": -1,
+  "text": "The enchant armor spell imbues armor with powerful protective magics. It is\nnot nearly as reliable as enchant weapon, being far more prone to destructive\neffects.  Each succesful enchant increases the plus of the armor by 1 or 2\npoints, and raises its level by one.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "enchant armor"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09a1f24dfa95dc6568"
   },
-  "keyword": "cast 'energy drain' <victim>\n\nThis spell saps the experience points, mana, and movement points of its\ntarget.",
+  "keyword": "'ENERGY DRAIN'",
   "level": 0,
-  "text": "0 'FAERIE FIRE'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'energy drain' <victim>\n\nThis spell saps the experience points, mana, and movement points of its\ntarget.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "energy drain"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd095461f96a36ccdf1b"
   },
-  "keyword": "cast 'faerie fire' <victim>\n\nThis spell increases (makes worse) the armor class of its victim.  For each\nlevel of the caster, the victim's armor class is increased by two points.",
+  "keyword": "'FAERIE FIRE'",
   "level": 0,
-  "text": "0 'FAERIE FOG'",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'faerie fire' <victim>\n\nThis spell increases (makes worse) the armor class of its victim.  For each\nlevel of the caster, the victim's armor class is increased by two points.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "faerie fire"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09e59b878e32b75e96"
   },
-  "keyword": "cast 'faerie fog'\n\nThis spell reveals all manner of invisible, hidden, and sneaking creatures in\nthe same room as you.",
+  "keyword": "'FAERIE FOG'",
   "level": 0,
-  "text": "0 FLAMESTRIKE",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'faerie fog'\n\nThis spell reveals all manner of invisible, hidden, and sneaking creatures in\nthe same room as you.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "faerie fog"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd0975628689dc13b0ee"
   },
-  "keyword": "cast 'flamestrike' <victim>\n\nThis spell inflicts damage on the victim.",
+  "keyword": "FLAMESTRIKE",
   "level": 0,
-  "text": "0 FLY",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'flamestrike' <victim>\n\nThis spell inflicts damage on the victim.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "flamestrike"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd0961b89140ecb85a87"
   },
-  "keyword": "cast 'fly' <character>\n\nThis spell enables the target character to fly.",
+  "keyword": "FLY",
   "level": 0,
-  "text": "0 IDENTIFY",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'fly' <character>\n\nThis spell enables the target character to fly.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "fly"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09b87bb2302cbfc112"
   },
-  "keyword": "cast identify <object>\n\nThis spell reveals information about the object.",
+  "keyword": "IDENTIFY",
   "level": 0,
-  "text": "0 INFRAVISION",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast identify <object>\n\nThis spell reveals information about the object.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "identify"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd09702a5c59fbf203ec"
   },
-  "keyword": "cast infravision <character>\n\nThis spell enables the target character to see warm-blooded creatures even\nwhile in the dark, and exits of a room as well.",
+  "keyword": "INFRAVISION",
   "level": 0,
-  "text": "0 INVIS 'MASS INVIS' INVISIBLITY~ \nSyntax: cast 'invisibility' <character>\nSyntax: cast 'invisibility' <object>\nSyntax: cast 'mass invis'\n\nThe INVIS spell makes the target character invisible.  Invisible characters\nwill become visible when they attack. It may also be cast on an object\nto render the object invisible.\n\nThe MASS INVIS spell makes all characters in the caster's group invisible,\nincluding the caster.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast infravision <character>\n\nThis spell enables the target character to see warm-blooded creatures even\nwhile in the dark, and exits of a room as well.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "infravision"
+  ]
 },
 {
   "_id": {
@@ -1157,7 +1636,10 @@
   "keyword": "'KNOW ALIGNMENT'",
   "level": 0,
   "text": "Syntax: cast 'know alignment' <character>\n\nThis spell reveals the alignment of the target character.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "know alignment"
+  ]
 },
 {
   "_id": {
@@ -1166,7 +1648,10 @@
   "keyword": "'LOCATE OBJECT'",
   "level": 0,
   "text": "Syntax: cast 'locate object' <name>\n\nThis spell reveals the location of all objects with the given name.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "locate object"
+  ]
 },
 {
   "_id": {
@@ -1175,7 +1660,10 @@
   "keyword": "'PASS DOOR'",
   "level": 0,
   "text": "Syntax: cast 'pass door'\n\nThis spell enables the caster to pass through closed doors.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "pass door"
+  ]
 },
 {
   "_id": {
@@ -1184,7 +1672,10 @@
   "keyword": "POISON",
   "level": 0,
   "text": "Syntax: cast poison <victim>\nSyntax: cast poison <object>\n\nThis spell reduces the strength of the victim by two, as well as reducing the\nvictim's regeneration rate. It may also be used to poison food, drink, or\na weapon in a fashion similar to envenom ('help envenom'), but with \ndrastically reduced effectiveness.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "poison"
+  ]
 },
 {
   "_id": {
@@ -1193,7 +1684,10 @@
   "keyword": "SANCTUARY",
   "level": 0,
   "text": "Syntax: cast sanctuary  <character>\n\nThe SANCTUARY spell reduces the damage taken by the character from any attack\nby one half.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "sanctuary"
+  ]
 },
 {
   "_id": {
@@ -1202,7 +1696,10 @@
   "keyword": "REFRESH",
   "level": 0,
   "text": "Syntax: cast refresh <character>\n\nThis spell refreshes the movement points of a character who is out of movement\npoints.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "refresh"
+  ]
 },
 {
   "_id": {
@@ -1211,7 +1708,10 @@
   "keyword": "'REMOVE CURSE'",
   "level": 0,
   "text": "Syntax: cast 'remove curse' <character>\nSyntax: cast 'remove curse' <object>\n\nThis spell removes a curse from a character, and might possibly uncurse\na cursed object.  It may also be targeted on an object in the caster's\ninventory, in which case it's chance of success is significantly higher.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "remove curse"
+  ]
 },
 {
   "_id": {
@@ -1220,7 +1720,11 @@
   "keyword": "SHIELD 'STONE SKIN'",
   "level": 0,
   "text": "Syntax: cast shield\nSyntax: cast 'stone skin'\n\nThese spells protect the caster by decreasing (improving) the caster's armor\nclass.  SHIELD provides 20 points of armor.  STONE SKIN provides 40 points of\narmor.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "shield",
+    "stone skin"
+  ]
 },
 {
   "_id": {
@@ -1229,7 +1733,10 @@
   "keyword": "SLEEP",
   "level": 0,
   "text": "Syntax: cast sleep <victim>\n\nThis spell puts its victim to sleep.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "sleep spell"
+  ]
 },
 {
   "_id": {
@@ -1238,7 +1745,10 @@
   "keyword": "SUMMON",
   "level": 0,
   "text": "Syntax: cast summon <character>\n\nThis spell summons a character from anywhere else in the world into your room.\nCharacters who are fighting may not be summoned.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "summon"
+  ]
 },
 {
   "_id": {
@@ -1247,7 +1757,10 @@
   "keyword": "TELEPORT",
   "level": 0,
   "text": "Syntax: cast <teleport>\n\nThis spell takes you from your current location to a random location somewhere\nin the world.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "teleport spell"
+  ]
 },
 {
   "_id": {
@@ -1256,7 +1769,10 @@
   "keyword": "VENTRILOQUATE",
   "level": 0,
   "text": "Syntax: cast ventriloquate <speaker> <message>\n\nThis spell throws your voice, making it appear that some other object or\ncharacter in the room is saying your message.  Victims who make their saving\nthrow will know that someone is using ventriloquism, but not who.  Victims who\nfail their saving throw will think that the object or character really did say\nyour message.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "ventriloquate"
+  ]
 },
 {
   "_id": {
@@ -1265,7 +1781,10 @@
   "keyword": "WEAKEN",
   "level": 0,
   "text": "Syntax: cast weaken <victim>\n\nThis spell reduces the strength of the victim by two points.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "weaken"
+  ]
 },
 {
   "_id": {
@@ -1274,7 +1793,10 @@
   "keyword": "'WORD OF RECALL'",
   "level": 0,
   "text": "Syntax: cast 'word of recall'\n\nThis spell duplicates the built-in RECALL ability.  It is provided solely for\nMerc-based muds which wish to eliminate the built-in ability while still\nproviding the spell.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "word of recall"
+  ]
 },
 {
   "_id": {
@@ -1283,7 +1805,14 @@
   "keyword": "'ACID BREATH' 'FIRE BREATH' 'FROST BREATH' 'GAS BREATH' 'LIGHTNING BREATH'",
   "level": 0,
   "text": "Syntax: cast 'acid breath'      <victim>\nSyntax: cast 'fire breath'      <victim>\nSyntax: cast 'frost breath'     <victim>\nSyntax: cast 'gas breath'\nSyntax: cast 'lightning breath' <victim>\n\nThese spells are for the use of dragons.  Acid, fire, frost, and lightning\ndamage one victim, whereas gas damages every PC in the room.  Fire and\nfrost can break objects, and acid can damage armor.\n\nHigh level mages may learn and cast these spells as well.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "acid breath",
+    "fire breath",
+    "frost breath",
+    "gas breath",
+    "lightning breath"
+  ]
 },
 {
   "_id": {
@@ -1292,7 +1821,11 @@
   "keyword": "NEWBIE INFO",
   "level": -1,
   "text": "Ah! Another mortal, seeking adventure.  You should go through mudschool first,\nto gain experience to face the trials outside.  Be sure to practice a weapon\nin the guild room, or your stay with us shall be very short indeed.  Type\n'equipment' to see what your are wielding, 'spells' to see your spells,\n'skills' to see your skills, and 'commands' for a list of commands. Help is\navailable on most commands and abilities.\n\nPlease type 'help rules' to see the Rules of ROM.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "newbie",
+    "info"
+  ]
 },
 {
   "_id": {
@@ -1301,7 +1834,10 @@
   "keyword": "LAG",
   "level": -1,
   "text": "Twas dial-up, and the failing mudders did toil and struggle in the fray\nAll checksummed were the compressed files\nAnd the man pages, outdate\nBeware the Internet my son,\nThe noise that hangs, the lag that kills\nBeware the Usenet news, and shun the frivolous mud with frills\nSo took his his mudding client in hand\nLongtime the virtual foe he sought\nSo rested he by the T1s three and paused a while in swap\nAnd as in disk-drive swap he stayed,\nThe Internet, with lags of fame\nCame packetwise through the T1 line\nAnd error-checked as it came\nOne two one two and through and through, the mudding client went kill -9\nHe left it dead and with it's core he went a tracing back\nAnd hath thou slain the Internet?\nCome to my arms my disk-based bot!\nOh lag-free day, callooh callay, he chortled in his joy\nTwas dial-up, and the failing mudders did toil and struggle in the fray\nAll checksummed were the compressed files\nAnd the man pages, outdate.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "lag"
+  ]
 },
 {
   "_id": {
@@ -1310,7 +1846,10 @@
   "keyword": "WIZLIST",
   "level": -1,
   "text": ".\n        ________            *********************           ________\n      /+_+_+_+_+_\\          ** The Gods of ROM **         /+_+_+_+_+_\\\n      \\__________/          *********************         \\__________/\n        |::XXXX|                                            |::XXXX|\n        |X::XXX|              Implementors [60]             |X::XXX|\n        |XX::XX|              *****************             |XX::XX|\n        |XXX::X|     \t\t\t\t            |XXX::X|\n        |XXXX::|                                            |XXXX::|\n        |::XXXX|                                            |::XXXX|\n        |X::XXX|                Creators [59]               |X::XXX|\n        |XX::XX|                *************               |XX::XX|\n        |XXXX::|         \t\t\t            |XXXX::|\n        |::XXXX|                                            |::XXXX|\n/<<>>\\/<<>>\\/<<>>\\/<<>>\\                            /<<>>\\/<<>>\\/<<>>\\/<<>>\\\n\\<<>>/\\<<>>/\\<<>>/\\<<>>/      Supremacies [58]      \\<<>>/\\<<>>/\\<<>>/\\<<>>/\n       |.  /  . |             ****************             |.  /  . |\n       | .//\\.  |            \t\t                   | .//\\.  |\n       |.  /  . |            \t\t                   |.  /  . |\n       | .//\\.  |                                          | .//\\.  |\n       |.  /  . |               Deities [57]               |.  /  . |\n       | .//\\.  |               ************               | .//\\.  |\n       |.  /  . |           \t\t      \t           |.  /  . |\n       | .//\\.  |                                          | .//\\.  |\n       | .//\\.  |                Gods [56]                 | .//\\.  |\n       |.  /  . |                *********                 |.  /  . |\n       | .//\\.  |              \t                           | .//\\.  |\n       | .//\\.  |                                          | .//\\.  |\n       |.  /\\ . |              Immortals [55]              |.  /  . |\n       | .//\\.  |              **************              | .//\\.  |\n       |.  /  . |              \t\t                   |.  /  . |\n       | .//\\.  |                                          | .//\\.  |\n       |.  /  . |               DemiGods [54]              |.  /  . |\n       | .//\\.  |               *************              | .//\\.  |\n       |.  /\\ . |                  \t  \t           |.  /  . |\n       |.  /  . |                                          |.  /  . |\n       | .//\\.  |               Angels [53]                | .//\\.  |\n       |.  /  . |               ***********                |.  /  . |\n       |.  /  . |             \t   \t                   |.  /  . |\n       | .//\\.  |             \t\t                   | .//\\.  |\n       | .//\\.  |                                          | .//\\.  |\n       |.  /  . |               Avatars [52]               |.  /  . |\n       | .//\\.  |               ************               | .//\\.  |\n       |.  /  . |                 \t                   |.  /  . |\n       |.  /  . |                  \t                   |.  /  . |\n        \\ //\\. /                                            \\ //\\. /\n         \\ /. /                                              \\ /. /\n          \\ //                                                \\ //\n           \\/                                                  \\/\n-By Liralen",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "wizlist"
+  ]
 },
 {
   "_id": {
@@ -1319,7 +1858,10 @@
   "keyword": "ROM",
   "level": -1,
   "text": "ROM started in early February 1993, using Merc 1.0 code. In July of 1993,  \nROM II was started, eventually replacing the original ROM.  ROM was up for\na little over a year, after which the code (version 2.3) was released,\nand various other ROM muds were started, including Rivers of Mud under\na new management (Zump's ROM), at rom.org 9000.\n\nAlander's current project is Athen, the sequel to the ROM code. It can\nbe found on Rehobaom's Legacy, at hypercube.org 9000.\n\nThe following people contributed to the ROM flavor of the merc base code:\n\nSocials --\n    Kelsey and Liralen\n\nNew, Improved Valhalla --\n    Liralen\n\nPuff's new special proc and improved poofin/poofout code --\n    Seth\n\nMaps and map shop --\n    Ezra, Regnan (Olympus)\n\nNirvana zone --\n    Forstall (mobiles rewritten by Alander)\n\nMob Factory --\n    Pinkfloyd (originally written for ROM, mobiles rewritten by Alander)\n\nGeographically correct Midgaard (tm) --\n    Alander\n\nIdeas and playtesting --\n    Thousands of dedicated mudders around the world\n\nThe New Thalos area was donated by Onivel of Jedi, who was also the originator\nof the ASCII flags used in the zone files\n\nBeta testing --\n    Ken Blosser, Doug Araya, and Sherene Neil all helped with bugs reports\n    and suggestions, saving a lot of headaches\n\nBug reports --\n    Thanks to Shad Muegge, Jerome Despret, Phoenix, Will Hongach,\n    Erwin S. Andreasen, Adam Debus and especially Gary Turkington\n    (author of the ROM FAQ) for help spotting bugs\n\nROM 2.4 was developed during my time with Moosehead mud, and the release\nshares many of the features I wrote while I was there.  Additional code\nwas written by Seth Scott (the new poofin/poofout), and many contributions\nand ideas from the Merc list were used.  Portions of Rusty's work on\nMoosehead also remain.\n\nThe new features of 2.4 were largely produced in bull sessions with\nGabrielle Taylor and Brian Moore, without whom this release wouldn't\nhave happened.  In particular, the new privacy code, furniture, and\nwiznet are the results of Gabrielle's ideas.\n\nChanges to the standard diku mob and object format, as well as the changes\nto Merc 2.1 source code, were done by Alander over many a late night of\nhair-pulling. Hope you enjoy it.\n\n(my apologies if anyone was forgotten in this list)",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "rom"
+  ]
 },
 {
   "_id": {
@@ -1328,7 +1870,14 @@
   "keyword": "IMMORTAL IMMORT GOD WIZARD WIZ",
   "level": -1,
   "text": "'Immortal' (often, simply, 'immort') refers to players who have reached\nthe highest attainable levels in the game.  Here, anyone of level 52\nor higher is an 'immortal.'  Immortals are capable of exceeding the\nusual game rules, in more drastic and pervasive ways as levels increase;\nexamples range from teleportation and invisibility to mortal sight to\ncreation of objects, removal of a player's privileges (channels,\nability to move, or even ability to log in), and ability to promote\nplayers to immortality.\n\nSince immortals can wreak havoc with game balance, they are (ideally)\na carefully-chosen and policed group.  An absolute rule of immortal\nbehavior is that no immortal can aid or assist any player without\nexplicit permission from the higher ranks; in other words, please\ndon't ask an immortal to help you kill a mob, gather EQ, etc, or\nyou'll likely be either politely or rudely refused, or referred to\nthis file.\n\nThe duties of immortals, and even the very reasons for their existence,\nare topics of continual and heated debate in various MUD forums, and are\nfraught with misconceptions, poor examples, and outrageous hypocrisies. :)",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "immortal",
+    "immort",
+    "god",
+    "wizard",
+    "wiz"
+  ]
 },
 {
   "_id": {
@@ -1337,7 +1886,10 @@
   "keyword": "SOCIALS",
   "level": -1,
   "text": "This is a complete list of socials for this MUD:\nCompiled originally by: Sara\naccuse       adjust      air          apologize     applaud     babble\nbark         bcatch      beckon       beer          bearhug     beg\nbird         bkiss       bleed        blink         blush       boast\nboggle       bonk        bounce       bow           brb         burp\ncackle       caress      charge       cheer         chuckle     clap\nclaw         collapse    comfort      comb          cough       cover\ncower        cringe      criticize    cry           cuddle      curse\ncurtsey      dance       daydream     drool         duck        embrace\nexplode      eyebrow     faint        fart          flare       flash\nflex         flinch      flip         flirt         flutter     fondle\nfrench       frown       fume         gasp          giggle      glare\ngoose        grimace     grin         groan         grope       grovel\ngrowl        grumble     hand         head          hiccup      highfive\nhop          howl        hug          hush          ignore      innocent\ninsane       judge       kiss         knee          laugh       lick\nlove         lust        massage      meditate      moan        moon\nmosh         mutter      nibble       nod           nudge       nuzzle\npant         passout     pat          peck          pie         pinch\npissed       plead       point        poke          ponder      pout\npray         propose     puke         punch         purr        ramble\nraspberry    rofl        roll         rub           ruffle      run\nscratch      scream      serenade     shake         shiver      shrug\nsigh         sing        slap         slobber       smile       smirk\nsnap         snarl       sneeze       snicker       sniff       snore\nsnort        snowball    snuggle      sob           spam        spank\nspit         squeal      squeeze      squirm        stare       stretch\nstrip        stroke      strut        sulk          swoon       tackle\ntease        thank       threaten     tickle        tip         tongue\ntwiddle      type        undress      view          wave        whine\nwhistle      wiggle      wince        wink          wonder      worry\nworship      yawn        yeehaw       yodel         rose\tlaces\ntank\t     starve\t aargh\t      homework\t    puff\tdiffer\nyae\t     lightbulb   voodoo       ogg\t    confused\tbeam\nbite\t     discodance  scuff        whap\t    lag\t\tchortle\nzerbert      twitch",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "socials"
+  ]
 },
 {
   "_id": {
@@ -1346,7 +1898,10 @@
   "keyword": "MERC",
   "level": -1,
   "text": "This mud is based on Merc 2.1, created by Furey, Hatchet, and Kahn.  \nMerc 2.1 is available as Merc_21.tar.gz from ftp.tcp.com and \nftp.math.okstate.edu.\nE-mail to 'majordomo@webnexus.com' to join the merc mailing list.\n\nThanks to ...\n  ... Diku Mud for starting it all.\n  ... The Free Software Foundation and DJ Delorie for kick-ass tools.\n  ... Copper Mud and Alfa Mud for releasing their code and worlds.\n  ... Aod of Generic for ... well, everything.  You're a hoopy frood, Aod.\n  ... Alander for many ideas and contributions.\n  ... John Brothers of Silly for permission to use Silly code and worlds.\n  ... Zrin for administering the mailing list.\n  ... Abaddon for proofreading our comm.c.\n  ... Hind, Quin, Vic, Diavolo, Oleg, Trienne, and others for porting help.\n  ... Diavolo, Grodyn, Morgenes, and others for code and bug fixes.\n  ... Raff, Doctor, VampLestat, Nirrad, Tyrst, PinkF, Chris, Glop for worlds.\n  ... the players and imps of Mud Dome, Final Mud, Mud Lite, Vego Mud, Rivers\n      of Mud, Ruhr Mud, and Mystic Realms for bug reports, ideas, new code,\n      and hours of enjoyment.\n\nAlso see \"help ROM\" for information about the Rivers of Mud code base.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "merc"
+  ]
 },
 {
   "_id": {
@@ -1355,7 +1910,11 @@
   "keyword": "MAP MAPS",
   "level": -1,
   "text": "Thanks to Ezra for drawing the originals of several maps on ROM.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "map",
+    "maps"
+  ]
 },
 {
   "_id": {
@@ -1364,16 +1923,22 @@
   "keyword": "GREETING",
   "level": -1,
   "text": ".\nTHIS IS A MUD BASED ON.....\n\n                                ROM Version 2.4 beta\n\n               Original DikuMUD by Hans Staerfeldt, Katja Nyboe,\n               Tom Madsen, Michael Seifert, and Sebastian Hammer\n               Based on MERC 2.1 code by Hatchet, Furey, and Kahn\n               ROM 2.4 copyright (c) 1993-1998 Russ Taylor\n\nBy what name do you wish to be known?",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "greeting"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd0b9b9b9b8f3009a5cd"
   },
-  "keyword": "MOTD~ \n* You are responsible for knowing the rules (type 'rules').  Ignorance of \n  the rules is no excuse.\n* Important commands: help, commands, news, notes\n* Use the delete command to erase unwanted characters\n  \n[Hit Return to continue]\n~ \n \n52 IMOTD",
+  "keyword": "MOTD",
   "level": -1,
-  "text": "Welcome Immortal!\n\nYou are responsible for following the laws of immortal behavior. These can\nbe found by typing 'help laws' or 'help commandments'.\n\n* Excessive loading is not allowed, and is grounds for deletion.\n\n* Asking for promotion is grounds for instant deletion.\n\n* Type 'help jobs' to get some idea of what you should be doing.\n\n [Hit Return to continue]",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "* You are responsible for knowing the rules (type 'rules').  Ignorance of \n  the rules is no excuse.\n* Important commands: help, commands, news, notes\n* Use the delete command to erase unwanted characters\n  \n[Hit Return to continue]",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "motd"
+  ]
 },
 {
   "_id": {
@@ -1382,7 +1947,10 @@
   "keyword": "JOBS",
   "level": 52,
   "text": "This is a partial list of what a god of any given level should be doing. It is\nnot complete yet.\n\nAngels:(52-54)\nAngels and higher level gods may not assist mortals directly in any way.  \nAn Angel's main job is to help with quests (via switch), or possibly run\nsmall quest of their own -- but the rewards should be minimal.\n\nDeities:(55-56)\nDeities have two main roles: reimbursement and quest running.  Be skeptical\non reimburses, don't just hand out every piece of gear.  I suggest limiting\nreimbursements to 10 items at a time, and make sure that you do not load things\nat too high a level (new format items have hard-coded levels, so are not a\nproblem).  vnum and stat are useful for this.  You can draft Angels to help you\nrun a quest, and please note that quests should NOT have huge rewards -- the\nmain point should be to have fun.  Deities have no business trying to enforce\nrules -- the most you should do to a player is a NOCHANNEL or similar light\npunishment.\n\nGods:(57-59)\nGods can run quests just like Deities, and it's nice to do reimbursements too.\nHowever, the main role of a God is keeping the peace.  Gods can enforce (but\nnot create rules), using the various NOTELL-class commands, as well as deny,\npurge, freeze, and ban (but be careful with these commands!)  Gods are expected\nto help make the mud run more smoothly, power trips are strictly verbotten.\n\nNot fufilling the roles of your office can result in demotion or deletion.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "jobs"
+  ]
 },
 {
   "_id": {
@@ -1391,7 +1959,16 @@
   "keyword": "PKILL PKILLING PKILLER 'PLAYER KILLING' PSTEAL PSTEALING 'PLAYER STEALING'",
   "level": -1,
   "text": "Player killing and player stealing are allowed to all clan members \n(including loners), provided the victim is is within 8 levels of the\ncharacter and is also in a clan.  This will flag you as a \"killer\" or\n\"thief\", allowing any character to attack, and also provoking action\nfrom the city guard.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "pkill",
+    "pkilling",
+    "pkiller",
+    "player killing",
+    "psteal",
+    "pstealing",
+    "player stealing"
+  ]
 },
 {
   "_id": {
@@ -1400,7 +1977,13 @@
   "keyword": "COMMANDMENTS LAWS 'GOD RULES' GODS",
   "level": 52,
   "text": ".\n                         **********************\n                         ** The Rules of ROM **\n                         **********************\n \n1)  Do not kill mortals, do not kill mortals, do not kill mortals.\n    This includes transferring/summoning them to aggressive mobs.\n \n2)  Do not cheat for ANY mortal in ANY way, especially your own. \n    Unless of course you LIKE deletion. Yes this includes tanking,\n    healing/restoring, casting protection spells <armor, sanct>,    \n    and softening up or altering mobs.\n \n3)  Do not transfer or summon mobs to mortals or mortals to mobs.\n    They have legs, if they want to kill a mob, they can easilly\n    go there themselves.\n \n4)  DO NOT kill the shopkeepers for any reason at ALL.\n \n5)  DO NOT use reboot.  <--- Note, simple English.\n \n6)  Do not give out free equipment.  You don't need to win brownie\n    points with the mortals.  Quest are fine but handing out items\n    isn't.\n \n7)  A note on quests: Quests are a good thing, more or less, BUT \n    do not give out overly extravagant prizes.  Exercise some \n    common sense here folks.  Do not load items more than 4 levels\n    below their normal level (i.e. no level 5 ogre gauntlets).\n \n8)  Do not undermine the authority of a higher level god.  If you \n    see that someone has been frozen or nochannelled do not restore\n    their priveleges.  They are being punished for a reason.\n \n9)  Do not try to overrule each other.  \n \n10) Trusted mortals:  Do not use your god powers to help your mortal\n    character.  If you do, your trust will be taken away.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "commandments",
+    "laws",
+    "god rules",
+    "gods"
+  ]
 },
 {
   "_id": {
@@ -1409,7 +1992,10 @@
   "keyword": "RULES",
   "level": -1,
   "text": "These are the rules of ROM.  For other matters, use common sense.\n\n* Limited player stealing or player killing.\n\n* Your presence here is a privilege not a right. Obey any orders from gods, and\n  you will be fine.  Deletion does not require a reason, appeals are to be sent\n  to the implementors.\n \n* Sitting around idle with a client is hazardous to your health. If we catch\n  you doing it, you will lose half your playing time.\n\n* No multiple logins, multiple playing, or helping your own characters with \n  other characters you own -- by any arrangment.\n \n* No kill stealing.  This means you cannot attack a mob someone else is \n  fighting, unless they ask you to. Also avoid attacking fleeing mobs.\n\n* Cheating will not be tolerated.  This includes accepting favors from gods\n  and exploiting bugs. If you find a bug, report it, then do not use it.\n\n* Changes to these rules are at the discretion of the immortals, and may be\ndone without warning, notice, or even evidence of sanity. Walk softly,\nand carry a black stick.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "rules"
+  ]
 },
 {
   "_id": {
@@ -1418,7 +2004,11 @@
   "keyword": "SUICIDE DELETE",
   "level": 0,
   "text": "Use the delete command to erase unwanted characters, so the name will be\navailable for use.  This command must be typed twice to delete a character,\nand you cannot be forced to delete.  Typing delete with an argument will\nreturn your character to 'safe' status if you change your mind after the\nfirst delete.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "suicide",
+    "delete"
+  ]
 },
 {
   "_id": {
@@ -1427,52 +2017,78 @@
   "keyword": "HEALER",
   "level": 0,
   "text": "The healer decided to grab a quick buck, and now charges for his heals.  Some\nservices are still free to players of level 10 or below, however.  To see\na full listing of the healer's services, type 'heal' at his residence. To\nreceive healing, bring plenty of money, and type 'heal <spell>'.\n~ \n\n\n-1 GAIN",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "healer"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd0bcb14908f740b16cc"
   },
-  "keyword": "gain command is used to learn new skills, once the proper trainer has \nbeen found. (Check New Thalos) The following options can be used with gain:\n\ngain list:    list all groups and skills that can be learned\ngain points:  lower your creation points by 1 (costs two sessions)\ngain <name>:  add a skill or skill group, at the listed cost\ngain convert: turns 10 practices into one training session\n\nGain uses training sessions, not practices. (see 'help train')\nGained skills and groups do NOT increase your experience per level or total\nnumber of creation points.",
-  "level": 0,
-  "text": "52 CLONE",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "keyword": "GAIN",
+  "level": -1,
+  "text": "The gain command is used to learn new skills, once the proper trainer has \nbeen found. (Check New Thalos) The following options can be used with gain:\n\ngain list:    list all groups and skills that can be learned\ngain points:  lower your creation points by 1 (costs two sessions)\ngain <name>:  add a skill or skill group, at the listed cost\ngain convert: turns 10 practices into one training session\n\nGain uses training sessions, not practices. (see 'help train')\nGained skills and groups do NOT increase your experience per level or total\nnumber of creation points.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "gain"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd0bd44e39f9b6053afc"
   },
-  "keyword": "clone obj <object>\n  clone mob <mobile>\n  clone <name>\n\nThe clone command duplicates an object or mobile.  The level of item or mobile\nthat may be cloned depends on your level.  The target object or mob must be in\nthe same room as you, or in your posession.  Strung and set information is\npreserved by clone, as well as any spell effects and container contents or\nmobile inventory, except for items which are too high for you to clone.  \nStrung extended descriptions on objects are not kept, however.",
-  "level": 0,
-  "text": "0 SKILLS SPELLS",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "keyword": "CLONE",
+  "level": 52,
+  "text": "Syntax:\n  clone obj <object>\n  clone mob <mobile>\n  clone <name>\n\nThe clone command duplicates an object or mobile.  The level of item or mobile\nthat may be cloned depends on your level.  The target object or mob must be in\nthe same room as you, or in your posession.  Strung and set information is\npreserved by clone, as well as any spell effects and container contents or\nmobile inventory, except for items which are too high for you to clone.  \nStrung extended descriptions on objects are not kept, however.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "clone"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd0b4bc2be568107a12e"
   },
-  "keyword": "skills and spells commands are used to display your character's list\nof available skills (or spells, as the case may be).  They are listed in\norder of level, with mana cost (for spells) or percentage (for skills)\nlisted where applicable.",
+  "keyword": "SKILLS SPELLS",
   "level": 0,
-  "text": "0 OUTFIT",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "The skills and spells commands are used to display your character's list\nof available skills (or spells, as the case may be).  They are listed in\norder of level, with mana cost (for spells) or percentage (for skills)\nlisted where applicable.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "skills",
+    "spells"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd0b3d198d9b537440e1"
   },
-  "keyword": "outfit command, usable by levels 5 and below, equips your character with\na new set of sub issue gear (banner, weapon, helmet, shield, and vest), \ncourtesy of the Mayor's warehouses.  Only empty equipment slots are affected.",
+  "keyword": "OUTFIT",
   "level": 0,
-  "text": "0 AUTO AUTOLIST AUTOLOOT AUTOGOLD AUTOSAC AUTOEXIT AUTOASSIST AUTOSPLIT AUTOALL",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "The outfit command, usable by levels 5 and below, equips your character with\na new set of sub issue gear (banner, weapon, helmet, shield, and vest), \ncourtesy of the Mayor's warehouses.  Only empty equipment slots are affected.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "outfit"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd0b6d5890f31dc927cb"
   },
-  "keyword": "uses various automatic actions to ease the boredom of always splitting\ngold and sacrificing corpses.  The commands are as follows:\n\nautolist  : list all automatic actions\nautoloot  : take all equipment from dead mobiles\nautogold  : take all gold from dead mobiles\nautosac\t  : sacrifice dead monsters (if autoloot is on, only empty corpes)\nautoexit  : display room exits upon entering a room\nautosplit : split up spoils from combat among your group members\nautoassit : makes you help group members in combat\nautoall   : turns all autos on or off at once\n\nTyping a command sets the action , typing it again removes it. Use\nautoall on|off to save yourself some keystrokes.\n~ \n-1 CLAN",
+  "keyword": "AUTO AUTOLIST AUTOLOOT AUTOGOLD AUTOSAC AUTOEXIT AUTOASSIST AUTOSPLIT",
   "level": 0,
-  "text": "A Clan is a collection of players, united to  follow and further\na common cause.   Each clan has rules and  regulations, to find out\nmore about clans and their 'beliefs' type \"help <clan name>\".  Only\nClan  members can kill or steal from other players.  To join a Clan\nyou  must be level 5 or above and level 25 or below.   Speak to the\nClan Leader about joining.  If you go Loner before level 25 you may \njoin a Clan later.\n   Joining  a  Clan is a dangerous step.   Many adventurers live to \nkill and torture others and chances are that your paths will cross.\nRemember, attacking or killing fellow clan members *IS* illegal except to \nmutiny your Clan leader.\n   Existing  Clans may buy  special rooms and  mobiles by acquiring \ndiamonds as payment.   To see room prices, type \"help prices\".  New\nClans  may be formed by  petitioning the immortals.   Please  remember that \ntheir word is final on all matters not covered by this help.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "ROM uses various automatic actions to ease the boredom of always splitting\ngold and sacrificing corpses.  The commands are as follows:\n\nautolist  : list all automatic actions\nautoloot  : take all equipment from dead mobiles\nautogold  : take all gold from dead mobiles\nautosac\t  : sacrifice dead monsters (if autoloot is on, only empty corpes)\nautoexit  : display room exits upon entering a room\nautosplit : split up spoils from combat among your group members\nautoassit : makes you help group members in combat\nautoall   : turns all autos on or off at once\n\nTyping a command sets the action , typing it again removes it. Use\nautoall on|off to save yourself some keystrokes.\n~ \n-1 CLAN",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "auto",
+    "autolist",
+    "autoloot",
+    "autogold",
+    "autosac",
+    "autoexit",
+    "autoassist",
+    "autosplit"
+  ]
 },
 {
   "_id": {
@@ -1481,7 +2097,11 @@
   "keyword": "PRICES PRICE",
   "level": -1,
   "text": "New Clan Hall Rooms cost 50 diamonds.\nBoosting the mana or healing gains for a room costs 250 diamonds.\nBoth in the same room costs double.\nMaking the Healer or Store prices lower costs 1,000 diamonds.",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "prices",
+    "price"
+  ]
 },
 {
   "_id": {
@@ -1490,23 +2110,72 @@
   "keyword": "COUNT",
   "level": -1,
   "text": "The count command displays the number of people (that you can see) logged\ninto the mud.  It also displays the highest number observed that day, if\nit is higher.\n~ \n \n-1 GATE",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "count"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd0b4bf12d5731de8c59"
   },
-  "keyword": "gate spell is a powerful transportation magic that opens up a portal \nbetween your character and another person or creature somewhere else in the\nworld.  This portal will transport you and any pet you might have, but not\nother members of your group.  Monsters recieve a save against gate, and\nmonster or players more than 3 levels higher than you can not be gated to at \nall.  God rooms, private rooms, and no recall rooms cannot be gated to, and\nno recall rooms cannot be gated out of.  Finally, any god or hero is also \nimmune to gate, as well as in player who has no summon set.  Clan members \nmay not be gated to except by their fellow Clan members.",
-  "level": 0,
-  "text": "-1 AFFECTS AFFECT",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "keyword": "GATE",
+  "level": -1,
+  "text": "The gate spell is a powerful transportation magic that opens up a portal \nbetween your character and another person or creature somewhere else in the\nworld.  This portal will transport you and any pet you might have, but not\nother members of your group.  Monsters recieve a save against gate, and\nmonster or players more than 3 levels higher than you can not be gated to at \nall.  God rooms, private rooms, and no recall rooms cannot be gated to, and\nno recall rooms cannot be gated out of.  Finally, any god or hero is also \nimmune to gate, as well as in player who has no summon set.  Clan members \nmay not be gated to except by their fellow Clan members.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "gate"
+  ]
 },
 {
   "_id": {
     "$oid": "69f7cd0bfe002faad9a78c1a"
   },
-  "keyword": "command is used to show all the spells affecting your character. At\nlow levels, only the spell name will be displayed, at higher levels the\neffects and duration of the spell will also be shown.  Spell effects\nare no longer shown on score (this can be changed by using 'show' command).",
+  "keyword": "AFFECTS AFFECT",
+  "level": -1,
+  "text": "This command is used to show all the spells affecting your character. At\nlow levels, only the spell name will be displayed, at higher levels the\neffects and duration of the spell will also be shown.  Spell effects\nare no longer shown on score (this can be changed by using 'show' command).",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "affects",
+    "affect"
+  ]
+},
+{
+  "_id": {
+    "$oid": "81efae97e36fb9d4c9b0c203"
+  },
+  "keyword": "INVIS 'MASS INVIS' INVISIBLITY",
   "level": 0,
-  "text": "0 $",
-  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument"
+  "text": "Syntax: cast 'invisibility' <character>\nSyntax: cast 'invisibility' <object>\nSyntax: cast 'mass invis'\n\nThe INVIS spell makes the target character invisible.  Invisible characters\nwill become visible when they attack. It may also be cast on an object\nto render the object invisible.\n\nThe MASS INVIS spell makes all characters in the caster's group invisible,\nincluding the caster.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "invisibility",
+    "mass invis",
+    "invisiblity",
+    "invis spell"
+  ]
+},
+{
+  "_id": {
+    "$oid": "a6c708d094ddd4690180279a"
+  },
+  "keyword": "IMOTD",
+  "level": 52,
+  "text": "Welcome Immortal!\n\nYou are responsible for following the laws of immortal behavior. These can\nbe found by typing 'help laws' or 'help commandments'.\n\n* Excessive loading is not allowed, and is grounds for deletion.\n\n* Asking for promotion is grounds for instant deletion.\n\n* Type 'help jobs' to get some idea of what you should be doing.\n\n [Hit Return to continue]",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "imotd"
+  ]
+},
+{
+  "_id": {
+    "$oid": "9755efbb5726abee1f85a112"
+  },
+  "keyword": "CLAN",
+  "level": -1,
+  "text": "A Clan is a collection of players, united to  follow and further\na common cause.   Each clan has rules and  regulations, to find out\nmore about clans and their 'beliefs' type \"help <clan name>\".  Only\nClan  members can kill or steal from other players.  To join a Clan\nyou  must be level 5 or above and level 25 or below.   Speak to the\nClan Leader about joining.  If you go Loner before level 25 you may \njoin a Clan later.\n   Joining  a  Clan is a dangerous step.   Many adventurers live to \nkill and torture others and chances are that your paths will cross.\nRemember, attacking or killing fellow clan members *IS* illegal except to \nmutiny your Clan leader.\n   Existing  Clans may buy  special rooms and  mobiles by acquiring \ndiamonds as payment.   To see room prices, type \"help prices\".  New\nClans  may be formed by  petitioning the immortals.   Please  remember that \ntheir word is final on all matters not covered by this help.",
+  "_class": "org.springy.som.modulith.domain.command.internal.HelpDocument",
+  "topics": [
+    "clan"
+  ]
 }]

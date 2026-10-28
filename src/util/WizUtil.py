@@ -46,11 +46,19 @@ class WizUtil:
         if room_registry is None or entity is None or to_room is None:
             return None
         from_room = WizUtil.room_of_entity(room_registry, entity)
+        from item.Item import Item
+        light = getattr(getattr(entity, 'equipped', None), 'light', None)
+        lit = light is not None and Item.enum_type_name(light) == 'ITEM_LIGHT' and GenericUtil.to_int(light.value2, 0) != 0
         if from_room is not None:
+            if lit:
+                from_room.adjust_light(-1)
             if CharacterApi.is_npc(entity):
                 from_room.remove_mobile_from_room(entity)
             else:
                 from_room.remove_player_from_room(entity)
+        entity.on = None
+        if lit:
+            to_room.adjust_light(1)
         if CharacterApi.is_npc(entity):
             to_room.add_mobile_to_room(entity)
         else:
@@ -128,7 +136,8 @@ class WizUtil:
     def count_extra_descriptions(obj) -> int:
         if obj is None:
             return 0
-        count = 1 if obj.extra_description is not None else 0
+        from item.ExtraDescriptionData import ExtraDescriptionData
+        count = sum(1 for _ in ExtraDescriptionData.entries(obj.extra_description))
         for item in list(obj.contains):
             count += WizUtil.count_extra_descriptions(item)
         return count

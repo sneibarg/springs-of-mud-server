@@ -13,6 +13,7 @@ from api.InterpApi import InterpApi
 from util.InfoUtil import InfoUtil
 from interp.Context import Context
 from interp.HelpEntry import HelpEntry
+from interp.HelpRegistry import HelpRegistry
 from item.Item import Item
 from util.InterpUtil import InterpUtil
 from player.Character import Character
@@ -69,10 +70,12 @@ class Info:
                  session_handler: SessionHandler,
                  weather_handler: WeatherHandler,
                  enum_provider: EnumProvider,
-                 interp_api: InterpApi):
+                 interp_api: InterpApi,
+                 help_registry: HelpRegistry = None):
         self.__name__ = "Info"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.interp_registry = registry_service.interp_registry
+        self.help_registry = help_registry
         self.area_registry = registry_service.area_registry
         self.room_registry = registry_service.room_registry
         self.group_registry = getattr(registry_service, "group_registry", None)
@@ -97,49 +100,20 @@ class Info:
         return "".join(lines)
 
     def do_help(self, argument: str = "") -> str:
-        arg_all = " ".join((argument or "").split()).lower()
-        if not arg_all:
-            arg_all = "summary"
-        q_words = [InterpUtil.normalize_help_token(w) for w in arg_all.split()]
-        q_words = [w for w in q_words if w]
-        output_parts = []
-        found = False
-        emitted_help_ids: set[str] = set()
-        for command in self.interp_registry.all_commands():
-            help_entry: HelpEntry = command.help
-            if help_entry is None or not help_entry.keyword:
-                continue
-            help_id = str(getattr(help_entry, "id", "") or "")
-            if help_id and help_id in emitted_help_ids:
-                continue
-
-            k_words = [InterpUtil.normalize_help_token(w) for w in str(help_entry.keyword).split()]
-            k_words = [w for w in k_words if w]
-            if (not q_words or not k_words) or not all(any(k.startswith(q) for k in k_words) for q in q_words):
-                continue
-
-            level_raw = getattr(help_entry, "level", 0)
-            try:
-                level = int(level_raw)
-            except (TypeError, ValueError):
-                level = 0
-
-            if found:
-                output_parts.append("\n\r============================================================\n\r\n\r")
-            found = True
-
-            if level >= 0 and arg_all != "imotd":
-                output_parts.append(str(getattr(help_entry, "keyword", "")))
-                output_parts.append("\n\r")
-
-            text = str(getattr(help_entry, "text", "") or "")
-            if text.startswith("."):
-                text = text[1:]
-            output_parts.append(text)
-            if help_id:
-                emitted_help_ids.add(help_id)
-
-        return "".join(output_parts) if len(output_parts) > 0 else "No help on that word.\n\r"
+        query = HelpEntry.normalize_topic(argument) or 'summary'
+        registry = self.help_registry
+        entry = None if registry is None else registry.find_topic(query)
+        if entry is None:
+            commands = self.interp_registry.all_commands()
+            command = next((value for value in commands if value.name == query), None)
+            if command is None:
+                command = next((value for value in commands if query in InterpUtil.shortcut_tokens(value.shortcuts)), None)
+            if command is not None:
+                entry = registry.find_topic(command.name) if registry is not None else command.help
+        if entry is None:
+            return "No help on that word.\n\r"
+        heading = f'{entry.keyword}\n\r' if entry.level >= 0 and query != 'imotd' else ''
+        return heading + entry.text.removeprefix('.')
 
     def look_target(self, character: Any, context: Context) -> str | None:
         room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
@@ -1116,7 +1090,8 @@ class Info:
             if not name:
                 continue
             meta = metadata.get(name.lower())
-            required_level = self._ability_level(character, meta, default=1)
+            # Unknown class requirements must not masquerade as level-one spells.
+            required_level = self._ability_level(character, meta, default=self._hero_level() + 1)
             if required_level > self._hero_level():
                 continue
             if not parsed["show_all"] and required_level > GenericUtil.to_int(getattr(character, "level", 0), 0):

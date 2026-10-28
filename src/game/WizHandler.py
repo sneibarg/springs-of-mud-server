@@ -215,8 +215,18 @@ class WizHandler:
         for field_name in CharacterApi.enum_names(CharacterApi.get_enum("wiznetFlags"), "WIZ_"):
             if self.wiznet_option_level(field_name) > CharacterApi.get_trust(actor):
                 continue
-            names.append(field_name.replace("WIZ_", "").lower())
+            names.append(self.wiznet_option_name(field_name))
         return names
+
+    @staticmethod
+    def wiznet_option_name(field_name):
+        return 'newbies' if field_name == 'WIZ_NEWBIE' else field_name.replace('WIZ_', '').lower()
+
+    def resolve_wiznet_option(self, argument):
+        # Table order determines ambiguous abbreviations, as in ROM.
+        fields = list(self.WIZNET_LEVELS)
+        fields.extend(name for name in CharacterApi.enum_names(CharacterApi.get_enum('wiznetFlags'), 'WIZ_') if name not in fields)
+        return next((name for name in fields if self.wiznet_option_name(name).startswith(argument)), '')
 
     def wiznet_option_level(self, field_name: str) -> int:
         game_parameters = CharacterApi.get_enum("gameParameters")

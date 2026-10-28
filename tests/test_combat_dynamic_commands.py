@@ -267,6 +267,7 @@ _stub_module_if_missing("interp.commands.Communications", Communications=object)
 _stub_module_if_missing("interp.commands.Object", Object=object)
 _stub_module_if_missing("interp.commands.Wiz", Wiz=object)
 _stub_module_if_missing("server.messaging", MessageBus=object)
+_stub_module_if_missing("server.messaging.MessageBus", MessageBus=object)
 PlayerHandler = _load_module("player.PlayerHandler", "player/PlayerHandler.py").PlayerHandler
 
 

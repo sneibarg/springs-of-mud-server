@@ -1,3 +1,4 @@
+from item.ExtraDescriptionData import ExtraDescriptionData
 from util.LookupUtil import LookupUtil
 from area.Room import Room
 from api.ItemApi import ItemApi
@@ -65,17 +66,14 @@ class ItemHandler:
             if not ItemApi.can_see_object(room, character, item):
                 continue
 
-            extra = getattr(item, "extra_description", None)
-            extra_keyword = getattr(extra, "keyword", None) if extra is not None else None
-            extra_description = getattr(extra, "description", None) if extra is not None else None
-            if isinstance(extra, dict):
-                extra_keyword = extra.get("keyword")
-                extra_description = extra.get("description")
-            if extra and LookupUtil.keyword_matches(token, extra_keyword or ""):
-                if context.register_match():
-                    await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message((extra_description or "") + "\r\n"))
-                    context.finish()
-                    return
+            for extra in ExtraDescriptionData.entries(getattr(item, 'extra_description', None)):
+                if LookupUtil.keyword_matches(token, extra.keyword or ''):
+                    if context.register_match():
+                        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message((extra.description or '') + "\r\n"))
+                        context.finish()
+                        return
+                    # Each object contributes at most one matching description.
+                    break
 
             if LookupUtil.keyword_matches(token, item.name or ""):
                 if context.register_match():

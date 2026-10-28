@@ -122,6 +122,17 @@ class AliasApi:
         original = str(command_text or "")
         if not original.strip() or character is None:
             return AliasSubstitution(original)
+        # Descriptor input uses the original player's aliases and prefix even
+        # while the command itself executes in a switched mobile body.
+        seen = set()
+        while id(character) not in seen:
+            seen.add(id(character))
+            controller = cls._context(character).get('controller_original')
+            if controller is None:
+                break
+            character = controller
+        else:
+            return AliasSubstitution(original)
         command_name, rest = cls._one_argument(original)
         prefix = str(cls._context(character).get('prefix', '') or '')
         warning = ''

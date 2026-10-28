@@ -13,6 +13,26 @@
       "createdAt": "2026-02-02T00:00:00Z",
       "notes": "Baseline ruleset snapshot for Springs of MUD"
     },
+    "clans": {
+      "0": {
+        "name": "",
+        "whoName": "",
+        "hall": 3054,
+        "independent": true
+      },
+      "1": {
+        "name": "loner",
+        "whoName": "[ Loner ] ",
+        "hall": 3054,
+        "independent": true
+      },
+      "2": {
+        "name": "rom",
+        "whoName": "[  ROM  ] ",
+        "hall": 3054,
+        "independent": false
+      }
+    },
     "enums": {
       "flagLetters": {
           "A": 1,
@@ -112,7 +132,7 @@
         "MAX_WEAR_SLOTS": 19,
         "MAX_LEVEL": 60,
         "LEVEL_HERO": 51,
-        "LEVEL_IMMORTAL": 55,
+        "LEVEL_IMMORTAL": 52,
         "PULSE_PER_SECOND": 4,
         "PULSE_VIOLENCE": 12,
         "PULSE_MOBILE": 16,

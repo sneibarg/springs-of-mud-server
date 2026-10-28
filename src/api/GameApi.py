@@ -168,6 +168,20 @@ class GameApi:
         return GameApi._game_data.liquids
 
     @classmethod
+    def clans_map(cls) -> dict:
+        cls._require_configured()
+        return GameApi._game_data.clans
+
+    @classmethod
+    def lookup_clan(cls, argument: str) -> dict | None:
+        """Resolve a nonempty clan-name prefix in configured table order."""
+        wanted = str(argument or '').strip().lower()
+        if not wanted:
+            return None
+        return next((entry for entry in cls.clans_map().values()
+                     if str(entry.get('name', '') or '').lower().startswith(wanted)), None)
+
+    @classmethod
     def weapons_map(cls) -> dict:
         cls._require_configured()
         return GameApi._weapons

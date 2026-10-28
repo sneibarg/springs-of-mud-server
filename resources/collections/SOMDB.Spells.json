@@ -48,7 +48,19 @@
     "lambdas": [
       "lambda ctx: ctx.stop_if_affected('spell.armor', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 7,
+      "cleric": 2,
+      "thief": 10,
+      "warrior": 5
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -89,7 +101,19 @@
       "lambda ctx: ctx.stop_when(ctx.get_alias('destination') is None, 'failed')",
       "lambda ctx: ctx.send_message('teleported') if ctx.victim is not ctx.actor else None",
       "lambda ctx: ctx.move_to('destination', departure_key='depart', arrival_key='arrive')"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 13,
+      "cleric": 22,
+      "thief": 25,
+      "warrior": 36
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -177,7 +201,19 @@
       "lambda ctx: ctx.counter_item_flag('ITEM_EVIL', 'spell.curse', 'objectCountered', 'objectResisted') if ctx.is_object_target() else None",
       "lambda ctx: ctx.stop_when(ctx.has_position('POS_FIGHTING') or ctx.is_affected('spell.bless'), 'alreadyAffected' if ctx.victim is ctx.actor else 'alreadyAffectedOther') if ctx.is_character_target() else None",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 7,
+      "thief": 53,
+      "warrior": 8
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -229,7 +265,19 @@
       "lambda ctx: ctx.stop_if_affected('AFF_BLIND')",
       "lambda ctx: ctx.stop_if_saved()",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 12,
+      "cleric": 8,
+      "thief": 17,
+      "warrior": 15
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -309,6 +357,18 @@
         48,
         48
       ]
+    },
+    "levelByClass": {
+      "mage": 7,
+      "cleric": 53,
+      "thief": 10,
+      "warrior": 9
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
     }
   },
   {
@@ -348,7 +408,19 @@
       "lambda ctx: ctx.send_message('cast', include_victim_in_room=True)",
       "lambda ctx: ctx.for_each_room(lambda v: v.damage_expr('ctx.get_alias(\"lightning_damage\")', 'DAM_LIGHTNING'), predicate=lambda v: v.victim is not v.actor and v.is_npc(v.victim) != v.is_npc())",
       "lambda ctx: ctx.area_message('distant', outdoors=True, awake=True)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 26,
+      "cleric": 18,
+      "thief": 31,
+      "warrior": 22
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -402,7 +474,19 @@
       "lambda ctx: ctx.follow(grouped=True)",
       "lambda ctx: ctx.apply_affect_data()",
       "lambda ctx: ctx.send_message('charmed')"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 20,
+      "cleric": 53,
+      "thief": 25,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -504,7 +588,19 @@
         "predicate": "lambda v: v.context.is_character_target()",
         "tokenFactory": "lambda v: v.context.payload_tokens()"
       }
-    ]
+    ],
+    "levelByClass": {
+      "mage": 4,
+      "cleric": 53,
+      "thief": 6,
+      "warrior": 6
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -584,6 +680,18 @@
         79,
         79
       ]
+    },
+    "levelByClass": {
+      "mage": 16,
+      "cleric": 53,
+      "thief": 22,
+      "warrior": 20
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
     }
   },
   {
@@ -612,7 +720,19 @@
     "lambdas": [
       "lambda ctx: ctx.change_weather('dice(trunc_div(level, 3), 4)' if ctx.target_name.lower() == 'better' else '-dice(trunc_div(level, 3), 4)') if ctx.target_name.lower() in ('better', 'worse') else ctx.send_message('invalid')",
       "lambda ctx: ctx.send_message('complete')"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 15,
+      "cleric": 19,
+      "thief": 28,
+      "warrior": 22
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -643,7 +763,19 @@
       "lambda ctx: ctx.create_object('20', destination='room')",
       "lambda ctx: ctx.configure_object({'value0': 'trunc_div(level, 2)', 'value1': 'level'})",
       "lambda ctx: ctx.send_message('created', target='created_item', include_actor_in_room=False)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 10,
+      "cleric": 5,
+      "thief": 11,
+      "warrior": 12
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -673,7 +805,19 @@
       "lambda ctx: ctx.stop_when(ctx.item_kind() != 'drink_con', 'wrongType')",
       "lambda ctx: ctx.stop_when(str(ctx.obj.value2).lower() not in ('water', '0') and int(ctx.obj.value1) != 0, 'otherLiquid')",
       "lambda ctx: ctx.send_message('filled') if ctx.fill_liquid('water', 'level * (4 if ctx.is_raining() else 2)') else None"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 8,
+      "cleric": 3,
+      "thief": 12,
+      "warrior": 11
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -709,7 +853,19 @@
       "lambda ctx: ctx.stop_when(not ctx.is_affected('spell.blindness'), 'absent' if ctx.victim is ctx.actor else 'absentOther')",
       "lambda ctx: ctx.stop_when(not ctx.dispel_effects('spell.blindness', notify=False), 'failed')",
       "lambda ctx: ctx.send_message('cured', include_actor_in_room=True)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 6,
+      "thief": 53,
+      "warrior": 8
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -740,7 +896,19 @@
       "lambda ctx: ctx.heal_expr('dice(3, 8) + level - 6')",
       "lambda ctx: ctx.send_message('restored')",
       "lambda ctx: ctx.send_message('complete') if ctx.victim is not ctx.actor else None"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 13,
+      "thief": 53,
+      "warrior": 19
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -771,7 +939,19 @@
       "lambda ctx: ctx.heal_expr('dice(1, 8) + level // 3')",
       "lambda ctx: ctx.send_message('restored')",
       "lambda ctx: ctx.send_message('complete') if ctx.victim is not ctx.actor else None"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 1,
+      "thief": 53,
+      "warrior": 3
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -858,7 +1038,19 @@
       "lambda ctx: ctx.stop_if_affected('AFF_CURSE') if ctx.is_character_target() else None",
       "lambda ctx: ctx.stop_if_saved(dam_type='DAM_NEGATIVE') if ctx.is_character_target() else None",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 18,
+      "cleric": 18,
+      "thief": 26,
+      "warrior": 22
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -909,7 +1101,19 @@
     "lambdas": [
       "lambda ctx: ctx.stop_if_affected('AFF_DETECT_EVIL', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 11,
+      "cleric": 4,
+      "thief": 12,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -960,7 +1164,19 @@
     "lambdas": [
       "lambda ctx: ctx.stop_if_affected('AFF_DETECT_INVIS', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 3,
+      "cleric": 8,
+      "thief": 6,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -1011,7 +1227,19 @@
     "lambdas": [
       "lambda ctx: ctx.stop_if_affected('AFF_DETECT_MAGIC', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 2,
+      "cleric": 6,
+      "thief": 5,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -1039,7 +1267,19 @@
     "affectData": [],
     "lambdas": [
       "lambda ctx: ctx.send_message('poisoned' if int(ctx.obj.value3) else 'clean') if ctx.item_kind() in ('food', 'drink_con') else ctx.send_message('other')"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 15,
+      "cleric": 7,
+      "thief": 9,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -1073,7 +1313,19 @@
       "lambda ctx: ctx.stop_when(-350 < ctx.alignment() < 350, 'neutral')",
       "lambda ctx: ctx.damage_expr('dice(level, 4) if victim.hit > actor.level * 4 else max(victim.hit, dice(level, 4))', 'DAM_HOLY')",
       "lambda ctx: ctx.set_target(ctx.get_alias('original_target'))"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 15,
+      "thief": 53,
+      "warrior": 21
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -1107,7 +1359,19 @@
       "lambda ctx: ctx.send_message('cast', include_victim_in_room=True)",
       "lambda ctx: ctx.for_each_room(lambda v: v.damage_expr(\"0 if ctx.is_affected('AFF_FLYING') else level + dice(2, 8)\", 'DAM_BASH', save_half=False), predicate=lambda v: v.victim is not v.actor, safe=True)",
       "lambda ctx: ctx.area_message('distant')"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 10,
+      "thief": 53,
+      "warrior": 14
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -1168,6 +1432,18 @@
       "added": 1,
       "exceptional_added": 2,
       "hum_above": 4
+    },
+    "levelByClass": {
+      "mage": 17,
+      "cleric": 53,
+      "thief": 53,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 2,
+      "cleric": 2,
+      "thief": 4,
+      "warrior": 4
     }
   },
   {
@@ -1206,7 +1482,19 @@
       "lambda ctx: ctx.resource_expr('hit', 'current + ctx.get_alias(\"drain_damage\")', target=ctx.actor) if ctx.victim.level > 2 else None",
       "lambda ctx: ctx.send_message('drained')",
       "lambda ctx: ctx.damage_expr('ctx.get_alias(\"drain_damage\")', 'DAM_NEGATIVE', save_half=False)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 19,
+      "cleric": 22,
+      "thief": 26,
+      "warrior": 23
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -1286,6 +1574,18 @@
         128,
         130
       ]
+    },
+    "levelByClass": {
+      "mage": 22,
+      "cleric": 53,
+      "thief": 30,
+      "warrior": 26
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
     }
   },
   {
@@ -1311,7 +1611,19 @@
     "affectData": [],
     "lambdas": [
       "lambda ctx: ctx.damage_expr('max(20, victim.hit - dice(1, 4))', 'DAM_HARM', post_save_expression='min(100, min(50, damage) if saved else damage)')"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 23,
+      "thief": 53,
+      "warrior": 28
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -1342,7 +1654,19 @@
       "lambda ctx: ctx.heal_expr('100')",
       "lambda ctx: ctx.send_message('restored')",
       "lambda ctx: ctx.send_message('complete') if ctx.victim is not ctx.actor else None"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 21,
+      "thief": 33,
+      "warrior": 30
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -1411,7 +1735,19 @@
     ],
     "lambdas": [
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 5,
+      "cleric": 53,
+      "thief": 9,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -1491,6 +1827,18 @@
         63,
         64
       ]
+    },
+    "levelByClass": {
+      "mage": 13,
+      "cleric": 23,
+      "thief": 18,
+      "warrior": 16
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
     }
   },
   {
@@ -1525,6 +1873,18 @@
     "rules": {
       "limit": "200 if ctx.is_immortal() else 2 * level",
       "chance": "2 * level"
+    },
+    "levelByClass": {
+      "mage": 9,
+      "cleric": 15,
+      "thief": 11,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
     }
   },
   {
@@ -1605,6 +1965,18 @@
         14,
         14
       ]
+    },
+    "levelByClass": {
+      "mage": 1,
+      "cleric": 53,
+      "thief": 2,
+      "warrior": 2
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
     }
   },
   {
@@ -1678,7 +2050,19 @@
       "lambda ctx: ctx.stop_when(ctx.saves_spell('DAM_POISON'), 'resisted', include_actor_in_room=True) if ctx.is_character_target() else None",
       "lambda ctx: ctx.apply_affect_data(join=ctx.is_character_target())",
       "lambda ctx: ctx.send_message('weaponPoisoned' if ctx.is_object_target() else 'poisoned', include_actor_in_room=True)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 17,
+      "cleric": 12,
+      "thief": 15,
+      "warrior": 21
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -1729,7 +2113,19 @@
     "lambdas": [
       "lambda ctx: ctx.stop_when(ctx.is_affected('AFF_PROTECT_EVIL') or ctx.is_affected('AFF_PROTECT_GOOD'), 'alreadyAffected' if ctx.victim is ctx.actor else 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 12,
+      "cleric": 9,
+      "thief": 17,
+      "warrior": 11
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -1764,7 +2160,19 @@
       "lambda ctx: (ctx.uncurse_item(), ctx.stop()) if ctx.obj is not None else None",
       "lambda ctx: ctx.send_message('characterCured', include_actor_in_room=True) if ctx.dispel_effects('spell.curse', notify=False) else None",
       "lambda ctx: ctx.uncurse_owned_items(limit=1, level_adjust=0)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 18,
+      "thief": 53,
+      "warrior": 22
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -1817,7 +2225,19 @@
     "lambdas": [
       "lambda ctx: ctx.stop_if_affected('AFF_SANCTUARY', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 36,
+      "cleric": 20,
+      "thief": 42,
+      "warrior": 30
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -1864,7 +2284,19 @@
       "lambda ctx: ctx.stop_when(ctx.level + 2 < ctx.victim.level)",
       "lambda ctx: ctx.stop_if_saved(level_adjust=-4, dam_type='DAM_CHARM')",
       "lambda ctx: ctx.sleep()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 10,
+      "cleric": 53,
+      "thief": 11,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -1917,7 +2349,19 @@
     "lambdas": [
       "lambda ctx: ctx.stop_if_affected('spell.giant_strength', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 11,
+      "cleric": 53,
+      "thief": 22,
+      "warrior": 20
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -1961,7 +2405,19 @@
       "lambda ctx: ctx.stop_when(not ctx.is_npc(ctx.victim) and ctx.player_flag('PLR_NOSUMMON'), 'failed')",
       "lambda ctx: ctx.stop_when(ctx.is_npc(ctx.victim) and ctx.saves_spell('DAM_OTHER'), 'failed')",
       "lambda ctx: ctx.move_to(ctx.room, departure_key='depart', arrival_key='arrive', notice_key='summoned')"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 24,
+      "cleric": 12,
+      "thief": 29,
+      "warrior": 22
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -1990,7 +2446,19 @@
     "affectData": [],
     "lambdas": [
       "lambda ctx: ctx.throw_voice()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 1,
+      "cleric": 53,
+      "thief": 2,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -2033,6 +2501,18 @@
     ],
     "rules": {
       "destination": "3001"
+    },
+    "levelByClass": {
+      "mage": 32,
+      "cleric": 28,
+      "thief": 40,
+      "warrior": 30
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
     }
   },
   {
@@ -2069,7 +2549,19 @@
       "lambda ctx: ctx.stop_when(not ctx.is_affected('spell.poison'), 'absent' if ctx.victim is ctx.actor else 'absentOther')",
       "lambda ctx: ctx.stop_when(not ctx.dispel_effects('spell.poison', notify=False), 'failed')",
       "lambda ctx: ctx.send_message('cured', include_actor_in_room=True)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 14,
+      "thief": 53,
+      "warrior": 16
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -2120,7 +2612,19 @@
     "lambdas": [
       "lambda ctx: ctx.stop_if_affected('AFF_DETECT_HIDDEN', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 15,
+      "cleric": 11,
+      "thief": 12,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -2345,6 +2849,18 @@
         "APPLY_SAVES": "saves",
         "APPLY_SAVING_SPELL": "saving spell"
       }
+    },
+    "levelByClass": {
+      "mage": 15,
+      "cleric": 16,
+      "thief": 18,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
     }
   },
   {
@@ -2425,6 +2941,18 @@
         57,
         57
       ]
+    },
+    "levelByClass": {
+      "mage": 10,
+      "cleric": 53,
+      "thief": 14,
+      "warrior": 13
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
     }
   },
   {
@@ -2478,7 +3006,19 @@
     "lambdas": [
       "lambda ctx: ctx.stop_if_affected('AFF_FLYING', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 10,
+      "cleric": 18,
+      "thief": 20,
+      "warrior": 22
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -2522,6 +3062,18 @@
         "lambda ctx: ctx.set_item_flag('ITEM_GLOW')",
         "lambda ctx: ctx.send_message('glowing', include_actor_in_room=False)"
       ]
+    },
+    "levelByClass": {
+      "mage": 6,
+      "cleric": 4,
+      "thief": 6,
+      "warrior": 9
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
     }
   },
   {
@@ -2586,6 +3138,18 @@
           "message": "evil"
         }
       ]
+    },
+    "levelByClass": {
+      "mage": 12,
+      "cleric": 9,
+      "thief": 20,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
     }
   },
   {
@@ -2754,6 +3318,18 @@
           "message": "removedWeaken"
         }
       ]
+    },
+    "levelByClass": {
+      "mage": 16,
+      "cleric": 24,
+      "thief": 30,
+      "warrior": 30
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
     }
   },
   {
@@ -2785,7 +3361,19 @@
       "lambda ctx: ctx.heal_expr('dice(2, 8) + level // 2')",
       "lambda ctx: ctx.send_message('restored')",
       "lambda ctx: ctx.send_message('complete') if ctx.victim is not ctx.actor else None"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 7,
+      "thief": 53,
+      "warrior": 10
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -2810,7 +3398,19 @@
     "affectData": [],
     "lambdas": [
       "lambda ctx: ctx.damage_expr('dice(1, 8) + level // 3', 'DAM_HARM', save_half=False)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 1,
+      "thief": 53,
+      "warrior": 3
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -2835,7 +3435,19 @@
     "affectData": [],
     "lambdas": [
       "lambda ctx: ctx.damage_expr('dice(3, 8) + level - 6', 'DAM_HARM', save_half=False)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 13,
+      "thief": 53,
+      "warrior": 19
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -2860,7 +3472,19 @@
     "affectData": [],
     "lambdas": [
       "lambda ctx: ctx.damage_expr('dice(2, 8) + level // 2', 'DAM_HARM', save_half=False)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 7,
+      "thief": 53,
+      "warrior": 10
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -2885,7 +3509,19 @@
     "affectData": [],
     "lambdas": [
       "lambda ctx: ctx.damage_expr('dice(6, 8) + level', 'DAM_FIRE')"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 20,
+      "thief": 53,
+      "warrior": 27
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -2938,7 +3574,19 @@
     "lambdas": [
       "lambda ctx: ctx.stop_if_affected('spell.stone_skin', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 25,
+      "cleric": 40,
+      "thief": 40,
+      "warrior": 45
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -2991,7 +3639,19 @@
     "lambdas": [
       "lambda ctx: ctx.stop_if_affected('spell.shield', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 20,
+      "cleric": 35,
+      "thief": 35,
+      "warrior": 40
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3043,7 +3703,19 @@
       "lambda ctx: ctx.stop_if_affected('spell.weaken')",
       "lambda ctx: ctx.stop_if_saved()",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 11,
+      "cleric": 14,
+      "thief": 16,
+      "warrior": 17
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3088,7 +3760,19 @@
     "lambdas": [
       "lambda ctx: ctx.for_each_room(lambda v: (v.send_message('apply', include_actor_in_room=True), v.apply_affect_data()), predicate=lambda v: v.same_group() and not v.is_affected('AFF_INVISIBLE'))",
       "lambda ctx: ctx.send_message('complete')"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 22,
+      "cleric": 25,
+      "thief": 31,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3113,7 +3797,19 @@
     "affectData": [],
     "lambdas": [
       "lambda ctx: ctx.damage_expr('dice(level, 12)', 'DAM_ACID')"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 28,
+      "cleric": 53,
+      "thief": 35,
+      "warrior": 32
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3164,7 +3860,19 @@
     "lambdas": [
       "lambda ctx: ctx.stop_if_affected('AFF_FAERIE_FIRE')",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 6,
+      "cleric": 3,
+      "thief": 5,
+      "warrior": 8
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3207,6 +3915,18 @@
         "lambda ctx: ctx.clear_affected_flags('AFF_HIDE', 'AFF_INVISIBLE', 'AFF_SNEAK')",
         "lambda ctx: ctx.send_message('revealed', include_actor_in_room=True)"
       ]
+    },
+    "levelByClass": {
+      "mage": 14,
+      "cleric": 21,
+      "thief": 16,
+      "warrior": 24
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
     }
   },
   {
@@ -3260,7 +3980,19 @@
     "lambdas": [
       "lambda ctx: ctx.stop_if_affected('AFF_PASS_DOOR', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 24,
+      "cleric": 32,
+      "thief": 25,
+      "warrior": 37
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3313,7 +4045,19 @@
     "lambdas": [
       "lambda ctx: ctx.stop_if_affected('AFF_INFRARED', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 9,
+      "cleric": 13,
+      "thief": 10,
+      "warrior": 16
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3344,7 +4088,19 @@
       "lambda ctx: ctx.create_object('22', destination='room')",
       "lambda ctx: ctx.configure_object({'timer': 'level'})",
       "lambda ctx: ctx.send_message('created', target='created_item', include_actor_in_room=False)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 14,
+      "cleric": 17,
+      "thief": 23,
+      "warrior": 20
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3376,7 +4132,19 @@
       "lambda ctx: ctx.restore_move_expr('level')",
       "lambda ctx: ctx.send_message('full' if ctx.movement_full() else 'restored')",
       "lambda ctx: ctx.send_message('complete') if ctx.victim is not ctx.actor else None"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 8,
+      "cleric": 5,
+      "thief": 12,
+      "warrior": 9
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3424,7 +4192,19 @@
       "lambda ctx: ctx.stop_if_saved()",
       "lambda ctx: ctx.apply_affect_data(modifier_expr='ctx.roll_different(0, 2, int(victim.sex)) - int(victim.sex)')",
       "lambda ctx: ctx.send_message('changed', include_actor_in_room=True)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 53,
+      "thief": 53,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3468,7 +4248,19 @@
       "lambda ctx: ctx.set_alias('destination', ctx.room_of())",
       "lambda ctx: ctx.move_to('destination', target=ctx.actor, departure_key='depart', arrival_key='arrive', notice_key='travel', notice_before=True)",
       "lambda ctx: ctx.move_to('destination', target=ctx.get_alias('gate_pet'), departure_key='depart', arrival_key='arrive', notice_key='travel', notice_before=True) if ctx.get_alias('gate_pet') is not None else None"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 27,
+      "cleric": 17,
+      "thief": 32,
+      "warrior": 28
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3500,7 +4292,19 @@
     "affectData": [],
     "lambdas": [
       "lambda ctx: ctx.damage_expr('ctx.breath_damage(12, 11, 6, 16)', 'DAM_ACID', object_effect='acid')"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 31,
+      "cleric": 32,
+      "thief": 33,
+      "warrior": 34
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3553,7 +4357,19 @@
     "affectData": [],
     "lambdas": [
       "lambda ctx: ctx.elemental_breath('ctx.breath_damage(10, 9, 5, 20)', 'flaming', area=True)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 40,
+      "cleric": 45,
+      "thief": 50,
+      "warrior": 51
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3591,7 +4407,19 @@
     "affectData": [],
     "lambdas": [
       "lambda ctx: ctx.elemental_breath('ctx.breath_damage(12, 11, 6, 16)', 'frost', area=True)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 34,
+      "cleric": 36,
+      "thief": 38,
+      "warrior": 40
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3622,7 +4450,19 @@
     "affectData": [],
     "lambdas": [
       "lambda ctx: ctx.damage_room_expr('ctx.breath_damage(16, 15, 1, 12, upper_limit=8)', 'DAM_POISON', effect='poison', target_filter=lambda victim: not (ctx.is_npc() and ctx.is_npc(victim) and (getattr(ctx.actor, 'fighting', None) is victim or getattr(victim, 'fighting', None) is ctx.actor)))"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 39,
+      "cleric": 43,
+      "thief": 47,
+      "warrior": 50
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3661,7 +4501,19 @@
     "affectData": [],
     "lambdas": [
       "lambda ctx: ctx.elemental_breath('ctx.breath_damage(10, 9, 5, 20)', 'shocking', area=False)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 37,
+      "cleric": 40,
+      "thief": 43,
+      "warrior": 46
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3686,7 +4538,19 @@
     "affectData": [],
     "lambdas": [
       "lambda ctx: ctx.damage_expr('number_range(25, 100)', 'DAM_PIERCE')"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 53,
+      "thief": 53,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 0,
+      "cleric": 0,
+      "thief": 0,
+      "warrior": 0
+    }
   },
   {
     "_id": {
@@ -3711,7 +4575,19 @@
     "affectData": [],
     "lambdas": [
       "lambda ctx: ctx.damage_expr('number_range(30, 120)', 'DAM_PIERCE')"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 53,
+      "thief": 53,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 0,
+      "cleric": 0,
+      "thief": 0,
+      "warrior": 0
+    }
   },
   {
     "_id": {
@@ -3749,7 +4625,19 @@
     "affectData": [],
     "lambdas": [
       "lambda ctx: ctx.chain_damage('dice(level, 6)', 'DAM_LIGHTNING', level_step=4, save_divisor=3, first_message='first', arc_message='arc', rebound_message='rebound', fizzle_message='fizzle')"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 33,
+      "cleric": 53,
+      "thief": 39,
+      "warrior": 36
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3785,7 +4673,19 @@
       "lambda ctx: ctx.stop_when(not ctx.is_affected('spell.plague'), 'absent' if ctx.victim is ctx.actor else 'absentOther')",
       "lambda ctx: ctx.stop_when(not ctx.dispel_effects('spell.plague', notify=False), 'failed')",
       "lambda ctx: ctx.send_message('cured', include_actor_in_room=True)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 13,
+      "thief": 53,
+      "warrior": 14
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3844,7 +4744,19 @@
       "lambda ctx: ctx.stop_when(ctx.is_affected('spell.haste') or ctx.is_affected('AFF_HASTE') or ctx.character_flag('off', 'OFF_FAST'), 'alreadyAffected' if ctx.victim is ctx.actor else 'alreadyAffectedOther')",
       "lambda ctx: ctx.counter_effect('AFF_SLOW', 'spell.slow', 'countered', 'counterFailed' if ctx.victim is ctx.actor else 'counterFailedOther')",
       "lambda ctx: ctx.apply_affect_data(duration_expr='level / (2 if victim is actor else 4)')"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 21,
+      "cleric": 53,
+      "thief": 26,
+      "warrior": 29
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3901,7 +4813,19 @@
     "lambdas": [
       "lambda ctx: ctx.stop_when(ctx.saves_spell('DAM_DISEASE') or (ctx.is_npc(ctx.victim) and ctx.character_flag('act', 'ACT_UNDEAD')), 'resisted' if ctx.victim is ctx.actor else 'resistedOther')",
       "lambda ctx: ctx.apply_affect_data(join=True)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 23,
+      "cleric": 17,
+      "thief": 36,
+      "warrior": 26
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -3981,7 +4905,19 @@
       "lambda ctx: ctx.stop_when(ctx.is_affected('spell.calm'), 'calm' if ctx.victim is ctx.actor else 'calmOther')",
       "lambda ctx: ctx.stop_when(ctx.alignment_group() != ctx.alignment_group(ctx.actor), 'alignment')",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 24,
+      "thief": 53,
+      "warrior": 26
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -4020,7 +4956,19 @@
       "lambda ctx: ctx.damage_expr('dice(level, 10)', 'DAM_NEGATIVE')",
       "lambda ctx: ctx.invoke_spell('curse', 3 * ctx.level // 4)",
       "lambda ctx: ctx.set_target(ctx.get_alias('original_target'))"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 34,
+      "thief": 53,
+      "warrior": 45
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -4058,7 +5006,19 @@
       "lambda ctx: ctx.send_message('drained')",
       "lambda ctx: ctx.resource_expr('movement', '0', target=ctx.actor)",
       "lambda ctx: ctx.resource_expr('hit', 'trunc_div(current, 2)', target=ctx.actor)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 36,
+      "thief": 53,
+      "warrior": 42
+    },
+    "ratingByClass": {
+      "mage": 2,
+      "cleric": 2,
+      "thief": 4,
+      "warrior": 4
+    }
   },
   {
     "_id": {
@@ -4218,6 +5178,18 @@
           "message": "removedWeaken"
         }
       ]
+    },
+    "levelByClass": {
+      "mage": 18,
+      "cleric": 26,
+      "thief": 34,
+      "warrior": 34
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
     }
   },
   {
@@ -4243,7 +5215,19 @@
     "affectData": [],
     "lambdas": [
       "lambda ctx: ctx.for_each_room(lambda v: (v.invoke_spell('heal', v.level), v.invoke_spell('refresh', v.level)), predicate=lambda v: v.is_npc() == v.is_npc(v.victim))"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 38,
+      "thief": 53,
+      "warrior": 46
+    },
+    "ratingByClass": {
+      "mage": 2,
+      "cleric": 2,
+      "thief": 4,
+      "warrior": 4
+    }
   },
   {
     "_id": {
@@ -4307,6 +5291,18 @@
         "lambda ctx: ctx.stop_fighting(both=False)",
         "lambda ctx: ctx.apply_affect_data(modifier_expr=ctx.spell.rules['modifier'])"
       ]
+    },
+    "levelByClass": {
+      "mage": 48,
+      "cleric": 16,
+      "thief": 50,
+      "warrior": 20
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
     }
   },
   {
@@ -4366,6 +5362,18 @@
       "exceptional_boundary": "90 - trunc_div(level, 5)",
       "added": -1,
       "exceptional_added": -2
+    },
+    "levelByClass": {
+      "mage": 16,
+      "cleric": 53,
+      "thief": 53,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 2,
+      "cleric": 2,
+      "thief": 4,
+      "warrior": 4
     }
   },
   {
@@ -4397,7 +5405,19 @@
       "lambda ctx: ctx.create_object('1001', destination='inventory')",
       "lambda ctx: ctx.configure_object({})",
       "lambda ctx: ctx.send_message('created', target='created_item', include_actor_in_room=False)"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 16,
+      "cleric": 11,
+      "thief": 10,
+      "warrior": 24
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -4431,7 +5451,19 @@
       "lambda ctx: ctx.stop_when(-350 < ctx.alignment() < 350, 'neutral')",
       "lambda ctx: ctx.damage_expr('dice(level, 4) if victim.hit > actor.level * 4 else max(victim.hit, dice(level, 4))', 'DAM_NEGATIVE')",
       "lambda ctx: ctx.set_target(ctx.get_alias('original_target'))"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 15,
+      "thief": 53,
+      "warrior": 21
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -4482,7 +5514,19 @@
     "lambdas": [
       "lambda ctx: ctx.stop_if_affected('AFF_DETECT_GOOD', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 11,
+      "cleric": 4,
+      "thief": 12,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -4533,7 +5577,19 @@
     "lambdas": [
       "lambda ctx: ctx.stop_when(ctx.is_affected('AFF_PROTECT_EVIL') or ctx.is_affected('AFF_PROTECT_GOOD'), 'alreadyAffected' if ctx.victim is ctx.actor else 'alreadyAffectedOther')",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 12,
+      "cleric": 9,
+      "thief": 17,
+      "warrior": 11
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -4586,7 +5642,19 @@
       "lambda ctx: ctx.stop_when(ctx.saves_spell() or ctx.character_flag('imm', 'IMM_MAGIC'), 'resisted' if ctx.victim is ctx.actor else 'resistedOther')",
       "lambda ctx: ctx.counter_effect('AFF_HASTE', 'spell.haste', 'countered', 'counterFailed' if ctx.victim is ctx.actor else 'counterFailedOther')",
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 23,
+      "cleric": 30,
+      "thief": 29,
+      "warrior": 32
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -4672,6 +5740,18 @@
           "divisor": 2
         }
       }
+    },
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 16,
+      "thief": 53,
+      "warrior": 23
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
     }
   },
   {
@@ -4849,6 +5929,18 @@
       },
       "skill_limit": "trunc_div(3 * level, 2)",
       "chance": "max(trunc_div(level, 2), 40 + 2 * level - ordinal - (maximum - current) ** 2)"
+    },
+    "levelByClass": {
+      "mage": 9,
+      "cleric": 53,
+      "thief": 53,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
     }
   },
   {
@@ -4891,7 +5983,19 @@
       "lambda ctx: ctx.damage_expr('dice(level, 10)', 'DAM_HOLY', post_save_expression='trunc_div(damage * ctx.get_alias(\"ray_alignment\") ** 2, 1000000)')",
       "lambda ctx: ctx.invoke_spell('blindness', 3 * ctx.level // 4)",
       "lambda ctx: ctx.set_target(ctx.get_alias('ray_target'))"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 53,
+      "cleric": 35,
+      "thief": 53,
+      "warrior": 47
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -4938,6 +6042,18 @@
     "rules": {
       "vnum": "25",
       "timer": "2 + level / 25"
+    },
+    "levelByClass": {
+      "mage": 35,
+      "cleric": 30,
+      "thief": 45,
+      "warrior": 40
+    },
+    "ratingByClass": {
+      "mage": 2,
+      "cleric": 2,
+      "thief": 4,
+      "warrior": 4
     }
   },
   {
@@ -4985,6 +6101,18 @@
     "rules": {
       "vnum": "25",
       "timer": "1 + level / 10"
+    },
+    "levelByClass": {
+      "mage": 40,
+      "cleric": 35,
+      "thief": 50,
+      "warrior": 45
+    },
+    "ratingByClass": {
+      "mage": 2,
+      "cleric": 2,
+      "thief": 4,
+      "warrior": 4
     }
   },
   {
@@ -5036,6 +6164,18 @@
         "not far {direction}.",
         "off in the distance {direction}."
       ]
+    },
+    "levelByClass": {
+      "mage": 14,
+      "cleric": 16,
+      "thief": 16,
+      "warrior": 53
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
     }
   },
   {
@@ -5073,7 +6213,19 @@
       "lambda ctx: ctx.configure_object({'value0': 'int(actor.level) * 10', 'value3': 'int(actor.level) * 5', 'timer': 'int(actor.level) * 2 - ctx.roll_range(0, trunc_div(level, 2))'})",
       "lambda ctx: ctx.send_message('created', target='created_item', include_actor_in_room=False)",
       "lambda ctx: ctx.equip_created('floating_nearby')"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 4,
+      "cleric": 10,
+      "thief": 7,
+      "warrior": 16
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   },
   {
     "_id": {
@@ -5121,6 +6273,18 @@
     ],
     "lambdas": [
       "lambda ctx: ctx.apply_affect_data()"
-    ]
+    ],
+    "levelByClass": {
+      "mage": 13,
+      "cleric": 12,
+      "thief": 19,
+      "warrior": 18
+    },
+    "ratingByClass": {
+      "mage": 1,
+      "cleric": 1,
+      "thief": 2,
+      "warrior": 2
+    }
   }
 ]

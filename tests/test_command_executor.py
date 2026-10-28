@@ -48,6 +48,15 @@ class CommandExecutorTests(unittest.IsolatedAsyncioTestCase):
                           result='hello world', parameters=['hello', 'world'], room=self.room, conn=self.connection)
         return await self.nested._execute_nested_lambdas(self.command, context)
 
+    async def test_direct_and_nested_paths_share_command_auditing(self):
+        for path, handler in (('normal', self.normal), ('nested', self.nested)):
+            with self.subTest(path=path):
+                handler.command_audit = SimpleNamespace(record=AsyncMock())
+                self.command.log = 'LOG_NEVER'
+                self.command.lambdas = ['lambda ctx: "ok"']
+                self.assertEqual(await self.run_path(path), 'ok')
+                handler.command_audit.record.assert_awaited_once_with(self.actor, self.command, f'{self.command.name} hello world')
+
     async def test_sync_and_async_results_execute_in_order_in_both_paths(self):
         for path in ('normal', 'nested'):
             with self.subTest(path=path):
@@ -155,6 +164,7 @@ class CommandExecutorTests(unittest.IsolatedAsyncioTestCase):
         self.command.lambdas = ['lambda ctx: ctx.handler_service.fail()']
         context = Context(character=self.actor, handler_service=self.services)
         seat = object()
+        original.contents['seat'] = seat
         with patch('interp.CommandExecutor.LoggerFactory.get_logger', return_value=Mock()), \
                 patch.object(CharacterApi, 'is_npc', return_value=False):
             with self.assertRaisesRegex(ValueError, 'remote failure'):

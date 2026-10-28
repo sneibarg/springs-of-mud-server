@@ -54,6 +54,12 @@ class CommandStateTests(TargetingFixture, unittest.TestCase):
         mob.context = {'prefix': 'say', 'aliases': {'say': 'yell'}}
         self.assertEqual(AliasApi.substitute_command(mob, 'hello').command, 'say hello')
 
+    def test_switched_input_uses_original_players_prefix_and_aliases(self):
+        mob = mobile_entity('body', self.actor.status_flags)
+        self.actor.context = {'prefix': 's', 'aliases': {'s': 'say'}}
+        mob.context = {'prefix': 'yell', 'controller_original': self.actor}
+        self.assertEqual(AliasApi.substitute_command(mob, 'hello').command, 'say hello')
+
     def test_set_quoted_skill_and_abbreviated_fields(self):
         victim = self.player('bob')
         spell = NS(name='cure light')
@@ -138,6 +144,31 @@ class CommandStateTests(TargetingFixture, unittest.TestCase):
         with patch.object(self.wiz_handler, 'room_is_private_for_actor', return_value=True):
             self.assertIn('private', self.wiz.do_stat(self.actor, self.context('stat', 'room 2'))['to_char'])
 
+    def test_filtered_clone_drops_excluded_equipment_modifiers(self):
+        from player.CharacterAttributes import CharacterAttributes
+        mob = mobile_entity('body', self.actor.status_flags)
+        mob.character_attributes = CharacterAttributes.default()
+        mob.character_attributes.strength = 18
+        gear = self.item('bracelet')
+        mob.equip_item(gear, 'head')
+        handler = EffectHandler(self.enums)
+        handler.affect_to_char(mob, Effect(type='item', source=Effect.item_source(gear.id),
+                                           location='APPLY_STR', modifier=3))
+        fresh = mobile_entity('fresh', self.actor.status_flags)
+        with patch.object(MobileFactory, 'create', return_value=fresh):
+            clone = MobileFactory.copy_instance(mob, self.enums, item_filter=lambda item: False,
+                                                 effect_handler=handler)
+        self.assertEqual(clone.character_attributes.strength, 18)
+        self.assertEqual(clone.effects, [])
+        self.assertEqual(mob.character_attributes.strength, 21)
+
+    def test_character_stat_reports_resources_flags_attributes_and_effects(self):
+        victim = self.player('bob')
+        victim.effects = [Effect(type='poison', duration=3, modifier=-2, location='APPLY_STR')]
+        output = self.diagnostics.stat(self.actor, 'char bob')['to_char']
+        for field in ('Hit:', 'Mana:', 'Move:', 'Attributes:', 'Flags:', 'poison', 'duration: 3'):
+            self.assertIn(field, output)
+
     def test_typed_vnum_and_ability_lookup(self):
         self.registries.mobile_registry.all_mobiles = lambda: [NS(vnum='12', name='royal guard', short_description='a guard')]
         self.registries.item_registry.all_items = lambda: [NS(vnum='13', name='guard sword', short_description='a sword')]
@@ -221,7 +252,7 @@ class CommandAuditTests(TargetingFixture, unittest.IsolatedAsyncioTestCase):
 
     def test_log_invalid_input_uses_collection_guards(self):
         result = self.wiz.do_log(self.actor, self.context('log', 'missing'))
-        self.assertEqual(result['blocked_key'], 'targetMissing')
+        self.assertEqual(result['blocked_key'], 'target_missing')
 
 
 if __name__ == '__main__':

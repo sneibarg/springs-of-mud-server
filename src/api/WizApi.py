@@ -533,7 +533,9 @@ class WizApi:
 
     @staticmethod
     def guild_parts(view) -> tuple[str, str]:
-        return WizUtil.split_argument(InterpUtil.argument_text(view))
+        target, rest = InterpUtil.one_argument(InterpUtil.argument_text(view))
+        clan, _rest = InterpUtil.one_argument(rest)
+        return target, clan
 
     @staticmethod
     def guild_syntax_invalid(view) -> bool:
@@ -548,13 +550,27 @@ class WizApi:
             WizApi.room_registry(view),
             target_name,
             include_players=True,
-            include_mobiles=False,
+            include_mobiles=True,
             observer=view.context.character,
         )
 
     @staticmethod
     def guild_target_missing(view) -> bool:
         return not WizApi.guild_syntax_invalid(view) and WizApi.guild_target(view) is None
+
+    @staticmethod
+    def guild_removal(view) -> bool:
+        _target, name = WizApi.guild_parts(view)
+        return bool(name) and 'none'.startswith(name.lower())
+
+    @staticmethod
+    def guild_clan(view):
+        _target, name = WizApi.guild_parts(view)
+        return GameApi.lookup_clan(name)
+
+    @staticmethod
+    def guild_invalid_clan(view) -> bool:
+        return not WizApi.guild_removal(view) and WizApi.guild_clan(view) is None
 
     @staticmethod
     def trust_parts(view) -> tuple[str, str]:
@@ -617,7 +633,7 @@ class WizApi:
         return not room.is_private(room_flags)
 
     @staticmethod
-    def disconnect_target(view):
+    def disconnect_connection(view):
         argument = InterpUtil.argument_text(view).strip()
         if not argument:
             return None
@@ -634,23 +650,32 @@ class WizApi:
                         descriptor = -1
                     if descriptor != GenericUtil.to_int(argument, -2):
                         continue
-                    session = session_handler.get_session(connection.session_id)
-                    return None if session is None else session.character
+                    return connection
+        target = WizApi.disconnect_target(view)
+        session = None if handler is None or target is None else handler.current_session(target)
+        return None if session is None else handler.connection_manager.get_connection(session.session_id)
+
+    @staticmethod
+    def disconnect_target(view):
+        argument = InterpUtil.argument_text(view).strip()
         return WizUtil.find_world_entity(
             WizApi.character_registry(view),
             WizApi.room_registry(view),
             argument,
             include_players=True,
-            include_mobiles=False,
+            include_mobiles=True,
             observer=view.context.character,
         )
 
     @staticmethod
     def disconnect_target_missing(view) -> bool:
-        return bool(InterpUtil.argument_text(view)) and WizApi.disconnect_target(view) is None
+        return (bool(InterpUtil.argument_text(view)) and WizApi.disconnect_connection(view) is None
+                and WizApi.disconnect_target(view) is None)
 
     @staticmethod
     def disconnect_session_missing(view) -> bool:
+        if InterpUtil.argument_text(view).strip().isdigit() and WizApi.disconnect_connection(view) is not None:
+            return False
         target = WizApi.disconnect_target(view)
         handler = view.context.wiz_handler()
         if target is None or handler is None:

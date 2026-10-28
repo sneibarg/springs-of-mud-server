@@ -7,6 +7,7 @@ from api.ItemApi import ItemApi
 from area.Room import Room
 from interp.Context import Context
 from item.ItemHandler import ItemHandler
+from item.ExtraDescriptionData import ExtraDescriptionData
 from player.PlayerHandler import PlayerHandler
 from util.InfoUtil import InfoUtil
 from util.LookupUtil import LookupUtil
@@ -33,7 +34,7 @@ class InfoBoundaryTests(unittest.TestCase):
             operation.send(None)
 
     def test_look_counts_item_extras_before_item_names(self):
-        item = NS(name='sword steel', extra_description=NS(keyword='sword', description='An inscription.'),
+        item = NS(name='sword steel', extra_description=ExtraDescriptionData(True, 'sword', 'An inscription.'),
                   long_description='A steel sword.', short_description='a sword')
         actor = NS(id='actor', get_items=lambda: [item])
         room = Room()

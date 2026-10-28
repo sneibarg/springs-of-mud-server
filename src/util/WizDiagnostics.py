@@ -67,7 +67,8 @@ class WizDiagnostics:
         if not kind:
             return InterpApi.command_payload('syntax')
         if kind in ('skill', 'spell'):
-            abilities = [*self.registries.skill_registry.all_skills(), *self.registries.spell_registry.all_spells()]
+            abilities = sorted([*self.registries.skill_registry.all_skills(), *self.registries.spell_registry.all_spells()],
+                               key=lambda ability: ability.name.lower())
             matches = [ability for ability in abilities if rest == 'all' or (rest and (
                 ability.name.lower().startswith(rest.lower()) or str(getattr(ability, 'id', '')) == rest))]
             if rest != 'all':
@@ -99,7 +100,7 @@ class WizDiagnostics:
     @classmethod
     def character_text(cls, target):
         lines = [f'{WizUtil.display_name(target)} [{getattr(target, "vnum", 0)}]',
-                 cls.fields(target, ('name', 'id', 'room_id', 'race', 'character_class', 'level', 'trust', 'sex', 'position')),
+                 cls.fields(target, ('name', 'id', 'room_id', 'race', 'character_class', 'guild', 'level', 'trust', 'sex', 'position')),
                  f'Hit: {target.hit}/{target.max_hit} Mana: {target.mana}/{target.max_mana} Move: {target.movement}/{target.max_movement}',
                  cls.fields(target, ('gold', 'silver', 'hit_roll', 'dam_roll', 'saving_throw', 'timer', 'size', 'material')),
                  f'Attributes: {getattr(target, "character_attributes", "")}',
@@ -111,22 +112,28 @@ class WizDiagnostics:
         lines.append('Carrying: ' + ', '.join(WizUtil.display_name(item) for item in target.owned_items()))
         return cls.text(lines)
 
-    @classmethod
-    def object_text(cls, obj):
+    def object_text(self, obj):
+        cls = type(self)
         lines = [f'Obj [{obj.vnum}] {obj.short_description}',
                  cls.fields(obj, ('name', 'id', 'item_type', 'extra_flags', 'wear_flags', 'material', 'owner')),
                  cls.fields(obj, ('level', 'weight', 'cost', 'timer', 'condition', 'enchanted')),
                  cls.fields(obj, ('value0', 'value1', 'value2', 'value3', 'value4')),
                  f'Description: {obj.long_description}', f'Extra descriptions: {obj.extra_description}',
+                 f'Prototype affects: {obj.affect_data}',
                  'Contains: ' + ', '.join(WizUtil.display_name(item) for item in obj.contains)]
+        location = ItemOwnership(None, self.rooms).find_location(obj)
+        if location is not None:
+            parent = location['parent']
+            lines.append(f'Location: {location["kind"]}, parent: {getattr(parent, "name", "")}, id: {getattr(parent, "id", "")}')
         return cls.text(lines + cls.effects(obj))
 
     @classmethod
-    def room_text(cls, room):
+    def room_text(cls, room, actor=None, actor_room=None):
         lines = [f'Room [{room.vnum}] {room.name}',
                  cls.fields(room, ('area_id', 'room_flags', 'sector_type', 'light', 'heal_rate', 'mana_rate', 'owner', 'clan')),
                  room.description, f'Extra descriptions: {room.extra_description}',
-                 'Characters: ' + ', '.join(WizUtil.display_name(value) for value in [*room.characters.values(), *room.mobiles.values()]),
+                 'Characters: ' + ', '.join(WizUtil.display_name(value) for value in [*room.characters.values(), *room.mobiles.values()]
+                                            if actor is None or CharacterApi.can_see(actor, value, actor_room)),
                  'Objects: ' + ', '.join(WizUtil.display_name(value) for value in room.contents.values())]
         lines.extend('Exit: ' + cls.fields(exit_, ('direction', 'to_room_vnum', 'key', 'exit_flags', 'keyword', 'description')) for exit_ in room.exits)
         return cls.text(lines)
@@ -155,4 +162,4 @@ class WizDiagnostics:
             return InterpApi.command_payload('room_missing' if room_mode else 'no_such_target')
         if self.handler.room_is_private_for_actor(actor, room, implementor_only=True):
             return {'to_char': 'That room is private right now.\r\n'}
-        return {'to_char': self.room_text(room)}
+        return {'to_char': self.room_text(room, actor, self.rooms.get_or_none(id=actor.room_id))}
