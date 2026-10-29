@@ -59,7 +59,102 @@ class ContainerState:
     locked_flag: int = 0
 
 
+@dataclass(frozen=True)
+class LockState:
+    room: Any
+    target: Any
+    item: Any
+    portal: bool
+    flags: int
+    key: int
+    closed: int
+    locked: int
+    pickproof: int
+    closeable: bool
+    no_close: bool
+    no_lock: bool
+    keyword: str
+
+
 class MovementApi(GameApi):
+    @staticmethod
+    def travel_blocked(subject, state: MovementState) -> bool:
+        """Shared move_char eligibility, independent of command posture guards."""
+        return (state.exit_obj is None or state.to_room is None
+                or not CharacterApi.can_see_room(MovementApi._character(subject), state.to_room)
+                or state.exit_closed or MovementApi.charmed_departure(subject)
+                or state.private_room or MovementApi.wrong_guild(subject, state)
+                or state.air_blocked or state.water_blocked or state.insufficient_movement)
+
+    @staticmethod
+    def pay_movement(character, state: MovementState):
+        if not CharacterApi.is_npc(character):
+            character.status_flags.pulse_wait = max(
+                GenericUtil.to_int(getattr(character.status_flags, 'pulse_wait', 0), 0), 1)
+            character.movement -= state.move_cost
+
+    @staticmethod
+    def lock_state(subject) -> LockState:
+        from util.LookupUtil import LookupUtil
+        from util.InterpUtil import InterpUtil
+        character = MovementApi._character(subject)
+        room = MovementApi._room(subject)
+        argument, _ = InterpUtil.one_argument(MovementApi.argument_text(subject))
+        item = getattr(MovementApi._context(subject), "target_item", None)
+        if item is None and argument:
+            item = LookupUtil.here(character, room, argument,
+                                   visible=lambda obj: LookupUtil.object_visible(character, room, obj))
+        portal = item is not None and Item.enum_type_name(item) == "ITEM_PORTAL"
+        container = item is not None and Item.is_container(item)
+        door = MovementApi.door_state(subject) if item is None else None
+        enums = CharacterApi.get_enum("exitFlags" if portal or item is None else "containerState")
+        prefix = "EX_" if portal or item is None else "CONT_"
+        bit = lambda name: EnumProvider.value(enums, prefix + name)
+        target = item if item is not None else door.exit_obj
+        flags = GenericUtil.to_int(item.value1, 0) if item is not None else door.flags
+        key = GenericUtil.to_int(getattr(item, "value4" if portal else "value2", -1), -1) if item is not None else door.key
+        return LockState(room, target, item, portal, flags, key, bit("CLOSED"), bit("LOCKED"), bit("PICKPROOF"),
+                         bool(flags & bit("ISDOOR")) if portal else bool(flags & bit("CLOSEABLE")) if container else item is None,
+                         portal and bool(flags & bit("NOCLOSE")), portal and bool(flags & bit("NOLOCK")),
+                         Item.short(item) if item is not None else door.keyword)
+
+    @staticmethod
+    def lock_error(subject, action) -> str:
+        if not MovementApi.argument_text(subject):
+            return "lock_argument"
+        state = MovementApi.lock_state(subject)
+        if state.target is None:
+            return "lock_missing"
+        if state.item is None and not (state.flags & EnumProvider.value(CharacterApi.get_enum("exitFlags"), "EX_ISDOOR")):
+            return "lock_invalid"
+        if state.item is not None and not state.portal and not Item.is_container(state.item):
+            return "lock_container"
+        if state.portal and (not state.closeable or action in ("close", "lock") and state.no_close):
+            return "lock_invalid"
+        closed, locked = bool(state.flags & state.closed), bool(state.flags & state.locked)
+        if action in ("open", "close"):
+            if closed == (action == "close"):
+                return "lock_closed" if closed else "lock_open"
+            if state.item is not None and not state.portal and not state.closeable:
+                return "lock_invalid"
+            if action == "open" and locked:
+                return "lock_locked"
+            return ""
+        immortal_pick = action == "pick" and state.item is None and CharacterApi.is_immortal(MovementApi._character(subject))
+        if not closed and not immortal_pick:
+            return "lock_not_closed"
+        if (state.key < 0 and not immortal_pick) or (action == "lock" and state.no_lock):
+            return "lock_no_keyhole"
+        if action != "pick" and not MovementApi.has_key(MovementApi._character(subject), state.key):
+            return "lock_key"
+        if action == "lock" and locked:
+            return "lock_locked"
+        if action != "lock" and not locked and not (action == "pick" and state.portal):
+            return "lock_unlocked"
+        if action == "pick" and state.flags & state.pickproof and not immortal_pick:
+            return "lock_failed"
+        return ""
+
     @staticmethod
     def move_state(subject, direction: str = "", room_registry=None) -> MovementState:
         character = MovementApi._character(subject)
@@ -88,6 +183,7 @@ class MovementApi(GameApi):
             and ex_closed
             and (flags & ex_closed) != 0
             and ((not pass_door) or (ex_nopass and (flags & ex_nopass) != 0))
+            and CharacterApi.get_trust(character) < int(CharacterApi.get_enum("gameParameters").ANGEL)
         )
 
         is_npc = bool(character is not None and CharacterApi.is_npc(character))
@@ -105,6 +201,7 @@ class MovementApi(GameApi):
             water_blocked = bool(
                 (in_room.requires_boat(sector_types) or to_room.requires_boat(sector_types))
                 and not is_flying
+                and not CharacterApi.is_immortal(character)
                 and not character.has_boat()
             )
             move_cost = MovementApi._movement_cost(character, in_room, to_room, is_flying, affected_bits)
@@ -118,7 +215,8 @@ class MovementApi(GameApi):
             to_room=to_room,
             exit_closed=exit_closed,
             exit_keyword=(exit_obj.keyword or "door") if exit_obj is not None else "door",
-            private_room=bool(to_room is not None and to_room.is_private(room_flags)),
+            private_room=bool(to_room is not None and to_room.is_private(room_flags)
+                              and not MovementApi.is_room_owner(character, to_room)),
             air_blocked=air_blocked,
             water_blocked=water_blocked,
             insufficient_movement=insufficient_movement,
@@ -127,9 +225,10 @@ class MovementApi(GameApi):
 
     @staticmethod
     def door_state(subject, room_registry=None, exit_flags=None) -> DoorState:
+        from util.InterpUtil import InterpUtil
         character = MovementApi._character(subject)
         room: Room | None = MovementApi._room(subject, room_registry=room_registry)
-        argument = MovementApi.argument_text(subject)
+        argument, _ = InterpUtil.one_argument(MovementApi.argument_text(subject))
         door = -1 if room is None else room.find_door(argument)
         exit_obj = room.get_exit(door) if door >= 0 else None
         flags = GenericUtil.to_int(exit_obj.exit_flags, 0) if exit_obj is not None else 0
@@ -172,7 +271,30 @@ class MovementApi(GameApi):
     @staticmethod
     def invalid_exit(view) -> bool:
         state = MovementApi.move_state(view)
-        return state.exit_obj is None or state.to_room is None
+        return (state.exit_obj is None or state.to_room is None
+                or not CharacterApi.can_see_room(MovementApi._character(view), state.to_room))
+
+    @staticmethod
+    def is_room_owner(character, room) -> bool:
+        from util.LookupUtil import LookupUtil
+        return character is not None and LookupUtil.matches(character.name, getattr(room, "owner", ""))
+
+    @staticmethod
+    def charmed_departure(view) -> bool:
+        character = MovementApi._character(view)
+        master = getattr(character, "master", None)
+        return (master is not None and master.room_id == character.room_id
+                and CharacterApi.is_affected_by_name(character, CharacterApi.get_enum("affectedBy"), "AFF_CHARM"))
+
+    @staticmethod
+    def wrong_guild(view, state=None) -> bool:
+        character = MovementApi._character(view)
+        room = (state or MovementApi.move_state(view)).to_room
+        if CharacterApi.is_npc(character) or room is None:
+            return False
+        own_class = str(getattr(getattr(character, "character_class", None), "name", "")).lower()
+        return any(name != own_class and str(room.vnum) in {str(vnum) for vnum in data.get("guild", [])}
+                   for name, data in CharacterApi.classes_map().items())
 
     @staticmethod
     def exit_closed(view) -> bool:
@@ -340,7 +462,7 @@ class MovementApi(GameApi):
             move //= 2
         if CharacterApi.is_affected_by_name(character, affected_bits, "AFF_SLOW"):
             move *= 2
-        return max(1, move)
+        return move
 
     @staticmethod
     def has_key(character, key: int) -> bool:

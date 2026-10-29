@@ -31,7 +31,7 @@ class PlayerUtil:
         options = [
             short_name
             for short_name, attr_name, stat_index in trainable_stats
-            if (current := GenericUtil.to_int(getattr(attrs, attr_name, 0), 0))
+            if (current := CharacterApi.permanent_stat(character, attr_name))
                < CharacterApi.get_max_train(character, stat_index, current)
         ]
 

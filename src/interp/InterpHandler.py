@@ -70,7 +70,7 @@ class InterpHandler:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
 
     async def handle_command(self, player, character, command):
-        if command is None or not str(command).strip():
+        if not InterpUtil.begin_input(character, command):
             return None
 
         alias_result = AliasApi.substitute_command(character, command)

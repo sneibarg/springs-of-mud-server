@@ -1,4 +1,5 @@
 import unittest
+from enum import IntEnum
 from dataclasses import asdict
 from types import SimpleNamespace as NS
 from unittest.mock import Mock, patch
@@ -19,6 +20,9 @@ from skill.LearningService import LearningService
 
 
 class TestObjectDesignContracts(unittest.TestCase):
+    def setUp(self):
+        self.enterContext(patch.object(CharacterApi, 'GameParameters', IntEnum('GameParameters', {'LEVEL_IMMORTAL': 52})))
+
     def test_bootstrap_wires_shared_exposure_and_learning_services(self):
         from injector import Injector, singleton
         from server.Bootstrapper import Bootstrapper
@@ -78,7 +82,7 @@ class TestObjectDesignContracts(unittest.TestCase):
         character.skills = [{"name": "sword", "level": 40}]
         definition = NS(name="sword", rating_by_class={"mage": 2}, level_by_class={"mage": 1})
         resolver = NS(by_id=lambda _: (definition, "skills"))
-        rules = NS(is_npc=lambda _: False, skill_value_for_class=CharacterApi.skill_value_for_class,
+        rules = NS(current_stat=lambda entity, name: max(3, min(25, getattr(entity.character_attributes, name))), is_npc=lambda _: False, skill_value_for_class=CharacterApi.skill_value_for_class,
                    get_attribute_bonus=lambda *_: {"learn": 18})
         percent, random, advance = Mock(), Mock(), Mock()
         percent.number_percent.return_value = 1

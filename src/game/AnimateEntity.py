@@ -284,6 +284,33 @@ class AnimateEntity:
             return gain
         return gain * GenericUtil.to_int(getattr(furniture, field_name, 100), 100) // 100
 
+    def carry_count(self) -> int:
+        from api.ItemApi import ItemApi
+        return ItemApi.carried_count(self)
+
+    def carry_weight(self) -> int:
+        from api.ItemApi import ItemApi
+        return ItemApi.carried_weight(self)
+
+    def _carry_limits(self):
+        from api.CharacterApi import CharacterApi
+        from game.Equipped import WEAR_LOC_TO_EQUIPPED_SLOT
+        if CharacterApi.is_npc(self):
+            if CharacterApi.is_set(self.status_flags.act, CharacterApi.get_enum('actBits').ACT_PET):
+                return 0, 0
+        elif self.level >= CharacterApi.GameParameters.LEVEL_IMMORTAL:
+            return 1000, 10000000
+        strength = CharacterApi.current_stat(self, 'strength')
+        count = len(WEAR_LOC_TO_EQUIPPED_SLOT) + 2 * CharacterApi.current_stat(self, 'dexterity') + self.level
+        weight = int(CharacterApi.get_attribute_bonus('strength', str(strength))['carry']) * 10 + self.level * 25
+        return count, weight
+
+    def max_items(self) -> int:
+        return self._carry_limits()[0]
+
+    def max_weight(self) -> int:
+        return self._carry_limits()[1]
+
     def _base_hit_gain(self, level, position, context):
         raise NotImplementedError
 

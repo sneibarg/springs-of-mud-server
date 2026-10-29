@@ -101,6 +101,10 @@ class _Positions(IntEnum):
 
 
 class _CharacterApi:
+    @staticmethod
+    def current_stat(entity, name):
+        return max(3, min(25, getattr(entity.character_attributes, name, 10)))
+
     # Use the real membership helper with this module's isolated API stubs.
     is_clan = staticmethod(RealCharacterApi.is_clan)
     GameParameters = RealCharacterApi.GameParameters

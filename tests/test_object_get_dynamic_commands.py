@@ -90,6 +90,22 @@ def _enum_like(**members):
 
 class _CharacterApi:
     @staticmethod
+    def current_stat(entity, name):
+        return max(3, min(25, getattr(entity.character_attributes, name, 10)))
+
+    @staticmethod
+    def is_good(character):
+        return int(getattr(getattr(character, 'character_attributes', None), 'alignment', 0)) >= 350
+
+    @staticmethod
+    def is_evil(character):
+        return int(getattr(getattr(character, 'character_attributes', None), 'alignment', 0)) <= -350
+
+    @staticmethod
+    def is_neutral(character):
+        return not _CharacterApi.is_good(character) and not _CharacterApi.is_evil(character)
+
+    @staticmethod
     def get_enum(name: str):
         if name == 'positions':
             return SimpleNamespace(POS_RESTING=SimpleNamespace(value=6))

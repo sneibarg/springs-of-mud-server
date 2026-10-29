@@ -307,6 +307,7 @@ class Fight:
         was_in = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         exits = list(getattr(was_in, "exits", []) or [])
         to_room = None
+        travel_state = None
         if was_in is not None and getattr(character, "fighting", None) is not None:
             for _ in range(6):
                 direction = random.randint(0, 5)
@@ -315,6 +316,10 @@ class Fight:
                     continue
                 candidate = self._flee_destination(character, was_in, ex)
                 if candidate is not None:
+                    direction_name = MovementUtil.DIR_NAME[direction]
+                    travel_context = Context(character=character, room=was_in)
+                    travel_context.room_registry = self.room_registry
+                    travel_state = MovementApi.move_state(travel_context, direction_name, self.room_registry)
                     to_room = candidate
                     break
 
@@ -326,9 +331,7 @@ class Fight:
                 CharacterApi.set_position(character, "POS_STANDING")
             return payload
 
-        move_cost = self._movement_cost(character, was_in, to_room)
-        if not CharacterApi.is_npc(character):
-            character.movement = max(0, GenericUtil.to_int(getattr(character, "movement", 0), 0) - move_cost)
+        MovementApi.pay_movement(character, travel_state)
 
         from_targets = was_in.player_targets(character)
         if CharacterApi.is_npc(character):
@@ -338,6 +341,7 @@ class Fight:
             was_in.remove_player_from_room(character)
             to_room.add_player_to_room(character)
         character.room_id = to_room.id
+        character.on = None
         character.area_id = getattr(to_room, "area_id", getattr(character, "area_id", ""))
         self.fight_handler.stop_fighting(character, both=True)
 
@@ -559,13 +563,7 @@ class Fight:
 
     @staticmethod
     def _attribute(entity, field_name: str, default: int = 10) -> int:
-        attrs = getattr(entity, "character_attributes", None)
-        if attrs is not None and hasattr(attrs, field_name):
-            return GenericUtil.to_int(getattr(attrs, field_name, default), default)
-        perm = getattr(entity, "character_attributes", None)
-        if perm is not None and hasattr(perm, field_name):
-            return GenericUtil.to_int(getattr(perm, field_name, default), default)
-        return GenericUtil.to_int(getattr(entity, field_name, default), default)
+        return CharacterApi.current_stat(entity, field_name)
 
     @staticmethod
     def _size(entity) -> int:
@@ -598,6 +596,8 @@ class Fight:
         chance -= 4 * dexterity // 3
         armor = getattr(victim, "armor_class", None)
         bash_ac = GenericUtil.to_int(getattr(armor, "bashing", getattr(armor, "bash", 0)), 0)
+        from game.Equipped import Equipped
+        bash_ac -= Equipped.armor_contribution(victim, 'bash')
         if CharacterApi.is_awake(victim):
             bash_ac += GenericUtil.to_int(CharacterApi.get_attribute_bonus("dexterity", str(dexterity)).get("defensive", 0), 0)
         chance -= GenericUtil.trunc_div(bash_ac, 25)
@@ -743,16 +743,6 @@ class Fight:
             "victim_name": DisplayUtil.entity_name(victim, is_npc=CharacterApi.is_npc),
         }
 
-    def _movement_cost(self, character, in_room, to_room) -> int:
-        if CharacterApi.is_npc(character):
-            return 0
-        move = (MovementUtil.sector_cost(getattr(in_room, "sector_type", 0)) + MovementUtil.sector_cost(getattr(to_room, "sector_type", 0))) // 2
-        if CharacterApi.is_affected_by_name(character, self.AffectBits, "AFF_FLYING") or CharacterApi.is_affected_by_name(character, self.AffectBits, "AFF_HASTE"):
-            move //= 2
-        if CharacterApi.is_affected_by_name(character, self.AffectBits, "AFF_SLOW"):
-            move *= 2
-        return max(1, move)
-
     def _flee_destination(self, character, room, ex):
         exit_flags = CharacterApi.get_enum("exitFlags")
         room_flags = CharacterApi.get_enum("roomFlags")
@@ -770,15 +760,12 @@ class Fight:
         no_mob = MovementApi.flag_value(room_flags, "ROOM_NO_MOB")
         if CharacterApi.is_npc(character) and no_mob and GenericUtil.to_int(getattr(to_room, "room_flags", 0), 0) & no_mob:
             return None
-        if to_room.is_private(room_flags):
+        travel_context = Context(character=character, room=room)
+        travel_context.room_registry = self.room_registry
+        direction = MovementUtil.DIR_NAME[GenericUtil.to_int(ex.direction, -1)]
+        state = MovementApi.move_state(travel_context, direction, self.room_registry)
+        if MovementApi.travel_blocked(travel_context, state) or state.to_room is room:
             return None
-        if not CharacterApi.is_npc(character):
-            if (room.is_air_room(CharacterApi.get_enum("sectorTypes")) or to_room.is_air_room(CharacterApi.get_enum("sectorTypes"))) and not CharacterApi.is_affected_by_name(character, self.AffectBits, "AFF_FLYING") and not CharacterApi.is_immortal(character):
-                return None
-            if (room.requires_boat(CharacterApi.get_enum("sectorTypes")) or to_room.requires_boat(CharacterApi.get_enum("sectorTypes"))) and not CharacterApi.is_affected_by_name(character, self.AffectBits, "AFF_FLYING") and not character.has_boat():
-                return None
-            if GenericUtil.to_int(getattr(character, "movement", 0), 0) < self._movement_cost(character, room, to_room):
-                return None
         return to_room
 
     def _dirt_terrain_adjustment(self, room) -> int | None:

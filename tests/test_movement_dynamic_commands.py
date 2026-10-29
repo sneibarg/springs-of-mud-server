@@ -93,12 +93,15 @@ class _CharacterMacros:
 
     @staticmethod
     def get_enum(_name: str):
+        if _name == "gameParameters":
+            return SimpleNamespace(ANGEL=53, IMPLEMENTOR=60)
         if _name == "exitFlags":
             return _enum_like(
                 EX_CLOSED=SimpleNamespace(value=1),
                 EX_NOPASS=SimpleNamespace(value=2),
                 EX_LOCKED=SimpleNamespace(value=4),
                 EX_PICKPROOF=SimpleNamespace(value=8),
+                EX_ISDOOR=SimpleNamespace(value=16),
             )
         if _name == "roomFlags":
             return _enum_like(ROOM_NO_RECALL=SimpleNamespace(value=1))
@@ -125,6 +128,18 @@ class _CharacterMacros:
     @staticmethod
     def can_see(_character, _target, _room) -> bool:
         return True
+
+    @staticmethod
+    def can_see_room(_character, room):
+        return room is not None
+
+    @staticmethod
+    def classes_map():
+        return {}
+
+    @staticmethod
+    def get_trust(character):
+        return getattr(character, "level", 1)
 
     @staticmethod
     def is_set(flags, bit) -> bool:
@@ -216,6 +231,12 @@ def _enum_like(**members):
 
 
 class _Context(SimpleNamespace):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        character = getattr(self, "character", None)
+        if character is not None and not hasattr(character, "owned_items"):
+            character.owned_items = lambda: getattr(character, "loot", [])
+            character.equipped_slot_of = lambda _item: None
     def finish(self):
         self.done = True
 
@@ -250,7 +271,7 @@ _stub_module("player.CharacterApi", CharacterMacros=_CharacterMacros)
 _stub_package("api")
 _stub_module("api.CharacterApi", CharacterApi=_CharacterMacros)
 _stub_module("api.CommunicationsApi", CommunicationsApi=SimpleNamespace())
-_stub_module("api.ItemApi", ItemApi=SimpleNamespace())
+_stub_module("api.ItemApi", ItemApi=SimpleNamespace(can_see_object=lambda *_args: True))
 _stub_module("api.WizApi", WizApi=SimpleNamespace())
 _stub_package("interp")
 _stub_module("interp.Context", Context=_Context)
@@ -260,6 +281,7 @@ _stub_module(
     Item=SimpleNamespace(
         short=lambda item: getattr(item, "short_description", "") or getattr(item, "name", "") or "it",
         is_container=lambda item: "container" in str(getattr(item, "item_type", "") or "").lower(),
+        enum_type_name=lambda item: "ITEM_" + str(item.item_type).upper().removeprefix("ITEM_"),
     ),
 )
 
@@ -290,7 +312,9 @@ def _load_command(name: str) -> Command:
 
 
 class _Exit(SimpleNamespace):
-    pass
+    def __init__(self, **kwargs):
+        kwargs['exit_flags'] = kwargs.get('exit_flags', 0) | 16
+        super().__init__(**kwargs)
 
 
 class _Room(SimpleNamespace):
@@ -372,6 +396,8 @@ class TestMovementDynamicCommands(unittest.TestCase):
             fight_handler=SimpleNamespace(aggressive_entry_rounds=lambda *_args, **_kwargs: []),
             enum_provider=SimpleNamespace(get=lambda _name: SimpleNamespace()),
             interp_api=InterpApi(),
+            skill_api=SimpleNamespace(),
+            effect_handler=SimpleNamespace(),
         )
         commands.exit_flags = _CharacterMacros.get_enum("exitFlags")
         commands.room_flags = _CharacterMacros.get_enum("roomFlags")
@@ -611,10 +637,10 @@ class TestMovementDynamicCommands(unittest.TestCase):
 
         payload = commands.do_open(character, context)
 
-        self.assertEqual("open_door", payload["message_key"])
-        self.assertEqual("Ok.", context.command.render_message("to_char", payload["message_key"], **payload["tokens"]))
-        self.assertEqual("Tester opens the gate.", context.command.render_message("to_room", payload["message_key"], **payload["tokens"]))
-        self.assertEqual(0, exit_obj.exit_flags)
+        self.assertEqual("lock_success", payload["message_key"])
+        self.assertEqual("You open gate.", context.command.render_message("to_char", payload["message_key"], **payload["tokens"]))
+        self.assertEqual("Tester opens gate.", context.command.render_message("to_room", payload["message_key"], **payload["tokens"]))
+        self.assertEqual(16, exit_obj.exit_flags)
 
     def test_close_container_returns_container_payload(self):
         commands, room_registry = self._commands()
@@ -652,7 +678,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
 
         payload = commands.do_close(character, context)
 
-        self.assertEqual("close_container", payload["message_key"])
+        self.assertEqual("lock_success", payload["message_key"])
         self.assertEqual("You close a wooden chest.", context.command.render_message("to_char", payload["message_key"], **payload["tokens"]))
         self.assertEqual("%c closes %t.".replace("%c", "Tester").replace("%t", "a wooden chest"), context.command.render_message("to_room", payload["message_key"], **payload["tokens"]))
         self.assertEqual("5", chest.value1)
@@ -694,7 +720,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
 
         payload = commands.do_lock(character, context)
 
-        self.assertEqual("container_locked", payload["message_key"])
+        self.assertEqual("lock_success", payload["message_key"])
         self.assertEqual("You lock an iron chest.", context.command.render_message("to_char", payload["message_key"], **payload["tokens"]))
         self.assertEqual("%c locks %t.".replace("%c", "Tester").replace("%t", "an iron chest"), context.command.render_message("to_room", payload["message_key"], **payload["tokens"]))
         self.assertEqual("13", chest.value1)

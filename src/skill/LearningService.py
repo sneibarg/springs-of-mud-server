@@ -63,7 +63,7 @@ class LearningService:
         return max(0, self.rules.skill_value_for_class(rating_map, class_name, fallback))
 
     def practice_gain(self, character: Character, rating: int) -> int:
-        intelligence = GenericUtil.to_int(character.character_attributes.intelligence, 0)
+        intelligence = self.rules.current_stat(character, 'intelligence')
         learn_bonus = GenericUtil.to_int(
             self.rules.get_attribute_bonus("intelligence", str(intelligence)).get("learn", 0), 0)
         rating = max(1, GenericUtil.to_int(rating, 1))
@@ -93,7 +93,7 @@ class LearningService:
         learned = Character.learned_entry_level(learned_entry)
         if not self.practice_visible(ch, ability) or rating <= 0 or learned <= 0 or learned >= 100:
             return
-        intelligence = ch.character_attributes.intelligence
+        intelligence = self.rules.current_stat(ch, 'intelligence')
         learn_bonus = GenericUtil.to_int(self.rules.get_attribute_bonus("intelligence", str(intelligence)).get("learn", 0), 0)
         multiplier = max(1, GenericUtil.to_int(multiplier, 1))
         chance = (10 * learn_bonus) // (multiplier * rating * 4) + ch.level

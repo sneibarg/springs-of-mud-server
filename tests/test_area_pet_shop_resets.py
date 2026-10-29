@@ -204,6 +204,7 @@ def build_handler(rooms):
         enum_provider=enum_provider,
         character_registry=Mock(),
         wiz_handler=Mock(),
+        effect_handler=Mock(),
     )
 
 def reset(mob_vnum, room_vnum):

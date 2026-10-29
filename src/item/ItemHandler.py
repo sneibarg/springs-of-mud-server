@@ -25,7 +25,7 @@ class ItemHandler:
         room = self.room_registry.get(id=character.room_id)
         if room is None:
             return
-        lines = Room.item_description_lines(room)
+        lines = Room.item_description_lines(room, character)
         if lines:
             message = self.message_bus.text_to_message("\r\n".join(lines) + "\r\n")
             await self.message_bus.send_to_character(character.id, message)

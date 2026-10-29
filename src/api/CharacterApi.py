@@ -167,14 +167,14 @@ class CharacterApi(GameApi):
     @classmethod
     def get_hitroll(cls, char: Any) -> int:
         from util.FightUtil import FightUtil
-        strength = char.character_attributes.strength
+        strength = cls.current_stat(char, 'strength')
         strength_bonus = cls.get_attribute_bonus(attr_name="strength", attr_level=str(strength))
         return int(strength_bonus.get("tohit", 0)) + FightUtil.dynamic_combat_bonus(char, 'hit_roll', 'hitroll')
 
     @classmethod
     def get_damroll(cls, char: Any) -> int:
         from util.FightUtil import FightUtil
-        strength = char.character_attributes.strength
+        strength = cls.current_stat(char, 'strength')
         strength_bonus = cls.get_attribute_bonus(attr_name="strength", attr_level=str(strength))
         return int(strength_bonus.get("todam", 0)) + FightUtil.dynamic_combat_bonus(char, 'dam_roll', 'damroll')
 
@@ -187,7 +187,7 @@ class CharacterApi(GameApi):
 
     @staticmethod
     def get_carry_weight(char: Any) -> int:
-        return int(char.character_attributes.max_weight + ((char.silver / 10) + (char.gold * 2 / 5)))
+        return char.carry_weight()
 
     @staticmethod
     def wait_state(char: Character, npulse: int) -> int:
@@ -400,7 +400,7 @@ class CharacterApi(GameApi):
 
     @classmethod
     def is_flying(cls, char: Character) -> bool:
-        return char.character_attributes.position == cls.pos_value("POS_FLYING")
+        return cls.is_affected_by_name(char, cls.get_enum("affectedBy"), "AFF_FLYING")
 
     @classmethod
     def has_holy_light(cls, character) -> bool:
@@ -427,7 +427,7 @@ class CharacterApi(GameApi):
         if cls.is_affected(character, cls.AffectedBits.AFF_BLIND.value):
             return False
 
-        if type(character) is Character and room.is_room_dark() and not cls.is_affected(character, cls.AffectedBits.AFF_INFRARED.value):
+        if room is not None and room.is_room_dark() and not cls.is_affected(character, cls.AffectedBits.AFF_INFRARED.value):
             return False
 
         if cls.is_affected(victim, cls.AffectedBits.AFF_INVISIBLE.value) and not cls.is_affected(character, cls.AffectedBits.AFF_DETECT_INVIS.value):
@@ -436,42 +436,68 @@ class CharacterApi(GameApi):
         if cls.is_affected(victim, cls.AffectedBits.AFF_SNEAK.value) \
                 and not cls.is_affected(character, cls.AffectedBits.AFF_DETECT_HIDDEN.value) \
                 and victim.fighting is None:
-            pass
-
-        weather = cls._weather()
-        if weather.weather_info.sunlight == cls.TimeAndWeather.SUN_SET.value \
-                or weather.weather_info.sunlight == cls.TimeAndWeather.SUN_DARK.value:
-            return True
-
-        chance = 0
-        if rng.number_percent() < chance:
+            from skill.Ability import Ability
+            from util.SkillUtil import SkillUtil
+            if cls.is_npc(victim):
+                skill = SkillUtil.adjusted_percent(victim, victim.level * 2 + 20)
+            else:
+                skill = SkillUtil.adjusted_percent(victim, Character.learned_entry_level(Character.get_learned(
+                    victim, "sneak", collection_name="skills", visible_only=True, visible_fn=Ability.practice_visible)))
+            chance = skill + cls.current_stat(victim, 'dexterity') * 3 // 2
+            chance -= cls.current_stat(character, 'intelligence') * 2
+            chance -= character.level - victim.level * 3 // 2
+            if rng.number_percent() < chance:
+                return False
+        if (cls.is_affected(victim, cls.AffectedBits.AFF_HIDE.value)
+                and not cls.is_affected(character, cls.AffectedBits.AFF_DETECT_HIDDEN.value)
+                and victim.fighting is None):
             return False
         return True
 
     @classmethod
-    def get_max_train(cls, character: Character, stat_index: int, current_value: int) -> int:
-        race_obj = character.character_race
-        if race_obj is not None:
-            max_values = (
-                race_obj.max_strength,
-                race_obj.max_intelligence,
-                race_obj.max_wisdom,
-                race_obj.max_dexterity,
-                race_obj.max_constitution,
-            )
-        else:
-            max_values = ()
-        if 0 <= stat_index < len(max_values):
-            value = GenericUtil.to_int(max_values[stat_index], 0)
-            if value > 0:
-                return value
+    def room_view_block_reason(cls, character, room) -> str:
+        position = cls.position_value(character)
+        sleeping = cls.pos_value("POS_SLEEPING")
+        if position < sleeping:
+            return "stunned"
+        if position == sleeping:
+            return "sleeping"
+        holy_light = not cls.is_npc(character) and cls.has_holy_light(character)
+        if not holy_light and cls.is_blind(character):
+            return "blind"
+        if not cls.is_npc(character) and not holy_light and room.is_room_dark():
+            return "dark"
+        return ""
 
-        race_name = str(character.race or "").strip().lower()
-        race_data = cls.pc_races_map().get(race_name, {})
-        max_stats = race_data.get("max_stats", [])
-        if isinstance(max_stats, list) and 0 <= stat_index < len(max_stats):
-            return GenericUtil.to_int(max_stats[stat_index], current_value)
-        return current_value
+    STAT_NAMES = ('strength', 'intelligence', 'wisdom', 'dexterity', 'constitution')
+
+    @classmethod
+    def race_stat_max(cls, character, stat_index):
+        value = getattr(character.character_race, 'max_' + cls.STAT_NAMES[stat_index])
+        return value or cls.pc_races_map().get(character.race.lower(), {}).get('max_stats', [25] * 5)[stat_index]
+
+    @classmethod
+    def get_max_train(cls, character, stat_index: int, current_value: int = 0) -> int:
+        if cls.is_npc(character) or character.level > cls.GameParameters.LEVEL_IMMORTAL:
+            return 25
+        bonus = (3 if character.race.lower() == 'human' else 2) if int(character.character_class.attr_prime) == stat_index else 0
+        return min(25, cls.race_stat_max(character, stat_index) + bonus)
+
+    @classmethod
+    def current_stat(cls, character, name: str) -> int:
+        maximum = 25
+        if not cls.is_npc(character) and character.level <= cls.GameParameters.LEVEL_IMMORTAL:
+            index = cls.STAT_NAMES.index(name)
+            maximum = cls.race_stat_max(character, index) + 4
+            maximum += 2 * (int(character.character_class.attr_prime) == index) + (character.race.lower() == 'human')
+        return max(3, min(int(getattr(character.character_attributes, name)), maximum, 25))
+
+    @classmethod
+    def permanent_stat(cls, character, name: str) -> int:
+        apply_types = cls.get_enum('applyTypes')
+        modifiers = sum(int(effect.modifier) for effect in character.effects
+                        if effect.matches_location(apply_types, 'APPLY_' + name[:3].upper()))
+        return int(getattr(character.character_attributes, name)) - modifiers
 
     @classmethod
     def player_auto_assist(cls, char: Character) -> bool:

@@ -679,18 +679,7 @@ class SpellApi:
 
     def current_stat(self, ctx: SpellContext, name: str, target: Any = None) -> int:
         victim = ctx.resolve(target) if target is not None else ctx.victim
-        names = ("strength", "intelligence", "wisdom", "dexterity", "constitution")
-        index = names.index(name)
-        current = int(getattr(victim.character_attributes, name))
-        maximum = 25
-        immortal = int(GameApi.get_enum("gameParameters").LEVEL_IMMORTAL)
-        if not CharacterApi.is_npc(victim) and int(victim.level) <= immortal:
-            maximum = CharacterApi.get_max_train(victim, index, current) + 4
-            if int(victim.character_class.attr_prime) == index:
-                maximum += 2
-            if str(victim.race).lower() == "human":
-                maximum += 1
-        return max(3, min(current, maximum, 25))
+        return CharacterApi.current_stat(victim, name)
 
     def heat_equipment(self, ctx: SpellContext):
         """Heat carried equipment; content owns damage ratios and outcome messages."""

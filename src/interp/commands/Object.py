@@ -559,13 +559,13 @@ class Object:
             return self._render_command_message(context, "cannot_take", t=item_short)
 
         max_items = character.max_items()
-        if max_items > 0 and character.carry_count() + Item.object_number(item) > max_items:
+        if character.carry_count() + Item.object_number(item) > max_items:
             return self._render_command_message(context, "carry_items", t=item_short)
 
         max_weight = character.max_weight()
         item_weight = Item.object_weight(item)
         carried_container = container is not None and any(obj is container for obj in character.owned_items())
-        if not carried_container and max_weight > 0 and character.carry_weight() + item_weight > max_weight:
+        if not carried_container and character.carry_weight() + item_weight > max_weight:
             return self._render_command_message(context, "carry_weight", t=item_short)
         if not self.can_loot(character, item, getattr(context, "room", None)):
             return self._render_command_message(context, "loot_not_permitted")
@@ -1415,12 +1415,12 @@ class Object:
             return room
 
         max_items = victim.max_items()
-        if max_items > 0 and victim.carry_count() + Item.object_number(item) > max_items:
+        if victim.carry_count() + Item.object_number(item) > max_items:
             context.give_target_hands_full = True
 
         max_weight = victim.max_weight()
         item_weight = Item.object_weight(item)
-        if max_weight > 0 and victim.carry_weight() + item_weight > max_weight:
+        if victim.carry_weight() + item_weight > max_weight:
             context.give_target_encumbered = True
 
         if room is not None:
@@ -1669,13 +1669,13 @@ class Object:
                     or ItemApi.has_item_flag(item, self.item_flags, "ITEM_INVENTORY")
                     or GenericUtil.to_int(getattr(item, "level", 0), 0) > GenericUtil.to_int(getattr(character, "level", 0), 0)
                 )
-                max_items = character.max_items() if hasattr(character, "max_items") else 0
-                if max_items > 0 and character.carry_count() + Item.object_number(item) > max_items:
+                max_items = character.max_items()
+                if character.carry_count() + Item.object_number(item) > max_items:
                     context.steal_inventory_full = True
 
-                max_weight = character.max_weight() if hasattr(character, "max_weight") else 0
+                max_weight = character.max_weight()
                 item_weight = Item.object_weight(item)
-                if max_weight > 0 and ItemApi.carried_weight(character, include_coins=False) + item_weight > max_weight:
+                if ItemApi.carried_weight(character, include_coins=False) + item_weight > max_weight:
                     context.steal_encumbered = True
 
     def _steal_blocked_payload(self, character: Character, room, context: Context) -> dict | None:

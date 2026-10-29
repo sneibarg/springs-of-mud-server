@@ -289,7 +289,9 @@
         "commandPositionSleeping": "In your dreams, or what?",
         "commandPositionResting": "Nah... You feel too relaxed...",
         "commandPositionSitting": "Better stand up first.",
-        "commandPositionFighting": "No way!  You are still fighting!"
+        "commandPositionFighting": "No way!  You are still fighting!",
+        "charmedDeparture": "What?  And leave your beloved master?",
+        "wrongGuild": "You aren't allowed in there."
       },
       "toRoom": {
         "default": "%c leaves west.",
@@ -336,8 +338,16 @@
         "tokenFactory": "lambda v: MovementApi.closed_tokens(v)"
       },
       {
+        "messageKey": "charmedDeparture",
+        "predicate": "lambda v: MovementApi.charmed_departure(v)"
+      },
+      {
         "predicate": "lambda v: MovementApi.private_room(v)",
         "messageKey": "privateRoom"
+      },
+      {
+        "messageKey": "wrongGuild",
+        "predicate": "lambda v: MovementApi.wrong_guild(v)"
       },
       {
         "predicate": "lambda v: MovementApi.air_blocked(v)",
@@ -390,7 +400,9 @@
         "commandPositionSleeping": "In your dreams, or what?",
         "commandPositionResting": "Nah... You feel too relaxed...",
         "commandPositionSitting": "Better stand up first.",
-        "commandPositionFighting": "No way!  You are still fighting!"
+        "commandPositionFighting": "No way!  You are still fighting!",
+        "charmedDeparture": "What?  And leave your beloved master?",
+        "wrongGuild": "You aren't allowed in there."
       },
       "toRoom": {
         "default": "%c leaves east.",
@@ -437,8 +449,16 @@
         "tokenFactory": "lambda v: MovementApi.closed_tokens(v)"
       },
       {
+        "messageKey": "charmedDeparture",
+        "predicate": "lambda v: MovementApi.charmed_departure(v)"
+      },
+      {
         "predicate": "lambda v: MovementApi.private_room(v)",
         "messageKey": "privateRoom"
+      },
+      {
+        "messageKey": "wrongGuild",
+        "predicate": "lambda v: MovementApi.wrong_guild(v)"
       },
       {
         "predicate": "lambda v: MovementApi.air_blocked(v)",
@@ -491,7 +511,9 @@
         "commandPositionSleeping": "In your dreams, or what?",
         "commandPositionResting": "Nah... You feel too relaxed...",
         "commandPositionSitting": "Better stand up first.",
-        "commandPositionFighting": "No way!  You are still fighting!"
+        "commandPositionFighting": "No way!  You are still fighting!",
+        "charmedDeparture": "What?  And leave your beloved master?",
+        "wrongGuild": "You aren't allowed in there."
       },
       "toRoom": {
         "default": "%c leaves north.",
@@ -538,8 +560,16 @@
         "tokenFactory": "lambda v: MovementApi.closed_tokens(v)"
       },
       {
+        "messageKey": "charmedDeparture",
+        "predicate": "lambda v: MovementApi.charmed_departure(v)"
+      },
+      {
         "predicate": "lambda v: MovementApi.private_room(v)",
         "messageKey": "privateRoom"
+      },
+      {
+        "messageKey": "wrongGuild",
+        "predicate": "lambda v: MovementApi.wrong_guild(v)"
       },
       {
         "predicate": "lambda v: MovementApi.air_blocked(v)",
@@ -592,7 +622,9 @@
         "commandPositionSleeping": "In your dreams, or what?",
         "commandPositionResting": "Nah... You feel too relaxed...",
         "commandPositionSitting": "Better stand up first.",
-        "commandPositionFighting": "No way!  You are still fighting!"
+        "commandPositionFighting": "No way!  You are still fighting!",
+        "charmedDeparture": "What?  And leave your beloved master?",
+        "wrongGuild": "You aren't allowed in there."
       },
       "toRoom": {
         "default": "%c leaves south.",
@@ -639,8 +671,16 @@
         "tokenFactory": "lambda v: MovementApi.closed_tokens(v)"
       },
       {
+        "messageKey": "charmedDeparture",
+        "predicate": "lambda v: MovementApi.charmed_departure(v)"
+      },
+      {
         "predicate": "lambda v: MovementApi.private_room(v)",
         "messageKey": "privateRoom"
+      },
+      {
+        "messageKey": "wrongGuild",
+        "predicate": "lambda v: MovementApi.wrong_guild(v)"
       },
       {
         "predicate": "lambda v: MovementApi.air_blocked(v)",
@@ -706,19 +746,19 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: CharacterApi.is_stunned(v.context.character)",
+        "predicate": "lambda v: CharacterApi.room_view_block_reason(v.context.character, v.context.room) == 'stunned'",
         "messageKey": "stunned"
       },
       {
-        "predicate": "lambda v: CharacterApi.is_sleeping(v.context.character)",
+        "predicate": "lambda v: CharacterApi.room_view_block_reason(v.context.character, v.context.room) == 'sleeping'",
         "messageKey": "sleeping"
       },
       {
-        "predicate": "lambda v: CharacterApi.is_blind(v.context.character)",
+        "predicate": "lambda v: CharacterApi.room_view_block_reason(v.context.character, v.context.room) == 'blind'",
         "messageKey": "blind"
       },
       {
-        "predicate": "lambda v: not CharacterApi.is_npc(char := v.context.character) and not CharacterApi.has_holy_light(char) and v.context.room.is_room_dark()",
+        "predicate": "lambda v: CharacterApi.room_view_block_reason(v.context.character, v.context.room) == 'dark'",
         "messageKey": "dark"
       },
       {
@@ -780,7 +820,9 @@
         "commandPositionSleeping": "In your dreams, or what?",
         "commandPositionResting": "Nah... You feel too relaxed...",
         "commandPositionSitting": "Better stand up first.",
-        "commandPositionFighting": "No way!  You are still fighting!"
+        "commandPositionFighting": "No way!  You are still fighting!",
+        "charmedDeparture": "What?  And leave your beloved master?",
+        "wrongGuild": "You aren't allowed in there."
       },
       "toRoom": {
         "default": "%c leaves up.",
@@ -827,8 +869,16 @@
         "tokenFactory": "lambda v: MovementApi.closed_tokens(v)"
       },
       {
+        "messageKey": "charmedDeparture",
+        "predicate": "lambda v: MovementApi.charmed_departure(v)"
+      },
+      {
         "predicate": "lambda v: MovementApi.private_room(v)",
         "messageKey": "privateRoom"
+      },
+      {
+        "messageKey": "wrongGuild",
+        "predicate": "lambda v: MovementApi.wrong_guild(v)"
       },
       {
         "predicate": "lambda v: MovementApi.air_blocked(v)",
@@ -881,7 +931,9 @@
         "commandPositionSleeping": "In your dreams, or what?",
         "commandPositionResting": "Nah... You feel too relaxed...",
         "commandPositionSitting": "Better stand up first.",
-        "commandPositionFighting": "No way!  You are still fighting!"
+        "commandPositionFighting": "No way!  You are still fighting!",
+        "charmedDeparture": "What?  And leave your beloved master?",
+        "wrongGuild": "You aren't allowed in there."
       },
       "toRoom": {
         "default": "%c leaves down.",
@@ -928,8 +980,16 @@
         "tokenFactory": "lambda v: MovementApi.closed_tokens(v)"
       },
       {
+        "messageKey": "charmedDeparture",
+        "predicate": "lambda v: MovementApi.charmed_departure(v)"
+      },
+      {
         "predicate": "lambda v: MovementApi.private_room(v)",
         "messageKey": "privateRoom"
+      },
+      {
+        "messageKey": "wrongGuild",
+        "predicate": "lambda v: MovementApi.wrong_guild(v)"
       },
       {
         "predicate": "lambda v: MovementApi.air_blocked(v)",
@@ -1264,11 +1324,11 @@
       },
       {
         "messageKey": "quantityExceedsAllowed",
-        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and int(getattr(getattr(v.context.character, 'character_attributes', None), 'max_items', 0) or 0) > 0 and (ItemApi.carried_count(v.context.character) + int(getattr(v.context, 'buy_quantity', 0) or 0) * Item.object_number(v.context.buy_item)) > int(getattr(v.context.character.character_attributes, 'max_items', 0) or 0)"
+        "predicate": "lambda v: not v.context.buy_is_pet_shop and (ItemApi.carried_count(v.context.character) + v.context.buy_quantity * Item.object_number(v.context.buy_item) > v.context.character.max_items())"
       },
       {
         "messageKey": "weightExceedsAllowed",
-        "predicate": "lambda v: (not getattr(v.context, 'buy_is_pet_shop', False)) and int(getattr(getattr(v.context.character, 'character_attributes', None), 'max_weight', 0) or 0) > 0 and (ItemApi.carried_weight(v.context.character, include_coins=False) + int(getattr(v.context, 'buy_quantity', 0) or 0) * Item.object_weight(v.context.buy_item)) > int(getattr(v.context.character.character_attributes, 'max_weight', 0) or 0)"
+        "predicate": "lambda v: not v.context.buy_is_pet_shop and (ItemApi.carried_weight(v.context.character, include_coins=False) + v.context.buy_quantity * Item.object_weight(v.context.buy_item) > v.context.character.max_weight())"
       }
     ]
   },
@@ -1914,7 +1974,15 @@
         "rest5": "You rest in $p.",
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
-        "commandPositionStunned": "You are too stunned to do that."
+        "commandPositionStunned": "You are too stunned to do that.",
+        "postureMissing": "You don't see that here.",
+        "postureInvalid": "You can't rest on that.",
+        "postureFull": "There's no more room on %t.",
+        "postureFighting": "You are already fighting!",
+        "postureAlready": "You are already resting.",
+        "postureAt": "You rest at %t.",
+        "postureOn": "You rest on %t.",
+        "postureIn": "You rest in %t."
       },
       "toRoom": {
         "wakesUpStartsResting": "$n wakes up and starts resting.",
@@ -1928,7 +1996,10 @@
         "rests2": "$n rests.",
         "restsAt": "$n rests at $p.",
         "rests3": "$n rests on $p.",
-        "rests4": "$n rests in $p."
+        "rests4": "$n rests in $p.",
+        "postureAt": "%c rests at %t.",
+        "postureOn": "%c rests on %t.",
+        "postureIn": "%c rests in %t."
       },
       "toVictim": {}
     }
@@ -1965,7 +2036,15 @@
         "sitDown2": "You sit down in $p.",
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
-        "commandPositionStunned": "You are too stunned to do that."
+        "commandPositionStunned": "You are too stunned to do that.",
+        "postureMissing": "You don't see that here.",
+        "postureInvalid": "You can't sit on that.",
+        "postureFull": "There's no more room on %t.",
+        "postureFighting": "You are already fighting!",
+        "postureAlready": "You are already sitting.",
+        "postureAt": "You sit at %t.",
+        "postureOn": "You sit on %t.",
+        "postureIn": "You sit in %t."
       },
       "toRoom": {
         "wakesSitsUp": "$n wakes and sits up.",
@@ -1977,7 +2056,10 @@
         "sitsDownGround": "$n sits down on the ground.",
         "sitsDownAt": "$n sits down at $p.",
         "sits2": "$n sits on $p.",
-        "sitsDown": "$n sits down in $p."
+        "sitsDown": "$n sits down in $p.",
+        "postureAt": "%c sits at %t.",
+        "postureOn": "%c sits on %t.",
+        "postureIn": "%c sits in %t."
       },
       "toVictim": {}
     }
@@ -2043,7 +2125,15 @@
         "stand2": "You stand in $p.",
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
-        "commandPositionStunned": "You are too stunned to do that."
+        "commandPositionStunned": "You are too stunned to do that.",
+        "postureMissing": "You don't see that here.",
+        "postureInvalid": "You can't stand on that.",
+        "postureFull": "There's no more room on %t.",
+        "postureFighting": "You are already fighting!",
+        "postureAlready": "You are already standing.",
+        "postureAt": "You stand at %t.",
+        "postureOn": "You stand on %t.",
+        "postureIn": "You stand in %t."
       },
       "toRoom": {
         "wakesStandsUp": "$n wakes and stands up.",
@@ -2053,7 +2143,10 @@
         "standsUp": "$n stands up.",
         "standsAt": "$n stands at $p.",
         "stands": "$n stands on $p.",
-        "stands2": "$n stands on $p."
+        "stands2": "$n stands on $p.",
+        "postureAt": "%c stands at %t.",
+        "postureOn": "%c stands on %t.",
+        "postureIn": "%c stands in %t."
       },
       "toVictim": {}
     }
@@ -2098,40 +2191,79 @@
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "lockArgument": "Unlock what?",
+        "lockMissing": "I see no door here.",
+        "lockContainer": "That's not a container.",
+        "lockInvalid": "You can't do that.",
+        "lockClosed": "It's already closed.",
+        "lockOpen": "It's already open.",
+        "lockLocked": "It's already locked.",
+        "lockNotClosed": "It's not closed.",
+        "lockNoKeyhole": "It can't be unlocked.",
+        "lockKey": "You lack the key.",
+        "lockUnlocked": "It's already unlocked.",
+        "lockFailed": "You failed.",
+        "lockGuard": "%t is standing too close to the lock.",
+        "lockSuccess": "You unlock %t."
       },
       "toRoom": {
         "unlocks": "$n unlocks $p.",
         "unlocks2": "$n unlocks $p.",
         "unlocks3": "$n unlocks the $d.",
-        "unlocksExit": "%c unlocks the %t."
+        "unlocksExit": "%c unlocks the %t.",
+        "lockSuccess": "%c unlocks %t."
       },
       "toVictim": {}
     },
     "guards": [
       {
-        "predicate": "lambda v: MovementApi.missing_argument(v)",
-        "messageKey": "noArgument"
+        "messageKey": "lockArgument",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'unlock') == 'lock_argument'"
       },
       {
-        "predicate": "lambda v: MovementApi.invalid_door(v)",
-        "messageKey": "missingDoor"
+        "messageKey": "lockMissing",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'unlock') == 'lock_missing'"
       },
       {
-        "predicate": "lambda v: MovementApi.door_not_closed(v)",
-        "messageKey": "itSNotClosed"
+        "messageKey": "lockContainer",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'unlock') == 'lock_container'"
       },
       {
-        "predicate": "lambda v: MovementApi.door_cannot_unlock(v)",
-        "messageKey": "itCanTUnlocked"
+        "messageKey": "lockInvalid",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'unlock') == 'lock_invalid'"
       },
       {
-        "predicate": "lambda v: MovementApi.door_missing_key(v)",
-        "messageKey": "missingKey"
+        "messageKey": "lockClosed",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'unlock') == 'lock_closed'"
       },
       {
-        "predicate": "lambda v: MovementApi.door_already_unlocked(v)",
-        "messageKey": "itSAlreadyUnlocked"
+        "messageKey": "lockOpen",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'unlock') == 'lock_open'"
+      },
+      {
+        "messageKey": "lockLocked",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'unlock') == 'lock_locked'"
+      },
+      {
+        "messageKey": "lockNotClosed",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'unlock') == 'lock_not_closed'"
+      },
+      {
+        "messageKey": "lockNoKeyhole",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'unlock') == 'lock_no_keyhole'"
+      },
+      {
+        "messageKey": "lockKey",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'unlock') == 'lock_key'"
+      },
+      {
+        "messageKey": "lockUnlocked",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'unlock') == 'lock_unlocked'"
+      },
+      {
+        "messageKey": "lockFailed",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'unlock') == 'lock_failed'"
       }
     ]
   },
@@ -2172,12 +2304,14 @@
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "zappedItem": "You are zapped by %t and drop it."
       },
       "toRoom": {
         "insufficientLevel": "%c tries to use %t, but is too inexperienced.",
         "removed": "%c stops using %t.",
-        "wield": "%c wields %t."
+        "wield": "%c wields %t.",
+        "zappedItem": "%c is zapped by %t and drops it."
       },
       "toVictim": {}
     },
@@ -5038,12 +5172,14 @@
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "zappedItem": "You are zapped by %t and drop it."
       },
       "toRoom": {
         "insufficientLevel": "%c tries to use %t, but is too inexperienced.",
         "removed": "%c stops using %t.",
-        "hold": "%c holds %t in their hand."
+        "hold": "%c holds %t in their hand.",
+        "zappedItem": "%c is zapped by %t and drops it."
       },
       "toVictim": {}
     },
@@ -5141,58 +5277,77 @@
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "lockArgument": "Lock what?",
+        "lockMissing": "I see no door here.",
+        "lockContainer": "That's not a container.",
+        "lockInvalid": "You can't do that.",
+        "lockClosed": "It's already closed.",
+        "lockOpen": "It's already open.",
+        "lockLocked": "It's already locked.",
+        "lockNotClosed": "It's not closed.",
+        "lockNoKeyhole": "It can't be locked.",
+        "lockKey": "You lack the key.",
+        "lockUnlocked": "It's already unlocked.",
+        "lockFailed": "You failed.",
+        "lockGuard": "%t is standing too close to the lock.",
+        "lockSuccess": "You lock %t."
       },
       "toRoom": {
         "containerLocked": "%c locks %t.",
-        "exitLocked": "%c locks the %t."
+        "exitLocked": "%c locks the %t.",
+        "lockSuccess": "%c locks %t."
       },
       "toVictim": {}
     },
     "guards": [
       {
-        "predicate": "lambda v: MovementApi.missing_argument(v)",
-        "messageKey": "noArgument"
+        "messageKey": "lockArgument",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'lock') == 'lock_argument'"
       },
       {
-        "predicate": "lambda v: MovementApi.has_target_item(v) and not MovementApi.is_container_target(v)",
-        "messageKey": "notContainer"
+        "messageKey": "lockMissing",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'lock') == 'lock_missing'"
       },
       {
-        "predicate": "lambda v: MovementApi.has_target_item(v) and MovementApi.container_not_closed(v)",
-        "messageKey": "openTarget"
+        "messageKey": "lockContainer",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'lock') == 'lock_container'"
       },
       {
-        "predicate": "lambda v: MovementApi.has_target_item(v) and MovementApi.container_cannot_lock(v)",
-        "messageKey": "noLock"
+        "messageKey": "lockInvalid",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'lock') == 'lock_invalid'"
       },
       {
-        "predicate": "lambda v: MovementApi.has_target_item(v) and MovementApi.container_missing_key(v)",
-        "messageKey": "noKey"
+        "messageKey": "lockClosed",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'lock') == 'lock_closed'"
       },
       {
-        "predicate": "lambda v: MovementApi.has_target_item(v) and MovementApi.container_already_locked(v)",
-        "messageKey": "locked"
+        "messageKey": "lockOpen",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'lock') == 'lock_open'"
       },
       {
-        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.invalid_door(v)",
-        "messageKey": "missingDoor"
+        "messageKey": "lockLocked",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'lock') == 'lock_locked'"
       },
       {
-        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.door_not_closed(v)",
-        "messageKey": "openTarget"
+        "messageKey": "lockNotClosed",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'lock') == 'lock_not_closed'"
       },
       {
-        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.door_cannot_lock(v)",
-        "messageKey": "noLock"
+        "messageKey": "lockNoKeyhole",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'lock') == 'lock_no_keyhole'"
       },
       {
-        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.door_missing_key(v)",
-        "messageKey": "noKey"
+        "messageKey": "lockKey",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'lock') == 'lock_key'"
       },
       {
-        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.door_already_locked(v)",
-        "messageKey": "locked"
+        "messageKey": "lockUnlocked",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'lock') == 'lock_unlocked'"
+      },
+      {
+        "messageKey": "lockFailed",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'lock') == 'lock_failed'"
       }
     ]
   },
@@ -5225,31 +5380,78 @@
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "lockArgument": "Open what?",
+        "lockMissing": "I see no door here.",
+        "lockContainer": "That's not a container.",
+        "lockInvalid": "You can't do that.",
+        "lockClosed": "It's already closed.",
+        "lockOpen": "It's already open.",
+        "lockLocked": "It's locked.",
+        "lockNotClosed": "It's not closed.",
+        "lockNoKeyhole": "It can't be unlocked.",
+        "lockKey": "You lack the key.",
+        "lockUnlocked": "It's already unlocked.",
+        "lockFailed": "You failed.",
+        "lockGuard": "%t is standing too close to the lock.",
+        "lockSuccess": "You open %t."
       },
       "toRoom": {
         "openPortal": "%c opens %t.",
         "openContainer": "%c opens %t.",
-        "openDoor": "%c opens the %t."
+        "openDoor": "%c opens the %t.",
+        "lockSuccess": "%c opens %t."
       },
       "toVictim": {}
     },
     "guards": [
       {
-        "predicate": "lambda v: MovementApi.missing_argument(v)",
-        "messageKey": "noArgument"
+        "messageKey": "lockArgument",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'open') == 'lock_argument'"
       },
       {
-        "predicate": "lambda v: MovementApi.invalid_door(v)",
-        "messageKey": "missingDoor"
+        "messageKey": "lockMissing",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'open') == 'lock_missing'"
       },
       {
-        "predicate": "lambda v: MovementApi.door_already_open(v)",
-        "messageKey": "open"
+        "messageKey": "lockContainer",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'open') == 'lock_container'"
       },
       {
-        "predicate": "lambda v: MovementApi.door_locked(v)",
-        "messageKey": "locked"
+        "messageKey": "lockInvalid",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'open') == 'lock_invalid'"
+      },
+      {
+        "messageKey": "lockClosed",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'open') == 'lock_closed'"
+      },
+      {
+        "messageKey": "lockOpen",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'open') == 'lock_open'"
+      },
+      {
+        "messageKey": "lockLocked",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'open') == 'lock_locked'"
+      },
+      {
+        "messageKey": "lockNotClosed",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'open') == 'lock_not_closed'"
+      },
+      {
+        "messageKey": "lockNoKeyhole",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'open') == 'lock_no_keyhole'"
+      },
+      {
+        "messageKey": "lockKey",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'open') == 'lock_key'"
+      },
+      {
+        "messageKey": "lockUnlocked",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'open') == 'lock_unlocked'"
+      },
+      {
+        "messageKey": "lockFailed",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'open') == 'lock_failed'"
       }
     ]
   },
@@ -5282,12 +5484,27 @@
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "lockArgument": "Close what?",
+        "lockMissing": "I see no door here.",
+        "lockContainer": "That's not a container.",
+        "lockInvalid": "You can't do that.",
+        "lockClosed": "It's already closed.",
+        "lockOpen": "It's already open.",
+        "lockLocked": "It's already locked.",
+        "lockNotClosed": "It's not closed.",
+        "lockNoKeyhole": "It can't be unlocked.",
+        "lockKey": "You lack the key.",
+        "lockUnlocked": "It's already unlocked.",
+        "lockFailed": "You failed.",
+        "lockGuard": "%t is standing too close to the lock.",
+        "lockSuccess": "You close %t."
       },
       "toRoom": {
         "closeContainer": "%c closes %t.",
         "closePortal": "%c closes %t.",
-        "closeDoor": "%c closes the %t."
+        "closeDoor": "%c closes the %t.",
+        "lockSuccess": "%c closes %t."
       },
       "toDestination": {
         "closes": "The %t closes."
@@ -5296,36 +5513,52 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: MovementApi.missing_argument(v)",
-        "messageKey": "noArgument"
+        "messageKey": "lockArgument",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'close') == 'lock_argument'"
       },
       {
-        "predicate": "lambda v: MovementApi.has_target_item(v) and not MovementApi.is_container_target(v)",
-        "messageKey": "notContainer"
+        "messageKey": "lockMissing",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'close') == 'lock_missing'"
       },
       {
-        "predicate": "lambda v: MovementApi.has_target_item(v) and MovementApi.container_not_closeable(v)",
-        "messageKey": "invalidTarget"
+        "messageKey": "lockContainer",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'close') == 'lock_container'"
       },
       {
-        "predicate": "lambda v: MovementApi.has_target_item(v) and MovementApi.container_already_closed(v)",
-        "messageKey": "closed"
+        "messageKey": "lockInvalid",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'close') == 'lock_invalid'"
       },
       {
-        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.is_portal(v) and MovementApi.invalid_portal(v)",
-        "messageKey": "invalidTarget"
+        "messageKey": "lockClosed",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'close') == 'lock_closed'"
       },
       {
-        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.is_portal(v) and MovementApi.portal_already_closed(v)",
-        "messageKey": "closed"
+        "messageKey": "lockOpen",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'close') == 'lock_open'"
       },
       {
-        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.invalid_door(v)",
-        "messageKey": "missingDoor"
+        "messageKey": "lockLocked",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'close') == 'lock_locked'"
       },
       {
-        "predicate": "lambda v: (not MovementApi.has_target_item(v)) and MovementApi.door_already_closed(v)",
-        "messageKey": "closed"
+        "messageKey": "lockNotClosed",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'close') == 'lock_not_closed'"
+      },
+      {
+        "messageKey": "lockNoKeyhole",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'close') == 'lock_no_keyhole'"
+      },
+      {
+        "messageKey": "lockKey",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'close') == 'lock_key'"
+      },
+      {
+        "messageKey": "lockUnlocked",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'close') == 'lock_unlocked'"
+      },
+      {
+        "messageKey": "lockFailed",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'close') == 'lock_failed'"
       }
     ]
   },
@@ -5360,34 +5593,77 @@
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "lockArgument": "Pick what?",
+        "lockMissing": "I see no door here.",
+        "lockContainer": "That's not a container.",
+        "lockInvalid": "You can't do that.",
+        "lockClosed": "It's already closed.",
+        "lockOpen": "It's already open.",
+        "lockLocked": "It's already locked.",
+        "lockNotClosed": "It's not closed.",
+        "lockNoKeyhole": "It can't be unlocked.",
+        "lockKey": "You lack the key.",
+        "lockUnlocked": "It's already unlocked.",
+        "lockFailed": "You failed.",
+        "lockGuard": "%t is standing too close to the lock.",
+        "lockSuccess": "You pick the lock on %t."
       },
       "toRoom": {
         "containerPicked": "%c picks the lock on %t.",
-        "doorPicked": "%c picks the %t"
+        "doorPicked": "%c picks the %t",
+        "lockSuccess": "%c picks the lock on %t."
       },
       "toVictim": {}
     },
     "guards": [
       {
-        "predicate": "lambda v: MovementApi.missing_argument(v)",
-        "messageKey": "noArgument"
+        "messageKey": "lockArgument",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'pick') == 'lock_argument'"
       },
       {
-        "predicate": "lambda v: MovementApi.invalid_door(v)",
-        "messageKey": "missingDoor"
+        "messageKey": "lockMissing",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'pick') == 'lock_missing'"
       },
       {
-        "predicate": "lambda v: MovementApi.door_not_closed(v)",
-        "messageKey": "open"
+        "messageKey": "lockContainer",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'pick') == 'lock_container'"
       },
       {
-        "predicate": "lambda v: MovementApi.door_already_unlocked(v)",
-        "messageKey": "notLocked"
+        "messageKey": "lockInvalid",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'pick') == 'lock_invalid'"
       },
       {
-        "predicate": "lambda v: MovementApi.door_pickproof(v)",
-        "messageKey": "failed"
+        "messageKey": "lockClosed",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'pick') == 'lock_closed'"
+      },
+      {
+        "messageKey": "lockOpen",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'pick') == 'lock_open'"
+      },
+      {
+        "messageKey": "lockLocked",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'pick') == 'lock_locked'"
+      },
+      {
+        "messageKey": "lockNotClosed",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'pick') == 'lock_not_closed'"
+      },
+      {
+        "messageKey": "lockNoKeyhole",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'pick') == 'lock_no_keyhole'"
+      },
+      {
+        "messageKey": "lockKey",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'pick') == 'lock_key'"
+      },
+      {
+        "messageKey": "lockUnlocked",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'pick') == 'lock_unlocked'"
+      },
+      {
+        "messageKey": "lockFailed",
+        "predicate": "lambda v: MovementApi.lock_error(v, 'pick') == 'lock_failed'"
       }
     ]
   },
@@ -6123,7 +6399,8 @@
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
         "commandPositionStunned": "You are too stunned to do that.",
-        "commandPositionSleeping": "In your dreams, or what?"
+        "commandPositionSleeping": "In your dreams, or what?",
+        "zappedItem": "You are zapped by %t and drop it."
       },
       "toRoom": {
         "insufficientLevel": "%c tries to use %t, but is too inexperienced.",
@@ -6144,7 +6421,8 @@
         "shield": "%c wears %t as a shield.",
         "wield": "%c wields %t.",
         "hold": "%c holds %t in their hand.",
-        "float": "%c releases %t to float next to them."
+        "float": "%c releases %t to float next to them.",
+        "zappedItem": "%c is zapped by %t and drops it."
       },
       "toVictim": {}
     },
@@ -7192,13 +7470,24 @@
         "in": "You go to sleep in %t.",
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
-        "commandPositionStunned": "You are too stunned to do that."
+        "commandPositionStunned": "You are too stunned to do that.",
+        "postureMissing": "You don't see that here.",
+        "postureInvalid": "You can't sleep on that.",
+        "postureFull": "There's no more room on %t.",
+        "postureFighting": "You are already fighting!",
+        "postureAlready": "You are already sleeping.",
+        "postureAt": "You sleep at %t.",
+        "postureOn": "You sleep on %t.",
+        "postureIn": "You sleep in %t."
       },
       "toRoom": {
         "default": "%c goes to sleep.",
         "at": "%c goes to sleep at %t.",
         "on": "%c goes to sleep on %t.",
-        "in": "%c goes to sleep in %t."
+        "in": "%c goes to sleep in %t.",
+        "postureAt": "%c sleeps at %t.",
+        "postureOn": "%c sleeps on %t.",
+        "postureIn": "%c sleeps in %t."
       },
       "toVictim": {}
     }

@@ -157,7 +157,7 @@ class Info:
         if look_mode == "room":
             await context.room_handler().print_room(character.id, room)
             if CharacterApi.is_set(character.status_flags.act, self.PlayerActBits.PLR_AUTOEXIT.value):
-                await context.room_handler().print_exits(character, room)
+                await context.room_handler().print_exits(character)
             context.jump_to(1)  # players + mobiles
             return None
 
@@ -261,8 +261,8 @@ class Info:
         item_weight = sum(GenericUtil.to_int(getattr(item, "weight", 0), 0) for item in inventory)
         coin_weight = int((GenericUtil.to_int(character.silver, 0) / 10) + (GenericUtil.to_int(character.gold, 0) * 2 / 5))
         carry_weight = item_weight + coin_weight
-        max_items = GenericUtil.to_int(getattr(attributes, "max_items", 0), 0)
-        max_weight = GenericUtil.to_int(getattr(attributes, "max_weight", 0), 0)
+        max_items = character.max_items()
+        max_weight = character.max_weight()
 
         lines = [
             f"You are {character.name} {character.title}, level {character.level}, {age_years} years old ({total_hours} hours).",

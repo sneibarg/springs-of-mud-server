@@ -10,7 +10,8 @@ from unittest.mock import AsyncMock, Mock, patch
 from tests import test_object_consumption_parity as consumption
 
 h = consumption.h
-Movement = h._load_module("theft_movement", "interp/commands/Movement.py").Movement
+with patch.dict(sys.modules, {"api.SkillApi": NS(SkillApi=object)}):
+    Movement = h._load_module("theft_movement", "interp/commands/Movement.py").Movement
 with patch.dict(sys.modules, {name: NS(**{attr: object}) for name, attr in (
         ("api.AliasApi", "AliasApi"), ("api.CommunicationsApi", "CommunicationsApi"),
         ("player.CharacterService", "CharacterService"), ("server.session.SessionHandler", "SessionHandler"))}):
@@ -45,6 +46,8 @@ class TestObjectTheftParity(unittest.TestCase):
         self.swap(sys.modules[h.InterpApi.__module__], "CommunicationsUtil", new=CommunicationsUtil)
         self.swap(CommunicationsModule, "CommunicationsUtil", new=CommunicationsUtil)
         self.movement = Movement.__new__(Movement)
+        self.swap(Movement.do_stand.__globals__['MovementApi'], 'argument_text',
+                  new=lambda context: str(getattr(context, 'result', '') or ''), create=True)
         self.movement.affected_bits = self.enums["affectedBy"]
         self.communications = Communications.__new__(Communications)
         self.communications.interp_api = self.commands.interp_api

@@ -828,8 +828,14 @@ class MobileApi(GameApi):
     def move_mobile(room, to_room, mob) -> bool:
         if room is None or to_room is None or mob is None:
             return False
-        room.mobiles.pop(str(mob.id))
-        to_room.mobiles[str(mob.id)] = mob
+        if callable(getattr(room, 'remove_mobile_from_room', None)):
+            room.remove_mobile_from_room(mob)
+        else:
+            room.mobiles.pop(str(mob.id))
+        if callable(getattr(to_room, 'add_mobile_to_room', None)):
+            to_room.add_mobile_to_room(mob)
+        else:
+            to_room.mobiles[str(mob.id)] = mob
         mob.room_id = to_room.id
         mob.area_id = to_room.area_id
         return True

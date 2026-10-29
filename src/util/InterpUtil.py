@@ -10,6 +10,15 @@ class InterpUtil:
     pass
 
     @staticmethod
+    def begin_input(character, text) -> bool:
+        """Apply interpretation side effects before lookup or authorization."""
+        if text is None or not str(text).strip():
+            return False
+        from api.CharacterApi import CharacterApi
+        CharacterApi.set_affected_by_name(character, CharacterApi.get_enum('affectedBy'), 'AFF_HIDE', False)
+        return True
+
+    @staticmethod
     def find_nth_by_keyword(dictionary: dict, argument: str, default=None):
         n, keyword = InterpUtil.number_argument(argument)
         for item in dictionary.values():

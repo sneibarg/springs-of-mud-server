@@ -1,8 +1,8 @@
 def dexterity_defense(character, bonus_lookup):
     from util.GenericUtil import GenericUtil
 
-    attrs = getattr(character, "character_attributes", None)
-    dexterity = getattr(attrs, "dexterity", 0)
+    from api.CharacterApi import CharacterApi
+    dexterity = CharacterApi.current_stat(character, 'dexterity')
     return GenericUtil.to_int(bonus_lookup("dexterity", str(dexterity)).get("defensive", 0), 0)
 
 
@@ -18,4 +18,5 @@ def legacy_armor_class(armor, character, category):
         base = armor.base_value(key if key in ("pierce", "bash", "slash") else "exotic")
     else:
         base = 0
-    return int(base) + dexterity_defense(character, CharacterApi.get_attribute_bonus)
+    from game.Equipped import Equipped
+    return int(base) - Equipped.armor_contribution(character, category) + dexterity_defense(character, CharacterApi.get_attribute_bonus)

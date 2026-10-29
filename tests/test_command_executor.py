@@ -22,7 +22,8 @@ class CommandExecutorTests(unittest.IsolatedAsyncioTestCase):
         parameters = IntEnum('Parameters', {'MAX_LEVEL': 60, 'LEVEL_IMMORTAL': 55})
         positions = IntEnum('Positions', {'POS_STANDING': 8})
         self.enterContext(patch.object(CharacterApi, 'get_enum', side_effect=lambda name: {
-            'gameParameters': parameters, 'positions': positions}[name]))
+            'gameParameters': parameters, 'positions': positions,
+            'affectedBy': IntEnum('Affects', {'AFF_HIDE': 1})}[name]))
         self.enterContext(patch.object(CharacterApi, 'get_trust', side_effect=lambda actor: actor.level))
         self.enterContext(patch.object(CharacterApi, 'position_value', side_effect=lambda actor: actor.position))
         self.connection = object()

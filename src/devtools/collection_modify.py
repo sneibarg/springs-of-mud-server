@@ -282,6 +282,40 @@ def command_add_section(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_add_document(args: argparse.Namespace) -> int:
+    collections = load_collections(args.collections_dir, [args.collection])
+    collection = next(iter(collections.values()))
+    if args.value_file is not None:
+        value = json.loads(args.value_file.read_text(encoding="utf-8-sig"))
+    else:
+        value = json.loads(args.value)
+    if not isinstance(value, dict) or not value:
+        raise ValueError("add-document value must be a non-empty JSON object.")
+
+    # Names and handler IDs may be shared (for example, by mobiles and skills).
+    fields = list(dict.fromkeys(["_id", "id", "vnum", *(args.lookup_field or [])]))
+    identifiers = []
+    for field in fields:
+        exists, identifier = read_path(value, field)
+        if not exists:
+            continue
+        if field == "_id" and isinstance(identifier, dict):
+            identifier = identifier.get("$oid")
+        if isinstance(identifier, bool) or not isinstance(identifier, (str, int)) or identifier == "":
+            raise ValueError(f"Identifier {field!r} must be a non-empty string or integer.")
+        identifiers.append((field, identifier))
+    if not identifiers:
+        raise ValueError("Document requires _id, id, or vnum; use --lookup-field for another unique field.")
+    for field, identifier in identifiers:
+        if find_one(collection, str(identifier), [field]) is not None:
+            raise ValueError(f"Document with {field}={identifier!r} already exists in {collection.name!r}.")
+
+    collection.documents.append(value)
+    print(f"{collection.name} added document: {format_value(value)}")
+    maybe_write(args, collection)
+    return 0
+
+
 def command_rename_section(args: argparse.Namespace) -> int:
     collection, document = load_one(args.collections_dir, args.collection, args.key, args.lookup_field)
     exists, parent = read_path(document, args.parent_path)
@@ -325,6 +359,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
+    document_parser = subparsers.add_parser("add-document", help="Append a new JSON object to an existing collection.")
+    document_parser.add_argument("collection", help="Collection name, e.g. skills or SOMDB.Skills.json.")
+    source = document_parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--value", help="Complete new document as a JSON object.")
+    source.add_argument("--value-file", type=Path, help="UTF-8 JSON file containing the complete new document.")
+    document_parser.add_argument("--lookup-field", action="append", help="Additional unique identifier path to check. Repeat for multiple fields.")
+    document_parser.add_argument("--write", action="store_true", help="Rewrite the collection file. Defaults to dry run.")
+    document_parser.set_defaults(func=command_add_document)
+
     set_parser = subparsers.add_parser("set", help="Set an existing field, or create one with --add-section.")
     add_common_arguments(set_parser)
     set_parser.add_argument("path", help="Field path, e.g. payload.toChar.msgOff.")
@@ -356,7 +399,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         return args.func(args)
-    except (json.JSONDecodeError, ValueError) as exc:
+    except (OSError, ValueError) as exc:
         raise SystemExit(str(exc)) from exc
 
 

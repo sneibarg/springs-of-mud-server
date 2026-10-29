@@ -185,18 +185,7 @@ class CharacterAdvancement:
 
     @staticmethod
     def _stat(character, field_name: str) -> int:
-        attrs = character.character_attributes
-        if attrs is None:
-            return 0
-        if field_name == "constitution":
-            return GenericUtil.to_int(attrs.constitution, 0)
-        if field_name == "intelligence":
-            return GenericUtil.to_int(attrs.intelligence, 0)
-        if field_name == "wisdom":
-            return GenericUtil.to_int(attrs.wisdom, 0)
-        if field_name == "dexterity":
-            return GenericUtil.to_int(attrs.dexterity, 0)
-        return 0
+        return CharacterApi.current_stat(character, field_name)
 
     @staticmethod
     def _attribute_bonus(table_name: str, stat_value: int, key: str, default: int = 0) -> int:

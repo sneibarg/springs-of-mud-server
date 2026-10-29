@@ -181,6 +181,10 @@ class AffectedBy(IntEnum):
 
 
 class TestUpdateHandlerActivePlayers(unittest.TestCase):
+    def setUp(self):
+        from api.CharacterApi import CharacterApi
+        self.enterContext(patch.object(CharacterApi, 'GameParameters', IntEnum('GameParameters', {'LEVEL_IMMORTAL': 52})))
+
     def test_update_handlers_resolve_shared_dependencies_through_injector(self):
         from injector import Injector, singleton
 

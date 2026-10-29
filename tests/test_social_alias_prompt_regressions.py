@@ -52,6 +52,8 @@ class AliasPromptRegressions(unittest.TestCase):
 
 class SocialInterpreterRegressions(unittest.IsolatedAsyncioTestCase):
     def setup_interpreter(self):
+        from enum import IntEnum
+        self.enterContext(patch.object(CharacterApi, 'get_enum', return_value=IntEnum('Affects', {'AFF_HIDE': 1})))
         self.actor = Character.from_json(build_character_data('actor-id'))
         self.target = Character.from_json(build_character_data('target-id'))
         self.target.name = 'Tester'

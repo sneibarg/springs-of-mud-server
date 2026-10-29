@@ -224,7 +224,11 @@ class TestCombatSurvival(unittest.TestCase):
         commands.room_registry = self.registry.room_registry
         commands.interp_api = SimpleNamespace(evaluate_guards_only=Mock(return_value=None))
         commands._flee_destination = Mock(return_value=destination)
-        commands._movement_cost = Mock(return_value=2)
+        module = Components["interp.commands.Fight"]
+        self.enterContext(patch.object(module, 'MovementUtil', SimpleNamespace(DIR_NAME=['north', 'east', 'south', 'west', 'up', 'down'])))
+        self.enterContext(patch.object(module.MovementApi, 'move_state', return_value=SimpleNamespace(move_cost=2), create=True))
+        self.enterContext(patch.object(module.MovementApi, 'pay_movement',
+                                      side_effect=lambda character, state: setattr(character, 'movement', character.movement - state.move_cost), create=True))
         def stop(character, both):
             self.assertTrue(both)
             character.fighting = None
@@ -250,9 +254,16 @@ class TestCombatSurvival(unittest.TestCase):
         commands = Components["interp.commands.Movement"].Movement.__new__(Components["interp.commands.Movement"].Movement)
         commands.room_registry = SimpleNamespace(get_or_none=Mock(return_value=temple))
         commands.room_flags = SimpleNamespace(ROOM_NO_RECALL=SimpleNamespace(value=1))
+        commands.affected_bits = fixtures._AffectBits
+        commands.skill_registry = SimpleNamespace(get=lambda **kw: SimpleNamespace(name='recall'))
+        commands.skill_api = SimpleNamespace(get_rating=lambda *args: 0)
+        self.victim.fighting = self.attacker
         commands.fight_handler = SimpleNamespace(stop_fighting=Mock(), aggressive_entry_rounds=Mock(return_value=[]))
         handler.movement_commands = commands
-        result = handler.after_damage(self.attacker, self.victim, 1)
+        with patch.object(Runtime.CharacterApi, 'get_enum', return_value=SimpleNamespace(ROOM_VNUM_TEMPLE=SimpleNamespace(value=3001))), \
+                patch.object(Runtime.CharacterApi, 'is_affected_by_name', return_value=False, create=True), \
+                patch.dict(sys.modules, {'skill.Ability': SimpleNamespace(Ability=SimpleNamespace(check_improve_by_name=Mock()))}):
+            result = handler.after_damage(self.attacker, self.victim, 1)
         self.assertEqual(("temple", "temple-area"), (self.victim.room_id, self.victim.area_id))
         commands.fight_handler.stop_fighting.assert_called_once_with(self.victim, both=True)
         self.assertEqual("recall", result[0]["context"].command.name)

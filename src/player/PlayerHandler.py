@@ -157,6 +157,9 @@ class PlayerHandler:
         payload = await self.info_commands.do_look(character, context)
         if payload is not None:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
+            if payload.get("blocked_key") == "dark":
+                await self.print_players_in_room(character)
+                await context.mobile_handler().print_mobiles_in_room(character)
 
     def _classify_look(self, character: Character, context: Context) -> None:
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
@@ -611,6 +614,8 @@ class PlayerHandler:
                 self._restore_at_character(character, payload.get("at_original_room"), payload.get("at_on"))
 
     async def _interpret_nested_command(self, character: Character, context: Context, raw_command: str):
+        if not InterpUtil.begin_input(character, raw_command):
+            return
         cmd, parameters = InterpUtil.extract_parameters(self.interp_registry, raw_command)
         if cmd is None:
             denial = CommandAccess.check_actor(character)
@@ -1033,6 +1038,12 @@ class PlayerHandler:
         if viewer is None:
             return
         await context.room_handler().print_room(viewer.id, room)
+        blocked = CharacterApi.room_view_block_reason(viewer, room)
+        if blocked:
+            if blocked == "dark":
+                await self.print_players_in_room(viewer)
+                await context.mobile_handler().print_mobiles_in_room(viewer)
+            return
         autoexit_bit = None
         if self.info_commands.PlayerActBits is not None:
             autoexit_bit = self.info_commands.PlayerActBits.PLR_AUTOEXIT.value

@@ -10,6 +10,7 @@ from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
 from server.messaging import MessageBus
 from server.session.SessionHandler import SessionHandler
+from interp.CommandDefaults import bundled_payload, render_command_message
 
 
 class RoomHandler:
@@ -28,8 +29,9 @@ class RoomHandler:
         player_handler = context.player_handler()
         mobile_handler = context.mobile_handler()
 
-        await player_handler.print_players_in_room(context.character)
-        await mobile_handler.print_mobiles_in_room(context.character)
+        if CharacterApi.room_view_block_reason(context.character, context.room) in ("", "dark"):
+            await player_handler.print_players_in_room(context.character)
+            await mobile_handler.print_mobiles_in_room(context.character)
 
         context.finish()
 
@@ -75,6 +77,15 @@ class RoomHandler:
             self.logger.error(f"Attempted to print room to character {character_id} but room is None")
             return
         character: Character = self.character_registry.get(id=character_id)
+        if character is None:
+            return False
+        blocked = CharacterApi.room_view_block_reason(character, room)
+        if blocked:
+            command = self.registry_service.interp_registry.get_or_none(name="look")
+            text = (render_command_message(command, "to_char", blocked) if command is not None
+                    else bundled_payload("look").render("to_char", blocked))
+            await self.message_bus.send_to_character(character_id, self.message_bus.text_to_message(text))
+            return False
         show_description = True
         if character is not None:
             comm_flags = CharacterApi.get_enum("commFlags")
@@ -86,9 +97,10 @@ class RoomHandler:
             await self.message_bus.send_to_character(character_id, message)
         else:
             await self.message_bus.send_to_character(character_id, self.message_bus.text_to_message(f"[{room.name}]\r\n"))
-        lines = Room.item_description_lines(room)
+        lines = Room.item_description_lines(room, character)
         if lines:
             await self.message_bus.send_to_character(character_id, self.message_bus.text_to_message("\r\n".join(lines) + "\r\n"))
+        return True
 
     async def look_direction(self, character: Character, context: Context):
         arg1 = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip()

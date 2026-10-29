@@ -81,23 +81,28 @@ class MobileFactory:
         mob.character_attributes.strength += size_bonus
         mob.character_attributes.constitution += size_bonus // 2
 
-    #  aff_type needs to be replaced with the result of skill_lookup("haste") etc.
     @staticmethod
     def _apply_affected_by(mob: Mobile, enum_provider: EnumProvider):
+        from item.EffectHandler import EffectHandler
+
         affect_bits = enum_provider.get('affectedBy')
         apply_types = enum_provider.get('applyTypes')
-        if CharacterApi.is_affected(mob, affect_bits.AFF_SANCTUARY):
-            sanctuary = MobileFactory._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, 0, apply_types.APPLY_NONE.value, affect_bits.AFF_SANCTUARY.value)
-        if CharacterApi.is_affected(mob, affect_bits.AFF_HASTE):
-            modifier = 1 + (mob.level >= 18) + (mob.level >= 25) + (mob.level >= 32)
-            haste = MobileFactory._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, modifier, apply_types.APPLY_DEX.value, affect_bits.AFF_HASTE.value)
-        if CharacterApi.is_affected(mob, affect_bits.AFF_PROTECT_EVIL):
-            protect_evil = MobileFactory._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, -1, apply_types.APPLY_SAVES.value, affect_bits.AFF_PROTECT_EVIL.value)
-        if CharacterApi.is_affected(mob, affect_bits.AFF_PROTECT_GOOD):
-            protect_good = MobileFactory._build_affect_data(mob.level, 0, AffectWhere.TO_AFFECTS.value, -1, -1, apply_types.APPLY_SAVES.value, affect_bits.AFF_PROTECT_GOOD.value)
+        handler = EffectHandler(enum_provider)
+        haste_modifier = 1 + (mob.level >= 18) + (mob.level >= 25) + (mob.level >= 32)
+        for flag, spell, location, modifier in (
+                ('AFF_SANCTUARY', 'spell.sanctuary', 'APPLY_NONE', 0),
+                ('AFF_HASTE', 'spell.haste', 'APPLY_DEX', haste_modifier),
+                ('AFF_PROTECT_EVIL', 'spell.protection_evil', 'APPLY_SAVES', -1),
+                ('AFF_PROTECT_GOOD', 'spell.protection_good', 'APPLY_SAVES', -1)):
+            bit = affect_bits[flag]
+            if CharacterApi.is_affected(mob, bit):
+                effect = MobileFactory._build_affect_data(
+                    mob.level, spell, AffectWhere.TO_AFFECTS.value, -1,
+                    modifier, apply_types[location].value, bit.value)
+                handler.affect_to_char(mob, effect)
 
     @staticmethod
-    def _build_affect_data(level: int, aff_type: int, where: int, duration: int, modifier: int, location: int, bitvector: int) -> Effect:
+    def _build_affect_data(level: int, aff_type: str, where: int, duration: int, modifier: int, location: int, bitvector: int) -> Effect:
         return Effect(valid=True, level=level, where=where, type=aff_type, duration=duration, modifier=modifier, location=location, bitvector=bitvector)
 
     @staticmethod

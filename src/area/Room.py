@@ -141,13 +141,21 @@ class Room:
 
     def add_player_to_room(self, character: Character):
         with self.lock:
+            from game.Equipped import Equipped
+            if character.id not in self.characters:
+                self.adjust_light(Equipped.light_contribution(character))
             if character.id not in self.characters and self.area is not None:
                 self.area.player_entered()
             self.characters[character.id] = character
+            character._equipment_room = self
 
     def remove_player_from_room(self, character: Character):
         with self.lock:
             if character.id in self.characters:
+                from game.Equipped import Equipped
+                self.adjust_light(-Equipped.light_contribution(character))
+                character._equipment_room = None
+                character.on = None
                 del self.characters[character.id]
                 if self.area is not None:
                     self.area.player_left()
@@ -166,11 +174,19 @@ class Room:
 
     def add_mobile_to_room(self, mobile: Mobile):
         with self.lock:
+            from game.Equipped import Equipped
+            if mobile.id not in self.mobiles:
+                self.adjust_light(Equipped.light_contribution(mobile))
             self.mobiles[mobile.id] = mobile
+            mobile._equipment_room = self
 
     def remove_mobile_from_room(self, mobile: Mobile):
         with self.lock:
             if mobile.id in self.mobiles:
+                from game.Equipped import Equipped
+                self.adjust_light(-Equipped.light_contribution(mobile))
+                mobile._equipment_room = None
+                mobile.on = None
                 del self.mobiles[mobile.id]
 
     def add_item_to_room(self, item: Item):
@@ -180,6 +196,9 @@ class Room:
     def remove_item_from_room(self, item: Item):
         with self.lock:
             if item.id in self.contents:
+                for person in list(self.characters.values()) + list(self.mobiles.values()):
+                    if getattr(person, "on", None) is item:
+                        person.on = None
                 del self.contents[item.id]
 
     def players_in_room(self) -> List[Character]:
@@ -279,7 +298,11 @@ class Room:
         if self.sector_type == SectorTypes.SECT_INSIDE.value or self.sector_type == SectorTypes.SECT_CITY.value:
             return False
 
-        return False
+        weather = CharacterApi._weather()
+        if weather is None:
+            return False
+        time_and_weather = CharacterApi.get_enum("timeAndWeather")
+        return weather.weather_info.sunlight in (time_and_weather.SUN_SET, time_and_weather.SUN_DARK)
 
     def format_room_description(self) -> str:
         body = str(self.description or "").strip()
@@ -292,12 +315,16 @@ class Room:
                 continue
             if char_in_room.cloaked:
                 continue
+            if not CharacterApi.can_see(character, char_in_room, self):
+                continue
             text += PlayerUtil.format_visible_character_line(character, char_in_room)
         return text
 
     def get_mobiles_in_room(self, character: Character) -> str:
         text = ""
         for char_in_room in self.mobiles_in_room():
+            if not CharacterApi.can_see(character, char_in_room, self):
+                continue
             text += PlayerUtil.format_visible_character_line(character, char_in_room)
         return text
 
@@ -308,9 +335,12 @@ class Room:
         return False
 
     @staticmethod
-    def item_description_lines(room) -> list:
+    def item_description_lines(room, observer) -> list:
+        from api.ItemApi import ItemApi
         lines = []
         for item in room.contents.values():
+            if not ItemApi.can_see_object(room, observer, item):
+                continue
             raw_long = item.long_description or ""
             line = raw_long.rstrip("\r\n")
             if not raw_long.strip():

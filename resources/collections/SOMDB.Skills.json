@@ -1470,6 +1470,11 @@
         "msgOff": "!Hide!",
         "msgObj": ""
       }
+    },
+    "activation": {
+      "clearFlag": "AFF_HIDE",
+      "successFlag": "AFF_HIDE",
+      "improveMultiplier": 3
     }
   },
   {
@@ -1630,6 +1635,23 @@
         "msgOff": "You no longer feel stealthy.",
         "msgObj": ""
       }
+    },
+    "activation": {
+      "stripType": "skill.sneak",
+      "skipIfFlag": "AFF_SNEAK",
+      "improveMultiplier": 3,
+      "affects": [
+        {
+          "where": "TO_AFFECTS",
+          "type": "skill.sneak",
+          "level": "level",
+          "duration": "level",
+          "location": "APPLY_NONE",
+          "modifier": 0,
+          "bitvector": "AFF_SNEAK",
+          "applyTo": "char"
+        }
+      ]
     }
   },
   {

@@ -1,4 +1,5 @@
-from game.Equipped import WEAR_LOC_TO_EQUIPPED_SLOT
+from game.Equipped import Equipped, WEAR_LOC_TO_EQUIPPED_SLOT
+from item.EffectHandler import EffectHandler
 from item.ItemOwnership import ItemOwnership
 from mobile.MobileFactory import MobileFactory
 from item.ItemFactory import ItemFactory
@@ -37,7 +38,8 @@ class AreaHandler:
                  shop_registry: ShopRegistry,
                  enum_provider: EnumProvider,
                  character_registry: CharacterRegistry,
-                 wiz_handler: WizHandler):
+                 wiz_handler: WizHandler,
+                 effect_handler: EffectHandler):
         self.__name__ = "AreaHandler"
         self.logger = LoggerFactory.get_logger(__name__)
         self.message_bus = message_bus
@@ -49,6 +51,7 @@ class AreaHandler:
         self.enum_provider = enum_provider
         self.character_registry = character_registry
         self.wiz_handler = wiz_handler
+        self.effect_handler = effect_handler
         self.WellKnownRoomVnums = enum_provider.get("wellKnownRoomVnums")
         self.ExitFlags = enum_provider.get("exitFlags")
         self.ItemFlags = enum_provider.get("itemFlags")
@@ -112,15 +115,16 @@ class AreaHandler:
         room = self.room_registry.get(vnum=room_vnum)
         if template_obj is None:
             return False
-        if area.number_of_players > 0 or len(room.contents) > 0:
+        if area.number_of_players > 0 or Item.count_obj_list(str(obj_vnum), room.contents.values()) > 0:
             return False
         obj = ItemFactory.create(template_obj)
+        obj.cost = 0
         room.add_item_to_room(obj)
         return True
 
     def _do_mob_reset(self, last: bool, reset: Reset):
         mob_vnum = reset.arg1
-        area_max = int(reset.arg2)
+        global_max = int(reset.arg2)
         room_vnum = reset.arg3
         room_max = int(reset.arg4)
         template_mob: Mobile = self.mobile_registry.get(vnum=str(mob_vnum))
@@ -130,9 +134,9 @@ class AreaHandler:
         if room is None:
             return False, None
 
-        area_count = self._count_live_mobiles(str(mob_vnum), area_id=str(room.area_id or ""))
+        global_count = self._count_live_mobiles(str(mob_vnum))
         room_count = self._count_live_mobiles(str(mob_vnum), room=room)
-        if area_count >= area_max:
+        if global_count >= global_max:
             last = False
             return last, None
         if room_count >= room_max:
@@ -244,11 +248,7 @@ class AreaHandler:
             inventory_bit = GenericUtil.to_int(self.ItemFlags.ITEM_INVENTORY.value, 0)
             if inventory_bit:
                 obj.extra_flags = GenericUtil.to_int(getattr(obj, "extra_flags", 0), 0) | inventory_bit
-            wear_loc = GenericUtil.to_int(reset.arg3, -1)
-            if reset.command == "E" and wear_loc >= 0:
-                mob.equip_item(obj, WEAR_LOC_TO_EQUIPPED_SLOT[wear_loc])
-            else:
-                mob.add_item(obj)
+            self._give_reset_item(reset, mob, obj)
             return True
 
         arg2 = GenericUtil.to_int(reset.arg2, 0)
@@ -263,12 +263,17 @@ class AreaHandler:
             return last
 
         obj = ItemFactory.create(template_obj)
-        wear_loc = GenericUtil.to_int(reset.arg3, -1)
-        if wear_loc >= 0:
-            mob.equip_item(obj, WEAR_LOC_TO_EQUIPPED_SLOT[wear_loc])
-        else:
-            mob.add_item(obj)
+        self._give_reset_item(reset, mob, obj)
         return True
+
+    def _give_reset_item(self, reset, mob, obj):
+        mob.add_item(obj)
+        slot = WEAR_LOC_TO_EQUIPPED_SLOT.get(GenericUtil.to_int(reset.arg3, -1))
+        if reset.command != 'E' or slot is None:
+            return
+        room = self.room_registry.get_or_none(id=mob.room_id)
+        Equipped.equip_runtime(mob, obj, slot, self.ItemFlags,
+                               effect_handler=self.effect_handler, room=room)
 
     def _is_shopkeeper(self, mob: Mobile | None) -> bool:
         if mob is None:

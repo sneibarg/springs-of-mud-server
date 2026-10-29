@@ -118,10 +118,16 @@ class Equipped:
     @classmethod
     def equip_item(cls, character, item, slot_name: str):
         equipped = cls.ensure_on(character)
+        if getattr(equipped, slot_name, None) is not None:
+            return slot_name if getattr(equipped, slot_name) is item else None
+        room = cls.room_of(character)
+        before = cls.light_contribution(character)
         cls.remove_from_inventory(character, item)
         setattr(equipped, slot_name, item)
         setattr(item, "wear_location", slot_name)
         setattr(item, "wear_loc", EQUIPPED_SLOT_TO_WEAR_LOC.get(slot_name, -1))
+        if room is not None:
+            room.adjust_light(cls.light_contribution(character) - before)
         return slot_name
 
     @classmethod
@@ -130,12 +136,80 @@ class Equipped:
         if equipped is None or not hasattr(equipped, slot_name):
             return None
         item = getattr(equipped, slot_name)
+        room = cls.room_of(character)
+        before = cls.light_contribution(character)
         setattr(equipped, slot_name, None)
         if item is not None:
             setattr(item, "wear_location", "")
             setattr(item, "wear_loc", -1)
             cls.add_to_inventory(character, item)
+        if room is not None:
+            room.adjust_light(cls.light_contribution(character) - before)
         return item
+
+    @staticmethod
+    def room_of(character):
+        room = getattr(character, '_equipment_room', None)
+        if room is not None:
+            return room
+        from api.CharacterApi import CharacterApi
+        try:
+            registry = CharacterApi.get_registry().room_registry
+            room = registry.get_or_none(id=character.room_id)
+        except (RuntimeError, AttributeError):
+            return None
+        if room is not None and any(
+                getattr(room, name, {}).get(character.id) is character for name in ('characters', 'mobiles')):
+            return room
+        return None
+
+    @staticmethod
+    def light_contribution(character) -> int:
+        from util.GenericUtil import GenericUtil
+        item = getattr(getattr(character, 'equipped', None), 'light', None)
+        return int(item is not None and Item.enum_type_name(item) == 'ITEM_LIGHT'
+                   and GenericUtil.to_int(getattr(item, 'value2', 0), 0) != 0)
+
+    @staticmethod
+    def armor_contribution(character, category) -> int:
+        """ROM apply_ac, derived from slots so saved armor totals stay stable."""
+        from util.GenericUtil import GenericUtil
+        category = str(category).lower().removeprefix('dam_')
+        index = {'pierce': 0, 'piercing': 0, 'bash': 1, 'bashing': 1,
+                 'slash': 2, 'slashing': 2}.get(category, 3)
+        slots = {'torso': 3, 'head': 2, 'legs': 2, 'body': 2,
+                 'feet': 1, 'hands': 1, 'arms': 1, 'shield': 1, 'neck1': 1,
+                 'neck2': 1, 'waist': 1, 'wrist1': 1, 'wrist2': 1, 'held': 1}
+        equipment = getattr(character, 'equipped', None)
+        return sum(multiplier * GenericUtil.to_int(getattr(obj, f'value{index}', 0), 0)
+                   for slot, multiplier in slots.items()
+                   if (obj := getattr(equipment, slot, None)) is not None
+                   and Item.enum_type_name(obj) == 'ITEM_ARMOR')
+
+    @staticmethod
+    def alignment_blocked(character, item, item_flags) -> bool:
+        from api.CharacterApi import CharacterApi
+        from api.ItemApi import ItemApi
+        return any(ItemApi.has_item_flag(item, item_flags, flag) and predicate(character)
+                   for flag, predicate in (('ITEM_ANTI_GOOD', CharacterApi.is_good),
+                                           ('ITEM_ANTI_EVIL', CharacterApi.is_evil),
+                                           ('ITEM_ANTI_NEUTRAL', CharacterApi.is_neutral)))
+
+    @classmethod
+    def equip_runtime(cls, character, item, slot, item_flags, *, effect_handler=None, room=None):
+        """Equip newly acquired gear, preserving inventory when a slot is occupied."""
+        if getattr(cls.ensure_on(character), slot, None) is not None:
+            return False
+        if cls.alignment_blocked(character, item, item_flags):
+            room = room or cls.room_of(character)
+            if room is not None:
+                cls.remove_from_inventory(character, item)
+                room.add_item_to_room(item)
+            return False
+        character.equip_item(item, slot)
+        if effect_handler is not None:
+            effect_handler.apply_item_effects(character, item)
+        return True
 
     @staticmethod
     def is_light_item(item) -> bool:
@@ -219,9 +293,9 @@ class Equipped:
                 result.blocked_key = "wearingShield"
                 return result
 
-        character.equip_item(item, selected_slot)
-        if effect_handler is not None:
-            effect_handler.apply_item_effects(character, item)
+        if not cls.equip_runtime(character, item, selected_slot, item_flags, effect_handler=effect_handler):
+            result.shared_messages.append(('zappedItem', {'t': item_short}))
+            return result
         result.shared_messages.append(cls.slot_message(selected_slot, item_short))
         skill_key = item.weapon_skill_feedback_key(character)
         if selected_slot == "wielded" and skill_key:

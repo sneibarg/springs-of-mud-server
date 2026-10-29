@@ -20,6 +20,8 @@ from player.Character import Character
 from player.CharacterAdvancement import CharacterAdvancement
 from skill.GroupOwnership import GroupOwnership
 from api.CharacterApi import CharacterApi
+from api.SkillApi import SkillApi
+from item.EffectHandler import EffectHandler
 from server.LoggerFactory import LoggerFactory
 
 
@@ -30,7 +32,9 @@ class Movement:
                  game_data: GameData,
                  fight_handler: FightHandler,
                  enum_provider: EnumProvider,
-                 interp_api: InterpApi):
+                 interp_api: InterpApi,
+                 skill_api: SkillApi,
+                 effect_handler: EffectHandler):
         self.__name__ = "Movement"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -41,6 +45,8 @@ class Movement:
         self.game_data = game_data
         self.fight_handler = fight_handler
         self.interp_api = interp_api
+        self.skill_api = skill_api
+        self.effect_handler = effect_handler
         self.item_types = enum_provider.get("itemTypes")
         self.exit_flags = enum_provider.get("exitFlags")
         self.gate_flags = enum_provider.get("gateFlags")
@@ -72,8 +78,7 @@ class Movement:
                 return {"payloads": [], "target_messages": ([{"id": getattr(character, "id", ""), "text": text}] if text else [])}
             return blocked
 
-        if not CharacterApi.is_npc(character):
-            character.movement -= state.move_cost
+        MovementApi.pay_movement(character, state)
 
         in_room = state.in_room
         to_room = state.to_room
@@ -82,6 +87,7 @@ class Movement:
         self._remove_from_room(in_room, character)
         self._add_to_room(to_room, character)
         character.room_id = to_room.id
+        character.on = None
         if getattr(to_room, "area_id", None) is not None:
             character.area_id = to_room.area_id
 
@@ -114,8 +120,11 @@ class Movement:
         if in_room != to_room:
             for follower in followers:
                 if self._should_stand_charmed_follower(follower, character):
+                    follower.on = None
                     CharacterApi.set_position(follower, "POS_STANDING")
                 if not self._should_follow(follower, character, to_room):
+                    continue
+                if self._aggressive_npc_law_blocked(follower, to_room):
                     continue
                 follower_payload = self._move_char(follower, direction, context, follow=True, leader=character, visited=visited)
                 payloads.extend(follower_payload.get("payloads", []))
@@ -148,175 +157,111 @@ class Movement:
     def do_down(self, character: Character, context: Context):
         return self.move_char(character, "down", context)
 
-    def do_open(self, character: Character, context: Context) -> dict:
-        return self._door_action(character, context, MovementApi.open_exit, "open_door")
+    def do_open(self, character, context):
+        return self._lock_action(character, context, "open")
 
-    def do_close(self, character: Character, context: Context) -> dict:
-        return self._container_or_door_action(
-            character,
-            context,
-            MovementApi.close_container,
-            "close_container",
-            MovementApi.close_exit,
-            "close_door",
-        )
+    def do_close(self, character, context):
+        return self._lock_action(character, context, "close")
 
-    def do_lock(self, character: Character, context: Context) -> dict:
-        return self._container_or_door_action(
-            character,
-            context,
-            MovementApi.lock_container,
-            "container_locked",
-            MovementApi.lock_exit,
-            "exit_locked",
-        )
+    def do_lock(self, character, context):
+        return self._lock_action(character, context, "lock")
 
-    def _container_or_door_action(
-            self,
-            character: Character,
-            context: Context,
-            container_action,
-            container_message_key: str,
-            door_action,
-            door_message_key: str,
-    ) -> dict:
-        room = self._room(character, context)
-        context.target_item = MovementApi.target_item(context)
+    def do_unlock(self, character, context):
+        return self._lock_action(character, context, "unlock")
+
+    def do_pick(self, character, context):
+        from skill.Ability import Ability
+        if MovementApi.argument_text(context):
+            skill = self.skill_registry.get(name="pick lock")
+            self._wait(character, skill.beats)
+            room = self._room(character, context)
+            for guard in room.people():
+                if CharacterApi.is_npc(guard) and CharacterApi.is_awake(guard) and character.level + 5 < guard.level:
+                    context.finish()
+                    return InterpApi.command_payload("lock_guard", channel="to_char", tokens={"t": self._entity_label(guard)})
+            if not CharacterApi.is_npc(character) and random.randint(1, 100) > self.skill_api.get_rating(character, skill):
+                Ability.check_improve_by_name(character, "pick lock", False, 2)
+                context.finish()
+                return InterpApi.command_payload("lock_failed", channel="to_char")
+        payload = self._lock_action(character, context, "pick")
+        if payload.get("lock_succeeded"):
+            Ability.check_improve_by_name(character, "pick lock", True, 2)
+        return payload
+
+    def _lock_action(self, character, context, action):
+        context.room_registry = self.room_registry
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
             return blocked
-
-        target_item = getattr(context, "target_item", None)
-        if target_item is not None:
-            container_action(target_item)
-            context.finish()
-            return InterpApi.command_payload(
-                container_message_key,
-                targets=self._room_targets(room, character),
-                tokens=self._actor_item_tokens(character, Item.short(target_item)),
-            )
-
-        return self._door_action(character, context, door_action, door_message_key, evaluate_guards=False)
-
-    def do_unlock(self, character: Character, context: Context) -> dict:
-        payload = self._door_action(character, context, MovementApi.unlock_exit, "unlocks_exit", channel="to_room")
-        if payload.get("message_key") != "unlocks_exit":
-            return payload
-        return {
-            "payloads": [
-                InterpApi.command_payload("click", channel="to_char"),
-                payload,
-            ]
-        }
-
-    def do_pick(self, character: Character, context: Context) -> dict:
-        return self._door_action(character, context, MovementApi.unlock_exit, "door_picked")
-
-    def _door_action(
-            self,
-            character: Character,
-            context: Context,
-            action,
-            message_key: str,
-            *,
-            channel: str = "",
-            evaluate_guards: bool = True,
-    ) -> dict:
-        if evaluate_guards:
-            blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
-            if blocked is not None:
-                return blocked
-
-        state = MovementApi.door_state(context, room_registry=self.room_registry, exit_flags=self.exit_flags)
-        room = state.room
-        ex = state.exit_obj
-        action(self.room_registry, room, ex, self.exit_flags)
+        state = MovementApi.lock_state(context)
+        set_mask = state.closed if action == "close" else state.locked if action == "lock" else 0
+        clear_mask = state.closed if action == "open" else state.locked if action in ("unlock", "pick") else 0
+        if state.item is not None:
+            state.item.value1 = str((state.flags | set_mask) & ~clear_mask)
+        else:
+            MovementApi.update_exit_flags(self.room_registry, state.room, state.target,
+                                          set_mask=set_mask, clear_mask=clear_mask)
         context.finish()
-        return InterpApi.command_payload(
-            message_key,
-            channel=channel,
-            targets=self._room_targets(room, character),
-            tokens=self._actor_door_tokens(character, state.keyword),
-        )
+        return InterpApi.command_payload("lock_success", targets=self._room_targets(state.room, character),
+                                         tokens=self._actor_item_tokens(character, state.keyword), lock_succeeded=True)
 
-    def do_stand(self, character: Character, context: Context) -> dict:
+    def do_stand(self, character, context):
+        return self._posture(character, context, "stand", "POS_STANDING")
+
+    def do_rest(self, character, context):
+        return self._posture(character, context, "rest", "POS_RESTING")
+
+    def do_sit(self, character, context):
+        return self._posture(character, context, "sit", "POS_SITTING")
+
+    def do_sleep(self, character, context):
+        return self._posture(character, context, "sleep", "POS_SLEEPING")
+
+    def _posture(self, character, context, action, destination):
+        from util.LookupUtil import LookupUtil
+        from api.ItemApi import ItemApi
         pos = CharacterApi.position_value(character)
-        if pos <= CharacterApi.pos_value("POS_STUNNED"):
-            context.finish()
-            return InterpApi.command_payload("can_t_do_that_right_now", channel="to_char")
-        if pos == CharacterApi.pos_value("POS_SLEEPING"):
-            if CharacterApi.is_affected_by_name(character, self.affected_bits, "AFF_SLEEP"):
-                context.finish()
-                return InterpApi.command_payload("can_t_wake_up", channel="to_char")
-            CharacterApi.set_position(character, "POS_STANDING")
-            context.finish()
-            return InterpApi.command_payload("wake_stand_up", channel="to_char")
-        if pos in (CharacterApi.pos_value("POS_RESTING"), CharacterApi.pos_value("POS_SITTING")):
-            CharacterApi.set_position(character, "POS_STANDING")
-            context.finish()
-            return InterpApi.command_payload("stand_up", channel="to_char")
-        if pos == CharacterApi.pos_value("POS_STANDING"):
-            context.finish()
-            return InterpApi.command_payload("already_standing", channel="to_char")
+        context.finish()
         if pos == CharacterApi.pos_value("POS_FIGHTING"):
-            context.finish()
-            return InterpApi.command_payload("already_fighting", channel="to_char")
-        context.finish()
-        return {}
-
-    def do_rest(self, character: Character, context: Context) -> dict:
-        pos = CharacterApi.position_value(character)
-        if pos == CharacterApi.pos_value("POS_FIGHTING"):
-            context.finish()
-            return InterpApi.command_payload("already_fighting", channel="to_char")
-        if pos == CharacterApi.pos_value("POS_SLEEPING"):
-            if CharacterApi.is_affected_by_name(character, self.affected_bits, "AFF_SLEEP"):
-                context.finish()
-                return InterpApi.command_payload("can_t_wake_up", channel="to_char")
-            CharacterApi.set_position(character, "POS_RESTING")
-            context.finish()
-            return InterpApi.command_payload("wake_up_start_resting", channel="to_char")
-        if pos in (CharacterApi.pos_value("POS_STANDING"), CharacterApi.pos_value("POS_SITTING")):
-            CharacterApi.set_position(character, "POS_RESTING")
-            context.finish()
-            return InterpApi.command_payload("rest", channel="to_char")
-        context.finish()
-        return InterpApi.command_payload("already_resting", channel="to_char")
-
-    def do_sit(self, character: Character, context: Context) -> dict:
-        pos = CharacterApi.position_value(character)
-        if pos == CharacterApi.pos_value("POS_FIGHTING"):
-            context.finish()
-            return InterpApi.command_payload("maybe_should_finish_fight", channel="to_char")
-        if pos == CharacterApi.pos_value("POS_SLEEPING"):
-            if CharacterApi.is_affected_by_name(character, self.affected_bits, "AFF_SLEEP"):
-                context.finish()
-                return InterpApi.command_payload("can_t_wake_up", channel="to_char")
-            CharacterApi.set_position(character, "POS_SITTING")
-            context.finish()
-            return InterpApi.command_payload("wake_sit_up", channel="to_char")
-        if pos == CharacterApi.pos_value("POS_RESTING"):
-            CharacterApi.set_position(character, "POS_SITTING")
-            context.finish()
-            return InterpApi.command_payload("stop_resting", channel="to_char")
-        if pos == CharacterApi.pos_value("POS_STANDING"):
-            CharacterApi.set_position(character, "POS_SITTING")
-            context.finish()
-            return InterpApi.command_payload("sit_down", channel="to_char")
-        context.finish()
-        return InterpApi.command_payload("already_sitting_down", channel="to_char")
-
-    def do_sleep(self, character: Character, context: Context) -> dict:
-        pos = CharacterApi.position_value(character)
-        if pos == CharacterApi.pos_value("POS_SLEEPING"):
-            context.finish()
+            return InterpApi.command_payload("posture_fighting", channel="to_char")
+        if pos < CharacterApi.pos_value("POS_SLEEPING"):
+            return {}
+        if action == "sleep" and pos == CharacterApi.pos_value("POS_SLEEPING"):
             return InterpApi.command_payload("is_asleep", channel="to_char")
-        if pos == CharacterApi.pos_value("POS_FIGHTING"):
-            context.finish()
-            return InterpApi.command_payload("is_fighting", channel="to_char")
-        CharacterApi.set_position(character, "POS_SLEEPING")
-        context.finish()
-        return InterpApi.command_payload("default", channel="to_char")
+        room = self._room(character, context)
+        raw = MovementApi.argument_text(context)
+        obj = (LookupUtil.find(room.contents.values(), raw,
+                              visible=lambda item: ItemApi.can_see_object(room, character, item))
+               if raw else None if action == "stand" else getattr(character, "on", None))
+        if raw and obj is None:
+            return InterpApi.command_payload("posture_missing", channel="to_char")
+        relation = ""
+        if obj is not None:
+            flags = CharacterApi.get_enum("furnitureFlags")
+            options = [(suffix.lower(), EnumProvider.value(flags, action.upper() + "_" + suffix)) for suffix in ("AT", "ON", "IN")]
+            relation = next((name for name, bit in options if CharacterApi.flags_to_int(obj.value2) & bit), "")
+            if Item.enum_type_name(obj) != "ITEM_FURNITURE" or not relation:
+                return InterpApi.command_payload("posture_invalid", channel="to_char")
+            if getattr(character, "on", None) is not obj and sum(getattr(person, "on", None) is obj for person in room.people()) >= int(obj.value0):
+                return InterpApi.command_payload("posture_full", channel="to_char", tokens={"t": Item.short(obj)})
+            character.on = obj
+        waking = pos == CharacterApi.pos_value("POS_SLEEPING")
+        if waking and CharacterApi.is_affected_by_name(character, self.affected_bits, "AFF_SLEEP"):
+            return InterpApi.command_payload("can_t_wake_up", channel="to_char")
+        if pos == CharacterApi.pos_value(destination):
+            return InterpApi.command_payload("posture_already", channel="to_char")
+        if action == "stand" and obj is None:
+            character.on = None
+        CharacterApi.set_position(character, destination)
+        key = "posture_" + relation if obj is not None else {
+            "stand": "wake_stand_up" if waking else "stand_up",
+            "rest": "wake_up_start_resting" if waking else "rest",
+            "sit": "wake_sit_up" if waking else "stop_resting" if pos == CharacterApi.pos_value("POS_RESTING") else "sit_down",
+            "sleep": "default",
+        }[action]
+        return InterpApi.command_payload(key, targets=self._room_targets(room, character),
+                                         tokens=self._actor_item_tokens(character, Item.short(obj) if obj else ""),
+                                         **({"view_character": character, "to_room_obj": room} if waking and action == "stand" else {}))
 
     def do_wake(self, character: Character, context: Context) -> dict:
         arg = MovementApi.argument_text(context)
@@ -353,16 +298,18 @@ class Movement:
         )
 
     def do_sneak(self, character: Character, context: Context) -> dict:
-        CharacterApi.set_affected_by_name(character, self.affected_bits, "AFF_SNEAK", True)
+        self.skill_api.activate(character, self.skill_registry.get(name="sneak"), self.effect_handler)
         context.finish()
         return InterpApi.command_payload("attempt_move_silently", channel="to_char")
 
     def do_hide(self, character: Character, context: Context) -> dict:
-        CharacterApi.set_affected_by_name(character, self.affected_bits, "AFF_HIDE", True)
+        self.skill_api.activate(character, self.skill_registry.get(name="hide"), self.effect_handler)
         context.finish()
         return InterpApi.command_payload("attempt_hide", channel="to_char")
 
     def do_visible(self, character: Character, context: Context) -> dict:
+        for effect_type in ("spell.invis", "spell.mass_invis", "skill.sneak"):
+            self.effect_handler.affect_strip(character, effect_type)
         CharacterApi.set_affected_by_name(character, self.affected_bits, "AFF_HIDE", False)
         CharacterApi.set_affected_by_name(character, self.affected_bits, "AFF_INVISIBLE", False)
         CharacterApi.set_affected_by_name(character, self.affected_bits, "AFF_SNEAK", False)
@@ -370,34 +317,59 @@ class Movement:
         return InterpApi.command_payload("default", channel="to_char")
 
     def do_recall(self, character: Character, context: Context):
+        return self._recall(character, context, set())
+
+    def _recall(self, character, context, visited):
+        if id(character) in visited:
+            return {}
+        visited.add(id(character))
+        if CharacterApi.is_npc(character) and not CharacterApi.is_set(
+                character.status_flags.act, EnumProvider.value(self.act_bits, "ACT_PET")):
+            return InterpApi.command_payload("is_pet", channel="to_char")
+        payloads = [InterpApi.command_payload("prays_transportation", channel="to_room",
+                    targets=self._room_targets(self._room(character, context), character), tokens=self._actor_tokens(character))]
         room_flags = self.room_flags
-        temple_vnum = "3001"
+        temple_vnum = str(CharacterApi.get_enum("wellKnownRoomVnums").ROOM_VNUM_TEMPLE.value)
         temple_room = self.room_registry.get_or_none(vnum=temple_vnum)
         if temple_room is None:
             context.finish()
-            return InterpApi.command_payload("null_temple", channel="to_char")
+            return {"payloads": payloads + [InterpApi.command_payload("null_temple", channel="to_char")]}
 
         current = self._room(character, context)
         if current is None or current.id == temple_room.id:
             context.finish()
-            return {}
+            return {"payloads": payloads}
 
         no_recall = MovementApi.flag_value(room_flags, "ROOM_NO_RECALL")
-        if MovementApi.has_flag(GenericUtil.to_int(current.room_flags, 0), no_recall):
+        if (MovementApi.has_flag(GenericUtil.to_int(current.room_flags, 0), no_recall)
+                or CharacterApi.is_affected_by_name(character, self.affected_bits, "AFF_CURSE")):
             context.finish()
-            return InterpApi.command_payload("no_recall", channel="to_char")
+            return {"payloads": payloads + [InterpApi.command_payload("no_recall", channel="to_char")]}
+
+        if character.fighting is not None:
+            from skill.Ability import Ability
+            skill = self.skill_registry.get(name="recall")
+            if random.randint(1, 100) < 80 * self.skill_api.get_rating(character, skill) // 100:
+                Ability.check_improve_by_name(character, "recall", False, 6)
+                self._wait(character, 4)
+                context.finish()
+                return {"payloads": payloads + [InterpApi.command_payload("failed", channel="to_char")]}
+            loss = 25 if getattr(context, "conn", None) is not None else 50
+            CharacterAdvancement.gain_experience(character, -loss)
+            Ability.check_improve_by_name(character, "recall", True, 4)
+            payloads.append(InterpApi.command_payload("combat_recall", channel="to_char", tokens={"d": loss}))
+            self.fight_handler.stop_fighting(character, both=True)
 
         from_targets = current.player_targets(character)
-        current.remove_player_from_room(character)
-        temple_room.add_player_to_room(character)
+        self._remove_from_room(current, character)
+        self._add_to_room(temple_room, character)
         character.room_id = temple_room.id
+        character.on = None
         character.area_id = temple_room.area_id
-        self.fight_handler.stop_fighting(character, both=True)
         character.movement = max(0, GenericUtil.to_int(getattr(character, "movement", 0), 0) // 2)
         to_targets = temple_room.player_targets(character)
         context.finish()
-        return {
-            "payloads": [
+        payloads.extend([
                 InterpApi.command_payload(
                     "disappears",
                     channel="to_room",
@@ -410,12 +382,24 @@ class Movement:
                     targets=to_targets,
                     tokens=self._actor_tokens(character),
                     to_room_obj=temple_room,
+                    view_character=character,
                     aggressive_rounds=self.fight_handler.aggressive_entry_rounds(character, temple_room),
                 ),
-            ]
-        }
+            ])
+        pet = getattr(character, "pet", None)
+        if pet is not None:
+            pet_context = Context(character=pet, command=context.command, room=self.room_registry.get_or_none(id=pet.room_id),
+                                  handler_service=getattr(context, "handler_service", None), result="", parameters=[])
+            payloads.append({"actor": pet, "context": pet_context, "payloads": [self._recall(pet, pet_context, visited)]})
+        return {"payloads": payloads}
 
     def do_enter(self, character: Character, context: Context) -> dict | None:
+        return self._enter(character, context, set())
+
+    def _enter(self, character, context, visited):
+        if id(character) in visited:
+            return {}
+        visited.add(id(character))
         if getattr(character, "fighting", None) is not None:
             context.finish()
             return None
@@ -428,7 +412,7 @@ class Movement:
             return InterpApi.command_payload("nope_can_t_do", channel="to_char")
 
         room = self._room(character, context)
-        portal = self._find_room_item(room, raw)
+        portal = self._find_room_item(room, raw, character)
         if portal is None:
             context.finish()
             return InterpApi.command_payload("don_t_see", channel="to_char")
@@ -439,7 +423,7 @@ class Movement:
             context.finish()
             return InterpApi.command_payload("something_prevents_from_leaving", channel="to_char")
 
-        destination = self._portal_destination(portal, room)
+        destination = self._portal_destination(portal, room, character)
         if destination is None or destination == room or not self._can_see_room(character, destination) or self._room_private_for(destination, character):
             context.finish()
             return InterpApi.command_payload("doesn_t_seem_go", channel="to_char", tokens={"t": Item.short(portal)})
@@ -451,6 +435,7 @@ class Movement:
         self._remove_from_room(room, character)
         self._add_to_room(destination, character)
         character.room_id = destination.id
+        character.on = None
         if getattr(destination, "area_id", None) is not None:
             character.area_id = destination.area_id
 
@@ -484,8 +469,24 @@ class Movement:
             ),
         ]
 
-        if self._decrement_portal_charge(portal):
-            self._remove_item_from_room(destination if self._portal_flag(portal, "GATE_GOWITH") else room, portal)
+        self._decrement_portal_charge(portal)
+        for follower in self._followers_in_room(character, room):
+            if GenericUtil.to_int(portal.value0, 0) == -1:
+                break
+            if self._should_stand_charmed_follower(follower, character):
+                follower.on = None
+                CharacterApi.set_position(follower, "POS_STANDING")
+            if CharacterApi.position_value(follower) != CharacterApi.pos_value("POS_STANDING"):
+                continue
+            if self._aggressive_npc_law_blocked(follower, destination):
+                continue
+            follower_context = Context(character=follower, room=room, command=context.command,
+                                       handler_service=getattr(context, "handler_service", None), result=raw, parameters=[raw])
+            payloads.append({"actor": follower, "context": follower_context,
+                             "payloads": [self._enter(follower, follower_context, visited)]})
+        portal_room = destination if self._portal_flag(portal, "GATE_GOWITH") else room
+        if GenericUtil.to_int(portal.value0, 0) == -1 and any(obj is portal for obj in portal_room.contents.values()):
+            self._remove_item_from_room(portal_room, portal)
             payloads.append(InterpApi.command_payload("fades_out_existence", channel="to_char", tokens={"t": item_short}))
 
         context.finish()
@@ -577,7 +578,7 @@ class Movement:
             return self._train_options_payload(character)
 
         attr_name, output_name, stat_index = stat_spec
-        current = GenericUtil.to_int(getattr(attrs, attr_name, 0), 0)
+        current = CharacterApi.permanent_stat(character, attr_name)
         max_train = CharacterApi.get_max_train(character, stat_index, current)
         if current >= max_train:
             context.finish()
@@ -586,7 +587,7 @@ class Movement:
             context.finish()
             return InterpApi.command_payload("insufficient_sessions", channel="to_char")
 
-        setattr(attrs, attr_name, current + 1)
+        setattr(attrs, attr_name, getattr(attrs, attr_name) + 1)
         attrs.trains = trains - 1
         context.finish()
         return InterpApi.command_payload(
@@ -879,34 +880,40 @@ class Movement:
         return "portal" in str(item_type or "").strip().lower()
 
     def _portal_closed(self, portal, character) -> bool:
-        if CharacterApi.is_immortal(character):
+        if CharacterApi.get_trust(character) >= int(CharacterApi.get_enum("gameParameters").ANGEL):
             return False
         closed_bit = EnumProvider.value(self.exit_flags, "EX_CLOSED")
         return bool(closed_bit and (GenericUtil.to_int(getattr(portal, "value1", 0), 0) & closed_bit))
 
     def _portal_curse_blocked(self, portal, character, room) -> bool:
-        if CharacterApi.is_immortal(character) or self._portal_flag(portal, "GATE_NOCURSE"):
+        if CharacterApi.get_trust(character) >= int(CharacterApi.get_enum("gameParameters").ANGEL) or self._portal_flag(portal, "GATE_NOCURSE"):
             return False
         no_recall = EnumProvider.value(self.room_flags, "ROOM_NO_RECALL")
         return CharacterApi.is_affected_by_name(character, self.affected_bits, "AFF_CURSE") or bool(room is not None and no_recall and (GenericUtil.to_int(getattr(room, "room_flags", 0), 0) & no_recall))
 
-    def _portal_destination(self, portal, current_room):
+    def _portal_destination(self, portal, current_room, character):
         destination_ref = str(getattr(portal, "value3", "") or "").strip()
         if self._portal_flag(portal, "GATE_RANDOM") or destination_ref == "-1":
-            destination = self._random_room(current_room)
+            destination = self._random_room(character)
             if destination is not None:
                 setattr(portal, "value3", str(getattr(destination, "vnum", "") or getattr(destination, "id", "")))
             return destination
-        if self._portal_flag(portal, "GATE_BUGGY") and random.randint(1, 100) <= 5:
-            return self._random_room(current_room)
+        if self._portal_flag(portal, "GATE_BUGGY") and random.randint(1, 100) < 5:
+            return self._random_room(character)
         if not destination_ref:
             return None
         return self.room_registry.get_or_none(vnum=destination_ref) or self.room_registry.get_or_none(id=destination_ref)
 
-    def _random_room(self, current_room):
+    def _random_room(self, character):
         all_rooms = getattr(self.room_registry, "all_rooms", None)
         rooms = list(all_rooms()) if callable(all_rooms) else []
-        rooms = [room for room in rooms if room is not current_room]
+        excluded = sum(EnumProvider.value(self.room_flags, name) for name in ("ROOM_PRIVATE", "ROOM_SOLITARY", "ROOM_SAFE"))
+        law = EnumProvider.value(self.room_flags, "ROOM_LAW")
+        aggression = EnumProvider.value(self.act_bits, "ACT_AGGRESSIVE")
+        rooms = [room for room in rooms if CharacterApi.can_see_room(character, room)
+                 and not room.is_private(self.room_flags) and not (int(room.room_flags) & excluded)
+                 and (CharacterApi.is_npc(character) or int(character.status_flags.act) & aggression
+                      or not (int(room.room_flags) & law))]
         return random.choice(rooms) if rooms else None
 
     def _portal_flag(self, portal, flag_name: str) -> bool:
@@ -914,7 +921,7 @@ class Movement:
         return bool(bit and (GenericUtil.to_int(getattr(portal, "value2", 0), 0) & bit))
 
     def _room_private_for(self, room, character) -> bool:
-        if room is None or CharacterApi.is_immortal(character):
+        if room is None or CharacterApi.get_trust(character) >= int(CharacterApi.get_enum("gameParameters").IMPLEMENTOR):
             return False
         private = getattr(room, "is_private", None)
         return bool(private(self.room_flags)) if callable(private) else False
@@ -927,18 +934,13 @@ class Movement:
         return bool(aggressive and law and (self._mobile_act(character) & aggressive) and (GenericUtil.to_int(getattr(destination, "room_flags", 0), 0) & law))
 
     @staticmethod
-    def _find_room_item(room, wanted: str):
+    def _find_room_item(room, wanted: str, character):
+        from util.LookupUtil import LookupUtil
+        from api.ItemApi import ItemApi
         if room is None:
             return None
-        finder = getattr(room, "find_room_item", None)
-        if callable(finder):
-            return finder(wanted)
-        query = str(wanted or "").strip().lower()
-        for item in list((getattr(room, "contents", {}) or {}).values()):
-            name = str(getattr(item, "name", "") or "").lower()
-            if name == query or name.startswith(query):
-                return item
-        return None
+        return LookupUtil.find(room.contents.values(), wanted,
+                               visible=lambda obj: ItemApi.can_see_object(room, character, obj))
 
     @staticmethod
     def _remove_item_from_room(room, item) -> None:
@@ -990,6 +992,7 @@ class Movement:
         return (
             getattr(follower, "master", None) == master
             and CharacterApi.is_affected_by_name(follower, self.affected_bits, "AFF_CHARM")
+            and not CharacterApi.is_affected_by_name(follower, self.affected_bits, "AFF_SLEEP")
             and CharacterApi.position_value(follower) < CharacterApi.pos_value("POS_STANDING")
         )
 
@@ -1002,7 +1005,11 @@ class Movement:
 
     @staticmethod
     def _can_see_room(_character, room) -> bool:
-        return room is not None
+        return CharacterApi.can_see_room(_character, room)
+
+    @staticmethod
+    def _wait(character, pulses):
+        character.status_flags.pulse_wait = max(GenericUtil.to_int(getattr(character.status_flags, "pulse_wait", 0), 0), pulses)
 
     @staticmethod
     def _remove_from_room(room, character) -> None:

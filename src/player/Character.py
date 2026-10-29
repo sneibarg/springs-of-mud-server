@@ -194,27 +194,13 @@ class Character(AnimateEntity):
         return lock
 
     def skill_level(self, skill_name: str) -> int:
-        return Character.learned_entry_level(Character.get_learned(self, skill_name, collection_name="skills")) or 1
+        return Character.learned_entry_level(Character.get_learned(self, skill_name, collection_name="skills"))
 
     def spell_level(self, spell_name: str) -> int:
         return Character.learned_entry_level(Character.get_learned(self, spell_name, collection_name="spells")) or 1
 
     def get_items(self) -> list[Item]:
         return self.loot
-
-    def carry_count(self) -> int:
-        from api.ItemApi import ItemApi
-        return ItemApi.carried_count(self)
-
-    def carry_weight(self) -> int:
-        from api.ItemApi import ItemApi
-        return ItemApi.carried_weight(self)
-
-    def max_items(self) -> int:
-        return self.character_attributes.max_items
-
-    def max_weight(self) -> int:
-        return self.character_attributes.max_weight
 
     def size_value(self) -> int:
         from api.CharacterApi import CharacterApi
@@ -504,12 +490,12 @@ class Character(AnimateEntity):
         return LearningMessages.take(self)
 
     def _base_hit_gain(self, level, position, context):
+        from api.CharacterApi import CharacterApi
         from skill.Ability import Ability
 
         hit = GenericUtil.to_int(getattr(self, "hit", 0), 0)
         max_hit = GenericUtil.to_int(getattr(self, "max_hit", 0), 0)
-        attrs = getattr(self, "character_attributes", None)
-        constitution = GenericUtil.to_int(getattr(attrs, "constitution", 0), 0)
+        constitution = CharacterApi.current_stat(self, 'constitution')
         gain = max(3, constitution - 3 + level // 2)
         gain += GenericUtil.to_int(getattr(getattr(self, "character_class", None), "hp_max", 10), 10) - 10
         number = context.rng.number_percent()
@@ -535,13 +521,13 @@ class Character(AnimateEntity):
         return gain
 
     def _base_mana_gain(self, level, position, context):
+        from api.CharacterApi import CharacterApi
         from skill.Ability import Ability
 
         mana = GenericUtil.to_int(getattr(self, "mana", 0), 0)
         max_mana = GenericUtil.to_int(getattr(self, "max_mana", 0), 0)
-        attrs = getattr(self, "character_attributes", None)
-        wisdom = GenericUtil.to_int(getattr(attrs, "wisdom", 0), 0)
-        intelligence = GenericUtil.to_int(getattr(attrs, "intelligence", 0), 0)
+        wisdom = CharacterApi.current_stat(self, 'wisdom')
+        intelligence = CharacterApi.current_stat(self, 'intelligence')
         gain = (wisdom + intelligence + level) // 2
         number = context.rng.number_percent()
         if number < self._skill_percent("meditation"):
@@ -569,8 +555,8 @@ class Character(AnimateEntity):
         return gain
 
     def _base_move_gain(self, level, position, context):
-        attrs = getattr(self, "character_attributes", None)
-        dexterity = GenericUtil.to_int(getattr(attrs, "dexterity", 0), 0)
+        from api.CharacterApi import CharacterApi
+        dexterity = CharacterApi.current_stat(self, 'dexterity')
         gain = max(15, level)
         if position == context.position("POS_SLEEPING"):
             gain += dexterity

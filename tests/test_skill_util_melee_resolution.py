@@ -59,6 +59,10 @@ class _LoggerFactory:
 
 class _CharacterApi:
     @staticmethod
+    def current_stat(entity, name):
+        return max(3, min(25, getattr(entity.character_attributes, name)))
+
+    @staticmethod
     def is_npc(_entity):
         return False
 

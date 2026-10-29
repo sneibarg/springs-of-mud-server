@@ -7,6 +7,9 @@ from server.LoggerFactory import LoggerFactory
 from skill.Skill import Skill
 from skill.SkillRegistry import SkillRegistry
 from util.GenericUtil import GenericUtil
+from util.FightUtil import FightUtil
+from util.SkillUtil import SkillUtil
+from game.RandomNumberGenerator import RandomNumberGenerator
 
 
 class SkillApi:
@@ -18,21 +21,20 @@ class SkillApi:
         self.OffBits = enum_provider.get("offenseTypes")
         self.CondBits = enum_provider.get("conditions")
         self.logger = LoggerFactory.get_logger(self.__name__)
+        self.rng = RandomNumberGenerator()
+        self.affected_bits = enum_provider.get("affectedBy")
 
     def get_rating(self, char: Any, skill: Skill) -> int:
         if skill is None:
-            return GenericUtil.to_int(char.level * 5 / 2)
+            return SkillUtil.adjusted_percent(char, GenericUtil.to_int(char.level * 5 / 2))
 
         rating = 0
         if not CharacterApi.is_npc(char):
-            rating = char.skill_level(skill.name)
+            rating = char.skill_level(skill.name) if char.level >= FightUtil.level_for_class(skill, char) else 0
         else:
             off_flags = char.status_flags.off
             act_flags = char.status_flags.act
-            # TO-DO: this function should never be called when a spell is being cast
-            if skill is None:
-                rating = 40 + 2 * char.level
-            elif skill.name in ("sneak", "hide"):
+            if skill.name in ("sneak", "hide"):
                 rating = char.level * 2 + 20
             elif (skill.name == "dodge" and CharacterApi.is_set(off_flags, self.OffBits.OFF_DODGE)) or \
                     (skill.name == "parry" and CharacterApi.is_set(off_flags, self.OffBits.OFF_PARRY)):
@@ -70,15 +72,23 @@ class SkillApi:
             elif skill.name in ("sword", "dagger", "spear", "mace", "axe", "flail", "whip", "polearm"):
                 rating = 40 + 5 * char.level // 2
 
-            #  TO-DO - this needs validated for correctness
-            if char.status_flags.pulse_daze > 0:
-                if skill is None:
-                    rating //= 2
-                else:
-                    rating = 2 * rating // 3
+        return SkillUtil.adjusted_percent(char, rating)
 
-            if not CharacterApi.is_npc(char) and char.status_flags.condition.drunk > 10:
-                rating = 9 * rating // 10
+    def activate(self, character, skill, effect_handler) -> bool:
+        """Attempt a content-defined self skill, including its preparation and effects."""
+        from skill.Ability import Ability
 
-            return max(0, min(100, rating))
-        return rating
+        rules = skill.activation
+        if rules.get("strip_type"):
+            effect_handler.affect_strip(character, rules["strip_type"])
+        if rules.get("clear_flag"):
+            CharacterApi.set_affected_by_name(character, self.affected_bits, rules["clear_flag"], False)
+        if rules.get("skip_if_flag") and CharacterApi.is_affected_by_name(character, self.affected_bits, rules["skip_if_flag"]):
+            return False
+        success = self.rng.number_percent() < self.get_rating(character, skill)
+        Ability.check_improve_by_name(character, skill.name, success, rules.get("improve_multiplier", 1))
+        if success:
+            if rules.get("success_flag"):
+                CharacterApi.set_affected_by_name(character, self.affected_bits, rules["success_flag"], True)
+            effect_handler.apply_spell_effects(character, character, skill)
+        return success

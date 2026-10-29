@@ -26,6 +26,10 @@ from item.ItemFactory import ItemFactory
 
 class _CharacterApi:
     @staticmethod
+    def current_stat(entity, name):
+        return max(3, min(25, getattr(entity.character_attributes, name)))
+
+    @staticmethod
     def is_npc(entity):
         return bool(getattr(entity, "is_npc", False))
 
@@ -2365,6 +2369,7 @@ class TestTableDamageSpells(unittest.TestCase):
                 movement = module.Movement.__new__(module.Movement)
                 movement.affected_bits = self.enums['affectedBy']
                 def command_context(result=''):
+                    ctx.room.player_targets = lambda _character: []
                     context = SimpleNamespace(room=ctx.room, result=result, done=False)
                     context.finish = lambda: setattr(context, 'done', True)
                     return context

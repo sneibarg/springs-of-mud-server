@@ -564,7 +564,10 @@ class FightHandler:
             notices.extend(self.make_corpse(victim, room) or [])
 
         if CharacterApi.is_npc(victim):
-            room.mobiles.pop(victim.id)
+            if callable(getattr(room, 'remove_mobile_from_room', None)):
+                room.remove_mobile_from_room(victim)
+            else:
+                room.mobiles.pop(victim.id)
             self._unregister_live_character(victim)
             proto = self.mobile_registry.get_or_none(vnum=victim.vnum)
             if proto is not None:
@@ -1806,6 +1809,8 @@ class FightHandler:
 
         category = FightUtil.normalize_damage_type_name(dam_type)
         base = ArmorValues.base_value(armor, category)
+        from game.Equipped import Equipped
+        base -= Equipped.armor_contribution(victim, category)
         defensive = dexterity_defense(victim, CharacterApi.get_attribute_bonus)
         return GenericUtil.trunc_div(GenericUtil.to_int(base, 0) + defensive, 10)
 
@@ -1825,8 +1830,7 @@ class FightHandler:
 
     @staticmethod
     def _strength_combat_bonus(entity, key: str) -> int:
-        stats = getattr(entity, "character_attributes", None) or getattr(entity, "character_attributes", None)
-        strength = GenericUtil.to_int(getattr(stats, "strength", 0), 0)
+        strength = CharacterApi.current_stat(entity, 'strength')
         return GenericUtil.to_int(CharacterApi.get_attribute_bonus("strength", str(strength)).get(key, 0), 0)
 
     def _check_immunity(self, victim, dam_type: str) -> str:

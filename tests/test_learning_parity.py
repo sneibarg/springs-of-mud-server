@@ -23,7 +23,7 @@ class TestLearningParity(unittest.TestCase):
             rating_by_class={class_name: rating}, level_by_class={class_name: required},
         )
         resolver = NS(by_id=lambda _: (definition, collection))
-        rules = NS(is_npc=lambda _: False, skill_value_for_class=CharacterApi.skill_value_for_class,
+        rules = NS(current_stat=lambda entity, name: max(3, min(25, getattr(entity.character_attributes, name))), is_npc=lambda _: False, skill_value_for_class=CharacterApi.skill_value_for_class,
                    get_attribute_bonus=Mock(return_value={"learn": 18}))
         percent, random, advance = Mock(), Mock(), Mock()
         percent.number_percent.return_value = 1

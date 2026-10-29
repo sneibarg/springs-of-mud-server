@@ -6,12 +6,18 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from skill.Ability import Ability
+from item.Effect import Effect
 
 
 @dataclass
 class Skill(Ability):
     fight_executor: str = ""
     fight_plan: dict[str, Any] = field(default_factory=dict)
+    activation: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def affect_data(self) -> list[Effect]:
+        return self.activation.get("affects", [])
 
     def __hash__(self):
         return hash(self.id)
@@ -26,6 +32,8 @@ class Skill(Ability):
         payload = cls._base_payload_from_json(data)
         payload["guards"] = normalize_guards(payload.get("guards"))
         payload["fight_plan"] = cls._normalize_mapping(payload.get("fight_plan"))
+        payload["activation"] = cls._normalize_mapping(payload.get("activation"))
+        payload["activation"]["affects"] = [Effect.from_json(effect) for effect in payload["activation"].get("affects", [])]
         return cls(**payload)
 
     @staticmethod

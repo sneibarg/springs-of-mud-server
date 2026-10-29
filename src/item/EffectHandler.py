@@ -32,6 +32,7 @@ class EffectHandler:
         self.affected_by = enum_provider.get("affectedBy")
         self.item_flags = enum_provider.get("itemFlags")
         self.weapon_type = enum_provider.get("weaponType")
+        self.enum_provider = enum_provider
 
     @staticmethod
     def _lock_for(entity):
@@ -77,6 +78,12 @@ class EffectHandler:
             attrs.wisdom = GenericUtil.to_int(getattr(attrs, "wisdom", 0), 0) + modifier
         elif location == location_name("APPLY_CON"):
             attrs.constitution = GenericUtil.to_int(getattr(attrs, "constitution", 0), 0) + modifier
+        elif location == location_name("APPLY_HIT"):
+            entity.max_hit += modifier
+        elif location == location_name("APPLY_MANA"):
+            entity.max_mana += modifier
+        elif location == location_name("APPLY_MOVE"):
+            entity.max_movement += modifier
         elif location == location_name("APPLY_SEX"):
             if hasattr(entity, "sex"):
                 entity.sex = str(GenericUtil.to_int(getattr(entity, "sex", 0), 0) + modifier)
@@ -142,7 +149,17 @@ class EffectHandler:
             modifier = -modifier
 
         raw_bit = getattr(effect, "bitvector", 0)
-        if where == EffectUtil.enum_value(self.where_enum, "TO_AFFECTS", -1):
+        defense = self._defense_field(where)
+        if defense is not None:
+            field, enums = defense
+            bit = EffectUtil.enum_value(enums, raw_bit, 0)
+            status = getattr(entity, "status_flags", None)
+            if status is not None and bit:
+                if add:
+                    status.set_flag(field, bit)
+                else:
+                    status.unset_flag(field, bit)
+        elif where == EffectUtil.enum_value(self.where_enum, "TO_AFFECTS", -1):
             bit = EffectUtil.enum_value(self.affected_by, raw_bit, 0)
             if bit != 0:
                 raw = self._get_affected_raw(entity)
@@ -172,16 +189,33 @@ class EffectHandler:
 
     def affect_check(self, entity, where, vector) -> None:
         where_value = EffectUtil.enum_value(self.where_enum, where, -1)
-        if where_value != EffectUtil.enum_value(self.where_enum, "TO_AFFECTS", -1):
+        defense = self._defense_field(where_value)
+        if defense is not None:
+            field, enums = defense
+        elif where_value == EffectUtil.enum_value(self.where_enum, "TO_AFFECTS", -1):
+            field, enums = "affected_by", self.affected_by
+        else:
             return
-        bit = EffectUtil.enum_value(self.affected_by, vector, 0)
+        bit = EffectUtil.enum_value(enums, vector, 0)
         if bit == 0:
             return
         for effect in self.ensure_effects(entity):
             if (EffectUtil.enum_value(self.where_enum, effect.where, -1) == where_value
-                    and EffectUtil.enum_value(self.affected_by, effect.bitvector, 0) == bit):
-                self._set_affected_raw(entity, GameApi.set_bit(self._get_affected_raw(entity), bit))
+                    and EffectUtil.enum_value(enums, effect.bitvector, 0) == bit):
+                if field == "affected_by":
+                    self._set_affected_raw(entity, GameApi.set_bit(self._get_affected_raw(entity), bit))
+                else:
+                    entity.status_flags.set_flag(field, bit)
                 return
+
+    def _defense_field(self, where):
+        for name, field, enum_name in (("TO_IMMUNE", "imm", "mobImmunity"),
+                                      ("TO_RESIST", "res", "mobResistance"),
+                                      ("TO_VULN", "vuln", "mobVulnerability")):
+            destination = EffectUtil.enum_value(self.where_enum, name, -1)
+            if destination >= 0 and where == destination:
+                return field, self.enum_provider.get(enum_name)
+        return None
 
     def apply_effect(self, entity: Any, effect: Effect):
         new_effect = self.as_effect(effect)

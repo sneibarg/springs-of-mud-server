@@ -476,7 +476,7 @@ class Item:
         from api.CharacterApi import CharacterApi
         if CharacterApi.is_npc(character):
             return False
-        strength = max(3, min(25, GenericUtil.to_int(character.character_attributes.strength, 0)))
+        strength = CharacterApi.current_stat(character, 'strength')
         try:
             strength_bonus = CharacterApi.get_attribute_bonus("strength", str(strength))
         except RuntimeError:

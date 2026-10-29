@@ -67,6 +67,46 @@ class TestCollectionModify(unittest.TestCase):
         self.assertIn("Dry run only", output)
         self.assertEqual("IGNORE", self._read()[0]["target"])
 
+    def test_add_document_dry_run_shows_document_without_writing(self):
+        before = self.path.read_bytes()
+        output = self._run("add-document", "skills", "--value", '{"id":"new", "name":"kick"}')
+        self.assertIn('"name": "kick"', output)
+        self.assertIn("Dry run only", output)
+        self.assertEqual(before, self.path.read_bytes())
+
+    def test_add_document_from_file_preserves_existing_documents(self):
+        document = {"_id": {"$oid": "skill-3"}, "name": "axe", "payload": {"toChar": {"success": "Café"}}}
+        source = self.collections_dir / "new-document.json"
+        source.write_text(json.dumps(document), encoding="utf-8-sig")
+        self._run("add-document", "skills", "--value-file", str(source), "--write")
+        self.assertEqual([*self.documents, document], self._read())
+
+    def test_add_document_rejects_duplicates_and_invalid_values_without_writing(self):
+        for value in [[], {}, "text", {"name": "kick"}, {"id": True},
+                      {"_id": {"$oid": "skill-1"}}, {"id": "new", "_id": {"$oid": "skill-2"}}]:
+            with self.subTest(value=value):
+                before = self.path.read_bytes()
+                with self.assertRaises(SystemExit):
+                    self._run("add-document", "skills", "--value", json.dumps(value), "--write")
+                self.assertEqual(before, self.path.read_bytes())
+
+    def test_add_document_custom_identifier(self):
+        self._run("add-document", "skills", "--value", '{"name":"kick"}', "--lookup-field", "name", "--write")
+        with self.assertRaises(SystemExit):
+            self._run("add-document", "skills", "--value", '{"name":"kick"}', "--lookup-field", "name", "--write")
+        self.assertEqual(3, len(self._read()))
+
+    def test_add_document_to_empty_collection(self):
+        self._write([])
+        self._run("add-document", "skills", "--value", '{"vnum":0}', "--write")
+        self.assertEqual([{"vnum": 0}], self._read())
+
+    def test_add_document_rejects_malformed_json_and_missing_file(self):
+        for source in [("--value", "{"), ("--value-file", str(self.collections_dir / "missing.json"))]:
+            with self.subTest(source=source), self.assertRaises(SystemExit):
+                self._run("add-document", "skills", *source, "--write")
+        self.assertEqual(self.documents, self._read())
+
     def test_set_write_rewrites_existing_field(self):
         self._run("set", "skills", "axe", "target", "CHAR_OFFENSIVE", "--write")
 
