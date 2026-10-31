@@ -36,6 +36,7 @@ from skill.SpellContext import SpellContext
 from util.FightUtil import FightUtil
 from util.CommunicationsUtil import CommunicationsUtil
 from util.PlayerUtil import PlayerUtil
+from util.SkillUtil import SkillUtil
 
 
 class Object:
@@ -294,10 +295,17 @@ class Object:
             context.finish()
             return self.interp_api.render_message_key(context, "graduate", channel="to_char")
 
+        free_vnums = {
+            self._well_known_outfit_vnum("OBJ_VNUM_SCHOOL_BANNER", 3716),
+            self._well_known_outfit_vnum("OBJ_VNUM_SCHOOL_SHIELD", 3704),
+            self._well_known_outfit_vnum("OBJ_VNUM_SCHOOL_VEST", 3703),
+        }
         for vnum in self._outfit_vnums(character):
             item = self._create_outfit_item(vnum)
             if item is None:
                 continue
+            if vnum in free_vnums:
+                item.cost = 0
             character.add_item(item)
             result = Equipped.wear_item(
                 character,
@@ -2033,7 +2041,8 @@ class Object:
         current = GenericUtil.to_int(getattr(status_flags, name, -1), -1)
         if current == -1:
             return -1
-        if amount == 0 or CharacterApi.is_npc(character) or CharacterApi.is_immortal(character):
+        if (amount == 0 or CharacterApi.is_npc(character)
+                or character.level >= CharacterApi.GameParameters.LEVEL_IMMORTAL):
             return current
         gain = getattr(character, "gain_condition", None)
         if callable(gain):
@@ -2418,7 +2427,7 @@ class Object:
                     if target_type == "CHAR_DEFENSIVE" and CharacterApi.is_npc(character) != CharacterApi.is_npc(victim):
                         continue
                     payloads.extend(self._cast_item_spell(character, room, staff, spell, target=victim, target_name=getattr(victim, "name", ""), target_kind="char", command_context=context))
-                self._improve_item_skill(character, "staves", True)
+                    self._improve_item_skill(character, "staves", True)
 
         if Item.spend_charge(staff) <= 0:
             broken = self.interp_api.render_message_key(context, "item_broken", t=Item.short(staff), c=character.name)
@@ -2500,11 +2509,9 @@ class Object:
         return {"payloads": payloads}
 
     def _item_skill_check(self, character: Character, skill_name: str) -> bool:
-        skill_percent = 1
-        if CharacterApi.is_npc(character):
-            skill_percent = max(1, min(100, 40 + (2 * int(getattr(character, "level", 0) or 0))))
-        elif hasattr(character, "skill_level"):
-            skill_percent = max(1, min(100, GenericUtil.to_int(character.skill_level(skill_name), 1)))
+        # ROM gives NPCs no scroll/staff/wand proficiency.
+        skill_percent = 0 if CharacterApi.is_npc(character) else self._skill_percent(character, skill_name)
+        skill_percent = SkillUtil.adjusted_percent(character, skill_percent)
         threshold = 20 + (skill_percent * 4) // 5
         return random.randint(1, 100) < threshold
 

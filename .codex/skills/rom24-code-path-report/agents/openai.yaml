@@ -1,0 +1,4 @@
+interface:
+  display_name: "ROM24 Code Path Report"
+  short_description: "Trace ROM24 execution paths into portable test cases"
+  default_prompt: "Use $rom24-code-path-report to trace the requested ROM24 C files and generate a language-neutral pseudo test suite for Python tests or migration."

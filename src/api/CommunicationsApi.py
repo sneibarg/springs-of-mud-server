@@ -9,14 +9,18 @@ from player.Character import Character
 from util.CommunicationsUtil import CommunicationsUtil
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
+from util.WizUtil import WizUtil
 
 
 @dataclass(frozen=True)
 class BufferedMessage:
     sender: str
     message: str
+    rendered_text: str | None = None
 
     def format_message(self):
+        if self.rendered_text is not None:
+            return CommunicationsUtil.ensure_message_break(self.rendered_text)
         return CommunicationsUtil.ensure_message_break(f"{self.sender} tells you '{self.message}'")
 
 
@@ -48,7 +52,7 @@ class CommunicationsApi(GameApi):
         ]
 
     @classmethod
-    def append_tell_buffer(cls, character: Character, sender: Character, line: str):
+    def append_tell_buffer(cls, character: Character, sender: Character, line: str, *, rendered_text: str | None = None):
         if character is None or not character.name:
             return
 
@@ -57,7 +61,7 @@ class CommunicationsApi(GameApi):
         if recipient_name not in cls._tell_buffer:
             cls._tell_buffer[recipient_name] = []
 
-        cls._tell_buffer[recipient_name].append(BufferedMessage(sender=sender_name, message=line))
+        cls._tell_buffer[recipient_name].append(BufferedMessage(sender=sender_name, message=line, rendered_text=rendered_text))
         if len(cls._tell_buffer[recipient_name]) > 100:
             cls._tell_buffer[recipient_name] = cls._tell_buffer[recipient_name][-100:]
 
@@ -91,7 +95,21 @@ class CommunicationsApi(GameApi):
         if player_handler is None:
             return None
         session_handler = player_handler.communications_commands.session_handler
-        return CharacterApi.find_playing_character(cls.tell_target_name(view), session_handler)
+        return cls.find_tell_target(view.context.character, cls.tell_target_name(view),
+                                    session_handler, player_handler.communications_commands.room_registry)
+
+    @staticmethod
+    def find_tell_target(actor, name, session_handler, room_registry):
+        target = CharacterApi.find_playing_character(name, session_handler)
+        if target is not None and not getattr(target, 'world_retired', False):
+            return target
+        return WizUtil.find_world_entity(None, room_registry, name, include_mobiles=False, observer=actor)
+
+    @staticmethod
+    def recipient_disconnected(target, session_handler) -> bool:
+        return (target is not None and not CharacterApi.is_npc(target)
+                and not any(getattr(session.character, 'id', None) == target.id
+                            for session in session_handler.get_playing_sessions()))
 
     @classmethod
     def tell_target_tokens(cls, view: InterpView) -> dict[str, Any]:
@@ -99,7 +117,18 @@ class CommunicationsApi(GameApi):
 
     @classmethod
     def tell_target_blocks_tells(cls, view: InterpView) -> bool:
-        return cls._target_blocks_tells(cls.tell_target(view))
+        return (not getattr(view.context, 'tell_disconnected', False)
+                and not CharacterApi.is_immortal(view.context.character)
+                and cls._target_blocks_tells(cls.tell_target(view)))
+
+    @classmethod
+    def tell_target_asleep(cls, view: InterpView) -> bool:
+        if getattr(view.context, 'tell_disconnected', False):
+            return False
+        target, actor = cls.tell_target(view), view.context.character
+        override = (CharacterApi.is_immortal(actor)
+                    and actor.level > int(CharacterApi.get_enum('gameParameters').LEVEL_IMMORTAL))
+        return target is not None and not override and not CharacterApi.is_awake(target)
 
     @classmethod
     def follow_target(cls, view: InterpView):
@@ -503,7 +532,17 @@ class CommunicationsApi(GameApi):
 
     @classmethod
     def reply_target_blocks_tells(cls, view: InterpView) -> bool:
-        return cls._target_blocks_tells(cls.reply_target(view))
+        target = cls.reply_target(view)
+        return (not getattr(view.context, 'tell_disconnected', False)
+                and not CharacterApi.is_immortal(view.context.character)
+                and not CharacterApi.is_immortal(target) and cls._target_blocks_tells(target))
+
+    @classmethod
+    def reply_target_asleep(cls, view: InterpView) -> bool:
+        target = cls.reply_target(view)
+        return (target is not None and not getattr(view.context, 'tell_disconnected', False)
+                and not CharacterApi.is_immortal(view.context.character)
+                and not CharacterApi.is_awake(target))
 
     @classmethod
     def _target_blocks_tells(cls, target) -> bool:
@@ -512,7 +551,7 @@ class CommunicationsApi(GameApi):
         comm_flags = cls.get_enum("commFlags")
         return any(
             CommunicationsUtil.has_comm(target, comm_flags, flag)
-            for flag in ("COMM_DEAF", "COMM_QUIET", "COMM_NOTELL")
+            for flag in ("COMM_DEAF", "COMM_QUIET")
         )
 
     @staticmethod

@@ -89,6 +89,8 @@ def _enum_like(**members):
 
 
 class _CharacterApi:
+    GameParameters = SimpleNamespace(LEVEL_IMMORTAL=52)
+
     @staticmethod
     def current_stat(entity, name):
         return max(3, min(25, getattr(entity.character_attributes, name, 10)))
@@ -452,7 +454,7 @@ _stub_module(
         else None
     ),
 )
-_stub_module("util.SkillUtil", SkillUtil=SimpleNamespace(check_improve=lambda *_args, **_kwargs: None))
+_stub_module("util.SkillUtil", SkillUtil=_load_module("object_skill_util", "util/SkillUtil.py").SkillUtil)
 _stub_module("skill.Ability", Ability=SimpleNamespace(check_improve=lambda *_args, **_kwargs: None))
 _stub_module("game.RandomNumberGenerator", RandomNumberGenerator=_RandomNumberGenerator)
 _stub_module("game.RegistryService", RegistryService=object)

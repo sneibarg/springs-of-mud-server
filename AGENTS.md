@@ -18,6 +18,18 @@ Prefer low-code/data-driven changes when the behavior can reasonably live in `re
 - `src/util` contains normalization, lookup, rendering, movement, combat, item, effect, area, and player helper logic.
 - `src/devtools` contains repository-local tools for inspecting collection snapshots.
 
+## Shared AI Skills
+
+For ROM24 execution-path reports and language-neutral pseudo test suites, use
+[`rom24-code-path-report`](.codex/skills/rom24-code-path-report/SKILL.md) and its
+linked report-format reference. It supports selected C files/functions or the
+whole reference tree. This is distinct from `rom24-parity`, which compares
+implementations and investigates parity fixes.
+
+Matching skill instructions are available in `.codex/skills`, `.claude/skills`
+and `.grok/skills`. AI tools without native skill discovery can read the linked
+Markdown files directly and follow the same workflow. Keep these copies in sync.
+
 ## Collection Data
 
 Use `$collection-query` before inspecting or editing `resources/collections/*.json`. That skill explains how to query collection snapshots through `python -m src.devtools` without dumping large JSON files into context.

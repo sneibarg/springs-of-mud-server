@@ -17,6 +17,7 @@ from area.AreaService import AreaService
 from area.ResetRegistry import ResetRegistry
 from area.ResetService import ResetService
 from area.RoomHandler import RoomHandler
+from area.Room import Room
 from area.RoomRegistry import RoomRegistry
 from area.RoomService import RoomService
 from area.ShopRegistry import ShopRegistry
@@ -222,9 +223,14 @@ class Bootstrapper:
         GameApi.register_runtime_reset(CharacterAdvancement.configure_level_observer)
         injector.get(GameService).set_update_handler(injector.get(UpdateHandler))
         injector.get(FightHandler).set_mobile_handler(injector.get(MobileHandler))
+        injector.get(MobileHandler).set_player_handler(injector.get(PlayerHandler))
+        injector.get(MobileHandler).set_handler_service(injector.get(HandlerService))
         injector.get(FightHandler).set_escape_handler(injector.get(CombatEscapeHandler))
         injector.get(FightHandler).set_npc_skill_handler(injector.get(CombatSkillHandler))
         injector.get(FightHandler).set_death_handler(injector.get(CombatDeathHandler))
+        Room.configure_entry_handler(injector.get(EffectUpdateHandler).room_entered)
+        injector.get(EffectHandler).weapon_drop_notifier = injector.get(EffectUpdateHandler).weapon_dropped
+        GameApi.register_runtime_reset(Room.configure_entry_handler)
         injector.get(AreaHandler).initialize_world()
 
         service_list = "; ".join(s.__name__ for s in to_load)

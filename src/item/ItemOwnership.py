@@ -55,13 +55,13 @@ class ItemOwnership:
             equipped = getattr(owner, "equipped", None)
             slots = [slot for slot, value in vars(equipped).items() if value is item] if equipped else []
             if slots:
-                self.effects.remove_item_effects(owner, item)
                 for slot in slots:
                     unequip = getattr(owner, "unequip_item", None)
                     if callable(unequip):
                         unequip(slot)
                     else:
                         setattr(equipped, slot, None)
+                self.effects.remove_item_effects(owner, item)
                 item.wear_location = ""
                 item.wear_loc = -1
             # Remove aliases left by unequipping or by duplicate ownership refs.

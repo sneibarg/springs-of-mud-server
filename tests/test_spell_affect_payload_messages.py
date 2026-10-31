@@ -2367,6 +2367,8 @@ class TestTableDamageSpells(unittest.TestCase):
                 ctx = self.live_sleep_context()
                 self.assertTrue(self.api.execute_lambdas(ctx))
                 movement = module.Movement.__new__(module.Movement)
+                ctx.room.id = 'sleep-room'
+                ctx.actor.room_id = ctx.victim.room_id = ctx.room.id
                 movement.affected_bits = self.enums['affectedBy']
                 def command_context(result=''):
                     ctx.room.player_targets = lambda _character: []

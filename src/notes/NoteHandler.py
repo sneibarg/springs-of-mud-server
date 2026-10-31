@@ -60,6 +60,13 @@ class NoteHandler:
             return await self._delete_note(character, context, note_type, rest, action)
         if action == "catchup":
             return await self._catchup(character, context, note_type)
+        from api.CharacterApi import CharacterApi
+
+        edit_offset = {InGameNoteEnum.NOTE_NEWS.value: 7, InGameNoteEnum.NOTE_CHANGES.value: 1}.get(note_type)
+        if edit_offset is not None:
+            maximum = int(CharacterApi.get_enum("gameParameters").MAX_LEVEL)
+            if CharacterApi.get_trust(character) < maximum - edit_offset:
+                return self._blocked_message(context, "can_t_do_that", fallback="You can't do that.\r\n")
         if action == "write":
             return self._start_draft(character, context, note_type)
         if action == "to":
@@ -108,11 +115,15 @@ class NoteHandler:
         notes = await self._visible_notes(character, note_type)
         if not notes:
             return self._message(context, self._no_notes_key(note_type), fallback="There are no notes for you.\r\n")
-        if not rest:
+        if not rest or "next".startswith(rest.lower()):
             return await self._read_next_unread(character, context, note_type)
-        if not rest.isdigit():
+        if rest.lower() == "all":
+            # This ROM checkout returns after the first visible match.
+            index = 1
+        elif rest.isdigit():
+            index = GenericUtil.to_int(rest, 0)
+        else:
             return self._message(context, "invalid_number", fallback="Read which number?\r\n")
-        index = GenericUtil.to_int(rest, 0)
         note = self._note_at(notes, index)
         if note is None:
             return self._message(context, "aren_t_that_many", s=self._plural_name(note_type), fallback=f"There aren't that many {self._plural_name(note_type)}.\r\n")
@@ -172,7 +183,7 @@ class NoteHandler:
         return self._message(context, "ok3", fallback="Ok.\r\n")
 
     def _set_draft_field(self, character, context, note_type: int, field_name: str, value: str, missing_key: str):
-        draft = self._matching_draft(character, context, note_type)
+        draft = self._matching_draft(character, context, note_type, create=True)
         if isinstance(draft, dict) and draft.get("blocked"):
             return draft
         if not value.strip():
@@ -181,14 +192,14 @@ class NoteHandler:
         return self._message(context, "ok4", fallback="Ok.\r\n")
 
     def _set_draft_text(self, character, context, note_type: int, text: str):
-        draft = self._matching_draft(character, context, note_type)
+        draft = self._matching_draft(character, context, note_type, create=True)
         if isinstance(draft, dict) and draft.get("blocked"):
             return draft
         draft["lines"] = [text] if text else []
         return self._message(context, "ok5", fallback="Ok.\r\n")
 
     def _append_draft_line(self, character, context, note_type: int, line: str):
-        draft = self._matching_draft(character, context, note_type)
+        draft = self._matching_draft(character, context, note_type, create=True)
         if isinstance(draft, dict) and draft.get("blocked"):
             return draft
         current = "\r\n".join(draft.get("lines", []))
@@ -198,7 +209,7 @@ class NoteHandler:
         return self._message(context, "ok5", fallback="Ok.\r\n")
 
     def _remove_draft_line(self, character, context, note_type: int):
-        draft = self._matching_draft(character, context, note_type)
+        draft = self._matching_draft(character, context, note_type, create=True)
         if isinstance(draft, dict) and draft.get("blocked"):
             return draft
         lines = draft.setdefault("lines", [])
@@ -246,8 +257,11 @@ class NoteHandler:
         self._character_context(character).pop("note_draft", None)
         return self._message(context, "ok2", fallback="Ok.\r\n")
 
-    def _matching_draft(self, character, context, note_type: int):
+    def _matching_draft(self, character, context, note_type: int, *, create=False):
         draft = self._draft(character)
+        if draft is None and create:
+            self._start_draft(character, context, note_type)
+            draft = self._draft(character)
         if draft is None:
             return self._blocked_message(context, "no_draft", fallback="You have no note in progress.\r\n")
         if GenericUtil.to_int(draft.get("type"), -1) != int(note_type):

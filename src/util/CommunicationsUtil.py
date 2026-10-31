@@ -7,6 +7,34 @@ from util.InterpUtil import InterpUtil
 
 class CommunicationsUtil:
     @staticmethod
+    def pmote_text(text: str, name: str) -> str:
+        """Apply ROM's case-sensitive name/possessive scan for one recipient."""
+        start = text.find(name) if name else -1
+        if start < 0:
+            return text
+        output, pending, matched = [text[:start]], '', 0
+        for letter in text[start:]:
+            if matched == len(name):
+                if letter == "'":
+                    output.append('r')
+                    continue
+                if letter == 's':
+                    matched = 0
+                    continue
+                matched = 0
+            if letter == name[matched]:
+                matched += 1
+                if matched == len(name):
+                    output.append('you')
+                    pending = ''
+                else:
+                    pending += letter
+                continue
+            output.extend((pending, letter))
+            pending, matched = '', 0
+        return ''.join(output)
+
+    @staticmethod
     def parse_argument(raw_result, parameters) -> str:
         text = (raw_result if isinstance(raw_result, str) else "").strip()
         if text:

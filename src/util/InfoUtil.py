@@ -2,6 +2,8 @@ from item.Item import Item
 from typing import Any
 
 from api.CharacterApi import CharacterApi
+from api.ItemApi import ItemApi
+from util.LookupUtil import LookupUtil
 from player.Character import Character
 from util.GenericUtil import GenericUtil
 
@@ -153,7 +155,7 @@ class InfoUtil:
         return "You are standing."
 
     @staticmethod
-    def target_equipment_lines(target: Any, equip_slot_labels: list[tuple[str, str]]) -> list[str]:
+    def target_equipment_lines(target: Any, equip_slot_labels: list[tuple[str, str]], *, observer=None, room=None) -> list[str]:
         item_flags = CharacterApi.get_enum("itemFlags")
         lines: list[str] = []
         equipped = target.equipped
@@ -175,7 +177,38 @@ class InfoUtil:
             if isinstance(obj, dict):
                 obj = Item.from_json(obj)
 
+            if observer is not None and not ItemApi.can_see_object(room, observer, obj):
+                continue
+
             item_text = Item.format_obj_to_char(obj, item_flags_enum=item_flags, f_short=True)
             lines.append(f"{label}{item_text}")
 
         return lines
+
+    @staticmethod
+    def visible_inventory_lines(owner, observer, room) -> list[str]:
+        """ROM's short inventory list: visible unworn roots, optionally combined by text."""
+        return InfoUtil.visible_item_lines(
+            (item for item in owner.owned_items() if not LookupUtil.worn(owner, item)), observer, room)
+
+    @staticmethod
+    def visible_item_lines(items, observer, room) -> list[str]:
+        """Render a visible, unworn item list using the observer's combine setting."""
+        flags = CharacterApi.get_enum('itemFlags')
+        combine = CharacterApi.is_npc(observer) or CharacterApi.is_comm_enabled(observer, 'COMM_COMBINE')
+        rows = []
+        counts = {}
+        for item in items:
+            if (GenericUtil.to_int(getattr(item, 'wear_loc', -1), -1) != -1
+                    or not ItemApi.can_see_object(room, observer, item)):
+                continue
+            text = Item.format_obj_to_char(item, item_flags_enum=flags, f_short=True)
+            if combine and text in counts:
+                counts[text] += 1
+            else:
+                rows.append(text)
+                counts[text] = 1
+        if not rows:
+            return [('     ' if combine else '') + 'Nothing.']
+        return [(f'({counts[text]:2d}) ' if counts[text] > 1 else '     ') + text
+                if combine else text for text in rows]

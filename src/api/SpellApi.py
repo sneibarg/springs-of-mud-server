@@ -1569,15 +1569,13 @@ class SpellApi:
         return registry.get_or_none(id=getattr(entity, "room_id", ""))
 
     def _find_world_character(self, ctx: SpellContext, name: str):
+        from util.WizUtil import WizUtil
+
         wanted = str(name or "").strip()
         registry = self._room_registry(ctx)
         if not wanted or registry is None:
             return None
-        for room in registry.all_rooms():
-            target = PlayerUtil.get_target(ctx.actor, wanted, room, self._room_helper(ctx))
-            if target is not None:
-                return target
-        return None
+        return WizUtil.find_world_entity(None, registry, wanted, observer=ctx.actor)
 
     @staticmethod
     def _alignment(entity) -> int:

@@ -30,8 +30,8 @@ def build_prompt_map():
         "%g": lambda c: c.gold,
         "%s": lambda c: c.silver,
         "%a": lambda c: c.get_alignment(),
-        "%r": lambda r: r.name if r and r.name else "",
-        "%e": lambda r: r.get_formatted_exits() if r else "",
+        "%r": lambda c, r: prompt_room_name(c, r),
+        "%e": lambda c, r: prompt_exits(c, r),
         "%R": lambda c, r: r.vnum if r and CharacterApi.is_immortal(c) else "",
         "%z": lambda c, a: a.name if a and CharacterApi.is_immortal(c) else "",
         "%c": lambda: "\n",
@@ -39,6 +39,39 @@ def build_prompt_map():
 
 
 PromptFn = Callable[..., str]
+
+
+def prompt_room_name(character, room):
+    from api.CharacterApi import CharacterApi
+    if room is None:
+        return ""
+    holy = not CharacterApi.is_npc(character) and CharacterApi.has_holy_light(character)
+    return room.name if holy or (not CharacterApi.is_blind(character) and not room.is_room_dark()) else "darkness"
+
+
+def prompt_exits(character, room):
+    from api.CharacterApi import CharacterApi
+    from area.Exit import Exit
+    if room is None:
+        return ""
+    if not room.exits:
+        return "none"
+    registry = CharacterApi.get_registry().room_registry
+    closed = int(CharacterApi.get_enum("exitFlags").EX_CLOSED)
+    infrared = (CharacterApi.is_affected(character, CharacterApi.get_enum("affectedBy").AFF_INFRARED)
+                and not CharacterApi.is_blind(character))
+    directions = []
+    for exit_obj in sorted(room.exits, key=lambda exit_obj: int(exit_obj.direction)):
+        if int(exit_obj.exit_flags) & closed:
+            continue
+        destination = registry.get_or_none(id=exit_obj.to_room_id)
+        if destination is None:
+            destination = registry.get_or_none(vnum=str(exit_obj.to_room_vnum))
+        if destination is not None and (CharacterApi.can_see_room(character, destination) or infrared):
+            label = Exit.direction_label(exit_obj.direction)
+            if label:
+                directions.append(label)
+    return ", ".join(directions) or "none"
 
 
 @dataclass

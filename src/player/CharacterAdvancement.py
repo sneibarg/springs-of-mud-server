@@ -44,6 +44,16 @@ class ExperienceGainResult:
 class CharacterAdvancement:
     _level_observer = None
 
+    @staticmethod
+    def total_experience(character) -> int:
+        field = "experience" if CharacterApi.is_npc(character) else "accumulated_experience"
+        return GenericUtil.to_int(getattr(character, field, 0), 0)
+
+    @staticmethod
+    def experience_to_level(character) -> int:
+        cost = CharacterAdvancement.experience_per_level(character, character.character_attributes.points)
+        return (character.level + 1) * cost - CharacterAdvancement.total_experience(character)
+
     @classmethod
     def configure_level_observer(cls, observer=None):
         cls._level_observer = observer

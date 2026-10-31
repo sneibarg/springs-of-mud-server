@@ -406,7 +406,11 @@ class _Character:
 
 class _ItemMacros:
     @staticmethod
-    def find_comparable_equipped_item(_character, obj1):
+    def can_see_object(_room, _character, _item):
+        return True
+
+    @staticmethod
+    def find_comparable_equipped_item(_character, obj1, *, room=None):
         return None if obj1 is None else SimpleNamespace(name="equipped", item_type=getattr(obj1, "item_type", ""), compare_value=10)
 
     @staticmethod
@@ -447,6 +451,11 @@ class _PlayerUtil:
 
 
 class _InterpUtil:
+    @staticmethod
+    def number_argument(text):
+        prefix, separator, keyword = text.partition('.')
+        return (int(prefix), keyword) if separator and prefix.isdigit() else (1, text)
+
     @staticmethod
     def one_argument(text: str):
         parts = str(text or "").split(maxsplit=1)
@@ -813,6 +822,7 @@ class TestInfoDynamicCommands(unittest.TestCase):
         commands, _room_registry, _registry_service, _session_handler, _weather_handler = self._commands()
         character = SimpleNamespace(
             name="Tester",
+            room_id="room",
             inventory=[
                 SimpleNamespace(name="sword", item_type="weapon", compare_value=10),
                 SimpleNamespace(name="vest", item_type="armor", compare_value=8),
@@ -823,6 +833,8 @@ class TestInfoDynamicCommands(unittest.TestCase):
             (item for item in character.inventory if item.name == wanted),
             None,
         )
+        character.owned_items = lambda: character.inventory
+        character.equipped_slot_of = lambda item: None
         context = _Context(character=character, command=_load_command("compare"), result="sword vest", parameters=[], done=False)
 
         text = commands.do_compare(character, context)

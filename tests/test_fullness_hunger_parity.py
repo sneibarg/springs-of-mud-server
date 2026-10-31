@@ -24,6 +24,8 @@ class TestFullnessHungerParity(unittest.TestCase):
         self.base.setUp()
         self.addCleanup(self.base.doCleanups)
         self.actor, self.room, self.commands = self.base.actor, self.base.room, self.base.commands
+        self.enterContext(patch.object(sys.modules['api.CharacterApi'].CharacterApi,
+                                       'GameParameters', NS(LEVEL_IMMORTAL=52), create=True))
         self.actor.status_flags = StatusFlags.default()
         self.actor.status_flags.hunger = self.actor.status_flags.fullness = 0
         self.actor.status_flags.thirst = 0
@@ -121,6 +123,9 @@ class TestFullnessHungerParity(unittest.TestCase):
         for field in ("is_npc", "is_immortal"):
             with self.subTest(field=field):
                 setattr(self.actor, field, True)
+                old_level = self.actor.level
+                if field == 'is_immortal':
+                    self.actor.level = 52
                 self.actor.gain_condition("fullness", 10)
                 self.actor.gain_condition("hunger", 10)
                 self.eat()
@@ -128,6 +133,7 @@ class TestFullnessHungerParity(unittest.TestCase):
                 self.assertEqual([], Character.tick_conditions(self.actor))
                 self.assertEqual((0, 0), (self.actor.status_flags.fullness, self.actor.status_flags.hunger))
                 setattr(self.actor, field, False)
+                self.actor.level = old_level
 
     def test_default_legacy_load_and_template_have_rom_fullness_default(self):
         self.assertEqual((48, 48), (StatusFlags.default().fullness, StatusFlags.default().hunger))

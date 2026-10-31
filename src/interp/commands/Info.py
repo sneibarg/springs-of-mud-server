@@ -1,4 +1,5 @@
 from api.MobileApi import MobileApi
+from api.MovementApi import MovementApi
 from datetime import datetime
 from typing import Any
 from injector import inject
@@ -11,16 +12,22 @@ from util.GenericUtil import GenericUtil
 from game.WeatherHandler import WeatherHandler
 from api.InterpApi import InterpApi
 from util.InfoUtil import InfoUtil
+from util.DisplayUtil import DisplayUtil, RecipientText
 from interp.Context import Context
 from interp.HelpEntry import HelpEntry
 from interp.HelpRegistry import HelpRegistry
 from item.Item import Item
 from util.InterpUtil import InterpUtil
 from player.Character import Character
+from player.CharacterAdvancement import CharacterAdvancement
 from skill.GroupOwnership import GroupOwnership
 from api.CharacterApi import CharacterApi
 from skill.Ability import Ability
 from util.PlayerUtil import PlayerUtil
+from util.LookupUtil import LookupUtil
+from util.FightUtil import FightUtil
+from util.SkillUtil import SkillUtil
+from game.RandomNumberGenerator import RandomNumberGenerator
 from server.LoggerFactory import LoggerFactory
 from server.session.SessionHandler import SessionHandler
 
@@ -86,6 +93,7 @@ class Info:
         self.interp_api = interp_api
         self.server_boot_time = datetime.now().ctime()
         self.PlayerActBits = enum_provider.get("playerActBits")
+        self.rng = RandomNumberGenerator()
 
     def do_quit(self, context: Context):
         return self.interp_api.run_action(context, context.command.name)
@@ -134,11 +142,20 @@ class Info:
             desc = "You see nothing special."
 
         lines = [desc, InfoUtil.target_condition_line(target)]
-        equip_lines = InfoUtil.target_equipment_lines(target, EQUIP_SLOT_LABELS)
+        equip_lines = InfoUtil.target_equipment_lines(target, EQUIP_SLOT_LABELS, observer=character, room=room)
         if equip_lines:
             lines.append("")
             lines.append(f"{(target.name or 'They')} is using:")
             lines.extend(equip_lines)
+
+        if target is not character and not CharacterApi.is_npc(character):
+            skill = self.skill_registry.get_or_none(name='peek')
+            rating = (character.skill_level('peek') if skill is not None
+                      and character.level >= FightUtil.level_for_class(skill, character) else 0)
+            if self.rng.number_percent() < SkillUtil.adjusted_percent(character, rating):
+                Ability.check_improve(character, skill.id, True, 4)
+                lines.extend(['', skill.message('to_char', 'inventory'),
+                              *InfoUtil.visible_inventory_lines(target, character, room)])
 
         context.finish()
         return "\r\n".join(lines) + "\r\n"
@@ -256,11 +273,8 @@ class Info:
         if sex_text not in ("male", "female", "sexless"):
             sex_text = "sexless"
 
-        inventory = list(getattr(character, "loot", []) or [])
-        carry_number = len(inventory)
-        item_weight = sum(GenericUtil.to_int(getattr(item, "weight", 0), 0) for item in inventory)
-        coin_weight = int((GenericUtil.to_int(character.silver, 0) / 10) + (GenericUtil.to_int(character.gold, 0) * 2 / 5))
-        carry_weight = item_weight + coin_weight
+        carry_number = character.carry_count()
+        carry_weight = character.carry_weight()
         max_items = character.max_items()
         max_weight = character.max_weight()
 
@@ -397,8 +411,6 @@ class Info:
                 victim = session.character
                 if victim is None or CharacterApi.is_npc(victim):
                     continue
-                if victim.id == character.id:
-                    continue
                 room = self.room_registry.get_or_none(id=victim.room_id)
                 if room is None:
                     continue
@@ -406,7 +418,9 @@ class Info:
                     continue
                 if nowhere_bit is not None and CharacterApi.is_set(int(room.room_flags), nowhere_bit):
                     continue
-                if not CharacterApi.can_see(character, victim):
+                if room.is_private(room_flags) and not MovementApi.is_room_owner(character, room):
+                    continue
+                if not CharacterApi.can_see(character, victim, my_room):
                     continue
                 lines.append(f"{victim.name:<28} {room.name}\r\n")
                 found = True
@@ -417,32 +431,21 @@ class Info:
             return "".join(lines)
 
         wanted = arg
-        for session in self.session_handler.get_playing_sessions():
-            victim = session.character
-            if victim is None:
-                continue
-            room = self.room_registry.get_or_none(id=victim.room_id)
-            if room is None or room.area_id != my_room.area_id:
-                continue
-            if not CharacterApi.can_see(character, victim):
-                continue
-            victim_name = (victim.name or "").lower()
-            if victim_name == wanted or victim_name.startswith(wanted):
-                context.finish()
-                return f"{victim.name:<28} {room.name}\r\n"
-
+        affected_bits = CharacterApi.get_enum("affectedBy")
         for room in self.room_registry.all_rooms():
             if room.area_id != my_room.area_id:
                 continue
-            for mob in room.mobiles.values():
-                if mob is None:
+            for victim in room.people():
+                if victim is None or getattr(victim, "world_retired", False):
                     continue
-                if not CharacterApi.can_see(character, mob):
+                if (CharacterApi.is_affected_by_name(victim, affected_bits, "AFF_HIDE")
+                        or CharacterApi.is_affected_by_name(victim, affected_bits, "AFF_SNEAK")):
                     continue
-                mob_name = (getattr(mob, "name", "") or "").lower()
-                short_name = (getattr(mob, "short_description", "") or "").lower()
-                if mob_name == wanted or mob_name.startswith(wanted) or short_name.startswith(wanted):
-                    display_name = getattr(mob, "short_description", None) or getattr(mob, "name", "someone")
+                if not CharacterApi.can_see(character, victim, my_room):
+                    continue
+                if LookupUtil.matches(wanted, victim.name):
+                    display_name = ((getattr(victim, "short_description", None) or victim.name)
+                                    if CharacterApi.is_npc(victim) else victim.name)
                     context.finish()
                     return f"{display_name:<28} {room.name}\r\n"
 
@@ -458,6 +461,12 @@ class Info:
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload.get("to_char", "")
+
+        safe, reason = context.player_handler().fight_handler.is_safe(character, victim, room=room)
+        if safe:
+            refusal = self.interp_api.render_message_key(context, "is_safe", channel="to_char").get("to_char", "")
+            context.finish()
+            return (reason or "") + refusal
 
         diff = GenericUtil.to_int(getattr(victim, "level", 0), 0) - GenericUtil.to_int(getattr(character, "level", 0), 0)
         if diff <= -10:
@@ -535,17 +544,23 @@ class Info:
 
     def do_report(self, character: Character):
         room = self.room_registry.get_or_none(id=character.room_id)
-        in_room = room.player_targets(character) if room is not None else []
+        in_room = DisplayUtil.room_listeners(character, room)
         say_text = (
             f"I have {character.hit}/{character.max_hit} hp "
             f"{character.mana}/{character.max_mana} mana "
             f"{character.movement}/{character.max_movement} mv "
-            f"{character.experience} xp."
+            f"{CharacterAdvancement.total_experience(character)} xp."
         )
+        def render(observer):
+            name = DisplayUtil.visible_tokens({'actor': character}, observer, room)['actor']
+            text = f"{name} says '{say_text}'\r\n"
+            return text[:1].upper() + text[1:]
+
         return {
             "people": in_room,
             "to_char": f"You say '{say_text}'\r\n",
-            "to_room": f"{character.name} says '{say_text}'\r\n",
+            "to_room": RecipientText(f"{character.name} says '{say_text}'\r\n",
+                {str(listener.id): render(listener) for listener in in_room}, render(None)),
         }
 
     def do_worth(self, character: Character, context: Context) -> str:
@@ -553,13 +568,11 @@ class Info:
             context.finish()
             return f"You have {character.gold} gold and {character.silver} silver.\r\n"
 
-        exp_to_level = GenericUtil.to_int(getattr(character, "accumulated_experience", 0), 0) - GenericUtil.to_int(character.experience, 0)
-        if exp_to_level < 0:
-            exp_to_level = 0
+        exp_to_level = CharacterAdvancement.experience_to_level(character)
         context.finish()
         return (
             f"You have {character.gold} gold, {character.silver} silver, and "
-            f"{character.experience} experience ({exp_to_level} exp to level).\r\n"
+            f"{CharacterAdvancement.total_experience(character)} experience ({exp_to_level} exp to level).\r\n"
         )
 
     def do_affects(self, character: Character, context: Context) -> str:
@@ -842,7 +855,8 @@ class Info:
         context.done = False
 
         room = self.room_registry.get_or_none(id=character.room_id)
-        obj = (character.find_inventory_item(arg) if arg else None) or (None if room is None else room.find_room_item(arg))
+        obj = LookupUtil.here(character, room, arg,
+                              visible=lambda item: ItemApi.can_see_object(room, character, item))
         look_in = bool(obj is not None and (Item.is_container_like(obj) or Item.is_drink_container(obj)))
         return {"argument": arg, "look_in": look_in}
 
@@ -1041,8 +1055,11 @@ class Info:
         else:
             arg1 = (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip().lower()
             arg2 = (context.parameters[1] if context.parameters and len(context.parameters) > 1 else "").strip().lower()
-        obj1 = character.find_owned_item(arg1) if arg1 else None
-        obj2 = character.find_owned_item(arg2) if arg2 else (ItemApi.find_comparable_equipped_item(character, obj1) if obj1 is not None else None)
+        room = self.room_registry.get_or_none(id=character.room_id)
+        visible = lambda item: ItemApi.can_see_object(room, character, item)
+        obj1 = LookupUtil.inventory(character, arg1, visible=visible) if arg1 else None
+        obj2 = (LookupUtil.inventory(character, arg2, visible=visible) if arg2 else
+                ItemApi.find_comparable_equipped_item(character, obj1, room=room) if obj1 is not None else None)
         t1 = str(getattr(obj1, "item_type", "") or "").strip().lower() if obj1 is not None else ""
         t2 = str(getattr(obj2, "item_type", "") or "").strip().lower() if obj2 is not None else ""
         v1 = ItemApi.compare_value(obj1) if obj1 is not None else None

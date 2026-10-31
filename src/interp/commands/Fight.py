@@ -13,6 +13,7 @@ from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
 from game.WeatherHandler import WeatherHandler
 from interp.Context import Context
+from interp.commands.Movement import Movement
 from item.Effect import Effect
 from item.EffectHandler import EffectHandler
 from player.Character import Character
@@ -27,6 +28,7 @@ from api.SpellApi import SpellApi
 from skill.SpellContext import SpellContext
 from util.FightUtil import FightUtil
 from util.GenericUtil import GenericUtil
+from util.LookupUtil import LookupUtil
 from util.MovementUtil import MovementUtil
 from util.DisplayUtil import DisplayUtil
 from util.PlayerUtil import PlayerUtil
@@ -41,7 +43,8 @@ class Fight:
                  interp_api: InterpApi,
                  weather_handler: WeatherHandler,
                  effect_handler: EffectHandler,
-                 spell_api: SpellApi):
+                 spell_api: SpellApi,
+                 movement_commands: Movement = None):
         self.__name__ = "Fight"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
@@ -56,6 +59,7 @@ class Fight:
         self.weather_handler = weather_handler
         self.effect_handler = effect_handler
         self.spell_api = spell_api
+        self.movement_commands = movement_commands
         self._handlers = {
             "hit": self.do_kill,
             "kill": self.do_kill,
@@ -307,7 +311,6 @@ class Fight:
         was_in = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         exits = list(getattr(was_in, "exits", []) or [])
         to_room = None
-        travel_state = None
         if was_in is not None and getattr(character, "fighting", None) is not None:
             for _ in range(6):
                 direction = random.randint(0, 5)
@@ -317,9 +320,6 @@ class Fight:
                 candidate = self._flee_destination(character, was_in, ex)
                 if candidate is not None:
                     direction_name = MovementUtil.DIR_NAME[direction]
-                    travel_context = Context(character=character, room=was_in)
-                    travel_context.room_registry = self.room_registry
-                    travel_state = MovementApi.move_state(travel_context, direction_name, self.room_registry)
                     to_room = candidate
                     break
 
@@ -331,18 +331,8 @@ class Fight:
                 CharacterApi.set_position(character, "POS_STANDING")
             return payload
 
-        MovementApi.pay_movement(character, travel_state)
-
         from_targets = was_in.player_targets(character)
-        if CharacterApi.is_npc(character):
-            was_in.remove_mobile_from_room(character)
-            to_room.add_mobile_to_room(character)
-        else:
-            was_in.remove_player_from_room(character)
-            to_room.add_player_to_room(character)
-        character.room_id = to_room.id
-        character.on = None
-        character.area_id = getattr(to_room, "area_id", getattr(character, "area_id", ""))
+        travel = self.movement_commands.travel(character, direction_name, was_in)
         self.fight_handler.stop_fighting(character, both=True)
 
         exp_text = ""
@@ -356,13 +346,12 @@ class Fight:
 
         context.finish()
         payloads = [
+            travel,
             InterpApi.command_payload("flee", channel="to_char"),
             InterpApi.command_payload("departed", channel="to_room", targets=from_targets, token_factory=self._actor_tokens),
-            InterpApi.command_payload("arrived", channel="to_room", targets=to_room.player_targets(character), token_factory=self._actor_tokens),
-            {"to_room_obj": to_room, "aggressive_rounds": self.fight_handler.aggressive_entry_rounds(character, to_room)},
         ]
         if exp_text:
-            payloads.insert(1, InterpApi.command_payload(exp_text, channel="to_char"))
+            payloads.insert(2, InterpApi.command_payload(exp_text, channel="to_char"))
         return {"payloads": payloads}
 
     def do_rescue(self, character: Character, context: Context):
@@ -386,10 +375,14 @@ class Fight:
         self.fight_handler.stop_fighting(foe, both=False)
         self.fight_handler.stop_fighting(victim, both=False)
         self.fight_handler.stop_fighting(character, both=False)
+        notice = self.fight_handler.check_killer(character, foe)
         self.fight_handler.set_fighting(character, foe, room.id)
         self.fight_handler.set_fighting(foe, character, room.id)
         context.finish()
-        return {"payloads": [InterpApi.command_payload("success", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)]}
+        payloads = [InterpApi.command_payload("success", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)]
+        if notice:
+            payloads.append(notice)
+        return {"payloads": payloads}
 
     def do_kick(self, character: Character, context: Context):
         view = self.fight_api.build_fight_view(context, skill_name="kick", current_target_fallback=True)
@@ -403,12 +396,12 @@ class Fight:
 
         self._set_wait(character, self._skill_beats(skill, 12))
         pre_corpse_ids = self._pre_corpse_ids(room)
-        if random.randint(1, 100) <= max(1, self.skill_api.get_rating(character, skill)):
+        if random.randint(1, 100) < self.skill_api.get_rating(character, skill):
             self._check_improve(character, skill, True, 1)
-            result = self.fight_handler.damage(character, victim, random.randint(1, max(1, GenericUtil.to_int(getattr(character, "level", 1), 1))), dt="kick")
+            result = self.fight_handler.damage(character, victim, random.randint(1, max(1, GenericUtil.to_int(getattr(character, "level", 1), 1))), dt="kick", dam_type="DAM_BASH")
         else:
             self._check_improve(character, skill, False, 1)
-            result = self.fight_handler.damage(character, victim, 0, dt="kick")
+            result = self.fight_handler.damage(character, victim, 0, dt="kick", dam_type="DAM_BASH")
         context.finish()
         return self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
 
@@ -509,7 +502,8 @@ class Fight:
                 if safe and victim is not character:
                     return None, "", "target_safe"
                 return victim, "char", ""
-            obj = (None if room is None else room.find_room_item(argument)) or character.find_inventory_item(argument)
+            obj = LookupUtil.here(character, room, argument,
+                                  visible=lambda item: ItemApi.can_see_object(room, character, item))
             if obj is None:
                 return None, "", "target_not_visible"
             return obj, "obj", ""

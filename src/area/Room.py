@@ -3,7 +3,7 @@ from __future__ import annotations
 import threading
 
 from dataclasses import dataclass, field
-from typing import List, Any, TYPE_CHECKING
+from typing import List, Any, TYPE_CHECKING, ClassVar, Callable
 
 from api.CharacterApi import CharacterApi
 from area.Exit import Exit
@@ -21,6 +21,12 @@ if TYPE_CHECKING:
 
 @dataclass
 class Room:
+    _entry_handler: ClassVar[Callable | None] = None
+
+    @classmethod
+    def configure_entry_handler(cls, handler=None):
+        cls._entry_handler = handler
+
     DIRECTION_ALIASES = {
         alias: index for index, name in enumerate(Exit.DIRECTION_NAMES) for alias in (name, name[0])
     }
@@ -141,13 +147,16 @@ class Room:
 
     def add_player_to_room(self, character: Character):
         with self.lock:
+            entered = character.id not in self.characters
             from game.Equipped import Equipped
-            if character.id not in self.characters:
+            if entered:
                 self.adjust_light(Equipped.light_contribution(character))
             if character.id not in self.characters and self.area is not None:
                 self.area.player_entered()
             self.characters[character.id] = character
             character._equipment_room = self
+        if entered and Room._entry_handler is not None:
+            Room._entry_handler(character, self)
 
     def remove_player_from_room(self, character: Character):
         with self.lock:
@@ -174,11 +183,14 @@ class Room:
 
     def add_mobile_to_room(self, mobile: Mobile):
         with self.lock:
+            entered = mobile.id not in self.mobiles
             from game.Equipped import Equipped
-            if mobile.id not in self.mobiles:
+            if entered:
                 self.adjust_light(Equipped.light_contribution(mobile))
             self.mobiles[mobile.id] = mobile
             mobile._equipment_room = self
+        if entered and Room._entry_handler is not None:
+            Room._entry_handler(mobile, self)
 
     def remove_mobile_from_room(self, mobile: Mobile):
         with self.lock:

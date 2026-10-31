@@ -443,7 +443,7 @@ class Equipped:
 
     @staticmethod
     def _remove_item(character, slot: str, item, *, effect_handler=None) -> None:
+        character.unequip_item(slot)
         if effect_handler is not None:
             effect_handler.remove_item_effects(character, item)
-        character.unequip_item(slot)
 

@@ -1128,6 +1128,10 @@
         "messageKey": "noAccess"
       },
       {
+        "messageKey": "npcNoKick",
+        "predicate": "lambda v: CharacterApi.is_npc(v.actor) and not CharacterApi.is_set(v.actor.status_flags.off, CharacterApi.enum_bit(CharacterApi.get_enum('offenseTypes'), 'OFF_KICK'))"
+      },
+      {
         "predicate": "lambda v: v.room is None",
         "messageKey": "roomMissing"
       },
@@ -1237,6 +1241,10 @@
       {
         "predicate": "lambda v: getattr(v.victim, 'fighting', None) is None",
         "messageKey": "targetNotFighting"
+      },
+      {
+        "messageKey": "killSteal",
+        "predicate": "lambda v: CharacterApi.is_npc(v.victim.fighting) and not CharacterApi.is_same_group(v.actor, v.victim)"
       }
     ]
   },
@@ -1569,7 +1577,8 @@
     "payload": {
       "toChar": {
         "msgOff": "!Peek!",
-        "msgObj": ""
+        "msgObj": "",
+        "inventory": "You peek at the inventory:"
       }
     }
   },

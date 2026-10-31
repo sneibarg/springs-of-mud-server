@@ -1,0 +1,92 @@
+[
+  {
+    "module": "tests.test_accuracy_mobile_class_parity",
+    "exit_code": 0,
+    "tests": 3,
+    "output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.035s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_training_stats_carry_parity",
+    "exit_code": 0,
+    "tests": 19,
+    "output": "...................\n----------------------------------------------------------------------\nRan 19 tests in 0.187s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_object_carry_limits_parity",
+    "exit_code": 0,
+    "tests": 13,
+    "output": ".............\n----------------------------------------------------------------------\nRan 13 tests in 0.100s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_stat_mobile_resources",
+    "exit_code": 0,
+    "tests": 5,
+    "output": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.059s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_mobile_armor_isolation",
+    "exit_code": 0,
+    "tests": 5,
+    "output": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.003s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_dynamic_commands",
+    "exit_code": 0,
+    "tests": 16,
+    "output": "................\n----------------------------------------------------------------------\nRan 16 tests in 0.113s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_api_dynamic_checks",
+    "exit_code": 0,
+    "tests": 2,
+    "output": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.001s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_defenses",
+    "exit_code": 0,
+    "tests": 6,
+    "output": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.004s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_damage_bonuses",
+    "exit_code": 0,
+    "tests": 5,
+    "output": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.003s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_round_skills",
+    "exit_code": 0,
+    "tests": 10,
+    "output": "..........\n----------------------------------------------------------------------\nRan 10 tests in 0.005s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_rounding_xp",
+    "exit_code": 0,
+    "tests": 7,
+    "output": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.005s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_state_effects",
+    "exit_code": 0,
+    "tests": 7,
+    "output": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.014s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_death_rules",
+    "exit_code": 0,
+    "tests": 13,
+    "output": ".............\n----------------------------------------------------------------------\nRan 13 tests in 0.021s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_assistance",
+    "exit_code": 0,
+    "tests": 8,
+    "output": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.007s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_entry_and_following_parity",
+    "exit_code": 0,
+    "tests": 24,
+    "output": "........................\n----------------------------------------------------------------------\nRan 24 tests in 0.500s\n\nOK\n"
+  }
+]

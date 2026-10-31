@@ -138,26 +138,29 @@ class ItemApi(GameApi):
         return (wear_flags & take_bit) != 0
 
     @staticmethod
-    def find_comparable_equipped_item(character: Character, source_item):
-        src_type = str(source_item.item_type or "").strip().lower()
+    def find_comparable_equipped_item(character: Character, source_item, *, room=None):
+        src_type = Item.enum_type_name(source_item)
+        take = int(CharacterApi.get_enum("wearFlags").ITEM_TAKE)
+        source_wear = GameApi.flags_to_int(source_item.wear_flags)
         equipped = character.equipped
         for slot_item in getattr(equipped, "__dict__", {}).values() if equipped is not None else []:
             if slot_item is None or slot_item == source_item:
                 continue
-            item_type = str(slot_item.item_type or "").strip().lower()
-            if item_type == src_type:
+            item_type = Item.enum_type_name(slot_item)
+            shared_wear = source_wear & GameApi.flags_to_int(slot_item.wear_flags) & ~take
+            if item_type == src_type and shared_wear and ItemApi.can_see_object(room, character, slot_item):
                 return slot_item
         return None
 
     @staticmethod
     def compare_value(item) -> int | None:
-        item_type = str(item.item_type or "").strip().lower()
-        if "weapon" in item_type:
-            dam_min = GenericUtil.to_int(item.value1, 0)
-            dam_max = GenericUtil.to_int(item.value2, 0)
-            return (dam_min + dam_max) // 2
-        if "armor" in item_type:
-            return GenericUtil.to_int(item.value0, 0)
+        item_type = Item.enum_type_name(item)
+        if item_type == "ITEM_WEAPON":
+            first = GenericUtil.to_int(item.value1, 0)
+            second = GenericUtil.to_int(item.value2, 0)
+            return first * (second + 1) if item.new_format else first + second
+        if item_type == "ITEM_ARMOR":
+            return sum(GenericUtil.to_int(getattr(item, f"value{index}"), 0) for index in range(3))
         return None
 
     @staticmethod

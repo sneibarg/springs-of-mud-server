@@ -1,6 +1,6 @@
 # Fresh repository-wide gameplay parity review — 2026-10-28
 
-Reference: `C:/Users/scott/PycharmProjects/PyRom/Rom24/src`. Reviewed Python: the current working tree of `C:/Users/scott/PycharmProjects/springs-of-mud-server`, including the completed G01–G28 remediation. This is a new review, with new identifiers R01–R15; the earlier report remains historical. **R01–R09 and R15 are resolved; five findings remain open (R10–R14).** The review initially made no runtime, collection or test edits; the authorized equipment/reset remediation below subsequently changed those paths. Original finding line anchors and descriptions retain the pre-remediation evidence.
+Reference: `C:/Users/scott/PycharmProjects/PyRom/Rom24/src`. Reviewed Python: the current working tree of `C:/Users/scott/PycharmProjects/springs-of-mud-server`, including the completed G01–G28 remediation. This is a new review, with new identifiers R01–R15; the earlier report remains historical. **R01–R15 are resolved; no findings remain open from this review.** The review initially made no runtime, collection or test edits; the authorized equipment/reset remediation below subsequently changed those paths. Original finding line anchors and descriptions retain the pre-remediation evidence.
 
 Only observable mechanics are findings. Service architecture, synchronization model, data-driven implementation, prose, administrative diagnostics and UI differences are excluded. No explicit design exemption was located for these discrepancies. Verified behavior does not establish designer intent; the report describes differences from this local C checkout rather than claiming every C rule is desirable.
 
@@ -22,7 +22,7 @@ G resets always add inventory. E resets add inventory first, then attempt the re
 
 **Final validation:** 111 modules were run in isolated processes, reporting 1,394 cases. All 100 previously passing modules remain green, and the new 26-test module passes: **101 passing modules / 1,109 passing tests**. The same 10 baseline modules retain exactly their previous failure/error counts, with no newly failing module or added failure count. Results are recorded in [the remediation test artifact](equipment-reset-remediation-2026-10-28-tests.json). `git diff --check` passes. The 10 remaining discrepancy probes R06–R15 still reproduce, confirming that the later report groups remain open. No live-server deployment is claimed. Previously spawned NPC equipment will receive the reset fixes on respawn; a restart/re-entry establishes light counts for already-loaded characters. Existing base armor becomes effective through the derived calculation.
 
-**Remaining in this group:** No further verified issue is open among R01–R05. R06–R09 and the related R15 were subsequently resolved in the stat/carrying pass below; R10–R14 remain open. The five descriptions below are the original evidence, not current behavior.
+**Remaining in this group:** No further verified issue is open among R01–R05. R06–R09 and the related R15 were subsequently resolved in the stat/carrying pass below; R10–R12 were subsequently resolved in the entry/following pass below; R13–R14 were subsequently resolved in the accuracy/mobile pass below. The five descriptions below are the original evidence, not current behavior.
 
 | Finding | Priority | Closely related change area |
 | --- | --- | --- |
@@ -84,7 +84,7 @@ The existing carry count/weight methods now live on AnimateEntity, shared by Cha
 
 **Final validation:** 112 modules were run in isolated processes, reporting 1,413 cases. All 101 previously passing modules remain green, plus the new 19-test module: **102 passing modules / 1,128 passing tests**. The same 10 baseline modules retain their previous failure/error counts; there is no newly failing module or added failure count. Results are recorded in [the stat/carrying test artifact](training-stat-carry-remediation-2026-10-28-tests.json). `git diff --check` passes, and the five remaining discrepancy probes R10–R14 still reproduce. Existing historically overtrained permanent stats are not reduced automatically; current-stat caps govern their runtime use. No live-server deployment is claimed.
 
-**Remaining in this group:** None of R06–R09 remains open. R15 is also resolved by the shared carrying contract. R10–R14 remain outside this pass. The original descriptions below retain pre-remediation evidence.
+**Remaining in this group:** None of R06–R09 remains open. R15 is also resolved by the shared carrying contract. R10–R12 were subsequently resolved below; R13–R14 were subsequently resolved in the accuracy/mobile pass below. The original descriptions below retain pre-remediation evidence.
 
 | Finding | Priority | Closely related change area |
 | --- | --- | --- |
@@ -121,11 +121,23 @@ max_items/max_weight return the saved character_attributes fields. No stat/level
 
 ## Room entry and movement integration
 
+### Remediation status — R10–R12 resolved
+
+**Implemented 2026-10-29:** Room membership invokes an entry-effect callback after adding a new player/mobile and releasing its lock. Bootstrap wires the shared EffectUpdateHandler and registers callback cleanup with the existing runtime reset mechanism. Duplicate membership does not reroll infection. A plague-bearing entrant immediately exposes eligible occupants using the actual plague record, level minus one, APPLY_STR -5, randomized positive duration, disease saving throws and C's six-bit (1/64) spread roll. Orphan AFF_PLAGUE flags are cleared, and level-one plague does not spread. Periodic plague retains its separate four-bit (1/16) roll and resource drain/damage. Both paths share the spread primitive. State changes finish synchronously; only existing spell-owned notification delivery is scheduled on the live event loop. Empty-world initialization needs no player notification task.
+
+The Movement command family now exposes physical travel that uses the existing eligibility/state helpers and follower recursion without interpreted posture guards. Generic mobile walking preserves its closed/no-mob/stay-area/indoor/outdoor prefilters, then calls physical travel instead of transferring membership directly. This enforces room visibility and owner-aware privacy and processes eligible followers. Mobile movement payloads are sent through the existing standard PlayerHandler emitter, retaining direction context, room views and entry reactions.
+
+Flee preserves its six-attempt/daze/closed/no-mob prefilters and existing XP/combat consequences, but successful movement now uses the same engine. Leader and follower costs/waits apply once, nested direction payloads retain their context, and standing followers or eligible charmed sleepers move with their leader. Magical sleep, fighting/incapacitated postures, insufficient movement and aggressive-NPC law restrictions keep followers behind as appropriate. Shared visited tracking prevents cyclic follow chains. No collection content needed changing; plague notifications use the existing spell payload.
+
+**Validation:** 113 existing/new modules were exercised in isolated processes, followed by focused rechecks after tightening charmed-follower standing to the postures supported by C. **103 modules / 1,152 tests pass**; 1,437 cases are reported overall. Every previously passing module remains green, and the same 10 baseline failing modules retain exactly their previous failure/error counts. [The validation artifact](entry-following-remediation-2026-10-29-tests.json) records the final module results. `tests/test_entry_and_following_parity.py` adds **24 regressions**, covering immediate/periodic plague rolls, saves, record identity, duration/modifier/resource effects, duplicate membership, existing infections, immortals, orphan flags, callback reset, PC/NPC/portal/admin entry, visibility/privacy, preserved wander prefilters, follower chains, waits/costs, charm/sleep/incapacity, law restrictions and mobile payload-emitter routing. The existing flee fixture was supplied its new movement collaborator without removing assertions. `git diff --check` passes. No live-server deployment or exhaustive state-space equivalence is claimed.
+
+**Remaining in this group:** None of R10–R12 remains open. R13 and R14 were subsequently resolved below. Original descriptions and line anchors below retain historical evidence.
+
 | Finding | Priority | Closely related change area |
 | --- | --- | --- |
-| R10 | P2 | Entry-time plague propagation |
-| R11 | P2 | Generic mobile travel integration |
-| R12 | P2 | Flee follower integration |
+| R10 (resolved) | P2 | Entry-time plague propagation |
+| R11 (resolved) | P2 | Generic mobile travel integration |
+| R12 (resolved) | P2 | Flee follower integration |
 
 ### R10 — Movement does not perform entry-time plague spread
 
@@ -149,13 +161,23 @@ The G28 fix correctly shares eligibility, cost and wait with movement, but succe
 
 ## Combat accuracy and mobile stat construction
 
-### R13 — Backstab's THAC0 adjustment divides the C bonus by 100
+### Remediation status — R13–R15 resolved
+
+R13 now applies the reference backstab THAC0 reduction, `10 * (100 - proficiency)`, without dividing it by 100. R14 now accumulates each applicable warrior/thief/cleric/mage stat modifier independently. The separate THAC0 class-priority branches remain unchanged. These fixes change four production lines and add no attribute-existence guards.
+
+R15 was already resolved with R06–R09 through shared animate-entity carrying methods. Its real-mobile gift transfer and pet-capacity rejection regression was rerun successfully; no additional production change was needed.
+
+**Validation:** **143 tests pass across 15 isolated focused modules**, including three new regressions covering both backstab attack identifiers at proficiency boundaries, all 16 class-flag combinations, and preserved THAC0 class priority. Existing combat, mobile construction, armor isolation, carrying, item-give and entry/following tests also pass. [Validation results](accuracy-mobile-remediation-2026-10-29-tests.json). `git diff --check` passes. This was a focused rerun; the preceding full-suite baseline failures were not rechecked in this pass.
+
+**Remaining:** None of R01–R15 remains open. The descriptions below retain the original pre-remediation evidence.
+
+### R13 — Backstab's THAC0 adjustment divides the C bonus by 100 (resolved)
 
 Priority: **P2**. Python: `src/combat/CombatHandler.py:1796–1798`. C: `fight.c:472–474`.
 
 For a backstab hit, Python subtracts 10×(100−backstab proficiency)//100 from THAC0. This local C checkout subtracts 10×(100−proficiency), without the division. The production-method probe at proficiency 50 reduced Python THAC0 by 5, compared with C's 500. After a successful backstab activation, Python consequently has a much lower chance of landing the hit against many armor classes. The C rule is unusually generous at low proficiency; no claim is made that it is good balance, but it is the actual reference behavior and no intentional exemption was found. Changing it requires choosing the desired rule, not assuming a remembered standard-ROM formula.
 
-### R14 — Multi-class mobile act flags apply only the first stat bonus
+### R14 — Multi-class mobile act flags apply only the first stat bonus (resolved)
 
 Priority: **P2**. Python: `src/mobile/MobileFactory.py:49–75`. C: `db.c:1607–1633`.
 
@@ -175,7 +197,7 @@ The inventory covers 214 Python files and 17 collection snapshots: 221 commands,
 
 Fresh detailed traces covered equipment/affect ownership and combat AC, item visibility/darkness/light, stats/regen/advancement/training/carrying, ordinary movement/flee/followers/portals, spell relocation/targeting/saving/dispels and representative spell effects, mobile construction/special invocation/wandering, area reset branches, periodic living/item/effect updates, damage/accuracy/escape/death/reward consumers, interpreter/alias/social/nested dispatch, and persistence boundaries. Existing tests additionally exercised combat skills, object transactions/consumption/magic items, elemental exposure, spells, communication/group behavior, and gameplay-affecting administrator operations. Existing reports served as history, not evidence for copying findings; the paths above were checked against current code and local C.
 
-At review time all **15 production-method discrepancy probes** completed successfully in [the reproducible probe script](fresh-gameplay-parity-2026-10-28-probes.py). They use real models, actual runtime enums and representative command documents, with narrow collaborators and deterministic rolls; their assertions describe the current mismatches, not fixed behavior. The script uses the repository test fixtures and must be run from this checkout. After remediation it skips R01–R09 and R15, whose corrected outcomes are exercised by the new regression suites, and retains R10–R14. No C executable differential harness or live content-service/server session was run.
+At review time all **15 production-method discrepancy probes** completed successfully in [the reproducible probe script](fresh-gameplay-parity-2026-10-28-probes.py). They use real models, actual runtime enums and representative command documents, with narrow collaborators and deterministic rolls; their assertions describe the current mismatches, not fixed behavior. The script uses the repository test fixtures and must be run from this checkout. After remediation it skips all R01–R15 probes, whose corrected outcomes are exercised by the regression suites; the original probe bodies remain as historical evidence. No C executable differential harness or live content-service/server session was run.
 
 The existing suite was run in **110 isolated module processes** to avoid cross-test module-stub contamination, using `.venv/Scripts/python.exe` and an approved unrestricted environment for Windows async tests. **100 modules pass, containing 1,083 tests.** Across all processes unittest reports 1,368 test cases, including an import-failure placeholder. Ten modules fail; full summaries are in [the test-result artifact](fresh-gameplay-parity-2026-10-28-tests.json):
 

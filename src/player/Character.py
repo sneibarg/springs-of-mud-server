@@ -397,7 +397,7 @@ class Character(AnimateEntity):
     def tick_conditions(self) -> list[str]:
         from api.CharacterApi import CharacterApi
 
-        if CharacterApi.is_npc(self) or CharacterApi.is_immortal(self):
+        if CharacterApi.is_npc(self) or self.level >= CharacterApi.GameParameters.LEVEL_IMMORTAL:
             return []
         large = self.is_large_race()
         changes = (("drunk", -1), ("fullness", -4 if large else -2),
@@ -409,7 +409,7 @@ class Character(AnimateEntity):
         from area.Room import Room
         from item.Item import Item
 
-        if CharacterApi.is_npc(self) or CharacterApi.is_immortal(self):
+        if CharacterApi.is_npc(self) or self.level >= CharacterApi.GameParameters.LEVEL_IMMORTAL:
             return {}
         light = getattr(getattr(self, "equipped", None), "light", None)
         if light is None:
@@ -427,7 +427,7 @@ class Character(AnimateEntity):
 
     def gain_condition(self, condition_name: str, value: int) -> str:
         from api.CharacterApi import CharacterApi
-        if value == 0 or CharacterApi.is_npc(self) or CharacterApi.is_immortal(self):
+        if value == 0 or CharacterApi.is_npc(self) or self.level >= CharacterApi.GameParameters.LEVEL_IMMORTAL:
             return ""
 
         status_flags = getattr(self, "status_flags", None)

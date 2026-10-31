@@ -60,15 +60,15 @@ class MobileFactory:
             mob.character_attributes.strength += 3
             mob.character_attributes.intelligence -= 1
             mob.character_attributes.constitution += 2
-        elif GameApi.is_set(mob.status_flags.act, act_bits.ACT_THIEF):
+        if GameApi.is_set(mob.status_flags.act, act_bits.ACT_THIEF):
             mob.character_attributes.dexterity += 3
             mob.character_attributes.intelligence += 1
             mob.character_attributes.wisdom -= 1
-        elif GameApi.is_set(mob.status_flags.act, act_bits.ACT_CLERIC):
+        if GameApi.is_set(mob.status_flags.act, act_bits.ACT_CLERIC):
             mob.character_attributes.wisdom += 3
             mob.character_attributes.dexterity -= 1
             mob.character_attributes.strength += 1
-        elif GameApi.is_set(mob.status_flags.act, act_bits.ACT_MAGE):
+        if GameApi.is_set(mob.status_flags.act, act_bits.ACT_MAGE):
             mob.character_attributes.intelligence += 3
             mob.character_attributes.strength -= 1
             mob.character_attributes.dexterity += 1
@@ -79,7 +79,7 @@ class MobileFactory:
         size_key = "SIZE_" + mob.size.upper()
         size_bonus = size_enum[size_key] - 2
         mob.character_attributes.strength += size_bonus
-        mob.character_attributes.constitution += size_bonus // 2
+        mob.character_attributes.constitution += GenericUtil.trunc_div(size_bonus, 2)
 
     @staticmethod
     def _apply_affected_by(mob: Mobile, enum_provider: EnumProvider):

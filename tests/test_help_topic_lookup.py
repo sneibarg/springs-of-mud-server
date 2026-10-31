@@ -48,7 +48,7 @@ class HelpFixture(RuntimeFixture):
 class HelpTopicLookupTests(HelpFixture, unittest.TestCase):
     def test_collection_has_unique_explicit_topics_and_valid_document_boundaries(self):
         topics = {}
-        self.assertEqual(len(self.help_documents), 171)
+        self.assertEqual(len(self.help_documents), 251)
         for document in self.help_documents:
             self.assertEqual(document['keyword'], document['keyword'].upper())
             self.assertNotIn('~', document['keyword'])
@@ -106,6 +106,19 @@ class HelpTopicLookupTests(HelpFixture, unittest.TestCase):
         for topic, phrase in [('clone', 'duplicates an object'), ('memory', 'size of your mud'),
                               ('armor', 'armor class'), ('affects', 'spells affecting'), ('clan', 'collection of players')]:
             self.assertIn(phrase, self.info.do_help(topic).lower())
+
+    def test_imported_rom_skill_spell_and_group_pages_resolve(self):
+        for topic, phrase in [('kick', 'Kicking allows'), ('bash', 'bashing'),
+                              ('shield block', 'shield'), ('mass healing', 'mass healing'),
+                              ('race help', 'race'), ('pick lock', 'lock'),
+                              ('alias', 'alias'), ('news', 'news')]:
+            with self.subTest(topic=topic):
+                entry = self.helps.find_topic(topic)
+                self.assertIsNotNone(entry)
+                self.assertEqual(self.rendered(entry, topic), self.info.do_help(topic))
+                self.assertIn(phrase.casefold(), self.info.do_help(topic).casefold())
+        self.assertIsNot(self.helps.find_topic('healing'), self.helps.find_topic('mass healing'))
+        self.assertNotEqual(self.info.do_help('pick'), self.info.do_help('pick lock'))
 
     def test_explicit_topics_restrict_keyword_fallback(self):
         registry = HelpRegistry()

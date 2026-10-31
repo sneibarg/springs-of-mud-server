@@ -1,0 +1,102 @@
+[
+  {
+    "module": "test_note_commands",
+    "exit_code": 0,
+    "output": "..............\n----------------------------------------------------------------------\nRan 14 tests in 0.196s\n\nOK\n"
+  },
+  {
+    "module": "test_social_alias_prompt_regressions",
+    "exit_code": 0,
+    "output": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.089s\n\nOK\n"
+  },
+  {
+    "module": "test_training_stats_carry_parity",
+    "exit_code": 0,
+    "output": "...................\n----------------------------------------------------------------------\nRan 19 tests in 0.199s\n\nOK\n"
+  },
+  {
+    "module": "test_effect_util_affects",
+    "exit_code": 0,
+    "output": ".................\n----------------------------------------------------------------------\nRan 17 tests in 0.068s\n\nOK\n"
+  },
+  {
+    "module": "test_weapon_hit_effects",
+    "exit_code": 0,
+    "output": "..............\n----------------------------------------------------------------------\nRan 14 tests in 0.024s\n\nOK\n"
+  },
+  {
+    "module": "test_bash_parity",
+    "exit_code": 0,
+    "output": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.007s\n\nOK\n"
+  },
+  {
+    "module": "test_dirt_trip_parity",
+    "exit_code": 0,
+    "output": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.007s\n\nOK\n"
+  },
+  {
+    "module": "test_object_shop_equipment_parity",
+    "exit_code": 0,
+    "output": "...............\n----------------------------------------------------------------------\nRan 15 tests in 0.135s\n\nOK\n"
+  },
+  {
+    "module": "test_item_activation_followup_parity",
+    "exit_code": 0,
+    "output": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.071s\n\nOK\n"
+  },
+  {
+    "module": "test_movement_rules_parity",
+    "exit_code": 0,
+    "output": "...................................\n----------------------------------------------------------------------\nRan 35 tests in 0.360s\n\nOK\n"
+  },
+  {
+    "module": "test_entry_and_following_parity",
+    "exit_code": 0,
+    "output": "........................\n----------------------------------------------------------------------\nRan 24 tests in 0.496s\n\nOK\n"
+  },
+  {
+    "module": "test_world_population_parity",
+    "exit_code": 0,
+    "output": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.071s\n\nOK\n"
+  },
+  {
+    "module": "test_weather_update",
+    "exit_code": 0,
+    "output": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.088s\n\nOK\n"
+  },
+  {
+    "module": "test_learning_parity",
+    "exit_code": 0,
+    "output": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.011s\n\nOK\n"
+  },
+  {
+    "module": "test_advancement_parity",
+    "exit_code": 0,
+    "output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.004s\n\nOK\n"
+  },
+  {
+    "module": "test_wiz_movement_parity",
+    "exit_code": 0,
+    "output": "...........\n----------------------------------------------------------------------\nRan 11 tests in 0.458s\n\nOK\n"
+  },
+  {
+    "module": "test_local_speech_parity",
+    "exit_code": 0,
+    "output": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.188s\n\nOK\n"
+  },
+  {
+    "module": "test_spell_object_targeting_parity",
+    "exit_code": 0,
+    "output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.037s\n\nOK\n"
+  },
+  {
+    "module": "test_input_wait_and_persistence",
+    "exit_code": 0,
+    "output": "...........\n----------------------------------------------------------------------\nRan 11 tests in 0.443s\n\nOK\n"
+  },
+  {
+    "module": "test_runtime_loop_ownership",
+    "exit_code": 0,
+    "output": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.249s\n\nOK\n"
+  }
+]

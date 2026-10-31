@@ -98,7 +98,7 @@
       "toChar": {
         "noArgument": "Tell whom what?",
         "targetMissing": "They aren't here.",
-        "targetDisconnected": "%v seems to have misplaced their link...try again later.",
+        "targetDisconnected": "%t seems to have misplaced their link...try again later.",
         "targetSleeping": "%t can't hear you.",
         "targetDeaf": "%t is not receiving tells.",
         "targetNPC": "%t is AFK, and not receiving tells.",
@@ -134,6 +134,11 @@
       {
         "predicate": "lambda v: CommunicationsApi.tell_target(v) is None",
         "messageKey": "targetMissing"
+      },
+      {
+        "messageKey": "targetSleeping",
+        "predicate": "lambda v: CommunicationsApi.tell_target_asleep(v)",
+        "tokenFactory": "lambda v: CommunicationsApi.tell_target_tokens(v)"
       },
       {
         "predicate": "lambda v: CommunicationsApi.tell_target_blocks_tells(v)",
@@ -3858,16 +3863,7 @@
     "log": "LOG_NORMAL",
     "pipeline": false,
     "maxArguments": 0,
-    "guards": [
-      {
-        "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_AFK')",
-        "messageKey": "enable"
-      },
-      {
-        "predicate": "lambda v: CommunicationsUtil.has_comm(v.context.character, CharacterApi.get_enum('commFlags'), 'COMM_AFK')",
-        "messageKey": "disable"
-      }
-    ],
+    "guards": [],
     "payload": {
       "toChar": {
         "enable": "You are now in AFK mode.",
@@ -4013,7 +4009,9 @@
         "commandPositionStunned": "You are too stunned to do that.",
         "commandPositionSleeping": "In your dreams, or what?"
       },
-      "toRoom": {},
+      "toRoom": {
+        "default": "%c %e"
+      },
       "toVictim": {}
     },
     "guards": [
@@ -4498,6 +4496,11 @@
         "messageKey": "targetMissing"
       },
       {
+        "messageKey": "targetSleeping",
+        "predicate": "lambda v: CommunicationsApi.reply_target_asleep(v)",
+        "tokenFactory": "lambda v: CommunicationsApi.reply_target_tokens(v)"
+      },
+      {
         "predicate": "lambda v: CommunicationsApi.reply_target_blocks_tells(v)",
         "messageKey": "targetDeaf",
         "tokenFactory": "lambda v: CommunicationsApi.reply_target_tokens(v)"
@@ -4634,7 +4637,9 @@
         "commandPositionStunned": "You are too stunned to do that.",
         "commandPositionSleeping": "In your dreams, or what?"
       },
-      "toRoom": {},
+      "toRoom": {
+        "default": "%c yells '%s'"
+      },
       "toVictim": {}
     },
     "guards": [
@@ -6837,7 +6842,8 @@
         "commandPositionStunned": "You are too stunned to do that.",
         "commandPositionSleeping": "In your dreams, or what?",
         "commandPositionResting": "Nah... You feel too relaxed...",
-        "commandPositionSitting": "Better stand up first."
+        "commandPositionSitting": "Better stand up first.",
+        "npcNoKick": ""
       },
       "toRoom": {},
       "toVictim": {}

@@ -209,7 +209,7 @@ class TestCombatRoundSkills(unittest.TestCase):
         with patch.object(commands_module.random, "randint", side_effect=[1, 7]):
             result = handler.after_round(self.actor)
         self.assertEqual(12, self.actor.status_flags.pulse_wait)
-        commands.fight_handler.damage.assert_called_once_with(self.actor, self.victim, 7, dt="kick")
+        commands.fight_handler.damage.assert_called_once_with(self.actor, self.victim, 7, dt="kick", dam_type="DAM_BASH")
         self.assertEqual({"to_room": "kick hits"}, result[0]["payloads"][0])
 
     def test_mob_stopping_after_third_attack_skips_skill_selection(self):

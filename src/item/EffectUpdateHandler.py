@@ -1,3 +1,4 @@
+import asyncio
 from skill.AbilityResolver import AbilityResolver
 from injector import inject
 from api.CharacterApi import CharacterApi
@@ -23,12 +24,32 @@ class EffectUpdateHandler:
         self.room_registry = registry_service.room_registry
         self.skill_registry = registry_service.skill_registry
         self.spell_registry = registry_service.spell_registry
+        self.interp_registry = registry_service.interp_registry
         self.effect_handler = effect_handler
         self.fight_handler = fight_handler
         self.message_bus = message_bus
         self.PositionsEnum = enum_provider.get("positions")
         self.AffectedBits = enum_provider.get("affectedBy")
         self.rng = RandomNumberGenerator()
+
+    def weapon_dropped(self, character, weapon, room):
+        """Snapshot content-owned notices after the synchronous ownership change."""
+        command = self.interp_registry.get_or_none(name="drop")
+        if command is None:
+            return
+        notices = []
+        for observer in room.players_in_room():
+            channel = "to_char" if observer is character else "to_room"
+            tokens = DisplayUtil.visible_tokens({"c": character, "t": weapon}, observer, room)
+            text = command.render_message(channel, "default", **tokens)
+            if text:
+                notices.append((observer.id, text.rstrip("\r\n") + "\r\n"))
+        if notices:
+            asyncio.get_running_loop().create_task(self._emit_weapon_drop(notices))
+
+    async def _emit_weapon_drop(self, notices):
+        for recipient_id, text in notices:
+            await self.message_bus.send_to_character(recipient_id, self.message_bus.text_to_message(text))
 
     def expired_messages(self, entity, field_name):
         result = self.effect_handler.tick_effects(entity)
@@ -75,6 +96,17 @@ class EffectUpdateHandler:
         if plague_level == 1:
             return
 
+        spread, infected = self._spread_plague(plague, room, 4)
+        for victim in infected:
+            await self._send_effect_payload(spread, "spread", victim, room)
+
+        damage = min(GenericUtil.to_int(getattr(entity, "level", 0), 0), plague_level // 5 + 1)
+        setattr(entity, "mana", GenericUtil.to_int(getattr(entity, "mana", 0), 0) - damage)
+        setattr(entity, "movement", GenericUtil.to_int(getattr(entity, "movement", 0), 0) - damage)
+        await self.fight_handler.apply_periodic_damage(entity, damage, dt="spell.plague", dam_type="DAM_DISEASE")
+
+    def _spread_plague(self, plague, room, bits):
+        plague_level = int(plague.level)
         spread = Effect(
             where="TO_AFFECTS",
             type=getattr(plague, "type", "spell.plague"),
@@ -86,6 +118,7 @@ class EffectUpdateHandler:
             apply_to="char",
         )
 
+        infected = []
         for victim in room.people():
             if getattr(victim, 'world_retired', False):
                 continue
@@ -96,17 +129,32 @@ class EffectUpdateHandler:
                 continue
             if victim.is_affected(self.AffectedBits, "AFF_PLAGUE"):
                 continue
-            if self.rng.number_bits(4) != 0:
+            if self.rng.number_bits(bits) != 0:
                 continue
 
-            await self._send_effect_payload(spread, "spread", victim, room)
-            if not getattr(victim, 'world_retired', False):
-                self.effect_handler.affect_join(victim, spread)
+            self.effect_handler.affect_join(victim, spread)
+            infected.append(victim)
 
-        damage = min(GenericUtil.to_int(getattr(entity, "level", 0), 0), plague_level // 5 + 1)
-        setattr(entity, "mana", GenericUtil.to_int(getattr(entity, "mana", 0), 0) - damage)
-        setattr(entity, "movement", GenericUtil.to_int(getattr(entity, "movement", 0), 0) - damage)
-        await self.fight_handler.apply_periodic_damage(entity, damage, dt="spell.plague", dam_type="DAM_DISEASE")
+        return spread, infected
+
+    def room_entered(self, entity, room):
+        if not entity.is_affected(self.AffectedBits, "AFF_PLAGUE"):
+            return
+        plague = entity.find_effect("spell.plague", "plague")
+        if plague is None:
+            entity.set_affected(self.AffectedBits, "AFF_PLAGUE", False)
+            return
+        if int(plague.level) == 1:
+            return
+        spread, infected = self._spread_plague(plague, room, 6)
+        # State changes are synchronous on the socket loop. Only notifications
+        # yield; world initialization has no player recipients or running loop.
+        if infected and room.characters:
+            asyncio.get_running_loop().create_task(self._notify_entry_spread(spread, infected, room))
+
+    async def _notify_entry_spread(self, spread, infected, room):
+        for victim in infected:
+            await self._send_effect_payload(spread, "spread", victim, room)
 
     async def _send_effect_payload(self, effect, key: str, entity, room) -> None:
         await self._send_to_room_except(room, entity, self._effect_payload(effect, "to_room", key, entity))

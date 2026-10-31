@@ -236,7 +236,7 @@ class FightApi:
         return CharacterApi.is_npc(victim) and current is not None and current is not view.actor
 
     def _resolve_action_skill(self, command_name: str, weapon) -> Any:
-        if command_name in {"kill", "hit"}:
+        if command_name in {"kill", "hit", "murder"}:
             skill_name = SkillUtil.active_melee_skill_name(weapon, self.fight_handler.WeaponClass)
             return self.skill_registry.get_or_none(name=skill_name)
         return self.skill_registry.get_or_none(name=command_name)

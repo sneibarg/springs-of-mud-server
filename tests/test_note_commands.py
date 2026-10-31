@@ -242,6 +242,84 @@ class TestNoteCommands(unittest.TestCase):
         self.assertEqual("First line\r\nSecond line", service.created[0].text)
         self.assertNotIn("note_draft", character.context)
 
+    def test_restricted_boards_reject_every_edit_below_trust_boundary(self):
+        for board, threshold in (("news", 53), ("changes", 59)):
+            for action in ("write", "to all", "subject Changed", "text Changed", "+ Changed",
+                           "-", "clear", "show", "post", "send"):
+                with self.subTest(board=board, action=action):
+                    handler, service = self._handler()
+                    draft = {"type": handler.note_types[board], "to_list": "all",
+                             "subject": "Original", "lines": ["Original body"]}
+                    character = SimpleNamespace(name="Bob", trust=threshold - 1, immortal=True,
+                                                context={"note_draft": deepcopy(draft)})
+                    payload = asyncio.run(handler.execute(character, self._context(board, action)))
+                    self.assertTrue(payload.get("blocked"))
+                    self.assertEqual(draft, character.context["note_draft"])
+                    self.assertEqual([], service.created)
+                    self.assertEqual([], service.updated)
+                    self.assertEqual([], service.deleted)
+
+    def test_restricted_boards_allow_posting_at_trust_boundary(self):
+        for board, threshold in (("news", 53), ("changes", 59)):
+            with self.subTest(board=board):
+                handler, service = self._handler()
+                character = SimpleNamespace(name="Admin", trust=threshold, context={})
+                for action in ("to all", "subject Bulletin", "+ Body", "post"):
+                    payload = asyncio.run(handler.execute(character, self._context(board, action)))
+                    self.assertIn("Ok.", payload["to_char"])
+                self.assertEqual(1, len(service.created))
+                self.assertEqual(handler.note_types[board], service.created[0].type)
+
+    def test_restricted_boards_remain_readable_and_catchup_available_to_mortals(self):
+        for board in ("news", "changes"):
+            with self.subTest(board=board):
+                handler, service = self._handler()
+                note_type = handler.note_types[board]
+                service.notes.append(InGameNote(id="n1", type=note_type, sender="Admin",
+                                                to_list="all", subject="Bulletin", date_stamp=10))
+                character = SimpleNamespace(name="Bob", trust=1, immortal=False, context={})
+                for action in ("list", "read next", "read all", "catchup"):
+                    payload = asyncio.run(handler.execute(character, self._context(board, action)))
+                    self.assertFalse(payload.get("blocked"))
+                    self.assertNotIn("can't", payload["to_char"])
+                self.assertEqual(10, character.note_read_stamps[str(note_type)])
+
+    def test_composition_actions_attach_draft_and_preserve_other_board_draft(self):
+        for action, field, value in (("to Bob", "to_list", "Bob"),
+                                     ("subject Greetings", "subject", "Greetings"),
+                                     ("+ First line", "lines", ["First line"]),
+                                     ("text Body", "lines", ["Body"]), ("-", "lines", [])):
+            with self.subTest(action=action):
+                handler, _ = self._handler()
+                character = SimpleNamespace(name="Bob", context={})
+                asyncio.run(handler.execute(character, self._context("note", action)))
+                draft = deepcopy(character.context["note_draft"])
+                self.assertEqual(value, draft[field])
+                self.assertEqual(0, draft["type"])
+                payload = asyncio.run(handler.execute(character, self._context("idea", action)))
+                self.assertTrue(payload.get("blocked"))
+                self.assertEqual(draft, character.context["note_draft"])
+
+    def test_read_selectors_filter_visibility_and_update_read_state(self):
+        notes = [InGameNote(id="hidden", type=0, sender="Ann", to_list="Cara",
+                            subject="Private", date_stamp=5),
+                 InGameNote(id="first", type=0, sender="Ann", to_list="Bob",
+                            subject="First", date_stamp=10),
+                 InGameNote(id="second", type=0, sender="Ann", to_list="Bob",
+                            subject="Second", date_stamp=20)]
+        handler, _ = self._handler(notes)
+        character = SimpleNamespace(name="Bob", context={}, immortal=False)
+        for selector, subject, stamp in (("next", "First", 10), ("ne", "Second", 20),
+                                         ("all", "First", 20)):
+            payload = asyncio.run(handler.execute(character, self._context("note", "read " + selector)))
+            self.assertIn(subject, payload["to_char"])
+            self.assertNotIn("Private", payload["to_char"])
+            if selector == "all":
+                self.assertNotIn("Second", payload["to_char"])
+            self.assertEqual(stamp, character.note_read_stamps["0"])
+        payload = asyncio.run(handler.execute(character, self._context("note", "read next")))
+        self.assertIn("no unread", payload["to_char"])
+
     def test_remove_preserves_other_recipients_and_delete_requires_creator(self):
         note = InGameNote(id="n1", type=2, sender="Ann", to_list="Bob Admin", subject="Hello", text="Body", date_stamp=10)
         handler, service = self._handler([note])

@@ -235,6 +235,13 @@ class TestCombatSurvival(unittest.TestCase):
             self.attacker.fighting = None
         commands.fight_handler = SimpleNamespace(stop_fighting=Mock(side_effect=stop),
                                                  aggressive_entry_rounds=Mock(return_value=[]))
+        def travel(character, direction, source):
+            source.remove_player_from_room(character)
+            destination.add_player_to_room(character)
+            character.room_id = destination.id
+            character.movement -= 2
+            return {'payloads': []}
+        commands.movement_commands = SimpleNamespace(travel=Mock(side_effect=travel))
         handler.fight_commands = commands
         result = handler.after_damage(self.attacker, self.victim, 1)
         self.assertEqual("room-2", self.victim.room_id)

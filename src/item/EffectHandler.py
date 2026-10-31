@@ -33,6 +33,8 @@ class EffectHandler:
         self.item_flags = enum_provider.get("itemFlags")
         self.weapon_type = enum_provider.get("weaponType")
         self.enum_provider = enum_provider
+        self.weapon_drop_notifier = None
+        self._dropping_weapons = set()
 
     @staticmethod
     def _lock_for(entity):
@@ -179,6 +181,25 @@ class EffectHandler:
                 entity.value4 = str(value)
 
         self._apply_stat_modifier(entity, location, modifier, self.apply_types)
+        self._check_wield_weight(entity)
+
+    def _check_wield_weight(self, entity):
+        weapon = getattr(getattr(entity, "equipped", None), "wielded", None)
+        if weapon is None or id(entity) in self._dropping_weapons:
+            return
+        from game.Equipped import Equipped
+        from item.ItemOwnership import ItemOwnership
+        room = Equipped.room_of(entity)
+        if room is None or not weapon.weapon_too_heavy(entity):
+            return
+        self._dropping_weapons.add(id(entity))
+        try:
+            ItemOwnership(self).detach_carried(entity, weapon)
+            room.add_item_to_room(weapon)
+            if self.weapon_drop_notifier is not None:
+                self.weapon_drop_notifier(entity, weapon, room)
+        finally:
+            self._dropping_weapons.discard(id(entity))
 
     def affect_find(self, effects: list[Effect], effect_type) -> Effect | None:
         wanted = str(effect_type).strip().lower()
@@ -232,8 +253,8 @@ class EffectHandler:
                 return False
             where = getattr(effect, "where", 0)
             vector = getattr(effect, "bitvector", 0)
-            self.affect_modify(entity, effect, False)
             effects.remove(effect)
+            self.affect_modify(entity, effect, False)
             if not hasattr(entity, "item_type"):
                 self.affect_check(entity, where, vector)
         self._refresh_item_wearer(entity)
@@ -310,6 +331,8 @@ class EffectHandler:
             return
         source = Effect.item_source(item.id)
         for affect_like in effects:
+            if getattr(item, "_effect_wearer", None) is not character:
+                break
             effect = self.as_effect(affect_like, source=source)
             self.affect_to_char(character, effect)
 
@@ -325,8 +348,17 @@ class EffectHandler:
         wearer = getattr(item, "_effect_wearer", None)
         if wearer is None:
             return
-        self.remove_item_effects(wearer, item)
-        self.apply_item_effects(wearer, item)
+        # Refresh replaces derived contributions; its intermediate stripped
+        # state is not an observable affect change in ROM.
+        already_checking = id(wearer) in self._dropping_weapons
+        self._dropping_weapons.add(id(wearer))
+        try:
+            self.remove_item_effects(wearer, item)
+            self.apply_item_effects(wearer, item)
+        finally:
+            if not already_checking:
+                self._dropping_weapons.discard(id(wearer))
+        self._check_wield_weight(wearer)
 
     def dispel_effects(self, dis_level: int, victim, effect_type) -> list[Effect]:
         want = str(effect_type).strip().lower()

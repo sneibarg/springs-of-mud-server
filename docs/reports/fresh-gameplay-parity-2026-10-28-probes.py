@@ -1,7 +1,7 @@
 """Read-only production-method probes for the fresh gameplay review.
 
 Run from the repository root with .venv/Scripts/python.exe <this file>.
-R01-R09 and R15 are now covered by regression tests and skipped here. Remaining assertions describe observed Python discrepancies, not desired behavior.
+R01-R15 are now covered by regression tests and skipped here. The historical assertions describe pre-remediation discrepancies, not desired behavior.
 """
 import sys
 from pathlib import Path
@@ -27,7 +27,7 @@ class Fixture(MovementFixture, unittest.TestCase):
 Fixture.setUpClass()
 results = []
 def probe(name, operation):
-    if name[:3] in {'R01', 'R02', 'R03', 'R04', 'R05', 'R06', 'R07', 'R08', 'R09', 'R15'}:
+    if name[:3] in {'R01', 'R02', 'R03', 'R04', 'R05', 'R06', 'R07', 'R08', 'R09', 'R10', 'R11', 'R12', 'R13', 'R14', 'R15'}:
         return
     fixture = Fixture()
     fixture.setUp()

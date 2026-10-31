@@ -1,0 +1,102 @@
+[
+  {
+    "module": "test_effect_weapon_prompt_parity",
+    "exit_code": 0,
+    "output": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.123s\n\nOK\n"
+  },
+  {
+    "module": "test_social_alias_prompt_regressions",
+    "exit_code": 0,
+    "output": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.104s\n\nOK\n"
+  },
+  {
+    "module": "test_training_stats_carry_parity",
+    "exit_code": 0,
+    "output": "...................\n----------------------------------------------------------------------\nRan 19 tests in 0.183s\n\nOK\n"
+  },
+  {
+    "module": "test_effect_util_affects",
+    "exit_code": 0,
+    "output": ".................\n----------------------------------------------------------------------\nRan 17 tests in 0.057s\n\nOK\n"
+  },
+  {
+    "module": "test_effect_util_ownership",
+    "exit_code": 0,
+    "output": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.001s\n\nOK\n"
+  },
+  {
+    "module": "test_weapon_hit_effects",
+    "exit_code": 0,
+    "output": "..............\n----------------------------------------------------------------------\nRan 14 tests in 0.022s\n\nOK\n"
+  },
+  {
+    "module": "test_object_shop_equipment_parity",
+    "exit_code": 0,
+    "output": "...............\n----------------------------------------------------------------------\nRan 15 tests in 0.125s\n\nOK\n"
+  },
+  {
+    "module": "test_equipment_reset_ownership_parity",
+    "exit_code": 0,
+    "output": "..........................\n----------------------------------------------------------------------\nRan 26 tests in 0.252s\n\nOK\n"
+  },
+  {
+    "module": "test_spell_affect_payload_messages",
+    "exit_code": 1,
+    "output": "..............................................................F.F.F...............................................................\n======================================================================\nFAIL: test_energy_drain_experience_resources_uncapped_heal_and_single_damage (tests.test_spell_affect_payload_messages.TestTableDamageSpells.test_energy_drain_experience_resources_uncapped_heal_and_single_damage)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_spell_affect_payload_messages.py\", line 3039, in test_energy_drain_experience_resources_uncapped_heal_and_single_damage\n    self.assertTrue(self.api.execute_lambdas(ctx))\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: False is not true\n\n======================================================================\nFAIL: test_energy_drain_respects_existing_experience_floor_and_hero_exemption (tests.test_spell_affect_payload_messages.TestTableDamageSpells.test_energy_drain_respects_existing_experience_floor_and_hero_exemption) (level=20)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_spell_affect_payload_messages.py\", line 3084, in test_energy_drain_respects_existing_experience_floor_and_hero_exemption\n    self.assertTrue(self.api.execute_lambdas(ctx))\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: False is not true\n\n======================================================================\nFAIL: test_energy_drain_self_cast_preserves_alignment_and_npc_experience_is_unchanged (tests.test_spell_affect_payload_messages.TestTableDamageSpells.test_energy_drain_self_cast_preserves_alignment_and_npc_experience_is_unchanged) (self_target=True, npc=False)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_spell_affect_payload_messages.py\", line 3070, in test_energy_drain_self_cast_preserves_alignment_and_npc_experience_is_unchanged\n    self.assertTrue(self.api.execute_lambdas(ctx))\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: False is not true\n\n----------------------------------------------------------------------\nRan 130 tests in 2.913s\n\nFAILED (failures=3)\n"
+  },
+  {
+    "module": "test_periodic_damage",
+    "exit_code": 0,
+    "output": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.007s\n\nOK\n"
+  },
+  {
+    "module": "test_update_handler_active_players",
+    "exit_code": 0,
+    "output": ".................................\n----------------------------------------------------------------------\nRan 33 tests in 0.078s\n\nOK\n"
+  },
+  {
+    "module": "test_item_ownership",
+    "exit_code": 0,
+    "output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.163s\n\nOK\n"
+  },
+  {
+    "module": "test_item_persistence",
+    "exit_code": 0,
+    "output": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.005s\n\nOK\n"
+  },
+  {
+    "module": "test_object_item_retaliation_parity",
+    "exit_code": 0,
+    "output": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.067s\n\nOK\n"
+  },
+  {
+    "module": "test_combat_dynamic_commands",
+    "exit_code": 0,
+    "output": "................\n----------------------------------------------------------------------\nRan 16 tests in 0.121s\n\nOK\n"
+  },
+  {
+    "module": "test_runtime_loop_ownership",
+    "exit_code": 0,
+    "output": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.236s\n\nOK\n"
+  },
+  {
+    "module": "test_weather_update",
+    "exit_code": 0,
+    "output": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.081s\n\nOK\n"
+  },
+  {
+    "module": "test_entry_and_following_parity",
+    "exit_code": 0,
+    "output": "........................\n----------------------------------------------------------------------\nRan 24 tests in 0.503s\n\nOK\n"
+  },
+  {
+    "module": "test_spell_object_targeting_parity",
+    "exit_code": 0,
+    "output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.036s\n\nOK\n"
+  },
+  {
+    "module": "test_object_container_shop_spell_parity",
+    "exit_code": 0,
+    "output": "................\n----------------------------------------------------------------------\nRan 16 tests in 0.147s\n\nOK\n"
+  }
+]

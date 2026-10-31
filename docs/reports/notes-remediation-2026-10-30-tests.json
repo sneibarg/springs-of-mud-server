@@ -1,0 +1,22 @@
+[
+  {
+    "module": "tests.test_note_commands",
+    "exit_code": 0,
+    "output": "..............\n----------------------------------------------------------------------\nRan 14 tests in 0.164s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_command_authorization",
+    "exit_code": 1,
+    "output": "............F.......\n======================================================================\nFAIL: test_numeric_and_symbolic_levels_use_effective_trust (tests.test_command_authorization.TestCommandAuthorization.test_numeric_and_symbolic_levels_use_effective_trust) (level='IM')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_command_authorization.py\", line 189, in test_numeric_and_symbolic_levels_use_effective_trust\n    self.assertIsNotNone(CommandAccess.check(actor, command))\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: unexpectedly None\n\n----------------------------------------------------------------------\nRan 20 tests in 0.083s\n\nFAILED (failures=1)\n"
+  },
+  {
+    "module": "tests.test_command_executor",
+    "exit_code": 0,
+    "output": "...............\n----------------------------------------------------------------------\nRan 15 tests in 0.268s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_input_wait_and_persistence",
+    "exit_code": 0,
+    "output": "...........\n----------------------------------------------------------------------\nRan 11 tests in 0.409s\n\nOK\n"
+  }
+]

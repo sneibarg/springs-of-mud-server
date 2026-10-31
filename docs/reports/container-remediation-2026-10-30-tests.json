@@ -1,0 +1,722 @@
+[
+  {
+    "module": "tests.test_accuracy_mobile_class_parity",
+    "exit_code": 0,
+    "tests": 3,
+    "output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.036s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_acid_exposure",
+    "exit_code": 0,
+    "tests": 13,
+    "output": ".............\n----------------------------------------------------------------------\nRan 13 tests in 0.057s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_advancement_parity",
+    "exit_code": 0,
+    "tests": 3,
+    "output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.004s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_area_api",
+    "exit_code": 0,
+    "tests": 12,
+    "output": "............\n----------------------------------------------------------------------\nRan 12 tests in 0.002s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_area_occupancy",
+    "exit_code": 0,
+    "tests": 10,
+    "output": "..........\n----------------------------------------------------------------------\nRan 10 tests in 0.009s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_area_pet_shop_resets",
+    "exit_code": 0,
+    "tests": 1,
+    "output": ".\n----------------------------------------------------------------------\nRan 1 test in 0.824s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_bash_parity",
+    "exit_code": 0,
+    "tests": 6,
+    "output": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.008s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_cast_learned_contract",
+    "exit_code": 0,
+    "tests": 4,
+    "output": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.026s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_character_api_immortal",
+    "exit_code": 0,
+    "tests": 3,
+    "output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.000s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_collection_api_boundaries",
+    "exit_code": 0,
+    "tests": 8,
+    "output": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.051s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_api_dynamic_checks",
+    "exit_code": 0,
+    "tests": 2,
+    "output": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.001s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_assistance",
+    "exit_code": 0,
+    "tests": 8,
+    "output": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.007s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_damage_bonuses",
+    "exit_code": 0,
+    "tests": 5,
+    "output": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.003s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_death_rules",
+    "exit_code": 0,
+    "tests": 13,
+    "output": ".............\n----------------------------------------------------------------------\nRan 13 tests in 0.021s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_defenses",
+    "exit_code": 0,
+    "tests": 6,
+    "output": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.004s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_dynamic_commands",
+    "exit_code": 0,
+    "tests": 16,
+    "output": "................\n----------------------------------------------------------------------\nRan 16 tests in 0.107s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_group_rewards",
+    "exit_code": 1,
+    "tests": 14,
+    "output": ".EEEEEEEE.EE.E\n======================================================================\nERROR: test_equipment_check_matches_original_killer_not_each_rewarded_member (tests.test_combat_group_rewards.TestCombatGroupRewards.test_equipment_check_matches_original_killer_not_each_rewarded_member)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_combat_group_rewards.py\", line 191, in test_equipment_check_matches_original_killer_not_each_rewarded_member\n    self.handler.group_gain(self.killer, self.victim)\n    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\combat\\CombatHandler.py\", line 675, in group_gain\n    advancement = CharacterAdvancement.gain_experience(member, xp)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\player\\CharacterAdvancement.py\", line 102, in gain_experience\n    xp_per_level = max(1, CharacterAdvancement.experience_per_level(character, attrs.points))\n                                                                               ^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'points'\n\n======================================================================\nERROR: test_lethal_damage_rewards_group_before_extracting_victim (tests.test_combat_group_rewards.TestCombatGroupRewards.test_lethal_damage_rewards_group_before_extracting_victim)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_combat_group_rewards.py\", line 207, in test_lethal_damage_rewards_group_before_extracting_victim\n    result = self.handler.damage(self.killer, self.victim, 1)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\combat\\CombatHandler.py\", line 871, in damage\n    result = self._apply_damage(attacker, victim, dam, dt, dam_type, show, weapon_hit)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\combat\\CombatHandler.py\", line 989, in _apply_damage\n    rewards = self.group_gain(attacker, victim)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\combat\\CombatHandler.py\", line 675, in group_gain\n    advancement = CharacterAdvancement.gain_experience(member, xp)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\player\\CharacterAdvancement.py\", line 102, in gain_experience\n    xp_per_level = max(1, CharacterAdvancement.experience_per_level(character, attrs.points))\n                                                                               ^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'points'\n\n======================================================================\nERROR: test_nested_command_payloads_deliver_rewards_and_deduplicate_prompts (tests.test_combat_group_rewards.TestCombatGroupRewards.test_nested_command_payloads_deliver_rewards_and_deduplicate_prompts)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_combat_group_rewards.py\", line 265, in test_nested_command_payloads_deliver_rewards_and_deduplicate_prompts\n    rewards = self.handler.group_gain(self.killer, self.victim)[\"reward_payloads\"]\n              ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\combat\\CombatHandler.py\", line 675, in group_gain\n    advancement = CharacterAdvancement.gain_experience(member, xp)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\player\\CharacterAdvancement.py\", line 102, in gain_experience\n    xp_per_level = max(1, CharacterAdvancement.experience_per_level(character, attrs.points))\n                                                                               ^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'points'\n\n======================================================================\nERROR: test_npc_killing_blow_rewards_grouped_players (tests.test_combat_group_rewards.TestCombatGroupRewards.test_npc_killing_blow_rewards_grouped_players)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_combat_group_rewards.py\", line 103, in test_npc_killing_blow_rewards_grouped_players\n    result = self.handler.group_gain(self.pet, self.victim)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\combat\\CombatHandler.py\", line 675, in group_gain\n    advancement = CharacterAdvancement.gain_experience(member, xp)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\player\\CharacterAdvancement.py\", line 102, in gain_experience\n    xp_per_level = max(1, CharacterAdvancement.experience_per_level(character, attrs.points))\n                                                                               ^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'points'\n\n======================================================================\nERROR: test_off_room_members_do_not_contribute_or_receive_rewards (tests.test_combat_group_rewards.TestCombatGroupRewards.test_off_room_members_do_not_contribute_or_receive_rewards)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_combat_group_rewards.py\", line 120, in test_off_room_members_do_not_contribute_or_receive_rewards\n    self.handler.group_gain(self.killer, self.victim)\n    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\combat\\CombatHandler.py\", line 675, in group_gain\n    advancement = CharacterAdvancement.gain_experience(member, xp)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\player\\CharacterAdvancement.py\", line 102, in gain_experience\n    xp_per_level = max(1, CharacterAdvancement.experience_per_level(character, attrs.points))\n                                                                               ^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'points'\n\n======================================================================\nERROR: test_player_victim_is_not_excluded_by_local_rom_code (tests.test_combat_group_rewards.TestCombatGroupRewards.test_player_victim_is_not_excluded_by_local_rom_code)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_combat_group_rewards.py\", line 150, in test_player_victim_is_not_excluded_by_local_rom_code\n    self.handler.group_gain(self.killer, target)\n    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\combat\\CombatHandler.py\", line 675, in group_gain\n    advancement = CharacterAdvancement.gain_experience(member, xp)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\player\\CharacterAdvancement.py\", line 102, in gain_experience\n    xp_per_level = max(1, CharacterAdvancement.experience_per_level(character, attrs.points))\n                                                                               ^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'points'\n\n======================================================================\nERROR: test_real_xp_alignment_change_drops_killers_incompatible_equipment (tests.test_combat_group_rewards.TestCombatGroupRewards.test_real_xp_alignment_change_drops_killers_incompatible_equipment)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_combat_group_rewards.py\", line 163, in test_real_xp_alignment_change_drops_killers_incompatible_equipment\n    result = self.handler.group_gain(self.killer, self.victim)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\combat\\CombatHandler.py\", line 675, in group_gain\n    advancement = CharacterAdvancement.gain_experience(member, xp)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\player\\CharacterAdvancement.py\", line 102, in gain_experience\n    xp_per_level = max(1, CharacterAdvancement.experience_per_level(character, attrs.points))\n                                                                               ^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'points'\n\n======================================================================\nERROR: test_real_xp_computation_changes_each_members_alignment_independently (tests.test_combat_group_rewards.TestCombatGroupRewards.test_real_xp_computation_changes_each_members_alignment_independently)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_combat_group_rewards.py\", line 177, in test_real_xp_computation_changes_each_members_alignment_independently\n    self.handler.group_gain(self.killer, self.victim)\n    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\combat\\CombatHandler.py\", line 675, in group_gain\n    advancement = CharacterAdvancement.gain_experience(member, xp)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\player\\CharacterAdvancement.py\", line 102, in gain_experience\n    xp_per_level = max(1, CharacterAdvancement.experience_per_level(character, attrs.points))\n                                                                               ^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'points'\n\n======================================================================\nERROR: test_room_group_rewards_use_player_levels_and_truncated_half_npc_levels (tests.test_combat_group_rewards.TestCombatGroupRewards.test_room_group_rewards_use_player_levels_and_truncated_half_npc_levels)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_combat_group_rewards.py\", line 91, in test_room_group_rewards_use_player_levels_and_truncated_half_npc_levels\n    result = self.handler.group_gain(self.killer, self.victim)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\combat\\CombatHandler.py\", line 675, in group_gain\n    advancement = CharacterAdvancement.gain_experience(member, xp)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\player\\CharacterAdvancement.py\", line 102, in gain_experience\n    xp_per_level = max(1, CharacterAdvancement.experience_per_level(character, attrs.points))\n                                                                               ^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'points'\n\n======================================================================\nERROR: test_round_payload_and_emitter_deliver_each_reward_without_duplicates (tests.test_combat_group_rewards.TestCombatGroupRewards.test_round_payload_and_emitter_deliver_each_reward_without_duplicates)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_combat_group_rewards.py\", line 215, in test_round_payload_and_emitter_deliver_each_reward_without_duplicates\n    rewards = self.handler.group_gain(self.killer, self.victim)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\combat\\CombatHandler.py\", line 675, in group_gain\n    advancement = CharacterAdvancement.gain_experience(member, xp)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\player\\CharacterAdvancement.py\", line 102, in gain_experience\n    xp_per_level = max(1, CharacterAdvancement.experience_per_level(character, attrs.points))\n                                                                               ^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'points'\n\n======================================================================\nERROR: test_spell_damage_queues_each_recipient_reward (tests.test_combat_group_rewards.TestCombatGroupRewards.test_spell_damage_queues_each_recipient_reward)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_combat_group_rewards.py\", line 238, in test_spell_damage_queues_each_recipient_reward\n    rewards = self.handler.group_gain(self.killer, self.victim)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\combat\\CombatHandler.py\", line 675, in group_gain\n    advancement = CharacterAdvancement.gain_experience(member, xp)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\player\\CharacterAdvancement.py\", line 102, in gain_experience\n    xp_per_level = max(1, CharacterAdvancement.experience_per_level(character, attrs.points))\n                                                                               ^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'points'\n\n----------------------------------------------------------------------\nRan 14 tests in 0.121s\n\nFAILED (errors=11)\n"
+  },
+  {
+    "module": "tests.test_combat_handler_aggression",
+    "exit_code": 1,
+    "tests": 72,
+    "output": ".............................E..........................................\n======================================================================\nERROR: test_failed_disarm_still_checks_killer_and_returns_notices (tests.test_combat_handler_aggression.TestFightHandlerAggression.test_failed_disarm_still_checks_killer_and_returns_notices)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_combat_handler_aggression.py\", line 587, in test_failed_disarm_still_checks_killer_and_returns_notices\n    result = commands.do_disarm(attacker, SimpleNamespace(finish=Mock()))\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\interp\\commands\\Fight.py\", line 304, in do_disarm\n    payload = {\"payloads\": [InterpApi.command_payload(\"failed\", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)]}\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: type object 'object' has no attribute 'command_payload'\n\n----------------------------------------------------------------------\nRan 72 tests in 0.034s\n\nFAILED (errors=1)\n"
+  },
+  {
+    "module": "tests.test_combat_round_skills",
+    "exit_code": 0,
+    "tests": 10,
+    "output": "..........\n----------------------------------------------------------------------\nRan 10 tests in 0.006s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_rounding_xp",
+    "exit_code": 0,
+    "tests": 7,
+    "output": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.004s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_state_effects",
+    "exit_code": 0,
+    "tests": 7,
+    "output": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.014s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_combat_survival",
+    "exit_code": 1,
+    "tests": 15,
+    "output": ".............E.\n======================================================================\nERROR: test_standard_emission_retains_escape_context_and_skips_npc_socket (tests.test_combat_survival.TestCombatSurvival.test_standard_emission_retains_escape_context_and_skips_npc_socket)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_combat_survival.py\", line 351, in test_standard_emission_retains_escape_context_and_skips_npc_socket\n    asyncio.run(emitter._emit_standard_payload(self.attacker, action))\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\scott\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\asyncio\\runners.py\", line 204, in run\n    return runner.run(main)\n           ~~~~~~~~~~^^^^^^\n  File \"C:\\Users\\scott\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\asyncio\\runners.py\", line 127, in run\n    return self._loop.run_until_complete(task)\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\n  File \"C:\\Users\\scott\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\asyncio\\base_events.py\", line 719, in run_until_complete\n    return future.result()\n           ~~~~~~~~~~~~~^^\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\player\\PlayerHandler.py\", line 905, in _emit_standard_payload\n    prompt_targets.extend(await self._emit_standard_payload(\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        character, entry, context=context, prompt_victims=prompt_victims))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\player\\PlayerHandler.py\", line 915, in _emit_standard_payload\n    or self.message_bus.connection_manager.get_connection_by_character(character.id) is not None):\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'connection_manager'\n\n----------------------------------------------------------------------\nRan 15 tests in 0.107s\n\nFAILED (errors=1)\n"
+  },
+  {
+    "module": "tests.test_command_authorization",
+    "exit_code": 1,
+    "tests": 20,
+    "output": "............F.......\n======================================================================\nFAIL: test_numeric_and_symbolic_levels_use_effective_trust (tests.test_command_authorization.TestCommandAuthorization.test_numeric_and_symbolic_levels_use_effective_trust) (level='IM')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_command_authorization.py\", line 189, in test_numeric_and_symbolic_levels_use_effective_trust\n    self.assertIsNotNone(CommandAccess.check(actor, command))\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: unexpectedly None\n\n----------------------------------------------------------------------\nRan 20 tests in 0.096s\n\nFAILED (failures=1)\n"
+  },
+  {
+    "module": "tests.test_command_executor",
+    "exit_code": 0,
+    "tests": 15,
+    "output": "...............\n----------------------------------------------------------------------\nRan 15 tests in 0.312s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_communications_dynamic_commands",
+    "exit_code": 0,
+    "tests": 38,
+    "output": "......................................\n----------------------------------------------------------------------\nRan 38 tests in 0.063s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_connection_reconnect",
+    "exit_code": 0,
+    "tests": 14,
+    "output": ".Login rejected for character Tester on session new: You have been banned from the server.\n.............\n----------------------------------------------------------------------\nRan 14 tests in 0.311s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_container_inspection_parity",
+    "exit_code": 0,
+    "tests": 8,
+    "output": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.255s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_corpse_currency",
+    "exit_code": 0,
+    "tests": 5,
+    "output": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.004s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_devtools_collection_modify",
+    "exit_code": 0,
+    "tests": 13,
+    "output": ".............\n----------------------------------------------------------------------\nRan 13 tests in 0.068s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_devtools_collection_query",
+    "exit_code": 0,
+    "tests": 5,
+    "output": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.023s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_dirt_trip_parity",
+    "exit_code": 0,
+    "tests": 7,
+    "output": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.006s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_disarm_parity",
+    "exit_code": 0,
+    "tests": 7,
+    "output": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.007s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_effect_util_affects",
+    "exit_code": 0,
+    "tests": 17,
+    "output": ".................\n----------------------------------------------------------------------\nRan 17 tests in 0.059s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_effect_util_ownership",
+    "exit_code": 0,
+    "tests": 5,
+    "output": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.001s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_elemental_breath",
+    "exit_code": 0,
+    "tests": 12,
+    "output": "............\n----------------------------------------------------------------------\nRan 12 tests in 0.023s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_elemental_visibility",
+    "exit_code": 0,
+    "tests": 8,
+    "output": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.011s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_entry_and_following_parity",
+    "exit_code": 0,
+    "tests": 24,
+    "output": "........................\n----------------------------------------------------------------------\nRan 24 tests in 0.529s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_enum_provider",
+    "exit_code": 0,
+    "tests": 5,
+    "output": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.000s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_equipment_reset_ownership_parity",
+    "exit_code": 0,
+    "tests": 26,
+    "output": "..........................\n----------------------------------------------------------------------\nRan 26 tests in 0.260s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_exit_door_resets",
+    "exit_code": 0,
+    "tests": 1,
+    "output": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_final_combat_parity",
+    "exit_code": 1,
+    "tests": 6,
+    "output": ".....E\n======================================================================\nERROR: test_thief_flee_xp_exception_has_strict_boundary (tests.test_final_combat_parity.TestFinalCombatParity.test_thief_flee_xp_exception_has_strict_boundary)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_final_combat_parity.py\", line 73, in test_thief_flee_xp_exception_has_strict_boundary\n    result = self.commands.do_flee(self.actor, self.context)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\interp\\commands\\Fight.py\", line 322, in do_flee\n    direction_name = MovementUtil.DIR_NAME[direction]\n                     ^^^^^^^^^^^^^^^^^^^^^\nAttributeError: type object 'object' has no attribute 'DIR_NAME'\n\n----------------------------------------------------------------------\nRan 6 tests in 0.005s\n\nFAILED (errors=1)\n"
+  },
+  {
+    "module": "tests.test_fresh_review_fixes",
+    "exit_code": 0,
+    "tests": 22,
+    "output": "......................\n----------------------------------------------------------------------\nRan 22 tests in 0.580s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_fullness_hunger_parity",
+    "exit_code": 0,
+    "tests": 14,
+    "output": "..............\n----------------------------------------------------------------------\nRan 14 tests in 0.111s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_game_data",
+    "exit_code": 0,
+    "tests": 7,
+    "output": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.004s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_guard_normalization",
+    "exit_code": 0,
+    "tests": 8,
+    "output": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.003s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_guarded_flag_runtime_paths",
+    "exit_code": 0,
+    "tests": 4,
+    "output": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.001s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_healer_parity",
+    "exit_code": 0,
+    "tests": 12,
+    "output": "............\n----------------------------------------------------------------------\nRan 12 tests in 0.362s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_help_topic_lookup",
+    "exit_code": 0,
+    "tests": 16,
+    "output": "................\n----------------------------------------------------------------------\nRan 16 tests in 1.076s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_immortal_priority_parity",
+    "exit_code": 0,
+    "tests": 19,
+    "output": "...................\n----------------------------------------------------------------------\nRan 19 tests in 0.374s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_info_dynamic_commands",
+    "exit_code": 0,
+    "tests": 18,
+    "output": "..................\n----------------------------------------------------------------------\nRan 18 tests in 0.038s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_info_inspection_parity",
+    "exit_code": 0,
+    "tests": 8,
+    "output": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.087s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_info_util_boundaries",
+    "exit_code": 0,
+    "tests": 5,
+    "output": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.001s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_input_and_flee_parity",
+    "exit_code": 0,
+    "tests": 18,
+    "output": "..................\n----------------------------------------------------------------------\nRan 18 tests in 0.283s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_input_wait_and_persistence",
+    "exit_code": 0,
+    "tests": 11,
+    "output": "...........\n----------------------------------------------------------------------\nRan 11 tests in 0.434s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_interp_util_argument_text",
+    "exit_code": 0,
+    "tests": 1,
+    "output": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_item_activation_followup_parity",
+    "exit_code": 0,
+    "tests": 6,
+    "output": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.067s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_item_ownership",
+    "exit_code": 0,
+    "tests": 3,
+    "output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.175s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_item_persistence",
+    "exit_code": 0,
+    "tests": 9,
+    "output": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.005s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_item_util_normalization",
+    "exit_code": 0,
+    "tests": 6,
+    "output": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.006s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_learning_parity",
+    "exit_code": 0,
+    "tests": 4,
+    "output": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.012s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_message_bus",
+    "exit_code": 0,
+    "tests": 3,
+    "output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.004s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_mobile_armor_isolation",
+    "exit_code": 0,
+    "tests": 5,
+    "output": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.003s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_mobile_pulse",
+    "exit_code": 1,
+    "tests": 3,
+    "output": "E..\n======================================================================\nERROR: test_collection_scavenge_skips_owned_item_and_announces_best_allowed_item (tests.test_mobile_pulse.MobilePulseTests.test_collection_scavenge_skips_owned_item_and_announces_best_allowed_item)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\asyncio\\runners.py\", line 127, in run\n    return self._loop.run_until_complete(task)\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\n  File \"C:\\Users\\scott\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\asyncio\\base_events.py\", line 719, in run_until_complete\n    return future.result()\n           ~~~~~~~~~~~~~^^\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_mobile_pulse.py\", line 81, in test_collection_scavenge_skips_owned_item_and_announces_best_allowed_item\n    await handler.mobile_update()\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\mobile\\MobileHandler.py\", line 146, in mobile_update\n    await self._execute_generic_special(mob, room, \"spec_scavenge\")\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\mobile\\MobileHandler.py\", line 282, in _execute_generic_special\n    self.execute_special_by_name(mob, special_name, room, context)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\mobile\\MobileHandler.py\", line 225, in execute_special_by_name\n    result = func(active_context)\n  File \"<string>\", line 1, in <lambda>\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\mobile\\MobileContext.py\", line 29, in _call\n    return getattr(MobileApi, item)(self, *args, **kwargs)\n           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\api\\MobileApi.py\", line 662, in scavenge\n    MobileApi.give_room_item_to_mobile(ctx.room, ctx.actor, obj_best)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\api\\MobileApi.py\", line 855, in give_room_item_to_mobile\n    mob.add_item(item)\n    ^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'add_item'\n\n----------------------------------------------------------------------\nRan 3 tests in 0.081s\n\nFAILED (errors=1)\n"
+  },
+  {
+    "module": "tests.test_mobile_special_binding",
+    "exit_code": 0,
+    "tests": 4,
+    "output": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.082s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_mobile_special_room_access",
+    "exit_code": 0,
+    "tests": 7,
+    "output": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.164s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_movement_dynamic_commands",
+    "exit_code": 0,
+    "tests": 21,
+    "output": ".....................\n----------------------------------------------------------------------\nRan 21 tests in 0.091s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_movement_rules_parity",
+    "exit_code": 0,
+    "tests": 35,
+    "output": "...................................\n----------------------------------------------------------------------\nRan 35 tests in 0.406s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_note_commands",
+    "exit_code": 0,
+    "tests": 9,
+    "output": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.043s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_object_bulk_put_parity",
+    "exit_code": 0,
+    "tests": 12,
+    "output": "............\n----------------------------------------------------------------------\nRan 12 tests in 0.112s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_object_carry_limits_parity",
+    "exit_code": 0,
+    "tests": 13,
+    "output": ".............\n----------------------------------------------------------------------\nRan 13 tests in 0.108s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_object_consumption_parity",
+    "exit_code": 0,
+    "tests": 12,
+    "output": "............\n----------------------------------------------------------------------\nRan 12 tests in 0.049s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_object_container_shop_spell_parity",
+    "exit_code": 0,
+    "tests": 16,
+    "output": "................\n----------------------------------------------------------------------\nRan 16 tests in 0.169s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_object_currency_parity",
+    "exit_code": 0,
+    "tests": 15,
+    "output": "...............\n----------------------------------------------------------------------\nRan 15 tests in 0.165s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_object_design_contracts",
+    "exit_code": 0,
+    "tests": 9,
+    "output": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.017s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_object_donation_pit_parity",
+    "exit_code": 0,
+    "tests": 9,
+    "output": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.085s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_object_envenom_parity",
+    "exit_code": 0,
+    "tests": 11,
+    "output": "...........\n----------------------------------------------------------------------\nRan 11 tests in 0.101s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_object_fountain_commands",
+    "exit_code": 1,
+    "tests": 6,
+    "output": "EEEEEE\n======================================================================\nERROR: test_drink_buffalo_skin_matches_rom_water_math (tests.test_object_fountain_commands.TestObjectFountainCommands.test_drink_buffalo_skin_matches_rom_water_math)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_object_fountain_commands.py\", line 494, in test_drink_buffalo_skin_matches_rom_water_math\n    payload = self._build_commands(room).do_drink(character, self._build_context(\"drink\", \"skin\", character))\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\interp\\commands\\Object.py\", line 2051, in do_drink\n    arg1, _ = InterpUtil.parse_object_arguments(context.result, context.parameters)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'parse_object_arguments'\n\n======================================================================\nERROR: test_drink_from_fountain_does_not_require_current_amount (tests.test_object_fountain_commands.TestObjectFountainCommands.test_drink_from_fountain_does_not_require_current_amount)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_object_fountain_commands.py\", line 425, in test_drink_from_fountain_does_not_require_current_amount\n    payload = self._build_commands(room).do_drink(character, self._build_context(\"drink\", \"fountain\", character))\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\interp\\commands\\Object.py\", line 2051, in do_drink\n    arg1, _ = InterpUtil.parse_object_arguments(context.result, context.parameters)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'parse_object_arguments'\n\n======================================================================\nERROR: test_drink_refuses_when_fullness_meter_is_already_full (tests.test_object_fountain_commands.TestObjectFountainCommands.test_drink_refuses_when_fullness_meter_is_already_full)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_object_fountain_commands.py\", line 518, in test_drink_refuses_when_fullness_meter_is_already_full\n    payload = self._build_commands(room).do_drink(character, self._build_context(\"drink\", \"fountain\", character))\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\interp\\commands\\Object.py\", line 2051, in do_drink\n    arg1, _ = InterpUtil.parse_object_arguments(context.result, context.parameters)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'parse_object_arguments'\n\n======================================================================\nERROR: test_drink_updates_separate_fullness_and_thirst_conditions (tests.test_object_fountain_commands.TestObjectFountainCommands.test_drink_updates_separate_fullness_and_thirst_conditions)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_object_fountain_commands.py\", line 472, in test_drink_updates_separate_fullness_and_thirst_conditions\n    payload = self._build_commands(room).do_drink(character, self._build_context(\"drink\", \"waterskin\", character))\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\interp\\commands\\Object.py\", line 2051, in do_drink\n    arg1, _ = InterpUtil.parse_object_arguments(context.result, context.parameters)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'parse_object_arguments'\n\n======================================================================\nERROR: test_eat_updates_hunger_and_stops_when_sated (tests.test_object_fountain_commands.TestObjectFountainCommands.test_eat_updates_hunger_and_stops_when_sated)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_object_fountain_commands.py\", line 536, in test_eat_updates_hunger_and_stops_when_sated\n    payload = self._build_commands(room).do_eat(character, self._build_context(\"eat\", \"bread\", character))\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\interp\\commands\\Object.py\", line 2117, in do_eat\n    arg1, _ = InterpUtil.parse_object_arguments(context.result, context.parameters)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'parse_object_arguments'\n\n======================================================================\nERROR: test_fill_from_fountain_ignores_empty_current_amount (tests.test_object_fountain_commands.TestObjectFountainCommands.test_fill_from_fountain_ignores_empty_current_amount)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_object_fountain_commands.py\", line 452, in test_fill_from_fountain_ignores_empty_current_amount\n    payload = self._build_commands(room).do_fill(character, self._build_context(\"fill\", \"waterskin\", character))\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\interp\\commands\\Object.py\", line 2187, in do_fill\n    room = self._prepare_fill_context(character, context)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\interp\\commands\\Object.py\", line 2207, in _prepare_fill_context\n    arg1, rem = InterpUtil.parse_object_arguments(context.result, context.parameters)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'types.SimpleNamespace' object has no attribute 'parse_object_arguments'\n\n----------------------------------------------------------------------\nRan 6 tests in 0.003s\n\nFAILED (errors=6)\n"
+  },
+  {
+    "module": "tests.test_object_get_dynamic_commands",
+    "exit_code": 0,
+    "tests": 55,
+    "output": ".......................................................\n----------------------------------------------------------------------\nRan 55 tests in 0.094s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_object_haggle_parity",
+    "exit_code": 0,
+    "tests": 15,
+    "output": "...............\n----------------------------------------------------------------------\nRan 15 tests in 0.116s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_object_item_retaliation_parity",
+    "exit_code": 0,
+    "tests": 8,
+    "output": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.067s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_object_lookup_parity",
+    "exit_code": 0,
+    "tests": 10,
+    "output": "..........\n----------------------------------------------------------------------\nRan 10 tests in 0.078s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_object_loot_and_sacrifice_parity",
+    "exit_code": 0,
+    "tests": 14,
+    "output": "..............\n----------------------------------------------------------------------\nRan 14 tests in 0.059s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_object_sacrifice_rewards_parity",
+    "exit_code": 0,
+    "tests": 6,
+    "output": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.050s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_object_shop_equipment_parity",
+    "exit_code": 0,
+    "tests": 15,
+    "output": "...............\n----------------------------------------------------------------------\nRan 15 tests in 0.129s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_object_theft_parity",
+    "exit_code": 1,
+    "tests": 18,
+    "output": "..............E...\n======================================================================\nERROR: test_reaction_payloads_reach_correct_recipients_through_real_emitter (tests.test_object_theft_parity.TestObjectTheftParity.test_reaction_payloads_reach_correct_recipients_through_real_emitter)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_object_theft_parity.py\", line 313, in test_reaction_payloads_reach_correct_recipients_through_real_emitter\n    PlayerHandler = h._load_module(\"theft_player_handler\", \"player/PlayerHandler.py\").PlayerHandler\n                    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_object_get_dynamic_commands.py\", line 42, in _load_module\n    spec.loader.exec_module(module)\n    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"<frozen importlib._bootstrap_external>\", line 762, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 491, in _call_with_frames_removed\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\player/PlayerHandler.py\", line 18, in <module>\n    from interp.CommandAudit import CommandAudit\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\interp\\CommandAudit.py\", line 8, in <module>\n    from server.messaging.MessageBus import MessageBus\nModuleNotFoundError: No module named 'server.messaging.MessageBus'; 'server.messaging' is not a package\n\n----------------------------------------------------------------------\nRan 18 tests in 0.210s\n\nFAILED (errors=1)\n"
+  },
+  {
+    "module": "tests.test_periodic_damage",
+    "exit_code": 0,
+    "tests": 4,
+    "output": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.009s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_player_handler_cast_prompt",
+    "exit_code": 1,
+    "tests": 1,
+    "output": "E\n======================================================================\nERROR: test_player_handler_cast_prompt (unittest.loader._FailedTest.test_player_handler_cast_prompt)\n----------------------------------------------------------------------\nImportError: Failed to import test module: test_player_handler_cast_prompt\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\unittest\\loader.py\", line 137, in loadTestsFromName\n    module = __import__(module_name)\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_player_handler_cast_prompt.py\", line 51, in <module>\n    from player.PlayerHandler import PlayerHandler\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\player\\PlayerHandler.py\", line 12, in <module>\n    from combat.CombatHandler import FightHandler\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\src\\combat\\CombatHandler.py\", line 33, in <module>\n    from server.messaging.MessageBus import MessageBus\nModuleNotFoundError: No module named 'server.messaging.MessageBus'; 'server.messaging' is not a package\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nFAILED (errors=1)\n"
+  },
+  {
+    "module": "tests.test_poison_exposure",
+    "exit_code": 0,
+    "tests": 10,
+    "output": "..........\n----------------------------------------------------------------------\nRan 10 tests in 0.063s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_random_number_generator",
+    "exit_code": 0,
+    "tests": 1,
+    "output": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_reload_and_live_autosave",
+    "exit_code": 0,
+    "tests": 15,
+    "output": "...............\n----------------------------------------------------------------------\nRan 15 tests in 0.099s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_remaining_gameplay_parity",
+    "exit_code": 0,
+    "tests": 23,
+    "output": ".......................\n----------------------------------------------------------------------\nRan 23 tests in 0.239s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_review_application_fixes",
+    "exit_code": 0,
+    "tests": 25,
+    "output": "Login rejected for character actor on session new: You are denied access to this character.\n...Login rejected for character actor on session new: You are denied access to this character.\n.Login rejected for character actor on session 2195ab63-6114-4ab1-a92c-daeb7df6a3a2: You are denied access to this character.\n.Login rejected for character actor on session new: You are denied access to this character.\n..Login rejected for character actor on session rejected: You are denied access to this character.\n..................\n----------------------------------------------------------------------\nRan 25 tests in 0.821s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_rom_guild_parity",
+    "exit_code": 0,
+    "tests": 9,
+    "output": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.065s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_rom_immortality_threshold",
+    "exit_code": 0,
+    "tests": 5,
+    "output": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.043s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_runtime_factories",
+    "exit_code": 0,
+    "tests": 7,
+    "output": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.003s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_runtime_loop_ownership",
+    "exit_code": 0,
+    "tests": 9,
+    "output": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.335s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_shared_gameplay_parity",
+    "exit_code": 0,
+    "tests": 25,
+    "output": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 0.396s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_site_bans",
+    "exit_code": 0,
+    "tests": 17,
+    "output": ".................\n----------------------------------------------------------------------\nRan 17 tests in 0.323s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_skill_util_melee_resolution",
+    "exit_code": 0,
+    "tests": 6,
+    "output": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.003s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_social_alias_prompt_regressions",
+    "exit_code": 0,
+    "tests": 4,
+    "output": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.098s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_social_rom24_parity",
+    "exit_code": 0,
+    "tests": 12,
+    "output": "............\n----------------------------------------------------------------------\nRan 12 tests in 0.414s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_spell_affect_payload_messages",
+    "exit_code": 1,
+    "tests": 130,
+    "output": "..............................................................F.F.F...............................................................\n======================================================================\nFAIL: test_energy_drain_experience_resources_uncapped_heal_and_single_damage (tests.test_spell_affect_payload_messages.TestTableDamageSpells.test_energy_drain_experience_resources_uncapped_heal_and_single_damage)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_spell_affect_payload_messages.py\", line 3039, in test_energy_drain_experience_resources_uncapped_heal_and_single_damage\n    self.assertTrue(self.api.execute_lambdas(ctx))\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: False is not true\n\n======================================================================\nFAIL: test_energy_drain_respects_existing_experience_floor_and_hero_exemption (tests.test_spell_affect_payload_messages.TestTableDamageSpells.test_energy_drain_respects_existing_experience_floor_and_hero_exemption) (level=20)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_spell_affect_payload_messages.py\", line 3084, in test_energy_drain_respects_existing_experience_floor_and_hero_exemption\n    self.assertTrue(self.api.execute_lambdas(ctx))\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: False is not true\n\n======================================================================\nFAIL: test_energy_drain_self_cast_preserves_alignment_and_npc_experience_is_unchanged (tests.test_spell_affect_payload_messages.TestTableDamageSpells.test_energy_drain_self_cast_preserves_alignment_and_npc_experience_is_unchanged) (self_target=True, npc=False)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_spell_affect_payload_messages.py\", line 3070, in test_energy_drain_self_cast_preserves_alignment_and_npc_experience_is_unchanged\n    self.assertTrue(self.api.execute_lambdas(ctx))\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: False is not true\n\n----------------------------------------------------------------------\nRan 130 tests in 3.102s\n\nFAILED (failures=3)\n"
+  },
+  {
+    "module": "tests.test_spell_list_level_parity",
+    "exit_code": 0,
+    "tests": 9,
+    "output": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.132s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_spell_object_targeting_parity",
+    "exit_code": 0,
+    "tests": 3,
+    "output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.041s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_stat_mobile_resources",
+    "exit_code": 0,
+    "tests": 6,
+    "output": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.064s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_training_stats_carry_parity",
+    "exit_code": 0,
+    "tests": 19,
+    "output": "...................\n----------------------------------------------------------------------\nRan 19 tests in 0.190s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_update_handler_active_players",
+    "exit_code": 0,
+    "tests": 33,
+    "output": ".................................\n----------------------------------------------------------------------\nRan 33 tests in 0.095s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_weapon_hit_effects",
+    "exit_code": 0,
+    "tests": 14,
+    "output": "..............\n----------------------------------------------------------------------\nRan 14 tests in 0.022s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_weather_update",
+    "exit_code": 0,
+    "tests": 5,
+    "output": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.100s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_wire_codec",
+    "exit_code": 0,
+    "tests": 7,
+    "output": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.001s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_wiz_command_state_parity",
+    "exit_code": 0,
+    "tests": 19,
+    "output": "...................\n----------------------------------------------------------------------\nRan 19 tests in 0.181s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_wiz_dynamic_commands",
+    "exit_code": 0,
+    "tests": 11,
+    "output": "...........\n----------------------------------------------------------------------\nRan 11 tests in 0.017s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_wiz_final_remediation",
+    "exit_code": 0,
+    "tests": 17,
+    "output": ".................\n----------------------------------------------------------------------\nRan 17 tests in 0.200s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_wiz_force_clone_parity",
+    "exit_code": 0,
+    "tests": 11,
+    "output": "...........\n----------------------------------------------------------------------\nRan 11 tests in 0.135s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_wiz_identity_targeting_parity",
+    "exit_code": 0,
+    "tests": 16,
+    "output": "................\n----------------------------------------------------------------------\nRan 16 tests in 0.200s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_wiz_movement_parity",
+    "exit_code": 0,
+    "tests": 11,
+    "output": "...........\n----------------------------------------------------------------------\nRan 11 tests in 0.482s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_wiz_recovery_parity",
+    "exit_code": 0,
+    "tests": 5,
+    "output": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.153s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_wiz_util_world_lookup",
+    "exit_code": 0,
+    "tests": 3,
+    "output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.000s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_world_objects_and_shields",
+    "exit_code": 0,
+    "tests": 8,
+    "output": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.002s\n\nOK\n"
+  },
+  {
+    "module": "tests.test_world_population_parity",
+    "exit_code": 0,
+    "tests": 7,
+    "output": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.076s\n\nOK\n"
+  }
+]

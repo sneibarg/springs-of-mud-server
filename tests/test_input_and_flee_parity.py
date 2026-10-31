@@ -15,6 +15,7 @@ class FleeParityTests(MovementFixture, unittest.TestCase):
     def setUp(self):
         super().setUp()
         self.commands = Fight.__new__(Fight)
+        self.commands.movement_commands = self.movement
         self.commands.room_registry = self.rooms
         self.commands.interp_api = self.api
         self.commands.fight_handler = self.fight

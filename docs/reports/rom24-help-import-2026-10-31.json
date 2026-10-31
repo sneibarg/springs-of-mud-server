@@ -1,0 +1,607 @@
+{
+  "before": 171,
+  "after": 251,
+  "additions": [
+    {
+      "source": "help.are",
+      "keyword": "NOTE NOTES CHANGES NEWS PENALTY IDEA UNREAD",
+      "topics": [
+        "notes",
+        "changes",
+        "news",
+        "penalty",
+        "idea",
+        "unread"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'RACE HELP' 'RACE' 'RACES'",
+      "topics": [
+        "race help",
+        "race",
+        "races"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "DWARF DWARVES",
+      "topics": [
+        "dwarf",
+        "dwarves"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "ELF ELVES",
+      "topics": [
+        "elf",
+        "elves"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "HUMAN HUMANS MAN",
+      "topics": [
+        "human",
+        "humans",
+        "man"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "GIANT GIANTS",
+      "topics": [
+        "giant",
+        "giants"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "WANDS STAVES SCROLLS",
+      "topics": [
+        "wands",
+        "staves",
+        "scrolls"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'GROUP HEADER'",
+      "topics": [
+        "group header"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'GROUP HELP'",
+      "topics": [
+        "group help"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'MENU CHOICE'",
+      "topics": [
+        "menu choice"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'GROUPS' 'INFO' 'PREMISE'",
+      "topics": [
+        "groups",
+        "premise"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "BASICS 'ROM BASICS'",
+      "topics": [
+        "basics",
+        "rom basics"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "MAGE 'MAGIC-USER' 'MAGE BASICS' 'MAGE DEFAULT'",
+      "topics": [
+        "mage",
+        "magic-user",
+        "mage basics",
+        "mage default"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "CLERIC 'CLERIC BASICS' 'CLERIC DEFAULT'",
+      "topics": [
+        "cleric",
+        "cleric basics",
+        "cleric default"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "THIEF 'THIEF BASICS' 'THIEF DEFAULT'",
+      "topics": [
+        "thief",
+        "thief basics",
+        "thief default"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "WARRIOR 'WARRIOR BASICS' 'WARRIOR DEFAULT'",
+      "topics": [
+        "warrior",
+        "warrior basics",
+        "warrior default"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "EXOTIC WEAPONS WEAPON WEAPONSMASTER AXE DAGGER FLAIL MACE POLEARM SPEAR SWORD WHIP",
+      "topics": [
+        "exotic",
+        "weapons",
+        "weapon",
+        "weaponsmaster",
+        "axe",
+        "dagger",
+        "flail",
+        "mace",
+        "polearm",
+        "spear",
+        "sword",
+        "whip"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'SHIELD BLOCK'",
+      "topics": [
+        "shield block"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "ATTACK",
+      "topics": [
+        "attack"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "BEGUILING",
+      "topics": [
+        "beguiling"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "BENEDICTIONS",
+      "topics": [
+        "benedictions"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "COMBAT",
+      "topics": [
+        "combat"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "CREATION",
+      "topics": [
+        "creation"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "CURATIVE",
+      "topics": [
+        "curative"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "DETECTION",
+      "topics": [
+        "detection"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "DRACONIAN",
+      "topics": [
+        "draconian"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "ENCHANTMENT",
+      "topics": [
+        "enchantment"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "ENHANCEMENT",
+      "topics": [
+        "enhancement"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "HARMFUL",
+      "topics": [
+        "harmful"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "HEALING",
+      "topics": [
+        "healing"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "ILLUSION",
+      "topics": [
+        "illusion"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "MALADICTIONS",
+      "topics": [
+        "maladictions"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "PROTECTIVE",
+      "topics": [
+        "protective"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "TRANSPORTATION",
+      "topics": [
+        "transportation"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "WEATHER",
+      "topics": [
+        "weather"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "BACKSTAB",
+      "topics": [
+        "backstab"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "BASH",
+      "topics": [
+        "bash"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "BERSERK",
+      "topics": [
+        "berserk"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "DIRT 'DIRT KICKING'",
+      "topics": [
+        "dirt",
+        "dirt kicking"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "DISARM",
+      "topics": [
+        "disarm"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "DODGE",
+      "topics": [
+        "dodge"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'ENHANCED DAMAGE'",
+      "topics": [
+        "enhanced damage"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "ENVENOM",
+      "topics": [
+        "envenom"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'HAND TO HAND'",
+      "topics": [
+        "hand to hand"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "KICK",
+      "topics": [
+        "kick"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "PARRY",
+      "topics": [
+        "parry"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "RESCUE",
+      "topics": [
+        "rescue"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "TRIP",
+      "topics": [
+        "trip"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'SECOND ATTACK'",
+      "topics": [
+        "second attack"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'THIRD ATTACK'",
+      "topics": [
+        "third attack"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "HIDE SNEAK",
+      "topics": [
+        "hide",
+        "sneak"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'FAST HEALING'",
+      "topics": [
+        "fast healing"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "LORE",
+      "topics": [
+        "lore"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "HAGGLE HAGGLING",
+      "topics": [
+        "haggle",
+        "haggling"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "PEEK",
+      "topics": [
+        "peek"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "PICK 'PICK LOCK'",
+      "topics": [
+        "pick lock"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "MEDITATION",
+      "topics": [
+        "meditation"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'DETECT GOOD'",
+      "topics": [
+        "detect good"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'DISPEL GOOD'",
+      "topics": [
+        "dispel good"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'RECHARGE'",
+      "topics": [
+        "recharge"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'DEMONFIRE'",
+      "topics": [
+        "demonfire"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'RAY OF TRUTH'",
+      "topics": [
+        "ray of truth"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'PORTAL'",
+      "topics": [
+        "portal"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'NEXUS'",
+      "topics": [
+        "nexus"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'HEAT METAL'",
+      "topics": [
+        "heat metal"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'HOLY WORD'",
+      "topics": [
+        "holy word"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "FRENZY",
+      "topics": [
+        "frenzy"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "CALM",
+      "topics": [
+        "calm"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "HASTE",
+      "topics": [
+        "haste"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "SLOW",
+      "topics": [
+        "slow"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "PLAGUE",
+      "topics": [
+        "plague"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'CREATE ROSE'",
+      "topics": [
+        "create rose"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'PROTECTION GOOD' 'PROTECTION EVIL'",
+      "topics": [
+        "protection good",
+        "protection evil"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'GIANT STRENGTH'",
+      "topics": [
+        "giant strength"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'CHAIN LIGHTNING'",
+      "topics": [
+        "chain lightning"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "FARSIGHT",
+      "topics": [
+        "farsight"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "MASS HEALING",
+      "topics": [
+        "mass healing"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "'FLOATING DISC'",
+      "topics": [
+        "floating disc"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "FIREPROOF",
+      "topics": [
+        "fireproof"
+      ]
+    },
+    {
+      "source": "group.are",
+      "keyword": "ALIAS UNALIAS",
+      "topics": [
+        "alias",
+        "unalias"
+      ]
+    }
+  ]
+}

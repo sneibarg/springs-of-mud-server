@@ -547,7 +547,12 @@ class MobileApi(GameApi):
             if delta < GenericUtil.to_int(minimum, 0) or delta > GenericUtil.to_int(maximum, 0):
                 continue
             ctx.set_alias("victim", victim)
-            return cls.multi_hit(ctx, "victim")
+            for name in skills:
+                ctx.handler.run_combat_command(ctx, name, victim.name)
+                if CharacterApi.position_value(ctx.actor) == CharacterApi.pos_value("POS_FIGHTING"):
+                    break
+            ctx.finish()
+            return ctx.mark_performed()
         return False
 
     @classmethod
@@ -565,7 +570,7 @@ class MobileApi(GameApi):
             cls._queue_room_message(ctx, f"{MobileApi.render_mobile_name(victim)}'s coin purse is ripped apart!\r\n", exclude_ids={str(victim.id)})
             return ctx.mark_performed()
         if action == "flee":
-            ctx.handler.fight_handler.stop_fighting(ctx.actor, both=False)
+            ctx.handler.run_combat_command(ctx, "flee")
             return ctx.mark_performed()
         return False
 
@@ -732,9 +737,11 @@ class MobileApi(GameApi):
             cls._logger_obj().debug(f"{actor_label}: move blocked from {room_label} to {cls._room_label(to_room)} because ACT_INDOORS forbids outdoor rooms")
             return False
 
-        if not MobileApi.move_mobile(ctx.room, to_room, ctx.actor):
-            cls._logger_obj().debug(f"{actor_label}: move failed from {room_label} to {cls._room_label(to_room)} for door {door}")
+        from util.MovementUtil import MovementUtil
+        payload = ctx.handler.movement_commands.travel(ctx.actor, MovementUtil.DIR_NAME[door], ctx.room)
+        if ctx.actor.room_id == ctx.room.id:
             return False
+        ctx.queue_payload(payload)
         ctx.room = to_room
         ctx.set_alias("room", to_room)
         cls._logger_obj().debug(f"{actor_label}: moved from {room_label} to {cls._room_label(to_room)} via door {door}")

@@ -79,6 +79,21 @@ class TestObjectCurrencyParity(unittest.TestCase):
                 self.assertEqual("OK.\r\n", payload["to_char"])
                 self.assertEqual("Tester drops some coins.\r\n", payload["to_room"])
 
+    def test_coin_pile_weight_truncates_each_denomination_before_adding(self):
+        for gold, silver, expected in ((4, 19, 0), (9, 39, 2), (5, 20, 2),
+                                       (4, 0, 0), (0, 19, 0), (10, 0, 2), (0, 40, 2)):
+            with self.subTest(gold=gold, silver=silver):
+                pile = self.money(silver, gold)
+                self.assertIsInstance(pile.weight, int)
+                self.assertEqual(expected, pile.weight)
+                self.assertEqual(expected, pile.object_weight(pile))
+
+    def test_mixed_coin_pickup_at_carry_weight_limit(self):
+        self.actor.carry_weight = lambda: self.actor.max_weight()
+        payload = self.pickup(19, 4)
+        self.assertNotIn('carry', payload.get('to_char', '').lower())
+        self.assertEqual({}, self.room.contents)
+
     def test_gold_drop_and_single_coin_prototypes(self):
         self.drop("1 gold")
         pile = next(iter(self.room.contents.values()))

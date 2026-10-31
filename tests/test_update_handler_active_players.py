@@ -228,8 +228,8 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         self.assertEqual(-1, character.status_flags.thirst)
         character.gain_condition("hunger", 100)
         self.assertEqual(48, character.status_flags.hunger)
-        with patch("api.CharacterApi.CharacterApi.is_immortal", return_value=True):
-            self.assertEqual([], character.tick_conditions())
+        character.level = 52
+        self.assertEqual([], character.tick_conditions())
         self.assertEqual(48, character.status_flags.hunger)
 
     def test_room_item_traversal_preserves_locations_and_handles_cycles(self):

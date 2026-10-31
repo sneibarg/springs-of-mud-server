@@ -1539,6 +1539,9 @@ class FightHandler:
             return SkillUtil.adjusted_percent(entity, self._learned_skill_percent(entity, skill_name))
 
         level = entity.level
+        if wanted == "backstab":
+            return SkillUtil.adjusted_percent(entity, 20 + 2 * level) if self._mob_has_act(
+                entity, self.ActBits, self.ActBits.ACT_THIEF.name) else 0
         if wanted == "second attack":
             is_warrior = self._mob_has_act(entity, self.ActBits, self.ActBits.ACT_WARRIOR.name)
             is_thief = self._mob_has_act(entity, self.ActBits, self.ActBits.ACT_THIEF.name)
@@ -1798,7 +1801,7 @@ class FightHandler:
         thac0 += GenericUtil.trunc_div(5 * (100 - skill), 100)
 
         if self._is_backstab_attack(dt):
-            thac0 -= 10 * (100 - self._skill_percent(attacker, "backstab")) // 100
+            thac0 -= 10 * (100 - self._skill_percent(attacker, "backstab"))
         return thac0
 
     @staticmethod
@@ -1853,13 +1856,8 @@ class FightHandler:
         elif res_bit > 0 and CharacterApi.is_set(res_flags, res_bit):
             immune = "IS_RESISTANT"
 
-        if vuln_bit > 0 and CharacterApi.is_set(vuln_flags, vuln_bit):
-            if immune == "IS_IMMUNE":
-                immune = "IS_RESISTANT"
-            elif immune == "IS_RESISTANT":
-                immune = "IS_NORMAL"
-            else:
-                immune = "IS_VULNERABLE"
+        elif vuln_bit > 0 and CharacterApi.is_set(vuln_flags, vuln_bit):
+            immune = "IS_VULNERABLE"
 
         return immune or default
 

@@ -1,0 +1,67 @@
+[
+  {
+    "module": "test_compare_parity",
+    "exit_code": 0,
+    "output": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.072s\n\nOK\n"
+  },
+  {
+    "module": "test_info_dynamic_commands",
+    "exit_code": 0,
+    "output": "..................\n----------------------------------------------------------------------\nRan 18 tests in 0.038s\n\nOK\n"
+  },
+  {
+    "module": "test_info_inspection_parity",
+    "exit_code": 0,
+    "output": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.087s\n\nOK\n"
+  },
+  {
+    "module": "test_info_util_boundaries",
+    "exit_code": 0,
+    "output": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.001s\n\nOK\n"
+  },
+  {
+    "module": "test_object_lookup_parity",
+    "exit_code": 0,
+    "output": "..........\n----------------------------------------------------------------------\nRan 10 tests in 0.077s\n\nOK\n"
+  },
+  {
+    "module": "test_object_shop_equipment_parity",
+    "exit_code": 0,
+    "output": "...............\n----------------------------------------------------------------------\nRan 15 tests in 0.124s\n\nOK\n"
+  },
+  {
+    "module": "test_object_carry_limits_parity",
+    "exit_code": 0,
+    "output": ".............\n----------------------------------------------------------------------\nRan 13 tests in 0.096s\n\nOK\n"
+  },
+  {
+    "module": "test_wake_furniture_parity",
+    "exit_code": 0,
+    "output": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.073s\n\nOK\n"
+  },
+  {
+    "module": "test_room_display_consider_parity",
+    "exit_code": 0,
+    "output": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.064s\n\nOK\n"
+  },
+  {
+    "module": "test_effect_weapon_prompt_parity",
+    "exit_code": 0,
+    "output": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.119s\n\nOK\n"
+  },
+  {
+    "module": "test_spell_affect_payload_messages",
+    "exit_code": 1,
+    "output": "..............................................................F.F.F...............................................................\n======================================================================\nFAIL: test_energy_drain_experience_resources_uncapped_heal_and_single_damage (tests.test_spell_affect_payload_messages.TestTableDamageSpells.test_energy_drain_experience_resources_uncapped_heal_and_single_damage)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_spell_affect_payload_messages.py\", line 3041, in test_energy_drain_experience_resources_uncapped_heal_and_single_damage\n    self.assertTrue(self.api.execute_lambdas(ctx))\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: False is not true\n\n======================================================================\nFAIL: test_energy_drain_respects_existing_experience_floor_and_hero_exemption (tests.test_spell_affect_payload_messages.TestTableDamageSpells.test_energy_drain_respects_existing_experience_floor_and_hero_exemption) (level=20)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_spell_affect_payload_messages.py\", line 3086, in test_energy_drain_respects_existing_experience_floor_and_hero_exemption\n    self.assertTrue(self.api.execute_lambdas(ctx))\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: False is not true\n\n======================================================================\nFAIL: test_energy_drain_self_cast_preserves_alignment_and_npc_experience_is_unchanged (tests.test_spell_affect_payload_messages.TestTableDamageSpells.test_energy_drain_self_cast_preserves_alignment_and_npc_experience_is_unchanged) (self_target=True, npc=False)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\tests\\test_spell_affect_payload_messages.py\", line 3072, in test_energy_drain_self_cast_preserves_alignment_and_npc_experience_is_unchanged\n    self.assertTrue(self.api.execute_lambdas(ctx))\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: False is not true\n\n----------------------------------------------------------------------\nRan 130 tests in 3.267s\n\nFAILED (failures=3)\n"
+  },
+  {
+    "module": "test_movement_rules_parity",
+    "exit_code": 0,
+    "output": "...................................\n----------------------------------------------------------------------\nRan 35 tests in 0.379s\n\nOK\n"
+  },
+  {
+    "module": "test_training_stats_carry_parity",
+    "exit_code": 0,
+    "output": "...................\n----------------------------------------------------------------------\nRan 19 tests in 0.189s\n\nOK\n"
+  }
+]

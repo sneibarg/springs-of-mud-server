@@ -14,9 +14,10 @@ from interp.Social import Social
 from interp.SocialHandler import SocialHandler
 from player.CharacterService import CharacterService
 from server.session.SessionState import SessionStatus
+from tests.test_movement_rules_parity import MovementFixture
 
 
-class AliasPromptRegressions(unittest.TestCase):
+class AliasPromptRegressions(MovementFixture, unittest.TestCase):
     def test_alias_keys_survive_json_save_reload_without_collision(self):
         actor = Character.from_json(build_character_data())
         aliases = {'go_home': 'recall', 'gohome': 'north', 'two__words': 'south'}
@@ -50,10 +51,8 @@ class AliasPromptRegressions(unittest.TestCase):
                     self.assertIn('-900', message.data['text'])
 
 
-class SocialInterpreterRegressions(unittest.IsolatedAsyncioTestCase):
+class SocialInterpreterRegressions(MovementFixture, unittest.IsolatedAsyncioTestCase):
     def setup_interpreter(self):
-        from enum import IntEnum
-        self.enterContext(patch.object(CharacterApi, 'get_enum', return_value=IntEnum('Affects', {'AFF_HIDE': 1})))
         self.actor = Character.from_json(build_character_data('actor-id'))
         self.target = Character.from_json(build_character_data('target-id'))
         self.target.name = 'Tester'

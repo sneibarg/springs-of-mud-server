@@ -56,7 +56,7 @@ class PlayerUtil:
         def _has_player_act_bit(char, bit_name: str) -> bool:
             if CharacterApi.is_npc(char) or bit_name not in player_act_bits.__members__:
                 return False
-            act_value = char.status_flags.comm
+            act_value = char.status_flags.act
             return CharacterApi.is_set(act_value, player_act_bits[bit_name].value)
 
         def _is_affected(char, bit_name: str) -> bool:
@@ -135,13 +135,29 @@ class PlayerUtil:
             elif fighting == observer:
                 suffix += "YOU!"
             else:
-                fight_name = fighting.name
                 if fighting.room_id == target.room_id:
+                    from util.DisplayUtil import DisplayUtil
+                    registry = CharacterApi.get_registry()
+                    room = registry.room_registry.get_or_none(id=observer.room_id)
+                    fight_name = DisplayUtil.visible_tokens({'opponent': fighting}, observer, room)['opponent']
                     suffix += f"{fight_name}."
                 else:
                     suffix += "someone who left??"
         else:
             suffix = " is here."
+
+        furniture = getattr(target, "on", None)
+        posture = next((action for action, position in (("sleep", "POS_SLEEPING"),
+                        ("rest", "POS_RESTING"), ("sit", "POS_SITTING"), ("stand", "POS_STANDING"))
+                        if target_pos == _pos(position)), None)
+        if furniture is not None and posture is not None:
+            from item.Item import Item
+            flags = CharacterApi.get_enum("furnitureFlags")
+            raw = CharacterApi.flags_to_int(furniture.value2)
+            relation = ("at" if raw & int(getattr(flags, posture.upper() + "_AT")) else
+                        "on" if raw & int(getattr(flags, posture.upper() + "_ON")) else "in")
+            verb = {"sleep": "sleeping", "rest": "resting", "sit": "sitting", "stand": "standing"}[posture]
+            suffix = f" is {verb} {relation} {Item.short(furniture)}."
 
         line = f"{prefix}{name}{suffix}"
         return f"{line[:1].upper() + line[1:]}\r\n"

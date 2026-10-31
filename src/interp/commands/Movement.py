@@ -58,7 +58,16 @@ class Movement:
     def move_char(self, character: Character, direction: str, context: Context):
         return self._move_char(character, direction, context, follow=False, leader=None, visited=set())
 
-    def _move_char(self, character: Character, direction: str, context: Context, *, follow: bool, leader, visited: set[str]):
+    def travel(self, character, direction, room):
+        """Physical travel for flee/wander, without interpreted posture guards."""
+        context = Context(character=character, room=room,
+                          command=self.registry_service.interp_registry.get_or_none(name=direction))
+        context.room_registry = self.room_registry
+        payload = self._move_char(character, direction, context, follow=False, leader=None,
+                                  visited=set(), travel_only=True)
+        return {'actor': character, 'context': context, 'payloads': [payload]}
+
+    def _move_char(self, character: Character, direction: str, context: Context, *, follow: bool, leader, visited: set[str], travel_only=False):
         character_key = str(getattr(character, "id", id(character)))
         if character_key in visited:
             return {"payloads": []}
@@ -69,7 +78,10 @@ class Movement:
         context.character = character
         state = MovementApi.move_state(context, direction=direction, room_registry=self.room_registry)
         context.room = state.in_room
-        blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
+        if travel_only:
+            blocked = {'payloads': []} if MovementApi.travel_blocked(context, state) else None
+        else:
+            blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         context.character = original_character
         context.room = original_room
         if blocked is not None:
@@ -126,7 +138,7 @@ class Movement:
                     continue
                 if self._aggressive_npc_law_blocked(follower, to_room):
                     continue
-                follower_payload = self._move_char(follower, direction, context, follow=True, leader=character, visited=visited)
+                follower_payload = self._move_char(follower, direction, context, follow=True, leader=character, visited=visited, travel_only=travel_only)
                 payloads.extend(follower_payload.get("payloads", []))
                 target_messages.extend(follower_payload.get("target_messages", []))
 
@@ -272,29 +284,23 @@ class Movement:
             return InterpApi.command_payload("is_asleep", channel="to_char")
 
         room = self._room(character, context)
-        victim = None
-        if room is not None:
-            for ch in room.characters.values():
-                name = (ch.name or "").lower()
-                if name == arg or name.startswith(arg):
-                    victim = ch
-                    break
+        victim = PlayerUtil.get_target(character, arg, room)
         if victim is None:
             context.finish()
             return InterpApi.command_payload("target_missing", channel="to_char")
         if CharacterApi.is_awake(victim):
             context.finish()
-            return InterpApi.command_payload("target_awake", channel="to_char", tokens={"t": victim.name})
+            return InterpApi.command_payload("target_awake", channel="to_char", tokens={"t": self._entity_label(victim)})
         if CharacterApi.is_affected_by_name(victim, self.affected_bits, "AFF_SLEEP"):
             context.finish()
-            return InterpApi.command_payload("affect_sleep", channel="to_char", tokens={"t": victim.name})
+            return InterpApi.command_payload("affect_sleep", channel="to_char", tokens={"t": self._entity_label(victim)})
 
         CharacterApi.set_position(victim, "POS_STANDING")
         context.finish()
         return InterpApi.command_payload(
             "wake_target",
             victim=victim,
-            tokens={"c": character.name, "t": victim.name},
+            tokens={"c": character.name, "t": self._entity_label(victim)},
         )
 
     def do_sneak(self, character: Character, context: Context) -> dict:
@@ -993,7 +999,8 @@ class Movement:
             getattr(follower, "master", None) == master
             and CharacterApi.is_affected_by_name(follower, self.affected_bits, "AFF_CHARM")
             and not CharacterApi.is_affected_by_name(follower, self.affected_bits, "AFF_SLEEP")
-            and CharacterApi.position_value(follower) < CharacterApi.pos_value("POS_STANDING")
+            and CharacterApi.position_value(follower) in tuple(CharacterApi.pos_value(name)
+                for name in ("POS_SLEEPING", "POS_RESTING", "POS_SITTING"))
         )
 
     def _should_follow(self, follower, master, to_room) -> bool:

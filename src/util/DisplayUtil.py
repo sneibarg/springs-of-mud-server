@@ -27,6 +27,19 @@ class RecipientText(str):
 
 class DisplayUtil:
     @staticmethod
+    def room_listeners(actor, room):
+        from api.CharacterApi import CharacterApi
+
+        if room is None:
+            return []
+        candidates = list(room.player_targets(actor))
+        candidates.extend(mobile for mobile in getattr(room, 'mobiles', {}).values()
+                          if mobile is not actor
+                          and (getattr(mobile, 'context', None) or {}).get('controller_original') is not None)
+        resting = CharacterApi.pos_value('POS_RESTING')
+        return [listener for listener in candidates if CharacterApi.position_value(listener) >= resting]
+
+    @staticmethod
     def visible_tokens(entities, observer, room):
         from api.CharacterApi import CharacterApi
 

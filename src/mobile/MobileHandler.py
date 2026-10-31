@@ -19,6 +19,9 @@ from api.CharacterApi import CharacterApi
 from server.LoggerFactory import LoggerFactory
 from server.messaging import MessageBus
 from api.SpellApi import SpellApi
+from interp.commands.Movement import Movement
+from interp.commands.Fight import Fight
+from interp.Context import Context
 
 
 class MobileHandler:
@@ -33,7 +36,9 @@ class MobileHandler:
                  weather_handler: WeatherHandler,
                  enum_provider: EnumProvider,
                  effect_handler: EffectHandler,
-                 spell_api: SpellApi):
+                 spell_api: SpellApi,
+                 movement_commands: Movement,
+                 fight_commands: Fight):
         self.__name__ = "MobileHandler"
         self.message_bus = message_bus
         self.registry_service = registry_service
@@ -49,6 +54,10 @@ class MobileHandler:
         self.rng = RandomNumberGenerator()
         self.effect_handler = effect_handler
         self.spell_api = spell_api
+        self.movement_commands = movement_commands
+        self.fight_commands = fight_commands
+        self.player_handler = None
+        self.handler_service = None
         self.act_bits = enum_provider.get("actBits")
         self.affected_bits = enum_provider.get("affectedBy")
         self.positions = enum_provider.get("positions")
@@ -58,6 +67,21 @@ class MobileHandler:
         self._special_library_cache = None
         self.kill_table: dict[int, KillTable] = {}
         self.rebuild_kill_table()
+
+    def set_player_handler(self, player_handler):
+        self.player_handler = player_handler
+
+    def set_handler_service(self, handler_service):
+        self.handler_service = handler_service
+
+    def run_combat_command(self, ctx: MobileContext, name: str, argument: str = ''):
+        command = self.registry_service.interp_registry.get_or_none(name=name)
+        if command is None:
+            return
+        context = Context(character=ctx.actor, command=command, room=ctx.room,
+                          result=argument, parameters=[], handler_service=self.handler_service)
+        payload = getattr(self.fight_commands, 'do_' + name)(ctx.actor, context)
+        ctx.queue_payload({'actor': ctx.actor, 'context': context, 'payloads': [payload]})
 
     def rebuild_kill_table(self) -> None:
         kill_table: dict[int, KillTable] = {}
@@ -268,6 +292,13 @@ class MobileHandler:
         return bool(context.performed)
 
     async def _handle_payload(self, payload: dict):
+        if 'context' in payload:
+            context = payload['context']
+            if isinstance(context, Context) and context.handler_service is None:
+                context.handler_service = self.handler_service
+            await self.player_handler._emit_standard_payload(payload['actor'], payload,
+                                                             context=payload['context'])
+            return
         if payload.get("to_victim") and payload.get("victim") is not None and not CharacterApi.is_npc(payload["victim"]):
             await self.message_bus.send_to_character(payload["victim"].id, self.message_bus.text_to_message(payload["to_victim"]))
         if payload.get("to_room"):

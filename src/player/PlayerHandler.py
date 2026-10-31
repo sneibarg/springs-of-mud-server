@@ -178,7 +178,8 @@ class PlayerHandler:
         if arg1 in ("i", "in", "on"):
             context.look_mode = "in"
             context.look_in_argument = (context.parameters[1] if context.parameters and len(context.parameters) > 1 else "").strip().lower()
-            context.look_in_target = character.find_inventory_item(context.look_in_argument) or room.find_room_item(context.look_in_argument)
+            context.look_in_target = LookupUtil.here(character, room, context.look_in_argument,
+                                                   visible=lambda item: ItemApi.can_see_object(room, character, item))
             return
 
         target = PlayerUtil.get_target(character, arg1, room)
@@ -719,13 +720,6 @@ class PlayerHandler:
             await self.message_bus.send_to_area(character.area_id, self.message_bus.text_to_message(payload["to_area"]))
         if payload.get("to_world"):
             await self.message_bus.broadcast(self.message_bus.text_to_message(payload["to_world"]), [character.id])
-        if payload.get("global_message"):
-            targets = payload.get("global_targets", [])
-            if len(targets) > 0:
-                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["global_message"]), targets)
-        if payload.get("broadcast_message"):
-            exclude_ids = payload.get("exclude_character_ids", [])
-            await self.message_bus.broadcast(self.message_bus.text_to_message(payload["broadcast_message"]), exclude_ids)
 
     async def _handle_order_payload(self, character: Character, context: Context, payload: dict):
         message_key = str(payload.get("order_message_key", "") or "ordered")
@@ -1035,7 +1029,7 @@ class PlayerHandler:
         return channels
 
     async def _show_room_to_character(self, viewer: Character, room, context: Context):
-        if viewer is None:
+        if viewer is None or CharacterApi.is_npc(viewer):
             return
         await context.room_handler().print_room(viewer.id, room)
         blocked = CharacterApi.room_view_block_reason(viewer, room)

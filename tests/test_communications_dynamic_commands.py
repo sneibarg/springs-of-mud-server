@@ -58,6 +58,8 @@ class _CharacterMacros:
                 PULSE_VIOLENCE=SimpleNamespace(value=12),
                 LEVEL_IMMORTAL=SimpleNamespace(value=55),
             )
+        if _name == 'positions':
+            return _enum_like(POS_RESTING=6)
         return _enum_like(
             COMM_DEAF=SimpleNamespace(value=1),
             COMM_QUIET=SimpleNamespace(value=2),
@@ -94,12 +96,20 @@ class _CharacterMacros:
         return bool(getattr(_character, "immortal", False))
 
     @staticmethod
+    def is_awake(character):
+        return bool(getattr(character, "awake", True))
+
+    @staticmethod
     def get_trust(character):
         return int(getattr(character, "trust", getattr(character, "level", 0)) or 0)
 
     @staticmethod
     def is_npc(character):
         return str(getattr(character, "role", "") or "").lower() == "mobile"
+
+    @staticmethod
+    def position_value(character):
+        return 8
 
     @staticmethod
     def is_set(value, bit):
@@ -326,6 +336,7 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
         )
         session_handler = Mock()
         session_handler.get_playing_sessions.return_value = []
+        registry_service.room_registry.all_rooms.return_value = []
         character_service = Mock()
 
         communications = Communications(registry_service, session_handler, character_service, _enum_provider(), InterpApi())
@@ -354,6 +365,7 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
             room_registry=Mock(),
         )
         session_handler = Mock()
+        session_handler.get_playing_sessions.return_value = [SimpleNamespace(character=victim)]
         character_service = Mock()
 
         communications = Communications(registry_service, session_handler, character_service, _enum_provider(), InterpApi())
@@ -390,7 +402,7 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
 
         self.assertEqual("Save failed.\r\n", payload["to_char"])
 
-    def test_do_tell_buffers_victim_message_in_communications_api(self):
+    def test_do_tell_delivers_without_buffering_for_active_victim(self):
         actor = _character("Actor", "actor")
         victim = _character("Victim", "victim")
         registry_service = SimpleNamespace(
@@ -414,10 +426,8 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
         payload = communications.do_tell(context)
 
         self.assertEqual("You tell Victim 'hello there'\r\n", payload["to_char"])
-        history = CommunicationsApi.get_tell_buffer(victim)
-        self.assertEqual(1, len(history))
-        self.assertEqual("Actor", history[0].sender)
-        self.assertEqual("Actor tells you 'hello there'\r\n", history[0].message)
+        self.assertEqual("Actor tells you 'hello there'\r\n", payload["to_victim"])
+        self.assertFalse(CommunicationsApi.has_buffered_tells(victim))
 
     def test_do_replay_reads_tells_from_communications_api_buffer(self):
         actor = _character("Actor", "actor")

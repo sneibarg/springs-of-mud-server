@@ -32,6 +32,19 @@ class StatMobileResourceFixture(TargetingFixture):
 
 
 class StatMobileResourceTests(StatMobileResourceFixture, unittest.TestCase):
+    def test_spawn_size_stat_modifiers_match_c_integer_division(self):
+        self.prototype.status_flags.set_flag('act', 0)
+        self.prototype.status_flags.set_flag('off', 0)
+        for size, strength, constitution in (
+                ('tiny', 11, 12), ('small', 12, 13), ('medium', 13, 13),
+                ('large', 14, 13), ('huge', 15, 14), ('giant', 16, 14)):
+            with self.subTest(size=size):
+                self.prototype.size = size
+                mobile = MobileFactory.create(self.prototype, self.enums)
+                self.assertEqual((strength, constitution),
+                                 (mobile.character_attributes.strength,
+                                  mobile.character_attributes.constitution))
+
     def test_new_mobile_has_current_and_maximum_movement(self):
         self.assertEqual((self.mobile.movement, self.mobile.max_movement), (100, 100))
 

@@ -175,7 +175,7 @@ class EffectUtil:
     def saves_dispel(dis_level: int, spell_level: int, duration: int) -> bool:
         save = 50 + (GenericUtil.to_int(spell_level, 0) - GenericUtil.to_int(dis_level, 0)) * 5
         if GenericUtil.to_int(duration, 0) == -1:
-            save += 5
+            save += 25  # ROM adds five spell levels before multiplying by five.
         save = max(5, min(95, save))
         return random.randint(1, 100) < save
 

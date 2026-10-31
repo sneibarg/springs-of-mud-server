@@ -8,8 +8,8 @@ from api.CharacterApi import CharacterApi
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from item.Item import Item
-from util.CommunicationsUtil import CommunicationsUtil
 from util.InterpUtil import InterpUtil
+from util.InfoUtil import InfoUtil
 from player.Character import Character
 from server.messaging import MessageBus
 
@@ -37,16 +37,16 @@ class ItemHandler:
 
         room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
         arg2 = (context.parameters[1] if context.parameters and len(context.parameters) > 1 else "").strip().lower()
-        obj = character.find_inventory_item(arg2) or (None if room is None else room.find_room_item(arg2))
+        obj = LookupUtil.here(character, room, arg2,
+                              visible=lambda item: ItemApi.can_see_object(room, character, item))
 
         if Item.is_drink_container(obj):
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(Item.container_volume_description(obj)))
             context.finish()
             return
 
-        contents = "" if obj is None else obj.contents()
         text = f"{obj.short() if obj is not None else ''} holds\r\n"
-        text += contents if contents else "\tNothing.\r\n"
+        text += '\r\n'.join(InfoUtil.visible_item_lines([] if obj is None else obj.contains, character, room)) + '\r\n'
         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
         context.finish()
 
@@ -108,19 +108,7 @@ class ItemHandler:
         await self.message_bus.send_to_character(character_id, self.message_bus.text_to_message(msg))
 
     async def print_inventory(self, character: Character):
-        items = character.get_items()
+        room = self.room_registry.get(id=character.room_id)
         msg = "\r\n\nYou are carrying:\r\n"
-        if CommunicationsUtil.has_comm(character, CharacterApi.get_enum("commFlags"), "COMM_COMBINE"):
-            item_totals = Item.combine_items(items)
-            for vnum in item_totals:
-                the_item = item_totals[vnum]
-                if 10 > len(the_item) > 1:
-                    msg = msg + f"({len(the_item):<1})\t{the_item[0].short()}\r\n"
-                elif len(the_item) > 10:
-                    msg = msg + f"({len(the_item)})\t{the_item[0].short()}\r\n"
-                else:
-                    msg = msg + f"\t{the_item[0].short()}\r\n"
-        else:
-            for item in items:
-                msg = msg + "\t" + Item.short(item) + "\r\n"
+        msg += '\r\n'.join(InfoUtil.visible_inventory_lines(character, character, room)) + '\r\n'
         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(msg))

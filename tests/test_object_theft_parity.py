@@ -51,6 +51,9 @@ class TestObjectTheftParity(unittest.TestCase):
         self.movement.affected_bits = self.enums["affectedBy"]
         self.communications = Communications.__new__(Communications)
         self.communications.interp_api = self.commands.interp_api
+        self.room.area_id = 'area'
+        self.communications.room_registry = NS(get_or_none=lambda **kw: self.room if kw.get('id') == self.room.id else None)
+        self.communications.comm_flags = self.enums['commFlags']
         self.communications.session_handler = NS(get_playing_sessions=lambda: [NS(character=ch) for ch in (self.actor, self.victim, self.base.witness)])
         self.player_handler = NS(movement_commands=self.movement, communications_commands=self.communications)
         self.save = Mock()
@@ -62,6 +65,9 @@ class TestObjectTheftParity(unittest.TestCase):
         self.victim = self.character("Victim")
         self.actor.character_attributes.position = self.positions.POS_STANDING.value
         self.actor.area_id = self.victim.area_id = self.base.witness.area_id = "area"
+        self.base.witness.room_id = self.room.id
+        self.base.witness.character_attributes = NS(position=self.positions.POS_STANDING.value)
+        self.base.witness.status_flags = NS(comm=0)
         self.actor.status_flags.comm = 0
         self.room.characters[self.actor.id] = self.actor
         self.room.characters[self.victim.id] = self.victim
