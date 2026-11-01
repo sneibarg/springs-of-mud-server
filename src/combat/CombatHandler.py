@@ -1433,7 +1433,7 @@ class FightHandler:
 
     @staticmethod
     def _append_condition_line(text: str, target) -> str:
-        base = str(text or "")
+        base = text or ""
         condition = InfoUtil.target_condition_line(target)
         if not condition:
             return base
@@ -1450,8 +1450,8 @@ class FightHandler:
 
         merged = {**extra, **base}
         for key in ("to_char", "to_victim", "to_room", "level_up_messages"):
-            left = str(base.get(key, "") or "")
-            right = str(extra.get(key, "") or "")
+            left = base.get(key, "") or ""
+            right = extra.get(key, "") or ""
             merged[key] = left + right
         merged["killed"] = bool(base.get("killed")) or bool(extra.get("killed"))
         merged["xp_gain"] = GenericUtil.to_int(base.get("xp_gain", 0), 0) + GenericUtil.to_int(

@@ -72,6 +72,9 @@ def _load_spell_api():
             DisplayUtil=SimpleNamespace(
                 display_effect_message=lambda message: str(message or "").strip(),
                 entity_name=lambda entity, is_npc: str(getattr(entity, "name", "someone") or "someone"),
+                visible_tokens=lambda entities, observer, room: {
+                    key: str(getattr(entity, 'name', 'someone')) if observer is not None else 'someone'
+                    for key, entity in entities.items()},
                 room_text=lambda text, render, room: text,
             ),
         ),

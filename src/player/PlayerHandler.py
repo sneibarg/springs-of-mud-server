@@ -121,6 +121,7 @@ class PlayerHandler:
                                                            fallback="Your character could not be saved. Please try quitting again.\r\n")
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(failed["to_char"]))
                 return
+            character.stop_playtime()
             if context.conn is not None and context.conn.is_closed():
                 return
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))

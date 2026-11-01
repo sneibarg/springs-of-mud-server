@@ -1,0 +1,840 @@
+# src/merc.h
+
+Role: header. Disposition: **pending**. SHA-256: `080da51df18acf5fac5540cbe03dea9d44aeda7cb47e920a928a28fad83e7937`.
+
+This page is an inventory/checkpoint. Pending syntax sites are not established behavioral paths or executable coverage.
+
+## Preprocessor and macro inventory
+
+- Line 32: `#if defined(TRADITIONAL)` — pending configuration/reachability review.
+- Line 33: `#define const` — pending configuration/reachability review.
+- Line 34: `#define args( list )			( )` — pending configuration/reachability review.
+- Line 35: `#define DECLARE_DO_FUN( fun )		void fun( )` — pending configuration/reachability review.
+- Line 36: `#define DECLARE_SPEC_FUN( fun )		bool fun( )` — pending configuration/reachability review.
+- Line 37: `#define DECLARE_SPELL_FUN( fun )	void fun( )` — pending configuration/reachability review.
+- Line 38: `#else` — pending configuration/reachability review.
+- Line 39: `#define args( list )			list` — pending configuration/reachability review.
+- Line 40: `#define DECLARE_DO_FUN( fun )		DO_FUN    fun` — pending configuration/reachability review.
+- Line 41: `#define DECLARE_SPEC_FUN( fun )		SPEC_FUN  fun` — pending configuration/reachability review.
+- Line 42: `#define DECLARE_SPELL_FUN( fun )	SPELL_FUN fun` — pending configuration/reachability review.
+- Line 43: `#endif` — pending configuration/reachability review.
+- Line 50: `#if	!defined(FALSE)` — pending configuration/reachability review.
+- Line 51: `#define FALSE	 0` — pending configuration/reachability review.
+- Line 52: `#endif` — pending configuration/reachability review.
+- Line 54: `#if	!defined(TRUE)` — pending configuration/reachability review.
+- Line 55: `#define TRUE	 1` — pending configuration/reachability review.
+- Line 56: `#endif` — pending configuration/reachability review.
+- Line 58: `#if	defined(_AIX)` — pending configuration/reachability review.
+- Line 59: `#if	!defined(const)` — pending configuration/reachability review.
+- Line 60: `#define const` — pending configuration/reachability review.
+- Line 61: `#endif` — pending configuration/reachability review.
+- Line 64: `#define unix` — pending configuration/reachability review.
+- Line 65: `#else` — pending configuration/reachability review.
+- Line 68: `#endif` — pending configuration/reachability review.
+- Line 113: `#define	MAX_KEY_HASH		 1024` — pending configuration/reachability review.
+- Line 114: `#define MAX_STRING_LENGTH	 4608` — pending configuration/reachability review.
+- Line 115: `#define MAX_INPUT_LENGTH	  256` — pending configuration/reachability review.
+- Line 116: `#define PAGELEN			   22` — pending configuration/reachability review.
+- Line 125: `#define MAX_SOCIALS		  256` — pending configuration/reachability review.
+- Line 126: `#define MAX_SKILL		  150` — pending configuration/reachability review.
+- Line 127: `#define MAX_GROUP		   30` — pending configuration/reachability review.
+- Line 128: `#define MAX_IN_GROUP		   15` — pending configuration/reachability review.
+- Line 129: `#define MAX_ALIAS		    5` — pending configuration/reachability review.
+- Line 130: `#define MAX_CLASS		    4` — pending configuration/reachability review.
+- Line 131: `#define MAX_PC_RACE		    5` — pending configuration/reachability review.
+- Line 132: `#define MAX_CLAN		    3` — pending configuration/reachability review.
+- Line 133: `#define MAX_DAMAGE_MESSAGE	   41` — pending configuration/reachability review.
+- Line 134: `#define MAX_LEVEL		   60` — pending configuration/reachability review.
+- Line 135: `#define LEVEL_HERO		   (MAX_LEVEL - 9)` — pending configuration/reachability review.
+- Line 136: `#define LEVEL_IMMORTAL		   (MAX_LEVEL - 8)` — pending configuration/reachability review.
+- Line 138: `#define PULSE_PER_SECOND	    4` — pending configuration/reachability review.
+- Line 139: `#define PULSE_VIOLENCE		  ( 3 * PULSE_PER_SECOND)` — pending configuration/reachability review.
+- Line 140: `#define PULSE_MOBILE		  ( 4 * PULSE_PER_SECOND)` — pending configuration/reachability review.
+- Line 141: `#define PULSE_MUSIC		  ( 6 * PULSE_PER_SECOND)` — pending configuration/reachability review.
+- Line 142: `#define PULSE_TICK		  (60 * PULSE_PER_SECOND)` — pending configuration/reachability review.
+- Line 143: `#define PULSE_AREA		  (120 * PULSE_PER_SECOND)` — pending configuration/reachability review.
+- Line 145: `#define IMPLEMENTOR		MAX_LEVEL` — pending configuration/reachability review.
+- Line 146: `#define	CREATOR			(MAX_LEVEL - 1)` — pending configuration/reachability review.
+- Line 147: `#define SUPREME			(MAX_LEVEL - 2)` — pending configuration/reachability review.
+- Line 148: `#define DEITY			(MAX_LEVEL - 3)` — pending configuration/reachability review.
+- Line 149: `#define GOD			(MAX_LEVEL - 4)` — pending configuration/reachability review.
+- Line 150: `#define IMMORTAL		(MAX_LEVEL - 5)` — pending configuration/reachability review.
+- Line 151: `#define DEMI			(MAX_LEVEL - 6)` — pending configuration/reachability review.
+- Line 152: `#define ANGEL			(MAX_LEVEL - 7)` — pending configuration/reachability review.
+- Line 153: `#define AVATAR			(MAX_LEVEL - 8)` — pending configuration/reachability review.
+- Line 154: `#define HERO			LEVEL_HERO` — pending configuration/reachability review.
+- Line 162: `#define BAN_SUFFIX		A` — pending configuration/reachability review.
+- Line 163: `#define BAN_PREFIX		B` — pending configuration/reachability review.
+- Line 164: `#define BAN_NEWBIES		C` — pending configuration/reachability review.
+- Line 165: `#define BAN_ALL			D` — pending configuration/reachability review.
+- Line 166: `#define BAN_PERMIT		E` — pending configuration/reachability review.
+- Line 167: `#define BAN_PERMANENT		F` — pending configuration/reachability review.
+- Line 192: `#define SUN_DARK		    0` — pending configuration/reachability review.
+- Line 193: `#define SUN_RISE		    1` — pending configuration/reachability review.
+- Line 194: `#define SUN_LIGHT		    2` — pending configuration/reachability review.
+- Line 195: `#define SUN_SET			    3` — pending configuration/reachability review.
+- Line 197: `#define SKY_CLOUDLESS		    0` — pending configuration/reachability review.
+- Line 198: `#define SKY_CLOUDY		    1` — pending configuration/reachability review.
+- Line 199: `#define SKY_RAINING		    2` — pending configuration/reachability review.
+- Line 200: `#define SKY_LIGHTNING		    3` — pending configuration/reachability review.
+- Line 223: `#define CON_PLAYING			 0` — pending configuration/reachability review.
+- Line 224: `#define CON_GET_NAME			 1` — pending configuration/reachability review.
+- Line 225: `#define CON_GET_OLD_PASSWORD		 2` — pending configuration/reachability review.
+- Line 226: `#define CON_CONFIRM_NEW_NAME		 3` — pending configuration/reachability review.
+- Line 227: `#define CON_GET_NEW_PASSWORD		 4` — pending configuration/reachability review.
+- Line 228: `#define CON_CONFIRM_NEW_PASSWORD	 5` — pending configuration/reachability review.
+- Line 229: `#define CON_GET_NEW_RACE		 6` — pending configuration/reachability review.
+- Line 230: `#define CON_GET_NEW_SEX			 7` — pending configuration/reachability review.
+- Line 231: `#define CON_GET_NEW_CLASS		 8` — pending configuration/reachability review.
+- Line 232: `#define CON_GET_ALIGNMENT		 9` — pending configuration/reachability review.
+- Line 233: `#define CON_DEFAULT_CHOICE		10` — pending configuration/reachability review.
+- Line 234: `#define CON_GEN_GROUPS			11` — pending configuration/reachability review.
+- Line 235: `#define CON_PICK_WEAPON			12` — pending configuration/reachability review.
+- Line 236: `#define CON_READ_IMOTD			13` — pending configuration/reachability review.
+- Line 237: `#define CON_READ_MOTD			14` — pending configuration/reachability review.
+- Line 238: `#define CON_BREAK_CONNECT		15` — pending configuration/reachability review.
+- Line 306: `#define TO_ROOM		    0` — pending configuration/reachability review.
+- Line 307: `#define TO_NOTVICT	    1` — pending configuration/reachability review.
+- Line 308: `#define TO_VICT		    2` — pending configuration/reachability review.
+- Line 309: `#define TO_CHAR		    3` — pending configuration/reachability review.
+- Line 310: `#define TO_ALL		    4` — pending configuration/reachability review.
+- Line 330: `#define MAX_TRADE	 5` — pending configuration/reachability review.
+- Line 349: `#define MAX_GUILD 	2` — pending configuration/reachability review.
+- Line 350: `#define MAX_STATS 	5` — pending configuration/reachability review.
+- Line 351: `#define STAT_STR 	0` — pending configuration/reachability review.
+- Line 352: `#define STAT_INT	1` — pending configuration/reachability review.
+- Line 353: `#define STAT_WIS	2` — pending configuration/reachability review.
+- Line 354: `#define STAT_DEX	3` — pending configuration/reachability review.
+- Line 355: `#define STAT_CON	4` — pending configuration/reachability review.
+- Line 442: `#define NOTE_NOTE	0` — pending configuration/reachability review.
+- Line 443: `#define NOTE_IDEA	1` — pending configuration/reachability review.
+- Line 444: `#define NOTE_PENALTY	2` — pending configuration/reachability review.
+- Line 445: `#define NOTE_NEWS	3` — pending configuration/reachability review.
+- Line 446: `#define NOTE_CHANGES	4` — pending configuration/reachability review.
+- Line 479: `#define TO_AFFECTS	0` — pending configuration/reachability review.
+- Line 480: `#define TO_OBJECT	1` — pending configuration/reachability review.
+- Line 481: `#define TO_IMMUNE	2` — pending configuration/reachability review.
+- Line 482: `#define TO_RESIST	3` — pending configuration/reachability review.
+- Line 483: `#define TO_VULN		4` — pending configuration/reachability review.
+- Line 484: `#define TO_WEAPON	5` — pending configuration/reachability review.
+- Line 509: `#define MOB_VNUM_FIDO		   3090` — pending configuration/reachability review.
+- Line 510: `#define MOB_VNUM_CITYGUARD	   3060` — pending configuration/reachability review.
+- Line 511: `#define MOB_VNUM_VAMPIRE	   3404` — pending configuration/reachability review.
+- Line 513: `#define MOB_VNUM_PATROLMAN	   2106` — pending configuration/reachability review.
+- Line 514: `#define GROUP_VNUM_TROLLS	   2100` — pending configuration/reachability review.
+- Line 515: `#define GROUP_VNUM_OGRES	   2101` — pending configuration/reachability review.
+- Line 520: `#define A		  	1` — pending configuration/reachability review.
+- Line 521: `#define B			2` — pending configuration/reachability review.
+- Line 522: `#define C			4` — pending configuration/reachability review.
+- Line 523: `#define D			8` — pending configuration/reachability review.
+- Line 524: `#define E			16` — pending configuration/reachability review.
+- Line 525: `#define F			32` — pending configuration/reachability review.
+- Line 526: `#define G			64` — pending configuration/reachability review.
+- Line 527: `#define H			128` — pending configuration/reachability review.
+- Line 529: `#define I			256` — pending configuration/reachability review.
+- Line 530: `#define J			512` — pending configuration/reachability review.
+- Line 531: `#define K		        1024` — pending configuration/reachability review.
+- Line 532: `#define L		 	2048` — pending configuration/reachability review.
+- Line 533: `#define M			4096` — pending configuration/reachability review.
+- Line 534: `#define N		 	8192` — pending configuration/reachability review.
+- Line 535: `#define O			16384` — pending configuration/reachability review.
+- Line 536: `#define P			32768` — pending configuration/reachability review.
+- Line 538: `#define Q			65536` — pending configuration/reachability review.
+- Line 539: `#define R			131072` — pending configuration/reachability review.
+- Line 540: `#define S			262144` — pending configuration/reachability review.
+- Line 541: `#define T			524288` — pending configuration/reachability review.
+- Line 542: `#define U			1048576` — pending configuration/reachability review.
+- Line 543: `#define V			2097152` — pending configuration/reachability review.
+- Line 544: `#define W			4194304` — pending configuration/reachability review.
+- Line 545: `#define X			8388608` — pending configuration/reachability review.
+- Line 547: `#define Y			16777216` — pending configuration/reachability review.
+- Line 548: `#define Z			33554432` — pending configuration/reachability review.
+- Line 549: `#define aa			67108864 	/* doubled due to conflicts */` — pending configuration/reachability review.
+- Line 550: `#define bb			134217728` — pending configuration/reachability review.
+- Line 551: `#define cc			268435456` — pending configuration/reachability review.
+- Line 552: `#define dd			536870912` — pending configuration/reachability review.
+- Line 553: `#define ee			1073741824` — pending configuration/reachability review.
+- Line 559: `#define ACT_IS_NPC		(A)		/* Auto set for mobs	*/` — pending configuration/reachability review.
+- Line 560: `#define ACT_SENTINEL	    	(B)		/* Stays in one room	*/` — pending configuration/reachability review.
+- Line 561: `#define ACT_SCAVENGER	      	(C)		/* Picks up objects	*/` — pending configuration/reachability review.
+- Line 562: `#define ACT_AGGRESSIVE		(F)    		/* Attacks PC's		*/` — pending configuration/reachability review.
+- Line 563: `#define ACT_STAY_AREA		(G)		/* Won't leave area	*/` — pending configuration/reachability review.
+- Line 564: `#define ACT_WIMPY		(H)` — pending configuration/reachability review.
+- Line 565: `#define ACT_PET			(I)		/* Auto set for pets	*/` — pending configuration/reachability review.
+- Line 566: `#define ACT_TRAIN		(J)		/* Can train PC's	*/` — pending configuration/reachability review.
+- Line 567: `#define ACT_PRACTICE		(K)		/* Can practice PC's	*/` — pending configuration/reachability review.
+- Line 568: `#define ACT_UNDEAD		(O)` — pending configuration/reachability review.
+- Line 569: `#define ACT_CLERIC		(Q)` — pending configuration/reachability review.
+- Line 570: `#define ACT_MAGE		(R)` — pending configuration/reachability review.
+- Line 571: `#define ACT_THIEF		(S)` — pending configuration/reachability review.
+- Line 572: `#define ACT_WARRIOR		(T)` — pending configuration/reachability review.
+- Line 573: `#define ACT_NOALIGN		(U)` — pending configuration/reachability review.
+- Line 574: `#define ACT_NOPURGE		(V)` — pending configuration/reachability review.
+- Line 575: `#define ACT_OUTDOORS		(W)` — pending configuration/reachability review.
+- Line 576: `#define ACT_INDOORS		(Y)` — pending configuration/reachability review.
+- Line 577: `#define ACT_IS_HEALER		(aa)` — pending configuration/reachability review.
+- Line 578: `#define ACT_GAIN		(bb)` — pending configuration/reachability review.
+- Line 579: `#define ACT_UPDATE_ALWAYS	(cc)` — pending configuration/reachability review.
+- Line 580: `#define ACT_IS_CHANGER		(dd)` — pending configuration/reachability review.
+- Line 583: `#define DAM_NONE                0` — pending configuration/reachability review.
+- Line 584: `#define DAM_BASH                1` — pending configuration/reachability review.
+- Line 585: `#define DAM_PIERCE              2` — pending configuration/reachability review.
+- Line 586: `#define DAM_SLASH               3` — pending configuration/reachability review.
+- Line 587: `#define DAM_FIRE                4` — pending configuration/reachability review.
+- Line 588: `#define DAM_COLD                5` — pending configuration/reachability review.
+- Line 589: `#define DAM_LIGHTNING           6` — pending configuration/reachability review.
+- Line 590: `#define DAM_ACID                7` — pending configuration/reachability review.
+- Line 591: `#define DAM_POISON              8` — pending configuration/reachability review.
+- Line 592: `#define DAM_NEGATIVE            9` — pending configuration/reachability review.
+- Line 593: `#define DAM_HOLY                10` — pending configuration/reachability review.
+- Line 594: `#define DAM_ENERGY              11` — pending configuration/reachability review.
+- Line 595: `#define DAM_MENTAL              12` — pending configuration/reachability review.
+- Line 596: `#define DAM_DISEASE             13` — pending configuration/reachability review.
+- Line 597: `#define DAM_DROWNING            14` — pending configuration/reachability review.
+- Line 598: `#define DAM_LIGHT		15` — pending configuration/reachability review.
+- Line 599: `#define DAM_OTHER               16` — pending configuration/reachability review.
+- Line 600: `#define DAM_HARM		17` — pending configuration/reachability review.
+- Line 601: `#define DAM_CHARM		18` — pending configuration/reachability review.
+- Line 602: `#define DAM_SOUND		19` — pending configuration/reachability review.
+- Line 605: `#define OFF_AREA_ATTACK         (A)` — pending configuration/reachability review.
+- Line 606: `#define OFF_BACKSTAB            (B)` — pending configuration/reachability review.
+- Line 607: `#define OFF_BASH                (C)` — pending configuration/reachability review.
+- Line 608: `#define OFF_BERSERK             (D)` — pending configuration/reachability review.
+- Line 609: `#define OFF_DISARM              (E)` — pending configuration/reachability review.
+- Line 610: `#define OFF_DODGE               (F)` — pending configuration/reachability review.
+- Line 611: `#define OFF_FADE                (G)` — pending configuration/reachability review.
+- Line 612: `#define OFF_FAST                (H)` — pending configuration/reachability review.
+- Line 613: `#define OFF_KICK                (I)` — pending configuration/reachability review.
+- Line 614: `#define OFF_KICK_DIRT           (J)` — pending configuration/reachability review.
+- Line 615: `#define OFF_PARRY               (K)` — pending configuration/reachability review.
+- Line 616: `#define OFF_RESCUE              (L)` — pending configuration/reachability review.
+- Line 617: `#define OFF_TAIL                (M)` — pending configuration/reachability review.
+- Line 618: `#define OFF_TRIP                (N)` — pending configuration/reachability review.
+- Line 619: `#define OFF_CRUSH		(O)` — pending configuration/reachability review.
+- Line 620: `#define ASSIST_ALL       	(P)` — pending configuration/reachability review.
+- Line 621: `#define ASSIST_ALIGN	        (Q)` — pending configuration/reachability review.
+- Line 622: `#define ASSIST_RACE    	     	(R)` — pending configuration/reachability review.
+- Line 623: `#define ASSIST_PLAYERS      	(S)` — pending configuration/reachability review.
+- Line 624: `#define ASSIST_GUARD        	(T)` — pending configuration/reachability review.
+- Line 625: `#define ASSIST_VNUM		(U)` — pending configuration/reachability review.
+- Line 628: `#define IS_NORMAL		0` — pending configuration/reachability review.
+- Line 629: `#define IS_IMMUNE		1` — pending configuration/reachability review.
+- Line 630: `#define IS_RESISTANT		2` — pending configuration/reachability review.
+- Line 631: `#define IS_VULNERABLE		3` — pending configuration/reachability review.
+- Line 634: `#define IMM_SUMMON              (A)` — pending configuration/reachability review.
+- Line 635: `#define IMM_CHARM               (B)` — pending configuration/reachability review.
+- Line 636: `#define IMM_MAGIC               (C)` — pending configuration/reachability review.
+- Line 637: `#define IMM_WEAPON              (D)` — pending configuration/reachability review.
+- Line 638: `#define IMM_BASH                (E)` — pending configuration/reachability review.
+- Line 639: `#define IMM_PIERCE              (F)` — pending configuration/reachability review.
+- Line 640: `#define IMM_SLASH               (G)` — pending configuration/reachability review.
+- Line 641: `#define IMM_FIRE                (H)` — pending configuration/reachability review.
+- Line 642: `#define IMM_COLD                (I)` — pending configuration/reachability review.
+- Line 643: `#define IMM_LIGHTNING           (J)` — pending configuration/reachability review.
+- Line 644: `#define IMM_ACID                (K)` — pending configuration/reachability review.
+- Line 645: `#define IMM_POISON              (L)` — pending configuration/reachability review.
+- Line 646: `#define IMM_NEGATIVE            (M)` — pending configuration/reachability review.
+- Line 647: `#define IMM_HOLY                (N)` — pending configuration/reachability review.
+- Line 648: `#define IMM_ENERGY              (O)` — pending configuration/reachability review.
+- Line 649: `#define IMM_MENTAL              (P)` — pending configuration/reachability review.
+- Line 650: `#define IMM_DISEASE             (Q)` — pending configuration/reachability review.
+- Line 651: `#define IMM_DROWNING            (R)` — pending configuration/reachability review.
+- Line 652: `#define IMM_LIGHT		(S)` — pending configuration/reachability review.
+- Line 653: `#define IMM_SOUND		(T)` — pending configuration/reachability review.
+- Line 654: `#define IMM_WOOD                (X)` — pending configuration/reachability review.
+- Line 655: `#define IMM_SILVER              (Y)` — pending configuration/reachability review.
+- Line 656: `#define IMM_IRON                (Z)` — pending configuration/reachability review.
+- Line 659: `#define RES_SUMMON		(A)` — pending configuration/reachability review.
+- Line 660: `#define RES_CHARM		(B)` — pending configuration/reachability review.
+- Line 661: `#define RES_MAGIC               (C)` — pending configuration/reachability review.
+- Line 662: `#define RES_WEAPON              (D)` — pending configuration/reachability review.
+- Line 663: `#define RES_BASH                (E)` — pending configuration/reachability review.
+- Line 664: `#define RES_PIERCE              (F)` — pending configuration/reachability review.
+- Line 665: `#define RES_SLASH               (G)` — pending configuration/reachability review.
+- Line 666: `#define RES_FIRE                (H)` — pending configuration/reachability review.
+- Line 667: `#define RES_COLD                (I)` — pending configuration/reachability review.
+- Line 668: `#define RES_LIGHTNING           (J)` — pending configuration/reachability review.
+- Line 669: `#define RES_ACID                (K)` — pending configuration/reachability review.
+- Line 670: `#define RES_POISON              (L)` — pending configuration/reachability review.
+- Line 671: `#define RES_NEGATIVE            (M)` — pending configuration/reachability review.
+- Line 672: `#define RES_HOLY                (N)` — pending configuration/reachability review.
+- Line 673: `#define RES_ENERGY              (O)` — pending configuration/reachability review.
+- Line 674: `#define RES_MENTAL              (P)` — pending configuration/reachability review.
+- Line 675: `#define RES_DISEASE             (Q)` — pending configuration/reachability review.
+- Line 676: `#define RES_DROWNING            (R)` — pending configuration/reachability review.
+- Line 677: `#define RES_LIGHT		(S)` — pending configuration/reachability review.
+- Line 678: `#define RES_SOUND		(T)` — pending configuration/reachability review.
+- Line 679: `#define RES_WOOD                (X)` — pending configuration/reachability review.
+- Line 680: `#define RES_SILVER              (Y)` — pending configuration/reachability review.
+- Line 681: `#define RES_IRON                (Z)` — pending configuration/reachability review.
+- Line 684: `#define VULN_SUMMON		(A)` — pending configuration/reachability review.
+- Line 685: `#define VULN_CHARM		(B)` — pending configuration/reachability review.
+- Line 686: `#define VULN_MAGIC              (C)` — pending configuration/reachability review.
+- Line 687: `#define VULN_WEAPON             (D)` — pending configuration/reachability review.
+- Line 688: `#define VULN_BASH               (E)` — pending configuration/reachability review.
+- Line 689: `#define VULN_PIERCE             (F)` — pending configuration/reachability review.
+- Line 690: `#define VULN_SLASH              (G)` — pending configuration/reachability review.
+- Line 691: `#define VULN_FIRE               (H)` — pending configuration/reachability review.
+- Line 692: `#define VULN_COLD               (I)` — pending configuration/reachability review.
+- Line 693: `#define VULN_LIGHTNING          (J)` — pending configuration/reachability review.
+- Line 694: `#define VULN_ACID               (K)` — pending configuration/reachability review.
+- Line 695: `#define VULN_POISON             (L)` — pending configuration/reachability review.
+- Line 696: `#define VULN_NEGATIVE           (M)` — pending configuration/reachability review.
+- Line 697: `#define VULN_HOLY               (N)` — pending configuration/reachability review.
+- Line 698: `#define VULN_ENERGY             (O)` — pending configuration/reachability review.
+- Line 699: `#define VULN_MENTAL             (P)` — pending configuration/reachability review.
+- Line 700: `#define VULN_DISEASE            (Q)` — pending configuration/reachability review.
+- Line 701: `#define VULN_DROWNING           (R)` — pending configuration/reachability review.
+- Line 702: `#define VULN_LIGHT		(S)` — pending configuration/reachability review.
+- Line 703: `#define VULN_SOUND		(T)` — pending configuration/reachability review.
+- Line 704: `#define VULN_WOOD               (X)` — pending configuration/reachability review.
+- Line 705: `#define VULN_SILVER             (Y)` — pending configuration/reachability review.
+- Line 706: `#define VULN_IRON		(Z)` — pending configuration/reachability review.
+- Line 709: `#define FORM_EDIBLE             (A)` — pending configuration/reachability review.
+- Line 710: `#define FORM_POISON             (B)` — pending configuration/reachability review.
+- Line 711: `#define FORM_MAGICAL            (C)` — pending configuration/reachability review.
+- Line 712: `#define FORM_INSTANT_DECAY      (D)` — pending configuration/reachability review.
+- Line 713: `#define FORM_OTHER              (E)  /* defined by material bit */` — pending configuration/reachability review.
+- Line 716: `#define FORM_ANIMAL             (G)` — pending configuration/reachability review.
+- Line 717: `#define FORM_SENTIENT           (H)` — pending configuration/reachability review.
+- Line 718: `#define FORM_UNDEAD             (I)` — pending configuration/reachability review.
+- Line 719: `#define FORM_CONSTRUCT          (J)` — pending configuration/reachability review.
+- Line 720: `#define FORM_MIST               (K)` — pending configuration/reachability review.
+- Line 721: `#define FORM_INTANGIBLE         (L)` — pending configuration/reachability review.
+- Line 723: `#define FORM_BIPED              (M)` — pending configuration/reachability review.
+- Line 724: `#define FORM_CENTAUR            (N)` — pending configuration/reachability review.
+- Line 725: `#define FORM_INSECT             (O)` — pending configuration/reachability review.
+- Line 726: `#define FORM_SPIDER             (P)` — pending configuration/reachability review.
+- Line 727: `#define FORM_CRUSTACEAN         (Q)` — pending configuration/reachability review.
+- Line 728: `#define FORM_WORM               (R)` — pending configuration/reachability review.
+- Line 729: `#define FORM_BLOB		(S)` — pending configuration/reachability review.
+- Line 731: `#define FORM_MAMMAL             (V)` — pending configuration/reachability review.
+- Line 732: `#define FORM_BIRD               (W)` — pending configuration/reachability review.
+- Line 733: `#define FORM_REPTILE            (X)` — pending configuration/reachability review.
+- Line 734: `#define FORM_SNAKE              (Y)` — pending configuration/reachability review.
+- Line 735: `#define FORM_DRAGON             (Z)` — pending configuration/reachability review.
+- Line 736: `#define FORM_AMPHIBIAN          (aa)` — pending configuration/reachability review.
+- Line 737: `#define FORM_FISH               (bb)` — pending configuration/reachability review.
+- Line 738: `#define FORM_COLD_BLOOD		(cc)` — pending configuration/reachability review.
+- Line 741: `#define PART_HEAD               (A)` — pending configuration/reachability review.
+- Line 742: `#define PART_ARMS               (B)` — pending configuration/reachability review.
+- Line 743: `#define PART_LEGS               (C)` — pending configuration/reachability review.
+- Line 744: `#define PART_HEART              (D)` — pending configuration/reachability review.
+- Line 745: `#define PART_BRAINS             (E)` — pending configuration/reachability review.
+- Line 746: `#define PART_GUTS               (F)` — pending configuration/reachability review.
+- Line 747: `#define PART_HANDS              (G)` — pending configuration/reachability review.
+- Line 748: `#define PART_FEET               (H)` — pending configuration/reachability review.
+- Line 749: `#define PART_FINGERS            (I)` — pending configuration/reachability review.
+- Line 750: `#define PART_EAR                (J)` — pending configuration/reachability review.
+- Line 751: `#define PART_EYE		(K)` — pending configuration/reachability review.
+- Line 752: `#define PART_LONG_TONGUE        (L)` — pending configuration/reachability review.
+- Line 753: `#define PART_EYESTALKS          (M)` — pending configuration/reachability review.
+- Line 754: `#define PART_TENTACLES          (N)` — pending configuration/reachability review.
+- Line 755: `#define PART_FINS               (O)` — pending configuration/reachability review.
+- Line 756: `#define PART_WINGS              (P)` — pending configuration/reachability review.
+- Line 757: `#define PART_TAIL               (Q)` — pending configuration/reachability review.
+- Line 759: `#define PART_CLAWS              (U)` — pending configuration/reachability review.
+- Line 760: `#define PART_FANGS              (V)` — pending configuration/reachability review.
+- Line 761: `#define PART_HORNS              (W)` — pending configuration/reachability review.
+- Line 762: `#define PART_SCALES             (X)` — pending configuration/reachability review.
+- Line 763: `#define PART_TUSKS		(Y)` — pending configuration/reachability review.
+- Line 770: `#define AFF_BLIND		(A)` — pending configuration/reachability review.
+- Line 771: `#define AFF_INVISIBLE		(B)` — pending configuration/reachability review.
+- Line 772: `#define AFF_DETECT_EVIL		(C)` — pending configuration/reachability review.
+- Line 773: `#define AFF_DETECT_INVIS	(D)` — pending configuration/reachability review.
+- Line 774: `#define AFF_DETECT_MAGIC	(E)` — pending configuration/reachability review.
+- Line 775: `#define AFF_DETECT_HIDDEN	(F)` — pending configuration/reachability review.
+- Line 776: `#define AFF_DETECT_GOOD		(G)` — pending configuration/reachability review.
+- Line 777: `#define AFF_SANCTUARY		(H)` — pending configuration/reachability review.
+- Line 778: `#define AFF_FAERIE_FIRE		(I)` — pending configuration/reachability review.
+- Line 779: `#define AFF_INFRARED		(J)` — pending configuration/reachability review.
+- Line 780: `#define AFF_CURSE		(K)` — pending configuration/reachability review.
+- Line 781: `#define AFF_UNUSED_FLAG		(L)	/* unused */` — pending configuration/reachability review.
+- Line 782: `#define AFF_POISON		(M)` — pending configuration/reachability review.
+- Line 783: `#define AFF_PROTECT_EVIL	(N)` — pending configuration/reachability review.
+- Line 784: `#define AFF_PROTECT_GOOD	(O)` — pending configuration/reachability review.
+- Line 785: `#define AFF_SNEAK		(P)` — pending configuration/reachability review.
+- Line 786: `#define AFF_HIDE		(Q)` — pending configuration/reachability review.
+- Line 787: `#define AFF_SLEEP		(R)` — pending configuration/reachability review.
+- Line 788: `#define AFF_CHARM		(S)` — pending configuration/reachability review.
+- Line 789: `#define AFF_FLYING		(T)` — pending configuration/reachability review.
+- Line 790: `#define AFF_PASS_DOOR		(U)` — pending configuration/reachability review.
+- Line 791: `#define AFF_HASTE		(V)` — pending configuration/reachability review.
+- Line 792: `#define AFF_CALM		(W)` — pending configuration/reachability review.
+- Line 793: `#define AFF_PLAGUE		(X)` — pending configuration/reachability review.
+- Line 794: `#define AFF_WEAKEN		(Y)` — pending configuration/reachability review.
+- Line 795: `#define AFF_DARK_VISION		(Z)` — pending configuration/reachability review.
+- Line 796: `#define AFF_BERSERK		(aa)` — pending configuration/reachability review.
+- Line 797: `#define AFF_SWIM		(bb)` — pending configuration/reachability review.
+- Line 798: `#define AFF_REGENERATION        (cc)` — pending configuration/reachability review.
+- Line 799: `#define AFF_SLOW		(dd)` — pending configuration/reachability review.
+- Line 808: `#define SEX_NEUTRAL		      0` — pending configuration/reachability review.
+- Line 809: `#define SEX_MALE		      1` — pending configuration/reachability review.
+- Line 810: `#define SEX_FEMALE		      2` — pending configuration/reachability review.
+- Line 813: `#define AC_PIERCE			0` — pending configuration/reachability review.
+- Line 814: `#define AC_BASH				1` — pending configuration/reachability review.
+- Line 815: `#define AC_SLASH			2` — pending configuration/reachability review.
+- Line 816: `#define AC_EXOTIC			3` — pending configuration/reachability review.
+- Line 819: `#define DICE_NUMBER			0` — pending configuration/reachability review.
+- Line 820: `#define DICE_TYPE			1` — pending configuration/reachability review.
+- Line 821: `#define DICE_BONUS			2` — pending configuration/reachability review.
+- Line 824: `#define SIZE_TINY			0` — pending configuration/reachability review.
+- Line 825: `#define SIZE_SMALL			1` — pending configuration/reachability review.
+- Line 826: `#define SIZE_MEDIUM			2` — pending configuration/reachability review.
+- Line 827: `#define SIZE_LARGE			3` — pending configuration/reachability review.
+- Line 828: `#define SIZE_HUGE			4` — pending configuration/reachability review.
+- Line 829: `#define SIZE_GIANT			5` — pending configuration/reachability review.
+- Line 837: `#define OBJ_VNUM_SILVER_ONE	      1` — pending configuration/reachability review.
+- Line 838: `#define OBJ_VNUM_GOLD_ONE	      2` — pending configuration/reachability review.
+- Line 839: `#define OBJ_VNUM_GOLD_SOME	      3` — pending configuration/reachability review.
+- Line 840: `#define OBJ_VNUM_SILVER_SOME	      4` — pending configuration/reachability review.
+- Line 841: `#define OBJ_VNUM_COINS		      5` — pending configuration/reachability review.
+- Line 843: `#define OBJ_VNUM_CORPSE_NPC	     10` — pending configuration/reachability review.
+- Line 844: `#define OBJ_VNUM_CORPSE_PC	     11` — pending configuration/reachability review.
+- Line 845: `#define OBJ_VNUM_SEVERED_HEAD	     12` — pending configuration/reachability review.
+- Line 846: `#define OBJ_VNUM_TORN_HEART	     13` — pending configuration/reachability review.
+- Line 847: `#define OBJ_VNUM_SLICED_ARM	     14` — pending configuration/reachability review.
+- Line 848: `#define OBJ_VNUM_SLICED_LEG	     15` — pending configuration/reachability review.
+- Line 849: `#define OBJ_VNUM_GUTS		     16` — pending configuration/reachability review.
+- Line 850: `#define OBJ_VNUM_BRAINS		     17` — pending configuration/reachability review.
+- Line 852: `#define OBJ_VNUM_MUSHROOM	     20` — pending configuration/reachability review.
+- Line 853: `#define OBJ_VNUM_LIGHT_BALL	     21` — pending configuration/reachability review.
+- Line 854: `#define OBJ_VNUM_SPRING		     22` — pending configuration/reachability review.
+- Line 855: `#define OBJ_VNUM_DISC		     23` — pending configuration/reachability review.
+- Line 856: `#define OBJ_VNUM_PORTAL		     25` — pending configuration/reachability review.
+- Line 858: `#define OBJ_VNUM_ROSE		   1001` — pending configuration/reachability review.
+- Line 860: `#define OBJ_VNUM_PIT		   3010` — pending configuration/reachability review.
+- Line 862: `#define OBJ_VNUM_SCHOOL_MACE	   3700` — pending configuration/reachability review.
+- Line 863: `#define OBJ_VNUM_SCHOOL_DAGGER	   3701` — pending configuration/reachability review.
+- Line 864: `#define OBJ_VNUM_SCHOOL_SWORD	   3702` — pending configuration/reachability review.
+- Line 865: `#define OBJ_VNUM_SCHOOL_SPEAR	   3717` — pending configuration/reachability review.
+- Line 866: `#define OBJ_VNUM_SCHOOL_STAFF	   3718` — pending configuration/reachability review.
+- Line 867: `#define OBJ_VNUM_SCHOOL_AXE	   3719` — pending configuration/reachability review.
+- Line 868: `#define OBJ_VNUM_SCHOOL_FLAIL	   3720` — pending configuration/reachability review.
+- Line 869: `#define OBJ_VNUM_SCHOOL_WHIP	   3721` — pending configuration/reachability review.
+- Line 870: `#define OBJ_VNUM_SCHOOL_POLEARM    3722` — pending configuration/reachability review.
+- Line 872: `#define OBJ_VNUM_SCHOOL_VEST	   3703` — pending configuration/reachability review.
+- Line 873: `#define OBJ_VNUM_SCHOOL_SHIELD	   3704` — pending configuration/reachability review.
+- Line 874: `#define OBJ_VNUM_SCHOOL_BANNER     3716` — pending configuration/reachability review.
+- Line 875: `#define OBJ_VNUM_MAP		   3162` — pending configuration/reachability review.
+- Line 877: `#define OBJ_VNUM_WHISTLE	   2116` — pending configuration/reachability review.
+- Line 885: `#define ITEM_LIGHT		      1` — pending configuration/reachability review.
+- Line 886: `#define ITEM_SCROLL		      2` — pending configuration/reachability review.
+- Line 887: `#define ITEM_WAND		      3` — pending configuration/reachability review.
+- Line 888: `#define ITEM_STAFF		      4` — pending configuration/reachability review.
+- Line 889: `#define ITEM_WEAPON		      5` — pending configuration/reachability review.
+- Line 890: `#define ITEM_TREASURE		      8` — pending configuration/reachability review.
+- Line 891: `#define ITEM_ARMOR		      9` — pending configuration/reachability review.
+- Line 892: `#define ITEM_POTION		     10` — pending configuration/reachability review.
+- Line 893: `#define ITEM_CLOTHING		     11` — pending configuration/reachability review.
+- Line 894: `#define ITEM_FURNITURE		     12` — pending configuration/reachability review.
+- Line 895: `#define ITEM_TRASH		     13` — pending configuration/reachability review.
+- Line 896: `#define ITEM_CONTAINER		     15` — pending configuration/reachability review.
+- Line 897: `#define ITEM_DRINK_CON		     17` — pending configuration/reachability review.
+- Line 898: `#define ITEM_KEY		     18` — pending configuration/reachability review.
+- Line 899: `#define ITEM_FOOD		     19` — pending configuration/reachability review.
+- Line 900: `#define ITEM_MONEY		     20` — pending configuration/reachability review.
+- Line 901: `#define ITEM_BOAT		     22` — pending configuration/reachability review.
+- Line 902: `#define ITEM_CORPSE_NPC		     23` — pending configuration/reachability review.
+- Line 903: `#define ITEM_CORPSE_PC		     24` — pending configuration/reachability review.
+- Line 904: `#define ITEM_FOUNTAIN		     25` — pending configuration/reachability review.
+- Line 905: `#define ITEM_PILL		     26` — pending configuration/reachability review.
+- Line 906: `#define ITEM_PROTECT		     27` — pending configuration/reachability review.
+- Line 907: `#define ITEM_MAP		     28` — pending configuration/reachability review.
+- Line 908: `#define ITEM_PORTAL		     29` — pending configuration/reachability review.
+- Line 909: `#define ITEM_WARP_STONE		     30` — pending configuration/reachability review.
+- Line 910: `#define ITEM_ROOM_KEY		     31` — pending configuration/reachability review.
+- Line 911: `#define ITEM_GEM		     32` — pending configuration/reachability review.
+- Line 912: `#define ITEM_JEWELRY		     33` — pending configuration/reachability review.
+- Line 913: `#define ITEM_JUKEBOX		     34` — pending configuration/reachability review.
+- Line 921: `#define ITEM_GLOW		(A)` — pending configuration/reachability review.
+- Line 922: `#define ITEM_HUM		(B)` — pending configuration/reachability review.
+- Line 923: `#define ITEM_DARK		(C)` — pending configuration/reachability review.
+- Line 924: `#define ITEM_LOCK		(D)` — pending configuration/reachability review.
+- Line 925: `#define ITEM_EVIL		(E)` — pending configuration/reachability review.
+- Line 926: `#define ITEM_INVIS		(F)` — pending configuration/reachability review.
+- Line 927: `#define ITEM_MAGIC		(G)` — pending configuration/reachability review.
+- Line 928: `#define ITEM_NODROP		(H)` — pending configuration/reachability review.
+- Line 929: `#define ITEM_BLESS		(I)` — pending configuration/reachability review.
+- Line 930: `#define ITEM_ANTI_GOOD		(J)` — pending configuration/reachability review.
+- Line 931: `#define ITEM_ANTI_EVIL		(K)` — pending configuration/reachability review.
+- Line 932: `#define ITEM_ANTI_NEUTRAL	(L)` — pending configuration/reachability review.
+- Line 933: `#define ITEM_NOREMOVE		(M)` — pending configuration/reachability review.
+- Line 934: `#define ITEM_INVENTORY		(N)` — pending configuration/reachability review.
+- Line 935: `#define ITEM_NOPURGE		(O)` — pending configuration/reachability review.
+- Line 936: `#define ITEM_ROT_DEATH		(P)` — pending configuration/reachability review.
+- Line 937: `#define ITEM_VIS_DEATH		(Q)` — pending configuration/reachability review.
+- Line 938: `#define ITEM_NONMETAL		(S)` — pending configuration/reachability review.
+- Line 939: `#define ITEM_NOLOCATE		(T)` — pending configuration/reachability review.
+- Line 940: `#define ITEM_MELT_DROP		(U)` — pending configuration/reachability review.
+- Line 941: `#define ITEM_HAD_TIMER		(V)` — pending configuration/reachability review.
+- Line 942: `#define ITEM_SELL_EXTRACT	(W)` — pending configuration/reachability review.
+- Line 943: `#define ITEM_BURN_PROOF		(Y)` — pending configuration/reachability review.
+- Line 944: `#define ITEM_NOUNCURSE		(Z)` — pending configuration/reachability review.
+- Line 951: `#define ITEM_TAKE		(A)` — pending configuration/reachability review.
+- Line 952: `#define ITEM_WEAR_FINGER	(B)` — pending configuration/reachability review.
+- Line 953: `#define ITEM_WEAR_NECK		(C)` — pending configuration/reachability review.
+- Line 954: `#define ITEM_WEAR_BODY		(D)` — pending configuration/reachability review.
+- Line 955: `#define ITEM_WEAR_HEAD		(E)` — pending configuration/reachability review.
+- Line 956: `#define ITEM_WEAR_LEGS		(F)` — pending configuration/reachability review.
+- Line 957: `#define ITEM_WEAR_FEET		(G)` — pending configuration/reachability review.
+- Line 958: `#define ITEM_WEAR_HANDS		(H)` — pending configuration/reachability review.
+- Line 959: `#define ITEM_WEAR_ARMS		(I)` — pending configuration/reachability review.
+- Line 960: `#define ITEM_WEAR_SHIELD	(J)` — pending configuration/reachability review.
+- Line 961: `#define ITEM_WEAR_ABOUT		(K)` — pending configuration/reachability review.
+- Line 962: `#define ITEM_WEAR_WAIST		(L)` — pending configuration/reachability review.
+- Line 963: `#define ITEM_WEAR_WRIST		(M)` — pending configuration/reachability review.
+- Line 964: `#define ITEM_WIELD		(N)` — pending configuration/reachability review.
+- Line 965: `#define ITEM_HOLD		(O)` — pending configuration/reachability review.
+- Line 966: `#define ITEM_NO_SAC		(P)` — pending configuration/reachability review.
+- Line 967: `#define ITEM_WEAR_FLOAT		(Q)` — pending configuration/reachability review.
+- Line 970: `#define WEAPON_EXOTIC		0` — pending configuration/reachability review.
+- Line 971: `#define WEAPON_SWORD		1` — pending configuration/reachability review.
+- Line 972: `#define WEAPON_DAGGER		2` — pending configuration/reachability review.
+- Line 973: `#define WEAPON_SPEAR		3` — pending configuration/reachability review.
+- Line 974: `#define WEAPON_MACE		4` — pending configuration/reachability review.
+- Line 975: `#define WEAPON_AXE		5` — pending configuration/reachability review.
+- Line 976: `#define WEAPON_FLAIL		6` — pending configuration/reachability review.
+- Line 977: `#define WEAPON_WHIP		7` — pending configuration/reachability review.
+- Line 978: `#define WEAPON_POLEARM		8` — pending configuration/reachability review.
+- Line 981: `#define WEAPON_FLAMING		(A)` — pending configuration/reachability review.
+- Line 982: `#define WEAPON_FROST		(B)` — pending configuration/reachability review.
+- Line 983: `#define WEAPON_VAMPIRIC		(C)` — pending configuration/reachability review.
+- Line 984: `#define WEAPON_SHARP		(D)` — pending configuration/reachability review.
+- Line 985: `#define WEAPON_VORPAL		(E)` — pending configuration/reachability review.
+- Line 986: `#define WEAPON_TWO_HANDS	(F)` — pending configuration/reachability review.
+- Line 987: `#define WEAPON_SHOCKING		(G)` — pending configuration/reachability review.
+- Line 988: `#define WEAPON_POISON		(H)` — pending configuration/reachability review.
+- Line 991: `#define GATE_NORMAL_EXIT	(A)` — pending configuration/reachability review.
+- Line 992: `#define GATE_NOCURSE		(B)` — pending configuration/reachability review.
+- Line 993: `#define GATE_GOWITH		(C)` — pending configuration/reachability review.
+- Line 994: `#define GATE_BUGGY		(D)` — pending configuration/reachability review.
+- Line 995: `#define GATE_RANDOM		(E)` — pending configuration/reachability review.
+- Line 998: `#define STAND_AT		(A)` — pending configuration/reachability review.
+- Line 999: `#define STAND_ON		(B)` — pending configuration/reachability review.
+- Line 1000: `#define STAND_IN		(C)` — pending configuration/reachability review.
+- Line 1001: `#define SIT_AT			(D)` — pending configuration/reachability review.
+- Line 1002: `#define SIT_ON			(E)` — pending configuration/reachability review.
+- Line 1003: `#define SIT_IN			(F)` — pending configuration/reachability review.
+- Line 1004: `#define REST_AT			(G)` — pending configuration/reachability review.
+- Line 1005: `#define REST_ON			(H)` — pending configuration/reachability review.
+- Line 1006: `#define REST_IN			(I)` — pending configuration/reachability review.
+- Line 1007: `#define SLEEP_AT		(J)` — pending configuration/reachability review.
+- Line 1008: `#define SLEEP_ON		(K)` — pending configuration/reachability review.
+- Line 1009: `#define SLEEP_IN		(L)` — pending configuration/reachability review.
+- Line 1010: `#define PUT_AT			(M)` — pending configuration/reachability review.
+- Line 1011: `#define PUT_ON			(N)` — pending configuration/reachability review.
+- Line 1012: `#define PUT_IN			(O)` — pending configuration/reachability review.
+- Line 1013: `#define PUT_INSIDE		(P)` — pending configuration/reachability review.
+- Line 1022: `#define APPLY_NONE		      0` — pending configuration/reachability review.
+- Line 1023: `#define APPLY_STR		      1` — pending configuration/reachability review.
+- Line 1024: `#define APPLY_DEX		      2` — pending configuration/reachability review.
+- Line 1025: `#define APPLY_INT		      3` — pending configuration/reachability review.
+- Line 1026: `#define APPLY_WIS		      4` — pending configuration/reachability review.
+- Line 1027: `#define APPLY_CON		      5` — pending configuration/reachability review.
+- Line 1028: `#define APPLY_SEX		      6` — pending configuration/reachability review.
+- Line 1029: `#define APPLY_CLASS		      7` — pending configuration/reachability review.
+- Line 1030: `#define APPLY_LEVEL		      8` — pending configuration/reachability review.
+- Line 1031: `#define APPLY_AGE		      9` — pending configuration/reachability review.
+- Line 1032: `#define APPLY_HEIGHT		     10` — pending configuration/reachability review.
+- Line 1033: `#define APPLY_WEIGHT		     11` — pending configuration/reachability review.
+- Line 1034: `#define APPLY_MANA		     12` — pending configuration/reachability review.
+- Line 1035: `#define APPLY_HIT		     13` — pending configuration/reachability review.
+- Line 1036: `#define APPLY_MOVE		     14` — pending configuration/reachability review.
+- Line 1037: `#define APPLY_GOLD		     15` — pending configuration/reachability review.
+- Line 1038: `#define APPLY_EXP		     16` — pending configuration/reachability review.
+- Line 1039: `#define APPLY_AC		     17` — pending configuration/reachability review.
+- Line 1040: `#define APPLY_HITROLL		     18` — pending configuration/reachability review.
+- Line 1041: `#define APPLY_DAMROLL		     19` — pending configuration/reachability review.
+- Line 1042: `#define APPLY_SAVES		     20` — pending configuration/reachability review.
+- Line 1043: `#define APPLY_SAVING_PARA	     20` — pending configuration/reachability review.
+- Line 1044: `#define APPLY_SAVING_ROD	     21` — pending configuration/reachability review.
+- Line 1045: `#define APPLY_SAVING_PETRI	     22` — pending configuration/reachability review.
+- Line 1046: `#define APPLY_SAVING_BREATH	     23` — pending configuration/reachability review.
+- Line 1047: `#define APPLY_SAVING_SPELL	     24` — pending configuration/reachability review.
+- Line 1048: `#define APPLY_SPELL_AFFECT	     25` — pending configuration/reachability review.
+- Line 1054: `#define CONT_CLOSEABLE		      1` — pending configuration/reachability review.
+- Line 1055: `#define CONT_PICKPROOF		      2` — pending configuration/reachability review.
+- Line 1056: `#define CONT_CLOSED		      4` — pending configuration/reachability review.
+- Line 1057: `#define CONT_LOCKED		      8` — pending configuration/reachability review.
+- Line 1058: `#define CONT_PUT_ON		     16` — pending configuration/reachability review.
+- Line 1066: `#define ROOM_VNUM_LIMBO		      2` — pending configuration/reachability review.
+- Line 1067: `#define ROOM_VNUM_CHAT		   1200` — pending configuration/reachability review.
+- Line 1068: `#define ROOM_VNUM_TEMPLE	   3001` — pending configuration/reachability review.
+- Line 1069: `#define ROOM_VNUM_ALTAR		   3054` — pending configuration/reachability review.
+- Line 1070: `#define ROOM_VNUM_SCHOOL	   3700` — pending configuration/reachability review.
+- Line 1071: `#define ROOM_VNUM_BALANCE	   4500` — pending configuration/reachability review.
+- Line 1072: `#define ROOM_VNUM_CIRCLE	   4400` — pending configuration/reachability review.
+- Line 1073: `#define ROOM_VNUM_DEMISE	   4201` — pending configuration/reachability review.
+- Line 1074: `#define ROOM_VNUM_HONOR		   4300` — pending configuration/reachability review.
+- Line 1082: `#define ROOM_DARK		(A)` — pending configuration/reachability review.
+- Line 1083: `#define ROOM_NO_MOB		(C)` — pending configuration/reachability review.
+- Line 1084: `#define ROOM_INDOORS		(D)` — pending configuration/reachability review.
+- Line 1086: `#define ROOM_PRIVATE		(J)` — pending configuration/reachability review.
+- Line 1087: `#define ROOM_SAFE		(K)` — pending configuration/reachability review.
+- Line 1088: `#define ROOM_SOLITARY		(L)` — pending configuration/reachability review.
+- Line 1089: `#define ROOM_PET_SHOP		(M)` — pending configuration/reachability review.
+- Line 1090: `#define ROOM_NO_RECALL		(N)` — pending configuration/reachability review.
+- Line 1091: `#define ROOM_IMP_ONLY		(O)` — pending configuration/reachability review.
+- Line 1092: `#define ROOM_GODS_ONLY		(P)` — pending configuration/reachability review.
+- Line 1093: `#define ROOM_HEROES_ONLY	(Q)` — pending configuration/reachability review.
+- Line 1094: `#define ROOM_NEWBIES_ONLY	(R)` — pending configuration/reachability review.
+- Line 1095: `#define ROOM_LAW		(S)` — pending configuration/reachability review.
+- Line 1096: `#define ROOM_NOWHERE		(T)` — pending configuration/reachability review.
+- Line 1104: `#define DIR_NORTH		      0` — pending configuration/reachability review.
+- Line 1105: `#define DIR_EAST		      1` — pending configuration/reachability review.
+- Line 1106: `#define DIR_SOUTH		      2` — pending configuration/reachability review.
+- Line 1107: `#define DIR_WEST		      3` — pending configuration/reachability review.
+- Line 1108: `#define DIR_UP			      4` — pending configuration/reachability review.
+- Line 1109: `#define DIR_DOWN		      5` — pending configuration/reachability review.
+- Line 1117: `#define EX_ISDOOR		      (A)` — pending configuration/reachability review.
+- Line 1118: `#define EX_CLOSED		      (B)` — pending configuration/reachability review.
+- Line 1119: `#define EX_LOCKED		      (C)` — pending configuration/reachability review.
+- Line 1120: `#define EX_PICKPROOF		      (F)` — pending configuration/reachability review.
+- Line 1121: `#define EX_NOPASS		      (G)` — pending configuration/reachability review.
+- Line 1122: `#define EX_EASY			      (H)` — pending configuration/reachability review.
+- Line 1123: `#define EX_HARD			      (I)` — pending configuration/reachability review.
+- Line 1124: `#define EX_INFURIATING		      (J)` — pending configuration/reachability review.
+- Line 1125: `#define EX_NOCLOSE		      (K)` — pending configuration/reachability review.
+- Line 1126: `#define EX_NOLOCK		      (L)` — pending configuration/reachability review.
+- Line 1134: `#define SECT_INSIDE		      0` — pending configuration/reachability review.
+- Line 1135: `#define SECT_CITY		      1` — pending configuration/reachability review.
+- Line 1136: `#define SECT_FIELD		      2` — pending configuration/reachability review.
+- Line 1137: `#define SECT_FOREST		      3` — pending configuration/reachability review.
+- Line 1138: `#define SECT_HILLS		      4` — pending configuration/reachability review.
+- Line 1139: `#define SECT_MOUNTAIN		      5` — pending configuration/reachability review.
+- Line 1140: `#define SECT_WATER_SWIM		      6` — pending configuration/reachability review.
+- Line 1141: `#define SECT_WATER_NOSWIM	      7` — pending configuration/reachability review.
+- Line 1142: `#define SECT_UNUSED		      8` — pending configuration/reachability review.
+- Line 1143: `#define SECT_AIR		      9` — pending configuration/reachability review.
+- Line 1144: `#define SECT_DESERT		     10` — pending configuration/reachability review.
+- Line 1145: `#define SECT_MAX		     11` — pending configuration/reachability review.
+- Line 1153: `#define WEAR_NONE		     -1` — pending configuration/reachability review.
+- Line 1154: `#define WEAR_LIGHT		      0` — pending configuration/reachability review.
+- Line 1155: `#define WEAR_FINGER_L		      1` — pending configuration/reachability review.
+- Line 1156: `#define WEAR_FINGER_R		      2` — pending configuration/reachability review.
+- Line 1157: `#define WEAR_NECK_1		      3` — pending configuration/reachability review.
+- Line 1158: `#define WEAR_NECK_2		      4` — pending configuration/reachability review.
+- Line 1159: `#define WEAR_BODY		      5` — pending configuration/reachability review.
+- Line 1160: `#define WEAR_HEAD		      6` — pending configuration/reachability review.
+- Line 1161: `#define WEAR_LEGS		      7` — pending configuration/reachability review.
+- Line 1162: `#define WEAR_FEET		      8` — pending configuration/reachability review.
+- Line 1163: `#define WEAR_HANDS		      9` — pending configuration/reachability review.
+- Line 1164: `#define WEAR_ARMS		     10` — pending configuration/reachability review.
+- Line 1165: `#define WEAR_SHIELD		     11` — pending configuration/reachability review.
+- Line 1166: `#define WEAR_ABOUT		     12` — pending configuration/reachability review.
+- Line 1167: `#define WEAR_WAIST		     13` — pending configuration/reachability review.
+- Line 1168: `#define WEAR_WRIST_L		     14` — pending configuration/reachability review.
+- Line 1169: `#define WEAR_WRIST_R		     15` — pending configuration/reachability review.
+- Line 1170: `#define WEAR_WIELD		     16` — pending configuration/reachability review.
+- Line 1171: `#define WEAR_HOLD		     17` — pending configuration/reachability review.
+- Line 1172: `#define WEAR_FLOAT		     18` — pending configuration/reachability review.
+- Line 1173: `#define MAX_WEAR		     19` — pending configuration/reachability review.
+- Line 1187: `#define COND_DRUNK		      0` — pending configuration/reachability review.
+- Line 1188: `#define COND_FULL		      1` — pending configuration/reachability review.
+- Line 1189: `#define COND_THIRST		      2` — pending configuration/reachability review.
+- Line 1190: `#define COND_HUNGER		      3` — pending configuration/reachability review.
+- Line 1197: `#define POS_DEAD		      0` — pending configuration/reachability review.
+- Line 1198: `#define POS_MORTAL		      1` — pending configuration/reachability review.
+- Line 1199: `#define POS_INCAP		      2` — pending configuration/reachability review.
+- Line 1200: `#define POS_STUNNED		      3` — pending configuration/reachability review.
+- Line 1201: `#define POS_SLEEPING		      4` — pending configuration/reachability review.
+- Line 1202: `#define POS_RESTING		      5` — pending configuration/reachability review.
+- Line 1203: `#define POS_SITTING		      6` — pending configuration/reachability review.
+- Line 1204: `#define POS_FIGHTING		      7` — pending configuration/reachability review.
+- Line 1205: `#define POS_STANDING		      8` — pending configuration/reachability review.
+- Line 1212: `#define PLR_IS_NPC		(A)		/* Don't EVER set.	*/` — pending configuration/reachability review.
+- Line 1215: `#define PLR_AUTOASSIST		(C)` — pending configuration/reachability review.
+- Line 1216: `#define PLR_AUTOEXIT		(D)` — pending configuration/reachability review.
+- Line 1217: `#define PLR_AUTOLOOT		(E)` — pending configuration/reachability review.
+- Line 1218: `#define PLR_AUTOSAC             (F)` — pending configuration/reachability review.
+- Line 1219: `#define PLR_AUTOGOLD		(G)` — pending configuration/reachability review.
+- Line 1220: `#define PLR_AUTOSPLIT		(H)` — pending configuration/reachability review.
+- Line 1223: `#define PLR_HOLYLIGHT		(N)` — pending configuration/reachability review.
+- Line 1224: `#define PLR_CANLOOT		(P)` — pending configuration/reachability review.
+- Line 1225: `#define PLR_NOSUMMON		(Q)` — pending configuration/reachability review.
+- Line 1226: `#define PLR_NOFOLLOW		(R)` — pending configuration/reachability review.
+- Line 1230: `#define PLR_PERMIT		(U)` — pending configuration/reachability review.
+- Line 1231: `#define PLR_LOG			(W)` — pending configuration/reachability review.
+- Line 1232: `#define PLR_DENY		(X)` — pending configuration/reachability review.
+- Line 1233: `#define PLR_FREEZE		(Y)` — pending configuration/reachability review.
+- Line 1234: `#define PLR_THIEF		(Z)` — pending configuration/reachability review.
+- Line 1235: `#define PLR_KILLER		(aa)` — pending configuration/reachability review.
+- Line 1239: `#define COMM_QUIET              (A)` — pending configuration/reachability review.
+- Line 1240: `#define COMM_DEAF            	(B)` — pending configuration/reachability review.
+- Line 1241: `#define COMM_NOWIZ              (C)` — pending configuration/reachability review.
+- Line 1242: `#define COMM_NOAUCTION          (D)` — pending configuration/reachability review.
+- Line 1243: `#define COMM_NOGOSSIP           (E)` — pending configuration/reachability review.
+- Line 1244: `#define COMM_NOQUESTION         (F)` — pending configuration/reachability review.
+- Line 1245: `#define COMM_NOMUSIC            (G)` — pending configuration/reachability review.
+- Line 1246: `#define COMM_NOCLAN		(H)` — pending configuration/reachability review.
+- Line 1247: `#define COMM_NOQUOTE		(I)` — pending configuration/reachability review.
+- Line 1248: `#define COMM_SHOUTSOFF		(J)` — pending configuration/reachability review.
+- Line 1251: `#define COMM_COMPACT		(L)` — pending configuration/reachability review.
+- Line 1252: `#define COMM_BRIEF		(M)` — pending configuration/reachability review.
+- Line 1253: `#define COMM_PROMPT		(N)` — pending configuration/reachability review.
+- Line 1254: `#define COMM_COMBINE		(O)` — pending configuration/reachability review.
+- Line 1255: `#define COMM_TELNET_GA		(P)` — pending configuration/reachability review.
+- Line 1256: `#define COMM_SHOW_AFFECTS	(Q)` — pending configuration/reachability review.
+- Line 1257: `#define COMM_NOGRATS		(R)` — pending configuration/reachability review.
+- Line 1260: `#define COMM_NOEMOTE		(T)` — pending configuration/reachability review.
+- Line 1261: `#define COMM_NOSHOUT		(U)` — pending configuration/reachability review.
+- Line 1262: `#define COMM_NOTELL		(V)` — pending configuration/reachability review.
+- Line 1263: `#define COMM_NOCHANNELS		(W)` — pending configuration/reachability review.
+- Line 1264: `#define COMM_SNOOP_PROOF	(Y)` — pending configuration/reachability review.
+- Line 1265: `#define COMM_AFK		(Z)` — pending configuration/reachability review.
+- Line 1268: `#define WIZ_ON			(A)` — pending configuration/reachability review.
+- Line 1269: `#define WIZ_TICKS		(B)` — pending configuration/reachability review.
+- Line 1270: `#define WIZ_LOGINS		(C)` — pending configuration/reachability review.
+- Line 1271: `#define WIZ_SITES		(D)` — pending configuration/reachability review.
+- Line 1272: `#define WIZ_LINKS		(E)` — pending configuration/reachability review.
+- Line 1273: `#define WIZ_DEATHS		(F)` — pending configuration/reachability review.
+- Line 1274: `#define WIZ_RESETS		(G)` — pending configuration/reachability review.
+- Line 1275: `#define WIZ_MOBDEATHS		(H)` — pending configuration/reachability review.
+- Line 1276: `#define WIZ_FLAGS		(I)` — pending configuration/reachability review.
+- Line 1277: `#define WIZ_PENALTIES		(J)` — pending configuration/reachability review.
+- Line 1278: `#define WIZ_SACCING		(K)` — pending configuration/reachability review.
+- Line 1279: `#define WIZ_LEVELS		(L)` — pending configuration/reachability review.
+- Line 1280: `#define WIZ_SECURE		(M)` — pending configuration/reachability review.
+- Line 1281: `#define WIZ_SWITCHES		(N)` — pending configuration/reachability review.
+- Line 1282: `#define WIZ_SNOOPS		(O)` — pending configuration/reachability review.
+- Line 1283: `#define WIZ_RESTORE		(P)` — pending configuration/reachability review.
+- Line 1284: `#define WIZ_LOAD		(Q)` — pending configuration/reachability review.
+- Line 1285: `#define WIZ_NEWBIE		(R)` — pending configuration/reachability review.
+- Line 1286: `#define WIZ_PREFIX		(S)` — pending configuration/reachability review.
+- Line 1287: `#define WIZ_SPAM		(T)` — pending configuration/reachability review.
+- Line 1335: `#define MEM_CUSTOMER	A` — pending configuration/reachability review.
+- Line 1336: `#define MEM_SELLER	B` — pending configuration/reachability review.
+- Line 1337: `#define MEM_HOSTILE	C` — pending configuration/reachability review.
+- Line 1338: `#define MEM_AFRAID	D` — pending configuration/reachability review.
+- Line 1491: `#define LIQ_WATER        0` — pending configuration/reachability review.
+- Line 1678: `#define TYPE_UNDEFINED               -1` — pending configuration/reachability review.
+- Line 1679: `#define TYPE_HIT                     1000` — pending configuration/reachability review.
+- Line 1686: `#define TAR_IGNORE		    0` — pending configuration/reachability review.
+- Line 1687: `#define TAR_CHAR_OFFENSIVE	    1` — pending configuration/reachability review.
+- Line 1688: `#define TAR_CHAR_DEFENSIVE	    2` — pending configuration/reachability review.
+- Line 1689: `#define TAR_CHAR_SELF		    3` — pending configuration/reachability review.
+- Line 1690: `#define TAR_OBJ_INV		    4` — pending configuration/reachability review.
+- Line 1691: `#define TAR_OBJ_CHAR_DEF	    5` — pending configuration/reachability review.
+- Line 1692: `#define TAR_OBJ_CHAR_OFF	    6` — pending configuration/reachability review.
+- Line 1694: `#define TARGET_CHAR		    0` — pending configuration/reachability review.
+- Line 1695: `#define TARGET_OBJ		    1` — pending configuration/reachability review.
+- Line 1696: `#define TARGET_ROOM		    2` — pending configuration/reachability review.
+- Line 1697: `#define TARGET_NONE		    3` — pending configuration/reachability review.
+- Line 1793: `#define IS_VALID(data)		((data) != NULL && (data)->valid)` — pending configuration/reachability review.
+- Line 1794: `#define VALIDATE(data)		((data)->valid = TRUE)` — pending configuration/reachability review.
+- Line 1795: `#define INVALIDATE(data)	((data)->valid = FALSE)` — pending configuration/reachability review.
+- Line 1796: `#define UMIN(a, b)		((a) < (b) ? (a) : (b))` — pending configuration/reachability review.
+- Line 1797: `#define UMAX(a, b)		((a) > (b) ? (a) : (b))` — pending configuration/reachability review.
+- Line 1798: `#define URANGE(a, b, c)		((b) < (a) ? (a) : ((b) > (c) ? (c) : (b)))` — pending configuration/reachability review.
+- Line 1799: `#define LOWER(c)		((c) >= 'A' && (c) <= 'Z' ? (c)+'a'-'A' : (c))` — pending configuration/reachability review.
+- Line 1800: `#define UPPER(c)		((c) >= 'a' && (c) <= 'z' ? (c)+'A'-'a' : (c))` — pending configuration/reachability review.
+- Line 1801: `#define IS_SET(flag, bit)	((flag) & (bit))` — pending configuration/reachability review.
+- Line 1802: `#define SET_BIT(var, bit)	((var) |= (bit))` — pending configuration/reachability review.
+- Line 1803: `#define REMOVE_BIT(var, bit)	((var) &= ~(bit))` — pending configuration/reachability review.
+- Line 1810: `#define IS_NPC(ch)		(IS_SET((ch)->act, ACT_IS_NPC))` — pending configuration/reachability review.
+- Line 1811: `#define IS_IMMORTAL(ch)		(get_trust(ch) >= LEVEL_IMMORTAL)` — pending configuration/reachability review.
+- Line 1812: `#define IS_HERO(ch)		(get_trust(ch) >= LEVEL_HERO)` — pending configuration/reachability review.
+- Line 1813: `#define IS_TRUSTED(ch,level)	(get_trust((ch)) >= (level))` — pending configuration/reachability review.
+- Line 1814: `#define IS_AFFECTED(ch, sn)	(IS_SET((ch)->affected_by, (sn)))` — pending configuration/reachability review.
+- Line 1816: `#define GET_AGE(ch)		((int) (17 + ((ch)->played \ 				    + current_time - (ch)->logon )/72000))` — pending configuration/reachability review.
+- Line 1819: `#define IS_GOOD(ch)		(ch->alignment >= 350)` — pending configuration/reachability review.
+- Line 1820: `#define IS_EVIL(ch)		(ch->alignment <= -350)` — pending configuration/reachability review.
+- Line 1821: `#define IS_NEUTRAL(ch)		(!IS_GOOD(ch) && !IS_EVIL(ch))` — pending configuration/reachability review.
+- Line 1823: `#define IS_AWAKE(ch)		(ch->position > POS_SLEEPING)` — pending configuration/reachability review.
+- Line 1824: `#define GET_AC(ch,type)		((ch)->armor[type]			    \ 		        + ( IS_AWAKE(ch)			    \ 			? dex_app[get_curr_stat(ch,STAT_DEX)].defensive : 0 ))` — pending configuration/reachability review.
+- Line 1827: `#define GET_HITROLL(ch)	\ 		((ch)->hitroll+str_app[get_curr_stat(ch,STAT_STR)].tohit)` — pending configuration/reachability review.
+- Line 1829: `#define GET_DAMROLL(ch) \ 		((ch)->damroll+str_app[get_curr_stat(ch,STAT_STR)].todam)` — pending configuration/reachability review.
+- Line 1832: `#define IS_OUTSIDE(ch)		(!IS_SET(				    \ 				    (ch)->in_room->room_flags,		    \ 				    ROOM_INDOORS))` — pending configuration/reachability review.
+- Line 1836: `#define WAIT_STATE(ch, npulse)	((ch)->wait = UMAX((ch)->wait, (npulse)))` — pending configuration/reachability review.
+- Line 1837: `#define DAZE_STATE(ch, npulse)  ((ch)->daze = UMAX((ch)->daze, (npulse)))` — pending configuration/reachability review.
+- Line 1838: `#define get_carry_weight(ch)	((ch)->carry_weight + (ch)->silver/10 +  \ 						      (ch)->gold * 2 / 5)` — pending configuration/reachability review.
+- Line 1841: `#define act(format,ch,arg1,arg2,type)\ 	act_new((format),(ch),(arg1),(arg2),(type),POS_RESTING)` — pending configuration/reachability review.
+- Line 1847: `#define CAN_WEAR(obj, part)	(IS_SET((obj)->wear_flags,  (part)))` — pending configuration/reachability review.
+- Line 1848: `#define IS_OBJ_STAT(obj, stat)	(IS_SET((obj)->extra_flags, (stat)))` — pending configuration/reachability review.
+- Line 1849: `#define IS_WEAPON_STAT(obj,stat)(IS_SET((obj)->value[4],(stat)))` — pending configuration/reachability review.
+- Line 1850: `#define WEIGHT_MULT(obj)	((obj)->item_type == ITEM_CONTAINER ? \ 	(obj)->value[4] : 100)` — pending configuration/reachability review.
+- Line 1858: `#define PERS(ch, looker)	( can_see( looker, (ch) ) ?		\ 				( IS_NPC(ch) ? (ch)->short_descr	\ 				: (ch)->name ) : "someone" )` — pending configuration/reachability review.
+- Line 1931: `#if	defined(_AIX)` — pending configuration/reachability review.
+- Line 1933: `#endif` — pending configuration/reachability review.
+- Line 1935: `#if	defined(apollo)` — pending configuration/reachability review.
+- Line 1939: `#endif` — pending configuration/reachability review.
+- Line 1941: `#if	defined(hpux)` — pending configuration/reachability review.
+- Line 1943: `#endif` — pending configuration/reachability review.
+- Line 1945: `#if	defined(linux)` — pending configuration/reachability review.
+- Line 1947: `#endif` — pending configuration/reachability review.
+- Line 1949: `#if	defined(macintosh)` — pending configuration/reachability review.
+- Line 1950: `#define NOCRYPT` — pending configuration/reachability review.
+- Line 1951: `#if	defined(unix)` — pending configuration/reachability review.
+- Line 1952: `#undef	unix` — pending configuration/reachability review.
+- Line 1953: `#endif` — pending configuration/reachability review.
+- Line 1954: `#endif` — pending configuration/reachability review.
+- Line 1956: `#if	defined(MIPS_OS)` — pending configuration/reachability review.
+- Line 1958: `#endif` — pending configuration/reachability review.
+- Line 1960: `#if	defined(MSDOS)` — pending configuration/reachability review.
+- Line 1961: `#define NOCRYPT` — pending configuration/reachability review.
+- Line 1962: `#if	defined(unix)` — pending configuration/reachability review.
+- Line 1963: `#undef	unix` — pending configuration/reachability review.
+- Line 1964: `#endif` — pending configuration/reachability review.
+- Line 1965: `#endif` — pending configuration/reachability review.
+- Line 1967: `#if	defined(NeXT)` — pending configuration/reachability review.
+- Line 1969: `#endif` — pending configuration/reachability review.
+- Line 1971: `#if	defined(sequent)` — pending configuration/reachability review.
+- Line 1979: `#endif` — pending configuration/reachability review.
+- Line 1981: `#if	defined(sun)` — pending configuration/reachability review.
+- Line 1985: `#if	defined(SYSV)` — pending configuration/reachability review.
+- Line 1988: `#elif !defined(__SVR4)` — pending configuration/reachability review.
+- Line 1990: `#endif` — pending configuration/reachability review.
+- Line 1994: `#endif` — pending configuration/reachability review.
+- Line 1996: `#if	defined(ultrix)` — pending configuration/reachability review.
+- Line 1998: `#endif` — pending configuration/reachability review.
+- Line 2008: `#if	defined(NOCRYPT)` — pending configuration/reachability review.
+- Line 2009: `#define crypt(s1, s2)	(s1)` — pending configuration/reachability review.
+- Line 2010: `#endif` — pending configuration/reachability review.
+- Line 2025: `#if defined(macintosh)` — pending configuration/reachability review.
+- Line 2026: `#define PLAYER_DIR	""			/* Player files	*/` — pending configuration/reachability review.
+- Line 2027: `#define TEMP_FILE	"romtmp"` — pending configuration/reachability review.
+- Line 2028: `#define NULL_FILE	"proto.are"		/* To reserve one stream */` — pending configuration/reachability review.
+- Line 2029: `#endif` — pending configuration/reachability review.
+- Line 2031: `#if defined(MSDOS)` — pending configuration/reachability review.
+- Line 2032: `#define PLAYER_DIR	""			/* Player files */` — pending configuration/reachability review.
+- Line 2033: `#define TEMP_FILE	"romtmp"` — pending configuration/reachability review.
+- Line 2034: `#define NULL_FILE	"nul"			/* To reserve one stream */` — pending configuration/reachability review.
+- Line 2035: `#endif` — pending configuration/reachability review.
+- Line 2037: `#if defined(unix)` — pending configuration/reachability review.
+- Line 2038: `#define PLAYER_DIR      "../player/"        	/* Player files */` — pending configuration/reachability review.
+- Line 2039: `#define GOD_DIR         "../gods/"  		/* list of gods */` — pending configuration/reachability review.
+- Line 2040: `#define TEMP_FILE	"../player/romtmp"` — pending configuration/reachability review.
+- Line 2041: `#define NULL_FILE	"/dev/null"		/* To reserve one stream */` — pending configuration/reachability review.
+- Line 2042: `#endif` — pending configuration/reachability review.
+- Line 2044: `#define AREA_LIST       "area.lst"  /* List of areas*/` — pending configuration/reachability review.
+- Line 2045: `#define BUG_FILE        "bugs.txt" /* For 'bug' and bug()*/` — pending configuration/reachability review.
+- Line 2046: `#define TYPO_FILE       "typos.txt" /* For 'typo'*/` — pending configuration/reachability review.
+- Line 2047: `#define NOTE_FILE       "notes.not"/* For 'notes'*/` — pending configuration/reachability review.
+- Line 2048: `#define IDEA_FILE	"ideas.not"` — pending configuration/reachability review.
+- Line 2049: `#define PENALTY_FILE	"penal.not"` — pending configuration/reachability review.
+- Line 2050: `#define NEWS_FILE	"news.not"` — pending configuration/reachability review.
+- Line 2051: `#define CHANGES_FILE	"chang.not"` — pending configuration/reachability review.
+- Line 2052: `#define SHUTDOWN_FILE   "shutdown.txt"/* For 'shutdown'*/` — pending configuration/reachability review.
+- Line 2053: `#define BAN_FILE	"ban.txt"` — pending configuration/reachability review.
+- Line 2054: `#define MUSIC_FILE	"music.txt"` — pending configuration/reachability review.
+- Line 2062: `#define CD	CHAR_DATA` — pending configuration/reachability review.
+- Line 2063: `#define MID	MOB_INDEX_DATA` — pending configuration/reachability review.
+- Line 2064: `#define OD	OBJ_DATA` — pending configuration/reachability review.
+- Line 2065: `#define OID	OBJ_INDEX_DATA` — pending configuration/reachability review.
+- Line 2066: `#define RID	ROOM_INDEX_DATA` — pending configuration/reachability review.
+- Line 2067: `#define SF	SPEC_FUN` — pending configuration/reachability review.
+- Line 2068: `#define AD	AFFECT_DATA` — pending configuration/reachability review.
+- Line 2316: `#undef	CD` — pending configuration/reachability review.
+- Line 2317: `#undef	MID` — pending configuration/reachability review.
+- Line 2318: `#undef	OD` — pending configuration/reachability review.
+- Line 2319: `#undef	OID` — pending configuration/reachability review.
+- Line 2320: `#undef	RID` — pending configuration/reachability review.
+- Line 2321: `#undef	SF` — pending configuration/reachability review.
+- Line 2322: `#undef AD` — pending configuration/reachability review.
+
+## Static tables
+
+
+## Commented code candidates
+

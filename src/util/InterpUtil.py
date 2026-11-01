@@ -115,13 +115,14 @@ class InterpUtil:
 
     @staticmethod
     def extract_parameters(interp_registry, command: str) -> Union[tuple[Any, str], tuple[None, None]]:
-        normalized = " ".join((command or "").split()).strip()
-        if not normalized:
+        text = (command or "").lstrip()
+        if not text:
             return None, None
 
-        parts = normalized.split(" ", 1)
-        command_text = parts[0].lower()
-        parameters = parts[1].strip() if len(parts) > 1 else ""
+        if not text[0].isalnum():
+            command_text, parameters = text[0], text[1:].lstrip()
+        else:
+            command_text, parameters = InterpUtil.one_argument(text)
         get_or_none = getattr(interp_registry, "get_or_none", None)
         if callable(get_or_none):
             exact = get_or_none(name=command_text)

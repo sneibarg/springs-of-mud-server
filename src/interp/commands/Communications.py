@@ -22,14 +22,6 @@ from util.WizUtil import WizUtil
 
 
 class Communications:
-    POSES = [
-        "strikes a heroic pose.",
-        "looks around cautiously.",
-        "smiles happily.",
-        "yawns loudly.",
-        "ponders the meaning of life.",
-    ]
-
     @inject
     def __init__(self,
                  registry_service: RegistryService,
@@ -61,15 +53,15 @@ class Communications:
             "pose": self.do_pose,
             "gtell": self.do_gtell,
             "gossip": self.do_gossip,
-            ",": self.do_gossip,
+            ",": self.do_emote,
             "auction": self.do_auction,
             "music": self.do_music,
             "question": self.do_question,
             "answer": self.do_question,
             "quote": self.do_quote,
-            ";": self.do_quote,
+            ";": self.do_gtell,
             "grats": self.do_grats,
-            ".": self.do_grats,
+            ".": self.do_gossip,
             "clan": self.do_clan,
             "afk": self.do_afk,
             "quiet": self.do_quiet,
@@ -310,14 +302,22 @@ class Communications:
 
     def do_pose(self, context: Context):
         character = context.character
+        if CharacterApi.is_npc(character):
+            context.finish()
+            return {}
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
-        text = random.choice(self.POSES)
+        choices = [key for key in context.command.payload.to_char if key.startswith('pose_')]
         context.finish()
-        return {
-            "to_char": f"You {text}\r\n",
-            "to_room": f"{character.name} {text}\r\n",
-            "targets": self._room_targets(character, room),
-        }
+        if not choices:
+            return {}
+        key = random.choice(choices)
+        def render(observer):
+            name = DisplayUtil.visible_tokens({'actor': character}, observer, room)['actor']
+            text = self.interp_api.render_message_key(context, key, channel='to_room', c=name).get('to_room', '')
+            return text[:1].upper() + text[1:]
+        return {'to_char': self.interp_api.render_message_key(context, key, channel='to_char').get('to_char', ''),
+                'to_room': DisplayUtil.room_text(render(character), render, room),
+                'targets': DisplayUtil.room_listeners(character, room)}
 
     def do_tell(self, context: Context):
         character = context.character

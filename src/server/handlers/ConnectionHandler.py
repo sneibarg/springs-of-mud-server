@@ -459,6 +459,7 @@ class ConnectionHandler:
                 await connection.close()
             return None
         session.character = character
+        character.start_playtime()
         character.world_retired = False
         self._update_player(session, character)
         self.registry_service.character_registry.set_playing(character)

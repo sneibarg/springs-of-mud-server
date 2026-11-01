@@ -86,6 +86,8 @@ class CharacterService(FetchAndRegisterMixin):
 
     @classmethod
     def _serialize_character(cls, character: Character) -> dict[str, Any]:
+        status = serialize_wire_value(character.status_flags, excluded_fields=cls._WIRE_EXCLUDED_FIELDS)
+        status['played'], status['logon'] = character.playtime_snapshot()
         return {
             "id": character.id,
             "accountId": character.account_id,
@@ -120,7 +122,7 @@ class CharacterService(FetchAndRegisterMixin):
             "aliases": serialize_wire_value(getattr(character, "aliases", {}), excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
             "noteReadStamps": dict(getattr(character, "note_read_stamps", None) or {}),
             "noteReadIds": serialize_wire_value(getattr(character, 'note_read_ids', None) or {}),
-            "statusFlags": serialize_wire_value(character.status_flags, excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
+            "statusFlags": status,
             "characterAttributes": serialize_wire_value(character.character_attributes, excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
             "armorClass": serialize_wire_value(character.armor_class, excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
             "characterClass": serialize_wire_value(character.character_class, excluded_fields=cls._WIRE_EXCLUDED_FIELDS),

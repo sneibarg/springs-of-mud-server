@@ -43,7 +43,7 @@ class MobileFactory:
     @staticmethod
     def _random_dam_type() -> int:
         dam_type = {0: 3, 1: 7, 2: 11}
-        return dam_type[rng.dice(0, 2)]
+        return dam_type[rng.number_range(0, 2)]
 
     @staticmethod
     def _apply_mob_stat_bonuses(mob: Mobile, enum_provider: EnumProvider):

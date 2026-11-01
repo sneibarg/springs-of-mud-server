@@ -63,4 +63,5 @@ class EntityExtractor:
             # CharacterRegistry is also the offline service cache. Keep persisted
             # inventory and the saved room hint for the next authenticated login.
             entity.world_retired = True
+            entity.stop_playtime()
             self.registries.character_registry.remove_playing(entity)

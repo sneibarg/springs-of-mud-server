@@ -112,34 +112,27 @@ class SpellApi:
         if spell_label.strip().lower() == "ventriloquate":
             return False
         victim = ctx.victim
-        actor_name = DisplayUtil.entity_name(ctx.actor, is_npc=CharacterApi.is_npc)
         self.send(ctx, to_char=f"You cast {spell_label}" + (f" on {DisplayUtil.entity_name(victim, is_npc=CharacterApi.is_npc)}" if victim is not None and victim is not ctx.actor else "") + ".\r\n")
 
-        visible_spell = SpellSpeech.utterance(spell_label, actor_name, translated=False)
-        obscure_spell = SpellSpeech.utterance(spell_label, actor_name, translated=True)
+        def announcement(observer):
+            name = DisplayUtil.visible_tokens({'actor': ctx.actor}, observer, ctx.room)['actor']
+            text = SpellSpeech.utterance(spell_label, name, translated=not self._same_class(ctx.actor, observer))
+            return text[:1].upper() + text[1:]
 
-        if victim is not None and victim is not ctx.actor and not CharacterApi.is_npc(victim):
+        if (victim is not None and victim is not ctx.actor and not CharacterApi.is_npc(victim)
+                and CharacterApi.position_value(victim) >= CharacterApi.pos_value('POS_RESTING')):
             self.send(
                 ctx,
-                to_victim=visible_spell if self._same_class(ctx.actor, victim) else obscure_spell,
+                to_victim=announcement(victim),
                 victim=victim,
             )
 
-        same_class_targets: list[Any] = []
-        other_targets: list[Any] = []
         exclude_ids = {str(getattr(ctx.actor, "id", "") or "")}
         if victim is not None:
             exclude_ids.add(str(getattr(victim, "id", "") or ""))
         for player in self._room_players(ctx.room, exclude_ids=exclude_ids):
-            if self._same_class(ctx.actor, player):
-                same_class_targets.append(player)
-            else:
-                other_targets.append(player)
-
-        if same_class_targets:
-            ctx.queue_payload({"to_room": visible_spell, "targets": same_class_targets})
-        if other_targets:
-            ctx.queue_payload({"to_room": obscure_spell, "targets": other_targets})
+            if CharacterApi.position_value(player) >= CharacterApi.pos_value('POS_RESTING'):
+                ctx.queue_payload({"to_room": announcement(player), "targets": [player]})
         return True
 
     def check_offensive_cast(self, ctx: SpellContext):
@@ -1391,8 +1384,23 @@ class SpellApi:
         if current is None or room is None:
             return False
         exclude = {str(victim.id)}
+
+        def room_notice(location, key):
+            def render(observer):
+                tokens = ctx.payload_tokens()
+                visible = DisplayUtil.visible_tokens({'actor': ctx.actor, 'victim': victim}, observer, location)
+                tokens.update(visible)
+                tokens.update(target=visible['victim'], t=visible['victim'], n=visible['victim'],
+                              p=visible['victim'], item=visible['victim'], c=visible['actor'],
+                              actor_his=getattr(ctx.actor, 'his_her', lambda: 'its')(),
+                              victim_his=getattr(victim, 'his_her', lambda: 'its')(),
+                              victim_him=getattr(victim, 'him_her', lambda: 'it')())
+                text = ctx.spell.message('to_room', key, **tokens)
+                return text[:1].upper() + text[1:]
+            return DisplayUtil.room_text(render(victim), render, location)
+
         if departure_key:
-            self._queue_room_text(ctx, current, self._ability_message(ctx.spell, "to_room", departure_key, ctx, victim), exclude)
+            self._queue_room_text(ctx, current, room_notice(current, departure_key), exclude)
         if notice_key and notice_before:
             self.send_message(ctx, notice_key, target=victim)
         if CharacterApi.is_npc(victim):
@@ -1403,7 +1411,7 @@ class SpellApi:
             room.add_player_to_room(victim)
         victim.room_id, victim.area_id = room.id, room.area_id
         if arrival_key:
-            self._queue_room_text(ctx, room, self._ability_message(ctx.spell, "to_room", arrival_key, ctx, victim), exclude)
+            self._queue_room_text(ctx, room, room_notice(room, arrival_key), exclude)
         if notice_key and not notice_before:
             self.send_message(ctx, notice_key, target=victim)
         if not CharacterApi.is_npc(victim):

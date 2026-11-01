@@ -45,6 +45,9 @@ class WorldPopulationParityTests(SharedFixture, unittest.TestCase):
         with patch('area.AreaHandler.MobileFactory.create', return_value=spawned):
             self.assertEqual((True, spawned), self.handler._do_mob_reset(True, self.reset))
         self.assertIs(self.room.mobiles[spawned.id], spawned)
+        self.assertEqual(self.room.area_id, spawned.origin_area_id)
+        spawned.area_id = self.other.area_id
+        self.assertEqual(self.room.area_id, spawned.origin_area_id)
         self.handler._register_live_character.assert_called_once_with(spawned)
 
     def object_reset(self, vnum):

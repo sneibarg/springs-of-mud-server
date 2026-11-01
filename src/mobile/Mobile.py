@@ -22,6 +22,8 @@ class Mobile(AnimateEntity):
     material: str
     hit_roll: int
     guild: str = field(default='', kw_only=True)
+    # Set by area resets, independently of the mobile's current area.
+    origin_area_id: str = field(default='', kw_only=True)
     movement: int = field(default=100, kw_only=True)
     max_movement: int = field(default=100, kw_only=True)
     saving_throw: int = field(default=0, kw_only=True)

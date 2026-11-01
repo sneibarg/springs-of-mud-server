@@ -1,0 +1,10 @@
+{
+  "result": "passed",
+  "command": ".venv/Scripts/python.exe docs/reports/rom24-code-paths/whole-codebase/validate_report.py",
+  "checks": "JSON integrity, bidirectional references, blocked reasons, all snapshot hashes, Markdown links and citation bounds, count consistency, truthful partial status",
+  "source_and_supporting_files_hashed": 528,
+  "functions_inventoried": 677,
+  "cases": 432,
+  "markdown_links_checked": 741,
+  "gameplay_tests_run": 0
+}

@@ -284,7 +284,8 @@ class RetirementTests(RuntimeFixture, unittest.IsolatedAsyncioTestCase):
     def updater(self, send):
         return EntityUpdateHandler(NS(room_registry=self.rooms), self.enums, Mock(),
                                    NS(tick_effects=AsyncMock(), tick_status_effects=AsyncMock()),
-                                   NS(send_to_character=send, text_to_message=lambda text: text))
+                                   NS(send_to_character=send, text_to_message=lambda text: text),
+                                   NS(current_session=lambda entity: None))
 
     async def test_already_selected_player_cannot_tick_after_quit_snapshot(self):
         first = self.character('first')

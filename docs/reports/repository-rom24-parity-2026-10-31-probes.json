@@ -1,0 +1,54 @@
+{
+  "say hello   brave world": {
+    "actor": [
+      "You say 'hello brave world'\r\n"
+    ],
+    "bob": [
+      "Alice says 'hello brave world'\r\n"
+    ]
+  },
+  "'hello": {
+    "actor": [
+      "Huh?\r\n"
+    ],
+    "bob": []
+  },
+  ".hello": {
+    "actor": [
+      "Huh?\r\n"
+    ],
+    "bob": []
+  },
+  "recal": {
+    "actor": [
+      "Huh?\r\n"
+    ],
+    "bob": []
+  },
+  "say hello": {
+    "actor": [
+      "You say 'hello'\r\n"
+    ],
+    "bob": [
+      "Alice says 'hello'\r\n"
+    ]
+  },
+  "fallback_attack_types": [
+    3
+  ],
+  "invisible_cast_announcement": [
+    {
+      "text": "Alice utters the words, 'abrazak'.\r\n",
+      "targets": [
+        "Bob",
+        "Cara"
+      ]
+    }
+  ],
+  "foreign_area_mobile_tick": {
+    "home_area": "home-area",
+    "current_area": "area_001",
+    "retained_in_room": true,
+    "home_roll_calls": 0
+  }
+}

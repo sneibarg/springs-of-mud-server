@@ -1,0 +1,40 @@
+{
+  "invisible_damage_victim": {
+    "Alice": [
+      "You hit Bob.\r\n"
+    ],
+    "Cara": [
+      "Alice hits Bob.\r\n"
+    ]
+  },
+  "invisible_poison_tick": {
+    "Alice": [
+      "Bob shivers and suffers.\r\n"
+    ],
+    "sleeping_Cara": [
+      "Bob shivers and suffers.\r\n"
+    ]
+  },
+  "look_banner": [
+    "A bright banner.\r\n"
+  ],
+  "look_mural": [
+    "You do not see that here.\r\n"
+  ],
+  "exits_closed": [
+    "Obvious exits:\nNorth - Hidden Vault\n"
+  ],
+  "exits_restricted": [
+    "Obvious exits:\nNorth - Hidden Vault\n"
+  ],
+  "exits_dark_destination": [
+    "Obvious exits:\nNorth - Hidden Vault\n"
+  ],
+  "exits_blind": [
+    "Obvious exits:\nNorth - Hidden Vault\n"
+  ],
+  "switched_gossip_original_off_True": [
+    "Alice gossips 'hello'\r\n"
+  ],
+  "switched_gossip_original_off_False": []
+}

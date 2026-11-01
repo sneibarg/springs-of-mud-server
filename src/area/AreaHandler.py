@@ -144,6 +144,7 @@ class AreaHandler:
             return last, None
         template_mob.room_id = room.id
         mob = MobileFactory.create(template_mob, self.enum_provider)
+        mob.origin_area_id = room.area_id
         self._mark_pet_shop_stock_mob(mob, room)
         room.add_mobile_to_room(mob)
         self._register_live_character(mob)

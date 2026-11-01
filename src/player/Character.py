@@ -52,6 +52,7 @@ class Character(AnimateEntity):
     note_read_stamps: dict[str, int] = field(default_factory=dict)
     note_read_ids: dict[str, list[str]] = field(default_factory=dict)
     world_retired: bool = field(default=False, init=False, repr=False, compare=False)
+    _playtime_active: bool = field(default=False, init=False, repr=False, compare=False)
     carriage_return: bool = True
     _skill_improve_messages: list[str] = field(default_factory=list, repr=False, compare=False)
 
@@ -287,7 +288,27 @@ class Character(AnimateEntity):
             attrs.experience_per_level = value
 
     def get_age(self) -> int:
-        return int(17 + (self.status_flags.played + datetime.now().timestamp() - self.status_flags.logon) / 72000)
+        played, _ = self.playtime_snapshot()
+        return 17 + played // 72000
+
+    def start_playtime(self, now: int | None = None) -> None:
+        """Start a fresh world visit; reconnecting to a live body is idempotent."""
+        if not self._playtime_active:
+            self.status_flags.logon = int(datetime.now().timestamp()) if now is None else now
+            self._playtime_active = True
+
+    def playtime_snapshot(self, now: int | None = None) -> tuple[int, int]:
+        """Accumulate session time in a detached save without changing live counters."""
+        if not self._playtime_active:
+            return self.status_flags.played, self.status_flags.logon
+        now = int(datetime.now().timestamp()) if now is None else now
+        return self.status_flags.played + max(0, now - self.status_flags.logon), now
+
+    def stop_playtime(self, now: int | None = None) -> None:
+        if self._playtime_active:
+            self.status_flags.played, _ = self.playtime_snapshot(now)
+            self.status_flags.logon = 0
+            self._playtime_active = False
 
     def has_boat(self) -> bool:
         for item in list(self.loot or []):

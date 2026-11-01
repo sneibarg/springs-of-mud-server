@@ -605,7 +605,8 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         fight_handler.apply_periodic_damage = AsyncMock()
         effect_updates = EffectUpdateHandler(registry_service, enum_provider, effect_handler, fight_handler, message_bus)
         item_updates = ItemUpdateHandler(registry_service, enum_provider, effect_updates, message_bus)
-        entity_updates = EntityUpdateHandler(registry_service, enum_provider, fight_handler, effect_updates, message_bus)
+        entity_updates = EntityUpdateHandler(registry_service, enum_provider, fight_handler, effect_updates, message_bus,
+                                            SimpleNamespace(current_session=lambda entity: None))
         handler = UpdateHandler(
             weather_handler=Mock(),
             area_handler=Mock(),

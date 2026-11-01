@@ -20,6 +20,12 @@ Prefer low-code/data-driven changes when the behavior can reasonably live in `re
 
 ## Shared AI Skills
 
+Use [`align-repository`](.codex/skills/align-repository/SKILL.md) to align this
+Python runtime with changes in `som-server-modulith` and
+`springs-of-mud-designer`. It traces API and content contract changes, applies
+scoped runtime/data updates, and verifies compatibility while preserving the
+designer-driven workflow. It also supports review-only alignment requests.
+
 For ROM24 execution-path reports and language-neutral pseudo test suites, use
 [`rom24-code-path-report`](.codex/skills/rom24-code-path-report/SKILL.md) and its
 linked report-format reference. It supports selected C files/functions or the
