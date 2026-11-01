@@ -1,13 +1,22 @@
 ---
 name: align-repository
-description: Align the Springs of MUD Python runtime with changes in som-server-modulith and springs-of-mud-designer. Use for cross-repository API, content schema, and runtime compatibility updates or alignment reviews.
+description: Review Springs of MUD cross-repository API, content schema, and runtime compatibility with som-server-modulith and springs-of-mud-designer. File an alignment report with proposed changes without applying updates.
 ---
 
 # Align Repository
 
-Keep this runtime compatible with changes in `som-server-modulith` and
-`springs-of-mud-designer`, preserving designer-authored content and the Python
-runtime's responsibilities.
+Compare this runtime with the target repositories and report alignment gaps and
+proposed changes, preserving designer-authored content and runtime responsibilities.
+Do not modify source, tests, configuration, or collection data in any compared
+repository. The only output written by this skill is the alignment report.
+
+## Target repositories
+
+- `som-server-modulith`: content service APIs and contracts.
+- `springs-of-mud-designer`: designer models, validation, and authored content.
+
+Use the target repository name above for each report. When comparing both targets,
+file a separate report for each.
 
 ## Establish the comparison
 
@@ -19,7 +28,7 @@ runtime's responsibilities.
   commit ranges, branches, diffs, or feature scope. Otherwise establish the relevant
   changes from history and documentation, stating the baseline and uncertainty.
   Do not assume the latest commit captures every change or that branches share a baseline.
-- Treat companion repositories as reference inputs unless edits there are requested.
+- Treat all compared repositories as reference inputs.
   Do not pull, switch branches, or discard local changes merely for comparison.
 
 ## Trace compatibility
@@ -38,39 +47,40 @@ Check the affected subset of:
   effects, and the runtime helpers that execute designer-authored data.
 - Loading, registration, caching/reload, and persistence for changed contracts.
 
-Use `$collection-query` before inspecting collection snapshots and
-`$collection-modify` for rewrites; both skills live alongside this skill.
-Query edited documents again to verify them. Establish whether the service,
-designer, or a snapshot defines the intended contract before migrating data;
-local snapshots may lag the other repositories.
+Use `$collection-query` before inspecting collection snapshots. Establish whether
+the service, designer, or a snapshot defines the intended contract; local snapshots
+may lag the other repositories. Do not migrate or rewrite documents.
 
 Distinguish confirmed incompatibilities from intentional differences, unrelated
 changes, and product decisions. If producer and consumer disagree, report the
 source evidence rather than silently selecting one as authoritative.
 
-## Apply scoped alignment
-
-For implementation requests, carry confirmed changes through the affected runtime
-paths. For review-only requests, report findings without changing files.
+## Assess proposed alignment
 
 Prefer content/configuration for ordinary game design and reusable Python
 primitives for engine capabilities. Follow `AGENTS.md` for normalization, dynamic
 enums/flags, payload rendering, event-loop ownership, and Bootstrapper wiring.
-Do not copy another repository's architecture merely to align contracts.
+Do not propose copying another repository's architecture merely to align contracts.
 
-Choose defaults and migration behavior deliberately. Preserve older documents
-when the intended contract requires them; avoid speculative fallbacks that hide
-malformed content and unrelated document rewrites.
+Describe required defaults, migration behavior, and compatibility with older
+documents when the intended contract requires them. Avoid speculative fallbacks
+that hide malformed content and unrelated document rewrites. Identify focused
+validation needed for a proposal without adding or updating tests.
 
-## Verify and report
+## Report
 
-Add or update focused `unittest` coverage for changed contracts using representative
-producer/designer documents or equivalent minimal fixtures. Exercise affected
-service deserialization and runtime side effects, including relevant defaults,
-omitted fields, and invalid values. Run focused tests and broader checks justified
-by the affected paths.
+File the report in `docs/alignment` in this repository. Create the folder when it
+is missing. Name the file with the target repository from Target repositories and
+the local time it is filed, in 24-hour form:
+`<repository>_<YYYY-MM-DDTHHMMSS>.md`.
 
-Report compared revisions and local changes considered, confirmed contract changes,
-files updated, validation results, and remaining incompatibilities or unavailable
-integration checks. Cite source locations for unresolved issues and identify any
-companion-repository work still needed.
+Record the compared revisions, local changes considered, comparison scope, and
+source evidence. State the local filing time and timezone.
+
+For each recorded gap, name the file, the standard it addresses, and the proposed
+change, including any move, importer, and cycle notes. Cite the source locations
+that establish the standard and the gap. State when move, importer, or cycle
+notes do not apply.
+
+If the comparison finds no gap, say there is nothing to propose. If a gap cannot
+be stated precisely, name the file and what is still unknown.
