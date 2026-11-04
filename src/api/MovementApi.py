@@ -452,7 +452,7 @@ class MovementApi(GameApi):
         affected_bits = CharacterApi.get_enum("affectedBy")
         return (
             not CharacterApi.is_affected_by_name(character, affected_bits, "AFF_SNEAK")
-            and GenericUtil.to_int(character.status_flags.invis_level, 0) < 51
+            and GenericUtil.to_int(character.status_flags.invis_level, 0) < CharacterApi.GameParameters.LEVEL_HERO.value
         )
 
     @staticmethod

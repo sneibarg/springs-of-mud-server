@@ -1,7 +1,6 @@
-from typing import List
+from game.EnumProvider import EnumProvider
 from injector import inject
 
-from area.Exit import Exit
 from area.Room import Room
 from game.RegistryService import RegistryService
 from interp.Context import Context
@@ -40,42 +39,53 @@ class RoomHandler:
         destination_id = room.destination_id_for_direction(direction) if room is not None else None
         destination_room = self.room_registry.get_or_none(id=destination_id)
         if room is not None and destination_room is not None:
-            character.room_id = destination_id
+            character.room_id = str(destination_id)
             room.remove_player_from_room(character)
             destination_room.add_player_to_room(character)
             await self.print_room(character.id, destination_room)
         else:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(f"You can't go that direction!\r\n"))
 
-    async def print_exits(self, character: Character):
+    async def print_exits(self, character: Character, *, automatic=False):
         room = self.room_registry.get(id=character.room_id)
         if room is None:
             return
-        if room.can_see_room_vnum(character):
+        if CharacterApi.is_blind(character) and not CharacterApi.has_holy_light(character):
+            command = self.registry_service.interp_registry.get_or_none(name="look")
+            text = (render_command_message(command, "to_char", "blind") if command is not None
+                    else bundled_payload("look").render("to_char", "blind"))
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+            return
+        if CharacterApi.is_immortal(character):
             lines = [f"Obvious exits from room {room.vnum}:"]
         else:
             lines = [f"Obvious exits:"]
-        exits: List[Exit] = room.exits
-        for direction in exits:
-            destination = direction.to_room_id
-            if destination is None:
+        closed = EnumProvider.value(CharacterApi.get_enum("exitFlags"), "CLOSED", "EX_CLOSED")
+        for direction in room.exits:
+            if direction.to_room_id is None or CharacterApi.is_set(direction.exit_flags, closed):
                 continue
-            destination_room: Room = self.room_registry.get(id=destination)
-            if destination_room.can_see_room_vnum(character):
-                line = direction.format_destination(destination_room.name, destination_room.vnum, width=6)
-                lines.append(line)
-            else:
-                line = direction.format_destination(destination_room.name, None, width=6)
-                lines.append(line)
-
-        text = "\n".join(lines) + "\n"
+            destination = self.room_registry.get_or_none(id=direction.to_room_id)
+            if destination is None or not CharacterApi.can_see_room(character, destination):
+                continue
+            if automatic:
+                lines.append(direction.direction_label(direction.direction).lower())
+                continue
+            name = "Too dark to tell" if destination.is_room_dark() else destination.name
+            vnum = destination.vnum if CharacterApi.is_immortal(character) else None
+            lines.append(direction.format_destination(name, vnum, width=6))
+        if automatic:
+            text = "[Exits: " + (" ".join(lines[1:]) or "none") + "]\r\n"
+        else:
+            if len(lines) == 1:
+                lines.append("None.")
+            text = "\n".join(lines) + "\n"
         message = self.message_bus.text_to_message(text)
         await self.message_bus.send_to_character(character.id, message)
 
-    async def print_room(self, character_id, room: Room):
+    async def print_room(self, character_id, room: Room, *, automatic=True):
         if room is None:
             self.logger.error(f"Attempted to print room to character {character_id} but room is None")
-            return
+            return None
         character: Character = self.character_registry.get(id=character_id)
         if character is None:
             return False
@@ -87,7 +97,7 @@ class RoomHandler:
             await self.message_bus.send_to_character(character_id, self.message_bus.text_to_message(text))
             return False
         show_description = True
-        if character is not None:
+        if automatic:
             comm_flags = CharacterApi.get_enum("commFlags")
             if CharacterApi.is_set(character.status_flags.comm, comm_flags.COMM_BRIEF.value):
                 show_description = False

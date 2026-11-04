@@ -50,7 +50,7 @@ class InfoBoundaryTests(unittest.TestCase):
                 self.assertTrue(PlayerHandler._look_item_or_extra_exists(actor, room, argument))
 
     def test_room_extra_look_uses_the_same_matching_and_counter(self):
-        room = Room(extra_description=NS(keyword='mural painting', description='A painted wall.'))
+        room = Room(extra_description=ExtraDescriptionData(valid=True, keyword='mural painting', description='A painted wall.'))
         actor = NS(id='actor', get_items=lambda: [])
         handler = ItemHandler.__new__(ItemHandler)
         handler.message_bus = NS(text_to_message=lambda text: text, send_to_character=AsyncMock())

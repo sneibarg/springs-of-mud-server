@@ -172,9 +172,10 @@ class Info:
 
         look_mode = str(getattr(context, "look_mode", "room") or "room")
         if look_mode == "room":
-            await context.room_handler().print_room(character.id, room)
-            if CharacterApi.is_set(character.status_flags.act, self.PlayerActBits.PLR_AUTOEXIT.value):
-                await context.room_handler().print_exits(character)
+            visible = await context.room_handler().print_room(
+                character.id, room, automatic=bool(context.parameters))
+            if visible and CharacterApi.is_set(character.status_flags.act, self.PlayerActBits.PLR_AUTOEXIT.value):
+                await context.room_handler().print_exits(character, automatic=True)
             context.jump_to(1)  # players + mobiles
             return None
 
@@ -453,7 +454,7 @@ class Info:
         return f"You didn't find any {wanted}.\r\n"
 
     def do_consider(self, character: Character, context: Context) -> str:
-        arg = (context.result if isinstance(context.result, str) else "").strip().lower()
+        arg, _ = InterpUtil.one_argument(context.result if isinstance(context.result, str) else "")
         room = self.room_registry.get_or_none(id=character.room_id)
         victim = PlayerUtil.get_target(character, arg, room) if room is not None else None
         context.consider_argument = arg
@@ -469,23 +470,24 @@ class Info:
             return (reason or "") + refusal
 
         diff = GenericUtil.to_int(getattr(victim, "level", 0), 0) - GenericUtil.to_int(getattr(character, "level", 0), 0)
+        name = DisplayUtil.entity_name(victim, is_npc=CharacterApi.is_npc)
         if diff <= -10:
-            msg = f"You can kill {getattr(victim, 'name', 'them')} naked and weaponless."
+            msg = f"You can kill {name} naked and weaponless."
         elif diff <= -5:
-            msg = f"{getattr(victim, 'name', 'They')} is no match for you."
+            msg = f"{name} is no match for you."
         elif diff <= -2:
-            msg = f"{getattr(victim, 'name', 'They')} looks like an easy kill."
+            msg = f"{name} looks like an easy kill."
         elif diff <= 1:
             msg = "The perfect match!"
         elif diff <= 4:
-            msg = f"{getattr(victim, 'name', 'They')} says 'Do you feel lucky, punk?'."
+            msg = f"{name} says 'Do you feel lucky, punk?'."
         elif diff <= 9:
-            msg = f"{getattr(victim, 'name', 'They')} laughs at you mercilessly."
+            msg = f"{name} laughs at you mercilessly."
         else:
             msg = "Death will thank you for your gift."
 
         context.finish()
-        return msg + "\r\n"
+        return msg[:1].upper() + msg[1:] + "\r\n"
 
     def do_title(self, character: Character, context: Context) -> str:
         if CharacterApi.is_npc(character):
@@ -508,17 +510,17 @@ class Info:
 
     def do_description(self, character: Character, context: Context) -> str:
         argument = (context.result if isinstance(context.result, str) else "").strip()
-        description = (getattr(character, "description", "") or "").replace("~", "")
+        description = getattr(character, "description", "") or ""
 
         if argument:
             arg = argument.replace("~", "")
             if arg.startswith("-"):
-                lines = [line for line in description.splitlines() if line.strip() != ""]
+                lines = description.splitlines(keepends=True)
                 if not lines:
                     context.finish()
                     return "No lines left to remove.\r\n"
                 lines = lines[:-1]
-                character.description = ("\r\n".join(lines) + ("\r\n" if lines else ""))
+                character.description = "".join(lines)
                 if lines:
                     context.finish()
                     return "Your description is:\r\n" + character.description
@@ -527,7 +529,7 @@ class Info:
 
             if arg.startswith("+"):
                 append_text = arg[1:].lstrip()
-                new_desc = description + append_text + "\r\n"
+                new_desc = description.replace("~", "") + append_text + "\r\n"
             else:
                 new_desc = arg + "\r\n"
 

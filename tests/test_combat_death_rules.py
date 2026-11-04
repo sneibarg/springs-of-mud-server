@@ -145,12 +145,13 @@ class TestCombatDeathRules(unittest.TestCase):
         self.assertEqual(2, len(warnings))
         notices = self.death.wounds(self.actor, self.victim, self.room, 1, "POS_DEAD")
         self.assertIn("KILLED", notices[1]["to_victim"])
-        adjacent = SimpleNamespace(player_targets=lambda actor: ["witness"])
+        witness = self.fixtures._player("witness")
+        adjacent = SimpleNamespace(player_targets=lambda actor: [witness])
         self.registry.room_registry.get_or_none.return_value = adjacent
         self.room.exits = [SimpleNamespace(to_room_id="next")]
         cries = self.death.cry(self.victim, self.room, 0, 0, SimpleNamespace())
         self.assertIn("DEAD", cries[0]["to_room"])
-        self.assertEqual(["witness"], cries[1]["targets"])
+        self.assertEqual([witness], cries[1]["targets"])
         self.assertIn("someone's", cries[1]["to_room"])
 
     def test_real_pickup_money_conversion_and_capacity_rejection(self):

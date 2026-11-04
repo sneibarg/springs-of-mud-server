@@ -78,6 +78,8 @@ class _LoggerFactory:
 
 
 class _CharacterMacros:
+    GameParameters = SimpleNamespace(LEVEL_HERO=SimpleNamespace(value=51))
+
     _positions = {
         "POS_DEAD": 0,
         "POS_MORTAL": 1,
@@ -514,8 +516,8 @@ class TestMovementDynamicCommands(unittest.TestCase):
         self.assertEqual("arrived", payload["payloads"][1]["message_key"])
         self.assertEqual("to_room", payload["payloads"][0]["channel"])
         self.assertEqual("to_room", payload["payloads"][1]["channel"])
-        self.assertEqual("Tester leaves north.", context.command.render_message("to_room", payload["payloads"][0]["message_key"], **payload["payloads"][0]["tokens"]))
-        self.assertEqual("Tester has arrived.", context.command.render_message("to_room", payload["payloads"][1]["message_key"], **payload["payloads"][1]["tokens"]))
+        self.assertEqual("someone leaves north.", context.command.render_message("to_room", payload["payloads"][0]["message_key"], **payload["payloads"][0]["tokens"]))
+        self.assertEqual("someone has arrived.", context.command.render_message("to_room", payload["payloads"][1]["message_key"], **payload["payloads"][1]["tokens"]))
         self.assertIs(destination, payload["payloads"][1]["to_room_obj"])
 
     def test_direction_success_moves_standing_followers_with_master(self):
@@ -569,7 +571,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
         self.assertNotIn("follower", current_room.characters)
         self.assertIn("leader", destination.characters)
         self.assertIn("follower", destination.characters)
-        self.assertEqual("Follower leaves north.", context.command.render_message("to_room", payload["payloads"][2]["message_key"], **payload["payloads"][2]["tokens"]))
+        self.assertEqual("someone leaves north.", context.command.render_message("to_room", payload["payloads"][2]["message_key"], **payload["payloads"][2]["tokens"]))
         self.assertEqual(
             [{"id": "follower", "text": "You follow Leader.\r\n"}],
             payload["payloads"][-1]["target_messages"],

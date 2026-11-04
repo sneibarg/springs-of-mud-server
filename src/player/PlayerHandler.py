@@ -1,3 +1,4 @@
+from util.DisplayUtil import RecipientText
 from util.WizUtil import WizUtil
 from item.ExtraDescriptionData import ExtraDescriptionData
 from util.LookupUtil import LookupUtil
@@ -219,12 +220,8 @@ class PlayerHandler:
             if LookupUtil.keyword_matches(wanted, getattr(item, "name", "") or ""):
                 return True
 
-        room_extra = getattr(room, "extra_description", None)
-        if isinstance(room_extra, dict):
-            room_extra_keyword = room_extra.get("keyword")
-        else:
-            room_extra_keyword = getattr(room_extra, "keyword", "")
-        return bool(room_extra and LookupUtil.keyword_matches(wanted, room_extra_keyword or ""))
+        return any(LookupUtil.keyword_matches(wanted, entry.keyword or "")
+                   for entry in ExtraDescriptionData.entries(getattr(room, "extra_description", None)))
 
     async def do_scroll(self, character: Character, context: Context):
         text = self.info_commands.do_scroll(character, context)
@@ -1007,11 +1004,22 @@ class PlayerHandler:
         rendered = {
             key: value
             for key, value in payload.items()
-            if key not in {"message_key", "token_factory", "tokens", "channel", "fallback"}
+            if key not in {"message_key", "token_factory", "tokens", "channel", "fallback", "recipient_tokens"}
         }
         fallback = str(payload.get("fallback", "") or "")
         for channel in self._payload_channels_for_message(getattr(command, "payload", None), message_key, channel=str(payload.get("channel", "") or "")):
-            rendered.update(self.interp_api.render_message_key(context, message_key, channel=channel, fallback=fallback, **tokens))
+            message = self.interp_api.render_message_key(context, message_key, channel=channel, fallback=fallback, **tokens)
+            recipient_tokens = payload.get("recipient_tokens")
+            if recipient_tokens and channel in message:
+                text = message[channel]
+                variants = {
+                    recipient: self.interp_api.render_message_key(
+                        context, message_key, channel=channel, fallback=fallback, **(tokens | overrides)
+                    ).get(channel, "")
+                    for recipient, overrides in recipient_tokens.items()
+                }
+                message[channel] = RecipientText(text, variants, text)
+            rendered.update(message)
         return rendered
 
     @staticmethod
@@ -1045,7 +1053,7 @@ class PlayerHandler:
         if autoexit_bit is not None:
             act = viewer.status_flags.act
             if CharacterApi.is_set(act, autoexit_bit):
-                await context.room_handler().print_exits(viewer)
+                await context.room_handler().print_exits(viewer, automatic=True)
         await self.print_players_in_room(viewer)
         await context.mobile_handler().print_mobiles_in_room(viewer)
 

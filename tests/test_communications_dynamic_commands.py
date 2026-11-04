@@ -109,7 +109,11 @@ class _CharacterMacros:
 
     @staticmethod
     def position_value(character):
-        return 8
+        return getattr(character, "position", 8)
+
+    @staticmethod
+    def pos_value(name):
+        return getattr(_CharacterMacros.get_enum("positions"), name)
 
     @staticmethod
     def is_set(value, bit):
@@ -355,6 +359,21 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
 
         self.assertTrue(payload["blocked"])
         self.assertEqual("They aren't here.\r\n", payload["to_char"])
+
+    def test_reply_resolves_shopkeeper_from_live_room_mobiles(self):
+        actor = _character("Actor", "actor")
+        keeper = _character("Keeper", "keeper")
+        keeper.role = "mobile"
+        actor.context["reply_to"] = keeper.id
+        room = _Room(actor)
+        room.mobiles[keeper.id] = keeper
+        communications, context = self._command_context("reply", actor, room, "Thanks")
+
+        payload = communications.do_reply(context)
+
+        self.assertIs(keeper, payload["victim"])
+        self.assertEqual("You tell Keeper 'Thanks'\r\n", payload["to_char"])
+        self.assertEqual(actor.id, keeper.context["reply_to"])
 
     def test_do_reply_uses_command_check_for_missing_message(self):
         actor = _character("Actor", "actor")
@@ -899,6 +918,22 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
         self.assertEqual(0, charmed.gold)
         self.assertEqual("You split 9 silver coins. Your share is 5 silver.\r\nYou split 3 gold coins. Your share is 2 gold.\r\n", payload["to_char"])
         self.assertEqual([{"id": "member", "text": "Actor splits 9 silver and 3 gold coins, giving you 4 silver and 1 gold.\r\n"}], payload["target_messages"])
+
+    def test_split_credits_sleeping_member_and_masks_sender_for_awake_member(self):
+        actor = _character("Actor", "actor")
+        actor.silver = 12
+        sleeper = _character("Sleeper", "sleeper")
+        sleeper.position = 4
+        witness = _character("Witness", "witness")
+        sleeper.leader = witness.leader = actor
+        actor.hidden_from = {witness.id}
+        communications, context = self._command_context("split", actor, _Room(actor, sleeper, witness), "12")
+
+        payload = communications.do_split(context)
+
+        self.assertEqual((4, 4, 4), (actor.silver, sleeper.silver, witness.silver))
+        self.assertEqual([{"id": "witness", "text": "Someone splits 12 silver coins. Your share is 4 silver.\r\n"}],
+                         payload["target_messages"])
 
     def test_do_split_uses_rom_guard_order(self):
         actor = _character("Actor", "actor")

@@ -7,6 +7,7 @@ from interp.Context import Context
 from interp.InterpView import InterpView
 from player.Character import Character
 from util.CommunicationsUtil import CommunicationsUtil
+from util.DisplayUtil import DisplayUtil
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
 from util.WizUtil import WizUtil
@@ -424,17 +425,24 @@ class CommunicationsApi(GameApi):
             victim_message_key = "split_both_victim"
 
         target_messages = []
+        room = cls.current_room(view)
+        resting = CharacterApi.pos_value("POS_RESTING")
         for member in members:
             if member == character:
                 continue
             member.gold = GenericUtil.to_int(getattr(member, "gold", 0), 0) + shares["gold"]
             member.silver = GenericUtil.to_int(getattr(member, "silver", 0), 0) + shares["silver"]
+            if CharacterApi.position_value(member) < resting:
+                continue
+            sender = DisplayUtil.visible_tokens({"c": character}, member, room)["c"]
+            sender = sender[:1].upper() + sender[1:]
             target_messages.append({
                 "id": getattr(member, "id", ""),
                 "text": interp_api.render_message_key(
                     context,
                     victim_message_key,
                     channel="to_victim",
+                    c=sender,
                     amount_silver=amounts["silver"],
                     amount_gold=amounts["gold"],
                     share_silver=shares["silver"],
@@ -523,8 +531,17 @@ class CommunicationsApi(GameApi):
         player_handler = view.context.player_handler()
         if player_handler is None:
             return None
-        registry = player_handler.character_registry
-        return registry.get_or_none(id=target_id)
+        return cls.find_reply_target(target_id, player_handler.character_registry, player_handler.room_registry)
+
+    @staticmethod
+    def find_reply_target(target_id, character_registry, room_registry):
+        if not target_id:
+            return None
+        target = character_registry.get_or_none(id=target_id)
+        if target is not None:
+            return target
+        return next((entity for entity in WizUtil.live_world_entities(room_registry)
+                     if entity.id == target_id), None)
 
     @classmethod
     def reply_target_tokens(cls, view: InterpView) -> dict[str, Any]:

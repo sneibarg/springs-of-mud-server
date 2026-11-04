@@ -146,8 +146,13 @@ class _CharacterApi:
         return True
 
     @staticmethod
+    def pos_value(name):
+        assert name == "POS_RESTING"
+        return 5
+
+    @staticmethod
     def position_value(character):
-        return getattr(character.character_attributes, 'position', 8)
+        return getattr(getattr(character, 'character_attributes', None), 'position', 8)
 
     @staticmethod
     def is_set(value: int, bit: int) -> bool:
@@ -846,13 +851,30 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         gem = SimpleNamespace(id="obj-9", name="gem ruby", short_description="a ruby", takeable=True, weight=1)
         room = _Room(id="room-1", contents={})
         character = self._build_character(gem)
+        witness = self._build_character(name="Witness")
+        room.characters = {character.id: character, witness.id: witness}
 
         payload = self._commands(room).do_drop(character, self._build_context("gem", room, character, "drop"))
 
         self.assertEqual("You drop a ruby.\r\n", payload["to_char"])
         self.assertEqual("Tester drops a ruby.\r\n", payload["to_room"])
+        self.assertEqual([witness], payload["targets"])
         self.assertNotIn(gem, character.loot)
         self.assertIn(gem.id, room.contents)
+
+    def test_drop_notice_masks_actor_and_item_for_each_witness(self):
+        gem = SimpleNamespace(id="obj-9", name="gem ruby", short_description="a ruby", takeable=True, weight=1)
+        actor = self._build_character(gem)
+        witness = self._build_character(name="Witness")
+        sleeper = self._build_character(name="Sleeper")
+        sleeper.character_attributes.position = 4
+        room = _Room(id="room-1", contents={}, characters={person.id: person for person in (actor, witness, sleeper)})
+        with patch.object(_CharacterApi, "can_see", side_effect=lambda observer, *_: observer is not witness), patch.object(
+                _ItemApi, "can_see_object", side_effect=lambda _room, observer, _item: observer is not witness):
+            payload = self._commands(room).do_drop(actor, self._build_context("gem", room, actor, "drop"))
+
+        self.assertEqual([witness], payload["targets"])
+        self.assertEqual("Someone drops something.\r\n", payload["to_room"].for_recipient(witness.id))
 
     def test_drop_all_with_no_matching_items_uses_payload_token(self):
         sword = SimpleNamespace(id="obj-10", name="sword steel", short_description="a steel sword", takeable=True, weight=1, nodrop=True)
@@ -890,6 +912,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         shop = self._build_shop()
         shop_registry = SimpleNamespace(find_by_keeper_vnum=lambda keeper_vnum: shop if str(keeper_vnum) == "100" else None)
         character = self._build_character()
+        character.context = {"reply_to": "previous"}
 
         payload = self._commands(room, shop_registry=shop_registry, weather_handler=SimpleNamespace(time_info=SimpleNamespace(hour=12))).do_buy(
             character,
@@ -898,6 +921,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
 
         self.assertEqual("I don't sell that -- try 'list'.\r\n", payload["to_char"])
         self.assertEqual("no_such_item", payload["blocked_key"])
+        self.assertEqual(keeper.id, character.context["reply_to"])
 
     def test_sell_item_uses_payload_templates(self):
         blade = SimpleNamespace(id="obj-12", vnum="202", name="blade iron", short_description="an iron blade", item_type="ITEM_WEAPON", level=5, cost=100, weight=1, extra_flags=0, timer=0)
@@ -1025,6 +1049,16 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         )
 
         self.assertEqual("I'll give you 50 silver and 0 gold coins for an iron blade.\r\n", payload["to_char"])
+        self.assertEqual(keeper.id, character.context["reply_to"])
+        for name in ("value", "sell"):
+            with self.subTest(command=name):
+                character.context["reply_to"] = "previous"
+                commands = self._commands(room, shop_registry=shop_registry,
+                                          weather_handler=SimpleNamespace(time_info=SimpleNamespace(hour=12)))
+                blocked = getattr(commands, "do_" + name)(
+                    character, self._build_context("missing", room, character, name))
+                self.assertEqual("target_missing", blocked["blocked_key"])
+                self.assertEqual(keeper.id, character.context["reply_to"])
 
     def test_value_uninterested_uses_guard_payload(self):
         junk = SimpleNamespace(id="obj-value-2", vnum="302", name="junk brass", short_description="a brass trinket", item_type="ITEM_TRASH", level=1, cost=10, weight=1, extra_flags=0, timer=0)
@@ -1244,6 +1278,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         victim = self._build_character(name="Receiver")
         room = _Room(id="room-1", contents={}, mobiles={}, characters={victim.id: victim})
         character = self._build_character(gem)
+        room.characters[character.id] = character
 
         payload = self._commands(room).do_give(character, self._build_context("gem receiver", room, character, "give"))
 
@@ -1335,7 +1370,47 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual(1, character.gold)
         self.assertEqual(90, character.silver)
         self.assertEqual(0, changer.gold)
-        self.assertEqual(10, changer.silver)
+        self.assertEqual(110, changer.silver)
+
+    def test_unseen_giver_funds_changer_reserve_without_receiving_payout(self):
+        actor = self._build_character(name="Giver")
+        actor.gold = 2
+        changer = self._build_character(is_npc=True, name="Changer", act=1)
+        witness = self._build_character(name="Witness")
+        room = _Room(id="room-1", contents={}, mobiles={"changer": changer}, characters={witness.id: witness})
+        with patch.object(_CharacterApi, "can_see", side_effect=lambda observer, target, _room: (
+                target is not actor or observer is actor)):
+            payload = self._commands(room).do_give(actor, self._build_context("2 gold changer", room, actor, "give"))
+
+        self.assertEqual((2, 190), (changer.gold, changer.silver))
+        self.assertEqual((0, 0), (actor.gold, actor.silver))
+        self.assertEqual("Someone gives Changer some coins.\r\n", payload["to_room"].for_recipient(witness.id))
+
+    def test_give_preserves_large_silver_balances(self):
+        receiver = self._build_character(name="Receiver")
+        room = _Room(id="room-1", contents={}, characters={receiver.id: receiver})
+        character = self._build_character()
+        character.silver = 350
+        self._commands(room).do_give(character, self._build_context("200 silver receiver", room, character, "give"))
+        self.assertEqual((0, 150), (character.gold, character.silver))
+        self.assertEqual((0, 200), (receiver.gold, receiver.silver))
+
+    def test_money_changer_refunds_sub_gold_silver_and_pays_gold_in_silver(self):
+        changer = self._build_character(is_npc=True, name="Changer", act=1)
+        room = _Room(id="room-1", contents={}, mobiles={"changer": changer}, characters={})
+        character = self._build_character()
+        character.gold, character.silver = 2, 100
+        commands = self._commands(room)
+
+        refund = commands.do_give(character, self._build_context("100 silver changer", room, character, "give"))
+        self.assertIn("Changer gives you 100 silver.", refund["to_char"])
+        self.assertEqual((2, 100), (character.gold, character.silver))
+        self.assertEqual(changer.id, character.context["reply_to"])
+
+        exchange = commands.do_give(character, self._build_context("2 gold changer", room, character, "give"))
+        self.assertIn("Changer gives you 190 silver.", exchange["to_char"])
+        self.assertEqual((0, 290), (character.gold, character.silver))
+        self.assertEqual((2, 0), (changer.gold, changer.silver))
 
     def test_give_silver_to_money_changer_with_too_little_returns_original_amount(self):
         changer = self._build_character(is_npc=True, name="Changer", act=1)

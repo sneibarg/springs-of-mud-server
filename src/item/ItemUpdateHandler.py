@@ -1,4 +1,5 @@
 from injector import inject
+from api.CharacterApi import CharacterApi
 from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
 from item.Item import Item
@@ -7,6 +8,7 @@ from item.EffectUpdateHandler import EffectUpdateHandler
 from mobile.Mobile import Mobile
 from player.Character import Character
 from server.messaging.MessageBus import MessageBus
+from util.DisplayUtil import DisplayUtil, RecipientText
 from util.GenericUtil import GenericUtil
 
 
@@ -38,14 +40,14 @@ class ItemUpdateHandler:
             for message in self.effect_update_handler.expired_messages(item, "msg_obj"):
                 current = self._locate_item(item)
                 if current is not None:
-                    notices.append((message, item, current, False))
+                    notices.append((message, item, current, False, False))
             if Item.tick_timer(item):
                 notice = self._expire_item(item)
                 if notice is not None:
-                    notices.append(notice)
-        for text, item, location, is_float in notices:
+                    notices.append((*notice, True))
+        for text, item, location, is_float, decay in notices:
             await self._emit_item_message(text, item, location['kind'], location['parent'],
-                                          location.get('room'), is_float=is_float)
+                                          location.get('room'), is_float=is_float, decay=decay)
 
     async def tick_effects(self, item):
         for message in self.effect_update_handler.expired_messages(item, "msg_obj"):
@@ -111,16 +113,32 @@ class ItemUpdateHandler:
         if location is not None:
             await self._emit_item_message(message, item, location["kind"], location["parent"], location.get("room"))
 
-    async def _emit_item_message(self, text: str, item, parent_kind: str, parent, room, *, is_float: bool = False):
+    async def _emit_item_message(self, text: str, item, parent_kind: str, parent, room, *, is_float: bool = False, decay: bool = False):
         """Only direct carriers and directly exposed room objects receive notices."""
-        text = Item.format_message(item, text)
         if not text or parent_kind == "item_contains":
             return
-        message = self.message_bus.text_to_message(text + "\r\n")
-        carried = parent_kind in ("char_loot", "char_equipped", "mob_inventory", "mob_equipped")
-        if parent_kind in ("char_loot", "char_equipped"):
-            await self.message_bus.send_to_character(parent.id, message)
-        if room is not None and (parent_kind == "room" or (carried and is_float)):
-            targets = [player for player in room.players_in_room() if not carried or player is not parent]
-            if targets:
-                await self.message_bus.send_to_room(message, targets)
+
+        def render(observer):
+            if not decay:
+                return Item.format_message(item, text) + "\r\n"
+            name = DisplayUtil.visible_tokens({"item": item}, observer, room)["item"]
+            rendered = text.replace("$p", name)
+            return rendered[:1].upper() + rendered[1:] + "\r\n"
+
+        resting = CharacterApi.pos_value("POS_RESTING") if decay else None
+        controlled = decay and (getattr(parent, "context", None) or {}).get("controller_original")
+        if parent_kind in ("char_loot", "char_equipped") or controlled:
+            if not decay or CharacterApi.position_value(parent) >= resting:
+                await self.message_bus.send_to_character(parent.id, self.message_bus.text_to_message(render(parent)))
+        if room is not None and (parent_kind == "room" or is_float):
+            if decay:
+                listeners = DisplayUtil.room_listeners(None if parent_kind == "room" else parent, room)
+            else:
+                listeners = [player for player in room.players_in_room() if player is not parent]
+            if listeners:
+                if decay:
+                    fallback = render(None)
+                    text = RecipientText(fallback, {str(observer.id): render(observer) for observer in listeners}, fallback)
+                else:
+                    text = render(None)
+                await self.message_bus.send_to_room(self.message_bus.text_to_message(text), listeners)

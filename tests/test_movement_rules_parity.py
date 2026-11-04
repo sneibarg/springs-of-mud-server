@@ -10,6 +10,7 @@ from area.Room import Room
 from interp.Context import Context
 from interp.commands.Movement import Movement
 from skill.Ability import Ability
+from player.PlayerHandler import PlayerHandler
 
 
 class MovementFixture(SharedFixture):
@@ -130,8 +131,62 @@ class TravelRulesTests(MovementFixture, unittest.TestCase):
         mob.status_flags.set_flag('act', self.enums.get('actBits').ACT_AGGRESSIVE)
         self.room.add_mobile_to_room(mob)
         self.destination.room_flags = int(self.enums.get('roomFlags').ROOM_LAW)
-        self.attempt('north')
+        mob.context = {"controller_original": self.victim}
+        result = self.attempt('north')
         self.assertEqual(self.room.id, mob.room_id)
+        notices = {notice["id"]: notice["text"] for payload in result["payloads"]
+                   for notice in payload.get("target_messages", [])}
+        self.assertIn("into the city", notices[self.actor.id])
+        self.assertEqual("You aren't allowed in the city.\r\n", notices[mob.id])
+
+    def test_sneak_and_high_wizinvis_suppress_travel_notices_but_keep_room_view(self):
+        for flag in ("sneak", "wizinvis"):
+            with self.subTest(flag=flag):
+                if flag == "sneak":
+                    self.flag(self.actor, "AFF_SNEAK")
+                else:
+                    self.flag(self.actor, "AFF_SNEAK", False)
+                    self.actor.status_flags.invis_level = int(self.enums.get("gameParameters").LEVEL_HERO)
+                command = "north" if flag == "sneak" else "south"
+                payload = self.attempt(command)
+                self.assertEqual([], self.message_keys(payload))
+                self.assertTrue(any(part.get("to_room_obj") is not None for part in payload["payloads"]))
+
+    def test_travel_recall_and_portal_notices_render_for_each_awake_observer(self):
+        blind_to_actor = self.follower("Unaware")
+        detects_actor = self.follower("Detects")
+        sleeping = self.follower("Sleeper")
+        for observer in (blind_to_actor, detects_actor, sleeping):
+            observer.master = None
+        self.flag(detects_actor, "AFF_DETECT_INVIS")
+        CharacterApi.set_position(sleeping, "POS_SLEEPING")
+        self.flag(self.actor, "AFF_INVISIBLE")
+        player = PlayerHandler.__new__(PlayerHandler)
+        player.interp_api = self.api
+
+        portal = self.portal()
+        portal.extra_flags = int(self.enums.get("itemFlags").ITEM_INVIS)
+        self.flag(self.actor, "AFF_DETECT_INVIS")
+        for command, text, key in (
+            ("north", "", "default"),
+            ("recall", "", "prays_transportation"),
+            ("enter", "portal", "steps_into"),
+        ):
+            with self.subTest(command=command):
+                context = self.ctx(command, text)
+                result = getattr(self.movement, "do_" + command)(self.actor, context)
+                notice = next(part for part in result["payloads"] if part.get("message_key") == key)
+                self.assertNotIn(sleeping, notice["targets"])
+                rendered = player._resolve_standard_payload(self.actor, notice, context)["to_room"]
+                self.assertIn("someone", rendered.for_recipient(blind_to_actor.id).lower())
+                self.assertIn(self.actor.name, rendered.for_recipient(detects_actor.id))
+                if command == "enter":
+                    self.assertIn("something", rendered.for_recipient(blind_to_actor.id).lower())
+                    self.assertIn("portal", rendered.for_recipient(detects_actor.id).lower())
+                current = self.rooms.get_or_none(id=self.actor.room_id)
+                current.remove_player_from_room(self.actor)
+                self.room.add_player_to_room(self.actor)
+                self.actor.room_id = self.room.id
 
 
 class RecallRulesTests(MovementFixture, unittest.TestCase):

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from time import time
 
 from injector import inject
 from api.CharacterApi import CharacterApi
@@ -36,8 +37,32 @@ class WeatherHandler:
         self.message_bus = message_bus
         self.character_registry = character_registry
         self.TimeAndWeatherEnum = enum_provider.get("timeAndWeather")
-        self.weather_info = WeatherInfo(mmhg=1000, change=0, sky=self.TimeAndWeatherEnum.SKY_CLOUDLESS, sunlight=self.TimeAndWeatherEnum.SUN_LIGHT)
-        self.time_info = TimeInfo(hour=0, day=1, month=1, year=1)
+        game_hours = (int(time()) - 650336715) // 60
+        days, hour = divmod(game_hours, 24)
+        months, day = divmod(days, 35)
+        year, month = divmod(months, 17)
+        self.time_info = TimeInfo(hour=hour, day=day, month=month, year=year)
+
+        weather = self.TimeAndWeatherEnum
+        if hour < 5 or hour >= 20:
+            sunlight = weather.SUN_DARK
+        elif hour < 6:
+            sunlight = weather.SUN_RISE
+        elif hour < 19:
+            sunlight = weather.SUN_LIGHT
+        else:
+            sunlight = weather.SUN_SET
+
+        pressure = 960 + rng.number_range(1, 50 if 7 <= month <= 12 else 80)
+        if pressure <= 980:
+            sky = weather.SKY_LIGHTNING
+        elif pressure <= 1000:
+            sky = weather.SKY_RAINING
+        elif pressure <= 1020:
+            sky = weather.SKY_CLOUDY
+        else:
+            sky = weather.SKY_CLOUDLESS
+        self.weather_info = WeatherInfo(mmhg=pressure, change=0, sky=sky, sunlight=sunlight)
 
     # every 60 seconds is one game hour.
     async def update(self):

@@ -283,6 +283,9 @@ class NoteHandler:
             return True
         if reader and (reader in recipients or sender == reader):
             return True
+        clan = str(getattr(character, "guild", "") or "").strip().lower()
+        if clan and clan in recipients and CharacterApi.is_clan(character):
+            return True
         if CharacterApi.is_immortal(character) and {"immortal", "immortals", "imm"} & recipients:
             return True
         return False

@@ -82,8 +82,9 @@ class ItemHandler:
                     context.finish()
                     return
 
-        room_extra = getattr(room, "extra_description", None)
-        if room_extra and LookupUtil.keyword_matches(token, room_extra.keyword or ""):
+        room_extra = next((entry for entry in ExtraDescriptionData.entries(getattr(room, "extra_description", None))
+                           if LookupUtil.keyword_matches(token, entry.keyword or "")), None)
+        if room_extra is not None:
             if context.register_match():
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(
                     (room_extra.description or "") + "\r\n"))

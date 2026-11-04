@@ -16,7 +16,7 @@ from api.GameApi import GameApi
 from item.EffectHandler import EffectHandler
 from item.Item import Item
 from item.ItemOwnership import ItemOwnership
-from util.DisplayUtil import DisplayUtil
+from util.DisplayUtil import DisplayUtil, RecipientText
 from util.GenericUtil import GenericUtil
 from util.FightUtil import FightUtil
 from item.Effect import Effect
@@ -1464,17 +1464,28 @@ class SpellApi:
                 return None
             return (registry.get_or_none(id=exit_obj.to_room_id) if exit_obj.to_room_id
                     else registry.get_or_none(vnum=str(exit_obj.to_room_vnum)))
+        key = "peer" if word else "around"
+        tokens = {**ctx.payload_tokens(), "direction": directions[direction] if word else ""}
+        self.send(ctx, to_char=ctx.spell.message("to_char", key, **tokens))
+        listeners = DisplayUtil.room_listeners(ctx.actor, room)
+        if listeners:
+            def render(observer):
+                actor = DisplayUtil.visible_tokens({"actor": ctx.actor}, observer, room)["actor"]
+                text = ctx.spell.message("to_room", key, **{**tokens, "actor": actor, "c": actor})
+                return text[:1].upper() + text[1:]
+
+            fallback = render(None)
+            notice = RecipientText(fallback, {str(listener.id): render(listener) for listener in listeners}, fallback)
+            if notice:
+                ctx.queue_payload({"to_room": notice, "targets": listeners})
+
         if not word:
-            self.send_message(ctx, "around", include_victim_in_room=True)
             report(room, 0, None)
             for door in range(len(directions)):
                 neighbor = adjacent(room, door)
                 if neighbor is not None:
                     report(neighbor, 1, door)
         else:
-            tokens = {**ctx.payload_tokens(), "direction": directions[direction]}
-            self.send(ctx, to_char=ctx.spell.message("to_char", "peer", **tokens),
-                      to_room=ctx.spell.message("to_room", "peer", **tokens), include_victim_in_room=True)
             for depth in range(1, len(rules["distances"])):
                 neighbor = adjacent(room, direction)
                 if neighbor is not None:

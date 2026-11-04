@@ -18,6 +18,29 @@ class Weather(IntEnum):
     SKY_LIGHTNING = 3
 
 
+class WeatherStartupTests(unittest.TestCase):
+    def test_boot_derives_calendar_sunlight_and_seasonal_pressure(self):
+        cases = (
+            (6, 4, 20, 80, Weather.SUN_DARK, Weather.SKY_LIGHTNING),
+            (7, 5, 40, 50, Weather.SUN_RISE, Weather.SKY_RAINING),
+            (12, 6, 50, 50, Weather.SUN_LIGHT, Weather.SKY_CLOUDY),
+            (13, 19, 61, 80, Weather.SUN_SET, Weather.SKY_CLOUDLESS),
+            (13, 20, 80, 80, Weather.SUN_DARK, Weather.SKY_CLOUDLESS),
+        )
+        for month, hour, roll, limit, sunlight, sky in cases:
+            with self.subTest(month=month, hour=hour):
+                game_hours = (((2 * 17 + month) * 35 + 3) * 24) + hour
+                with patch("game.WeatherHandler.time", return_value=650336715 + game_hours * 60), patch(
+                        "game.WeatherHandler.rng.number_range", return_value=roll) as number_range:
+                    handler = WeatherHandler(Mock(), Mock(), SimpleNamespace(get=lambda name: Weather))
+
+                number_range.assert_called_once_with(1, limit)
+                self.assertEqual((2, month, 3, hour), (handler.time_info.year, handler.time_info.month,
+                                                       handler.time_info.day, handler.time_info.hour))
+                self.assertEqual((960 + roll, 0, sunlight, sky), (handler.weather_info.mmhg,
+                                 handler.weather_info.change, handler.weather_info.sunlight, handler.weather_info.sky))
+
+
 class WeatherUpdateTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.bus = Mock(get_active_players=Mock(return_value=[]), send_to_character=AsyncMock())

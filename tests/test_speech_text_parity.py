@@ -140,6 +140,36 @@ class SpeechTextTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         self.assertEqual(["Alice clans 'hello brave world'\r\n"], self.messages(self.bob))
         self.assertFalse(self.messages(self.cara))
 
+    async def test_clan_renders_invisible_sender_per_recipient(self):
+        self.actor.guild = self.bob.guild = self.cara.guild = 'rom'
+        self.flag(self.actor, 'AFF_INVISIBLE')
+        self.flag(self.cara, 'AFF_DETECT_INVIS')
+        await self.execute('clan', 'hello')
+        self.assertEqual(["Someone clans 'hello'\r\n"], self.messages(self.bob))
+        self.assertEqual(["Alice clans 'hello'\r\n"], self.messages(self.cara))
+
+    async def test_bare_shout_toggles_even_when_sending_is_blocked(self):
+        flags = self.enums.get('commFlags')
+        self.actor.status_flags.set_flag('comm', flags.COMM_NOSHOUT)
+        await self.execute('shout')
+        self.assertEqual(["You will no longer hear shouts.\r\n"], self.messages(self.actor))
+        self.assertTrue(self.actor.status_flags.comm & int(flags.COMM_SHOUTSOFF))
+        await self.execute('shout')
+        self.assertEqual(["You can hear shouts again.\r\n"], self.messages(self.actor))
+        self.assertFalse(self.actor.status_flags.comm & int(flags.COMM_SHOUTSOFF))
+        self.assertFalse(self.messages(self.bob))
+
+    async def test_shout_filters_using_original_player_preferences(self):
+        self.bob.context = {'controller_original': self.cara}
+        self.commands.session_handler = NS(get_playing_sessions=lambda: [NS(character=self.bob)])
+        flags = self.enums.get('commFlags')
+        for flag in (flags.COMM_QUIET, flags.COMM_SHOUTSOFF):
+            for original, body in ((flag, 0), (0, flag)):
+                self.cara.status_flags.assign_bitfield('comm', int(original))
+                self.bob.status_flags.assign_bitfield('comm', int(body))
+                await self.execute('shout', 'hello')
+                self.assertEqual(not original, bool(self.messages(self.bob)))
+
     async def test_payload_dispatch_preserves_single_delivery_and_exclusions(self):
         cases = [
             ({'global_message': 'targeted', 'global_targets': [self.bob]}, (0, 1, 0)),

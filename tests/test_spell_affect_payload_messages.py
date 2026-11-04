@@ -23,6 +23,7 @@ def _module(name: str, **attrs):
 
 
 from item.ItemFactory import ItemFactory
+from util.DisplayUtil import RecipientText
 
 class _CharacterApi:
     @staticmethod
@@ -69,13 +70,19 @@ def _load_spell_api():
         "util.ElementalExposure": _module("util.ElementalExposure", ElementalExposure=object),
         "util.DisplayUtil": _module(
             "util.DisplayUtil",
+            RecipientText=RecipientText,
             DisplayUtil=SimpleNamespace(
                 display_effect_message=lambda message: str(message or "").strip(),
                 entity_name=lambda entity, is_npc: str(getattr(entity, "name", "someone") or "someone"),
                 visible_tokens=lambda entities, observer, room: {
-                    key: str(getattr(entity, 'name', 'someone')) if observer is not None else 'someone'
+                    key: (str(getattr(entity, 'name', 'someone'))
+                          if observer is not None and _CharacterApi.can_see(observer, entity, room) else 'someone')
                     for key, entity in entities.items()},
                 room_text=lambda text, render, room: text,
+                room_listeners=lambda actor, room: [
+                    listener for listener in room.player_targets(actor)
+                    if _CharacterApi.position_value(listener) >= _CharacterApi.pos_value("POS_RESTING")
+                ],
             ),
         ),
         "util.GenericUtil": _module(
@@ -1727,6 +1734,24 @@ class TestTableDamageSpells(unittest.TestCase):
         self.api.execute_lambdas(ctx)
         self.assertEqual([{'to_char': 'Which way do you want to scan?\r\n'}], ctx.payloads)
         self.api._find_world_character.assert_not_called()
+
+    def test_farsight_scan_notices_use_witness_visibility_and_posture(self):
+        for argument, expected in (("", "Someone looks all around.\r\n"),
+                                   ("north", "Someone peers intently north.\r\n")):
+            with self.subTest(argument=argument):
+                ctx, source, _, _ = self.travel_context("farsight")
+                ctx.target_name = argument
+                observer = source.player_targets(ctx.actor)[0]
+                sleeper = self.effect_room_member("Sleeper")
+                self.PositionApi.set_position(sleeper, "POS_SLEEPING")
+                source.add_player_to_room(sleeper)
+                with patch.object(_CharacterApi, "can_see", side_effect=lambda viewer, target, room: (
+                        viewer is not observer or target is not ctx.actor)):
+                    self.assertTrue(self.api.execute_lambdas(ctx))
+
+                notice = next(payload for payload in ctx.payloads if "to_room" in payload)
+                self.assertEqual([observer], notice["targets"])
+                self.assertEqual(expected, notice["to_room"].for_recipient(observer.id))
 
     def test_farsight_no_argument_and_blind_guard(self):
         for blind in (False, True):

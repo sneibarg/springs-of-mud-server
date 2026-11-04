@@ -100,6 +100,16 @@ class RoomDisplayConsiderTests(MovementFixture, unittest.TestCase):
         self.actor.level = int(self.enums.get('gameParameters').LEVEL_IMMORTAL) + 1
         self.assertIn('naked and weaponless', self.consider('guard'))
 
+    def test_consider_uses_first_argument_and_npc_short_description(self):
+        npc = self.npc()
+        npc.name = 'guard watchman'
+        npc.short_description = 'a city guard'
+        npc.level = 1
+        self.room.add_mobile_to_room(npc)
+        for selector in ('guard trailing', '"guard watchman" trailing'):
+            with self.subTest(selector=selector):
+                self.assertEqual('You can kill a city guard naked and weaponless.\r\n', self.consider(selector))
+
     def test_consider_guards_run_before_safety_lookup(self):
         self.combat.is_safe = Mock(side_effect=AssertionError('must not run'))
         self.assertIn('Consider killing whom?', self.consider(''))

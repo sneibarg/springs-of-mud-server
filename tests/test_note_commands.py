@@ -50,6 +50,10 @@ class _LoggerFactory:
 
 class _CharacterApi:
     @staticmethod
+    def is_clan(character) -> bool:
+        return getattr(character, "guild", "").lower() not in ("", "none")
+
+    @staticmethod
     def is_immortal(character) -> bool:
         return bool(getattr(character, "immortal", False))
 
@@ -224,6 +228,15 @@ class TestNoteCommands(unittest.TestCase):
         payload = asyncio.run(handler.execute(character, self._context("note", "read 1")))
         self.assertIn("To: all", payload["to_char"])
         self.assertEqual(10, character.note_read_stamps["0"])
+
+    def test_note_list_and_read_accept_exact_clan_recipients(self):
+        note = InGameNote(id="n1", type=0, sender="Ann", to_list="rom", subject="Clan news", text="Body", date_stamp=10)
+        handler, _service = self._handler([note])
+        member = SimpleNamespace(name="Bob", guild="ROM", context={}, immortal=False)
+        outsider = SimpleNamespace(name="Cal", guild="roma", context={}, immortal=False)
+        self.assertIn("Clan news", asyncio.run(handler.execute(member, self._context("note", "list")))["to_char"])
+        self.assertIn("Body", asyncio.run(handler.execute(member, self._context("note", "read")))["to_char"])
+        self.assertNotIn("Clan news", asyncio.run(handler.execute(outsider, self._context("note", "list")))["to_char"])
 
     def test_draft_flow_posts_note_through_service(self):
         handler, service = self._handler()

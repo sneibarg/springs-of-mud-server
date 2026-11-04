@@ -75,6 +75,17 @@ class PublicInputTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual('Two   spaces remain.\r\n', f.actor.description)
 
 
+    async def test_description_removes_only_the_last_line(self):
+        f = self.fixture
+        handler = f.interpreter.handler_service.get_handler('ph')
+        handler.info_commands = Info.__new__(Info)
+        f.actor.description = 'First line.\r\n\r\nLast line.\r\n'
+        await f.interpreter.handle_command(None, f.actor, 'description -')
+        self.assertEqual('First line.\r\n\r\n', f.actor.description)
+        await f.interpreter.handle_command(None, f.actor, 'description -')
+        self.assertEqual('First line.\r\n', f.actor.description)
+
+
 class RuntimeParityTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         super().setUp()

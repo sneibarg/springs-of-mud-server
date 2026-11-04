@@ -18,7 +18,7 @@ from game.RandomNumberGenerator import RandomNumberGenerator
 from item.Effect import Effect
 from item.EffectHandler import EffectHandler
 from util.GenericUtil import GenericUtil
-from util.DisplayUtil import DisplayUtil
+from util.DisplayUtil import DisplayUtil, RecipientText
 from game.RegistryService import RegistryService
 from interp.CommandDefaults import render_command_message
 from interp.Context import Context
@@ -119,6 +119,11 @@ class Object:
         room = self._prepare_buy_context(character, context)
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
+            if blocked.get("blocked_key") in {
+                "no_such_item", "available_quantity_insufficient", "requested_quantity_exceeds_funds",
+                "too_expensive", "item_insufficient_level",
+            }:
+                self._set_reply_target(character, context.buy_keeper)
             context.finish()
             return blocked
 
@@ -259,6 +264,8 @@ class Object:
         room = self._prepare_sell_context(character, context)
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
+            if blocked.get("blocked_key") == "target_missing":
+                self._set_reply_target(character, context.sell_keeper)
             context.finish()
             return blocked
 
@@ -278,9 +285,12 @@ class Object:
         self._prepare_value_context(character, context)
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
+            if blocked.get("blocked_key") == "target_missing":
+                self._set_reply_target(character, context.value_keeper)
             context.finish()
             return blocked
 
+        self._set_reply_target(character, context.value_keeper)
         context.finish()
         return self.interp_api.render_message_key(
             context,
@@ -950,14 +960,15 @@ class Object:
         for item in piles:
             room.remove_item_from_room(item)
         room.add_item_to_room(money)
+        targets = DisplayUtil.room_listeners(character, room)
         return {"to_char": self._render_command_message(context, "coins"),
-                "to_room": self._render_command_message(context, "coins", channel="to_room", c=character.name),
-                "targets": room.player_targets(character)}
+                "to_room": self._transfer_notice(context, "coins", character, room, targets, c=character),
+                "targets": targets}
 
     def _drop_all(self, character: Character, room, context: Context, arg1: str):
         wanted = arg1[4:].strip().lower() if arg1.startswith("all.") else ""
         dropped = []
-        room_lines = []
+        room_text = ""
         char_lines = []
 
         for item in list(getattr(character, "loot", []) or []):
@@ -973,7 +984,7 @@ class Object:
             payload = self._drop_one(character, room, context, item)
             dropped.append(item)
             char_lines.append(payload.get("to_char", ""))
-            room_lines.append(payload.get("to_room", ""))
+            room_text += payload["to_room"]
 
         if not dropped:
             if wanted:
@@ -982,8 +993,8 @@ class Object:
 
         return {
             "to_char": "".join(char_lines),
-            "to_room": "".join(room_lines),
-            "targets": room.player_targets(character),
+            "to_room": room_text,
+            "targets": payload["targets"],
         }
 
     def _drop_one(self, character: Character, room, context: Context, item):
@@ -994,19 +1005,28 @@ class Object:
         character.remove_item(item)
 
         item_short = Item.short(item)
+        targets = DisplayUtil.room_listeners(character, room)
+        to_char = self._render_command_message(context, "default", t=item_short)
+        to_room = self._transfer_notice(context, "default", character, room, targets, items={"t": item}, c=character)
         if self._melts_on_drop(item):
-            return {
-                "to_char": self._render_command_message(context, "default", t=item_short)
-                + self._render_command_message(context, "dissolved", t=item_short),
-                "to_room": self._render_command_message(context, "default", channel="to_room", c=character.name, t=item_short)
-                + self._render_command_message(context, "dissolved", channel="to_room", t=item_short),
-            }
+            to_char += self._render_command_message(context, "dissolved", t=item_short)
+            to_room += self._transfer_notice(context, "dissolved", character, room, targets, items={"t": item})
+        else:
+            room.add_item_to_room(item)
+        return {"to_char": to_char, "to_room": to_room, "targets": targets}
 
-        room.add_item_to_room(item)
-        return {
-            "to_char": self._render_command_message(context, "default", t=item_short),
-            "to_room": self._render_command_message(context, "default", channel="to_room", c=character.name, t=item_short),
-        }
+    def _transfer_notice(self, context, key, actor, room, targets, *, channel="to_room",
+                         items=None, values=None, **entities):
+        def render(observer):
+            tokens = DisplayUtil.visible_tokens(entities, observer, room)
+            tokens.update(values or {})
+            for token, item in (items or {}).items():
+                tokens[token] = (Item.short(item) if observer is not None
+                                 and ItemApi.can_see_object(room, observer, item) else "something")
+            text = self._render_command_message(context, key, channel=channel, **tokens)
+            return text[:1].upper() + text[1:]
+
+        return RecipientText(render(actor), {str(target.id): render(target) for target in targets}, render(None))
 
     def _melts_on_drop(self, item) -> bool:
         return GameApi.is_set(getattr(item, "extra_flags", 0), self.item_flags.ITEM_MELT_DROP.value)
@@ -1323,6 +1343,8 @@ class Object:
         room = self._prepare_give_context(character, context)
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
+            if blocked.get("blocked_key") == "target_keeper":
+                self._set_reply_target(character, context.victim)
             context.finish()
             return blocked
 
@@ -1365,7 +1387,6 @@ class Object:
         context.give_insufficient_funds = False
         context.give_invalid_money = False
         context.give_money_changer = False
-        context.give_change_total = 0
         context.give_change_gold = 0
         context.give_change_silver = 0
         context.interp_tokens = {}
@@ -1393,12 +1414,11 @@ class Object:
             )
             context.give_money_changer = self._is_money_changer(victim)
             if context.give_money_changer:
+                change = 95 * context.give_amount
                 if context.give_currency == "silver":
-                    context.give_change_total = (95 * context.give_amount) // 100
+                    context.give_change_gold, context.give_change_silver = divmod(change // 100, 100)
                 else:
-                    context.give_change_total = 95 * context.give_amount
-                context.give_change_gold = context.give_change_total // 100
-                context.give_change_silver = context.give_change_total - (context.give_change_gold * 100)
+                    context.give_change_silver = change
             return room
 
         victim_name, _ = InterpUtil.one_argument(rem)
@@ -1445,34 +1465,14 @@ class Object:
         payload = {
             "to_char": self._render_command_message(context, "item_received", t=item_short, T=getattr(victim, "name", "")),
         }
-        if room is not None:
-            payload["to_room"] = self._render_command_message(
-                context,
-                "item_received",
-                channel="to_room",
-                c=character.name,
-                t=item_short,
-                T=getattr(victim, "name", ""),
-            )
-            payload["targets"] = room.to_not_victim(victim)
-        if not CharacterApi.is_npc(victim):
-            payload["to_victim"] = self._render_command_message(
-                context,
-                "item_received",
-                channel="to_victim",
-                c=character.name,
-                t=item_short,
-                T=getattr(victim, "name", ""),
-            )
-            payload["victim"] = victim
+        self._transfer_notices(payload, context, "item_received", character, victim, room, items={"t": item}, T=victim)
         return payload
 
     def _finish_give_money(self, character: Character, room, context: Context):
         victim = context.victim
         currency = context.give_currency
         amount = context.give_amount
-        self._deduct_money(character, amount if currency == "silver" else amount * 100)
-        self._add_money(victim, amount if currency == "silver" else amount * 100)
+        self._transfer_coins(character, victim, currency, amount)
 
         payload = {
             "to_char": self._render_command_message(
@@ -1483,106 +1483,65 @@ class Object:
                 s=currency,
             ),
         }
-        if room is not None:
-            payload["to_room"] = self._render_command_message(
-                context,
-                "funds_received",
-                channel="to_room",
-                c=character.name,
-                t=getattr(victim, "name", ""),
-                q=amount,
-                s=currency,
-            )
-            payload["targets"] = [
-                viewer for viewer in room.player_targets(character)
-                if getattr(viewer, "id", "") != getattr(victim, "id", "")
-            ]
-        if not CharacterApi.is_npc(victim):
-            payload["to_victim"] = self._render_command_message(
-                context,
-                "funds_received",
-                channel="to_victim",
-                c=character.name,
-                q=amount,
-                s=currency,
-            )
-            payload["victim"] = victim
+        self._transfer_notices(payload, context, "funds_received", character, victim, room, values={"q": amount, "s": currency}, t=victim)
 
-        if context.give_money_changer and CharacterApi.can_see(victim, character, room):
-            self._append_money_changer_payload(character, room, context, payload)
+        if context.give_money_changer:
+            payout_currency = "gold" if currency == "silver" else "silver"
+            payout = getattr(context, f"give_change_{payout_currency}")
+            reserve = getattr(victim, payout_currency)
+            if payout > reserve:
+                setattr(victim, payout_currency, reserve + payout)
+            if CharacterApi.can_see(victim, character, room):
+                self._append_money_changer_payload(character, room, context, payload, payout_currency, payout)
 
         return payload
 
-    def _append_money_changer_payload(self, character: Character, room, context: Context, payload: dict):
-        victim = context.victim
-        amount_total = context.give_amount if context.give_currency == "silver" else context.give_amount * 100
-        if context.give_change_total < 1:
-            payload["to_char"] += self._render_command_message(
-                context,
-                "money_changer_insufficient_funds",
-                t=getattr(victim, "name", ""),
-            )
-            self._deduct_money(victim, amount_total)
-            self._add_money(character, amount_total)
-            payload["to_char"] += self._render_command_message(
-                context,
-                "funds_received",
-                channel="to_victim",
-                c=getattr(victim, "name", ""),
-                q=context.give_amount,
-                s=context.give_currency,
-            )
-            if room is not None:
-                payload["to_room"] = payload.get("to_room", "") + self._render_command_message(
-                    context,
-                    "funds_received",
-                    channel="to_room",
-                    c=getattr(victim, "name", ""),
-                    t=character.name,
-                )
-            return
+    def _transfer_notices(self, payload, context, key, character, victim, room, **tokens):
+        if room is not None:
+            targets = [viewer for viewer in DisplayUtil.room_listeners(character, room) if viewer.id != victim.id]
+            payload["to_room"] = self._transfer_notice(context, key, character, room, targets, c=character, **tokens)
+            payload["targets"] = targets
+        controlled = (getattr(victim, "context", None) or {}).get("controller_original")
+        if ((not CharacterApi.is_npc(victim) or controlled)
+                and CharacterApi.position_value(victim) >= CharacterApi.pos_value("POS_RESTING")):
+            text = self._transfer_notice(context, key, victim, room, [victim], channel="to_victim", c=character, **tokens)
+            payload["to_victim"] = text.for_recipient(victim.id)
+            payload["victim"] = victim
 
-        self._deduct_money(victim, context.give_change_total)
-        self._add_money(character, context.give_change_total)
-        if context.give_change_gold > 0:
+    def _append_money_changer_payload(self, character, room, context, payload, payout_currency, payout):
+        changer = context.victim
+        name = getattr(changer, "name", "")
+        if payout < 1:
+            payload["to_char"] += self._render_command_message(context, "money_changer_insufficient_funds", t=name)
+            payments = [(context.give_currency, context.give_amount)]
+        else:
+            payments = [(payout_currency, payout)]
+            if payout_currency == "gold" and context.give_change_silver:
+                payments.append(("silver", context.give_change_silver))
+
+        for currency, amount in payments:
+            self._transfer_coins(changer, character, currency, amount)
             payload["to_char"] += self._render_command_message(
-                context,
-                "funds_received",
-                channel="to_victim",
-                c=getattr(victim, "name", ""),
-                q=context.give_change_gold,
-                s="gold",
-            )
+                context, "funds_received", channel="to_victim", c=name, q=amount, s=currency)
             if room is not None:
-                payload["to_room"] = payload.get("to_room", "") + self._render_command_message(
-                    context,
-                    "funds_received",
-                    channel="to_room",
-                    c=getattr(victim, "name", ""),
-                    t=character.name,
-                )
-        if context.give_change_silver > 0:
-            payload["to_char"] += self._render_command_message(
-                context,
-                "funds_received",
-                channel="to_victim",
-                c=getattr(victim, "name", ""),
-                q=context.give_change_silver,
-                s="silver",
-            )
-            if room is not None:
-                payload["to_room"] = payload.get("to_room", "") + self._render_command_message(
-                    context,
-                    "funds_received",
-                    channel="to_room",
-                    c=getattr(victim, "name", ""),
-                    t=character.name,
-                )
-        payload["to_char"] += self._render_command_message(
-            context,
-            "money_changer_funds_received",
-            t=getattr(victim, "name", ""),
-        )
+                payload["to_room"] += self._transfer_notice(
+                    context, "funds_received", changer, room, payload["targets"], c=changer, t=character)
+
+        if payout >= 1:
+            payload["to_char"] += self._render_command_message(context, "money_changer_funds_received", t=name)
+        self._set_reply_target(character, changer)
+
+    @staticmethod
+    def _set_reply_target(character, target):
+        if target is not None and getattr(target, "id", None):
+            if getattr(character, "context", None) is None:
+                character.context = {}
+            character.context["reply_to"] = target.id
+
+    @staticmethod
+    def _transfer_coins(giver, recipient, currency, amount):
+        setattr(giver, currency, getattr(giver, currency) - amount)
+        setattr(recipient, currency, getattr(recipient, currency) + amount)
 
     def _find_give_target(self, room, wanted: str, observer=None):
         return LookupUtil.character(room, observer, wanted,
@@ -1750,14 +1709,8 @@ class Object:
         self.effect_handler.affect_strip(character, "sneak")
         self.effect_handler.affect_strip(character, "skill.sneak")
         CharacterApi.set_affected_by_name(character, self.affected_bits, "AFF_SNEAK", False)
-        payload = {
-            "to_char": self._render_command_message(context, "failed"),
-            "to_room": self._render_command_message(context, "failed", channel="to_room", c=character.name, t=getattr(victim, "name", "")),
-            "targets": self._room_targets_except(room, character, victim),
-        }
-        if not CharacterApi.is_npc(victim):
-            payload["to_victim"] = self._render_command_message(context, "failed", channel="to_victim", c=character.name)
-            payload["victim"] = victim
+        payload = {"to_char": self._render_command_message(context, "failed")}
+        self._transfer_notices(payload, context, "failed", character, victim, room, t=victim)
         payloads = [payload]
         reaction = ("fail_message_one", "fail_message_two", "fail_message_robbed", "fail_message_three")[random.randint(0, 3)]
         text = self._render_command_message(context, reaction, channel="to_room", c=character.name).strip()
@@ -1843,13 +1796,6 @@ class Object:
         if callable(checker):
             return checker(entity)
         return GenericUtil.to_int(getattr(entity, "position", 8), 8) > 4
-
-    @staticmethod
-    def _room_targets_except(room, character, victim) -> list:
-        if room is None:
-            return []
-        excluded = {getattr(character, "id", ""), getattr(victim, "id", "")}
-        return [target for target in room.player_targets(character) if getattr(target, "id", "") not in excluded]
 
     def _mark_player_thief(self, character: Character) -> bool:
         bit = CharacterApi.enum_bit(self.PlayerActBits, "PLR_THIEF")
@@ -2687,17 +2633,3 @@ class Object:
 
     def _can_afford(self, entity, amount: int) -> bool:
         return self._money_value(entity) >= GenericUtil.to_int(amount, 0)
-
-    @staticmethod
-    def _add_money(entity, amount: int):
-        total = (GenericUtil.to_int(getattr(entity, "gold", 0), 0) * 100) + GenericUtil.to_int(getattr(entity, "silver", 0), 0)
-        total += GenericUtil.to_int(amount, 0)
-        entity.gold = total // 100
-        entity.silver = total - (entity.gold * 100)
-
-    @staticmethod
-    def _deduct_money(entity, amount: int):
-        total = (GenericUtil.to_int(getattr(entity, "gold", 0), 0) * 100) + GenericUtil.to_int(getattr(entity, "silver", 0), 0)
-        total = max(0, total - GenericUtil.to_int(amount, 0))
-        entity.gold = total // 100
-        entity.silver = total - (entity.gold * 100)

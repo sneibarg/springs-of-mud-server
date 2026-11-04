@@ -332,6 +332,8 @@ class AutomaticRoomViewParityTests(SharedFixture, unittest.IsolatedAsyncioTestCa
 
     async def test_explicit_dark_look_still_shows_perceivable_characters(self):
         self.weather.weather_info.sunlight = self.enums.get('timeAndWeather').SUN_DARK
+        self.actor.status_flags.set_flag('act', self.enums.get('playerActBits').PLR_AUTOEXIT)
+        self.rooms_handler.print_exits = AsyncMock()
         info = Info.__new__(Info)
         info.room_registry = self.rooms
         info.interp_api = self.api
@@ -342,6 +344,21 @@ class AutomaticRoomViewParityTests(SharedFixture, unittest.IsolatedAsyncioTestCa
         self.assertTrue(context.done)
         self.player_handler.print_players_in_room.assert_awaited_once_with(self.actor)
         self.mobile_handler.print_mobiles_in_room.assert_awaited_once_with(self.actor)
+        self.rooms_handler.print_exits.assert_not_awaited()
+
+    async def test_bare_look_shows_description_even_in_brief_mode(self):
+        self.actor.status_flags.set_flag('comm', self.enums.get('commFlags').COMM_BRIEF)
+        self.room.description = 'A distinct room description.'
+        info = Info.__new__(Info)
+        info.room_registry = self.rooms
+        info.interp_api = self.api
+        info.PlayerActBits = self.enums.get('playerActBits')
+        self.player_handler.info_commands = info
+        self.player_handler.room_registry = self.rooms
+        await self.player_handler.do_look(self.actor, self.context_for_look())
+        self.assertIn(self.room.description, self.bus.send_to_character.call_args.args[1])
+        await self.rooms_handler.print_room(self.actor.id, self.room)
+        self.assertNotIn(self.room.description, self.bus.send_to_character.call_args.args[1])
 
     async def test_explicit_look_autoexits_uses_room_handler_contract(self):
         info = Info.__new__(Info)
@@ -353,7 +370,7 @@ class AutomaticRoomViewParityTests(SharedFixture, unittest.IsolatedAsyncioTestCa
         self.player_handler.room_registry = self.rooms
         self.rooms_handler.print_exits = AsyncMock(spec=self.rooms_handler.print_exits)
         await self.player_handler.do_look(self.actor, self.context_for_look())
-        self.rooms_handler.print_exits.assert_awaited_once_with(self.actor)
+        self.rooms_handler.print_exits.assert_awaited_once_with(self.actor, automatic=True)
 
     def context_for_look(self):
         handlers = {'rh': self.rooms_handler, 'mh': self.mobile_handler}

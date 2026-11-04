@@ -13,6 +13,7 @@ from interp.commands.Object import Object
 from player.CharacterAdvancement import CharacterAdvancement
 from util.CommunicationsUtil import CommunicationsUtil
 from util.GenericUtil import GenericUtil
+from util.DisplayUtil import DisplayUtil, RecipientText
 
 
 class CombatDeathHandler:
@@ -29,8 +30,15 @@ class CombatDeathHandler:
         return CommunicationsUtil.ensure_message_break(self.payload.render(channel, key, **tokens))
 
     def room_notice(self, room, key, victim, **tokens):
-        return {"to_room": self.text("to_room", key, victim=str(getattr(victim, "short_description", "") or victim.name), **tokens),
-                "targets": room.player_targets(victim)}
+        targets = DisplayUtil.room_listeners(victim, room)
+
+        def render(observer):
+            name = DisplayUtil.visible_tokens({"victim": victim}, observer, room)["victim"]
+            return self.text("to_room", key, victim=name, **tokens)
+
+        fallback = render(None)
+        variants = {str(observer.id): render(observer) for observer in targets}
+        return {"to_room": RecipientText(fallback, variants, fallback), "targets": targets}
 
     def item_transfer(self, item, floating, victim, room, flags):
         notices = []

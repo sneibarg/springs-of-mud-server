@@ -213,6 +213,19 @@ class TestObjectTheftParity(unittest.TestCase):
         self.assertEqual(self.positions.POS_SLEEPING.value, self.victim.character_attributes.position)
         self.commands.fight_handler.multi_hit.assert_called_once_with(self.victim, self.actor, dt="TYPE_UNDEFINED")
 
+    def test_failed_theft_notice_masks_thief_and_skips_magically_sleeping_victim(self):
+        self.actor.guild = ""
+        self.victim.character_attributes.position = self.positions.POS_SLEEPING.value
+        self.victim.status_flags.affected_by = self.enums["affectedBy"].AFF_SLEEP.value
+        with patch.object(h._CharacterApi, "can_see", side_effect=lambda observer, target, room: (
+                observer is not self.base.witness or target is not self.actor)):
+            notice = self.attempt()["payloads"][0]
+
+        self.assertNotIn("to_victim", notice)
+        self.assertEqual([self.base.witness], notice["targets"])
+        self.assertEqual("Someone tried to steal from Victim.\r\n",
+                         notice["to_room"].for_recipient(self.base.witness.id))
+
     def test_player_failure_marks_and_saves_only_once_and_does_not_train_failure(self):
         for _ in range(2):
             parts = self.attempt()["payloads"]
@@ -313,7 +326,8 @@ class TestObjectTheftParity(unittest.TestCase):
             ("interp.CommandExecutor", "CommandExecutor"), ("interp.commands.Info", "Info"),
             ("interp.commands.Movement", "Movement"), ("interp.commands.Communications", "Communications"),
             ("interp.commands.Fight", "Fight"), ("interp.commands.Wiz", "Wiz"),
-            ("notes.NoteHandler", "NoteHandler"), ("server.messaging", "MessageBus"))}
+            ("notes.NoteHandler", "NoteHandler"), ("server.messaging", "MessageBus"),
+            ("server.messaging.MessageBus", "MessageBus"))}
         replacements["skill.Ability"] = NS(Ability=NS(take_improve_messages=lambda _entity: ""))
         with patch.dict(sys.modules, replacements):
             PlayerHandler = h._load_module("theft_player_handler", "player/PlayerHandler.py").PlayerHandler
@@ -321,7 +335,8 @@ class TestObjectTheftParity(unittest.TestCase):
         self.victim.character_attributes.position = self.positions.POS_SLEEPING.value
         payload = self.attempt()
         emitter = PlayerHandler.__new__(PlayerHandler)
-        emitter.message_bus = NS(send_to_character=AsyncMock(), send_to_room=AsyncMock(), text_to_message=lambda text: text)
+        emitter.message_bus = NS(send_to_character=AsyncMock(), send_to_room=AsyncMock(), text_to_message=lambda text: text,
+                                 connection_manager=NS(get_connection_by_character=lambda _id: None))
         emitter.interp_api = self.commands.interp_api
         emitter._send_prompt = AsyncMock()
         # All I/O collaborators complete immediately; no platform event loop is needed.

@@ -524,35 +524,67 @@ class FightHandler:
                 break
 
         punct = "." if dam <= 24 else "!"
+
+        def render(attacker_name, victim_name):
+            if dt == "TYPE_HIT" and attacker is victim:
+                reflexive = {"him": "himself", "her": "herself", "it": "itself"}
+                pronoun = getattr(attacker, "him_her", lambda: "it")()
+                to_char = f"You {vs} yourself{punct}\r\n"
+                to_victim = ""
+                to_room = f"{attacker_name} {vp} {reflexive.get(pronoun, 'itself')}{punct}\r\n"
+            elif dt == "TYPE_HIT":
+                if immune:
+                    to_char = f"You are unaffected by your attack.\r\n"
+                    to_victim = f"{attacker_name}'s attack is powerless against you.\r\n"
+                    to_room = f"{attacker_name}'s attack is powerless against {victim_name}!\r\n"
+                else:
+                    to_char = f"You {vs} {victim_name}{punct}\r\n"
+                    to_victim = f"{attacker_name} {vp} you{punct}\r\n"
+                    to_room = f"{attacker_name} {vp} {victim_name}{punct}\r\n"
+            else:
+                noun = str(dt or "attack").replace("_", " ").lower()
+                if noun in ("type undefined", "undefined", "type hit", "type undefined hit"):
+                    attack_noun = str(getattr(attacker, "dam_type", "") or "").strip().lower()
+                    noun = attack_noun if attack_noun and attack_noun != "none" else "punch"
+                if attacker is victim:
+                    to_victim = ""
+                    if immune:
+                        possessive = getattr(attacker, "his_her", lambda: "its")()
+                        to_char = "Luckily, you are immune to that.\r\n"
+                        to_room = f"{attacker_name} is unaffected by {possessive} own {noun}.\r\n"
+                    else:
+                        pronoun = getattr(attacker, "him_her", lambda: "it")()
+                        to_char = f"Your {noun} {vp} you{punct}\r\n"
+                        to_room = f"{attacker_name}'s {noun} {vp} {pronoun}{punct}\r\n"
+                elif immune:
+                    to_char = f"{victim_name} is unaffected by your {noun}!\r\n"
+                    to_victim = f"{attacker_name}'s {noun} is powerless against you.\r\n"
+                    to_room = f"{attacker_name}'s {noun} is powerless against {victim_name}!\r\n"
+                else:
+                    to_char = f"Your {noun} {vp} {victim_name}{punct}\r\n"
+                    to_victim = f"{attacker_name}'s {noun} {vp} you{punct}\r\n"
+                    to_room = f"{attacker_name}'s {noun} {vp} {victim_name}{punct}\r\n"
+
+            to_victim = self._sentence_case(to_victim)
+            to_room = self._sentence_case(to_room)
+            return {"to_char": to_char, "to_victim": to_victim, "to_room": to_room}
+
         attacker_name = DisplayUtil.entity_name(attacker, is_npc=CharacterApi.is_npc)
         victim_name = DisplayUtil.entity_name(victim, is_npc=CharacterApi.is_npc)
+        payload = render(attacker_name, victim_name)
+        room = self._find_room_for_entity(attacker)
+        if room is None:
+            return payload
 
-        if dt == "TYPE_HIT":
-            if immune:
-                to_char = f"You are unaffected by your attack.\r\n"
-                to_victim = f"{attacker_name}'s attack is powerless against you.\r\n"
-                to_room = f"{attacker_name}'s attack is powerless against {victim_name}!\r\n"
-            else:
-                to_char = f"You {vs} {victim_name}{punct}\r\n"
-                to_victim = f"{attacker_name} {vp} you{punct}\r\n"
-                to_room = f"{attacker_name} {vp} {victim_name}{punct}\r\n"
-        else:
-            noun = str(dt or "attack").replace("_", " ").lower()
-            if noun in ("type undefined", "undefined", "type hit", "type undefined hit"):
-                attack_noun = str(getattr(attacker, "dam_type", "") or "").strip().lower()
-                noun = attack_noun if attack_noun and attack_noun != "none" else "punch"
-            if immune:
-                to_char = f"{victim_name} is unaffected by your {noun}!\r\n"
-                to_victim = f"{attacker_name}'s {noun} is powerless against you.\r\n"
-                to_room = f"{attacker_name}'s {noun} is powerless against {victim_name}!\r\n"
-            else:
-                to_char = f"Your {noun} {vp} {victim_name}{punct}\r\n"
-                to_victim = f"{attacker_name}'s {noun} {vp} you{punct}\r\n"
-                to_room = f"{attacker_name}'s {noun} {vp} {victim_name}{punct}\r\n"
+        def render_for(observer):
+            names = DisplayUtil.visible_tokens({"attacker": attacker, "victim": victim}, observer, room)
+            return render(names["attacker"], names["victim"])
 
-        to_victim = self._sentence_case(to_victim)
-        to_room = self._sentence_case(to_room)
-        return {"to_char": to_char, "to_victim": to_victim, "to_room": to_room}
+        payload["to_char"] = render_for(attacker)["to_char"]
+        payload["to_victim"] = render_for(victim)["to_victim"]
+        payload["to_room"] = DisplayUtil.room_text(
+            payload["to_room"], lambda observer: render_for(observer)["to_room"], room)
+        return payload
 
     def raw_kill(self, victim) -> list:
         notices = []
@@ -1253,16 +1285,19 @@ class FightHandler:
         attacker_id = str(getattr(attacker, "id", "") or "")
         victim_id = str(getattr(victim, "id", "") or "")
         targets = room.player_targets(attacker) if hasattr(room, "player_targets") else list(room.characters.values())
+        resting = CharacterApi.pos_value("POS_RESTING")
         payload = {
             "to_char": result.get("to_char", ""),
             "to_room": result.get("to_room", ""),
-            "targets": [ch for ch in targets if str(getattr(ch, "id", "") or "") not in (attacker_id, victim_id)],
+            "targets": [ch for ch in targets
+                        if str(getattr(ch, "id", "") or "") not in (attacker_id, victim_id)
+                        and CharacterApi.position_value(ch) >= resting],
         }
         for key in ("to_wiznet", "wiznet_actor", "wiznet_flag", "global_message", "global_targets"):
             if key in result:
                 payload[key] = result[key]
 
-        if not CharacterApi.is_npc(victim):
+        if victim is not attacker and not CharacterApi.is_npc(victim):
             payload["victim"] = victim
             payload["to_victim"] = result.get("to_victim", "")
 

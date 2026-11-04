@@ -102,6 +102,14 @@ class _Positions(IntEnum):
 
 class _CharacterApi:
     @staticmethod
+    def pos_value(name):
+        return _Positions[name].value
+
+    @staticmethod
+    def position_value(character):
+        return character.character_attributes.position
+
+    @staticmethod
     def current_stat(entity, name):
         return max(3, min(25, getattr(entity.character_attributes, name, 10)))
 

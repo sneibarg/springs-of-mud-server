@@ -2,6 +2,7 @@ import asyncio
 from skill.AbilityResolver import AbilityResolver
 from injector import inject
 from api.CharacterApi import CharacterApi
+from util.DisplayUtil import DisplayUtil
 from combat.CombatHandler import FightHandler
 from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
@@ -157,10 +158,14 @@ class EffectUpdateHandler:
             await self._send_effect_payload(spread, "spread", victim, room)
 
     async def _send_effect_payload(self, effect, key: str, entity, room) -> None:
-        await self._send_to_room_except(room, entity, self._effect_payload(effect, "to_room", key, entity))
+        for listener in DisplayUtil.room_listeners(entity, room):
+            name = DisplayUtil.visible_tokens({"victim": entity}, listener, room)["victim"]
+            text = self._effect_payload(effect, "to_room", key, entity, victim_name=name)
+            if text:
+                await self.message_bus.send_to_character(listener.id, self.message_bus.text_to_message(text))
         await self._send_to_entity(entity, self._effect_payload(effect, "to_victim", key, entity))
 
-    def _effect_payload(self, effect, channel: str, key: str, entity) -> str:
+    def _effect_payload(self, effect, channel: str, key: str, entity, victim_name=None) -> str:
         ability = self._effect_ability(effect)
         render = getattr(ability, "message", None)
         if not callable(render):
@@ -168,7 +173,7 @@ class EffectUpdateHandler:
         return render(
             channel,
             key,
-            victim=entity.display_name(),
+            victim=entity.display_name() if victim_name is None else victim_name,
             possessive=getattr(entity, "his_her", lambda: "its")(),
         )
 
@@ -180,16 +185,6 @@ class EffectUpdateHandler:
         if entity is None or CharacterApi.is_npc(entity) or not text:
             return
         await self.message_bus.send_to_character(entity.id, self.message_bus.text_to_message(text))
-
-    async def _send_to_room_except(self, room, excluded, text: str) -> None:
-        if room is None or not text:
-            return
-        targets = [
-            player for player in room.players_in_room()
-            if str(getattr(player, "id", "") or "") != str(getattr(excluded, "id", "") or "")
-        ]
-        if targets:
-            await self.message_bus.send_to_room(self.message_bus.text_to_message(text), targets)
 
     def _pos_value(self, name: str) -> int:
         if self.PositionsEnum is None or name not in self.PositionsEnum.__members__:

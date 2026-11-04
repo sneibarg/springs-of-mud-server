@@ -389,6 +389,8 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         self.assertEqual(481, handler.fight_handler.aggression_update.await_count)
 
     def _object_update_fixture(self):
+        self.enterContext(patch("api.CharacterApi.CharacterApi.positions", Positions, create=True))
+        self.enterContext(patch("util.LookupUtil.LookupUtil.object_visible", return_value=True))
         handler, registries, bus = self._handler([])
         handler = handler.item_update_handler
         handler.ItemTypes = SimpleNamespace(ITEM_CORPSE_PC=SimpleNamespace(name="ITEM_CORPSE_PC"))
@@ -396,7 +398,8 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         handler.WearFlags = SimpleNamespace(ITEM_TAKE=SimpleNamespace(value=1))
         handler.enum_provider.get.return_value = SimpleNamespace(OBJ_VNUM_PIT=SimpleNamespace(value=999))
         registries.shop_registry.find_by_keeper_vnum.return_value = None
-        room = SimpleNamespace(contents={}, characters={}, mobiles={}, players_in_room=lambda: ["observer"])
+        room = SimpleNamespace(contents={}, characters={}, mobiles={}, players_in_room=lambda: [SimpleNamespace(id="observer")])
+        room.player_targets = lambda actor: [ch for ch in room.players_in_room() if ch is not actor]
         room.remove_item_from_room = lambda item: room.contents.pop(item.id, None)
         registries.room_registry.all_rooms.return_value = [room]
         handler.effect_update_handler.expired_messages = Mock(return_value=[])
@@ -483,7 +486,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
                 if carried:
                     self.assertEqual([], player.loot)
                     bus.send_to_character.assert_awaited_once_with(
-                        "player", "a trinket crumbles into dust.\r\n")
+                        "player", "A trinket crumbles into dust.\r\n")
                     bus.send_to_room.assert_not_awaited()
                 else:
                     self.assertEqual({}, room.contents)
@@ -782,7 +785,9 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
 
         asyncio.run(run_test())
 
-    def test_rom_poison_tick_sends_messages_and_applies_periodic_damage(self):
+    @patch("api.CharacterApi.CharacterApi.positions", Positions, create=True)
+    @patch("api.CharacterApi.CharacterApi.can_see", return_value=True)
+    def test_rom_poison_tick_sends_messages_and_applies_periodic_damage(self, _can_see):
         async def run_test():
             poisoned = Character.from_json(build_character_data("poisoned_char"))
             poisoned.name = "Tester"
@@ -795,7 +800,8 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
             room = SimpleNamespace(
                 characters={"poisoned_char": poisoned, "viewer_char": viewer},
                 mobiles={},
-                players_in_room=lambda: [poisoned, viewer],
+                player_targets=lambda actor: [ch for ch in (poisoned, viewer) if ch is not actor],
+                is_room_dark=lambda: False,
                 people=lambda: [poisoned, viewer],
             )
             handler, _, message_bus = self._handler([poisoned, viewer])
@@ -815,15 +821,14 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
             handler.fight_handler.apply_periodic_damage.assert_awaited_once_with(
                 poisoned, 3, dt="spell.poison", dam_type="DAM_POISON")
             handler.fight_handler.raw_kill.assert_not_called()
-            message_bus.send_to_character.assert_awaited_once_with("poisoned_char", "You shiver and suffer.\r\n")
-            message_bus.send_to_room.assert_awaited_once_with(
-                "Tester shivers and suffers.\r\n",
-                [viewer],
-            )
+            message_bus.send_to_character.assert_any_await("poisoned_char", "You shiver and suffer.\r\n")
+            message_bus.send_to_character.assert_any_await("viewer_char", "Tester shivers and suffers.\r\n")
 
         asyncio.run(run_test())
 
-    def test_rom_plague_tick_spreads_and_drains_before_periodic_damage(self):
+    @patch("api.CharacterApi.CharacterApi.positions", Positions, create=True)
+    @patch("api.CharacterApi.CharacterApi.can_see", return_value=True)
+    def test_rom_plague_tick_spreads_and_drains_before_periodic_damage(self, _can_see):
         async def run_test():
             carrier = Character.from_json(build_character_data("carrier_char"))
             carrier.name = "Carrier"
@@ -840,7 +845,8 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
             room = SimpleNamespace(
                 characters={"carrier_char": carrier, "victim_char": victim},
                 mobiles={},
-                players_in_room=lambda: [carrier, victim],
+                player_targets=lambda actor: [ch for ch in (carrier, victim) if ch is not actor],
+                is_room_dark=lambda: False,
                 people=lambda: [carrier, victim],
             )
             handler, _, message_bus = self._handler([carrier, victim])
@@ -885,14 +891,12 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
             handler.entity_update_handler.effect_update_handler.effect_handler.affect_join.assert_called_once()
             self.assertEqual(
                 [
+                    ("victim_char", "Carrier writhes in agony as plague sores erupt from his skin.\r\n"),
                     ("carrier_char", "You writhe in agony from the plague.\r\n"),
+                    ("carrier_char", "Victim shivers and looks very ill.\r\n"),
                     ("victim_char", "You feel hot and feverish.\r\n"),
                 ],
                 [call.args for call in message_bus.send_to_character.await_args_list],
-            )
-            self.assertIn(
-                ("Carrier writhes in agony as plague sores erupt from his skin.\r\n", [victim]),
-                [call.args for call in message_bus.send_to_room.await_args_list],
             )
 
         asyncio.run(run_test())

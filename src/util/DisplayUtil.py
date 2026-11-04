@@ -32,7 +32,7 @@ class DisplayUtil:
 
         if room is None:
             return []
-        candidates = list(room.player_targets(actor))
+        candidates = list(room.players_in_room() if actor is None else room.player_targets(actor))
         candidates.extend(mobile for mobile in getattr(room, 'mobiles', {}).values()
                           if mobile is not actor
                           and (getattr(mobile, 'context', None) or {}).get('controller_original') is not None)

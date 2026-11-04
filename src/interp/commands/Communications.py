@@ -203,10 +203,18 @@ class Communications:
 
         CommunicationsUtil.set_comm(character, self.comm_flags, "COMM_NOCLAN", False)
         context.finish()
+        targets = self._clan_targets(character, clan_key)
+
+        def render(observer):
+            room = self.room_registry.get_or_none(id=observer.room_id) if observer is not None else None
+            name = DisplayUtil.visible_tokens({"actor": character}, observer, room)["actor"]
+            return f"{name[:1].upper()}{name[1:]} clans '{text}'\r\n"
+
         return {
             "to_char": self.interp_api.render_message_key(context, "default", channel="to_char", s=text).get("to_char", ""),
-            "global_message": f"{self._display_name(character)} clans '{text}'\r\n",
-            "global_targets": self._clan_targets(character, clan_key),
+            "global_message": RecipientText(f"{self._display_name(character)} clans '{text}'\r\n",
+                                            {str(target.id): render(target) for target in targets}, render(None)),
+            "global_targets": targets,
         }
 
     def do_deaf(self, context: Context):
@@ -340,7 +348,7 @@ class Communications:
         character = context.character
         message = CommunicationsUtil.parse_argument(context.result, context.parameters)
         reply_to = (character.context or {}).get("reply_to", "")
-        victim = self.character_registry.get_or_none(id=reply_to)
+        victim = self.communications_api.find_reply_target(reply_to, self.character_registry, self.room_registry)
         context.tell_disconnected = self.communications_api.recipient_disconnected(victim, self.session_handler)
         if victim is not None and (getattr(victim, 'world_retired', False)
                 or (context.tell_disconnected and not any(entity is victim for entity in WizUtil.live_world_entities(self.room_registry)))):
@@ -355,6 +363,12 @@ class Communications:
         return self._deliver_tell(context, victim, message)
 
     def do_shout(self, context: Context):
+        if not CommunicationsUtil.parse_argument(context.result, context.parameters):
+            character = context.character
+            disabled = CommunicationsUtil.has_comm(character, self.comm_flags, "COMM_SHOUTSOFF")
+            CommunicationsUtil.set_comm(character, self.comm_flags, "COMM_SHOUTSOFF", not disabled)
+            context.finish()
+            return self.interp_api.render_message_key(context, "enable" if disabled else "disable", channel="to_char")
         return self._area_speech(context, 'to_area', off_flag='COMM_SHOUTSOFF')
 
     def do_yell(self, context: Context):
@@ -376,9 +390,12 @@ class Communications:
                 continue
             if CharacterApi.position_value(victim) < CharacterApi.pos_value('POS_RESTING'):
                 continue
-            if CommunicationsUtil.has_comm(victim, self.comm_flags, 'COMM_QUIET'):
+            preferences = victim
+            if off_flag:
+                preferences = (getattr(victim, "context", None) or {}).get("controller_original") or victim
+            if CommunicationsUtil.has_comm(preferences, self.comm_flags, 'COMM_QUIET'):
                 continue
-            if off_flag and CommunicationsUtil.has_comm(victim, self.comm_flags, off_flag):
+            if off_flag and CommunicationsUtil.has_comm(preferences, self.comm_flags, off_flag):
                 continue
             targets.append(victim)
             rooms[str(victim.id)] = room
@@ -616,9 +633,10 @@ class Communications:
             victim = session.character
             if victim is None or victim.id == character.id:
                 continue
-            if CommunicationsUtil.has_comm(victim, self.comm_flags, "COMM_QUIET"):
+            preferences = (getattr(victim, "context", None) or {}).get("controller_original") or victim
+            if CommunicationsUtil.has_comm(preferences, self.comm_flags, "COMM_QUIET"):
                 continue
-            if CommunicationsUtil.has_comm(victim, self.comm_flags, channel_map[verb]):
+            if CommunicationsUtil.has_comm(preferences, self.comm_flags, channel_map[verb]):
                 continue
             targets.append(victim)
 

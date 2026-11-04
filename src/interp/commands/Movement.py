@@ -11,11 +11,14 @@ from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
 from game.RegistryService import RegistryService
 from interp.Context import Context
+from interp.CommandDefaults import bundled_payload, render_command_message
 from api.InterpApi import InterpApi
 from api.MovementApi import MovementApi
 from combat.CombatHandler import FightHandler
 from item.Item import Item
 from util.PlayerUtil import PlayerUtil
+from util.DisplayUtil import DisplayUtil
+from util.CommunicationsUtil import CommunicationsUtil
 from player.Character import Character
 from player.CharacterAdvancement import CharacterAdvancement
 from skill.GroupOwnership import GroupOwnership
@@ -95,7 +98,8 @@ class Movement:
         in_room = state.in_room
         to_room = state.to_room
         followers = self._followers_in_room(character, in_room)
-        from_room_targets = in_room.player_targets(character)
+        announce = MovementApi.shows_movement_messages(character)
+        departure = self._travel_notice("default", in_room, character) if announce else {}
         self._remove_from_room(in_room, character)
         self._add_to_room(to_room, character)
         character.room_id = to_room.id
@@ -103,7 +107,6 @@ class Movement:
         if getattr(to_room, "area_id", None) is not None:
             character.area_id = to_room.area_id
 
-        to_room_targets = to_room.player_targets(character)
         payloads = []
         target_messages = []
         if follow and leader is not None:
@@ -111,23 +114,10 @@ class Movement:
                 "id": getattr(character, "id", ""),
                 "text": f"You follow {getattr(leader, 'name', '')}.\r\n",
             })
-        payloads.extend([
-            InterpApi.command_payload(
-                "default",
-                channel="to_room",
-                targets=from_room_targets,
-                tokens=self._actor_tokens(character),
-            ),
-            InterpApi.command_payload(
-                "arrived",
-                channel="to_room",
-                targets=to_room_targets,
-                tokens=self._actor_tokens(character),
-                to_room_obj=to_room,
-                view_character=character,
-                aggressive_rounds=self.fight_handler.aggressive_entry_rounds(character, to_room),
-            ),
-        ])
+        arrival = self._travel_notice("arrived", to_room, character) if announce else {}
+        arrival.update(to_room_obj=to_room, view_character=character,
+                       aggressive_rounds=self.fight_handler.aggressive_entry_rounds(character, to_room))
+        payloads.extend([departure, arrival] if announce else [arrival])
 
         if in_room != to_room:
             for follower in followers:
@@ -137,6 +127,7 @@ class Movement:
                 if not self._should_follow(follower, character, to_room):
                     continue
                 if self._aggressive_npc_law_blocked(follower, to_room):
+                    target_messages.extend(self._law_follower_notices(character, follower, to_room))
                     continue
                 follower_payload = self._move_char(follower, direction, context, follow=True, leader=character, visited=visited, travel_only=travel_only)
                 payloads.extend(follower_payload.get("payloads", []))
@@ -332,8 +323,8 @@ class Movement:
         if CharacterApi.is_npc(character) and not CharacterApi.is_set(
                 character.status_flags.act, EnumProvider.value(self.act_bits, "ACT_PET")):
             return InterpApi.command_payload("is_pet", channel="to_char")
-        payloads = [InterpApi.command_payload("prays_transportation", channel="to_room",
-                    targets=self._room_targets(self._room(character, context), character), tokens=self._actor_tokens(character))]
+        current = self._room(character, context)
+        payloads = [self._travel_notice("prays_transportation", current, character)]
         room_flags = self.room_flags
         temple_vnum = str(CharacterApi.get_enum("wellKnownRoomVnums").ROOM_VNUM_TEMPLE.value)
         temple_room = self.room_registry.get_or_none(vnum=temple_vnum)
@@ -341,7 +332,6 @@ class Movement:
             context.finish()
             return {"payloads": payloads + [InterpApi.command_payload("null_temple", channel="to_char")]}
 
-        current = self._room(character, context)
         if current is None or current.id == temple_room.id:
             context.finish()
             return {"payloads": payloads}
@@ -366,32 +356,18 @@ class Movement:
             payloads.append(InterpApi.command_payload("combat_recall", channel="to_char", tokens={"d": loss}))
             self.fight_handler.stop_fighting(character, both=True)
 
-        from_targets = current.player_targets(character)
+        departure = self._travel_notice("disappears", current, character)
         self._remove_from_room(current, character)
         self._add_to_room(temple_room, character)
         character.room_id = temple_room.id
         character.on = None
         character.area_id = temple_room.area_id
         character.movement = max(0, GenericUtil.to_int(getattr(character, "movement", 0), 0) // 2)
-        to_targets = temple_room.player_targets(character)
         context.finish()
-        payloads.extend([
-                InterpApi.command_payload(
-                    "disappears",
-                    channel="to_room",
-                    targets=from_targets,
-                    tokens=self._actor_tokens(character),
-                ),
-                InterpApi.command_payload(
-                    "appears_room",
-                    channel="to_room",
-                    targets=to_targets,
-                    tokens=self._actor_tokens(character),
-                    to_room_obj=temple_room,
-                    view_character=character,
-                    aggressive_rounds=self.fight_handler.aggressive_entry_rounds(character, temple_room),
-                ),
-            ])
+        arrival = self._travel_notice("appears_room", temple_room, character)
+        arrival.update(to_room_obj=temple_room, view_character=character,
+                       aggressive_rounds=self.fight_handler.aggressive_entry_rounds(character, temple_room))
+        payloads.extend([departure, arrival])
         pet = getattr(character, "pet", None)
         if pet is not None:
             pet_context = Context(character=pet, command=context.command, room=self.room_registry.get_or_none(id=pet.room_id),
@@ -437,7 +413,7 @@ class Movement:
             context.finish()
             return InterpApi.command_payload("something_prevents_from_leaving2", channel="to_char")
 
-        from_targets = self._room_targets(room, character)
+        departure = self._travel_notice("steps_into", room, character, t=portal)
         self._remove_from_room(room, character)
         self._add_to_room(destination, character)
         character.room_id = destination.id
@@ -450,29 +426,19 @@ class Movement:
             self._add_item_to_room(destination, portal)
 
         normal_exit = self._portal_flag(portal, "GATE_NORMAL_EXIT")
-        to_targets = self._room_targets(destination, character)
         item_short = Item.short(portal)
+        arrival = self._travel_notice("arrived" if normal_exit else "arrived_through",
+                                      destination, character, t=portal)
+        arrival.update(to_room_obj=destination, view_character=character,
+                       aggressive_rounds=self.fight_handler.aggressive_entry_rounds(character, destination))
         payloads = [
-            InterpApi.command_payload(
-                "steps_into",
-                channel="to_room",
-                targets=from_targets,
-                tokens={"c": character.name, "t": item_short},
-            ),
+            departure,
             InterpApi.command_payload(
                 "enter" if normal_exit else "walk_through_find_yourself",
                 channel="to_char",
                 tokens={"t": item_short},
             ),
-            InterpApi.command_payload(
-                "arrived" if normal_exit else "arrived_through",
-                channel="to_room",
-                targets=to_targets,
-                tokens={"c": character.name, "t": item_short},
-                to_room_obj=destination,
-                view_character=character,
-                aggressive_rounds=self.fight_handler.aggressive_entry_rounds(character, destination),
-            ),
+            arrival,
         ]
 
         self._decrement_portal_charge(portal)
@@ -978,6 +944,29 @@ class Movement:
         if room is not None:
             return room
         return self.room_registry.get_or_none(id=character.room_id)
+
+    @staticmethod
+    def _travel_notice(key, room, character, **objects):
+        targets = DisplayUtil.room_listeners(character, room)
+        entities = {"c": character, **objects}
+        return InterpApi.command_payload(
+            key, channel="to_room", targets=targets,
+            tokens=DisplayUtil.visible_tokens(entities, None, room),
+            recipient_tokens={str(target.id): DisplayUtil.visible_tokens(entities, target, room)
+                              for target in targets},
+        )
+
+    def _law_follower_notices(self, leader, follower, room):
+        command = self.registry_service.interp_registry.get_or_none(name="enter")
+        name = DisplayUtil.visible_tokens({"s": follower}, leader, room)["s"]
+        notices = []
+        for observer, key in ((leader, "can_t_bring_into"), (follower, "aren_t_allowed_city")):
+            if CharacterApi.is_npc(observer) and not (getattr(observer, "context", None) or {}).get("controller_original"):
+                continue
+            text = (render_command_message(command, "to_char", key, s=name) if command is not None
+                    else bundled_payload("enter").render("to_char", key, s=name))
+            notices.append({"id": observer.id, "text": CommunicationsUtil.ensure_message_break(text)})
+        return notices
 
     @staticmethod
     def _room_targets(room, character: Character) -> list:
