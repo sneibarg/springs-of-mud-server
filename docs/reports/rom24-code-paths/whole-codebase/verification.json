@@ -1,10 +1,13 @@
 {
   "result": "passed",
-  "command": ".venv/Scripts/python.exe docs/reports/rom24-code-paths/whole-codebase/validate_report.py",
-  "checks": "JSON integrity, bidirectional references, blocked reasons, all snapshot hashes, Markdown links and citation bounds, count consistency, truthful partial status",
+  "command": [
+    "C:\\Users\\scott\\AppData\\Local\\activestate\\cache\\973d2183\\python.exe",
+    "C:\\Users\\scott\\PycharmProjects\\springs-of-mud-server\\docs\\reports\\rom24-code-paths\\whole-codebase\\validate_report.py"
+  ],
+  "checks": "JSON integrity, unique branch links, bidirectional references, blocked reasons, all snapshot hashes, Markdown links and function-scoped citation bounds, count consistency, local ledger reconciliation without promoting function status, truthful partial status",
   "source_and_supporting_files_hashed": 528,
   "functions_inventoried": 677,
-  "cases": 461,
-  "markdown_links_checked": 747,
+  "cases": 582,
+  "markdown_links_checked": 785,
   "gameplay_tests_run": 0
 }

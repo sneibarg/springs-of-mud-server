@@ -18,11 +18,11 @@ Dependencies: `LOWER`, `str_prefix`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `special.spec_lookup.for.001` | 103 | `for ( i = 0; spec_table[i].name != NULL; i++)` |  | pending |
-| `special.spec_lookup.if.001` | 105 | `if (LOWER(name[0]) == LOWER(spec_table[i].name[0])         &&  !str_prefix( name,spec_table[i].name))` |  | pending |
-| `special.spec_lookup.and.001` | 106 | `&&  !str_prefix( name,spec_table[i].name))` |  | pending |
-| `special.spec_lookup.return.001` | 107 | `return spec_table[i].function;` |  | pending |
-| `special.spec_lookup.return.002` | 110 | `return 0;` |  | pending |
+| `special.spec_lookup.for.001` | 103 | `for ( i = 0; spec_table[i].name != NULL; i++)` | special.spec_lookup.first-full, special.spec_lookup.ambiguous-prefix-first, special.spec_lookup.last-full, special.spec_lookup.unknown, special.spec_lookup.empty | specified |
+| `special.spec_lookup.if.001` | 105 | `if (LOWER(name[0]) == LOWER(spec_table[i].name[0])         &&  !str_prefix( name,spec_table[i].name))` | special.spec_lookup.first-full, special.spec_lookup.ambiguous-prefix-first, special.spec_lookup.last-full, special.spec_lookup.unknown, special.spec_lookup.empty | specified |
+| `special.spec_lookup.and.001` | 106 | `&&  !str_prefix( name,spec_table[i].name))` | special.spec_lookup.first-full, special.spec_lookup.ambiguous-prefix-first, special.spec_lookup.last-full, special.spec_lookup.unknown, special.spec_lookup.empty | specified |
+| `special.spec_lookup.return.001` | 107 | `return spec_table[i].function;` | special.spec_lookup.first-full, special.spec_lookup.ambiguous-prefix-first, special.spec_lookup.last-full | specified |
+| `special.spec_lookup.return.002` | 110 | `return 0;` | special.spec_lookup.unknown, special.spec_lookup.empty | specified |
 | `special.spec_lookup.first-full.path` | 105 | `first full` | special.spec_lookup.first-full | specified |
 | `special.spec_lookup.ambiguous-prefix-first.path` | 105 | `ambiguous prefix first` | special.spec_lookup.ambiguous-prefix-first | specified |
 | `special.spec_lookup.last-full.path` | 105 | `last full` | special.spec_lookup.last-full | specified |
@@ -42,10 +42,10 @@ Dependencies: .
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `special.spec_name.for.001` | 117 | `for (i = 0; spec_table[i].function != NULL; i++)` |  | pending |
-| `special.spec_name.if.001` | 119 | `if (function == spec_table[i].function)` |  | pending |
-| `special.spec_name.return.001` | 120 | `return spec_table[i].name;` |  | pending |
-| `special.spec_name.return.002` | 123 | `return NULL;` |  | pending |
+| `special.spec_name.for.001` | 117 | `for (i = 0; spec_table[i].function != NULL; i++)` | special.spec_name.first-function, special.spec_name.last-function, special.spec_name.null-function, special.spec_name.unregistered-function | specified |
+| `special.spec_name.if.001` | 119 | `if (function == spec_table[i].function)` | special.spec_name.first-function, special.spec_name.last-function, special.spec_name.null-function, special.spec_name.unregistered-function | specified |
+| `special.spec_name.return.001` | 120 | `return spec_table[i].name;` | special.spec_name.first-function, special.spec_name.last-function | specified |
+| `special.spec_name.return.002` | 123 | `return NULL;` | special.spec_name.null-function, special.spec_name.unregistered-function | specified |
 | `special.spec_name.first-function.path` | 119 | `first function` | special.spec_name.first-function | specified |
 | `special.spec_name.last-function.path` | 119 | `last function` | special.spec_name.last-function | specified |
 | `special.spec_name.null-function.path` | 119 | `null function` | special.spec_name.null-function | specified |

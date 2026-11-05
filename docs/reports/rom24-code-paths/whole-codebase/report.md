@@ -12,12 +12,13 @@ Source: `C:\Users\scott\PycharmProjects\PyRom\Rom24`. HEAD reference: `d3a290073
 | translation units | 30 |
 | source lines | 46516 |
 | functions inventoried | 677 |
-| functions with cases | 49 |
+| functions with cases | 55 |
 | functions completely traced | 5 |
-| cases specified | 458 |
-| cases blocked | 3 |
+| additional local ledgers reconciled | 25 |
+| cases specified | 566 |
+| cases blocked | 16 |
 | cases dynamically verified | 0 |
-| lexical sites pending | 10740 |
+| lexical sites pending | 10354 |
 | ancillary files inventoried | 485 |
 
 No executable branch coverage, whole-server parity, successful C build, or passing gameplay tests is claimed. Every file/function/site has an explicit pending or specified disposition in the manifest; pending sites are work remaining, not exclusions.
@@ -82,6 +83,12 @@ No executable branch coverage, whole-server parity, successful C build, or passi
 ## Coverage criterion and continuation
 
 The five direct lookup helpers now have linked cases for the bounded search, comparison and return paths. Scan has linked cases for its explicit control sites and additional tests for missing exits, visibility rechecks and undefined inputs. Scan delivery through the communication layer, platform configuration and the remaining subsystems are open.
+
+The continuation adds 63 cases and reconciles the local control-site ledgers of 25 existing utility/helper functions. These local ledgers remain distinct from complete caller/dependency tracing; no additional function is promoted to fully traced solely from lexical links.
+
+Alias storage cases now cover uppercase names retained by the loader. Ban cases cover a populated recycle list with shared-string names, empty/whitespace input, malformed levels/flags, duplicate flag letters, trailing spaces and missing final newlines. Allocated recycled names, other malformed formats, complete caller/storage invariants and platform persistence behavior remain open.
+
+Portal cases now trace repeated ordinal lookup, an alternate nonportal match, and a three-level follower graph whose linked-list mutation revisits a moved follower. Recipient rendering, other follower graph classes, dynamically allocated descriptions and complete movement/lookup helper suites remain open.
 
 Case selection distinguishes observable guard outcomes, ordered failures, string and arithmetic boundaries, loop cardinalities, mutation order and caller-versus-helper contracts. It does not enumerate a Cartesian product of all game states. The lexical index includes explicit control transfers and short-circuit operators but cannot establish feasibility or find every implicit branch.
 

@@ -289,17 +289,17 @@ Dependencies: `IS_AFFECTED`, `check_immune`, `IS_NPC`, `URANGE`, `number_percent
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `magic.saves_spell.if.001` | 221 | `if (IS_AFFECTED(victim,AFF_BERSERK))` |  | pending |
-| `magic.saves_spell.switch.001` | 224 | `switch(check_immune(victim,dam_type))` |  | pending |
-| `magic.saves_spell.case.001` | 226 | `case IS_IMMUNE:		return TRUE;` |  | pending |
-| `magic.saves_spell.return.001` | 226 | `return TRUE;` |  | pending |
-| `magic.saves_spell.case.002` | 227 | `case IS_RESISTANT:	save += 2;` |  | pending |
-| `magic.saves_spell.break.001` | 227 | `break;` |  | pending |
-| `magic.saves_spell.case.003` | 228 | `case IS_VULNERABLE:	save -= 2;` |  | pending |
-| `magic.saves_spell.break.002` | 228 | `break;` |  | pending |
-| `magic.saves_spell.if.002` | 231 | `if (!IS_NPC(victim) && class_table[victim->class].fMana)` |  | pending |
-| `magic.saves_spell.and.001` | 231 | `&& class_table[victim->class].fMana)` |  | pending |
-| `magic.saves_spell.return.002` | 234 | `return number_percent( ) < save;` |  | pending |
+| `magic.saves_spell.if.001` | 221 | `if (IS_AFFECTED(victim,AFF_BERSERK))` | magic.saves_spell.normal-below, magic.saves_spell.normal-equality, magic.saves_spell.immune-no-roll, magic.saves_spell.resistant-below, magic.saves_spell.resistant-equality, magic.saves_spell.vulnerable-equality, magic.saves_spell.berserk-adds-half-level, magic.saves_spell.negative-saving-throw-improves, magic.saves_spell.positive-saving-throw-weakens, magic.saves_spell.mana-class-nine-tenths, magic.saves_spell.mana-class-integer-truncation, magic.saves_spell.lower-cap, magic.saves_spell.upper-cap, magic.saves_spell.nonmana-pc, magic.saves_spell.npc-does-not-index-class, magic.saves_spell.berserk-odd-level-truncation, magic.saves_spell.vulnerable-below, magic.saves_spell.mana-before-upper-clamp, magic.saves_spell.mana-negative-before-lower-clamp, magic.saves_spell.upper-cap-last-success, magic.saves_spell.immune-skips-invalid-class | specified |
+| `magic.saves_spell.switch.001` | 224 | `switch(check_immune(victim,dam_type))` | magic.saves_spell.normal-below, magic.saves_spell.normal-equality, magic.saves_spell.immune-no-roll, magic.saves_spell.resistant-below, magic.saves_spell.resistant-equality, magic.saves_spell.vulnerable-equality, magic.saves_spell.berserk-adds-half-level, magic.saves_spell.negative-saving-throw-improves, magic.saves_spell.positive-saving-throw-weakens, magic.saves_spell.mana-class-nine-tenths, magic.saves_spell.mana-class-integer-truncation, magic.saves_spell.lower-cap, magic.saves_spell.upper-cap, magic.saves_spell.nonmana-pc, magic.saves_spell.npc-does-not-index-class, magic.saves_spell.berserk-odd-level-truncation, magic.saves_spell.vulnerable-below, magic.saves_spell.mana-before-upper-clamp, magic.saves_spell.mana-negative-before-lower-clamp, magic.saves_spell.upper-cap-last-success, magic.saves_spell.immune-skips-invalid-class | specified |
+| `magic.saves_spell.case.001` | 226 | `case IS_IMMUNE:		return TRUE;` | magic.saves_spell.immune-no-roll, magic.saves_spell.immune-skips-invalid-class | specified |
+| `magic.saves_spell.return.001` | 226 | `return TRUE;` | magic.saves_spell.immune-no-roll, magic.saves_spell.immune-skips-invalid-class | specified |
+| `magic.saves_spell.case.002` | 227 | `case IS_RESISTANT:	save += 2;` | magic.saves_spell.resistant-below, magic.saves_spell.resistant-equality | specified |
+| `magic.saves_spell.break.001` | 227 | `break;` | magic.saves_spell.resistant-below, magic.saves_spell.resistant-equality | specified |
+| `magic.saves_spell.case.003` | 228 | `case IS_VULNERABLE:	save -= 2;` | magic.saves_spell.vulnerable-equality, magic.saves_spell.vulnerable-below | specified |
+| `magic.saves_spell.break.002` | 228 | `break;` | magic.saves_spell.vulnerable-equality, magic.saves_spell.vulnerable-below | specified |
+| `magic.saves_spell.if.002` | 231 | `if (!IS_NPC(victim) && class_table[victim->class].fMana)` | magic.saves_spell.normal-below, magic.saves_spell.normal-equality, magic.saves_spell.resistant-below, magic.saves_spell.resistant-equality, magic.saves_spell.vulnerable-equality, magic.saves_spell.berserk-adds-half-level, magic.saves_spell.negative-saving-throw-improves, magic.saves_spell.positive-saving-throw-weakens, magic.saves_spell.mana-class-nine-tenths, magic.saves_spell.mana-class-integer-truncation, magic.saves_spell.lower-cap, magic.saves_spell.upper-cap, magic.saves_spell.nonmana-pc, magic.saves_spell.npc-does-not-index-class, magic.saves_spell.berserk-odd-level-truncation, magic.saves_spell.vulnerable-below, magic.saves_spell.mana-before-upper-clamp, magic.saves_spell.mana-negative-before-lower-clamp, magic.saves_spell.upper-cap-last-success | specified |
+| `magic.saves_spell.and.001` | 231 | `&& class_table[victim->class].fMana)` | magic.saves_spell.normal-below, magic.saves_spell.normal-equality, magic.saves_spell.resistant-below, magic.saves_spell.resistant-equality, magic.saves_spell.vulnerable-equality, magic.saves_spell.berserk-adds-half-level, magic.saves_spell.negative-saving-throw-improves, magic.saves_spell.positive-saving-throw-weakens, magic.saves_spell.mana-class-nine-tenths, magic.saves_spell.mana-class-integer-truncation, magic.saves_spell.lower-cap, magic.saves_spell.upper-cap, magic.saves_spell.nonmana-pc, magic.saves_spell.npc-does-not-index-class, magic.saves_spell.berserk-odd-level-truncation, magic.saves_spell.vulnerable-below, magic.saves_spell.mana-before-upper-clamp, magic.saves_spell.mana-negative-before-lower-clamp, magic.saves_spell.upper-cap-last-success | specified |
+| `magic.saves_spell.return.002` | 234 | `return number_percent( ) < save;` | magic.saves_spell.normal-below, magic.saves_spell.normal-equality, magic.saves_spell.resistant-below, magic.saves_spell.resistant-equality, magic.saves_spell.vulnerable-equality, magic.saves_spell.berserk-adds-half-level, magic.saves_spell.negative-saving-throw-improves, magic.saves_spell.positive-saving-throw-weakens, magic.saves_spell.mana-class-nine-tenths, magic.saves_spell.mana-class-integer-truncation, magic.saves_spell.lower-cap, magic.saves_spell.upper-cap, magic.saves_spell.nonmana-pc, magic.saves_spell.npc-does-not-index-class, magic.saves_spell.berserk-odd-level-truncation, magic.saves_spell.vulnerable-below, magic.saves_spell.mana-before-upper-clamp, magic.saves_spell.mana-negative-before-lower-clamp, magic.saves_spell.upper-cap-last-success | specified |
 | `magic.saves_spell.normal-below.path` | 220 | `normal below` | magic.saves_spell.normal-below | specified |
 | `magic.saves_spell.normal-equality.path` | 220 | `normal equality` | magic.saves_spell.normal-equality | specified |
 | `magic.saves_spell.immune-no-roll.path` | 220 | `immune no roll` | magic.saves_spell.immune-no-roll | specified |
@@ -313,6 +313,14 @@ Dependencies: `IS_AFFECTED`, `check_immune`, `IS_NPC`, `URANGE`, `number_percent
 | `magic.saves_spell.mana-class-integer-truncation.path` | 220 | `mana class integer truncation` | magic.saves_spell.mana-class-integer-truncation | specified |
 | `magic.saves_spell.lower-cap.path` | 220 | `lower cap` | magic.saves_spell.lower-cap | specified |
 | `magic.saves_spell.upper-cap.path` | 220 | `upper cap` | magic.saves_spell.upper-cap | specified |
+| `magic.saves_spell.nonmana-pc.path` | 220 | `nonmana pc` | magic.saves_spell.nonmana-pc | specified |
+| `magic.saves_spell.npc-does-not-index-class.path` | 220 | `npc does not index class` | magic.saves_spell.npc-does-not-index-class | specified |
+| `magic.saves_spell.berserk-odd-level-truncation.path` | 220 | `berserk odd level truncation` | magic.saves_spell.berserk-odd-level-truncation | specified |
+| `magic.saves_spell.vulnerable-below.path` | 220 | `vulnerable below` | magic.saves_spell.vulnerable-below | specified |
+| `magic.saves_spell.mana-before-upper-clamp.path` | 220 | `mana before upper clamp` | magic.saves_spell.mana-before-upper-clamp | specified |
+| `magic.saves_spell.mana-negative-before-lower-clamp.path` | 220 | `mana negative before lower clamp` | magic.saves_spell.mana-negative-before-lower-clamp | specified |
+| `magic.saves_spell.upper-cap-last-success.path` | 220 | `upper cap last success` | magic.saves_spell.upper-cap-last-success | specified |
+| `magic.saves_spell.immune-skips-invalid-class.path` | 220 | `immune skips invalid class` | magic.saves_spell.immune-skips-invalid-class | specified |
 
 ## saves_dispel
 
@@ -331,8 +339,8 @@ Dependencies: `URANGE`, `number_percent`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `magic.saves_dispel.if.001` | 243 | `if (duration == -1)` |  | pending |
-| `magic.saves_dispel.return.001` | 249 | `return number_percent( ) < save;` |  | pending |
+| `magic.saves_dispel.if.001` | 243 | `if (duration == -1)` | magic.saves_dispel.equal-level-below, magic.saves_dispel.equal-level-equality, magic.saves_dispel.permanent-adds-five, magic.saves_dispel.permanent-threshold, magic.saves_dispel.lower-cap-below, magic.saves_dispel.lower-cap-equality, magic.saves_dispel.upper-cap-below, magic.saves_dispel.upper-cap-equality | specified |
+| `magic.saves_dispel.return.001` | 249 | `return number_percent( ) < save;` | magic.saves_dispel.equal-level-below, magic.saves_dispel.equal-level-equality, magic.saves_dispel.permanent-adds-five, magic.saves_dispel.permanent-threshold, magic.saves_dispel.lower-cap-below, magic.saves_dispel.lower-cap-equality, magic.saves_dispel.upper-cap-below, magic.saves_dispel.upper-cap-equality | specified |
 | `magic.saves_dispel.equal-level-below.path` | 247 | `equal level below` | magic.saves_dispel.equal-level-below | specified |
 | `magic.saves_dispel.equal-level-equality.path` | 247 | `equal level equality` | magic.saves_dispel.equal-level-equality | specified |
 | `magic.saves_dispel.permanent-adds-five.path` | 247 | `permanent adds five` | magic.saves_dispel.permanent-adds-five | specified |

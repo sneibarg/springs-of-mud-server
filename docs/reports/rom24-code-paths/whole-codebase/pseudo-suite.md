@@ -2630,6 +2630,136 @@ WHEN Invoke do_unalias with the fixture arguments once.
 THEN {"messages": [{"recipient": "ch", "text": "Alias removed.\n\r"}], "result_aliases": [["a", "look"]], "tail_slots": "C NULL after last occupied slot", "forbidden": ["interpret command"]}
 ```
 
+## alias.substitute_alias.active-owner-prefix-over-limit
+
+active owner prefix over limit
+
+```text
+CASE alias.substitute_alias.active-owner-prefix-over-limit
+SOURCE src/alias.c:substitute_alias:52
+GIVEN {"descriptor": {"character": "ch", "original": null}, "actor": {"id": "ch", "kind": "PC", "prefix": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aliases": []}, "argument": "go"}
+AND {"interpret": "Record dispatch without executing gameplay."}
+WHEN Invoke substitute_alias with the fixture arguments once.
+THEN {"ordered_events": [{"call": "send_to_char", "recipient": "ch", "text": "Line to long, prefix not processed.\r\n"}, {"call": "interpret", "actor": "ch", "argument": "go"}]}
+```
+
+## alias.substitute_alias.five-nonmatching-slots
+
+five nonmatching slots
+
+```text
+CASE alias.substitute_alias.five-nonmatching-slots
+SOURCE src/alias.c:substitute_alias:70
+GIVEN {"descriptor": {"character": "body", "original": "owner"}, "owner": {"id": "owner", "kind": "PC", "prefix": "", "aliases": [["a", "look"], ["b", "look"], ["c", "look"], ["d", "look"], ["e", "look"]]}, "body": {"id": "body", "kind": "NPC"}, "argument": "z"}
+AND {"interpret": "Record dispatch without executing gameplay."}
+WHEN Invoke substitute_alias with the fixture arguments once.
+THEN {"ordered_events": [{"call": "interpret", "actor": "body", "argument": "z"}], "forbidden": ["one_argument", "message", "alias mutation"]}
+```
+
+## alias.do_alias.npc-without-original-returns
+
+npc without original returns
+
+```text
+CASE alias.do_alias.npc-without-original-returns
+SOURCE src/alias.c:do_alias:117
+GIVEN {"actor": {"id": "ch", "kind": "NPC", "desc": {"original": null}, "pcdata": null}, "argument": "x look"}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke do_alias with the fixture arguments once.
+THEN {"messages": [], "forbidden": ["alias slot access", "one_argument"], "unchanged": ["alias state"]}
+```
+
+## alias.do_unalias.npc-without-original-returns
+
+npc without original returns
+
+```text
+CASE alias.do_unalias.npc-without-original-returns
+SOURCE src/alias.c:do_unalias:220
+GIVEN {"actor": {"id": "ch", "kind": "NPC", "desc": {"original": null}, "pcdata": null}, "argument": "x look"}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke do_unalias with the fixture arguments once.
+THEN {"messages": [], "forbidden": ["alias slot access", "one_argument"], "unchanged": ["alias state"]}
+```
+
+## alias.do_alias.list-two
+
+list two
+
+```text
+CASE alias.do_alias.list-two
+SOURCE src/alias.c:do_alias:131
+GIVEN {"actor": {"id": "ch", "kind": "PC", "desc": null, "aliases": [["x", "look"], ["y", "north"]]}, "argument": ""}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke do_alias with the fixture arguments once.
+THEN {"messages": [{"recipient": "ch", "text": "Your current aliases are:\n\r"}, {"recipient": "ch", "text": "    x:  look\n\r"}, {"recipient": "ch", "text": "    y:  north\n\r"}], "unchanged": ["alias slots"]}
+```
+
+## alias.do_alias.list-stops-at-null-replacement
+
+list stops at null replacement
+
+```text
+CASE alias.do_alias.list-stops-at-null-replacement
+SOURCE src/alias.c:do_alias:131
+GIVEN {"actor": {"id": "ch", "kind": "PC", "desc": null, "aliases": [["x", "look"], ["y", null], ["z", "south"]]}, "argument": ""}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke do_alias with the fixture arguments once.
+THEN {"messages": [{"recipient": "ch", "text": "Your current aliases are:\n\r"}, {"recipient": "ch", "text": "    x:  look\n\r"}], "unchanged": ["alias slots"]}
+```
+
+## alias.do_alias.list-five
+
+list five
+
+```text
+CASE alias.do_alias.list-five
+SOURCE src/alias.c:do_alias:131
+GIVEN {"actor": {"id": "ch", "kind": "PC", "desc": null, "aliases": [["a", "look"], ["b", "look"], ["c", "look"], ["d", "look"], ["e", "look"]]}, "argument": ""}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke do_alias with the fixture arguments once.
+THEN {"messages": [{"recipient": "ch", "text": "Your current aliases are:\n\r"}, {"recipient": "ch", "text": "    a:  look\n\r"}, {"recipient": "ch", "text": "    b:  look\n\r"}, {"recipient": "ch", "text": "    c:  look\n\r"}, {"recipient": "ch", "text": "    d:  look\n\r"}, {"recipient": "ch", "text": "    e:  look\n\r"}], "unchanged": ["alias slots"]}
+```
+
+## alias.do_alias.switched-owner-edited-active-body-notified
+
+switched owner edited active body notified
+
+```text
+CASE alias.do_alias.switched-owner-edited-active-body-notified
+SOURCE src/alias.c:do_alias:115
+GIVEN {"actor": {"id": "body", "kind": "NPC", "desc": {"original": "owner"}}, "owner": {"id": "owner", "kind": "PC", "aliases": [["x", "look"]]}, "argument": "X north"}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke do_alias with the fixture arguments once.
+THEN {"result_aliases": {"owner": [["x", "north"]]}, "messages": [{"recipient": "body", "text": "x is now realiased to 'north'.\n\r"}], "forbidden": ["mutate body aliases", "send to owner"]}
+```
+
+## alias.do_alias.query-stops-at-null-replacement
+
+query stops at null replacement
+
+```text
+CASE alias.do_alias.query-stops-at-null-replacement
+SOURCE src/alias.c:do_alias:169
+GIVEN {"actor": {"id": "ch", "kind": "PC", "desc": null, "aliases": [["x", null], ["y", "look"]]}, "argument": "y"}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke do_alias with the fixture arguments once.
+THEN {"messages": [{"recipient": "ch", "text": "That alias is not defined.\n\r"}], "unchanged": ["alias slots"]}
+```
+
+## alias.do_unalias.switched-owner-first-of-duplicate-names
+
+switched owner first of duplicate names
+
+```text
+CASE alias.do_unalias.switched-owner-first-of-duplicate-names
+SOURCE src/alias.c:do_unalias:236
+GIVEN {"actor": {"id": "body", "kind": "NPC", "desc": {"original": "owner"}}, "owner": {"id": "owner", "kind": "PC", "aliases": [["x", "look"], ["x", "north"], ["y", "south"]]}, "argument": "X ignored"}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke do_unalias with the fixture arguments once.
+THEN {"result_aliases": {"owner": [["x", "north"], ["y", "south"]]}, "messages": [{"recipient": "body", "text": "Alias removed.\n\r"}], "forbidden": ["second deletion", "send to owner"]}
+```
+
 ## scan.do_scan.invalid-direction
 
 invalid direction
@@ -3708,7 +3838,7 @@ SOURCE src/magic2.c:spell_portal:61
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "C NULL"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_portal with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": []}
 ```
 
 ## magic2.spell_portal.self-target
@@ -3717,11 +3847,11 @@ self target
 
 ```text
 CASE magic2.spell_portal.self-target
-SOURCE src/magic2.c:spell_portal:61
+SOURCE src/magic2.c:spell_portal:61; src/magic2.c:spell_portal:62
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "ch"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_portal with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": []}
 ```
 
 ## magic2.spell_portal.victim-no-room
@@ -3730,11 +3860,11 @@ victim no room
 
 ```text
 CASE magic2.spell_portal.victim-no-room
-SOURCE src/magic2.c:spell_portal:61
+SOURCE src/magic2.c:spell_portal:61; src/magic2.c:spell_portal:63
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": null, "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_portal with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": []}
 ```
 
 ## magic2.spell_portal.room-not-visible
@@ -3743,11 +3873,11 @@ room not visible
 
 ```text
 CASE magic2.spell_portal.room-not-visible
-SOURCE src/magic2.c:spell_portal:61
+SOURCE src/magic2.c:spell_portal:61; src/magic2.c:spell_portal:64
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": false}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_portal with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B"]}
 ```
 
 ## magic2.spell_portal.destination-safe
@@ -3756,11 +3886,11 @@ destination safe
 
 ```text
 CASE magic2.spell_portal.destination-safe
-SOURCE src/magic2.c:spell_portal:61
+SOURCE src/magic2.c:spell_portal:61; src/magic2.c:spell_portal:65
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": ["ROOM_SAFE"], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_portal with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B"]}
 ```
 
 ## magic2.spell_portal.destination-private
@@ -3769,11 +3899,11 @@ destination private
 
 ```text
 CASE magic2.spell_portal.destination-private
-SOURCE src/magic2.c:spell_portal:61
+SOURCE src/magic2.c:spell_portal:61; src/magic2.c:spell_portal:66
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": ["ROOM_PRIVATE"], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_portal with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B"]}
 ```
 
 ## magic2.spell_portal.destination-solitary
@@ -3782,11 +3912,11 @@ destination solitary
 
 ```text
 CASE magic2.spell_portal.destination-solitary
-SOURCE src/magic2.c:spell_portal:61
+SOURCE src/magic2.c:spell_portal:61; src/magic2.c:spell_portal:67
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": ["ROOM_SOLITARY"], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_portal with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B"]}
 ```
 
 ## magic2.spell_portal.destination-no-recall
@@ -3795,11 +3925,11 @@ destination no recall
 
 ```text
 CASE magic2.spell_portal.destination-no-recall
-SOURCE src/magic2.c:spell_portal:61
+SOURCE src/magic2.c:spell_portal:61; src/magic2.c:spell_portal:68
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": ["ROOM_NO_RECALL"], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_portal with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B"]}
 ```
 
 ## magic2.spell_portal.origin-no-recall
@@ -3808,11 +3938,11 @@ origin no recall
 
 ```text
 CASE magic2.spell_portal.origin-no-recall
-SOURCE src/magic2.c:spell_portal:61
+SOURCE src/magic2.c:spell_portal:61; src/magic2.c:spell_portal:69
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": ["ROOM_NO_RECALL"], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_portal with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B"]}
 ```
 
 ## magic2.spell_portal.victim-level-at-spell-plus-three
@@ -3821,11 +3951,11 @@ victim level at spell plus three
 
 ```text
 CASE magic2.spell_portal.victim-level-at-spell-plus-three
-SOURCE src/magic2.c:spell_portal:61
+SOURCE src/magic2.c:spell_portal:61; src/magic2.c:spell_portal:70
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 43, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_portal with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B"]}
 ```
 
 ## magic2.spell_portal.hero-pc-regardless-of-trust
@@ -3834,11 +3964,11 @@ hero pc regardless of trust
 
 ```text
 CASE magic2.spell_portal.hero-pc-regardless-of-trust
-SOURCE src/magic2.c:spell_portal:61
+SOURCE src/magic2.c:spell_portal:61; src/magic2.c:spell_portal:71
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 51, "clan": 0, "in_room": "B", "imm_flags": [], "trust": 0}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 60, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_portal with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B"]}
 ```
 
 ## magic2.spell_portal.npc-summon-immune
@@ -3847,11 +3977,11 @@ npc summon immune
 
 ```text
 CASE magic2.spell_portal.npc-summon-immune
-SOURCE src/magic2.c:spell_portal:61
+SOURCE src/magic2.c:spell_portal:61; src/magic2.c:spell_portal:72
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "NPC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": ["IMM_SUMMON"]}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_portal with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B"]}
 ```
 
 ## magic2.spell_portal.npc-saves
@@ -3860,11 +3990,11 @@ npc saves
 
 ```text
 CASE magic2.spell_portal.npc-saves
-SOURCE src/magic2.c:spell_portal:61
+SOURCE src/magic2.c:spell_portal:61; src/magic2.c:spell_portal:73
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "NPC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": true, "calls": 1}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_portal with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B"]}
 ```
 
 ## magic2.spell_portal.clan-mismatch
@@ -3873,11 +4003,11 @@ clan mismatch
 
 ```text
 CASE magic2.spell_portal.clan-mismatch
-SOURCE src/magic2.c:spell_portal:61
+SOURCE src/magic2.c:spell_portal:61; src/magic2.c:spell_portal:74
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 2, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_portal with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B"]}
 ```
 
 ## magic2.spell_portal.mortal-no-component
@@ -3994,7 +4124,7 @@ SOURCE src/magic2.c:spell_nexus:113
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "C NULL"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_nexus with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": []}
 ```
 
 ## magic2.spell_nexus.self-target
@@ -4003,11 +4133,11 @@ self target
 
 ```text
 CASE magic2.spell_nexus.self-target
-SOURCE src/magic2.c:spell_nexus:113
+SOURCE src/magic2.c:spell_nexus:113; src/magic2.c:spell_nexus:114
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "ch"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_nexus with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": []}
 ```
 
 ## magic2.spell_nexus.victim-no-room
@@ -4016,11 +4146,11 @@ victim no room
 
 ```text
 CASE magic2.spell_nexus.victim-no-room
-SOURCE src/magic2.c:spell_nexus:113
+SOURCE src/magic2.c:spell_nexus:113; src/magic2.c:spell_nexus:115
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": null, "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_nexus with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": []}
 ```
 
 ## magic2.spell_nexus.room-not-visible
@@ -4029,11 +4159,11 @@ room not visible
 
 ```text
 CASE magic2.spell_nexus.room-not-visible
-SOURCE src/magic2.c:spell_nexus:113
+SOURCE src/magic2.c:spell_nexus:113; src/magic2.c:spell_nexus:116
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": false}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_nexus with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B"]}
 ```
 
 ## magic2.spell_nexus.destination-safe
@@ -4042,11 +4172,11 @@ destination safe
 
 ```text
 CASE magic2.spell_nexus.destination-safe
-SOURCE src/magic2.c:spell_nexus:113
+SOURCE src/magic2.c:spell_nexus:113; src/magic2.c:spell_nexus:117
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": ["ROOM_SAFE"], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_nexus with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B", "A"]}
 ```
 
 ## magic2.spell_nexus.destination-private
@@ -4055,11 +4185,11 @@ destination private
 
 ```text
 CASE magic2.spell_nexus.destination-private
-SOURCE src/magic2.c:spell_nexus:113
+SOURCE src/magic2.c:spell_nexus:113; src/magic2.c:spell_nexus:119
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": ["ROOM_PRIVATE"], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_nexus with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B", "A"]}
 ```
 
 ## magic2.spell_nexus.destination-solitary
@@ -4068,11 +4198,11 @@ destination solitary
 
 ```text
 CASE magic2.spell_nexus.destination-solitary
-SOURCE src/magic2.c:spell_nexus:113
+SOURCE src/magic2.c:spell_nexus:113; src/magic2.c:spell_nexus:120
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": ["ROOM_SOLITARY"], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_nexus with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B", "A"]}
 ```
 
 ## magic2.spell_nexus.destination-no-recall
@@ -4081,11 +4211,11 @@ destination no recall
 
 ```text
 CASE magic2.spell_nexus.destination-no-recall
-SOURCE src/magic2.c:spell_nexus:113
+SOURCE src/magic2.c:spell_nexus:113; src/magic2.c:spell_nexus:121
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": ["ROOM_NO_RECALL"], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_nexus with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B", "A"]}
 ```
 
 ## magic2.spell_nexus.origin-no-recall
@@ -4094,11 +4224,11 @@ origin no recall
 
 ```text
 CASE magic2.spell_nexus.origin-no-recall
-SOURCE src/magic2.c:spell_nexus:113
+SOURCE src/magic2.c:spell_nexus:113; src/magic2.c:spell_nexus:122
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": ["ROOM_NO_RECALL"], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_nexus with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B", "A"]}
 ```
 
 ## magic2.spell_nexus.victim-level-at-spell-plus-three
@@ -4107,11 +4237,11 @@ victim level at spell plus three
 
 ```text
 CASE magic2.spell_nexus.victim-level-at-spell-plus-three
-SOURCE src/magic2.c:spell_nexus:113
+SOURCE src/magic2.c:spell_nexus:113; src/magic2.c:spell_nexus:123
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 43, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_nexus with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B", "A"]}
 ```
 
 ## magic2.spell_nexus.hero-pc-regardless-of-trust
@@ -4120,11 +4250,11 @@ hero pc regardless of trust
 
 ```text
 CASE magic2.spell_nexus.hero-pc-regardless-of-trust
-SOURCE src/magic2.c:spell_nexus:113
+SOURCE src/magic2.c:spell_nexus:113; src/magic2.c:spell_nexus:124
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 51, "clan": 0, "in_room": "B", "imm_flags": [], "trust": 0}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 60, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_nexus with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B", "A"]}
 ```
 
 ## magic2.spell_nexus.npc-summon-immune
@@ -4133,11 +4263,11 @@ npc summon immune
 
 ```text
 CASE magic2.spell_nexus.npc-summon-immune
-SOURCE src/magic2.c:spell_nexus:113
+SOURCE src/magic2.c:spell_nexus:113; src/magic2.c:spell_nexus:125
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "NPC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": ["IMM_SUMMON"]}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_nexus with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B", "A"]}
 ```
 
 ## magic2.spell_nexus.npc-saves
@@ -4146,11 +4276,11 @@ npc saves
 
 ```text
 CASE magic2.spell_nexus.npc-saves
-SOURCE src/magic2.c:spell_nexus:113
+SOURCE src/magic2.c:spell_nexus:113; src/magic2.c:spell_nexus:126
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "NPC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": true, "calls": 1}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_nexus with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B", "A"]}
 ```
 
 ## magic2.spell_nexus.clan-mismatch
@@ -4159,11 +4289,11 @@ clan mismatch
 
 ```text
 CASE magic2.spell_nexus.clan-mismatch
-SOURCE src/magic2.c:spell_nexus:113
+SOURCE src/magic2.c:spell_nexus:113; src/magic2.c:spell_nexus:127
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 2, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": {"kind": "stubbed lookup boundary", "returns": "v"}, "can_see_room": {"kind": "helper boundary; separately specified", "returns": true}, "saves_spell": {"kind": "spell-save boundary", "returns": false, "calls": 0}, "is_clan/is_same_clan": "Real contracts with snapshot clan table, separately specified.", "randomness": "No direct random draw in spell; saving helper is scripted."}
 WHEN Invoke spell_nexus with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["held stone and ownership", "all rooms and characters"], "forbidden": ["get_eq_char", "extract_obj", "create_object", "movement", "local mana/wait changes"], "can_see_room_calls_in_order": ["B", "A"]}
 ```
 
 ## magic2.spell_nexus.mortal-no-component
@@ -4293,7 +4423,33 @@ SOURCE src/magic2.c:spell_nexus:118
 GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": ["ROOM_SAFE"], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
 AND {"get_char_world": "v", "can_see_room": true, "saves_spell_calls": 0}
 WHEN Invoke spell_nexus with the fixture arguments once.
-THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["stone", "all entities"], "forbidden": ["component lookup", "creation"]}
+THEN {"messages": [{"recipient": "ch", "text": "You failed.\n\r"}], "unchanged": ["stone", "all entities"], "forbidden": ["component lookup", "creation"], "can_see_room_calls_in_order": ["B", "A"]}
+```
+
+## magic2.spell_nexus.origin-invisible-after-visible-destination
+
+origin invisible after visible destination
+
+```text
+CASE magic2.spell_nexus.origin-invisible-after-visible-destination
+SOURCE src/magic2.c:spell_nexus:116
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 40, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": {"id": "stone", "item_type": "ITEM_WARP_STONE"}}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": ["v", "observer-B"]}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}}
+AND {"get_char_world": "v", "can_see_room": {"ordered_returns": [true, false]}}
+WHEN Invoke spell_nexus with the fixture arguments once.
+THEN {"ordered_events": [{"get_char_world": ["ch", "v"]}, {"can_see_room": ["ch", "B"]}, {"can_see_room": ["ch", "A"]}, {"send_to_char": "You failed.\n\r", "recipient": "ch"}], "forbidden": ["saves_spell", "get_eq_char", "extract_obj", "create_object"], "can_see_room_calls_in_order": ["B", "A"]}
+```
+
+## magic2.spell_nexus.empty-destination-people-skips-announcements
+
+empty destination people skips announcements
+
+```text
+CASE magic2.spell_nexus.empty-destination-people-skips-announcements
+SOURCE src/magic2.c:spell_nexus:169
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 52, "trust": 0, "desc": null, "clan": 0, "in_room": "A", "held_item": null}, "victim": {"id": "v", "kind": "PC", "level": 20, "clan": 0, "in_room": "B", "imm_flags": []}, "rooms": {"A": {"vnum": 100, "room_flags": [], "clan": 0, "people": ["ch", "observer-A"]}, "B": {"vnum": 200, "room_flags": [], "clan": 0, "people": []}}, "target_name": "v", "arguments": {"sn": 1, "level": 40, "vo": null, "target": 0}, "invariant_override": "The lookup returns v with in_room B although B has no linked occupants."}
+AND {"get_char_world": "Script v at the lookup boundary.", "can_see_room": {"ordered_returns": [true, true]}, "create_object": "Return portal-1 then portal-2.", "act": "Record template and recipient channel."}
+WHEN Invoke spell_nexus with the fixture arguments once.
+THEN {"ordered_events": [{"obj_to_room": ["portal-1", "A"], "timer": 5, "value[3]": 200}, {"act": "$p rises up from the ground.", "channel": "TO_ROOM", "anchor": "ch"}, {"act": "$p rises up before you.", "channel": "TO_CHAR", "anchor": "ch"}, {"obj_to_room": ["portal-2", "B"], "timer": 5, "value[3]": 100}], "forbidden": ["destination act", "extract_obj", "movement"]}
 ```
 
 ## healer.do_heal.no-healer-before-argument-parsing
@@ -5141,6 +5297,352 @@ WHEN Invoke check_ban with the fixture arguments once.
 THEN {"return": true, "unchanged": ["site and ban list"], "forbidden": ["messages", "persistence writes", "random draws"]}
 ```
 
+## ban.save_bans.empty
+
+empty
+
+```text
+CASE ban.save_bans.empty
+SOURCE src/ban.c:save_bans:68
+GIVEN {"ban_list": [], "fpReserve": "R0", "existing_ban_file": "old\n"}
+AND {"fopen": {"ordered_returns": ["W", "R1"]}, "writes_close_and_unlink": "Succeed where called.", "print_flags": "Script BDF then AEF for the two permanent rows. Isolate the serializer signed-shift platform issue."}
+WHEN Invoke save_bans with the fixture arguments once.
+THEN {"ordered_events": [{"fclose": "R0"}, {"fopen": ["ban.txt", "w"]}, {"fclose": "W"}, {"fopen": ["/dev/null", "r"]}, {"unlink": "ban.txt"}], "fpReserve": "R1", "final_ban_file": null, "unchanged": ["ban_list"]}
+```
+
+## ban.save_bans.temporary-only
+
+temporary only
+
+```text
+CASE ban.save_bans.temporary-only
+SOURCE src/ban.c:save_bans:68
+GIVEN {"ban_list": [["temp", 56, ["BAN_ALL"]]], "fpReserve": "R0", "existing_ban_file": "old\n"}
+AND {"fopen": {"ordered_returns": ["W", "R1"]}, "writes_close_and_unlink": "Succeed where called.", "print_flags": "Script BDF then AEF for the two permanent rows. Isolate the serializer signed-shift platform issue."}
+WHEN Invoke save_bans with the fixture arguments once.
+THEN {"ordered_events": [{"fclose": "R0"}, {"fopen": ["ban.txt", "w"]}, {"fclose": "W"}, {"fopen": ["/dev/null", "r"]}, {"unlink": "ban.txt"}], "fpReserve": "R1", "final_ban_file": null, "unchanged": ["ban_list"]}
+```
+
+## ban.save_bans.permanent-in-list-order
+
+permanent in list order
+
+```text
+CASE ban.save_bans.permanent-in-list-order
+SOURCE src/ban.c:save_bans:68
+GIVEN {"ban_list": [["alpha", 56, ["BAN_PREFIX", "BAN_ALL", "BAN_PERMANENT"]], ["temp", 56, ["BAN_ALL"]], ["beta", 60, ["BAN_SUFFIX", "BAN_PERMIT", "BAN_PERMANENT"]]], "fpReserve": "R0", "existing_ban_file": "old\n"}
+AND {"fopen": {"ordered_returns": ["W", "R1"]}, "writes_close_and_unlink": "Succeed where called.", "print_flags": "Script BDF then AEF for the two permanent rows. Isolate the serializer signed-shift platform issue."}
+WHEN Invoke save_bans with the fixture arguments once.
+THEN {"ordered_events": [{"fclose": "R0"}, {"fopen": ["ban.txt", "w"]}, {"write": ["W", "alpha                56 BDF\n"]}, {"write": ["W", "beta                 60 AEF\n"]}, {"fclose": "W"}, {"fopen": ["/dev/null", "r"]}], "fpReserve": "R1", "final_ban_file": "alpha                56 BDF\nbeta                 60 AEF\n", "unchanged": ["ban_list"]}
+```
+
+## ban.save_bans.open-failure-permanent-row-undefined
+
+open failure permanent row undefined
+
+```text
+CASE ban.save_bans.open-failure-permanent-row-undefined
+SOURCE src/ban.c:save_bans:53
+GIVEN {"ban_list": [["alpha", 56, ["BAN_ALL", "BAN_PERMANENT"]]], "fpReserve": "R0"}
+AND {"fopen": {"ordered_returns": [null]}}
+WHEN Invoke save_bans with the fixture arguments once.
+THEN {"defined_prefix": [{"fclose": "R0"}, {"fopen": ["ban.txt", "w"]}, {"perror": "ban.txt"}], "portable_oracle": "Unavailable after the diagnostic because fprintf receives a null stream."}
+```
+
+Open questions: The source continues after the failed open. A portable fixture cannot assert the resulting process state.
+
+## ban.save_bans.open-failure-without-permanent-row-undefined
+
+open failure without permanent row undefined
+
+```text
+CASE ban.save_bans.open-failure-without-permanent-row-undefined
+SOURCE src/ban.c:save_bans:53
+GIVEN {"ban_list": [], "fpReserve": "R0"}
+AND {"fopen": {"ordered_returns": [null]}}
+WHEN Invoke save_bans with the fixture arguments once.
+THEN {"defined_prefix": [{"fclose": "R0"}, {"fopen": ["ban.txt", "w"]}, {"perror": "ban.txt"}], "portable_oracle": "Unavailable after the diagnostic because fclose receives a null stream."}
+```
+
+Open questions: The failed open does not branch around fclose.
+
+## ban.load_bans.missing-file
+
+missing file
+
+```text
+CASE ban.load_bans.missing-file
+SOURCE src/ban.c:load_bans:77
+GIVEN {"ban_list": [], "file": null}
+AND {"fopen": {"ordered_returns": [null]}}
+WHEN Invoke load_bans with the fixture arguments once.
+THEN {"ordered_events": [{"fopen": ["ban.txt", "r"]}], "unchanged": ["ban_list"], "forbidden": ["new_ban", "fclose", "read"]}
+```
+
+## ban.load_bans.loads-two-rows-in-file-order
+
+loads two rows in file order
+
+```text
+CASE ban.load_bans.loads-two-rows-in-file-order
+SOURCE src/ban.c:load_bans:97
+GIVEN {"ban_list": [], "file": "alpha 56 BDF\nbeta 60 AEF\n"}
+AND {"fopen": "Succeed; use the real parser on fixture bytes."}
+WHEN Invoke load_bans with the fixture arguments once.
+THEN {"result_list": [["alpha", 56, ["BAN_PREFIX", "BAN_ALL", "BAN_PERMANENT"]], ["beta", 60, ["BAN_SUFFIX", "BAN_PERMIT", "BAN_PERMANENT"]]], "ordered_events": ["Open ban.txt for reading", "Allocate and link alpha as head", "Allocate and append beta", "Close file after EOF"], "forbidden": ["save_bans"]}
+```
+
+## ban.load_bans.nonempty-list-first-append-undefined
+
+nonempty list first append undefined
+
+```text
+CASE ban.load_bans.nonempty-list-first-append-undefined
+SOURCE src/ban.c:load_bans:100
+GIVEN {"ban_list": [["old", 56, ["BAN_ALL"]]], "file": "alpha 56 BDF\n"}
+AND {"fopen": "Succeed; use the real parser on fixture bytes."}
+WHEN Invoke load_bans with the fixture arguments once.
+THEN {"defined_prefix": ["Open file and parse alpha row"], "portable_oracle": "ban_last is still NULL on first append."}
+```
+
+Open questions: The boot caller starts with an empty global list. A later direct call with existing entries dereferences NULL.
+
+## ban.do_allow.missing-name
+
+missing name
+
+```text
+CASE ban.do_allow.missing-name
+SOURCE src/ban.c:do_allow:275
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 56, "trust": 0, "desc": null}, "argument": "", "ban_list": [["alpha", 56, ["BAN_ALL"]]]}
+AND {"save_bans": "Record the list at persistence boundary."}
+WHEN Invoke do_allow with the fixture arguments once.
+THEN {"result_list": [["alpha", 56, ["BAN_ALL"]]], "ordered_events": [{"send_to_char": "Remove which site from the ban list?\n\r", "recipient": "ch"}], "forbidden": ["free_ban", "save_bans"]}
+```
+
+## ban.do_allow.missing-entry
+
+missing entry
+
+```text
+CASE ban.do_allow.missing-entry
+SOURCE src/ban.c:do_allow:275
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 56, "trust": 0, "desc": null}, "argument": "z", "ban_list": [["alpha", 56, ["BAN_ALL"]], ["beta", 55, ["BAN_NEWBIES"]]]}
+AND {"save_bans": "Record the list at persistence boundary."}
+WHEN Invoke do_allow with the fixture arguments once.
+THEN {"result_list": [["alpha", 56, ["BAN_ALL"]], ["beta", 55, ["BAN_NEWBIES"]]], "ordered_events": [{"send_to_char": "Site is not banned.\n\r", "recipient": "ch"}], "forbidden": ["free_ban", "save_bans"]}
+```
+
+## ban.do_allow.higher-trust
+
+higher trust
+
+```text
+CASE ban.do_allow.higher-trust
+SOURCE src/ban.c:do_allow:275
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 56, "trust": 0, "desc": null}, "argument": "alpha", "ban_list": [["alpha", 57, ["BAN_ALL"]]]}
+AND {"save_bans": "Record the list at persistence boundary."}
+WHEN Invoke do_allow with the fixture arguments once.
+THEN {"result_list": [["alpha", 57, ["BAN_ALL"]]], "ordered_events": [{"send_to_char": "You are not powerful enough to lift that ban.\n\r", "recipient": "ch"}], "forbidden": ["free_ban", "save_bans"]}
+```
+
+## ban.do_allow.remove-head-at-equal-trust
+
+remove head at equal trust
+
+```text
+CASE ban.do_allow.remove-head-at-equal-trust
+SOURCE src/ban.c:do_allow:275
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 56, "trust": 0, "desc": null}, "argument": "ALPHA ignored", "ban_list": [["alpha", 56, ["BAN_ALL"]], ["beta", 55, ["BAN_NEWBIES"]]]}
+AND {"save_bans": "Record the list at persistence boundary."}
+WHEN Invoke do_allow with the fixture arguments once.
+THEN {"result_list": [["beta", 55, ["BAN_NEWBIES"]]], "ordered_events": [{"free_ban": "alpha"}, {"send_to_char": "Ban on alpha lifted.\n\r", "recipient": "ch"}, {"save_bans": [["beta", 55, ["BAN_NEWBIES"]]]}], "forbidden": []}
+```
+
+## ban.do_allow.remove-interior
+
+remove interior
+
+```text
+CASE ban.do_allow.remove-interior
+SOURCE src/ban.c:do_allow:275
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 56, "trust": 0, "desc": null}, "argument": "beta", "ban_list": [["alpha", 56, ["BAN_ALL"]], ["beta", 55, ["BAN_NEWBIES"]], ["gamma", 55, ["BAN_ALL"]]]}
+AND {"save_bans": "Record the list at persistence boundary."}
+WHEN Invoke do_allow with the fixture arguments once.
+THEN {"result_list": [["alpha", 56, ["BAN_ALL"]], ["gamma", 55, ["BAN_ALL"]]], "ordered_events": [{"free_ban": "beta"}, {"send_to_char": "Ban on beta lifted.\n\r", "recipient": "ch"}, {"save_bans": [["alpha", 56, ["BAN_ALL"]], ["gamma", 55, ["BAN_ALL"]]]}], "forbidden": []}
+```
+
+## ban.do_ban.dispatch-unchanged-argument
+
+dispatch unchanged argument
+
+```text
+CASE ban.do_ban.dispatch-unchanged-argument
+SOURCE src/ban.c:do_ban:258
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 56, "trust": 0, "desc": null}, "argument": "*Alpha* n"}
+AND {"ban_site": "Recording boundary."}
+WHEN Invoke do_ban with the fixture arguments once.
+THEN {"ordered_events": [{"ban_site": ["ch", "*Alpha* n", false]}]}
+```
+
+## ban.do_permban.dispatch-unchanged-argument
+
+dispatch unchanged argument
+
+```text
+CASE ban.do_permban.dispatch-unchanged-argument
+SOURCE src/ban.c:do_permban:263
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 56, "trust": 0, "desc": null}, "argument": "*Alpha* n"}
+AND {"ban_site": "Recording boundary."}
+WHEN Invoke do_permban with the fixture arguments once.
+THEN {"ordered_events": [{"ban_site": ["ch", "*Alpha* n", true]}]}
+```
+
+## ban.ban_site.no-sites
+
+no sites
+
+```text
+CASE ban.ban_site.no-sites
+SOURCE src/ban.c:ban_site:146
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 56, "trust": 0, "desc": null}, "argument": "", "fPerm": false, "ban_list": []}
+AND {"save_bans": "Record the list at persistence boundary."}
+WHEN Invoke ban_site with the fixture arguments once.
+THEN {"result_list": [], "ordered_events": [{"send_to_char": "No sites banned at this time.\n\r", "recipient": "ch"}], "forbidden": ["new_ban", "save_bans"]}
+```
+
+## ban.ban_site.invalid-type-before-pattern
+
+invalid type before pattern
+
+```text
+CASE ban.ban_site.invalid-type-before-pattern
+SOURCE src/ban.c:ban_site:146
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 56, "trust": 0, "desc": null}, "argument": "* invalid", "fPerm": false, "ban_list": []}
+AND {"save_bans": "Record the list at persistence boundary."}
+WHEN Invoke ban_site with the fixture arguments once.
+THEN {"result_list": [], "ordered_events": [{"send_to_char": "Acceptable ban types are all, newbies, and permit.\n\r", "recipient": "ch"}], "forbidden": ["new_ban", "save_bans"]}
+```
+
+## ban.ban_site.double-star-empty-name
+
+double star empty name
+
+```text
+CASE ban.ban_site.double-star-empty-name
+SOURCE src/ban.c:ban_site:146
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 56, "trust": 0, "desc": null}, "argument": "**", "fPerm": false, "ban_list": []}
+AND {"save_bans": "Record the list at persistence boundary."}
+WHEN Invoke ban_site with the fixture arguments once.
+THEN {"result_list": [], "ordered_events": [{"send_to_char": "You have to ban SOMETHING.\n\r", "recipient": "ch"}], "forbidden": ["new_ban", "save_bans"]}
+```
+
+## ban.ban_site.higher-trust
+
+higher trust
+
+```text
+CASE ban.ban_site.higher-trust
+SOURCE src/ban.c:ban_site:146
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 56, "trust": 0, "desc": null}, "argument": "ALPHA a", "fPerm": true, "ban_list": [["alpha", 57, ["BAN_ALL"]]]}
+AND {"save_bans": "Record the list at persistence boundary."}
+WHEN Invoke ban_site with the fixture arguments once.
+THEN {"result_list": [["alpha", 57, ["BAN_ALL"]]], "ordered_events": [{"send_to_char": "That ban was set by a higher power.\n\r", "recipient": "ch"}], "forbidden": ["new_ban", "save_bans"]}
+```
+
+## ban.ban_site.plain-default-type
+
+plain default type
+
+```text
+CASE ban.ban_site.plain-default-type
+SOURCE src/ban.c:ban_site:146
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 56, "trust": 0, "desc": null}, "argument": "alpha", "fPerm": false, "ban_list": [["beta", 55, ["BAN_NEWBIES"]]]}
+AND {"save_bans": "Record the list at persistence boundary."}
+WHEN Invoke ban_site with the fixture arguments once.
+THEN {"result_list": [["alpha", 56, ["BAN_ALL"]], ["beta", 55, ["BAN_NEWBIES"]]], "ordered_events": [{"new_ban": ["alpha", 56, ["BAN_ALL"]]}, {"save_bans": [["alpha", 56, ["BAN_ALL"]], ["beta", 55, ["BAN_NEWBIES"]]]}, {"send_to_char": "alpha has been banned.\n\r", "recipient": "ch"}], "forbidden": []}
+```
+
+## ban.ban_site.both-wildcards-permanent-newbies
+
+both wildcards permanent newbies
+
+```text
+CASE ban.ban_site.both-wildcards-permanent-newbies
+SOURCE src/ban.c:ban_site:146
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 56, "trust": 0, "desc": null}, "argument": "*Alpha* n", "fPerm": true, "ban_list": []}
+AND {"save_bans": "Record the list at persistence boundary."}
+WHEN Invoke ban_site with the fixture arguments once.
+THEN {"result_list": [["alpha", 56, ["BAN_NEWBIES", "BAN_PREFIX", "BAN_SUFFIX", "BAN_PERMANENT"]]], "ordered_events": [{"new_ban": ["alpha", 56, ["BAN_NEWBIES", "BAN_PREFIX", "BAN_SUFFIX", "BAN_PERMANENT"]]}, {"save_bans": [["alpha", 56, ["BAN_NEWBIES", "BAN_PREFIX", "BAN_SUFFIX", "BAN_PERMANENT"]]]}, {"send_to_char": "alpha has been banned.\n\r", "recipient": "ch"}], "forbidden": []}
+```
+
+## ban.ban_site.suffix-permit
+
+suffix permit
+
+```text
+CASE ban.ban_site.suffix-permit
+SOURCE src/ban.c:ban_site:146
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 56, "trust": 0, "desc": null}, "argument": "alpha* p", "fPerm": false, "ban_list": []}
+AND {"save_bans": "Record the list at persistence boundary."}
+WHEN Invoke ban_site with the fixture arguments once.
+THEN {"result_list": [["alpha", 56, ["BAN_PERMIT", "BAN_SUFFIX"]]], "ordered_events": [{"new_ban": ["alpha", 56, ["BAN_PERMIT", "BAN_SUFFIX"]]}, {"save_bans": [["alpha", 56, ["BAN_PERMIT", "BAN_SUFFIX"]]]}, {"send_to_char": "alpha has been banned.\n\r", "recipient": "ch"}], "forbidden": []}
+```
+
+## ban.ban_site.list-formats-wildcards-and-type-precedence
+
+list formats wildcards and type precedence
+
+```text
+CASE ban.ban_site.list-formats-wildcards-and-type-precedence
+SOURCE src/ban.c:ban_site:149
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 56, "trust": 0, "desc": null}, "argument": "", "fPerm": false, "ban_list": [["alpha", 56, ["BAN_PREFIX", "BAN_SUFFIX", "BAN_NEWBIES", "BAN_PERMIT", "BAN_PERMANENT"]], ["beta", 55, ["BAN_SUFFIX", "BAN_PERMIT"]], ["gamma", 54, ["BAN_ALL"]], ["delta", 53, []]]}
+AND {"buffer": "Record append order and concatenate all entries within capacity."}
+WHEN Invoke ban_site with the fixture arguments once.
+THEN {"ordered_events": [{"page_to_char": "Banned sites  level  type     status\n\r*alpha*         56   newbies  perm\n\rbeta*           55   permit   temp\n\rgamma           54   all      temp\n\rdelta           53            temp\n\r", "recipient": "ch"}, {"free_buf": "listing"}], "unchanged": ["ban_list"], "forbidden": ["save_bans", "new_ban"]}
+```
+
+## ban.ban_site.replace-head-with-empty-free-list
+
+replace head with empty free list
+
+```text
+CASE ban.ban_site.replace-head-with-empty-free-list
+SOURCE src/ban.c:ban_site:225
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 56, "trust": 0, "desc": null}, "argument": "alpha p", "fPerm": false, "ban_list": [["alpha", 56, ["BAN_ALL"]], ["beta", 55, ["BAN_NEWBIES"]]], "ban_free": []}
+AND {"save_bans": "Record the list at persistence boundary."}
+WHEN Invoke ban_site with the fixture arguments once.
+THEN {"result_list": [["alpha", 56, ["BAN_PERMIT"]], ["beta", 55, ["BAN_NEWBIES"]]], "ordered_events": [{"free_ban": "old alpha"}, {"new_ban": "reuses old alpha record"}, {"save_bans": [["alpha", 56, ["BAN_PERMIT"]], ["beta", 55, ["BAN_NEWBIES"]]]}, {"send_to_char": "alpha has been banned.\n\r", "recipient": "ch"}]}
+```
+
+## ban.ban_site.replace-interior-with-empty-free-list
+
+replace interior with empty free list
+
+```text
+CASE ban.ban_site.replace-interior-with-empty-free-list
+SOURCE src/ban.c:ban_site:225
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 56, "trust": 0, "desc": null}, "argument": "alpha p", "fPerm": false, "ban_list": [["beta", 55, ["BAN_NEWBIES"]], ["alpha", 56, ["BAN_ALL"]]], "ban_free": []}
+AND {"save_bans": "Record the list at persistence boundary."}
+WHEN Invoke ban_site with the fixture arguments once.
+THEN {"result_list": [["alpha", 56, ["BAN_PERMIT"]], ["beta", 55, ["BAN_NEWBIES"]]], "ordered_events": [{"free_ban": "old alpha"}, {"new_ban": "reuses old alpha record"}, {"save_bans": [["alpha", 56, ["BAN_PERMIT"]], ["beta", 55, ["BAN_NEWBIES"]]]}, {"send_to_char": "alpha has been banned.\n\r", "recipient": "ch"}]}
+```
+
+## ban.ban_site.single-star-empty-name-index-undefined
+
+single star empty name index undefined
+
+```text
+CASE ban.ban_site.single-star-empty-name-index-undefined
+SOURCE src/ban.c:ban_site:201
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 56, "trust": 0, "desc": null}, "argument": "*", "fPerm": false, "ban_list": []}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke ban_site with the fixture arguments once.
+THEN {"portable_oracle": "After consuming the leading star, strlen(name) is zero. The unsigned subtraction wraps and the computed array index lies outside arg1."}
+```
+
+Open questions: The empty-pattern diagnostic comes after the out-of-bounds expression.
+
 ## update.update_handler.fresh-process-through-call-1
 
 fresh process through call 1
@@ -5307,7 +5809,7 @@ SOURCE src/act_enter.c:get_random_room:48
 GIVEN {"actor": {"id": "ch", "kind": "PC", "act": []}, "candidate": {"id": "bad", "room_flags": []}, "accepted": {"id": "good", "room_flags": []}}
 AND {"number_range": {"kind": "scripted helper; independently specified", "ordered_returns": [1, 2]}, "get_room_index": {"1": "C NULL", "2": "good"}, "can_see_room": {"bad": true, "good": true}, "room_is_private": {"bad": false, "good": false}, "helper_boundaries": "Lookup and room permission collaborators are recorded/scripted; private and visible contracts independently specified."}
 WHEN Invoke get_random_room with the fixture arguments once.
-THEN {"ordered_sampling": [{"number_range": [0, 65535], "returns": 1}, {"get_room_index": 1, "returns": "C NULL"}, {"number_range": [0, 65535], "returns": 2}, {"get_room_index": 2, "returns": "good"}], "return": "good", "unchanged": ["actor, rooms"], "forbidden": ["movement", "messages"]}
+THEN {"ordered_sampling": [{"number_range": [0, 65535], "returns": 1}, {"get_room_index": 1, "returns": "C NULL"}, {"number_range": [0, 65535], "returns": 2}, {"get_room_index": 2, "returns": "good"}], "return": "good", "unchanged": ["actor, rooms"], "forbidden": ["movement", "messages"], "can_see_room_calls_in_order": ["good"], "room_is_private_calls_in_order": ["good"]}
 ```
 
 ## act_enter.get_random_room.reject-invisible
@@ -5320,7 +5822,7 @@ SOURCE src/act_enter.c:get_random_room:48
 GIVEN {"actor": {"id": "ch", "kind": "PC", "act": []}, "candidate": {"id": "bad", "room_flags": []}, "accepted": {"id": "good", "room_flags": []}}
 AND {"number_range": {"kind": "scripted helper; independently specified", "ordered_returns": [1, 2]}, "get_room_index": {"1": "bad", "2": "good"}, "can_see_room": {"bad": false, "good": true}, "room_is_private": {"bad": false, "good": false}, "helper_boundaries": "Lookup and room permission collaborators are recorded/scripted; private and visible contracts independently specified."}
 WHEN Invoke get_random_room with the fixture arguments once.
-THEN {"ordered_sampling": [{"number_range": [0, 65535], "returns": 1}, {"get_room_index": 1, "returns": "bad"}, {"number_range": [0, 65535], "returns": 2}, {"get_room_index": 2, "returns": "good"}], "return": "good", "unchanged": ["actor, rooms"], "forbidden": ["movement", "messages"]}
+THEN {"ordered_sampling": [{"number_range": [0, 65535], "returns": 1}, {"get_room_index": 1, "returns": "bad"}, {"number_range": [0, 65535], "returns": 2}, {"get_room_index": 2, "returns": "good"}], "return": "good", "unchanged": ["actor, rooms"], "forbidden": ["movement", "messages"], "can_see_room_calls_in_order": ["bad", "good"], "room_is_private_calls_in_order": ["good"]}
 ```
 
 ## act_enter.get_random_room.reject-private-helper
@@ -5333,7 +5835,7 @@ SOURCE src/act_enter.c:get_random_room:48
 GIVEN {"actor": {"id": "ch", "kind": "PC", "act": []}, "candidate": {"id": "bad", "room_flags": []}, "accepted": {"id": "good", "room_flags": []}}
 AND {"number_range": {"kind": "scripted helper; independently specified", "ordered_returns": [1, 2]}, "get_room_index": {"1": "bad", "2": "good"}, "can_see_room": {"bad": true, "good": true}, "room_is_private": {"bad": true, "good": false}, "helper_boundaries": "Lookup and room permission collaborators are recorded/scripted; private and visible contracts independently specified."}
 WHEN Invoke get_random_room with the fixture arguments once.
-THEN {"ordered_sampling": [{"number_range": [0, 65535], "returns": 1}, {"get_room_index": 1, "returns": "bad"}, {"number_range": [0, 65535], "returns": 2}, {"get_room_index": 2, "returns": "good"}], "return": "good", "unchanged": ["actor, rooms"], "forbidden": ["movement", "messages"]}
+THEN {"ordered_sampling": [{"number_range": [0, 65535], "returns": 1}, {"get_room_index": 1, "returns": "bad"}, {"number_range": [0, 65535], "returns": 2}, {"get_room_index": 2, "returns": "good"}], "return": "good", "unchanged": ["actor, rooms"], "forbidden": ["movement", "messages"], "can_see_room_calls_in_order": ["bad", "good"], "room_is_private_calls_in_order": ["bad", "good"]}
 ```
 
 ## act_enter.get_random_room.reject-private-flag
@@ -5346,7 +5848,7 @@ SOURCE src/act_enter.c:get_random_room:48
 GIVEN {"actor": {"id": "ch", "kind": "PC", "act": []}, "candidate": {"id": "bad", "room_flags": ["ROOM_PRIVATE"]}, "accepted": {"id": "good", "room_flags": []}}
 AND {"number_range": {"kind": "scripted helper; independently specified", "ordered_returns": [1, 2]}, "get_room_index": {"1": "bad", "2": "good"}, "can_see_room": {"bad": true, "good": true}, "room_is_private": {"bad": false, "good": false}, "helper_boundaries": "Lookup and room permission collaborators are recorded/scripted; private and visible contracts independently specified."}
 WHEN Invoke get_random_room with the fixture arguments once.
-THEN {"ordered_sampling": [{"number_range": [0, 65535], "returns": 1}, {"get_room_index": 1, "returns": "bad"}, {"number_range": [0, 65535], "returns": 2}, {"get_room_index": 2, "returns": "good"}], "return": "good", "unchanged": ["actor, rooms"], "forbidden": ["movement", "messages"]}
+THEN {"ordered_sampling": [{"number_range": [0, 65535], "returns": 1}, {"get_room_index": 1, "returns": "bad"}, {"number_range": [0, 65535], "returns": 2}, {"get_room_index": 2, "returns": "good"}], "return": "good", "unchanged": ["actor, rooms"], "forbidden": ["movement", "messages"], "can_see_room_calls_in_order": ["bad", "good"], "room_is_private_calls_in_order": ["bad", "good"]}
 ```
 
 ## act_enter.get_random_room.reject-solitary-flag
@@ -5359,7 +5861,7 @@ SOURCE src/act_enter.c:get_random_room:48
 GIVEN {"actor": {"id": "ch", "kind": "PC", "act": []}, "candidate": {"id": "bad", "room_flags": ["ROOM_SOLITARY"]}, "accepted": {"id": "good", "room_flags": []}}
 AND {"number_range": {"kind": "scripted helper; independently specified", "ordered_returns": [1, 2]}, "get_room_index": {"1": "bad", "2": "good"}, "can_see_room": {"bad": true, "good": true}, "room_is_private": {"bad": false, "good": false}, "helper_boundaries": "Lookup and room permission collaborators are recorded/scripted; private and visible contracts independently specified."}
 WHEN Invoke get_random_room with the fixture arguments once.
-THEN {"ordered_sampling": [{"number_range": [0, 65535], "returns": 1}, {"get_room_index": 1, "returns": "bad"}, {"number_range": [0, 65535], "returns": 2}, {"get_room_index": 2, "returns": "good"}], "return": "good", "unchanged": ["actor, rooms"], "forbidden": ["movement", "messages"]}
+THEN {"ordered_sampling": [{"number_range": [0, 65535], "returns": 1}, {"get_room_index": 1, "returns": "bad"}, {"number_range": [0, 65535], "returns": 2}, {"get_room_index": 2, "returns": "good"}], "return": "good", "unchanged": ["actor, rooms"], "forbidden": ["movement", "messages"], "can_see_room_calls_in_order": ["bad", "good"], "room_is_private_calls_in_order": ["bad", "good"]}
 ```
 
 ## act_enter.get_random_room.reject-safe-flag
@@ -5372,7 +5874,7 @@ SOURCE src/act_enter.c:get_random_room:48
 GIVEN {"actor": {"id": "ch", "kind": "PC", "act": []}, "candidate": {"id": "bad", "room_flags": ["ROOM_SAFE"]}, "accepted": {"id": "good", "room_flags": []}}
 AND {"number_range": {"kind": "scripted helper; independently specified", "ordered_returns": [1, 2]}, "get_room_index": {"1": "bad", "2": "good"}, "can_see_room": {"bad": true, "good": true}, "room_is_private": {"bad": false, "good": false}, "helper_boundaries": "Lookup and room permission collaborators are recorded/scripted; private and visible contracts independently specified."}
 WHEN Invoke get_random_room with the fixture arguments once.
-THEN {"ordered_sampling": [{"number_range": [0, 65535], "returns": 1}, {"get_room_index": 1, "returns": "bad"}, {"number_range": [0, 65535], "returns": 2}, {"get_room_index": 2, "returns": "good"}], "return": "good", "unchanged": ["actor, rooms"], "forbidden": ["movement", "messages"]}
+THEN {"ordered_sampling": [{"number_range": [0, 65535], "returns": 1}, {"get_room_index": 1, "returns": "bad"}, {"number_range": [0, 65535], "returns": 2}, {"get_room_index": 2, "returns": "good"}], "return": "good", "unchanged": ["actor, rooms"], "forbidden": ["movement", "messages"], "can_see_room_calls_in_order": ["bad", "good"], "room_is_private_calls_in_order": ["bad", "good"]}
 ```
 
 ## act_enter.get_random_room.reject-law-denies-ordinary-pc
@@ -5385,7 +5887,7 @@ SOURCE src/act_enter.c:get_random_room:48
 GIVEN {"actor": {"id": "ch", "kind": "PC", "act": []}, "candidate": {"id": "bad", "room_flags": ["ROOM_LAW"]}, "accepted": {"id": "good", "room_flags": []}}
 AND {"number_range": {"kind": "scripted helper; independently specified", "ordered_returns": [1, 2]}, "get_room_index": {"1": "bad", "2": "good"}, "can_see_room": {"bad": true, "good": true}, "room_is_private": {"bad": false, "good": false}, "helper_boundaries": "Lookup and room permission collaborators are recorded/scripted; private and visible contracts independently specified."}
 WHEN Invoke get_random_room with the fixture arguments once.
-THEN {"ordered_sampling": [{"number_range": [0, 65535], "returns": 1}, {"get_room_index": 1, "returns": "bad"}, {"number_range": [0, 65535], "returns": 2}, {"get_room_index": 2, "returns": "good"}], "return": "good", "unchanged": ["actor, rooms"], "forbidden": ["movement", "messages"]}
+THEN {"ordered_sampling": [{"number_range": [0, 65535], "returns": 1}, {"get_room_index": 1, "returns": "bad"}, {"number_range": [0, 65535], "returns": 2}, {"get_room_index": 2, "returns": "good"}], "return": "good", "unchanged": ["actor, rooms"], "forbidden": ["movement", "messages"], "can_see_room_calls_in_order": ["bad", "good"], "room_is_private_calls_in_order": ["bad", "good"]}
 ```
 
 ## act_enter.get_random_room.npc-law-allowed-even-aggressive
@@ -5503,6 +6005,266 @@ GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null
 AND {"get_obj_list": {"kind": "object lookup boundary", "returns": "P", "calls": 1}, "get_trust": "Real helper contract with actor level/trust/descriptor above."}
 WHEN Invoke do_enter with the fixture arguments once.
 THEN {"messages": [{"recipient": "ch", "text": "Something prevents you from leaving...\n\r"}], "unchanged": ["room membership", "portal values and ownership", "actor resources"], "forbidden": ["get_random_room", "destination room lookup", "movement", "charge use", "follower recursion"]}
+```
+
+## act_enter.do_enter.random-flag-records-before-origin-rejection
+
+random flag records before origin rejection
+
+```text
+CASE act_enter.do_enter.random-flag-records-before-origin-rejection
+SOURCE src/act_enter.c:do_enter:103
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": []}, "room": {"id": "A", "room_flags": [], "vnum": 100, "contents": ["P"]}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [0, 0, ["GATE_RANDOM", "GATE_BUGGY"], 200, 0], "in_room": "A"}, "argument": "portal"}
+AND {"get_obj_list": "P", "get_random_room": "A", "number_percent": {"ordered_returns": []}}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events": [{"get_obj_list": ["ch", "portal", "A.contents"]}, {"get_random_room": "ch", "returns": "A"}, {"set": {"P.value[3]": 100}}, {"act": "$p doesn't seem to go anywhere.", "channel": "TO_CHAR", "actor": "ch", "object": "P"}], "P.value[3]": 100, "forbidden": ["can_see_room", "room_is_private", "movement", "charge mutation", "follower dispatch"]}
+```
+
+## act_enter.do_enter.minus-one-records-before-origin-rejection
+
+minus one records before origin rejection
+
+```text
+CASE act_enter.do_enter.minus-one-records-before-origin-rejection
+SOURCE src/act_enter.c:do_enter:103
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": []}, "room": {"id": "A", "room_flags": [], "vnum": 100, "contents": ["P"]}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [0, 0, ["GATE_BUGGY"], -1, 0], "in_room": "A"}, "argument": "portal"}
+AND {"get_obj_list": "P", "get_random_room": "A", "number_percent": {"ordered_returns": []}}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events": [{"get_obj_list": ["ch", "portal", "A.contents"]}, {"get_random_room": "ch", "returns": "A"}, {"set": {"P.value[3]": 100}}, {"act": "$p doesn't seem to go anywhere.", "channel": "TO_CHAR", "actor": "ch", "object": "P"}], "P.value[3]": 100, "forbidden": ["can_see_room", "room_is_private", "movement", "charge mutation", "follower dispatch"]}
+```
+
+## act_enter.do_enter.buggy-four-uses-random-without-recording
+
+buggy four uses random without recording
+
+```text
+CASE act_enter.do_enter.buggy-four-uses-random-without-recording
+SOURCE src/act_enter.c:do_enter:103
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": []}, "room": {"id": "A", "room_flags": [], "vnum": 100, "contents": ["P"]}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [0, 0, ["GATE_BUGGY"], 200, 0], "in_room": "A"}, "argument": "portal"}
+AND {"get_obj_list": "P", "get_random_room": "A", "number_percent": {"ordered_returns": [4]}}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events": [{"get_obj_list": ["ch", "portal", "A.contents"]}, {"number_percent": 4}, {"get_random_room": "ch", "returns": "A"}, {"act": "$p doesn't seem to go anywhere.", "channel": "TO_CHAR", "actor": "ch", "object": "P"}], "P.value[3]": 200, "forbidden": ["can_see_room", "room_is_private", "movement", "charge mutation", "follower dispatch"]}
+```
+
+## act_enter.do_enter.buggy-five-uses-index
+
+buggy five uses index
+
+```text
+CASE act_enter.do_enter.buggy-five-uses-index
+SOURCE src/act_enter.c:do_enter:103
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": []}, "room": {"id": "A", "room_flags": [], "vnum": 100, "contents": ["P"]}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [0, 0, ["GATE_BUGGY"], 200, 0], "in_room": "A"}, "argument": "portal"}
+AND {"get_obj_list": "P", "get_room_index": null, "number_percent": {"ordered_returns": [5]}}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events": [{"get_obj_list": ["ch", "portal", "A.contents"]}, {"number_percent": 5}, {"get_room_index": 200, "returns": null}, {"act": "$p doesn't seem to go anywhere.", "channel": "TO_CHAR", "actor": "ch", "object": "P"}], "P.value[3]": 200, "forbidden": ["can_see_room", "room_is_private", "movement", "charge mutation", "follower dispatch"]}
+```
+
+## act_enter.do_enter.fixed-portal-skips-percent
+
+fixed portal skips percent
+
+```text
+CASE act_enter.do_enter.fixed-portal-skips-percent
+SOURCE src/act_enter.c:do_enter:103
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": []}, "room": {"id": "A", "room_flags": [], "vnum": 100, "contents": ["P"]}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [0, 0, [], 200, 0], "in_room": "A"}, "argument": "portal"}
+AND {"get_obj_list": "P", "get_room_index": null, "number_percent": {"ordered_returns": []}}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events": [{"get_obj_list": ["ch", "portal", "A.contents"]}, {"get_room_index": 200, "returns": null}, {"act": "$p doesn't seem to go anywhere.", "channel": "TO_CHAR", "actor": "ch", "object": "P"}], "P.value[3]": 200, "forbidden": ["can_see_room", "room_is_private", "movement", "charge mutation", "follower dispatch"]}
+```
+
+## act_enter.do_enter.unlimited-stationary-portal
+
+unlimited stationary portal
+
+```text
+CASE act_enter.do_enter.unlimited-stationary-portal
+SOURCE src/act_enter.c:do_enter:137
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": []}, "room": {"id": "A", "room_flags": [], "vnum": 100, "people": ["ch"], "contents": ["P"]}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [0, 0, [], 200, 0], "in_room": "A"}, "argument": "portal", "destination": {"id": "B", "vnum": 200, "people": [], "room_flags": []}}
+AND {"get_obj_list": "P", "get_room_index(200)": "B", "can_see_room": true, "room_is_private": false, "act/do_function": "Record delivery boundaries. do_look does not mutate the fixture."}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events_after_destination_resolution": [{"act": "$n steps into $p.", "channel": "TO_ROOM", "anchor": "ch", "room": "A"}, {"act": "You walk through $p and find yourself somewhere else...", "channel": "TO_CHAR", "anchor": "ch"}, {"char_from_room": "ch"}, {"char_to_room": ["ch", "B"]}, {"act": "$n has arrived through $p.", "channel": "TO_ROOM", "anchor": "ch", "room": "B"}, {"do_function": ["ch", "do_look", "auto"], "charge_during_look": 0}], "ch.in_room": "B", "portal_final_state": {"value[0]": 0, "in_room": "A"}, "forbidden": ["follower dispatch", "number_percent"]}
+```
+
+## act_enter.do_enter.charged-portal-goes-with-actor
+
+charged portal goes with actor
+
+```text
+CASE act_enter.do_enter.charged-portal-goes-with-actor
+SOURCE src/act_enter.c:do_enter:137
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": []}, "room": {"id": "A", "room_flags": [], "vnum": 100, "people": ["ch"], "contents": ["P"]}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [2, 0, ["GATE_GOWITH", "GATE_NORMAL_EXIT"], 200, 0], "in_room": "A"}, "argument": "portal", "destination": {"id": "B", "vnum": 200, "people": [], "room_flags": []}}
+AND {"get_obj_list": "P", "get_room_index(200)": "B", "can_see_room": true, "room_is_private": false, "act/do_function": "Record delivery boundaries. do_look does not mutate the fixture."}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events_after_destination_resolution": [{"act": "$n steps into $p.", "channel": "TO_ROOM", "anchor": "ch", "room": "A"}, {"act": "You enter $p.", "channel": "TO_CHAR", "anchor": "ch"}, {"char_from_room": "ch"}, {"char_to_room": ["ch", "B"]}, {"obj_from_room": "P"}, {"obj_to_room": ["P", "B"]}, {"act": "$n has arrived.", "channel": "TO_ROOM", "anchor": "ch", "room": "B"}, {"do_function": ["ch", "do_look", "auto"], "charge_during_look": 2}, {"set": {"P.value[0]": 1}}], "ch.in_room": "B", "portal_final_state": {"value[0]": 1, "in_room": "B"}, "forbidden": ["follower dispatch", "number_percent"]}
+```
+
+## act_enter.do_enter.last-charge-fades-after-look
+
+last charge fades after look
+
+```text
+CASE act_enter.do_enter.last-charge-fades-after-look
+SOURCE src/act_enter.c:do_enter:137
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": []}, "room": {"id": "A", "room_flags": [], "vnum": 100, "people": ["ch"], "contents": ["P"]}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [1, 0, [], 200, 0], "in_room": "A"}, "argument": "portal", "destination": {"id": "B", "vnum": 200, "people": [], "room_flags": []}}
+AND {"get_obj_list": "P", "get_room_index(200)": "B", "can_see_room": true, "room_is_private": false, "act/do_function": "Record delivery boundaries. do_look does not mutate the fixture."}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events_after_destination_resolution": [{"act": "$n steps into $p.", "channel": "TO_ROOM", "anchor": "ch", "room": "A"}, {"act": "You walk through $p and find yourself somewhere else...", "channel": "TO_CHAR", "anchor": "ch"}, {"char_from_room": "ch"}, {"char_to_room": ["ch", "B"]}, {"act": "$n has arrived through $p.", "channel": "TO_ROOM", "anchor": "ch", "room": "B"}, {"do_function": ["ch", "do_look", "auto"], "charge_during_look": 1}, {"set": {"P.value[0]": 0}}, {"set": {"P.value[0]": -1}}, {"act": "$p fades out of existence.", "channel": "TO_CHAR", "anchor": "ch"}, {"extract_obj": "P"}], "ch.in_room": "B", "portal_final_state": "extracted", "forbidden": ["follower dispatch", "number_percent"]}
+```
+
+## act_enter.do_enter.standing-follower-reenters-by-keyword
+
+standing follower reenters by keyword
+
+```text
+CASE act_enter.do_enter.standing-follower-reenters-by-keyword
+SOURCE src/act_enter.c:do_enter:165
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": [], "position": "POS_STANDING"}, "room": {"id": "A", "room_flags": [], "vnum": 100, "people": ["ch", "f", "observer"], "contents": ["P"]}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [0, 0, [], 200, 0], "in_room": "A", "name": "portal", "contains": []}, "argument": "portal", "destination": {"id": "B", "vnum": 200, "people": [], "room_flags": []}, "follower": {"id": "f", "kind": "PC", "master": "ch", "in_room": "A", "fighting": null, "position": "POS_STANDING", "affected_by": [], "act": [], "on": null}, "observer": {"id": "observer", "kind": "PC", "master": null, "position": "POS_STANDING"}}
+AND {"room_graph": "Resolve fixed destination B. Both actors can see B. It is not private.", "object_lookup": "Visible keyword lookup in each actor’s current room. P is the only matching item.", "do_look": "Record the automatic look without mutation.", "messages": "Record send_to_char and act calls with channel and anchor. Only listed events are expected after leader look.", "stand_and_enter": "Use real do_function dispatch and the real do_stand/do_enter paths.", "extraction": "P starts valid at the object-list head with prototype count 1 and no children."}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events_after_leader_move_and_look": [{"act": "You follow $N.", "channel": "TO_CHAR", "anchor": "f", "victim": "ch"}, {"do_function": ["f", "do_enter", "portal"]}, {"act": "$n steps into $p.", "channel": "TO_ROOM", "anchor": "f", "room": "A"}, {"act": "You walk through $p and find yourself somewhere else...", "channel": "TO_CHAR", "anchor": "f"}, {"char_from_room": "f"}, {"char_to_room": ["f", "B"]}, {"act": "$n has arrived through $p.", "channel": "TO_ROOM", "anchor": "f", "room": "B"}, {"do_function": ["f", "do_look", "auto"]}], "ch.in_room": "B", "unchanged": ["observer stays in A"], "f.in_room": "B", "P.in_room": "A", "P.value[0]": 0}
+```
+
+## act_enter.do_enter.sitting-charmed-follower-stands-before-entry
+
+sitting charmed follower stands before entry
+
+```text
+CASE act_enter.do_enter.sitting-charmed-follower-stands-before-entry
+SOURCE src/act_enter.c:do_enter:165
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": [], "position": "POS_STANDING"}, "room": {"id": "A", "room_flags": [], "vnum": 100, "people": ["ch", "f", "observer"], "contents": ["P"]}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [0, 0, [], 200, 0], "in_room": "A", "name": "portal", "contains": []}, "argument": "portal", "destination": {"id": "B", "vnum": 200, "people": [], "room_flags": []}, "follower": {"id": "f", "kind": "PC", "master": "ch", "in_room": "A", "fighting": null, "position": "POS_SITTING", "affected_by": ["AFF_CHARM"], "act": [], "on": "bench"}, "observer": {"id": "observer", "kind": "PC", "master": null, "position": "POS_STANDING"}}
+AND {"room_graph": "Resolve fixed destination B. Both actors can see B. It is not private.", "object_lookup": "Visible keyword lookup in each actor’s current room. P is the only matching item.", "do_look": "Record the automatic look without mutation.", "messages": "Record send_to_char and act calls with channel and anchor. Only listed events are expected after leader look.", "stand_and_enter": "Use real do_function dispatch and the real do_stand/do_enter paths.", "extraction": "P starts valid at the object-list head with prototype count 1 and no children."}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events_after_leader_move_and_look": [{"do_function": ["f", "do_stand", ""]}, {"send_to_char": "You stand up.\n\r", "recipient": "f"}, {"act": "$n stands up.", "channel": "TO_ROOM", "anchor": "f", "room": "A"}, {"set": {"f.position": "POS_STANDING", "f.on": null}}, {"act": "You follow $N.", "channel": "TO_CHAR", "anchor": "f", "victim": "ch"}, {"do_function": ["f", "do_enter", "portal"]}, {"act": "$n steps into $p.", "channel": "TO_ROOM", "anchor": "f", "room": "A"}, {"act": "You walk through $p and find yourself somewhere else...", "channel": "TO_CHAR", "anchor": "f"}, {"char_from_room": "f"}, {"char_to_room": ["f", "B"]}, {"act": "$n has arrived through $p.", "channel": "TO_ROOM", "anchor": "f", "room": "B"}, {"do_function": ["f", "do_look", "auto"]}], "ch.in_room": "B", "unchanged": ["observer stays in A"], "f.in_room": "B", "f.position": "POS_STANDING", "f.on": null, "P.value[0]": 0}
+```
+
+## act_enter.do_enter.magical-sleep-prevents-charmed-follower-entry
+
+magical sleep prevents charmed follower entry
+
+```text
+CASE act_enter.do_enter.magical-sleep-prevents-charmed-follower-entry
+SOURCE src/act_enter.c:do_enter:165
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": [], "position": "POS_STANDING"}, "room": {"id": "A", "room_flags": [], "vnum": 100, "people": ["ch", "f", "observer"], "contents": ["P"]}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [0, 0, [], 200, 0], "in_room": "A", "name": "portal", "contains": []}, "argument": "portal", "destination": {"id": "B", "vnum": 200, "people": [], "room_flags": []}, "follower": {"id": "f", "kind": "PC", "master": "ch", "in_room": "A", "fighting": null, "position": "POS_SLEEPING", "affected_by": ["AFF_CHARM", "AFF_SLEEP"], "act": [], "on": null}, "observer": {"id": "observer", "kind": "PC", "master": null, "position": "POS_STANDING"}}
+AND {"room_graph": "Resolve fixed destination B. Both actors can see B. It is not private.", "object_lookup": "Visible keyword lookup in each actor’s current room. P is the only matching item.", "do_look": "Record the automatic look without mutation.", "messages": "Record send_to_char and act calls with channel and anchor. Only listed events are expected after leader look.", "stand_and_enter": "Use real do_function dispatch and the real do_stand/do_enter paths.", "extraction": "P starts valid at the object-list head with prototype count 1 and no children."}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events_after_leader_move_and_look": [{"do_function": ["f", "do_stand", ""]}, {"send_to_char": "You can't wake up!\n\r", "recipient": "f"}], "ch.in_room": "B", "unchanged": ["observer stays in A"], "f.in_room": "A", "f.position": "POS_SLEEPING", "P.value[0]": 0}
+```
+
+## act_enter.do_enter.uncharmed-sitting-follower-stays
+
+uncharmed sitting follower stays
+
+```text
+CASE act_enter.do_enter.uncharmed-sitting-follower-stays
+SOURCE src/act_enter.c:do_enter:165
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": [], "position": "POS_STANDING"}, "room": {"id": "A", "room_flags": [], "vnum": 100, "people": ["ch", "f", "observer"], "contents": ["P"]}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [0, 0, [], 200, 0], "in_room": "A", "name": "portal", "contains": []}, "argument": "portal", "destination": {"id": "B", "vnum": 200, "people": [], "room_flags": []}, "follower": {"id": "f", "kind": "PC", "master": "ch", "in_room": "A", "fighting": null, "position": "POS_SITTING", "affected_by": [], "act": [], "on": null}, "observer": {"id": "observer", "kind": "PC", "master": null, "position": "POS_STANDING"}}
+AND {"room_graph": "Resolve fixed destination B. Both actors can see B. It is not private.", "object_lookup": "Visible keyword lookup in each actor’s current room. P is the only matching item.", "do_look": "Record the automatic look without mutation.", "messages": "Record send_to_char and act calls with channel and anchor. Only listed events are expected after leader look.", "stand_and_enter": "Use real do_function dispatch and the real do_stand/do_enter paths.", "extraction": "P starts valid at the object-list head with prototype count 1 and no children."}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events_after_leader_move_and_look": [], "ch.in_room": "B", "unchanged": ["observer stays in A"], "f.in_room": "A", "f.position": "POS_SITTING", "P.value[0]": 0}
+```
+
+## act_enter.do_enter.fighting-follower-gets-follow-notice-before-silent-return
+
+fighting follower gets follow notice before silent return
+
+```text
+CASE act_enter.do_enter.fighting-follower-gets-follow-notice-before-silent-return
+SOURCE src/act_enter.c:do_enter:165
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": [], "position": "POS_STANDING"}, "room": {"id": "A", "room_flags": [], "vnum": 100, "people": ["ch", "f", "observer"], "contents": ["P"]}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [0, 0, [], 200, 0], "in_room": "A", "name": "portal", "contains": []}, "argument": "portal", "destination": {"id": "B", "vnum": 200, "people": [], "room_flags": []}, "follower": {"id": "f", "kind": "PC", "master": "ch", "in_room": "A", "fighting": "observer", "position": "POS_STANDING", "affected_by": [], "act": [], "on": null}, "observer": {"id": "observer", "kind": "PC", "master": null, "position": "POS_STANDING"}}
+AND {"room_graph": "Resolve fixed destination B. Both actors can see B. It is not private.", "object_lookup": "Visible keyword lookup in each actor’s current room. P is the only matching item.", "do_look": "Record the automatic look without mutation.", "messages": "Record send_to_char and act calls with channel and anchor. Only listed events are expected after leader look.", "stand_and_enter": "Use real do_function dispatch and the real do_stand/do_enter paths.", "extraction": "P starts valid at the object-list head with prototype count 1 and no children."}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events_after_leader_move_and_look": [{"act": "You follow $N.", "channel": "TO_CHAR", "anchor": "f", "victim": "ch"}, {"do_function": ["f", "do_enter", "portal"]}], "ch.in_room": "B", "unchanged": ["observer stays in A"], "f.in_room": "A", "f.fighting": "observer", "P.value[0]": 0}
+```
+
+## act_enter.do_enter.aggressive-npc-follower-denied-by-city
+
+aggressive npc follower denied by city
+
+```text
+CASE act_enter.do_enter.aggressive-npc-follower-denied-by-city
+SOURCE src/act_enter.c:do_enter:165
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": [], "position": "POS_STANDING"}, "room": {"id": "A", "room_flags": [], "vnum": 100, "people": ["ch", "f", "observer"], "contents": ["P"]}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [0, 0, [], 200, 0], "in_room": "A", "name": "portal", "contains": []}, "argument": "portal", "destination": {"id": "B", "vnum": 200, "people": [], "room_flags": ["ROOM_LAW"]}, "follower": {"id": "f", "kind": "NPC", "master": "ch", "in_room": "A", "fighting": null, "position": "POS_STANDING", "affected_by": [], "act": ["ACT_AGGRESSIVE"], "on": null}, "observer": {"id": "observer", "kind": "PC", "master": null, "position": "POS_STANDING"}}
+AND {"room_graph": "Resolve fixed destination B. Both actors can see B. It is not private.", "object_lookup": "Visible keyword lookup in each actor’s current room. P is the only matching item.", "do_look": "Record the automatic look without mutation.", "messages": "Record send_to_char and act calls with channel and anchor. Only listed events are expected after leader look.", "stand_and_enter": "Use real do_function dispatch and the real do_stand/do_enter paths.", "extraction": "P starts valid at the object-list head with prototype count 1 and no children."}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events_after_leader_move_and_look": [{"act": "You can't bring $N into the city.", "channel": "TO_CHAR", "anchor": "ch", "victim": "f"}, {"act": "You aren't allowed in the city.", "channel": "TO_CHAR", "anchor": "f"}], "ch.in_room": "B", "unchanged": ["observer stays in A"], "f.in_room": "A", "P.value[0]": 0}
+```
+
+## act_enter.do_enter.moved-portal-follower-repeats-lookup-in-old-room
+
+moved portal follower repeats lookup in old room
+
+```text
+CASE act_enter.do_enter.moved-portal-follower-repeats-lookup-in-old-room
+SOURCE src/act_enter.c:do_enter:165
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": [], "position": "POS_STANDING"}, "room": {"id": "A", "room_flags": [], "vnum": 100, "people": ["ch", "f", "observer"], "contents": ["P"]}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [0, 0, ["GATE_GOWITH"], 200, 0], "in_room": "A", "name": "portal", "contains": []}, "argument": "portal", "destination": {"id": "B", "vnum": 200, "people": [], "room_flags": []}, "follower": {"id": "f", "kind": "PC", "master": "ch", "in_room": "A", "fighting": null, "position": "POS_STANDING", "affected_by": [], "act": [], "on": null}, "observer": {"id": "observer", "kind": "PC", "master": null, "position": "POS_STANDING"}}
+AND {"room_graph": "Resolve fixed destination B. Both actors can see B. It is not private.", "object_lookup": "Visible keyword lookup in each actor’s current room. P is the only matching item.", "do_look": "Record the automatic look without mutation.", "messages": "Record send_to_char and act calls with channel and anchor. Only listed events are expected after leader look.", "stand_and_enter": "Use real do_function dispatch and the real do_stand/do_enter paths.", "extraction": "P starts valid at the object-list head with prototype count 1 and no children."}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events_after_leader_move_and_look": [{"act": "You follow $N.", "channel": "TO_CHAR", "anchor": "f", "victim": "ch"}, {"do_function": ["f", "do_enter", "portal"]}, {"send_to_char": "You don't see that here.\n\r", "recipient": "f"}], "ch.in_room": "B", "unchanged": ["observer stays in A"], "f.in_room": "A", "P.in_room": "B", "P.value[0]": 0}
+```
+
+## act_enter.do_enter.last-charge-skips-follower-and-notifies-origin
+
+last charge skips follower and notifies origin
+
+```text
+CASE act_enter.do_enter.last-charge-skips-follower-and-notifies-origin
+SOURCE src/act_enter.c:do_enter:165
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": [], "position": "POS_STANDING"}, "room": {"id": "A", "room_flags": [], "vnum": 100, "people": ["ch", "f", "observer"], "contents": ["P"]}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [1, 0, [], 200, 0], "in_room": "A", "name": "portal", "contains": []}, "argument": "portal", "destination": {"id": "B", "vnum": 200, "people": [], "room_flags": []}, "follower": {"id": "f", "kind": "PC", "master": "ch", "in_room": "A", "fighting": null, "position": "POS_STANDING", "affected_by": [], "act": [], "on": null}, "observer": {"id": "observer", "kind": "PC", "master": null, "position": "POS_STANDING"}}
+AND {"room_graph": "Resolve fixed destination B. Both actors can see B. It is not private.", "object_lookup": "Visible keyword lookup in each actor’s current room. P is the only matching item.", "do_look": "Record the automatic look without mutation.", "messages": "Record send_to_char and act calls with channel and anchor. Only listed events are expected after leader look.", "stand_and_enter": "Use real do_function dispatch and the real do_stand/do_enter paths.", "extraction": "P starts valid at the object-list head with prototype count 1 and no children."}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events_after_leader_move_and_look": [{"set": {"P.value[0]": 0}}, {"set": {"P.value[0]": -1}}, {"act": "$p fades out of existence.", "channel": "TO_CHAR", "anchor": "ch"}, {"act": "$p fades out of existence.", "channel": "TO_CHAR", "anchor": "f"}, {"act": "$p fades out of existence.", "channel": "TO_ROOM", "anchor": "f"}, {"extract_obj": "P"}], "ch.in_room": "B", "unchanged": ["observer stays in A"], "f.in_room": "A", "portal_final_state": "removed from A and the world list, prototype count 0"}
+```
+
+## act_enter.do_enter.nested-last-charge-leaves-outer-frame-with-recycled-portal
+
+nested last charge leaves outer frame with recycled portal
+
+```text
+CASE act_enter.do_enter.nested-last-charge-leaves-outer-frame-with-recycled-portal
+SOURCE src/act_enter.c:do_enter:195; src/handler.c:extract_obj:1910; src/recycle.c:free_obj:289; src/db.c:free_string:2716
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": []}, "room": {"id": "A", "room_flags": [], "vnum": 100, "people": ["ch", "f", "observer"], "contents": ["P"]}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [2, 0, [], 200, 0], "in_room": "A", "name": "portal", "contains": [], "short_descr_storage": "Shared db string space", "short_descr": "a shimmering portal"}, "argument": "portal", "destination": {"id": "B", "vnum": 200, "people": [], "room_flags": []}, "follower": {"id": "f", "kind": "PC", "master": "ch", "position": "POS_STANDING", "in_room": "A", "fighting": null}, "observer": {"id": "observer", "master": null, "position": "POS_STANDING"}, "leader_connection": {"descriptor": "connected", "position": "POS_STANDING"}}
+AND {"visibility": "Both actors see B. The connected leader passes act position filtering and can_see_obj for P.", "room_private": false, "look": "No mutation", "object_reuse": "No allocation reuses P after nested extraction.", "object_list": "P starts valid as the only world object, vnum 25, with prototype count 1.", "messages": "Record act calls without expansion. Shared description is preserved by free_string."}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events": ["Leader moves and looks, then charge 2 becomes 1", "Follower receives follow notice and reenters", "Follower moves and looks, then charge 1 becomes 0 then -1", "Nested fade act calls anchor on f for TO_CHAR, then observer for TO_CHAR and TO_ROOM", "Nested extract_obj removes P from room and world list, decrements prototype count and recycles P", "Outer frame skips observer, then repeats fade act calls anchored on ch and observer", "Outer extract_obj finds no P in the world list and logs Extract_obj: obj 25 not found."], "final": {"ch.in_room": "B", "f.in_room": "B", "observer.in_room": "A", "prototype.count": 0, "portal": "invalid and on recycle list once"}}
+```
+
+## act_enter.do_enter.destination-invisible-before-privacy
+
+destination invisible before privacy
+
+```text
+CASE act_enter.do_enter.destination-invisible-before-privacy
+SOURCE src/act_enter.c:do_enter:113
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": []}, "room": {"id": "A", "room_flags": []}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [0, 0, 0, 200, 0], "in_room": "A"}, "argument": "portal", "destination": {"id": "B", "vnum": 200, "room_flags": []}}
+AND {"get_obj_list": "P", "get_room_index(200)": "B", "can_see_room": false, "room_is_private": true}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events_after_lookup": [{"act": "$p doesn't seem to go anywhere.", "channel": "TO_CHAR", "anchor": "ch"}], "room_is_private_calls": [], "unchanged": ["ch.in_room", "P.in_room", "P.value[0]"], "forbidden": ["move", "do_look", "extract_obj", "follow dispatch"]}
+```
+
+## act_enter.do_enter.private-destination-rejects-trust-59
+
+private destination rejects trust 59
+
+```text
+CASE act_enter.do_enter.private-destination-rejects-trust-59
+SOURCE src/act_enter.c:do_enter:113
+GIVEN {"actor": {"id": "ch", "kind": "PC", "level": 30, "trust": 59, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": []}, "room": {"id": "A", "room_flags": []}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [0, 0, 0, 200, 0], "in_room": "A"}, "argument": "portal", "destination": {"id": "B", "vnum": 200, "room_flags": []}}
+AND {"get_obj_list": "P", "get_room_index(200)": "B", "can_see_room": true, "room_is_private": true}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events_after_lookup": [{"act": "$p doesn't seem to go anywhere.", "channel": "TO_CHAR", "anchor": "ch"}], "room_is_private_calls": ["B"], "unchanged": ["ch.in_room", "P.in_room", "P.value[0]"], "forbidden": ["move", "do_look", "extract_obj", "follow dispatch"]}
+```
+
+## act_enter.do_enter.aggressive-npc-directly-rejected-by-law
+
+aggressive npc directly rejected by law
+
+```text
+CASE act_enter.do_enter.aggressive-npc-directly-rejected-by-law
+SOURCE src/act_enter.c:do_enter:113
+GIVEN {"actor": {"id": "ch", "kind": "NPC", "level": 30, "trust": 0, "desc": null, "fighting": null, "in_room": "A", "affected_by": [], "act": ["ACT_IS_NPC", "ACT_AGGRESSIVE"]}, "room": {"id": "A", "room_flags": []}, "portal": {"id": "P", "item_type": "ITEM_PORTAL", "value": [0, 0, 0, 200, 0], "in_room": "A"}, "argument": "portal", "destination": {"id": "B", "vnum": 200, "room_flags": ["ROOM_LAW"]}}
+AND {"get_obj_list": "P", "get_room_index(200)": "B", "can_see_room": true, "room_is_private": false}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events_after_lookup": [{"send_to_char": "Something prevents you from leaving...\n\r", "recipient": "ch"}], "room_is_private_calls": ["B"], "unchanged": ["ch.in_room", "P.in_room", "P.value[0]"], "forbidden": ["move", "do_look", "extract_obj", "follow dispatch"]}
 ```
 
 ## lookup.flag_lookup.same-initial-failed-prefix-continues
@@ -5999,4 +6761,841 @@ GIVEN {"arguments": {"function": "unregistered_valid_function_pointer"}, "table"
 AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
 WHEN Invoke spec_name with the fixture arguments once.
 THEN {"returned_name": "C NULL", "forbidden": ["invoke function", "messages"]}
+```
+
+## act_enter.do_enter.grandchild-mutation-revisits-moved-follower
+
+grandchild mutation revisits moved follower
+
+```text
+CASE act_enter.do_enter.grandchild-mutation-revisits-moved-follower
+SOURCE src/act_enter.c:do_enter:167; src/handler.c:char_from_room:1367; src/handler.c:char_to_room:1395; src/handler.c:get_obj_list:2100
+GIVEN {"argument": "portal", "actor": "ch", "rooms": {"A": {"room_flags": [], "light": 1, "owner": "", "sector_type": "SECT_INSIDE", "vnum": 100, "people": ["ch", "f", "g", "observer"], "contents": ["P"], "area": "areaA"}, "B": {"room_flags": [], "light": 1, "owner": "", "sector_type": "SECT_INSIDE", "vnum": 200, "people": [], "contents": [], "area": "areaB"}}, "characters": {"ch": {"kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "position": "POS_STANDING", "affected_by": [], "act": [], "on": null, "equipment": [], "in_room": "A", "master": null}, "f": {"kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "position": "POS_STANDING", "affected_by": [], "act": [], "on": null, "equipment": [], "in_room": "A", "master": "ch"}, "g": {"kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "position": "POS_STANDING", "affected_by": [], "act": [], "on": null, "equipment": [], "in_room": "A", "master": "f"}, "observer": {"kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "position": "POS_STANDING", "affected_by": [], "act": [], "on": null, "equipment": [], "in_room": "A", "master": null}}, "objects": {"P": {"item_type": "ITEM_PORTAL", "name": "portal", "extra_flags": [], "value": [0, 0, 0, 200, 0], "in_room": "A", "contains": []}}, "areas": {"areaA": {"nplayer": 4, "empty": false, "age": 10}, "areaB": {"nplayer": 0, "empty": false, "age": 10}}}
+AND {"lookup": "Execute get_obj_list, number_argument, is_name, one_argument and can_see_obj; all rooms lit. Resolve vnums 100/200/300 to A/B/C. No room is private.", "movement": "Execute char_from_room/char_to_room: unlink and clear next pointer, then prepend to destination people. No lights, plague or equipped objects.", "do_function": "Execute actual dispatcher and recursive do_enter; automatic do_look is a recording boundary without mutation.", "messages": "Record act template, actor, object, target and channel; delivery/rendering are separate pending contracts.", "randomness": "No random calls permitted."}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events": [{"act": "$n steps into $p.", "actor": "ch", "object": "P", "channel": "TO_ROOM", "room": "A"}, {"act": "You walk through $p and find yourself somewhere else...", "actor": "ch", "object": "P", "channel": "TO_CHAR"}, {"char_from_room": "ch"}, {"char_to_room": ["ch", "B"]}, {"act": "$n has arrived through $p.", "actor": "ch", "object": "P", "channel": "TO_ROOM", "room": "B"}, {"do_function": ["ch", "do_look", "auto"]}, {"act": "You follow $N.", "actor": "f", "victim": "ch", "channel": "TO_CHAR"}, {"do_function": ["f", "do_enter", "portal"]}, {"act": "$n steps into $p.", "actor": "f", "object": "P", "channel": "TO_ROOM", "room": "A"}, {"act": "You walk through $p and find yourself somewhere else...", "actor": "f", "object": "P", "channel": "TO_CHAR"}, {"char_from_room": "f"}, {"char_to_room": ["f", "B"]}, {"act": "$n has arrived through $p.", "actor": "f", "object": "P", "channel": "TO_ROOM", "room": "B"}, {"do_function": ["f", "do_look", "auto"]}, {"act": "You follow $N.", "actor": "g", "victim": "f", "channel": "TO_CHAR"}, {"do_function": ["g", "do_enter", "portal"]}, {"act": "$n steps into $p.", "actor": "g", "object": "P", "channel": "TO_ROOM", "room": "A"}, {"act": "You walk through $p and find yourself somewhere else...", "actor": "g", "object": "P", "channel": "TO_CHAR"}, {"char_from_room": "g"}, {"char_to_room": ["g", "B"]}, {"act": "$n has arrived through $p.", "actor": "g", "object": "P", "channel": "TO_ROOM", "room": "B"}, {"do_function": ["g", "do_look", "auto"]}, {"act": "You follow $N.", "actor": "f", "victim": "ch", "channel": "TO_CHAR"}, {"do_function": ["f", "do_enter", "portal"]}, {"send_to_char": "You don't see that here.\n\r", "recipient": "f"}], "outer_loop_visited_ids": ["f", "g", "f", "ch"], "explanation": "Outer cached next is g. Recursive f moves g; g.next_in_room becomes f in B. Returning outer frame resumes g and follows its new link to f, then ch.", "final_people": {"A": ["observer"], "B": ["g", "f", "ch"]}, "final_area_nplayer": {"areaA": 1, "areaB": 3}, "unchanged": ["room light", "area ages and empty flags", "P remains in A with zero unlimited charges", "master pointers"], "forbidden": ["portal extraction", "extra movement after g enters B", "do_stand", "random draws"]}
+```
+
+## act_enter.do_enter.moved-gate-exposes-nonportal-name-match
+
+moved gate exposes nonportal name match
+
+```text
+CASE act_enter.do_enter.moved-gate-exposes-nonportal-name-match
+SOURCE src/act_enter.c:do_enter:80; src/handler.c:get_obj_list:2096; src/handler.c:is_name:809; src/interp.c:number_argument:663
+GIVEN {"argument": "portal", "actor": "ch", "characters": {"ch": {"kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "position": "POS_STANDING", "affected_by": [], "act": [], "on": null, "equipment": [], "in_room": "A", "master": null}, "f": {"kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "position": "POS_STANDING", "affected_by": [], "act": [], "on": null, "equipment": [], "in_room": "A", "master": "ch"}, "observer": {"kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "position": "POS_STANDING", "affected_by": [], "act": [], "on": null, "equipment": [], "in_room": "A", "master": null}}, "rooms": {"A": {"room_flags": [], "light": 1, "owner": "", "sector_type": "SECT_INSIDE", "vnum": 100, "people": ["ch", "f", "observer"], "contents": ["P", "Q"], "area": "areaA"}, "B": {"room_flags": [], "light": 1, "owner": "", "sector_type": "SECT_INSIDE", "vnum": 200, "people": [], "contents": [], "area": "areaB"}}, "areas": {"areaA": {"nplayer": 3, "empty": false, "age": 10}, "areaB": {"nplayer": 0, "empty": false, "age": 10}}, "objects": {"P": {"item_type": "ITEM_PORTAL", "name": "portal", "extra_flags": [], "value": [0, 0, ["GATE_GOWITH"], 200, 0], "in_room": "A", "contains": []}, "Q": {"item_type": "ITEM_WEAPON", "name": "portal", "extra_flags": [], "value": [0, 0, 0, 200, 0], "in_room": "A", "contains": []}}}
+AND {"lookup": "Execute get_obj_list, number_argument, is_name, one_argument and can_see_obj; all rooms lit. Resolve vnums 100/200/300 to A/B/C. No room is private.", "movement": "Execute char_from_room/char_to_room: unlink and clear next pointer, then prepend to destination people. No lights, plague or equipped objects.", "do_function": "Execute actual dispatcher and recursive do_enter; automatic do_look is a recording boundary without mutation.", "messages": "Record act template, actor, object, target and channel; delivery/rendering are separate pending contracts.", "randomness": "No random calls permitted."}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events": [{"act": "$n steps into $p.", "actor": "ch", "object": "P", "channel": "TO_ROOM", "room": "A"}, {"act": "You walk through $p and find yourself somewhere else...", "actor": "ch", "object": "P", "channel": "TO_CHAR"}, {"char_from_room": "ch"}, {"char_to_room": ["ch", "B"]}, {"obj_from_room": "P"}, {"obj_to_room": ["P", "B"]}, {"act": "$n has arrived through $p.", "actor": "ch", "object": "P", "channel": "TO_ROOM", "room": "B"}, {"do_function": ["ch", "do_look", "auto"]}, {"act": "You follow $N.", "actor": "f", "victim": "ch", "channel": "TO_CHAR"}, {"do_function": ["f", "do_enter", "portal"]}, {"send_to_char": "You can't seem to find a way in.\n\r", "recipient": "f"}], "lookup_results_in_order": ["P", "Q"], "final_people": {"A": ["f", "observer"], "B": ["ch"]}, "final_contents": {"A": ["Q"], "B": ["P"]}, "final_area_nplayer": {"areaA": 2, "areaB": 1}, "unchanged": ["both charge fields remain zero", "master pointers", "Q location", "room light"], "forbidden": ["follower movement", "portal extraction", "random draws"]}
+```
+
+## act_enter.do_enter.ordinal-repeated-after-gate-moves
+
+ordinal repeated after gate moves
+
+```text
+CASE act_enter.do_enter.ordinal-repeated-after-gate-moves
+SOURCE src/act_enter.c:do_enter:80; src/handler.c:get_obj_list:2096; src/handler.c:is_name:809; src/interp.c:number_argument:663
+GIVEN {"argument": "2.portal", "actor": "ch", "characters": {"ch": {"kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "position": "POS_STANDING", "affected_by": [], "act": [], "on": null, "equipment": [], "in_room": "A", "master": null}, "f": {"kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "position": "POS_STANDING", "affected_by": [], "act": [], "on": null, "equipment": [], "in_room": "A", "master": "ch"}, "observer": {"kind": "PC", "level": 30, "trust": 0, "desc": null, "fighting": null, "position": "POS_STANDING", "affected_by": [], "act": [], "on": null, "equipment": [], "in_room": "A", "master": null}}, "rooms": {"A": {"room_flags": [], "light": 1, "owner": "", "sector_type": "SECT_INSIDE", "vnum": 100, "people": ["ch", "f", "observer"], "contents": ["Q", "P"], "area": "areaA"}, "B": {"room_flags": [], "light": 1, "owner": "", "sector_type": "SECT_INSIDE", "vnum": 200, "people": [], "contents": [], "area": "areaB"}}, "areas": {"areaA": {"nplayer": 3, "empty": false, "age": 10}, "areaB": {"nplayer": 0, "empty": false, "age": 10}}, "objects": {"P": {"item_type": "ITEM_PORTAL", "name": "portal", "extra_flags": [], "value": [0, 0, ["GATE_GOWITH"], 200, 0], "in_room": "A", "contains": []}, "Q": {"item_type": "ITEM_PORTAL", "name": "portal", "extra_flags": [], "value": [0, 0, 0, 200, 0], "in_room": "A", "contains": []}}}
+AND {"lookup": "Execute get_obj_list, number_argument, is_name, one_argument and can_see_obj; all rooms lit. Resolve vnums 100/200/300 to A/B/C. No room is private.", "movement": "Execute char_from_room/char_to_room: unlink and clear next pointer, then prepend to destination people. No lights, plague or equipped objects.", "do_function": "Execute actual dispatcher and recursive do_enter; automatic do_look is a recording boundary without mutation.", "messages": "Record act template, actor, object, target and channel; delivery/rendering are separate pending contracts.", "randomness": "No random calls permitted."}
+WHEN Invoke do_enter with the fixture arguments once.
+THEN {"ordered_events": [{"act": "$n steps into $p.", "actor": "ch", "object": "P", "channel": "TO_ROOM", "room": "A"}, {"act": "You walk through $p and find yourself somewhere else...", "actor": "ch", "object": "P", "channel": "TO_CHAR"}, {"char_from_room": "ch"}, {"char_to_room": ["ch", "B"]}, {"obj_from_room": "P"}, {"obj_to_room": ["P", "B"]}, {"act": "$n has arrived through $p.", "actor": "ch", "object": "P", "channel": "TO_ROOM", "room": "B"}, {"do_function": ["ch", "do_look", "auto"]}, {"act": "You follow $N.", "actor": "f", "victim": "ch", "channel": "TO_CHAR"}, {"do_function": ["f", "do_enter", "2.portal"]}, {"send_to_char": "You don't see that here.\n\r", "recipient": "f"}], "lookup_results_in_order": ["P", null], "final_people": {"A": ["f", "observer"], "B": ["ch"]}, "final_contents": {"A": ["Q"], "B": ["P"]}, "final_area_nplayer": {"areaA": 2, "areaB": 1}, "unchanged": ["both charge fields remain zero", "master pointers", "Q location", "room light"], "forbidden": ["follower movement", "portal extraction", "random draws"]}
+```
+
+## handler.get_trust.descriptor-without-original
+
+descriptor without original
+
+```text
+CASE handler.get_trust.descriptor-without-original
+SOURCE src/handler.c:get_trust:708
+GIVEN {"actor": {"kind": "PC", "level": 20, "trust": 0, "desc": {"original": null}}}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke get_trust with the fixture arguments once.
+THEN {"return": 20, "unchanged": ["actor, original and descriptor"]}
+```
+
+## handler.get_trust.negative-trust-is-explicit
+
+negative trust is explicit
+
+```text
+CASE handler.get_trust.negative-trust-is-explicit
+SOURCE src/handler.c:get_trust:708
+GIVEN {"actor": {"kind": "PC", "level": 20, "trust": -1, "desc": null}}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke get_trust with the fixture arguments once.
+THEN {"return": -1, "unchanged": ["actor, original and descriptor"]}
+```
+
+## handler.get_trust.switched-original-trust-wins
+
+switched original trust wins
+
+```text
+CASE handler.get_trust.switched-original-trust-wins
+SOURCE src/handler.c:get_trust:708
+GIVEN {"actor": {"kind": "NPC", "level": 60, "trust": 60, "desc": {"original": {"kind": "PC", "level": 20, "trust": 55}}}}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke get_trust with the fixture arguments once.
+THEN {"return": 55, "unchanged": ["actor, original and descriptor"]}
+```
+
+## handler.room_is_private.private-zero
+
+private zero
+
+```text
+CASE handler.room_is_private.private-zero
+SOURCE src/handler.c:room_is_private:2396
+GIVEN {"room": {"owner": "", "room_flags": ["ROOM_PRIVATE"], "people": []}}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke room_is_private with the fixture arguments once.
+THEN {"return": false, "unchanged": ["room and occupants"]}
+```
+
+## handler.room_is_private.private-and-solitary-one
+
+private and solitary one
+
+```text
+CASE handler.room_is_private.private-and-solitary-one
+SOURCE src/handler.c:room_is_private:2396
+GIVEN {"room": {"owner": "", "room_flags": ["ROOM_PRIVATE", "ROOM_SOLITARY"], "people": ["p"]}}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke room_is_private with the fixture arguments once.
+THEN {"return": true, "unchanged": ["room and occupants"]}
+```
+
+## interp.one_argument.whitespace-only
+
+whitespace only
+
+```text
+CASE interp.one_argument.whitespace-only
+SOURCE src/interp.c:one_argument:721
+GIVEN {"arguments": {"argument": " \t\r\n", "arg_first": "256-byte writable output buffer"}, "locale": "C locale, ASCII input"}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke one_argument with the fixture arguments once.
+THEN {"output_token": "", "returned_remainder": "", "unchanged": ["input bytes"], "forbidden": ["messages", "random draws"]}
+```
+
+## interp.one_argument.tab-leading
+
+tab leading
+
+```text
+CASE interp.one_argument.tab-leading
+SOURCE src/interp.c:one_argument:721
+GIVEN {"arguments": {"argument": "\tLOOK north", "arg_first": "256-byte writable output buffer"}, "locale": "C locale, ASCII input"}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke one_argument with the fixture arguments once.
+THEN {"output_token": "look", "returned_remainder": "north", "unchanged": ["input bytes"], "forbidden": ["messages", "random draws"]}
+```
+
+## interp.one_argument.quote-followed-without-space
+
+quote followed without space
+
+```text
+CASE interp.one_argument.quote-followed-without-space
+SOURCE src/interp.c:one_argument:721
+GIVEN {"arguments": {"argument": "'LOOK'north", "arg_first": "256-byte writable output buffer"}, "locale": "C locale, ASCII input"}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke one_argument with the fixture arguments once.
+THEN {"output_token": "look", "returned_remainder": "north", "unchanged": ["input bytes"], "forbidden": ["messages", "random draws"]}
+```
+
+## interp.one_argument.embedded-quote-unquoted
+
+embedded quote unquoted
+
+```text
+CASE interp.one_argument.embedded-quote-unquoted
+SOURCE src/interp.c:one_argument:721
+GIVEN {"arguments": {"argument": "ab\"cd tail", "arg_first": "256-byte writable output buffer"}, "locale": "C locale, ASCII input"}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke one_argument with the fixture arguments once.
+THEN {"output_token": "ab\"cd", "returned_remainder": "tail", "unchanged": ["input bytes"], "forbidden": ["messages", "random draws"]}
+```
+
+## interp.one_argument.quoted-tab-preserved
+
+quoted tab preserved
+
+```text
+CASE interp.one_argument.quoted-tab-preserved
+SOURCE src/interp.c:one_argument:721
+GIVEN {"arguments": {"argument": "\"a\tb\" tail", "arg_first": "256-byte writable output buffer"}, "locale": "C locale, ASCII input"}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke one_argument with the fixture arguments once.
+THEN {"output_token": "a\tb", "returned_remainder": "tail", "unchanged": ["input bytes"], "forbidden": ["messages", "random draws"]}
+```
+
+## interp.one_argument.one-character-token
+
+one character token
+
+```text
+CASE interp.one_argument.one-character-token
+SOURCE src/interp.c:one_argument:721
+GIVEN {"arguments": {"argument": "A", "arg_first": "256-byte writable output buffer"}, "locale": "C locale, ASCII input"}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke one_argument with the fixture arguments once.
+THEN {"output_token": "a", "returned_remainder": "", "unchanged": ["input bytes"], "forbidden": ["messages", "random draws"]}
+```
+
+## interp.one_argument.max-fitting-token
+
+max fitting token
+
+```text
+CASE interp.one_argument.max-fitting-token
+SOURCE src/interp.c:one_argument:721
+GIVEN {"arguments": {"argument": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "arg_first": "256-byte writable output buffer"}, "locale": "C locale, ASCII input"}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke one_argument with the fixture arguments once.
+THEN {"output_token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "returned_remainder": "", "unchanged": ["input bytes"], "forbidden": ["messages", "random draws"]}
+```
+
+## interp.one_argument.output-buffer-overflow
+
+output buffer overflow
+
+```text
+CASE interp.one_argument.output-buffer-overflow
+SOURCE src/interp.c:one_argument:736
+GIVEN {"arguments": {"argument": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "arg_first": "256-byte writable output buffer"}}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke one_argument with the fixture arguments once.
+THEN {"limitation": "Terminating NUL writes index 256 out of bounds; no portable return."}
+```
+
+Open questions: No capacity argument exists; callers must provide token length plus one bytes.
+
+## magic.saves_spell.nonmana-pc
+
+nonmana pc
+
+```text
+CASE magic.saves_spell.nonmana-pc
+SOURCE src/magic.c:saves_spell:220
+GIVEN {"arguments": {"level": 20, "dam_type": "DAM_FIRE"}, "victim": {"kind": "PC", "level": 20, "saving_throw": 0, "affected_by": [], "class_fMana": false}}
+AND {"check_immune": {"returns": "IS_NORMAL", "kind": "recorded helper boundary"}, "number_percent": {"ordered_returns": [49]}, "class_table": "Explicit class_fMana fixture where accessed."}
+WHEN Invoke saves_spell with the fixture arguments once.
+THEN {"return": true, "threshold_after_clamp": 50, "number_percent_calls": 1, "unchanged": ["victim"], "forbidden": []}
+```
+
+## magic.saves_spell.npc-does-not-index-class
+
+npc does not index class
+
+```text
+CASE magic.saves_spell.npc-does-not-index-class
+SOURCE src/magic.c:saves_spell:220
+GIVEN {"arguments": {"level": 20, "dam_type": "DAM_FIRE"}, "victim": {"kind": "NPC", "level": 20, "saving_throw": 0, "affected_by": [], "class_fMana": false, "class": -1}}
+AND {"check_immune": {"returns": "IS_NORMAL", "kind": "recorded helper boundary"}, "number_percent": {"ordered_returns": [49]}, "class_table": "Explicit class_fMana fixture where accessed."}
+WHEN Invoke saves_spell with the fixture arguments once.
+THEN {"return": true, "threshold_after_clamp": 50, "number_percent_calls": 1, "unchanged": ["victim"], "forbidden": ["class_table access"]}
+```
+
+## magic.saves_spell.berserk-odd-level-truncation
+
+berserk odd level truncation
+
+```text
+CASE magic.saves_spell.berserk-odd-level-truncation
+SOURCE src/magic.c:saves_spell:220
+GIVEN {"arguments": {"level": 20, "dam_type": "DAM_FIRE"}, "victim": {"kind": "NPC", "level": 21, "saving_throw": 0, "affected_by": ["AFF_BERSERK"], "class_fMana": false}}
+AND {"check_immune": {"returns": "IS_NORMAL", "kind": "recorded helper boundary"}, "number_percent": {"ordered_returns": [64]}, "class_table": "Explicit class_fMana fixture where accessed."}
+WHEN Invoke saves_spell with the fixture arguments once.
+THEN {"return": true, "threshold_after_clamp": 65, "number_percent_calls": 1, "unchanged": ["victim"], "forbidden": []}
+```
+
+## magic.saves_spell.vulnerable-below
+
+vulnerable below
+
+```text
+CASE magic.saves_spell.vulnerable-below
+SOURCE src/magic.c:saves_spell:220
+GIVEN {"arguments": {"level": 20, "dam_type": "DAM_FIRE"}, "victim": {"kind": "NPC", "level": 20, "saving_throw": 0, "affected_by": [], "class_fMana": false}}
+AND {"check_immune": {"returns": "IS_VULNERABLE", "kind": "recorded helper boundary"}, "number_percent": {"ordered_returns": [47]}, "class_table": "Explicit class_fMana fixture where accessed."}
+WHEN Invoke saves_spell with the fixture arguments once.
+THEN {"return": true, "threshold_after_clamp": 48, "number_percent_calls": 1, "unchanged": ["victim"], "forbidden": []}
+```
+
+## magic.saves_spell.mana-before-upper-clamp
+
+mana before upper clamp
+
+```text
+CASE magic.saves_spell.mana-before-upper-clamp
+SOURCE src/magic.c:saves_spell:220
+GIVEN {"arguments": {"level": 20, "dam_type": "DAM_FIRE"}, "victim": {"kind": "PC", "level": 20, "saving_throw": -25, "affected_by": [], "class_fMana": true}}
+AND {"check_immune": {"returns": "IS_NORMAL", "kind": "recorded helper boundary"}, "number_percent": {"ordered_returns": [90]}, "class_table": "Explicit class_fMana fixture where accessed."}
+WHEN Invoke saves_spell with the fixture arguments once.
+THEN {"return": false, "threshold_after_clamp": 90, "number_percent_calls": 1, "unchanged": ["victim"], "forbidden": []}
+```
+
+## magic.saves_spell.mana-negative-before-lower-clamp
+
+mana negative before lower clamp
+
+```text
+CASE magic.saves_spell.mana-negative-before-lower-clamp
+SOURCE src/magic.c:saves_spell:220
+GIVEN {"arguments": {"level": 20, "dam_type": "DAM_FIRE"}, "victim": {"kind": "PC", "level": 20, "saving_throw": 26, "affected_by": [], "class_fMana": true}}
+AND {"check_immune": {"returns": "IS_NORMAL", "kind": "recorded helper boundary"}, "number_percent": {"ordered_returns": [4]}, "class_table": "Explicit class_fMana fixture where accessed."}
+WHEN Invoke saves_spell with the fixture arguments once.
+THEN {"return": true, "threshold_after_clamp": 5, "number_percent_calls": 1, "unchanged": ["victim"], "forbidden": []}
+```
+
+## magic.saves_spell.upper-cap-last-success
+
+upper cap last success
+
+```text
+CASE magic.saves_spell.upper-cap-last-success
+SOURCE src/magic.c:saves_spell:220
+GIVEN {"arguments": {"level": 20, "dam_type": "DAM_FIRE"}, "victim": {"kind": "NPC", "level": 20, "saving_throw": -100, "affected_by": [], "class_fMana": false}}
+AND {"check_immune": {"returns": "IS_NORMAL", "kind": "recorded helper boundary"}, "number_percent": {"ordered_returns": [94]}, "class_table": "Explicit class_fMana fixture where accessed."}
+WHEN Invoke saves_spell with the fixture arguments once.
+THEN {"return": true, "threshold_after_clamp": 95, "number_percent_calls": 1, "unchanged": ["victim"], "forbidden": []}
+```
+
+## magic.saves_spell.immune-skips-invalid-class
+
+immune skips invalid class
+
+```text
+CASE magic.saves_spell.immune-skips-invalid-class
+SOURCE src/magic.c:saves_spell:220
+GIVEN {"arguments": {"level": 20, "dam_type": "DAM_FIRE"}, "victim": {"kind": "PC", "level": 20, "saving_throw": 0, "affected_by": [], "class_fMana": false, "class": -1}}
+AND {"check_immune": {"returns": "IS_IMMUNE", "kind": "recorded helper boundary"}, "number_percent": {"ordered_returns": []}, "class_table": "Explicit class_fMana fixture where accessed."}
+WHEN Invoke saves_spell with the fixture arguments once.
+THEN {"return": true, "threshold_after_clamp": null, "number_percent_calls": 0, "unchanged": ["victim"], "forbidden": ["class_table access"]}
+```
+
+## flags.do_flag.aff-field
+
+aff field
+
+```text
+CASE flags.do_flag.aff-field
+SOURCE src/flags.c:do_flag:191
+GIVEN {"actor": {"id": "admin", "kind": "PC", "level": 1, "trust": 0}, "argument": "char bob aff + blind", "victim": {"id": "bob", "kind": "PC", "zone": "zone-A", "all_flag_fields": 0, "act": 0}, "tables": "Unmodified src/tables.c flag tables."}
+AND {"get_char_world": "Returns bob; world lookup is a recording boundary.", "flag_lookup": "Use real table lookup."}
+WHEN Invoke do_flag with the fixture arguments once.
+THEN {"result": {"bob.affected_by": 1, "bob.zone": null}, "unchanged": ["all unselected flag fields", "actor"], "forbidden": ["messages", "trust check", "persistence"]}
+```
+
+## flags.do_flag.immunity-field
+
+immunity field
+
+```text
+CASE flags.do_flag.immunity-field
+SOURCE src/flags.c:do_flag:191
+GIVEN {"actor": {"id": "admin", "kind": "PC", "level": 1, "trust": 0}, "argument": "char bob immunity + fire", "victim": {"id": "bob", "kind": "PC", "zone": "zone-A", "all_flag_fields": 0, "act": 0}, "tables": "Unmodified src/tables.c flag tables."}
+AND {"get_char_world": "Returns bob; world lookup is a recording boundary.", "flag_lookup": "Use real table lookup."}
+WHEN Invoke do_flag with the fixture arguments once.
+THEN {"result": {"bob.imm_flags": 128, "bob.zone": null}, "unchanged": ["all unselected flag fields", "actor"], "forbidden": ["messages", "trust check", "persistence"]}
+```
+
+## flags.do_flag.resist-field
+
+resist field
+
+```text
+CASE flags.do_flag.resist-field
+SOURCE src/flags.c:do_flag:191
+GIVEN {"actor": {"id": "admin", "kind": "PC", "level": 1, "trust": 0}, "argument": "char bob resist + fire", "victim": {"id": "bob", "kind": "PC", "zone": "zone-A", "all_flag_fields": 0, "act": 0}, "tables": "Unmodified src/tables.c flag tables."}
+AND {"get_char_world": "Returns bob; world lookup is a recording boundary.", "flag_lookup": "Use real table lookup."}
+WHEN Invoke do_flag with the fixture arguments once.
+THEN {"result": {"bob.res_flags": 128, "bob.zone": null}, "unchanged": ["all unselected flag fields", "actor"], "forbidden": ["messages", "trust check", "persistence"]}
+```
+
+## flags.do_flag.vuln-field
+
+vuln field
+
+```text
+CASE flags.do_flag.vuln-field
+SOURCE src/flags.c:do_flag:191
+GIVEN {"actor": {"id": "admin", "kind": "PC", "level": 1, "trust": 0}, "argument": "char bob vuln + fire", "victim": {"id": "bob", "kind": "PC", "zone": "zone-A", "all_flag_fields": 0, "act": 0}, "tables": "Unmodified src/tables.c flag tables."}
+AND {"get_char_world": "Returns bob; world lookup is a recording boundary.", "flag_lookup": "Use real table lookup."}
+WHEN Invoke do_flag with the fixture arguments once.
+THEN {"result": {"bob.vuln_flags": 128, "bob.zone": null}, "unchanged": ["all unselected flag fields", "actor"], "forbidden": ["messages", "trust check", "persistence"]}
+```
+
+## flags.do_flag.form-field
+
+form field
+
+```text
+CASE flags.do_flag.form-field
+SOURCE src/flags.c:do_flag:191
+GIVEN {"actor": {"id": "admin", "kind": "PC", "level": 1, "trust": 0}, "argument": "char bob form + edible", "victim": {"id": "bob", "kind": "NPC", "zone": "zone-A", "all_flag_fields": 0, "act": 1}, "tables": "Unmodified src/tables.c flag tables."}
+AND {"get_char_world": "Returns bob; world lookup is a recording boundary.", "flag_lookup": "Use real table lookup."}
+WHEN Invoke do_flag with the fixture arguments once.
+THEN {"result": {"bob.form": 1, "bob.zone": null}, "unchanged": ["all unselected flag fields", "actor"], "forbidden": ["messages", "trust check", "persistence"]}
+```
+
+## flags.do_flag.parts-field
+
+parts field
+
+```text
+CASE flags.do_flag.parts-field
+SOURCE src/flags.c:do_flag:191
+GIVEN {"actor": {"id": "admin", "kind": "PC", "level": 1, "trust": 0}, "argument": "char bob parts + head", "victim": {"id": "bob", "kind": "NPC", "zone": "zone-A", "all_flag_fields": 0, "act": 1}, "tables": "Unmodified src/tables.c flag tables."}
+AND {"get_char_world": "Returns bob; world lookup is a recording boundary.", "flag_lookup": "Use real table lookup."}
+WHEN Invoke do_flag with the fixture arguments once.
+THEN {"result": {"bob.parts": 1, "bob.zone": null}, "unchanged": ["all unselected flag fields", "actor"], "forbidden": ["messages", "trust check", "persistence"]}
+```
+
+## flags.do_flag.comm-field
+
+comm field
+
+```text
+CASE flags.do_flag.comm-field
+SOURCE src/flags.c:do_flag:191
+GIVEN {"actor": {"id": "admin", "kind": "PC", "level": 1, "trust": 0}, "argument": "char bob comm + quiet", "victim": {"id": "bob", "kind": "PC", "zone": "zone-A", "all_flag_fields": 0, "act": 0}, "tables": "Unmodified src/tables.c flag tables."}
+AND {"get_char_world": "Returns bob; world lookup is a recording boundary.", "flag_lookup": "Use real table lookup."}
+WHEN Invoke do_flag with the fixture arguments once.
+THEN {"result": {"bob.comm": 1, "bob.zone": null}, "unchanged": ["all unselected flag fields", "actor"], "forbidden": ["messages", "trust check", "persistence"]}
+```
+
+## flags.do_flag.plr-field
+
+plr field
+
+```text
+CASE flags.do_flag.plr-field
+SOURCE src/flags.c:do_flag:191
+GIVEN {"actor": {"id": "admin", "kind": "PC", "level": 1, "trust": 0}, "argument": "char bob plr + permit", "victim": {"id": "bob", "kind": "PC", "zone": "zone-A", "all_flag_fields": 0, "act": 0}, "tables": "Unmodified src/tables.c flag tables."}
+AND {"get_char_world": "Returns bob; world lookup is a recording boundary.", "flag_lookup": "Use real table lookup."}
+WHEN Invoke do_flag with the fixture arguments once.
+THEN {"result": {"bob.act": 1048576, "bob.zone": null}, "unchanged": ["all unselected flag fields", "actor"], "forbidden": ["messages", "trust check", "persistence"]}
+```
+
+## flags.do_flag.ambiguous-a-selects-act
+
+ambiguous a selects act
+
+```text
+CASE flags.do_flag.ambiguous-a-selects-act
+SOURCE src/flags.c:do_flag:191
+GIVEN {"actor": {"id": "admin", "kind": "PC", "level": 1, "trust": 0}, "argument": "char bob a + sentinel", "victim": {"id": "bob", "kind": "NPC", "zone": "zone-A", "all_flag_fields": 0, "act": 1}, "tables": "Unmodified src/tables.c flag tables."}
+AND {"get_char_world": "Returns bob; world lookup is a recording boundary.", "flag_lookup": "Use real table lookup."}
+WHEN Invoke do_flag with the fixture arguments once.
+THEN {"result": {"bob.act": 3, "bob.zone": null}, "unchanged": ["all unselected flag fields", "actor"], "forbidden": ["messages", "trust check", "persistence"]}
+```
+
+## flags.do_flag.operator-attached-consumes-word
+
+operator attached consumes word
+
+```text
+CASE flags.do_flag.operator-attached-consumes-word
+SOURCE src/flags.c:do_flag:58
+GIVEN {"argument": "mob bob act +sentinel", "actor": {"id": "admin"}, "victim": {"id": "bob", "act": 1, "zone": "zone-A"}}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke do_flag with the fixture arguments once.
+THEN {"messages": [{"recipient": "admin", "text": "Which flags do you wish to change?\n\r"}], "unchanged": ["bob.act", "bob.zone"], "forbidden": ["get_char_world"]}
+```
+
+## alias.substitute_alias.loaded-uppercase-not-substituted
+
+loaded uppercase not substituted
+
+```text
+CASE alias.substitute_alias.loaded-uppercase-not-substituted
+SOURCE src/alias.c:substitute_alias:78; src/save.c:fread_char:784
+GIVEN {"argument": "X", "descriptor": {"character": "ch", "original": null}, "actor": {"id": "ch", "kind": "PC", "prefix": "", "desc": "descriptor", "aliases": [["X", "look"]]}, "storage": "Remaining four slots NULL. A saved Alias X look~ record is loaded without normalizing X."}
+AND {"interpret": "Recording boundary.", "string_helpers": "Real ASCII parsing and comparison."}
+WHEN Invoke substitute_alias with the fixture arguments once.
+THEN {"interpret": {"actor": "ch", "argument": "X"}, "unchanged": ["aliases"]}
+```
+
+## alias.do_alias.loaded-uppercase-query-found
+
+loaded uppercase query found
+
+```text
+CASE alias.do_alias.loaded-uppercase-query-found
+SOURCE src/alias.c:do_alias:160; src/save.c:fread_char:784
+GIVEN {"argument": "X", "descriptor": {"character": "ch", "original": null}, "actor": {"id": "ch", "kind": "PC", "prefix": "", "desc": "descriptor", "aliases": [["X", "look"]]}, "storage": "Remaining four slots NULL. A saved Alias X look~ record is loaded without normalizing X."}
+AND {"interpret": "Recording boundary.", "string_helpers": "Real ASCII parsing and comparison."}
+WHEN Invoke do_alias with the fixture arguments once.
+THEN {"messages": [{"recipient": "ch", "text": "X aliases to 'look'.\n\r"}], "unchanged": ["aliases"]}
+```
+
+## alias.do_unalias.loaded-uppercase-not-removed
+
+loaded uppercase not removed
+
+```text
+CASE alias.do_unalias.loaded-uppercase-not-removed
+SOURCE src/alias.c:do_unalias:245; src/save.c:fread_char:784
+GIVEN {"argument": "X", "descriptor": {"character": "ch", "original": null}, "actor": {"id": "ch", "kind": "PC", "prefix": "", "desc": "descriptor", "aliases": [["X", "look"]]}, "storage": "Remaining four slots NULL. A saved Alias X look~ record is loaded without normalizing X."}
+AND {"interpret": "Recording boundary.", "string_helpers": "Real ASCII parsing and comparison."}
+WHEN Invoke do_unalias with the fixture arguments once.
+THEN {"messages": [{"recipient": "ch", "text": "No alias of that name to remove.\n\r"}], "unchanged": ["aliases"]}
+```
+
+## db.str_infix.first-character-match-rest-mismatch
+
+first character match rest mismatch
+
+```text
+CASE db.str_infix.first-character-match-rest-mismatch
+SOURCE src/db.c:str_infix:3201
+GIVEN {"arguments": {"astr": "ab", "bstr": "ac"}}
+AND {"str_prefix": "Execute real helper; record candidate arguments."}
+WHEN Invoke str_infix with the fixture arguments once.
+THEN {"return": true, "ordered_str_prefix_candidates": ["ac"], "unchanged": ["input strings"], "forbidden": ["output", "random draws"]}
+```
+
+## db.str_infix.retry-after-partial-match
+
+retry after partial match
+
+```text
+CASE db.str_infix.retry-after-partial-match
+SOURCE src/db.c:str_infix:3201
+GIVEN {"arguments": {"astr": "ab", "bstr": "acab"}}
+AND {"str_prefix": "Execute real helper; record candidate arguments."}
+WHEN Invoke str_infix with the fixture arguments once.
+THEN {"return": false, "ordered_str_prefix_candidates": ["acab", "ab"], "unchanged": ["input strings"], "forbidden": ["output", "random draws"]}
+```
+
+## db.str_infix.one-character
+
+one character
+
+```text
+CASE db.str_infix.one-character
+SOURCE src/db.c:str_infix:3201
+GIVEN {"arguments": {"astr": "a", "bstr": "A"}}
+AND {"str_prefix": "Execute real helper; record candidate arguments."}
+WHEN Invoke str_infix with the fixture arguments once.
+THEN {"return": false, "ordered_str_prefix_candidates": ["A"], "unchanged": ["input strings"], "forbidden": ["output", "random draws"]}
+```
+
+## db.str_infix.empty-both
+
+empty both
+
+```text
+CASE db.str_infix.empty-both
+SOURCE src/db.c:str_infix:3201
+GIVEN {"arguments": {"astr": "", "bstr": ""}}
+AND {"str_prefix": "Execute real helper; record candidate arguments."}
+WHEN Invoke str_infix with the fixture arguments once.
+THEN {"return": false, "ordered_str_prefix_candidates": [], "unchanged": ["input strings"], "forbidden": ["output", "random draws"]}
+```
+
+## db.capitalize.shared-buffer-overwritten
+
+shared buffer overwritten
+
+```text
+CASE db.capitalize.shared-buffer-overwritten
+SOURCE src/db.c:capitalize:3243
+GIVEN {"first_input": "HELLO", "second_input": "x"}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Call capitalize("HELLO"), retain its pointer, then call capitalize("x").
+THEN {"ordered_results": ["Hello", "X"], "pointer_identity": "Both returns identify the same static array.", "first_pointer_after_second_call": "X", "unchanged": ["both input arrays"]}
+```
+
+## db.capitalize.maximum-fitting-input
+
+maximum fitting input
+
+```text
+CASE db.capitalize.maximum-fitting-input
+SOURCE src/db.c:capitalize:3247
+GIVEN {"arguments": {"str": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke capitalize with the fixture arguments once.
+THEN {"result_string": "Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "terminator_index": 4607}
+```
+
+## db.capitalize.static-buffer-overflow
+
+static buffer overflow
+
+```text
+CASE db.capitalize.static-buffer-overflow
+SOURCE src/db.c:capitalize:3248
+GIVEN {"arguments": {"str": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke capitalize with the fixture arguments once.
+THEN {"limitation": "The terminating NUL is written beyond the 4608-byte static array; no portable result."}
+```
+
+Open questions: Undefined out-of-bounds write. A target length policy needs a separate decision.
+
+## db.number_range.zero-lower-nonzero-upper
+
+zero lower nonzero upper
+
+```text
+CASE db.number_range.zero-lower-nonzero-upper
+SOURCE src/db.c:number_range:2965
+GIVEN {"arguments": {"from": 0, "to": 1}}
+AND {"number_mm": {"kind": "entropy boundary", "ordered_returns": [1]}}
+WHEN Invoke number_range with the fixture arguments once.
+THEN {"return": 1, "ordered_consumed_draws": [1], "number_mm_calls": 1}
+```
+
+## db.number_range.power-loop-zero-iterations
+
+power loop zero iterations
+
+```text
+CASE db.number_range.power-loop-zero-iterations
+SOURCE src/db.c:number_range:2965
+GIVEN {"arguments": {"from": 5, "to": 6}}
+AND {"number_mm": {"kind": "entropy boundary", "ordered_returns": [2]}}
+WHEN Invoke number_range with the fixture arguments once.
+THEN {"return": 5, "ordered_consumed_draws": [2], "number_mm_calls": 1}
+```
+
+## db.number_range.exact-power-domain
+
+exact power domain
+
+```text
+CASE db.number_range.exact-power-domain
+SOURCE src/db.c:number_range:2965
+GIVEN {"arguments": {"from": 1, "to": 4}}
+AND {"number_mm": {"kind": "entropy boundary", "ordered_returns": [3]}}
+WHEN Invoke number_range with the fixture arguments once.
+THEN {"return": 4, "ordered_consumed_draws": [3], "number_mm_calls": 1}
+```
+
+## db.dice.negative-size
+
+negative size
+
+```text
+CASE db.dice.negative-size
+SOURCE src/db.c:dice:3095
+GIVEN {"arguments": {"number": 2, "size": -3}}
+AND {"number_range": "Run real helper: reversed domain returns 1 without entropy."}
+WHEN Invoke dice with the fixture arguments once.
+THEN {"return": 2, "ordered_number_range_calls": [[1, -3], [1, -3]], "number_mm_calls": 0}
+```
+
+## db.number_bits.invalid-shift--1
+
+invalid shift  1
+
+```text
+CASE db.number_bits.invalid-shift--1
+SOURCE src/db.c:number_bits:3006
+GIVEN {"arguments": {"width": -1}, "platform": "32-bit signed int"}
+AND {"number_mm": "Returns 0; operand evaluation order is unspecified."}
+WHEN Invoke number_bits with the fixture arguments once.
+THEN {"limitation": "Negative shift, unrepresentable signed left shift, or shift at type width; no portable return."}
+```
+
+Open questions: Undefined shift; the C helper does not validate the width.
+
+## db.number_bits.invalid-shift-31
+
+invalid shift 31
+
+```text
+CASE db.number_bits.invalid-shift-31
+SOURCE src/db.c:number_bits:3006
+GIVEN {"arguments": {"width": 31}, "platform": "32-bit signed int"}
+AND {"number_mm": "Returns 0; operand evaluation order is unspecified."}
+WHEN Invoke number_bits with the fixture arguments once.
+THEN {"limitation": "Negative shift, unrepresentable signed left shift, or shift at type width; no portable return."}
+```
+
+Open questions: Undefined shift; the C helper does not validate the width.
+
+## db.number_bits.invalid-shift-32
+
+invalid shift 32
+
+```text
+CASE db.number_bits.invalid-shift-32
+SOURCE src/db.c:number_bits:3006
+GIVEN {"arguments": {"width": 32}, "platform": "32-bit signed int"}
+AND {"number_mm": "Returns 0; operand evaluation order is unspecified."}
+WHEN Invoke number_bits with the fixture arguments once.
+THEN {"limitation": "Negative shift, unrepresentable signed left shift, or shift at type width; no portable return."}
+```
+
+Open questions: Undefined shift; the C helper does not validate the width.
+
+## db.number_range.domain-subtraction-overflow
+
+domain subtraction overflow
+
+```text
+CASE db.number_range.domain-subtraction-overflow
+SOURCE src/db.c:number_range:2962
+GIVEN {"arguments": {"from": -2147483648, "to": 2147483647}, "platform": "32-bit signed int"}
+AND {"number_bits": "Returns 3 if called.", "number_mm": "Must not be reached before the identified overflow."}
+WHEN Invoke number_range with the fixture arguments once.
+THEN {"limitation": "Signed overflow has no portable result; do not assert wrapped arithmetic."}
+```
+
+Open questions: Undefined signed arithmetic outside the safe direct-helper domain.
+
+## db.number_range.power-growth-overflow
+
+power growth overflow
+
+```text
+CASE db.number_range.power-growth-overflow
+SOURCE src/db.c:number_range:2965
+GIVEN {"arguments": {"from": 0, "to": 1073741824}, "platform": "32-bit signed int"}
+AND {"number_bits": "Returns 3 if called.", "number_mm": "Must not be reached before the identified overflow."}
+WHEN Invoke number_range with the fixture arguments once.
+THEN {"limitation": "Signed overflow has no portable result; do not assert wrapped arithmetic."}
+```
+
+Open questions: Undefined signed arithmetic outside the safe direct-helper domain.
+
+## db.number_fuzzy.increment-overflow
+
+increment overflow
+
+```text
+CASE db.number_fuzzy.increment-overflow
+SOURCE src/db.c:number_fuzzy:2943
+GIVEN {"arguments": {"number": 2147483647}, "platform": "32-bit signed int"}
+AND {"number_bits": "Returns 3 if called.", "number_mm": "Must not be reached before the identified overflow."}
+WHEN Invoke number_fuzzy with the fixture arguments once.
+THEN {"limitation": "Signed overflow has no portable result; do not assert wrapped arithmetic."}
+```
+
+Open questions: Undefined signed arithmetic outside the safe direct-helper domain.
+
+## db.interpolate.product-overflow
+
+product overflow
+
+```text
+CASE db.interpolate.product-overflow
+SOURCE src/db.c:interpolate:3107
+GIVEN {"arguments": {"level": 2147483647, "value_00": 0, "value_32": 2}, "platform": "32-bit signed int"}
+AND {"number_bits": "Returns 3 if called.", "number_mm": "Must not be reached before the identified overflow."}
+WHEN Invoke interpolate with the fixture arguments once.
+THEN {"limitation": "Signed overflow has no portable result; do not assert wrapped arithmetic."}
+```
+
+Open questions: Undefined signed arithmetic outside the safe direct-helper domain.
+
+## ban.load_bans.empty-file-parser-exits
+
+empty file parser exits
+
+```text
+CASE ban.load_bans.empty-file-parser-exits
+SOURCE src/ban.c:load_bans:92; src/db.c:fread_word:2524; src/db.c:fread_number:2166; src/db.c:fread_flag:2214; src/db.c:fread_to_eol:2499
+GIVEN {"file_bytes": "", "ban_list": [], "ban_free": [], "platform": "C locale, 8-bit signed char with EOF=-1 preserved when stored in char; successful file open and allocations."}
+AND {"parsers": "Run fread_word, fread_number, fread_flag, flag_convert and fread_to_eol; no parser stubs.", "allocation": "Successful recording boundary.", "stdio": "Byte stream with persistent EOF; exit is captured as termination, not return."}
+WHEN Invoke load_bans with the fixture arguments once.
+THEN {"ordered_events": ["new_ban", "fread_word fills its buffer with EOF bytes", "bug(\"Fread_word: word too long.\",0)", "exit(1)"], "forbidden": ["append ban", "normal return"]}
+```
+
+## ban.load_bans.whitespace-only-parser-exits
+
+whitespace only parser exits
+
+```text
+CASE ban.load_bans.whitespace-only-parser-exits
+SOURCE src/ban.c:load_bans:92; src/db.c:fread_word:2524; src/db.c:fread_number:2166; src/db.c:fread_flag:2214; src/db.c:fread_to_eol:2499
+GIVEN {"file_bytes": " \t\n", "ban_list": [], "ban_free": [], "platform": "C locale, 8-bit signed char with EOF=-1 preserved when stored in char; successful file open and allocations."}
+AND {"parsers": "Run fread_word, fread_number, fread_flag, flag_convert and fread_to_eol; no parser stubs.", "allocation": "Successful recording boundary.", "stdio": "Byte stream with persistent EOF; exit is captured as termination, not return."}
+WHEN Invoke load_bans with the fixture arguments once.
+THEN {"ordered_events": ["new_ban", "fread_word skips initial whitespace then fills buffer with EOF bytes", "bug(\"Fread_word: word too long.\",0)", "exit(1)"], "forbidden": ["append ban", "normal return"]}
+```
+
+## ban.load_bans.bad-level-parser-exits
+
+bad level parser exits
+
+```text
+CASE ban.load_bans.bad-level-parser-exits
+SOURCE src/ban.c:load_bans:92; src/db.c:fread_word:2524; src/db.c:fread_number:2166; src/db.c:fread_flag:2214; src/db.c:fread_to_eol:2499
+GIVEN {"file_bytes": "example.org x A\n", "ban_list": [], "ban_free": [], "platform": "C locale, 8-bit signed char with EOF=-1 preserved when stored in char; successful file open and allocations."}
+AND {"parsers": "Run fread_word, fread_number, fread_flag, flag_convert and fread_to_eol; no parser stubs.", "allocation": "Successful recording boundary.", "stdio": "Byte stream with persistent EOF; exit is captured as termination, not return."}
+WHEN Invoke load_bans with the fixture arguments once.
+THEN {"ordered_events": ["new_ban", "store name example.org", "bug(\"Fread_number: bad format.\",0)", "exit(1)"], "forbidden": ["append ban", "normal return"]}
+```
+
+## ban.load_bans.no-final-newline-does-not-terminate
+
+no final newline does not terminate
+
+```text
+CASE ban.load_bans.no-final-newline-does-not-terminate
+SOURCE src/ban.c:load_bans:92; src/db.c:fread_word:2524; src/db.c:fread_number:2166; src/db.c:fread_flag:2214; src/db.c:fread_to_eol:2499
+GIVEN {"file_bytes": "example.org 10 A", "ban_list": [], "ban_free": [], "platform": "C locale, 8-bit signed char with EOF=-1 preserved when stored in char; successful file open and allocations."}
+AND {"parsers": "Run fread_word, fread_number, fread_flag, flag_convert and fread_to_eol; no parser stubs.", "allocation": "Successful recording boundary.", "stdio": "Byte stream with persistent EOF; exit is captured as termination, not return."}
+WHEN Invoke load_bans with the fixture arguments once.
+THEN {"ordered_events": ["new_ban", "store name example.org", "store level 10", "store ban_flags 1", "fread_to_eol repeatedly reads EOF"], "control": "No return: EOF is neither newline nor carriage return.", "forbidden": ["append ban", "fclose", "next allocation"]}
+```
+
+## ban.load_bans.trailing-spaces-create-phantom-record
+
+trailing spaces create phantom record
+
+```text
+CASE ban.load_bans.trailing-spaces-create-phantom-record
+SOURCE src/ban.c:load_bans:92; src/db.c:fread_word:2524; src/db.c:fread_number:2166; src/db.c:fread_flag:2214; src/db.c:fread_to_eol:2499
+GIVEN {"file_bytes": "example.org 10 A\n  ", "ban_list": [], "ban_free": [], "platform": "C locale, 8-bit signed char with EOF=-1 preserved when stored in char; successful file open and allocations."}
+AND {"parsers": "Run fread_word, fread_number, fread_flag, flag_convert and fread_to_eol; no parser stubs.", "allocation": "Successful recording boundary.", "stdio": "Byte stream with persistent EOF; exit is captured as termination, not return."}
+WHEN Invoke load_bans with the fixture arguments once.
+THEN {"ordered_events": ["append first record example.org, level 10, flags 1", "new_ban for second record", "bug(\"Fread_word: word too long.\",0)", "exit(1)"], "ban_list_before_exit": ["example.org"], "forbidden": ["append second record", "normal return"]}
+```
+
+## ban.load_bans.invalid-flag-character-is-zero
+
+invalid flag character is zero
+
+```text
+CASE ban.load_bans.invalid-flag-character-is-zero
+SOURCE src/ban.c:load_bans:92; src/db.c:fread_word:2524; src/db.c:fread_number:2166; src/db.c:fread_flag:2214; src/db.c:fread_to_eol:2499
+GIVEN {"file_bytes": "example.org 10 ?\n", "ban_list": [], "ban_free": [], "platform": "C locale, 8-bit signed char with EOF=-1 preserved when stored in char; successful file open and allocations."}
+AND {"parsers": "Run fread_word, fread_number, fread_flag, flag_convert and fread_to_eol; no parser stubs.", "allocation": "Successful recording boundary.", "stdio": "Byte stream with persistent EOF; exit is captured as termination, not return."}
+WHEN Invoke load_bans with the fixture arguments once.
+THEN {"ordered_events": ["new_ban", "store name example.org", "store level 10", "fread_flag returns 0 and pushes back ?", "fread_to_eol consumes ? and newline, then reads EOF", "append record", "fclose", "return"], "ban_list": [{"name": "example.org", "level": 10, "ban_flags": 0}]}
+```
+
+## ban.load_bans.duplicate-letter-flags-add
+
+duplicate letter flags add
+
+```text
+CASE ban.load_bans.duplicate-letter-flags-add
+SOURCE src/ban.c:load_bans:92; src/db.c:fread_word:2524; src/db.c:fread_number:2166; src/db.c:fread_flag:2214; src/db.c:fread_to_eol:2499
+GIVEN {"file_bytes": "example.org 10 AA\n", "ban_list": [], "ban_free": [], "platform": "C locale, 8-bit signed char with EOF=-1 preserved when stored in char; successful file open and allocations."}
+AND {"parsers": "Run fread_word, fread_number, fread_flag, flag_convert and fread_to_eol; no parser stubs.", "allocation": "Successful recording boundary.", "stdio": "Byte stream with persistent EOF; exit is captured as termination, not return."}
+WHEN Invoke load_bans with the fixture arguments once.
+THEN {"ordered_events": ["new_ban", "parse name example.org, level 10, flags 2", "append record", "fclose", "return"], "ban_list": [{"name": "example.org", "level": 10, "ban_flags": 2}], "quirk": "Flag letters are added, not bitwise ORed."}
+```
+
+## ban.ban_site.replacement-walks-recycle-list
+
+replacement walks recycle list
+
+```text
+CASE ban.ban_site.replacement-walks-recycle-list
+SOURCE src/ban.c:ban_site:229; src/recycle.c:free_ban:98; src/recycle.c:new_ban:79
+GIVEN {"actor": {"id": "admin", "trust": 60}, "argument": "example.org all", "fPerm": false, "ban_list": [{"id": "old", "name": "example.org", "level": 60, "valid": true, "next": "tail"}, {"id": "tail", "name": "unrelated.org", "level": 60, "valid": true, "next": null}], "ban_free": [{"id": "free1", "name": "recycled.org", "valid": false, "next": null}], "string_storage": "All existing names are immutable shared database strings; free_string leaves these bytes unchanged."}
+AND {"get_trust": "Returns 60.", "save_bans": "Recording persistence boundary.", "recycler": "Execute new_ban/free_ban; allocation succeeds.", "str_dup": "Allocation boundary returns an owned copy of the requested name; do not execute unrelated-pointer ordering comparisons in the allocator."}
+WHEN Invoke ban_site with the fixture arguments once.
+THEN {"ordered_events": ["unlink old; live head becomes tail", "free_ban(old) changes old.next to free1 and free-list head to old", "replacement loop compares free1.name, then terminates without visiting tail", "new_ban reuses old and leaves free1 as free-list head", "assign new name, level 60 and BAN_ALL", "prepend old before tail", "save_bans", "send example.org has been banned.\n\r to admin"], "result_list": ["old", "tail"], "result_free_list": ["free1"], "forbidden": ["compare tail.name", "message to other characters"]}
 ```

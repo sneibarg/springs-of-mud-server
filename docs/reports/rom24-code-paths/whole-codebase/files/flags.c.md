@@ -96,6 +96,16 @@ Dependencies: `one_argument`, `send_to_char`, `str_prefix`, `get_char_world`, `I
 | `flags.do_flag.type-label-does-not-restrict-kind.path` | 56 | `type label does not restrict kind` | flags.do_flag.type-label-does-not-restrict-kind | specified |
 | `flags.do_flag.operator-alone.path` | 56 | `operator alone` | flags.do_flag.operator-alone | specified |
 | `flags.do_flag.nonsettable-absent-can-be-added-reference-quirk.path` | 217 | `nonsettable absent can be added reference quirk` | flags.do_flag.nonsettable-absent-can-be-added-reference-quirk | specified |
+| `flags.do_flag.aff-field.path` | 191 | `aff field` | flags.do_flag.aff-field | specified |
+| `flags.do_flag.immunity-field.path` | 191 | `immunity field` | flags.do_flag.immunity-field | specified |
+| `flags.do_flag.resist-field.path` | 191 | `resist field` | flags.do_flag.resist-field | specified |
+| `flags.do_flag.vuln-field.path` | 191 | `vuln field` | flags.do_flag.vuln-field | specified |
+| `flags.do_flag.form-field.path` | 191 | `form field` | flags.do_flag.form-field | specified |
+| `flags.do_flag.parts-field.path` | 191 | `parts field` | flags.do_flag.parts-field | specified |
+| `flags.do_flag.comm-field.path` | 191 | `comm field` | flags.do_flag.comm-field | specified |
+| `flags.do_flag.plr-field.path` | 191 | `plr field` | flags.do_flag.plr-field | specified |
+| `flags.do_flag.ambiguous-a-selects-act.path` | 191 | `ambiguous a selects act` | flags.do_flag.ambiguous-a-selects-act | specified |
+| `flags.do_flag.operator-attached-consumes-word.path` | 58 | `operator attached consumes word` | flags.do_flag.operator-attached-consumes-word | specified |
 
 ## Preprocessor and macro inventory
 

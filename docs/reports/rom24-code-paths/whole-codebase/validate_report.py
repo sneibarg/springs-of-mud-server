@@ -2,6 +2,7 @@
 import hashlib
 import json
 import re
+import sys
 from pathlib import Path
 
 OUT = Path(__file__).resolve().parent
@@ -15,9 +16,14 @@ assert len({b['id'] for b in ledger}) == len(ledger)
 assert len({c['id'] for c in cases}) == len(cases)
 case_map = {c['id']: c for c in cases}
 branch_map = {b['id']: b for b in ledger}
+function_map = {(fn['file'], fn['name']): fn for fn in functions}
 for case in cases:
+    assert len(case['branch_ids']) == len(set(case['branch_ids'])), case['id']
     for bid in case['branch_ids']:
         assert case['id'] in branch_map[bid]['case_ids']
+    for reference in case['source_refs']:
+        function = function_map[reference['file'], reference['function']]
+        assert function['line'] <= reference['line'] <= function['end_line'], reference
     if case['status'] == 'blocked':
         assert case['open_questions'], case['id']
 for branch in ledger:
@@ -40,12 +46,17 @@ for md in OUT.rglob('*.md'):
             assert 1 <= int(match[2]) <= len(target.read_text(encoding='latin1').splitlines()), link
         checked_links += 1
 assert manifest['counts']['functions_inventoried'] == len(functions)
+reviewed = [fn for fn in functions if 'local_ledger_review' in fn]
+assert manifest['counts']['additional_local_ledgers_reconciled'] == len(reviewed)
+for function in reviewed:
+    assert function['status'] == 'partially_specified', function['name']
+    assert all(b['disposition'] != 'pending' for b in function['branch_ledger']), function['name']
 assert manifest['counts']['cases_specified'] == sum(c['status'] == 'specified' for c in cases)
 assert manifest['counts']['cases_blocked'] == sum(c['status'] == 'blocked' for c in cases)
 assert manifest['counts']['cases_dynamically_verified'] == 0
 assert manifest['status'] == 'partial'
-result = {'result': 'passed', 'command': '.venv/Scripts/python.exe docs/reports/rom24-code-paths/whole-codebase/validate_report.py',
-                  'checks': 'JSON integrity, bidirectional references, blocked reasons, all snapshot hashes, Markdown links and citation bounds, count consistency, truthful partial status',
+result = {'result': 'passed', 'command': [sys.executable, str(Path(__file__).resolve())],
+                  'checks': 'JSON integrity, unique branch links, bidirectional references, blocked reasons, all snapshot hashes, Markdown links and function-scoped citation bounds, count consistency, local ledger reconciliation without promoting function status, truthful partial status',
                   'source_and_supporting_files_hashed': len(files) + len(manifest['ancillary_inventory']),
                   'functions_inventoried': len(functions), 'cases': len(cases), 'markdown_links_checked': checked_links,
                   'gameplay_tests_run': 0}

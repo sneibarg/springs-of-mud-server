@@ -1909,12 +1909,12 @@ Dependencies: `number_bits`, `UMAX`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `db.number_fuzzy.switch.001` | 2940 | `switch ( number_bits( 2 ) )` |  | pending |
-| `db.number_fuzzy.case.001` | 2942 | `case 0:  number -= 1;` |  | pending |
-| `db.number_fuzzy.break.001` | 2942 | `break;` |  | pending |
-| `db.number_fuzzy.case.002` | 2943 | `case 3:  number += 1;` |  | pending |
-| `db.number_fuzzy.break.002` | 2943 | `break;` |  | pending |
-| `db.number_fuzzy.return.001` | 2946 | `return UMAX( 1, number );` |  | pending |
+| `db.number_fuzzy.switch.001` | 2940 | `switch ( number_bits( 2 ) )` | db.number_fuzzy.number-10-bits-0, db.number_fuzzy.number-10-bits-1, db.number_fuzzy.number-10-bits-2, db.number_fuzzy.number-10-bits-3, db.number_fuzzy.number-1-bits-0, db.number_fuzzy.number-0-bits-3, db.number_fuzzy.number--2-bits-1 | specified |
+| `db.number_fuzzy.case.001` | 2942 | `case 0:  number -= 1;` | db.number_fuzzy.number-10-bits-0, db.number_fuzzy.number-1-bits-0 | specified |
+| `db.number_fuzzy.break.001` | 2942 | `break;` | db.number_fuzzy.number-10-bits-0, db.number_fuzzy.number-1-bits-0 | specified |
+| `db.number_fuzzy.case.002` | 2943 | `case 3:  number += 1;` | db.number_fuzzy.number-10-bits-3, db.number_fuzzy.number-0-bits-3 | specified |
+| `db.number_fuzzy.break.002` | 2943 | `break;` | db.number_fuzzy.number-10-bits-3, db.number_fuzzy.number-0-bits-3 | specified |
+| `db.number_fuzzy.return.001` | 2946 | `return UMAX( 1, number );` | db.number_fuzzy.number-10-bits-0, db.number_fuzzy.number-10-bits-1, db.number_fuzzy.number-10-bits-2, db.number_fuzzy.number-10-bits-3, db.number_fuzzy.number-1-bits-0, db.number_fuzzy.number-0-bits-3, db.number_fuzzy.number--2-bits-1 | specified |
 | `db.number_fuzzy.number-10-bits-0.path` | 2940 | `number 10 bits 0` | db.number_fuzzy.number-10-bits-0 | specified |
 | `db.number_fuzzy.number-10-bits-1.path` | 2940 | `number 10 bits 1` | db.number_fuzzy.number-10-bits-1 | specified |
 | `db.number_fuzzy.number-10-bits-2.path` | 2940 | `number 10 bits 2` | db.number_fuzzy.number-10-bits-2 | specified |
@@ -1922,6 +1922,7 @@ Dependencies: `number_bits`, `UMAX`.
 | `db.number_fuzzy.number-1-bits-0.path` | 2940 | `number 1 bits 0` | db.number_fuzzy.number-1-bits-0 | specified |
 | `db.number_fuzzy.number-0-bits-3.path` | 2940 | `number 0 bits 3` | db.number_fuzzy.number-0-bits-3 | specified |
 | `db.number_fuzzy.number--2-bits-1.path` | 2940 | `number  2 bits 1` | db.number_fuzzy.number--2-bits-1 | specified |
+| `db.number_fuzzy.increment-overflow.path` | 2943 | `increment overflow` | db.number_fuzzy.increment-overflow | blocked |
 
 ## number_range
 
@@ -2039,14 +2040,14 @@ Dependencies: `number_mm`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `db.number_range.if.001` | 2959 | `if (from == 0 && to == 0)` |  | pending |
-| `db.number_range.and.001` | 2959 | `&& to == 0)` |  | pending |
-| `db.number_range.return.001` | 2960 | `return 0;` |  | pending |
-| `db.number_range.if.002` | 2962 | `if ( ( to = to - from + 1 ) <= 1 )` |  | pending |
-| `db.number_range.return.002` | 2963 | `return from;` |  | pending |
-| `db.number_range.for.001` | 2965 | `for ( power = 2; power < to; power <<= 1 )` |  | pending |
-| `db.number_range.while.001` | 2968 | `while ( ( number = number_mm() & (power -1 ) ) >= to )` |  | pending |
-| `db.number_range.return.003` | 2971 | `return from + number;` |  | pending |
+| `db.number_range.if.001` | 2959 | `if (from == 0 && to == 0)` | db.number_range.both-zero, db.number_range.equal, db.number_range.reversed, db.number_range.lower-end, db.number_range.upper-end, db.number_range.reject-equality-then-accept, db.number_range.multiple-rejections, db.number_range.negative-domain, db.number_range.zero-lower-nonzero-upper, db.number_range.power-loop-zero-iterations, db.number_range.exact-power-domain | specified |
+| `db.number_range.and.001` | 2959 | `&& to == 0)` | db.number_range.both-zero, db.number_range.equal, db.number_range.reversed, db.number_range.lower-end, db.number_range.upper-end, db.number_range.reject-equality-then-accept, db.number_range.multiple-rejections, db.number_range.negative-domain, db.number_range.zero-lower-nonzero-upper, db.number_range.power-loop-zero-iterations, db.number_range.exact-power-domain | specified |
+| `db.number_range.return.001` | 2960 | `return 0;` | db.number_range.both-zero | specified |
+| `db.number_range.if.002` | 2962 | `if ( ( to = to - from + 1 ) <= 1 )` | db.number_range.equal, db.number_range.reversed, db.number_range.lower-end, db.number_range.upper-end, db.number_range.reject-equality-then-accept, db.number_range.multiple-rejections, db.number_range.negative-domain, db.number_range.zero-lower-nonzero-upper, db.number_range.power-loop-zero-iterations, db.number_range.exact-power-domain | specified |
+| `db.number_range.return.002` | 2963 | `return from;` | db.number_range.equal, db.number_range.reversed | specified |
+| `db.number_range.for.001` | 2965 | `for ( power = 2; power < to; power <<= 1 )` | db.number_range.lower-end, db.number_range.upper-end, db.number_range.reject-equality-then-accept, db.number_range.multiple-rejections, db.number_range.negative-domain, db.number_range.zero-lower-nonzero-upper, db.number_range.power-loop-zero-iterations, db.number_range.exact-power-domain | specified |
+| `db.number_range.while.001` | 2968 | `while ( ( number = number_mm() & (power -1 ) ) >= to )` | db.number_range.lower-end, db.number_range.upper-end, db.number_range.reject-equality-then-accept, db.number_range.multiple-rejections, db.number_range.negative-domain, db.number_range.zero-lower-nonzero-upper, db.number_range.power-loop-zero-iterations, db.number_range.exact-power-domain | specified |
+| `db.number_range.return.003` | 2971 | `return from + number;` | db.number_range.lower-end, db.number_range.upper-end, db.number_range.reject-equality-then-accept, db.number_range.multiple-rejections, db.number_range.negative-domain, db.number_range.zero-lower-nonzero-upper, db.number_range.power-loop-zero-iterations, db.number_range.exact-power-domain | specified |
 | `db.number_range.both-zero.path` | 2962 | `both zero` | db.number_range.both-zero | specified |
 | `db.number_range.equal.path` | 2962 | `equal` | db.number_range.equal | specified |
 | `db.number_range.reversed.path` | 2962 | `reversed` | db.number_range.reversed | specified |
@@ -2055,6 +2056,11 @@ Dependencies: `number_mm`.
 | `db.number_range.reject-equality-then-accept.path` | 2962 | `reject equality then accept` | db.number_range.reject-equality-then-accept | specified |
 | `db.number_range.multiple-rejections.path` | 2962 | `multiple rejections` | db.number_range.multiple-rejections | specified |
 | `db.number_range.negative-domain.path` | 2962 | `negative domain` | db.number_range.negative-domain | specified |
+| `db.number_range.zero-lower-nonzero-upper.path` | 2965 | `zero lower nonzero upper` | db.number_range.zero-lower-nonzero-upper | specified |
+| `db.number_range.power-loop-zero-iterations.path` | 2965 | `power loop zero iterations` | db.number_range.power-loop-zero-iterations | specified |
+| `db.number_range.exact-power-domain.path` | 2965 | `exact power domain` | db.number_range.exact-power-domain | specified |
+| `db.number_range.domain-subtraction-overflow.path` | 2962 | `domain subtraction overflow` | db.number_range.domain-subtraction-overflow | blocked |
+| `db.number_range.power-growth-overflow.path` | 2965 | `power growth overflow` | db.number_range.power-growth-overflow | blocked |
 
 ## number_percent
 
@@ -2120,8 +2126,8 @@ Dependencies: `number_mm`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `db.number_percent.while.001` | 2983 | `while ( (percent = number_mm() & (128-1) ) > 99 )` |  | pending |
-| `db.number_percent.return.001` | 2986 | `return 1 + percent;` |  | pending |
+| `db.number_percent.while.001` | 2983 | `while ( (percent = number_mm() & (128-1) ) > 99 )` | db.number_percent.lower, db.number_percent.upper, db.number_percent.reject-100, db.number_percent.reject-127, db.number_percent.mask-before-test | specified |
+| `db.number_percent.return.001` | 2986 | `return 1 + percent;` | db.number_percent.lower, db.number_percent.upper, db.number_percent.reject-100, db.number_percent.reject-127, db.number_percent.mask-before-test | specified |
 | `db.number_percent.lower.path` | 2983 | `lower` | db.number_percent.lower | specified |
 | `db.number_percent.upper.path` | 2983 | `upper` | db.number_percent.upper | specified |
 | `db.number_percent.reject-100.path` | 2983 | `reject 100` | db.number_percent.reject-100 | specified |
@@ -2141,8 +2147,8 @@ Dependencies: `number_mm`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `db.number_door.while.001` | 2998 | `while ( ( door = number_mm() & (8-1) ) > 5)` |  | pending |
-| `db.number_door.return.001` | 3001 | `return door;` |  | pending |
+| `db.number_door.while.001` | 2998 | `while ( ( door = number_mm() & (8-1) ) > 5)` | db.number_door.lower, db.number_door.upper, db.number_door.reject-six-seven, db.number_door.mask-before-test | specified |
+| `db.number_door.return.001` | 3001 | `return door;` | db.number_door.lower, db.number_door.upper, db.number_door.reject-six-seven, db.number_door.mask-before-test | specified |
 | `db.number_door.lower.path` | 2998 | `lower` | db.number_door.lower | specified |
 | `db.number_door.upper.path` | 2998 | `upper` | db.number_door.upper | specified |
 | `db.number_door.reject-six-seven.path` | 2998 | `reject six seven` | db.number_door.reject-six-seven | specified |
@@ -2191,11 +2197,14 @@ Dependencies: `number_mm`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `db.number_bits.return.001` | 3006 | `return number_mm( ) & ( ( 1 << width ) - 1 );` |  | pending |
+| `db.number_bits.return.001` | 3006 | `return number_mm( ) & ( ( 1 << width ) - 1 );` | db.number_bits.width-0-raw-255, db.number_bits.width-1-raw-2, db.number_bits.width-2-raw-7, db.number_bits.width-3-raw-5 | specified |
 | `db.number_bits.width-0-raw-255.path` | 3006 | `width 0 raw 255` | db.number_bits.width-0-raw-255 | specified |
 | `db.number_bits.width-1-raw-2.path` | 3006 | `width 1 raw 2` | db.number_bits.width-1-raw-2 | specified |
 | `db.number_bits.width-2-raw-7.path` | 3006 | `width 2 raw 7` | db.number_bits.width-2-raw-7 | specified |
 | `db.number_bits.width-3-raw-5.path` | 3006 | `width 3 raw 5` | db.number_bits.width-3-raw-5 | specified |
+| `db.number_bits.invalid-shift--1.path` | 3006 | `invalid shift  1` | db.number_bits.invalid-shift--1 | blocked |
+| `db.number_bits.invalid-shift-31.path` | 3006 | `invalid shift 31` | db.number_bits.invalid-shift-31 | blocked |
+| `db.number_bits.invalid-shift-32.path` | 3006 | `invalid shift 32` | db.number_bits.invalid-shift-32 | blocked |
 
 ## init_mm
 
@@ -2287,13 +2296,13 @@ Dependencies: `number_range`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `db.dice.switch.001` | 3088 | `switch ( size )` |  | pending |
-| `db.dice.case.001` | 3090 | `case 0: return 0;` |  | pending |
-| `db.dice.return.001` | 3090 | `return 0;` |  | pending |
-| `db.dice.case.002` | 3091 | `case 1: return number;` |  | pending |
-| `db.dice.return.002` | 3091 | `return number;` |  | pending |
-| `db.dice.for.001` | 3094 | `for ( idice = 0, sum = 0; idice < number; idice++ )` |  | pending |
-| `db.dice.return.003` | 3097 | `return sum;` |  | pending |
+| `db.dice.switch.001` | 3088 | `switch ( size )` | db.dice.size-zero, db.dice.size-one, db.dice.size-one-negative-count-quirk, db.dice.zero-dice, db.dice.negative-count, db.dice.one-die, db.dice.multiple, db.dice.negative-size | specified |
+| `db.dice.case.001` | 3090 | `case 0: return 0;` | db.dice.size-zero | specified |
+| `db.dice.return.001` | 3090 | `return 0;` | db.dice.size-zero | specified |
+| `db.dice.case.002` | 3091 | `case 1: return number;` | db.dice.size-one, db.dice.size-one-negative-count-quirk | specified |
+| `db.dice.return.002` | 3091 | `return number;` | db.dice.size-one, db.dice.size-one-negative-count-quirk | specified |
+| `db.dice.for.001` | 3094 | `for ( idice = 0, sum = 0; idice < number; idice++ )` | db.dice.zero-dice, db.dice.negative-count, db.dice.one-die, db.dice.multiple, db.dice.negative-size | specified |
+| `db.dice.return.003` | 3097 | `return sum;` | db.dice.zero-dice, db.dice.negative-count, db.dice.one-die, db.dice.multiple, db.dice.negative-size | specified |
 | `db.dice.size-zero.path` | 3088 | `size zero` | db.dice.size-zero | specified |
 | `db.dice.size-one.path` | 3088 | `size one` | db.dice.size-one | specified |
 | `db.dice.size-one-negative-count-quirk.path` | 3088 | `size one negative count quirk` | db.dice.size-one-negative-count-quirk | specified |
@@ -2301,6 +2310,7 @@ Dependencies: `number_range`.
 | `db.dice.negative-count.path` | 3088 | `negative count` | db.dice.negative-count | specified |
 | `db.dice.one-die.path` | 3088 | `one die` | db.dice.one-die | specified |
 | `db.dice.multiple.path` | 3088 | `multiple` | db.dice.multiple | specified |
+| `db.dice.negative-size.path` | 3095 | `negative size` | db.dice.negative-size | specified |
 
 ## interpolate
 
@@ -2317,13 +2327,14 @@ Dependencies: .
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `db.interpolate.return.001` | 3107 | `return value_00 + level * (value_32 - value_00) / 32;` |  | pending |
+| `db.interpolate.return.001` | 3107 | `return value_00 + level * (value_32 - value_00) / 32;` | db.interpolate.zero, db.interpolate.endpoint, db.interpolate.positive-fraction, db.interpolate.negative-fraction-truncates-to-zero, db.interpolate.negative-level, db.interpolate.extrapolates | specified |
 | `db.interpolate.zero.path` | 3107 | `zero` | db.interpolate.zero | specified |
 | `db.interpolate.endpoint.path` | 3107 | `endpoint` | db.interpolate.endpoint | specified |
 | `db.interpolate.positive-fraction.path` | 3107 | `positive fraction` | db.interpolate.positive-fraction | specified |
 | `db.interpolate.negative-fraction-truncates-to-zero.path` | 3107 | `negative fraction truncates to zero` | db.interpolate.negative-fraction-truncates-to-zero | specified |
 | `db.interpolate.negative-level.path` | 3107 | `negative level` | db.interpolate.negative-level | specified |
 | `db.interpolate.extrapolates.path` | 3107 | `extrapolates` | db.interpolate.extrapolates | specified |
+| `db.interpolate.product-overflow.path` | 3107 | `product overflow` | db.interpolate.product-overflow | blocked |
 
 ## smash_tilde
 
@@ -2349,9 +2360,9 @@ Dependencies: .
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `db.smash_tilde.for.001` | 3118 | `for ( ; *str != '\0'; str++ )` |  | pending |
-| `db.smash_tilde.if.001` | 3120 | `if ( *str == '~' )` |  | pending |
-| `db.smash_tilde.return.001` | 3124 | `return;` |  | pending |
+| `db.smash_tilde.for.001` | 3118 | `for ( ; *str != '\0'; str++ )` | db.smash_tilde.empty, db.smash_tilde.no-tilde, db.smash_tilde.one, db.smash_tilde.multiple | specified |
+| `db.smash_tilde.if.001` | 3120 | `if ( *str == '~' )` | db.smash_tilde.no-tilde, db.smash_tilde.one, db.smash_tilde.multiple | specified |
+| `db.smash_tilde.return.001` | 3124 | `return;` | db.smash_tilde.empty, db.smash_tilde.no-tilde, db.smash_tilde.one, db.smash_tilde.multiple | specified |
 | `db.smash_tilde.empty.path` | 3120 | `empty` | db.smash_tilde.empty | specified |
 | `db.smash_tilde.no-tilde.path` | 3120 | `no tilde` | db.smash_tilde.no-tilde | specified |
 | `db.smash_tilde.one.path` | 3120 | `one` | db.smash_tilde.one | specified |
@@ -2603,15 +2614,15 @@ Dependencies: `bug`, `LOWER`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `db.str_cmp.if.001` | 3136 | `if ( astr == NULL )` |  | pending |
-| `db.str_cmp.return.001` | 3139 | `return TRUE;` |  | pending |
-| `db.str_cmp.if.002` | 3142 | `if ( bstr == NULL )` |  | pending |
-| `db.str_cmp.return.002` | 3145 | `return TRUE;` |  | pending |
-| `db.str_cmp.for.001` | 3148 | `for ( ; *astr \|\| *bstr; astr++, bstr++ )` |  | pending |
-| `db.str_cmp.or.001` | 3148 | `\|\| *bstr;` |  | pending |
-| `db.str_cmp.if.003` | 3150 | `if ( LOWER(*astr) != LOWER(*bstr) )` |  | pending |
-| `db.str_cmp.return.003` | 3151 | `return TRUE;` |  | pending |
-| `db.str_cmp.return.004` | 3154 | `return FALSE;` |  | pending |
+| `db.str_cmp.if.001` | 3136 | `if ( astr == NULL )` | db.str_cmp.empty-equal, db.str_cmp.ascii-case-equal, db.str_cmp.first-mismatch, db.str_cmp.left-shorter, db.str_cmp.right-shorter, db.str_cmp.null-left, db.str_cmp.null-right, db.str_cmp.both-null-left-dominates | specified |
+| `db.str_cmp.return.001` | 3139 | `return TRUE;` | db.str_cmp.null-left, db.str_cmp.both-null-left-dominates | specified |
+| `db.str_cmp.if.002` | 3142 | `if ( bstr == NULL )` | db.str_cmp.empty-equal, db.str_cmp.ascii-case-equal, db.str_cmp.first-mismatch, db.str_cmp.left-shorter, db.str_cmp.right-shorter, db.str_cmp.null-right | specified |
+| `db.str_cmp.return.002` | 3145 | `return TRUE;` | db.str_cmp.null-right | specified |
+| `db.str_cmp.for.001` | 3148 | `for ( ; *astr \|\| *bstr; astr++, bstr++ )` | db.str_cmp.empty-equal, db.str_cmp.ascii-case-equal, db.str_cmp.first-mismatch, db.str_cmp.left-shorter, db.str_cmp.right-shorter | specified |
+| `db.str_cmp.or.001` | 3148 | `\|\| *bstr;` | db.str_cmp.empty-equal, db.str_cmp.ascii-case-equal, db.str_cmp.first-mismatch, db.str_cmp.left-shorter, db.str_cmp.right-shorter | specified |
+| `db.str_cmp.if.003` | 3150 | `if ( LOWER(*astr) != LOWER(*bstr) )` | db.str_cmp.ascii-case-equal, db.str_cmp.first-mismatch, db.str_cmp.left-shorter, db.str_cmp.right-shorter | specified |
+| `db.str_cmp.return.003` | 3151 | `return TRUE;` | db.str_cmp.first-mismatch, db.str_cmp.left-shorter, db.str_cmp.right-shorter | specified |
+| `db.str_cmp.return.004` | 3154 | `return FALSE;` | db.str_cmp.empty-equal, db.str_cmp.ascii-case-equal | specified |
 | `db.str_cmp.empty-equal.path` | 3134 | `empty equal` | db.str_cmp.empty-equal | specified |
 | `db.str_cmp.ascii-case-equal.path` | 3134 | `ascii case equal` | db.str_cmp.ascii-case-equal | specified |
 | `db.str_cmp.first-mismatch.path` | 3134 | `first mismatch` | db.str_cmp.first-mismatch | specified |
@@ -2789,14 +2800,14 @@ Dependencies: `bug`, `LOWER`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `db.str_prefix.if.001` | 3166 | `if ( astr == NULL )` |  | pending |
-| `db.str_prefix.return.001` | 3169 | `return TRUE;` |  | pending |
-| `db.str_prefix.if.002` | 3172 | `if ( bstr == NULL )` |  | pending |
-| `db.str_prefix.return.002` | 3175 | `return TRUE;` |  | pending |
-| `db.str_prefix.for.001` | 3178 | `for ( ; *astr; astr++, bstr++ )` |  | pending |
-| `db.str_prefix.if.003` | 3180 | `if ( LOWER(*astr) != LOWER(*bstr) )` |  | pending |
-| `db.str_prefix.return.003` | 3181 | `return TRUE;` |  | pending |
-| `db.str_prefix.return.004` | 3184 | `return FALSE;` |  | pending |
+| `db.str_prefix.if.001` | 3166 | `if ( astr == NULL )` | db.str_prefix.empty-prefix, db.str_prefix.both-empty, db.str_prefix.ascii-case-prefix, db.str_prefix.equal, db.str_prefix.longer-than-candidate, db.str_prefix.first-mismatch, db.str_prefix.null-left, db.str_prefix.null-right, db.str_prefix.both-null-left-dominates | specified |
+| `db.str_prefix.return.001` | 3169 | `return TRUE;` | db.str_prefix.null-left, db.str_prefix.both-null-left-dominates | specified |
+| `db.str_prefix.if.002` | 3172 | `if ( bstr == NULL )` | db.str_prefix.empty-prefix, db.str_prefix.both-empty, db.str_prefix.ascii-case-prefix, db.str_prefix.equal, db.str_prefix.longer-than-candidate, db.str_prefix.first-mismatch, db.str_prefix.null-right | specified |
+| `db.str_prefix.return.002` | 3175 | `return TRUE;` | db.str_prefix.null-right | specified |
+| `db.str_prefix.for.001` | 3178 | `for ( ; *astr; astr++, bstr++ )` | db.str_prefix.empty-prefix, db.str_prefix.both-empty, db.str_prefix.ascii-case-prefix, db.str_prefix.equal, db.str_prefix.longer-than-candidate, db.str_prefix.first-mismatch | specified |
+| `db.str_prefix.if.003` | 3180 | `if ( LOWER(*astr) != LOWER(*bstr) )` | db.str_prefix.ascii-case-prefix, db.str_prefix.equal, db.str_prefix.longer-than-candidate, db.str_prefix.first-mismatch | specified |
+| `db.str_prefix.return.003` | 3181 | `return TRUE;` | db.str_prefix.longer-than-candidate, db.str_prefix.first-mismatch | specified |
+| `db.str_prefix.return.004` | 3184 | `return FALSE;` | db.str_prefix.empty-prefix, db.str_prefix.both-empty, db.str_prefix.ascii-case-prefix, db.str_prefix.equal | specified |
 | `db.str_prefix.empty-prefix.path` | 3164 | `empty prefix` | db.str_prefix.empty-prefix | specified |
 | `db.str_prefix.both-empty.path` | 3164 | `both empty` | db.str_prefix.both-empty | specified |
 | `db.str_prefix.ascii-case-prefix.path` | 3164 | `ascii case prefix` | db.str_prefix.ascii-case-prefix | specified |
@@ -2819,18 +2830,22 @@ Dependencies: `LOWER`, `strlen`, `str_prefix`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `db.str_infix.if.001` | 3201 | `if ( ( c0 = LOWER(astr[0]) ) == '\0' )` |  | pending |
-| `db.str_infix.return.001` | 3202 | `return FALSE;` |  | pending |
-| `db.str_infix.for.001` | 3207 | `for ( ichar = 0; ichar <= sstr2 - sstr1; ichar++ )` |  | pending |
-| `db.str_infix.if.002` | 3209 | `if ( c0 == LOWER(bstr[ichar]) && !str_prefix( astr, bstr + ichar ) )` |  | pending |
-| `db.str_infix.and.001` | 3209 | `&& !str_prefix( astr, bstr + ichar ) )` |  | pending |
-| `db.str_infix.return.002` | 3210 | `return FALSE;` |  | pending |
-| `db.str_infix.return.003` | 3213 | `return TRUE;` |  | pending |
+| `db.str_infix.if.001` | 3201 | `if ( ( c0 = LOWER(astr[0]) ) == '\0' )` | db.str_infix.empty-needle, db.str_infix.longer-needle, db.str_infix.interior-case-insensitive, db.str_infix.end-match, db.str_infix.no-match, db.str_infix.first-character-match-rest-mismatch, db.str_infix.retry-after-partial-match, db.str_infix.one-character, db.str_infix.empty-both | specified |
+| `db.str_infix.return.001` | 3202 | `return FALSE;` | db.str_infix.empty-needle, db.str_infix.empty-both | specified |
+| `db.str_infix.for.001` | 3207 | `for ( ichar = 0; ichar <= sstr2 - sstr1; ichar++ )` | db.str_infix.longer-needle, db.str_infix.interior-case-insensitive, db.str_infix.end-match, db.str_infix.no-match, db.str_infix.first-character-match-rest-mismatch, db.str_infix.retry-after-partial-match, db.str_infix.one-character | specified |
+| `db.str_infix.if.002` | 3209 | `if ( c0 == LOWER(bstr[ichar]) && !str_prefix( astr, bstr + ichar ) )` | db.str_infix.interior-case-insensitive, db.str_infix.end-match, db.str_infix.no-match, db.str_infix.first-character-match-rest-mismatch, db.str_infix.retry-after-partial-match, db.str_infix.one-character | specified |
+| `db.str_infix.and.001` | 3209 | `&& !str_prefix( astr, bstr + ichar ) )` | db.str_infix.interior-case-insensitive, db.str_infix.end-match, db.str_infix.no-match, db.str_infix.first-character-match-rest-mismatch, db.str_infix.retry-after-partial-match, db.str_infix.one-character | specified |
+| `db.str_infix.return.002` | 3210 | `return FALSE;` | db.str_infix.interior-case-insensitive, db.str_infix.end-match, db.str_infix.retry-after-partial-match, db.str_infix.one-character | specified |
+| `db.str_infix.return.003` | 3213 | `return TRUE;` | db.str_infix.longer-needle, db.str_infix.no-match, db.str_infix.first-character-match-rest-mismatch | specified |
 | `db.str_infix.empty-needle.path` | 3194 | `empty needle` | db.str_infix.empty-needle | specified |
 | `db.str_infix.longer-needle.path` | 3194 | `longer needle` | db.str_infix.longer-needle | specified |
 | `db.str_infix.interior-case-insensitive.path` | 3194 | `interior case insensitive` | db.str_infix.interior-case-insensitive | specified |
 | `db.str_infix.end-match.path` | 3194 | `end match` | db.str_infix.end-match | specified |
 | `db.str_infix.no-match.path` | 3194 | `no match` | db.str_infix.no-match | specified |
+| `db.str_infix.first-character-match-rest-mismatch.path` | 3201 | `first character match rest mismatch` | db.str_infix.first-character-match-rest-mismatch | specified |
+| `db.str_infix.retry-after-partial-match.path` | 3201 | `retry after partial match` | db.str_infix.retry-after-partial-match | specified |
+| `db.str_infix.one-character.path` | 3201 | `one character` | db.str_infix.one-character | specified |
+| `db.str_infix.empty-both.path` | 3201 | `empty both` | db.str_infix.empty-both | specified |
 
 ## str_suffix
 
@@ -2847,10 +2862,10 @@ Dependencies: `strlen`, `str_cmp`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `db.str_suffix.if.001` | 3230 | `if ( sstr1 <= sstr2 && !str_cmp( astr, bstr + sstr2 - sstr1 ) )` |  | pending |
-| `db.str_suffix.and.001` | 3230 | `&& !str_cmp( astr, bstr + sstr2 - sstr1 ) )` |  | pending |
-| `db.str_suffix.return.001` | 3231 | `return FALSE;` |  | pending |
-| `db.str_suffix.return.002` | 3233 | `return TRUE;` |  | pending |
+| `db.str_suffix.if.001` | 3230 | `if ( sstr1 <= sstr2 && !str_cmp( astr, bstr + sstr2 - sstr1 ) )` | db.str_suffix.empty-suffix, db.str_suffix.case-suffix, db.str_suffix.equal, db.str_suffix.longer, db.str_suffix.wrong-suffix | specified |
+| `db.str_suffix.and.001` | 3230 | `&& !str_cmp( astr, bstr + sstr2 - sstr1 ) )` | db.str_suffix.empty-suffix, db.str_suffix.case-suffix, db.str_suffix.equal, db.str_suffix.longer, db.str_suffix.wrong-suffix | specified |
+| `db.str_suffix.return.001` | 3231 | `return FALSE;` | db.str_suffix.empty-suffix, db.str_suffix.case-suffix, db.str_suffix.equal | specified |
+| `db.str_suffix.return.002` | 3233 | `return TRUE;` | db.str_suffix.longer, db.str_suffix.wrong-suffix | specified |
 | `db.str_suffix.empty-suffix.path` | 3223 | `empty suffix` | db.str_suffix.empty-suffix | specified |
 | `db.str_suffix.case-suffix.path` | 3223 | `case suffix` | db.str_suffix.case-suffix | specified |
 | `db.str_suffix.equal.path` | 3223 | `equal` | db.str_suffix.equal | specified |
@@ -2881,11 +2896,14 @@ Dependencies: `LOWER`, `UPPER`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `db.capitalize.for.001` | 3246 | `for ( i = 0; str[i] != '\0'; i++ )` |  | pending |
-| `db.capitalize.return.001` | 3250 | `return strcap;` |  | pending |
+| `db.capitalize.for.001` | 3246 | `for ( i = 0; str[i] != '\0'; i++ )` | db.capitalize.empty, db.capitalize.mixed, db.capitalize.nonletter-first, db.capitalize.shared-buffer-overwritten, db.capitalize.maximum-fitting-input | specified |
+| `db.capitalize.return.001` | 3250 | `return strcap;` | db.capitalize.empty, db.capitalize.mixed, db.capitalize.nonletter-first, db.capitalize.shared-buffer-overwritten, db.capitalize.maximum-fitting-input | specified |
 | `db.capitalize.empty.path` | 3249 | `empty` | db.capitalize.empty | specified |
 | `db.capitalize.mixed.path` | 3249 | `mixed` | db.capitalize.mixed | specified |
 | `db.capitalize.nonletter-first.path` | 3249 | `nonletter first` | db.capitalize.nonletter-first | specified |
+| `db.capitalize.shared-buffer-overwritten.path` | 3243 | `shared buffer overwritten` | db.capitalize.shared-buffer-overwritten | specified |
+| `db.capitalize.maximum-fitting-input.path` | 3247 | `maximum fitting input` | db.capitalize.maximum-fitting-input | specified |
+| `db.capitalize.static-buffer-overflow.path` | 3248 | `static buffer overflow` | db.capitalize.static-buffer-overflow | blocked |
 
 ## append_file
 

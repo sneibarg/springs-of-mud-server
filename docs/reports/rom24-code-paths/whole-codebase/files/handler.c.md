@@ -384,7 +384,7 @@ Dependencies: .
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `handler.is_clan.return.001` | 330 | `return ch->clan;` |  | pending |
+| `handler.is_clan.return.001` | 330 | `return ch->clan;` | handler.is_clan.clan-0, handler.is_clan.clan-1, handler.is_clan.clan-2 | specified |
 | `handler.is_clan.clan-0.path` | 330 | `clan 0` | handler.is_clan.clan-0 | specified |
 | `handler.is_clan.clan-1.path` | 330 | `clan 1` | handler.is_clan.clan-1 | specified |
 | `handler.is_clan.clan-2.path` | 330 | `clan 2` | handler.is_clan.clan-2 | specified |
@@ -406,9 +406,9 @@ Dependencies: `return`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `handler.is_same_clan.if.001` | 335 | `if (clan_table[ch->clan].independent)` |  | pending |
-| `handler.is_same_clan.return.001` | 336 | `return FALSE;` |  | pending |
-| `handler.is_same_clan.return.002` | 338 | `return (ch->clan == victim->clan);` |  | pending |
+| `handler.is_same_clan.if.001` | 335 | `if (clan_table[ch->clan].independent)` | handler.is_same_clan.clans-0-0, handler.is_same_clan.clans-1-1, handler.is_same_clan.clans-2-2, handler.is_same_clan.clans-2-1 | specified |
+| `handler.is_same_clan.return.001` | 336 | `return FALSE;` | handler.is_same_clan.clans-0-0, handler.is_same_clan.clans-1-1 | specified |
+| `handler.is_same_clan.return.002` | 338 | `return (ch->clan == victim->clan);` | handler.is_same_clan.clans-2-2, handler.is_same_clan.clans-2-1 | specified |
 | `handler.is_same_clan.clans-0-0.path` | 335 | `clans 0 0` | handler.is_same_clan.clans-0-0 | specified |
 | `handler.is_same_clan.clans-1-1.path` | 335 | `clans 1 1` | handler.is_same_clan.clans-1-1 | specified |
 | `handler.is_same_clan.clans-2-2.path` | 335 | `clans 2 2` | handler.is_same_clan.clans-2-2 | specified |
@@ -878,14 +878,14 @@ Dependencies: `IS_NPC`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `handler.get_trust.if.001` | 708 | `if ( ch->desc != NULL && ch->desc->original != NULL )` |  | pending |
-| `handler.get_trust.and.001` | 708 | `&& ch->desc->original != NULL )` |  | pending |
-| `handler.get_trust.if.002` | 711 | `if (ch->trust)` |  | pending |
-| `handler.get_trust.return.001` | 712 | `return ch->trust;` |  | pending |
-| `handler.get_trust.if.003` | 714 | `if ( IS_NPC(ch) && ch->level >= LEVEL_HERO )` |  | pending |
-| `handler.get_trust.and.002` | 714 | `&& ch->level >= LEVEL_HERO )` |  | pending |
-| `handler.get_trust.return.002` | 715 | `return LEVEL_HERO - 1;` |  | pending |
-| `handler.get_trust.return.003` | 717 | `return ch->level;` |  | pending |
+| `handler.get_trust.if.001` | 708 | `if ( ch->desc != NULL && ch->desc->original != NULL )` | handler.get_trust.pc-level, handler.get_trust.explicit-trust, handler.get_trust.npc-below-hero, handler.get_trust.npc-at-hero-capped, handler.get_trust.npc-above-hero-capped, handler.get_trust.npc-explicit-trust-before-cap, handler.get_trust.switched-original-controls, handler.get_trust.descriptor-without-original, handler.get_trust.negative-trust-is-explicit, handler.get_trust.switched-original-trust-wins | specified |
+| `handler.get_trust.and.001` | 708 | `&& ch->desc->original != NULL )` | handler.get_trust.pc-level, handler.get_trust.explicit-trust, handler.get_trust.npc-below-hero, handler.get_trust.npc-at-hero-capped, handler.get_trust.npc-above-hero-capped, handler.get_trust.npc-explicit-trust-before-cap, handler.get_trust.switched-original-controls, handler.get_trust.descriptor-without-original, handler.get_trust.negative-trust-is-explicit, handler.get_trust.switched-original-trust-wins | specified |
+| `handler.get_trust.if.002` | 711 | `if (ch->trust)` | handler.get_trust.pc-level, handler.get_trust.explicit-trust, handler.get_trust.npc-below-hero, handler.get_trust.npc-at-hero-capped, handler.get_trust.npc-above-hero-capped, handler.get_trust.npc-explicit-trust-before-cap, handler.get_trust.switched-original-controls, handler.get_trust.descriptor-without-original, handler.get_trust.negative-trust-is-explicit, handler.get_trust.switched-original-trust-wins | specified |
+| `handler.get_trust.return.001` | 712 | `return ch->trust;` | handler.get_trust.explicit-trust, handler.get_trust.npc-explicit-trust-before-cap, handler.get_trust.negative-trust-is-explicit, handler.get_trust.switched-original-trust-wins | specified |
+| `handler.get_trust.if.003` | 714 | `if ( IS_NPC(ch) && ch->level >= LEVEL_HERO )` | handler.get_trust.pc-level, handler.get_trust.npc-below-hero, handler.get_trust.npc-at-hero-capped, handler.get_trust.npc-above-hero-capped, handler.get_trust.switched-original-controls, handler.get_trust.descriptor-without-original | specified |
+| `handler.get_trust.and.002` | 714 | `&& ch->level >= LEVEL_HERO )` | handler.get_trust.pc-level, handler.get_trust.npc-below-hero, handler.get_trust.npc-at-hero-capped, handler.get_trust.npc-above-hero-capped, handler.get_trust.switched-original-controls, handler.get_trust.descriptor-without-original | specified |
+| `handler.get_trust.return.002` | 715 | `return LEVEL_HERO - 1;` | handler.get_trust.npc-at-hero-capped, handler.get_trust.npc-above-hero-capped | specified |
+| `handler.get_trust.return.003` | 717 | `return ch->level;` | handler.get_trust.pc-level, handler.get_trust.npc-below-hero, handler.get_trust.switched-original-controls, handler.get_trust.descriptor-without-original | specified |
 | `handler.get_trust.pc-level.path` | 708 | `pc level` | handler.get_trust.pc-level | specified |
 | `handler.get_trust.explicit-trust.path` | 708 | `explicit trust` | handler.get_trust.explicit-trust | specified |
 | `handler.get_trust.npc-below-hero.path` | 708 | `npc below hero` | handler.get_trust.npc-below-hero | specified |
@@ -893,6 +893,9 @@ Dependencies: `IS_NPC`.
 | `handler.get_trust.npc-above-hero-capped.path` | 708 | `npc above hero capped` | handler.get_trust.npc-above-hero-capped | specified |
 | `handler.get_trust.npc-explicit-trust-before-cap.path` | 708 | `npc explicit trust before cap` | handler.get_trust.npc-explicit-trust-before-cap | specified |
 | `handler.get_trust.switched-original-controls.path` | 708 | `switched original controls` | handler.get_trust.switched-original-controls | specified |
+| `handler.get_trust.descriptor-without-original.path` | 708 | `descriptor without original` | handler.get_trust.descriptor-without-original | specified |
+| `handler.get_trust.negative-trust-is-explicit.path` | 708 | `negative trust is explicit` | handler.get_trust.negative-trust-is-explicit | specified |
+| `handler.get_trust.switched-original-trust-wins.path` | 708 | `switched original trust wins` | handler.get_trust.switched-original-trust-wins | specified |
 
 ## get_age
 
@@ -2539,9 +2542,9 @@ Dependencies: `UMIN`, `bug`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `handler.deduct_cost.if.001` | 2225 | `if (silver < cost)` |  | pending |
-| `handler.deduct_cost.if.002` | 2234 | `if (ch->gold < 0)` |  | pending |
-| `handler.deduct_cost.if.003` | 2239 | `if (ch->silver < 0)` |  | pending |
+| `handler.deduct_cost.if.001` | 2225 | `if (silver < cost)` | handler.deduct_cost.silver-only, handler.deduct_cost.gold-exact, handler.deduct_cost.gold-change, handler.deduct_cost.mixed-change, handler.deduct_cost.zero, handler.deduct_cost.negative-cost-credits, handler.deduct_cost.insufficient-gold-clamped | specified |
+| `handler.deduct_cost.if.002` | 2234 | `if (ch->gold < 0)` | handler.deduct_cost.silver-only, handler.deduct_cost.gold-exact, handler.deduct_cost.gold-change, handler.deduct_cost.mixed-change, handler.deduct_cost.zero, handler.deduct_cost.negative-cost-credits, handler.deduct_cost.insufficient-gold-clamped | specified |
+| `handler.deduct_cost.if.003` | 2239 | `if (ch->silver < 0)` | handler.deduct_cost.silver-only, handler.deduct_cost.gold-exact, handler.deduct_cost.gold-change, handler.deduct_cost.mixed-change, handler.deduct_cost.zero, handler.deduct_cost.negative-cost-credits, handler.deduct_cost.insufficient-gold-clamped | specified |
 | `handler.deduct_cost.silver-only.path` | 2223 | `silver only` | handler.deduct_cost.silver-only | specified |
 | `handler.deduct_cost.gold-exact.path` | 2223 | `gold exact` | handler.deduct_cost.gold-exact | specified |
 | `handler.deduct_cost.gold-change.path` | 2223 | `gold change` | handler.deduct_cost.gold-change | specified |
@@ -2676,17 +2679,17 @@ Dependencies: `IS_SET`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `handler.room_is_dark.if.001` | 2358 | `if ( pRoomIndex->light > 0 )` |  | pending |
-| `handler.room_is_dark.return.001` | 2359 | `return FALSE;` |  | pending |
-| `handler.room_is_dark.if.002` | 2361 | `if ( IS_SET(pRoomIndex->room_flags, ROOM_DARK) )` |  | pending |
-| `handler.room_is_dark.return.002` | 2362 | `return TRUE;` |  | pending |
-| `handler.room_is_dark.if.003` | 2364 | `if ( pRoomIndex->sector_type == SECT_INSIDE     \|\|   pRoomIndex->sector_type == SECT_CITY )` |  | pending |
-| `handler.room_is_dark.or.001` | 2365 | `\|\|   pRoomIndex->sector_type == SECT_CITY )` |  | pending |
-| `handler.room_is_dark.return.003` | 2366 | `return FALSE;` |  | pending |
-| `handler.room_is_dark.if.004` | 2368 | `if ( weather_info.sunlight == SUN_SET     \|\|   weather_info.sunlight == SUN_DARK )` |  | pending |
-| `handler.room_is_dark.or.002` | 2369 | `\|\|   weather_info.sunlight == SUN_DARK )` |  | pending |
-| `handler.room_is_dark.return.004` | 2370 | `return TRUE;` |  | pending |
-| `handler.room_is_dark.return.005` | 2372 | `return FALSE;` |  | pending |
+| `handler.room_is_dark.if.001` | 2358 | `if ( pRoomIndex->light > 0 )` | handler.room_is_dark.positive-light-beats-dark, handler.room_is_dark.zero-light-dark-flag, handler.room_is_dark.negative-light-dark-flag, handler.room_is_dark.inside-at-night, handler.room_is_dark.city-at-night, handler.room_is_dark.field-at-sunset, handler.room_is_dark.field-at-night, handler.room_is_dark.field-day, handler.room_is_dark.field-sunrise | specified |
+| `handler.room_is_dark.return.001` | 2359 | `return FALSE;` | handler.room_is_dark.positive-light-beats-dark | specified |
+| `handler.room_is_dark.if.002` | 2361 | `if ( IS_SET(pRoomIndex->room_flags, ROOM_DARK) )` | handler.room_is_dark.zero-light-dark-flag, handler.room_is_dark.negative-light-dark-flag, handler.room_is_dark.inside-at-night, handler.room_is_dark.city-at-night, handler.room_is_dark.field-at-sunset, handler.room_is_dark.field-at-night, handler.room_is_dark.field-day, handler.room_is_dark.field-sunrise | specified |
+| `handler.room_is_dark.return.002` | 2362 | `return TRUE;` | handler.room_is_dark.zero-light-dark-flag, handler.room_is_dark.negative-light-dark-flag | specified |
+| `handler.room_is_dark.if.003` | 2364 | `if ( pRoomIndex->sector_type == SECT_INSIDE     \|\|   pRoomIndex->sector_type == SECT_CITY )` | handler.room_is_dark.inside-at-night, handler.room_is_dark.city-at-night, handler.room_is_dark.field-at-sunset, handler.room_is_dark.field-at-night, handler.room_is_dark.field-day, handler.room_is_dark.field-sunrise | specified |
+| `handler.room_is_dark.or.001` | 2365 | `\|\|   pRoomIndex->sector_type == SECT_CITY )` | handler.room_is_dark.inside-at-night, handler.room_is_dark.city-at-night, handler.room_is_dark.field-at-sunset, handler.room_is_dark.field-at-night, handler.room_is_dark.field-day, handler.room_is_dark.field-sunrise | specified |
+| `handler.room_is_dark.return.003` | 2366 | `return FALSE;` | handler.room_is_dark.inside-at-night, handler.room_is_dark.city-at-night | specified |
+| `handler.room_is_dark.if.004` | 2368 | `if ( weather_info.sunlight == SUN_SET     \|\|   weather_info.sunlight == SUN_DARK )` | handler.room_is_dark.field-at-sunset, handler.room_is_dark.field-at-night, handler.room_is_dark.field-day, handler.room_is_dark.field-sunrise | specified |
+| `handler.room_is_dark.or.002` | 2369 | `\|\|   weather_info.sunlight == SUN_DARK )` | handler.room_is_dark.field-at-sunset, handler.room_is_dark.field-at-night, handler.room_is_dark.field-day, handler.room_is_dark.field-sunrise | specified |
+| `handler.room_is_dark.return.004` | 2370 | `return TRUE;` | handler.room_is_dark.field-at-sunset, handler.room_is_dark.field-at-night | specified |
+| `handler.room_is_dark.return.005` | 2372 | `return FALSE;` | handler.room_is_dark.field-day, handler.room_is_dark.field-sunrise | specified |
 | `handler.room_is_dark.positive-light-beats-dark.path` | 2358 | `positive light beats dark` | handler.room_is_dark.positive-light-beats-dark | specified |
 | `handler.room_is_dark.zero-light-dark-flag.path` | 2358 | `zero light dark flag` | handler.room_is_dark.zero-light-dark-flag | specified |
 | `handler.room_is_dark.negative-light-dark-flag.path` | 2358 | `negative light dark flag` | handler.room_is_dark.negative-light-dark-flag | specified |
@@ -2749,19 +2752,19 @@ Dependencies: `IS_SET`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `handler.room_is_private.if.001` | 2393 | `if (pRoomIndex->owner != NULL && pRoomIndex->owner[0] != '\0')` |  | pending |
-| `handler.room_is_private.and.001` | 2393 | `&& pRoomIndex->owner[0] != '\0')` |  | pending |
-| `handler.room_is_private.return.001` | 2394 | `return TRUE;` |  | pending |
-| `handler.room_is_private.for.001` | 2397 | `for ( rch = pRoomIndex->people; rch != NULL; rch = rch->next_in_room )` |  | pending |
-| `handler.room_is_private.if.002` | 2400 | `if ( IS_SET(pRoomIndex->room_flags, ROOM_PRIVATE)  && count >= 2 )` |  | pending |
-| `handler.room_is_private.and.002` | 2400 | `&& count >= 2 )` |  | pending |
-| `handler.room_is_private.return.002` | 2401 | `return TRUE;` |  | pending |
-| `handler.room_is_private.if.003` | 2403 | `if ( IS_SET(pRoomIndex->room_flags, ROOM_SOLITARY) && count >= 1 )` |  | pending |
-| `handler.room_is_private.and.003` | 2403 | `&& count >= 1 )` |  | pending |
-| `handler.room_is_private.return.003` | 2404 | `return TRUE;` |  | pending |
-| `handler.room_is_private.if.004` | 2406 | `if ( IS_SET(pRoomIndex->room_flags, ROOM_IMP_ONLY) )` |  | pending |
-| `handler.room_is_private.return.004` | 2407 | `return TRUE;` |  | pending |
-| `handler.room_is_private.return.005` | 2409 | `return FALSE;` |  | pending |
+| `handler.room_is_private.if.001` | 2393 | `if (pRoomIndex->owner != NULL && pRoomIndex->owner[0] != '\0')` | handler.room_is_private.owned-empty, handler.room_is_private.null-owner-empty, handler.room_is_private.empty-owner-empty, handler.room_is_private.private-one, handler.room_is_private.private-two, handler.room_is_private.private-three, handler.room_is_private.solitary-zero, handler.room_is_private.solitary-one, handler.room_is_private.imp-empty, handler.room_is_private.public-many, handler.room_is_private.private-zero, handler.room_is_private.private-and-solitary-one | specified |
+| `handler.room_is_private.and.001` | 2393 | `&& pRoomIndex->owner[0] != '\0')` | handler.room_is_private.owned-empty, handler.room_is_private.null-owner-empty, handler.room_is_private.empty-owner-empty, handler.room_is_private.private-one, handler.room_is_private.private-two, handler.room_is_private.private-three, handler.room_is_private.solitary-zero, handler.room_is_private.solitary-one, handler.room_is_private.imp-empty, handler.room_is_private.public-many, handler.room_is_private.private-zero, handler.room_is_private.private-and-solitary-one | specified |
+| `handler.room_is_private.return.001` | 2394 | `return TRUE;` | handler.room_is_private.owned-empty | specified |
+| `handler.room_is_private.for.001` | 2397 | `for ( rch = pRoomIndex->people; rch != NULL; rch = rch->next_in_room )` | handler.room_is_private.null-owner-empty, handler.room_is_private.empty-owner-empty, handler.room_is_private.private-one, handler.room_is_private.private-two, handler.room_is_private.private-three, handler.room_is_private.solitary-zero, handler.room_is_private.solitary-one, handler.room_is_private.imp-empty, handler.room_is_private.public-many, handler.room_is_private.private-zero, handler.room_is_private.private-and-solitary-one | specified |
+| `handler.room_is_private.if.002` | 2400 | `if ( IS_SET(pRoomIndex->room_flags, ROOM_PRIVATE)  && count >= 2 )` | handler.room_is_private.null-owner-empty, handler.room_is_private.empty-owner-empty, handler.room_is_private.private-one, handler.room_is_private.private-two, handler.room_is_private.private-three, handler.room_is_private.solitary-zero, handler.room_is_private.solitary-one, handler.room_is_private.imp-empty, handler.room_is_private.public-many, handler.room_is_private.private-zero, handler.room_is_private.private-and-solitary-one | specified |
+| `handler.room_is_private.and.002` | 2400 | `&& count >= 2 )` | handler.room_is_private.null-owner-empty, handler.room_is_private.empty-owner-empty, handler.room_is_private.private-one, handler.room_is_private.private-two, handler.room_is_private.private-three, handler.room_is_private.solitary-zero, handler.room_is_private.solitary-one, handler.room_is_private.imp-empty, handler.room_is_private.public-many, handler.room_is_private.private-zero, handler.room_is_private.private-and-solitary-one | specified |
+| `handler.room_is_private.return.002` | 2401 | `return TRUE;` | handler.room_is_private.private-two, handler.room_is_private.private-three | specified |
+| `handler.room_is_private.if.003` | 2403 | `if ( IS_SET(pRoomIndex->room_flags, ROOM_SOLITARY) && count >= 1 )` | handler.room_is_private.null-owner-empty, handler.room_is_private.empty-owner-empty, handler.room_is_private.private-one, handler.room_is_private.solitary-zero, handler.room_is_private.solitary-one, handler.room_is_private.imp-empty, handler.room_is_private.public-many, handler.room_is_private.private-zero, handler.room_is_private.private-and-solitary-one | specified |
+| `handler.room_is_private.and.003` | 2403 | `&& count >= 1 )` | handler.room_is_private.null-owner-empty, handler.room_is_private.empty-owner-empty, handler.room_is_private.private-one, handler.room_is_private.solitary-zero, handler.room_is_private.solitary-one, handler.room_is_private.imp-empty, handler.room_is_private.public-many, handler.room_is_private.private-zero, handler.room_is_private.private-and-solitary-one | specified |
+| `handler.room_is_private.return.003` | 2404 | `return TRUE;` | handler.room_is_private.solitary-one, handler.room_is_private.private-and-solitary-one | specified |
+| `handler.room_is_private.if.004` | 2406 | `if ( IS_SET(pRoomIndex->room_flags, ROOM_IMP_ONLY) )` | handler.room_is_private.null-owner-empty, handler.room_is_private.empty-owner-empty, handler.room_is_private.private-one, handler.room_is_private.solitary-zero, handler.room_is_private.imp-empty, handler.room_is_private.public-many, handler.room_is_private.private-zero | specified |
+| `handler.room_is_private.return.004` | 2407 | `return TRUE;` | handler.room_is_private.imp-empty | specified |
+| `handler.room_is_private.return.005` | 2409 | `return FALSE;` | handler.room_is_private.null-owner-empty, handler.room_is_private.empty-owner-empty, handler.room_is_private.private-one, handler.room_is_private.solitary-zero, handler.room_is_private.public-many, handler.room_is_private.private-zero | specified |
 | `handler.room_is_private.owned-empty.path` | 2393 | `owned empty` | handler.room_is_private.owned-empty | specified |
 | `handler.room_is_private.null-owner-empty.path` | 2393 | `null owner empty` | handler.room_is_private.null-owner-empty | specified |
 | `handler.room_is_private.empty-owner-empty.path` | 2393 | `empty owner empty` | handler.room_is_private.empty-owner-empty | specified |
@@ -2772,6 +2775,8 @@ Dependencies: `IS_SET`.
 | `handler.room_is_private.solitary-one.path` | 2393 | `solitary one` | handler.room_is_private.solitary-one | specified |
 | `handler.room_is_private.imp-empty.path` | 2393 | `imp empty` | handler.room_is_private.imp-empty | specified |
 | `handler.room_is_private.public-many.path` | 2393 | `public many` | handler.room_is_private.public-many | specified |
+| `handler.room_is_private.private-zero.path` | 2396 | `private zero` | handler.room_is_private.private-zero | specified |
+| `handler.room_is_private.private-and-solitary-one.path` | 2396 | `private and solitary one` | handler.room_is_private.private-and-solitary-one | specified |
 
 ## can_see_room
 
@@ -3039,12 +3044,12 @@ Dependencies: `IS_SET`, `IS_NPC`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `handler.can_drop_obj.if.001` | 2531 | `if ( !IS_SET(obj->extra_flags, ITEM_NODROP) )` |  | pending |
-| `handler.can_drop_obj.return.001` | 2532 | `return TRUE;` |  | pending |
-| `handler.can_drop_obj.if.002` | 2534 | `if ( !IS_NPC(ch) && ch->level >= LEVEL_IMMORTAL )` |  | pending |
-| `handler.can_drop_obj.and.001` | 2534 | `&& ch->level >= LEVEL_IMMORTAL )` |  | pending |
-| `handler.can_drop_obj.return.002` | 2535 | `return TRUE;` |  | pending |
-| `handler.can_drop_obj.return.003` | 2537 | `return FALSE;` |  | pending |
+| `handler.can_drop_obj.if.001` | 2531 | `if ( !IS_SET(obj->extra_flags, ITEM_NODROP) )` | handler.can_drop_obj.normal-object, handler.can_drop_obj.nodrop-mortal, handler.can_drop_obj.nodrop-immortal, handler.can_drop_obj.trust-alone-insufficient, handler.can_drop_obj.npc-no-exception | specified |
+| `handler.can_drop_obj.return.001` | 2532 | `return TRUE;` | handler.can_drop_obj.normal-object | specified |
+| `handler.can_drop_obj.if.002` | 2534 | `if ( !IS_NPC(ch) && ch->level >= LEVEL_IMMORTAL )` | handler.can_drop_obj.nodrop-mortal, handler.can_drop_obj.nodrop-immortal, handler.can_drop_obj.trust-alone-insufficient, handler.can_drop_obj.npc-no-exception | specified |
+| `handler.can_drop_obj.and.001` | 2534 | `&& ch->level >= LEVEL_IMMORTAL )` | handler.can_drop_obj.nodrop-mortal, handler.can_drop_obj.nodrop-immortal, handler.can_drop_obj.trust-alone-insufficient, handler.can_drop_obj.npc-no-exception | specified |
+| `handler.can_drop_obj.return.002` | 2535 | `return TRUE;` | handler.can_drop_obj.nodrop-immortal | specified |
+| `handler.can_drop_obj.return.003` | 2537 | `return FALSE;` | handler.can_drop_obj.nodrop-mortal, handler.can_drop_obj.trust-alone-insufficient, handler.can_drop_obj.npc-no-exception | specified |
 | `handler.can_drop_obj.normal-object.path` | 2531 | `normal object` | handler.can_drop_obj.normal-object | specified |
 | `handler.can_drop_obj.nodrop-mortal.path` | 2531 | `nodrop mortal` | handler.can_drop_obj.nodrop-mortal | specified |
 | `handler.can_drop_obj.nodrop-immortal.path` | 2531 | `nodrop immortal` | handler.can_drop_obj.nodrop-immortal | specified |

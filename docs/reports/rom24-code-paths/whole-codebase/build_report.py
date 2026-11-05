@@ -209,6 +209,34 @@ def main():
             f['status'] = 'lookup_contracts_traced'
         if any(fn['status'] == 'partially_specified' for fn in f['functions']):
             f['status'] = 'partially_specified'
+    circular_return = ledger['act_enter.do_enter.return.007']
+    assert not circular_return['case_ids']
+    circular_return['disposition'] = 'unreachable'
+    circular_return['disposition_note'] = (
+        'Line 114 rejects equality of the same two local room pointers before movement. '
+        'Neither local is reassigned or passed by address before line 162.'
+    )
+    # A reconciled local ledger is not an end-to-end caller/dependency trace.
+    reconciled = {
+        'src/db.c': {'number_fuzzy', 'number_range', 'number_percent', 'number_door',
+                     'number_bits', 'dice', 'interpolate', 'smash_tilde', 'str_cmp',
+                     'str_prefix', 'str_infix', 'str_suffix', 'capitalize'},
+        'src/handler.c': {'is_clan', 'is_same_clan', 'get_trust', 'deduct_cost',
+                          'room_is_dark', 'room_is_private', 'can_drop_obj'},
+        'src/interp.c': {'one_argument'},
+        'src/magic.c': {'saves_spell', 'saves_dispel'},
+        'src/special.c': {'spec_lookup', 'spec_name'},
+    }
+    for fn in funcs:
+        if fn['name'] in reconciled.get(fn['file'], set()):
+            assert all(b['disposition'] != 'pending' for b in fn['branch_ledger']), fn['name']
+            fn['local_ledger_review'] = {
+                'status': 'reconciled',
+                'criterion': 'Concrete cases linked to every indexed local control site; bounded loop classes and direct-helper input domains. Not executable coverage or a claim that every outcome of every expression has been established.',
+                'remaining': 'Caller reachability, unexpanded collaborator internals, platform alternatives and invalid-input policies remain distinct from the local cases. See tracing-notes.md.',
+            }
+    from spec_name_completion import complete
+    complete(funcs, cases, SOURCE)
     git_head = SOURCE.parent / '.git/HEAD'
     head_text = git_head.read_text().strip() if git_head.exists() else 'unknown'
     git_ref = SOURCE.parent / '.git' / head_text[5:] if head_text.startswith('ref: ') else None
@@ -266,6 +294,7 @@ def main():
         'source_lines': sum(f['lines'] for f in files), 'functions_inventoried': len(funcs),
         'functions_with_cases': sum(f['status'] in {'partially_specified', 'traced'} for f in funcs),
         'functions_completely_traced': sum(f['status'] == 'traced' for f in funcs),
+        'additional_local_ledgers_reconciled': sum('local_ledger_review' in f for f in funcs),
         'cases_specified': sum(c['status'] == 'specified' for c in cases), 'cases_blocked': sum(c['status'] == 'blocked' for c in cases),
         'cases_dynamically_verified': 0, 'lexical_sites_pending': sum(b['disposition'] == 'pending' for b in ledger.values()),
         'ancillary_files_inventoried': len(ancillary)}
@@ -317,12 +346,17 @@ def main():
             'This page is an inventory/checkpoint. Pending syntax sites are not established behavioral paths or executable coverage.', '']
         for fn in f['functions']:
             rows += [f"## {fn['name']}", '', f"[Source line {fn['line']}]({(SOURCE / f['path']).as_posix()}:{fn['line']}); ends at line {fn['end_line']}. Status: {fn['status']}.", '',
-                'Entry references (lexical candidates; caller guards still require inspection):', '']
+                'Entry references (reviewed in the completion record):' if 'completion_review' in fn else 'Entry references (lexical candidates; caller guards still require inspection):', '']
+            if 'completion_review' in fn:
+                rows += ['Completed contract and caller audit: [spec_name completion](../spec-name-completion.md). No remaining gaps for this function.', '']
             rows += [f"- {r.get('caller', r['kind'])}: `{r['file']}:{r['line']}` ({r['kind']})." for r in fn['entry_routes']]
             rows += ['', 'Dependencies: ' + ', '.join(f"`{d['name']}`" for d in fn['dependencies']) + '.', '', '| Ledger ID | Line | Predicate/transfer | Cases | Disposition |', '|---|---:|---|---|---|']
             for b in fn['branch_ledger']:
                 pred = b['predicate_or_transfer'].replace('|', '\\|').replace('\n', ' ').replace('\r', '')
-                rows.append(f"| `{b['id']}` | {b['source_ref']['line']} | `{pred}` | {', '.join(b['case_ids'])} | {b['disposition']} |")
+                disposition = b['disposition']
+                if 'disposition_note' in b:
+                    disposition += '. ' + b['disposition_note']
+                rows.append(f"| `{b['id']}` | {b['source_ref']['line']} | `{pred}` | {', '.join(b['case_ids'])} | {disposition} |")
             rows += ['']
         rows += ['## Preprocessor and macro inventory', ''] + [f"- Line {r['line']}: `{r['text'].replace(chr(10), ' ')}` — pending configuration/reachability review." for r in f['preprocessor_directives']]
         rows += ['', '## Static tables', ''] + [f"- `{r['name']}` at line {r['line']} — pending entry/termination review." for r in f['static_tables']]
@@ -349,7 +383,11 @@ def main():
         '## File inventory', '', '| File | Lines | Definitions | Disposition |', '|---|---:|---:|---|']
     summary += [f"| [{f['path']}](files/{Path(f['path']).name}.md) | {f['lines']} | {len(f['functions'])} | {f['status']} |" for f in files]
     summary += ['', '## Coverage criterion and continuation', '',
-        'The five direct lookup helpers now have linked cases for the bounded search, comparison and return paths. Scan has linked cases for its explicit control sites and additional tests for missing exits, visibility rechecks and undefined inputs. Scan delivery through the communication layer, platform configuration and the remaining subsystems are open.', '',
+        '`spec_name` is now fully traced: all 22 mappings, NULL/nonmember inputs, sentinel termination, pointer ownership and caller reachability are specified in 24 cases. See [completion audit](spec-name-completion.md). Together with the five lookup helpers, six functions are fully traced. The rest of special.c remains partial.', '',
+        'Scan has linked cases for its explicit control sites and additional tests for missing exits, visibility rechecks and undefined inputs. Scan delivery through the communication layer, platform configuration and the remaining subsystems are open.', '',
+        'The continuation adds 63 cases and reconciles the local control-site ledgers of 25 existing utility/helper functions. These local ledgers remain distinct from complete caller/dependency tracing; no additional function is promoted to fully traced solely from lexical links.', '',
+        'Alias storage cases now cover uppercase names retained by the loader. Ban cases cover a populated recycle list with shared-string names, empty/whitespace input, malformed levels/flags, duplicate flag letters, trailing spaces and missing final newlines. Allocated recycled names, other malformed formats, complete caller/storage invariants and platform persistence behavior remain open.', '',
+        'Portal cases now trace repeated ordinal lookup, an alternate nonportal match, and a three-level follower graph whose linked-list mutation revisits a moved follower. Recipient rendering, other follower graph classes, dynamically allocated descriptions and complete movement/lookup helper suites remain open.', '',
         'Case selection distinguishes observable guard outcomes, ordered failures, string and arithmetic boundaries, loop cardinalities, mutation order and caller-versus-helper contracts. It does not enumerate a Cartesian product of all game states. The lexical index includes explicit control transfers and short-circuit operators but cannot establish feasibility or find every implicit branch.', '',
         'Continue from `manifest.json`, keeping current case IDs. First resolve syntax sites in functions already carrying cases; then process command dispatch/session handling, movement/objects/combat, magic/effects, update/persistence, content loaders and specials. Load-dependent area/data contracts and platform branches remain in scope. Do not mark a function complete solely because it has one case.', '',
         'To regenerate, run `author_cases.py`, `build_report.py` and `validate_report.py` in that order with Python. The scripts read the C checkout and write the report artifacts in this directory.']

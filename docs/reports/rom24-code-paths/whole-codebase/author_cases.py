@@ -129,6 +129,94 @@ add('alias.c', 'do_alias', 'at-five-alias-limit', {'actor': {'id': 'ch', 'kind':
 for suffix, argument, aliases, result, msg in [('missing-name', '', [['a', 'look']], [['a', 'look']], 'Unalias what?\n\r'), ('not-found', 'z', [['a', 'look']], [['a', 'look']], 'No alias of that name to remove.\n\r'), ('remove-only', 'a', [['a', 'look']], [], 'Alias removed.\n\r'), ('remove-first-shifts-all', 'a', [['a', 'look'], ['b', 'north'], ['c', 'south']], [['b', 'north'], ['c', 'south']], 'Alias removed.\n\r'), ('remove-middle-shifts-tail', 'b', [['a', 'look'], ['b', 'north'], ['c', 'south']], [['a', 'look'], ['c', 'south']], 'Alias removed.\n\r'), ('remove-last', 'c', [['a', 'look'], ['c', 'south']], [['a', 'look']], 'Alias removed.\n\r')]:
     add('alias.c', 'do_unalias', suffix, {'actor': {'id': 'ch', 'kind': 'PC', 'desc': None, 'aliases': aliases}, 'argument': argument}, {'messages': [{'recipient': 'ch', 'text': msg}], 'result_aliases': result, 'tail_slots': 'C NULL after last occupied slot', 'forbidden': ['interpret command']}, needle='one_argument(argument,arg)')
 
+add('alias.c', 'substitute_alias', 'active-owner-prefix-over-limit',
+    {'descriptor': {'character': 'ch', 'original': None},
+     'actor': {'id': 'ch', 'kind': 'PC', 'prefix': 'a' * 255, 'aliases': []}, 'argument': 'go'},
+    {'ordered_events': [{'call': 'send_to_char', 'recipient': 'ch', 'text': 'Line to long, prefix not processed.\r\n'},
+                        {'call': 'interpret', 'actor': 'ch', 'argument': 'go'}]},
+    needle='Line to long', controls={'interpret': 'Record dispatch without executing gameplay.'})
+add('alias.c', 'substitute_alias', 'five-nonmatching-slots',
+    {**alias_base, 'owner': {**alias_base['owner'], 'aliases': [[n, 'look'] for n in 'abcde']}, 'argument': 'z'},
+    {'ordered_events': [{'call': 'interpret', 'actor': 'body', 'argument': 'z'}],
+     'forbidden': ['one_argument', 'message', 'alias mutation']},
+    needle='alias < MAX_ALIAS', controls={'interpret': 'Record dispatch without executing gameplay.'})
+
+for fn in ('do_alias', 'do_unalias'):
+    add('alias.c', fn, 'npc-without-original-returns',
+        {'actor': {'id': 'ch', 'kind': 'NPC', 'desc': {'original': None}, 'pcdata': None}, 'argument': 'x look'},
+        {'messages': [], 'forbidden': ['alias slot access', 'one_argument'], 'unchanged': ['alias state']},
+        needle='IS_NPC(rch)')
+
+for suffix, aliases, texts in [
+    ('list-two', [['x', 'look'], ['y', 'north']], ['    x:  look\n\r', '    y:  north\n\r']),
+    ('list-stops-at-null-replacement', [['x', 'look'], ['y', None], ['z', 'south']], ['    x:  look\n\r']),
+    ('list-five', [[n, 'look'] for n in 'abcde'], [f'    {n}:  look\n\r' for n in 'abcde']),
+]:
+    add('alias.c', 'do_alias', suffix,
+        {'actor': {'id': 'ch', 'kind': 'PC', 'desc': None, 'aliases': aliases}, 'argument': ''},
+        {'messages': [{'recipient': 'ch', 'text': text} for text in ['Your current aliases are:\n\r', *texts]],
+         'unchanged': ['alias slots']}, needle='Your current aliases')
+add('alias.c', 'do_alias', 'switched-owner-edited-active-body-notified',
+    {'actor': {'id': 'body', 'kind': 'NPC', 'desc': {'original': 'owner'}},
+     'owner': {'id': 'owner', 'kind': 'PC', 'aliases': [['x', 'look']]}, 'argument': 'X north'},
+    {'result_aliases': {'owner': [['x', 'north']]},
+     'messages': [{'recipient': 'body', 'text': "x is now realiased to 'north'.\n\r"}],
+     'forbidden': ['mutate body aliases', 'send to owner']}, needle='rch = ch->desc->original')
+add('alias.c', 'do_alias', 'query-stops-at-null-replacement',
+    {'actor': {'id': 'ch', 'kind': 'PC', 'desc': None, 'aliases': [['x', None], ['y', 'look']]}, 'argument': 'y'},
+    {'messages': [{'recipient': 'ch', 'text': 'That alias is not defined.\n\r'}], 'unchanged': ['alias slots']},
+    needle='That alias is not defined')
+add('alias.c', 'do_unalias', 'switched-owner-first-of-duplicate-names',
+    {'actor': {'id': 'body', 'kind': 'NPC', 'desc': {'original': 'owner'}},
+     'owner': {'id': 'owner', 'kind': 'PC', 'aliases': [['x', 'look'], ['x', 'north'], ['y', 'south']]}, 'argument': 'X ignored'},
+    {'result_aliases': {'owner': [['x', 'north'], ['y', 'south']]},
+     'messages': [{'recipient': 'body', 'text': 'Alias removed.\n\r'}],
+     'forbidden': ['second deletion', 'send to owner']}, needle='if (found)')
+
+# Each row connects a representative execution to the lexical sites it visits.
+alias_sites = {
+    'substitute_alias': {
+        'exact-first-word': 'ternary.001 if.001 if.003 or.001 or.002 or.003 or.004 for.001 if.004 if.005 if.006 if.007 break.002',
+        'prefix-not-exact-alias': 'for.001 if.004 if.005 if.006 break.001',
+        'prefix-precedes-alias': 'if.001 and.001 if.002',
+        'active-owner-prefix-over-limit': 'ternary.001 if.001 and.001 if.002 if.003 or.001 or.002 return.001',
+        'replacement-truncates-at-255': 'if.007 break.002',
+        'protected-alias-command': 'if.003 or.002 or.003 return.001',
+        'protected-una-prefix': 'if.003 or.003 or.004 return.001',
+        'prefix-command-bypasses-prefix': 'if.001 and.001 or.004 return.001',
+        'original-npc-bypasses-alias': 'if.003 or.001 return.001',
+        'five-nonmatching-slots': 'for.001 if.004 if.005',
+    },
+    'do_alia': {'requires-full-name': 'return.001'},
+    'do_alias': {
+        'npc-without-original-returns': 'if.001 ternary.001 if.002 return.001',
+        'no-aliases': 'if.003 if.004 return.002',
+        'list-two': 'if.004 for.001 if.005 or.001 break.001 return.003',
+        'list-stops-at-null-replacement': 'for.001 if.005 or.001 break.001 return.003',
+        'reserved-alias': 'if.006 or.002 return.004',
+        'reserved-una-prefix': 'if.006 or.002 return.004',
+        'defined-query': 'if.007 for.002 if.008 or.003 if.009 return.005',
+        'undefined-query': 'if.007 for.002 if.008 or.003 break.002 return.006',
+        'query-stops-at-null-replacement': 'if.008 or.003 break.002 return.006',
+        'delete-abbreviation-rejected': 'if.010 or.004 return.007',
+        'prefix-abbreviation-rejected': 'if.010 or.004 return.007',
+        'switched-owner-edited-active-body-notified': 'ternary.001 for.003 if.011 if.012 return.008',
+        'at-five-alias-limit': 'for.003 if.011 if.012 if.013 return.009',
+        'add': 'for.003 if.011 break.003 if.013',
+    },
+    'do_unalias': {
+        'npc-without-original-returns': 'if.001 ternary.001 if.002 return.001',
+        'missing-name': 'if.003 return.002',
+        'not-found': 'for.001 if.004 break.001 if.005 if.006 if.007',
+        'remove-first-shifts-all': 'for.001 if.004 if.005 continue.001 if.006 if.007',
+        'switched-owner-first-of-duplicate-names': 'ternary.001 if.005 continue.001 if.006 if.007',
+    },
+}
+for case in cases:
+    file, fn, suffix = case['id'].split('.', 2)
+    if file == 'alias':
+        case['branch_ids'].extend(f'alias.{fn}.{site}' for site in alias_sites[fn].get(suffix, '').split())
+
 # Scan boundary: do_scan is not present in this checkout's command table.
 add('scan.c', 'do_scan', 'invalid-direction', {'actor': {'id': 'ch', 'in_room': 'A'}, 'argument': 'northeast'}, {'messages': [{'recipient': 'ch', 'text': 'Which way do you want to scan?\n\r'}], 'forbidden': ['scan_list', 'room messages', 'movement']}, needle='Which way')
 add('scan.c', 'do_scan', 'around-includes-current-and-each-exit', {'actor': {'id': 'ch', 'in_room': 'A'}, 'argument': '', 'rooms': {'A': {'exit': {'north': {'to_room': 'B', 'flags': ['EX_CLOSED']}, 'east': {'to_room': 'B', 'flags': []}}}}}, {'ordered_events': [{'act': '$n looks all around.', 'channel': 'TO_ROOM'}, {'send_to_char': 'Looking around you see:\n\r', 'recipient': 'ch'}, {'scan_list': ['A', 'ch', 0, -1]}, {'scan_list': ['B', 'ch', 1, 0]}, {'scan_list': ['B', 'ch', 1, 1]}], 'forbidden': ['exit closed check', 'deduplication of same destination', 'movement']}, needle="arg1[0] == '\\0'", controls={'scan_list': 'Recording helper boundary; separate cases trace occupant filtering.', 'randomness': 'none'})
@@ -229,6 +317,74 @@ for fn in ['spell_portal', 'spell_nexus']:
 add('magic2.c', 'spell_nexus', 'same-room-one-portal', {'actor': travel_actor, 'victim': {**travel_victim, 'in_room': 'A'}, 'rooms': travel_rooms, 'target_name': 'v', 'arguments': {'sn': 1, 'level': 40, 'vo': None, 'target': 0}}, {'create_object_calls': 1, 'portal': {'in_room': 'A', 'value[3]': 100, 'timer': 5}, 'stone': 'consumed before creation', 'forbidden': ['return portal creation', 'destination-anchor messages']}, needle='to_room == from_room', controls={'get_char_world': 'v', 'can_see_room': True, 'create_object/act/extract_obj': 'Recording boundaries as in nexus success cases.', 'randomness': 'none'})
 add('magic2.c', 'spell_nexus', 'safe-origin-denies', {'actor': travel_actor, 'victim': travel_victim, 'rooms': {**travel_rooms, 'A': {**travel_rooms['A'], 'room_flags': ['ROOM_SAFE']}}, 'target_name': 'v', 'arguments': {'sn': 1, 'level': 40, 'vo': None, 'target': 0}}, {'messages': [{'recipient': 'ch', 'text': 'You failed.\n\r'}], 'unchanged': ['stone', 'all entities'], 'forbidden': ['component lookup', 'creation']}, needle='IS_SET(from_room->room_flags,ROOM_SAFE)', controls={'get_char_world': 'v', 'can_see_room': True, 'saves_spell_calls': 0})
 
+add('magic2.c', 'spell_nexus', 'origin-invisible-after-visible-destination',
+    {'actor': travel_actor, 'victim': travel_victim, 'rooms': travel_rooms, 'target_name': 'v',
+     'arguments': {'sn': 1, 'level': 40, 'vo': None, 'target': 0}},
+    {'ordered_events': [{'get_char_world': ['ch', 'v']}, {'can_see_room': ['ch', 'B']},
+                        {'can_see_room': ['ch', 'A']}, {'send_to_char': 'You failed.\n\r', 'recipient': 'ch'}],
+     'forbidden': ['saves_spell', 'get_eq_char', 'extract_obj', 'create_object']},
+    needle='!can_see_room(ch,from_room)',
+    controls={'get_char_world': 'v', 'can_see_room': {'ordered_returns': [True, False]}})
+add('magic2.c', 'spell_nexus', 'empty-destination-people-skips-announcements',
+    {'actor': {**travel_actor, 'level': 52, 'held_item': None}, 'victim': travel_victim,
+     'rooms': {**travel_rooms, 'B': {**travel_rooms['B'], 'people': []}}, 'target_name': 'v',
+     'arguments': {'sn': 1, 'level': 40, 'vo': None, 'target': 0},
+     'invariant_override': 'The lookup returns v with in_room B although B has no linked occupants.'},
+    {'ordered_events': [
+        {'obj_to_room': ['portal-1', 'A'], 'timer': 5, 'value[3]': 200},
+        {'act': '$p rises up from the ground.', 'channel': 'TO_ROOM', 'anchor': 'ch'},
+        {'act': '$p rises up before you.', 'channel': 'TO_CHAR', 'anchor': 'ch'},
+        {'obj_to_room': ['portal-2', 'B'], 'timer': 5, 'value[3]': 100}],
+     'forbidden': ['destination act', 'extract_obj', 'movement']},
+    needle='to_room->people != NULL',
+    controls={'get_char_world': 'Script v at the lookup boundary.', 'can_see_room': {'ordered_returns': [True, True]},
+              'create_object': 'Return portal-1 then portal-2.', 'act': 'Record template and recipient channel.'})
+
+travel_guard_order = [
+    'no-victim', 'self-target', 'victim-no-room', 'room-not-visible', 'destination-safe',
+    'destination-private', 'destination-solitary', 'destination-no-recall', 'origin-no-recall',
+    'victim-level-at-spell-plus-three', 'hero-pc-regardless-of-trust', 'npc-summon-immune',
+    'npc-saves', 'clan-mismatch',
+]
+nexus_guard_order = travel_guard_order.copy()
+nexus_guard_order.insert(4, 'origin-invisible-after-visible-destination')
+nexus_guard_order.insert(6, 'safe-origin-denies')
+for case in cases:
+    file, fn, suffix = case['id'].split('.', 2)
+    if file != 'magic2':
+        continue
+    if fn == 'spell_farsight':
+        sites = ['if.001']
+        if suffix == 'blind-rejects-before-scan':
+            sites.append('return.001')
+    else:
+        nexus = fn == 'spell_nexus'
+        guards = nexus_guard_order if nexus else travel_guard_order
+        if suffix in guards:
+            stop = guards.index(suffix)
+            sites = ['if.001', 'return.001']
+            if stop:
+                sites.append(f'or.{stop:03}')
+            if suffix in guards[-4:]:
+                sites.append(f'and.{guards[-4:].index(suffix) + 1:03}')
+            visibility_calls = [] if stop < 3 else ['B']
+            if nexus and stop > 3:
+                visibility_calls.append('A')
+            case['expected']['can_see_room_calls_in_order'] = visibility_calls
+            branch = next(b for b in index['src/magic2.c', fn]['branch_ledger']
+                          if b['id'] == f'magic2.{fn}.' + (f'or.{stop:03}' if stop else 'if.001'))
+            if branch['source_ref'] not in case['source_refs']:
+                case['source_refs'].append(branch['source_ref'])
+        else:
+            sites = ['if.001', 'if.002', 'and.005']
+            if suffix.startswith('mortal-'):
+                sites += [f'or.{len(guards):03}', 'return.002']
+            else:
+                sites += ['if.003', 'and.006']
+                if nexus:
+                    sites += ['if.004', 'return.003' if suffix == 'same-room-one-portal' else 'if.005']
+    case['branch_ids'].extend(f'magic2.{fn}.{site}' for site in sites)
+
 # Healer economics: the menu's serious price differs from the charged amount.
 heal_base = {'actor': {'id': 'ch', 'kind': 'PC', 'in_room': 'A', 'gold': 100, 'silver': 0, 'wait': 0, 'mana': 10, 'max_mana': 100}, 'healer': {'id': 'h', 'kind': 'NPC', 'act': ['ACT_IS_NPC', 'ACT_IS_HEALER'], 'level': 30, 'gold': 0, 'silver': 0}, 'room': {'id': 'A', 'people_in_order': ['ch', 'h']}}
 add('healer.c', 'do_heal', 'no-healer-before-argument-parsing', {**heal_base, 'room': {'id': 'A', 'people_in_order': ['ch']}, 'argument': 'nonsense'}, {'messages': [{'recipient': 'ch', 'text': "You can't do that here.\n\r"}], 'unchanged': ['gold, silver, wait, mana'], 'forbidden': ['one_argument', 'skill_lookup', 'spell call']}, needle='mob == NULL')
@@ -261,6 +417,174 @@ for suffix, victim_updates, immunity, roll, result, threshold in [('normal-below
 for suffix, site, bans, result in [('empty-list', 'EXAMPLE.COM', [], False), ('type-not-set', 'example.com', [{'name': 'example.com', 'flags': ['BAN_SUFFIX']}], False), ('exact-without-prefix-suffix-does-not-match', 'example.com', [{'name': 'example.com', 'flags': ['BAN_ALL']}], False), ('prefix-flag-tests-host-suffix', 'Host.Example.COM', [{'name': 'example.com', 'flags': ['BAN_ALL', 'BAN_PREFIX']}], True), ('suffix-flag-tests-host-prefix', 'HOST.example.com', [{'name': 'host', 'flags': ['BAN_ALL', 'BAN_SUFFIX']}], True), ('both-flags-host-contained-in-pattern', 'Example.COM', [{'name': 'xxexample.comyy', 'flags': ['BAN_ALL', 'BAN_PREFIX', 'BAN_SUFFIX']}], True), ('both-flags-do-not-match-interior-pattern-in-host', 'xxexample.comyy', [{'name': 'example.com', 'flags': ['BAN_ALL', 'BAN_PREFIX', 'BAN_SUFFIX']}], False), ('later-entry-matches', 'host.example.com', [{'name': 'other', 'flags': ['BAN_ALL', 'BAN_SUFFIX']}, {'name': 'example.com', 'flags': ['BAN_ALL', 'BAN_PREFIX']}], True)]:
     add('ban.c', 'check_ban', suffix, {'arguments': {'site': site, 'type': 'BAN_ALL'}, 'ban_list_in_order': bans}, {'return': result, 'unchanged': ['site and ban list'], 'forbidden': ['messages', 'persistence writes', 'random draws']}, needle='strcpy(host,capitalize(site))', controls={'capitalize/str_prefix/str_suffix': 'Real string contracts independently specified. strcpy host then LOWER(host[0]) lowercases the whole host.'})
 
+# Ban persistence under the Unix NULL_FILE definition. Calls to the file
+# interface are observable even when there is no final ban.txt.
+for suffix, rows, lines in [
+    ('empty', [], []),
+    ('temporary-only', [['temp', 56, ['BAN_ALL']]], []),
+    ('permanent-in-list-order', [
+        ['alpha', 56, ['BAN_PREFIX', 'BAN_ALL', 'BAN_PERMANENT']],
+        ['temp', 56, ['BAN_ALL']],
+        ['beta', 60, ['BAN_SUFFIX', 'BAN_PERMIT', 'BAN_PERMANENT']],
+    ], ['alpha'.ljust(20) + ' 56 BDF\n', 'beta'.ljust(20) + ' 60 AEF\n']),
+]:
+    add('ban.c', 'save_bans', suffix, {'ban_list': rows, 'fpReserve': 'R0', 'existing_ban_file': 'old\n'},
+        {'ordered_events': [{'fclose': 'R0'}, {'fopen': ['ban.txt', 'w']},
+                            *[{'write': ['W', line]} for line in lines], {'fclose': 'W'},
+                            {'fopen': ['/dev/null', 'r']},
+                            *([] if lines else [{'unlink': 'ban.txt'}])],
+         'fpReserve': 'R1', 'final_ban_file': ''.join(lines) if lines else None, 'unchanged': ['ban_list']},
+        needle='if (!found)', controls={'fopen': {'ordered_returns': ['W', 'R1']},
+                                        'writes_close_and_unlink': 'Succeed where called.',
+                                        'print_flags': 'Script BDF then AEF for the two permanent rows. Isolate the serializer signed-shift platform issue.'})
+add('ban.c', 'save_bans', 'open-failure-permanent-row-undefined',
+    {'ban_list': [['alpha', 56, ['BAN_ALL', 'BAN_PERMANENT']]], 'fpReserve': 'R0'},
+    {'defined_prefix': [{'fclose': 'R0'}, {'fopen': ['ban.txt', 'w']}, {'perror': 'ban.txt'}],
+     'portable_oracle': 'Unavailable after the diagnostic because fprintf receives a null stream.'},
+    needle='perror', controls={'fopen': {'ordered_returns': [None]}}, blocked=True,
+    questions=['The source continues after the failed open. A portable fixture cannot assert the resulting process state.'])
+add('ban.c', 'save_bans', 'open-failure-without-permanent-row-undefined',
+    {'ban_list': [], 'fpReserve': 'R0'},
+    {'defined_prefix': [{'fclose': 'R0'}, {'fopen': ['ban.txt', 'w']}, {'perror': 'ban.txt'}],
+     'portable_oracle': 'Unavailable after the diagnostic because fclose receives a null stream.'},
+    needle='perror', controls={'fopen': {'ordered_returns': [None]}}, blocked=True,
+    questions=['The failed open does not branch around fclose.'])
+
+add('ban.c', 'load_bans', 'missing-file',
+    {'ban_list': [], 'file': None},
+    {'ordered_events': [{'fopen': ['ban.txt', 'r']}], 'unchanged': ['ban_list'],
+     'forbidden': ['new_ban', 'fclose', 'read']},
+    needle='fopen', controls={'fopen': {'ordered_returns': [None]}})
+add('ban.c', 'load_bans', 'loads-two-rows-in-file-order',
+    {'ban_list': [], 'file': 'alpha 56 BDF\nbeta 60 AEF\n'},
+    {'result_list': [['alpha', 56, ['BAN_PREFIX', 'BAN_ALL', 'BAN_PERMANENT']],
+                     ['beta', 60, ['BAN_SUFFIX', 'BAN_PERMIT', 'BAN_PERMANENT']]],
+     'ordered_events': ['Open ban.txt for reading', 'Allocate and link alpha as head',
+                        'Allocate and append beta', 'Close file after EOF'], 'forbidden': ['save_bans']},
+    needle='if (ban_list == NULL)', controls={'fopen': 'Succeed; use the real parser on fixture bytes.'})
+add('ban.c', 'load_bans', 'nonempty-list-first-append-undefined',
+    {'ban_list': [['old', 56, ['BAN_ALL']]], 'file': 'alpha 56 BDF\n'},
+    {'defined_prefix': ['Open file and parse alpha row'], 'portable_oracle': 'ban_last is still NULL on first append.'},
+    needle='ban_last->next', controls={'fopen': 'Succeed; use the real parser on fixture bytes.'}, blocked=True,
+    questions=['The boot caller starts with an empty global list. A later direct call with existing entries dereferences NULL.'])
+
+ban_actor = {'id': 'ch', 'kind': 'PC', 'level': 56, 'trust': 0, 'desc': None}
+ban_a = ['alpha', 56, ['BAN_ALL']]
+ban_b = ['beta', 55, ['BAN_NEWBIES']]
+for suffix, argument, rows, remaining, message, sites in [
+    ('missing-name', '', [ban_a], [ban_a], 'Remove which site from the ban list?', 'if.001 return.001'),
+    ('missing-entry', 'z', [ban_a, ban_b], [ban_a, ban_b], 'Site is not banned.', 'for.001 if.002 return.004'),
+    ('higher-trust', 'alpha', [['alpha', 57, ['BAN_ALL']]], [['alpha', 57, ['BAN_ALL']]],
+     'You are not powerful enough to lift that ban.', 'if.002 if.003 return.002'),
+    ('remove-head-at-equal-trust', 'ALPHA ignored', [ban_a, ban_b], [ban_b], 'Ban on alpha lifted.',
+     'if.003 if.004 return.003'),
+    ('remove-interior', 'beta', [ban_a, ban_b, ['gamma', 55, ['BAN_ALL']]], [ban_a, ['gamma', 55, ['BAN_ALL']]],
+     'Ban on beta lifted.', 'if.004 return.003'),
+]:
+    removed = suffix.startswith('remove-')
+    events = [{'send_to_char': message + '\n\r', 'recipient': 'ch'}]
+    if removed:
+        events = [{'free_ban': 'alpha' if 'head' in suffix else 'beta'}, *events, {'save_bans': remaining}]
+    add('ban.c', 'do_allow', suffix, {'actor': ban_actor, 'argument': argument, 'ban_list': rows},
+        {'result_list': remaining, 'ordered_events': events,
+         'forbidden': [] if removed else ['free_ban', 'save_bans']},
+        needle='if ( arg[0]', controls={'save_bans': 'Record the list at persistence boundary.'})
+    cases[-1]['branch_ids'].extend(f'ban.do_allow.{site}' for site in sites.split())
+
+for fn, permanent in [('do_ban', False), ('do_permban', True)]:
+    add('ban.c', fn, 'dispatch-unchanged-argument',
+        {'actor': ban_actor, 'argument': '*Alpha* n'},
+        {'ordered_events': [{'ban_site': ['ch', '*Alpha* n', permanent]}]},
+        needle='ban_site(ch', controls={'ban_site': 'Recording boundary.'})
+    cases[-1]['branch_ids'].append(f'ban.{fn}.entry')
+
+for suffix, argument, permanent, rows, flags, text, sites in [
+    ('no-sites', '', False, [], [], 'No sites banned at this time.', 'if.001 if.002 return.001'),
+    ('invalid-type-before-pattern', '* invalid', False, [], [], 'Acceptable ban types are all, newbies, and permit.',
+     'if.003 or.001 if.004 if.005 return.003'),
+    ('double-star-empty-name', '**', False, [], [], 'You have to ban SOMETHING.',
+     'if.006 if.007 if.008 return.004'),
+    ('higher-trust', 'ALPHA a', True, [['alpha', 57, ['BAN_ALL']]], [],
+     'That ban was set by a higher power.', 'for.002 if.009 if.010 return.005'),
+    ('plain-default-type', 'alpha', False, [ban_b], ['BAN_ALL'], 'alpha has been banned.',
+     'if.003 or.001 if.006 if.007 if.008 for.002 if.009 if.012 if.013 if.014 return.006'),
+    ('both-wildcards-permanent-newbies', '*Alpha* n', True, [],
+     ['BAN_NEWBIES', 'BAN_PREFIX', 'BAN_SUFFIX', 'BAN_PERMANENT'], 'alpha has been banned.',
+     'if.004 if.006 if.007 if.012 if.013 if.014 return.006'),
+    ('suffix-permit', 'alpha* p', False, [], ['BAN_PERMIT', 'BAN_SUFFIX'], 'alpha has been banned.',
+     'if.005 if.006 if.007 if.012 if.013 if.014 return.006'),
+]:
+    result = ([['alpha', 56, flags], *rows] if flags else rows)
+    events = [{'send_to_char': text + '\n\r', 'recipient': 'ch'}]
+    if flags:
+        events = [{'new_ban': ['alpha', 56, flags]}, {'save_bans': result}, *events]
+    add('ban.c', 'ban_site', suffix, {'actor': ban_actor, 'argument': argument, 'fPerm': permanent, 'ban_list': rows},
+        {'result_list': result, 'ordered_events': events, 'forbidden': [] if flags else ['new_ban', 'save_bans']},
+        needle='argument = one_argument', controls={'save_bans': 'Record the list at persistence boundary.'})
+    cases[-1]['branch_ids'].extend(f'ban.ban_site.{site}' for site in sites.split())
+
+listing_rows = [
+    ['alpha', 56, ['BAN_PREFIX', 'BAN_SUFFIX', 'BAN_NEWBIES', 'BAN_PERMIT', 'BAN_PERMANENT']],
+    ['beta', 55, ['BAN_SUFFIX', 'BAN_PERMIT']], ['gamma', 54, ['BAN_ALL']], ['delta', 53, []],
+]
+listing_text = 'Banned sites  level  type     status\n\r' + ''.join(
+    f'{pattern:<12}    {level:<3}  {kind:<7}  {status}\n\r'
+    for pattern, level, kind, status in [
+        ('*alpha*', 56, 'newbies', 'perm'), ('beta*', 55, 'permit', 'temp'),
+        ('gamma', 54, 'all', 'temp'), ('delta', 53, '', 'temp'),
+    ]
+)
+add('ban.c', 'ban_site', 'list-formats-wildcards-and-type-precedence',
+    {'actor': ban_actor, 'argument': '', 'fPerm': False, 'ban_list': listing_rows},
+    {'ordered_events': [{'page_to_char': listing_text, 'recipient': 'ch'}, {'free_buf': 'listing'}],
+     'unchanged': ['ban_list'], 'forbidden': ['save_bans', 'new_ban']},
+    needle='if ( arg1[0]', controls={'buffer': 'Record append order and concatenate all entries within capacity.'})
+cases[-1]['branch_ids'].extend(f'ban.ban_site.{site}' for site in
+    'if.001 if.002 for.001 ternary.001 ternary.002 ternary.003 ternary.004 ternary.005 ternary.006 return.002'.split())
+
+for suffix, rows, remaining in [
+    ('head', [ban_a, ban_b], [ban_b]), ('interior', [ban_b, ban_a], [ban_b]),
+]:
+    result = [['alpha', 56, ['BAN_PERMIT']], *remaining]
+    add('ban.c', 'ban_site', f'replace-{suffix}-with-empty-free-list',
+        {'actor': ban_actor, 'argument': 'alpha p', 'fPerm': False, 'ban_list': rows, 'ban_free': []},
+        {'result_list': result, 'ordered_events': [
+            {'free_ban': 'old alpha'}, {'new_ban': 'reuses old alpha record'}, {'save_bans': result},
+            {'send_to_char': 'alpha has been banned.\n\r', 'recipient': 'ch'}]},
+        needle='if (prev == NULL)', controls={'save_bans': 'Record the list at persistence boundary.'})
+    cases[-1]['branch_ids'].extend(['ban.ban_site.if.010', 'ban.ban_site.if.011'])
+
+add('ban.c', 'ban_site', 'single-star-empty-name-index-undefined',
+    {'actor': ban_actor, 'argument': '*', 'fPerm': False, 'ban_list': []},
+    {'portable_oracle': 'After consuming the leading star, strlen(name) is zero. The unsigned subtraction wraps and the computed array index lies outside arg1.'},
+    needle='name[strlen(name) - 1]', blocked=True,
+    questions=['The empty-pattern diagnostic comes after the out-of-bounds expression.'])
+
+ban_sites = {
+    'save_bans': {
+        'empty': 'if.001 for.001 if.003', 'temporary-only': 'for.001 if.002 if.003',
+        'permanent-in-list-order': 'if.001 for.001 if.002 if.003',
+        'open-failure-permanent-row-undefined': 'if.001 for.001 if.002',
+    },
+    'load_bans': {
+        'missing-file': 'if.001 return.001',
+        'loads-two-rows-in-file-order': 'if.001 for.001 if.002 return.002 if.003',
+        'nonempty-list-first-append-undefined': 'if.003',
+    },
+    'check_ban': {
+        'empty-list': 'for.001 return.004', 'type-not-set': 'if.001 continue.001',
+        'exact-without-prefix-suffix-does-not-match': 'if.002 and.001 if.003 and.003 if.004 and.004 return.004',
+        'prefix-flag-tests-host-suffix': 'if.002 and.002 if.003 and.003 return.002',
+        'suffix-flag-tests-host-prefix': 'if.004 and.004 return.003',
+        'both-flags-host-contained-in-pattern': 'if.002 and.001 and.002 return.001',
+        'both-flags-do-not-match-interior-pattern-in-host': 'if.002 and.002 if.003 and.003 if.004 and.004 return.004',
+    },
+}
+for case in cases:
+    file, fn, suffix = case['id'].split('.', 2)
+    if file == 'ban' and fn in ban_sites:
+        case['branch_ids'].extend(f'ban.{fn}.{site}' for site in ban_sites[fn].get(suffix, '').split())
+
 # Scheduler counters start at zero and use fixed intervals in this checkout.
 for n in [1, 2, 12, 13, 16, 17, 24, 25, 240, 241, 480, 481]:
     periods = {'area_update': 480, 'song_update': 24, 'mobile_update': 16, 'violence_update': 12, 'point_group': 240}
@@ -274,9 +598,225 @@ for suffix, actor_kind, aggressive, room_flag, private, visible in [('missing-in
 for suffix, kind, flags in [('npc-law-allowed-even-aggressive', 'NPC', ['ACT_IS_NPC', 'ACT_AGGRESSIVE']), ('pc-aggressive-bit-law-allowed', 'PC', ['ACT_AGGRESSIVE']), ('ordinary-room-first-draw', 'PC', [])]:
     add('act_enter.c', 'get_random_room', suffix, {'actor': {'kind': kind, 'act': flags}, 'room': {'id': 'R', 'room_flags': [] if suffix == 'ordinary-room-first-draw' else ['ROOM_LAW']}}, {'return': 'R', 'number_range_calls': 1, 'unchanged': ['all entities']}, needle='IS_NPC(ch) ||', controls={'number_range': {'kind': 'scripted helper', 'ordered_returns': [1]}, 'get_room_index(1)': 'R', 'can_see_room': True, 'room_is_private': False})
 
+for case in cases:
+    if not case['id'].startswith('act_enter.get_random_room.'):
+        continue
+    suffix = case['id'].split('.', 2)[2]
+    sites = ['for.001', 'if.001', 'if.002', 'and.001', 'and.002', 'and.003',
+             'and.004', 'and.005', 'or.001', 'or.002', 'break.001', 'return.001']
+    if suffix == 'npc-law-allowed-even-aggressive':
+        sites.remove('or.002')
+    case['branch_ids'].extend(f'act_enter.get_random_room.{site}' for site in sites)
+    if suffix.startswith('reject-'):
+        case['expected']['can_see_room_calls_in_order'] = ['good'] if suffix == 'reject-missing-index' else ['bad', 'good']
+        case['expected']['room_is_private_calls_in_order'] = (
+            ['good'] if suffix in {'reject-missing-index', 'reject-invisible'} else ['bad', 'good'])
+
 enter_base = {'actor': {'id': 'ch', 'kind': 'PC', 'level': 30, 'trust': 0, 'desc': None, 'fighting': None, 'in_room': 'A', 'affected_by': [], 'act': []}, 'room': {'id': 'A', 'room_flags': []}, 'portal': {'id': 'P', 'item_type': 'ITEM_PORTAL', 'value': [0, 0, 0, 200, 0], 'in_room': 'A'}, 'argument': 'portal'}
 for suffix, actor_changes, portal_changes, arg, msg in [('fighting-silent', {'fighting': 'enemy'}, {}, 'portal', None), ('empty-argument', {}, {}, '', "Nope, can't do it.\n\r"), ('no-object', {}, {}, 'missing', "You don't see that here.\n\r"), ('not-a-portal', {}, {'item_type': 'ITEM_WEAPON'}, 'portal', "You can't seem to find a way in.\n\r"), ('closed-mortal', {}, {'value': [0, ['EX_CLOSED'], [], 200, 0]}, 'portal', "You can't seem to find a way in.\n\r"), ('cursed-mortal', {'affected_by': ['AFF_CURSE']}, {}, 'portal', 'Something prevents you from leaving...\n\r')]:
     add('act_enter.c', 'do_enter', suffix, {**enter_base, 'actor': {**enter_base['actor'], **actor_changes}, 'portal': {**enter_base['portal'], **portal_changes}, 'argument': arg}, {'messages': [] if msg is None else [{'recipient': 'ch', 'text': msg}], 'unchanged': ['room membership', 'portal values and ownership', 'actor resources'], 'forbidden': ['get_random_room', 'destination room lookup', 'movement', 'charge use', 'follower recursion']}, needle='ch->fighting != NULL', controls={'get_obj_list': {'kind': 'object lookup boundary', 'returns': 'C NULL' if suffix == 'no-object' else 'P', 'calls': 0 if suffix in ['fighting-silent', 'empty-argument'] else 1}, 'get_trust': 'Real helper contract with actor level/trust/descriptor above.'})
+
+for suffix, flags, stored, roll, destination, selected, final_vnum in [
+    ('random-flag-records-before-origin-rejection', ['GATE_RANDOM', 'GATE_BUGGY'], 200, None, 'A', 'get_random_room', 100),
+    ('minus-one-records-before-origin-rejection', ['GATE_BUGGY'], -1, None, 'A', 'get_random_room', 100),
+    ('buggy-four-uses-random-without-recording', ['GATE_BUGGY'], 200, 4, 'A', 'get_random_room', 200),
+    ('buggy-five-uses-index', ['GATE_BUGGY'], 200, 5, None, 'get_room_index', 200),
+    ('fixed-portal-skips-percent', [], 200, None, None, 'get_room_index', 200),
+]:
+    events = [{'get_obj_list': ['ch', 'portal', 'A.contents']}]
+    if roll is not None:
+        events.append({'number_percent': roll})
+    events.append({selected: 'ch' if selected == 'get_random_room' else 200, 'returns': destination})
+    if final_vnum != stored:
+        events.append({'set': {'P.value[3]': final_vnum}})
+    events.append({'act': "$p doesn't seem to go anywhere.", 'channel': 'TO_CHAR', 'actor': 'ch', 'object': 'P'})
+    add('act_enter.c', 'do_enter', suffix,
+        {**enter_base, 'room': {**enter_base['room'], 'vnum': 100, 'contents': ['P']},
+         'portal': {**enter_base['portal'], 'value': [0, 0, flags, stored, 0]}},
+        {'ordered_events': events, 'P.value[3]': final_vnum,
+         'forbidden': ['can_see_room', 'room_is_private', 'movement', 'charge mutation', 'follower dispatch']},
+        needle='GATE_RANDOM', controls={'get_obj_list': 'P', selected: destination,
+                                        'number_percent': {'ordered_returns': [] if roll is None else [roll]}})
+    sites = ['if.006', 'or.003', 'if.008', 'or.004', 'return.005']
+    if 'GATE_RANDOM' not in flags and stored != -1:
+        sites += ['if.007', 'and.004']
+    cases[-1]['branch_ids'].extend(f'act_enter.do_enter.{site}' for site in sites)
+
+for suffix, charge, gate_flags, after in [
+    ('unlimited-stationary-portal', 0, [], 0),
+    ('charged-portal-goes-with-actor', 2, ['GATE_GOWITH', 'GATE_NORMAL_EXIT'], 1),
+    ('last-charge-fades-after-look', 1, [], -1),
+]:
+    normal = 'GATE_NORMAL_EXIT' in gate_flags
+    events = [
+        {'act': '$n steps into $p.', 'channel': 'TO_ROOM', 'anchor': 'ch', 'room': 'A'},
+        {'act': 'You enter $p.' if normal else 'You walk through $p and find yourself somewhere else...',
+         'channel': 'TO_CHAR', 'anchor': 'ch'},
+        {'char_from_room': 'ch'}, {'char_to_room': ['ch', 'B']},
+    ]
+    if 'GATE_GOWITH' in gate_flags:
+        events += [{'obj_from_room': 'P'}, {'obj_to_room': ['P', 'B']}]
+    events += [{'act': '$n has arrived.' if normal else '$n has arrived through $p.',
+                'channel': 'TO_ROOM', 'anchor': 'ch', 'room': 'B'},
+               {'do_function': ['ch', 'do_look', 'auto'], 'charge_during_look': charge}]
+    if charge > 0:
+        events.append({'set': {'P.value[0]': charge - 1}})
+        if after == -1:
+            events += [{'set': {'P.value[0]': -1}},
+                       {'act': '$p fades out of existence.', 'channel': 'TO_CHAR', 'anchor': 'ch'},
+                       {'extract_obj': 'P'}]
+    add('act_enter.c', 'do_enter', suffix,
+        {**enter_base, 'room': {**enter_base['room'], 'vnum': 100, 'people': ['ch'], 'contents': ['P']},
+         'destination': {'id': 'B', 'vnum': 200, 'people': [], 'room_flags': []},
+         'portal': {**enter_base['portal'], 'value': [charge, 0, gate_flags, 200, 0]}},
+        {'ordered_events_after_destination_resolution': events, 'ch.in_room': 'B',
+         'portal_final_state': 'extracted' if after == -1 else {'value[0]': after, 'in_room': 'B' if normal else 'A'},
+         'forbidden': ['follower dispatch', 'number_percent']},
+        needle='char_from_room(ch)', controls={'get_obj_list': 'P', 'get_room_index(200)': 'B',
+                                               'can_see_room': True, 'room_is_private': False,
+                                               'act/do_function': 'Record delivery boundaries. do_look does not mutate the fixture.'})
+    sites = ['or.005', 'or.006', 'and.005', 'if.009', 'and.006', 'and.007',
+             'if.010', 'if.011', 'if.012', 'if.013', 'if.015', 'for.001',
+             'if.020', 'and.013', 'return.008']
+    if charge > 0:
+        sites.append('if.014')
+    if after == -1:
+        sites += ['if.021', 'if.022']
+    cases[-1]['branch_ids'].extend(f'act_enter.do_enter.{site}' for site in sites)
+
+enter_early_sites = {
+    'fighting-silent': 'if.001 return.001',
+    'empty-argument': 'if.001 if.002 return.009',
+    'no-object': 'if.002 if.003 return.002',
+    'not-a-portal': 'if.003 if.004 or.001 return.003',
+    'closed-mortal': 'if.004 or.001 and.001 return.003',
+    'cursed-mortal': 'if.005 and.002 and.003 or.002 return.004',
+}
+for case in cases:
+    file, fn, suffix = case['id'].split('.', 2)
+    if file == 'act_enter' and fn == 'do_enter' and suffix in enter_early_sites:
+        case['branch_ids'].extend(f'act_enter.do_enter.{site}' for site in enter_early_sites[suffix].split())
+
+def portal_follower_case(suffix, follower, events, final, sites, *, charge=0, flags=(), law=False):
+    add('act_enter.c', 'do_enter', suffix,
+        {**enter_base, 'actor': {**enter_base['actor'], 'position': 'POS_STANDING'},
+         'room': {**enter_base['room'], 'vnum': 100, 'people': ['ch', 'f', 'observer'], 'contents': ['P']},
+         'destination': {'id': 'B', 'vnum': 200, 'people': [], 'room_flags': ['ROOM_LAW'] if law else []},
+         'portal': {**enter_base['portal'], 'name': 'portal', 'contains': [], 'value': [charge, 0, list(flags), 200, 0]},
+         'follower': {'id': 'f', 'kind': 'PC', 'master': 'ch', 'in_room': 'A', 'fighting': None,
+                      'position': 'POS_STANDING', 'affected_by': [], 'act': [], 'on': None, **follower},
+         'observer': {'id': 'observer', 'kind': 'PC', 'master': None, 'position': 'POS_STANDING'}},
+        {'ordered_events_after_leader_move_and_look': events, 'ch.in_room': 'B',
+         'unchanged': ['observer stays in A'], **final},
+        needle='for ( fch = old_room->people',
+        controls={'room_graph': 'Resolve fixed destination B. Both actors can see B. It is not private.',
+                  'object_lookup': 'Visible keyword lookup in each actor’s current room. P is the only matching item.',
+                  'do_look': 'Record the automatic look without mutation.',
+                  'messages': 'Record send_to_char and act calls with channel and anchor. Only listed events are expected after leader look.',
+                  'stand_and_enter': 'Use real do_function dispatch and the real do_stand/do_enter paths.',
+                  'extraction': 'P starts valid at the object-list head with prototype count 1 and no children.'})
+    cases[-1]['branch_ids'].extend(f'act_enter.do_enter.{site}' for site in sites.split())
+
+
+follow = [{'act': 'You follow $N.', 'channel': 'TO_CHAR', 'anchor': 'f', 'victim': 'ch'},
+          {'do_function': ['f', 'do_enter', 'portal']}]
+cross = [{'act': '$n steps into $p.', 'channel': 'TO_ROOM', 'anchor': 'f', 'room': 'A'},
+         {'act': 'You walk through $p and find yourself somewhere else...', 'channel': 'TO_CHAR', 'anchor': 'f'},
+         {'char_from_room': 'f'}, {'char_to_room': ['f', 'B']},
+         {'act': '$n has arrived through $p.', 'channel': 'TO_ROOM', 'anchor': 'f', 'room': 'B'},
+         {'do_function': ['f', 'do_look', 'auto']}]
+portal_follower_case('standing-follower-reenters-by-keyword', {}, follow + cross,
+                     {'f.in_room': 'B', 'P.in_room': 'A', 'P.value[0]': 0},
+                     'if.016 or.007 if.017 and.008 if.018 and.010 if.019 and.011')
+portal_follower_case('sitting-charmed-follower-stands-before-entry',
+                     {'position': 'POS_SITTING', 'affected_by': ['AFF_CHARM'], 'on': 'bench'},
+                     [{'do_function': ['f', 'do_stand', '']}, {'send_to_char': 'You stand up.\n\r', 'recipient': 'f'},
+                      {'act': '$n stands up.', 'channel': 'TO_ROOM', 'anchor': 'f', 'room': 'A'},
+                      {'set': {'f.position': 'POS_STANDING', 'f.on': None}}, *follow, *cross],
+                     {'f.in_room': 'B', 'f.position': 'POS_STANDING', 'f.on': None, 'P.value[0]': 0},
+                     'if.017 and.008 and.009 if.018')
+portal_follower_case('magical-sleep-prevents-charmed-follower-entry',
+                     {'position': 'POS_SLEEPING', 'affected_by': ['AFF_CHARM', 'AFF_SLEEP']},
+                     [{'do_function': ['f', 'do_stand', '']}, {'send_to_char': "You can't wake up!\n\r", 'recipient': 'f'}],
+                     {'f.in_room': 'A', 'f.position': 'POS_SLEEPING', 'P.value[0]': 0}, 'if.017 and.009 if.018')
+portal_follower_case('uncharmed-sitting-follower-stays', {'position': 'POS_SITTING'}, [],
+                     {'f.in_room': 'A', 'f.position': 'POS_SITTING', 'P.value[0]': 0}, 'if.017 and.008 if.018')
+portal_follower_case('fighting-follower-gets-follow-notice-before-silent-return',
+                     {'fighting': 'observer'}, follow,
+                     {'f.in_room': 'A', 'f.fighting': 'observer', 'P.value[0]': 0},
+                     'if.018 if.001 return.001')
+portal_follower_case('aggressive-npc-follower-denied-by-city', {'kind': 'NPC', 'act': ['ACT_AGGRESSIVE']},
+                     [{'act': "You can't bring $N into the city.", 'channel': 'TO_CHAR', 'anchor': 'ch', 'victim': 'f'},
+                      {'act': "You aren't allowed in the city.", 'channel': 'TO_CHAR', 'anchor': 'f'}],
+                     {'f.in_room': 'A', 'P.value[0]': 0}, 'if.019 and.011 and.012 continue.002', law=True)
+portal_follower_case('moved-portal-follower-repeats-lookup-in-old-room', {},
+                     [*follow, {'send_to_char': "You don't see that here.\n\r", 'recipient': 'f'}],
+                     {'f.in_room': 'A', 'P.in_room': 'B', 'P.value[0]': 0},
+                     'if.011 if.018 if.003 return.002', flags=['GATE_GOWITH'])
+portal_follower_case('last-charge-skips-follower-and-notifies-origin', {},
+                     [{'set': {'P.value[0]': 0}}, {'set': {'P.value[0]': -1}},
+                      {'act': '$p fades out of existence.', 'channel': 'TO_CHAR', 'anchor': 'ch'},
+                      {'act': '$p fades out of existence.', 'channel': 'TO_CHAR', 'anchor': 'f'},
+                      {'act': '$p fades out of existence.', 'channel': 'TO_ROOM', 'anchor': 'f'},
+                      {'extract_obj': 'P'}],
+                     {'f.in_room': 'A', 'portal_final_state': 'removed from A and the world list, prototype count 0'},
+                     'if.014 if.016 or.007 continue.001 if.020 if.021 if.022', charge=1)
+
+add('act_enter.c', 'do_enter', 'nested-last-charge-leaves-outer-frame-with-recycled-portal',
+    {**enter_base, 'room': {**enter_base['room'], 'vnum': 100, 'people': ['ch', 'f', 'observer'], 'contents': ['P']},
+     'destination': {'id': 'B', 'vnum': 200, 'people': [], 'room_flags': []},
+     'follower': {'id': 'f', 'kind': 'PC', 'master': 'ch', 'position': 'POS_STANDING', 'in_room': 'A', 'fighting': None},
+     'observer': {'id': 'observer', 'master': None, 'position': 'POS_STANDING'},
+     'portal': {**enter_base['portal'], 'name': 'portal', 'value': [2, 0, [], 200, 0], 'contains': [],
+                'short_descr_storage': 'Shared db string space', 'short_descr': 'a shimmering portal'},
+     'leader_connection': {'descriptor': 'connected', 'position': 'POS_STANDING'}},
+    {'ordered_events': ['Leader moves and looks, then charge 2 becomes 1', 'Follower receives follow notice and reenters',
+                        'Follower moves and looks, then charge 1 becomes 0 then -1',
+                        'Nested fade act calls anchor on f for TO_CHAR, then observer for TO_CHAR and TO_ROOM',
+                        'Nested extract_obj removes P from room and world list, decrements prototype count and recycles P',
+                        'Outer frame skips observer, then repeats fade act calls anchored on ch and observer',
+                        'Outer extract_obj finds no P in the world list and logs Extract_obj: obj 25 not found.'],
+     'final': {'ch.in_room': 'B', 'f.in_room': 'B', 'observer.in_room': 'A', 'prototype.count': 0,
+               'portal': 'invalid and on recycle list once'}},
+    needle='if (portal != NULL && portal->value[0] == -1)',
+    controls={'visibility': 'Both actors see B. The connected leader passes act position filtering and can_see_obj for P.',
+              'room_private': False, 'look': 'No mutation', 'object_reuse': 'No allocation reuses P after nested extraction.',
+              'object_list': 'P starts valid as the only world object, vnum 25, with prototype count 1.',
+              'messages': 'Record act calls without expansion. Shared description is preserved by free_string.'},
+)
+cases[-1]['branch_ids'].extend(f'act_enter.do_enter.{site}' for site in
+    'if.016 or.007 continue.001 if.020 and.013 if.021 if.022'.split())
+for file, fn, needle in [
+    ('handler.c', 'extract_obj', 'not found'),
+    ('recycle.c', 'free_obj', 'INVALIDATE(obj)'),
+    ('db.c', 'free_string', 'pstr >= string_space'),
+]:
+    function = index['src/' + file, fn]
+    lines = (SOURCE / 'src' / file).read_text(encoding='latin1').splitlines()
+    line = next(i + 1 for i in range(function['line'] - 1, function['end_line']) if needle in lines[i])
+    cases[-1]['source_refs'].append(ref('src/' + file, fn, line))
+
+for suffix, actor_flags, destination_flags, visible, private, expected, sites in [
+    ('destination-invisible-before-privacy', {}, [], False, True,
+     {'act': "$p doesn't seem to go anywhere.", 'channel': 'TO_CHAR', 'anchor': 'ch'},
+     'or.005 return.005'),
+    ('private-destination-rejects-trust-59', {'trust': 59}, [], True, True,
+     {'act': "$p doesn't seem to go anywhere.", 'channel': 'TO_CHAR', 'anchor': 'ch'},
+     'or.006 and.005 return.005'),
+    ('aggressive-npc-directly-rejected-by-law', {'kind': 'NPC', 'act': ['ACT_IS_NPC', 'ACT_AGGRESSIVE']},
+     ['ROOM_LAW'], True, False, {'send_to_char': 'Something prevents you from leaving...\n\r', 'recipient': 'ch'},
+     'if.009 and.006 and.007 return.006'),
+]:
+    add('act_enter.c', 'do_enter', suffix,
+        {**enter_base, 'actor': {**enter_base['actor'], **actor_flags},
+         'destination': {'id': 'B', 'vnum': 200, 'room_flags': destination_flags}},
+        {'ordered_events_after_lookup': [expected],
+         'room_is_private_calls': ['B'] if visible else [],
+         'unchanged': ['ch.in_room', 'P.in_room', 'P.value[0]'],
+         'forbidden': ['move', 'do_look', 'extract_obj', 'follow dispatch']},
+        needle='if (location == NULL', controls={'get_obj_list': 'P', 'get_room_index(200)': 'B',
+                                                  'can_see_room': visible, 'room_is_private': private})
+    cases[-1]['branch_ids'].extend(f'act_enter.do_enter.{site}' for site in sites.split())
 
 # Distinguish a mismatched initial (no prefix comparison) from a matching
 # initial with a failed prefix comparison (continue to the next row).
@@ -397,6 +937,11 @@ for suffix, name, function in [('first-full', 'spec_breath_any', 'spec_breath_an
     add('special.c', 'spec_lookup', suffix, {'arguments': {'name': name}, 'table': 'src/special.c spec_table in snapshot order, terminated by NULL name'}, {'return_function_pointer': function, 'forbidden': ['invoke returned function', 'messages', 'random draws']}, needle='LOWER(name[0])')
 for suffix, function, name in [('first-function', 'spec_breath_any', 'spec_breath_any'), ('last-function', 'spec_patrolman', 'spec_patrolman'), ('null-function', 'C NULL', 'C NULL'), ('unregistered-function', 'unregistered_valid_function_pointer', 'C NULL')]:
     add('special.c', 'spec_name', suffix, {'arguments': {'function': function}, 'table': 'src/special.c spec_table'}, {'returned_name': name, 'forbidden': ['invoke function', 'messages']}, needle='function == spec_table')
+
+from continuation_cases import extend_cases
+extend_cases(add, cases)
+from spec_name_completion import extend_cases as complete_spec_name_cases
+complete_spec_name_cases(add, cases, SOURCE)
 
 (OUT / 'cases.json').write_text(json.dumps({'schema_version': 1, 'cases': cases}, indent=2) + '\n', encoding='utf8')
 print(f'Authored {len(cases)} cases')

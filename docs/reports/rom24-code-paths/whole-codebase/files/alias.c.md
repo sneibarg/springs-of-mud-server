@@ -18,23 +18,23 @@ Dependencies: `str_prefix`, `strlen`, `send_to_char`, `sprintf`, `IS_NPC`, `inte
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `alias.substitute_alias.ternary.001` | 46 | `? d->original : d->character;` |  | pending |
-| `alias.substitute_alias.if.001` | 49 | `if (ch->prefix[0] != '\0' && str_prefix("prefix",argument))` |  | pending |
-| `alias.substitute_alias.and.001` | 49 | `&& str_prefix("prefix",argument))` |  | pending |
-| `alias.substitute_alias.if.002` | 51 | `if (strlen(ch->prefix) + strlen(argument) > MAX_INPUT_LENGTH)` |  | pending |
-| `alias.substitute_alias.if.003` | 60 | `if (IS_NPC(ch) \|\| ch->pcdata->alias[0] == NULL     \|\|	!str_prefix("alias",argument) \|\| !str_prefix("una",argument)      \|\|  !str_prefix("prefix",argument))` |  | pending |
-| `alias.substitute_alias.or.001` | 60 | `\|\| ch->pcdata->alias[0] == NULL` |  | pending |
-| `alias.substitute_alias.or.002` | 61 | `\|\|	!str_prefix("alias",argument) \|\| !str_prefix("una",argument)` |  | pending |
-| `alias.substitute_alias.or.003` | 61 | `\|\| !str_prefix("una",argument)` |  | pending |
-| `alias.substitute_alias.or.004` | 62 | `\|\|  !str_prefix("prefix",argument))` |  | pending |
-| `alias.substitute_alias.return.001` | 65 | `return;` |  | pending |
-| `alias.substitute_alias.for.001` | 70 | `for (alias = 0; alias < MAX_ALIAS; alias++)` |  | pending |
-| `alias.substitute_alias.if.004` | 72 | `if (ch->pcdata->alias[alias] == NULL)` |  | pending |
-| `alias.substitute_alias.break.001` | 73 | `break;` |  | pending |
-| `alias.substitute_alias.if.005` | 75 | `if (!str_prefix(ch->pcdata->alias[alias],argument))` |  | pending |
-| `alias.substitute_alias.if.006` | 78 | `if (!strcmp(ch->pcdata->alias[alias],name))` |  | pending |
-| `alias.substitute_alias.if.007` | 85 | `if (strlen(buf) > MAX_INPUT_LENGTH - 1)` |  | pending |
-| `alias.substitute_alias.break.002` | 91 | `break;` |  | pending |
+| `alias.substitute_alias.ternary.001` | 46 | `? d->original : d->character;` | alias.substitute_alias.exact-first-word, alias.substitute_alias.active-owner-prefix-over-limit | specified |
+| `alias.substitute_alias.if.001` | 49 | `if (ch->prefix[0] != '\0' && str_prefix("prefix",argument))` | alias.substitute_alias.exact-first-word, alias.substitute_alias.prefix-precedes-alias, alias.substitute_alias.prefix-command-bypasses-prefix, alias.substitute_alias.active-owner-prefix-over-limit | specified |
+| `alias.substitute_alias.and.001` | 49 | `&& str_prefix("prefix",argument))` | alias.substitute_alias.prefix-precedes-alias, alias.substitute_alias.prefix-command-bypasses-prefix, alias.substitute_alias.active-owner-prefix-over-limit | specified |
+| `alias.substitute_alias.if.002` | 51 | `if (strlen(ch->prefix) + strlen(argument) > MAX_INPUT_LENGTH)` | alias.substitute_alias.prefix-precedes-alias, alias.substitute_alias.active-owner-prefix-over-limit | specified |
+| `alias.substitute_alias.if.003` | 60 | `if (IS_NPC(ch) \|\| ch->pcdata->alias[0] == NULL     \|\|	!str_prefix("alias",argument) \|\| !str_prefix("una",argument)      \|\|  !str_prefix("prefix",argument))` | alias.substitute_alias.exact-first-word, alias.substitute_alias.protected-alias-command, alias.substitute_alias.protected-una-prefix, alias.substitute_alias.original-npc-bypasses-alias, alias.substitute_alias.active-owner-prefix-over-limit | specified |
+| `alias.substitute_alias.or.001` | 60 | `\|\| ch->pcdata->alias[0] == NULL` | alias.substitute_alias.exact-first-word, alias.substitute_alias.original-npc-bypasses-alias, alias.substitute_alias.active-owner-prefix-over-limit | specified |
+| `alias.substitute_alias.or.002` | 61 | `\|\|	!str_prefix("alias",argument) \|\| !str_prefix("una",argument)` | alias.substitute_alias.exact-first-word, alias.substitute_alias.protected-alias-command, alias.substitute_alias.active-owner-prefix-over-limit | specified |
+| `alias.substitute_alias.or.003` | 61 | `\|\| !str_prefix("una",argument)` | alias.substitute_alias.exact-first-word, alias.substitute_alias.protected-alias-command, alias.substitute_alias.protected-una-prefix | specified |
+| `alias.substitute_alias.or.004` | 62 | `\|\|  !str_prefix("prefix",argument))` | alias.substitute_alias.exact-first-word, alias.substitute_alias.protected-una-prefix, alias.substitute_alias.prefix-command-bypasses-prefix | specified |
+| `alias.substitute_alias.return.001` | 65 | `return;` | alias.substitute_alias.protected-alias-command, alias.substitute_alias.protected-una-prefix, alias.substitute_alias.prefix-command-bypasses-prefix, alias.substitute_alias.original-npc-bypasses-alias, alias.substitute_alias.active-owner-prefix-over-limit | specified |
+| `alias.substitute_alias.for.001` | 70 | `for (alias = 0; alias < MAX_ALIAS; alias++)` | alias.substitute_alias.exact-first-word, alias.substitute_alias.prefix-not-exact-alias, alias.substitute_alias.five-nonmatching-slots | specified |
+| `alias.substitute_alias.if.004` | 72 | `if (ch->pcdata->alias[alias] == NULL)` | alias.substitute_alias.exact-first-word, alias.substitute_alias.prefix-not-exact-alias, alias.substitute_alias.five-nonmatching-slots | specified |
+| `alias.substitute_alias.break.001` | 73 | `break;` | alias.substitute_alias.prefix-not-exact-alias | specified |
+| `alias.substitute_alias.if.005` | 75 | `if (!str_prefix(ch->pcdata->alias[alias],argument))` | alias.substitute_alias.exact-first-word, alias.substitute_alias.prefix-not-exact-alias, alias.substitute_alias.five-nonmatching-slots | specified |
+| `alias.substitute_alias.if.006` | 78 | `if (!strcmp(ch->pcdata->alias[alias],name))` | alias.substitute_alias.exact-first-word, alias.substitute_alias.prefix-not-exact-alias | specified |
+| `alias.substitute_alias.if.007` | 85 | `if (strlen(buf) > MAX_INPUT_LENGTH - 1)` | alias.substitute_alias.exact-first-word, alias.substitute_alias.replacement-truncates-at-255 | specified |
+| `alias.substitute_alias.break.002` | 91 | `break;` | alias.substitute_alias.exact-first-word, alias.substitute_alias.replacement-truncates-at-255 | specified |
 | `alias.substitute_alias.exact-first-word.path` | 46 | `exact first word` | alias.substitute_alias.exact-first-word | specified |
 | `alias.substitute_alias.no-recursive-expansion.path` | 46 | `no recursive expansion` | alias.substitute_alias.no-recursive-expansion | specified |
 | `alias.substitute_alias.prefix-not-exact-alias.path` | 46 | `prefix not exact alias` | alias.substitute_alias.prefix-not-exact-alias | specified |
@@ -47,6 +47,9 @@ Dependencies: `str_prefix`, `strlen`, `send_to_char`, `sprintf`, `IS_NPC`, `inte
 | `alias.substitute_alias.original-npc-bypasses-alias.path` | 46 | `original npc bypasses alias` | alias.substitute_alias.original-npc-bypasses-alias | specified |
 | `alias.substitute_alias.replacement-truncates-at-255.path` | 85 | `replacement truncates at 255` | alias.substitute_alias.replacement-truncates-at-255 | specified |
 | `alias.substitute_alias.prefix-overflow-boundary-undefined.path` | 51 | `prefix overflow boundary undefined` | alias.substitute_alias.prefix-overflow-boundary-undefined | blocked |
+| `alias.substitute_alias.active-owner-prefix-over-limit.path` | 52 | `active owner prefix over limit` | alias.substitute_alias.active-owner-prefix-over-limit | specified |
+| `alias.substitute_alias.five-nonmatching-slots.path` | 70 | `five nonmatching slots` | alias.substitute_alias.five-nonmatching-slots | specified |
+| `alias.substitute_alias.loaded-uppercase-not-substituted.path` | 78 | `loaded uppercase not substituted` | alias.substitute_alias.loaded-uppercase-not-substituted | specified |
 
 ## do_alia
 
@@ -61,7 +64,7 @@ Dependencies: `send_to_char`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `alias.do_alia.return.001` | 101 | `return;` |  | pending |
+| `alias.do_alia.return.001` | 101 | `return;` | alias.do_alia.requires-full-name | specified |
 | `alias.do_alia.requires-full-name.path` | 100 | `requires full name` | alias.do_alia.requires-full-name | specified |
 
 ## do_alias
@@ -77,39 +80,39 @@ Dependencies: `smash_tilde`, `IS_NPC`, `one_argument`, `send_to_char`, `sprintf`
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `alias.do_alias.if.001` | 112 | `if (ch->desc == NULL)` |  | pending |
-| `alias.do_alias.ternary.001` | 115 | `? ch->desc->original : ch;` |  | pending |
-| `alias.do_alias.if.002` | 117 | `if (IS_NPC(rch))` |  | pending |
-| `alias.do_alias.return.001` | 118 | `return;` |  | pending |
-| `alias.do_alias.if.003` | 123 | `if (arg[0] == '\0')` |  | pending |
-| `alias.do_alias.if.004` | 126 | `if (rch->pcdata->alias[0] == NULL)` |  | pending |
-| `alias.do_alias.return.002` | 129 | `return;` |  | pending |
-| `alias.do_alias.for.001` | 133 | `for (pos = 0; pos < MAX_ALIAS; pos++)` |  | pending |
-| `alias.do_alias.if.005` | 135 | `if (rch->pcdata->alias[pos] == NULL 	    \|\|	rch->pcdata->alias_sub[pos] == NULL)` |  | pending |
-| `alias.do_alias.or.001` | 136 | `\|\|	rch->pcdata->alias_sub[pos] == NULL)` |  | pending |
-| `alias.do_alias.break.001` | 137 | `break;` |  | pending |
-| `alias.do_alias.return.003` | 143 | `return;` |  | pending |
-| `alias.do_alias.if.006` | 146 | `if (!str_prefix("una",arg) \|\| !str_cmp("alias",arg))` |  | pending |
-| `alias.do_alias.or.002` | 146 | `\|\| !str_cmp("alias",arg))` |  | pending |
-| `alias.do_alias.return.004` | 149 | `return;` |  | pending |
-| `alias.do_alias.if.007` | 152 | `if (argument[0] == '\0')` |  | pending |
-| `alias.do_alias.for.002` | 154 | `for (pos = 0; pos < MAX_ALIAS; pos++)` |  | pending |
-| `alias.do_alias.if.008` | 156 | `if (rch->pcdata->alias[pos] == NULL 	    \|\|	rch->pcdata->alias_sub[pos] == NULL)` |  | pending |
-| `alias.do_alias.or.003` | 157 | `\|\|	rch->pcdata->alias_sub[pos] == NULL)` |  | pending |
-| `alias.do_alias.break.002` | 158 | `break;` |  | pending |
-| `alias.do_alias.if.009` | 160 | `if (!str_cmp(arg,rch->pcdata->alias[pos]))` |  | pending |
-| `alias.do_alias.return.005` | 165 | `return;` |  | pending |
-| `alias.do_alias.return.006` | 170 | `return;` |  | pending |
-| `alias.do_alias.if.010` | 173 | `if (!str_prefix(argument,"delete") \|\| !str_prefix(argument,"prefix"))` |  | pending |
-| `alias.do_alias.or.004` | 173 | `\|\| !str_prefix(argument,"prefix"))` |  | pending |
-| `alias.do_alias.return.007` | 176 | `return;` |  | pending |
-| `alias.do_alias.for.003` | 179 | `for (pos = 0; pos < MAX_ALIAS; pos++)` |  | pending |
-| `alias.do_alias.if.011` | 181 | `if (rch->pcdata->alias[pos] == NULL)` |  | pending |
-| `alias.do_alias.break.003` | 182 | `break;` |  | pending |
-| `alias.do_alias.if.012` | 184 | `if (!str_cmp(arg,rch->pcdata->alias[pos]))` |  | pending |
-| `alias.do_alias.return.008` | 190 | `return;` |  | pending |
-| `alias.do_alias.if.013` | 194 | `if (pos >= MAX_ALIAS)` |  | pending |
-| `alias.do_alias.return.009` | 197 | `return;` |  | pending |
+| `alias.do_alias.if.001` | 112 | `if (ch->desc == NULL)` | alias.do_alias.npc-without-original-returns | specified |
+| `alias.do_alias.ternary.001` | 115 | `? ch->desc->original : ch;` | alias.do_alias.npc-without-original-returns, alias.do_alias.switched-owner-edited-active-body-notified | specified |
+| `alias.do_alias.if.002` | 117 | `if (IS_NPC(rch))` | alias.do_alias.npc-without-original-returns | specified |
+| `alias.do_alias.return.001` | 118 | `return;` | alias.do_alias.npc-without-original-returns | specified |
+| `alias.do_alias.if.003` | 123 | `if (arg[0] == '\0')` | alias.do_alias.no-aliases | specified |
+| `alias.do_alias.if.004` | 126 | `if (rch->pcdata->alias[0] == NULL)` | alias.do_alias.no-aliases, alias.do_alias.list-two | specified |
+| `alias.do_alias.return.002` | 129 | `return;` | alias.do_alias.no-aliases | specified |
+| `alias.do_alias.for.001` | 133 | `for (pos = 0; pos < MAX_ALIAS; pos++)` | alias.do_alias.list-two, alias.do_alias.list-stops-at-null-replacement | specified |
+| `alias.do_alias.if.005` | 135 | `if (rch->pcdata->alias[pos] == NULL 	    \|\|	rch->pcdata->alias_sub[pos] == NULL)` | alias.do_alias.list-two, alias.do_alias.list-stops-at-null-replacement | specified |
+| `alias.do_alias.or.001` | 136 | `\|\|	rch->pcdata->alias_sub[pos] == NULL)` | alias.do_alias.list-two, alias.do_alias.list-stops-at-null-replacement | specified |
+| `alias.do_alias.break.001` | 137 | `break;` | alias.do_alias.list-two, alias.do_alias.list-stops-at-null-replacement | specified |
+| `alias.do_alias.return.003` | 143 | `return;` | alias.do_alias.list-two, alias.do_alias.list-stops-at-null-replacement | specified |
+| `alias.do_alias.if.006` | 146 | `if (!str_prefix("una",arg) \|\| !str_cmp("alias",arg))` | alias.do_alias.reserved-alias, alias.do_alias.reserved-una-prefix | specified |
+| `alias.do_alias.or.002` | 146 | `\|\| !str_cmp("alias",arg))` | alias.do_alias.reserved-alias, alias.do_alias.reserved-una-prefix | specified |
+| `alias.do_alias.return.004` | 149 | `return;` | alias.do_alias.reserved-alias, alias.do_alias.reserved-una-prefix | specified |
+| `alias.do_alias.if.007` | 152 | `if (argument[0] == '\0')` | alias.do_alias.undefined-query, alias.do_alias.defined-query | specified |
+| `alias.do_alias.for.002` | 154 | `for (pos = 0; pos < MAX_ALIAS; pos++)` | alias.do_alias.undefined-query, alias.do_alias.defined-query | specified |
+| `alias.do_alias.if.008` | 156 | `if (rch->pcdata->alias[pos] == NULL 	    \|\|	rch->pcdata->alias_sub[pos] == NULL)` | alias.do_alias.undefined-query, alias.do_alias.defined-query, alias.do_alias.query-stops-at-null-replacement | specified |
+| `alias.do_alias.or.003` | 157 | `\|\|	rch->pcdata->alias_sub[pos] == NULL)` | alias.do_alias.undefined-query, alias.do_alias.defined-query, alias.do_alias.query-stops-at-null-replacement | specified |
+| `alias.do_alias.break.002` | 158 | `break;` | alias.do_alias.undefined-query, alias.do_alias.query-stops-at-null-replacement | specified |
+| `alias.do_alias.if.009` | 160 | `if (!str_cmp(arg,rch->pcdata->alias[pos]))` | alias.do_alias.defined-query | specified |
+| `alias.do_alias.return.005` | 165 | `return;` | alias.do_alias.defined-query | specified |
+| `alias.do_alias.return.006` | 170 | `return;` | alias.do_alias.undefined-query, alias.do_alias.query-stops-at-null-replacement | specified |
+| `alias.do_alias.if.010` | 173 | `if (!str_prefix(argument,"delete") \|\| !str_prefix(argument,"prefix"))` | alias.do_alias.delete-abbreviation-rejected, alias.do_alias.prefix-abbreviation-rejected | specified |
+| `alias.do_alias.or.004` | 173 | `\|\| !str_prefix(argument,"prefix"))` | alias.do_alias.delete-abbreviation-rejected, alias.do_alias.prefix-abbreviation-rejected | specified |
+| `alias.do_alias.return.007` | 176 | `return;` | alias.do_alias.delete-abbreviation-rejected, alias.do_alias.prefix-abbreviation-rejected | specified |
+| `alias.do_alias.for.003` | 179 | `for (pos = 0; pos < MAX_ALIAS; pos++)` | alias.do_alias.add, alias.do_alias.at-five-alias-limit, alias.do_alias.switched-owner-edited-active-body-notified | specified |
+| `alias.do_alias.if.011` | 181 | `if (rch->pcdata->alias[pos] == NULL)` | alias.do_alias.add, alias.do_alias.at-five-alias-limit, alias.do_alias.switched-owner-edited-active-body-notified | specified |
+| `alias.do_alias.break.003` | 182 | `break;` | alias.do_alias.add | specified |
+| `alias.do_alias.if.012` | 184 | `if (!str_cmp(arg,rch->pcdata->alias[pos]))` | alias.do_alias.at-five-alias-limit, alias.do_alias.switched-owner-edited-active-body-notified | specified |
+| `alias.do_alias.return.008` | 190 | `return;` | alias.do_alias.switched-owner-edited-active-body-notified | specified |
+| `alias.do_alias.if.013` | 194 | `if (pos >= MAX_ALIAS)` | alias.do_alias.add, alias.do_alias.at-five-alias-limit | specified |
+| `alias.do_alias.return.009` | 197 | `return;` | alias.do_alias.at-five-alias-limit | specified |
 | `alias.do_alias.no-aliases.path` | 110 | `no aliases` | alias.do_alias.no-aliases | specified |
 | `alias.do_alias.reserved-alias.path` | 110 | `reserved alias` | alias.do_alias.reserved-alias | specified |
 | `alias.do_alias.reserved-una-prefix.path` | 110 | `reserved una prefix` | alias.do_alias.reserved-una-prefix | specified |
@@ -122,6 +125,13 @@ Dependencies: `smash_tilde`, `IS_NPC`, `one_argument`, `send_to_char`, `sprintf`
 | `alias.do_alias.full-delete-plus-argument-allowed-quirk.path` | 110 | `full delete plus argument allowed quirk` | alias.do_alias.full-delete-plus-argument-allowed-quirk | specified |
 | `alias.do_alias.tilde-sanitized.path` | 110 | `tilde sanitized` | alias.do_alias.tilde-sanitized | specified |
 | `alias.do_alias.at-five-alias-limit.path` | 194 | `at five alias limit` | alias.do_alias.at-five-alias-limit | specified |
+| `alias.do_alias.npc-without-original-returns.path` | 117 | `npc without original returns` | alias.do_alias.npc-without-original-returns | specified |
+| `alias.do_alias.list-two.path` | 131 | `list two` | alias.do_alias.list-two | specified |
+| `alias.do_alias.list-stops-at-null-replacement.path` | 131 | `list stops at null replacement` | alias.do_alias.list-stops-at-null-replacement | specified |
+| `alias.do_alias.list-five.path` | 131 | `list five` | alias.do_alias.list-five | specified |
+| `alias.do_alias.switched-owner-edited-active-body-notified.path` | 115 | `switched owner edited active body notified` | alias.do_alias.switched-owner-edited-active-body-notified | specified |
+| `alias.do_alias.query-stops-at-null-replacement.path` | 169 | `query stops at null replacement` | alias.do_alias.query-stops-at-null-replacement | specified |
+| `alias.do_alias.loaded-uppercase-query-found.path` | 160 | `loaded uppercase query found` | alias.do_alias.loaded-uppercase-query-found | specified |
 
 ## do_unalias
 
@@ -136,25 +146,28 @@ Dependencies: `IS_NPC`, `one_argument`, `send_to_char`, `strcmp`, `free_string`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `alias.do_unalias.if.001` | 215 | `if (ch->desc == NULL)` |  | pending |
-| `alias.do_unalias.ternary.001` | 218 | `? ch->desc->original : ch;` |  | pending |
-| `alias.do_unalias.if.002` | 220 | `if (IS_NPC(rch))` |  | pending |
-| `alias.do_unalias.return.001` | 221 | `return;` |  | pending |
-| `alias.do_unalias.if.003` | 225 | `if (arg[0] == '\0')` |  | pending |
-| `alias.do_unalias.return.002` | 228 | `return;` |  | pending |
-| `alias.do_unalias.for.001` | 231 | `for (pos = 0; pos < MAX_ALIAS; pos++)` |  | pending |
-| `alias.do_unalias.if.004` | 233 | `if (rch->pcdata->alias[pos] == NULL)` |  | pending |
-| `alias.do_unalias.break.001` | 234 | `break;` |  | pending |
-| `alias.do_unalias.if.005` | 236 | `if (found)` |  | pending |
-| `alias.do_unalias.continue.001` | 242 | `continue;` |  | pending |
-| `alias.do_unalias.if.006` | 245 | `if(!strcmp(arg,rch->pcdata->alias[pos]))` |  | pending |
-| `alias.do_unalias.if.007` | 256 | `if (!found)` |  | pending |
+| `alias.do_unalias.if.001` | 215 | `if (ch->desc == NULL)` | alias.do_unalias.npc-without-original-returns | specified |
+| `alias.do_unalias.ternary.001` | 218 | `? ch->desc->original : ch;` | alias.do_unalias.npc-without-original-returns, alias.do_unalias.switched-owner-first-of-duplicate-names | specified |
+| `alias.do_unalias.if.002` | 220 | `if (IS_NPC(rch))` | alias.do_unalias.npc-without-original-returns | specified |
+| `alias.do_unalias.return.001` | 221 | `return;` | alias.do_unalias.npc-without-original-returns | specified |
+| `alias.do_unalias.if.003` | 225 | `if (arg[0] == '\0')` | alias.do_unalias.missing-name | specified |
+| `alias.do_unalias.return.002` | 228 | `return;` | alias.do_unalias.missing-name | specified |
+| `alias.do_unalias.for.001` | 231 | `for (pos = 0; pos < MAX_ALIAS; pos++)` | alias.do_unalias.not-found, alias.do_unalias.remove-first-shifts-all | specified |
+| `alias.do_unalias.if.004` | 233 | `if (rch->pcdata->alias[pos] == NULL)` | alias.do_unalias.not-found, alias.do_unalias.remove-first-shifts-all | specified |
+| `alias.do_unalias.break.001` | 234 | `break;` | alias.do_unalias.not-found | specified |
+| `alias.do_unalias.if.005` | 236 | `if (found)` | alias.do_unalias.not-found, alias.do_unalias.remove-first-shifts-all, alias.do_unalias.switched-owner-first-of-duplicate-names | specified |
+| `alias.do_unalias.continue.001` | 242 | `continue;` | alias.do_unalias.remove-first-shifts-all, alias.do_unalias.switched-owner-first-of-duplicate-names | specified |
+| `alias.do_unalias.if.006` | 245 | `if(!strcmp(arg,rch->pcdata->alias[pos]))` | alias.do_unalias.not-found, alias.do_unalias.remove-first-shifts-all, alias.do_unalias.switched-owner-first-of-duplicate-names | specified |
+| `alias.do_unalias.if.007` | 256 | `if (!found)` | alias.do_unalias.not-found, alias.do_unalias.remove-first-shifts-all, alias.do_unalias.switched-owner-first-of-duplicate-names | specified |
 | `alias.do_unalias.missing-name.path` | 223 | `missing name` | alias.do_unalias.missing-name | specified |
 | `alias.do_unalias.not-found.path` | 223 | `not found` | alias.do_unalias.not-found | specified |
 | `alias.do_unalias.remove-only.path` | 223 | `remove only` | alias.do_unalias.remove-only | specified |
 | `alias.do_unalias.remove-first-shifts-all.path` | 223 | `remove first shifts all` | alias.do_unalias.remove-first-shifts-all | specified |
 | `alias.do_unalias.remove-middle-shifts-tail.path` | 223 | `remove middle shifts tail` | alias.do_unalias.remove-middle-shifts-tail | specified |
 | `alias.do_unalias.remove-last.path` | 223 | `remove last` | alias.do_unalias.remove-last | specified |
+| `alias.do_unalias.npc-without-original-returns.path` | 220 | `npc without original returns` | alias.do_unalias.npc-without-original-returns | specified |
+| `alias.do_unalias.switched-owner-first-of-duplicate-names.path` | 236 | `switched owner first of duplicate names` | alias.do_unalias.switched-owner-first-of-duplicate-names | specified |
+| `alias.do_unalias.loaded-uppercase-not-removed.path` | 245 | `loaded uppercase not removed` | alias.do_unalias.loaded-uppercase-not-removed | specified |
 
 ## Preprocessor and macro inventory
 
