@@ -186,15 +186,27 @@ def main():
     by_key = {(f['file'], f['name']): f for f in funcs}
     for case in cases:
         fn = by_key[(case['source_refs'][0]['file'], case['source_refs'][0]['function'])]
-        bid = case['branch_ids'][0]
-        if bid not in ledger:
-            branch = {'id': bid, 'source_ref': case['source_refs'][0], 'kind': 'semantic_path',
-                      'predicate_or_transfer': case['title'], 'disposition': case['status'], 'case_ids': []}
-            fn['branch_ledger'].append(branch)
-            ledger[bid] = branch
-        ledger[bid]['case_ids'].append(case['id'])
+        for bid in case['branch_ids']:
+            if bid not in ledger:
+                assert bid == case['id'] + '.path', bid
+                branch = {'id': bid, 'source_ref': case['source_refs'][0], 'kind': 'semantic_path',
+                          'predicate_or_transfer': case['title'], 'disposition': case['status'], 'case_ids': []}
+                fn['branch_ledger'].append(branch)
+                ledger[bid] = branch
+            branch = ledger[bid]
+            assert branch in fn['branch_ledger'], bid
+            branch['case_ids'].append(case['id'])
+            if case['status'] == 'specified':
+                branch['disposition'] = 'specified'
         fn['status'] = 'partially_specified'
     for f in files:
+        if f['path'] == 'src/lookup.c':
+            # The direct helper contracts cover all lookup loops, both guard
+            # operands and both returns. Caller behavior lives in its own files.
+            for fn in f['functions']:
+                assert all(b['disposition'] == 'specified' for b in fn['branch_ledger']), fn['name']
+                fn['status'] = 'traced'
+            f['status'] = 'lookup_contracts_traced'
         if any(fn['status'] == 'partially_specified' for fn in f['functions']):
             f['status'] = 'partially_specified'
     git_head = SOURCE.parent / '.git/HEAD'
@@ -252,7 +264,8 @@ def main():
                 'assumption': 'Process current directory is area; AREA_LIST and filenames are opened relative to process CWD. See db.c boot_db.'})
     counts = {'source_files': len(files), 'translation_units': sum(f['role'] == 'translation_unit' for f in files),
         'source_lines': sum(f['lines'] for f in files), 'functions_inventoried': len(funcs),
-        'functions_with_cases': sum(f['status'] == 'partially_specified' for f in funcs), 'functions_completely_traced': 0,
+        'functions_with_cases': sum(f['status'] in {'partially_specified', 'traced'} for f in funcs),
+        'functions_completely_traced': sum(f['status'] == 'traced' for f in funcs),
         'cases_specified': sum(c['status'] == 'specified' for c in cases), 'cases_blocked': sum(c['status'] == 'blocked' for c in cases),
         'cases_dynamically_verified': 0, 'lexical_sites_pending': sum(b['disposition'] == 'pending' for b in ledger.values()),
         'ancillary_files_inventoried': len(ancillary)}
@@ -325,7 +338,7 @@ def main():
             pseudo += ['Open questions: ' + '; '.join(c['open_questions']), '']
     (OUT / 'pseudo-suite.md').write_text('\n'.join(pseudo), encoding='utf8')
     summary = ['# ROM2.4 whole-codebase code-path report', '', '**Status: partial behavioral specification; whole-source lexical inventory. The requested complete semantic trace is unfinished.**', '',
-        f"Source: `{SOURCE}`. HEAD reference: `{revision}`. Per-file hashes identify the inspected snapshot. Normal Git status is unavailable; the manifest records an independent comparison against HEAD content. Generated 2026-10-31.", '',
+        f"Source: `{SOURCE}`. HEAD reference: `{revision}`. Per-file hashes identify the inspected snapshot. Normal Git status is unavailable. The manifest records an independent comparison against HEAD content.", '',
         '## Coverage and evidence', '', '| Measure | Count |', '|---|---:|']
     summary += [f'| {k.replace("_", " ")} | {v} |' for k, v in counts.items()]
     summary += ['', 'No executable branch coverage, whole-server parity, successful C build, or passing gameplay tests is claimed. Every file/function/site has an explicit pending or specified disposition in the manifest; pending sites are work remaining, not exclusions.', '',
@@ -336,9 +349,10 @@ def main():
         '## File inventory', '', '| File | Lines | Definitions | Disposition |', '|---|---:|---:|---|']
     summary += [f"| [{f['path']}](files/{Path(f['path']).name}.md) | {f['lines']} | {len(f['functions'])} | {f['status']} |" for f in files]
     summary += ['', '## Coverage criterion and continuation', '',
+        'The five direct lookup helpers now have linked cases for the bounded search, comparison and return paths. Scan has linked cases for its explicit control sites and additional tests for missing exits, visibility rechecks and undefined inputs. Scan delivery through the communication layer, platform configuration and the remaining subsystems are open.', '',
         'Case selection distinguishes observable guard outcomes, ordered failures, string and arithmetic boundaries, loop cardinalities, mutation order and caller-versus-helper contracts. It does not enumerate a Cartesian product of all game states. The lexical index includes explicit control transfers and short-circuit operators but cannot establish feasibility or find every implicit branch.', '',
         'Continue from `manifest.json`, keeping current case IDs. First resolve syntax sites in functions already carrying cases; then process command dispatch/session handling, movement/objects/combat, magic/effects, update/persistence, content loaders and specials. Load-dependent area/data contracts and platform branches remain in scope. Do not mark a function complete solely because it has one case.', '',
-        'Reproduction: `python docs/reports/rom24-code-paths/whole-codebase/build_report.py`. The renderer checks structure and source line bounds; manual source review is still required for behavioral correctness. It reads the C checkout and writes only this report directory.']
+        'To regenerate, run `author_cases.py`, `build_report.py` and `validate_report.py` in that order with Python. The scripts read the C checkout and write the report artifacts in this directory.']
     (OUT / 'report.md').write_text('\n'.join(summary) + '\n', encoding='utf8')
     print(json.dumps(counts, indent=2))
 

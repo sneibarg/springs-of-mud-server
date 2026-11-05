@@ -278,6 +278,120 @@ enter_base = {'actor': {'id': 'ch', 'kind': 'PC', 'level': 30, 'trust': 0, 'desc
 for suffix, actor_changes, portal_changes, arg, msg in [('fighting-silent', {'fighting': 'enemy'}, {}, 'portal', None), ('empty-argument', {}, {}, '', "Nope, can't do it.\n\r"), ('no-object', {}, {}, 'missing', "You don't see that here.\n\r"), ('not-a-portal', {}, {'item_type': 'ITEM_WEAPON'}, 'portal', "You can't seem to find a way in.\n\r"), ('closed-mortal', {}, {'value': [0, ['EX_CLOSED'], [], 200, 0]}, 'portal', "You can't seem to find a way in.\n\r"), ('cursed-mortal', {'affected_by': ['AFF_CURSE']}, {}, 'portal', 'Something prevents you from leaving...\n\r')]:
     add('act_enter.c', 'do_enter', suffix, {**enter_base, 'actor': {**enter_base['actor'], **actor_changes}, 'portal': {**enter_base['portal'], **portal_changes}, 'argument': arg}, {'messages': [] if msg is None else [{'recipient': 'ch', 'text': msg}], 'unchanged': ['room membership', 'portal values and ownership', 'actor resources'], 'forbidden': ['get_random_room', 'destination room lookup', 'movement', 'charge use', 'follower recursion']}, needle='ch->fighting != NULL', controls={'get_obj_list': {'kind': 'object lookup boundary', 'returns': 'C NULL' if suffix == 'no-object' else 'P', 'calls': 0 if suffix in ['fighting-silent', 'empty-argument'] else 1}, 'get_trust': 'Real helper contract with actor level/trust/descriptor above.'})
 
+# Distinguish a mismatched initial (no prefix comparison) from a matching
+# initial with a failed prefix comparison (continue to the next row).
+add('lookup.c', 'flag_lookup', 'same-initial-failed-prefix-continues',
+    {'arguments': {'name': 'al', 'flag_table': [['amber', 2, True], ['alpha', 4, True], [None, 0, False]]}},
+    {'return': 4, 'prefix_comparisons': [['al', 'amber'], ['al', 'alpha']], 'unchanged': ['table']},
+    needle='!str_prefix')
+add('lookup.c', 'flag_lookup', 'different-initial-skips-prefix-comparison',
+    {'arguments': {'name': 'al', 'flag_table': [['beta', 2, True], [None, 0, False]]}},
+    {'return': 0, 'prefix_comparisons': [], 'unchanged': ['table']},
+    needle='LOWER(name[0])')
+for fn, name, first, failure in [
+    ('clan_lookup', 'lx', 'loner', 0), ('position_lookup', 'dx', 'dead', -1),
+    ('sex_lookup', 'nx', 'none', -1), ('size_lookup', 'tx', 'tiny', -1),
+]:
+    add('lookup.c', fn, 'same-initial-failed-prefix', {'arguments': {'name': name}, 'table': 'Snapshot tables.c'},
+        {'return': failure, 'prefix_comparisons': [[name, first]], 'unchanged': ['table']}, needle='!str_prefix')
+
+lookup_misses = {
+    'flag_lookup': {'empty-table', 'unknown', 'empty-name-does-not-match-nonempty', 'different-initial-skips-prefix-comparison'},
+    'clan_lookup': {'unknown-indistinguishable-from-zero', 'same-initial-failed-prefix'},
+    'position_lookup': {'empty', 'missing', 'longer', 'same-initial-failed-prefix'},
+    'sex_lookup': {'empty', 'missing', 'same-initial-failed-prefix'},
+    'size_lookup': {'empty', 'missing', 'same-initial-failed-prefix'},
+}
+for case in cases:
+    file, fn, suffix = case['id'].split('.', 2)
+    if file != 'lookup':
+        continue
+    sites = ['for.001']
+    if suffix != 'empty-table':
+        sites += ['if.001', 'and.001']
+    sites.append('return.002' if suffix in lookup_misses[fn] else 'return.001')
+    case['branch_ids'].extend(f'lookup.{fn}.{site}' for site in sites)
+
+# Directional scanning advances only through the selected exit, even closed.
+# When an exit is absent, the remaining iterations stay in the same room.
+for door, direction in enumerate(('north', 'east', 'south', 'west', 'up', 'down')):
+    for hops in (0, 1, 2):
+        rooms = 'ABCD'
+        exits = {rooms[i]: {'exit': {direction: {'to_room': rooms[i + 1], 'flags': ['EX_CLOSED']}}
+                            if i < hops else {}} for i in range(hops + 1)}
+        add('scan.c', 'do_scan', f'{direction}-long-with-{hops}-hops',
+            {'actor': {'id': 'ch', 'in_room': 'A'}, 'argument': direction.upper() + ' ignored', 'rooms': exits},
+            {'ordered_events': [
+                {'act': 'You peer intently $T.', 'channel': 'TO_CHAR', 'arg2': direction},
+                {'act': '$n peers intently $T.', 'channel': 'TO_ROOM', 'arg2': direction},
+                *[{'scan_list': [rooms[i], 'ch', i, door]} for i in range(1, hops + 1)]],
+             'unchanged': ['room membership', 'exits'],
+             'forbidden': ['send formatted direction header', 'inspect other directions', 'random draws']},
+            needle='for (depth = 1', controls={'scan_list': 'Record helper calls without rendering occupants.'})
+
+add('scan.c', 'do_scan', 'null-exit-destination-fails-next-iteration',
+    {'actor': {'id': 'ch', 'in_room': 'A'}, 'argument': 'n',
+     'rooms': {'A': {'exit': {'north': {'to_room': None}}}}},
+    {'defined_prefix': ['Emit directional acts', 'Call scan_list(NULL, ch, 1, 0), which returns immediately'],
+     'portable_oracle': 'Unavailable after first hop. Depth two reads exit through a null scan_room.'},
+    needle='pExit = scan_room->exit', blocked=True,
+    questions=['The fixture tests a malformed exit. Establish loader invariants before treating this path as reachable in a loaded world.'])
+
+add('scan.c', 'scan_char', 'pers-rechecks-visibility',
+    {'arguments': {'victim': 'v', 'ch': 'ch', 'depth': 1, 'door': 0}, 'victim': {'kind': 'NPC', 'short_descr': 'a guard'}},
+    {'ordered_events': [{'can_see': ['ch', 'v']}, {'send_to_char': 'someone, nearby to the north.\n\r', 'recipient': 'ch'}]},
+    needle='PERS(victim', controls={'can_see': {'ordered_returns': [False]}, 'PERS': 'Evaluate the real macro.'})
+
+for kind, name, rendered in [('NPC', 'a guard', 'a guard'), ('PC', 'Mira', 'Mira')]:
+    add('scan.c', 'scan_char', f'pers-visible-{kind.lower()}',
+        {'arguments': {'victim': 'v', 'ch': 'ch', 'depth': 0, 'door': 0},
+         'victim': {'kind': kind, 'name': name if kind == 'PC' else 'guard',
+                    'short_descr': name if kind == 'NPC' else 'unused'}},
+        {'ordered_events': [{'can_see': ['ch', 'v']},
+                            {'send_to_char': rendered + ', right here.\n\r', 'recipient': 'ch'}]},
+        needle='PERS(victim', controls={'can_see': {'ordered_returns': [True]}, 'PERS': 'Evaluate the real macro.'})
+
+add('scan.c', 'do_scan', 'around-null-destination-is-safe',
+    {'actor': {'id': 'ch', 'in_room': 'A'}, 'argument': '',
+     'rooms': {'A': {'exit': {'north': {'to_room': None}}, 'people_in_list_order': ['ch']}}},
+    {'ordered_events': [{'act': '$n looks all around.', 'channel': 'TO_ROOM'},
+                        {'send_to_char': 'Looking around you see:\n\r', 'recipient': 'ch'},
+                        {'scan_list': ['A', 'ch', 0, -1]}, {'scan_list': [None, 'ch', 1, 0]}],
+     'forbidden': ['scan_char', 'dereference null destination', 'movement']},
+    needle='scan_list(pExit->u1.to_room', controls={'scan_list': 'Run the helper and record calls.'})
+
+for case in cases:
+    file, fn, suffix = case['id'].split('.', 2)
+    if file != 'scan' or case['status'] == 'blocked':
+        continue
+    if fn == 'do_scan':
+        sites = ['if.001']
+        if suffix.startswith('around-'):
+            sites += ['for.001', 'if.002', 'return.001']
+        else:
+            directions = ('north', 'east', 'south', 'west', 'up', 'down')
+            invalid = suffix == 'invalid-direction'
+            visited = 6 if invalid else directions.index(suffix.split('-')[0]) + 1
+            for step in range(visited):
+                sites += [f'if.{step + 3:03}', f'or.{step + 1:03}']
+            sites += ['return.002'] if invalid else ['for.002', 'if.009', 'return.003']
+    elif fn == 'scan_list':
+        sites = ['if.001']
+        if suffix == 'null-room':
+            sites += ['return.001']
+        else:
+            sites += ['for.001', 'return.002']
+            if suffix != 'empty':
+                sites.append('if.002')
+            if suffix == 'self-skipped':
+                sites.append('continue.001')
+            elif suffix != 'empty':
+                sites += ['if.003', 'and.001']
+                sites.append('continue.002' if suffix == 'pc-invis-too-high' else 'if.004')
+    else:
+        sites = ['return.001']
+    case['branch_ids'].extend(f'scan.{fn}.{site}' for site in sites)
+
 # Dispatch helpers return function pointers and preserve table ordering.
 for suffix, name, function in [('first-full', 'spec_breath_any', 'spec_breath_any'), ('ambiguous-prefix-first', 'SPEC_BREATH', 'spec_breath_any'), ('last-full', 'spec_patrolman', 'spec_patrolman'), ('unknown', 'no_such_special', 'C NULL'), ('empty', '', 'C NULL')]:
     add('special.c', 'spec_lookup', suffix, {'arguments': {'name': name}, 'table': 'src/special.c spec_table in snapshot order, terminated by NULL name'}, {'return_function_pointer': function, 'forbidden': ['invoke returned function', 'messages', 'random draws']}, needle='LOWER(name[0])')

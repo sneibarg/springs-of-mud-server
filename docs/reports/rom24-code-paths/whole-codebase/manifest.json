@@ -79,11 +79,11 @@
     "source_lines": 46516,
     "functions_inventoried": 677,
     "functions_with_cases": 49,
-    "functions_completely_traced": 0,
-    "cases_specified": 430,
-    "cases_blocked": 2,
+    "functions_completely_traced": 5,
+    "cases_specified": 458,
+    "cases_blocked": 3,
     "cases_dynamically_verified": 0,
-    "lexical_sites_pending": 10796,
+    "lexical_sites_pending": 10740,
     "ancillary_files_inventoried": 485
   },
   "inventory": [
@@ -180720,7 +180720,7 @@
     {
       "path": "src/lookup.c",
       "role": "translation_unit",
-      "status": "partially_specified",
+      "status": "lookup_contracts_traced",
       "lines": 106,
       "sha256": "80dcc2ee12622678d6efab9bff930aa5666085b496b81a3aac4aa6d364363ade",
       "functions": [
@@ -180729,7 +180729,7 @@
           "file": "src/lookup.c",
           "line": 38,
           "end_line": 50,
-          "status": "partially_specified",
+          "status": "traced",
           "entry_routes": [
             {
               "kind": "lexical_call_candidate",
@@ -180768,8 +180768,18 @@
               },
               "kind": "for",
               "predicate_or_transfer": "for (flag = 0; flag_table[flag].name != NULL; flag++)",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.flag_lookup.empty-table",
+                "lookup.flag_lookup.first-of-multiple-prefixes",
+                "lookup.flag_lookup.case-insensitive",
+                "lookup.flag_lookup.nonsettable-still-found",
+                "lookup.flag_lookup.skip-nonmatch",
+                "lookup.flag_lookup.unknown",
+                "lookup.flag_lookup.empty-name-does-not-match-nonempty",
+                "lookup.flag_lookup.same-initial-failed-prefix-continues",
+                "lookup.flag_lookup.different-initial-skips-prefix-comparison"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -180782,8 +180792,17 @@
               },
               "kind": "if",
               "predicate_or_transfer": "if (LOWER(name[0]) == LOWER(flag_table[flag].name[0])\n\t&&  !str_prefix(name,flag_table[flag].name))",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.flag_lookup.first-of-multiple-prefixes",
+                "lookup.flag_lookup.case-insensitive",
+                "lookup.flag_lookup.nonsettable-still-found",
+                "lookup.flag_lookup.skip-nonmatch",
+                "lookup.flag_lookup.unknown",
+                "lookup.flag_lookup.empty-name-does-not-match-nonempty",
+                "lookup.flag_lookup.same-initial-failed-prefix-continues",
+                "lookup.flag_lookup.different-initial-skips-prefix-comparison"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -180796,8 +180815,17 @@
               },
               "kind": "&&",
               "predicate_or_transfer": "&&  !str_prefix(name,flag_table[flag].name))",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.flag_lookup.first-of-multiple-prefixes",
+                "lookup.flag_lookup.case-insensitive",
+                "lookup.flag_lookup.nonsettable-still-found",
+                "lookup.flag_lookup.skip-nonmatch",
+                "lookup.flag_lookup.unknown",
+                "lookup.flag_lookup.empty-name-does-not-match-nonempty",
+                "lookup.flag_lookup.same-initial-failed-prefix-continues",
+                "lookup.flag_lookup.different-initial-skips-prefix-comparison"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -180810,8 +180838,14 @@
               },
               "kind": "return",
               "predicate_or_transfer": "return flag_table[flag].bit;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.flag_lookup.first-of-multiple-prefixes",
+                "lookup.flag_lookup.case-insensitive",
+                "lookup.flag_lookup.nonsettable-still-found",
+                "lookup.flag_lookup.skip-nonmatch",
+                "lookup.flag_lookup.same-initial-failed-prefix-continues"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -180824,8 +180858,13 @@
               },
               "kind": "return",
               "predicate_or_transfer": "return 0;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.flag_lookup.empty-table",
+                "lookup.flag_lookup.unknown",
+                "lookup.flag_lookup.empty-name-does-not-match-nonempty",
+                "lookup.flag_lookup.different-initial-skips-prefix-comparison"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -180932,6 +180971,36 @@
               "case_ids": [
                 "lookup.flag_lookup.empty-name-does-not-match-nonempty"
               ]
+            },
+            {
+              "id": "lookup.flag_lookup.same-initial-failed-prefix-continues.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/lookup.c",
+                "function": "flag_lookup",
+                "line": 45
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "same initial failed prefix continues",
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.flag_lookup.same-initial-failed-prefix-continues"
+              ]
+            },
+            {
+              "id": "lookup.flag_lookup.different-initial-skips-prefix-comparison.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/lookup.c",
+                "function": "flag_lookup",
+                "line": 44
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "different initial skips prefix comparison",
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.flag_lookup.different-initial-skips-prefix-comparison"
+              ]
             }
           ],
           "inventory_method": "comment/literal-masked lexical function-definition scan; not compiler verified",
@@ -180942,7 +181011,7 @@
           "file": "src/lookup.c",
           "line": 52,
           "end_line": 64,
-          "status": "partially_specified",
+          "status": "traced",
           "entry_routes": [
             {
               "kind": "lexical_call_candidate",
@@ -181009,8 +181078,14 @@
               },
               "kind": "for",
               "predicate_or_transfer": "for (clan = 0; clan < MAX_CLAN; clan++)",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.clan_lookup.loner",
+                "lookup.clan_lookup.rom",
+                "lookup.clan_lookup.empty-matches-entry-zero",
+                "lookup.clan_lookup.unknown-indistinguishable-from-zero",
+                "lookup.clan_lookup.same-initial-failed-prefix"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181023,8 +181098,14 @@
               },
               "kind": "if",
               "predicate_or_transfer": "if (LOWER(name[0]) == LOWER(clan_table[clan].name[0])\n\t&&  !str_prefix(name,clan_table[clan].name))",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.clan_lookup.loner",
+                "lookup.clan_lookup.rom",
+                "lookup.clan_lookup.empty-matches-entry-zero",
+                "lookup.clan_lookup.unknown-indistinguishable-from-zero",
+                "lookup.clan_lookup.same-initial-failed-prefix"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181037,8 +181118,14 @@
               },
               "kind": "&&",
               "predicate_or_transfer": "&&  !str_prefix(name,clan_table[clan].name))",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.clan_lookup.loner",
+                "lookup.clan_lookup.rom",
+                "lookup.clan_lookup.empty-matches-entry-zero",
+                "lookup.clan_lookup.unknown-indistinguishable-from-zero",
+                "lookup.clan_lookup.same-initial-failed-prefix"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181051,8 +181138,12 @@
               },
               "kind": "return",
               "predicate_or_transfer": "return clan;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.clan_lookup.loner",
+                "lookup.clan_lookup.rom",
+                "lookup.clan_lookup.empty-matches-entry-zero"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181065,8 +181156,11 @@
               },
               "kind": "return",
               "predicate_or_transfer": "return 0;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.clan_lookup.unknown-indistinguishable-from-zero",
+                "lookup.clan_lookup.same-initial-failed-prefix"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181128,6 +181222,21 @@
               "case_ids": [
                 "lookup.clan_lookup.unknown-indistinguishable-from-zero"
               ]
+            },
+            {
+              "id": "lookup.clan_lookup.same-initial-failed-prefix.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/lookup.c",
+                "function": "clan_lookup",
+                "line": 59
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "same initial failed prefix",
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.clan_lookup.same-initial-failed-prefix"
+              ]
             }
           ],
           "inventory_method": "comment/literal-masked lexical function-definition scan; not compiler verified",
@@ -181138,7 +181247,7 @@
           "file": "src/lookup.c",
           "line": 66,
           "end_line": 78,
-          "status": "partially_specified",
+          "status": "traced",
           "entry_routes": [
             {
               "kind": "lexical_call_candidate",
@@ -181184,8 +181293,16 @@
               },
               "kind": "for",
               "predicate_or_transfer": "for (pos = 0; position_table[pos].name != NULL; pos++)",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.position_lookup.standing-full",
+                "lookup.position_lookup.ambiguous-s-first-stunned",
+                "lookup.position_lookup.case-insensitive",
+                "lookup.position_lookup.empty",
+                "lookup.position_lookup.missing",
+                "lookup.position_lookup.longer",
+                "lookup.position_lookup.same-initial-failed-prefix"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181198,8 +181315,16 @@
               },
               "kind": "if",
               "predicate_or_transfer": "if (LOWER(name[0]) == LOWER(position_table[pos].name[0])\n\t&&  !str_prefix(name,position_table[pos].name))",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.position_lookup.standing-full",
+                "lookup.position_lookup.ambiguous-s-first-stunned",
+                "lookup.position_lookup.case-insensitive",
+                "lookup.position_lookup.empty",
+                "lookup.position_lookup.missing",
+                "lookup.position_lookup.longer",
+                "lookup.position_lookup.same-initial-failed-prefix"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181212,8 +181337,16 @@
               },
               "kind": "&&",
               "predicate_or_transfer": "&&  !str_prefix(name,position_table[pos].name))",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.position_lookup.standing-full",
+                "lookup.position_lookup.ambiguous-s-first-stunned",
+                "lookup.position_lookup.case-insensitive",
+                "lookup.position_lookup.empty",
+                "lookup.position_lookup.missing",
+                "lookup.position_lookup.longer",
+                "lookup.position_lookup.same-initial-failed-prefix"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181226,8 +181359,12 @@
               },
               "kind": "return",
               "predicate_or_transfer": "return pos;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.position_lookup.standing-full",
+                "lookup.position_lookup.ambiguous-s-first-stunned",
+                "lookup.position_lookup.case-insensitive"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181240,8 +181377,13 @@
               },
               "kind": "return",
               "predicate_or_transfer": "return -1;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.position_lookup.empty",
+                "lookup.position_lookup.missing",
+                "lookup.position_lookup.longer",
+                "lookup.position_lookup.same-initial-failed-prefix"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181333,6 +181475,21 @@
               "case_ids": [
                 "lookup.position_lookup.longer"
               ]
+            },
+            {
+              "id": "lookup.position_lookup.same-initial-failed-prefix.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/lookup.c",
+                "function": "position_lookup",
+                "line": 73
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "same initial failed prefix",
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.position_lookup.same-initial-failed-prefix"
+              ]
             }
           ],
           "inventory_method": "comment/literal-masked lexical function-definition scan; not compiler verified",
@@ -181343,7 +181500,7 @@
           "file": "src/lookup.c",
           "line": 80,
           "end_line": 92,
-          "status": "partially_specified",
+          "status": "traced",
           "entry_routes": [
             {
               "kind": "lexical_call_candidate",
@@ -181382,8 +181539,16 @@
               },
               "kind": "for",
               "predicate_or_transfer": "for (sex = 0; sex_table[sex].name != NULL; sex++)",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.sex_lookup.none",
+                "lookup.sex_lookup.male",
+                "lookup.sex_lookup.female",
+                "lookup.sex_lookup.last-entry",
+                "lookup.sex_lookup.empty",
+                "lookup.sex_lookup.missing",
+                "lookup.sex_lookup.same-initial-failed-prefix"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181396,8 +181561,16 @@
               },
               "kind": "if",
               "predicate_or_transfer": "if (LOWER(name[0]) == LOWER(sex_table[sex].name[0])\n\t&&  !str_prefix(name,sex_table[sex].name))",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.sex_lookup.none",
+                "lookup.sex_lookup.male",
+                "lookup.sex_lookup.female",
+                "lookup.sex_lookup.last-entry",
+                "lookup.sex_lookup.empty",
+                "lookup.sex_lookup.missing",
+                "lookup.sex_lookup.same-initial-failed-prefix"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181410,8 +181583,16 @@
               },
               "kind": "&&",
               "predicate_or_transfer": "&&  !str_prefix(name,sex_table[sex].name))",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.sex_lookup.none",
+                "lookup.sex_lookup.male",
+                "lookup.sex_lookup.female",
+                "lookup.sex_lookup.last-entry",
+                "lookup.sex_lookup.empty",
+                "lookup.sex_lookup.missing",
+                "lookup.sex_lookup.same-initial-failed-prefix"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181424,8 +181605,13 @@
               },
               "kind": "return",
               "predicate_or_transfer": "return sex;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.sex_lookup.none",
+                "lookup.sex_lookup.male",
+                "lookup.sex_lookup.female",
+                "lookup.sex_lookup.last-entry"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181438,8 +181624,12 @@
               },
               "kind": "return",
               "predicate_or_transfer": "return -1;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.sex_lookup.empty",
+                "lookup.sex_lookup.missing",
+                "lookup.sex_lookup.same-initial-failed-prefix"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181531,6 +181721,21 @@
               "case_ids": [
                 "lookup.sex_lookup.missing"
               ]
+            },
+            {
+              "id": "lookup.sex_lookup.same-initial-failed-prefix.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/lookup.c",
+                "function": "sex_lookup",
+                "line": 87
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "same initial failed prefix",
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.sex_lookup.same-initial-failed-prefix"
+              ]
             }
           ],
           "inventory_method": "comment/literal-masked lexical function-definition scan; not compiler verified",
@@ -181541,7 +181746,7 @@
           "file": "src/lookup.c",
           "line": 94,
           "end_line": 106,
-          "status": "partially_specified",
+          "status": "traced",
           "entry_routes": [
             {
               "kind": "lexical_call_candidate",
@@ -181580,8 +181785,18 @@
               },
               "kind": "for",
               "predicate_or_transfer": "for ( size = 0; size_table[size].name != NULL; size++)",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.size_lookup.tiny",
+                "lookup.size_lookup.small",
+                "lookup.size_lookup.medium",
+                "lookup.size_lookup.large",
+                "lookup.size_lookup.huge",
+                "lookup.size_lookup.last-entry",
+                "lookup.size_lookup.empty",
+                "lookup.size_lookup.missing",
+                "lookup.size_lookup.same-initial-failed-prefix"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181594,8 +181809,18 @@
               },
               "kind": "if",
               "predicate_or_transfer": "if (LOWER(name[0]) == LOWER(size_table[size].name[0])\n        &&  !str_prefix( name,size_table[size].name))",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.size_lookup.tiny",
+                "lookup.size_lookup.small",
+                "lookup.size_lookup.medium",
+                "lookup.size_lookup.large",
+                "lookup.size_lookup.huge",
+                "lookup.size_lookup.last-entry",
+                "lookup.size_lookup.empty",
+                "lookup.size_lookup.missing",
+                "lookup.size_lookup.same-initial-failed-prefix"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181608,8 +181833,18 @@
               },
               "kind": "&&",
               "predicate_or_transfer": "&&  !str_prefix( name,size_table[size].name))",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.size_lookup.tiny",
+                "lookup.size_lookup.small",
+                "lookup.size_lookup.medium",
+                "lookup.size_lookup.large",
+                "lookup.size_lookup.huge",
+                "lookup.size_lookup.last-entry",
+                "lookup.size_lookup.empty",
+                "lookup.size_lookup.missing",
+                "lookup.size_lookup.same-initial-failed-prefix"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181622,8 +181857,15 @@
               },
               "kind": "return",
               "predicate_or_transfer": "return size;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.size_lookup.tiny",
+                "lookup.size_lookup.small",
+                "lookup.size_lookup.medium",
+                "lookup.size_lookup.large",
+                "lookup.size_lookup.huge",
+                "lookup.size_lookup.last-entry"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181636,8 +181878,12 @@
               },
               "kind": "return",
               "predicate_or_transfer": "return -1;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.size_lookup.empty",
+                "lookup.size_lookup.missing",
+                "lookup.size_lookup.same-initial-failed-prefix"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -181758,6 +182004,21 @@
               "disposition": "specified",
               "case_ids": [
                 "lookup.size_lookup.missing"
+              ]
+            },
+            {
+              "id": "lookup.size_lookup.same-initial-failed-prefix.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/lookup.c",
+                "function": "size_lookup",
+                "line": 101
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "same initial failed prefix",
+              "disposition": "specified",
+              "case_ids": [
+                "lookup.size_lookup.same-initial-failed-prefix"
               ]
             }
           ],
@@ -231918,8 +232179,37 @@
               },
               "kind": "if",
               "predicate_or_transfer": "if (arg1[0] == '\\0')",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.invalid-direction",
+                "scan.do_scan.around-includes-current-and-each-exit",
+                "scan.do_scan.north-short",
+                "scan.do_scan.north-long",
+                "scan.do_scan.east-short",
+                "scan.do_scan.south-short",
+                "scan.do_scan.west-short",
+                "scan.do_scan.up-short",
+                "scan.do_scan.down-short",
+                "scan.do_scan.north-long-with-0-hops",
+                "scan.do_scan.north-long-with-1-hops",
+                "scan.do_scan.north-long-with-2-hops",
+                "scan.do_scan.east-long-with-0-hops",
+                "scan.do_scan.east-long-with-1-hops",
+                "scan.do_scan.east-long-with-2-hops",
+                "scan.do_scan.south-long-with-0-hops",
+                "scan.do_scan.south-long-with-1-hops",
+                "scan.do_scan.south-long-with-2-hops",
+                "scan.do_scan.west-long-with-0-hops",
+                "scan.do_scan.west-long-with-1-hops",
+                "scan.do_scan.west-long-with-2-hops",
+                "scan.do_scan.up-long-with-0-hops",
+                "scan.do_scan.up-long-with-1-hops",
+                "scan.do_scan.up-long-with-2-hops",
+                "scan.do_scan.down-long-with-0-hops",
+                "scan.do_scan.down-long-with-1-hops",
+                "scan.do_scan.down-long-with-2-hops",
+                "scan.do_scan.around-null-destination-is-safe"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -231932,8 +232222,11 @@
               },
               "kind": "for",
               "predicate_or_transfer": "for (door=0;door<6;door++)",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.around-includes-current-and-each-exit",
+                "scan.do_scan.around-null-destination-is-safe"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -231946,8 +232239,11 @@
               },
               "kind": "if",
               "predicate_or_transfer": "if ((pExit = ch ->in_room->exit[door]) != NULL)",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.around-includes-current-and-each-exit",
+                "scan.do_scan.around-null-destination-is-safe"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -231960,8 +232256,11 @@
               },
               "kind": "return",
               "predicate_or_transfer": "return;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.around-includes-current-and-each-exit",
+                "scan.do_scan.around-null-destination-is-safe"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -231974,8 +232273,35 @@
               },
               "kind": "if",
               "predicate_or_transfer": "if (!str_cmp(arg1, \"n\") || !str_cmp(arg1, \"north\"))",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.invalid-direction",
+                "scan.do_scan.north-short",
+                "scan.do_scan.north-long",
+                "scan.do_scan.east-short",
+                "scan.do_scan.south-short",
+                "scan.do_scan.west-short",
+                "scan.do_scan.up-short",
+                "scan.do_scan.down-short",
+                "scan.do_scan.north-long-with-0-hops",
+                "scan.do_scan.north-long-with-1-hops",
+                "scan.do_scan.north-long-with-2-hops",
+                "scan.do_scan.east-long-with-0-hops",
+                "scan.do_scan.east-long-with-1-hops",
+                "scan.do_scan.east-long-with-2-hops",
+                "scan.do_scan.south-long-with-0-hops",
+                "scan.do_scan.south-long-with-1-hops",
+                "scan.do_scan.south-long-with-2-hops",
+                "scan.do_scan.west-long-with-0-hops",
+                "scan.do_scan.west-long-with-1-hops",
+                "scan.do_scan.west-long-with-2-hops",
+                "scan.do_scan.up-long-with-0-hops",
+                "scan.do_scan.up-long-with-1-hops",
+                "scan.do_scan.up-long-with-2-hops",
+                "scan.do_scan.down-long-with-0-hops",
+                "scan.do_scan.down-long-with-1-hops",
+                "scan.do_scan.down-long-with-2-hops"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -231988,8 +232314,35 @@
               },
               "kind": "||",
               "predicate_or_transfer": "|| !str_cmp(arg1, \"north\")) door = 0;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.invalid-direction",
+                "scan.do_scan.north-short",
+                "scan.do_scan.north-long",
+                "scan.do_scan.east-short",
+                "scan.do_scan.south-short",
+                "scan.do_scan.west-short",
+                "scan.do_scan.up-short",
+                "scan.do_scan.down-short",
+                "scan.do_scan.north-long-with-0-hops",
+                "scan.do_scan.north-long-with-1-hops",
+                "scan.do_scan.north-long-with-2-hops",
+                "scan.do_scan.east-long-with-0-hops",
+                "scan.do_scan.east-long-with-1-hops",
+                "scan.do_scan.east-long-with-2-hops",
+                "scan.do_scan.south-long-with-0-hops",
+                "scan.do_scan.south-long-with-1-hops",
+                "scan.do_scan.south-long-with-2-hops",
+                "scan.do_scan.west-long-with-0-hops",
+                "scan.do_scan.west-long-with-1-hops",
+                "scan.do_scan.west-long-with-2-hops",
+                "scan.do_scan.up-long-with-0-hops",
+                "scan.do_scan.up-long-with-1-hops",
+                "scan.do_scan.up-long-with-2-hops",
+                "scan.do_scan.down-long-with-0-hops",
+                "scan.do_scan.down-long-with-1-hops",
+                "scan.do_scan.down-long-with-2-hops"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232002,8 +232355,30 @@
               },
               "kind": "if",
               "predicate_or_transfer": "if (!str_cmp(arg1, \"e\") || !str_cmp(arg1, \"east\"))",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.invalid-direction",
+                "scan.do_scan.east-short",
+                "scan.do_scan.south-short",
+                "scan.do_scan.west-short",
+                "scan.do_scan.up-short",
+                "scan.do_scan.down-short",
+                "scan.do_scan.east-long-with-0-hops",
+                "scan.do_scan.east-long-with-1-hops",
+                "scan.do_scan.east-long-with-2-hops",
+                "scan.do_scan.south-long-with-0-hops",
+                "scan.do_scan.south-long-with-1-hops",
+                "scan.do_scan.south-long-with-2-hops",
+                "scan.do_scan.west-long-with-0-hops",
+                "scan.do_scan.west-long-with-1-hops",
+                "scan.do_scan.west-long-with-2-hops",
+                "scan.do_scan.up-long-with-0-hops",
+                "scan.do_scan.up-long-with-1-hops",
+                "scan.do_scan.up-long-with-2-hops",
+                "scan.do_scan.down-long-with-0-hops",
+                "scan.do_scan.down-long-with-1-hops",
+                "scan.do_scan.down-long-with-2-hops"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232016,8 +232391,30 @@
               },
               "kind": "||",
               "predicate_or_transfer": "|| !str_cmp(arg1, \"east\"))  door = 1;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.invalid-direction",
+                "scan.do_scan.east-short",
+                "scan.do_scan.south-short",
+                "scan.do_scan.west-short",
+                "scan.do_scan.up-short",
+                "scan.do_scan.down-short",
+                "scan.do_scan.east-long-with-0-hops",
+                "scan.do_scan.east-long-with-1-hops",
+                "scan.do_scan.east-long-with-2-hops",
+                "scan.do_scan.south-long-with-0-hops",
+                "scan.do_scan.south-long-with-1-hops",
+                "scan.do_scan.south-long-with-2-hops",
+                "scan.do_scan.west-long-with-0-hops",
+                "scan.do_scan.west-long-with-1-hops",
+                "scan.do_scan.west-long-with-2-hops",
+                "scan.do_scan.up-long-with-0-hops",
+                "scan.do_scan.up-long-with-1-hops",
+                "scan.do_scan.up-long-with-2-hops",
+                "scan.do_scan.down-long-with-0-hops",
+                "scan.do_scan.down-long-with-1-hops",
+                "scan.do_scan.down-long-with-2-hops"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232030,8 +232427,26 @@
               },
               "kind": "if",
               "predicate_or_transfer": "if (!str_cmp(arg1, \"s\") || !str_cmp(arg1, \"south\"))",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.invalid-direction",
+                "scan.do_scan.south-short",
+                "scan.do_scan.west-short",
+                "scan.do_scan.up-short",
+                "scan.do_scan.down-short",
+                "scan.do_scan.south-long-with-0-hops",
+                "scan.do_scan.south-long-with-1-hops",
+                "scan.do_scan.south-long-with-2-hops",
+                "scan.do_scan.west-long-with-0-hops",
+                "scan.do_scan.west-long-with-1-hops",
+                "scan.do_scan.west-long-with-2-hops",
+                "scan.do_scan.up-long-with-0-hops",
+                "scan.do_scan.up-long-with-1-hops",
+                "scan.do_scan.up-long-with-2-hops",
+                "scan.do_scan.down-long-with-0-hops",
+                "scan.do_scan.down-long-with-1-hops",
+                "scan.do_scan.down-long-with-2-hops"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232044,8 +232459,26 @@
               },
               "kind": "||",
               "predicate_or_transfer": "|| !str_cmp(arg1, \"south\")) door = 2;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.invalid-direction",
+                "scan.do_scan.south-short",
+                "scan.do_scan.west-short",
+                "scan.do_scan.up-short",
+                "scan.do_scan.down-short",
+                "scan.do_scan.south-long-with-0-hops",
+                "scan.do_scan.south-long-with-1-hops",
+                "scan.do_scan.south-long-with-2-hops",
+                "scan.do_scan.west-long-with-0-hops",
+                "scan.do_scan.west-long-with-1-hops",
+                "scan.do_scan.west-long-with-2-hops",
+                "scan.do_scan.up-long-with-0-hops",
+                "scan.do_scan.up-long-with-1-hops",
+                "scan.do_scan.up-long-with-2-hops",
+                "scan.do_scan.down-long-with-0-hops",
+                "scan.do_scan.down-long-with-1-hops",
+                "scan.do_scan.down-long-with-2-hops"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232058,8 +232491,22 @@
               },
               "kind": "if",
               "predicate_or_transfer": "if (!str_cmp(arg1, \"w\") || !str_cmp(arg1, \"west\"))",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.invalid-direction",
+                "scan.do_scan.west-short",
+                "scan.do_scan.up-short",
+                "scan.do_scan.down-short",
+                "scan.do_scan.west-long-with-0-hops",
+                "scan.do_scan.west-long-with-1-hops",
+                "scan.do_scan.west-long-with-2-hops",
+                "scan.do_scan.up-long-with-0-hops",
+                "scan.do_scan.up-long-with-1-hops",
+                "scan.do_scan.up-long-with-2-hops",
+                "scan.do_scan.down-long-with-0-hops",
+                "scan.do_scan.down-long-with-1-hops",
+                "scan.do_scan.down-long-with-2-hops"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232072,8 +232519,22 @@
               },
               "kind": "||",
               "predicate_or_transfer": "|| !str_cmp(arg1, \"west\"))  door = 3;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.invalid-direction",
+                "scan.do_scan.west-short",
+                "scan.do_scan.up-short",
+                "scan.do_scan.down-short",
+                "scan.do_scan.west-long-with-0-hops",
+                "scan.do_scan.west-long-with-1-hops",
+                "scan.do_scan.west-long-with-2-hops",
+                "scan.do_scan.up-long-with-0-hops",
+                "scan.do_scan.up-long-with-1-hops",
+                "scan.do_scan.up-long-with-2-hops",
+                "scan.do_scan.down-long-with-0-hops",
+                "scan.do_scan.down-long-with-1-hops",
+                "scan.do_scan.down-long-with-2-hops"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232086,8 +232547,18 @@
               },
               "kind": "if",
               "predicate_or_transfer": "if (!str_cmp(arg1, \"u\") || !str_cmp(arg1, \"up\" ))",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.invalid-direction",
+                "scan.do_scan.up-short",
+                "scan.do_scan.down-short",
+                "scan.do_scan.up-long-with-0-hops",
+                "scan.do_scan.up-long-with-1-hops",
+                "scan.do_scan.up-long-with-2-hops",
+                "scan.do_scan.down-long-with-0-hops",
+                "scan.do_scan.down-long-with-1-hops",
+                "scan.do_scan.down-long-with-2-hops"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232100,8 +232571,18 @@
               },
               "kind": "||",
               "predicate_or_transfer": "|| !str_cmp(arg1, \"up\" ))   door = 4;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.invalid-direction",
+                "scan.do_scan.up-short",
+                "scan.do_scan.down-short",
+                "scan.do_scan.up-long-with-0-hops",
+                "scan.do_scan.up-long-with-1-hops",
+                "scan.do_scan.up-long-with-2-hops",
+                "scan.do_scan.down-long-with-0-hops",
+                "scan.do_scan.down-long-with-1-hops",
+                "scan.do_scan.down-long-with-2-hops"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232114,8 +232595,14 @@
               },
               "kind": "if",
               "predicate_or_transfer": "if (!str_cmp(arg1, \"d\") || !str_cmp(arg1, \"down\"))",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.invalid-direction",
+                "scan.do_scan.down-short",
+                "scan.do_scan.down-long-with-0-hops",
+                "scan.do_scan.down-long-with-1-hops",
+                "scan.do_scan.down-long-with-2-hops"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232128,8 +232615,14 @@
               },
               "kind": "||",
               "predicate_or_transfer": "|| !str_cmp(arg1, \"down\"))  door = 5;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.invalid-direction",
+                "scan.do_scan.down-short",
+                "scan.do_scan.down-long-with-0-hops",
+                "scan.do_scan.down-long-with-1-hops",
+                "scan.do_scan.down-long-with-2-hops"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232142,8 +232635,10 @@
               },
               "kind": "return",
               "predicate_or_transfer": "return;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.invalid-direction"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232156,8 +232651,34 @@
               },
               "kind": "for",
               "predicate_or_transfer": "for (depth = 1; depth < 4; depth++)",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.north-short",
+                "scan.do_scan.north-long",
+                "scan.do_scan.east-short",
+                "scan.do_scan.south-short",
+                "scan.do_scan.west-short",
+                "scan.do_scan.up-short",
+                "scan.do_scan.down-short",
+                "scan.do_scan.north-long-with-0-hops",
+                "scan.do_scan.north-long-with-1-hops",
+                "scan.do_scan.north-long-with-2-hops",
+                "scan.do_scan.east-long-with-0-hops",
+                "scan.do_scan.east-long-with-1-hops",
+                "scan.do_scan.east-long-with-2-hops",
+                "scan.do_scan.south-long-with-0-hops",
+                "scan.do_scan.south-long-with-1-hops",
+                "scan.do_scan.south-long-with-2-hops",
+                "scan.do_scan.west-long-with-0-hops",
+                "scan.do_scan.west-long-with-1-hops",
+                "scan.do_scan.west-long-with-2-hops",
+                "scan.do_scan.up-long-with-0-hops",
+                "scan.do_scan.up-long-with-1-hops",
+                "scan.do_scan.up-long-with-2-hops",
+                "scan.do_scan.down-long-with-0-hops",
+                "scan.do_scan.down-long-with-1-hops",
+                "scan.do_scan.down-long-with-2-hops"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232170,8 +232691,34 @@
               },
               "kind": "if",
               "predicate_or_transfer": "if ((pExit = scan_room->exit[door]) != NULL)",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.north-short",
+                "scan.do_scan.north-long",
+                "scan.do_scan.east-short",
+                "scan.do_scan.south-short",
+                "scan.do_scan.west-short",
+                "scan.do_scan.up-short",
+                "scan.do_scan.down-short",
+                "scan.do_scan.north-long-with-0-hops",
+                "scan.do_scan.north-long-with-1-hops",
+                "scan.do_scan.north-long-with-2-hops",
+                "scan.do_scan.east-long-with-0-hops",
+                "scan.do_scan.east-long-with-1-hops",
+                "scan.do_scan.east-long-with-2-hops",
+                "scan.do_scan.south-long-with-0-hops",
+                "scan.do_scan.south-long-with-1-hops",
+                "scan.do_scan.south-long-with-2-hops",
+                "scan.do_scan.west-long-with-0-hops",
+                "scan.do_scan.west-long-with-1-hops",
+                "scan.do_scan.west-long-with-2-hops",
+                "scan.do_scan.up-long-with-0-hops",
+                "scan.do_scan.up-long-with-1-hops",
+                "scan.do_scan.up-long-with-2-hops",
+                "scan.do_scan.down-long-with-0-hops",
+                "scan.do_scan.down-long-with-1-hops",
+                "scan.do_scan.down-long-with-2-hops"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232184,8 +232731,34 @@
               },
               "kind": "return",
               "predicate_or_transfer": "return;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.north-short",
+                "scan.do_scan.north-long",
+                "scan.do_scan.east-short",
+                "scan.do_scan.south-short",
+                "scan.do_scan.west-short",
+                "scan.do_scan.up-short",
+                "scan.do_scan.down-short",
+                "scan.do_scan.north-long-with-0-hops",
+                "scan.do_scan.north-long-with-1-hops",
+                "scan.do_scan.north-long-with-2-hops",
+                "scan.do_scan.east-long-with-0-hops",
+                "scan.do_scan.east-long-with-1-hops",
+                "scan.do_scan.east-long-with-2-hops",
+                "scan.do_scan.south-long-with-0-hops",
+                "scan.do_scan.south-long-with-1-hops",
+                "scan.do_scan.south-long-with-2-hops",
+                "scan.do_scan.west-long-with-0-hops",
+                "scan.do_scan.west-long-with-1-hops",
+                "scan.do_scan.west-long-with-2-hops",
+                "scan.do_scan.up-long-with-0-hops",
+                "scan.do_scan.up-long-with-1-hops",
+                "scan.do_scan.up-long-with-2-hops",
+                "scan.do_scan.down-long-with-0-hops",
+                "scan.do_scan.down-long-with-1-hops",
+                "scan.do_scan.down-long-with-2-hops"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232322,6 +232895,306 @@
               "case_ids": [
                 "scan.do_scan.down-short"
               ]
+            },
+            {
+              "id": "scan.do_scan.north-long-with-0-hops.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 85
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "north long with 0 hops",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.north-long-with-0-hops"
+              ]
+            },
+            {
+              "id": "scan.do_scan.north-long-with-1-hops.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 85
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "north long with 1 hops",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.north-long-with-1-hops"
+              ]
+            },
+            {
+              "id": "scan.do_scan.north-long-with-2-hops.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 85
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "north long with 2 hops",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.north-long-with-2-hops"
+              ]
+            },
+            {
+              "id": "scan.do_scan.east-long-with-0-hops.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 85
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "east long with 0 hops",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.east-long-with-0-hops"
+              ]
+            },
+            {
+              "id": "scan.do_scan.east-long-with-1-hops.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 85
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "east long with 1 hops",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.east-long-with-1-hops"
+              ]
+            },
+            {
+              "id": "scan.do_scan.east-long-with-2-hops.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 85
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "east long with 2 hops",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.east-long-with-2-hops"
+              ]
+            },
+            {
+              "id": "scan.do_scan.south-long-with-0-hops.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 85
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "south long with 0 hops",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.south-long-with-0-hops"
+              ]
+            },
+            {
+              "id": "scan.do_scan.south-long-with-1-hops.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 85
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "south long with 1 hops",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.south-long-with-1-hops"
+              ]
+            },
+            {
+              "id": "scan.do_scan.south-long-with-2-hops.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 85
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "south long with 2 hops",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.south-long-with-2-hops"
+              ]
+            },
+            {
+              "id": "scan.do_scan.west-long-with-0-hops.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 85
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "west long with 0 hops",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.west-long-with-0-hops"
+              ]
+            },
+            {
+              "id": "scan.do_scan.west-long-with-1-hops.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 85
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "west long with 1 hops",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.west-long-with-1-hops"
+              ]
+            },
+            {
+              "id": "scan.do_scan.west-long-with-2-hops.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 85
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "west long with 2 hops",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.west-long-with-2-hops"
+              ]
+            },
+            {
+              "id": "scan.do_scan.up-long-with-0-hops.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 85
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "up long with 0 hops",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.up-long-with-0-hops"
+              ]
+            },
+            {
+              "id": "scan.do_scan.up-long-with-1-hops.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 85
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "up long with 1 hops",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.up-long-with-1-hops"
+              ]
+            },
+            {
+              "id": "scan.do_scan.up-long-with-2-hops.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 85
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "up long with 2 hops",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.up-long-with-2-hops"
+              ]
+            },
+            {
+              "id": "scan.do_scan.down-long-with-0-hops.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 85
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "down long with 0 hops",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.down-long-with-0-hops"
+              ]
+            },
+            {
+              "id": "scan.do_scan.down-long-with-1-hops.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 85
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "down long with 1 hops",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.down-long-with-1-hops"
+              ]
+            },
+            {
+              "id": "scan.do_scan.down-long-with-2-hops.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 85
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "down long with 2 hops",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.down-long-with-2-hops"
+              ]
+            },
+            {
+              "id": "scan.do_scan.null-exit-destination-fails-next-iteration.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 87
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "null exit destination fails next iteration",
+              "disposition": "blocked",
+              "case_ids": [
+                "scan.do_scan.null-exit-destination-fails-next-iteration"
+              ]
+            },
+            {
+              "id": "scan.do_scan.around-null-destination-is-safe.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "do_scan",
+                "line": 67
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "around null destination is safe",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.do_scan.around-null-destination-is-safe"
+              ]
             }
           ],
           "inventory_method": "comment/literal-masked lexical function-definition scan; not compiler verified",
@@ -232395,8 +233268,17 @@
               },
               "kind": "if",
               "predicate_or_transfer": "if (scan_room == NULL)",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.scan_list.null-room",
+                "scan.scan_list.empty",
+                "scan.scan_list.self-skipped",
+                "scan.scan_list.pc-invis-too-high",
+                "scan.scan_list.pc-invis-equality-visible",
+                "scan.scan_list.npc-bypasses-pre-filter",
+                "scan.scan_list.can-see-false",
+                "scan.scan_list.multiple-in-list-order"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232409,8 +233291,10 @@
               },
               "kind": "return",
               "predicate_or_transfer": "return;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.scan_list.null-room"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232423,8 +233307,16 @@
               },
               "kind": "for",
               "predicate_or_transfer": "for (rch=scan_room->people; rch != NULL; rch=rch->next_in_room)",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.scan_list.empty",
+                "scan.scan_list.self-skipped",
+                "scan.scan_list.pc-invis-too-high",
+                "scan.scan_list.pc-invis-equality-visible",
+                "scan.scan_list.npc-bypasses-pre-filter",
+                "scan.scan_list.can-see-false",
+                "scan.scan_list.multiple-in-list-order"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232437,8 +233329,15 @@
               },
               "kind": "if",
               "predicate_or_transfer": "if (rch == ch)",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.scan_list.self-skipped",
+                "scan.scan_list.pc-invis-too-high",
+                "scan.scan_list.pc-invis-equality-visible",
+                "scan.scan_list.npc-bypasses-pre-filter",
+                "scan.scan_list.can-see-false",
+                "scan.scan_list.multiple-in-list-order"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232451,8 +233350,10 @@
               },
               "kind": "continue",
               "predicate_or_transfer": "continue;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.scan_list.self-skipped"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232465,8 +233366,14 @@
               },
               "kind": "if",
               "predicate_or_transfer": "if (!IS_NPC(rch) && rch->invis_level > get_trust(ch))",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.scan_list.pc-invis-too-high",
+                "scan.scan_list.pc-invis-equality-visible",
+                "scan.scan_list.npc-bypasses-pre-filter",
+                "scan.scan_list.can-see-false",
+                "scan.scan_list.multiple-in-list-order"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232479,8 +233386,14 @@
               },
               "kind": "&&",
               "predicate_or_transfer": "&& rch->invis_level > get_trust(ch)) continue;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.scan_list.pc-invis-too-high",
+                "scan.scan_list.pc-invis-equality-visible",
+                "scan.scan_list.npc-bypasses-pre-filter",
+                "scan.scan_list.can-see-false",
+                "scan.scan_list.multiple-in-list-order"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232493,8 +233406,10 @@
               },
               "kind": "continue",
               "predicate_or_transfer": "continue;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.scan_list.pc-invis-too-high"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232507,8 +233422,13 @@
               },
               "kind": "if",
               "predicate_or_transfer": "if (can_see(ch, rch))",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.scan_list.pc-invis-equality-visible",
+                "scan.scan_list.npc-bypasses-pre-filter",
+                "scan.scan_list.can-see-false",
+                "scan.scan_list.multiple-in-list-order"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232521,8 +233441,16 @@
               },
               "kind": "return",
               "predicate_or_transfer": "return;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.scan_list.empty",
+                "scan.scan_list.self-skipped",
+                "scan.scan_list.pc-invis-too-high",
+                "scan.scan_list.pc-invis-equality-visible",
+                "scan.scan_list.npc-bypasses-pre-filter",
+                "scan.scan_list.can-see-false",
+                "scan.scan_list.multiple-in-list-order"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232703,8 +233631,15 @@
               },
               "kind": "return",
               "predicate_or_transfer": "return;",
-              "disposition": "pending",
-              "case_ids": [],
+              "disposition": "specified",
+              "case_ids": [
+                "scan.scan_char.depth-1",
+                "scan.scan_char.depth-2",
+                "scan.scan_char.depth-3",
+                "scan.scan_char.pers-rechecks-visibility",
+                "scan.scan_char.pers-visible-npc",
+                "scan.scan_char.pers-visible-pc"
+              ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
@@ -232765,6 +233700,51 @@
               "disposition": "blocked",
               "case_ids": [
                 "scan.scan_char.around-depth-zero-negative-door-undefined"
+              ]
+            },
+            {
+              "id": "scan.scan_char.pers-rechecks-visibility.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "scan_char",
+                "line": 119
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "pers rechecks visibility",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.scan_char.pers-rechecks-visibility"
+              ]
+            },
+            {
+              "id": "scan.scan_char.pers-visible-npc.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "scan_char",
+                "line": 119
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "pers visible npc",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.scan_char.pers-visible-npc"
+              ]
+            },
+            {
+              "id": "scan.scan_char.pers-visible-pc.path",
+              "source_ref": {
+                "repository": "ROM24",
+                "file": "src/scan.c",
+                "function": "scan_char",
+                "line": 119
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "pers visible pc",
+              "disposition": "specified",
+              "case_ids": [
+                "scan.scan_char.pers-visible-pc"
               ]
             }
           ],

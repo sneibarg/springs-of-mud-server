@@ -2180,7 +2180,11 @@
       "title": "standing full",
       "status": "specified",
       "branch_ids": [
-        "lookup.position_lookup.standing-full.path"
+        "lookup.position_lookup.standing-full.path",
+        "lookup.position_lookup.for.001",
+        "lookup.position_lookup.if.001",
+        "lookup.position_lookup.and.001",
+        "lookup.position_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -2223,7 +2227,11 @@
       "title": "ambiguous s first stunned",
       "status": "specified",
       "branch_ids": [
-        "lookup.position_lookup.ambiguous-s-first-stunned.path"
+        "lookup.position_lookup.ambiguous-s-first-stunned.path",
+        "lookup.position_lookup.for.001",
+        "lookup.position_lookup.if.001",
+        "lookup.position_lookup.and.001",
+        "lookup.position_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -2266,7 +2274,11 @@
       "title": "case insensitive",
       "status": "specified",
       "branch_ids": [
-        "lookup.position_lookup.case-insensitive.path"
+        "lookup.position_lookup.case-insensitive.path",
+        "lookup.position_lookup.for.001",
+        "lookup.position_lookup.if.001",
+        "lookup.position_lookup.and.001",
+        "lookup.position_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -2309,7 +2321,11 @@
       "title": "empty",
       "status": "specified",
       "branch_ids": [
-        "lookup.position_lookup.empty.path"
+        "lookup.position_lookup.empty.path",
+        "lookup.position_lookup.for.001",
+        "lookup.position_lookup.if.001",
+        "lookup.position_lookup.and.001",
+        "lookup.position_lookup.return.002"
       ],
       "source_refs": [
         {
@@ -2352,7 +2368,11 @@
       "title": "missing",
       "status": "specified",
       "branch_ids": [
-        "lookup.position_lookup.missing.path"
+        "lookup.position_lookup.missing.path",
+        "lookup.position_lookup.for.001",
+        "lookup.position_lookup.if.001",
+        "lookup.position_lookup.and.001",
+        "lookup.position_lookup.return.002"
       ],
       "source_refs": [
         {
@@ -2395,7 +2415,11 @@
       "title": "longer",
       "status": "specified",
       "branch_ids": [
-        "lookup.position_lookup.longer.path"
+        "lookup.position_lookup.longer.path",
+        "lookup.position_lookup.for.001",
+        "lookup.position_lookup.if.001",
+        "lookup.position_lookup.and.001",
+        "lookup.position_lookup.return.002"
       ],
       "source_refs": [
         {
@@ -2438,7 +2462,11 @@
       "title": "none",
       "status": "specified",
       "branch_ids": [
-        "lookup.sex_lookup.none.path"
+        "lookup.sex_lookup.none.path",
+        "lookup.sex_lookup.for.001",
+        "lookup.sex_lookup.if.001",
+        "lookup.sex_lookup.and.001",
+        "lookup.sex_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -2481,7 +2509,11 @@
       "title": "male",
       "status": "specified",
       "branch_ids": [
-        "lookup.sex_lookup.male.path"
+        "lookup.sex_lookup.male.path",
+        "lookup.sex_lookup.for.001",
+        "lookup.sex_lookup.if.001",
+        "lookup.sex_lookup.and.001",
+        "lookup.sex_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -2524,7 +2556,11 @@
       "title": "female",
       "status": "specified",
       "branch_ids": [
-        "lookup.sex_lookup.female.path"
+        "lookup.sex_lookup.female.path",
+        "lookup.sex_lookup.for.001",
+        "lookup.sex_lookup.if.001",
+        "lookup.sex_lookup.and.001",
+        "lookup.sex_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -2567,7 +2603,11 @@
       "title": "last entry",
       "status": "specified",
       "branch_ids": [
-        "lookup.sex_lookup.last-entry.path"
+        "lookup.sex_lookup.last-entry.path",
+        "lookup.sex_lookup.for.001",
+        "lookup.sex_lookup.if.001",
+        "lookup.sex_lookup.and.001",
+        "lookup.sex_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -2610,7 +2650,11 @@
       "title": "empty",
       "status": "specified",
       "branch_ids": [
-        "lookup.sex_lookup.empty.path"
+        "lookup.sex_lookup.empty.path",
+        "lookup.sex_lookup.for.001",
+        "lookup.sex_lookup.if.001",
+        "lookup.sex_lookup.and.001",
+        "lookup.sex_lookup.return.002"
       ],
       "source_refs": [
         {
@@ -2653,7 +2697,11 @@
       "title": "missing",
       "status": "specified",
       "branch_ids": [
-        "lookup.sex_lookup.missing.path"
+        "lookup.sex_lookup.missing.path",
+        "lookup.sex_lookup.for.001",
+        "lookup.sex_lookup.if.001",
+        "lookup.sex_lookup.and.001",
+        "lookup.sex_lookup.return.002"
       ],
       "source_refs": [
         {
@@ -2696,7 +2744,11 @@
       "title": "tiny",
       "status": "specified",
       "branch_ids": [
-        "lookup.size_lookup.tiny.path"
+        "lookup.size_lookup.tiny.path",
+        "lookup.size_lookup.for.001",
+        "lookup.size_lookup.if.001",
+        "lookup.size_lookup.and.001",
+        "lookup.size_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -2739,7 +2791,11 @@
       "title": "small",
       "status": "specified",
       "branch_ids": [
-        "lookup.size_lookup.small.path"
+        "lookup.size_lookup.small.path",
+        "lookup.size_lookup.for.001",
+        "lookup.size_lookup.if.001",
+        "lookup.size_lookup.and.001",
+        "lookup.size_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -2782,7 +2838,11 @@
       "title": "medium",
       "status": "specified",
       "branch_ids": [
-        "lookup.size_lookup.medium.path"
+        "lookup.size_lookup.medium.path",
+        "lookup.size_lookup.for.001",
+        "lookup.size_lookup.if.001",
+        "lookup.size_lookup.and.001",
+        "lookup.size_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -2825,7 +2885,11 @@
       "title": "large",
       "status": "specified",
       "branch_ids": [
-        "lookup.size_lookup.large.path"
+        "lookup.size_lookup.large.path",
+        "lookup.size_lookup.for.001",
+        "lookup.size_lookup.if.001",
+        "lookup.size_lookup.and.001",
+        "lookup.size_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -2868,7 +2932,11 @@
       "title": "huge",
       "status": "specified",
       "branch_ids": [
-        "lookup.size_lookup.huge.path"
+        "lookup.size_lookup.huge.path",
+        "lookup.size_lookup.for.001",
+        "lookup.size_lookup.if.001",
+        "lookup.size_lookup.and.001",
+        "lookup.size_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -2911,7 +2979,11 @@
       "title": "last entry",
       "status": "specified",
       "branch_ids": [
-        "lookup.size_lookup.last-entry.path"
+        "lookup.size_lookup.last-entry.path",
+        "lookup.size_lookup.for.001",
+        "lookup.size_lookup.if.001",
+        "lookup.size_lookup.and.001",
+        "lookup.size_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -2954,7 +3026,11 @@
       "title": "empty",
       "status": "specified",
       "branch_ids": [
-        "lookup.size_lookup.empty.path"
+        "lookup.size_lookup.empty.path",
+        "lookup.size_lookup.for.001",
+        "lookup.size_lookup.if.001",
+        "lookup.size_lookup.and.001",
+        "lookup.size_lookup.return.002"
       ],
       "source_refs": [
         {
@@ -2997,7 +3073,11 @@
       "title": "missing",
       "status": "specified",
       "branch_ids": [
-        "lookup.size_lookup.missing.path"
+        "lookup.size_lookup.missing.path",
+        "lookup.size_lookup.for.001",
+        "lookup.size_lookup.if.001",
+        "lookup.size_lookup.and.001",
+        "lookup.size_lookup.return.002"
       ],
       "source_refs": [
         {
@@ -3040,7 +3120,11 @@
       "title": "loner",
       "status": "specified",
       "branch_ids": [
-        "lookup.clan_lookup.loner.path"
+        "lookup.clan_lookup.loner.path",
+        "lookup.clan_lookup.for.001",
+        "lookup.clan_lookup.if.001",
+        "lookup.clan_lookup.and.001",
+        "lookup.clan_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -3083,7 +3167,11 @@
       "title": "rom",
       "status": "specified",
       "branch_ids": [
-        "lookup.clan_lookup.rom.path"
+        "lookup.clan_lookup.rom.path",
+        "lookup.clan_lookup.for.001",
+        "lookup.clan_lookup.if.001",
+        "lookup.clan_lookup.and.001",
+        "lookup.clan_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -3126,7 +3214,11 @@
       "title": "empty matches entry zero",
       "status": "specified",
       "branch_ids": [
-        "lookup.clan_lookup.empty-matches-entry-zero.path"
+        "lookup.clan_lookup.empty-matches-entry-zero.path",
+        "lookup.clan_lookup.for.001",
+        "lookup.clan_lookup.if.001",
+        "lookup.clan_lookup.and.001",
+        "lookup.clan_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -3169,7 +3261,11 @@
       "title": "unknown indistinguishable from zero",
       "status": "specified",
       "branch_ids": [
-        "lookup.clan_lookup.unknown-indistinguishable-from-zero.path"
+        "lookup.clan_lookup.unknown-indistinguishable-from-zero.path",
+        "lookup.clan_lookup.for.001",
+        "lookup.clan_lookup.if.001",
+        "lookup.clan_lookup.and.001",
+        "lookup.clan_lookup.return.002"
       ],
       "source_refs": [
         {
@@ -3212,7 +3308,9 @@
       "title": "empty table",
       "status": "specified",
       "branch_ids": [
-        "lookup.flag_lookup.empty-table.path"
+        "lookup.flag_lookup.empty-table.path",
+        "lookup.flag_lookup.for.001",
+        "lookup.flag_lookup.return.002"
       ],
       "source_refs": [
         {
@@ -3257,7 +3355,11 @@
       "title": "first of multiple prefixes",
       "status": "specified",
       "branch_ids": [
-        "lookup.flag_lookup.first-of-multiple-prefixes.path"
+        "lookup.flag_lookup.first-of-multiple-prefixes.path",
+        "lookup.flag_lookup.for.001",
+        "lookup.flag_lookup.if.001",
+        "lookup.flag_lookup.and.001",
+        "lookup.flag_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -3313,7 +3415,11 @@
       "title": "case insensitive",
       "status": "specified",
       "branch_ids": [
-        "lookup.flag_lookup.case-insensitive.path"
+        "lookup.flag_lookup.case-insensitive.path",
+        "lookup.flag_lookup.for.001",
+        "lookup.flag_lookup.if.001",
+        "lookup.flag_lookup.and.001",
+        "lookup.flag_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -3364,7 +3470,11 @@
       "title": "nonsettable still found",
       "status": "specified",
       "branch_ids": [
-        "lookup.flag_lookup.nonsettable-still-found.path"
+        "lookup.flag_lookup.nonsettable-still-found.path",
+        "lookup.flag_lookup.for.001",
+        "lookup.flag_lookup.if.001",
+        "lookup.flag_lookup.and.001",
+        "lookup.flag_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -3415,7 +3525,11 @@
       "title": "skip nonmatch",
       "status": "specified",
       "branch_ids": [
-        "lookup.flag_lookup.skip-nonmatch.path"
+        "lookup.flag_lookup.skip-nonmatch.path",
+        "lookup.flag_lookup.for.001",
+        "lookup.flag_lookup.if.001",
+        "lookup.flag_lookup.and.001",
+        "lookup.flag_lookup.return.001"
       ],
       "source_refs": [
         {
@@ -3471,7 +3585,11 @@
       "title": "unknown",
       "status": "specified",
       "branch_ids": [
-        "lookup.flag_lookup.unknown.path"
+        "lookup.flag_lookup.unknown.path",
+        "lookup.flag_lookup.for.001",
+        "lookup.flag_lookup.if.001",
+        "lookup.flag_lookup.and.001",
+        "lookup.flag_lookup.return.002"
       ],
       "source_refs": [
         {
@@ -3522,7 +3640,11 @@
       "title": "empty name does not match nonempty",
       "status": "specified",
       "branch_ids": [
-        "lookup.flag_lookup.empty-name-does-not-match-nonempty.path"
+        "lookup.flag_lookup.empty-name-does-not-match-nonempty.path",
+        "lookup.flag_lookup.for.001",
+        "lookup.flag_lookup.if.001",
+        "lookup.flag_lookup.and.001",
+        "lookup.flag_lookup.return.002"
       ],
       "source_refs": [
         {
@@ -10109,7 +10231,21 @@
       "title": "invalid direction",
       "status": "specified",
       "branch_ids": [
-        "scan.do_scan.invalid-direction.path"
+        "scan.do_scan.invalid-direction.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.if.005",
+        "scan.do_scan.or.003",
+        "scan.do_scan.if.006",
+        "scan.do_scan.or.004",
+        "scan.do_scan.if.007",
+        "scan.do_scan.or.005",
+        "scan.do_scan.if.008",
+        "scan.do_scan.or.006",
+        "scan.do_scan.return.002"
       ],
       "source_refs": [
         {
@@ -10158,7 +10294,11 @@
       "title": "around includes current and each exit",
       "status": "specified",
       "branch_ids": [
-        "scan.do_scan.around-includes-current-and-each-exit.path"
+        "scan.do_scan.around-includes-current-and-each-exit.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.for.001",
+        "scan.do_scan.if.002",
+        "scan.do_scan.return.001"
       ],
       "source_refs": [
         {
@@ -10251,7 +10391,13 @@
       "title": "north short",
       "status": "specified",
       "branch_ids": [
-        "scan.do_scan.north-short.path"
+        "scan.do_scan.north-short.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
       ],
       "source_refs": [
         {
@@ -10342,7 +10488,13 @@
       "title": "north long",
       "status": "specified",
       "branch_ids": [
-        "scan.do_scan.north-long.path"
+        "scan.do_scan.north-long.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
       ],
       "source_refs": [
         {
@@ -10433,7 +10585,15 @@
       "title": "east short",
       "status": "specified",
       "branch_ids": [
-        "scan.do_scan.east-short.path"
+        "scan.do_scan.east-short.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
       ],
       "source_refs": [
         {
@@ -10524,7 +10684,17 @@
       "title": "south short",
       "status": "specified",
       "branch_ids": [
-        "scan.do_scan.south-short.path"
+        "scan.do_scan.south-short.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.if.005",
+        "scan.do_scan.or.003",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
       ],
       "source_refs": [
         {
@@ -10615,7 +10785,19 @@
       "title": "west short",
       "status": "specified",
       "branch_ids": [
-        "scan.do_scan.west-short.path"
+        "scan.do_scan.west-short.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.if.005",
+        "scan.do_scan.or.003",
+        "scan.do_scan.if.006",
+        "scan.do_scan.or.004",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
       ],
       "source_refs": [
         {
@@ -10706,7 +10888,21 @@
       "title": "up short",
       "status": "specified",
       "branch_ids": [
-        "scan.do_scan.up-short.path"
+        "scan.do_scan.up-short.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.if.005",
+        "scan.do_scan.or.003",
+        "scan.do_scan.if.006",
+        "scan.do_scan.or.004",
+        "scan.do_scan.if.007",
+        "scan.do_scan.or.005",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
       ],
       "source_refs": [
         {
@@ -10797,7 +10993,23 @@
       "title": "down short",
       "status": "specified",
       "branch_ids": [
-        "scan.do_scan.down-short.path"
+        "scan.do_scan.down-short.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.if.005",
+        "scan.do_scan.or.003",
+        "scan.do_scan.if.006",
+        "scan.do_scan.or.004",
+        "scan.do_scan.if.007",
+        "scan.do_scan.or.005",
+        "scan.do_scan.if.008",
+        "scan.do_scan.or.006",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
       ],
       "source_refs": [
         {
@@ -10888,7 +11100,9 @@
       "title": "null room",
       "status": "specified",
       "branch_ids": [
-        "scan.scan_list.null-room.path"
+        "scan.scan_list.null-room.path",
+        "scan.scan_list.if.001",
+        "scan.scan_list.return.001"
       ],
       "source_refs": [
         {
@@ -10936,7 +11150,10 @@
       "title": "empty",
       "status": "specified",
       "branch_ids": [
-        "scan.scan_list.empty.path"
+        "scan.scan_list.empty.path",
+        "scan.scan_list.if.001",
+        "scan.scan_list.for.001",
+        "scan.scan_list.return.002"
       ],
       "source_refs": [
         {
@@ -10991,7 +11208,12 @@
       "title": "self skipped",
       "status": "specified",
       "branch_ids": [
-        "scan.scan_list.self-skipped.path"
+        "scan.scan_list.self-skipped.path",
+        "scan.scan_list.if.001",
+        "scan.scan_list.for.001",
+        "scan.scan_list.return.002",
+        "scan.scan_list.if.002",
+        "scan.scan_list.continue.001"
       ],
       "source_refs": [
         {
@@ -11052,7 +11274,14 @@
       "title": "pc invis too high",
       "status": "specified",
       "branch_ids": [
-        "scan.scan_list.pc-invis-too-high.path"
+        "scan.scan_list.pc-invis-too-high.path",
+        "scan.scan_list.if.001",
+        "scan.scan_list.for.001",
+        "scan.scan_list.return.002",
+        "scan.scan_list.if.002",
+        "scan.scan_list.if.003",
+        "scan.scan_list.and.001",
+        "scan.scan_list.continue.002"
       ],
       "source_refs": [
         {
@@ -11113,7 +11342,14 @@
       "title": "pc invis equality visible",
       "status": "specified",
       "branch_ids": [
-        "scan.scan_list.pc-invis-equality-visible.path"
+        "scan.scan_list.pc-invis-equality-visible.path",
+        "scan.scan_list.if.001",
+        "scan.scan_list.for.001",
+        "scan.scan_list.return.002",
+        "scan.scan_list.if.002",
+        "scan.scan_list.if.003",
+        "scan.scan_list.and.001",
+        "scan.scan_list.if.004"
       ],
       "source_refs": [
         {
@@ -11185,7 +11421,14 @@
       "title": "npc bypasses pre filter",
       "status": "specified",
       "branch_ids": [
-        "scan.scan_list.npc-bypasses-pre-filter.path"
+        "scan.scan_list.npc-bypasses-pre-filter.path",
+        "scan.scan_list.if.001",
+        "scan.scan_list.for.001",
+        "scan.scan_list.return.002",
+        "scan.scan_list.if.002",
+        "scan.scan_list.if.003",
+        "scan.scan_list.and.001",
+        "scan.scan_list.if.004"
       ],
       "source_refs": [
         {
@@ -11257,7 +11500,14 @@
       "title": "can see false",
       "status": "specified",
       "branch_ids": [
-        "scan.scan_list.can-see-false.path"
+        "scan.scan_list.can-see-false.path",
+        "scan.scan_list.if.001",
+        "scan.scan_list.for.001",
+        "scan.scan_list.return.002",
+        "scan.scan_list.if.002",
+        "scan.scan_list.if.003",
+        "scan.scan_list.and.001",
+        "scan.scan_list.if.004"
       ],
       "source_refs": [
         {
@@ -11322,7 +11572,14 @@
       "title": "multiple in list order",
       "status": "specified",
       "branch_ids": [
-        "scan.scan_list.multiple-in-list-order.path"
+        "scan.scan_list.multiple-in-list-order.path",
+        "scan.scan_list.if.001",
+        "scan.scan_list.for.001",
+        "scan.scan_list.return.002",
+        "scan.scan_list.if.002",
+        "scan.scan_list.if.003",
+        "scan.scan_list.and.001",
+        "scan.scan_list.if.004"
       ],
       "source_refs": [
         {
@@ -11407,7 +11664,8 @@
       "title": "depth 1",
       "status": "specified",
       "branch_ids": [
-        "scan.scan_char.depth-1.path"
+        "scan.scan_char.depth-1.path",
+        "scan.scan_char.return.001"
       ],
       "source_refs": [
         {
@@ -11461,7 +11719,8 @@
       "title": "depth 2",
       "status": "specified",
       "branch_ids": [
-        "scan.scan_char.depth-2.path"
+        "scan.scan_char.depth-2.path",
+        "scan.scan_char.return.001"
       ],
       "source_refs": [
         {
@@ -11515,7 +11774,8 @@
       "title": "depth 3",
       "status": "specified",
       "branch_ids": [
-        "scan.scan_char.depth-3.path"
+        "scan.scan_char.depth-3.path",
+        "scan.scan_char.return.001"
       ],
       "source_refs": [
         {
@@ -28587,6 +28847,2314 @@
           "movement",
           "charge use",
           "follower recursion"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "lookup.flag_lookup.same-initial-failed-prefix-continues",
+      "title": "same initial failed prefix continues",
+      "status": "specified",
+      "branch_ids": [
+        "lookup.flag_lookup.same-initial-failed-prefix-continues.path",
+        "lookup.flag_lookup.for.001",
+        "lookup.flag_lookup.if.001",
+        "lookup.flag_lookup.and.001",
+        "lookup.flag_lookup.return.001"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/lookup.c",
+          "function": "flag_lookup",
+          "line": 45
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "flag_lookup",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "arguments": {
+          "name": "al",
+          "flag_table": [
+            [
+              "amber",
+              2,
+              true
+            ],
+            [
+              "alpha",
+              4,
+              true
+            ],
+            [
+              null,
+              0,
+              false
+            ]
+          ]
+        }
+      },
+      "controls": {
+        "randomness": "No random calls on this path.",
+        "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."
+      },
+      "action": "Invoke flag_lookup with the fixture arguments once.",
+      "expected": {
+        "return": 4,
+        "prefix_comparisons": [
+          [
+            "al",
+            "amber"
+          ],
+          [
+            "al",
+            "alpha"
+          ]
+        ],
+        "unchanged": [
+          "table"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "lookup.flag_lookup.different-initial-skips-prefix-comparison",
+      "title": "different initial skips prefix comparison",
+      "status": "specified",
+      "branch_ids": [
+        "lookup.flag_lookup.different-initial-skips-prefix-comparison.path",
+        "lookup.flag_lookup.for.001",
+        "lookup.flag_lookup.if.001",
+        "lookup.flag_lookup.and.001",
+        "lookup.flag_lookup.return.002"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/lookup.c",
+          "function": "flag_lookup",
+          "line": 44
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "flag_lookup",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "arguments": {
+          "name": "al",
+          "flag_table": [
+            [
+              "beta",
+              2,
+              true
+            ],
+            [
+              null,
+              0,
+              false
+            ]
+          ]
+        }
+      },
+      "controls": {
+        "randomness": "No random calls on this path.",
+        "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."
+      },
+      "action": "Invoke flag_lookup with the fixture arguments once.",
+      "expected": {
+        "return": 0,
+        "prefix_comparisons": [],
+        "unchanged": [
+          "table"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "lookup.clan_lookup.same-initial-failed-prefix",
+      "title": "same initial failed prefix",
+      "status": "specified",
+      "branch_ids": [
+        "lookup.clan_lookup.same-initial-failed-prefix.path",
+        "lookup.clan_lookup.for.001",
+        "lookup.clan_lookup.if.001",
+        "lookup.clan_lookup.and.001",
+        "lookup.clan_lookup.return.002"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/lookup.c",
+          "function": "clan_lookup",
+          "line": 59
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "clan_lookup",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "arguments": {
+          "name": "lx"
+        },
+        "table": "Snapshot tables.c"
+      },
+      "controls": {
+        "randomness": "No random calls on this path.",
+        "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."
+      },
+      "action": "Invoke clan_lookup with the fixture arguments once.",
+      "expected": {
+        "return": 0,
+        "prefix_comparisons": [
+          [
+            "lx",
+            "loner"
+          ]
+        ],
+        "unchanged": [
+          "table"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "lookup.position_lookup.same-initial-failed-prefix",
+      "title": "same initial failed prefix",
+      "status": "specified",
+      "branch_ids": [
+        "lookup.position_lookup.same-initial-failed-prefix.path",
+        "lookup.position_lookup.for.001",
+        "lookup.position_lookup.if.001",
+        "lookup.position_lookup.and.001",
+        "lookup.position_lookup.return.002"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/lookup.c",
+          "function": "position_lookup",
+          "line": 73
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "position_lookup",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "arguments": {
+          "name": "dx"
+        },
+        "table": "Snapshot tables.c"
+      },
+      "controls": {
+        "randomness": "No random calls on this path.",
+        "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."
+      },
+      "action": "Invoke position_lookup with the fixture arguments once.",
+      "expected": {
+        "return": -1,
+        "prefix_comparisons": [
+          [
+            "dx",
+            "dead"
+          ]
+        ],
+        "unchanged": [
+          "table"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "lookup.sex_lookup.same-initial-failed-prefix",
+      "title": "same initial failed prefix",
+      "status": "specified",
+      "branch_ids": [
+        "lookup.sex_lookup.same-initial-failed-prefix.path",
+        "lookup.sex_lookup.for.001",
+        "lookup.sex_lookup.if.001",
+        "lookup.sex_lookup.and.001",
+        "lookup.sex_lookup.return.002"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/lookup.c",
+          "function": "sex_lookup",
+          "line": 87
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "sex_lookup",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "arguments": {
+          "name": "nx"
+        },
+        "table": "Snapshot tables.c"
+      },
+      "controls": {
+        "randomness": "No random calls on this path.",
+        "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."
+      },
+      "action": "Invoke sex_lookup with the fixture arguments once.",
+      "expected": {
+        "return": -1,
+        "prefix_comparisons": [
+          [
+            "nx",
+            "none"
+          ]
+        ],
+        "unchanged": [
+          "table"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "lookup.size_lookup.same-initial-failed-prefix",
+      "title": "same initial failed prefix",
+      "status": "specified",
+      "branch_ids": [
+        "lookup.size_lookup.same-initial-failed-prefix.path",
+        "lookup.size_lookup.for.001",
+        "lookup.size_lookup.if.001",
+        "lookup.size_lookup.and.001",
+        "lookup.size_lookup.return.002"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/lookup.c",
+          "function": "size_lookup",
+          "line": 101
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "size_lookup",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "arguments": {
+          "name": "tx"
+        },
+        "table": "Snapshot tables.c"
+      },
+      "controls": {
+        "randomness": "No random calls on this path.",
+        "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."
+      },
+      "action": "Invoke size_lookup with the fixture arguments once.",
+      "expected": {
+        "return": -1,
+        "prefix_comparisons": [
+          [
+            "tx",
+            "tiny"
+          ]
+        ],
+        "unchanged": [
+          "table"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.north-long-with-0-hops",
+      "title": "north long with 0 hops",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.north-long-with-0-hops.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 85
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "NORTH ignored",
+        "rooms": {
+          "A": {
+            "exit": {}
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Record helper calls without rendering occupants."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "You peer intently $T.",
+            "channel": "TO_CHAR",
+            "arg2": "north"
+          },
+          {
+            "act": "$n peers intently $T.",
+            "channel": "TO_ROOM",
+            "arg2": "north"
+          }
+        ],
+        "unchanged": [
+          "room membership",
+          "exits"
+        ],
+        "forbidden": [
+          "send formatted direction header",
+          "inspect other directions",
+          "random draws"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.north-long-with-1-hops",
+      "title": "north long with 1 hops",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.north-long-with-1-hops.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 85
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "NORTH ignored",
+        "rooms": {
+          "A": {
+            "exit": {
+              "north": {
+                "to_room": "B",
+                "flags": [
+                  "EX_CLOSED"
+                ]
+              }
+            }
+          },
+          "B": {
+            "exit": {}
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Record helper calls without rendering occupants."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "You peer intently $T.",
+            "channel": "TO_CHAR",
+            "arg2": "north"
+          },
+          {
+            "act": "$n peers intently $T.",
+            "channel": "TO_ROOM",
+            "arg2": "north"
+          },
+          {
+            "scan_list": [
+              "B",
+              "ch",
+              1,
+              0
+            ]
+          }
+        ],
+        "unchanged": [
+          "room membership",
+          "exits"
+        ],
+        "forbidden": [
+          "send formatted direction header",
+          "inspect other directions",
+          "random draws"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.north-long-with-2-hops",
+      "title": "north long with 2 hops",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.north-long-with-2-hops.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 85
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "NORTH ignored",
+        "rooms": {
+          "A": {
+            "exit": {
+              "north": {
+                "to_room": "B",
+                "flags": [
+                  "EX_CLOSED"
+                ]
+              }
+            }
+          },
+          "B": {
+            "exit": {
+              "north": {
+                "to_room": "C",
+                "flags": [
+                  "EX_CLOSED"
+                ]
+              }
+            }
+          },
+          "C": {
+            "exit": {}
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Record helper calls without rendering occupants."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "You peer intently $T.",
+            "channel": "TO_CHAR",
+            "arg2": "north"
+          },
+          {
+            "act": "$n peers intently $T.",
+            "channel": "TO_ROOM",
+            "arg2": "north"
+          },
+          {
+            "scan_list": [
+              "B",
+              "ch",
+              1,
+              0
+            ]
+          },
+          {
+            "scan_list": [
+              "C",
+              "ch",
+              2,
+              0
+            ]
+          }
+        ],
+        "unchanged": [
+          "room membership",
+          "exits"
+        ],
+        "forbidden": [
+          "send formatted direction header",
+          "inspect other directions",
+          "random draws"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.east-long-with-0-hops",
+      "title": "east long with 0 hops",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.east-long-with-0-hops.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 85
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "EAST ignored",
+        "rooms": {
+          "A": {
+            "exit": {}
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Record helper calls without rendering occupants."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "You peer intently $T.",
+            "channel": "TO_CHAR",
+            "arg2": "east"
+          },
+          {
+            "act": "$n peers intently $T.",
+            "channel": "TO_ROOM",
+            "arg2": "east"
+          }
+        ],
+        "unchanged": [
+          "room membership",
+          "exits"
+        ],
+        "forbidden": [
+          "send formatted direction header",
+          "inspect other directions",
+          "random draws"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.east-long-with-1-hops",
+      "title": "east long with 1 hops",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.east-long-with-1-hops.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 85
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "EAST ignored",
+        "rooms": {
+          "A": {
+            "exit": {
+              "east": {
+                "to_room": "B",
+                "flags": [
+                  "EX_CLOSED"
+                ]
+              }
+            }
+          },
+          "B": {
+            "exit": {}
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Record helper calls without rendering occupants."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "You peer intently $T.",
+            "channel": "TO_CHAR",
+            "arg2": "east"
+          },
+          {
+            "act": "$n peers intently $T.",
+            "channel": "TO_ROOM",
+            "arg2": "east"
+          },
+          {
+            "scan_list": [
+              "B",
+              "ch",
+              1,
+              1
+            ]
+          }
+        ],
+        "unchanged": [
+          "room membership",
+          "exits"
+        ],
+        "forbidden": [
+          "send formatted direction header",
+          "inspect other directions",
+          "random draws"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.east-long-with-2-hops",
+      "title": "east long with 2 hops",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.east-long-with-2-hops.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 85
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "EAST ignored",
+        "rooms": {
+          "A": {
+            "exit": {
+              "east": {
+                "to_room": "B",
+                "flags": [
+                  "EX_CLOSED"
+                ]
+              }
+            }
+          },
+          "B": {
+            "exit": {
+              "east": {
+                "to_room": "C",
+                "flags": [
+                  "EX_CLOSED"
+                ]
+              }
+            }
+          },
+          "C": {
+            "exit": {}
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Record helper calls without rendering occupants."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "You peer intently $T.",
+            "channel": "TO_CHAR",
+            "arg2": "east"
+          },
+          {
+            "act": "$n peers intently $T.",
+            "channel": "TO_ROOM",
+            "arg2": "east"
+          },
+          {
+            "scan_list": [
+              "B",
+              "ch",
+              1,
+              1
+            ]
+          },
+          {
+            "scan_list": [
+              "C",
+              "ch",
+              2,
+              1
+            ]
+          }
+        ],
+        "unchanged": [
+          "room membership",
+          "exits"
+        ],
+        "forbidden": [
+          "send formatted direction header",
+          "inspect other directions",
+          "random draws"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.south-long-with-0-hops",
+      "title": "south long with 0 hops",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.south-long-with-0-hops.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.if.005",
+        "scan.do_scan.or.003",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 85
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "SOUTH ignored",
+        "rooms": {
+          "A": {
+            "exit": {}
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Record helper calls without rendering occupants."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "You peer intently $T.",
+            "channel": "TO_CHAR",
+            "arg2": "south"
+          },
+          {
+            "act": "$n peers intently $T.",
+            "channel": "TO_ROOM",
+            "arg2": "south"
+          }
+        ],
+        "unchanged": [
+          "room membership",
+          "exits"
+        ],
+        "forbidden": [
+          "send formatted direction header",
+          "inspect other directions",
+          "random draws"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.south-long-with-1-hops",
+      "title": "south long with 1 hops",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.south-long-with-1-hops.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.if.005",
+        "scan.do_scan.or.003",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 85
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "SOUTH ignored",
+        "rooms": {
+          "A": {
+            "exit": {
+              "south": {
+                "to_room": "B",
+                "flags": [
+                  "EX_CLOSED"
+                ]
+              }
+            }
+          },
+          "B": {
+            "exit": {}
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Record helper calls without rendering occupants."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "You peer intently $T.",
+            "channel": "TO_CHAR",
+            "arg2": "south"
+          },
+          {
+            "act": "$n peers intently $T.",
+            "channel": "TO_ROOM",
+            "arg2": "south"
+          },
+          {
+            "scan_list": [
+              "B",
+              "ch",
+              1,
+              2
+            ]
+          }
+        ],
+        "unchanged": [
+          "room membership",
+          "exits"
+        ],
+        "forbidden": [
+          "send formatted direction header",
+          "inspect other directions",
+          "random draws"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.south-long-with-2-hops",
+      "title": "south long with 2 hops",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.south-long-with-2-hops.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.if.005",
+        "scan.do_scan.or.003",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 85
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "SOUTH ignored",
+        "rooms": {
+          "A": {
+            "exit": {
+              "south": {
+                "to_room": "B",
+                "flags": [
+                  "EX_CLOSED"
+                ]
+              }
+            }
+          },
+          "B": {
+            "exit": {
+              "south": {
+                "to_room": "C",
+                "flags": [
+                  "EX_CLOSED"
+                ]
+              }
+            }
+          },
+          "C": {
+            "exit": {}
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Record helper calls without rendering occupants."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "You peer intently $T.",
+            "channel": "TO_CHAR",
+            "arg2": "south"
+          },
+          {
+            "act": "$n peers intently $T.",
+            "channel": "TO_ROOM",
+            "arg2": "south"
+          },
+          {
+            "scan_list": [
+              "B",
+              "ch",
+              1,
+              2
+            ]
+          },
+          {
+            "scan_list": [
+              "C",
+              "ch",
+              2,
+              2
+            ]
+          }
+        ],
+        "unchanged": [
+          "room membership",
+          "exits"
+        ],
+        "forbidden": [
+          "send formatted direction header",
+          "inspect other directions",
+          "random draws"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.west-long-with-0-hops",
+      "title": "west long with 0 hops",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.west-long-with-0-hops.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.if.005",
+        "scan.do_scan.or.003",
+        "scan.do_scan.if.006",
+        "scan.do_scan.or.004",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 85
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "WEST ignored",
+        "rooms": {
+          "A": {
+            "exit": {}
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Record helper calls without rendering occupants."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "You peer intently $T.",
+            "channel": "TO_CHAR",
+            "arg2": "west"
+          },
+          {
+            "act": "$n peers intently $T.",
+            "channel": "TO_ROOM",
+            "arg2": "west"
+          }
+        ],
+        "unchanged": [
+          "room membership",
+          "exits"
+        ],
+        "forbidden": [
+          "send formatted direction header",
+          "inspect other directions",
+          "random draws"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.west-long-with-1-hops",
+      "title": "west long with 1 hops",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.west-long-with-1-hops.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.if.005",
+        "scan.do_scan.or.003",
+        "scan.do_scan.if.006",
+        "scan.do_scan.or.004",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 85
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "WEST ignored",
+        "rooms": {
+          "A": {
+            "exit": {
+              "west": {
+                "to_room": "B",
+                "flags": [
+                  "EX_CLOSED"
+                ]
+              }
+            }
+          },
+          "B": {
+            "exit": {}
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Record helper calls without rendering occupants."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "You peer intently $T.",
+            "channel": "TO_CHAR",
+            "arg2": "west"
+          },
+          {
+            "act": "$n peers intently $T.",
+            "channel": "TO_ROOM",
+            "arg2": "west"
+          },
+          {
+            "scan_list": [
+              "B",
+              "ch",
+              1,
+              3
+            ]
+          }
+        ],
+        "unchanged": [
+          "room membership",
+          "exits"
+        ],
+        "forbidden": [
+          "send formatted direction header",
+          "inspect other directions",
+          "random draws"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.west-long-with-2-hops",
+      "title": "west long with 2 hops",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.west-long-with-2-hops.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.if.005",
+        "scan.do_scan.or.003",
+        "scan.do_scan.if.006",
+        "scan.do_scan.or.004",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 85
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "WEST ignored",
+        "rooms": {
+          "A": {
+            "exit": {
+              "west": {
+                "to_room": "B",
+                "flags": [
+                  "EX_CLOSED"
+                ]
+              }
+            }
+          },
+          "B": {
+            "exit": {
+              "west": {
+                "to_room": "C",
+                "flags": [
+                  "EX_CLOSED"
+                ]
+              }
+            }
+          },
+          "C": {
+            "exit": {}
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Record helper calls without rendering occupants."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "You peer intently $T.",
+            "channel": "TO_CHAR",
+            "arg2": "west"
+          },
+          {
+            "act": "$n peers intently $T.",
+            "channel": "TO_ROOM",
+            "arg2": "west"
+          },
+          {
+            "scan_list": [
+              "B",
+              "ch",
+              1,
+              3
+            ]
+          },
+          {
+            "scan_list": [
+              "C",
+              "ch",
+              2,
+              3
+            ]
+          }
+        ],
+        "unchanged": [
+          "room membership",
+          "exits"
+        ],
+        "forbidden": [
+          "send formatted direction header",
+          "inspect other directions",
+          "random draws"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.up-long-with-0-hops",
+      "title": "up long with 0 hops",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.up-long-with-0-hops.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.if.005",
+        "scan.do_scan.or.003",
+        "scan.do_scan.if.006",
+        "scan.do_scan.or.004",
+        "scan.do_scan.if.007",
+        "scan.do_scan.or.005",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 85
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "UP ignored",
+        "rooms": {
+          "A": {
+            "exit": {}
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Record helper calls without rendering occupants."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "You peer intently $T.",
+            "channel": "TO_CHAR",
+            "arg2": "up"
+          },
+          {
+            "act": "$n peers intently $T.",
+            "channel": "TO_ROOM",
+            "arg2": "up"
+          }
+        ],
+        "unchanged": [
+          "room membership",
+          "exits"
+        ],
+        "forbidden": [
+          "send formatted direction header",
+          "inspect other directions",
+          "random draws"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.up-long-with-1-hops",
+      "title": "up long with 1 hops",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.up-long-with-1-hops.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.if.005",
+        "scan.do_scan.or.003",
+        "scan.do_scan.if.006",
+        "scan.do_scan.or.004",
+        "scan.do_scan.if.007",
+        "scan.do_scan.or.005",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 85
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "UP ignored",
+        "rooms": {
+          "A": {
+            "exit": {
+              "up": {
+                "to_room": "B",
+                "flags": [
+                  "EX_CLOSED"
+                ]
+              }
+            }
+          },
+          "B": {
+            "exit": {}
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Record helper calls without rendering occupants."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "You peer intently $T.",
+            "channel": "TO_CHAR",
+            "arg2": "up"
+          },
+          {
+            "act": "$n peers intently $T.",
+            "channel": "TO_ROOM",
+            "arg2": "up"
+          },
+          {
+            "scan_list": [
+              "B",
+              "ch",
+              1,
+              4
+            ]
+          }
+        ],
+        "unchanged": [
+          "room membership",
+          "exits"
+        ],
+        "forbidden": [
+          "send formatted direction header",
+          "inspect other directions",
+          "random draws"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.up-long-with-2-hops",
+      "title": "up long with 2 hops",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.up-long-with-2-hops.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.if.005",
+        "scan.do_scan.or.003",
+        "scan.do_scan.if.006",
+        "scan.do_scan.or.004",
+        "scan.do_scan.if.007",
+        "scan.do_scan.or.005",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 85
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "UP ignored",
+        "rooms": {
+          "A": {
+            "exit": {
+              "up": {
+                "to_room": "B",
+                "flags": [
+                  "EX_CLOSED"
+                ]
+              }
+            }
+          },
+          "B": {
+            "exit": {
+              "up": {
+                "to_room": "C",
+                "flags": [
+                  "EX_CLOSED"
+                ]
+              }
+            }
+          },
+          "C": {
+            "exit": {}
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Record helper calls without rendering occupants."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "You peer intently $T.",
+            "channel": "TO_CHAR",
+            "arg2": "up"
+          },
+          {
+            "act": "$n peers intently $T.",
+            "channel": "TO_ROOM",
+            "arg2": "up"
+          },
+          {
+            "scan_list": [
+              "B",
+              "ch",
+              1,
+              4
+            ]
+          },
+          {
+            "scan_list": [
+              "C",
+              "ch",
+              2,
+              4
+            ]
+          }
+        ],
+        "unchanged": [
+          "room membership",
+          "exits"
+        ],
+        "forbidden": [
+          "send formatted direction header",
+          "inspect other directions",
+          "random draws"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.down-long-with-0-hops",
+      "title": "down long with 0 hops",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.down-long-with-0-hops.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.if.005",
+        "scan.do_scan.or.003",
+        "scan.do_scan.if.006",
+        "scan.do_scan.or.004",
+        "scan.do_scan.if.007",
+        "scan.do_scan.or.005",
+        "scan.do_scan.if.008",
+        "scan.do_scan.or.006",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 85
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "DOWN ignored",
+        "rooms": {
+          "A": {
+            "exit": {}
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Record helper calls without rendering occupants."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "You peer intently $T.",
+            "channel": "TO_CHAR",
+            "arg2": "down"
+          },
+          {
+            "act": "$n peers intently $T.",
+            "channel": "TO_ROOM",
+            "arg2": "down"
+          }
+        ],
+        "unchanged": [
+          "room membership",
+          "exits"
+        ],
+        "forbidden": [
+          "send formatted direction header",
+          "inspect other directions",
+          "random draws"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.down-long-with-1-hops",
+      "title": "down long with 1 hops",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.down-long-with-1-hops.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.if.005",
+        "scan.do_scan.or.003",
+        "scan.do_scan.if.006",
+        "scan.do_scan.or.004",
+        "scan.do_scan.if.007",
+        "scan.do_scan.or.005",
+        "scan.do_scan.if.008",
+        "scan.do_scan.or.006",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 85
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "DOWN ignored",
+        "rooms": {
+          "A": {
+            "exit": {
+              "down": {
+                "to_room": "B",
+                "flags": [
+                  "EX_CLOSED"
+                ]
+              }
+            }
+          },
+          "B": {
+            "exit": {}
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Record helper calls without rendering occupants."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "You peer intently $T.",
+            "channel": "TO_CHAR",
+            "arg2": "down"
+          },
+          {
+            "act": "$n peers intently $T.",
+            "channel": "TO_ROOM",
+            "arg2": "down"
+          },
+          {
+            "scan_list": [
+              "B",
+              "ch",
+              1,
+              5
+            ]
+          }
+        ],
+        "unchanged": [
+          "room membership",
+          "exits"
+        ],
+        "forbidden": [
+          "send formatted direction header",
+          "inspect other directions",
+          "random draws"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.down-long-with-2-hops",
+      "title": "down long with 2 hops",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.down-long-with-2-hops.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.if.003",
+        "scan.do_scan.or.001",
+        "scan.do_scan.if.004",
+        "scan.do_scan.or.002",
+        "scan.do_scan.if.005",
+        "scan.do_scan.or.003",
+        "scan.do_scan.if.006",
+        "scan.do_scan.or.004",
+        "scan.do_scan.if.007",
+        "scan.do_scan.or.005",
+        "scan.do_scan.if.008",
+        "scan.do_scan.or.006",
+        "scan.do_scan.for.002",
+        "scan.do_scan.if.009",
+        "scan.do_scan.return.003"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 85
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "DOWN ignored",
+        "rooms": {
+          "A": {
+            "exit": {
+              "down": {
+                "to_room": "B",
+                "flags": [
+                  "EX_CLOSED"
+                ]
+              }
+            }
+          },
+          "B": {
+            "exit": {
+              "down": {
+                "to_room": "C",
+                "flags": [
+                  "EX_CLOSED"
+                ]
+              }
+            }
+          },
+          "C": {
+            "exit": {}
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Record helper calls without rendering occupants."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "You peer intently $T.",
+            "channel": "TO_CHAR",
+            "arg2": "down"
+          },
+          {
+            "act": "$n peers intently $T.",
+            "channel": "TO_ROOM",
+            "arg2": "down"
+          },
+          {
+            "scan_list": [
+              "B",
+              "ch",
+              1,
+              5
+            ]
+          },
+          {
+            "scan_list": [
+              "C",
+              "ch",
+              2,
+              5
+            ]
+          }
+        ],
+        "unchanged": [
+          "room membership",
+          "exits"
+        ],
+        "forbidden": [
+          "send formatted direction header",
+          "inspect other directions",
+          "random draws"
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.null-exit-destination-fails-next-iteration",
+      "title": "null exit destination fails next iteration",
+      "status": "blocked",
+      "branch_ids": [
+        "scan.do_scan.null-exit-destination-fails-next-iteration.path"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 87
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "n",
+        "rooms": {
+          "A": {
+            "exit": {
+              "north": {
+                "to_room": null
+              }
+            }
+          }
+        }
+      },
+      "controls": {
+        "randomness": "No random calls on this path.",
+        "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "defined_prefix": [
+          "Emit directional acts",
+          "Call scan_list(NULL, ch, 1, 0), which returns immediately"
+        ],
+        "portable_oracle": "Unavailable after first hop. Depth two reads exit through a null scan_room."
+      },
+      "evidence": "static_trace",
+      "open_questions": [
+        "The fixture tests a malformed exit. Establish loader invariants before treating this path as reachable in a loaded world."
+      ]
+    },
+    {
+      "id": "scan.scan_char.pers-rechecks-visibility",
+      "title": "pers rechecks visibility",
+      "status": "specified",
+      "branch_ids": [
+        "scan.scan_char.pers-rechecks-visibility.path",
+        "scan.scan_char.return.001"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "scan_char",
+          "line": 119
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "scan_char",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "arguments": {
+          "victim": "v",
+          "ch": "ch",
+          "depth": 1,
+          "door": 0
+        },
+        "victim": {
+          "kind": "NPC",
+          "short_descr": "a guard"
+        }
+      },
+      "controls": {
+        "can_see": {
+          "ordered_returns": [
+            false
+          ]
+        },
+        "PERS": "Evaluate the real macro."
+      },
+      "action": "Invoke scan_char with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "can_see": [
+              "ch",
+              "v"
+            ]
+          },
+          {
+            "send_to_char": "someone, nearby to the north.\n\r",
+            "recipient": "ch"
+          }
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.scan_char.pers-visible-npc",
+      "title": "pers visible npc",
+      "status": "specified",
+      "branch_ids": [
+        "scan.scan_char.pers-visible-npc.path",
+        "scan.scan_char.return.001"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "scan_char",
+          "line": 119
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "scan_char",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "arguments": {
+          "victim": "v",
+          "ch": "ch",
+          "depth": 0,
+          "door": 0
+        },
+        "victim": {
+          "kind": "NPC",
+          "name": "guard",
+          "short_descr": "a guard"
+        }
+      },
+      "controls": {
+        "can_see": {
+          "ordered_returns": [
+            true
+          ]
+        },
+        "PERS": "Evaluate the real macro."
+      },
+      "action": "Invoke scan_char with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "can_see": [
+              "ch",
+              "v"
+            ]
+          },
+          {
+            "send_to_char": "a guard, right here.\n\r",
+            "recipient": "ch"
+          }
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.scan_char.pers-visible-pc",
+      "title": "pers visible pc",
+      "status": "specified",
+      "branch_ids": [
+        "scan.scan_char.pers-visible-pc.path",
+        "scan.scan_char.return.001"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "scan_char",
+          "line": 119
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "scan_char",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "arguments": {
+          "victim": "v",
+          "ch": "ch",
+          "depth": 0,
+          "door": 0
+        },
+        "victim": {
+          "kind": "PC",
+          "name": "Mira",
+          "short_descr": "unused"
+        }
+      },
+      "controls": {
+        "can_see": {
+          "ordered_returns": [
+            true
+          ]
+        },
+        "PERS": "Evaluate the real macro."
+      },
+      "action": "Invoke scan_char with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "can_see": [
+              "ch",
+              "v"
+            ]
+          },
+          {
+            "send_to_char": "Mira, right here.\n\r",
+            "recipient": "ch"
+          }
+        ]
+      },
+      "evidence": "static_trace",
+      "open_questions": []
+    },
+    {
+      "id": "scan.do_scan.around-null-destination-is-safe",
+      "title": "around null destination is safe",
+      "status": "specified",
+      "branch_ids": [
+        "scan.do_scan.around-null-destination-is-safe.path",
+        "scan.do_scan.if.001",
+        "scan.do_scan.for.001",
+        "scan.do_scan.if.002",
+        "scan.do_scan.return.001"
+      ],
+      "source_refs": [
+        {
+          "repository": "ROM24",
+          "file": "src/scan.c",
+          "function": "do_scan",
+          "line": 67
+        }
+      ],
+      "entry": {
+        "route": "direct function call",
+        "function": "do_scan",
+        "caller_prerequisites": "Valid pointers, NUL-terminated strings, sufficient buffers and consistent linked lists unless explicitly overridden. Direct call does not imply interpreter authorization.",
+        "return_domain": "C function return, with void represented by completion"
+      },
+      "fixture": {
+        "actor": {
+          "id": "ch",
+          "in_room": "A"
+        },
+        "argument": "",
+        "rooms": {
+          "A": {
+            "exit": {
+              "north": {
+                "to_room": null
+              }
+            },
+            "people_in_list_order": [
+              "ch"
+            ]
+          }
+        }
+      },
+      "controls": {
+        "scan_list": "Run the helper and record calls."
+      },
+      "action": "Invoke do_scan with the fixture arguments once.",
+      "expected": {
+        "ordered_events": [
+          {
+            "act": "$n looks all around.",
+            "channel": "TO_ROOM"
+          },
+          {
+            "send_to_char": "Looking around you see:\n\r",
+            "recipient": "ch"
+          },
+          {
+            "scan_list": [
+              "A",
+              "ch",
+              0,
+              -1
+            ]
+          },
+          {
+            "scan_list": [
+              null,
+              "ch",
+              1,
+              0
+            ]
+          }
+        ],
+        "forbidden": [
+          "scan_char",
+          "dereference null destination",
+          "movement"
         ]
       },
       "evidence": "static_trace",

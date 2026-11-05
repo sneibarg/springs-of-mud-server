@@ -2,7 +2,7 @@
 
 **Status: partial behavioral specification; whole-source lexical inventory. The requested complete semantic trace is unfinished.**
 
-Source: `C:\Users\scott\PycharmProjects\PyRom\Rom24`. HEAD reference: `d3a29007355e7298e0033fcb666e9a6895c2146f`. Per-file hashes identify the inspected snapshot. Normal Git status is unavailable; the manifest records an independent comparison against HEAD content. Generated 2026-10-31.
+Source: `C:\Users\scott\PycharmProjects\PyRom\Rom24`. HEAD reference: `d3a29007355e7298e0033fcb666e9a6895c2146f`. Per-file hashes identify the inspected snapshot. Normal Git status is unavailable. The manifest records an independent comparison against HEAD content.
 
 ## Coverage and evidence
 
@@ -13,11 +13,11 @@ Source: `C:\Users\scott\PycharmProjects\PyRom\Rom24`. HEAD reference: `d3a290073
 | source lines | 46516 |
 | functions inventoried | 677 |
 | functions with cases | 49 |
-| functions completely traced | 0 |
-| cases specified | 430 |
-| cases blocked | 2 |
+| functions completely traced | 5 |
+| cases specified | 458 |
+| cases blocked | 3 |
 | cases dynamically verified | 0 |
-| lexical sites pending | 10796 |
+| lexical sites pending | 10740 |
 | ancillary files inventoried | 485 |
 
 No executable branch coverage, whole-server parity, successful C build, or passing gameplay tests is claimed. Every file/function/site has an explicit pending or specified disposition in the manifest; pending sites are work remaining, not exclusions.
@@ -55,7 +55,7 @@ No executable branch coverage, whole-server parity, successful C build, or passi
 | [src/healer.c](files/healer.c.md) | 196 | 1 | partially_specified |
 | [src/interp.c](files/interp.c.md) | 796 | 9 | partially_specified |
 | [src/interp.h](files/interp.h.md) | 298 | 0 | pending |
-| [src/lookup.c](files/lookup.c.md) | 106 | 5 | partially_specified |
+| [src/lookup.c](files/lookup.c.md) | 106 | 5 | lookup_contracts_traced |
 | [src/lookup.h](files/lookup.h.md) | 32 | 0 | pending |
 | [src/magic.c](files/magic.c.md) | 4699 | 105 | partially_specified |
 | [src/magic.h](files/magic.h.md) | 130 | 0 | pending |
@@ -81,8 +81,10 @@ No executable branch coverage, whole-server parity, successful C build, or passi
 
 ## Coverage criterion and continuation
 
+The five direct lookup helpers now have linked cases for the bounded search, comparison and return paths. Scan has linked cases for its explicit control sites and additional tests for missing exits, visibility rechecks and undefined inputs. Scan delivery through the communication layer, platform configuration and the remaining subsystems are open.
+
 Case selection distinguishes observable guard outcomes, ordered failures, string and arithmetic boundaries, loop cardinalities, mutation order and caller-versus-helper contracts. It does not enumerate a Cartesian product of all game states. The lexical index includes explicit control transfers and short-circuit operators but cannot establish feasibility or find every implicit branch.
 
 Continue from `manifest.json`, keeping current case IDs. First resolve syntax sites in functions already carrying cases; then process command dispatch/session handling, movement/objects/combat, magic/effects, update/persistence, content loaders and specials. Load-dependent area/data contracts and platform branches remain in scope. Do not mark a function complete solely because it has one case.
 
-Reproduction: `python docs/reports/rom24-code-paths/whole-codebase/build_report.py`. The renderer checks structure and source line bounds; manual source review is still required for behavioral correctness. It reads the C checkout and writes only this report directory.
+To regenerate, run `author_cases.py`, `build_report.py` and `validate_report.py` in that order with Python. The scripts read the C checkout and write the report artifacts in this directory.

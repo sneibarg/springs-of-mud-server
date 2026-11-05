@@ -5505,6 +5505,385 @@ WHEN Invoke do_enter with the fixture arguments once.
 THEN {"messages": [{"recipient": "ch", "text": "Something prevents you from leaving...\n\r"}], "unchanged": ["room membership", "portal values and ownership", "actor resources"], "forbidden": ["get_random_room", "destination room lookup", "movement", "charge use", "follower recursion"]}
 ```
 
+## lookup.flag_lookup.same-initial-failed-prefix-continues
+
+same initial failed prefix continues
+
+```text
+CASE lookup.flag_lookup.same-initial-failed-prefix-continues
+SOURCE src/lookup.c:flag_lookup:45
+GIVEN {"arguments": {"name": "al", "flag_table": [["amber", 2, true], ["alpha", 4, true], [null, 0, false]]}}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke flag_lookup with the fixture arguments once.
+THEN {"return": 4, "prefix_comparisons": [["al", "amber"], ["al", "alpha"]], "unchanged": ["table"]}
+```
+
+## lookup.flag_lookup.different-initial-skips-prefix-comparison
+
+different initial skips prefix comparison
+
+```text
+CASE lookup.flag_lookup.different-initial-skips-prefix-comparison
+SOURCE src/lookup.c:flag_lookup:44
+GIVEN {"arguments": {"name": "al", "flag_table": [["beta", 2, true], [null, 0, false]]}}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke flag_lookup with the fixture arguments once.
+THEN {"return": 0, "prefix_comparisons": [], "unchanged": ["table"]}
+```
+
+## lookup.clan_lookup.same-initial-failed-prefix
+
+same initial failed prefix
+
+```text
+CASE lookup.clan_lookup.same-initial-failed-prefix
+SOURCE src/lookup.c:clan_lookup:59
+GIVEN {"arguments": {"name": "lx"}, "table": "Snapshot tables.c"}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke clan_lookup with the fixture arguments once.
+THEN {"return": 0, "prefix_comparisons": [["lx", "loner"]], "unchanged": ["table"]}
+```
+
+## lookup.position_lookup.same-initial-failed-prefix
+
+same initial failed prefix
+
+```text
+CASE lookup.position_lookup.same-initial-failed-prefix
+SOURCE src/lookup.c:position_lookup:73
+GIVEN {"arguments": {"name": "dx"}, "table": "Snapshot tables.c"}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke position_lookup with the fixture arguments once.
+THEN {"return": -1, "prefix_comparisons": [["dx", "dead"]], "unchanged": ["table"]}
+```
+
+## lookup.sex_lookup.same-initial-failed-prefix
+
+same initial failed prefix
+
+```text
+CASE lookup.sex_lookup.same-initial-failed-prefix
+SOURCE src/lookup.c:sex_lookup:87
+GIVEN {"arguments": {"name": "nx"}, "table": "Snapshot tables.c"}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke sex_lookup with the fixture arguments once.
+THEN {"return": -1, "prefix_comparisons": [["nx", "none"]], "unchanged": ["table"]}
+```
+
+## lookup.size_lookup.same-initial-failed-prefix
+
+same initial failed prefix
+
+```text
+CASE lookup.size_lookup.same-initial-failed-prefix
+SOURCE src/lookup.c:size_lookup:101
+GIVEN {"arguments": {"name": "tx"}, "table": "Snapshot tables.c"}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke size_lookup with the fixture arguments once.
+THEN {"return": -1, "prefix_comparisons": [["tx", "tiny"]], "unchanged": ["table"]}
+```
+
+## scan.do_scan.north-long-with-0-hops
+
+north long with 0 hops
+
+```text
+CASE scan.do_scan.north-long-with-0-hops
+SOURCE src/scan.c:do_scan:85
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "NORTH ignored", "rooms": {"A": {"exit": {}}}}
+AND {"scan_list": "Record helper calls without rendering occupants."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "You peer intently $T.", "channel": "TO_CHAR", "arg2": "north"}, {"act": "$n peers intently $T.", "channel": "TO_ROOM", "arg2": "north"}], "unchanged": ["room membership", "exits"], "forbidden": ["send formatted direction header", "inspect other directions", "random draws"]}
+```
+
+## scan.do_scan.north-long-with-1-hops
+
+north long with 1 hops
+
+```text
+CASE scan.do_scan.north-long-with-1-hops
+SOURCE src/scan.c:do_scan:85
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "NORTH ignored", "rooms": {"A": {"exit": {"north": {"to_room": "B", "flags": ["EX_CLOSED"]}}}, "B": {"exit": {}}}}
+AND {"scan_list": "Record helper calls without rendering occupants."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "You peer intently $T.", "channel": "TO_CHAR", "arg2": "north"}, {"act": "$n peers intently $T.", "channel": "TO_ROOM", "arg2": "north"}, {"scan_list": ["B", "ch", 1, 0]}], "unchanged": ["room membership", "exits"], "forbidden": ["send formatted direction header", "inspect other directions", "random draws"]}
+```
+
+## scan.do_scan.north-long-with-2-hops
+
+north long with 2 hops
+
+```text
+CASE scan.do_scan.north-long-with-2-hops
+SOURCE src/scan.c:do_scan:85
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "NORTH ignored", "rooms": {"A": {"exit": {"north": {"to_room": "B", "flags": ["EX_CLOSED"]}}}, "B": {"exit": {"north": {"to_room": "C", "flags": ["EX_CLOSED"]}}}, "C": {"exit": {}}}}
+AND {"scan_list": "Record helper calls without rendering occupants."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "You peer intently $T.", "channel": "TO_CHAR", "arg2": "north"}, {"act": "$n peers intently $T.", "channel": "TO_ROOM", "arg2": "north"}, {"scan_list": ["B", "ch", 1, 0]}, {"scan_list": ["C", "ch", 2, 0]}], "unchanged": ["room membership", "exits"], "forbidden": ["send formatted direction header", "inspect other directions", "random draws"]}
+```
+
+## scan.do_scan.east-long-with-0-hops
+
+east long with 0 hops
+
+```text
+CASE scan.do_scan.east-long-with-0-hops
+SOURCE src/scan.c:do_scan:85
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "EAST ignored", "rooms": {"A": {"exit": {}}}}
+AND {"scan_list": "Record helper calls without rendering occupants."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "You peer intently $T.", "channel": "TO_CHAR", "arg2": "east"}, {"act": "$n peers intently $T.", "channel": "TO_ROOM", "arg2": "east"}], "unchanged": ["room membership", "exits"], "forbidden": ["send formatted direction header", "inspect other directions", "random draws"]}
+```
+
+## scan.do_scan.east-long-with-1-hops
+
+east long with 1 hops
+
+```text
+CASE scan.do_scan.east-long-with-1-hops
+SOURCE src/scan.c:do_scan:85
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "EAST ignored", "rooms": {"A": {"exit": {"east": {"to_room": "B", "flags": ["EX_CLOSED"]}}}, "B": {"exit": {}}}}
+AND {"scan_list": "Record helper calls without rendering occupants."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "You peer intently $T.", "channel": "TO_CHAR", "arg2": "east"}, {"act": "$n peers intently $T.", "channel": "TO_ROOM", "arg2": "east"}, {"scan_list": ["B", "ch", 1, 1]}], "unchanged": ["room membership", "exits"], "forbidden": ["send formatted direction header", "inspect other directions", "random draws"]}
+```
+
+## scan.do_scan.east-long-with-2-hops
+
+east long with 2 hops
+
+```text
+CASE scan.do_scan.east-long-with-2-hops
+SOURCE src/scan.c:do_scan:85
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "EAST ignored", "rooms": {"A": {"exit": {"east": {"to_room": "B", "flags": ["EX_CLOSED"]}}}, "B": {"exit": {"east": {"to_room": "C", "flags": ["EX_CLOSED"]}}}, "C": {"exit": {}}}}
+AND {"scan_list": "Record helper calls without rendering occupants."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "You peer intently $T.", "channel": "TO_CHAR", "arg2": "east"}, {"act": "$n peers intently $T.", "channel": "TO_ROOM", "arg2": "east"}, {"scan_list": ["B", "ch", 1, 1]}, {"scan_list": ["C", "ch", 2, 1]}], "unchanged": ["room membership", "exits"], "forbidden": ["send formatted direction header", "inspect other directions", "random draws"]}
+```
+
+## scan.do_scan.south-long-with-0-hops
+
+south long with 0 hops
+
+```text
+CASE scan.do_scan.south-long-with-0-hops
+SOURCE src/scan.c:do_scan:85
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "SOUTH ignored", "rooms": {"A": {"exit": {}}}}
+AND {"scan_list": "Record helper calls without rendering occupants."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "You peer intently $T.", "channel": "TO_CHAR", "arg2": "south"}, {"act": "$n peers intently $T.", "channel": "TO_ROOM", "arg2": "south"}], "unchanged": ["room membership", "exits"], "forbidden": ["send formatted direction header", "inspect other directions", "random draws"]}
+```
+
+## scan.do_scan.south-long-with-1-hops
+
+south long with 1 hops
+
+```text
+CASE scan.do_scan.south-long-with-1-hops
+SOURCE src/scan.c:do_scan:85
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "SOUTH ignored", "rooms": {"A": {"exit": {"south": {"to_room": "B", "flags": ["EX_CLOSED"]}}}, "B": {"exit": {}}}}
+AND {"scan_list": "Record helper calls without rendering occupants."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "You peer intently $T.", "channel": "TO_CHAR", "arg2": "south"}, {"act": "$n peers intently $T.", "channel": "TO_ROOM", "arg2": "south"}, {"scan_list": ["B", "ch", 1, 2]}], "unchanged": ["room membership", "exits"], "forbidden": ["send formatted direction header", "inspect other directions", "random draws"]}
+```
+
+## scan.do_scan.south-long-with-2-hops
+
+south long with 2 hops
+
+```text
+CASE scan.do_scan.south-long-with-2-hops
+SOURCE src/scan.c:do_scan:85
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "SOUTH ignored", "rooms": {"A": {"exit": {"south": {"to_room": "B", "flags": ["EX_CLOSED"]}}}, "B": {"exit": {"south": {"to_room": "C", "flags": ["EX_CLOSED"]}}}, "C": {"exit": {}}}}
+AND {"scan_list": "Record helper calls without rendering occupants."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "You peer intently $T.", "channel": "TO_CHAR", "arg2": "south"}, {"act": "$n peers intently $T.", "channel": "TO_ROOM", "arg2": "south"}, {"scan_list": ["B", "ch", 1, 2]}, {"scan_list": ["C", "ch", 2, 2]}], "unchanged": ["room membership", "exits"], "forbidden": ["send formatted direction header", "inspect other directions", "random draws"]}
+```
+
+## scan.do_scan.west-long-with-0-hops
+
+west long with 0 hops
+
+```text
+CASE scan.do_scan.west-long-with-0-hops
+SOURCE src/scan.c:do_scan:85
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "WEST ignored", "rooms": {"A": {"exit": {}}}}
+AND {"scan_list": "Record helper calls without rendering occupants."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "You peer intently $T.", "channel": "TO_CHAR", "arg2": "west"}, {"act": "$n peers intently $T.", "channel": "TO_ROOM", "arg2": "west"}], "unchanged": ["room membership", "exits"], "forbidden": ["send formatted direction header", "inspect other directions", "random draws"]}
+```
+
+## scan.do_scan.west-long-with-1-hops
+
+west long with 1 hops
+
+```text
+CASE scan.do_scan.west-long-with-1-hops
+SOURCE src/scan.c:do_scan:85
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "WEST ignored", "rooms": {"A": {"exit": {"west": {"to_room": "B", "flags": ["EX_CLOSED"]}}}, "B": {"exit": {}}}}
+AND {"scan_list": "Record helper calls without rendering occupants."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "You peer intently $T.", "channel": "TO_CHAR", "arg2": "west"}, {"act": "$n peers intently $T.", "channel": "TO_ROOM", "arg2": "west"}, {"scan_list": ["B", "ch", 1, 3]}], "unchanged": ["room membership", "exits"], "forbidden": ["send formatted direction header", "inspect other directions", "random draws"]}
+```
+
+## scan.do_scan.west-long-with-2-hops
+
+west long with 2 hops
+
+```text
+CASE scan.do_scan.west-long-with-2-hops
+SOURCE src/scan.c:do_scan:85
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "WEST ignored", "rooms": {"A": {"exit": {"west": {"to_room": "B", "flags": ["EX_CLOSED"]}}}, "B": {"exit": {"west": {"to_room": "C", "flags": ["EX_CLOSED"]}}}, "C": {"exit": {}}}}
+AND {"scan_list": "Record helper calls without rendering occupants."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "You peer intently $T.", "channel": "TO_CHAR", "arg2": "west"}, {"act": "$n peers intently $T.", "channel": "TO_ROOM", "arg2": "west"}, {"scan_list": ["B", "ch", 1, 3]}, {"scan_list": ["C", "ch", 2, 3]}], "unchanged": ["room membership", "exits"], "forbidden": ["send formatted direction header", "inspect other directions", "random draws"]}
+```
+
+## scan.do_scan.up-long-with-0-hops
+
+up long with 0 hops
+
+```text
+CASE scan.do_scan.up-long-with-0-hops
+SOURCE src/scan.c:do_scan:85
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "UP ignored", "rooms": {"A": {"exit": {}}}}
+AND {"scan_list": "Record helper calls without rendering occupants."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "You peer intently $T.", "channel": "TO_CHAR", "arg2": "up"}, {"act": "$n peers intently $T.", "channel": "TO_ROOM", "arg2": "up"}], "unchanged": ["room membership", "exits"], "forbidden": ["send formatted direction header", "inspect other directions", "random draws"]}
+```
+
+## scan.do_scan.up-long-with-1-hops
+
+up long with 1 hops
+
+```text
+CASE scan.do_scan.up-long-with-1-hops
+SOURCE src/scan.c:do_scan:85
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "UP ignored", "rooms": {"A": {"exit": {"up": {"to_room": "B", "flags": ["EX_CLOSED"]}}}, "B": {"exit": {}}}}
+AND {"scan_list": "Record helper calls without rendering occupants."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "You peer intently $T.", "channel": "TO_CHAR", "arg2": "up"}, {"act": "$n peers intently $T.", "channel": "TO_ROOM", "arg2": "up"}, {"scan_list": ["B", "ch", 1, 4]}], "unchanged": ["room membership", "exits"], "forbidden": ["send formatted direction header", "inspect other directions", "random draws"]}
+```
+
+## scan.do_scan.up-long-with-2-hops
+
+up long with 2 hops
+
+```text
+CASE scan.do_scan.up-long-with-2-hops
+SOURCE src/scan.c:do_scan:85
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "UP ignored", "rooms": {"A": {"exit": {"up": {"to_room": "B", "flags": ["EX_CLOSED"]}}}, "B": {"exit": {"up": {"to_room": "C", "flags": ["EX_CLOSED"]}}}, "C": {"exit": {}}}}
+AND {"scan_list": "Record helper calls without rendering occupants."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "You peer intently $T.", "channel": "TO_CHAR", "arg2": "up"}, {"act": "$n peers intently $T.", "channel": "TO_ROOM", "arg2": "up"}, {"scan_list": ["B", "ch", 1, 4]}, {"scan_list": ["C", "ch", 2, 4]}], "unchanged": ["room membership", "exits"], "forbidden": ["send formatted direction header", "inspect other directions", "random draws"]}
+```
+
+## scan.do_scan.down-long-with-0-hops
+
+down long with 0 hops
+
+```text
+CASE scan.do_scan.down-long-with-0-hops
+SOURCE src/scan.c:do_scan:85
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "DOWN ignored", "rooms": {"A": {"exit": {}}}}
+AND {"scan_list": "Record helper calls without rendering occupants."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "You peer intently $T.", "channel": "TO_CHAR", "arg2": "down"}, {"act": "$n peers intently $T.", "channel": "TO_ROOM", "arg2": "down"}], "unchanged": ["room membership", "exits"], "forbidden": ["send formatted direction header", "inspect other directions", "random draws"]}
+```
+
+## scan.do_scan.down-long-with-1-hops
+
+down long with 1 hops
+
+```text
+CASE scan.do_scan.down-long-with-1-hops
+SOURCE src/scan.c:do_scan:85
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "DOWN ignored", "rooms": {"A": {"exit": {"down": {"to_room": "B", "flags": ["EX_CLOSED"]}}}, "B": {"exit": {}}}}
+AND {"scan_list": "Record helper calls without rendering occupants."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "You peer intently $T.", "channel": "TO_CHAR", "arg2": "down"}, {"act": "$n peers intently $T.", "channel": "TO_ROOM", "arg2": "down"}, {"scan_list": ["B", "ch", 1, 5]}], "unchanged": ["room membership", "exits"], "forbidden": ["send formatted direction header", "inspect other directions", "random draws"]}
+```
+
+## scan.do_scan.down-long-with-2-hops
+
+down long with 2 hops
+
+```text
+CASE scan.do_scan.down-long-with-2-hops
+SOURCE src/scan.c:do_scan:85
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "DOWN ignored", "rooms": {"A": {"exit": {"down": {"to_room": "B", "flags": ["EX_CLOSED"]}}}, "B": {"exit": {"down": {"to_room": "C", "flags": ["EX_CLOSED"]}}}, "C": {"exit": {}}}}
+AND {"scan_list": "Record helper calls without rendering occupants."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "You peer intently $T.", "channel": "TO_CHAR", "arg2": "down"}, {"act": "$n peers intently $T.", "channel": "TO_ROOM", "arg2": "down"}, {"scan_list": ["B", "ch", 1, 5]}, {"scan_list": ["C", "ch", 2, 5]}], "unchanged": ["room membership", "exits"], "forbidden": ["send formatted direction header", "inspect other directions", "random draws"]}
+```
+
+## scan.do_scan.null-exit-destination-fails-next-iteration
+
+null exit destination fails next iteration
+
+```text
+CASE scan.do_scan.null-exit-destination-fails-next-iteration
+SOURCE src/scan.c:do_scan:87
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "n", "rooms": {"A": {"exit": {"north": {"to_room": null}}}}}
+AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"defined_prefix": ["Emit directional acts", "Call scan_list(NULL, ch, 1, 0), which returns immediately"], "portable_oracle": "Unavailable after first hop. Depth two reads exit through a null scan_room."}
+```
+
+Open questions: The fixture tests a malformed exit. Establish loader invariants before treating this path as reachable in a loaded world.
+
+## scan.scan_char.pers-rechecks-visibility
+
+pers rechecks visibility
+
+```text
+CASE scan.scan_char.pers-rechecks-visibility
+SOURCE src/scan.c:scan_char:119
+GIVEN {"arguments": {"victim": "v", "ch": "ch", "depth": 1, "door": 0}, "victim": {"kind": "NPC", "short_descr": "a guard"}}
+AND {"can_see": {"ordered_returns": [false]}, "PERS": "Evaluate the real macro."}
+WHEN Invoke scan_char with the fixture arguments once.
+THEN {"ordered_events": [{"can_see": ["ch", "v"]}, {"send_to_char": "someone, nearby to the north.\n\r", "recipient": "ch"}]}
+```
+
+## scan.scan_char.pers-visible-npc
+
+pers visible npc
+
+```text
+CASE scan.scan_char.pers-visible-npc
+SOURCE src/scan.c:scan_char:119
+GIVEN {"arguments": {"victim": "v", "ch": "ch", "depth": 0, "door": 0}, "victim": {"kind": "NPC", "name": "guard", "short_descr": "a guard"}}
+AND {"can_see": {"ordered_returns": [true]}, "PERS": "Evaluate the real macro."}
+WHEN Invoke scan_char with the fixture arguments once.
+THEN {"ordered_events": [{"can_see": ["ch", "v"]}, {"send_to_char": "a guard, right here.\n\r", "recipient": "ch"}]}
+```
+
+## scan.scan_char.pers-visible-pc
+
+pers visible pc
+
+```text
+CASE scan.scan_char.pers-visible-pc
+SOURCE src/scan.c:scan_char:119
+GIVEN {"arguments": {"victim": "v", "ch": "ch", "depth": 0, "door": 0}, "victim": {"kind": "PC", "name": "Mira", "short_descr": "unused"}}
+AND {"can_see": {"ordered_returns": [true]}, "PERS": "Evaluate the real macro."}
+WHEN Invoke scan_char with the fixture arguments once.
+THEN {"ordered_events": [{"can_see": ["ch", "v"]}, {"send_to_char": "Mira, right here.\n\r", "recipient": "ch"}]}
+```
+
+## scan.do_scan.around-null-destination-is-safe
+
+around null destination is safe
+
+```text
+CASE scan.do_scan.around-null-destination-is-safe
+SOURCE src/scan.c:do_scan:67
+GIVEN {"actor": {"id": "ch", "in_room": "A"}, "argument": "", "rooms": {"A": {"exit": {"north": {"to_room": null}}, "people_in_list_order": ["ch"]}}}
+AND {"scan_list": "Run the helper and record calls."}
+WHEN Invoke do_scan with the fixture arguments once.
+THEN {"ordered_events": [{"act": "$n looks all around.", "channel": "TO_ROOM"}, {"send_to_char": "Looking around you see:\n\r", "recipient": "ch"}, {"scan_list": ["A", "ch", 0, -1]}, {"scan_list": [null, "ch", 1, 0]}], "forbidden": ["scan_char", "dereference null destination", "movement"]}
+```
+
 ## special.spec_lookup.first-full
 
 first full

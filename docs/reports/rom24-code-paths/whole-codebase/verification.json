@@ -4,7 +4,7 @@
   "checks": "JSON integrity, bidirectional references, blocked reasons, all snapshot hashes, Markdown links and citation bounds, count consistency, truthful partial status",
   "source_and_supporting_files_hashed": 528,
   "functions_inventoried": 677,
-  "cases": 432,
-  "markdown_links_checked": 741,
+  "cases": 461,
+  "markdown_links_checked": 747,
   "gameplay_tests_run": 0
 }
