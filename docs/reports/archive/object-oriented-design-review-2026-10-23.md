@@ -36,13 +36,13 @@ Except for finding 1, these are maintainability recommendations, not demonstrate
 
 ## 1. Equipped-item expiration bypasses the removal invariant
 
-**Evidence:** [ItemUpdateHandler.py:55](../../src/item/ItemUpdateHandler.py#L55), [ItemUpdateHandler.py:112](../../src/item/ItemUpdateHandler.py#L112), [Equipped.py:128](../../src/game/Equipped.py#L128), [EffectHandler.py:274](../../src/item/EffectHandler.py#L274), [EffectHandler.py:284](../../src/item/EffectHandler.py#L284).
+**Evidence:** [ItemUpdateHandler.py:55](../../../src/item/ItemUpdateHandler.py#L55), [ItemUpdateHandler.py:112](../../../src/item/ItemUpdateHandler.py#L112), [Equipped.py:128](../../../src/game/Equipped.py#L128), [EffectHandler.py:274](../../../src/item/EffectHandler.py#L274), [EffectHandler.py:284](../../../src/item/EffectHandler.py#L284).
 
 `expire_item()` eventually calls `_remove_item_at_location()`. For `char_equipped` and `mob_equipped`, that helper simply sets the matching equipment slot to `None`. It does not remove the item's sourced effects from the wearer, clear `_effect_wearer`, or reset `wear_location`/`wear_loc`.
 
 **Trigger and consequence:** a timer expires on a worn item that contributes stat modifiers. The item disappears from its slot while its wearer can retain the applied effects. Stale wear metadata and the wearer reference remain on the removed object. An isolated execution of the actual helper confirmed slot removal with all three kinds of state retained. This reproduces the helper contract failure; it is not a full server integration test.
 
-Other removal paths already coordinate this transition: [SpellApi.py:1144](../../src/api/SpellApi.py#L1144), [WeaponHitHandler.py:198](../../src/combat/WeaponHitHandler.py#L198), and [AcidExposure.py:88](../../src/util/AcidExposure.py#L88) remove item effects and unequip before removing the carried item.
+Other removal paths already coordinate this transition: [SpellApi.py:1144](../../../src/api/SpellApi.py#L1144), [WeaponHitHandler.py:198](../../../src/combat/WeaponHitHandler.py#L198), and [AcidExposure.py:88](../../../src/util/AcidExposure.py#L88) remove item effects and unequip before removing the carried item.
 
 **Recommendation:** introduce one effect-aware detachment operation used by expiration and destruction. Keep low-level slot state on `Equipped`, inventory membership on the entity, and effect removal on `EffectHandler`; coordinate them in an item/equipment service. Normal unequipping returns an item to inventory, so permanent removal must also detach that returned item. Expiration should bypass voluntary-removal restrictions while preserving this cleanup invariant.
 
@@ -50,7 +50,7 @@ Other removal paths already coordinate this transition: [SpellApi.py:1144](../..
 
 ## 2. Item ownership is interpreted independently by several consumers
 
-**Evidence:** [Room.py:83](../../src/area/Room.py#L83), [Room.py:96](../../src/area/Room.py#L96), [Room.py:104](../../src/area/Room.py#L104), [ItemUpdateHandler.py:47](../../src/item/ItemUpdateHandler.py#L47), [ItemUpdateHandler.py:89](../../src/item/ItemUpdateHandler.py#L89), [SpellApi.py:1130](../../src/api/SpellApi.py#L1130), [SpellApi.py:1144](../../src/api/SpellApi.py#L1144).
+**Evidence:** [Room.py:83](../../../src/area/Room.py#L83), [Room.py:96](../../../src/area/Room.py#L96), [Room.py:104](../../../src/area/Room.py#L104), [ItemUpdateHandler.py:47](../../../src/item/ItemUpdateHandler.py#L47), [ItemUpdateHandler.py:89](../../../src/item/ItemUpdateHandler.py#L89), [SpellApi.py:1130](../../../src/api/SpellApi.py#L1130), [SpellApi.py:1144](../../../src/api/SpellApi.py#L1144).
 
 The room model already supplies item locations, recursive traversal, and containment lookup. Spell operations add a separate recursive walker and decode location kinds to remove objects; item expiration has another set of location-kind branches and direct collection mutations. Acid and weapon exposure implement further removal sequences. Adding a new ownership location therefore requires coordinated edits in multiple subsystems.
 
@@ -62,7 +62,7 @@ Prefer an ordinary service and record over a class hierarchy for every location 
 
 ## 3. Use the existing entity inheritance for regeneration variation
 
-**Evidence:** [AnimateEntity.py:202](../../src/game/AnimateEntity.py#L202), [AnimateEntity.py:218](../../src/game/AnimateEntity.py#L218), [AnimateEntity.py:274](../../src/game/AnimateEntity.py#L274), [AnimateEntity.py:331](../../src/game/AnimateEntity.py#L331), [AnimateEntity.py:382](../../src/game/AnimateEntity.py#L382), [EntityUpdateHandler.py:52](../../src/game/EntityUpdateHandler.py#L52).
+**Evidence:** [AnimateEntity.py:202](../../../src/game/AnimateEntity.py#L202), [AnimateEntity.py:218](../../../src/game/AnimateEntity.py#L218), [AnimateEntity.py:274](../../../src/game/AnimateEntity.py#L274), [AnimateEntity.py:331](../../../src/game/AnimateEntity.py#L331), [AnimateEntity.py:382](../../../src/game/AnimateEntity.py#L382), [EntityUpdateHandler.py:52](../../../src/game/EntityUpdateHandler.py#L52).
 
 `Character` and `Mobile` already inherit `AnimateEntity`, and the update handler calls `entity.regenerate()`. Nevertheless, each gain method branches on `CharacterApi.is_npc(self)`. The base class imports `Character` and `Ability` to support player learning. This makes the shared model depend on its more specialized player behavior.
 
@@ -74,7 +74,7 @@ This is a justified Template Method application: a common update caller and two 
 
 ## 4. Learned-ability state is handled as static utility code on Character
 
-**Evidence:** [Character.py:258](../../src/player/Character.py#L258), [Character.py:272](../../src/player/Character.py#L272), [Character.py:286](../../src/player/Character.py#L286), [Character.py:307](../../src/player/Character.py#L307), [Ability.py:211](../../src/skill/Ability.py#L211).
+**Evidence:** [Character.py:258](../../../src/player/Character.py#L258), [Character.py:272](../../../src/player/Character.py#L272), [Character.py:286](../../../src/player/Character.py#L286), [Character.py:307](../../../src/player/Character.py#L307), [Ability.py:211](../../../src/skill/Ability.py#L211).
 
 `learned_entries(character)`, `get_learned(character, ...)`, and `set_learned(character, ...)` receive the state owner explicitly. They read and mutate its `skills`/`spells`. Internal callers also explicitly name `Character`, which bypasses normal instance dispatch. In contrast, entry-name and entry-level normalization operate only on the supplied record and are appropriately pure helpers.
 
@@ -86,7 +86,7 @@ Retain dict/object record compatibility, exact-before-prefix selection, visibili
 
 ## 5. Ability definitions also orchestrate player progression
 
-**Evidence:** [Ability.py:116](../../src/skill/Ability.py#L116), [Ability.py:149](../../src/skill/Ability.py#L149), [Ability.py:177](../../src/skill/Ability.py#L177), [Ability.py:198](../../src/skill/Ability.py#L198), [Ability.py:243](../../src/skill/Ability.py#L243), [PlayerHandler.py:811](../../src/player/PlayerHandler.py#L811), [EntityUpdateHandler.py:59](../../src/game/EntityUpdateHandler.py#L59).
+**Evidence:** [Ability.py:116](../../../src/skill/Ability.py#L116), [Ability.py:149](../../../src/skill/Ability.py#L149), [Ability.py:177](../../../src/skill/Ability.py#L177), [Ability.py:198](../../../src/skill/Ability.py#L198), [Ability.py:243](../../../src/skill/Ability.py#L243), [PlayerHandler.py:811](../../../src/player/PlayerHandler.py#L811), [EntityUpdateHandler.py:59](../../../src/game/EntityUpdateHandler.py#L59).
 
 `Ability` is a content definition and common superclass for `Skill`/`Spell`. Its static learning methods also locate registries through `CharacterApi`, draw from module-level random sources, update character learning, award experience, and attach a pending message queue to the character. These are independent runtime responsibilities with hidden collaborators.
 
@@ -98,7 +98,7 @@ Preserve static entry points as forwarding adapters while migrating combat, rege
 
 ## 6. Effect-message lookup duplicates ability identity rules
 
-**Evidence:** [SpellApi.py:349](../../src/api/SpellApi.py#L349), [SpellApi.py:369](../../src/api/SpellApi.py#L369), [EffectUpdateHandler.py:125](../../src/item/EffectUpdateHandler.py#L125), [Ability.py:116](../../src/skill/Ability.py#L116).
+**Evidence:** [SpellApi.py:349](../../../src/api/SpellApi.py#L349), [SpellApi.py:369](../../../src/api/SpellApi.py#L369), [EffectUpdateHandler.py:125](../../../src/item/EffectUpdateHandler.py#L125), [Ability.py:116](../../../src/skill/Ability.py#L116).
 
 Spell removal and periodic effect handling each scan definitions and normalize identity independently. They already differ: the spell helper searches spells by handler/name/id, while the update helper searches both skills and spells and considers stripped `spell.`/`skill.` prefixes. Practice lookup performs another name scan with skills-first precedence.
 
@@ -110,7 +110,7 @@ Keep rendering and routing in their current contexts. The shared responsibility 
 
 ## 7. Elemental exposure is a reusable engine operation inside a weapon handler
 
-**Evidence:** [WeaponHitHandler.py:123](../../src/combat/WeaponHitHandler.py#L123), [WeaponHitHandler.py:169](../../src/combat/WeaponHitHandler.py#L169), [AcidExposure.py:25](../../src/util/AcidExposure.py#L25), [PoisonExposure.py:27](../../src/util/PoisonExposure.py#L27), [SpellApi.py:862](../../src/api/SpellApi.py#L862), [SpellApi.py:896](../../src/api/SpellApi.py#L896).
+**Evidence:** [WeaponHitHandler.py:123](../../../src/combat/WeaponHitHandler.py#L123), [WeaponHitHandler.py:169](../../../src/combat/WeaponHitHandler.py#L169), [AcidExposure.py:25](../../../src/util/AcidExposure.py#L25), [PoisonExposure.py:27](../../../src/util/PoisonExposure.py#L27), [SpellApi.py:862](../../../src/api/SpellApi.py#L862), [SpellApi.py:896](../../../src/api/SpellApi.py#L896).
 
 Environmental fire/cold/shock exposure shares the weapon-hit handler with weapon procs. Acid, poison, and elemental object handling duplicate the diminishing-return chance calculation, type normalization, inventory/room iteration, and some destruction cleanup. Spell APIs now use these engine operations too, so their responsibility extends beyond weapon hits.
 
@@ -122,7 +122,7 @@ Do not immediately force acid, poison, fire, cold, and shock into one base class
 
 ## 8. Armor needs a common runtime contract and separate input adapters
 
-**Evidence:** [player/ArmorClass.py:10](../../src/player/ArmorClass.py#L10), [player/ArmorClass.py:20](../../src/player/ArmorClass.py#L20), [mobile/ArmorClass.py:9](../../src/mobile/ArmorClass.py#L9), [MobileUtil.py:130](../../src/util/MobileUtil.py#L130), [CombatHandler.py:1842](../../src/combat/CombatHandler.py#L1842), [EffectHandler.py:93](../../src/item/EffectHandler.py#L93).
+**Evidence:** [player/ArmorClass.py:10](../../../src/player/ArmorClass.py#L10), [player/ArmorClass.py:20](../../../src/player/ArmorClass.py#L20), [mobile/ArmorClass.py:9](../../../src/mobile/ArmorClass.py#L9), [MobileUtil.py:130](../../src/util/MobileUtil.py#L130), [CombatHandler.py:1842](../../../src/combat/CombatHandler.py#L1842), [EffectHandler.py:93](../../../src/item/EffectHandler.py#L93).
 
 Two armor dataclasses represent the same four runtime categories using different names and input formats. Combat has to probe both naming schemes; effects enumerate eight possible attribute names. Player armor also has `get_ac(char, ac)`, which reaches into `CharacterApi` for the character's dexterity bonus. Combat independently computes that bonus and applies its own division into combat units.
 
@@ -134,7 +134,7 @@ A common value object is preferable to making mobile armor inherit player armor 
 
 ## 9. Position and affected flags have competing normalization paths
 
-**Evidence:** [AnimateEntity.py:85](../../src/game/AnimateEntity.py#L85), [AnimateEntity.py:99](../../src/game/AnimateEntity.py#L99), [AnimateEntity.py:106](../../src/game/AnimateEntity.py#L106), [CharacterApi.py:342](../../src/api/CharacterApi.py#L342), [CharacterApi.py:365](../../src/api/CharacterApi.py#L365), [CharacterApi.py:381](../../src/api/CharacterApi.py#L381).
+**Evidence:** [AnimateEntity.py:85](../../../src/game/AnimateEntity.py#L85), [AnimateEntity.py:99](../../../src/game/AnimateEntity.py#L99), [AnimateEntity.py:106](../../../src/game/AnimateEntity.py#L106), [CharacterApi.py:342](../../../src/api/CharacterApi.py#L342), [CharacterApi.py:365](../../../src/api/CharacterApi.py#L365), [CharacterApi.py:381](../../../src/api/CharacterApi.py#L381).
 
 The model and API each interpret positions and affected flags. Their position fallbacks differ: the entity also considers `start_pos`; the API uses character attributes or a direct position and defaults to standing. Setters can maintain both a direct field and an attributes field. Flag mutation similarly has separate normalization and assignment paths.
 
@@ -144,7 +144,7 @@ This reduces the chance that combat, movement, and updates interpret the same en
 
 ## 10. API inheritance hides runtime dependency and reset ownership
 
-**Evidence:** [GameApi.py:12](../../src/api/GameApi.py#L12), [GameApi.py:33](../../src/api/GameApi.py#L33), [GameApi.py:47](../../src/api/GameApi.py#L47), [CharacterApi.py:24](../../src/api/CharacterApi.py#L24), [CharacterApi.py:34](../../src/api/CharacterApi.py#L34), [MobileApi.py:25](../../src/api/MobileApi.py#L25), [MobileApi.py:43](../../src/api/MobileApi.py#L43), [EffectUtil.py:99](../../src/util/EffectUtil.py#L99), [Bootstrapper.py:107](../../src/server/Bootstrapper.py#L107).
+**Evidence:** [GameApi.py:12](../../../src/api/GameApi.py#L12), [GameApi.py:33](../../../src/api/GameApi.py#L33), [GameApi.py:47](../../../src/api/GameApi.py#L47), [CharacterApi.py:24](../../../src/api/CharacterApi.py#L24), [CharacterApi.py:34](../../../src/api/CharacterApi.py#L34), [MobileApi.py:25](../../../src/api/MobileApi.py#L25), [MobileApi.py:43](../../../src/api/MobileApi.py#L43), [EffectUtil.py:99](../../../src/util/EffectUtil.py#L99), [Bootstrapper.py:107](../../../src/server/Bootstrapper.py#L107).
 
 `GameApi` owns global configured data, but subclasses acquire additional registry/weather state through lazy loading. `CharacterApi.lazy_load` and `MobileApi.lazy_load` are exact duplicated bodies. Their reset hooks differ: the mobile hook clears only its logger despite lazy loading assigning registry/weather attributes. `EffectUtil` separately stores a process-wide handler.
 
@@ -156,7 +156,7 @@ A shared lazy-load helper can remove the immediate duplicate, but avoid deriving
 
 ## 11. Share the small death-loot formatting helpers
 
-**Evidence:** [CombatHandler.py:618](../../src/combat/CombatHandler.py#L618), [CombatHandler.py:1347](../../src/combat/CombatHandler.py#L1347), [CombatHandler.py:1353](../../src/combat/CombatHandler.py#L1353), [BodyParts.py:113](../../src/item/BodyParts.py#L113), [BodyParts.py:127](../../src/item/BodyParts.py#L127), [BodyParts.py:135](../../src/item/BodyParts.py#L135).
+**Evidence:** [CombatHandler.py:618](../../../src/combat/CombatHandler.py#L618), [CombatHandler.py:1347](../../../src/combat/CombatHandler.py#L1347), [CombatHandler.py:1353](../../../src/combat/CombatHandler.py#L1353), [BodyParts.py:113](../../../src/item/BodyParts.py#L113), [BodyParts.py:127](../../../src/item/BodyParts.py#L127), [BodyParts.py:135](../../../src/item/BodyParts.py#L135).
 
 Corpse and body-part construction duplicate victim-name selection and the same `%s` formatting/fallback implementation. These operations depend only on their arguments.
 
