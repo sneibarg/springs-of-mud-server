@@ -157,8 +157,8 @@ class TestItemUtilNormalization(unittest.TestCase):
 
     def test_staff_spell_uses_spell_registry_before_skill_registry(self):
         spell = SimpleNamespace(name="energy drain", handler_id="spell.energy_drain")
-        spell_registry = SimpleNamespace(get=lambda **kwargs: spell if kwargs.get("name") == "energy drain" else (_ for _ in ()).throw(KeyError(kwargs.get("name"))))
-        skill_registry = SimpleNamespace(get=lambda **kwargs: (_ for _ in ()).throw(KeyError(kwargs.get("name"))))
+        spell_registry = SimpleNamespace(get_or_none=lambda **kwargs: spell if kwargs.get("name") == "energy drain" else None)
+        skill_registry = SimpleNamespace(get_or_none=lambda **kwargs: None)
         item_data = {
             "id": "item-3",
             "areaId": "area-1",
@@ -192,7 +192,7 @@ class TestItemUtilNormalization(unittest.TestCase):
         bless = SimpleNamespace(name="bless", handler_id="spell.bless")
         shield = SimpleNamespace(name="shield", handler_id="spell.shield")
         spells = {"armor": armor, "bless": bless, "shield": shield}
-        spell_registry = SimpleNamespace(get=lambda **kwargs: spells[kwargs.get("name")])
+        spell_registry = SimpleNamespace(get_or_none=lambda **kwargs: spells.get(kwargs.get("name")))
         item_data = {
             "id": "item-4",
             "areaId": "area-1",

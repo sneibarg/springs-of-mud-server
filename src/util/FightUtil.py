@@ -55,8 +55,6 @@ class FightUtil:
     @staticmethod
     def find_spell(spell_registry, spell_name: str, character=None):
         """Resolve exact content references, or accessible prefixes for a caster."""
-        if spell_registry is None:
-            return None
         want_handler = FightUtil.spell_handler_name(spell_name)
         if character is not None:
             from api.CharacterApi import CharacterApi
@@ -92,12 +90,7 @@ class FightUtil:
             name = str(getattr(skill, "name", skill.get("name", "") if isinstance(skill, dict) else "") or "").strip().lower()
             if name == wanted:
                 return skill
-        if skill_registry is None:
-            return None
-        all_skills = getattr(skill_registry, "all_skills", None)
-        if not callable(all_skills):
-            return None
-        for skill in all_skills():
+        for skill in skill_registry.all_skills():
             if str(getattr(skill, "name", "") or "").strip().lower() == wanted:
                 return skill
         return None

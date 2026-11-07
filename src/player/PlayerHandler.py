@@ -801,15 +801,11 @@ class PlayerHandler:
     async def _send_prompt(self, character: Character, context: Context, prefer_context_room: bool = True):
         room = context.room if prefer_context_room and context is not None and context.room is not None else None
         if room is None:
-            room_registry = getattr(self, "room_registry", None)
-            if room_registry is None:
-                return
-            room = room_registry.get_or_none(id=getattr(character, "room_id", ""))
+            room = self.room_registry.get_or_none(id=character.room_id)
         if room is None:
             return
         area_id = getattr(room, "area_id", getattr(character, "area_id", ""))
-        area_registry = getattr(self, "area_registry", None)
-        area = area_registry.get_or_none(id=area_id) if area_id and area_registry is not None else None
+        area = self.area_registry.get_or_none(id=area_id) if area_id else None
         if area is None:
             return
         await self.message_bus.send_prompt(character, area, room)

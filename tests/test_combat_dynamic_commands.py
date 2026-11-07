@@ -719,6 +719,7 @@ class TestFightPayloadEmission(unittest.IsolatedAsyncioTestCase):
             delivered.append(("room", [target.id for target in targets], message))
 
         handler = PlayerHandler.__new__(PlayerHandler)
+        handler.room_registry = SimpleNamespace(get_or_none=lambda **_kwargs: None)
         handler.message_bus = SimpleNamespace(
             text_to_message=lambda text: text,
             send_to_character=send_to_character,
@@ -729,7 +730,7 @@ class TestFightPayloadEmission(unittest.IsolatedAsyncioTestCase):
         handler._show_room_to_character = AsyncMock()
 
         character = SimpleNamespace(id="char-1", name="Hero")
-        victim = SimpleNamespace(id="char-2", name="Rogue")
+        victim = SimpleNamespace(id="char-2", name="Rogue", room_id="room-1")
         watcher = SimpleNamespace(id="char-3")
         context = _Context(character=character, command=_load_command("rescue"), done=False)
 

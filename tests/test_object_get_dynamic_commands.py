@@ -581,6 +581,7 @@ class _Container(SimpleNamespace):
 class TestObjectGetDynamicCommands(unittest.TestCase):
     def _commands(self, room, *, shop_registry=None, weather_handler=None, skill_registry=None, spell_registry=None, spell_api=None, fight_handler=None, item_registry=None):
         room_registry = SimpleNamespace(
+            all_rooms=lambda: [room],
             get_or_none=lambda **kwargs: room if kwargs.get("id") == room.id else None,
             get=lambda **kwargs: room if kwargs.get("id") == room.id else None,
         )

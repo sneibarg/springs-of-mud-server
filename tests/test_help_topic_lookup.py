@@ -139,11 +139,11 @@ class HelpTopicLookupTests(HelpFixture, unittest.TestCase):
         from api.InterpApi import InterpApi
         from server.session.SessionHandler import SessionHandler
         injector = Injector()
-        registries = NS(interp_registry=self.commands, area_registry=NS(), room_registry=self.rooms,
+        registries = NS(interp_registry=self.commands, help_registry=self.helps, area_registry=NS(), room_registry=self.rooms,
                         group_registry=NS(), skill_registry=NS(), spell_registry=NS())
         for dependency, value in [(RegistryService, registries), (SessionHandler, SessionHandler()),
                                   (WeatherHandler, NS()), (EnumProvider, self.enums),
-                                  (InterpApi, self.api), (HelpRegistry, self.helps)]:
+                                  (InterpApi, self.api)]:
             injector.binder.bind(dependency, to=value)
         info = injector.get(Info)
         self.assertIs(info.help_registry, self.helps)

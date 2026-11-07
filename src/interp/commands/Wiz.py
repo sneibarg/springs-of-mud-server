@@ -1210,8 +1210,7 @@ class Wiz:
             if action == "read":
                 context.finish()
                 return {"to_char": self._format_note(note, index)}
-            if self.note_registry is not None:
-                self.note_registry.unregister_note(getattr(note, "id", ""))
+            self.note_registry.unregister_note(note.id)
             context.finish()
             return InterpApi.command_payload("ok2")
 
@@ -1240,9 +1239,7 @@ class Wiz:
         }
 
     def _notes_by_type(self, note_type: int) -> list:
-        if self.note_registry is None:
-            return []
-        notes = list(self.note_registry.get_notes_by_type(note_type) or [])
+        notes = self.note_registry.get_notes_by_type(note_type)
         return sorted(notes, key=lambda note: GenericUtil.to_int(getattr(note, "date_stamp", 0), 0))
 
     @staticmethod
@@ -1315,13 +1312,7 @@ class Wiz:
         account_id = str(getattr(character, "account_id", "") or "")
         if not account_id:
             return None
-        get_or_none = getattr(self.registry_service.player_registry, "get_or_none", None)
-        if callable(get_or_none):
-            return get_or_none(id=account_id)
-        try:
-            return self.registry_service.player_registry.get(id=account_id)
-        except Exception:
-            return None
+        return self.registry_service.player_registry.get_or_none(id=account_id)
 
     @staticmethod
     def _stat_character_text(target) -> str:

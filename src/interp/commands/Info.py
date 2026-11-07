@@ -15,7 +15,6 @@ from util.InfoUtil import InfoUtil
 from util.DisplayUtil import DisplayUtil, RecipientText
 from interp.Context import Context
 from interp.HelpEntry import HelpEntry
-from interp.HelpRegistry import HelpRegistry
 from item.Item import Item
 from util.InterpUtil import InterpUtil
 from player.Character import Character
@@ -77,12 +76,11 @@ class Info:
                  session_handler: SessionHandler,
                  weather_handler: WeatherHandler,
                  enum_provider: EnumProvider,
-                 interp_api: InterpApi,
-                 help_registry: HelpRegistry = None):
+                 interp_api: InterpApi):
         self.__name__ = "Info"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.interp_registry = registry_service.interp_registry
-        self.help_registry = help_registry
+        self.help_registry = registry_service.help_registry
         self.area_registry = registry_service.area_registry
         self.room_registry = registry_service.room_registry
         self.group_registry = registry_service.group_registry
@@ -109,15 +107,14 @@ class Info:
 
     def do_help(self, argument: str = "") -> str:
         query = HelpEntry.normalize_topic(argument) or 'summary'
-        registry = self.help_registry
-        entry = None if registry is None else registry.find_topic(query)
+        entry = self.help_registry.find_topic(query)
         if entry is None:
             commands = self.interp_registry.all_commands()
             command = next((value for value in commands if value.name == query), None)
             if command is None:
                 command = next((value for value in commands if query in InterpUtil.shortcut_tokens(value.shortcuts)), None)
             if command is not None:
-                entry = registry.find_topic(command.name) if registry is not None else command.help
+                entry = self.help_registry.find_topic(command.name)
         if entry is None:
             return "No help on that word.\n\r"
         heading = f'{entry.keyword}\n\r' if entry.level >= 0 and query != 'imotd' else ''
@@ -588,7 +585,7 @@ class Info:
             return self.interp_api.render_message_key(context, "no_argument_used_with", channel="to_char").get("to_char", "")
 
         areas = sorted(
-            list(getattr(self.area_registry, "all_areas", lambda: [])() or []),
+            self.area_registry.all_areas(),
             key=lambda area: str(getattr(area, "name", "") or "").lower(),
         )
         lines = [self._area_credit_line(area) for area in areas]
@@ -664,11 +661,7 @@ class Info:
         return self._column_lines(members, width=20, columns=3)
 
     def do_wizlist(self, character: Character, context: Context) -> str:
-        room = (
-            context.room
-            if getattr(context, "room", None) is not None
-            else getattr(self.room_registry, "get_or_none", lambda **_kwargs: None)(id=getattr(character, "room_id", ""))
-        )
+        room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
         seen: set[str] = set()
         immortals = []
         for candidate in [character] + list(PlayerUtil.visible(character, self.session_handler) or []):
@@ -1187,12 +1180,10 @@ class Info:
         return result
 
     def _ability_metadata(self, collection_name: str) -> dict[str, Any]:
-        registry = self.spell_registry if collection_name == "spells" else self.skill_registry
-        method_name = "all_spells" if collection_name == "spells" else "all_skills"
-        values = getattr(registry, method_name, lambda: [])() if registry is not None else []
+        values = self.spell_registry.all_spells() if collection_name == "spells" else self.skill_registry.all_skills()
         return {
             str(getattr(ability, "name", "") or "").strip().lower(): ability
-            for ability in list(values or [])
+            for ability in values
             if str(getattr(ability, "name", "") or "").strip()
         }
 
@@ -1270,9 +1261,7 @@ class Info:
             return True
 
     def _all_groups(self) -> list[Any]:
-        registry = getattr(self, "group_registry", None)
-        groups = getattr(registry, "all_groups", lambda: [])() if registry is not None else []
-        return sorted(list(groups or []), key=lambda group: self._group_name(group).lower())
+        return sorted(self.group_registry.all_groups(), key=lambda group: self._group_name(group).lower())
 
     def _group_name(self, group) -> str:
         if isinstance(group, dict):

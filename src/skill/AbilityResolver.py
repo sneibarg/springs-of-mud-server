@@ -1,3 +1,6 @@
+from itertools import chain
+
+
 class AbilityResolver:
     """Resolve definitions without caching mutable registry contents.
 
@@ -9,24 +12,21 @@ class AbilityResolver:
         self.skill_registry = skill_registry
         self.spell_registry = spell_registry
 
-    @staticmethod
-    def _entries(registry, method):
-        fetch = getattr(registry, method, None)
-        if not callable(fetch):
-            return []
-        try:
-            return list(fetch() or [])
-        except TypeError:
-            return []
+    def _skills(self):
+        if self.skill_registry is not None:
+            yield from list(self.skill_registry.all_skills())
+
+    def _spells(self):
+        if self.spell_registry is not None:
+            yield from list(self.spell_registry.all_spells())
 
     def by_name(self, name):
         wanted = str(name or "").strip().lower()
         if not wanted:
             return None
-        for registry, method in ((self.skill_registry, "all_skills"), (self.spell_registry, "all_spells")):
-            for ability in self._entries(registry, method):
-                if str(ability.name or "").strip().lower() == wanted:
-                    return ability
+        for ability in chain(self._skills(), self._spells()):
+            if str(ability.name or "").strip().lower() == wanted:
+                return ability
         return None
 
     def by_id(self, ability_id):
@@ -43,13 +43,10 @@ class AbilityResolver:
         # Periodic effects historically accept prefixed names as aliases.
         candidates = {wanted} if spell_only else {
             wanted, wanted.replace("spell.", ""), wanted.replace("skill.", "")}
-        sources = [(self.spell_registry, "all_spells")]
-        if not spell_only:
-            sources.append((self.skill_registry, "all_skills"))
-        for registry, method in sources:
-            for ability in self._entries(registry, method):
-                names = {str(getattr(ability, key, "") or "").strip().lower()
-                         for key in ("handler_id", "name", "id")}
-                if candidates & names:
-                    return ability
+        definitions = self._spells() if spell_only else chain(self._spells(), self._skills())
+        for ability in definitions:
+            names = {str(getattr(ability, key, "") or "").strip().lower()
+                     for key in ("handler_id", "name", "id")}
+            if candidates & names:
+                return ability
         return None

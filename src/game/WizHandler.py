@@ -281,7 +281,7 @@ class WizHandler:
         return "\r\n".join(lines) + f"\r\n{count} user{suffix}\r\n"
 
     def memory_report(self) -> str:
-        areas = len(list(getattr(self.registry_service.area_registry, "all_areas", lambda: [])() or []))
+        areas = len(self.registry_service.area_registry.all_areas())
         rooms = len(list(self.room_registry.all_rooms() or []))
         helps = len([command for command in self.registry_service.interp_registry.all_commands() if getattr(command, "help", None) is not None])
         socials = len(list(self.registry_service.social_registry.all_socials() or []))

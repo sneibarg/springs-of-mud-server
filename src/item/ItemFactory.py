@@ -252,18 +252,11 @@ class ItemFactory:
                 candidates.append(trimmed)
 
         registries = skill_registry if isinstance(skill_registry, (list, tuple)) else [skill_registry]
-        last_error = None
         for candidate in candidates:
             for registry in registries:
-                if registry is None or not hasattr(registry, "get"):
-                    continue
-                try:
-                    return registry.get(name=candidate)
-                except Exception as exc:
-                    last_error = exc
-
-        if last_error is not None:
-            raise last_error
+                ability = registry.get_or_none(name=candidate)
+                if ability is not None:
+                    return ability
         raise LookupError(f"No item skill registered with name={primary}")
 
     @staticmethod

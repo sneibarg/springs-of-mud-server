@@ -695,7 +695,7 @@ class Movement:
 
     def _gain_list(self, character: Character) -> str:
         lines = [self._format_gain_row_header("group"), "\r\n"]
-        groups = sorted(self._all_groups(), key=lambda group: str(getattr(group, "name", "") or "").lower())
+        groups = sorted(self.group_registry.all_groups(), key=lambda group: str(getattr(group, "name", "") or "").lower())
         entries = [
             (str(getattr(group, "name", "") or ""), self._group_rating(character, group))
             for group in groups
@@ -705,7 +705,7 @@ class Movement:
         lines.append("\r\n")
         lines.append(self._format_gain_row_header("skill"))
         lines.append("\r\n")
-        skills = sorted(self._all_skills(), key=lambda skill: str(getattr(skill, "name", "") or "").lower())
+        skills = sorted(self.skill_registry.all_skills(), key=lambda skill: str(getattr(skill, "name", "") or "").lower())
         skill_entries = [
             (str(getattr(skill, "name", "") or ""), self._ability_rating(character, skill))
             for skill in skills
@@ -745,13 +745,13 @@ class Movement:
         return None
 
     def _find_gain_group(self, raw: str):
-        return self._find_gain_entry(raw, self._all_groups(), self.group_registry)
+        return self._find_gain_entry(raw, self.group_registry.all_groups(), self.group_registry)
 
     def _find_gain_skill(self, raw: str):
-        return self._find_gain_entry(raw, self._all_skills(), self.skill_registry)
+        return self._find_gain_entry(raw, self.skill_registry.all_skills(), self.skill_registry)
 
     def _find_gain_spell(self, raw: str):
-        return self._find_gain_entry(raw, self._all_spells(), self.spell_registry)
+        return self._find_gain_entry(raw, self.spell_registry.all_spells(), self.spell_registry)
 
     @staticmethod
     def _find_gain_entry(raw: str, candidates: list, registry):
@@ -763,20 +763,7 @@ class Movement:
             name = str(getattr(entry, "name", "") or "").strip().lower()
             if name.startswith(wanted):
                 return entry
-        getter = getattr(registry, "get_or_none", None)
-        return getter(name=raw) if callable(getter) else None
-
-    def _all_groups(self) -> list:
-        getter = getattr(self.group_registry, "all_groups", None)
-        return list(getter()) if callable(getter) else []
-
-    def _all_skills(self) -> list:
-        getter = getattr(self.skill_registry, "all_skills", None)
-        return list(getter()) if callable(getter) else []
-
-    def _all_spells(self) -> list:
-        getter = getattr(self.spell_registry, "all_spells", None)
-        return list(getter()) if callable(getter) else []
+        return registry.get_or_none(name=raw)
 
     def _group_rating(self, character: Character, group) -> int:
         ratings = list(getattr(group, "rating", []) or [])
@@ -898,12 +885,10 @@ class Movement:
         return self.room_registry.get_or_none(vnum=destination_ref) or self.room_registry.get_or_none(id=destination_ref)
 
     def _random_room(self, character):
-        all_rooms = getattr(self.room_registry, "all_rooms", None)
-        rooms = list(all_rooms()) if callable(all_rooms) else []
         excluded = sum(EnumProvider.value(self.room_flags, name) for name in ("ROOM_PRIVATE", "ROOM_SOLITARY", "ROOM_SAFE"))
         law = EnumProvider.value(self.room_flags, "ROOM_LAW")
         aggression = EnumProvider.value(self.act_bits, "ACT_AGGRESSIVE")
-        rooms = [room for room in rooms if CharacterApi.can_see_room(character, room)
+        rooms = [room for room in self.room_registry.all_rooms() if CharacterApi.can_see_room(character, room)
                  and not room.is_private(self.room_flags) and not (int(room.room_flags) & excluded)
                  and (CharacterApi.is_npc(character) or int(character.status_flags.act) & aggression
                       or not (int(room.room_flags) & law))]

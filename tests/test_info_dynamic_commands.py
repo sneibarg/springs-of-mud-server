@@ -475,6 +475,7 @@ class _Context(SimpleNamespace):
     def __init__(self, **kwargs):
         kwargs.setdefault("result", "")
         kwargs.setdefault("parameters", [])
+        kwargs.setdefault("room", None)
         super().__init__(**kwargs)
 
     def finish(self):
@@ -544,6 +545,7 @@ class TestInfoDynamicCommands(unittest.TestCase):
         area_registry = SimpleNamespace(all_areas=lambda: [])
         room_registry = SimpleNamespace(get_or_none=lambda **_kwargs: None)
         registry_service = SimpleNamespace(
+            help_registry=SimpleNamespace(find_topic=lambda _query: None),
             interp_registry=SimpleNamespace(all_commands=lambda: []),
             area_registry=area_registry,
             room_registry=room_registry,
@@ -629,7 +631,7 @@ class TestInfoDynamicCommands(unittest.TestCase):
 
     def test_do_wizlist_lists_visible_immortals(self):
         commands, _room_registry, _registry_service, session_handler, _weather_handler = self._commands()
-        viewer = SimpleNamespace(id="viewer", name="Viewer", level=10, immortal=False)
+        viewer = SimpleNamespace(id="viewer", name="Viewer", level=10, immortal=False, room_id="room-1")
         visible_immortal = SimpleNamespace(id="imm-1", name="Alander", title="the Builder", level=60, trust=60, immortal=True)
         hidden_immortal = SimpleNamespace(id="imm-2", name="Hidden", level=60, trust=60, immortal=True, hidden_from={"viewer"})
         mortal = SimpleNamespace(id="mort-1", name="Mortal", level=10, immortal=False)

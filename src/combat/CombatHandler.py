@@ -329,7 +329,7 @@ class FightHandler:
         return self._check_weapon_defense(attacker, victim, "dodge")
 
     def _successful_skill_payload(self, skill_name: str, attacker, victim) -> dict | None:
-        skill = self._skill_definition(skill_name)
+        skill = self.skill_registry.get_or_none(name=skill_name)
         if skill is None:
             return None
 
@@ -348,24 +348,6 @@ class FightHandler:
         rendered["xp_gain"] = 0
         rendered["level_up_messages"] = ""
         return rendered
-
-    def _skill_definition(self, skill_name: str):
-        registry = getattr(self, "skill_registry", None)
-        if registry is None:
-            return None
-        get_or_none = getattr(registry, "get_or_none", None)
-        if callable(get_or_none):
-            try:
-                return get_or_none(name=skill_name)
-            except TypeError:
-                return get_or_none(skill_name)
-        get = getattr(registry, "get", None)
-        if callable(get):
-            try:
-                return get(name=skill_name)
-            except (KeyError, TypeError):
-                return None
-        return None
 
     @staticmethod
     def _render_skill_message(skill, channel: str, key: str, **tokens) -> str:

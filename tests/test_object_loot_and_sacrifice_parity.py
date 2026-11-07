@@ -158,7 +158,7 @@ class TestObjectLootAndSacrificeParity(unittest.TestCase):
         self.owner.is_npc = True
         self.owner.status_flags.act = PlayerFlags.PLR_CANLOOT
         self.other_room.mobiles[self.owner.id] = self.owner
-        self.assertFalse(self.commands.can_loot(self.actor, self.item(owner="OWNER"), self.room))
+        self.assertFalse(self.commands.can_loot(self.actor, self.item(owner="OWNER")))
 
     def test_item_ownership_checked_for_single_and_bulk_pickup(self):
         for selector in ("gem", "all", "all.gem"):

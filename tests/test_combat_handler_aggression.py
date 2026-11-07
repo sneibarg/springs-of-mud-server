@@ -1124,6 +1124,7 @@ class TestFightHandlerAggression(unittest.TestCase):
         handler = FightHandler.__new__(FightHandler)
         handler.logger = _Logger()
         handler.area_registry = SimpleNamespace(get_or_none=lambda **_kwargs: None)
+        handler.skill_registry = SimpleNamespace(get_or_none=lambda **_kwargs: None)
         handler.combat_registry = SimpleNamespace(upsert=Mock(), get_by_combatant=Mock(return_value=[]), remove_by_id=Mock())
         handler.room_registry = SimpleNamespace(get=lambda **_kwargs: room, get_or_none=lambda **_kwargs: room)
         handler.PositionsEnum = _Positions

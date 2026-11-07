@@ -391,9 +391,9 @@ class TestMovementDynamicCommands(unittest.TestCase):
     def _commands(self, *, group_registry=None, skill_registry=None, spell_registry=None):
         registry_service = SimpleNamespace(
             room_registry=SimpleNamespace(get_or_none=lambda **_kwargs: None),
-            group_registry=group_registry or SimpleNamespace(all_groups=lambda: []),
-            skill_registry=skill_registry or SimpleNamespace(all_skills=lambda: []),
-            spell_registry=spell_registry or SimpleNamespace(all_spells=lambda: []),
+            group_registry=group_registry or SimpleNamespace(all_groups=lambda: [], get_or_none=lambda **_: None),
+            skill_registry=skill_registry or SimpleNamespace(all_skills=lambda: [], get_or_none=lambda **_: None),
+            spell_registry=spell_registry or SimpleNamespace(all_spells=lambda: [], get_or_none=lambda **_: None),
         )
         commands = Movement(
             registry_service=registry_service,
@@ -825,9 +825,9 @@ class TestMovementDynamicCommands(unittest.TestCase):
         skills = [SimpleNamespace(name=name) for name in ("sword", "dagger")]
         spells = [SimpleNamespace(name="magic missile"), SimpleNamespace(name="heal")]
         commands, _ = self._commands(
-            group_registry=SimpleNamespace(all_groups=lambda: [root, nested]),
-            skill_registry=SimpleNamespace(all_skills=lambda: skills),
-            spell_registry=SimpleNamespace(all_spells=lambda: spells))
+            group_registry=SimpleNamespace(all_groups=lambda: [root, nested], get_or_none=lambda **_: None),
+            skill_registry=SimpleNamespace(all_skills=lambda: skills, get_or_none=lambda **_: None),
+            spell_registry=SimpleNamespace(all_spells=lambda: spells, get_or_none=lambda **_: None))
         character = SimpleNamespace(skills=[{"name": "sword", "level": 80}, {"name": "dagger", "level": 0}],
                                     spells=[{"name": "magic missile", "level": 60}],
                                     groups=[], character_class=SimpleNamespace(name="mage"),
@@ -938,10 +938,10 @@ class TestMovementDynamicCommands(unittest.TestCase):
     def test_gain_name_prefix_uses_registry_order(self):
         first = SimpleNamespace(name="sword mastery")
         second = SimpleNamespace(name="sword")
-        registry = SimpleNamespace(get_or_none=lambda **kwargs: second)
+        registry = SimpleNamespace(get_or_none=lambda **kwargs: second if kwargs["name"] == second.name else None)
         self.assertIs(first, Movement._find_gain_entry("SWO", [first, second], registry))
         self.assertIs(first, Movement._find_gain_entry("sword", [first, second], registry))
-        self.assertIsNone(Movement._find_gain_entry("swordjunk", [first, second], None))
+        self.assertIsNone(Movement._find_gain_entry("swordjunk", [first, second], registry))
         self.assertIsNone(Movement._find_gain_entry("", [first, second], registry))
         commands, _ = self._commands(
             group_registry=SimpleNamespace(all_groups=lambda: [SimpleNamespace(name="combat magic")]),

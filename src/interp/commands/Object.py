@@ -384,27 +384,16 @@ class Object:
             return None
 
     def _outfit_prototype(self, vnum: str):
-        registry = self.item_registry
-        if registry is None:
-            return None
         target = str(vnum or "").strip()
         if not target:
             return None
-        for method_name in ("get_or_none", "get"):
-            method = getattr(registry, method_name, None)
-            if method is None:
-                continue
-            for current in (target, GenericUtil.to_int(target, target)):
-                try:
-                    proto = method(vnum=current)
-                except Exception:
-                    proto = None
-                if proto is not None:
-                    return proto
-        for proto in list(getattr(registry, "all_items", lambda: [])() or []):
-            if str(getattr(proto, "vnum", "") or "") == target:
-                return proto
-        return None
+        prototype = self.item_registry.get_or_none(vnum=target)
+        if prototype is None:
+            # Older item data may store vnums as integers.
+            numeric_vnum = GenericUtil.to_int(target, None)
+            if numeric_vnum is not None:
+                prototype = self.item_registry.get_or_none(vnum=numeric_vnum)
+        return prototype
 
     def do_get(self, character: Character, context: Context):
         room = self._prepare_get_context(character, context)
@@ -437,7 +426,7 @@ class Object:
         context.container = self._here_item(character, room, context.container_name) if context.container_name else None
         context.get_container_loot_allowed = (
             context.container is None or not Item.is_pc_corpse(context.container)
-            or self.can_loot(character, context.container, room)
+            or self.can_loot(character, context.container)
         )
         context.target_item = None
         context.get_candidates = []
@@ -505,7 +494,7 @@ class Object:
 
     def _get_one(self, character: Character, room, context: Context, item, container=None):
         if (getattr(container, "owner", None) and Item.is_pc_corpse(container)
-                and not self.can_loot(character, container, room)):
+                and not self.can_loot(character, container)):
             return {"to_char": self._render_command_message(context, "cannot")}
         error = self._get_item_error(character, context, item, container)
         if error:
@@ -586,24 +575,20 @@ class Object:
         carried_container = container is not None and any(obj is container for obj in character.owned_items())
         if not carried_container and character.carry_weight() + item_weight > max_weight:
             return self._render_command_message(context, "carry_weight", t=item_short)
-        if not self.can_loot(character, item, getattr(context, "room", None)):
+        if not self.can_loot(character, item):
             return self._render_command_message(context, "loot_not_permitted")
         return ""
 
-    def can_loot(self, character, item, room=None) -> bool:
+    def can_loot(self, character, item) -> bool:
         # Registries contain persisted players and NPC prototypes too. Only room
         # occupants and playing characters correspond to ROM's live char_list.
         if not getattr(item, "owner", None):
             return True
 
         def owners():
-            registry = self.registry_service.character_registry
-            yield from list(getattr(registry, "playing", {}).values())
-            all_rooms = getattr(self.room_registry, "all_rooms", None)
-            rooms = all_rooms() if callable(all_rooms) else ([room] if room is not None else [])
-            for current_room in rooms:
-                yield from list(getattr(current_room, "characters", {}).values())
-                yield from list(getattr(current_room, "mobiles", {}).values())
+            yield from list(self.registry_service.character_registry.playing.values())
+            for current_room in self.room_registry.all_rooms():
+                yield from current_room.people()
 
         return ItemApi.can_loot(character, item, owners())
 
@@ -738,7 +723,7 @@ class Object:
         return 0
 
     def _skill_beats(self, skill_name: str, default: int = 24) -> int:
-        skill = self.skill_registry.get_or_none(name=skill_name) if self.skill_registry is not None else None
+        skill = self.skill_registry.get_or_none(name=skill_name)
         return GenericUtil.to_int(getattr(skill, "beats", default), default) if skill is not None else default
 
     @staticmethod
@@ -1168,9 +1153,7 @@ class Object:
             self.affected_bits,
             self.comm_flags,
         )
-        character_registry = self.registry_service.character_registry
-        if character_registry is not None:
-            character_registry.register(pet)
+        self.registry_service.character_registry.register(pet)
         return {
             "to_char": haggle + self._render_command_message(context, "pet_purchased"),
             "to_room": self._render_command_message(context, "pet_purchased", channel="to_room", c=character.name, t=getattr(pet, "short_description", "a pet")),

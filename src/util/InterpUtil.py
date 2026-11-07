@@ -123,11 +123,9 @@ class InterpUtil:
             command_text, parameters = text[0], text[1:].lstrip()
         else:
             command_text, parameters = InterpUtil.one_argument(text)
-        get_or_none = getattr(interp_registry, "get_or_none", None)
-        if callable(get_or_none):
-            exact = get_or_none(name=command_text)
-            if exact is not None:
-                return exact, parameters
+        exact = interp_registry.get_or_none(name=command_text)
+        if exact is not None:
+            return exact, parameters
 
         for cmd in interp_registry.all_commands():
             if not cmd.name:
