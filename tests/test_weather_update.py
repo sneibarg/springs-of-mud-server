@@ -111,6 +111,7 @@ class WeatherUpdateTests(unittest.IsolatedAsyncioTestCase):
         self.handler.time_info.hour = 23
         self.handler.time_info.day = 34
         self.handler.time_info.month = 16
+        self.handler.time_info.year = 1
         self.assertEqual('', self.handler._time_change())
         time = self.handler.time_info
         self.assertEqual((0, 0, 0, 2), (time.hour, time.day, time.month, time.year))

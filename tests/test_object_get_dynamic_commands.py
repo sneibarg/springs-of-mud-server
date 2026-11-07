@@ -7,7 +7,7 @@ import types
 import unittest
 from copy import deepcopy
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -587,6 +587,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         registry_service = SimpleNamespace(
             interp_registry=SimpleNamespace(get=lambda **kwargs: _load_command(kwargs["name"])),
             room_registry=room_registry,
+            character_registry=SimpleNamespace(playing={}, register=Mock()),
             item_registry=item_registry or SimpleNamespace(get_or_none=lambda **_kwargs: None, all_items=lambda: []),
             mobile_registry=SimpleNamespace(),
             shop_registry=shop_registry or SimpleNamespace(find_by_keeper_vnum=lambda _keeper_vnum: None),

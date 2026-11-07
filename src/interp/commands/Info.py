@@ -85,7 +85,7 @@ class Info:
         self.help_registry = help_registry
         self.area_registry = registry_service.area_registry
         self.room_registry = registry_service.room_registry
-        self.group_registry = getattr(registry_service, "group_registry", None)
+        self.group_registry = registry_service.group_registry
         self.skill_registry = registry_service.skill_registry
         self.spell_registry = registry_service.spell_registry
         self.session_handler = session_handler

@@ -63,7 +63,8 @@ class CollectionApiBoundaryTests(unittest.TestCase):
         self.enums = EnumProvider({name: GenericUtil.build_int_enum(name, values)
                                   for name, values in data.enums.items()})
         GameApi.configure(data, self.enums)
-        CharacterApi.lazy_load(None, NS())
+        CharacterApi.lazy_load(None, NS(skill_registry=NS(all_skills=lambda: []),
+                                        spell_registry=NS(all_spells=lambda: [])))
         self.actor = Character.from_json(build_character_data())
         self.room = Room(id=self.actor.room_id, light=1)
         self.room.add_player_to_room(self.actor)
@@ -119,6 +120,7 @@ class CollectionApiBoundaryTests(unittest.TestCase):
         self.room.add_player_to_room(occupant)
         self.assertIs(occupant, ItemApi.find_item_occupant(self.room, chair))
         context = Context(character=self.actor, room=self.room, command=self.command('sacrifice'),
+                          registry_service=NS(),
                           result='chair', parameters=[])
         commands = Object.__new__(Object)
         commands.interp_api = InterpApi()

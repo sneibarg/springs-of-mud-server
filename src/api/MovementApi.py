@@ -156,16 +156,16 @@ class MovementApi(GameApi):
         return ""
 
     @staticmethod
-    def move_state(subject, direction: str = "", room_registry=None) -> MovementState:
+    def move_state(subject, direction: str = "") -> MovementState:
         character = MovementApi._character(subject)
         direction_name = MovementApi._direction(subject, direction)
         door = MovementUtil.direction_index(direction_name)
-        in_room = MovementApi._room(subject, room_registry=room_registry)
+        in_room = MovementApi._room(subject)
         exit_obj = None
         if in_room is not None and door >= 0:
             exit_obj = in_room.get_exit(door)
 
-        to_room = MovementApi._destination_room(exit_obj, subject, room_registry=room_registry)
+        to_room = MovementApi._destination_room(exit_obj, MovementApi._context(subject).registry_service.room_registry)
         exit_flags = CharacterApi.get_enum("exitFlags")
         room_flags = CharacterApi.get_enum("roomFlags")
         affected_bits = CharacterApi.get_enum("affectedBy")
@@ -224,10 +224,10 @@ class MovementApi(GameApi):
         )
 
     @staticmethod
-    def door_state(subject, room_registry=None, exit_flags=None) -> DoorState:
+    def door_state(subject, exit_flags=None) -> DoorState:
         from util.InterpUtil import InterpUtil
         character = MovementApi._character(subject)
-        room: Room | None = MovementApi._room(subject, room_registry=room_registry)
+        room: Room | None = MovementApi._room(subject)
         argument, _ = InterpUtil.one_argument(MovementApi.argument_text(subject))
         door = -1 if room is None else room.find_door(argument)
         exit_obj = room.get_exit(door) if door >= 0 else None
@@ -503,7 +503,7 @@ class MovementApi(GameApi):
         if set_mask:
             flags = MovementApi.set_flag(flags, set_mask)
         exit_obj.exit_flags = flags
-        MovementApi._mirror_exit_flags(room_registry, room, exit_obj, set_mask=set_mask, clear_mask=clear_mask)
+        return MovementApi._mirror_exit_flags(room_registry, room, exit_obj, set_mask=set_mask, clear_mask=clear_mask)
 
     @staticmethod
     def open_exit(room_registry, room, exit_obj, exit_flags):
@@ -607,70 +607,45 @@ class MovementApi(GameApi):
         return str(getattr(command, "name", "") or "").strip().lower()
 
     @staticmethod
-    def _room(subject, room_registry=None) -> Room | None:
+    def _room(subject) -> Room | None:
         context = MovementApi._context(subject)
-        room = getattr(context, "room", None)
+        room = context.room
         if room is not None:
             return room
 
-        registry = MovementApi._room_registry(subject, room_registry=room_registry)
-        character = MovementApi._character(subject)
-        if registry is None or character is None:
-            return None
-        return registry.get_or_none(id=character.room_id)
+        return context.registry_service.room_registry.get_or_none(id=context.character.room_id)
 
     @staticmethod
-    def _destination_room(exit_obj, subject, room_registry=None):
+    def _destination_room(exit_obj, room_registry):
         if exit_obj is None:
             return None
-        registry = MovementApi._room_registry(subject, room_registry=room_registry)
-        if registry is None:
-            return None
-
         to_room_id = exit_obj.to_room_id
         if to_room_id:
-            room = registry.get_or_none(id=to_room_id)
+            room = room_registry.get_or_none(id=to_room_id)
             if room is not None:
                 return room
 
-        to_room_vnum = exit_obj.to_room_vnum
+        to_room_vnum = getattr(exit_obj, "to_room_vnum", None)
         if to_room_vnum not in (None, ""):
-            return registry.get_or_none(vnum=str(to_room_vnum))
-        return None
-
-    @staticmethod
-    def _room_registry(subject, room_registry=None):
-        if room_registry is not None:
-            return room_registry
-
-        context = MovementApi._context(subject)
-        registry = getattr(context, "room_registry", None)
-        if registry is not None:
-            return registry
-
-        for accessor_name in ("player_handler", "room_handler"):
-            accessor = getattr(context, accessor_name, None)
-            if accessor is None:
-                continue
-            try:
-                handler = accessor()
-            except TypeError:
-                handler = None
-            registry = getattr(handler, "room_registry", None)
-            if registry is not None:
-                return registry
+            return room_registry.get_or_none(vnum=str(to_room_vnum))
         return None
 
     @staticmethod
     def _mirror_exit_flags(room_registry, room, ex, *, set_mask: int = 0, clear_mask: int = 0):
-        if room_registry is None or room is None or ex is None:
+        if room is None or ex is None:
             return
-        to_room = room_registry.get_or_none(id=ex.to_room_id)
+        to_room = MovementApi._destination_room(ex, room_registry)
         if to_room is None:
             return
         rev = MovementUtil.REV_DIR[int(ex.direction)]
         rev_exit = to_room.get_exit(rev)
-        if rev_exit is None or rev_exit.to_room_id != room.id:
+        if rev_exit is None:
+            return
+        if rev_exit.to_room_id:
+            points_back = rev_exit.to_room_id == room.id
+        else:
+            points_back = MovementApi._destination_room(rev_exit, room_registry) is room
+        if not points_back:
             return
         flags = GenericUtil.to_int(rev_exit.exit_flags, 0)
         if clear_mask:
@@ -678,3 +653,4 @@ class MovementApi(GameApi):
         if set_mask:
             flags = MovementApi.set_flag(flags, set_mask)
         rev_exit.exit_flags = flags
+        return to_room, rev_exit

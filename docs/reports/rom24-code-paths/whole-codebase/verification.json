@@ -7,7 +7,11 @@
   "checks": "JSON integrity, unique branch links, bidirectional references, blocked reasons, all snapshot hashes, Markdown links and function-scoped citation bounds, count consistency, local ledger reconciliation without promoting function status, truthful partial status",
   "source_and_supporting_files_hashed": 528,
   "functions_inventoried": 677,
-  "cases": 582,
-  "markdown_links_checked": 785,
+  "cases": 699,
+  "markdown_links_checked": 868,
+  "completed_spec_name_cases_checked": 24,
+  "completed_spec_lookup_cases_checked": 37,
+  "completed_is_same_clan_cases_checked": 19,
+  "completed_room_is_dark_cases_checked": 59,
   "gameplay_tests_run": 0
 }

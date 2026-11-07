@@ -22,7 +22,7 @@ class InfoBoundaryTests(unittest.TestCase):
         self.assertTrue(LookupUtil.matches('steel swo', 'sword steel'))
 
     def test_context_owns_the_requested_match_count(self):
-        context = Context(character=None, number=2)
+        context = Context(registry_service=NS(), character=None, number=2)
         self.assertFalse(context.register_match())
         self.assertTrue(context.register_match())
         self.assertFalse(context.register_match())
@@ -42,7 +42,7 @@ class InfoBoundaryTests(unittest.TestCase):
         handler.message_bus = NS(text_to_message=lambda text: text, send_to_character=AsyncMock())
         for argument, expected, count in [('swo', 'An inscription.', 1), ('2.swo', 'A steel sword.', 2)]:
             with self.subTest(argument=argument), patch.object(ItemApi, 'can_see_object', return_value=True):
-                context = Context(character=actor, room=room, parameters=[argument])
+                context = Context(registry_service=NS(), character=actor, room=room, parameters=[argument])
                 self.complete(handler.look_item_or_extra(actor, context))
                 handler.message_bus.send_to_character.assert_awaited_with(actor.id, expected + '\r\n')
                 self.assertEqual(count, context.count)
@@ -54,7 +54,7 @@ class InfoBoundaryTests(unittest.TestCase):
         actor = NS(id='actor', get_items=lambda: [])
         handler = ItemHandler.__new__(ItemHandler)
         handler.message_bus = NS(text_to_message=lambda text: text, send_to_character=AsyncMock())
-        context = Context(character=actor, room=room, parameters=['mur'])
+        context = Context(registry_service=NS(), character=actor, room=room, parameters=['mur'])
         self.complete(handler.look_item_or_extra(actor, context))
         handler.message_bus.send_to_character.assert_awaited_once_with(actor.id, 'A painted wall.\r\n')
         self.assertEqual(1, context.count)

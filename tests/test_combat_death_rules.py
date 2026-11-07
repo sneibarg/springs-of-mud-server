@@ -51,7 +51,8 @@ class TestCombatDeathRules(unittest.TestCase):
         self.room = SimpleNamespace(name="Arena", vnum="100", player_targets=lambda actor: [self.actor] if actor is self.victim else [self.victim],
                                     exits=[], add_item_to_room=Mock())
         self.config = json.loads((ROOT / "resources/collections/SOMDB.GameData.json").read_text())[0]["combat"]["death"]
-        self.registry = SimpleNamespace(interp_registry=SimpleNamespace(get_or_none=Mock(return_value=SimpleNamespace(name="get"))),
+        self.registry = SimpleNamespace(interp_registry=SimpleNamespace(
+                                        get_or_none=Mock(side_effect=lambda name: SimpleNamespace(name="get") if name == "get" else None)),
                                         room_registry=SimpleNamespace(get_or_none=Mock(return_value=None)))
         self.objects = Object.__new__(Object)
         self.objects.PlayerActBits = SimpleNamespace(PLR_AUTOSPLIT=0)
@@ -65,6 +66,7 @@ class TestCombatDeathRules(unittest.TestCase):
         split = {"payloads": [{"target_messages": [{"id": "ally", "text": "split"}]}]}
         self.objects._autosplit = Mock(return_value=split)
         self.combat.death_handler = self.death
+        self.combat.registry_service = self.registry
         self.actor.silver = 100
         self.combat.WearFlags = self.combat.ItemFlags = object()
         before = self.actor.silver
@@ -133,6 +135,7 @@ class TestCombatDeathRules(unittest.TestCase):
         gain.assert_called_once_with(self.victim, -150)
         self.assertEqual("WIZ_DEATHS", notice["wiznet_flag"])
         with patch.object(DeathModule.CharacterApi, "enum_bit", side_effect=lambda flags, name: 1 if name == "PLR_KILLER" else 2), \
+                patch.object(DeathModule.CharacterApi, "is_same_clan", return_value=False, create=True), \
                 patch.object(DeathModule.CharacterApi, "unset_act_flags", side_effect=lambda entity, bit: setattr(entity.status_flags, "act", entity.status_flags.act & ~bit), create=True):
             self.death.cleanup_flags(self.actor, self.victim, object())
             self.assertEqual(2, self.victim.status_flags.act)

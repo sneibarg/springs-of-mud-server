@@ -79,9 +79,22 @@ class MobileHandler:
         if command is None:
             return
         context = Context(character=ctx.actor, command=command, room=ctx.room,
+                          registry_service=self.registry_service,
                           result=argument, parameters=[], handler_service=self.handler_service)
         payload = getattr(self.fight_commands, 'do_' + name)(ctx.actor, context)
         ctx.queue_payload({'actor': ctx.actor, 'context': context, 'payloads': [payload]})
+
+    def run_door_command(self, ctx: MobileContext, name: str, argument: str) -> bool:
+        command = self.registry_service.interp_registry.get_or_none(name=name)
+        if command is None:
+            return False
+        context = Context(character=ctx.actor, command=command, room=ctx.room,
+                          registry_service=self.registry_service,
+                          result=argument, parameters=[], handler_service=self.handler_service)
+        action = self.movement_commands.do_open if name == "open" else self.movement_commands.do_close
+        payload = action(ctx.actor, context)
+        ctx.queue_payload({'actor': ctx.actor, 'context': context, 'payloads': [payload]})
+        return bool(payload.get("lock_succeeded"))
 
     def rebuild_kill_table(self) -> None:
         kill_table: dict[int, KillTable] = {}

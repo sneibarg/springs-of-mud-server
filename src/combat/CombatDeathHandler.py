@@ -117,7 +117,7 @@ class CombatDeathHandler:
         command = self.registry.interp_registry.get_or_none(name="get")
         if command is None:
             return []
-        context = Context(character=actor, command=command, room=room)
+        context = Context(character=actor, command=command, room=room, registry_service=self.registry)
         results = []
         for item in list(corpse.contains):
             if money_only and str(getattr(item, "item_type", "")).lower() != "money":
@@ -149,8 +149,7 @@ class CombatDeathHandler:
     def cleanup_flags(attacker, victim, flags):
         if attacker is victim or CharacterApi.is_npc(attacker) or CharacterApi.is_npc(victim):
             return
-        guild = str(getattr(attacker, "guild", "") or "").lower()
-        if guild not in {"independent", "loner"} and guild == str(getattr(victim, "guild", "") or "").lower():
+        if CharacterApi.is_same_clan(attacker, victim):
             return
         killer = CharacterApi.enum_bit(flags, "PLR_KILLER")
         bit = killer if CharacterApi.is_set(victim.status_flags.act, killer) else CharacterApi.enum_bit(flags, "PLR_THIEF")

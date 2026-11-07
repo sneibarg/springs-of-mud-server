@@ -1516,8 +1516,7 @@ class FightHandler:
         room.remove_item_from_room(corpse)
         silver = ItemApi.sacrifice_silver_value(corpse)
         attacker.silver = int(attacker.silver or 0) + silver
-        registry = getattr(getattr(self, "registry_service", None), "interp_registry", None)
-        command = registry.get_or_none(name="sacrifice") if registry is not None else None
+        command = self.registry_service.interp_registry.get_or_none(name="sacrifice")
         definition = command.payload if command is not None else bundled_payload("sacrifice")
         defaults = bundled_payload("sacrifice")
         reward_key = "one_silver" if silver == 1 else "multiple_silver"
@@ -1530,7 +1529,7 @@ class FightHandler:
         room_text = room_text.rstrip("\r\n") + "\r\n" if room_text else ""
         death_handler = getattr(self, "death_handler", None)
         if death_handler is not None:
-            context = Context(character=attacker, room=room)
+            context = Context(character=attacker, room=room, registry_service=self.registry_service)
             split = death_handler.object_commands._autosplit(attacker, room, context, silver, sacrifice=True)
             if split is not None:
                 return {"payloads": [

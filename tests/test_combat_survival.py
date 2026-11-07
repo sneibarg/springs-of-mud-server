@@ -26,6 +26,8 @@ def _load_components():
         ("server.connection.ConnectionManager", "ConnectionManager"))}
     replacements["api.InterpApi"] = SimpleNamespace(InterpApi=SimpleNamespace(
         command_payload=lambda key, **fields: dict(message_key=key, **fields)))
+    replacements["util.MovementUtil"] = SimpleNamespace(
+        MovementUtil=SimpleNamespace(DIR_NAME=["north", "east", "south", "west", "up", "down"]))
     replacements["combat.CombatHandler"] = SimpleNamespace(FightHandler=Runtime.FightHandler)
     replacements["api.MovementApi"] = SimpleNamespace(MovementApi=SimpleNamespace(
         flag_value=lambda enums, *names: next((int(getattr(getattr(enums, name, None), "value", 0))
@@ -344,7 +346,8 @@ class TestCombatSurvival(unittest.TestCase):
         for npc in (False, True):
             handler = self._escape(npc=npc)
             emitter = module.PlayerHandler.__new__(module.PlayerHandler)
-            emitter.message_bus = SimpleNamespace(send_to_character=AsyncMock(), text_to_message=lambda text: text)
+            emitter.message_bus = SimpleNamespace(send_to_character=AsyncMock(), text_to_message=lambda text: text,
+                                                  connection_manager=SimpleNamespace(get_connection_by_character=lambda _: None))
             emitter._resolve_standard_payload = Mock(return_value={"to_char": "escaped"})
             context = SimpleNamespace(command=SimpleNamespace(name="flee"))
             action = {"actor": self.victim, "context": context, "payloads": [{"to_char": "key"}]}

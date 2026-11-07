@@ -154,7 +154,7 @@ class SpellApi:
             return
         room = ctx.room
         if room is None or (getattr(ctx.actor, "room_id", "") and str(ctx.actor.room_id) != str(room.id)):
-            room = self._find_room_for_entity(ctx.actor)
+            room = self._find_room_for_entity(ctx, ctx.actor)
         if room is None or not any(entity is victim for entity in self._room_entities(room)):
             return
         fight = self._fight_handler(ctx)
@@ -367,7 +367,7 @@ class SpellApi:
                 ctx.queue_payload({"victim": victim, "to_victim": text})
 
     def _ability_for_effect(self, ctx: SpellContext, effect_type: Any):
-        registry = getattr(getattr(ctx, "handler", None), "spell_registry", None)
+        registry = ctx.handler.registry_service.spell_registry
         return AbilityResolver(spell_registry=registry).effect_owner(effect_type, spell_only=True)
 
     def _ability_message(self, ability: Any, channel: str, key: str, ctx: SpellContext, target: Any) -> str:
@@ -469,7 +469,7 @@ class SpellApi:
         """Summarize fighting positions without conflating them with opponent pointers."""
         if player_divisor <= 0:
             raise ValueError("Combat level weighting requires a positive player divisor.")
-        room = ctx.room or self._find_room_for_entity(ctx.actor)
+        room = ctx.room or self._find_room_for_entity(ctx, ctx.actor)
         position = CharacterApi.pos_value("POS_FIGHTING")
         fighters = [entity for entity in self._room_entities(room)
                     if CharacterApi.position_value(entity) == position]
@@ -516,7 +516,7 @@ class SpellApi:
         return int(getattr(getattr(victim, "status_flags", None), "invis_level", 0))
 
     def room_has_flag(self, ctx: SpellContext, flag: str) -> bool:
-        return self._room_flag(self._find_room_for_entity(ctx.victim) or ctx.room, flag)
+        return self._room_flag(self._find_room_for_entity(ctx, ctx.victim) or ctx.room, flag)
 
     def same_group(self, ctx: SpellContext, target: Any = None) -> bool:
         return CharacterApi.is_same_group(ctx.actor, ctx.resolve(target) if target is not None else ctx.victim)
@@ -615,7 +615,7 @@ class SpellApi:
 
     def for_each_room(self, ctx: SpellContext, operation, predicate=None, safe: bool = False,
                       stop_on_block: bool = False):
-        room = ctx.room or self._find_room_for_entity(ctx.actor)
+        room = ctx.room or self._find_room_for_entity(ctx, ctx.actor)
         for victim in self._room_entities(room):
             scoped = replace(ctx, target=victim, aliases=dict(ctx.aliases, target=victim, victim=victim),
                              done=False, performed=False)
@@ -640,11 +640,10 @@ class SpellApi:
         return sky is not None and int(sky) >= int(GameApi.get_enum("timeAndWeather").SKY_RAINING)
 
     def area_message(self, ctx: SpellContext, key: str, outdoors: bool = False, awake: bool = False):
-        registry = self._room_registry(ctx)
-        if registry is None or ctx.room is None:
+        if ctx.room is None:
             return False
         area_id = getattr(ctx.room, "area_id", None)
-        for room in registry.all_rooms():
+        for room in ctx.handler.registry_service.room_registry.all_rooms():
             if room is ctx.room or area_id is None or getattr(room, "area_id", None) != area_id:
                 continue
             if outdoors and self._room_flag(room, "ROOM_INDOORS"):
@@ -685,7 +684,7 @@ class SpellApi:
         flags = GameApi.get_enum("itemFlags")
         weapon_flags = GameApi.get_enum("weaponType")
         immunity = GameApi.get_enum("mobImmunity")
-        room = self._find_room_for_entity(victim) or ctx.room
+        room = self._find_room_for_entity(ctx, victim) or ctx.room
         damage = 0
         acted = False
 
@@ -749,7 +748,7 @@ class SpellApi:
         """Repeat room sweeps, avoiding consecutive hits and rebounding when stranded."""
         if level_step <= 0:
             raise ValueError("Chain damage requires a positive level step.")
-        room = ctx.room or self._find_room_for_entity(ctx.actor)
+        room = ctx.room or self._find_room_for_entity(ctx, ctx.actor)
         if room is None or ctx.victim is None:
             return False
         level = ctx.level
@@ -766,7 +765,7 @@ class SpellApi:
         strike(last, first_message)
         level -= level_step
         while level > 0:
-            room = self._find_room_for_entity(ctx.actor) or room
+            room = self._find_room_for_entity(ctx, ctx.actor) or room
             if actor_was_present and not any(entity is ctx.actor for entity in self._room_entities(room)):
                 break
             found = False
@@ -836,7 +835,7 @@ class SpellApi:
         if entity is None:
             return False
         if hasattr(entity, "owned_items"):
-            room = self._find_room_for_entity(entity) or ctx.room
+            room = self._find_room_for_entity(ctx, entity) or ctx.room
         elif hasattr(entity, "contents"):
             room = entity
         else:
@@ -867,7 +866,7 @@ class SpellApi:
         if entity is None:
             return False
         fight = self._fight_handler(ctx)
-        room = (self._find_room_for_entity(entity) or ctx.room) if hasattr(entity, "owned_items") else entity
+        room = (self._find_room_for_entity(ctx, entity) or ctx.room) if hasattr(entity, "owned_items") else entity
         exposure = getattr(self, "elemental_exposure", None) or fight.weapon_hit_handler
         result = exposure.expose(kind, ctx.actor, entity, level, damage, room,
                                                  fight._check_immunity, payload=ctx.spell.payload)
@@ -885,7 +884,7 @@ class SpellApi:
         primary = ctx.victim
         if primary is None:
             return False
-        room = self._find_room_for_entity(primary) or ctx.room
+        room = self._find_room_for_entity(ctx, primary) or ctx.room
         if room is None:
             return False
         fight = self._fight_handler(ctx)
@@ -930,7 +929,7 @@ class SpellApi:
                                   GameApi.item_table_map(), RandomNumberGenerator())
 
         def notify(victim):
-            room = self._find_room_for_entity(victim) or ctx.room
+            room = self._find_room_for_entity(ctx, victim) or ctx.room
             text = self._ability_message(ctx.spell, "to_room", "poisoned", ctx, victim)
             def render(observer):
                 return ctx.spell.message("to_room", "poisoned", **DisplayUtil.visible_tokens({"victim": victim}, observer, room))
@@ -953,7 +952,7 @@ class SpellApi:
                          effect: str = "", target_filter=None):
         if effect not in ("", "poison"):
             raise ValueError(f"Unsupported room effect: {effect}")
-        room = ctx.room or self._find_room_for_entity(ctx.actor)
+        room = ctx.room or self._find_room_for_entity(ctx, ctx.actor)
         if room is None:
             return False
         acted = False
@@ -1017,10 +1016,7 @@ class SpellApi:
         return ctx.mark_performed()
 
     def create_object(self, ctx: SpellContext, vnum: str, destination: str = "room"):
-        registry = getattr(getattr(ctx.handler, "registry_service", None), "item_registry", None)
-        if registry is None:
-            return False
-        prototype = registry.get_or_none(vnum=str(vnum))
+        prototype = ctx.handler.registry_service.item_registry.get_or_none(vnum=str(vnum))
         if prototype is None:
             return False
         item = ItemFactory.create(prototype)
@@ -1098,13 +1094,12 @@ class SpellApi:
             getattr(victim, 'max_movement', getattr(victim, 'max_move', 0)))
 
     def world_object_locations(self, ctx: SpellContext):
-        yield from ItemOwnership(self.effect_handler, self._room_registry(ctx)).walk_world_items()
+        yield from ItemOwnership(self.effect_handler, ctx.handler.registry_service.room_registry).walk_world_items()
 
     def extract_object(self, ctx: SpellContext, target: Any = None):
         item = ctx.resolve(target) if target is not None else ctx.obj
-        registry = self._room_registry(ctx)
-        ownership = ItemOwnership(self.effect_handler, registry)
-        location = ownership.find_location(item, None if registry is not None else [ctx.room])
+        ownership = ItemOwnership(self.effect_handler, ctx.handler.registry_service.room_registry)
+        location = ownership.find_location(item)
         if location is not None:
             ownership.detach(item, location)
             return ctx.mark_performed()
@@ -1302,15 +1297,10 @@ class SpellApi:
 
     def room_of(self, ctx: SpellContext, target: Any = None):
         entity = ctx.resolve(target) if target is not None else ctx.victim
-        registry = self._room_registry(ctx)
-        room_id = getattr(entity, "room_id", "")
-        if registry is not None and room_id:
-            return registry.get_or_none(id=room_id)
-        return self._find_room_for_entity(entity)
+        return self._find_room_for_entity(ctx, entity)
 
     def get_room(self, ctx: SpellContext, vnum: str):
-        registry = self._room_registry(ctx)
-        return registry.get_or_none(vnum=str(vnum)) if registry is not None else None
+        return ctx.handler.registry_service.room_registry.get_or_none(vnum=str(vnum))
 
     def room_flag(self, ctx: SpellContext, flag: str, room: Any = None) -> bool:
         room = ctx.resolve(room) if room is not None else self.room_of(ctx)
@@ -1335,9 +1325,8 @@ class SpellApi:
 
     def is_shopkeeper(self, ctx: SpellContext, target: Any = None) -> bool:
         victim = ctx.resolve(target) if target is not None else ctx.victim
-        registry = getattr(getattr(ctx.handler, "registry_service", None), "shop_registry", None)
-        return CharacterApi.is_npc(victim) and registry is not None and registry.find_by_keeper_vnum(
-            getattr(victim, "vnum", "")) is not None
+        return (CharacterApi.is_npc(victim)
+                and ctx.handler.registry_service.shop_registry.find_by_keeper_vnum(victim.vnum) is not None)
 
     def held_item_kind(self, ctx: SpellContext, kind: str) -> bool:
         item = getattr(getattr(ctx.actor, "equipped", None), "held", None)
@@ -1363,11 +1352,8 @@ class SpellApi:
     def random_room(self, ctx: SpellContext, target: Any = None):
         """Choose uniformly among the rooms accepted by ROM's random-room helper."""
         victim = ctx.resolve(target) if target is not None else ctx.victim
-        registry = self._room_registry(ctx)
-        if registry is None:
-            return None
         flags = GameApi.get_enum("roomFlags")
-        rooms = [room for room in registry.all_rooms() if room is not None
+        rooms = [room for room in ctx.handler.registry_service.room_registry.all_rooms() if room is not None
                  and CharacterApi.can_see_room(victim, room) and not room.is_private(flags)
                  and not any(self._room_flag(room, flag) for flag in
                              ("ROOM_PRIVATE", "ROOM_SOLITARY", "ROOM_SAFE"))
@@ -1420,8 +1406,7 @@ class SpellApi:
 
     def create_portals(self, ctx: SpellContext, vnum: str, timer_expr: str, two_way: bool = False):
         destination = self.room_of(ctx)
-        registry = getattr(getattr(ctx.handler, "registry_service", None), "item_registry", None)
-        prototype = registry.get_or_none(vnum=str(vnum)) if registry is not None else None
+        prototype = ctx.handler.registry_service.item_registry.get_or_none(vnum=str(vnum))
         if prototype is None or destination is None or ctx.room is None:
             return False
         routes = [(ctx.room, destination)]
@@ -1449,9 +1434,9 @@ class SpellApi:
         if word and direction is None:
             return self.send_message(ctx, "invalid")
         room = ctx.room
-        registry = self._room_registry(ctx)
-        if room is None or registry is None:
+        if room is None:
             return False
+        registry = ctx.handler.registry_service.room_registry
         def report(scan_room, depth, door):
             for entity in self._room_entities(scan_room):
                 if entity is ctx.actor or not CharacterApi.can_see(ctx.actor, entity, ctx.room):
@@ -1581,20 +1566,18 @@ class SpellApi:
         for action in payload.get("post_damage_actions", []):
             ctx.queue_payload(action)
 
-    def _find_room_for_entity(self, entity):
-        registry = self._room_registry(entity)
-        if registry is None or not getattr(entity, "room_id", ""):
-            return None
-        return registry.get_or_none(id=getattr(entity, "room_id", ""))
+    @staticmethod
+    def _find_room_for_entity(ctx: SpellContext, entity):
+        room_id = getattr(entity, "room_id", "")
+        return ctx.handler.registry_service.room_registry.get_or_none(id=room_id) if room_id else None
 
     def _find_world_character(self, ctx: SpellContext, name: str):
         from util.WizUtil import WizUtil
 
         wanted = str(name or "").strip()
-        registry = self._room_registry(ctx)
-        if not wanted or registry is None:
+        if not wanted:
             return None
-        return WizUtil.find_world_entity(None, registry, wanted, observer=ctx.actor)
+        return WizUtil.find_world_entity(None, ctx.handler.registry_service.room_registry, wanted, observer=ctx.actor)
 
     @staticmethod
     def _alignment(entity) -> int:
@@ -1741,12 +1724,3 @@ class SpellApi:
             or getattr(handler, "fight_handler", None)
             or handler
         )
-
-    @staticmethod
-    def _room_registry(ctx_or_entity):
-        handler = getattr(ctx_or_entity, "handler", None)
-        if handler is not None and getattr(handler, "room_registry", None) is not None:
-            return handler.room_registry
-        if handler is not None and getattr(getattr(handler, "registry_service", None), "room_registry", None) is not None:
-            return handler.registry_service.room_registry
-        return getattr(ctx_or_entity, "room_registry", None)

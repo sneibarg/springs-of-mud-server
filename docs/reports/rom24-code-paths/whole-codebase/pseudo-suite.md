@@ -1581,11 +1581,11 @@ positive light beats dark
 
 ```text
 CASE handler.room_is_dark.positive-light-beats-dark
-SOURCE src/handler.c:room_is_dark:2358
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2359
 GIVEN {"room": {"light": 1, "room_flags": ["ROOM_DARK"], "sector_type": "SECT_FIELD"}, "weather_info": {"sunlight": "SUN_DARK"}}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
 WHEN Invoke room_is_dark with the fixture arguments once.
-THEN {"return": false, "unchanged": ["room and weather"]}
+THEN {"return": false, "unchanged": ["room", "weather", "all entities"], "read_dependencies_in_order": ["room.light"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": ["room.room_flags", "room.sector_type", "weather_info.sunlight"]}
 ```
 
 ## handler.room_is_dark.zero-light-dark-flag
@@ -1594,11 +1594,11 @@ zero light dark flag
 
 ```text
 CASE handler.room_is_dark.zero-light-dark-flag
-SOURCE src/handler.c:room_is_dark:2358
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2362
 GIVEN {"room": {"light": 0, "room_flags": ["ROOM_DARK"], "sector_type": "SECT_CITY"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
 WHEN Invoke room_is_dark with the fixture arguments once.
-THEN {"return": true, "unchanged": ["room and weather"]}
+THEN {"return": true, "unchanged": ["room", "weather", "all entities"], "read_dependencies_in_order": ["room.light", "room.room_flags"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": ["room.sector_type", "weather_info.sunlight"]}
 ```
 
 ## handler.room_is_dark.negative-light-dark-flag
@@ -1607,11 +1607,11 @@ negative light dark flag
 
 ```text
 CASE handler.room_is_dark.negative-light-dark-flag
-SOURCE src/handler.c:room_is_dark:2358
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2362
 GIVEN {"room": {"light": -1, "room_flags": ["ROOM_DARK"], "sector_type": "SECT_INSIDE"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
 WHEN Invoke room_is_dark with the fixture arguments once.
-THEN {"return": true, "unchanged": ["room and weather"]}
+THEN {"return": true, "unchanged": ["room", "weather", "all entities"], "read_dependencies_in_order": ["room.light", "room.room_flags"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": ["room.sector_type", "weather_info.sunlight"]}
 ```
 
 ## handler.room_is_dark.inside-at-night
@@ -1620,11 +1620,11 @@ inside at night
 
 ```text
 CASE handler.room_is_dark.inside-at-night
-SOURCE src/handler.c:room_is_dark:2358
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2366
 GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_INSIDE"}, "weather_info": {"sunlight": "SUN_DARK"}}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
 WHEN Invoke room_is_dark with the fixture arguments once.
-THEN {"return": false, "unchanged": ["room and weather"]}
+THEN {"return": false, "unchanged": ["room", "weather", "all entities"], "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": ["weather_info.sunlight"]}
 ```
 
 ## handler.room_is_dark.city-at-night
@@ -1633,11 +1633,11 @@ city at night
 
 ```text
 CASE handler.room_is_dark.city-at-night
-SOURCE src/handler.c:room_is_dark:2358
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2366
 GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_CITY"}, "weather_info": {"sunlight": "SUN_DARK"}}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
 WHEN Invoke room_is_dark with the fixture arguments once.
-THEN {"return": false, "unchanged": ["room and weather"]}
+THEN {"return": false, "unchanged": ["room", "weather", "all entities"], "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": ["weather_info.sunlight"]}
 ```
 
 ## handler.room_is_dark.field-at-sunset
@@ -1646,11 +1646,11 @@ field at sunset
 
 ```text
 CASE handler.room_is_dark.field-at-sunset
-SOURCE src/handler.c:room_is_dark:2358
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
 GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_FIELD"}, "weather_info": {"sunlight": "SUN_SET"}}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
 WHEN Invoke room_is_dark with the fixture arguments once.
-THEN {"return": true, "unchanged": ["room and weather"]}
+THEN {"return": true, "unchanged": ["room", "weather", "all entities"], "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
 ```
 
 ## handler.room_is_dark.field-at-night
@@ -1659,11 +1659,11 @@ field at night
 
 ```text
 CASE handler.room_is_dark.field-at-night
-SOURCE src/handler.c:room_is_dark:2358
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
 GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_FIELD"}, "weather_info": {"sunlight": "SUN_DARK"}}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
 WHEN Invoke room_is_dark with the fixture arguments once.
-THEN {"return": true, "unchanged": ["room and weather"]}
+THEN {"return": true, "unchanged": ["room", "weather", "all entities"], "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
 ```
 
 ## handler.room_is_dark.field-day
@@ -1672,11 +1672,11 @@ field day
 
 ```text
 CASE handler.room_is_dark.field-day
-SOURCE src/handler.c:room_is_dark:2358
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
 GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_FIELD"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
 WHEN Invoke room_is_dark with the fixture arguments once.
-THEN {"return": false, "unchanged": ["room and weather"]}
+THEN {"return": false, "unchanged": ["room", "weather", "all entities"], "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
 ```
 
 ## handler.room_is_dark.field-sunrise
@@ -1685,11 +1685,11 @@ field sunrise
 
 ```text
 CASE handler.room_is_dark.field-sunrise
-SOURCE src/handler.c:room_is_dark:2358
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
 GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_FIELD"}, "weather_info": {"sunlight": "SUN_RISE"}}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
 WHEN Invoke room_is_dark with the fixture arguments once.
-THEN {"return": false, "unchanged": ["room and weather"]}
+THEN {"return": false, "unchanged": ["room", "weather", "all entities"], "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
 ```
 
 ## handler.room_is_private.owned-empty
@@ -1867,11 +1867,11 @@ clans 0 0
 
 ```text
 CASE handler.is_same_clan.clans-0-0
-SOURCE src/handler.c:is_same_clan:335
-GIVEN {"actor": {"clan": 0}, "victim": {"clan": 0}, "table": "src/tables.c clans 0 and 1 independent, 2 not independent"}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:336
+GIVEN {"actor": {"clan": 0, "kind": "PC"}, "victim": {"clan": 0, "kind": "PC"}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
 WHEN Invoke is_same_clan with the fixture arguments once.
-THEN {"return": false}
+THEN {"return": false, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent"], "victim_read": false, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks", "dereference victim"]}
 ```
 
 ## handler.is_same_clan.clans-1-1
@@ -1880,11 +1880,11 @@ clans 1 1
 
 ```text
 CASE handler.is_same_clan.clans-1-1
-SOURCE src/handler.c:is_same_clan:335
-GIVEN {"actor": {"clan": 1}, "victim": {"clan": 1}, "table": "src/tables.c clans 0 and 1 independent, 2 not independent"}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:336
+GIVEN {"actor": {"clan": 1, "kind": "PC"}, "victim": {"clan": 1, "kind": "PC"}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
 WHEN Invoke is_same_clan with the fixture arguments once.
-THEN {"return": false}
+THEN {"return": false, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent"], "victim_read": false, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks", "dereference victim"]}
 ```
 
 ## handler.is_same_clan.clans-2-2
@@ -1893,11 +1893,11 @@ clans 2 2
 
 ```text
 CASE handler.is_same_clan.clans-2-2
-SOURCE src/handler.c:is_same_clan:335
-GIVEN {"actor": {"clan": 2}, "victim": {"clan": 2}, "table": "src/tables.c clans 0 and 1 independent, 2 not independent"}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:338
+GIVEN {"actor": {"clan": 2, "kind": "PC"}, "victim": {"clan": 2, "kind": "PC"}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
 WHEN Invoke is_same_clan with the fixture arguments once.
-THEN {"return": true}
+THEN {"return": true, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent", "compare actor.clan and victim.clan; operand read order unspecified"], "victim_read": true, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks"]}
 ```
 
 ## handler.is_same_clan.clans-2-1
@@ -1906,11 +1906,11 @@ clans 2 1
 
 ```text
 CASE handler.is_same_clan.clans-2-1
-SOURCE src/handler.c:is_same_clan:335
-GIVEN {"actor": {"clan": 2}, "victim": {"clan": 1}, "table": "src/tables.c clans 0 and 1 independent, 2 not independent"}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:338
+GIVEN {"actor": {"clan": 2, "kind": "PC"}, "victim": {"clan": 1, "kind": "PC"}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
 WHEN Invoke is_same_clan with the fixture arguments once.
-THEN {"return": false}
+THEN {"return": false, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent", "compare actor.clan and victim.clan; operand read order unspecified"], "victim_read": true, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks"]}
 ```
 
 ## flags.do_flag.no-arguments
@@ -6652,11 +6652,11 @@ first full
 
 ```text
 CASE special.spec_lookup.first-full
-SOURCE src/special.c:spec_lookup:105
-GIVEN {"arguments": {"name": "spec_breath_any"}, "table": "src/special.c spec_table in snapshot order, terminated by NULL name"}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_breath_any"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
 WHEN Invoke spec_lookup with the fixture arguments once.
-THEN {"return_function_pointer": "spec_breath_any", "forbidden": ["invoke returned function", "messages", "random draws"]}
+THEN {"return_function_pointer": "spec_breath_any", "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"], "loop_guard_indices_in_order": [0], "first_character_comparisons_in_order": [0], "str_prefix_table_indices_in_order": [0], "str_prefix_returns_in_order": [false], "return_pointer_identity": "spec_table[0].function", "unchanged": ["input bytes", "table", "all caller and world state"]}
 ```
 
 ## special.spec_lookup.ambiguous-prefix-first
@@ -6665,11 +6665,11 @@ ambiguous prefix first
 
 ```text
 CASE special.spec_lookup.ambiguous-prefix-first
-SOURCE src/special.c:spec_lookup:105
-GIVEN {"arguments": {"name": "SPEC_BREATH"}, "table": "src/special.c spec_table in snapshot order, terminated by NULL name"}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "SPEC_BREATH"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
 WHEN Invoke spec_lookup with the fixture arguments once.
-THEN {"return_function_pointer": "spec_breath_any", "forbidden": ["invoke returned function", "messages", "random draws"]}
+THEN {"return_function_pointer": "spec_breath_any", "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"], "loop_guard_indices_in_order": [0], "first_character_comparisons_in_order": [0], "str_prefix_table_indices_in_order": [0], "str_prefix_returns_in_order": [false], "return_pointer_identity": "spec_table[0].function", "unchanged": ["input bytes", "table", "all caller and world state"]}
 ```
 
 ## special.spec_lookup.last-full
@@ -6678,11 +6678,11 @@ last full
 
 ```text
 CASE special.spec_lookup.last-full
-SOURCE src/special.c:spec_lookup:105
-GIVEN {"arguments": {"name": "spec_patrolman"}, "table": "src/special.c spec_table in snapshot order, terminated by NULL name"}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_patrolman"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
 WHEN Invoke spec_lookup with the fixture arguments once.
-THEN {"return_function_pointer": "spec_patrolman", "forbidden": ["invoke returned function", "messages", "random draws"]}
+THEN {"return_function_pointer": "spec_patrolman", "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false], "return_pointer_identity": "spec_table[21].function", "unchanged": ["input bytes", "table", "all caller and world state"]}
 ```
 
 ## special.spec_lookup.unknown
@@ -6691,11 +6691,11 @@ unknown
 
 ```text
 CASE special.spec_lookup.unknown
-SOURCE src/special.c:spec_lookup:105
-GIVEN {"arguments": {"name": "no_such_special"}, "table": "src/special.c spec_table in snapshot order, terminated by NULL name"}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:110
+GIVEN {"arguments": {"name": "no_such_special"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
 WHEN Invoke spec_lookup with the fixture arguments once.
-THEN {"return_function_pointer": "C NULL", "forbidden": ["invoke returned function", "messages", "random draws"]}
+THEN {"return_function_pointer": "C NULL", "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "str_prefix_table_indices_in_order": [], "str_prefix_returns_in_order": [], "return_pointer_identity": "C NULL", "unchanged": ["input bytes", "table", "all caller and world state"]}
 ```
 
 ## special.spec_lookup.empty
@@ -6704,11 +6704,11 @@ empty
 
 ```text
 CASE special.spec_lookup.empty
-SOURCE src/special.c:spec_lookup:105
-GIVEN {"arguments": {"name": ""}, "table": "src/special.c spec_table in snapshot order, terminated by NULL name"}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:110
+GIVEN {"arguments": {"name": ""}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
 WHEN Invoke spec_lookup with the fixture arguments once.
-THEN {"return_function_pointer": "C NULL", "forbidden": ["invoke returned function", "messages", "random draws"]}
+THEN {"return_function_pointer": "C NULL", "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "str_prefix_table_indices_in_order": [], "str_prefix_returns_in_order": [], "return_pointer_identity": "C NULL", "unchanged": ["input bytes", "table", "all caller and world state"]}
 ```
 
 ## special.spec_name.first-function
@@ -6717,11 +6717,11 @@ first function
 
 ```text
 CASE special.spec_name.first-function
-SOURCE src/special.c:spec_name:119
-GIVEN {"arguments": {"function": "spec_breath_any"}, "table": "src/special.c spec_table"}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_breath_any"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
 WHEN Invoke spec_name with the fixture arguments once.
-THEN {"returned_name": "spec_breath_any", "forbidden": ["invoke function", "messages"]}
+THEN {"returned_name": "spec_breath_any", "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"], "return_pointer": "spec_table[0].name (same pointer, not a copy)", "equality_comparisons_in_order": [0], "loop_guard_indices_in_order": [0], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"]}
 ```
 
 ## special.spec_name.last-function
@@ -6730,11 +6730,11 @@ last function
 
 ```text
 CASE special.spec_name.last-function
-SOURCE src/special.c:spec_name:119
-GIVEN {"arguments": {"function": "spec_patrolman"}, "table": "src/special.c spec_table"}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_patrolman"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
 WHEN Invoke spec_name with the fixture arguments once.
-THEN {"returned_name": "spec_patrolman", "forbidden": ["invoke function", "messages"]}
+THEN {"returned_name": "spec_patrolman", "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"], "return_pointer": "spec_table[21].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"]}
 ```
 
 ## special.spec_name.null-function
@@ -6743,11 +6743,11 @@ null function
 
 ```text
 CASE special.spec_name.null-function
-SOURCE src/special.c:spec_name:119
-GIVEN {"arguments": {"function": "C NULL"}, "table": "src/special.c spec_table"}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:123
+GIVEN {"arguments": {"function": "C NULL"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
 WHEN Invoke spec_name with the fixture arguments once.
-THEN {"returned_name": "C NULL", "forbidden": ["invoke function", "messages"]}
+THEN {"returned_name": "C NULL", "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"], "return_pointer": "C NULL", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"]}
 ```
 
 ## special.spec_name.unregistered-function
@@ -6756,11 +6756,11 @@ unregistered function
 
 ```text
 CASE special.spec_name.unregistered-function
-SOURCE src/special.c:spec_name:119
-GIVEN {"arguments": {"function": "unregistered_valid_function_pointer"}, "table": "src/special.c spec_table"}
-AND {"randomness": "No random calls on this path.", "collaborators": "Record output and mutations; no actor/target state beyond the specified dependency contract affects this path."}
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:123
+GIVEN {"arguments": {"function": "unregistered_valid_function_pointer"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
 WHEN Invoke spec_name with the fixture arguments once.
-THEN {"returned_name": "C NULL", "forbidden": ["invoke function", "messages"]}
+THEN {"returned_name": "C NULL", "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"], "return_pointer": "C NULL", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"]}
 ```
 
 ## act_enter.do_enter.grandchild-mutation-revisits-moved-follower
@@ -7598,4 +7598,1525 @@ GIVEN {"actor": {"id": "admin", "trust": 60}, "argument": "example.org all", "fP
 AND {"get_trust": "Returns 60.", "save_bans": "Recording persistence boundary.", "recycler": "Execute new_ban/free_ban; allocation succeeds.", "str_dup": "Allocation boundary returns an owned copy of the requested name; do not execute unrelated-pointer ordering comparisons in the allocator."}
 WHEN Invoke ban_site with the fixture arguments once.
 THEN {"ordered_events": ["unlink old; live head becomes tail", "free_ban(old) changes old.next to free1 and free-list head to old", "replacement loop compares free1.name, then terminates without visiting tail", "new_ban reuses old and leaves free1 as free-list head", "assign new name, level 60 and BAN_ALL", "prepend old before tail", "save_bans", "send example.org has been banned.\n\r to admin"], "result_list": ["old", "tail"], "result_free_list": ["free1"], "forbidden": ["compare tail.name", "message to other characters"]}
+```
+
+## special.spec_name.registered-spec_breath_acid
+
+registered spec_breath_acid
+
+```text
+CASE special.spec_name.registered-spec_breath_acid
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_breath_acid"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_breath_acid", "return_pointer": "spec_table[1].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1], "loop_guard_indices_in_order": [0, 1], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_breath_fire
+
+registered spec_breath_fire
+
+```text
+CASE special.spec_name.registered-spec_breath_fire
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_breath_fire"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_breath_fire", "return_pointer": "spec_table[2].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2], "loop_guard_indices_in_order": [0, 1, 2], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_breath_frost
+
+registered spec_breath_frost
+
+```text
+CASE special.spec_name.registered-spec_breath_frost
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_breath_frost"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_breath_frost", "return_pointer": "spec_table[3].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3], "loop_guard_indices_in_order": [0, 1, 2, 3], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_breath_gas
+
+registered spec_breath_gas
+
+```text
+CASE special.spec_name.registered-spec_breath_gas
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_breath_gas"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_breath_gas", "return_pointer": "spec_table[4].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3, 4], "loop_guard_indices_in_order": [0, 1, 2, 3, 4], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_breath_lightning
+
+registered spec_breath_lightning
+
+```text
+CASE special.spec_name.registered-spec_breath_lightning
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_breath_lightning"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_breath_lightning", "return_pointer": "spec_table[5].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_cast_adept
+
+registered spec_cast_adept
+
+```text
+CASE special.spec_name.registered-spec_cast_adept
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_cast_adept"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_cast_adept", "return_pointer": "spec_table[6].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_cast_cleric
+
+registered spec_cast_cleric
+
+```text
+CASE special.spec_name.registered-spec_cast_cleric
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_cast_cleric"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_cast_cleric", "return_pointer": "spec_table[7].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_cast_judge
+
+registered spec_cast_judge
+
+```text
+CASE special.spec_name.registered-spec_cast_judge
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_cast_judge"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_cast_judge", "return_pointer": "spec_table[8].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_cast_mage
+
+registered spec_cast_mage
+
+```text
+CASE special.spec_name.registered-spec_cast_mage
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_cast_mage"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_cast_mage", "return_pointer": "spec_table[9].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_cast_undead
+
+registered spec_cast_undead
+
+```text
+CASE special.spec_name.registered-spec_cast_undead
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_cast_undead"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_cast_undead", "return_pointer": "spec_table[10].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_executioner
+
+registered spec_executioner
+
+```text
+CASE special.spec_name.registered-spec_executioner
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_executioner"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_executioner", "return_pointer": "spec_table[11].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_fido
+
+registered spec_fido
+
+```text
+CASE special.spec_name.registered-spec_fido
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_fido"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_fido", "return_pointer": "spec_table[12].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_guard
+
+registered spec_guard
+
+```text
+CASE special.spec_name.registered-spec_guard
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_guard"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_guard", "return_pointer": "spec_table[13].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_janitor
+
+registered spec_janitor
+
+```text
+CASE special.spec_name.registered-spec_janitor
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_janitor"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_janitor", "return_pointer": "spec_table[14].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_mayor
+
+registered spec_mayor
+
+```text
+CASE special.spec_name.registered-spec_mayor
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_mayor"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_mayor", "return_pointer": "spec_table[15].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_poison
+
+registered spec_poison
+
+```text
+CASE special.spec_name.registered-spec_poison
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_poison"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_poison", "return_pointer": "spec_table[16].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_thief
+
+registered spec_thief
+
+```text
+CASE special.spec_name.registered-spec_thief
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_thief"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_thief", "return_pointer": "spec_table[17].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_nasty
+
+registered spec_nasty
+
+```text
+CASE special.spec_name.registered-spec_nasty
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_nasty"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_nasty", "return_pointer": "spec_table[18].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_troll_member
+
+registered spec_troll_member
+
+```text
+CASE special.spec_name.registered-spec_troll_member
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_troll_member"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_troll_member", "return_pointer": "spec_table[19].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_name.registered-spec_ogre_member
+
+registered spec_ogre_member
+
+```text
+CASE special.spec_name.registered-spec_ogre_member
+SOURCE src/special.c:spec_name:117; src/special.c:spec_name:119; src/special.c:spec_name:120
+GIVEN {"arguments": {"function": "spec_ogre_member"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}, "identity_contract": "Names denote distinct functions with the SPEC_FUN signature; unregistered_valid_function_pointer denotes a distinct valid compatible function absent from the table."}
+AND {"collaborators": "None: execute the real function and immutable table.", "randomness": "None; no RNG, clock, allocator, I/O or callback is invoked."}
+WHEN Invoke spec_name with the fixture arguments once.
+THEN {"returned_name": "spec_ogre_member", "return_pointer": "spec_table[20].name (same pointer, not a copy)", "equality_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "sentinel_function_compared_to_argument": false, "unchanged": ["table", "all names", "all caller and world state"], "forbidden": ["invoke input function", "invoke any table function", "allocation/free", "messages to any recipient", "random draws", "read beyond sentinel"]}
+```
+
+## special.spec_lookup.registered-spec_breath_acid
+
+registered spec_breath_acid
+
+```text
+CASE special.spec_lookup.registered-spec_breath_acid
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_breath_acid"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_breath_acid", "loop_guard_indices_in_order": [0, 1], "first_character_comparisons_in_order": [0, 1], "str_prefix_table_indices_in_order": [0, 1], "str_prefix_returns_in_order": [true, false], "return_pointer_identity": "spec_table[1].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_breath_fire
+
+registered spec_breath_fire
+
+```text
+CASE special.spec_lookup.registered-spec_breath_fire
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_breath_fire"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_breath_fire", "loop_guard_indices_in_order": [0, 1, 2], "first_character_comparisons_in_order": [0, 1, 2], "str_prefix_table_indices_in_order": [0, 1, 2], "str_prefix_returns_in_order": [true, true, false], "return_pointer_identity": "spec_table[2].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_breath_frost
+
+registered spec_breath_frost
+
+```text
+CASE special.spec_lookup.registered-spec_breath_frost
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_breath_frost"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_breath_frost", "loop_guard_indices_in_order": [0, 1, 2, 3], "first_character_comparisons_in_order": [0, 1, 2, 3], "str_prefix_table_indices_in_order": [0, 1, 2, 3], "str_prefix_returns_in_order": [true, true, true, false], "return_pointer_identity": "spec_table[3].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_breath_gas
+
+registered spec_breath_gas
+
+```text
+CASE special.spec_lookup.registered-spec_breath_gas
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_breath_gas"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_breath_gas", "loop_guard_indices_in_order": [0, 1, 2, 3, 4], "first_character_comparisons_in_order": [0, 1, 2, 3, 4], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4], "str_prefix_returns_in_order": [true, true, true, true, false], "return_pointer_identity": "spec_table[4].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_breath_lightning
+
+registered spec_breath_lightning
+
+```text
+CASE special.spec_lookup.registered-spec_breath_lightning
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_breath_lightning"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_breath_lightning", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5], "str_prefix_returns_in_order": [true, true, true, true, true, false], "return_pointer_identity": "spec_table[5].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_cast_adept
+
+registered spec_cast_adept
+
+```text
+CASE special.spec_lookup.registered-spec_cast_adept
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_cast_adept"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_cast_adept", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6], "str_prefix_returns_in_order": [true, true, true, true, true, true, false], "return_pointer_identity": "spec_table[6].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_cast_cleric
+
+registered spec_cast_cleric
+
+```text
+CASE special.spec_lookup.registered-spec_cast_cleric
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_cast_cleric"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_cast_cleric", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, false], "return_pointer_identity": "spec_table[7].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_cast_judge
+
+registered spec_cast_judge
+
+```text
+CASE special.spec_lookup.registered-spec_cast_judge
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_cast_judge"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_cast_judge", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, false], "return_pointer_identity": "spec_table[8].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_cast_mage
+
+registered spec_cast_mage
+
+```text
+CASE special.spec_lookup.registered-spec_cast_mage
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_cast_mage"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_cast_mage", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, true, false], "return_pointer_identity": "spec_table[9].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_cast_undead
+
+registered spec_cast_undead
+
+```text
+CASE special.spec_lookup.registered-spec_cast_undead
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_cast_undead"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_cast_undead", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, true, true, false], "return_pointer_identity": "spec_table[10].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_executioner
+
+registered spec_executioner
+
+```text
+CASE special.spec_lookup.registered-spec_executioner
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_executioner"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_executioner", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, true, true, true, false], "return_pointer_identity": "spec_table[11].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_fido
+
+registered spec_fido
+
+```text
+CASE special.spec_lookup.registered-spec_fido
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_fido"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_fido", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, true, true, true, true, false], "return_pointer_identity": "spec_table[12].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_guard
+
+registered spec_guard
+
+```text
+CASE special.spec_lookup.registered-spec_guard
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_guard"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_guard", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, true, true, true, true, true, false], "return_pointer_identity": "spec_table[13].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_janitor
+
+registered spec_janitor
+
+```text
+CASE special.spec_lookup.registered-spec_janitor
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_janitor"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_janitor", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, false], "return_pointer_identity": "spec_table[14].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_mayor
+
+registered spec_mayor
+
+```text
+CASE special.spec_lookup.registered-spec_mayor
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_mayor"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_mayor", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false], "return_pointer_identity": "spec_table[15].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_poison
+
+registered spec_poison
+
+```text
+CASE special.spec_lookup.registered-spec_poison
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_poison"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_poison", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false], "return_pointer_identity": "spec_table[16].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_thief
+
+registered spec_thief
+
+```text
+CASE special.spec_lookup.registered-spec_thief
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_thief"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_thief", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false], "return_pointer_identity": "spec_table[17].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_nasty
+
+registered spec_nasty
+
+```text
+CASE special.spec_lookup.registered-spec_nasty
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_nasty"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_nasty", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false], "return_pointer_identity": "spec_table[18].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_troll_member
+
+registered spec_troll_member
+
+```text
+CASE special.spec_lookup.registered-spec_troll_member
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_troll_member"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_troll_member", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false], "return_pointer_identity": "spec_table[19].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.registered-spec_ogre_member
+
+registered spec_ogre_member
+
+```text
+CASE special.spec_lookup.registered-spec_ogre_member
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_ogre_member"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_ogre_member", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false], "return_pointer_identity": "spec_table[20].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.one-letter-first-match
+
+one letter first match
+
+```text
+CASE special.spec_lookup.one-letter-first-match
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "s"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_breath_any", "loop_guard_indices_in_order": [0], "first_character_comparisons_in_order": [0], "str_prefix_table_indices_in_order": [0], "str_prefix_returns_in_order": [false], "return_pointer_identity": "spec_table[0].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.common-prefix-first-match
+
+common prefix first match
+
+```text
+CASE special.spec_lookup.common-prefix-first-match
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_breath_any", "loop_guard_indices_in_order": [0], "first_character_comparisons_in_order": [0], "str_prefix_table_indices_in_order": [0], "str_prefix_returns_in_order": [false], "return_pointer_identity": "spec_table[0].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.ambiguous-cast-first-adept
+
+ambiguous cast first adept
+
+```text
+CASE special.spec_lookup.ambiguous-cast-first-adept
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_cast"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_cast_adept", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6], "str_prefix_returns_in_order": [true, true, true, true, true, true, false], "return_pointer_identity": "spec_table[6].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.ambiguous-breath-f-first-fire
+
+ambiguous breath f first fire
+
+```text
+CASE special.spec_lookup.ambiguous-breath-f-first-fire
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_breath_f"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_breath_fire", "loop_guard_indices_in_order": [0, 1, 2], "first_character_comparisons_in_order": [0, 1, 2], "str_prefix_table_indices_in_order": [0, 1, 2], "str_prefix_returns_in_order": [true, true, false], "return_pointer_identity": "spec_table[2].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.uppercase-last-match
+
+uppercase last match
+
+```text
+CASE special.spec_lookup.uppercase-last-match
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:107; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "SPEC_PATROLMAN"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "spec_patrolman", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false], "return_pointer_identity": "spec_table[21].function", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.same-first-letter-no-prefix
+
+same first letter no prefix
+
+```text
+CASE special.spec_lookup.same-first-letter-no-prefix
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:110; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "sz"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "C NULL", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true], "return_pointer_identity": "C NULL", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.longer-than-complete-name
+
+longer than complete name
+
+```text
+CASE special.spec_lookup.longer-than-complete-name
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:110; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_patrolman_extra"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "C NULL", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true], "return_pointer_identity": "C NULL", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.trailing-space-not-trimmed
+
+trailing space not trimmed
+
+```text
+CASE special.spec_lookup.trailing-space-not-trimmed
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:110; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec_patrolman "}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "C NULL", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true], "return_pointer_identity": "C NULL", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.leading-space-not-trimmed
+
+leading space not trimmed
+
+```text
+CASE special.spec_lookup.leading-space-not-trimmed
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:110
+GIVEN {"arguments": {"name": " spec_patrolman"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "C NULL", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "str_prefix_table_indices_in_order": [], "str_prefix_returns_in_order": [], "return_pointer_identity": "C NULL", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.embedded-space-not-tokenized
+
+embedded space not tokenized
+
+```text
+CASE special.spec_lookup.embedded-space-not-tokenized
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:110; src/db.c:str_prefix:3178
+GIVEN {"arguments": {"name": "spec patrolman"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "C NULL", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "str_prefix_table_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "str_prefix_returns_in_order": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true], "return_pointer_identity": "C NULL", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.whitespace-only
+
+whitespace only
+
+```text
+CASE special.spec_lookup.whitespace-only
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:110
+GIVEN {"arguments": {"name": " "}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "C NULL", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "str_prefix_table_indices_in_order": [], "str_prefix_returns_in_order": [], "return_pointer_identity": "C NULL", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## special.spec_lookup.nonascii-first-byte
+
+nonascii first byte
+
+```text
+CASE special.spec_lookup.nonascii-first-byte
+SOURCE src/special.c:spec_lookup:103; src/special.c:spec_lookup:105; src/special.c:spec_lookup:106; src/special.c:spec_lookup:110
+GIVEN {"arguments": {"name": "é"}, "table": {"entries_in_order": ["spec_breath_any", "spec_breath_acid", "spec_breath_fire", "spec_breath_frost", "spec_breath_gas", "spec_breath_lightning", "spec_cast_adept", "spec_cast_cleric", "spec_cast_judge", "spec_cast_mage", "spec_cast_undead", "spec_executioner", "spec_fido", "spec_guard", "spec_janitor", "spec_mayor", "spec_poison", "spec_thief", "spec_nasty", "spec_troll_member", "spec_ogre_member", "spec_patrolman"], "sentinel_index": 22, "sentinel": {"name": "C NULL", "function": "C NULL"}}}
+AND {"str_prefix": "Execute actual src/db.c helper: false means ASCII case-insensitive prefix match. Do not stub the predicate.", "LOWER": "Actual merc.h macro folds A..Z only; no locale or Unicode normalization.", "randomness": "None; no callback, allocator, clock or I/O."}
+WHEN Invoke spec_lookup with the fixture arguments once.
+THEN {"return_function_pointer": "C NULL", "loop_guard_indices_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22], "first_character_comparisons_in_order": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "str_prefix_table_indices_in_order": [], "str_prefix_returns_in_order": [], "return_pointer_identity": "C NULL", "unchanged": ["input bytes", "table", "all caller and world state"], "forbidden": ["compare sentinel name bytes", "invoke returned procedure", "messages", "allocation/free", "random draws", "trim or tokenize input"]}
+```
+
+## handler.is_same_clan.clans-0-1
+
+clans 0 1
+
+```text
+CASE handler.is_same_clan.clans-0-1
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:336
+GIVEN {"actor": {"clan": 0, "kind": "PC"}, "victim": {"clan": 1, "kind": "PC"}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
+WHEN Invoke is_same_clan with the fixture arguments once.
+THEN {"return": false, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent"], "victim_read": false, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks", "dereference victim"]}
+```
+
+## handler.is_same_clan.clans-0-2
+
+clans 0 2
+
+```text
+CASE handler.is_same_clan.clans-0-2
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:336
+GIVEN {"actor": {"clan": 0, "kind": "PC"}, "victim": {"clan": 2, "kind": "PC"}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
+WHEN Invoke is_same_clan with the fixture arguments once.
+THEN {"return": false, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent"], "victim_read": false, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks", "dereference victim"]}
+```
+
+## handler.is_same_clan.clans-1-0
+
+clans 1 0
+
+```text
+CASE handler.is_same_clan.clans-1-0
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:336
+GIVEN {"actor": {"clan": 1, "kind": "PC"}, "victim": {"clan": 0, "kind": "PC"}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
+WHEN Invoke is_same_clan with the fixture arguments once.
+THEN {"return": false, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent"], "victim_read": false, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks", "dereference victim"]}
+```
+
+## handler.is_same_clan.clans-1-2
+
+clans 1 2
+
+```text
+CASE handler.is_same_clan.clans-1-2
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:336
+GIVEN {"actor": {"clan": 1, "kind": "PC"}, "victim": {"clan": 2, "kind": "PC"}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
+WHEN Invoke is_same_clan with the fixture arguments once.
+THEN {"return": false, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent"], "victim_read": false, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks", "dereference victim"]}
+```
+
+## handler.is_same_clan.clans-2-0
+
+clans 2 0
+
+```text
+CASE handler.is_same_clan.clans-2-0
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:338
+GIVEN {"actor": {"clan": 2, "kind": "PC"}, "victim": {"clan": 0, "kind": "PC"}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
+WHEN Invoke is_same_clan with the fixture arguments once.
+THEN {"return": false, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent", "compare actor.clan and victim.clan; operand read order unspecified"], "victim_read": true, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks"]}
+```
+
+## handler.is_same_clan.self-clan-0
+
+self clan 0
+
+```text
+CASE handler.is_same_clan.self-clan-0
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:336
+GIVEN {"actor": {"id": "ch", "clan": 0, "kind": "PC"}, "victim": {"same_entity_as": "ch"}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
+WHEN Invoke is_same_clan with the fixture arguments once.
+THEN {"return": false, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent"], "victim_read": false, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks", "dereference victim"]}
+```
+
+## handler.is_same_clan.self-clan-1
+
+self clan 1
+
+```text
+CASE handler.is_same_clan.self-clan-1
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:336
+GIVEN {"actor": {"id": "ch", "clan": 1, "kind": "PC"}, "victim": {"same_entity_as": "ch"}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
+WHEN Invoke is_same_clan with the fixture arguments once.
+THEN {"return": false, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent"], "victim_read": false, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks", "dereference victim"]}
+```
+
+## handler.is_same_clan.self-clan-2
+
+self clan 2
+
+```text
+CASE handler.is_same_clan.self-clan-2
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:338
+GIVEN {"actor": {"id": "ch", "clan": 2, "kind": "PC"}, "victim": {"same_entity_as": "ch"}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
+WHEN Invoke is_same_clan with the fixture arguments once.
+THEN {"return": true, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent", "compare actor.clan and victim.clan; operand read order unspecified"], "victim_read": true, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks"]}
+```
+
+## handler.is_same_clan.kinds-npc-pc
+
+kinds npc pc
+
+```text
+CASE handler.is_same_clan.kinds-npc-pc
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:338
+GIVEN {"actor": {"clan": 2, "kind": "NPC"}, "victim": {"clan": 2, "kind": "PC"}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
+WHEN Invoke is_same_clan with the fixture arguments once.
+THEN {"return": true, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent", "compare actor.clan and victim.clan; operand read order unspecified"], "victim_read": true, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks"]}
+```
+
+## handler.is_same_clan.kinds-pc-npc
+
+kinds pc npc
+
+```text
+CASE handler.is_same_clan.kinds-pc-npc
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:338
+GIVEN {"actor": {"clan": 2, "kind": "PC"}, "victim": {"clan": 2, "kind": "NPC"}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
+WHEN Invoke is_same_clan with the fixture arguments once.
+THEN {"return": true, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent", "compare actor.clan and victim.clan; operand read order unspecified"], "victim_read": true, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks"]}
+```
+
+## handler.is_same_clan.kinds-npc-npc
+
+kinds npc npc
+
+```text
+CASE handler.is_same_clan.kinds-npc-npc
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:338
+GIVEN {"actor": {"clan": 2, "kind": "NPC"}, "victim": {"clan": 2, "kind": "NPC"}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
+WHEN Invoke is_same_clan with the fixture arguments once.
+THEN {"return": true, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent", "compare actor.clan and victim.clan; operand read order unspecified"], "victim_read": true, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks"]}
+```
+
+## handler.is_same_clan.independent-0-null-victim
+
+independent 0 null victim
+
+```text
+CASE handler.is_same_clan.independent-0-null-victim
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:336
+GIVEN {"actor": {"clan": 0, "kind": "PC"}, "victim": {"C_NULL": true}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
+WHEN Invoke is_same_clan with the fixture arguments once.
+THEN {"return": false, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent"], "victim_read": false, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks", "dereference victim"]}
+```
+
+## handler.is_same_clan.independent-1-null-victim
+
+independent 1 null victim
+
+```text
+CASE handler.is_same_clan.independent-1-null-victim
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:336
+GIVEN {"actor": {"clan": 1, "kind": "PC"}, "victim": {"C_NULL": true}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
+WHEN Invoke is_same_clan with the fixture arguments once.
+THEN {"return": false, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent"], "victim_read": false, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks", "dereference victim"]}
+```
+
+## handler.is_same_clan.victim-clan-outside-table--1
+
+victim clan outside table  1
+
+```text
+CASE handler.is_same_clan.victim-clan-outside-table--1
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:338
+GIVEN {"actor": {"clan": 2, "kind": "PC"}, "victim": {"clan": -1, "kind": "PC"}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
+WHEN Invoke is_same_clan with the fixture arguments once.
+THEN {"return": false, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent", "compare actor.clan and victim.clan; operand read order unspecified"], "victim_read": true, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks"]}
+```
+
+## handler.is_same_clan.victim-clan-outside-table-3
+
+victim clan outside table 3
+
+```text
+CASE handler.is_same_clan.victim-clan-outside-table-3
+SOURCE src/handler.c:is_same_clan:335; src/handler.c:is_same_clan:338
+GIVEN {"actor": {"clan": 2, "kind": "PC"}, "victim": {"clan": 3, "kind": "PC"}, "table": {"MAX_CLAN": 3, "rows": [{"index": 0, "name": "", "independent": true}, {"index": 1, "name": "loner", "independent": true}, {"index": 2, "name": "rom", "independent": false}]}}
+AND {"collaborators": "None. Read the real immutable clan table.", "randomness": "None."}
+WHEN Invoke is_same_clan with the fixture arguments once.
+THEN {"return": false, "ordered_reads": ["actor.clan", "clan_table[actor.clan].independent", "compare actor.clan and victim.clan; operand read order unspecified"], "victim_read": true, "unchanged": ["all entities and table"], "forbidden": ["messages", "random draws", "allocation", "clan mutation", "trust or kind checks"]}
+```
+
+## handler.room_is_dark.matrix-sect_inside-sun_rise
+
+matrix sect_inside sun_rise
+
+```text
+CASE handler.room_is_dark.matrix-sect_inside-sun_rise
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2366
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_INSIDE"}, "weather_info": {"sunlight": "SUN_RISE"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": ["weather_info.sunlight"]}
+```
+
+## handler.room_is_dark.matrix-sect_inside-sun_light
+
+matrix sect_inside sun_light
+
+```text
+CASE handler.room_is_dark.matrix-sect_inside-sun_light
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2366
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_INSIDE"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": ["weather_info.sunlight"]}
+```
+
+## handler.room_is_dark.matrix-sect_inside-sun_set
+
+matrix sect_inside sun_set
+
+```text
+CASE handler.room_is_dark.matrix-sect_inside-sun_set
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2366
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_INSIDE"}, "weather_info": {"sunlight": "SUN_SET"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": ["weather_info.sunlight"]}
+```
+
+## handler.room_is_dark.matrix-sect_city-sun_rise
+
+matrix sect_city sun_rise
+
+```text
+CASE handler.room_is_dark.matrix-sect_city-sun_rise
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2366
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_CITY"}, "weather_info": {"sunlight": "SUN_RISE"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": ["weather_info.sunlight"]}
+```
+
+## handler.room_is_dark.matrix-sect_city-sun_light
+
+matrix sect_city sun_light
+
+```text
+CASE handler.room_is_dark.matrix-sect_city-sun_light
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2366
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_CITY"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": ["weather_info.sunlight"]}
+```
+
+## handler.room_is_dark.matrix-sect_city-sun_set
+
+matrix sect_city sun_set
+
+```text
+CASE handler.room_is_dark.matrix-sect_city-sun_set
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2366
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_CITY"}, "weather_info": {"sunlight": "SUN_SET"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": ["weather_info.sunlight"]}
+```
+
+## handler.room_is_dark.matrix-sect_forest-sun_dark
+
+matrix sect_forest sun_dark
+
+```text
+CASE handler.room_is_dark.matrix-sect_forest-sun_dark
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_FOREST"}, "weather_info": {"sunlight": "SUN_DARK"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_forest-sun_rise
+
+matrix sect_forest sun_rise
+
+```text
+CASE handler.room_is_dark.matrix-sect_forest-sun_rise
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_FOREST"}, "weather_info": {"sunlight": "SUN_RISE"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_forest-sun_light
+
+matrix sect_forest sun_light
+
+```text
+CASE handler.room_is_dark.matrix-sect_forest-sun_light
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_FOREST"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_forest-sun_set
+
+matrix sect_forest sun_set
+
+```text
+CASE handler.room_is_dark.matrix-sect_forest-sun_set
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_FOREST"}, "weather_info": {"sunlight": "SUN_SET"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_hills-sun_dark
+
+matrix sect_hills sun_dark
+
+```text
+CASE handler.room_is_dark.matrix-sect_hills-sun_dark
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_HILLS"}, "weather_info": {"sunlight": "SUN_DARK"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_hills-sun_rise
+
+matrix sect_hills sun_rise
+
+```text
+CASE handler.room_is_dark.matrix-sect_hills-sun_rise
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_HILLS"}, "weather_info": {"sunlight": "SUN_RISE"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_hills-sun_light
+
+matrix sect_hills sun_light
+
+```text
+CASE handler.room_is_dark.matrix-sect_hills-sun_light
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_HILLS"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_hills-sun_set
+
+matrix sect_hills sun_set
+
+```text
+CASE handler.room_is_dark.matrix-sect_hills-sun_set
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_HILLS"}, "weather_info": {"sunlight": "SUN_SET"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_mountain-sun_dark
+
+matrix sect_mountain sun_dark
+
+```text
+CASE handler.room_is_dark.matrix-sect_mountain-sun_dark
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_MOUNTAIN"}, "weather_info": {"sunlight": "SUN_DARK"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_mountain-sun_rise
+
+matrix sect_mountain sun_rise
+
+```text
+CASE handler.room_is_dark.matrix-sect_mountain-sun_rise
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_MOUNTAIN"}, "weather_info": {"sunlight": "SUN_RISE"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_mountain-sun_light
+
+matrix sect_mountain sun_light
+
+```text
+CASE handler.room_is_dark.matrix-sect_mountain-sun_light
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_MOUNTAIN"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_mountain-sun_set
+
+matrix sect_mountain sun_set
+
+```text
+CASE handler.room_is_dark.matrix-sect_mountain-sun_set
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_MOUNTAIN"}, "weather_info": {"sunlight": "SUN_SET"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_water_swim-sun_dark
+
+matrix sect_water_swim sun_dark
+
+```text
+CASE handler.room_is_dark.matrix-sect_water_swim-sun_dark
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_WATER_SWIM"}, "weather_info": {"sunlight": "SUN_DARK"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_water_swim-sun_rise
+
+matrix sect_water_swim sun_rise
+
+```text
+CASE handler.room_is_dark.matrix-sect_water_swim-sun_rise
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_WATER_SWIM"}, "weather_info": {"sunlight": "SUN_RISE"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_water_swim-sun_light
+
+matrix sect_water_swim sun_light
+
+```text
+CASE handler.room_is_dark.matrix-sect_water_swim-sun_light
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_WATER_SWIM"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_water_swim-sun_set
+
+matrix sect_water_swim sun_set
+
+```text
+CASE handler.room_is_dark.matrix-sect_water_swim-sun_set
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_WATER_SWIM"}, "weather_info": {"sunlight": "SUN_SET"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_water_noswim-sun_dark
+
+matrix sect_water_noswim sun_dark
+
+```text
+CASE handler.room_is_dark.matrix-sect_water_noswim-sun_dark
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_WATER_NOSWIM"}, "weather_info": {"sunlight": "SUN_DARK"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_water_noswim-sun_rise
+
+matrix sect_water_noswim sun_rise
+
+```text
+CASE handler.room_is_dark.matrix-sect_water_noswim-sun_rise
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_WATER_NOSWIM"}, "weather_info": {"sunlight": "SUN_RISE"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_water_noswim-sun_light
+
+matrix sect_water_noswim sun_light
+
+```text
+CASE handler.room_is_dark.matrix-sect_water_noswim-sun_light
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_WATER_NOSWIM"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_water_noswim-sun_set
+
+matrix sect_water_noswim sun_set
+
+```text
+CASE handler.room_is_dark.matrix-sect_water_noswim-sun_set
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_WATER_NOSWIM"}, "weather_info": {"sunlight": "SUN_SET"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_unused-sun_dark
+
+matrix sect_unused sun_dark
+
+```text
+CASE handler.room_is_dark.matrix-sect_unused-sun_dark
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_UNUSED"}, "weather_info": {"sunlight": "SUN_DARK"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_unused-sun_rise
+
+matrix sect_unused sun_rise
+
+```text
+CASE handler.room_is_dark.matrix-sect_unused-sun_rise
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_UNUSED"}, "weather_info": {"sunlight": "SUN_RISE"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_unused-sun_light
+
+matrix sect_unused sun_light
+
+```text
+CASE handler.room_is_dark.matrix-sect_unused-sun_light
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_UNUSED"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_unused-sun_set
+
+matrix sect_unused sun_set
+
+```text
+CASE handler.room_is_dark.matrix-sect_unused-sun_set
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_UNUSED"}, "weather_info": {"sunlight": "SUN_SET"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_air-sun_dark
+
+matrix sect_air sun_dark
+
+```text
+CASE handler.room_is_dark.matrix-sect_air-sun_dark
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_AIR"}, "weather_info": {"sunlight": "SUN_DARK"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_air-sun_rise
+
+matrix sect_air sun_rise
+
+```text
+CASE handler.room_is_dark.matrix-sect_air-sun_rise
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_AIR"}, "weather_info": {"sunlight": "SUN_RISE"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_air-sun_light
+
+matrix sect_air sun_light
+
+```text
+CASE handler.room_is_dark.matrix-sect_air-sun_light
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_AIR"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_air-sun_set
+
+matrix sect_air sun_set
+
+```text
+CASE handler.room_is_dark.matrix-sect_air-sun_set
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_AIR"}, "weather_info": {"sunlight": "SUN_SET"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_desert-sun_dark
+
+matrix sect_desert sun_dark
+
+```text
+CASE handler.room_is_dark.matrix-sect_desert-sun_dark
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_DESERT"}, "weather_info": {"sunlight": "SUN_DARK"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_desert-sun_rise
+
+matrix sect_desert sun_rise
+
+```text
+CASE handler.room_is_dark.matrix-sect_desert-sun_rise
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_DESERT"}, "weather_info": {"sunlight": "SUN_RISE"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_desert-sun_light
+
+matrix sect_desert sun_light
+
+```text
+CASE handler.room_is_dark.matrix-sect_desert-sun_light
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_DESERT"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.matrix-sect_desert-sun_set
+
+matrix sect_desert sun_set
+
+```text
+CASE handler.room_is_dark.matrix-sect_desert-sun_set
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_DESERT"}, "weather_info": {"sunlight": "SUN_SET"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.light-boundary--32768-dark-inside
+
+light boundary  32768 dark inside
+
+```text
+CASE handler.room_is_dark.light-boundary--32768-dark-inside
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2362
+GIVEN {"room": {"light": -32768, "room_flags": ["ROOM_DARK"], "sector_type": "SECT_INSIDE"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": ["room.sector_type", "weather_info.sunlight"]}
+```
+
+## handler.room_is_dark.light-boundary--1-dark-inside
+
+light boundary  1 dark inside
+
+```text
+CASE handler.room_is_dark.light-boundary--1-dark-inside
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2362
+GIVEN {"room": {"light": -1, "room_flags": ["ROOM_DARK"], "sector_type": "SECT_INSIDE"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": ["room.sector_type", "weather_info.sunlight"]}
+```
+
+## handler.room_is_dark.light-boundary-0-dark-inside
+
+light boundary 0 dark inside
+
+```text
+CASE handler.room_is_dark.light-boundary-0-dark-inside
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2362
+GIVEN {"room": {"light": 0, "room_flags": ["ROOM_DARK"], "sector_type": "SECT_INSIDE"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": ["room.sector_type", "weather_info.sunlight"]}
+```
+
+## handler.room_is_dark.light-boundary-1-dark-inside
+
+light boundary 1 dark inside
+
+```text
+CASE handler.room_is_dark.light-boundary-1-dark-inside
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2359
+GIVEN {"room": {"light": 1, "room_flags": ["ROOM_DARK"], "sector_type": "SECT_INSIDE"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": ["room.room_flags", "room.sector_type", "weather_info.sunlight"]}
+```
+
+## handler.room_is_dark.light-boundary-32767-dark-inside
+
+light boundary 32767 dark inside
+
+```text
+CASE handler.room_is_dark.light-boundary-32767-dark-inside
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2359
+GIVEN {"room": {"light": 32767, "room_flags": ["ROOM_DARK"], "sector_type": "SECT_INSIDE"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": ["room.room_flags", "room.sector_type", "weather_info.sunlight"]}
+```
+
+## handler.room_is_dark.negative-light--32768-sun_light
+
+negative light  32768 sun_light
+
+```text
+CASE handler.room_is_dark.negative-light--32768-sun_light
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": -32768, "room_flags": [], "sector_type": "SECT_FIELD"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.negative-light--32768-sun_dark
+
+negative light  32768 sun_dark
+
+```text
+CASE handler.room_is_dark.negative-light--32768-sun_dark
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": -32768, "room_flags": [], "sector_type": "SECT_FIELD"}, "weather_info": {"sunlight": "SUN_DARK"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.negative-light--1-sun_light
+
+negative light  1 sun_light
+
+```text
+CASE handler.room_is_dark.negative-light--1-sun_light
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": -1, "room_flags": [], "sector_type": "SECT_FIELD"}, "weather_info": {"sunlight": "SUN_LIGHT"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.negative-light--1-sun_dark
+
+negative light  1 sun_dark
+
+```text
+CASE handler.room_is_dark.negative-light--1-sun_dark
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": -1, "room_flags": [], "sector_type": "SECT_FIELD"}, "weather_info": {"sunlight": "SUN_DARK"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.unrelated-flag-does-not-light-room
+
+unrelated flag does not light room
+
+```text
+CASE handler.room_is_dark.unrelated-flag-does-not-light-room
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": 0, "room_flags": ["ROOM_SAFE"], "sector_type": "SECT_FIELD"}, "weather_info": {"sunlight": "SUN_DARK"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.unknown-sunlight-falls-through
+
+unknown sunlight falls through
+
+```text
+CASE handler.room_is_dark.unknown-sunlight-falls-through
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2372
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": "SECT_FIELD"}, "weather_info": {"sunlight": 99}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": false, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
+```
+
+## handler.room_is_dark.unknown-sector-uses-weather
+
+unknown sector uses weather
+
+```text
+CASE handler.room_is_dark.unknown-sector-uses-weather
+SOURCE src/handler.c:room_is_dark:2358; src/handler.c:room_is_dark:2370
+GIVEN {"room": {"light": 0, "room_flags": [], "sector_type": 99}, "weather_info": {"sunlight": "SUN_DARK"}}
+AND {"collaborators": "No callees. Actual IS_SET(flag,bit) bitwise AND; ROOM_DARK=A=1.", "weather": "Fixed global sunlight; no scheduler invocation or wall-clock lookup.", "randomness": "None."}
+WHEN Invoke room_is_dark with the fixture arguments once.
+THEN {"return": true, "read_dependencies_in_order": ["room.light", "room.room_flags", "room.sector_type", "weather_info.sunlight"], "unchanged": ["room", "weather", "all entities"], "forbidden": ["messages", "allocation", "RNG", "clock reads", "actor visibility checks", "writes"], "unread_dependencies": []}
 ```

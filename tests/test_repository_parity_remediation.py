@@ -28,7 +28,7 @@ class PublicInputTests(unittest.IsolatedAsyncioTestCase):
         commands = {name: f.command(name) for name in f.documents}
         registry = NS(get_or_none=lambda **kw: commands.get(kw.get('name')),
                       all_commands=lambda: list(commands.values()))
-        f.interpreter.registry_service = NS(interp_registry=registry)
+        f.registries.interp_registry = registry
         f.interpreter.interp_registry = registry
         f.interpreter.social_registry = NS(get_or_none=lambda **kw: None)
         f.interpreter.command_not_found_message = f.bus.text_to_message('Huh?\r\n')

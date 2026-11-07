@@ -37,8 +37,7 @@ class MovementFixture(SharedFixture):
     def ctx(self, name, text='', character=None):
         character = character or self.actor
         context = Context(character=character, command=self.command(name), parameters=[], result=text,
-                          room=self.rooms.get_or_none(id=character.room_id))
-        context.room_registry = self.rooms
+                          room=self.rooms.get_or_none(id=character.room_id), registry_service=self.registries)
         return context
 
     def attempt(self, name, text='', character=None):

@@ -19,6 +19,11 @@ class Exit:
     to_room_id: str
     room_id: str
 
+    @staticmethod
+    def door_name(keyword: str) -> str:
+        words = (keyword or "").split()
+        return words[0] if words else "door"
+
     @classmethod
     def from_json(cls, data: Any):
         if isinstance(data, str):

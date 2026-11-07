@@ -45,6 +45,24 @@ class TestObjectDesignContracts(unittest.TestCase):
         Bootstrapper.reset_runtime()
         self.assertIsNone(Ability._learning)
 
+    def test_bootstrap_stops_before_loading_services_if_a_registry_is_unavailable(self):
+        from interp.HelpRegistry import HelpRegistry
+        from server.Bootstrapper import Bootstrapper
+        from server.ServiceConfig import ServiceConfig
+
+        bind_registries = Bootstrapper._bind_registries
+
+        def bind_without_help(injector):
+            bind_registries(injector)
+            injector.binder.bind(HelpRegistry, to=lambda: None)
+
+        with patch.object(Bootstrapper, "_bind_game_data"), \
+                patch.object(Bootstrapper, "_bind_registries", side_effect=bind_without_help), \
+                patch.object(Bootstrapper, "_bind_learning") as bind_learning:
+            with self.assertRaisesRegex(RuntimeError, "Required registries are unavailable: help_registry"):
+                Bootstrapper.create_injector(ServiceConfig.__new__(ServiceConfig))
+        bind_learning.assert_not_called()
+
     def test_resolver_preserves_namespaces_precedence_and_reload_visibility(self):
         skill = NS(id="shared", name="poison", handler_id="skill.poison")
         spell = NS(id="shared", name="poison", handler_id="spell.poison")

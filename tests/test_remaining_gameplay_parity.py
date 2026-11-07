@@ -32,6 +32,7 @@ class RemainingGameplayTests(MovementFixture, unittest.TestCase):
     def setUp(self):
         super().setUp()
         self.spell_api = SpellApi(self.effects, self.api)
+        self.registries.shop_registry = NS(find_by_keeper_vnum=lambda _: None)
         self.spell_handler = NS(spell_api=self.spell_api, room_registry=self.rooms,
                                 registry_service=self.registries)
         self.combat = FightHandler.__new__(FightHandler)
@@ -249,6 +250,7 @@ class RemainingGameplayTests(MovementFixture, unittest.TestCase):
         self.fight.WeaponClass = self.enums.get('weaponClass')
         self.movement.fight_handler = self.fight
         self.commands = Fight.__new__(Fight)
+        self.commands.registry_service = self.registries
         self.commands.fight_handler, self.commands.interp_api = self.fight, self.api
         self.commands.fight_api = FightApi(self.rooms, self.skill_registry, self.skill_api, self.fight)
         self.commands.room_registry, self.commands.skill_registry = self.rooms, self.skill_registry
@@ -256,6 +258,7 @@ class RemainingGameplayTests(MovementFixture, unittest.TestCase):
         self.commands.AffectBits = self.enums.get('affectedBy')
         self.handler = MobileHandler.__new__(MobileHandler)
         self.handler.registry_service, self.handler.fight_commands = self.registries, self.commands
+        self.handler.handler_service = None
         self.ctx_nasty = MobileContext(self.mob, self.room, self.handler)
 
     def test_nasty_uses_backstab_command_and_does_not_take_combat_turn_same_pulse(self):

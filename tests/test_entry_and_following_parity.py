@@ -152,6 +152,7 @@ class TravelIntegrationTests(MovementFixture, unittest.TestCase):
         self.mobile_handler = NS(room_registry=self.rooms, exit_flags=self.enums.get('exitFlags'),
             room_flags=self.enums.get('roomFlags'), act_bits=self.enums.get('actBits'), movement_commands=self.movement)
         self.commands = Fight.__new__(Fight)
+        self.commands.registry_service = self.registries
         self.commands.room_registry, self.commands.interp_api = self.rooms, self.api
         self.commands.fight_handler, self.commands.movement_commands = self.fight, self.movement
         self.commands.AffectBits = self.enums.get('affectedBy')
@@ -273,7 +274,7 @@ class MobileTravelEmissionTests(unittest.IsolatedAsyncioTestCase):
         handler = MobileHandler.__new__(MobileHandler)
         handler.handler_service = object()
         handler.player_handler = NS(_emit_standard_payload=AsyncMock())
-        context = Context(character=object())
+        context = Context(registry_service=NS(), character=object())
         payload = {'actor': context.character, 'context': context, 'payloads': []}
         await handler._handle_payload(payload)
         self.assertIs(context.handler_service, handler.handler_service)
@@ -284,13 +285,13 @@ class MobileTravelEmissionTests(unittest.IsolatedAsyncioTestCase):
         handler.handler_service = object()
         handler.player_handler = NS(_emit_standard_payload=AsyncMock())
         service = object()
-        context = Context(character=object(), handler_service=service)
+        context = Context(registry_service=NS(), character=object(), handler_service=service)
         await handler._handle_payload({'actor': context.character, 'context': context})
         self.assertIs(service, context.handler_service)
 
     async def test_npc_destination_does_not_request_room_display(self):
         handler = PlayerHandler.__new__(PlayerHandler)
-        context = Context(character=object())
+        context = Context(registry_service=NS(), character=object())
         with patch.object(CharacterApi, 'is_npc', return_value=True):
             await handler._show_room_to_character(context.character, object(), context)
 

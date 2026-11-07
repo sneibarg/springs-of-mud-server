@@ -52,7 +52,7 @@ class Object:
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.room_registry = registry_service.room_registry
-        self.item_registry = getattr(registry_service, "item_registry", None)
+        self.item_registry = registry_service.item_registry
         self.mobile_registry = registry_service.mobile_registry
         self.shop_registry = registry_service.shop_registry
         self.skill_registry = registry_service.skill_registry
@@ -557,6 +557,7 @@ class Object:
             return None
         argument = str(silver) if sacrifice else f"{silver} {gold}"
         split_context = Context(character=character, room=room,
+                                registry_service=self.registry_service,
                                 handler_service=getattr(context, "handler_service", None),
                                 command=self.registry_service.interp_registry.get(name="split"),
                                 result=argument, parameters=argument.split())
@@ -596,7 +597,7 @@ class Object:
             return True
 
         def owners():
-            registry = getattr(self.registry_service, "character_registry", None)
+            registry = self.registry_service.character_registry
             yield from list(getattr(registry, "playing", {}).values())
             all_rooms = getattr(self.room_registry, "all_rooms", None)
             rooms = all_rooms() if callable(all_rooms) else ([room] if room is not None else [])
@@ -1167,7 +1168,7 @@ class Object:
             self.affected_bits,
             self.comm_flags,
         )
-        character_registry = getattr(self.registry_service, "character_registry", None)
+        character_registry = self.registry_service.character_registry
         if character_registry is not None:
             character_registry.register(pet)
         return {
@@ -1738,6 +1739,7 @@ class Object:
 
     def _theft_reaction_context(self, context, victim, name, argument):
         return Context(character=victim, command=self.registry_service.interp_registry.get(name=name),
+                       registry_service=self.registry_service,
                        handler_service=getattr(context, "handler_service", None), room=context.room,
                        parameters=argument.split(), result=argument)
 

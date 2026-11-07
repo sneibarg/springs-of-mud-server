@@ -2,6 +2,7 @@ from game.EnumProvider import EnumProvider
 from injector import inject
 
 from area.Room import Room
+from area.Exit import Exit
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from player.Character import Character
@@ -120,18 +121,18 @@ class RoomHandler:
         if pexit is None:
             context.finish()
             return
-        desc = (pexit.description or "").strip()
-
-        if desc:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(desc + "\r\n"))
-            context.finish()
-            return
-
-        keyword = (pexit.keyword or "").strip()
+        command = context.command
+        desc = (pexit.description or "").strip() or render_command_message(command, "to_char", "invalid_direction")
+        lines = [desc]
+        keyword = pexit.keyword or ""
         if keyword and not keyword.startswith(" "):
-            flags = int(getattr(pexit, "exit_flags", 0) or 0)
-            if flags & 2:  # CLOSED
-                await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(f"The {keyword} is closed.\r\n"))
-            elif flags & 1:  # IS_DOOR
-                await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(f"The {keyword} is open.\r\n"))
+            exit_flags = CharacterApi.get_enum("exitFlags")
+            flags = pexit.exit_flags
+            if flags & EnumProvider.value(exit_flags, "EX_CLOSED"):
+                lines.append(render_command_message(command, "to_char", "closed", t=Exit.door_name(keyword)))
+            elif flags & EnumProvider.value(exit_flags, "EX_ISDOOR"):
+                lines.append(render_command_message(command, "to_char", "open", t=Exit.door_name(keyword)))
+        text = "".join(line.rstrip("\r\n") + "\r\n" for line in lines if line)
+        if text:
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
         context.finish()

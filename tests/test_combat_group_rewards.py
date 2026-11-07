@@ -72,8 +72,10 @@ class TestCombatGroupRewards(unittest.TestCase):
         player.name, player.level = name, level
         player.character_attributes.alignment = 0
         player.character_attributes.experience = 0
-        player.character_attributes.accumulated_experience = 0
-        player.character_attributes.experience_per_level = 10000
+        player.character_attributes.points = 40
+        player.character_race = SimpleNamespace(class_mult=100)
+        player.character_attributes.accumulated_experience = level * 1000
+        player.character_attributes.experience_per_level = 1000
         player.inventory = []
         player.equipped = SimpleNamespace()
         player.get_alignment = lambda: player.character_attributes.alignment

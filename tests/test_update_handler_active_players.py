@@ -763,10 +763,12 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
                 light=1,
                 characters={"active_char": active, "viewer_char": viewer},
                 players_in_room=lambda: [active, viewer],
+                player_targets=lambda _: [viewer],
             )
             handler, _, message_bus = self._handler([active, viewer])
 
-            with patch("api.CharacterApi.CharacterApi.is_immortal", return_value=False):
+            with patch("api.CharacterApi.CharacterApi.positions", Positions, create=True), patch(
+                    "util.LookupUtil.LookupUtil.object_visible", return_value=True):
                 await handler.entity_update_handler.emit_character_tick(active, room, active.tick_light_source(room))
 
             self.assertEqual("0", lamp.value2)
@@ -774,13 +776,10 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
             self.assertIsNone(active.equipped.light)
             self.assertEqual([], active.loot)
             handler.entity_update_handler.effect_update_handler.effect_handler.remove_item_effects.assert_called_once_with(active, lamp)
-            message_bus.send_to_character.assert_awaited_once_with(
-                "active_char",
-                "a brass lamp flickers and goes out.\r\n",
-            )
-            message_bus.send_to_room.assert_awaited_once_with(
-                "a brass lamp goes out.\r\n",
-                [viewer],
+            self.assertEqual(
+                [("viewer_char", "a brass lamp goes out.\r\n"),
+                 ("active_char", "a brass lamp flickers and goes out.\r\n")],
+                [call.args for call in message_bus.send_to_character.await_args_list],
             )
 
         asyncio.run(run_test())

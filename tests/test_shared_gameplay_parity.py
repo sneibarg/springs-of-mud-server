@@ -49,6 +49,7 @@ class SharedFixture(RuntimeFixture):
         self.weather = NS(weather_info=NS(sunlight=self.enums.get('timeAndWeather').SUN_LIGHT))
         self.registries = NS(skill_registry=self.skill_registry, spell_registry=NS(all_spells=lambda: []),
                              room_registry=self.rooms,
+                             group_registry=NS(all_groups=lambda: []),
                              character_registry=NS(get=lambda **kw: self.actor),
                              interp_registry=NS(get_or_none=lambda **kw: self.command(kw['name'])))
         CharacterApi.lazy_load(self.weather, self.registries)
@@ -375,6 +376,7 @@ class AutomaticRoomViewParityTests(SharedFixture, unittest.IsolatedAsyncioTestCa
     def context_for_look(self):
         handlers = {'rh': self.rooms_handler, 'mh': self.mobile_handler}
         return Context(character=self.actor, command=self.command('look'), room=self.room,
+                       registry_service=self.registries,
                        result='', parameters=[], handler_service=NS(get_handler=handlers.get))
 
 

@@ -79,9 +79,9 @@
     "source_lines": 46516,
     "functions_inventoried": 677,
     "functions_with_cases": 55,
-    "functions_completely_traced": 5,
-    "additional_local_ledgers_reconciled": 25,
-    "cases_specified": 566,
+    "functions_completely_traced": 9,
+    "additional_local_ledgers_reconciled": 21,
+    "cases_specified": 683,
     "cases_blocked": 16,
     "cases_dynamically_verified": 0,
     "lexical_sites_pending": 10354,
@@ -149326,7 +149326,7 @@
           "file": "src/handler.c",
           "line": 333,
           "end_line": 339,
-          "status": "partially_specified",
+          "status": "traced",
           "entry_routes": [
             {
               "kind": "lexical_call_candidate",
@@ -149393,7 +149393,22 @@
                 "handler.is_same_clan.clans-0-0",
                 "handler.is_same_clan.clans-1-1",
                 "handler.is_same_clan.clans-2-2",
-                "handler.is_same_clan.clans-2-1"
+                "handler.is_same_clan.clans-2-1",
+                "handler.is_same_clan.clans-0-1",
+                "handler.is_same_clan.clans-0-2",
+                "handler.is_same_clan.clans-1-0",
+                "handler.is_same_clan.clans-1-2",
+                "handler.is_same_clan.clans-2-0",
+                "handler.is_same_clan.self-clan-0",
+                "handler.is_same_clan.self-clan-1",
+                "handler.is_same_clan.self-clan-2",
+                "handler.is_same_clan.kinds-npc-pc",
+                "handler.is_same_clan.kinds-pc-npc",
+                "handler.is_same_clan.kinds-npc-npc",
+                "handler.is_same_clan.independent-0-null-victim",
+                "handler.is_same_clan.independent-1-null-victim",
+                "handler.is_same_clan.victim-clan-outside-table--1",
+                "handler.is_same_clan.victim-clan-outside-table-3"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -149410,7 +149425,15 @@
               "disposition": "specified",
               "case_ids": [
                 "handler.is_same_clan.clans-0-0",
-                "handler.is_same_clan.clans-1-1"
+                "handler.is_same_clan.clans-1-1",
+                "handler.is_same_clan.clans-0-1",
+                "handler.is_same_clan.clans-0-2",
+                "handler.is_same_clan.clans-1-0",
+                "handler.is_same_clan.clans-1-2",
+                "handler.is_same_clan.self-clan-0",
+                "handler.is_same_clan.self-clan-1",
+                "handler.is_same_clan.independent-0-null-victim",
+                "handler.is_same_clan.independent-1-null-victim"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -149427,14 +149450,20 @@
               "disposition": "specified",
               "case_ids": [
                 "handler.is_same_clan.clans-2-2",
-                "handler.is_same_clan.clans-2-1"
+                "handler.is_same_clan.clans-2-1",
+                "handler.is_same_clan.clans-2-0",
+                "handler.is_same_clan.self-clan-2",
+                "handler.is_same_clan.kinds-npc-pc",
+                "handler.is_same_clan.kinds-pc-npc",
+                "handler.is_same_clan.kinds-npc-npc",
+                "handler.is_same_clan.victim-clan-outside-table--1",
+                "handler.is_same_clan.victim-clan-outside-table-3"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
               "id": "handler.is_same_clan.clans-0-0.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/handler.c",
                 "function": "is_same_clan",
                 "line": 335
@@ -149449,7 +149478,6 @@
             {
               "id": "handler.is_same_clan.clans-1-1.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/handler.c",
                 "function": "is_same_clan",
                 "line": 335
@@ -149464,7 +149492,6 @@
             {
               "id": "handler.is_same_clan.clans-2-2.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/handler.c",
                 "function": "is_same_clan",
                 "line": 335
@@ -149479,7 +149506,6 @@
             {
               "id": "handler.is_same_clan.clans-2-1.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/handler.c",
                 "function": "is_same_clan",
                 "line": 335
@@ -149490,14 +149516,276 @@
               "case_ids": [
                 "handler.is_same_clan.clans-2-1"
               ]
+            },
+            {
+              "id": "handler.is_same_clan.clans-0-1.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "is_same_clan",
+                "line": 335
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "clans 0 1",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.is_same_clan.clans-0-1"
+              ]
+            },
+            {
+              "id": "handler.is_same_clan.clans-0-2.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "is_same_clan",
+                "line": 335
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "clans 0 2",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.is_same_clan.clans-0-2"
+              ]
+            },
+            {
+              "id": "handler.is_same_clan.clans-1-0.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "is_same_clan",
+                "line": 335
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "clans 1 0",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.is_same_clan.clans-1-0"
+              ]
+            },
+            {
+              "id": "handler.is_same_clan.clans-1-2.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "is_same_clan",
+                "line": 335
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "clans 1 2",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.is_same_clan.clans-1-2"
+              ]
+            },
+            {
+              "id": "handler.is_same_clan.clans-2-0.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "is_same_clan",
+                "line": 335
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "clans 2 0",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.is_same_clan.clans-2-0"
+              ]
+            },
+            {
+              "id": "handler.is_same_clan.self-clan-0.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "is_same_clan",
+                "line": 335
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "self clan 0",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.is_same_clan.self-clan-0"
+              ]
+            },
+            {
+              "id": "handler.is_same_clan.self-clan-1.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "is_same_clan",
+                "line": 335
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "self clan 1",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.is_same_clan.self-clan-1"
+              ]
+            },
+            {
+              "id": "handler.is_same_clan.self-clan-2.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "is_same_clan",
+                "line": 335
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "self clan 2",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.is_same_clan.self-clan-2"
+              ]
+            },
+            {
+              "id": "handler.is_same_clan.kinds-npc-pc.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "is_same_clan",
+                "line": 335
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "kinds npc pc",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.is_same_clan.kinds-npc-pc"
+              ]
+            },
+            {
+              "id": "handler.is_same_clan.kinds-pc-npc.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "is_same_clan",
+                "line": 335
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "kinds pc npc",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.is_same_clan.kinds-pc-npc"
+              ]
+            },
+            {
+              "id": "handler.is_same_clan.kinds-npc-npc.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "is_same_clan",
+                "line": 335
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "kinds npc npc",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.is_same_clan.kinds-npc-npc"
+              ]
+            },
+            {
+              "id": "handler.is_same_clan.independent-0-null-victim.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "is_same_clan",
+                "line": 335
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "independent 0 null victim",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.is_same_clan.independent-0-null-victim"
+              ]
+            },
+            {
+              "id": "handler.is_same_clan.independent-1-null-victim.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "is_same_clan",
+                "line": 335
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "independent 1 null victim",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.is_same_clan.independent-1-null-victim"
+              ]
+            },
+            {
+              "id": "handler.is_same_clan.victim-clan-outside-table--1.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "is_same_clan",
+                "line": 335
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "victim clan outside table  1",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.is_same_clan.victim-clan-outside-table--1"
+              ]
+            },
+            {
+              "id": "handler.is_same_clan.victim-clan-outside-table-3.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "is_same_clan",
+                "line": 335
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "victim clan outside table 3",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.is_same_clan.victim-clan-outside-table-3"
+              ]
             }
           ],
           "inventory_method": "comment/literal-masked lexical function-definition scan; not compiler verified",
           "indirect_call_sites": [],
-          "local_ledger_review": {
-            "status": "reconciled",
-            "criterion": "Concrete cases linked to every indexed local control site; bounded loop classes and direct-helper input domains. Not executable coverage or a claim that every outcome of every expression has been established.",
-            "remaining": "Caller reachability, unexpanded collaborator internals, platform alternatives and invalid-input policies remain distinct from the local cases. See tracing-notes.md."
+          "completion_review": {
+            "status": "complete",
+            "evidence": "static_trace",
+            "case_count": 19,
+            "notes": "same-clan-completion.md",
+            "remaining_gaps": [],
+            "coverage": "Complete 3x3 clan matrix, self identity, NPC/PC combinations, independent actor skips NULL victim, victim clan is not a table index.",
+            "dependencies": [
+              "clan_table[3] in tables.c:42; no callees, macros, randomness or conditional compilation in helper."
+            ],
+            "entry_routes": [
+              {
+                "file": "src/act_comm.c",
+                "line": 697,
+                "caller": "do_clantalk",
+                "disposition": "reviewed",
+                "contract": "Sender must be nonindependent clan member, sending nonempty input with channels enabled. Recipient descriptor playing and not sender; later NOCLAN/QUIET checks further restrict delivery."
+              },
+              {
+                "file": "src/fight.c",
+                "line": 898,
+                "caller": "damage",
+                "disposition": "reviewed",
+                "contract": "After raw_kill; only distinct attacker and non-NPC attacker reach comparison. False removes victim KILLER if present, otherwise THIEF. Helper reads then-current clan fields, not pre-death snapshots."
+              },
+              {
+                "file": "src/magic.c",
+                "line": 2898,
+                "caller": "spell_gate",
+                "disposition": "reviewed",
+                "contract": "Nonzero victim clan enables comparison after earlier travel guards; false fails before later hero/NPC saving guards and movement."
+              },
+              {
+                "file": "src/magic2.c",
+                "line": 74,
+                "caller": "spell_portal",
+                "disposition": "reviewed",
+                "contract": "Final travel guard checks nonzero victim clan and helper; false fails before component lookup/consumption."
+              },
+              {
+                "file": "src/magic2.c",
+                "line": 127,
+                "caller": "spell_nexus",
+                "disposition": "reviewed",
+                "contract": "Same final clan guard after destination/origin visibility, room, level and NPC save guards; false fails before component lookup/consumption."
+              },
+              {
+                "file": "src/merc.h",
+                "line": 2200,
+                "disposition": "declaration_only"
+              }
+            ],
+            "limitations": [
+              "Actor NULL/out-of-table actor clan, or NULL victim when actor clan is 2, violates the read preconditions; no portable result.",
+              "Full caller behavior and lifecycle remain independent report items."
+            ]
           }
         },
         {
@@ -167804,7 +168092,7 @@
           "file": "src/handler.c",
           "line": 2356,
           "end_line": 2373,
-          "status": "partially_specified",
+          "status": "traced",
           "entry_routes": [
             {
               "kind": "lexical_call_candidate",
@@ -167883,7 +168171,57 @@
                 "handler.room_is_dark.field-at-sunset",
                 "handler.room_is_dark.field-at-night",
                 "handler.room_is_dark.field-day",
-                "handler.room_is_dark.field-sunrise"
+                "handler.room_is_dark.field-sunrise",
+                "handler.room_is_dark.matrix-sect_inside-sun_rise",
+                "handler.room_is_dark.matrix-sect_inside-sun_light",
+                "handler.room_is_dark.matrix-sect_inside-sun_set",
+                "handler.room_is_dark.matrix-sect_city-sun_rise",
+                "handler.room_is_dark.matrix-sect_city-sun_light",
+                "handler.room_is_dark.matrix-sect_city-sun_set",
+                "handler.room_is_dark.matrix-sect_forest-sun_dark",
+                "handler.room_is_dark.matrix-sect_forest-sun_rise",
+                "handler.room_is_dark.matrix-sect_forest-sun_light",
+                "handler.room_is_dark.matrix-sect_forest-sun_set",
+                "handler.room_is_dark.matrix-sect_hills-sun_dark",
+                "handler.room_is_dark.matrix-sect_hills-sun_rise",
+                "handler.room_is_dark.matrix-sect_hills-sun_light",
+                "handler.room_is_dark.matrix-sect_hills-sun_set",
+                "handler.room_is_dark.matrix-sect_mountain-sun_dark",
+                "handler.room_is_dark.matrix-sect_mountain-sun_rise",
+                "handler.room_is_dark.matrix-sect_mountain-sun_light",
+                "handler.room_is_dark.matrix-sect_mountain-sun_set",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_dark",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_rise",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_light",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_set",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_dark",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_rise",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_light",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_set",
+                "handler.room_is_dark.matrix-sect_unused-sun_dark",
+                "handler.room_is_dark.matrix-sect_unused-sun_rise",
+                "handler.room_is_dark.matrix-sect_unused-sun_light",
+                "handler.room_is_dark.matrix-sect_unused-sun_set",
+                "handler.room_is_dark.matrix-sect_air-sun_dark",
+                "handler.room_is_dark.matrix-sect_air-sun_rise",
+                "handler.room_is_dark.matrix-sect_air-sun_light",
+                "handler.room_is_dark.matrix-sect_air-sun_set",
+                "handler.room_is_dark.matrix-sect_desert-sun_dark",
+                "handler.room_is_dark.matrix-sect_desert-sun_rise",
+                "handler.room_is_dark.matrix-sect_desert-sun_light",
+                "handler.room_is_dark.matrix-sect_desert-sun_set",
+                "handler.room_is_dark.light-boundary--32768-dark-inside",
+                "handler.room_is_dark.light-boundary--1-dark-inside",
+                "handler.room_is_dark.light-boundary-0-dark-inside",
+                "handler.room_is_dark.light-boundary-1-dark-inside",
+                "handler.room_is_dark.light-boundary-32767-dark-inside",
+                "handler.room_is_dark.negative-light--32768-sun_light",
+                "handler.room_is_dark.negative-light--32768-sun_dark",
+                "handler.room_is_dark.negative-light--1-sun_light",
+                "handler.room_is_dark.negative-light--1-sun_dark",
+                "handler.room_is_dark.unrelated-flag-does-not-light-room",
+                "handler.room_is_dark.unknown-sunlight-falls-through",
+                "handler.room_is_dark.unknown-sector-uses-weather"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -167899,7 +168237,9 @@
               "predicate_or_transfer": "return FALSE;",
               "disposition": "specified",
               "case_ids": [
-                "handler.room_is_dark.positive-light-beats-dark"
+                "handler.room_is_dark.positive-light-beats-dark",
+                "handler.room_is_dark.light-boundary-1-dark-inside",
+                "handler.room_is_dark.light-boundary-32767-dark-inside"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -167922,7 +168262,55 @@
                 "handler.room_is_dark.field-at-sunset",
                 "handler.room_is_dark.field-at-night",
                 "handler.room_is_dark.field-day",
-                "handler.room_is_dark.field-sunrise"
+                "handler.room_is_dark.field-sunrise",
+                "handler.room_is_dark.matrix-sect_inside-sun_rise",
+                "handler.room_is_dark.matrix-sect_inside-sun_light",
+                "handler.room_is_dark.matrix-sect_inside-sun_set",
+                "handler.room_is_dark.matrix-sect_city-sun_rise",
+                "handler.room_is_dark.matrix-sect_city-sun_light",
+                "handler.room_is_dark.matrix-sect_city-sun_set",
+                "handler.room_is_dark.matrix-sect_forest-sun_dark",
+                "handler.room_is_dark.matrix-sect_forest-sun_rise",
+                "handler.room_is_dark.matrix-sect_forest-sun_light",
+                "handler.room_is_dark.matrix-sect_forest-sun_set",
+                "handler.room_is_dark.matrix-sect_hills-sun_dark",
+                "handler.room_is_dark.matrix-sect_hills-sun_rise",
+                "handler.room_is_dark.matrix-sect_hills-sun_light",
+                "handler.room_is_dark.matrix-sect_hills-sun_set",
+                "handler.room_is_dark.matrix-sect_mountain-sun_dark",
+                "handler.room_is_dark.matrix-sect_mountain-sun_rise",
+                "handler.room_is_dark.matrix-sect_mountain-sun_light",
+                "handler.room_is_dark.matrix-sect_mountain-sun_set",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_dark",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_rise",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_light",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_set",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_dark",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_rise",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_light",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_set",
+                "handler.room_is_dark.matrix-sect_unused-sun_dark",
+                "handler.room_is_dark.matrix-sect_unused-sun_rise",
+                "handler.room_is_dark.matrix-sect_unused-sun_light",
+                "handler.room_is_dark.matrix-sect_unused-sun_set",
+                "handler.room_is_dark.matrix-sect_air-sun_dark",
+                "handler.room_is_dark.matrix-sect_air-sun_rise",
+                "handler.room_is_dark.matrix-sect_air-sun_light",
+                "handler.room_is_dark.matrix-sect_air-sun_set",
+                "handler.room_is_dark.matrix-sect_desert-sun_dark",
+                "handler.room_is_dark.matrix-sect_desert-sun_rise",
+                "handler.room_is_dark.matrix-sect_desert-sun_light",
+                "handler.room_is_dark.matrix-sect_desert-sun_set",
+                "handler.room_is_dark.light-boundary--32768-dark-inside",
+                "handler.room_is_dark.light-boundary--1-dark-inside",
+                "handler.room_is_dark.light-boundary-0-dark-inside",
+                "handler.room_is_dark.negative-light--32768-sun_light",
+                "handler.room_is_dark.negative-light--32768-sun_dark",
+                "handler.room_is_dark.negative-light--1-sun_light",
+                "handler.room_is_dark.negative-light--1-sun_dark",
+                "handler.room_is_dark.unrelated-flag-does-not-light-room",
+                "handler.room_is_dark.unknown-sunlight-falls-through",
+                "handler.room_is_dark.unknown-sector-uses-weather"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -167939,7 +168327,10 @@
               "disposition": "specified",
               "case_ids": [
                 "handler.room_is_dark.zero-light-dark-flag",
-                "handler.room_is_dark.negative-light-dark-flag"
+                "handler.room_is_dark.negative-light-dark-flag",
+                "handler.room_is_dark.light-boundary--32768-dark-inside",
+                "handler.room_is_dark.light-boundary--1-dark-inside",
+                "handler.room_is_dark.light-boundary-0-dark-inside"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -167960,7 +168351,52 @@
                 "handler.room_is_dark.field-at-sunset",
                 "handler.room_is_dark.field-at-night",
                 "handler.room_is_dark.field-day",
-                "handler.room_is_dark.field-sunrise"
+                "handler.room_is_dark.field-sunrise",
+                "handler.room_is_dark.matrix-sect_inside-sun_rise",
+                "handler.room_is_dark.matrix-sect_inside-sun_light",
+                "handler.room_is_dark.matrix-sect_inside-sun_set",
+                "handler.room_is_dark.matrix-sect_city-sun_rise",
+                "handler.room_is_dark.matrix-sect_city-sun_light",
+                "handler.room_is_dark.matrix-sect_city-sun_set",
+                "handler.room_is_dark.matrix-sect_forest-sun_dark",
+                "handler.room_is_dark.matrix-sect_forest-sun_rise",
+                "handler.room_is_dark.matrix-sect_forest-sun_light",
+                "handler.room_is_dark.matrix-sect_forest-sun_set",
+                "handler.room_is_dark.matrix-sect_hills-sun_dark",
+                "handler.room_is_dark.matrix-sect_hills-sun_rise",
+                "handler.room_is_dark.matrix-sect_hills-sun_light",
+                "handler.room_is_dark.matrix-sect_hills-sun_set",
+                "handler.room_is_dark.matrix-sect_mountain-sun_dark",
+                "handler.room_is_dark.matrix-sect_mountain-sun_rise",
+                "handler.room_is_dark.matrix-sect_mountain-sun_light",
+                "handler.room_is_dark.matrix-sect_mountain-sun_set",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_dark",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_rise",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_light",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_set",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_dark",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_rise",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_light",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_set",
+                "handler.room_is_dark.matrix-sect_unused-sun_dark",
+                "handler.room_is_dark.matrix-sect_unused-sun_rise",
+                "handler.room_is_dark.matrix-sect_unused-sun_light",
+                "handler.room_is_dark.matrix-sect_unused-sun_set",
+                "handler.room_is_dark.matrix-sect_air-sun_dark",
+                "handler.room_is_dark.matrix-sect_air-sun_rise",
+                "handler.room_is_dark.matrix-sect_air-sun_light",
+                "handler.room_is_dark.matrix-sect_air-sun_set",
+                "handler.room_is_dark.matrix-sect_desert-sun_dark",
+                "handler.room_is_dark.matrix-sect_desert-sun_rise",
+                "handler.room_is_dark.matrix-sect_desert-sun_light",
+                "handler.room_is_dark.matrix-sect_desert-sun_set",
+                "handler.room_is_dark.negative-light--32768-sun_light",
+                "handler.room_is_dark.negative-light--32768-sun_dark",
+                "handler.room_is_dark.negative-light--1-sun_light",
+                "handler.room_is_dark.negative-light--1-sun_dark",
+                "handler.room_is_dark.unrelated-flag-does-not-light-room",
+                "handler.room_is_dark.unknown-sunlight-falls-through",
+                "handler.room_is_dark.unknown-sector-uses-weather"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -167981,7 +168417,52 @@
                 "handler.room_is_dark.field-at-sunset",
                 "handler.room_is_dark.field-at-night",
                 "handler.room_is_dark.field-day",
-                "handler.room_is_dark.field-sunrise"
+                "handler.room_is_dark.field-sunrise",
+                "handler.room_is_dark.matrix-sect_inside-sun_rise",
+                "handler.room_is_dark.matrix-sect_inside-sun_light",
+                "handler.room_is_dark.matrix-sect_inside-sun_set",
+                "handler.room_is_dark.matrix-sect_city-sun_rise",
+                "handler.room_is_dark.matrix-sect_city-sun_light",
+                "handler.room_is_dark.matrix-sect_city-sun_set",
+                "handler.room_is_dark.matrix-sect_forest-sun_dark",
+                "handler.room_is_dark.matrix-sect_forest-sun_rise",
+                "handler.room_is_dark.matrix-sect_forest-sun_light",
+                "handler.room_is_dark.matrix-sect_forest-sun_set",
+                "handler.room_is_dark.matrix-sect_hills-sun_dark",
+                "handler.room_is_dark.matrix-sect_hills-sun_rise",
+                "handler.room_is_dark.matrix-sect_hills-sun_light",
+                "handler.room_is_dark.matrix-sect_hills-sun_set",
+                "handler.room_is_dark.matrix-sect_mountain-sun_dark",
+                "handler.room_is_dark.matrix-sect_mountain-sun_rise",
+                "handler.room_is_dark.matrix-sect_mountain-sun_light",
+                "handler.room_is_dark.matrix-sect_mountain-sun_set",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_dark",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_rise",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_light",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_set",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_dark",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_rise",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_light",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_set",
+                "handler.room_is_dark.matrix-sect_unused-sun_dark",
+                "handler.room_is_dark.matrix-sect_unused-sun_rise",
+                "handler.room_is_dark.matrix-sect_unused-sun_light",
+                "handler.room_is_dark.matrix-sect_unused-sun_set",
+                "handler.room_is_dark.matrix-sect_air-sun_dark",
+                "handler.room_is_dark.matrix-sect_air-sun_rise",
+                "handler.room_is_dark.matrix-sect_air-sun_light",
+                "handler.room_is_dark.matrix-sect_air-sun_set",
+                "handler.room_is_dark.matrix-sect_desert-sun_dark",
+                "handler.room_is_dark.matrix-sect_desert-sun_rise",
+                "handler.room_is_dark.matrix-sect_desert-sun_light",
+                "handler.room_is_dark.matrix-sect_desert-sun_set",
+                "handler.room_is_dark.negative-light--32768-sun_light",
+                "handler.room_is_dark.negative-light--32768-sun_dark",
+                "handler.room_is_dark.negative-light--1-sun_light",
+                "handler.room_is_dark.negative-light--1-sun_dark",
+                "handler.room_is_dark.unrelated-flag-does-not-light-room",
+                "handler.room_is_dark.unknown-sunlight-falls-through",
+                "handler.room_is_dark.unknown-sector-uses-weather"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -167998,7 +168479,13 @@
               "disposition": "specified",
               "case_ids": [
                 "handler.room_is_dark.inside-at-night",
-                "handler.room_is_dark.city-at-night"
+                "handler.room_is_dark.city-at-night",
+                "handler.room_is_dark.matrix-sect_inside-sun_rise",
+                "handler.room_is_dark.matrix-sect_inside-sun_light",
+                "handler.room_is_dark.matrix-sect_inside-sun_set",
+                "handler.room_is_dark.matrix-sect_city-sun_rise",
+                "handler.room_is_dark.matrix-sect_city-sun_light",
+                "handler.room_is_dark.matrix-sect_city-sun_set"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -168017,7 +168504,46 @@
                 "handler.room_is_dark.field-at-sunset",
                 "handler.room_is_dark.field-at-night",
                 "handler.room_is_dark.field-day",
-                "handler.room_is_dark.field-sunrise"
+                "handler.room_is_dark.field-sunrise",
+                "handler.room_is_dark.matrix-sect_forest-sun_dark",
+                "handler.room_is_dark.matrix-sect_forest-sun_rise",
+                "handler.room_is_dark.matrix-sect_forest-sun_light",
+                "handler.room_is_dark.matrix-sect_forest-sun_set",
+                "handler.room_is_dark.matrix-sect_hills-sun_dark",
+                "handler.room_is_dark.matrix-sect_hills-sun_rise",
+                "handler.room_is_dark.matrix-sect_hills-sun_light",
+                "handler.room_is_dark.matrix-sect_hills-sun_set",
+                "handler.room_is_dark.matrix-sect_mountain-sun_dark",
+                "handler.room_is_dark.matrix-sect_mountain-sun_rise",
+                "handler.room_is_dark.matrix-sect_mountain-sun_light",
+                "handler.room_is_dark.matrix-sect_mountain-sun_set",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_dark",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_rise",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_light",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_set",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_dark",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_rise",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_light",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_set",
+                "handler.room_is_dark.matrix-sect_unused-sun_dark",
+                "handler.room_is_dark.matrix-sect_unused-sun_rise",
+                "handler.room_is_dark.matrix-sect_unused-sun_light",
+                "handler.room_is_dark.matrix-sect_unused-sun_set",
+                "handler.room_is_dark.matrix-sect_air-sun_dark",
+                "handler.room_is_dark.matrix-sect_air-sun_rise",
+                "handler.room_is_dark.matrix-sect_air-sun_light",
+                "handler.room_is_dark.matrix-sect_air-sun_set",
+                "handler.room_is_dark.matrix-sect_desert-sun_dark",
+                "handler.room_is_dark.matrix-sect_desert-sun_rise",
+                "handler.room_is_dark.matrix-sect_desert-sun_light",
+                "handler.room_is_dark.matrix-sect_desert-sun_set",
+                "handler.room_is_dark.negative-light--32768-sun_light",
+                "handler.room_is_dark.negative-light--32768-sun_dark",
+                "handler.room_is_dark.negative-light--1-sun_light",
+                "handler.room_is_dark.negative-light--1-sun_dark",
+                "handler.room_is_dark.unrelated-flag-does-not-light-room",
+                "handler.room_is_dark.unknown-sunlight-falls-through",
+                "handler.room_is_dark.unknown-sector-uses-weather"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -168036,7 +168562,46 @@
                 "handler.room_is_dark.field-at-sunset",
                 "handler.room_is_dark.field-at-night",
                 "handler.room_is_dark.field-day",
-                "handler.room_is_dark.field-sunrise"
+                "handler.room_is_dark.field-sunrise",
+                "handler.room_is_dark.matrix-sect_forest-sun_dark",
+                "handler.room_is_dark.matrix-sect_forest-sun_rise",
+                "handler.room_is_dark.matrix-sect_forest-sun_light",
+                "handler.room_is_dark.matrix-sect_forest-sun_set",
+                "handler.room_is_dark.matrix-sect_hills-sun_dark",
+                "handler.room_is_dark.matrix-sect_hills-sun_rise",
+                "handler.room_is_dark.matrix-sect_hills-sun_light",
+                "handler.room_is_dark.matrix-sect_hills-sun_set",
+                "handler.room_is_dark.matrix-sect_mountain-sun_dark",
+                "handler.room_is_dark.matrix-sect_mountain-sun_rise",
+                "handler.room_is_dark.matrix-sect_mountain-sun_light",
+                "handler.room_is_dark.matrix-sect_mountain-sun_set",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_dark",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_rise",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_light",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_set",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_dark",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_rise",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_light",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_set",
+                "handler.room_is_dark.matrix-sect_unused-sun_dark",
+                "handler.room_is_dark.matrix-sect_unused-sun_rise",
+                "handler.room_is_dark.matrix-sect_unused-sun_light",
+                "handler.room_is_dark.matrix-sect_unused-sun_set",
+                "handler.room_is_dark.matrix-sect_air-sun_dark",
+                "handler.room_is_dark.matrix-sect_air-sun_rise",
+                "handler.room_is_dark.matrix-sect_air-sun_light",
+                "handler.room_is_dark.matrix-sect_air-sun_set",
+                "handler.room_is_dark.matrix-sect_desert-sun_dark",
+                "handler.room_is_dark.matrix-sect_desert-sun_rise",
+                "handler.room_is_dark.matrix-sect_desert-sun_light",
+                "handler.room_is_dark.matrix-sect_desert-sun_set",
+                "handler.room_is_dark.negative-light--32768-sun_light",
+                "handler.room_is_dark.negative-light--32768-sun_dark",
+                "handler.room_is_dark.negative-light--1-sun_light",
+                "handler.room_is_dark.negative-light--1-sun_dark",
+                "handler.room_is_dark.unrelated-flag-does-not-light-room",
+                "handler.room_is_dark.unknown-sunlight-falls-through",
+                "handler.room_is_dark.unknown-sector-uses-weather"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -168053,7 +168618,27 @@
               "disposition": "specified",
               "case_ids": [
                 "handler.room_is_dark.field-at-sunset",
-                "handler.room_is_dark.field-at-night"
+                "handler.room_is_dark.field-at-night",
+                "handler.room_is_dark.matrix-sect_forest-sun_dark",
+                "handler.room_is_dark.matrix-sect_forest-sun_set",
+                "handler.room_is_dark.matrix-sect_hills-sun_dark",
+                "handler.room_is_dark.matrix-sect_hills-sun_set",
+                "handler.room_is_dark.matrix-sect_mountain-sun_dark",
+                "handler.room_is_dark.matrix-sect_mountain-sun_set",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_dark",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_set",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_dark",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_set",
+                "handler.room_is_dark.matrix-sect_unused-sun_dark",
+                "handler.room_is_dark.matrix-sect_unused-sun_set",
+                "handler.room_is_dark.matrix-sect_air-sun_dark",
+                "handler.room_is_dark.matrix-sect_air-sun_set",
+                "handler.room_is_dark.matrix-sect_desert-sun_dark",
+                "handler.room_is_dark.matrix-sect_desert-sun_set",
+                "handler.room_is_dark.negative-light--32768-sun_dark",
+                "handler.room_is_dark.negative-light--1-sun_dark",
+                "handler.room_is_dark.unrelated-flag-does-not-light-room",
+                "handler.room_is_dark.unknown-sector-uses-weather"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -168070,14 +168655,32 @@
               "disposition": "specified",
               "case_ids": [
                 "handler.room_is_dark.field-day",
-                "handler.room_is_dark.field-sunrise"
+                "handler.room_is_dark.field-sunrise",
+                "handler.room_is_dark.matrix-sect_forest-sun_rise",
+                "handler.room_is_dark.matrix-sect_forest-sun_light",
+                "handler.room_is_dark.matrix-sect_hills-sun_rise",
+                "handler.room_is_dark.matrix-sect_hills-sun_light",
+                "handler.room_is_dark.matrix-sect_mountain-sun_rise",
+                "handler.room_is_dark.matrix-sect_mountain-sun_light",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_rise",
+                "handler.room_is_dark.matrix-sect_water_swim-sun_light",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_rise",
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_light",
+                "handler.room_is_dark.matrix-sect_unused-sun_rise",
+                "handler.room_is_dark.matrix-sect_unused-sun_light",
+                "handler.room_is_dark.matrix-sect_air-sun_rise",
+                "handler.room_is_dark.matrix-sect_air-sun_light",
+                "handler.room_is_dark.matrix-sect_desert-sun_rise",
+                "handler.room_is_dark.matrix-sect_desert-sun_light",
+                "handler.room_is_dark.negative-light--32768-sun_light",
+                "handler.room_is_dark.negative-light--1-sun_light",
+                "handler.room_is_dark.unknown-sunlight-falls-through"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
               "id": "handler.room_is_dark.positive-light-beats-dark.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/handler.c",
                 "function": "room_is_dark",
                 "line": 2358
@@ -168092,7 +168695,6 @@
             {
               "id": "handler.room_is_dark.zero-light-dark-flag.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/handler.c",
                 "function": "room_is_dark",
                 "line": 2358
@@ -168107,7 +168709,6 @@
             {
               "id": "handler.room_is_dark.negative-light-dark-flag.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/handler.c",
                 "function": "room_is_dark",
                 "line": 2358
@@ -168122,7 +168723,6 @@
             {
               "id": "handler.room_is_dark.inside-at-night.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/handler.c",
                 "function": "room_is_dark",
                 "line": 2358
@@ -168137,7 +168737,6 @@
             {
               "id": "handler.room_is_dark.city-at-night.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/handler.c",
                 "function": "room_is_dark",
                 "line": 2358
@@ -168152,7 +168751,6 @@
             {
               "id": "handler.room_is_dark.field-at-sunset.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/handler.c",
                 "function": "room_is_dark",
                 "line": 2358
@@ -168167,7 +168765,6 @@
             {
               "id": "handler.room_is_dark.field-at-night.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/handler.c",
                 "function": "room_is_dark",
                 "line": 2358
@@ -168182,7 +168779,6 @@
             {
               "id": "handler.room_is_dark.field-day.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/handler.c",
                 "function": "room_is_dark",
                 "line": 2358
@@ -168197,7 +168793,6 @@
             {
               "id": "handler.room_is_dark.field-sunrise.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/handler.c",
                 "function": "room_is_dark",
                 "line": 2358
@@ -168208,14 +168803,773 @@
               "case_ids": [
                 "handler.room_is_dark.field-sunrise"
               ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_inside-sun_rise.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_inside sun_rise",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_inside-sun_rise"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_inside-sun_light.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_inside sun_light",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_inside-sun_light"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_inside-sun_set.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_inside sun_set",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_inside-sun_set"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_city-sun_rise.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_city sun_rise",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_city-sun_rise"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_city-sun_light.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_city sun_light",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_city-sun_light"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_city-sun_set.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_city sun_set",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_city-sun_set"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_forest-sun_dark.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_forest sun_dark",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_forest-sun_dark"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_forest-sun_rise.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_forest sun_rise",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_forest-sun_rise"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_forest-sun_light.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_forest sun_light",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_forest-sun_light"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_forest-sun_set.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_forest sun_set",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_forest-sun_set"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_hills-sun_dark.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_hills sun_dark",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_hills-sun_dark"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_hills-sun_rise.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_hills sun_rise",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_hills-sun_rise"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_hills-sun_light.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_hills sun_light",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_hills-sun_light"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_hills-sun_set.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_hills sun_set",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_hills-sun_set"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_mountain-sun_dark.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_mountain sun_dark",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_mountain-sun_dark"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_mountain-sun_rise.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_mountain sun_rise",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_mountain-sun_rise"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_mountain-sun_light.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_mountain sun_light",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_mountain-sun_light"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_mountain-sun_set.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_mountain sun_set",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_mountain-sun_set"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_water_swim-sun_dark.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_water_swim sun_dark",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_water_swim-sun_dark"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_water_swim-sun_rise.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_water_swim sun_rise",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_water_swim-sun_rise"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_water_swim-sun_light.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_water_swim sun_light",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_water_swim-sun_light"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_water_swim-sun_set.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_water_swim sun_set",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_water_swim-sun_set"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_water_noswim-sun_dark.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_water_noswim sun_dark",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_dark"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_water_noswim-sun_rise.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_water_noswim sun_rise",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_rise"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_water_noswim-sun_light.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_water_noswim sun_light",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_light"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_water_noswim-sun_set.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_water_noswim sun_set",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_water_noswim-sun_set"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_unused-sun_dark.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_unused sun_dark",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_unused-sun_dark"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_unused-sun_rise.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_unused sun_rise",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_unused-sun_rise"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_unused-sun_light.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_unused sun_light",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_unused-sun_light"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_unused-sun_set.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_unused sun_set",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_unused-sun_set"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_air-sun_dark.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_air sun_dark",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_air-sun_dark"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_air-sun_rise.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_air sun_rise",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_air-sun_rise"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_air-sun_light.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_air sun_light",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_air-sun_light"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_air-sun_set.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_air sun_set",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_air-sun_set"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_desert-sun_dark.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_desert sun_dark",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_desert-sun_dark"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_desert-sun_rise.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_desert sun_rise",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_desert-sun_rise"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_desert-sun_light.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_desert sun_light",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_desert-sun_light"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.matrix-sect_desert-sun_set.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "matrix sect_desert sun_set",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.matrix-sect_desert-sun_set"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.light-boundary--32768-dark-inside.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "light boundary  32768 dark inside",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.light-boundary--32768-dark-inside"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.light-boundary--1-dark-inside.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "light boundary  1 dark inside",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.light-boundary--1-dark-inside"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.light-boundary-0-dark-inside.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "light boundary 0 dark inside",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.light-boundary-0-dark-inside"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.light-boundary-1-dark-inside.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "light boundary 1 dark inside",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.light-boundary-1-dark-inside"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.light-boundary-32767-dark-inside.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "light boundary 32767 dark inside",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.light-boundary-32767-dark-inside"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.negative-light--32768-sun_light.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "negative light  32768 sun_light",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.negative-light--32768-sun_light"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.negative-light--32768-sun_dark.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "negative light  32768 sun_dark",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.negative-light--32768-sun_dark"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.negative-light--1-sun_light.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "negative light  1 sun_light",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.negative-light--1-sun_light"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.negative-light--1-sun_dark.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "negative light  1 sun_dark",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.negative-light--1-sun_dark"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.unrelated-flag-does-not-light-room.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "unrelated flag does not light room",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.unrelated-flag-does-not-light-room"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.unknown-sunlight-falls-through.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "unknown sunlight falls through",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.unknown-sunlight-falls-through"
+              ]
+            },
+            {
+              "id": "handler.room_is_dark.unknown-sector-uses-weather.path",
+              "source_ref": {
+                "file": "src/handler.c",
+                "function": "room_is_dark",
+                "line": 2358
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "unknown sector uses weather",
+              "disposition": "specified",
+              "case_ids": [
+                "handler.room_is_dark.unknown-sector-uses-weather"
+              ]
             }
           ],
           "inventory_method": "comment/literal-masked lexical function-definition scan; not compiler verified",
           "indirect_call_sites": [],
-          "local_ledger_review": {
-            "status": "reconciled",
-            "criterion": "Concrete cases linked to every indexed local control site; bounded loop classes and direct-helper input domains. Not executable coverage or a claim that every outcome of every expression has been established.",
-            "remaining": "Caller reachability, unexpanded collaborator internals, platform alternatives and invalid-input policies remain distinct from the local cases. See tracing-notes.md."
+          "completion_review": {
+            "status": "complete",
+            "evidence": "static_trace",
+            "case_count": 59,
+            "notes": "darkness-completion.md",
+            "remaining_gaps": [],
+            "coverage": "All 11 sectors by all four sun states; strict light boundary and signed extremes; dark flag precedence; unrelated flags; nonenum scalar fallthrough; ordered dependency reads.",
+            "dependencies": [
+              "merc.h IS_SET, ROOM_DARK, SECT_INSIDE/CITY and SUN_SET/DARK constants; global weather_info.sunlight. No callees."
+            ],
+            "entry_routes": [
+              {
+                "file": "src/act_info.c",
+                "line": 510,
+                "caller": "show_char_to_char",
+                "disposition": "reviewed",
+                "contract": "After self/trust skips and failed can_see; darkness and target AFF_INFRARED emit glowing-eyes message to observer."
+              },
+              {
+                "file": "src/act_info.c",
+                "line": 1013,
+                "caller": "do_look",
+                "disposition": "reviewed",
+                "contract": "After descriptor, position, blindness guards; non-NPC without holylight checks darkness, prints pitch black, lists characters and returns before parsing input."
+              },
+              {
+                "file": "src/act_info.c",
+                "line": 1356,
+                "caller": "do_exits",
+                "disposition": "reviewed",
+                "contract": "Non-auto mode only, for existing non-NULL visible open destinations; selects Too dark to tell versus destination name."
+              },
+              {
+                "file": "src/comm.c",
+                "line": 1423,
+                "caller": "bust_a_prompt",
+                "disposition": "reviewed",
+                "contract": "%r with a room, no PC holylight bypass, and not blind; picks room name versus darkness."
+              },
+              {
+                "file": "src/handler.c",
+                "line": 2462,
+                "caller": "can_see",
+                "disposition": "reviewed",
+                "contract": "After self/trust/incognito/holylight/immortal-NPC/blindness gates; darkness denies without AFF_INFRARED."
+              },
+              {
+                "file": "src/handler.c",
+                "line": 2518,
+                "caller": "can_see_obj",
+                "disposition": "reviewed",
+                "contract": "After holylight/death visibility/blindness/potion/light/invisibility/glow gates; darkness denies without AFF_DARK_VISION."
+              },
+              {
+                "file": "src/merc.h",
+                "line": 2250,
+                "disposition": "declaration_only"
+              }
+            ],
+            "limitations": [
+              "NULL room violates the immediate room.light read precondition.",
+              "Full visibility/network/scheduler behavior belongs to independent caller reports."
+            ]
           }
         },
         {
@@ -243111,7 +244465,7 @@
           "file": "src/special.c",
           "line": 99,
           "end_line": 111,
-          "status": "partially_specified",
+          "status": "traced",
           "entry_routes": [
             {
               "kind": "lexical_call_candidate",
@@ -243163,7 +244517,39 @@
                 "special.spec_lookup.ambiguous-prefix-first",
                 "special.spec_lookup.last-full",
                 "special.spec_lookup.unknown",
-                "special.spec_lookup.empty"
+                "special.spec_lookup.empty",
+                "special.spec_lookup.registered-spec_breath_acid",
+                "special.spec_lookup.registered-spec_breath_fire",
+                "special.spec_lookup.registered-spec_breath_frost",
+                "special.spec_lookup.registered-spec_breath_gas",
+                "special.spec_lookup.registered-spec_breath_lightning",
+                "special.spec_lookup.registered-spec_cast_adept",
+                "special.spec_lookup.registered-spec_cast_cleric",
+                "special.spec_lookup.registered-spec_cast_judge",
+                "special.spec_lookup.registered-spec_cast_mage",
+                "special.spec_lookup.registered-spec_cast_undead",
+                "special.spec_lookup.registered-spec_executioner",
+                "special.spec_lookup.registered-spec_fido",
+                "special.spec_lookup.registered-spec_guard",
+                "special.spec_lookup.registered-spec_janitor",
+                "special.spec_lookup.registered-spec_mayor",
+                "special.spec_lookup.registered-spec_poison",
+                "special.spec_lookup.registered-spec_thief",
+                "special.spec_lookup.registered-spec_nasty",
+                "special.spec_lookup.registered-spec_troll_member",
+                "special.spec_lookup.registered-spec_ogre_member",
+                "special.spec_lookup.one-letter-first-match",
+                "special.spec_lookup.common-prefix-first-match",
+                "special.spec_lookup.ambiguous-cast-first-adept",
+                "special.spec_lookup.ambiguous-breath-f-first-fire",
+                "special.spec_lookup.uppercase-last-match",
+                "special.spec_lookup.same-first-letter-no-prefix",
+                "special.spec_lookup.longer-than-complete-name",
+                "special.spec_lookup.trailing-space-not-trimmed",
+                "special.spec_lookup.leading-space-not-trimmed",
+                "special.spec_lookup.embedded-space-not-tokenized",
+                "special.spec_lookup.whitespace-only",
+                "special.spec_lookup.nonascii-first-byte"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -243183,7 +244569,39 @@
                 "special.spec_lookup.ambiguous-prefix-first",
                 "special.spec_lookup.last-full",
                 "special.spec_lookup.unknown",
-                "special.spec_lookup.empty"
+                "special.spec_lookup.empty",
+                "special.spec_lookup.registered-spec_breath_acid",
+                "special.spec_lookup.registered-spec_breath_fire",
+                "special.spec_lookup.registered-spec_breath_frost",
+                "special.spec_lookup.registered-spec_breath_gas",
+                "special.spec_lookup.registered-spec_breath_lightning",
+                "special.spec_lookup.registered-spec_cast_adept",
+                "special.spec_lookup.registered-spec_cast_cleric",
+                "special.spec_lookup.registered-spec_cast_judge",
+                "special.spec_lookup.registered-spec_cast_mage",
+                "special.spec_lookup.registered-spec_cast_undead",
+                "special.spec_lookup.registered-spec_executioner",
+                "special.spec_lookup.registered-spec_fido",
+                "special.spec_lookup.registered-spec_guard",
+                "special.spec_lookup.registered-spec_janitor",
+                "special.spec_lookup.registered-spec_mayor",
+                "special.spec_lookup.registered-spec_poison",
+                "special.spec_lookup.registered-spec_thief",
+                "special.spec_lookup.registered-spec_nasty",
+                "special.spec_lookup.registered-spec_troll_member",
+                "special.spec_lookup.registered-spec_ogre_member",
+                "special.spec_lookup.one-letter-first-match",
+                "special.spec_lookup.common-prefix-first-match",
+                "special.spec_lookup.ambiguous-cast-first-adept",
+                "special.spec_lookup.ambiguous-breath-f-first-fire",
+                "special.spec_lookup.uppercase-last-match",
+                "special.spec_lookup.same-first-letter-no-prefix",
+                "special.spec_lookup.longer-than-complete-name",
+                "special.spec_lookup.trailing-space-not-trimmed",
+                "special.spec_lookup.leading-space-not-trimmed",
+                "special.spec_lookup.embedded-space-not-tokenized",
+                "special.spec_lookup.whitespace-only",
+                "special.spec_lookup.nonascii-first-byte"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -243203,7 +244621,39 @@
                 "special.spec_lookup.ambiguous-prefix-first",
                 "special.spec_lookup.last-full",
                 "special.spec_lookup.unknown",
-                "special.spec_lookup.empty"
+                "special.spec_lookup.empty",
+                "special.spec_lookup.registered-spec_breath_acid",
+                "special.spec_lookup.registered-spec_breath_fire",
+                "special.spec_lookup.registered-spec_breath_frost",
+                "special.spec_lookup.registered-spec_breath_gas",
+                "special.spec_lookup.registered-spec_breath_lightning",
+                "special.spec_lookup.registered-spec_cast_adept",
+                "special.spec_lookup.registered-spec_cast_cleric",
+                "special.spec_lookup.registered-spec_cast_judge",
+                "special.spec_lookup.registered-spec_cast_mage",
+                "special.spec_lookup.registered-spec_cast_undead",
+                "special.spec_lookup.registered-spec_executioner",
+                "special.spec_lookup.registered-spec_fido",
+                "special.spec_lookup.registered-spec_guard",
+                "special.spec_lookup.registered-spec_janitor",
+                "special.spec_lookup.registered-spec_mayor",
+                "special.spec_lookup.registered-spec_poison",
+                "special.spec_lookup.registered-spec_thief",
+                "special.spec_lookup.registered-spec_nasty",
+                "special.spec_lookup.registered-spec_troll_member",
+                "special.spec_lookup.registered-spec_ogre_member",
+                "special.spec_lookup.one-letter-first-match",
+                "special.spec_lookup.common-prefix-first-match",
+                "special.spec_lookup.ambiguous-cast-first-adept",
+                "special.spec_lookup.ambiguous-breath-f-first-fire",
+                "special.spec_lookup.uppercase-last-match",
+                "special.spec_lookup.same-first-letter-no-prefix",
+                "special.spec_lookup.longer-than-complete-name",
+                "special.spec_lookup.trailing-space-not-trimmed",
+                "special.spec_lookup.leading-space-not-trimmed",
+                "special.spec_lookup.embedded-space-not-tokenized",
+                "special.spec_lookup.whitespace-only",
+                "special.spec_lookup.nonascii-first-byte"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -243221,7 +244671,32 @@
               "case_ids": [
                 "special.spec_lookup.first-full",
                 "special.spec_lookup.ambiguous-prefix-first",
-                "special.spec_lookup.last-full"
+                "special.spec_lookup.last-full",
+                "special.spec_lookup.registered-spec_breath_acid",
+                "special.spec_lookup.registered-spec_breath_fire",
+                "special.spec_lookup.registered-spec_breath_frost",
+                "special.spec_lookup.registered-spec_breath_gas",
+                "special.spec_lookup.registered-spec_breath_lightning",
+                "special.spec_lookup.registered-spec_cast_adept",
+                "special.spec_lookup.registered-spec_cast_cleric",
+                "special.spec_lookup.registered-spec_cast_judge",
+                "special.spec_lookup.registered-spec_cast_mage",
+                "special.spec_lookup.registered-spec_cast_undead",
+                "special.spec_lookup.registered-spec_executioner",
+                "special.spec_lookup.registered-spec_fido",
+                "special.spec_lookup.registered-spec_guard",
+                "special.spec_lookup.registered-spec_janitor",
+                "special.spec_lookup.registered-spec_mayor",
+                "special.spec_lookup.registered-spec_poison",
+                "special.spec_lookup.registered-spec_thief",
+                "special.spec_lookup.registered-spec_nasty",
+                "special.spec_lookup.registered-spec_troll_member",
+                "special.spec_lookup.registered-spec_ogre_member",
+                "special.spec_lookup.one-letter-first-match",
+                "special.spec_lookup.common-prefix-first-match",
+                "special.spec_lookup.ambiguous-cast-first-adept",
+                "special.spec_lookup.ambiguous-breath-f-first-fire",
+                "special.spec_lookup.uppercase-last-match"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -243238,17 +244713,23 @@
               "disposition": "specified",
               "case_ids": [
                 "special.spec_lookup.unknown",
-                "special.spec_lookup.empty"
+                "special.spec_lookup.empty",
+                "special.spec_lookup.same-first-letter-no-prefix",
+                "special.spec_lookup.longer-than-complete-name",
+                "special.spec_lookup.trailing-space-not-trimmed",
+                "special.spec_lookup.leading-space-not-trimmed",
+                "special.spec_lookup.embedded-space-not-tokenized",
+                "special.spec_lookup.whitespace-only",
+                "special.spec_lookup.nonascii-first-byte"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
             {
               "id": "special.spec_lookup.first-full.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/special.c",
                 "function": "spec_lookup",
-                "line": 105
+                "line": 103
               },
               "kind": "semantic_path",
               "predicate_or_transfer": "first full",
@@ -243260,10 +244741,9 @@
             {
               "id": "special.spec_lookup.ambiguous-prefix-first.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/special.c",
                 "function": "spec_lookup",
-                "line": 105
+                "line": 103
               },
               "kind": "semantic_path",
               "predicate_or_transfer": "ambiguous prefix first",
@@ -243275,10 +244755,9 @@
             {
               "id": "special.spec_lookup.last-full.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/special.c",
                 "function": "spec_lookup",
-                "line": 105
+                "line": 103
               },
               "kind": "semantic_path",
               "predicate_or_transfer": "last full",
@@ -243290,10 +244769,9 @@
             {
               "id": "special.spec_lookup.unknown.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/special.c",
                 "function": "spec_lookup",
-                "line": 105
+                "line": 103
               },
               "kind": "semantic_path",
               "predicate_or_transfer": "unknown",
@@ -243305,10 +244783,9 @@
             {
               "id": "special.spec_lookup.empty.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/special.c",
                 "function": "spec_lookup",
-                "line": 105
+                "line": 103
               },
               "kind": "semantic_path",
               "predicate_or_transfer": "empty",
@@ -243316,14 +244793,509 @@
               "case_ids": [
                 "special.spec_lookup.empty"
               ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_breath_acid.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_breath_acid",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_breath_acid"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_breath_fire.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_breath_fire",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_breath_fire"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_breath_frost.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_breath_frost",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_breath_frost"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_breath_gas.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_breath_gas",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_breath_gas"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_breath_lightning.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_breath_lightning",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_breath_lightning"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_cast_adept.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_cast_adept",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_cast_adept"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_cast_cleric.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_cast_cleric",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_cast_cleric"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_cast_judge.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_cast_judge",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_cast_judge"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_cast_mage.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_cast_mage",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_cast_mage"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_cast_undead.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_cast_undead",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_cast_undead"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_executioner.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_executioner",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_executioner"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_fido.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_fido",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_fido"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_guard.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_guard",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_guard"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_janitor.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_janitor",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_janitor"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_mayor.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_mayor",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_mayor"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_poison.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_poison",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_poison"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_thief.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_thief",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_thief"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_nasty.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_nasty",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_nasty"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_troll_member.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_troll_member",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_troll_member"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.registered-spec_ogre_member.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_ogre_member",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.registered-spec_ogre_member"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.one-letter-first-match.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "one letter first match",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.one-letter-first-match"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.common-prefix-first-match.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "common prefix first match",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.common-prefix-first-match"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.ambiguous-cast-first-adept.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "ambiguous cast first adept",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.ambiguous-cast-first-adept"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.ambiguous-breath-f-first-fire.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "ambiguous breath f first fire",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.ambiguous-breath-f-first-fire"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.uppercase-last-match.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "uppercase last match",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.uppercase-last-match"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.same-first-letter-no-prefix.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "same first letter no prefix",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.same-first-letter-no-prefix"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.longer-than-complete-name.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "longer than complete name",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.longer-than-complete-name"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.trailing-space-not-trimmed.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "trailing space not trimmed",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.trailing-space-not-trimmed"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.leading-space-not-trimmed.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "leading space not trimmed",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.leading-space-not-trimmed"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.embedded-space-not-tokenized.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "embedded space not tokenized",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.embedded-space-not-tokenized"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.whitespace-only.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "whitespace only",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.whitespace-only"
+              ]
+            },
+            {
+              "id": "special.spec_lookup.nonascii-first-byte.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_lookup",
+                "line": 103
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "nonascii first byte",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_lookup.nonascii-first-byte"
+              ]
             }
           ],
           "inventory_method": "comment/literal-masked lexical function-definition scan; not compiler verified",
           "indirect_call_sites": [],
-          "local_ledger_review": {
-            "status": "reconciled",
-            "criterion": "Concrete cases linked to every indexed local control site; bounded loop classes and direct-helper input domains. Not executable coverage or a claim that every outcome of every expression has been established.",
-            "remaining": "Caller reachability, unexpanded collaborator internals, platform alternatives and invalid-input policies remain distinct from the local cases. See tracing-notes.md."
+          "completion_review": {
+            "status": "complete",
+            "evidence": "static_trace",
+            "case_count": 37,
+            "notes": "spec-lookup-completion.md",
+            "coverage": "All 22 full names; first/interior/last matches; ambiguous prefixes; ASCII case; first-character short circuit; failed prefix continuation; empty/missing/longer/whitespace/non-ASCII input; sentinel termination; no side effects.",
+            "entry_contract": "Non-NULL readable NUL-terminated bytes. No inherited command authorization.",
+            "dependencies": [
+              "Immutable spec_table at special.c:69",
+              "LOWER at merc.h:1799: ASCII arithmetic only",
+              "str_prefix at db.c:3164: traced mismatch/terminator paths; its NULL logging guards are unreachable under this entry contract and table invariant."
+            ],
+            "entry_routes": [
+              {
+                "file": "src/db.c",
+                "line": 1081,
+                "caller": "load_specials",
+                "disposition": "reviewed",
+                "contract": "Boot SPECIALS M records pass fread_word output. Assign lookup result first; NULL logs prototype vnum and exits(1). Successful pointer retained on prototype."
+              },
+              {
+                "file": "src/act_wiz.c",
+                "line": 3792,
+                "caller": "do_string",
+                "disposition": "reviewed",
+                "contract": "Required fields, character/mobile type and victim lookup precede zone=NULL; spec branch requires NPC. Raw remaining argument after smash_tilde is passed. Assignment precedes failure message, clearing existing spec_fun on miss."
+              },
+              {
+                "file": "src/interp.c",
+                "line": 338,
+                "caller": "interpret",
+                "disposition": "reviewed",
+                "contract": "string command requires L5=55 trust and POS_DEAD, LOG_ALWAYS; freeze gate applies. Direct/internal calls do not inherit interpreter authorization."
+              },
+              {
+                "file": "src/merc.h",
+                "line": 2304,
+                "disposition": "declaration_only"
+              }
+            ],
+            "bounded_loop_dispositions": {
+              "zero_iterations": "Unreachable: first table name is non-NULL.",
+              "one_or_multiple": "First/full/prefix returns and every interior/last full name are specified.",
+              "all_miss": "All 22 rows visited, sentinel stops before name[0] access.",
+              "mutation_recursion": "No writes, callbacks or recursion; table immutable."
+            },
+            "limitations": [
+              "NULL or invalid input storage violates entry precondition; name[0] is read before str_prefix can validate NULL. No portable failure result is asserted.",
+              "ASCII macro semantics are not Unicode case folding."
+            ],
+            "remaining_gaps": []
           }
         },
         {
@@ -243331,7 +245303,7 @@
           "file": "src/special.c",
           "line": 113,
           "end_line": 124,
-          "status": "partially_specified",
+          "status": "traced",
           "entry_routes": [
             {
               "kind": "lexical_call_candidate",
@@ -243364,7 +245336,27 @@
                 "special.spec_name.first-function",
                 "special.spec_name.last-function",
                 "special.spec_name.null-function",
-                "special.spec_name.unregistered-function"
+                "special.spec_name.unregistered-function",
+                "special.spec_name.registered-spec_breath_acid",
+                "special.spec_name.registered-spec_breath_fire",
+                "special.spec_name.registered-spec_breath_frost",
+                "special.spec_name.registered-spec_breath_gas",
+                "special.spec_name.registered-spec_breath_lightning",
+                "special.spec_name.registered-spec_cast_adept",
+                "special.spec_name.registered-spec_cast_cleric",
+                "special.spec_name.registered-spec_cast_judge",
+                "special.spec_name.registered-spec_cast_mage",
+                "special.spec_name.registered-spec_cast_undead",
+                "special.spec_name.registered-spec_executioner",
+                "special.spec_name.registered-spec_fido",
+                "special.spec_name.registered-spec_guard",
+                "special.spec_name.registered-spec_janitor",
+                "special.spec_name.registered-spec_mayor",
+                "special.spec_name.registered-spec_poison",
+                "special.spec_name.registered-spec_thief",
+                "special.spec_name.registered-spec_nasty",
+                "special.spec_name.registered-spec_troll_member",
+                "special.spec_name.registered-spec_ogre_member"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -243383,7 +245375,27 @@
                 "special.spec_name.first-function",
                 "special.spec_name.last-function",
                 "special.spec_name.null-function",
-                "special.spec_name.unregistered-function"
+                "special.spec_name.unregistered-function",
+                "special.spec_name.registered-spec_breath_acid",
+                "special.spec_name.registered-spec_breath_fire",
+                "special.spec_name.registered-spec_breath_frost",
+                "special.spec_name.registered-spec_breath_gas",
+                "special.spec_name.registered-spec_breath_lightning",
+                "special.spec_name.registered-spec_cast_adept",
+                "special.spec_name.registered-spec_cast_cleric",
+                "special.spec_name.registered-spec_cast_judge",
+                "special.spec_name.registered-spec_cast_mage",
+                "special.spec_name.registered-spec_cast_undead",
+                "special.spec_name.registered-spec_executioner",
+                "special.spec_name.registered-spec_fido",
+                "special.spec_name.registered-spec_guard",
+                "special.spec_name.registered-spec_janitor",
+                "special.spec_name.registered-spec_mayor",
+                "special.spec_name.registered-spec_poison",
+                "special.spec_name.registered-spec_thief",
+                "special.spec_name.registered-spec_nasty",
+                "special.spec_name.registered-spec_troll_member",
+                "special.spec_name.registered-spec_ogre_member"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -243400,7 +245412,27 @@
               "disposition": "specified",
               "case_ids": [
                 "special.spec_name.first-function",
-                "special.spec_name.last-function"
+                "special.spec_name.last-function",
+                "special.spec_name.registered-spec_breath_acid",
+                "special.spec_name.registered-spec_breath_fire",
+                "special.spec_name.registered-spec_breath_frost",
+                "special.spec_name.registered-spec_breath_gas",
+                "special.spec_name.registered-spec_breath_lightning",
+                "special.spec_name.registered-spec_cast_adept",
+                "special.spec_name.registered-spec_cast_cleric",
+                "special.spec_name.registered-spec_cast_judge",
+                "special.spec_name.registered-spec_cast_mage",
+                "special.spec_name.registered-spec_cast_undead",
+                "special.spec_name.registered-spec_executioner",
+                "special.spec_name.registered-spec_fido",
+                "special.spec_name.registered-spec_guard",
+                "special.spec_name.registered-spec_janitor",
+                "special.spec_name.registered-spec_mayor",
+                "special.spec_name.registered-spec_poison",
+                "special.spec_name.registered-spec_thief",
+                "special.spec_name.registered-spec_nasty",
+                "special.spec_name.registered-spec_troll_member",
+                "special.spec_name.registered-spec_ogre_member"
               ],
               "gap": "Lexically indexed; feasible outcomes, ordering, implicit paths, and caller contracts require semantic tracing."
             },
@@ -243424,10 +245456,9 @@
             {
               "id": "special.spec_name.first-function.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/special.c",
                 "function": "spec_name",
-                "line": 119
+                "line": 117
               },
               "kind": "semantic_path",
               "predicate_or_transfer": "first function",
@@ -243439,10 +245470,9 @@
             {
               "id": "special.spec_name.last-function.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/special.c",
                 "function": "spec_name",
-                "line": 119
+                "line": 117
               },
               "kind": "semantic_path",
               "predicate_or_transfer": "last function",
@@ -243454,10 +245484,9 @@
             {
               "id": "special.spec_name.null-function.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/special.c",
                 "function": "spec_name",
-                "line": 119
+                "line": 117
               },
               "kind": "semantic_path",
               "predicate_or_transfer": "null function",
@@ -243469,10 +245498,9 @@
             {
               "id": "special.spec_name.unregistered-function.path",
               "source_ref": {
-                "repository": "ROM24",
                 "file": "src/special.c",
                 "function": "spec_name",
-                "line": 119
+                "line": 117
               },
               "kind": "semantic_path",
               "predicate_or_transfer": "unregistered function",
@@ -243480,14 +245508,337 @@
               "case_ids": [
                 "special.spec_name.unregistered-function"
               ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_breath_acid.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_breath_acid",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_breath_acid"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_breath_fire.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_breath_fire",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_breath_fire"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_breath_frost.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_breath_frost",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_breath_frost"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_breath_gas.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_breath_gas",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_breath_gas"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_breath_lightning.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_breath_lightning",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_breath_lightning"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_cast_adept.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_cast_adept",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_cast_adept"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_cast_cleric.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_cast_cleric",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_cast_cleric"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_cast_judge.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_cast_judge",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_cast_judge"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_cast_mage.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_cast_mage",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_cast_mage"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_cast_undead.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_cast_undead",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_cast_undead"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_executioner.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_executioner",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_executioner"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_fido.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_fido",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_fido"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_guard.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_guard",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_guard"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_janitor.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_janitor",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_janitor"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_mayor.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_mayor",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_mayor"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_poison.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_poison",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_poison"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_thief.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_thief",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_thief"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_nasty.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_nasty",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_nasty"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_troll_member.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_troll_member",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_troll_member"
+              ]
+            },
+            {
+              "id": "special.spec_name.registered-spec_ogre_member.path",
+              "source_ref": {
+                "file": "src/special.c",
+                "function": "spec_name",
+                "line": 117
+              },
+              "kind": "semantic_path",
+              "predicate_or_transfer": "registered spec_ogre_member",
+              "disposition": "specified",
+              "case_ids": [
+                "special.spec_name.registered-spec_ogre_member"
+              ]
             }
           ],
           "inventory_method": "comment/literal-masked lexical function-definition scan; not compiler verified",
           "indirect_call_sites": [],
-          "local_ledger_review": {
-            "status": "reconciled",
-            "criterion": "Concrete cases linked to every indexed local control site; bounded loop classes and direct-helper input domains. Not executable coverage or a claim that every outcome of every expression has been established.",
-            "remaining": "Caller reachability, unexpanded collaborator internals, platform alternatives and invalid-input policies remain distinct from the local cases. See tracing-notes.md."
+          "completion_review": {
+            "status": "complete",
+            "evidence": "static_trace",
+            "case_count": 24,
+            "notes": "spec-name-completion.md",
+            "coverage": "All 22 immutable table mappings, first/interior/last return, all-miss termination, NULL input, compatible nonmember input, sentinel exclusion, borrowed pointer identity, absence of side effects.",
+            "entry_contract": "Any valid SPEC_FUN pointer or C NULL; no inherited authorization or world-state prerequisite.",
+            "dependencies": [
+              "spec_table: 22 distinct registered functions followed by {NULL,NULL}; no callees or conditionally compiled alternatives in this function/table."
+            ],
+            "entry_routes": [
+              {
+                "file": "src/act_wiz.c",
+                "line": 1700,
+                "caller": "do_mstat",
+                "disposition": "reviewed",
+                "guard": "Victim found; diagnostic output reaches NPC && spec_fun != 0. No membership check. Helper return is formatted then sent to inspecting actor."
+              },
+              {
+                "file": "src/act_wiz.c",
+                "line": 1071,
+                "caller": "do_stat",
+                "disposition": "reviewed",
+                "route": "stat mob/char dispatches do_mstat through do_function; generic stat prefers object lookup, then character lookup at line 1087."
+              },
+              {
+                "file": "src/interp.c",
+                "line": 337,
+                "caller": "interpret",
+                "disposition": "reviewed",
+                "route": "stat command requires trust >= IM=52 and POS_DEAD; frozen PC rejected earlier. No separate mstat command table entry. Internal do_function bypasses interpreter gates."
+              },
+              {
+                "file": "src/merc.h",
+                "line": 2305,
+                "disposition": "declaration_only"
+              }
+            ],
+            "bounded_loop_dispositions": {
+              "zero_iterations": "Unreachable for the immutable checkout table: entry zero is non-null.",
+              "one_iteration": "first-function returns at entry zero.",
+              "multiple_iterations": "Every interior/last entry specified; missing/NULL inputs compare all 22 and stop before comparing sentinel.",
+              "duplicate_pointer_first_match": "Table has no duplicate functions; mutation of the const table is not a defined alternative. The source returns immediately on first equality.",
+              "recursion_reentry": "No recursion, callbacks or mutable static state."
+            },
+            "remaining_gaps": [],
+            "caller_limitation": "A forged but valid unregistered procedure passes do_mstat non-null guard; spec_name returns NULL and caller sprintf %s has no portable outcome. This does not make the helper result ambiguous or mark do_mstat complete."
           }
         },
         {

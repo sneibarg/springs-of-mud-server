@@ -85,6 +85,8 @@ class TestCommandAuthorization(unittest.TestCase):
         normal.handler_service = services
         normal.connection_manager = bus.connection_manager
         normal.room_registry = SimpleNamespace(get_or_none=lambda **kw: None, all_rooms=lambda: [])
+        normal.registry_service.room_registry = normal.room_registry
+        self.registries = normal.registry_service
         normal.command_not_found_message = "Huh?\r\n"
         nested = PlayerHandler.__new__(PlayerHandler)
         nested.message_bus = bus
@@ -122,7 +124,7 @@ class TestCommandAuthorization(unittest.TestCase):
                 command = self._command("shutdown")
                 _, nested, services, executors, bus = self._interpreters(command)
                 admin = self._actor(level=60, role="admin")
-                context = Context(character=admin, handler_service=services, command=command)
+                context = Context(registry_service=self.registries, character=admin, handler_service=services, command=command)
                 entry = {"victim": self.actor, "command": "shutdown"}
                 if kind == "force":
                     asyncio.run(nested._handle_force_payload(admin, context, {"forced_commands": [entry]}))
@@ -134,7 +136,7 @@ class TestCommandAuthorization(unittest.TestCase):
     def test_at_checks_the_executing_characters_permissions(self):
         command = self._command("shutdown")
         _, nested, services, executors, _ = self._interpreters(command)
-        context = Context(character=self.actor, handler_service=services, command=command)
+        context = Context(registry_service=self.registries, character=self.actor, handler_service=services, command=command)
         asyncio.run(nested._handle_at_payload(self.actor, context, {"interpret_at": "shutdown"}))
         executors.do_wiz_command.assert_not_awaited()
 
@@ -142,7 +144,7 @@ class TestCommandAuthorization(unittest.TestCase):
         command = self._command("shutdown")
         _, nested, services, executors, _ = self._interpreters(command)
         admin = self._actor(level=60, role="admin")
-        context = Context(character=admin, handler_service=services, command=command)
+        context = Context(registry_service=self.registries, character=admin, handler_service=services, command=command)
         asyncio.run(nested._interpret_nested_command(admin, context, "shutdown"))
         executors.do_wiz_command.assert_awaited_once()
 
@@ -153,7 +155,7 @@ class TestCommandAuthorization(unittest.TestCase):
                 normal, nested, services, executors, _ = self._interpreters(command)
                 admin = self._actor(level=60, role="admin")
                 asyncio.run(normal._handle_lambdas(admin, command, ""))
-                context = Context(character=admin, command=command, handler_service=services)
+                context = Context(registry_service=self.registries, character=admin, command=command, handler_service=services)
                 asyncio.run(nested._execute_nested_lambdas(command, context))
                 self.assertTrue(context.done)
                 executors.do_wiz_command.assert_not_awaited()
@@ -166,7 +168,7 @@ class TestCommandAuthorization(unittest.TestCase):
                     normal, nested, services, executors, bus = self._interpreters(command)
                     actor = self._actor(position="POS_RESTING")
                     asyncio.run(normal._handle_lambdas(actor, command, ""))
-                    context = Context(character=actor, command=command, handler_service=services)
+                    context = Context(registry_service=self.registries, character=actor, command=command, handler_service=services)
                     asyncio.run(nested._execute_nested_lambdas(command, context))
                     executors.do_communications_command.assert_not_awaited()
                     self.assertEqual(2, bus.send_to_character.await_count)
@@ -176,12 +178,13 @@ class TestCommandAuthorization(unittest.TestCase):
         command = self._command()
         normal, nested, services, executors, _ = self._interpreters(command)
         asyncio.run(normal.handle_command(SimpleNamespace(usage="player"), self.actor, "say hello"))
-        context = Context(character=self.actor, command=command, handler_service=services)
+        context = Context(registry_service=self.registries, character=self.actor, command=command, handler_service=services)
         asyncio.run(nested._interpret_nested_command(self.actor, context, "say hello"))
         self.assertEqual(2, executors.do_communications_command.await_count)
 
     def test_numeric_and_symbolic_levels_use_effective_trust(self):
-        cases = ((3, 3), ("5", 5), ("ML", 60), ("IM", 55)) + tuple((f"L{i}", 60 - i) for i in range(1, 9))
+        cases = ((3, 3), ("5", 5), ("ML", 60), ("IM", int(self.parameters.LEVEL_IMMORTAL)))
+        cases += tuple((f"L{i}", 60 - i) for i in range(1, 9))
         for level, minimum in cases:
             with self.subTest(level=level):
                 command = self._command(level=level)
@@ -250,7 +253,7 @@ class TestCommandAuthorization(unittest.TestCase):
                 services.run = Mock()
                 actor = self._actor(position=position)
                 asyncio.run(normal._handle_lambdas(actor, command, ""))
-                context = Context(character=actor, command=command, handler_service=services)
+                context = Context(registry_service=self.registries, character=actor, command=command, handler_service=services)
                 asyncio.run(nested._execute_nested_lambdas(command, context))
                 self.assertTrue(context.done)
                 self.assertEqual([call.args for call in bus.send_to_character.await_args_list],

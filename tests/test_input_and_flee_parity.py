@@ -15,6 +15,7 @@ class FleeParityTests(MovementFixture, unittest.TestCase):
     def setUp(self):
         super().setUp()
         self.commands = Fight.__new__(Fight)
+        self.commands.registry_service = self.registries
         self.commands.movement_commands = self.movement
         self.commands.room_registry = self.rooms
         self.commands.interp_api = self.api
@@ -174,7 +175,7 @@ class InputHideParityTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         handler.interp_registry = NS()
         handler.social_registry = self.handler.social_registry
         handler.message_bus = self.handler.message_bus
-        context = Context(character=self.actor)
+        context = Context(registry_service=self.registries, character=self.actor)
         self.flag(self.actor, 'AFF_HIDE')
         await handler._interpret_nested_command(self.actor, context, ' ')
         self.assertTrue(self.hidden())

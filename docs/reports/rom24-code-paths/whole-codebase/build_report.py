@@ -237,6 +237,12 @@ def main():
             }
     from spec_name_completion import complete
     complete(funcs, cases, SOURCE)
+    from spec_lookup_completion import complete as complete_spec_lookup
+    complete_spec_lookup(funcs, cases, SOURCE)
+    from same_clan_completion import complete as complete_same_clan
+    complete_same_clan(funcs, cases, SOURCE)
+    from darkness_completion import complete as complete_darkness
+    complete_darkness(funcs, cases, SOURCE)
     git_head = SOURCE.parent / '.git/HEAD'
     head_text = git_head.read_text().strip() if git_head.exists() else 'unknown'
     git_ref = SOURCE.parent / '.git' / head_text[5:] if head_text.startswith('ref: ') else None
@@ -348,7 +354,7 @@ def main():
             rows += [f"## {fn['name']}", '', f"[Source line {fn['line']}]({(SOURCE / f['path']).as_posix()}:{fn['line']}); ends at line {fn['end_line']}. Status: {fn['status']}.", '',
                 'Entry references (reviewed in the completion record):' if 'completion_review' in fn else 'Entry references (lexical candidates; caller guards still require inspection):', '']
             if 'completion_review' in fn:
-                rows += ['Completed contract and caller audit: [spec_name completion](../spec-name-completion.md). No remaining gaps for this function.', '']
+                rows += [f"Completed contract and caller audit: [{fn['name']} completion](../{fn['completion_review']['notes']}). No remaining gaps for this function.", '']
             rows += [f"- {r.get('caller', r['kind'])}: `{r['file']}:{r['line']}` ({r['kind']})." for r in fn['entry_routes']]
             rows += ['', 'Dependencies: ' + ', '.join(f"`{d['name']}`" for d in fn['dependencies']) + '.', '', '| Ledger ID | Line | Predicate/transfer | Cases | Disposition |', '|---|---:|---|---|---|']
             for b in fn['branch_ledger']:
@@ -383,7 +389,9 @@ def main():
         '## File inventory', '', '| File | Lines | Definitions | Disposition |', '|---|---:|---:|---|']
     summary += [f"| [{f['path']}](files/{Path(f['path']).name}.md) | {f['lines']} | {len(f['functions'])} | {f['status']} |" for f in files]
     summary += ['', '## Coverage criterion and continuation', '',
-        '`spec_name` is now fully traced: all 22 mappings, NULL/nonmember inputs, sentinel termination, pointer ownership and caller reachability are specified in 24 cases. See [completion audit](spec-name-completion.md). Together with the five lookup helpers, six functions are fully traced. The rest of special.c remains partial.', '',
+        '`spec_name` is fully traced in 24 cases; see its [completion audit](spec-name-completion.md). `spec_lookup` is now fully traced in 37 cases covering all 22 names, prefix/case/short-circuit boundaries and both caller contracts; see its [completion audit](spec-lookup-completion.md). These and the five lookup helpers account for seven completed functions. The rest of special.c remains partial.', '',
+        '`is_same_clan` is also fully traced in 19 cases: complete clan matrix, independence, identity/kind and short-circuit contracts. Its [completion audit](same-clan-completion.md) reviews all five callers. Eight functions are now fully traced; handler.c remains partial.', '',
+        '`room_is_dark` is now fully traced in 59 cases, including all sector/sunlight combinations and light/flag precedence, with six callers audited. See its [completion audit](darkness-completion.md). Nine functions are now fully traced.', '',
         'Scan has linked cases for its explicit control sites and additional tests for missing exits, visibility rechecks and undefined inputs. Scan delivery through the communication layer, platform configuration and the remaining subsystems are open.', '',
         'The continuation adds 63 cases and reconciles the local control-site ledgers of 25 existing utility/helper functions. These local ledgers remain distinct from complete caller/dependency tracing; no additional function is promoted to fully traced solely from lexical links.', '',
         'Alias storage cases now cover uppercase names retained by the loader. Ban cases cover a populated recycle list with shared-string names, empty/whitespace input, malformed levels/flags, duplicate flag letters, trailing spaces and missing final newlines. Allocated recycled names, other malformed formats, complete caller/storage invariants and platform persistence behavior remain open.', '',

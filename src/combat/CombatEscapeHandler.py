@@ -24,6 +24,7 @@ class CombatEscapeHandler:
                  session_handler: SessionHandler, connection_manager: ConnectionManager,
                  enum_provider: EnumProvider):
         self.fight_commands = fight_commands
+        self.registry_service = registry_service
         self.movement_commands = movement_commands
         self.room_registry = registry_service.room_registry
         self.interp_registry = registry_service.interp_registry
@@ -69,6 +70,7 @@ class CombatEscapeHandler:
         if command is None or room is None:
             return []
         context = Context(character=character, command=command, handler_service=self.handler_service,
+                          registry_service=self.registry_service,
                           parameters=[], result="", room=room)
         if action == "recall":
             payload = self.movement_commands.do_recall(character, context)

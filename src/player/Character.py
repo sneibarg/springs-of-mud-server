@@ -438,12 +438,11 @@ class Character(AnimateEntity):
         remaining = Item.burn_light(light)
         if remaining is None or room is None:
             return {}
-        name = light.display_name()
         if remaining == 0:
             Room.adjust_light(room, -1)
-            return {"expired_item": light, "to_char": f"{name} flickers and goes out.\r\n", "to_room": f"{name} goes out.\r\n"}
+            return {"expired_item": light}
         if remaining <= 5:
-            return {"to_char": f"{name} flickers.\r\n"}
+            return {"flickering_item": light}
         return {}
 
     def gain_condition(self, condition_name: str, value: int) -> str:

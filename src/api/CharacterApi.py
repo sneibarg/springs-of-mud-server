@@ -32,7 +32,7 @@ class CharacterApi(GameApi):
         cls.configure_runtime(RuntimeDependencies(registry_service, cls._weather_handler))
 
     @classmethod
-    def lazy_load(cls, weather_handler, registry_service=None) -> None:
+    def lazy_load(cls, weather_handler, registry_service) -> None:
         cls.load_actor_runtime(weather_handler, registry_service)
 
     @classmethod
@@ -104,6 +104,16 @@ class CharacterApi(GameApi):
         # The content service represents that membership with the guild field.
         guild = str(getattr(char, "guild", "") or "").strip().lower()
         return guild not in ("", "0", "none", "no", "clanless")
+
+    @classmethod
+    def is_same_clan(cls, character: Any, other: Any) -> bool:
+        if not cls.is_clan(character):
+            return False
+        name = str(character.guild).strip().lower()
+        if name != str(getattr(other, "guild", "") or "").strip().lower():
+            return False
+        return any(str(clan.get("name", "")).strip().lower() == name and not clan.get("independent")
+                   for clan in cls.clans_map().values())
 
     @classmethod
     def can_see_room(cls, character: Any, room: Any) -> bool:

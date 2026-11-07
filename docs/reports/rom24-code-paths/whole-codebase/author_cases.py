@@ -942,6 +942,12 @@ from continuation_cases import extend_cases
 extend_cases(add, cases)
 from spec_name_completion import extend_cases as complete_spec_name_cases
 complete_spec_name_cases(add, cases, SOURCE)
+from spec_lookup_completion import extend_cases as complete_spec_lookup_cases
+complete_spec_lookup_cases(add, cases, SOURCE)
+from same_clan_completion import extend_cases as complete_same_clan_cases
+complete_same_clan_cases(add, cases, SOURCE)
+from darkness_completion import extend_cases as complete_darkness_cases
+complete_darkness_cases(add, cases, SOURCE)
 
 (OUT / 'cases.json').write_text(json.dumps({'schema_version': 1, 'cases': cases}, indent=2) + '\n', encoding='utf8')
 print(f'Authored {len(cases)} cases')

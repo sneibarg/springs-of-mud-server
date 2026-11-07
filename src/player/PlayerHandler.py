@@ -632,6 +632,7 @@ class PlayerHandler:
 
         nested_context = Context(
             character=character,
+            registry_service=context.registry_service,
             handler_service=context.handler_service,
             conn=self.message_bus.connection_manager.get_connection_by_character(str(getattr(character, "id", "") or "")) or context.conn,
             command=cmd,

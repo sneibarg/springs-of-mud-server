@@ -133,7 +133,7 @@ class TestGuardedFlagRuntimePaths(unittest.TestCase):
         for entity in [actor, *mobiles]:
             entity.hit = 1
             entity.default_pos = Positions.POS_STANDING
-        context = Context(character=actor, room=room)
+        context = Context(registry_service=SimpleNamespace(room_registry=commands.room_registry), character=actor, room=room)
         with patch.object(CharacterApi, "positions", Positions, create=True):
             payload = commands.do_peace(actor, context)
         self.assertTrue(context.done)

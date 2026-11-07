@@ -8,7 +8,7 @@ from typing import Any, Optional
 from api.GameApi import GameApi
 from api.ItemApi import ItemApi
 from mobile.Mobile import Mobile
-from util.DisplayUtil import DisplayUtil
+from util.DisplayUtil import DisplayUtil, RecipientText
 from util.GenericUtil import GenericUtil
 from util.FightUtil import FightUtil
 from mobile.MobileContext import MobileContext
@@ -21,7 +21,7 @@ class MobileApi(GameApi):
     _logger = None
 
     @classmethod
-    def lazy_load(cls, weather_handler, registry_service=None) -> None:
+    def lazy_load(cls, weather_handler, registry_service) -> None:
         cls.load_actor_runtime(weather_handler, registry_service)
 
     @classmethod
@@ -214,7 +214,7 @@ class MobileApi(GameApi):
             return False
         spell_name, message = picked
         if message:
-            cls._queue_room_message(ctx, MobileApi.render_act(message, ctx.actor, victim) + "\r\n")
+            cls._queue_room_message(ctx, message, target=victim)
         return cls.cast_spell(ctx, spell_name, target=victim)
 
     @classmethod
@@ -318,7 +318,7 @@ class MobileApi(GameApi):
         if victim is None:
             return False
         if room_message:
-            cls._queue_room_message(ctx, f"{room_message}\r\n")
+            cls._queue_room_message(ctx, room_message, target=victim)
         return cls.multi_hit(ctx, alias)
 
     @staticmethod
@@ -358,7 +358,7 @@ class MobileApi(GameApi):
         selected = random.choice(messages)
         if allow_none and ctx.handler.rng.number_range(0, len(messages)) == 0:
             return False
-        cls._queue_room_message(ctx, MobileApi.render_act(selected, ctx.actor, target_value) + "\r\n")
+        cls._queue_room_message(ctx, selected, target=target_value)
         return ctx.mark_performed()
 
     @staticmethod
@@ -387,7 +387,7 @@ class MobileApi(GameApi):
         if not MobileApi.give_room_item_to_mobile(ctx.room, ctx.actor, item):
             return False
         if room_message:
-            cls._queue_room_message(ctx, f"{room_message}\r\n")
+            cls._queue_room_message(ctx, room_message, item=item)
         return ctx.mark_performed()
 
     @classmethod
@@ -404,7 +404,7 @@ class MobileApi(GameApi):
                 f"[id={corpse.id}] in {room_label}"
             )
             if room_message:
-                cls._queue_room_message(ctx, MobileApi.render_act(room_message, ctx.actor) + "\r\n")
+                cls._queue_room_message(ctx, room_message, item=corpse)
             if spill_contents:
                 item_count = len(corpse.contains)
                 cls._logger_obj().debug(f"{actor_label}: spilling {item_count} corpse item(s) into {room_label}")
@@ -449,11 +449,11 @@ class MobileApi(GameApi):
             acted = cls._move_mobile_direction(ctx, int(step))
         elif step == "W":
             setattr(ctx.actor, "position", CharacterApi.pos_value("POS_STANDING"))
-            cls._queue_room_message(ctx, f"{MobileApi.render_mobile_name(ctx.actor)} awakens and groans loudly.\r\n")
+            cls._queue_room_message(ctx, "$n awakens and groans loudly.")
             acted = True
         elif step == "S":
             setattr(ctx.actor, "position", CharacterApi.pos_value("POS_SLEEPING"))
-            cls._queue_room_message(ctx, f"{MobileApi.render_mobile_name(ctx.actor)} lies down and falls asleep.\r\n")
+            cls._queue_room_message(ctx, "$n lies down and falls asleep.")
             acted = True
         elif step == "a":
             acted = bool(cls.say_random(ctx, ["$n says 'Hello Honey!'"]))
@@ -468,9 +468,9 @@ class MobileApi(GameApi):
         elif step == "E":
             acted = bool(cls.say_random(ctx, ["$n says 'I hereby declare the city of Midgaard closed!'"]))
         elif step == "O":
-            acted = cls._toggle_gate(ctx, close=False)
+            acted = ctx.handler.run_door_command(ctx, "open", "gate")
         elif step == "C":
-            acted = cls._toggle_gate(ctx, close=True)
+            acted = ctx.handler.run_door_command(ctx, "close", "gate")
         elif step == ".":
             state["move"] = False
 
@@ -492,7 +492,7 @@ class MobileApi(GameApi):
             return False
         _to_char, to_room, to_victim = messages
         if to_room:
-            cls._queue_room_message(ctx, MobileApi.render_act(to_room, ctx.actor, victim) + "\r\n", exclude_ids={str(victim.id)})
+            cls._queue_room_message(ctx, to_room, target=victim, exclude_ids={str(victim.id)})
         if not CharacterApi.is_npc(victim) and to_victim:
             ctx.queue_payload({"victim": victim, "to_victim": MobileApi.render_act(to_victim, ctx.actor, victim) + "\r\n"})
         cls.cast_spell(ctx, "poison", target=victim)
@@ -512,7 +512,8 @@ class MobileApi(GameApi):
                 continue
             if awake_discovery_check and CharacterApi.is_awake(victim) and ctx.handler.rng.number_range(0, max(0, GenericUtil.to_int(ctx.actor.level, 0))) == 0:
                 ctx.queue_payload({"victim": victim, "to_victim": f"You discover {MobileApi.render_mobile_name(ctx.actor)}'s hands in your wallet!\r\n"})
-                cls._queue_room_message(ctx, f"{MobileApi.render_mobile_name(victim)} discovers {MobileApi.render_mobile_name(ctx.actor)}'s hands in {MobileApi.render_mobile_name(victim)}'s wallet!\r\n", exclude_ids={str(getattr(victim, 'id', ''))})
+                cls._queue_room_message(ctx, "$N discovers $n's hands in $N's wallet!",
+                                        target=victim, exclude_ids={str(victim.id)})
                 return ctx.mark_performed()
 
             gold_roll = min(ctx.handler.rng.number_range(1, 20), max(1, GenericUtil.to_int(ctx.actor.level, 0) // 2))
@@ -567,7 +568,8 @@ class MobileApi(GameApi):
             ctx.actor.gold = GenericUtil.to_int(ctx.actor.gold, 0) + stolen
             if not CharacterApi.is_npc(victim):
                 ctx.queue_payload({"victim": victim, "to_victim": "Someone rips apart your coin purse, spilling your gold!\r\n"})
-            cls._queue_room_message(ctx, f"{MobileApi.render_mobile_name(victim)}'s coin purse is ripped apart!\r\n", exclude_ids={str(victim.id)})
+            cls._queue_room_message(ctx, "$N's coin purse is ripped apart!",
+                                    target=victim, exclude_ids={str(victim.id)})
             return ctx.mark_performed()
         if action == "flee":
             ctx.handler.run_combat_command(ctx, "flee")
@@ -617,7 +619,7 @@ class MobileApi(GameApi):
                 break
         if found is None:
             return False
-        cls._queue_room_message(ctx, f"{MobileApi.render_mobile_name(ctx.actor)} blows on {MobileApi.render_mobile_name(found)}, ***WHEEEEEEEEEEEET***\r\n")
+        cls._queue_room_message(ctx, "$n blows on $p, ***WHEEEEEEEEEEEET***", item=found)
         targets = []
         for room in ctx.handler.room_registry.all_rooms():
             if room is None or room is ctx.room:
@@ -661,9 +663,7 @@ class MobileApi(GameApi):
             return False
         MobileApi.give_room_item_to_mobile(ctx.room, ctx.actor, obj_best)
         if room_message:
-            text = MobileApi.render_act(room_message, ctx.actor).replace(
-                "$p", str(getattr(obj_best, "short_description", "") or getattr(obj_best, "name", "item")))
-            cls._queue_room_message(ctx, text + "\r\n")
+            cls._queue_room_message(ctx, room_message, item=obj_best)
         cls._logger_obj().debug(
             f"{actor_label}: scavenged {getattr(obj_best, 'short_description', '') or getattr(obj_best, 'name', 'item')} "
             f"[id={getattr(obj_best, 'id', '')}, cost={getattr(obj_best, 'cost', 0)}] in {room_label}"
@@ -748,30 +748,25 @@ class MobileApi(GameApi):
         return ctx.mark_performed()
 
     @staticmethod
-    def _toggle_gate(ctx: MobileContext, close: bool):
-        changed = False
-        closed_bit = MobileApi.enum_bit(ctx.handler.exit_flags, "EX_CLOSED", "CLOSED")
-        if not closed_bit:
-            return False
-        for ex in getattr(ctx.room, "exits", []) or []:
-            keyword = str(getattr(ex, "keyword", "") or "").strip().lower()
-            if keyword != "gate":
-                continue
-            flags = GenericUtil.to_int(getattr(ex, "exit_flags", 0), 0)
-            if close:
-                flags |= closed_bit
-            else:
-                flags &= ~closed_bit
-            ex.exit_flags = flags
-            changed = True
-        return changed
-
-    @staticmethod
-    def _queue_room_message(ctx: MobileContext, text: str, exclude_ids: Optional[set[str]] = None):
-        targets = ctx.room_players(exclude_ids=exclude_ids)
+    def _queue_room_message(ctx: MobileContext, text: str, *, target=None, item=None,
+                            exclude_ids: Optional[set[str]] = None):
+        exclude = {str(ctx.actor.id)} | (exclude_ids or set())
+        targets = [listener for listener in DisplayUtil.room_listeners(None, ctx.room)
+                   if str(listener.id) not in exclude]
         if not targets:
             return
-        ctx.queue_payload({"room_message": text, "room_targets": targets})
+        entities = {token: entity for token, entity in (("$n", ctx.actor), ("$N", target), ("$p", item))
+                    if entity is not None and (token in text or token == "$N" and "$S" in text)}
+
+        def render(observer):
+            tokens = DisplayUtil.visible_tokens(entities, observer, ctx.room)
+            visible_target = target if tokens.get("$N") != "someone" else None
+            rendered = MobileApi.render_act(text, ctx.actor, visible_target, tokens=tokens)
+            return rendered[:1].upper() + rendered[1:].rstrip("\r\n") + "\r\n"
+
+        fallback = render(None)
+        variants = {str(listener.id): render(listener) for listener in targets}
+        ctx.queue_payload({"room_message": RecipientText(fallback, variants, fallback), "room_targets": targets})
 
     @staticmethod
     def _queue_spell_payload(ctx: MobileContext, meta, victim, area: bool):
@@ -860,18 +855,20 @@ class MobileApi(GameApi):
         return DisplayUtil.entity_name(entity, is_npc=CharacterApi.is_npc)
 
     @staticmethod
-    def render_act(text: str, actor, target=None) -> str:
+    def render_act(text: str, actor, target=None, *, tokens=None) -> str:
         rendered = str(text or "")
-        rendered = rendered.replace("$n", MobileApi.render_mobile_name(actor))
-        rendered = rendered.replace("$N", MobileApi.render_mobile_name(target))
-        if target is not None:
-            sex = str(getattr(target, "sex", "") or "").lower()
-            poss = "their"
-            if sex in ("1", "m", "male"):
-                poss = "his"
-            elif sex in ("2", "f", "female"):
-                poss = "her"
-            rendered = rendered.replace("$S", poss)
+        if tokens is None:
+            tokens = {"$n": MobileApi.render_mobile_name(actor), "$N": MobileApi.render_mobile_name(target)}
+        for token, value in tokens.items():
+            rendered = rendered.replace(token, value)
+        rendered = rendered.replace("$N", "someone")
+        sex = str(getattr(target, "sex", "") or "").lower()
+        poss = "their"
+        if sex in ("1", "m", "male"):
+            poss = "his"
+        elif sex in ("2", "f", "female"):
+            poss = "her"
+        rendered = rendered.replace("$S", poss)
         return rendered
 
     @staticmethod

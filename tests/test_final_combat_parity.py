@@ -52,6 +52,7 @@ class TestFinalCombatParity(unittest.TestCase):
         self.destination = SimpleNamespace(id="dest", area_id="area", player_targets=lambda actor: [], add_player_to_room=Mock())
         self.commands._flee_destination = Mock(return_value=self.destination)
         self.commands._movement_cost = Mock(return_value=2)
+        self.commands.movement_commands = SimpleNamespace(travel=Mock(return_value={"payloads": []}))
         self.commands.fight_handler.stop_fighting = Mock()
         self.commands.fight_handler.aggressive_entry_rounds = Mock(return_value=[])
         self.commands.interp_api = SimpleNamespace(evaluate_guards_only=Mock(side_effect=lambda ctx, name: {"blocked": True} if ctx.flee_to_room is None else None))
@@ -72,7 +73,7 @@ class TestFinalCombatParity(unittest.TestCase):
                     patch.object(Module.CharacterAdvancement, "gain_experience") as gain:
                 result = self.commands.do_flee(self.actor, self.context)
             self.assertEqual(charged, gain.called)
-            self.assertEqual("lost_exp" if charged else "snuckAwaySafely", result["payloads"][1]["message_key"])
+            self.assertEqual("lost_exp" if charged else "snuckAwaySafely", result["payloads"][2]["message_key"])
 
     def test_npc_flee_cannot_enter_no_mob_room(self):
         self.actor.is_npc = True

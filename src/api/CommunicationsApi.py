@@ -26,7 +26,6 @@ class BufferedMessage:
 
 
 class CommunicationsApi(GameApi):
-    _registry_service = None
     _tell_buffer: dict[str, List[BufferedMessage]] = {}
     _logger = None
 
@@ -38,7 +37,6 @@ class CommunicationsApi(GameApi):
 
     @classmethod
     def _reset_internal_variables(cls) -> None:
-        cls._registry_service = None
         cls._tell_buffer = {}
         cls._logger = None
 
@@ -88,16 +86,13 @@ class CommunicationsApi(GameApi):
     @classmethod
     def tell_target(cls, view: InterpView):
         context = view.context
-        override = getattr(context, "tell_target", None)
-        if override is not None:
-            return override
+        if hasattr(context, "tell_target"):
+            return context.tell_target
 
         player_handler = view.context.player_handler()
-        if player_handler is None:
-            return None
         session_handler = player_handler.communications_commands.session_handler
         return cls.find_tell_target(view.context.character, cls.tell_target_name(view),
-                                    session_handler, player_handler.communications_commands.room_registry)
+                                    session_handler, view.context.registry_service.room_registry)
 
     @staticmethod
     def find_tell_target(actor, name, session_handler, room_registry):
@@ -137,13 +132,7 @@ class CommunicationsApi(GameApi):
         if override is not None:
             return override
 
-        player_handler = view.context.player_handler()
-        if player_handler is None:
-            return None
-        room = getattr(view.context, "room", None)
-        if room is None:
-            room_registry = getattr(player_handler, "room_registry", None)
-            room = None if room_registry is None else room_registry.get_or_none(id=getattr(view.context.character, "room_id", ""))
+        room = cls.current_room(view)
         if room is None:
             return None
 
@@ -455,12 +444,11 @@ class CommunicationsApi(GameApi):
 
     @classmethod
     def current_room(cls, view: InterpView):
-        room = getattr(view.context, "room", None)
+        context = view.context
+        room = context.room
         if room is not None:
             return room
-        player_handler = view.context.player_handler()
-        room_registry = None if player_handler is None else getattr(player_handler, "room_registry", None)
-        return None if room_registry is None else room_registry.get_or_none(id=getattr(view.context.character, "room_id", ""))
+        return context.registry_service.room_registry.get_or_none(id=context.character.room_id)
 
     @classmethod
     def room_people(cls, view: InterpView) -> list[Any]:
@@ -474,13 +462,8 @@ class CommunicationsApi(GameApi):
 
     @classmethod
     def all_known_people(cls, view: InterpView) -> list[Any]:
-        player_handler = view.context.player_handler()
-        room_registry = None if player_handler is None else getattr(player_handler, "room_registry", None)
-        all_rooms = getattr(room_registry, "all_rooms", None)
-        if not callable(all_rooms):
-            return cls.room_people(view)
         people: dict[str, Any] = {}
-        for room in all_rooms():
+        for room in view.context.registry_service.room_registry.all_rooms():
             for candidate in list((getattr(room, "characters", {}) or {}).values()) + list((getattr(room, "mobiles", {}) or {}).values()):
                 people[str(getattr(candidate, "id", id(candidate)))] = candidate
         return list(people.values())
@@ -520,18 +503,15 @@ class CommunicationsApi(GameApi):
     @classmethod
     def reply_target(cls, view: InterpView):
         context = view.context
-        override = getattr(context, "reply_target", None)
-        if override is not None:
-            return override
+        if hasattr(context, "reply_target"):
+            return context.reply_target
 
         target_id = cls.reply_target_id(view)
         if not target_id:
             return None
 
-        player_handler = view.context.player_handler()
-        if player_handler is None:
-            return None
-        return cls.find_reply_target(target_id, player_handler.character_registry, player_handler.room_registry)
+        registries = context.registry_service
+        return cls.find_reply_target(target_id, registries.character_registry, registries.room_registry)
 
     @staticmethod
     def find_reply_target(target_id, character_registry, room_registry):

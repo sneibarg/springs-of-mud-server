@@ -31,6 +31,7 @@ class PunishmentGuardsTests(fixtures.RuntimeFixture, unittest.TestCase):
         self.victim.room_id = self.room.id
         self.room.add_player_to_room(self.victim)
         self.registry = CharacterRegistry()
+        self.registries.character_registry = self.registry
         for value in (self.actor, self.victim):
             self.registry.register(value)
         self.wiz = Wiz.__new__(Wiz)

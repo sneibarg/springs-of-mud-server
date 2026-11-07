@@ -4,6 +4,7 @@ from area.ResetRegistry import ResetRegistry
 from area.ShopRegistry import ShopRegistry
 from area.SpecialRegistry import SpecialRegistry
 from combat.CombatRegistry import CombatRegistry
+from interp.HelpRegistry import HelpRegistry
 from interp.InterpRegistry import InterpRegistry
 from interp.SocialRegistry import SocialRegistry
 from player.PlayerRegistry import PlayerRegistry
@@ -34,6 +35,7 @@ class RegistryService:
                  shop_registry: ShopRegistry,
                  reset_registry: ResetRegistry,
                  special_registry: SpecialRegistry,
+                 help_registry: HelpRegistry,
                  interp_registry: InterpRegistry,
                  social_registry: SocialRegistry,
                  combat_registry: CombatRegistry):
@@ -51,6 +53,10 @@ class RegistryService:
         self.shop_registry = shop_registry
         self.reset_registry = reset_registry
         self.special_registry = special_registry
+        self.help_registry = help_registry
         self.interp_registry = interp_registry
         self.social_registry = social_registry
         self.combat_registry = combat_registry
+        missing = [name for name, registry in vars(self).items() if registry is None]
+        if missing:
+            raise RuntimeError(f"Required registries are unavailable: {', '.join(missing)}")

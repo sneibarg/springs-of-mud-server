@@ -591,7 +591,8 @@ class TestSpellAffectPayloadMessages(unittest.TestCase):
             target=victim,
             victim=victim,
             level=50,
-            handler=SimpleNamespace(spell_registry=SimpleNamespace(all_spells=lambda: [haste, giant_strength])),
+            handler=SimpleNamespace(registry_service=SimpleNamespace(
+                spell_registry=SimpleNamespace(all_spells=lambda: [haste, giant_strength]))),
             payload_tokens=lambda: {"victim": "Target"},
             queue_payload=payloads.append,
             mark_performed=lambda: True,
@@ -731,8 +732,10 @@ class TestTableDamageSpells(unittest.TestCase):
         spell = Spell.from_json(document)
         registry = SimpleNamespace(all_spells=lambda: [Spell.from_json(dict(
             self.documents[name], levelByClass={}, ratingByClass={})) for name in ('blindness', 'curse', 'bless', 'frenzy')])
+        registries = SimpleNamespace(spell_registry=registry, room_registry=SimpleNamespace(
+            all_rooms=lambda: [], get_or_none=lambda **_: None))
         return self.Context(actor=SimpleNamespace(level=level), spell=spell,
-                            handler=SimpleNamespace(spell_api=self.api, spell_registry=registry),
+                            handler=SimpleNamespace(spell_api=self.api, registry_service=registries),
                             room=object(), target=self.victim, cast_level=level)
 
     def test_cause_spell_content_deals_full_damage_without_rolling_a_save(self):
@@ -1270,7 +1273,7 @@ class TestTableDamageSpells(unittest.TestCase):
         for name in ('cure light','cure serious','cure critical','heal'):
             for self_target in (False,True):
                 ctx,_,_,_,_,_=self.object_context(name,20)
-                victim=ctx.actor if self_target else next(e for e in ctx.handler.room_registry.all_rooms()[1].characters.values() if e.name=='Target')
+                victim=ctx.actor if self_target else next(e for e in ctx.handler.registry_service.room_registry.all_rooms()[1].characters.values() if e.name=='Target')
                 victim.hit,victim.max_hit=-2,200
                 self.PositionApi.set_position(victim,'POS_INCAP')
                 ctx.set_target(victim)
@@ -1297,7 +1300,7 @@ class TestTableDamageSpells(unittest.TestCase):
         pet=self.effect_room_member('Pet',npc=True);pet.hit,pet.max_hit=1,200
         room.add_mobile_to_room(pet)
         spellbook=[Spell.from_json(dict(doc,levelByClass={},ratingByClass={})) for doc in self.documents.values()]
-        ctx.handler.spell_registry=SimpleNamespace(all_spells=lambda:spellbook)
+        ctx.handler.registry_service.spell_registry=SimpleNamespace(all_spells=lambda:spellbook)
         self.assertTrue(self.api.execute_lambdas(ctx))
         self.assertTrue(all(e.hit==101 and e.movement==21 for e in room.characters.values()))
         self.assertEqual(1,pet.hit)
@@ -1342,6 +1345,7 @@ class TestTableDamageSpells(unittest.TestCase):
 
     def travel_context(self, name, level=40):
         ctx = self.guard_context(name, level)
+        del self.api._find_room_for_entity
         source = self.TravelRoom(id='source', vnum='100', area_id='area1')
         destination = self.TravelRoom(id='destination', vnum='200', area_id='area2')
         rooms = [source, destination]
@@ -1355,6 +1359,7 @@ class TestTableDamageSpells(unittest.TestCase):
             entity.loot = []
             room.add_player_to_room(entity)
         ctx.victim.level = 20
+        ctx.victim.vnum = '1'
         for room in rooms:
             observer = self.effect_room_member(room.id + '-observer')
             observer.room_id, observer.area_id = room.id, room.area_id
@@ -1364,9 +1369,10 @@ class TestTableDamageSpells(unittest.TestCase):
         registry = SimpleNamespace(all_rooms=lambda: rooms, get_or_none=get_room)
         shops = SimpleNamespace(find_by_keeper_vnum=Mock(return_value=None))
         prototype = SimpleNamespace(vnum='25', name='portal')
-        ctx.handler.registry_service = SimpleNamespace(room_registry=registry, shop_registry=shops,
-            item_registry=SimpleNamespace(get_or_none=lambda **kw: prototype if kw.get('vnum') == '25' else None))
-        ctx.handler.room_registry = registry
+        ctx.handler.registry_service.room_registry = registry
+        ctx.handler.registry_service.shop_registry = shops
+        ctx.handler.registry_service.item_registry = SimpleNamespace(
+            get_or_none=lambda **kw: prototype if kw.get('vnum') == '25' else None)
         ctx.room = source
         ctx.target_name = 'Target'
         ctx.aliases['room'] = source
@@ -1970,7 +1976,7 @@ class TestTableDamageSpells(unittest.TestCase):
                 ctx = self.live_effect_context(name, 23)
                 spellbook = {name: Spell.from_json(dict(doc, levelByClass={}, ratingByClass={}))
                              for name, doc in self.documents.items()}
-                ctx.handler.spell_registry = SimpleNamespace(all_spells=lambda: list(spellbook.values()))
+                ctx.handler.registry_service.spell_registry = SimpleNamespace(all_spells=lambda: list(spellbook.values()))
                 ctx.victim.saving_throw = 5
                 ctx.victim.character_attributes.dexterity = 15
                 for effect in ('curse', 'haste'):
@@ -2711,7 +2717,7 @@ class TestTableDamageSpells(unittest.TestCase):
         outdoor_room = SimpleNamespace(area_id='area', indoor=False, characters={'a': awake, 'b': asleep}, mobiles={})
         indoor_room = SimpleNamespace(area_id='area', indoor=True, characters={'i': indoor}, mobiles={})
         remote_room = SimpleNamespace(area_id='other', indoor=False, characters={'r': remote}, mobiles={})
-        ctx.handler.room_registry = SimpleNamespace(all_rooms=lambda: [ctx.room, outdoor_room, indoor_room, remote_room])
+        ctx.handler.registry_service.room_registry = SimpleNamespace(all_rooms=lambda: [ctx.room, outdoor_room, indoor_room, remote_room])
         self.api._room_flag = Mock(side_effect=lambda room, flag: getattr(room, 'indoor', False))
         with patch.object(_CharacterApi, 'is_awake', side_effect=lambda victim: victim.awake, create=True):
             self.api.area_message(ctx, 'distant', outdoors=True, awake=True)
@@ -3044,8 +3050,10 @@ class TestTableDamageSpells(unittest.TestCase):
         ctx.victim.hit = 98 if self_target else 200
         ctx.victim.mana = 101
         ctx.victim.movement = 81
+        ctx.victim.character_race = SimpleNamespace(class_mult=100)
         ctx.victim.character_attributes = SimpleNamespace(
-            alignment=0 if self_target else 100, experience=200, accumulated_experience=500,
+            alignment=0 if self_target else 100, points=40, experience=200,
+            accumulated_experience=victim_level * 1000 + 200,
             experience_per_level=1000)
         return ctx
 
@@ -3068,7 +3076,7 @@ class TestTableDamageSpells(unittest.TestCase):
                 patch('random.randint', side_effect=[37, 19]) as roll:
             self.assertTrue(self.api.execute_lambdas(ctx))
         self.assertEqual([(12, 37), (1, 25)], [call.args for call in roll.call_args_list])
-        self.assertEqual((163, 463), (ctx.victim.character_attributes.experience,
+        self.assertEqual((163, 20163), (ctx.victim.character_attributes.experience,
                                     ctx.victim.character_attributes.accumulated_experience))
         self.assertEqual((20, 200, 50, 40), (ctx.victim.level, ctx.victim.hit, ctx.victim.mana, ctx.victim.movement))
         self.assertEqual(117, ctx.actor.hit)
@@ -3109,6 +3117,7 @@ class TestTableDamageSpells(unittest.TestCase):
             with self.subTest(level=level):
                 ctx = self.drain_context(level)
                 ctx.victim.character_attributes.experience = 3
+                ctx.victim.character_attributes.accumulated_experience = level * 1000 + 3
                 with patch.dict(sys.modules, {'player.CharacterAdvancement': self.advancement_module}), \
                         patch('random.randint', side_effect=[12, 5]):
                     self.assertTrue(self.api.execute_lambdas(ctx))

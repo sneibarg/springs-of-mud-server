@@ -124,7 +124,7 @@ Keep expected C outcomes separate from any approved text, feature or scheduling 
 
 ## Continuation and validation
 
-The manifest is the authoritative checkpoint. Every source function has a pending or partially specified disposition, and every lexical control site has a pending disposition until its feasible outcomes are manually linked. Specified semantic paths have their own stable IDs and case links. This is intentionally conservative: unrelated syntax sites are not marked covered simply because a function has a case.
+The manifest is the authoritative checkpoint. Nine functions are fully traced: the five lookup helpers, [spec_name](spec-name-completion.md) with 24 cases, [spec_lookup](spec-lookup-completion.md) with 37 cases, [is_same_clan](same-clan-completion.md) with 19 cases, and [room_is_dark](darkness-completion.md) with 59 cases. Both special-table helpers have reviewed caller contracts and no remaining function-level gaps. Their former local-ledger-only entries are replaced by completion records; 21 other local ledger reviews remain partial. Other functions retain their pending or partially specified dispositions. Specified semantic paths have stable IDs and case links; unrelated syntax sites are not marked covered simply because a function has a case.
 
 Continue with: complete local-ledger reconciliation for the functions already carrying cases; then interpreter/session/network routes, movement and object ownership, combat, spells/effects, update callbacks, save/load and parsing, special procedures and all loaded data. Resolve platform and indirect-call reachability throughout. The pending workload is not a set of exclusions from the user's request.
 

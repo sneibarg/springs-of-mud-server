@@ -35,6 +35,7 @@ class SpeechTextTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         player.character_registry, player.room_registry = registry, self.rooms
         player.message_bus, player._send_prompt = self.bus, AsyncMock()
         self.interpreter = InterpHandler.__new__(InterpHandler)
+        self.interpreter.registry_service = self.registries
         self.interpreter.handler_service = NS(get_handler=lambda key: player)
         self.interpreter.connection_manager, self.interpreter.room_registry = manager, self.rooms
         self.interpreter.message_bus = self.bus

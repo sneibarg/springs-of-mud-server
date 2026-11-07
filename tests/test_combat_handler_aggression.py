@@ -573,6 +573,8 @@ class TestFightHandlerAggression(unittest.TestCase):
             ("skill.SpellContext", "SpellContext"), ("util.MovementUtil", "MovementUtil"),
             ("util.PlayerUtil", "PlayerUtil"))}
         replacements["combat.CombatHandler"] = SimpleNamespace(FightHandler=FightHandler)
+        replacements["api.InterpApi"] = SimpleNamespace(InterpApi=SimpleNamespace(
+            command_payload=lambda key, **fields: dict(message_key=key, **fields)))
         with unittest.mock.patch.dict(sys.modules, replacements):
             spec = importlib.util.spec_from_file_location("_test_killer_fight_commands", SRC / "interp/commands/Fight.py")
             module = importlib.util.module_from_spec(spec)

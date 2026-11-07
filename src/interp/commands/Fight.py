@@ -721,8 +721,9 @@ class Fight:
             if command is not None:
                 pickup = InterpApi.command_payload("default", channel="to_room", targets=room.player_targets(victim),
                                                tokens={"c": victim.name, "t": str(getattr(obj, "short_description", obj.name))})
-                return {"payloads": [success, {"actor": victim, "context": Context(character=victim, command=command, room=room),
-                                              "payloads": [pickup]}]}
+                pickup_context = Context(character=victim, command=command, room=room,
+                                         registry_service=self.registry_service)
+                return {"payloads": [success, {"actor": victim, "context": pickup_context, "payloads": [pickup]}]}
         return success
 
     @staticmethod
@@ -754,10 +755,9 @@ class Fight:
         no_mob = MovementApi.flag_value(room_flags, "ROOM_NO_MOB")
         if CharacterApi.is_npc(character) and no_mob and GenericUtil.to_int(getattr(to_room, "room_flags", 0), 0) & no_mob:
             return None
-        travel_context = Context(character=character, room=room)
-        travel_context.room_registry = self.room_registry
+        travel_context = Context(character=character, room=room, registry_service=self.registry_service)
         direction = MovementUtil.DIR_NAME[GenericUtil.to_int(ex.direction, -1)]
-        state = MovementApi.move_state(travel_context, direction, self.room_registry)
+        state = MovementApi.move_state(travel_context, direction)
         if MovementApi.travel_blocked(travel_context, state) or state.to_room is room:
             return None
         return to_room

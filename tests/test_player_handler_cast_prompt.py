@@ -46,6 +46,7 @@ _stub_module("util.ItemUtil", ItemUtil=SimpleNamespace())
 _stub_module("util.PlayerUtil", PlayerUtil=SimpleNamespace())
 _stub_module("skill.Ability", Ability=SimpleNamespace(take_improve_messages=lambda _character: ""))
 _stub_module("server.messaging", MessageBus=object)
+_stub_module("server.messaging.MessageBus", MessageBus=object)
 _stub_module("server.LoggerFactory", LoggerFactory=SimpleNamespace(get_logger=lambda _name: SimpleNamespace()))
 
 from player.PlayerHandler import PlayerHandler

@@ -2,6 +2,7 @@ import sys
 import unittest
 from copy import deepcopy
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 
@@ -71,10 +72,12 @@ class TestCastLearnedContract(unittest.TestCase):
         room = Room(id=self.character.room_id, area_id=self.character.area_id)
         room.add_player_to_room(self.character)
         self.context = Context(character=self.character, command=command, room=room,
+                               registry_service=SimpleNamespace(spell_registry=registry),
                                parameters=[], result="armor")
         interp_api = InterpApi()
         self.spell_api = SpellApi(EffectHandler(enums), interp_api)
         self.commands = Fight.__new__(Fight)
+        self.commands.registry_service = self.context.registry_service
         self.commands.spell_registry = registry
         self.commands.interp_api = interp_api
         self.commands.spell_api = self.spell_api

@@ -198,7 +198,7 @@ class SocialParityTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         nested = PlayerHandler.__new__(PlayerHandler)
         nested.interp_registry, nested.social_registry, nested.message_bus = interp.interp_registry, self.registry, self.bus
         services = NS(get_handler=lambda name: self.handler if name == 'sh' else None)
-        context = Context(character=self.actor, handler_service=services, room=self.room)
+        context = Context(registry_service=self.registries, character=self.actor, handler_service=services, room=self.room)
         self.actor.status_flags.set_flag('comm', self.enums.get('commFlags').COMM_NOEMOTE)
         await interp.handle_command(None, self.actor, 'smile')
         await nested._interpret_nested_command(self.actor, context, 'smile')

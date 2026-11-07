@@ -60,7 +60,7 @@ class Wiz:
         self.area_registry = registry_service.area_registry
         self.item_registry = registry_service.item_registry
         self.mobile_registry = registry_service.mobile_registry
-        self.note_registry = getattr(registry_service, "note_registry", None)
+        self.note_registry = registry_service.note_registry
         self.interp_registry = registry_service.interp_registry
         self.special_registry = registry_service.special_registry
         self.PlayerActBitsEnum = enum_provider.get("playerActBits")

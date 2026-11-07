@@ -117,6 +117,7 @@ class Bootstrapper:
         Bootstrapper._bind_game_data(injector)
         Bootstrapper._bind_network(injector)
         Bootstrapper._bind_registries(injector)
+        injector.get(RegistryService)
         Bootstrapper._bind_learning(injector)
         Bootstrapper._bind_handlers(injector)
         Bootstrapper._bind_apis(injector)
@@ -208,8 +209,10 @@ class Bootstrapper:
 
     @staticmethod
     def lazy_load(injector: Injector) -> None:
-        CharacterApi.lazy_load(injector.get(WeatherHandler), registry_service=injector.get(RegistryService))
-        MobileApi.lazy_load(injector.get(WeatherHandler), registry_service=injector.get(RegistryService))
+        registries = injector.get(RegistryService)
+        weather = injector.get(WeatherHandler)
+        CharacterApi.lazy_load(weather, registry_service=registries)
+        MobileApi.lazy_load(weather, registry_service=registries)
         ItemApi.lazy_load()
 
         to_load = [GameService, PlayerService, CharacterService, ShopService, ResetService, SpecialService,

@@ -13,9 +13,9 @@ Source: `C:\Users\scott\PycharmProjects\PyRom\Rom24`. HEAD reference: `d3a290073
 | source lines | 46516 |
 | functions inventoried | 677 |
 | functions with cases | 55 |
-| functions completely traced | 5 |
-| additional local ledgers reconciled | 25 |
-| cases specified | 566 |
+| functions completely traced | 9 |
+| additional local ledgers reconciled | 21 |
+| cases specified | 683 |
 | cases blocked | 16 |
 | cases dynamically verified | 0 |
 | lexical sites pending | 10354 |
@@ -82,7 +82,13 @@ No executable branch coverage, whole-server parity, successful C build, or passi
 
 ## Coverage criterion and continuation
 
-The five direct lookup helpers now have linked cases for the bounded search, comparison and return paths. Scan has linked cases for its explicit control sites and additional tests for missing exits, visibility rechecks and undefined inputs. Scan delivery through the communication layer, platform configuration and the remaining subsystems are open.
+`spec_name` is fully traced in 24 cases; see its [completion audit](spec-name-completion.md). `spec_lookup` is now fully traced in 37 cases covering all 22 names, prefix/case/short-circuit boundaries and both caller contracts; see its [completion audit](spec-lookup-completion.md). These and the five lookup helpers account for seven completed functions. The rest of special.c remains partial.
+
+`is_same_clan` is also fully traced in 19 cases: complete clan matrix, independence, identity/kind and short-circuit contracts. Its [completion audit](same-clan-completion.md) reviews all five callers. Eight functions are now fully traced; handler.c remains partial.
+
+`room_is_dark` is now fully traced in 59 cases, including all sector/sunlight combinations and light/flag precedence, with six callers audited. See its [completion audit](darkness-completion.md). Nine functions are now fully traced.
+
+Scan has linked cases for its explicit control sites and additional tests for missing exits, visibility rechecks and undefined inputs. Scan delivery through the communication layer, platform configuration and the remaining subsystems are open.
 
 The continuation adds 63 cases and reconciles the local control-site ledgers of 25 existing utility/helper functions. These local ledgers remain distinct from complete caller/dependency tracing; no additional function is promoted to fully traced solely from lexical links.
 

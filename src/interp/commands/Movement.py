@@ -6,6 +6,7 @@ import random
 from injector import inject
 
 from game.EnumProvider import EnumProvider
+from area.Exit import Exit
 from game.GameData import GameData
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
@@ -42,9 +43,9 @@ class Movement:
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.registry_service = registry_service
         self.room_registry = registry_service.room_registry
-        self.group_registry = getattr(registry_service, "group_registry", None)
-        self.skill_registry = getattr(registry_service, "skill_registry", None)
-        self.spell_registry = getattr(registry_service, "spell_registry", None)
+        self.group_registry = registry_service.group_registry
+        self.skill_registry = registry_service.skill_registry
+        self.spell_registry = registry_service.spell_registry
         self.game_data = game_data
         self.fight_handler = fight_handler
         self.interp_api = interp_api
@@ -63,9 +64,8 @@ class Movement:
 
     def travel(self, character, direction, room):
         """Physical travel for flee/wander, without interpreted posture guards."""
-        context = Context(character=character, room=room,
+        context = Context(character=character, room=room, registry_service=self.registry_service,
                           command=self.registry_service.interp_registry.get_or_none(name=direction))
-        context.room_registry = self.room_registry
         payload = self._move_char(character, direction, context, follow=False, leader=None,
                                   visited=set(), travel_only=True)
         return {'actor': character, 'context': context, 'payloads': [payload]}
@@ -79,7 +79,7 @@ class Movement:
         original_character = context.character
         original_room = getattr(context, "room", None)
         context.character = character
-        state = MovementApi.move_state(context, direction=direction, room_registry=self.room_registry)
+        state = MovementApi.move_state(context, direction=direction)
         context.room = state.in_room
         if travel_only:
             blocked = {'payloads': []} if MovementApi.travel_blocked(context, state) else None
@@ -192,19 +192,38 @@ class Movement:
         return payload
 
     def _lock_action(self, character, context, action):
-        context.room_registry = self.room_registry
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
             return blocked
         state = MovementApi.lock_state(context)
         set_mask = state.closed if action == "close" else state.locked if action == "lock" else 0
         clear_mask = state.closed if action == "open" else state.locked if action in ("unlock", "pick") else 0
+        reverse = None
         if state.item is not None:
             state.item.value1 = str((state.flags | set_mask) & ~clear_mask)
         else:
-            MovementApi.update_exit_flags(self.room_registry, state.room, state.target,
-                                          set_mask=set_mask, clear_mask=clear_mask)
+            reverse = MovementApi.update_exit_flags(self.room_registry, state.room, state.target,
+                                                    set_mask=set_mask, clear_mask=clear_mask)
         context.finish()
+        if state.item is None and action in ("open", "close"):
+            targets = DisplayUtil.room_listeners(character, state.room)
+            tokens = {"c": self._entity_label(character), "t": Exit.door_name(state.keyword)}
+            payload = InterpApi.command_payload("lock_success", targets=targets, tokens=tokens, lock_succeeded=True)
+            payload["recipient_tokens"] = {
+                str(target.id): DisplayUtil.visible_tokens({"c": character}, target, state.room)
+                for target in targets
+            }
+            if reverse is not None:
+                destination, reverse_exit = reverse
+                key = "opens" if action == "open" else "closes"
+                notice = render_command_message(context.command, "to_destination", key,
+                                                t=Exit.door_name(reverse_exit.keyword))
+                if notice:
+                    payload["target_messages"] = [
+                        {"id": listener.id, "text": notice + "\r\n"}
+                        for listener in DisplayUtil.room_listeners(None, destination)
+                    ]
+            return payload
         return InterpApi.command_payload("lock_success", targets=self._room_targets(state.room, character),
                                          tokens=self._actor_item_tokens(character, state.keyword), lock_succeeded=True)
 
@@ -371,6 +390,7 @@ class Movement:
         pet = getattr(character, "pet", None)
         if pet is not None:
             pet_context = Context(character=pet, command=context.command, room=self.room_registry.get_or_none(id=pet.room_id),
+                                  registry_service=self.registry_service,
                                   handler_service=getattr(context, "handler_service", None), result="", parameters=[])
             payloads.append({"actor": pet, "context": pet_context, "payloads": [self._recall(pet, pet_context, visited)]})
         return {"payloads": payloads}
@@ -453,6 +473,7 @@ class Movement:
             if self._aggressive_npc_law_blocked(follower, destination):
                 continue
             follower_context = Context(character=follower, room=room, command=context.command,
+                                       registry_service=self.registry_service,
                                        handler_service=getattr(context, "handler_service", None), result=raw, parameters=[raw])
             payloads.append({"actor": follower, "context": follower_context,
                              "payloads": [self._enter(follower, follower_context, visited)]})

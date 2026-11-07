@@ -57,11 +57,13 @@ class RuntimeFixture:
         self.enums = EnumProvider({name: GenericUtil.build_int_enum(name, values)
                                   for name, values in data.enums.items()})
         GameApi.configure(data, self.enums)
-        CharacterApi.lazy_load(None, NS())
+        self.registries = NS(skill_registry=NS(all_skills=lambda: []), spell_registry=NS(all_spells=lambda: []))
+        CharacterApi.lazy_load(None, self.registries)
         self.actor = self.character('actor')
         self.room = Room(id=self.actor.room_id, area_id=self.actor.area_id)
         self.room.add_player_to_room(self.actor)
         self.rooms = NS(all_rooms=lambda: [self.room], get_or_none=lambda **kw: self.room)
+        self.registries.room_registry = self.rooms
         self.api = InterpApi()
 
     def character(self, name):
@@ -77,6 +79,7 @@ class RuntimeFixture:
 
     def context(self, name, text=''):
         return Context(character=self.actor, command=self.command(name), room=self.room,
+                       registry_service=self.registries,
                        result=text, parameters=[], conn=NS(close=AsyncMock(), is_closed=lambda: False))
 
 
@@ -400,7 +403,7 @@ class FrozenInputTests(RuntimeFixture, unittest.IsolatedAsyncioTestCase):
         self.assertEqual(3, self.bus.send_to_character.await_count)
 
     async def test_nested_commands_and_socials_cannot_bypass_freeze(self):
-        context = Context(character=self.actor, handler_service=self.services)
+        context = Context(character=self.actor, handler_service=self.services, registry_service=self.registries)
         for text in ['say hello', 'smile']:
             await self.nested._interpret_nested_command(self.actor, context, text)
         # Direct executor calls must enforce the same restriction.
@@ -437,14 +440,12 @@ class GroupTellTests(RuntimeFixture, unittest.TestCase):
         npc = Mobile.__new__(Mobile)
         npc.id, npc.leader = 'pet', self.actor
         self.room.mobiles[npc.id] = npc
-        registry = NS(all_rooms=lambda: [self.room, other_room])
-        player_handler = NS(room_registry=registry)
+        self.registries.room_registry = NS(all_rooms=lambda: [self.room, other_room])
         communications = Communications.__new__(Communications)
         from api.CommunicationsApi import CommunicationsApi
         communications.communications_api = CommunicationsApi
         communications.interp_api = self.api
         context = self.context('gtell', 'secret')
-        context.handler_service = NS(get_handler=lambda key: player_handler)
         payload = communications.do_gtell(context)
         self.assertEqual({local.id, remote.id}, {member.id for member in payload['targets']})
         self.assertIn('secret', payload['to_char'])

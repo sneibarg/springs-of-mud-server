@@ -22,13 +22,11 @@ class WizApi:
 
     @staticmethod
     def room_registry(view):
-        player_handler = view.context.player_handler()
-        return None if player_handler is None else player_handler.room_registry
+        return view.context.registry_service.room_registry
 
     @staticmethod
     def character_registry(view):
-        player_handler = view.context.player_handler()
-        return None if player_handler is None else player_handler.character_registry
+        return view.context.registry_service.character_registry
 
     @staticmethod
     def restore_character(victim: Character, fight_handler):
@@ -404,28 +402,12 @@ class WizApi:
         target = WizApi.ban_target(view)
         if target is None:
             return None
-        player_handler = view.context.player_handler()
-        registry_service = None if player_handler is None else getattr(player_handler, "registry_service", None)
-        if registry_service is None:
-            return None
         account_id = str(getattr(target, "account_id", "") or "")
-        return None if not account_id else WizApi._registry_get_or_none(registry_service.player_registry, id=account_id)
+        return view.context.registry_service.player_registry.get_or_none(id=account_id) if account_id else None
 
     @staticmethod
     def ban_target_account_missing(view) -> bool:
         return WizApi.ban_target(view) is not None and (not CharacterApi.is_npc(WizApi.ban_target(view))) and WizApi.ban_target_account(view) is None
-
-    @staticmethod
-    def _registry_get_or_none(registry, **kwargs):
-        if registry is None:
-            return None
-        get_or_none = getattr(registry, "get_or_none", None)
-        if callable(get_or_none):
-            return get_or_none(**kwargs)
-        try:
-            return registry.get(**kwargs)
-        except Exception:
-            return None
 
     @staticmethod
     def switch_target(view):

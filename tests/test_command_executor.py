@@ -14,6 +14,12 @@ from player.PlayerHandler import PlayerHandler
 
 
 class CommandExecutorTests(unittest.IsolatedAsyncioTestCase):
+    def test_command_context_rejects_missing_registry_service(self):
+        with self.assertRaises(TypeError):
+            Context(character=self.actor)
+        with self.assertRaisesRegex(TypeError, "requires a registry service"):
+            Context(character=self.actor, registry_service=None)
+
     def setUp(self):
         self.actor = SimpleNamespace(id='victim', name='Victim', level=10, role='player', position=8,
                                      room_id='victim-room', context={})
@@ -35,6 +41,8 @@ class CommandExecutorTests(unittest.IsolatedAsyncioTestCase):
         self.normal.message_bus = self.bus
         self.normal.connection_manager = self.bus.connection_manager
         self.normal.room_registry = SimpleNamespace(get_or_none=Mock(return_value=self.room))
+        self.registries = SimpleNamespace(room_registry=self.normal.room_registry)
+        self.normal.registry_service = self.registries
         self.normal.handler_service = self.services
         self.nested = PlayerHandler.__new__(PlayerHandler)
         self.nested.message_bus = self.bus
@@ -45,7 +53,7 @@ class CommandExecutorTests(unittest.IsolatedAsyncioTestCase):
     async def run_path(self, path):
         if path == 'normal':
             return await self.normal._handle_lambdas(self.actor, self.command, 'hello world')
-        context = Context(character=self.actor, command=self.command, handler_service=self.services,
+        context = Context(registry_service=self.registries, character=self.actor, command=self.command, handler_service=self.services,
                           result='hello world', parameters=['hello', 'world'], room=self.room, conn=self.connection)
         return await self.nested._execute_nested_lambdas(self.command, context)
 
@@ -163,7 +171,7 @@ class CommandExecutorTests(unittest.IsolatedAsyncioTestCase):
                                                     all_rooms=lambda: [original, remote])
         self.services.fail = AsyncMock(side_effect=ValueError('remote failure'))
         self.command.lambdas = ['lambda ctx: ctx.handler_service.fail()']
-        context = Context(character=self.actor, handler_service=self.services)
+        context = Context(registry_service=self.registries, character=self.actor, handler_service=self.services)
         seat = object()
         original.contents['seat'] = seat
         with patch('interp.CommandExecutor.LoggerFactory.get_logger', return_value=Mock()), \
@@ -178,7 +186,7 @@ class CommandExecutorTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_authorization_is_explicit_and_precedes_evaluation(self):
         self.command.lambdas = ['invalid syntax']
-        context = Context(character=self.actor)
+        context = Context(registry_service=self.registries, character=self.actor)
         policy = Mock(return_value=CommandDenial('command_not_allowed'))
         await CommandExecutor.execute(self.command, context, authorization=policy, message_bus=self.bus)
         policy.assert_called_once_with(self.actor, self.command)
@@ -199,12 +207,13 @@ class CommandExecutorTests(unittest.IsolatedAsyncioTestCase):
         self.services.capture = capture
         self.command.lambdas = ['lambda ctx: ctx.handler_service.capture(ctx)']
         admin = SimpleNamespace(id='admin', name='Admin', level=60)
-        outer = Context(character=admin, command=object(), handler_service=self.services, conn=object())
+        outer = Context(registry_service=self.registries, character=admin, command=object(), handler_service=self.services, conn=object())
         await self.nested._handle_force_payload(admin, outer, {
             'forced_commands': [{'victim': self.actor, 'command': 'probe Hello World'}]})
         self.assertEqual(len(observed), 1)
         context, argument, raw_result = observed[0]
         self.assertIs(context.character, self.actor)
+        self.assertIs(context.registry_service, outer.registry_service)
         self.assertIs(context.conn, self.connection)
         self.assertIs(context.room, self.room)
         self.assertIs(context.command, self.command)
@@ -217,7 +226,7 @@ class CommandExecutorTests(unittest.IsolatedAsyncioTestCase):
         self.services.capture = Mock()
         self.command.lambdas = ['lambda ctx: ctx.handler_service.capture(ctx)']
         admin = SimpleNamespace(id='admin', name='Admin', level=60)
-        await self.nested._handle_force_payload(admin, Context(character=admin, handler_service=self.services), {
+        await self.nested._handle_force_payload(admin, Context(registry_service=self.registries, character=admin, handler_service=self.services), {
             'forced_commands': [{'victim': self.actor, 'command': 'probe'}]})
         self.services.capture.assert_not_called()
         self.bus.send_to_character.assert_awaited_once_with(self.actor.id, 'Huh?\r\n')

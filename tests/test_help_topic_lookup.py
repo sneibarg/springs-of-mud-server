@@ -140,7 +140,7 @@ class HelpTopicLookupTests(HelpFixture, unittest.TestCase):
         from server.session.SessionHandler import SessionHandler
         injector = Injector()
         registries = NS(interp_registry=self.commands, area_registry=NS(), room_registry=self.rooms,
-                        skill_registry=NS(), spell_registry=NS())
+                        group_registry=NS(), skill_registry=NS(), spell_registry=NS())
         for dependency, value in [(RegistryService, registries), (SessionHandler, SessionHandler()),
                                   (WeatherHandler, NS()), (EnumProvider, self.enums),
                                   (InterpApi, self.api), (HelpRegistry, self.helps)]:

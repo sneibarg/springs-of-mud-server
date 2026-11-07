@@ -350,6 +350,7 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
             character=actor,
             command=_load_command("tell"),
             handler_service=_HandlerService(player_handler),
+            registry_service=registry_service,
             result="nobody hello there",
             parameters=[],
             done=False,
@@ -656,6 +657,7 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
         )
         return communications, _Context(
             character=actor,
+            registry_service=communications.registry_service,
             command=_load_command(command_name),
             handler_service=_HandlerService(player_handler),
             room=room,

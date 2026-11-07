@@ -39,6 +39,7 @@ class InterpHandler:
         connection = self.connection_manager.get_connection_by_character(character.id)
         room = self.room_registry.get_or_none(id=character.room_id)
         context = Context(character=character, handler_service=self.handler_service, conn=connection, command=command,
+                          registry_service=self.registry_service,
                           parameters=arguments, result=parameters, room=room, raw_command=raw_command)
 
         return await CommandExecutor.execute(command, context, authorization=CommandAccess.check,

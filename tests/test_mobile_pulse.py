@@ -4,7 +4,8 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, patch
 
-from tests.test_update_handler_active_players import Room
+from tests.test_update_handler_active_players import Positions, Room
+from api.CharacterApi import CharacterApi
 from api.MobileApi import MobileApi
 from mobile.MobileHandler import MobileHandler
 from area.Special import Special
@@ -21,6 +22,7 @@ class MobilePulseTests(unittest.IsolatedAsyncioTestCase):
         actor = SimpleNamespace(id='mob', name='scavenger', short_description='a scavenger',
                                 vnum='2', room_id='room', area_id='area', inventory=[],
                                 status_flags=SimpleNamespace(act=1), gold=0, silver=0, wealth=5000000)
+        actor.add_item = actor.inventory.append
         room.mobiles[actor.id] = actor
         handler = MobileHandler.__new__(MobileHandler)
         handler.logger = Mock()
@@ -33,7 +35,7 @@ class MobilePulseTests(unittest.IsolatedAsyncioTestCase):
         handler.rng = Mock(number_range=Mock(return_value=10), number_bits=Mock(return_value=0))
         handler.execute_special_function = AsyncMock(return_value=False)
         handler._execute_generic_special = AsyncMock()
-        handler.message_bus = Mock(send_to_room=AsyncMock())
+        handler.message_bus = Mock(send_to_room=AsyncMock(), text_to_message=lambda text: text)
         return handler, room, actor
 
     async def test_successful_special_skips_shop_money_and_generic_actions(self):
@@ -63,7 +65,7 @@ class MobilePulseTests(unittest.IsolatedAsyncioTestCase):
         room.characters[viewer.id] = viewer
         protected = SimpleNamespace(id='protected', owner='Owner', cost=100, wear_flags=1,
                                     short_description='a protected gem')
-        allowed = SimpleNamespace(id='allowed', owner='', cost=10, wear_flags=1,
+        allowed = SimpleNamespace(id='allowed', owner='', cost=10, wear_flags=1, item_type='money',
                                   short_description='a coin')
         room.contents = {obj.id: obj for obj in [protected, allowed]}
         documents = json.loads((Path(__file__).resolve().parents[1] / 'resources/collections/SOMDB.Specials.json').read_text())
@@ -77,12 +79,17 @@ class MobilePulseTests(unittest.IsolatedAsyncioTestCase):
                 'api.CharacterApi.CharacterApi.is_immortal', return_value=False), patch(
                 'api.CharacterApi.CharacterApi.is_npc', side_effect=lambda entity: entity is actor), patch(
                 'api.CharacterApi.CharacterApi.is_same_group', return_value=False), patch(
-                'api.ItemApi.ItemApi.get_enum', return_value=None):
+                'api.ItemApi.ItemApi.get_enum', return_value=None), patch.object(
+                CharacterApi, 'positions', Positions, create=True), patch.object(
+                CharacterApi, 'can_see', return_value=True), patch(
+                'util.LookupUtil.LookupUtil.object_visible', return_value=True):
             await handler.mobile_update()
         self.assertEqual([allowed], actor.inventory)
         self.assertEqual({'protected': protected}, room.contents)
-        handler.message_bus.send_to_room.assert_awaited_once_with(
-            handler.message_bus.text_to_message('a scavenger gets a coin.\r\n'), [viewer])
+        handler.message_bus.send_to_room.assert_awaited_once()
+        message, targets = handler.message_bus.send_to_room.await_args.args
+        self.assertEqual([viewer], targets)
+        self.assertEqual('A scavenger gets a coin.\r\n', message.for_recipient(viewer.id))
         handler.rng.number_bits.assert_called_once_with(6)
 
 

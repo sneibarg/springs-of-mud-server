@@ -5435,6 +5435,9 @@
         "openDoor": "%c opens the %t.",
         "lockSuccess": "%c opens %t."
       },
+      "toDestination": {
+        "opens": "The %t opens."
+      },
       "toVictim": {}
     },
     "guards": [

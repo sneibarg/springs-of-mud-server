@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Optional, List
 
 
 if TYPE_CHECKING:
     from game.HandlerService import HandlerService
+    from game.RegistryService import RegistryService
     from area.Room import Room
     from server.connection.TelnetConnection import TelnetConnection
     from interp.Command import Command
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
 class Context:
     """Shared context passed through the lambda pipeline."""
     character: Any
+    registry_service: RegistryService = field(kw_only=True)
     command: Command = None
     handler_service: HandlerService = None
     conn: TelnetConnection = None
@@ -27,6 +29,10 @@ class Context:
     count: Optional[int] = 0  # used for counting items; result of number_argument
     room: Optional[Room] = None
     raw_command: str | None = None
+
+    def __post_init__(self):
+        if self.registry_service is None:
+            raise TypeError("Context requires a registry service")
 
     @property
     def argument(self) -> str:

@@ -21,7 +21,8 @@ class EntityUpdateHandler:
     """Coordinate living entities' model transitions, effects, and tick messages."""
 
     LIFECYCLE_MESSAGES = GamePayload.from_json({
-        'toRoom': {'home': '{actor} wanders on home.\r\n'},
+        'toChar': {'lightOut': '{item} flickers and goes out.\r\n', 'lightFlicker': '{item} flickers.\r\n'},
+        'toRoom': {'home': '{actor} wanders on home.\r\n', 'lightOut': '{item} goes out.\r\n'},
     })
 
     @inject
@@ -110,11 +111,22 @@ class EntityUpdateHandler:
                 and self.rng.number_percent() < 5)
 
     async def emit_character_tick(self, character, room, payload: dict) -> None:
-        if payload.get("expired_item") is not None:
-            ItemOwnership(self.effect_update_handler.effect_handler).detach_carried(character, payload["expired_item"])
-        if payload.get("to_room") and room is not None:
-            targets = [player for player in room.players_in_room() if player.id != character.id]
-            if targets:
-                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room"]), targets)
-        if payload.get("to_char"):
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
+        expired = payload.get("expired_item")
+        light = expired if expired is not None else payload.get("flickering_item")
+        if light is None:
+            return
+
+        # Fuel and room light have already changed. Snapshot visibility before detaching the light.
+        notices = []
+        if expired is not None:
+            for observer in DisplayUtil.room_listeners(character, room):
+                tokens = DisplayUtil.visible_tokens({"item": light}, observer, room)
+                notices.append((observer.id, self.LIFECYCLE_MESSAGES.render("to_room", "light_out", **tokens)))
+        if character.position_value(self.PositionsEnum) >= int(self.PositionsEnum.POS_RESTING):
+            tokens = DisplayUtil.visible_tokens({"item": light}, character, room)
+            key = "light_out" if expired is not None else "light_flicker"
+            notices.append((character.id, self.LIFECYCLE_MESSAGES.render("to_char", key, **tokens)))
+        if expired is not None:
+            ItemOwnership(self.effect_update_handler.effect_handler).detach_carried(character, expired)
+        for recipient_id, text in notices:
+            await self.message_bus.send_to_character(recipient_id, self.message_bus.text_to_message(text))

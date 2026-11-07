@@ -98,8 +98,8 @@ class Ability:
             registry = get_registry() if callable(get_registry) else None
         except RuntimeError:
             registry = None
-        resolver = AbilityResolver(getattr(registry, "skill_registry", None),
-                                   getattr(registry, "spell_registry", None))
+        resolver = (AbilityResolver(registry.skill_registry, registry.spell_registry)
+                    if registry is not None else AbilityResolver())
         return LearningService(resolver, CharacterApi, rng, random,
                                CharacterAdvancement.gain_experience, logger)
 

@@ -320,6 +320,9 @@ class _Exit(SimpleNamespace):
 
 
 class _Room(SimpleNamespace):
+    def players_in_room(self):
+        return list(getattr(self, "characters", {}).values())
+
     def get_exit(self, direction: int):
         return self.exits.get(direction)
 
@@ -428,7 +431,8 @@ class TestMovementDynamicCommands(unittest.TestCase):
             status_flags=SimpleNamespace(invis_level=0),
             effects={},
         )
-        context = _Context(character=character, command=_load_command("north"), done=False, player_handler=lambda: SimpleNamespace(room_registry=room_registry))
+        context = _Context(character=character, command=_load_command("north"), done=False, room=None,
+                           registry_service=commands.registry_service)
 
         payload = commands.do_north(character, context)
 
@@ -469,7 +473,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
             command=_load_command("north"),
             done=False,
             room=current_room,
-            player_handler=lambda: SimpleNamespace(room_registry=room_registry),
+            registry_service=commands.registry_service,
         )
 
         payload = commands.do_north(character, context)
@@ -505,7 +509,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
             command=_load_command("north"),
             done=False,
             room=current_room,
-            player_handler=lambda: SimpleNamespace(room_registry=room_registry),
+            registry_service=commands.registry_service,
         )
 
         payload = commands.do_north(character, context)
@@ -560,7 +564,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
             command=_load_command("north"),
             done=False,
             room=current_room,
-            player_handler=lambda: SimpleNamespace(room_registry=room_registry),
+            registry_service=commands.registry_service,
         )
 
         payload = commands.do_north(leader, context)
@@ -597,7 +601,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
             parameters=[],
             done=False,
             room=room,
-            player_handler=lambda: SimpleNamespace(room_registry=room_registry),
+            registry_service=commands.registry_service,
         )
 
         payload = commands.do_open(character, context)
@@ -634,7 +638,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
             parameters=[],
             done=False,
             room=current_room,
-            player_handler=lambda: SimpleNamespace(room_registry=room_registry),
+            registry_service=commands.registry_service,
         )
 
         payload = commands.do_open(character, context)
@@ -675,7 +679,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
             parameters=[],
             done=False,
             room=room,
-            player_handler=lambda: SimpleNamespace(room_registry=room_registry),
+            registry_service=commands.registry_service,
         )
 
         payload = commands.do_close(character, context)
@@ -717,7 +721,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
             parameters=[],
             done=False,
             room=room,
-            player_handler=lambda: SimpleNamespace(room_registry=room_registry),
+            registry_service=commands.registry_service,
         )
 
         payload = commands.do_lock(character, context)
@@ -777,7 +781,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
             parameters=[],
             done=False,
             room=current_room,
-            player_handler=lambda: SimpleNamespace(room_registry=room_registry),
+            registry_service=commands.registry_service,
         )
 
         payload = commands.do_enter(character, context)

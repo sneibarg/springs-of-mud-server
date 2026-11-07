@@ -18,6 +18,7 @@ class CombatSkillHandler:
     def __init__(self, fight_commands: Fight, registry_service: RegistryService,
                  handler_service: HandlerService, enum_provider: EnumProvider):
         self.fight_commands = fight_commands
+        self.registry_service = registry_service
         self.room_registry = registry_service.room_registry
         self.interp_registry = registry_service.interp_registry
         self.handler_service = handler_service
@@ -53,6 +54,7 @@ class CombatSkillHandler:
         if command is None or room is None:
             return []
         context = Context(character=actor, command=command, handler_service=self.handler_service,
+                          registry_service=self.registry_service,
                           parameters=[], result="", room=room)
         payload = getattr(self.fight_commands, "do_" + name)(actor, context)
         return [{"actor": actor, "context": context, "payloads": [payload]}] if payload else []

@@ -46,9 +46,8 @@ class GameApi:
         cls._weather_handler = dependencies.weather_handler
 
     @classmethod
-    def load_actor_runtime(cls, weather_handler, registry_service=None):
-        registry = registry_service if registry_service is not None else getattr(cls, "_registry_service", None)
-        cls.configure_runtime(RuntimeDependencies(registry, weather_handler))
+    def load_actor_runtime(cls, weather_handler, registry_service):
+        cls.configure_runtime(RuntimeDependencies(registry_service, weather_handler))
         cls.load_enums(**cls.ACTOR_ENUM_ALIASES)
 
     @classmethod

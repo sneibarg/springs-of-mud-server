@@ -32,6 +32,7 @@ class AreaApiTests(unittest.TestCase):
         self.actor.room_id = self.origin.id
         self.origin.add_player_to_room(self.actor)
         self.characters = NS(all_characters=lambda: [self.actor])
+        self.registries = NS(room_registry=self.registry, character_registry=self.characters)
 
     def room_lookup(self, **query):
         return next((room for room in self.rooms if room is not None
@@ -64,8 +65,7 @@ class AreaApiTests(unittest.TestCase):
         self.assertIsNone(AreaApi.find_location('10', None, None, WizUtil.name_matches))
 
     def test_wizard_context_adapters_share_area_lookup(self):
-        handler = NS(room_registry=self.registry, character_registry=self.characters)
-        context = NS(character=self.actor, result='20', parameters=[], player_handler=lambda: handler)
+        context = NS(character=self.actor, result='20', parameters=[], registry_service=self.registries)
         view = NS(context=context)
         self.assertIs(self.destination, WizApi.location(view))
         self.assertIs(self.destination, WizApi.violate_location(view))
@@ -80,7 +80,8 @@ class AreaApiTests(unittest.TestCase):
         commands.interp_api = NS(evaluate_guards_only=lambda *_: None)
         commands._visible_room_targets = lambda *_: []
         commands._poof_text = lambda actor, field, fallback: fallback
-        context = Context(character=self.actor, room=self.origin, result='20', parameters=[], command=NS(name='goto'))
+        context = Context(character=self.actor, room=self.origin, result='20', parameters=[], command=NS(name='goto'),
+                          registry_service=self.registries)
         payload = commands.do_goto(self.actor, context)
         self.assertEqual(self.destination.id, self.actor.room_id)
         self.assertEqual(self.destination.area_id, self.actor.area_id)

@@ -142,6 +142,8 @@ class _ItemUtil:
 
 
 class _CharacterApi:
+    GameParameters = SimpleNamespace(LEVEL_IMMORTAL=52)
+
     @staticmethod
     def is_npc(_character):
         return False
@@ -228,6 +230,9 @@ class _SpellApi:
 
 
 class _Item:
+    is_fountain = staticmethod(_ItemUtil.is_fountain)
+    short = staticmethod(_ItemUtil.short)
+
     @staticmethod
     def first_fountain(room):
         return _ItemUtil.first_fountain(room)
@@ -272,14 +277,14 @@ _stub_module("item.Item", Item=_Item)
 _stub_module("game.RegistryService", RegistryService=object)
 _stub_module("interp.Context", Context=object)
 _stub_module("util.GenericUtil", GenericUtil=_GenericUtil)
-_stub_module("util.InterpUtil", InterpUtil=SimpleNamespace())
 _stub_module("util.MobileUtil", MobileUtil=SimpleNamespace())
 _stub_module("util.EffectUtil", EffectUtil=SimpleNamespace(handler=lambda: SimpleNamespace()))
 _stub_module("util.ItemUtil", ItemUtil=_ItemUtil)
 _stub_module("util.PlayerUtil", PlayerUtil=SimpleNamespace(get_target=lambda *_args, **_kwargs: None))
 _stub_module("util.SkillUtil", SkillUtil=SimpleNamespace(check_improve=lambda *_args, **_kwargs: None))
 _stub_module("skill.Ability", Ability=SimpleNamespace(check_improve=lambda *_args, **_kwargs: None))
-_stub_module("api.ItemApi", ItemApi=SimpleNamespace(is_container_closed=lambda _obj: False))
+_stub_module("api.ItemApi", ItemApi=SimpleNamespace(is_container_closed=lambda _obj: False,
+                                                  can_see_object=lambda *_args: True))
 _stub_module("api.InterpApi", InterpApi=_InterpApi)
 _stub_module("api.SpellApi", SpellApi=_SpellApi)
 _stub_module("player.Character", Character=object)
@@ -302,6 +307,7 @@ class TestObjectFountainCommands(unittest.TestCase):
         room_registry.get_or_none.return_value = room
         registry_service = SimpleNamespace(
             room_registry=room_registry,
+            item_registry=SimpleNamespace(),
             mobile_registry=SimpleNamespace(),
             shop_registry=SimpleNamespace(find_by_keeper_vnum=lambda *_args, **_kwargs: None),
             skill_registry=SimpleNamespace(get_or_none=lambda **_kwargs: None),
@@ -328,19 +334,12 @@ class TestObjectFountainCommands(unittest.TestCase):
             id="char1",
             name="Tester",
             room_id="room1",
+            level=10,
             loot=inventory,
             status_flags=SimpleNamespace(hunger=0, fullness=0, thirst=0, drunk=0),
         )
 
-        def find_inventory_item(wanted):
-            query = str(wanted or "").strip().lower()
-            for item in inventory:
-                name = str(getattr(item, "name", "") or "").lower()
-                if name == query or name.startswith(query):
-                    return item
-            return None
-
-        character.find_inventory_item = find_inventory_item
+        character.owned_items = lambda: iter(inventory)
         character.equipped_slot_of = lambda _item: None
         character.unequip_item = lambda _slot: None
         character.remove_item = lambda item: inventory.remove(item)

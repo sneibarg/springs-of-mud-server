@@ -6,9 +6,11 @@ This page is an inventory/checkpoint. Pending syntax sites are not established b
 
 ## spec_lookup
 
-[Source line 99](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/special.c:99); ends at line 111. Status: partially_specified.
+[Source line 99](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/special.c:99); ends at line 111. Status: traced.
 
-Entry references (lexical candidates; caller guards still require inspection):
+Entry references (reviewed in the completion record):
+
+Completed contract and caller audit: [spec_lookup completion](../spec-lookup-completion.md). No remaining gaps for this function.
 
 - do_string: `src/act_wiz.c:3792` (lexical_call_candidate).
 - load_specials: `src/db.c:1081` (lexical_call_candidate).
@@ -18,22 +20,56 @@ Dependencies: `LOWER`, `str_prefix`.
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `special.spec_lookup.for.001` | 103 | `for ( i = 0; spec_table[i].name != NULL; i++)` | special.spec_lookup.first-full, special.spec_lookup.ambiguous-prefix-first, special.spec_lookup.last-full, special.spec_lookup.unknown, special.spec_lookup.empty | specified |
-| `special.spec_lookup.if.001` | 105 | `if (LOWER(name[0]) == LOWER(spec_table[i].name[0])         &&  !str_prefix( name,spec_table[i].name))` | special.spec_lookup.first-full, special.spec_lookup.ambiguous-prefix-first, special.spec_lookup.last-full, special.spec_lookup.unknown, special.spec_lookup.empty | specified |
-| `special.spec_lookup.and.001` | 106 | `&&  !str_prefix( name,spec_table[i].name))` | special.spec_lookup.first-full, special.spec_lookup.ambiguous-prefix-first, special.spec_lookup.last-full, special.spec_lookup.unknown, special.spec_lookup.empty | specified |
-| `special.spec_lookup.return.001` | 107 | `return spec_table[i].function;` | special.spec_lookup.first-full, special.spec_lookup.ambiguous-prefix-first, special.spec_lookup.last-full | specified |
-| `special.spec_lookup.return.002` | 110 | `return 0;` | special.spec_lookup.unknown, special.spec_lookup.empty | specified |
-| `special.spec_lookup.first-full.path` | 105 | `first full` | special.spec_lookup.first-full | specified |
-| `special.spec_lookup.ambiguous-prefix-first.path` | 105 | `ambiguous prefix first` | special.spec_lookup.ambiguous-prefix-first | specified |
-| `special.spec_lookup.last-full.path` | 105 | `last full` | special.spec_lookup.last-full | specified |
-| `special.spec_lookup.unknown.path` | 105 | `unknown` | special.spec_lookup.unknown | specified |
-| `special.spec_lookup.empty.path` | 105 | `empty` | special.spec_lookup.empty | specified |
+| `special.spec_lookup.for.001` | 103 | `for ( i = 0; spec_table[i].name != NULL; i++)` | special.spec_lookup.first-full, special.spec_lookup.ambiguous-prefix-first, special.spec_lookup.last-full, special.spec_lookup.unknown, special.spec_lookup.empty, special.spec_lookup.registered-spec_breath_acid, special.spec_lookup.registered-spec_breath_fire, special.spec_lookup.registered-spec_breath_frost, special.spec_lookup.registered-spec_breath_gas, special.spec_lookup.registered-spec_breath_lightning, special.spec_lookup.registered-spec_cast_adept, special.spec_lookup.registered-spec_cast_cleric, special.spec_lookup.registered-spec_cast_judge, special.spec_lookup.registered-spec_cast_mage, special.spec_lookup.registered-spec_cast_undead, special.spec_lookup.registered-spec_executioner, special.spec_lookup.registered-spec_fido, special.spec_lookup.registered-spec_guard, special.spec_lookup.registered-spec_janitor, special.spec_lookup.registered-spec_mayor, special.spec_lookup.registered-spec_poison, special.spec_lookup.registered-spec_thief, special.spec_lookup.registered-spec_nasty, special.spec_lookup.registered-spec_troll_member, special.spec_lookup.registered-spec_ogre_member, special.spec_lookup.one-letter-first-match, special.spec_lookup.common-prefix-first-match, special.spec_lookup.ambiguous-cast-first-adept, special.spec_lookup.ambiguous-breath-f-first-fire, special.spec_lookup.uppercase-last-match, special.spec_lookup.same-first-letter-no-prefix, special.spec_lookup.longer-than-complete-name, special.spec_lookup.trailing-space-not-trimmed, special.spec_lookup.leading-space-not-trimmed, special.spec_lookup.embedded-space-not-tokenized, special.spec_lookup.whitespace-only, special.spec_lookup.nonascii-first-byte | specified |
+| `special.spec_lookup.if.001` | 105 | `if (LOWER(name[0]) == LOWER(spec_table[i].name[0])         &&  !str_prefix( name,spec_table[i].name))` | special.spec_lookup.first-full, special.spec_lookup.ambiguous-prefix-first, special.spec_lookup.last-full, special.spec_lookup.unknown, special.spec_lookup.empty, special.spec_lookup.registered-spec_breath_acid, special.spec_lookup.registered-spec_breath_fire, special.spec_lookup.registered-spec_breath_frost, special.spec_lookup.registered-spec_breath_gas, special.spec_lookup.registered-spec_breath_lightning, special.spec_lookup.registered-spec_cast_adept, special.spec_lookup.registered-spec_cast_cleric, special.spec_lookup.registered-spec_cast_judge, special.spec_lookup.registered-spec_cast_mage, special.spec_lookup.registered-spec_cast_undead, special.spec_lookup.registered-spec_executioner, special.spec_lookup.registered-spec_fido, special.spec_lookup.registered-spec_guard, special.spec_lookup.registered-spec_janitor, special.spec_lookup.registered-spec_mayor, special.spec_lookup.registered-spec_poison, special.spec_lookup.registered-spec_thief, special.spec_lookup.registered-spec_nasty, special.spec_lookup.registered-spec_troll_member, special.spec_lookup.registered-spec_ogre_member, special.spec_lookup.one-letter-first-match, special.spec_lookup.common-prefix-first-match, special.spec_lookup.ambiguous-cast-first-adept, special.spec_lookup.ambiguous-breath-f-first-fire, special.spec_lookup.uppercase-last-match, special.spec_lookup.same-first-letter-no-prefix, special.spec_lookup.longer-than-complete-name, special.spec_lookup.trailing-space-not-trimmed, special.spec_lookup.leading-space-not-trimmed, special.spec_lookup.embedded-space-not-tokenized, special.spec_lookup.whitespace-only, special.spec_lookup.nonascii-first-byte | specified |
+| `special.spec_lookup.and.001` | 106 | `&&  !str_prefix( name,spec_table[i].name))` | special.spec_lookup.first-full, special.spec_lookup.ambiguous-prefix-first, special.spec_lookup.last-full, special.spec_lookup.unknown, special.spec_lookup.empty, special.spec_lookup.registered-spec_breath_acid, special.spec_lookup.registered-spec_breath_fire, special.spec_lookup.registered-spec_breath_frost, special.spec_lookup.registered-spec_breath_gas, special.spec_lookup.registered-spec_breath_lightning, special.spec_lookup.registered-spec_cast_adept, special.spec_lookup.registered-spec_cast_cleric, special.spec_lookup.registered-spec_cast_judge, special.spec_lookup.registered-spec_cast_mage, special.spec_lookup.registered-spec_cast_undead, special.spec_lookup.registered-spec_executioner, special.spec_lookup.registered-spec_fido, special.spec_lookup.registered-spec_guard, special.spec_lookup.registered-spec_janitor, special.spec_lookup.registered-spec_mayor, special.spec_lookup.registered-spec_poison, special.spec_lookup.registered-spec_thief, special.spec_lookup.registered-spec_nasty, special.spec_lookup.registered-spec_troll_member, special.spec_lookup.registered-spec_ogre_member, special.spec_lookup.one-letter-first-match, special.spec_lookup.common-prefix-first-match, special.spec_lookup.ambiguous-cast-first-adept, special.spec_lookup.ambiguous-breath-f-first-fire, special.spec_lookup.uppercase-last-match, special.spec_lookup.same-first-letter-no-prefix, special.spec_lookup.longer-than-complete-name, special.spec_lookup.trailing-space-not-trimmed, special.spec_lookup.leading-space-not-trimmed, special.spec_lookup.embedded-space-not-tokenized, special.spec_lookup.whitespace-only, special.spec_lookup.nonascii-first-byte | specified |
+| `special.spec_lookup.return.001` | 107 | `return spec_table[i].function;` | special.spec_lookup.first-full, special.spec_lookup.ambiguous-prefix-first, special.spec_lookup.last-full, special.spec_lookup.registered-spec_breath_acid, special.spec_lookup.registered-spec_breath_fire, special.spec_lookup.registered-spec_breath_frost, special.spec_lookup.registered-spec_breath_gas, special.spec_lookup.registered-spec_breath_lightning, special.spec_lookup.registered-spec_cast_adept, special.spec_lookup.registered-spec_cast_cleric, special.spec_lookup.registered-spec_cast_judge, special.spec_lookup.registered-spec_cast_mage, special.spec_lookup.registered-spec_cast_undead, special.spec_lookup.registered-spec_executioner, special.spec_lookup.registered-spec_fido, special.spec_lookup.registered-spec_guard, special.spec_lookup.registered-spec_janitor, special.spec_lookup.registered-spec_mayor, special.spec_lookup.registered-spec_poison, special.spec_lookup.registered-spec_thief, special.spec_lookup.registered-spec_nasty, special.spec_lookup.registered-spec_troll_member, special.spec_lookup.registered-spec_ogre_member, special.spec_lookup.one-letter-first-match, special.spec_lookup.common-prefix-first-match, special.spec_lookup.ambiguous-cast-first-adept, special.spec_lookup.ambiguous-breath-f-first-fire, special.spec_lookup.uppercase-last-match | specified |
+| `special.spec_lookup.return.002` | 110 | `return 0;` | special.spec_lookup.unknown, special.spec_lookup.empty, special.spec_lookup.same-first-letter-no-prefix, special.spec_lookup.longer-than-complete-name, special.spec_lookup.trailing-space-not-trimmed, special.spec_lookup.leading-space-not-trimmed, special.spec_lookup.embedded-space-not-tokenized, special.spec_lookup.whitespace-only, special.spec_lookup.nonascii-first-byte | specified |
+| `special.spec_lookup.first-full.path` | 103 | `first full` | special.spec_lookup.first-full | specified |
+| `special.spec_lookup.ambiguous-prefix-first.path` | 103 | `ambiguous prefix first` | special.spec_lookup.ambiguous-prefix-first | specified |
+| `special.spec_lookup.last-full.path` | 103 | `last full` | special.spec_lookup.last-full | specified |
+| `special.spec_lookup.unknown.path` | 103 | `unknown` | special.spec_lookup.unknown | specified |
+| `special.spec_lookup.empty.path` | 103 | `empty` | special.spec_lookup.empty | specified |
+| `special.spec_lookup.registered-spec_breath_acid.path` | 103 | `registered spec_breath_acid` | special.spec_lookup.registered-spec_breath_acid | specified |
+| `special.spec_lookup.registered-spec_breath_fire.path` | 103 | `registered spec_breath_fire` | special.spec_lookup.registered-spec_breath_fire | specified |
+| `special.spec_lookup.registered-spec_breath_frost.path` | 103 | `registered spec_breath_frost` | special.spec_lookup.registered-spec_breath_frost | specified |
+| `special.spec_lookup.registered-spec_breath_gas.path` | 103 | `registered spec_breath_gas` | special.spec_lookup.registered-spec_breath_gas | specified |
+| `special.spec_lookup.registered-spec_breath_lightning.path` | 103 | `registered spec_breath_lightning` | special.spec_lookup.registered-spec_breath_lightning | specified |
+| `special.spec_lookup.registered-spec_cast_adept.path` | 103 | `registered spec_cast_adept` | special.spec_lookup.registered-spec_cast_adept | specified |
+| `special.spec_lookup.registered-spec_cast_cleric.path` | 103 | `registered spec_cast_cleric` | special.spec_lookup.registered-spec_cast_cleric | specified |
+| `special.spec_lookup.registered-spec_cast_judge.path` | 103 | `registered spec_cast_judge` | special.spec_lookup.registered-spec_cast_judge | specified |
+| `special.spec_lookup.registered-spec_cast_mage.path` | 103 | `registered spec_cast_mage` | special.spec_lookup.registered-spec_cast_mage | specified |
+| `special.spec_lookup.registered-spec_cast_undead.path` | 103 | `registered spec_cast_undead` | special.spec_lookup.registered-spec_cast_undead | specified |
+| `special.spec_lookup.registered-spec_executioner.path` | 103 | `registered spec_executioner` | special.spec_lookup.registered-spec_executioner | specified |
+| `special.spec_lookup.registered-spec_fido.path` | 103 | `registered spec_fido` | special.spec_lookup.registered-spec_fido | specified |
+| `special.spec_lookup.registered-spec_guard.path` | 103 | `registered spec_guard` | special.spec_lookup.registered-spec_guard | specified |
+| `special.spec_lookup.registered-spec_janitor.path` | 103 | `registered spec_janitor` | special.spec_lookup.registered-spec_janitor | specified |
+| `special.spec_lookup.registered-spec_mayor.path` | 103 | `registered spec_mayor` | special.spec_lookup.registered-spec_mayor | specified |
+| `special.spec_lookup.registered-spec_poison.path` | 103 | `registered spec_poison` | special.spec_lookup.registered-spec_poison | specified |
+| `special.spec_lookup.registered-spec_thief.path` | 103 | `registered spec_thief` | special.spec_lookup.registered-spec_thief | specified |
+| `special.spec_lookup.registered-spec_nasty.path` | 103 | `registered spec_nasty` | special.spec_lookup.registered-spec_nasty | specified |
+| `special.spec_lookup.registered-spec_troll_member.path` | 103 | `registered spec_troll_member` | special.spec_lookup.registered-spec_troll_member | specified |
+| `special.spec_lookup.registered-spec_ogre_member.path` | 103 | `registered spec_ogre_member` | special.spec_lookup.registered-spec_ogre_member | specified |
+| `special.spec_lookup.one-letter-first-match.path` | 103 | `one letter first match` | special.spec_lookup.one-letter-first-match | specified |
+| `special.spec_lookup.common-prefix-first-match.path` | 103 | `common prefix first match` | special.spec_lookup.common-prefix-first-match | specified |
+| `special.spec_lookup.ambiguous-cast-first-adept.path` | 103 | `ambiguous cast first adept` | special.spec_lookup.ambiguous-cast-first-adept | specified |
+| `special.spec_lookup.ambiguous-breath-f-first-fire.path` | 103 | `ambiguous breath f first fire` | special.spec_lookup.ambiguous-breath-f-first-fire | specified |
+| `special.spec_lookup.uppercase-last-match.path` | 103 | `uppercase last match` | special.spec_lookup.uppercase-last-match | specified |
+| `special.spec_lookup.same-first-letter-no-prefix.path` | 103 | `same first letter no prefix` | special.spec_lookup.same-first-letter-no-prefix | specified |
+| `special.spec_lookup.longer-than-complete-name.path` | 103 | `longer than complete name` | special.spec_lookup.longer-than-complete-name | specified |
+| `special.spec_lookup.trailing-space-not-trimmed.path` | 103 | `trailing space not trimmed` | special.spec_lookup.trailing-space-not-trimmed | specified |
+| `special.spec_lookup.leading-space-not-trimmed.path` | 103 | `leading space not trimmed` | special.spec_lookup.leading-space-not-trimmed | specified |
+| `special.spec_lookup.embedded-space-not-tokenized.path` | 103 | `embedded space not tokenized` | special.spec_lookup.embedded-space-not-tokenized | specified |
+| `special.spec_lookup.whitespace-only.path` | 103 | `whitespace only` | special.spec_lookup.whitespace-only | specified |
+| `special.spec_lookup.nonascii-first-byte.path` | 103 | `nonascii first byte` | special.spec_lookup.nonascii-first-byte | specified |
 
 ## spec_name
 
-[Source line 113](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/special.c:113); ends at line 124. Status: partially_specified.
+[Source line 113](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/special.c:113); ends at line 124. Status: traced.
 
-Entry references (lexical candidates; caller guards still require inspection):
+Entry references (reviewed in the completion record):
+
+Completed contract and caller audit: [spec_name completion](../spec-name-completion.md). No remaining gaps for this function.
 
 - do_mstat: `src/act_wiz.c:1703` (lexical_call_candidate).
 - declaration_or_dispatch_reference: `src/merc.h:2305` (declaration_or_dispatch_reference).
@@ -42,14 +78,34 @@ Dependencies: .
 
 | Ledger ID | Line | Predicate/transfer | Cases | Disposition |
 |---|---:|---|---|---|
-| `special.spec_name.for.001` | 117 | `for (i = 0; spec_table[i].function != NULL; i++)` | special.spec_name.first-function, special.spec_name.last-function, special.spec_name.null-function, special.spec_name.unregistered-function | specified |
-| `special.spec_name.if.001` | 119 | `if (function == spec_table[i].function)` | special.spec_name.first-function, special.spec_name.last-function, special.spec_name.null-function, special.spec_name.unregistered-function | specified |
-| `special.spec_name.return.001` | 120 | `return spec_table[i].name;` | special.spec_name.first-function, special.spec_name.last-function | specified |
+| `special.spec_name.for.001` | 117 | `for (i = 0; spec_table[i].function != NULL; i++)` | special.spec_name.first-function, special.spec_name.last-function, special.spec_name.null-function, special.spec_name.unregistered-function, special.spec_name.registered-spec_breath_acid, special.spec_name.registered-spec_breath_fire, special.spec_name.registered-spec_breath_frost, special.spec_name.registered-spec_breath_gas, special.spec_name.registered-spec_breath_lightning, special.spec_name.registered-spec_cast_adept, special.spec_name.registered-spec_cast_cleric, special.spec_name.registered-spec_cast_judge, special.spec_name.registered-spec_cast_mage, special.spec_name.registered-spec_cast_undead, special.spec_name.registered-spec_executioner, special.spec_name.registered-spec_fido, special.spec_name.registered-spec_guard, special.spec_name.registered-spec_janitor, special.spec_name.registered-spec_mayor, special.spec_name.registered-spec_poison, special.spec_name.registered-spec_thief, special.spec_name.registered-spec_nasty, special.spec_name.registered-spec_troll_member, special.spec_name.registered-spec_ogre_member | specified |
+| `special.spec_name.if.001` | 119 | `if (function == spec_table[i].function)` | special.spec_name.first-function, special.spec_name.last-function, special.spec_name.null-function, special.spec_name.unregistered-function, special.spec_name.registered-spec_breath_acid, special.spec_name.registered-spec_breath_fire, special.spec_name.registered-spec_breath_frost, special.spec_name.registered-spec_breath_gas, special.spec_name.registered-spec_breath_lightning, special.spec_name.registered-spec_cast_adept, special.spec_name.registered-spec_cast_cleric, special.spec_name.registered-spec_cast_judge, special.spec_name.registered-spec_cast_mage, special.spec_name.registered-spec_cast_undead, special.spec_name.registered-spec_executioner, special.spec_name.registered-spec_fido, special.spec_name.registered-spec_guard, special.spec_name.registered-spec_janitor, special.spec_name.registered-spec_mayor, special.spec_name.registered-spec_poison, special.spec_name.registered-spec_thief, special.spec_name.registered-spec_nasty, special.spec_name.registered-spec_troll_member, special.spec_name.registered-spec_ogre_member | specified |
+| `special.spec_name.return.001` | 120 | `return spec_table[i].name;` | special.spec_name.first-function, special.spec_name.last-function, special.spec_name.registered-spec_breath_acid, special.spec_name.registered-spec_breath_fire, special.spec_name.registered-spec_breath_frost, special.spec_name.registered-spec_breath_gas, special.spec_name.registered-spec_breath_lightning, special.spec_name.registered-spec_cast_adept, special.spec_name.registered-spec_cast_cleric, special.spec_name.registered-spec_cast_judge, special.spec_name.registered-spec_cast_mage, special.spec_name.registered-spec_cast_undead, special.spec_name.registered-spec_executioner, special.spec_name.registered-spec_fido, special.spec_name.registered-spec_guard, special.spec_name.registered-spec_janitor, special.spec_name.registered-spec_mayor, special.spec_name.registered-spec_poison, special.spec_name.registered-spec_thief, special.spec_name.registered-spec_nasty, special.spec_name.registered-spec_troll_member, special.spec_name.registered-spec_ogre_member | specified |
 | `special.spec_name.return.002` | 123 | `return NULL;` | special.spec_name.null-function, special.spec_name.unregistered-function | specified |
-| `special.spec_name.first-function.path` | 119 | `first function` | special.spec_name.first-function | specified |
-| `special.spec_name.last-function.path` | 119 | `last function` | special.spec_name.last-function | specified |
-| `special.spec_name.null-function.path` | 119 | `null function` | special.spec_name.null-function | specified |
-| `special.spec_name.unregistered-function.path` | 119 | `unregistered function` | special.spec_name.unregistered-function | specified |
+| `special.spec_name.first-function.path` | 117 | `first function` | special.spec_name.first-function | specified |
+| `special.spec_name.last-function.path` | 117 | `last function` | special.spec_name.last-function | specified |
+| `special.spec_name.null-function.path` | 117 | `null function` | special.spec_name.null-function | specified |
+| `special.spec_name.unregistered-function.path` | 117 | `unregistered function` | special.spec_name.unregistered-function | specified |
+| `special.spec_name.registered-spec_breath_acid.path` | 117 | `registered spec_breath_acid` | special.spec_name.registered-spec_breath_acid | specified |
+| `special.spec_name.registered-spec_breath_fire.path` | 117 | `registered spec_breath_fire` | special.spec_name.registered-spec_breath_fire | specified |
+| `special.spec_name.registered-spec_breath_frost.path` | 117 | `registered spec_breath_frost` | special.spec_name.registered-spec_breath_frost | specified |
+| `special.spec_name.registered-spec_breath_gas.path` | 117 | `registered spec_breath_gas` | special.spec_name.registered-spec_breath_gas | specified |
+| `special.spec_name.registered-spec_breath_lightning.path` | 117 | `registered spec_breath_lightning` | special.spec_name.registered-spec_breath_lightning | specified |
+| `special.spec_name.registered-spec_cast_adept.path` | 117 | `registered spec_cast_adept` | special.spec_name.registered-spec_cast_adept | specified |
+| `special.spec_name.registered-spec_cast_cleric.path` | 117 | `registered spec_cast_cleric` | special.spec_name.registered-spec_cast_cleric | specified |
+| `special.spec_name.registered-spec_cast_judge.path` | 117 | `registered spec_cast_judge` | special.spec_name.registered-spec_cast_judge | specified |
+| `special.spec_name.registered-spec_cast_mage.path` | 117 | `registered spec_cast_mage` | special.spec_name.registered-spec_cast_mage | specified |
+| `special.spec_name.registered-spec_cast_undead.path` | 117 | `registered spec_cast_undead` | special.spec_name.registered-spec_cast_undead | specified |
+| `special.spec_name.registered-spec_executioner.path` | 117 | `registered spec_executioner` | special.spec_name.registered-spec_executioner | specified |
+| `special.spec_name.registered-spec_fido.path` | 117 | `registered spec_fido` | special.spec_name.registered-spec_fido | specified |
+| `special.spec_name.registered-spec_guard.path` | 117 | `registered spec_guard` | special.spec_name.registered-spec_guard | specified |
+| `special.spec_name.registered-spec_janitor.path` | 117 | `registered spec_janitor` | special.spec_name.registered-spec_janitor | specified |
+| `special.spec_name.registered-spec_mayor.path` | 117 | `registered spec_mayor` | special.spec_name.registered-spec_mayor | specified |
+| `special.spec_name.registered-spec_poison.path` | 117 | `registered spec_poison` | special.spec_name.registered-spec_poison | specified |
+| `special.spec_name.registered-spec_thief.path` | 117 | `registered spec_thief` | special.spec_name.registered-spec_thief | specified |
+| `special.spec_name.registered-spec_nasty.path` | 117 | `registered spec_nasty` | special.spec_name.registered-spec_nasty | specified |
+| `special.spec_name.registered-spec_troll_member.path` | 117 | `registered spec_troll_member` | special.spec_name.registered-spec_troll_member | specified |
+| `special.spec_name.registered-spec_ogre_member.path` | 117 | `registered spec_ogre_member` | special.spec_name.registered-spec_ogre_member | specified |
 
 ## spec_troll_member
 
